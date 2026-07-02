@@ -44,6 +44,29 @@ async function request<T>(path: string, params?: Record<string, string | number 
   }
 }
 
+async function requestPost<T>(path: string, body: unknown): Promise<T> {
+  const url = new URL(BASE_URL + path, BASE_URL || window.location.origin);
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), DEFAULT_TIMEOUT_MS);
+  try {
+    const res = await fetch(url.toString(), {
+      method: "POST",
+      headers: { Accept: "application/json", "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+      signal: controller.signal,
+    });
+    if (!res.ok) {
+      throw new ApiError(`Request failed: ${path}`, res.status);
+    }
+    return (await res.json()) as T;
+  } catch (err) {
+    if (err instanceof ApiError) throw err;
+    throw new ApiError(err instanceof Error ? err.message : `Request error: ${path}`);
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 // ---------- raw backend response shapes ----------
 
 export interface RawArticle {
@@ -333,10 +356,34 @@ export interface RawOutletCluster {
   computed_at: string | null;
 }
 
+export interface RawUiSpecResponse {
+  spec: import("../genui/spec").UISpec;
+  meta: {
+    generated_by: string;
+    availability_known: boolean;
+    ui_flags: Record<string, boolean>;
+  };
+}
+
+export interface RawUiContext {
+  ui_flags: Record<string, boolean>;
+  availability: Record<string, boolean> | null;
+  availability_known: boolean;
+  llm: { enabled: boolean; provider: string | null };
+}
+
 // ---------- endpoint calls ----------
 
 export const api = {
   health: () => request<RawHealth>("/health"),
+
+  generateUi: (body: {
+    intent: string;
+    source_type?: string;
+    signals?: { pinned: string[]; dismissed: string[]; weights: Record<string, number> };
+  }) => requestPost<RawUiSpecResponse>("/api/v1/ui/generate", body),
+
+  uiContext: () => request<RawUiContext>("/api/v1/ui/context"),
 
   articles: (params?: { category?: string; source?: string }) =>
     request<RawArticle[]>("/api/v1/news/articles", params),

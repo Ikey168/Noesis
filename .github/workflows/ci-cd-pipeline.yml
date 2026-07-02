@@ -40,6 +40,13 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
+      # Stage 0 staleness gate (MCP rearchitecture plan, R0): the frontend
+      # catalog mirror and the ui-spec-v1 contract enums are generated from
+      # src/genui/catalog.py. Editing the catalog without regenerating fails
+      # here, before anything is installed — the check is stdlib-only.
+      - name: Generated genui artifacts are current
+        run: python scripts/genui/codegen.py --check
+
       - name: Cache dependencies
         uses: actions/cache@v3
         with:

@@ -59,6 +59,8 @@ declare -a ENDPOINTS=(
   "/api/v1/events/clusters?limit=3"
   "/api/v1/breaking_news"
   "/news_sentiment/topics"
+  "/api/v1/ui/context"
+  "/api/v1/ui/panels"
   "/docs"
 )
 

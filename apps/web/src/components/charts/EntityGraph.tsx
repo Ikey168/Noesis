@@ -102,7 +102,7 @@ export default function EntityGraph({ data, accent = ACCENT }: Props) {
 
   if (!data.nodes.length) {
     return (
-      <div style={{ height: H, display: "flex", alignItems: "center", justifyContent: "center", color: "#5b6675", fontFamily: fonts.mono, fontSize: 12 }}>
+      <div style={{ height: H, display: "flex", alignItems: "center", justifyContent: "center", color: "#5f7580", fontFamily: fonts.mono, fontSize: 12 }}>
         No entities in the selected window
       </div>
     );
@@ -118,7 +118,7 @@ export default function EntityGraph({ data, accent = ACCENT }: Props) {
             y1={py(e[0])}
             x2={px(e[1])}
             y2={py(e[1])}
-            stroke="#2a3340"
+            stroke="#26485a"
             strokeWidth={0.8 + 1.6 * (e[2] / maxW)}
             opacity={0.5 + 0.5 * (e[2] / maxW)}
           />
@@ -131,13 +131,13 @@ export default function EntityGraph({ data, accent = ACCENT }: Props) {
           return (
             <g key={i}>
               <circle cx={px(n.id)} cy={py(n.id)} r={r + 5} fill={color} opacity={0.1} />
-              <circle cx={px(n.id)} cy={py(n.id)} r={r} fill="#0e131a" stroke={color} strokeWidth={2} />
+              <circle cx={px(n.id)} cy={py(n.id)} r={r} fill="#0a121a" stroke={color} strokeWidth={2} />
               <circle cx={px(n.id)} cy={py(n.id)} r={Math.max(3, r * 0.28)} fill={color} />
               <text
                 x={px(n.id)}
                 y={py(n.id) + r + 13}
                 textAnchor="middle"
-                fill="#c7cdd6"
+                fill="#c2d6db"
                 fontSize={11}
                 fontFamily={fonts.sans}
                 fontWeight={500}

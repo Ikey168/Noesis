@@ -1,0 +1,15 @@
+{
+  "spec_version": "ui-spec-v1",
+  "intent": "show me a hologram",
+  "title": "Bad Canvas",
+  "generated_by": "llm",
+  "panels": [
+    {
+      "id": "p1",
+      "type": "hologram",
+      "title": "Hologram",
+      "span": 6,
+      "priority": 0.5
+    }
+  ]
+}

@@ -1,213 +1,83 @@
-import type { CSSProperties } from "react";
-import { ACCENT, accentSoft, accentGlow, fonts } from "../theme";
-import type { ViewKey } from "../types";
-import { usePackStatus } from "../lib/queries";
-import Hover from "./Hover";
+// The sidebar is only a canvas manager: the brand, the open canvases (plus
+// the always-present empty "New canvas"), and pipeline status. Everything
+// else is generated — intents come from the composer, and suggestions live
+// on the empty canvas itself.
 
-interface NavDef {
-  key: ViewKey;
-  label: string;
-  glyph: string;
-  badge?: string;
-}
-
-const coreNav: NavDef[] = [
-  { key: "dashboard", label: "Overview", glyph: "◧" },
-  { key: "library", label: "Library", glyph: "≣" },
-  { key: "knowledge", label: "Knowledge Graph", glyph: "⬡" },
-  { key: "reader", label: "Document Reader", glyph: "◈" },
-];
-
-const researchNav: NavDef[] = [
-  { key: "workspaces",  label: "Workspaces",       glyph: "◳", badge: "4" },
-  { key: "arguments",   label: "Arguments",         glyph: "◫" },
-];
-
-const newsOnlyNav: NavDef[] = [
-  { key: "sentiment", label: "Sentiment", glyph: "◑" },
-  { key: "clusters", label: "Event Clusters", glyph: "⊞", badge: "18" },
-  { key: "trending", label: "Trending", glyph: "↗" },
-  { key: "watchlists", label: "Watchlists", glyph: "☆", badge: "6" },
-  { key: "timeline", label: "Story Timeline", glyph: "⤳" },
-];
+import { Plus, Sparkles, X } from "lucide-react";
+import { HOME, type CanvasDef } from "../genui/canvases";
+import { Button } from "./ui/button";
+import { cn } from "../lib/utils";
 
 interface Props {
-  view: ViewKey;
-  setView: (v: ViewKey) => void;
+  canvases: CanvasDef[];
+  activeId: string;
+  onSelect: (id: string) => void;
+  onRemove: (id: string) => void;
   ingestRate: string;
 }
 
-export default function Sidebar({ view, setView, ingestRate }: Props) {
-  const { newsPack } = usePackStatus();
-
-  const navBtn = (active: boolean): CSSProperties => ({
-    display: "flex",
-    alignItems: "center",
-    gap: 11,
-    width: "100%",
-    padding: "9px 10px",
-    border: "none",
-    borderRadius: 7,
-    cursor: "pointer",
-    fontFamily: fonts.sans,
-    fontSize: 13,
-    fontWeight: 500,
-    transition: "background .12s",
-    background: active ? accentSoft(ACCENT) : "transparent",
-    color: active ? ACCENT : "#9aa4b2",
-  });
-
-  const sectionLabel: CSSProperties = {
-    fontFamily: fonts.mono,
-    fontSize: 9.5,
-    color: "#4b5563",
-    letterSpacing: "0.16em",
-    padding: "8px 10px 6px",
-  };
-
-  const badge: CSSProperties = {
-    fontFamily: fonts.mono,
-    fontSize: 10,
-    background: "#1c2330",
-    color: "#8a94a6",
-    padding: "1px 6px",
-    borderRadius: 10,
-  };
-
-  const renderNav = (items: NavDef[]) =>
-    items.map((n) => (
-      <Hover
-        key={n.key}
-        as="button"
-        onClick={() => setView(n.key)}
-        style={navBtn(view === n.key)}
-        hoverStyle={view === n.key ? {} : { background: "#161d28", color: "#e6eaf0" }}
-      >
-        <span style={{ width: 18, flex: "none", textAlign: "center", fontSize: 13 }}>{n.glyph}</span>
-        <span style={{ flex: 1, textAlign: "left" }}>{n.label}</span>
-        {n.badge ? <span style={badge}>{n.badge}</span> : null}
-      </Hover>
-    ));
-
+export default function Sidebar({ canvases, activeId, onSelect, onRemove, ingestRate }: Props) {
   return (
-    <aside
-      style={{
-        width: 236,
-        flex: "none",
-        background: "#0c1016",
-        borderRight: "1px solid #1c2330",
-        display: "flex",
-        flexDirection: "column",
-      }}
-    >
+    <aside className="flex w-60 shrink-0 flex-col border-r bg-[#070d13]">
       {/* Brand */}
-      <div
-        style={{
-          padding: "20px 18px 18px",
-          borderBottom: "1px solid #1c2330",
-          display: "flex",
-          alignItems: "center",
-          gap: 11,
-        }}
-      >
+      <div className="flex items-center gap-3 border-b px-4 py-4">
         <div
-          style={{
-            width: 34,
-            height: 34,
-            flex: "none",
-            borderRadius: 8,
-            background: ACCENT,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            boxShadow: `0 0 18px -2px ${accentGlow(ACCENT)}`,
-          }}
+          className="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-lg bg-primary shadow-[0_0_22px_-2px_hsl(var(--primary)/0.65)]"
+          style={{ animation: "flicker 7s infinite" }}
         >
-          <span style={{ fontFamily: fonts.grotesk, fontWeight: 700, fontSize: 19, color: "#0a0d12" }}>N</span>
+          <span className="font-grotesk text-[19px] font-bold text-primary-foreground">N</span>
         </div>
-        <div style={{ lineHeight: 1.1 }}>
-          <div style={{ fontFamily: fonts.grotesk, fontWeight: 700, fontSize: 16, letterSpacing: "-0.01em" }}>
-            Noesis
-          </div>
-          <div style={{ fontFamily: fonts.mono, fontSize: 9.5, color: "#5b6675", letterSpacing: "0.16em", marginTop: 2 }}>
-            KNOWLEDGE ENGINE
+        <div className="leading-tight">
+          <div className="glow-text font-grotesk text-base font-bold tracking-tight">Noesis</div>
+          <div className="mt-0.5 font-mono text-[9.5px] tracking-[0.16em] text-muted-foreground/60">
+            GENERATIVE CANVAS
           </div>
         </div>
       </div>
 
-      <nav
-        style={{
-          flex: 1,
-          padding: "12px 10px",
-          display: "flex",
-          flexDirection: "column",
-          gap: 2,
-          overflowY: "auto",
-        }}
-      >
-        <div style={sectionLabel}>LIBRARY</div>
-        {renderNav(coreNav)}
-
-        <div style={{ ...sectionLabel, padding: "18px 10px 6px" }}>RESEARCH</div>
-        {renderNav(researchNav)}
-
-        {newsPack ? (
-          <>
-            <div
-              style={{
-                ...sectionLabel,
-                padding: "18px 10px 6px",
-                display: "flex",
-                alignItems: "center",
-                gap: 6,
-              }}
-            >
-              NEWS PACK
+      <nav className="flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto p-2.5">
+        <div className="px-2.5 pb-1.5 pt-2 font-mono text-[9.5px] tracking-[0.16em] text-muted-foreground/60">
+          CANVASES
+        </div>
+        {canvases.map((c) => (
+          <Button
+            key={c.id}
+            variant="ghost"
+            onClick={() => onSelect(c.id)}
+            title={c.intent || "Empty canvas — describe what you want to see"}
+            className={cn(
+              "h-auto w-full justify-start gap-2.5 px-2.5 py-2 text-[13px] font-medium text-muted-foreground",
+              c.id === activeId && "bg-primary/10 text-primary hover:bg-primary/10 hover:text-primary",
+            )}
+          >
+            <span className="w-[18px] shrink-0 text-center">
+              {c.id === HOME.id ? <Plus className="size-3.5" /> : <Sparkles className="size-3.5" />}
+            </span>
+            <span className="min-w-0 flex-1 truncate text-left">{c.label}</span>
+            {c.id !== HOME.id ? (
               <span
-                style={{
-                  fontFamily: fonts.mono,
-                  fontSize: 8.5,
-                  color: "#3DD68C",
-                  background: "#3DD68C18",
-                  border: "1px solid #3DD68C44",
-                  borderRadius: 4,
-                  padding: "1px 5px",
-                  letterSpacing: "0.08em",
+                role="button"
+                title="Close canvas"
+                className="rounded p-0.5 text-muted-foreground/50 hover:bg-secondary hover:text-foreground"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onRemove(c.id);
                 }}
               >
-                ON
+                <X className="size-3" />
               </span>
-            </div>
-            {renderNav(newsOnlyNav)}
-          </>
-        ) : null}
+            ) : null}
+          </Button>
+        ))}
       </nav>
 
       {/* Footer */}
-      <div
-        style={{
-          padding: "14px 16px",
-          borderTop: "1px solid #1c2330",
-          display: "flex",
-          flexDirection: "column",
-          gap: 9,
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <span
-            style={{ width: 7, height: 7, borderRadius: "50%", background: "#3DD68C", animation: "blink 2s infinite" }}
-          />
-          <span style={{ fontFamily: fonts.mono, fontSize: 10.5, color: "#8a94a6" }}>PIPELINE LIVE</span>
+      <div className="flex flex-col gap-2 border-t px-4 py-3.5">
+        <div className="flex items-center gap-2">
+          <span className="h-[7px] w-[7px] rounded-full bg-emerald-400" style={{ animation: "blink 2s infinite" }} />
+          <span className="font-mono text-[10.5px] text-muted-foreground">PIPELINE LIVE</span>
         </div>
-        <div
-          style={{
-            fontFamily: fonts.mono,
-            fontSize: 10.5,
-            color: "#5b6675",
-            display: "flex",
-            justifyContent: "space-between",
-          }}
-        >
+        <div className="flex justify-between font-mono text-[10.5px] text-muted-foreground/60">
           <span>142 sources</span>
           <span>{ingestRate}/min</span>
         </div>

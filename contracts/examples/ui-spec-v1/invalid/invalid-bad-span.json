@@ -1,0 +1,15 @@
+{
+  "spec_version": "ui-spec-v1",
+  "intent": "overview",
+  "title": "Bad Span",
+  "generated_by": "heuristic",
+  "panels": [
+    {
+      "id": "p1",
+      "type": "articles",
+      "title": "Latest documents",
+      "span": 2,
+      "priority": 1.5
+    }
+  ]
+}

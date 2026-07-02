@@ -1,22 +1,18 @@
 // Data carried over verbatim from the design handoff. Used as a graceful
 // fallback when a backend endpoint is unreachable, and as the source of truth
-// for the research views (Workspaces / Watchlists / Timeline) that have no
-// corresponding backend endpoint yet.
+// for the watchlist / timeline panels that have no backend endpoint yet.
 
 import type {
   Article,
   Cluster,
   TrendingTopic,
   TopicSentiment,
-  Workspace,
-  WorkspaceDetail,
   WatchItem,
   Story,
   TimelineEvent,
   KnowledgeDocument,
   ClaimResult,
   StanceSummary,
-  FrameDistribution,
   FrameSource,
   ActorPosition,
   ConflictPair,
@@ -139,55 +135,6 @@ export const mockTrending: TrendingTopic[] = [
 ];
 
 // 24h hourly market-sentiment index used by the dashboard trend chart.
-export const mockTrendSeries = [
-  0.05, 0.08, 0.02, -0.04, -0.1, -0.06, 0.01, 0.07, 0.12, 0.09, 0.15, 0.21,
-  0.18, 0.24, 0.19, 0.13, 0.16, 0.22, 0.28, 0.25, 0.31, 0.27, 0.33, 0.3,
-];
-
-export const mockWorkspaces: Workspace[] = [
-  { id: "p1", q: "Is the AI chip supply chain a systemic risk to 2026 growth?", status: "Active", sources: 23, notes: 8, updated: "14m", color: "#FF6B6B" },
-  { id: "p2", q: "How is cloud antitrust enforcement evolving across jurisdictions?", status: "Active", sources: 17, notes: 5, updated: "1h", color: "#5B9DFF" },
-  { id: "p3", q: "Will the Fed rate-pause hold through Q3 2026?", status: "Synthesizing", sources: 31, notes: 12, updated: "3m", color: "#3DD68C" },
-  { id: "p4", q: "CRE contagion risk to US regional banks", status: "Active", sources: 14, notes: 4, updated: "2h", color: "#FFD93D" },
-];
-
-export const mockWorkspaceDetail: Record<string, WorkspaceDetail> = {
-  p1: {
-    sub: ["Where are the single points of failure in advanced-node fabrication?", "How exposed are hyperscalers to a Taiwan disruption?", "Which substitutes scale within 18 months?"],
-    sources: [
-      { title: "Nvidia unveils next-gen Blackwell Ultra accelerators", source: "Bloomberg", time: "8m", sent: 0.61, note: "Confirms demand outpacing supply — key supporting evidence." },
-      { title: "AI chip supply chain tightens ahead of Q3 demand surge", source: "Nikkei", time: "24m", sent: 0.18, note: "Names CoWoS packaging as the bottleneck." },
-      { title: "TSMC raises capex guidance on advanced-node demand", source: "Reuters", time: "2h", sent: 0.34, note: "Counterpoint: capacity coming online late 2026." },
-    ],
-    entities: ["Nvidia", "TSMC", "CoWoS", "Taiwan", "Hyperscalers"],
-  },
-  p2: {
-    sub: ["Are EU and US theories of harm converging?", "What remedies are regulators signalling?", "Precedent from prior cloud cases?"],
-    sources: [
-      { title: "EU regulators open antitrust probe into cloud licensing", source: "FT", time: "14m", sent: -0.42, note: "Primary trigger for this investigation." },
-      { title: "Cloud antitrust scrutiny widens across EU and US", source: "WSJ", time: "38m", sent: -0.39, note: "Suggests coordinated cross-jurisdiction action." },
-    ],
-    entities: ["European Union", "Microsoft", "Antitrust", "Brussels"],
-  },
-  p3: {
-    sub: ["Does core PCE trajectory support a hold?", "What is the labour-market read?", "How are markets pricing the path?", "Dissent risk on the committee?"],
-    sources: [
-      { title: "Federal Reserve signals pause on rate hikes amid cooling inflation", source: "Reuters", time: "2m", sent: 0.34, note: "Strongest direct evidence for the pause thesis." },
-      { title: "Core PCE eases for third consecutive month", source: "CNBC", time: "1h", sent: 0.21, note: "Supports disinflation trend." },
-      { title: "Labour market shows gradual cooling, not collapse", source: "Bloomberg", time: "3h", sent: 0.08, note: "Reduces pressure to cut — favours hold." },
-      { title: "Two FOMC members flag upside inflation risk", source: "WSJ", time: "5h", sent: -0.22, note: "Dissent risk — weakens a clean hold narrative." },
-    ],
-    entities: ["Federal Reserve", "Jerome Powell", "PCE", "FOMC"],
-  },
-  p4: {
-    sub: ["How concentrated is office-loan exposure regionally?", "What refinancing wall hits in 2026?", "Are provisions keeping pace?"],
-    sources: [
-      { title: "Major bank flags rising commercial real-estate delinquencies", source: "WSJ", time: "47m", sent: -0.55, note: "Lead evidence of stress building." },
-      { title: "Regional lenders raise loss provisions on office loans", source: "FT", time: "4h", sent: -0.44, note: "Shows contagion path to smaller banks." },
-    ],
-    entities: ["JPMorgan", "CRE", "Regional Banks", "Credit"],
-  },
-};
 
 export const mockWatchlist: WatchItem[] = [
   { name: "Nvidia", type: "Entity", mentions: 38, change: 210, sent: 0.58, spark: [8, 10, 9, 14, 18, 22, 30, 38], alert: true },
@@ -281,22 +228,6 @@ export const mockStance: StanceSummary[] = [
   { topic: "Central Bank Independence",  supportive: 33, critical: 12, neutral: 28, ambiguous: 5,  total: 78, drift: [0.42, 0.41, 0.44, 0.43, 0.45, 0.42, 0.44], by_source: { news: { supportive: 16, critical: 6, neutral: 14, ambiguous: 2 }, blog: { supportive: 9, critical: 3, neutral: 8,  ambiguous: 2 }, paper: { supportive: 6, critical: 2, neutral: 4, ambiguous: 1 }, transcript: { supportive: 2, critical: 1, neutral: 2, ambiguous: 0 } } },
 ];
 
-export const mockFrameDistribution: FrameDistribution = {
-  distribution: { economic: 0.42, political: 0.35, security: 0.28, scientific: 0.22, humanitarian: 0.18, legal: 0.15, other: 0.08 },
-  dominant: "economic",
-  total_documents: 47,
-  source_type_filter: null,
-  source: "demo",
-};
-
-export const mockFramesBySourceType: Record<string, Record<string, number>> = {
-  news:       { economic: 0.58, political: 0.44, security: 0.32, scientific: 0.18, humanitarian: 0.21, legal: 0.19, other: 0.06 },
-  blog:       { economic: 0.28, political: 0.22, security: 0.14, scientific: 0.34, humanitarian: 0.12, legal: 0.08, other: 0.22 },
-  paper:      { economic: 0.15, political: 0.08, security: 0.10, scientific: 0.72, humanitarian: 0.18, legal: 0.12, other: 0.05 },
-  transcript: { economic: 0.48, political: 0.52, security: 0.24, scientific: 0.16, humanitarian: 0.20, legal: 0.22, other: 0.10 },
-  book:       { economic: 0.32, political: 0.38, security: 0.44, scientific: 0.12, humanitarian: 0.36, legal: 0.28, other: 0.14 },
-  note:       { economic: 0.38, political: 0.18, security: 0.24, scientific: 0.20, humanitarian: 0.10, legal: 0.34, other: 0.16 },
-};
 
 export const mockPositions: ActorPosition[] = [
   {

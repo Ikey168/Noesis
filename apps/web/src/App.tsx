@@ -1,55 +1,33 @@
-import { useState } from "react";
-import { fonts } from "./theme";
-import type { ViewKey } from "./types";
 import { useTicker } from "./lib/queries";
+import { useCanvases } from "./genui/canvases";
 import Sidebar from "./components/Sidebar";
 import TopBar from "./components/TopBar";
 import BreakingTicker from "./components/BreakingTicker";
-import Dashboard from "./views/Dashboard";
-import Library from "./views/Library";
-import EntityGraphView from "./views/EntityGraphView";
-import DocumentReader from "./views/DocumentReader";
-import Sentiment from "./views/Sentiment";
-import Clusters from "./views/Clusters";
-import Trending from "./views/Trending";
-import Workspaces from "./views/Workspaces";
-import Watchlists from "./views/Watchlists";
-import Timeline from "./views/Timeline";
-import Arguments from "./views/Arguments";
+import Canvas from "./genui/Canvas";
 
+// The app is a single generative surface: nothing is rendered until an
+// intent is submitted through the composer (or a sidebar suggestion) — the
+// startup screen is intentionally empty except for the prompt.
 export default function App() {
-  const [view, setView] = useState<ViewKey>("dashboard");
+  const manager = useCanvases();
   const { data: ticker } = useTicker();
+  const hasIntent = manager.active.intent.trim().length > 0;
 
   return (
-    <div
-      style={{
-        display: "flex",
-        height: "100vh",
-        width: "100%",
-        background: "#0a0d12",
-        color: "#e6eaf0",
-        fontFamily: fonts.sans,
-        overflow: "hidden",
-      }}
-    >
-      <Sidebar view={view} setView={setView} ingestRate="64" />
+    <div className="flex h-screen w-full overflow-hidden bg-background text-foreground">
+      <Sidebar
+        canvases={manager.canvases}
+        activeId={manager.active.id}
+        onSelect={manager.setActive}
+        onRemove={manager.remove}
+        ingestRate="64"
+      />
 
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
-        <TopBar />
-        <BreakingTicker text={ticker} />
-        <main style={{ flex: 1, overflowY: "auto", padding: "22px 24px 40px" }}>
-          {view === "dashboard" && <Dashboard setView={setView} />}
-          {view === "library" && <Library />}
-          {view === "knowledge" && <EntityGraphView />}
-          {view === "reader" && <DocumentReader />}
-          {view === "sentiment" && <Sentiment />}
-          {view === "clusters" && <Clusters />}
-          {view === "trending" && <Trending />}
-          {view === "workspaces" && <Workspaces />}
-          {view === "watchlists" && <Watchlists />}
-          {view === "timeline" && <Timeline />}
-          {view === "arguments" && <Arguments />}
+      <div className="flex min-w-0 flex-1 flex-col">
+        <TopBar onIntent={manager.open} />
+        {hasIntent ? <BreakingTicker text={ticker} /> : null}
+        <main className="min-h-0 flex-1">
+          <Canvas key={manager.active.id} canvas={manager.active} onIntent={manager.open} />
         </main>
       </div>
     </div>

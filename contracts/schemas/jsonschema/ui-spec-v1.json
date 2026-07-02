@@ -1,0 +1,110 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://neuronews.com/schemas/api/ui-spec-v1.json",
+  "title": "UI Spec",
+  "description": "Generated layout document for the Noesis adaptive generative UI. Produced by src/genui (heuristic or LLM planner), rendered by the apps/web panel registry.",
+  "type": "object",
+  "properties": {
+    "spec_version": {
+      "type": "string",
+      "const": "ui-spec-v1",
+      "description": "Contract version tag"
+    },
+    "intent": {
+      "type": "string",
+      "maxLength": 500,
+      "description": "The analyst intent this layout answers (may be empty for the default briefing)"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Canvas headline"
+    },
+    "subtitle": {
+      "type": "string",
+      "description": "Canvas subheadline (facets, filters, window)"
+    },
+    "generated_by": {
+      "type": "string",
+      "enum": ["heuristic", "llm", "client"],
+      "description": "Which planner produced the layout"
+    },
+    "facets": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["overview", "trend", "sentiment", "claims", "stance", "actors", "conflict", "sources", "entities", "events", "library"]
+      },
+      "description": "Intent facets the planner detected"
+    },
+    "topic": {
+      "type": ["string", "null"],
+      "description": "Extracted topic filter phrase"
+    },
+    "source_type": {
+      "type": ["string", "null"],
+      "enum": ["news", "blog", "paper", "book", "transcript", "web", "note", null],
+      "description": "Source-type filter applied to panels"
+    },
+    "panels": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 12,
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Unique panel id within the spec"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["note", "kpi_row", "articles", "documents", "trending", "clusters", "watchlists", "timeline", "sentiment_heatmap", "topic_sentiment", "entity_graph", "claims", "stance", "frames", "positions", "controversy", "drift", "outlet_ranking", "outlet_clusters", "actors"],
+            "description": "Renderer key in the frontend panel registry"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Panel heading"
+          },
+          "span": {
+            "type": "integer",
+            "minimum": 3,
+            "maximum": 12,
+            "description": "Width in 12-column grid units"
+          },
+          "priority": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "description": "Render-order weight (higher first)"
+          },
+          "rationale": {
+            "type": "string",
+            "description": "Why the planner included this panel"
+          },
+          "endpoint": {
+            "type": ["string", "null"],
+            "description": "Backend endpoint feeding the panel (from the catalog)"
+          },
+          "params": {
+            "type": "object",
+            "description": "Query parameters for the endpoint (topic, source_type, days, ...)",
+            "additionalProperties": {
+              "type": ["string", "number", "boolean"]
+            }
+          },
+          "body": {
+            "type": "string",
+            "description": "Inline content for endpoint-less panels (e.g. the note narrative)"
+          }
+        },
+        "required": ["id", "type", "title", "span", "priority"],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": ["spec_version", "intent", "title", "generated_by", "panels"],
+  "additionalProperties": false
+}

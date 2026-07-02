@@ -1,50 +1,45 @@
 import { useEffect, useState } from "react";
-import { ACCENT, palette, fonts } from "../theme";
 import { useBackendStatus, type BackendStatus } from "../lib/queries";
+import CommandBar from "../genui/CommandBar";
+import { cn } from "../lib/utils";
 
-const STATUS_META: Record<BackendStatus, { color: string; label: string }> = {
-  checking: { color: palette.amber, label: "CONNECTING" },
-  online: { color: palette.pos, label: "BACKEND LIVE" },
-  offline: { color: palette.faint, label: "DEMO MODE" },
+const STATUS_META: Record<BackendStatus, { className: string; dot: string; label: string; hint: string }> = {
+  checking: {
+    className: "border-amber-400/30 bg-amber-400/10 text-amber-400",
+    dot: "bg-amber-400",
+    label: "CONNECTING",
+    hint: "Probing the backend…",
+  },
+  online: {
+    className: "border-emerald-400/30 bg-emerald-400/10 text-emerald-400",
+    dot: "bg-emerald-400 shadow-[0_0_6px_currentColor]",
+    label: "BACKEND LIVE",
+    hint: "Connected to the Noesis API",
+  },
+  offline: {
+    className: "border-slate-500/30 bg-slate-500/10 text-slate-400",
+    dot: "bg-slate-400",
+    label: "DEMO MODE",
+    hint: "Backend unreachable — panels fall back to the demo dataset",
+  },
 };
 
 function ConnectionPill() {
   const status = useBackendStatus();
-  const { color, label } = STATUS_META[status];
+  const meta = STATUS_META[status];
   return (
     <div
-      title={
-        status === "online"
-          ? "Connected to the Noesis API"
-          : status === "checking"
-            ? "Probing the backend…"
-            : "Backend unreachable — views fall back to the demo dataset"
-      }
-      style={{
-        display: "inline-flex",
-        alignItems: "center",
-        gap: 7,
-        fontFamily: fonts.mono,
-        fontSize: 10,
-        letterSpacing: "0.1em",
-        color,
-        border: `1px solid ${color}44`,
-        background: `${color}14`,
-        borderRadius: 6,
-        padding: "5px 10px",
-      }}
+      title={meta.hint}
+      className={cn(
+        "inline-flex items-center gap-2 rounded-md border px-2.5 py-1.5 font-mono text-[10px] tracking-widest",
+        meta.className,
+      )}
     >
       <span
-        style={{
-          width: 7,
-          height: 7,
-          borderRadius: "50%",
-          background: color,
-          boxShadow: status === "online" ? `0 0 6px ${color}` : "none",
-          animation: status === "checking" ? "pulse 1s ease-in-out infinite" : undefined,
-        }}
+        className={cn("h-[7px] w-[7px] rounded-full", meta.dot)}
+        style={status === "checking" ? { animation: "pulse 1s ease-in-out infinite" } : undefined}
       />
-      {label}
+      {meta.label}
     </div>
   );
 }
@@ -58,7 +53,11 @@ function useUtcClock() {
   return now;
 }
 
-export default function TopBar() {
+interface Props {
+  onIntent: (intent: string) => void;
+}
+
+export default function TopBar({ onIntent }: Props) {
   const now = useUtcClock();
   const pad2 = (x: number) => String(x).padStart(2, "0");
   const clock = `${pad2(now.getUTCHours())}:${pad2(now.getUTCMinutes())}:${pad2(now.getUTCSeconds())}`;
@@ -67,81 +66,16 @@ export default function TopBar() {
     .toUpperCase();
 
   return (
-    <header
-      style={{
-        height: 54,
-        flex: "none",
-        borderBottom: "1px solid #1c2330",
-        background: "#0c1016",
-        display: "flex",
-        alignItems: "center",
-        padding: "0 18px",
-        gap: 16,
-      }}
-    >
-      <div
-        style={{
-          flex: 1,
-          maxWidth: 440,
-          display: "flex",
-          alignItems: "center",
-          gap: 10,
-          background: "#10151d",
-          border: "1px solid #232a36",
-          borderRadius: 7,
-          padding: "8px 12px",
-        }}
-      >
-        <span style={{ color: "#5b6675", fontSize: 13 }}>⌕</span>
-        <input
-          placeholder="Search entities, topics, sources…"
-          style={{
-            flex: 1,
-            background: "transparent",
-            border: "none",
-            outline: "none",
-            color: "#e6eaf0",
-            fontFamily: fonts.sans,
-            fontSize: 13,
-          }}
-        />
-        <span
-          style={{
-            fontFamily: fonts.mono,
-            fontSize: 9.5,
-            color: "#4b5563",
-            border: "1px solid #2a3340",
-            borderRadius: 4,
-            padding: "1px 5px",
-          }}
-        >
-          ⌘K
-        </span>
-      </div>
-      <div style={{ flex: 1 }} />
-      <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
+    <header className="flex h-[54px] shrink-0 items-center gap-4 border-b bg-[#070d13] px-4">
+      <CommandBar onIntent={onIntent} />
+      <div className="flex-1" />
+      <div className="flex items-center gap-4">
         <ConnectionPill />
-        <div style={{ textAlign: "right", lineHeight: 1.15 }}>
-          <div style={{ fontFamily: fonts.mono, fontSize: 14, fontWeight: 500, color: ACCENT }}>{clock}</div>
-          <div style={{ fontFamily: fonts.mono, fontSize: 9, color: "#5b6675", letterSpacing: "0.1em" }}>
-            UTC · {dateStr}
-          </div>
+        <div className="text-right leading-tight">
+          <div className="font-mono text-sm font-medium text-primary">{clock}</div>
+          <div className="font-mono text-[9px] tracking-widest text-muted-foreground/60">UTC · {dateStr}</div>
         </div>
-        <div
-          style={{
-            width: 32,
-            height: 32,
-            borderRadius: "50%",
-            background: "#1c2330",
-            border: "1px solid #2a3340",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontFamily: fonts.mono,
-            fontSize: 11,
-            color: "#8a94a6",
-          }}
-        >
+        <div className="flex h-8 w-8 items-center justify-center rounded-full border border-[#26485a] bg-secondary font-mono text-[11px] text-muted-foreground">
           AK
         </div>
       </div>

@@ -2,27 +2,22 @@
 // Adapters are deliberately defensive: the backend list endpoints expose a
 // subset of the fields the design shows, so missing fields degrade gracefully.
 
-import { palette, ACCENT } from "../theme";
 import type {
   Article,
   Cluster,
   TrendingTopic,
-  TopEntity,
   TopicSentiment,
   LiveGraph,
   Heatmap,
-  FrameDistribution,
 } from "../types";
 import type {
   RawArticle,
   RawDocument,
   RawEventCluster,
   RawTrendingResponse,
-  RawInfluencer,
   RawTopicSentiment,
   RawEntityGraph,
   RawHeatmap,
-  RawFrameDistribution,
 } from "./api";
 import type { KnowledgeDocument, SourceType } from "../types";
 
@@ -117,15 +112,6 @@ export function adaptTopicSentiment(raw: RawTopicSentiment[]): TopicSentiment[] 
     .sort((a, b) => b.articles - a.articles);
 }
 
-const ENTITY_TYPE_COLOR: Record<string, string> = {
-  org: ACCENT,
-  organization: ACCENT,
-  person: palette.blue,
-  people: palette.blue,
-  topic: palette.amber,
-  place: palette.violet,
-  location: palette.violet,
-};
 
 const VALID_SOURCE_TYPES = new Set(["news", "blog", "paper", "book", "transcript", "web", "note"]);
 
@@ -144,23 +130,3 @@ export function adaptDocuments(raw: RawDocument[]): KnowledgeDocument[] {
   }));
 }
 
-export function adaptFrameDistribution(raw: RawFrameDistribution): FrameDistribution {
-  return {
-    distribution: raw.distribution ?? {},
-    dominant: raw.dominant ?? "other",
-    total_documents: raw.total_documents ?? 0,
-    source_type_filter: raw.source_type_filter ?? null,
-    source: raw.source ?? "live",
-  };
-}
-
-export function adaptInfluencers(raw: RawInfluencer[]): TopEntity[] {
-  return raw.map((i) => {
-    const type = (i.entity_type ?? i.type ?? "topic").toLowerCase();
-    return {
-      name: i.entity ?? i.name ?? "—",
-      color: ENTITY_TYPE_COLOR[type] ?? palette.amber,
-      links: i.connections ?? i.degree ?? Math.round(i.influence_score ?? 0),
-    };
-  });
-}

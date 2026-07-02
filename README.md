@@ -1,17 +1,34 @@
 ![Airflow DAG Check](https://github.com/Ikey168/NeuroNews/actions/workflows/airflow-dag-check.yml/badge.svg)
 ![MLflow CI](https://github.com/Ikey168/NeuroNews/actions/workflows/mlops-ci.yml/badge.svg)
 
-# Noesis — News Intelligence Platform
+# Noesis — Generative Knowledge Engine
 
-Noesis (formerly NeuroNews) is a full-stack news intelligence platform that
-ingests articles, blog posts, papers, and transcripts, mines arguments from
-them, and surfaces insights through an interactive React dashboard and a
-FastAPI backend.
+Noesis (formerly NeuroNews) is a knowledge engine that ingests articles,
+blog posts, papers, and transcripts, mines arguments from them, and surfaces
+everything through a **fully generative UI**: there are no fixed pages —
+every screen is a layout planned at runtime from a natural-language intent,
+adapted to the data that actually exists, the enabled knowledge domains, and
+the operator's habits.
+
+The architecture is converging on **MCP as the capability plane**: the
+platform's subsystems are already exposed as MCP servers, and the
+[rearchitecture plan](docs/architecture/MCP_REARCHITECTURE_PLAN.md) takes
+this to its end state — agents that don't just compose views over existing
+knowledge, but **provision new knowledge domains**: deploying knowledge
+graphs and selecting the sources that feed them, with the UI growing panels
+for new domains through tool discovery alone.
 
 ---
 
 ## What it does
 
+- **Adaptive generative UI** — the entire frontend is a generative canvas:
+  there are no fixed views. Every screen is planned from a natural-language
+  intent ("compare outlet framing on climate policy") as a validated
+  `ui-spec-v1` document — heuristically or by an LLM when a key is
+  configured — and adapted to warehouse data availability, domain packs,
+  and the operator's pins/mutes. The sidebar only manages open canvases —
+  all navigation is the prompt. See [docs/genui.md](docs/genui.md).
 - **Argument mining** — detects claims, classifies stances, identifies frames
   (economic / security / humanitarian / legal / political / scientific / other),
   extracts actor/entity mentions, and tracks how policy positions evolve over
@@ -40,7 +57,7 @@ FastAPI backend.
 
 | Layer | Technology |
 |---|---|
-| Frontend | React 18, Vite, TypeScript, React Query |
+| Frontend | React 18, Vite, TypeScript, React Query, Tailwind CSS + shadcn/ui |
 | Backend | FastAPI, uvicorn |
 | Analytics warehouse | DuckDB (local file; single-writer) |
 | Argument mining | distilbert / heuristic fallback, scikit-learn, spaCy |
@@ -64,10 +81,17 @@ NEPTUNE_ENDPOINT       ws://localhost:8182/gremlin
 NEURONEWS_DB_PATH      data/local_warehouse.duckdb  # DuckDB warehouse path
 ```
 
-### MCP dev servers
+### MCP servers
 
-Token-efficient MCP stdio servers for development tooling (each reads the
-warehouse read-only so they never conflict with the API writer):
+Every subsystem is exposed as a FastMCP stdio server. Today they serve
+development agents (token-efficient, read-only against the warehouse so
+they never conflict with the API writer) — and, per the
+[MCP rearchitecture plan](docs/architecture/MCP_REARCHITECTURE_PLAN.md),
+they are the basis of the future capability plane: the generative-UI panel
+catalog derived from tool discovery, domain packs as connected servers,
+LLM planning grounded in tool calls, and provisioning tools
+(`kg_deploy` / `kg_attach_sources`) that stand up new knowledge graphs at
+runtime.
 
 | Server | Tools |
 |---|---|
@@ -178,20 +202,24 @@ docker compose -f docker-compose.test-minimal.yml up --build --abort-on-containe
 
 ---
 
-## Dashboard views
+## Generative canvas
 
-| View | What it shows |
-|---|---|
-| Dashboard | Sentiment overview, top topics, trending entities |
-| Arguments | Claim list, stance drift, conflict graph, outlet ranking, outlet clustering |
-| Sentiment | Source-level sentiment breakdown and timeline |
-| Timeline | Chronological article and event viewer |
-| Trending | Keyword and topic velocity |
-| NewsFeed | Live article feed with filters |
-| Watchlists | Blog/feed subscriptions and digest matches |
-| Clusters | Topic and source clustering visualisations |
-| Library | Document library for papers, books, transcripts |
-| Workspaces | Saved analysis sessions |
+The frontend has no fixed views. Each screen is a **canvas**: a `ui-spec-v1`
+layout generated from an intent by `POST /api/v1/ui/generate` (or by a
+client-side planner when the backend is unreachable) and rendered from a
+registry of ~20 panel types — articles, library documents, trending, event
+clusters, sentiment heatmap, entity graph, claims, stance, framing, actor
+positions, conflicts, stance drift, outlet ranking/clusters, watchlist,
+story timeline, and more.
+
+The single control is a ⌘K command bar: the planner runs as you type,
+showing parsed intent tokens and a live ghost of the layout before ⏎
+commits it. An empty canvas shows the live pipeline signal (entity
+constellation, moving topics that generate coverage views) instead of a
+greeting. The sidebar only manages open canvases (persisted in
+localStorage). The surface is built with Tailwind + shadcn/ui. Layouts adapt to warehouse data availability, enabled
+domain packs, and the operator's pins/mutes/interaction history. See
+[docs/genui.md](docs/genui.md).
 
 ---
 
@@ -229,6 +257,8 @@ by source type, article length, and per-class metrics.
 ## Documentation
 
 - [Documentation index](docs/index.md) — full doc map by topic
+- [Generative UI](docs/genui.md) — the canvas, planners, adaptivity, ui-spec-v1
+- [MCP rearchitecture plan](docs/architecture/MCP_REARCHITECTURE_PLAN.md) — capability plane + agent-provisioned knowledge graphs
 - [Project structure](docs/PROJECT_STRUCTURE.md)
 - [Model benchmarks](docs/model_benchmarks.md)
 - [Exactly-once delivery design](docs/EXACTLY_ONCE_DESIGN.md)
@@ -243,7 +273,26 @@ by source type, article length, and per-class metrics.
 - Phase 4: Interactive dashboards and REST API — complete
 - Phase 5: Argument mining pipeline (claims, stances, frames, positions, conflicts, actors) — complete
 - Phase 6: Outlet analysis (clustering, transparency scoring, conflict graph) — complete
-- Upcoming: trained model checkpoints; cross-dataset generalisation (FEVER / LIAR / AVeriTeC); predictive analytics; real-time fact-checking
+- Phase 7: Fully generative adaptive UI — fixed views replaced by the
+  intent-planned canvas (`ui-spec-v1`, heuristic + optional LLM planner,
+  ⌘K command bar with live plan preview, usage-signal adaptivity) — complete
+- Phase 8: MCP rearchitecture — MCP as the capability plane
+  ([plan](docs/architecture/MCP_REARCHITECTURE_PLAN.md), staged):
+  catalog-from-discovery, grounded LLM planning, MCP-backed panel data,
+  Noesis-as-MCP-server, **Track P** — agent-provisioned knowledge graphs
+  with quality-driven source selection — and **Track DS** — data-science
+  techniques (anomaly detection, lead-lag, narrative clustering, graph
+  science, significance testing) as planner-composable tools — proposed
+- Phase 9: Beyond news — research domain pack (citation graph, venue
+  credibility, literature claims) as the second first-class pack;
+  finance/legal and an **OSINT / investigation** domain (corroboration,
+  entity dossiers, relationship paths, timeline reconstruction — defensive
+  analysis over ingested open sources, under a strict evidence discipline)
+  provisioned via Track P; pack-aware canvas telemetry and outlet→source
+  generalisation
+  ([Track N](docs/architecture/MCP_REARCHITECTURE_PLAN.md)) — proposed
+- Also upcoming: trained model checkpoints; cross-dataset generalisation
+  (FEVER / LIAR / AVeriTeC); predictive analytics; real-time fact-checking
 
 ---
 

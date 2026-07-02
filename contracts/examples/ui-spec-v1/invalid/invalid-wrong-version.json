@@ -1,0 +1,15 @@
+{
+  "spec_version": "ui-spec-v2",
+  "intent": "",
+  "title": "Wrong Version",
+  "generated_by": "heuristic",
+  "panels": [
+    {
+      "id": "p1",
+      "type": "note",
+      "title": "Plan",
+      "span": 12,
+      "priority": 1.0
+    }
+  ]
+}

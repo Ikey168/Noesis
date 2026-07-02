@@ -1,0 +1,73 @@
+{
+  "spec_version": "ui-spec-v1",
+  "intent": "compare outlet framing on climate policy this month",
+  "title": "Climate Policy",
+  "subtitle": "sources \u00b7 30d window",
+  "generated_by": "heuristic",
+  "facets": [
+    "sources"
+  ],
+  "topic": "climate policy",
+  "source_type": null,
+  "panels": [
+    {
+      "id": "p1",
+      "type": "note",
+      "title": "Plan",
+      "span": 12,
+      "priority": 1.0,
+      "rationale": "how this canvas was assembled",
+      "endpoint": null,
+      "params": {},
+      "body": "Canvas generated for \u201ccompare outlet framing on climate policy this month\u201d. Focus: sources. Topic filter: climate policy. Window: last 30 days."
+    },
+    {
+      "id": "p2",
+      "type": "frames",
+      "title": "Framing by source",
+      "span": 6,
+      "priority": 1.0,
+      "rationale": "selected for the 'sources' facet",
+      "endpoint": "/api/v1/arguments/frames/source",
+      "params": {
+        "topic": "climate policy"
+      },
+      "body": ""
+    },
+    {
+      "id": "p3",
+      "type": "outlet_ranking",
+      "title": "Outlet transparency ranking",
+      "span": 6,
+      "priority": 0.95,
+      "rationale": "selected for the 'sources' facet",
+      "endpoint": "/api/v1/arguments/outlets/ranking",
+      "params": {},
+      "body": ""
+    },
+    {
+      "id": "p4",
+      "type": "outlet_clusters",
+      "title": "Outlet clusters",
+      "span": 6,
+      "priority": 0.9,
+      "rationale": "selected for the 'sources' facet",
+      "endpoint": "/api/v1/arguments/outlets/clusters",
+      "params": {},
+      "body": ""
+    },
+    {
+      "id": "p5",
+      "type": "entity_graph",
+      "title": "Entity graph",
+      "span": 6,
+      "priority": 0.9,
+      "rationale": "pinned by you",
+      "endpoint": "/api/v1/entity_graph",
+      "params": {
+        "days": 30
+      },
+      "body": ""
+    }
+  ]
+}

@@ -76,20 +76,23 @@ function findChromium() {
   return null;
 }
 
-// Every sidebar view: nav button label -> screenshot slug. Labels must match
-// the text rendered in src/components/Sidebar.tsx.
+// Canvases to capture: intent -> screenshot slug. The app is prompt-first —
+// the driver types each intent into the bottom composer and submits, exactly
+// like an operator would. "home" is the empty startup canvas (clicked via the
+// sidebar's always-present "New canvas" entry).
 const VIEWS = [
-  ["Overview", "dashboard"],
-  ["Library", "library"],
-  ["Knowledge Graph", "knowledge"],
-  ["Document Reader", "reader"],
-  ["Sentiment", "sentiment"],
-  ["Event Clusters", "clusters"],
-  ["Trending", "trending"],
-  ["Workspaces", "workspaces"],
-  ["Watchlists", "watchlists"],
-  ["Story Timeline", "timeline"],
-  ["Arguments", "arguments"],
+  [null, "home"],
+  ["library documents", "library"],
+  ["entity network connections", "entities"],
+  ["fact-check claims and evidence", "claims"],
+  ["stance conflicts and disagreements", "stance"],
+  ["compare outlet framing and transparency", "outlets"],
+  ["who are the key actors and stakeholders", "actors"],
+  ["sentiment overview this week", "sentiment"],
+  ["breaking event clusters", "clusters"],
+  ["trending topics this week", "trending"],
+  ["watchlist alerts", "watchlists"],
+  ["story timeline developments", "timeline"],
 ];
 
 function parseArgs(argv) {
@@ -188,16 +191,23 @@ async function main() {
     : VIEWS;
 
   let ok = 0;
-  for (const [label, slug] of wanted) {
+  for (const [intent, slug] of wanted) {
     try {
-      // Nav buttons wrap a glyph + label + badge, so the accessible name isn't
-      // the bare label. Click the label text inside the sidebar instead.
-      await page.locator("aside").getByText(label, { exact: true }).first().click({ timeout: 8000 });
+      if (intent === null) {
+        // The empty startup canvas: activate via the sidebar's "New canvas".
+        await page.locator("aside").getByText("New canvas", { exact: true }).first().click({ timeout: 8000 });
+      } else {
+        // Prompt-first: type the intent into the bottom composer and submit.
+        const composer = page.getByPlaceholder("Describe the view you need…");
+        await composer.fill(intent, { timeout: 8000 });
+        await composer.press("Enter");
+        await page.waitForTimeout(900); // let the planner respond
+      }
     } catch (e) {
-      console.error(`! could not click nav "${label}": ${e.message}`);
+      console.error(`! could not open canvas "${slug}": ${e.message}`);
       continue;
     }
-    await page.waitForTimeout(600); // let the view + charts settle
+    await page.waitForTimeout(600); // let the panels + charts settle
     const file = join(SHOT_DIR, `${slug}.png`);
     await page.screenshot({ path: file });
     console.log(`✓ ${slug.padEnd(12)} -> ${file}`);

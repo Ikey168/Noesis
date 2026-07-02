@@ -5,13 +5,13 @@ import type { Heatmap as HeatmapData } from "../../types";
 function cellColor(v: number): string {
   if (v > 0.05) {
     const t = Math.min(v / 0.7, 1);
-    return `rgba(61,214,140,${0.18 + 0.7 * t})`;
+    return `rgba(0,255,163,${0.18 + 0.7 * t})`;
   }
   if (v < -0.05) {
     const t = Math.min(-v / 0.7, 1);
-    return `rgba(255,92,92,${0.18 + 0.7 * t})`;
+    return `rgba(255,46,108,${0.18 + 0.7 * t})`;
   }
-  return "rgba(139,149,165,0.16)";
+  return "rgba(140,165,175,0.14)";
 }
 
 interface Props {
@@ -24,7 +24,7 @@ export default function Heatmap({ data }: Props) {
 
   if (!topics.length) {
     return (
-      <div style={{ height: 120, display: "flex", alignItems: "center", justifyContent: "center", color: "#5b6675", fontFamily: fonts.mono, fontSize: 12 }}>
+      <div style={{ height: 120, display: "flex", alignItems: "center", justifyContent: "center", color: "#5f7580", fontFamily: fonts.mono, fontSize: 12 }}>
         No sentiment data in the selected window
       </div>
     );
@@ -34,7 +34,7 @@ export default function Heatmap({ data }: Props) {
     <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
       {topics.map((t, ri) => (
         <div key={ri} style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{ width: 78, flex: "none", fontSize: 11.5, color: "#9aa4b2", fontFamily: fonts.sans }}>
+          <div style={{ width: 78, flex: "none", fontSize: 11.5, color: "#9ab3bb", fontFamily: fonts.sans }}>
             {t}
           </div>
           <div style={{ flex: 1, display: "grid", gridTemplateColumns: `repeat(${cols},1fr)`, gap: 4 }}>
@@ -52,7 +52,7 @@ export default function Heatmap({ data }: Props) {
         <div style={{ width: 78, flex: "none" }} />
         <div style={{ flex: 1, display: "grid", gridTemplateColumns: `repeat(${cols},1fr)`, gap: 4 }}>
           {labels.map((h, i) => (
-            <div key={i} style={{ textAlign: "center", fontFamily: fonts.mono, fontSize: 9, color: "#4b5563" }}>
+            <div key={i} style={{ textAlign: "center", fontFamily: fonts.mono, fontSize: 9, color: "#4b6470" }}>
               {i % labelEvery === 0 ? h : ""}
             </div>
           ))}

@@ -1,13 +1,116 @@
-* {
-  box-sizing: border-box;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* shadcn-style design tokens — neon-terminal theme. Dark-only: the
+   terminal has no light mode. Primary is neon cyan; surfaces are deep
+   blue-blacks with teal-tinted borders. */
+@layer base {
+  :root {
+    --background: 210 45% 4%; /* #060a0f */
+    --foreground: 190 40% 93%; /* #e4f4f7 */
+    --card: 206 45% 8%; /* #0b151e */
+    --card-foreground: 190 40% 93%;
+    --primary: 187 100% 50%; /* #00e5ff */
+    --primary-foreground: 210 45% 4%;
+    --secondary: 202 40% 13%; /* #14242e */
+    --secondary-foreground: 190 40% 93%;
+    --muted: 202 40% 13%;
+    --muted-foreground: 196 18% 62%; /* #8ca5af */
+    --accent: 202 40% 13%;
+    --accent-foreground: 190 40% 93%;
+    --border: 197 40% 16%; /* #193039 */
+    --input: 197 35% 22%; /* #24404c */
+    --ring: 187 100% 50%;
+    --radius: 0.375rem;
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+
+  /* Faint holo-grid + top glow behind everything. */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image:
+      radial-gradient(ellipse 80% 50% at 50% -10%, hsl(var(--primary) / 0.07), transparent 60%),
+      linear-gradient(hsl(var(--primary) / 0.028) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(var(--primary) / 0.028) 1px, transparent 1px);
+    background-size: 100% 100%, 44px 44px, 44px 44px;
+  }
+
+  /* CRT scanlines over everything — subtle, pointer-transparent. */
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+      0deg,
+      rgba(0, 0, 0, 0.16) 0px,
+      rgba(0, 0, 0, 0.16) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+    opacity: 0.55;
+    mix-blend-mode: multiply;
+  }
+
+  #root {
+    position: relative;
+    z-index: 1;
+  }
+
+  ::selection {
+    background: hsl(var(--primary) / 0.3);
+    color: hsl(var(--foreground));
+  }
 }
 
-html,
-body,
-#root {
-  margin: 0;
-  padding: 0;
-  height: 100%;
+@layer components {
+  /* HUD corner brackets — the sci-fi frame accent used on generated
+     panels. Two pseudo-elements: top-left and bottom-right ticks. */
+  .hud-corners {
+    position: relative;
+  }
+  .hud-corners::before,
+  .hud-corners::after {
+    content: "";
+    position: absolute;
+    width: 11px;
+    height: 11px;
+    pointer-events: none;
+    z-index: 1;
+  }
+  .hud-corners::before {
+    top: -1px;
+    left: -1px;
+    border-top: 1px solid hsl(var(--primary) / 0.6);
+    border-left: 1px solid hsl(var(--primary) / 0.6);
+  }
+  .hud-corners::after {
+    bottom: -1px;
+    right: -1px;
+    border-bottom: 1px solid hsl(var(--primary) / 0.6);
+    border-right: 1px solid hsl(var(--primary) / 0.6);
+  }
+
+  .glow-text {
+    text-shadow:
+      0 0 10px hsl(var(--primary) / 0.55),
+      0 0 34px hsl(var(--primary) / 0.25);
+  }
 }
 
 ::-webkit-scrollbar {
@@ -15,14 +118,14 @@ body,
   height: 9px;
 }
 ::-webkit-scrollbar-track {
-  background: #0a0d12;
+  background: hsl(var(--background));
 }
 ::-webkit-scrollbar-thumb {
-  background: #2a3340;
+  background: hsl(var(--input));
   border-radius: 0;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #3a4554;
+  background: hsl(var(--primary) / 0.45);
 }
 
 @keyframes blink {
@@ -52,5 +155,19 @@ body,
   }
   50% {
     opacity: 0.3;
+  }
+}
+
+/* Occasional brightness stutter for the brand mark — CRT flicker. */
+@keyframes flicker {
+  0%,
+  91%,
+  95%,
+  100% {
+    opacity: 1;
+  }
+  92%,
+  94% {
+    opacity: 0.65;
   }
 }

@@ -1,4 +1,4 @@
-import { ACCENT, fonts } from "../theme";
+import { palette, fonts } from "../theme";
 
 interface Props {
   text: string;
@@ -10,8 +10,8 @@ export default function BreakingTicker({ text }: Props) {
       style={{
         height: 30,
         flex: "none",
-        background: "#11070a",
-        borderBottom: "1px solid #2a1418",
+        background: "#140812",
+        borderBottom: "1px solid #3d1430",
         display: "flex",
         alignItems: "center",
         overflow: "hidden",
@@ -20,8 +20,8 @@ export default function BreakingTicker({ text }: Props) {
       <div
         style={{
           flex: "none",
-          background: ACCENT,
-          color: "#0a0d12",
+          background: palette.neg,
+          color: "#0a0410",
           fontFamily: fonts.mono,
           fontWeight: 600,
           fontSize: 10,

@@ -28,22 +28,6 @@ export interface TrendingTopic {
   sent: number;
 }
 
-export interface Kpi {
-  label: string;
-  value: string;
-  delta: string;
-  deltaLabel: string;
-  color: string;
-  positive: boolean;
-}
-
-export interface SentimentStat {
-  label: string;
-  value: string;
-  color: string;
-  note: string;
-}
-
 export interface TopicSentiment {
   topic: string;
   avgScore: number;
@@ -55,35 +39,6 @@ export interface Heatmap {
   cols: number;
   labels: string[];
   seed: number[][];
-}
-
-export interface LegendItem {
-  label: string;
-  color: string;
-  count: string;
-}
-
-export interface TopEntity {
-  name: string;
-  color: string;
-  links: number;
-}
-
-export interface GraphNode {
-  id: string;
-  label: string;
-  x: number;
-  y: number;
-  r: number;
-  type: "org" | "person" | "topic" | "place";
-  color: string;
-}
-
-export interface GraphData {
-  nodes: GraphNode[];
-  edges: [string, string][];
-  nodeCount: number;
-  edgeCount: number;
 }
 
 // Entity graph fetched live from the API (positions computed client-side).
@@ -101,30 +56,6 @@ export interface LiveGraph {
   edges: [string, string, number][];
   nodeCount: number;
   edgeCount: number;
-}
-
-export interface Workspace {
-  id: string;
-  q: string;
-  status: "Active" | "Synthesizing";
-  sources: number;
-  notes: number;
-  updated: string;
-  color: string;
-}
-
-export interface WorkspaceSource {
-  title: string;
-  source: string;
-  time: string;
-  sent: number;
-  note: string;
-}
-
-export interface WorkspaceDetail {
-  sub: string[];
-  sources: WorkspaceSource[];
-  entities: string[];
 }
 
 export interface WatchItem {
@@ -150,21 +81,6 @@ export interface TimelineEvent {
   kind: "Origin" | "Development" | "Reaction" | "Milestone";
   sent: number;
 }
-
-export type ViewKey =
-  | "dashboard"
-  | "library"
-  | "knowledge"
-  | "reader"
-  | "sentiment"
-  | "clusters"
-  | "trending"
-  | "workspaces"
-  | "watchlists"
-  | "timeline"
-  | "arguments";
-
-export type ArgumentTab = "claims" | "stance" | "frames" | "positions" | "controversy" | "sources";
 
 export interface FrameSource {
   source: string;
@@ -227,13 +143,6 @@ export interface SourceStance {
   window_end: string | null;
 }
 
-export interface FrameDistribution {
-  distribution: Record<string, number>;
-  dominant: string;
-  total_documents: number;
-  source_type_filter: string | null;
-  source: string;
-}
 
 export type UpdateType = "reaffirmed" | "reversed" | "updated" | "no_signal";
 
@@ -296,15 +205,6 @@ export interface ControversyGraph {
 
 export type SourceType = "news" | "blog" | "paper" | "book" | "transcript" | "web" | "note";
 
-export interface DocumentActor {
-  document_id: string;
-  source_type: SourceType;
-  actor_name: string;
-  entity_id: string;
-  role: "speaker" | "subject" | "author";
-  confidence: number | null;
-  extracted_at: string | null;
-}
 
 export interface ActorSummary {
   actor_name: string;

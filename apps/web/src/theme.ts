@@ -1,35 +1,36 @@
-// Design tokens mirrored 1:1 from the "NeuroNews Terminal" design handoff.
-// The design exposed `accent` as a configurable prop (default #FF6B6B).
+// Design tokens for the neon-terminal theme. Kept in sync with the CSS
+// variables in index.css (which drive the Tailwind/shadcn layer); these
+// constants feed the inline-styled charts and panel content.
 
-export const ACCENT = "#FF6B6B";
+export const ACCENT = "#00E5FF";
 
 export const palette = {
-  pos: "#3DD68C",
-  neg: "#FF5C5C",
-  neu: "#8B95A5",
-  teal: "#4ECDC4",
-  amber: "#FFD93D",
-  blue: "#5B9DFF",
-  violet: "#A78BFA",
-  dim: "#8a94a6",
-  faint: "#5b6675",
+  pos: "#00FFA3",
+  neg: "#FF2E6C",
+  neu: "#8CA5AF",
+  teal: "#00D4B8",
+  amber: "#FFE347",
+  blue: "#4DA8FF",
+  violet: "#B366FF",
+  dim: "#8CA5AF",
+  faint: "#5F7580",
 } as const;
 
 export const colors = {
-  bg: "#0a0d12",
-  sidebar: "#0c1016",
-  card: "#11151c",
-  cardInner: "#0e131a",
-  input: "#10151d",
-  text: "#e6eaf0",
-  textMuted: "#c7cdd6",
-  textSubtle: "#9aa4b2",
-  borderSoft: "#161d28",
-  border: "#1c2330",
-  border2: "#232a36",
-  border3: "#2a3340",
-  border4: "#3a4554",
-  faint2: "#4b5563",
+  bg: "#060A0F",
+  sidebar: "#070D13",
+  card: "#0B151E",
+  cardInner: "#0A121A",
+  input: "#0A141D",
+  text: "#E4F4F7",
+  textMuted: "#C2D6DB",
+  textSubtle: "#9AB3BB",
+  borderSoft: "#12242E",
+  border: "#193039",
+  border2: "#1F3B47",
+  border3: "#26485A",
+  border4: "#33607A",
+  faint2: "#4B6470",
 } as const;
 
 export const fonts = {
