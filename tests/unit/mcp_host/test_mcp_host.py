@@ -111,8 +111,8 @@ def test_connects_and_reports_connected(make_host):
     assert status["restarts"] == 0
     assert h.tools("fake") == {
         "fake": [
-            {"name": "alpha", "description": "d"},
-            {"name": "beta", "description": "d"},
+            {"name": "alpha", "description": "d", "meta": {}, "has_output_schema": False},
+            {"name": "beta", "description": "d", "meta": {}, "has_output_schema": False},
         ]
     }
 
@@ -205,7 +205,7 @@ def test_kill_restart_cycle_reconnects_and_counts_restart(make_host):
     server.alive = True
     assert wait_until(lambda: state_of(h) == STATE_CONNECTED)
     assert wait_until(
-        lambda: h.tools("fake") == {"fake": [{"name": "gamma", "description": "d"}]}
+        lambda: [t["name"] for t in h.tools("fake")["fake"]] == ["gamma"]
     )
     assert h.status()["servers"]["fake"]["restarts"] >= 1
 

@@ -12,6 +12,8 @@ Tools (non-overlapping with pipeline_mcp which owns positions/conflicts):
                stance?, limit?)
   list_drift_events(source?, topic?,      -> stance-drift timeline entries
                     limit?)
+  list_frames(source_type?, frame?,       -> frame distribution rows from
+              limit?)                        document_frames
   claim_evidence_pairs(claim_id?,         -> claim-to-claim evidence pairs
                        relation?, limit?)
   list_unsourced_claims(source_type?,     -> unattributed claim records
@@ -134,7 +136,27 @@ def am_stats() -> dict:
     return counts
 
 
-@mcp.tool
+# ADR-001 reference implementation: the meta.panel block marks this tool as
+# the discovery counterpart of a canvas panel type; the block's fields mirror
+# the PanelDef in src/genui/catalog.py. See docs/architecture/ADR-001.
+@mcp.tool(
+    output_schema={
+        "type": "object",
+        "properties": {"count": {"type": "integer"}, "claims": {"type": "array"}},
+        "additionalProperties": True,
+    },
+    meta={"panel": {
+        "type": "claims",
+        "title": "Extracted claims",
+        "description": "Claims mined from documents with fact-check verdicts.",
+        "endpoint": "/api/v1/arguments/claims",
+        "facets": ["claims", "conflict"],
+        "tables": ["argument_claims"],
+        "default_span": 6,
+        "topic_param": "topic",
+        "source_type_param": "source_type",
+    }},
+)
 def list_claims(
     source_type: Optional[str] = None,
     topic: Optional[str] = None,
@@ -210,7 +232,24 @@ def list_claims(
     }
 
 
-@mcp.tool
+@mcp.tool(
+    output_schema={
+        "type": "object",
+        "properties": {"count": {"type": "integer"}, "stances": {"type": "array"}},
+        "additionalProperties": True,
+    },
+    meta={"panel": {
+        "type": "stance",
+        "title": "Stance breakdown",
+        "description": "Supportive / critical / neutral stance mix per topic.",
+        "endpoint": "/api/v1/arguments/stance",
+        "facets": ["stance", "conflict", "sentiment"],
+        "tables": ["source_stances"],
+        "default_span": 6,
+        "topic_param": "topic",
+        "source_type_param": "source_type",
+    }},
+)
 def list_stances(
     source: Optional[str] = None,
     topic: Optional[str] = None,
@@ -283,7 +322,24 @@ def list_stances(
     }
 
 
-@mcp.tool
+@mcp.tool(
+    output_schema={
+        "type": "object",
+        "properties": {"count": {"type": "integer"}, "events": {"type": "array"}},
+        "additionalProperties": True,
+    },
+    meta={"panel": {
+        "type": "drift",
+        "title": "Stance drift",
+        "description": "Detected stance reversals and shifts per source.",
+        "endpoint": "/api/v1/arguments/stance/drift",
+        "facets": ["trend", "stance"],
+        "tables": ["stance_drift_events"],
+        "default_span": 6,
+        "topic_param": "topic",
+        "source_type_param": "source_type",
+    }},
+)
 def list_drift_events(
     source: Optional[str] = None,
     topic: Optional[str] = None,
@@ -348,6 +404,88 @@ def list_drift_events(
                 "confidence_delta": round(r[5], 3) if r[5] is not None else None,
                 "window_pair":      r[6],
                 "detected_at":      r[7],
+            }
+            for r in rows
+        ],
+    }
+
+
+@mcp.tool(
+    output_schema={
+        "type": "object",
+        "properties": {"count": {"type": "integer"}, "frames": {"type": "array"}},
+        "additionalProperties": True,
+    },
+    meta={"panel": {
+        "type": "frames",
+        "title": "Framing by source",
+        "description": "How each outlet frames the story (economic, legal, …).",
+        "endpoint": "/api/v1/arguments/frames/source",
+        "facets": ["sources", "claims"],
+        "tables": ["document_frames"],
+        "default_span": 6,
+        "topic_param": "topic",
+        "source_type_param": "source_type",
+    }},
+)
+def list_frames(
+    source_type: Optional[str] = None,
+    frame: Optional[str] = None,
+    limit: int = MAX_LIST,
+) -> dict:
+    """
+    Frame distribution rows from ``document_frames``, aggregated per
+    (frame, source_type): how often each framing appears and how confidently.
+
+    Args:
+        source_type: Filter by source type (news/blog/paper/...).
+        frame:       Exact or partial frame label match (ILIKE).
+        limit:       Max rows (default 30, max 100).
+
+    Returns {"count": int, "frames": [{frame, source_type, doc_count,
+    avg_score}, ...]}.
+    """
+    conn, err = _warehouse_ro()
+    if err or conn is None:
+        return {"error": err or "no connection"}
+
+    limit = min(limit, 100)
+    where: list[str] = []
+    params: list = []
+
+    if source_type:
+        where.append("source_type = ?")
+        params.append(source_type)
+    if frame:
+        where.append("frame ILIKE ?")
+        params.append(f"%{frame}%")
+
+    clause = ("WHERE " + " AND ".join(where)) if where else ""
+    params.append(limit)
+
+    try:
+        rows = conn.execute(
+            f"""
+            SELECT frame, source_type, COUNT(*) AS doc_count, AVG(score) AS avg_score
+            FROM document_frames
+            {clause}
+            GROUP BY frame, source_type
+            ORDER BY doc_count DESC
+            LIMIT ?
+            """,
+            params,
+        ).fetchall()
+    except Exception as e:
+        return {"error": str(e)}
+
+    return {
+        "count": len(rows),
+        "frames": [
+            {
+                "frame":       r[0],
+                "source_type": r[1],
+                "doc_count":   r[2],
+                "avg_score":   float(r[3]) if r[3] is not None else 0.0,
             }
             for r in rows
         ],
@@ -611,7 +749,23 @@ def list_actors(
     }
 
 
-@mcp.tool
+@mcp.tool(
+    output_schema={
+        "type": "object",
+        "properties": {"count": {"type": "integer"}, "actors": {"type": "array"}},
+        "additionalProperties": True,
+    },
+    meta={"panel": {
+        "type": "actors",
+        "title": "Key actors",
+        "description": "Most-mentioned speakers, subjects and authors.",
+        "endpoint": "/api/v1/arguments/actors/summary",
+        "facets": ["actors", "entities"],
+        "tables": ["document_actors"],
+        "default_span": 6,
+        "source_type_param": "source_type",
+    }},
+)
 def actor_summary(
     source_type: Optional[str] = None,
     role: Optional[str] = None,
@@ -711,7 +865,23 @@ def trigger_actor_batch(limit: int = 200) -> dict:
         return {"error": f"write connection failed — warehouse may be locked: {e}"}
 
 
-@mcp.tool
+@mcp.tool(
+    output_schema={
+        "type": "object",
+        "properties": {"count": {"type": "integer"}, "outlets": {"type": "array"}},
+        "additionalProperties": True,
+    },
+    meta={"panel": {
+        "type": "outlet_clusters",
+        "title": "Outlet clusters",
+        "description": "Outlets grouped by editorial framing (PCA scatter).",
+        "endpoint": "/api/v1/arguments/outlets/clusters",
+        "facets": ["sources", "entities"],
+        "tables": ["outlet_clusters"],
+        "default_span": 6,
+        "source_type_param": "source_type",
+    }},
+)
 def list_outlet_clusters(
     source_type: Optional[str] = None,
     cluster_id: Optional[int] = None,
@@ -824,7 +994,23 @@ def trigger_outlet_clustering(
         return {"error": f"write connection failed — warehouse may be locked: {e}"}
 
 
-@mcp.tool
+@mcp.tool(
+    output_schema={
+        "type": "object",
+        "properties": {"count": {"type": "integer"}, "outlets": {"type": "array"}},
+        "additionalProperties": True,
+    },
+    meta={"panel": {
+        "type": "outlet_ranking",
+        "title": "Outlet transparency ranking",
+        "description": "Outlets scored by framing diversity, attribution, neutrality.",
+        "endpoint": "/api/v1/arguments/outlets/ranking",
+        "facets": ["sources"],
+        "tables": ["outlet_scores"],
+        "default_span": 6,
+        "source_type_param": "source_type",
+    }},
+)
 def list_outlet_scores(
     source_type: Optional[str] = None,
     sort_by: str = "composite_score",

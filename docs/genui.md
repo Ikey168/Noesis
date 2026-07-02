@@ -53,6 +53,19 @@ feature-flag pattern in `src/api/app.py`):
   status, MCP host health (per-server state / last-seen / tool counts)
 - `GET /api/v1/ui/panels` — the panel catalog
 
+### Discovery-derived catalog (`src/genui/discovery.py`, R2)
+
+Tools annotated with a `meta.panel` block (format:
+`docs/architecture/ADR-001-tool-panel-annotation.md`) become `PanelDef`s
+at discovery time and merge over the static catalog, which stays the
+fallback: `GET /api/v1/ui/panels` serves the merged catalog, and with no
+servers connected its payload is byte-identical to the static one.
+Annotated tools must declare an `outputSchema`; malformed annotations are
+skipped with a warning, never an error. Every data-backed panel type has
+an annotated counterpart across `tools/*_mcp` (`note` and `timeline` are
+composed panels, exempt by design); the planner still reads the static
+catalog until R3.
+
 ### MCP host runtime (`src/mcp_host/`, R1)
 
 The API process supervises the repo's 12 `tools/*_mcp` stdio servers:

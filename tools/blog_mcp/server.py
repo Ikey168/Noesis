@@ -262,7 +262,22 @@ def ingest_feeds(
     }
 
 
-@mcp.tool
+@mcp.tool(
+    output_schema={
+        "type": "object",
+        "properties": {"matches": {"type": "array"}, "feeds_checked": {"type": "integer"}},
+        "additionalProperties": True,
+    },
+    meta={"panel": {
+        "type": "watchlists",
+        "title": "Watchlist",
+        "description": "Tracked entities and topics with mention velocity and alerts.",
+        "endpoint": None,
+        "facets": ["events", "trend"],
+        "ui_flag": "watchlists",
+        "default_span": 6,
+    }},
+)
 def run_watchlist(
     keywords: str,
     tag_filter: str = "",
