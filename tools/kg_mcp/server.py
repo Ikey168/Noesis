@@ -40,6 +40,9 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
+# Stdlib-only helper for the analytics honesty contract (R6); safe at import.
+from src.analytics.honesty import honesty_output_schema  # noqa: E402
+
 mcp = FastMCP("neuronews-kg")
 
 MAX_LIST = 50
@@ -298,6 +301,75 @@ def evolving_topics(
     """
     from src.knowledge_graph.kg_updater import get_evolving_topics
     return get_evolving_topics(window_seconds=window_minutes * 60, top_n=top_n)
+
+
+# ---------------------------------------------------------------------------
+# Graph analytics (R6 / Track DS Wave 1b): communities + centrality over the
+# co-mention graph. These enrich the entity_graph panel (colour + size) rather
+# than being panels themselves, so they carry no meta.panel annotation.
+# ---------------------------------------------------------------------------
+
+def _comention_graph():
+    """Build (node_ids, edges, names) from the live KG store."""
+    store = _get_kg_store()
+    nodes = list(store._nodes.keys())
+    names = {nid: getattr(node, "name", nid) for nid, node in store._nodes.items()}
+    edges = [
+        (t.subject, t.object)
+        for t in store._triples.values()
+        if t.subject and t.object and t.subject != t.object
+    ]
+    return nodes, edges, names
+
+
+@mcp.tool(
+    output_schema=honesty_output_schema(
+        {
+            "kg": {"type": ["string", "null"]},
+            "community_count": {"type": "integer"},
+            "communities": {"type": "array"},
+            "assignments": {"type": "array"},
+        }
+    ),
+)
+def kg_communities(kg: Optional[str] = None) -> dict:
+    """Community detection (label propagation) over the KG co-mention graph,
+    for colouring the entity graph. Accepts an optional ``kg`` namespace
+    (Track P) — the default graph is used until namespacing lands.
+    """
+    try:
+        from src.analytics.kg_analytics import kg_communities_payload
+
+        nodes, edges, names = _comention_graph()
+        return kg_communities_payload(nodes, edges, names, kg=kg)
+    except Exception as exc:
+        return {"error": str(exc)}
+
+
+@mcp.tool(
+    output_schema=honesty_output_schema(
+        {
+            "kg": {"type": ["string", "null"]},
+            "edges": {"type": "integer"},
+            "nodes_ranked": {"type": "array"},
+        }
+    ),
+)
+def kg_centrality(kg: Optional[str] = None, top: int = 20) -> dict:
+    """PageRank centrality over the KG co-mention graph, for sizing entity-graph
+    nodes. Accepts an optional ``kg`` namespace (Track P).
+
+    Args:
+        kg:  optional KG namespace label.
+        top: number of top-centrality nodes to return (default 20).
+    """
+    try:
+        from src.analytics.kg_analytics import kg_centrality_payload
+
+        nodes, edges, names = _comention_graph()
+        return kg_centrality_payload(nodes, edges, names, kg=kg, top=top)
+    except Exception as exc:
+        return {"error": str(exc)}
 
 
 # ---------------------------------------------------------------------------

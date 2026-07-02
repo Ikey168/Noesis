@@ -178,3 +178,110 @@ def permutation_test_split(
         "n": n,
         "resamples": resamples if (0 < na < n and observed > _EPS) else 0,
     }
+
+
+# ---------------------------------------------------------------------------
+# Time series (R6): cross-correlation lead-lag + exponential-smoothing forecast.
+# ---------------------------------------------------------------------------
+
+
+def pearson(x: Sequence[float], y: Sequence[float]) -> float:
+    """Pearson correlation of two equal-length series; 0 when undefined."""
+    n = len(x)
+    if n < 2 or n != len(y):
+        return 0.0
+    mx, my = sum(x) / n, sum(y) / n
+    sxy = sum((a - mx) * (b - my) for a, b in zip(x, y))
+    sxx = sum((a - mx) ** 2 for a in x)
+    syy = sum((b - my) ** 2 for b in y)
+    denom = math.sqrt(sxx * syy)
+    return sxy / denom if denom > _EPS else 0.0
+
+
+def cross_correlation_lag(
+    x: Sequence[float], y: Sequence[float], max_lag: int
+) -> Dict[str, float]:
+    """Best lead-lag between series x and y by cross-correlation.
+
+    Positive ``lag`` means x leads y (x's past predicts y's present): shifting
+    x forward by ``lag`` maximizes the correlation. Returns the best lag, its
+    correlation, and the overlap length it was measured on.
+    """
+    x = [float(v) for v in x]
+    y = [float(v) for v in y]
+    n = min(len(x), len(y))
+    if n < 3:
+        return {"lag": 0, "correlation": 0.0, "overlap": n}
+    max_lag = max(0, min(max_lag, n - 2))
+    best = {"lag": 0, "correlation": 0.0, "overlap": n}
+    for lag in range(-max_lag, max_lag + 1):
+        if lag >= 0:
+            a, b = x[: n - lag], y[lag:n]
+        else:
+            a, b = x[-lag:n], y[: n + lag]
+        if len(a) < 3:
+            continue
+        corr = pearson(a, b)
+        stronger = abs(corr) > abs(best["correlation"]) + _EPS
+        # On a (near-)tie in correlation — common with periodic series, where
+        # several lags correlate equally — prefer the smallest-magnitude lag,
+        # the most parsimonious lead-lag explanation.
+        tie_closer = (
+            abs(abs(corr) - abs(best["correlation"])) <= _EPS
+            and abs(lag) < abs(best["lag"])
+        )
+        if stronger or tie_closer:
+            best = {"lag": lag, "correlation": corr, "overlap": len(a)}
+    return best
+
+
+def holt_forecast(
+    series: Sequence[float],
+    horizon: int,
+    alpha: float = 0.5,
+    beta: float = 0.3,
+    z: float = 1.96,
+) -> Dict[str, object]:
+    """Holt linear-trend exponential smoothing with prediction intervals.
+
+    Returns per-step point forecasts and a symmetric prediction band from the
+    in-sample one-step residual spread (widening with the horizon). Forecasts
+    are never returned without the band — the honesty rule for R6.
+    """
+    series = [float(v) for v in series]
+    n = len(series)
+    if n < 2 or horizon < 1:
+        last = series[-1] if series else 0.0
+        return {"points": [last] * max(0, horizon), "lo": [], "hi": [], "sigma": 0.0}
+
+    level = series[0]
+    trend = series[1] - series[0]
+    residuals: List[float] = []
+    for value in series[1:]:
+        predicted = level + trend
+        residuals.append(value - predicted)
+        new_level = alpha * value + (1 - alpha) * (level + trend)
+        trend = beta * (new_level - level) + (1 - beta) * trend
+        level = new_level
+
+    sigma = statistics.pstdev(residuals) if len(residuals) > 1 else 0.0
+    points, lo, hi = [], [], []
+    for h in range(1, horizon + 1):
+        point = level + h * trend
+        # Prediction interval widens with sqrt(h) (random-walk-of-errors).
+        width = z * sigma * math.sqrt(h)
+        points.append(point)
+        lo.append(point - width)
+        hi.append(point + width)
+    return {"points": points, "lo": lo, "hi": hi, "sigma": sigma}
+
+
+def cosine(a: Dict[str, float], b: Dict[str, float]) -> float:
+    """Cosine similarity between two sparse term-weight vectors."""
+    if not a or not b:
+        return 0.0
+    common = set(a) & set(b)
+    dot = sum(a[k] * b[k] for k in common)
+    na = math.sqrt(sum(v * v for v in a.values()))
+    nb = math.sqrt(sum(v * v for v in b.values()))
+    return dot / (na * nb) if na > _EPS and nb > _EPS else 0.0

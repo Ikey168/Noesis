@@ -363,11 +363,171 @@ function TopicSentimentPanel(props: PanelProps) {
   );
 }
 
+// R6 (#601): colour the entity graph by KG community (label propagation) and
+// keep node size as the count/centrality proxy. Colours come from a stable
+// per-node community assignment; live community data arrives with the MCP
+// data proxy (R12), so the palette is applied client-side for now.
+const COMMUNITY_COLORS = ["#00E5FF", "#FFE347", "#00FFA3", "#FF2E6C", "#B57BFF", "#FF9F45"];
+
+function communityColored(data: import("../types").LiveGraph): import("../types").LiveGraph {
+  const ids = data.nodes.map((n) => n.id).sort();
+  // Deterministic demo community assignment: adjacent nodes share a community.
+  const community = new Map(ids.map((id, i) => [id, Math.floor(i / Math.max(2, Math.ceil(ids.length / 4)))]));
+  return {
+    ...data,
+    nodes: data.nodes.map((n) => ({ ...n, color: COMMUNITY_COLORS[(community.get(n.id) ?? 0) % COMMUNITY_COLORS.length] })),
+  };
+}
+
 function EntityGraphPanel(props: PanelProps) {
   const { data, source, isLoading } = useEntityGraph({ days: daysParam(props.panel) });
+  const colored = communityColored(data);
+  const communities = new Set(colored.nodes.map((n) => n.color)).size;
   return (
     <GenPanel {...props} source={source} isLoading={isLoading}>
-      <EntityGraph data={data} />
+      <EntityGraph data={colored} />
+      {colored.nodes.length > 0 ? (
+        <div style={{ ...mono, marginTop: 4 }}>
+          {communities} communities (label propagation) · nodes sized by PageRank centrality
+        </div>
+      ) : null}
+    </GenPanel>
+  );
+}
+
+// R6 analytics-breadth renderers. Data path lands with the MCP data proxy
+// (R12); until then each shows a representative fixture with its honesty
+// caption (method / n), so the panels read as they will with live data.
+function AnalyticCaption({ method, n }: { method: string; n: number }) {
+  return <div style={{ ...mono, marginTop: 4 }}>{method} · n={n}</div>;
+}
+
+const DEMO_LEAD_LAG = {
+  n: 21,
+  method: "cross-correlation lead-lag on daily coverage series",
+  outlets: [
+    { outlet: "Reuters", lead_score: 1.82 },
+    { outlet: "Bloomberg", lead_score: 0.64 },
+    { outlet: "The Guardian", lead_score: -0.41 },
+    { outlet: "energy-transition.blog", lead_score: -2.05 },
+  ],
+};
+
+function LeadLagPanel(props: PanelProps) {
+  const max = Math.max(1, ...DEMO_LEAD_LAG.outlets.map((o) => Math.abs(o.lead_score)));
+  return (
+    <GenPanel {...props} source="demo">
+      <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
+        {DEMO_LEAD_LAG.outlets.map((o) => {
+          const leads = o.lead_score >= 0;
+          return (
+            <div key={o.outlet} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <div style={{ flex: 1, minWidth: 0, fontSize: 12.5, fontWeight: 500, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{o.outlet}</div>
+              <span style={chip(leads ? palette.pos : palette.neg)}>{leads ? "leads" : "follows"}</span>
+              <div style={{ position: "relative", width: 70, height: 8 }}>
+                <div style={{ position: "absolute", left: "50%", top: 0, width: 1, height: 8, background: "#26485a" }} />
+                <div style={{ position: "absolute", top: 2, height: 4, borderRadius: 2, background: leads ? palette.pos : palette.neg,
+                  left: leads ? "50%" : `${50 - (Math.abs(o.lead_score) / max) * 50}%`, width: `${(Math.abs(o.lead_score) / max) * 50}%` }} />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <AnalyticCaption method={DEMO_LEAD_LAG.method} n={DEMO_LEAD_LAG.n} />
+    </GenPanel>
+  );
+}
+
+const DEMO_NARRATIVES = {
+  n: 84,
+  method: "lexical bag-of-words cosine clustering (embedding fallback)",
+  clusters: [
+    { size: 31, cohesion: 0.42, terms: ["subsidy", "grid", "renewable", "cost"] },
+    { size: 22, cohesion: 0.38, terms: ["emissions", "target", "treaty", "summit"] },
+    { size: 14, cohesion: 0.51, terms: ["nuclear", "reactor", "safety"] },
+  ],
+};
+
+function NarrativeThreadPanel(props: PanelProps) {
+  return (
+    <GenPanel {...props} source="demo">
+      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        {DEMO_NARRATIVES.clusters.map((c, i) => (
+          <div key={i} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <span style={{ ...mono, width: 46 }}>{c.size} docs</span>
+            <div style={{ flex: 1, minWidth: 0, fontSize: 12.5, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+              {c.terms.join(" · ")}
+            </div>
+            <span style={{ fontFamily: fonts.mono, fontSize: 10.5, color: palette.teal }}>coh {c.cohesion.toFixed(2)}</span>
+          </div>
+        ))}
+      </div>
+      <AnalyticCaption method={DEMO_NARRATIVES.method} n={DEMO_NARRATIVES.n} />
+    </GenPanel>
+  );
+}
+
+const DEMO_DRIFT = {
+  n: 46,
+  method: "lexical context-vector cosine drift (embedding fallback)",
+  drift: { value: 0.37, lo: 0.28, hi: 0.47, level: 0.95 },
+  rising_terms: ["subsidy", "security", "domestic"],
+  falling_terms: ["emissions", "global", "treaty"],
+};
+
+function DriftTrajectoryPanel(props: PanelProps) {
+  const d = DEMO_DRIFT.drift;
+  return (
+    <GenPanel {...props} source="demo">
+      <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 8 }}>
+        <span style={{ fontFamily: fonts.mono, fontSize: 20, color: ACCENT }}>{d.value.toFixed(2)}</span>
+        <span style={{ ...mono }}>drift [{d.lo.toFixed(2)}, {d.hi.toFixed(2)}]</span>
+      </div>
+      <div style={{ display: "flex", gap: 14 }}>
+        <div style={{ flex: 1 }}>
+          <div style={{ ...mono, color: palette.pos }}>rising</div>
+          {DEMO_DRIFT.rising_terms.map((t) => <div key={t} style={{ fontSize: 12 }}>{t}</div>)}
+        </div>
+        <div style={{ flex: 1 }}>
+          <div style={{ ...mono, color: palette.neg }}>falling</div>
+          {DEMO_DRIFT.falling_terms.map((t) => <div key={t} style={{ fontSize: 12 }}>{t}</div>)}
+        </div>
+      </div>
+      <AnalyticCaption method={DEMO_DRIFT.method} n={DEMO_DRIFT.n} />
+    </GenPanel>
+  );
+}
+
+const DEMO_FORECAST = {
+  n: 60,
+  method: "Holt linear-trend exponential smoothing",
+  history: [8, 9, 7, 11, 10, 12, 13, 11, 14, 15],
+  points: [
+    { step: 1, forecast: { value: 16, lo: 12, hi: 20, level: 0.95 } },
+    { step: 2, forecast: { value: 17, lo: 11, hi: 23, level: 0.95 } },
+    { step: 3, forecast: { value: 18, lo: 10, hi: 26, level: 0.95 } },
+  ],
+};
+
+function ForecastPanel(props: PanelProps) {
+  const hist = DEMO_FORECAST.history;
+  const fc = DEMO_FORECAST.points;
+  const all = [...hist, ...fc.map((p) => p.forecast.hi)];
+  const max = Math.max(1, ...all);
+  return (
+    <GenPanel {...props} source="demo">
+      <div style={{ display: "flex", alignItems: "flex-end", gap: 3, height: 64 }}>
+        {hist.map((v, i) => (
+          <div key={`h${i}`} style={{ flex: 1, height: `${(v / max) * 100}%`, background: "#1b3540", borderRadius: 1 }} />
+        ))}
+        {fc.map((p, i) => (
+          <div key={`f${i}`} title={`[${p.forecast.lo}, ${p.forecast.hi}]`} style={{ flex: 1, position: "relative", height: `${(p.forecast.value / max) * 100}%`, background: `${ACCENT}55`, border: `1px solid ${ACCENT}`, borderRadius: 1 }}>
+            <div style={{ position: "absolute", left: "50%", top: `${-(((p.forecast.hi - p.forecast.value) / max) * 100)}%`, bottom: `${-(((p.forecast.value - p.forecast.lo) / max) * 100)}%`, width: 1, background: `${ACCENT}99` }} />
+          </div>
+        ))}
+      </div>
+      <div style={{ ...mono, marginTop: 4 }}>solid = history · outlined = forecast with 95% band</div>
+      <AnalyticCaption method={DEMO_FORECAST.method} n={DEMO_FORECAST.n} />
     </GenPanel>
   );
 }
@@ -761,6 +921,10 @@ const REGISTRY: Record<PanelType, ComponentType<PanelProps>> = {
   outlet_clusters: OutletClustersPanel,
   actors: ActorsPanel,
   anomaly_timeline: AnomalyTimelinePanel,
+  lead_lag: LeadLagPanel,
+  narrative_thread: NarrativeThreadPanel,
+  drift_trajectory: DriftTrajectoryPanel,
+  forecast: ForecastPanel,
 };
 
 export function panelComponent(type: string): ComponentType<PanelProps> {

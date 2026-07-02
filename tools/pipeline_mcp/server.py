@@ -1416,5 +1416,223 @@ def trigger_detect_anomalies(threshold: float = 3.5) -> dict:
         con.close()
 
 
+# --------------------------------------------------------------------------- #
+# Analytics breadth (R6 / Track DS Wave 1b): lead-lag, narratives, drift,      #
+# forecast. Read-only reads over news_articles; on-demand (cheap) with an      #
+# optional batch trigger for the precompute pattern.                           #
+# --------------------------------------------------------------------------- #
+
+def _outlet_list(outlets: Optional[str]):
+    if not outlets:
+        return None
+    return [o.strip() for o in outlets.split(",") if o.strip()]
+
+
+@mcp.tool(
+    output_schema=honesty_output_schema(
+        {
+            "topic": {"type": "string"},
+            "outlets": {"type": "array"},
+            "pairs": {"type": "array"},
+        }
+    ),
+    meta={"panel": {
+        "type": "lead_lag",
+        "title": "Who leads, who follows",
+        "description": "Outlets ranked by whether they set the agenda or follow it, from cross-correlation lead-lag of coverage.",
+        "endpoint": None,
+        "facets": ["sources", "trend"],
+        "tables": ["news_articles"],
+        "default_span": 6,
+        "topic_param": "topic",
+    }},
+)
+def lead_lag(topic: str, outlets: Optional[str] = None) -> dict:
+    """Which outlets lead vs follow on a topic, by cross-correlation of their
+    daily coverage series. Positive lag means the leader publishes first.
+
+    Args:
+        topic:   the topic (category) to analyze.
+        outlets: optional comma-separated outlet allowlist.
+    """
+    try:
+        con = _warehouse_ro()
+    except Exception as exc:
+        return {"error": str(exc)}
+    try:
+        from src.analytics.lead_lag import lead_lag_payload
+
+        return lead_lag_payload(con, topic, _outlet_list(outlets))
+    except Exception as exc:
+        return {"error": str(exc)}
+    finally:
+        con.close()
+
+
+@mcp.tool(
+    output_schema=honesty_output_schema(
+        {"topic": {"type": ["string", "null"]}, "clusters": {"type": "array"}}
+    ),
+    meta={"panel": {
+        "type": "narrative_thread",
+        "title": "Narrative threads",
+        "description": "Competing storylines on a topic, clustered from document text with size and cohesion.",
+        "endpoint": None,
+        "facets": ["events", "overview"],
+        "tables": ["news_articles"],
+        "default_span": 6,
+        "topic_param": "topic",
+        "days_param": "days",
+        "max_days": 90,
+    }},
+)
+def cluster_narratives(topic: Optional[str] = None, days: Optional[int] = None) -> dict:
+    """Competing narrative threads on a topic: documents clustered by shared
+    vocabulary, reported with cluster size, cohesion and top terms.
+
+    Args:
+        topic: the topic (category) to cluster. Omit for the whole corpus.
+        days:  optional look-back window in days.
+    """
+    try:
+        con = _warehouse_ro()
+    except Exception as exc:
+        return {"error": str(exc)}
+    try:
+        from src.analytics.narratives import cluster_narratives_payload
+
+        return cluster_narratives_payload(con, topic, days)
+    except Exception as exc:
+        return {"error": str(exc)}
+    finally:
+        con.close()
+
+
+@mcp.tool(
+    output_schema=honesty_output_schema(
+        {
+            "term": {"type": "string"},
+            "drift": INTERVAL_SCHEMA,
+            "rising_terms": {"type": "array"},
+            "falling_terms": {"type": "array"},
+        }
+    ),
+    meta={"panel": {
+        "type": "drift_trajectory",
+        "title": "Meaning drift",
+        "description": "How a term's coverage context shifts over time, with rising and falling associated terms.",
+        "endpoint": None,
+        "facets": ["trend"],
+        "tables": ["news_articles"],
+        "default_span": 6,
+        "topic_param": "term",
+    }},
+)
+def semantic_drift(term: str, window: int = 90) -> dict:
+    """How a term's *meaning* (its coverage context) shifts across a window,
+    comparing the early and late halves, with a bootstrap interval.
+
+    Args:
+        term:   the term or entity to track.
+        window: look-back window in days (default 90).
+    """
+    try:
+        con = _warehouse_ro()
+    except Exception as exc:
+        return {"error": str(exc)}
+    try:
+        from src.analytics.drift import semantic_drift_payload
+
+        return semantic_drift_payload(con, term, window)
+    except Exception as exc:
+        return {"error": str(exc)}
+    finally:
+        con.close()
+
+
+@mcp.tool(
+    output_schema=honesty_output_schema(
+        {
+            "topic": {"type": "string"},
+            "horizon": {"type": "integer"},
+            "history": {"type": "array"},
+            "points": {"type": "array"},
+        }
+    ),
+    meta={"panel": {
+        "type": "forecast",
+        "title": "Coverage forecast",
+        "description": "Projected coverage velocity for a topic with a prediction band (never a bare point forecast).",
+        "endpoint": None,
+        "facets": ["trend"],
+        "tables": ["news_articles"],
+        "default_span": 6,
+        "topic_param": "topic",
+    }},
+)
+def forecast_topic(topic: str, horizon: int = 7) -> dict:
+    """Forecast a topic's daily coverage velocity with Holt exponential
+    smoothing. Every step carries a prediction interval.
+
+    Args:
+        topic:   the topic (category) to forecast.
+        horizon: days ahead to project (default 7, max 30).
+    """
+    try:
+        con = _warehouse_ro()
+    except Exception as exc:
+        return {"error": str(exc)}
+    try:
+        from src.analytics.drift import forecast_topic_payload
+
+        return forecast_topic_payload(con, topic, horizon)
+    except Exception as exc:
+        return {"error": str(exc)}
+    finally:
+        con.close()
+
+
+@mcp.tool
+def trigger_lead_lag() -> dict:
+    """Run the lead-lag batch fit across all topics into ``analytics_lead_lag``
+    (RW). Logs to MLflow when available."""
+    import threading
+
+    try:
+        con = _warehouse_rw()
+    except Exception as exc:
+        return {"error": str(exc)}
+    try:
+        from src.analytics.lead_lag import LeadLagJob
+        from src.analytics.framework import run_job
+
+        return run_job(LeadLagJob(), conn=con, lock=threading.Lock())
+    except Exception as exc:
+        return {"error": str(exc)}
+    finally:
+        con.close()
+
+
+@mcp.tool
+def trigger_cluster_narratives() -> dict:
+    """Run the narrative-clustering batch fit across all topics into
+    ``analytics_narratives`` (RW). Logs to MLflow when available."""
+    import threading
+
+    try:
+        con = _warehouse_rw()
+    except Exception as exc:
+        return {"error": str(exc)}
+    try:
+        from src.analytics.narratives import NarrativeJob
+        from src.analytics.framework import run_job
+
+        return run_job(NarrativeJob(), conn=con, lock=threading.Lock())
+    except Exception as exc:
+        return {"error": str(exc)}
+    finally:
+        con.close()
+
+
 if __name__ == "__main__":
     mcp.run()  # stdio transport by default

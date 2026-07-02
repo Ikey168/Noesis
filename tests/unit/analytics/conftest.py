@@ -26,6 +26,7 @@ def seed():
     directly (pytest's import mode makes relative imports of it unreliable)."""
     return SimpleNamespace(
         news=seed_news,
+        articles=seed_articles,
         outlet_scores=seed_outlet_scores,
         source_stances=seed_source_stances,
     )
@@ -41,6 +42,35 @@ def seed_news(conn, rows):
         conn.executemany(
             "INSERT INTO news_articles VALUES (?, ?, ?)",
             [(cat, day, s) for cat, day, s in rows],
+        )
+
+
+def seed_articles(conn, rows):
+    """Fuller news_articles for the R6 analytics.
+
+    rows: list of dicts with any of id/title/source/category/publish_date/
+    sentiment_score (missing keys default sensibly).
+    """
+    conn.execute(
+        "CREATE TABLE news_articles ("
+        "id VARCHAR, title VARCHAR, source VARCHAR, category VARCHAR, "
+        "publish_date DATE, sentiment_score DOUBLE)"
+    )
+    if rows:
+        conn.executemany(
+            "INSERT INTO news_articles (id, title, source, category, publish_date, sentiment_score) "
+            "VALUES (?, ?, ?, ?, ?, ?)",
+            [
+                (
+                    r.get("id", f"a{i}"),
+                    r.get("title", ""),
+                    r.get("source", "Reuters"),
+                    r.get("category", "climate"),
+                    r["publish_date"],
+                    r.get("sentiment_score", 0.0),
+                )
+                for i, r in enumerate(rows)
+            ],
         )
 
 

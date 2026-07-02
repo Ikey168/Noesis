@@ -82,10 +82,15 @@ tests use). Fits run as batch jobs (`framework.py`: `AnalyticJob` +
 result tables. Wave 1a ships `detect_anomalies` (robust z-score over
 per-topic coverage/sentiment, the `anomaly_timeline` panel),
 `score_confidence` (bootstrap CI, error bars on `outlet_ranking`) and
-`stance_significance` (permutation test). Maths is pure stdlib
-(`stats.py`), so the tool servers stay import-safe. The panels render the
-uncertainty fields today from demo data; live panel data arrives with the
-MCP data proxy (R12).
+`stance_significance` (permutation test). Wave 1b (R6) adds `lead_lag`
+(cross-correlation who-leads matrix), `cluster_narratives` (lexical
+narrative threads), `kg_communities`/`kg_centrality` (community-coloured,
+centrality-sized entity graph) and `semantic_drift` + `forecast_topic`
+(the `drift_trajectory` and `forecast` panels; forecasts are always
+banded). Maths is pure stdlib (`stats.py`, `graph.py`, `text.py`), so the
+tool servers stay import-safe. The panels render the uncertainty fields
+today from demo data; live panel data arrives with the MCP data proxy
+(R12).
 
 ### MCP host runtime (`src/mcp_host/`, R1)
 

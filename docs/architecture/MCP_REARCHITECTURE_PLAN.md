@@ -542,7 +542,21 @@ path lands on the MCP data proxy at R12 (demo data until then).
 
 **R6 — Analytics breadth** *(Track DS Wave 1b, then Wave 2 rolling)*
 `lead_lag`, `cluster_narratives`, `kg_communities`/`centrality`,
-`semantic_drift`; `forecast_topic` last. Wave 2 tools (coverage bias,
+`semantic_drift`; `forecast_topic` last.
+
+*Delivered.* `src/analytics/` grew `lead_lag.py` (cross-correlation
+lead-lag, the `lead_lag` panel; smallest-magnitude lag wins on ties),
+`narratives.py` (bag-of-words cosine clustering, the `narrative_thread`
+panel), `graph.py` + `kg_analytics.py` (pure-Python PageRank +
+label-propagation communities feeding the community-coloured
+`entity_graph`), and `drift.py` (`semantic_drift` → `drift_trajectory`
+panel; `forecast_topic` → `forecast` panel via Holt smoothing, always
+banded). Tools: `lead_lag`, `cluster_narratives`, `semantic_drift`,
+`forecast_topic` (pipeline_mcp, annotated for the four new panels),
+`kg_communities` / `kg_centrality` (kg_mcp, no panel — they enrich the
+entity graph, and take an optional `kg` namespace for Track P). Everything
+honesty-wrapped; `forecast_topic` never returns a point without its
+interval. Wave 2 tools (coverage bias,
 burst, calibration, …) then land as independent per-tool increments —
 no milestone gate each.
 *Exit:* "who leads on X" plans a lead-lag matrix panel end-to-end.

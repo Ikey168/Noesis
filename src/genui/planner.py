@@ -30,6 +30,8 @@ FACET_KEYWORDS: Dict[str, Tuple[str, ...]] = {
         "momentum", "trajectory", "drift",
         "unusual", "anomaly", "anomalies", "anomalous", "spike", "spikes",
         "surge", "abnormal", "outlier", "outliers",
+        "semantic", "meaning", "forecast", "forecasts", "predict", "prediction",
+        "projection", "outlook", "future", "expected",
     ),
     "sentiment": (
         "sentiment", "tone", "mood", "feeling", "positive", "negative",
@@ -60,6 +62,8 @@ FACET_KEYWORDS: Dict[str, Tuple[str, ...]] = {
         "outlet", "outlets", "source", "sources", "bias", "biased",
         "framing", "frame", "frames", "coverage", "compare", "comparison",
         "transparency", "media", "publisher", "publishers",
+        "leads", "lead", "leader", "leaders", "follows", "follow",
+        "followers", "agenda", "first", "earliest", "sets",
     ),
     "entities": (
         "entity", "entities", "network", "graph", "connection",
