@@ -283,6 +283,11 @@ by source type, article length, and per-class metrics.
   with quality-driven source selection — and **Track DS** — data-science
   techniques (anomaly detection, lead-lag, narrative clustering, graph
   science, significance testing) as planner-composable tools — proposed
+- Phase 9: Beyond news — research domain pack (citation graph, venue
+  credibility, literature claims) as the second first-class pack;
+  finance/legal domains provisioned via Track P; pack-aware canvas
+  telemetry and outlet→source generalisation
+  ([continuation plan](docs/architecture/KNOWLEDGE_ENGINE_PIVOT_PLAN.md)) — proposed
 - Also upcoming: trained model checkpoints; cross-dataset generalisation
   (FEVER / LIAR / AVeriTeC); predictive analytics; real-time fact-checking
 

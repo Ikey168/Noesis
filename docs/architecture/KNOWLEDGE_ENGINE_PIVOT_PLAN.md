@@ -1,8 +1,10 @@
 # Pivot Plan: From News Analytics to a General Knowledge Extraction Engine
 
-**Status:** Proposed
+**Status:** Largely delivered — see §15 (status update 2026-07-02) for what
+shipped, what changed, and the beyond-news continuation
 **Owner:** TBD
-**Date:** 2026-06-21
+**Date:** 2026-06-21 (status update 2026-07-02)
+**Related:** `docs/architecture/MCP_REARCHITECTURE_PLAN.md`, `docs/genui.md`
 **Decisions locked in:**
 
 - First new source type built end-to-end: **Academic papers** (arXiv / PubMed / PDF).
@@ -338,3 +340,87 @@ M7 unlocks the optional-news architecture; M8–M11 add coverage; M12 finishes t
 
 Begin **M0** (the `Document` contract + Article adapter). It is purely additive, unblocks every
 later milestone, and carries zero risk to the existing news pipeline.
+
+---
+
+## 15. Status update (2026-07-02) — and the beyond-news continuation
+
+### 15.1 Milestone status
+
+Every milestone has shipped code; the engine layer of this pivot is done.
+
+| Milestone | Status | Evidence |
+| --- | --- | --- |
+| M0 Document model | Delivered | `contracts/schemas/jsonschema/document-ingest-v1.json` + fixtures, `Document` model, article adapter, contract tests |
+| M1 Connector framework | Delivered | `src/ingestion/connectors/{base,registry}.py`; news runs through it |
+| M2 KG foundation | Delivered | `src/knowledge_graph/foundation/{ontology,model,store}.py` (typed ontology, provenance store) |
+| M3 Entity resolution | Delivered | `src/knowledge_graph/foundation/resolution.py` + `entity_corrections` |
+| M4 Papers + citation graph | Delivered | `connectors/paper/{arxiv,pdf_parser,references,citation_graph}.py` |
+| M5 Structured chunking | Delivered | `SplitStrategy.STRUCTURED` in `services/rag/chunking.py` |
+| M6 Claim extraction | Delivered | `src/knowledge_graph/{claim_extractor,claim_graph}.py` |
+| M7 Domain packs | Delivered | `src/domains/` registry, news pack feature-flagged, `document_routes` |
+| M8–M11 Books/blogs/media/upload | Delivered | `connectors/{book,blog,media,upload}/` |
+| M12 Web reframing + rebrand | Delivered, differently | Superseded by the **fully generative canvas** (`docs/genui.md`): fixed views were not reframed but *removed* — every screen is planned from intent. Rebrand to Noesis done |
+
+### 15.2 What changed since this plan was written
+
+Two architecture tracks landed after §1–§14 and reshape the endgame:
+
+- **The generative UI** (`docs/genui.md`) dissolves §10's view-by-view
+  reframing: there are no views to gate. Domains surface as *panel
+  families* selected by the planner, gated by pack `ui_flags` and data
+  availability. Adding a domain to the UI = adding catalog entries, not
+  screens.
+- **The MCP rearchitecture** (`MCP_REARCHITECTURE_PLAN.md`) turns §9's
+  pack registry into connected MCP servers (Stage 1), and — decisively —
+  **Track P** makes new knowledge domains *provisionable*: `kg_deploy` +
+  `kg_attach_sources` stand up a namespaced KG fed by selected sources,
+  with the canvas growing panels via discovery. Hand-built packs stop
+  being the only way to add a domain.
+
+### 15.3 Beyond news: the remaining coupling
+
+The engine is general; the *product posture* is still news-first. The
+concrete residue, in priority order:
+
+1. **No second first-class pack.** Papers/books ingest and render in
+   generic panels, but nothing exploits them: no citation-graph panel, no
+   venue/source credibility for non-news, no literature-claims analytics.
+   The news pack is load-bearing by default (`config/domain_packs.json`).
+2. **genui gravity.** Overview panels anchor availability on the
+   `news_articles` table; the empty-canvas movers, KPI tiles, and the
+   BREAKING ticker are news telemetry shown regardless of domain mix.
+3. **News-shaped vocabulary.** "Outlet" scoring/clustering generalizes
+   conceptually to *source* credibility (paper venues, blogs, publishers)
+   but is named, stored (`outlet_*` tables), and worded for newsrooms.
+4. **Brand residue in infra.** `NEURONEWS_*` env vars, `@neuronews/web`,
+   `neuronews-*` MCP server names, "NeuroNews API" title, page title.
+   Cosmetic but pervasive; rename with aliases, never a breaking cut.
+
+### 15.4 Continuation plan
+
+- **N1 — Research pack as the second first-class domain** (proves
+  pack-plurality; the papers milestone locked this choice). A
+  `research` DomainPack/MCP server: enrichers over paper metadata,
+  `ui_flags` for new panel types — `citation_graph`, `venues`
+  (credibility per venue, reusing the transparency machinery),
+  `literature_claims` (SUPPORTS/CONTRADICTS from M6) — plus
+  research-flavored empty-canvas telemetry (recently ingested papers,
+  emerging concepts) when the pack dominates the corpus mix.
+- **N2 — De-news the shared layer.** Generalize outlet→source naming
+  behind views (keep `outlet_*` tables, add `source_*` views), make
+  empty-canvas telemetry pack-aware (movers/ticker supplied by whichever
+  packs are enabled), and anchor overview availability on `documents`
+  rather than `news_articles`.
+- **N3 — Domains via Track P.** Finance (earnings-call transcripts —
+  the media connector already transcribes) and legal/policy arrive as
+  *provisioned* domains, not hand-built packs: the acceptance test for
+  Track P is standing up one of these without writing a pack.
+- **N4 — Naming/alias sweep.** `NOESIS_*` env vars with `NEURONEWS_*`
+  fallbacks, package/server renames, API title — mechanical, last, and
+  alias-first so nothing breaks.
+
+Sequencing: N1 needs nothing from the MCP plan and can start now; N2
+pairs naturally with MCP Stage 1 (availability from stats tools); N3 is
+Track P's exit criterion; N4 is cleanup once N1–N3 make Noesis
+demonstrably not-a-news-app.
