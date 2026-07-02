@@ -3,8 +3,8 @@
 POST /api/v1/ui/generate turns a natural-language intent into a validated
 ``ui-spec-v1`` layout; GET /api/v1/ui/context exposes the adaptive inputs
 (merged domain-pack ui_flags, warehouse data availability, LLM planner
-status); GET /api/v1/ui/panels exposes the panel catalog the frontend
-renderer mirrors.
+status, MCP host health); GET /api/v1/ui/panels exposes the panel catalog
+the frontend renderer mirrors.
 """
 
 from typing import Any, Dict, List, Optional
@@ -17,6 +17,7 @@ from src.genui.catalog import panel_catalog_dict
 from src.genui.llm import llm_config, plan_with_llm
 from src.genui.planner import plan
 from src.genui.spec import MAX_INTENT_LENGTH, SOURCE_TYPES, validate_spec
+from src.mcp_host import host_status
 
 router = APIRouter(prefix="/api/v1/ui", tags=["generative_ui"])
 
@@ -108,6 +109,9 @@ def ui_context() -> Dict[str, Any]:
                 "enabled": config is not None,
                 "provider": config["provider"] if config else None,
             },
+            # R1: per-server MCP host health. A pure snapshot read - a hung
+            # or dead server can never stall this endpoint.
+            "mcp": host_status(),
         }
     except Exception as err:
         raise HTTPException(status_code=500, detail=f"UI context failed: {err}")

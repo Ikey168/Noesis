@@ -33,8 +33,10 @@ _spec.loader.exec_module(mod)
 @pytest.fixture
 def client(monkeypatch):
     # Hermetic adaptivity inputs: no DuckDB warehouse probe, no pack
-    # registry, no live LLM planner.
+    # registry, no live LLM planner, no MCP host (kill switch keeps the
+    # mcp block deterministic regardless of the SDK being installed).
     monkeypatch.setenv("NOESIS_GENUI_LLM", "off")
+    monkeypatch.setenv("NOESIS_MCP_HOST", "off")
     monkeypatch.setattr(mod, "data_availability", lambda: None)
     monkeypatch.setattr(mod, "merged_ui_flags", lambda: {})
     app = FastAPI()
@@ -98,13 +100,56 @@ def test_context_returns_adaptive_inputs(client):
     resp = client.get("/api/v1/ui/context")
     assert resp.status_code == 200
     body = resp.json()
-    assert set(body) == {"ui_flags", "availability", "availability_known", "llm"}
+    assert set(body) == {"ui_flags", "availability", "availability_known", "llm", "mcp"}
     assert body["ui_flags"] == {}
     assert body["availability"] is None
     assert body["availability_known"] is False
     assert set(body["llm"]) == {"enabled", "provider"}
     assert body["llm"]["enabled"] is False
     assert body["llm"]["provider"] is None
+    # R1: MCP host health block. Disabled here either by the repo-wide
+    # TESTING short-circuit or by the fixture's kill switch.
+    assert body["mcp"]["enabled"] is False
+    assert body["mcp"]["reason"] in ("testing", "disabled by NOESIS_MCP_HOST")
+    assert body["mcp"]["servers"] == {}
+
+
+def test_context_reports_mcp_host_health(client, monkeypatch):
+    """With a live host, the mcp block carries per-server status."""
+    monkeypatch.setattr(
+        mod,
+        "host_status",
+        lambda: {
+            "enabled": True,
+            "ttl_seconds": 60.0,
+            "total": 2,
+            "connected": 1,
+            "servers": {
+                "neuronews-kg": {
+                    "state": "connected",
+                    "tool_count": 9,
+                    "last_seen": "2026-07-02T00:00:00+00:00",
+                    "last_error": None,
+                    "restarts": 0,
+                    "cache_age_seconds": 1.2,
+                },
+                "neuronews-pipeline": {
+                    "state": "down",
+                    "tool_count": 0,
+                    "last_seen": None,
+                    "last_error": "ConnectionError: boom",
+                    "restarts": 3,
+                    "cache_age_seconds": None,
+                },
+            },
+        },
+    )
+    body = client.get("/api/v1/ui/context").json()
+    mcp = body["mcp"]
+    assert mcp["enabled"] is True
+    assert mcp["connected"] == 1 and mcp["total"] == 2
+    assert mcp["servers"]["neuronews-kg"]["state"] == "connected"
+    assert mcp["servers"]["neuronews-pipeline"]["state"] == "down"
 
 
 # ---------------------------------------------------------------------------
