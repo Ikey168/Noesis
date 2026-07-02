@@ -95,6 +95,16 @@ PANEL_CATALOG: Tuple[PanelDef, ...] = (
         source_type_param="source_type",
     ),
     PanelDef(
+        type="anomaly_timeline",
+        title="Anomaly timeline",
+        description="Coverage-volume and sentiment windows flagged as unusual, with expected bands and robust z-scores.",
+        endpoint=None,
+        facets=("trend", "overview"),
+        tables=("news_articles",),
+        default_span=6,
+        topic_param="topic",
+    ),
+    PanelDef(
         type="trending",
         title="Trending topics",
         description="Topics ranked by mention velocity.",

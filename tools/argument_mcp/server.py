@@ -51,6 +51,9 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
+# Stdlib-only helper for the analytics honesty contract (R5); safe at import.
+from src.analytics.honesty import INTERVAL_SCHEMA, honesty_output_schema  # noqa: E402
+
 mcp = FastMCP("neuronews-arguments")
 
 MAX_LIST = 30
@@ -1185,6 +1188,78 @@ def get_benchmark_results(model: Optional[str] = None) -> dict:
         "cross_dataset":     {k: {"f1": v.get("f1"), "n": v.get("n")}
                               for k, v in data.get("cross_dataset", {}).items()},
     }
+
+
+# --------------------------------------------------------------------------- #
+# Analytics plane (R5 / Track DS): confidence + significance for the           #
+# transparency figures, under the statistical-honesty contract. These feed     #
+# error bars / significance badges on the ranking + stance panels; they are    #
+# not panels themselves, so they carry no meta.panel annotation.               #
+# --------------------------------------------------------------------------- #
+
+@mcp.tool(
+    output_schema=honesty_output_schema(
+        {
+            "outlet": {"type": "string"},
+            "composite": INTERVAL_SCHEMA,
+            "components": {"type": "object"},
+            "note": {"type": "string"},
+        }
+    ),
+)
+def score_confidence(outlet: str) -> dict:
+    """Bootstrap confidence interval on an outlet's composite transparency
+    score, from its weekly ``outlet_scores`` history, so the ranking panel can
+    draw an error bar instead of a bare number.
+
+    Args:
+        outlet: the source name (as stored in ``outlet_scores.source``).
+    """
+    conn, err = _warehouse_ro()
+    if err or conn is None:
+        return {"error": err or "no connection"}
+    try:
+        from src.analytics.confidence import score_confidence_payload
+
+        return score_confidence_payload(conn, outlet)
+    except Exception as e:
+        return {"error": str(e)}
+
+
+@mcp.tool(
+    output_schema=honesty_output_schema(
+        {
+            "topic": {"type": "string"},
+            "outlet_a": {"type": "string"},
+            "outlet_b": {"type": "string"},
+            "chi_square": {"type": "number"},
+            "p_value": {"type": "number"},
+            "significant": {"type": "boolean"},
+            "divergence": INTERVAL_SCHEMA,
+            "categories": {"type": "array"},
+            "note": {"type": "string"},
+        }
+    ),
+)
+def stance_significance(a: str, b: str, topic: str) -> dict:
+    """Permutation test on whether two outlets' stance splits on a topic
+    genuinely differ, with a bootstrap interval on the divergence effect size,
+    so a stance comparison can carry a significance badge.
+
+    Args:
+        a:     first outlet (source name).
+        b:     second outlet.
+        topic: the contested topic to compare on.
+    """
+    conn, err = _warehouse_ro()
+    if err or conn is None:
+        return {"error": err or "no connection"}
+    try:
+        from src.analytics.confidence import stance_significance_payload
+
+        return stance_significance_payload(conn, a, b, topic)
+    except Exception as e:
+        return {"error": str(e)}
 
 
 if __name__ == "__main__":

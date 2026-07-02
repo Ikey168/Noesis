@@ -226,6 +226,10 @@ export interface OutletScore {
   doc_count: number;
   claim_count: number;
   trend: number[];
+  // R5: bootstrap confidence interval on the composite score (score_confidence
+  // tool). When present the ranking panel draws an error bar; n is the number
+  // of weekly snapshots the interval was bootstrapped from.
+  ci?: { lo: number; hi: number; level: number; n: number } | null;
 }
 
 export interface OutletCluster {

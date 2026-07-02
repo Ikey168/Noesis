@@ -55,6 +55,9 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
+# Stdlib-only helper for the analytics honesty contract (R5); safe at import.
+from src.analytics.honesty import INTERVAL_SCHEMA, honesty_output_schema  # noqa: E402
+
 mcp = FastMCP("neuronews-pipeline")
 
 # Caps so we always return summaries, not payloads.
@@ -1312,6 +1315,101 @@ def coverage_clusters(days: int = 7) -> dict:
                 for r in rows
             ],
         }
+    except Exception as exc:
+        return {"error": str(exc)}
+    finally:
+        con.close()
+
+
+# --------------------------------------------------------------------------- #
+# Analytics plane (R5 / Track DS): the reference batch analytic and its        #
+# panel-facing read tool, under the statistical-honesty contract.              #
+# --------------------------------------------------------------------------- #
+
+_ANOMALY_WINDOW_SCHEMA = {
+    "type": "array",
+    "items": {
+        "type": "object",
+        "properties": {
+            "window_date": {"type": "string"},
+            "metric": {"type": "string"},
+            "value": {"type": "number"},
+            "robust_z": {"type": "number"},
+            "is_anomaly": {"type": "boolean"},
+            "expected_band": INTERVAL_SCHEMA,
+        },
+    },
+}
+
+
+@mcp.tool(
+    output_schema=honesty_output_schema(
+        {
+            "topic": {"type": ["string", "null"]},
+            "metric": {"type": ["string", "null"]},
+            "threshold": {"type": "number"},
+            "flagged": {"type": "integer"},
+            "windows": _ANOMALY_WINDOW_SCHEMA,
+        }
+    ),
+    meta={"panel": {
+        "type": "anomaly_timeline",
+        "title": "Anomaly timeline",
+        "description": "Coverage-volume and sentiment windows flagged as unusual, with expected bands and robust z-scores.",
+        "endpoint": None,
+        "facets": ["trend", "overview"],
+        "tables": ["news_articles"],
+        "default_span": 6,
+        "topic_param": "topic",
+    }},
+)
+def detect_anomalies(topic: Optional[str] = None, metric: Optional[str] = None) -> dict:
+    """Windows where a topic's daily coverage volume or mean sentiment deviates
+    from its own recent history (robust z-score over median/MAD).
+
+    Reads the precomputed ``analytics_anomalies`` result table
+    (trigger_detect_anomalies writes it); computes on-demand for a single
+    topic when nothing is stored. Every window carries its expected band and
+    the output carries its sample size, method and assumptions.
+
+    Args:
+        topic:  Restrict to one topic (category). Omit for all topics.
+        metric: "volume" or "sentiment". Omit for both.
+    """
+    try:
+        con = _warehouse_ro()
+    except Exception as exc:
+        return {"error": str(exc)}
+    try:
+        from src.analytics.anomalies import detect_anomalies_payload
+
+        return detect_anomalies_payload(con, topic=topic, metric=metric)
+    except Exception as exc:
+        return {"error": str(exc)}
+    finally:
+        con.close()
+
+
+@mcp.tool
+def trigger_detect_anomalies(threshold: float = 3.5) -> dict:
+    """Run the anomaly-detection batch fit and persist ``analytics_anomalies``
+    (RW). Logs the fit to MLflow when available. Idempotent — re-running
+    overwrites each (topic, metric, window) row.
+
+    Args:
+        threshold: robust-z magnitude above which a window is flagged.
+    """
+    import threading
+
+    try:
+        con = _warehouse_rw()
+    except Exception as exc:
+        return {"error": str(exc)}
+    try:
+        from src.analytics.anomalies import AnomalyJob
+        from src.analytics.framework import run_job
+
+        return run_job(AnomalyJob(threshold=threshold), conn=con, lock=threading.Lock())
     except Exception as exc:
         return {"error": str(exc)}
     finally:

@@ -71,6 +71,22 @@ an annotated counterpart across `tools/*_mcp` (`note` and `timeline` are
 composed panels, exempt by design); the planner still reads the static
 catalog until R3.
 
+### Analytics plane (`src/analytics/`, R5)
+
+Data-science techniques exposed as canvas capabilities under a
+**statistical-honesty contract**: every analytic output carries its sample
+size, method and assumptions, and no headline figure ships without an
+interval (`honesty.py`; `validate_analytic_output` is the gate the contract
+tests use). Fits run as batch jobs (`framework.py`: `AnalyticJob` +
+`run_job` → result table → optional MLflow) and the MCP tools *read* the
+result tables. Wave 1a ships `detect_anomalies` (robust z-score over
+per-topic coverage/sentiment, the `anomaly_timeline` panel),
+`score_confidence` (bootstrap CI, error bars on `outlet_ranking`) and
+`stance_significance` (permutation test). Maths is pure stdlib
+(`stats.py`), so the tool servers stay import-safe. The panels render the
+uncertainty fields today from demo data; live panel data arrives with the
+MCP data proxy (R12).
+
 ### MCP host runtime (`src/mcp_host/`, R1)
 
 The API process supervises the repo's 12 `tools/*_mcp` stdio servers:
