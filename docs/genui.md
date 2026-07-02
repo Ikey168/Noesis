@@ -38,7 +38,8 @@ intent ──► POST /api/v1/ui/generate ──► ui-spec-v1 ──► SpecRen
 
 | Module | Role |
 |---|---|
-| `catalog.py` | Panel catalog: type → endpoint, warehouse tables, `ui_flag`, facets, layout defaults. Single source of truth, mirrored by the frontend registry. |
+| `catalog.py` | Panel catalog: type → endpoint, warehouse tables, `ui_flag`, facets, layout defaults. Single source of truth — the frontend catalog and the contract enums are generated from it. |
+| `codegen.py` | Stage 0 codegen: renders `apps/web/src/genui/catalog.gen.ts` and the `ui-spec-v1` contract enums from `catalog.py`. Run `python scripts/genui/codegen.py` after editing the catalog; CI (and `tests/unit/genui/test_codegen.py`) fail while the generated files are stale. |
 | `spec.py` | `ui-spec-v1` dataclasses + pure-Python `validate_spec` (contract: `contracts/schemas/jsonschema/ui-spec-v1.json`). |
 | `planner.py` | Heuristic planner: facet scoring from keyword evidence, topic / source-type / time-window extraction, panel assembly. No model, no network. |
 | `adaptivity.py` | The adaptive inputs: DuckDB table probing (`data_availability`), merged domain-pack `ui_flags`, and usage-signal re-ranking (`apply_signals`). |
@@ -53,7 +54,9 @@ feature-flag pattern in `src/api/app.py`):
 
 ### Frontend (`apps/web/src/genui/`)
 
-- `spec.ts` — ui-spec-v1 types + client mirror of the catalog.
+- `spec.ts` — ui-spec-v1 wire types; re-exports the panel/facet unions and
+  client catalog from `catalog.gen.ts` (generated from `src/genui/catalog.py`
+  — never edit it by hand, run `python scripts/genui/codegen.py`).
 - `Canvas.tsx` / `CommandBar.tsx` / `canvases.ts` — the app's only surface
   (ambient-signal empty state), the ⌘K command bar with live plan preview,
   and the canvas manager (open/activate/close, persisted per browser).
