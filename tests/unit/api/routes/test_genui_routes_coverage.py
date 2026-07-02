@@ -48,6 +48,7 @@ def _panel_types(body):
 def _hermetic(monkeypatch):
     """Deterministic defaults; individual tests override per branch."""
     monkeypatch.setenv("NOESIS_GENUI_LLM", "off")
+    monkeypatch.setenv("NOESIS_MCP_HOST", "off")
     monkeypatch.setattr(mod, "data_availability", lambda: None)
     monkeypatch.setattr(mod, "merged_ui_flags", lambda: {})
 

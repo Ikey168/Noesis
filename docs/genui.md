@@ -49,8 +49,23 @@ Routes (`src/api/routes/genui_routes.py`, registered via the standard
 feature-flag pattern in `src/api/app.py`):
 
 - `POST /api/v1/ui/generate` — `{intent, source_type?, signals?}` → `{spec, meta}`
-- `GET /api/v1/ui/context` — merged ui_flags, availability map, LLM planner status
+- `GET /api/v1/ui/context` — merged ui_flags, availability map, LLM planner
+  status, MCP host health (per-server state / last-seen / tool counts)
 - `GET /api/v1/ui/panels` — the panel catalog
+
+### MCP host runtime (`src/mcp_host/`, R1)
+
+The API process supervises the repo's 12 `tools/*_mcp` stdio servers:
+pooled sessions with lazy connect and capped-backoff restart, a TTL
+discovery cache over `tools/list` (default 60s, `NOESIS_MCP_TTL`), and
+health states (connected / degraded / down) surfaced in the `mcp` block of
+`GET /api/v1/ui/context`. Status reads are lock-guarded snapshots — a hung
+server can never stall a request. Server list comes from `.mcp.json`
+(project python servers only). Kill switch: `NOESIS_MCP_HOST=off`;
+`TESTING=true` short-circuits entirely; without the `mcp` client SDK the
+host reports itself unavailable instead of failing. No planning behavior
+reads from it yet — that lands with R2/R3 (discovery-derived catalog,
+tool-sourced adaptivity).
 
 ### Frontend (`apps/web/src/genui/`)
 

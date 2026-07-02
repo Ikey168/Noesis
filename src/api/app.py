@@ -827,6 +827,20 @@ def initialize_app():
                 "Resource monitor could not be started", exc_info=True
             )
 
+    # Start the MCP host runtime (best-effort): supervised sessions for the
+    # repo's tools/*_mcp servers with health surfaced in /api/v1/ui/context.
+    # Connects are lazy and happen in a background thread, so API boot time
+    # is unaffected; TESTING and NOESIS_MCP_HOST=off short-circuit inside.
+    try:
+        from src.mcp_host import start_host, stop_host
+        if start_host() is not None:
+            app.add_event_handler("shutdown", stop_host)
+    except Exception:
+        import logging
+        logging.getLogger(__name__).warning(
+            "MCP host could not be started", exc_info=True
+        )
+
     return app
 
 
