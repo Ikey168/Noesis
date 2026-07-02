@@ -992,7 +992,7 @@ def _cutoff(days: int):
         "description": "Headline counts across articles, clusters and topics.",
         "endpoint": "/api/v1/news/articles",
         "facets": ["overview"],
-        "tables": ["news_articles"],
+        "tables": ["documents"],
         "default_span": 12,
     }},
 )
@@ -1042,7 +1042,7 @@ def article_stats(days: int = 7) -> dict:
         "description": "Most recent matching articles and documents.",
         "endpoint": "/api/v1/news/articles",
         "facets": ["overview", "sentiment"],
-        "tables": ["news_articles"],
+        "tables": ["documents"],
         "default_span": 6,
     }},
 )

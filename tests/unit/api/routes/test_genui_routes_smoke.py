@@ -37,8 +37,8 @@ def client(monkeypatch):
     # mcp block deterministic regardless of the SDK being installed).
     monkeypatch.setenv("NOESIS_GENUI_LLM", "off")
     monkeypatch.setenv("NOESIS_MCP_HOST", "off")
-    monkeypatch.setattr(mod, "data_availability", lambda: None)
-    monkeypatch.setattr(mod, "merged_ui_flags", lambda: {})
+    monkeypatch.setattr(mod, "resolve_availability", lambda: (None, "unknown"))
+    monkeypatch.setattr(mod, "resolve_ui_flags", lambda: ({}, "packs"))
     app = FastAPI()
     app.include_router(mod.router)
     return TestClient(app, raise_server_exceptions=False)
@@ -100,9 +100,19 @@ def test_context_returns_adaptive_inputs(client):
     resp = client.get("/api/v1/ui/context")
     assert resp.status_code == 200
     body = resp.json()
-    assert set(body) == {"ui_flags", "availability", "availability_known", "llm", "mcp"}
+    assert set(body) == {
+        "ui_flags",
+        "ui_flags_source",
+        "availability",
+        "availability_source",
+        "availability_known",
+        "llm",
+        "mcp",
+    }
     assert body["ui_flags"] == {}
+    assert body["ui_flags_source"] == "packs"
     assert body["availability"] is None
+    assert body["availability_source"] == "unknown"
     assert body["availability_known"] is False
     assert set(body["llm"]) == {"enabled", "provider"}
     assert body["llm"]["enabled"] is False
@@ -165,6 +175,35 @@ def test_panels_exposes_catalog(client):
         assert "type" in panel
         assert "title" in panel
         assert "facets" in panel
+
+
+# ---------------------------------------------------------------------------
+# GET /api/v1/ui/telemetry (R3: pack-supplied ambient signal)
+# ---------------------------------------------------------------------------
+def test_telemetry_returns_pack_supplied_signal(client, monkeypatch):
+    monkeypatch.setattr(
+        mod,
+        "pack_telemetry",
+        lambda: {
+            "signals": [{"label": "DOCS", "value": 12}],
+            "movers": [{"label": "paper", "intent": "library documents about paper"}],
+            "ticker": {"label": "NEW IN LIBRARY", "items": ["Doc title"]},
+            "packs": ["library"],
+        },
+    )
+    body = client.get("/api/v1/ui/telemetry").json()
+    assert body["packs"] == ["library"]
+    assert body["ticker"]["label"] == "NEW IN LIBRARY"
+
+
+def test_telemetry_error_returns_500(client, monkeypatch):
+    def boom():
+        raise RuntimeError("telemetry broke")
+
+    monkeypatch.setattr(mod, "pack_telemetry", boom)
+    resp = client.get("/api/v1/ui/telemetry")
+    assert resp.status_code == 500
+    assert "UI telemetry failed" in resp.json()["detail"]
 
 
 # R2 litmus (a): a new annotated server surfaces its panel type through

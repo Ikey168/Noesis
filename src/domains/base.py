@@ -60,6 +60,12 @@ class DomainPack:
             e.g. ``["src.api.routes.news_routes"]``
         ui_flags: Feature flags forwarded to the frontend.
             e.g. ``{"timeline": True, "clusters": True}``
+        telemetry: Optional zero-arg callable advertising this pack's
+            ambient empty-canvas telemetry (R3 / Track N2). Returns a dict
+            with any of ``signals`` (KPI strip entries: {label, value}),
+            ``movers`` (suggestion rows: {label, intent, change?}) and
+            ``ticker`` ({label, items}). Exceptions are swallowed by the
+            collector — a pack's telemetry must never break the canvas.
     """
 
     name: str
@@ -68,3 +74,4 @@ class DomainPack:
     enrichers: List[Enricher] = field(default_factory=list)
     route_modules: List[str] = field(default_factory=list)
     ui_flags: Dict[str, bool] = field(default_factory=dict)
+    telemetry: Optional[Callable[[], Dict[str, Any]]] = None

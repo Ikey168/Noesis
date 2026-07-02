@@ -49,6 +49,9 @@ class ScriptedServer:
         self.fail_connects = 0
         self.alive = True
         self.connects = 0
+        self.call_result = SimpleNamespace(
+            isError=False, structuredContent={"ok": True}
+        )
 
     @contextlib.asynccontextmanager
     async def factory(self, spec):
@@ -64,6 +67,11 @@ class ScriptedServer:
         return SimpleNamespace(
             tools=[SimpleNamespace(name=n, description="d") for n in self.tools]
         )
+
+    async def call_tool(self, name, arguments):
+        if not self.alive:
+            raise ConnectionError("server killed")
+        return self.call_result
 
 
 @pytest.fixture
@@ -248,6 +256,55 @@ def test_ttl_env_override(monkeypatch):
     assert MCPHost(specs=[]).ttl_seconds == 7.0
     monkeypatch.setenv("NOESIS_MCP_TTL", "junk")
     assert MCPHost(specs=[]).ttl_seconds == host_mod.DEFAULT_TTL_SECONDS
+
+
+# ---------------------------------------------------------------------------
+# call_tool (R3: stats tools feed adaptivity)
+# ---------------------------------------------------------------------------
+
+
+def test_call_tool_returns_structured_content(make_host):
+    server = ScriptedServer()
+    h = make_host(server)
+    h.start()
+    assert wait_until(lambda: state_of(h) == STATE_CONNECTED)
+    assert h.call_tool("fake", "anything", {"x": 1}) == {"ok": True}
+
+
+def test_call_tool_requires_running_loop():
+    h = MCPHost(specs=[SPEC], session_factory=None, ttl_seconds=1)
+    with pytest.raises(RuntimeError, match="not running"):
+        h.call_tool("fake", "anything")
+
+
+def test_call_tool_requires_live_session(make_host):
+    server = ScriptedServer()
+    h = make_host(server)
+    h.start()
+    assert wait_until(lambda: state_of(h) == STATE_CONNECTED)
+    with pytest.raises(RuntimeError, match="no live session"):
+        h.call_tool("other-server", "anything")
+
+
+def test_call_tool_raises_on_tool_error(make_host):
+    server = ScriptedServer()
+    server.call_result = SimpleNamespace(
+        isError=True, structuredContent=None, content="boom"
+    )
+    h = make_host(server)
+    h.start()
+    assert wait_until(lambda: state_of(h) == STATE_CONNECTED)
+    with pytest.raises(RuntimeError, match="returned an error"):
+        h.call_tool("fake", "anything")
+
+
+def test_call_tool_non_dict_content_becomes_empty(make_host):
+    server = ScriptedServer()
+    server.call_result = SimpleNamespace(isError=False, structuredContent=[1, 2])
+    h = make_host(server)
+    h.start()
+    assert wait_until(lambda: state_of(h) == STATE_CONNECTED)
+    assert h.call_tool("fake", "anything") == {}
 
 
 # ---------------------------------------------------------------------------

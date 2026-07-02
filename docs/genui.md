@@ -42,15 +42,20 @@ intent ──► POST /api/v1/ui/generate ──► ui-spec-v1 ──► SpecRen
 | `codegen.py` | Stage 0 codegen: renders `apps/web/src/genui/catalog.gen.ts` and the `ui-spec-v1` contract enums from `catalog.py`. Run `python scripts/genui/codegen.py` after editing the catalog; CI (and `tests/unit/genui/test_codegen.py`) fail while the generated files are stale. |
 | `spec.py` | `ui-spec-v1` dataclasses + pure-Python `validate_spec` (contract: `contracts/schemas/jsonschema/ui-spec-v1.json`). |
 | `planner.py` | Heuristic planner: facet scoring from keyword evidence, topic / source-type / time-window extraction, panel assembly. No model, no network. |
-| `adaptivity.py` | The adaptive inputs: DuckDB table probing (`data_availability`), merged domain-pack `ui_flags`, and usage-signal re-ranking (`apply_signals`). |
+| `adaptivity.py` | The adaptive inputs. Since R3 availability and `ui_flags` are tool-sourced (`resolve_availability` / `resolve_ui_flags` call the servers' stats tools through the MCP host, cached ~30s) with the DuckDB probe and pack registry as servers-down fallbacks; usage-signal re-ranking (`apply_signals`). Overview panels anchor on the `documents` corpus (union of `documents` and `news_articles`), so a zero-news corpus keeps a live overview. |
+| `telemetry.py` | Pack-supplied empty-canvas telemetry (R3): enabled packs advertise `signals`/`movers`/`ticker` via `DomainPack.telemetry`; the engine's library fallback (recently ingested documents) fills whatever no pack supplies. |
 | `llm.py` | Optional LLM planner (Anthropic or OpenAI). Any failure — no key, no SDK, bad JSON, invalid spec — falls back to the heuristic planner. |
 
 Routes (`src/api/routes/genui_routes.py`, registered via the standard
 feature-flag pattern in `src/api/app.py`):
 
 - `POST /api/v1/ui/generate` — `{intent, source_type?, signals?}` → `{spec, meta}`
-- `GET /api/v1/ui/context` — merged ui_flags, availability map, LLM planner
-  status, MCP host health (per-server state / last-seen / tool counts)
+- `GET /api/v1/ui/context` — merged ui_flags, availability map (each with a
+  `_source` field: `tools` when server-derived, `warehouse`/`packs` on
+  fallback), LLM planner status, MCP host health
+- `GET /api/v1/ui/telemetry` — pack-supplied ambient signal for the empty
+  canvas (KPI signals, movers, ticker); with the news pack off it carries
+  the library telemetry instead of an empty gap
 - `GET /api/v1/ui/panels` — the panel catalog
 
 ### Discovery-derived catalog (`src/genui/discovery.py`, R2)
@@ -104,8 +109,10 @@ The provenance strip above the canvas shows which planner ran:
 ## Adaptivity guarantees
 
 - **Data-aware**: panels whose warehouse tables are empty are dropped and
-  listed in the plan note ("Hidden for now…"). Unknown availability keeps
-  every panel (frontend demo fallback covers empty endpoints).
+  listed in the plan note ("Hidden for now…"). Availability is read from
+  the MCP servers' stats tools when the host is up, from the DuckDB probe
+  otherwise; unknown availability keeps every panel (frontend demo
+  fallback covers empty endpoints).
 - **Pack-aware**: panels gated by a domain-pack `ui_flag` disappear when
   the pack is disabled.
 - **Usage-aware**: pins always include and boost a panel type; mutes hide

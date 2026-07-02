@@ -372,6 +372,15 @@ export interface RawUiContext {
   llm: { enabled: boolean; provider: string | null };
 }
 
+// Pack-supplied empty-canvas telemetry (R3): whichever packs are enabled
+// advertise the ambient signal; "library" marks the engine fallback.
+export interface RawUiTelemetry {
+  signals: { label: string; value: number }[];
+  movers: { label: string; intent: string; change?: number }[];
+  ticker: { label: string; items: string[] } | null;
+  packs: string[];
+}
+
 // ---------- endpoint calls ----------
 
 export const api = {
@@ -384,6 +393,8 @@ export const api = {
   }) => requestPost<RawUiSpecResponse>("/api/v1/ui/generate", body),
 
   uiContext: () => request<RawUiContext>("/api/v1/ui/context"),
+
+  uiTelemetry: () => request<RawUiTelemetry>("/api/v1/ui/telemetry"),
 
   articles: (params?: { category?: string; source?: string }) =>
     request<RawArticle[]>("/api/v1/news/articles", params),

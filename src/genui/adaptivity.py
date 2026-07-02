@@ -1,27 +1,41 @@
 """
 Adaptivity layer: the three inputs that reshape a generated layout.
 
-* :func:`data_availability` probes the DuckDB warehouse for which tables
-  actually hold rows, so the planner can hide panels that would render
-  empty. The probe degrades to ``None`` ("unknown") on any failure — a
-  missing warehouse must never break UI generation.
-* :func:`merged_ui_flags` merges the ``ui_flags`` of all enabled domain
-  packs (same merge the domain-packs MCP server exposes) so pack-gated
-  panels disappear when their pack is off.
+* :func:`resolve_availability` maps each catalog table to whether it holds
+  rows. Since R3 the primary source is the MCP servers' own stats tools
+  (``am_stats``, ``article_stats``, ``document_stats``, ...) through the
+  host runtime; the direct DuckDB probe (:func:`data_availability`) is the
+  fallback, so with servers down behavior is identical to before. Both
+  sources degrade to ``None`` ("unknown") rather than failing — a missing
+  warehouse must never break UI generation.
+* :func:`resolve_ui_flags` merges the ``ui_flags`` of all enabled domain
+  packs, preferring the domain-packs MCP server's ``get_ui_flags`` tool
+  and falling back to the in-process registry
+  (:func:`merged_ui_flags`).
 * :func:`apply_signals` folds client usage signals — pinned, dismissed and
   interaction weights persisted by the frontend — into panel priorities.
+
+Overview panels anchor on the virtual ``documents`` corpus (Track N2):
+its availability is the union of the ``documents`` table and
+``news_articles``, so a corpus with zero news still gets a live overview.
 """
 
 from __future__ import annotations
 
+import time
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
 from src.genui.catalog import PANEL_CATALOG, get_panel_def
 from src.genui.spec import PanelSpec
 
-# Tables the catalog references; probed in one round-trip.
+# The "documents" anchor is a corpus, not one table: available when either
+# the documents table or the legacy news_articles table has rows.
+DOCUMENT_CORPUS_TABLES: Tuple[str, ...] = ("documents", "news_articles")
+
+# Tables the catalog references; probed in one round-trip. The corpus
+# tables are always included so the union can be computed.
 _PROBE_TABLES: Tuple[str, ...] = tuple(
-    sorted({t for p in PANEL_CATALOG for t in p.tables})
+    sorted({t for p in PANEL_CATALOG for t in p.tables} | set(DOCUMENT_CORPUS_TABLES))
 )
 
 MAX_SIGNAL_WEIGHT = 20
@@ -164,17 +178,26 @@ def _default_probe() -> Dict[str, int]:
     return counts
 
 
+def _availability_from_counts(counts: Dict[str, int]) -> Dict[str, bool]:
+    """Counts -> availability map, with the documents-corpus union applied."""
+    availability = {table: counts.get(table, 0) > 0 for table in _PROBE_TABLES}
+    availability["documents"] = any(
+        availability.get(t, False) for t in DOCUMENT_CORPUS_TABLES
+    )
+    return availability
+
+
 def data_availability(
     probe: Optional[Callable[[], Dict[str, int]]] = None,
 ) -> Optional[Dict[str, bool]]:
-    """Map each catalog table to whether it currently holds rows.
+    """Map each catalog table to whether it currently holds rows, from the
+    direct DuckDB warehouse probe (the servers-down fallback path).
 
     Returns ``None`` when the warehouse cannot be reached — callers treat
     unknown availability as "keep every panel".
     """
     try:
-        counts = (probe or _default_probe)()
-        return {table: counts.get(table, 0) > 0 for table in _PROBE_TABLES}
+        return _availability_from_counts((probe or _default_probe)())
     except Exception:
         return None
 
@@ -190,3 +213,127 @@ def merged_ui_flags() -> Dict[str, bool]:
         return flags
     except Exception:
         return {}
+
+
+# --------------------------------------------------------------------------
+# R3: tool-sourced adaptivity. The MCP servers' stats tools are the primary
+# source for availability and ui_flags; everything above is the fallback.
+# Results are cached briefly so a burst of generates does not hammer the
+# servers (R4 generalizes this cache and shares it with the planning loop).
+# --------------------------------------------------------------------------
+
+TOOL_STATS_TTL = 30.0
+
+# Servers whose stats tools cover every catalog table.
+_STATS_SERVERS = ("neuronews-arguments", "neuronews-pipeline")
+_FLAGS_SERVER = "neuronews-domain-packs"
+
+# am_stats reports row counts for these catalog tables directly.
+_AM_STATS_TABLES = (
+    "argument_claims",
+    "claim_conflicts",
+    "source_stances",
+    "stance_drift_events",
+    "policy_positions",
+    "document_frames",
+)
+# Tables probed via a limit-1 list call ({"count": 0|1} tells presence).
+_LIMIT_PROBE_TOOLS = (
+    ("outlet_scores", "list_outlet_scores"),
+    ("outlet_clusters", "list_outlet_clusters"),
+    ("document_actors", "actor_summary"),
+)
+
+_cache: Dict[str, Any] = {"availability": None, "flags": None}
+
+
+def reset_tool_cache() -> None:
+    """Drop cached tool-sourced results (tests and pack toggles)."""
+    _cache["availability"] = None
+    _cache["flags"] = None
+
+
+def _get_host():
+    from src.mcp_host import get_host
+
+    return get_host()
+
+
+def _servers_connected(host, names) -> bool:
+    servers = host.status().get("servers", {})
+    return all(servers.get(n, {}).get("state") == "connected" for n in names)
+
+
+def _tool_counts(host) -> Dict[str, int]:
+    """Row counts for every catalog table via the servers' stats tools."""
+    counts: Dict[str, int] = {}
+
+    am = host.call_tool("neuronews-arguments", "am_stats")
+    if "error" in am:
+        raise RuntimeError(am["error"])
+    for table in _AM_STATS_TABLES:
+        value = am.get(table)
+        counts[table] = value if isinstance(value, int) else 0
+
+    articles = host.call_tool("neuronews-pipeline", "article_stats")
+    if "error" in articles:
+        raise RuntimeError(articles["error"])
+    counts["news_articles"] = int(articles.get("total_articles", 0))
+
+    documents = host.call_tool("neuronews-pipeline", "document_stats")
+    if "error" in documents:
+        raise RuntimeError(documents["error"])
+    counts["documents"] = int(documents.get("total_documents", 0))
+
+    for table, tool in _LIMIT_PROBE_TOOLS:
+        result = host.call_tool("neuronews-arguments", tool, {"limit": 1})
+        if "error" in result:
+            raise RuntimeError(result["error"])
+        counts[table] = int(result.get("count", 0))
+    return counts
+
+
+def resolve_availability() -> Tuple[Optional[Dict[str, bool]], str]:
+    """``(availability, source)`` with source one of ``tools`` /
+    ``warehouse`` / ``unknown``.
+
+    Tool-sourced when the host runtime is up and the stats servers are
+    connected; the DuckDB probe otherwise, keeping servers-down behavior
+    identical to pre-R3.
+    """
+    cached = _cache["availability"]
+    if cached is not None and time.time() < cached[1]:
+        return cached[0], "tools"
+    try:
+        host = _get_host()
+        if host is not None and _servers_connected(host, _STATS_SERVERS):
+            availability = _availability_from_counts(_tool_counts(host))
+            _cache["availability"] = (availability, time.time() + TOOL_STATS_TTL)
+            return availability, "tools"
+    except Exception:
+        pass
+    availability = data_availability()
+    return availability, ("warehouse" if availability is not None else "unknown")
+
+
+def resolve_ui_flags() -> Tuple[Dict[str, bool], str]:
+    """``(ui_flags, source)`` with source ``tools`` or ``packs``.
+
+    Prefers the domain-packs server's ``get_ui_flags`` tool (server
+    presence + tool result); falls back to the in-process registry merge.
+    """
+    cached = _cache["flags"]
+    if cached is not None and time.time() < cached[1]:
+        return cached[0], "tools"
+    try:
+        host = _get_host()
+        if host is not None and _servers_connected(host, (_FLAGS_SERVER,)):
+            result = host.call_tool(_FLAGS_SERVER, "get_ui_flags")
+            flags = result.get("flags")
+            if isinstance(flags, dict):
+                flags = {str(k): bool(v) for k, v in flags.items()}
+                _cache["flags"] = (flags, time.time() + TOOL_STATS_TTL)
+                return flags, "tools"
+    except Exception:
+        pass
+    return merged_ui_flags(), "packs"

@@ -169,6 +169,9 @@ class MCPHost:
         self._statuses: Dict[str, _ServerStatus] = {
             spec.name: _ServerStatus() for spec in self.specs
         }
+        # Live session objects for call_tool, keyed by server name; entries
+        # exist only while the supervise loop holds an open session.
+        self._sessions: Dict[str, Any] = {}
         self._thread: Optional[threading.Thread] = None
         self._loop: Optional[asyncio.AbstractEventLoop] = None
         # Created loop-less here (safe since 3.10) so stop() always has an
@@ -242,6 +245,8 @@ class MCPHost:
                     # Reconnect invalidates the discovery cache: the fresh
                     # tools/list result replaces whatever was cached.
                     tools = await _list_tools(session)
+                    with self._lock:
+                        self._sessions[spec.name] = session
                     self._mark_connected(spec.name, tools, reconnected=not first_connect)
                     first_connect = False
                     while not self._stop_event.is_set():
@@ -255,6 +260,9 @@ class MCPHost:
             except Exception as err:
                 failures = self._mark_failed(spec.name, err)
                 await self._sleep_or_stop(backoff_delay(failures))
+            finally:
+                with self._lock:
+                    self._sessions.pop(spec.name, None)
         return None
 
     async def _sleep_or_stop(self, delay: float) -> None:
@@ -290,6 +298,43 @@ class MCPHost:
                 else STATE_DEGRADED
             )
             return status.consecutive_failures
+
+    # -- tool calls ----------------------------------------------------------
+
+    def call_tool(
+        self,
+        server: str,
+        tool: str,
+        arguments: Optional[Dict[str, Any]] = None,
+        timeout: float = CALL_TIMEOUT,
+    ) -> Dict[str, Any]:
+        """Call a tool on a connected server's live session, from any thread.
+
+        Raises RuntimeError when the host loop or the server session is not
+        available, on tool errors, and on timeout. Callers (R3 adaptivity)
+        treat any exception as "fall back to the warehouse probe".
+        """
+        loop = self._loop
+        if loop is None or not loop.is_running():
+            raise RuntimeError("MCP host loop is not running")
+        with self._lock:
+            session = self._sessions.get(server)
+        if session is None:
+            raise RuntimeError(f"server {server!r} has no live session")
+        future = asyncio.run_coroutine_threadsafe(
+            self._call_tool(session, tool, arguments or {}, timeout), loop
+        )
+        return future.result(timeout=timeout + 1.0)
+
+    @staticmethod
+    async def _call_tool(
+        session: Any, tool: str, arguments: Dict[str, Any], timeout: float
+    ) -> Dict[str, Any]:
+        result = await asyncio.wait_for(session.call_tool(tool, arguments), timeout)
+        if getattr(result, "isError", False):
+            raise RuntimeError(f"tool {tool!r} returned an error: {result.content}")
+        structured = getattr(result, "structuredContent", None)
+        return structured if isinstance(structured, dict) else {}
 
     # -- non-blocking readers ------------------------------------------------
 

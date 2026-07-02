@@ -220,21 +220,50 @@ export function usePackStatus(): { newsPack: boolean; isLoading: boolean } {
   return { newsPack: q.data?.newsPack ?? true, isLoading: q.isLoading };
 }
 
-export function useTicker(): Result<string> {
+// Pack-supplied empty-canvas telemetry (R3): the ambient signal comes from
+// whichever packs the backend has enabled (news movers and BREAKING ticker,
+// or the engine's library telemetry when news is off). The demo fallback
+// reproduces the news-flavored visuals so the UI is unchanged offline.
+export interface UiTelemetry {
+  signals: { label: string; value: number }[];
+  movers: { label: string; intent: string; change?: number }[];
+  ticker: { label: string; text: string } | null;
+  packs: string[];
+}
+
+const mockTelemetry: UiTelemetry = {
+  signals: [],
+  movers: mockTrending.slice(0, 5).map((t) => ({
+    label: t.topic,
+    intent: `coverage of ${t.topic.toLowerCase()}`,
+    change: t.change,
+  })),
+  ticker: { label: "BREAKING", text: mockTickerText },
+  packs: ["news"],
+};
+
+export function useUiTelemetry(): Result<UiTelemetry> {
   return useWithFallback(
-    "ticker",
+    "uiTelemetry",
     async () => {
-      const news = await api.breakingNews({ limit: 6 });
-      if (!news.length) throw new Error("empty");
-      const text =
-        "  " +
-        news
-          .map((n) => n.sample_headlines?.split("|")[0]?.trim() || n.cluster_name)
-          .filter(Boolean)
-          .join("  ●  ");
-      return `  ●${text}  `;
+      const raw = await api.uiTelemetry();
+      if (!raw.signals.length && !raw.movers.length && !raw.ticker) {
+        throw new Error("empty");
+      }
+      return {
+        signals: raw.signals,
+        movers: raw.movers.slice(0, 5),
+        ticker:
+          raw.ticker && raw.ticker.items.length
+            ? {
+                label: raw.ticker.label,
+                text: "  ●  " + raw.ticker.items.join("  ●  ") + "  ",
+              }
+            : null,
+        packs: raw.packs,
+      };
     },
-    mockTickerText,
+    mockTelemetry,
   );
 }
 

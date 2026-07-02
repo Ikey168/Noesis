@@ -1,4 +1,4 @@
-import { useTicker } from "./lib/queries";
+import { useUiTelemetry } from "./lib/queries";
 import { useCanvases } from "./genui/canvases";
 import Sidebar from "./components/Sidebar";
 import TopBar from "./components/TopBar";
@@ -10,7 +10,7 @@ import Canvas from "./genui/Canvas";
 // startup screen is intentionally empty except for the prompt.
 export default function App() {
   const manager = useCanvases();
-  const { data: ticker } = useTicker();
+  const { data: telemetry } = useUiTelemetry();
   const hasIntent = manager.active.intent.trim().length > 0;
 
   return (
@@ -25,7 +25,11 @@ export default function App() {
 
       <div className="flex min-w-0 flex-1 flex-col">
         <TopBar onIntent={manager.open} />
-        {hasIntent ? <BreakingTicker text={ticker} /> : null}
+        {/* Pack-provided signal strip (BREAKING for news, NEW IN LIBRARY
+            for the corpus fallback) — absent when no pack supplies one. */}
+        {hasIntent && telemetry.ticker ? (
+          <BreakingTicker label={telemetry.ticker.label} text={telemetry.ticker.text} />
+        ) : null}
         <main className="min-h-0 flex-1">
           <Canvas key={manager.active.id} canvas={manager.active} onIntent={manager.open} />
         </main>
