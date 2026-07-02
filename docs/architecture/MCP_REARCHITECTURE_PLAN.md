@@ -31,6 +31,10 @@ Track OSINT composes those into an **investigation plane** — corroboration,
 entity dossiers, relationship paths, timeline reconstruction — bound by a
 strict evidence discipline and a defensive-only scope (analysis over
 already-ingested open sources, never active or targeted collection).
+Track N carries the beyond-news continuation: research as the second
+first-class domain pack, a de-newsed shared layer, further domains
+(finance, legal, OSINT) arriving Track P-provisioned, and the alias-first
+naming sweep.
 
 ## Current state
 
@@ -392,6 +396,63 @@ confidence** — mitigated by the scope boundary (analysis over ingested
 open sources only, enforced by which tools exist) and the evidence
 discipline above. This track's guardrails are load-bearing, not
 decorative.*
+
+## Track N — beyond news: the domain-plurality plan
+
+The knowledge-engine pivot (`KNOWLEDGE_ENGINE_PIVOT_PLAN.md`) delivered a
+domain-general *engine* (Document contract, connectors for
+papers/books/blogs/media/upload, KG foundation with ontology + entity
+resolution + provenance, claim extraction — all shipped, see its §15.1).
+What remains news-centric is the *product posture* (its §15.3): the news
+pack is the only first-class pack, the canvas's ambient telemetry
+(movers, KPI tiles, BREAKING ticker) is news telemetry regardless of
+corpus mix, the transparency machinery is worded and stored for
+newsrooms (`outlet_*`), and the `NEURONEWS_*` brand residue pervades
+infra. Track N is the continuation plan, folded in here because every
+step lands on this document's machinery. This is the **canonical home**
+of the plan; the pivot doc points here.
+
+### N1 — Research pack: the second first-class domain
+A `research` DomainPack / MCP server proving pack-plurality (the papers
+milestone locked this domain choice). Enrichers over paper metadata;
+`ui_flags` for new panel types — `citation_graph`, `venues` (per-venue
+credibility, reusing the transparency machinery), `literature_claims`
+(SUPPORTS/CONTRADICTS from the claim layer) — plus research-flavored
+empty-canvas telemetry (recently ingested papers, emerging concepts)
+when the pack dominates the corpus mix.
+*Depends on: nothing here — can start now on the static catalog; rides
+Stage 1 discovery when it lands. Effort: medium.*
+
+### N2 — De-news the shared layer
+Generalize outlet→source naming behind views (keep `outlet_*` tables,
+add `source_*` views); make empty-canvas telemetry pack-supplied
+(movers/ticker come from whichever packs are enabled, not hardcoded news
+hooks); anchor overview-panel availability on `documents` rather than
+`news_articles`.
+*Pairs with: Stage 1 (availability from stats tools makes the anchor
+swap natural). Effort: small–medium, mostly mechanical.*
+
+### N3 — New domains arrive provisioned, not hand-built
+Finance (earnings-call transcripts — the media connector already
+transcribes), legal/policy, and **OSINT/investigation** (Track OSINT)
+arrive as Track P-provisioned domains: `kg_deploy` + `kg_attach_sources`
+instead of a pack directory. Standing one of these up without writing a
+pack **is Track P's acceptance test**. OSINT is the sharpest fit — it is
+mostly composition of capabilities already built, under Track OSINT's
+evidence discipline.
+*Depends on: Track P (and Stage 1). Effort: per domain, small once
+Track P exists — that is the point.*
+
+### N4 — Naming/alias sweep
+`NOESIS_*` env vars with `NEURONEWS_*` fallbacks, package
+(`@neuronews/web`) and MCP server (`neuronews-*`) renames, API/page
+titles. Mechanical, alias-first so nothing breaks, and deliberately
+last — after N1–N3 make Noesis demonstrably not-a-news-app.
+*Depends on: nothing technically; sequenced last by policy. Effort:
+small, wide.*
+
+Sequencing summary: N1 now → N2 with Stage 1 → N3 as Track P's exit
+criterion → N4 cleanup.
 
 ## What deliberately does not change
 

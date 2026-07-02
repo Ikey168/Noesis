@@ -290,7 +290,7 @@ by source type, article length, and per-class metrics.
   analysis over ingested open sources, under a strict evidence discipline)
   provisioned via Track P; pack-aware canvas telemetry and outlet→source
   generalisation
-  ([continuation plan](docs/architecture/KNOWLEDGE_ENGINE_PIVOT_PLAN.md)) — proposed
+  ([Track N](docs/architecture/MCP_REARCHITECTURE_PLAN.md)) — proposed
 - Also upcoming: trained model checkpoints; cross-dataset generalisation
   (FEVER / LIAR / AVeriTeC); predictive analytics; real-time fact-checking
 

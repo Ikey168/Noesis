@@ -399,32 +399,10 @@ concrete residue, in priority order:
 
 ### 15.4 Continuation plan
 
-- **N1 — Research pack as the second first-class domain** (proves
-  pack-plurality; the papers milestone locked this choice). A
-  `research` DomainPack/MCP server: enrichers over paper metadata,
-  `ui_flags` for new panel types — `citation_graph`, `venues`
-  (credibility per venue, reusing the transparency machinery),
-  `literature_claims` (SUPPORTS/CONTRADICTS from M6) — plus
-  research-flavored empty-canvas telemetry (recently ingested papers,
-  emerging concepts) when the pack dominates the corpus mix.
-- **N2 — De-news the shared layer.** Generalize outlet→source naming
-  behind views (keep `outlet_*` tables, add `source_*` views), make
-  empty-canvas telemetry pack-aware (movers/ticker supplied by whichever
-  packs are enabled), and anchor overview availability on `documents`
-  rather than `news_articles`.
-- **N3 — Domains via Track P.** Finance (earnings-call transcripts —
-  the media connector already transcribes), legal/policy, and **OSINT /
-  investigation** (see `MCP_REARCHITECTURE_PLAN.md` Track OSINT) arrive as
-  *provisioned* domains, not hand-built packs: the acceptance test for
-  Track P is standing up one of these without writing a pack. OSINT is
-  the sharpest fit — it is mostly composition of capabilities already
-  built (entity resolution, cited claims, source scoring, coordination
-  detection) under an evidence discipline.
-- **N4 — Naming/alias sweep.** `NOESIS_*` env vars with `NEURONEWS_*`
-  fallbacks, package/server renames, API title — mechanical, last, and
-  alias-first so nothing breaks.
-
-Sequencing: N1 needs nothing from the MCP plan and can start now; N2
-pairs naturally with MCP Stage 1 (availability from stats tools); N3 is
-Track P's exit criterion; N4 is cleanup once N1–N3 make Noesis
-demonstrably not-a-news-app.
+Moved: the continuation plan (N1 research pack, N2 de-newsed shared
+layer, N3 Track P-provisioned domains incl. finance/legal/OSINT, N4
+alias-first naming sweep) now lives as **Track N** in
+`MCP_REARCHITECTURE_PLAN.md`, its canonical home — every step lands on
+that document's machinery (Stage 1 discovery, Track P provisioning,
+Track OSINT's evidence discipline). The coupling analysis above (§15.3)
+remains the motivating context.
