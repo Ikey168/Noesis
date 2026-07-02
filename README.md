@@ -285,8 +285,11 @@ by source type, article length, and per-class metrics.
   science, significance testing) as planner-composable tools — proposed
 - Phase 9: Beyond news — research domain pack (citation graph, venue
   credibility, literature claims) as the second first-class pack;
-  finance/legal domains provisioned via Track P; pack-aware canvas
-  telemetry and outlet→source generalisation
+  finance/legal and an **OSINT / investigation** domain (corroboration,
+  entity dossiers, relationship paths, timeline reconstruction — defensive
+  analysis over ingested open sources, under a strict evidence discipline)
+  provisioned via Track P; pack-aware canvas telemetry and outlet→source
+  generalisation
   ([continuation plan](docs/architecture/KNOWLEDGE_ENGINE_PIVOT_PLAN.md)) — proposed
 - Also upcoming: trained model checkpoints; cross-dataset generalisation
   (FEVER / LIAR / AVeriTeC); predictive analytics; real-time fact-checking

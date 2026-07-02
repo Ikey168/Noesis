@@ -27,6 +27,10 @@ panels for new domains via discovery alone. Track DS applies the same
 pattern to **analytics**: data-science techniques (anomaly detection,
 lead-lag analysis, narrative clustering, graph science, significance
 testing) exposed as annotated tools the planner can compose into layouts.
+Track OSINT composes those into an **investigation plane** — corroboration,
+entity dossiers, relationship paths, timeline reconstruction — bound by a
+strict evidence discipline and a defensive-only scope (analysis over
+already-ingested open sources, never active or targeted collection).
 
 ## Current state
 
@@ -292,6 +296,102 @@ experiment gated on the honesty norm.
 misuse at scale — mitigated by the honesty contract and precompute-first
 rule; coordination findings additionally require conservative thresholds
 and human review before any public-facing surface.*
+
+## Track OSINT — the investigation plane
+
+OSINT (open-source intelligence *analysis*) is the application that most
+of the platform was quietly building toward: entity resolution (M3),
+provenance-carrying claims with SUPPORTS/CONTRADICTS (M6), the citation/
+mention graph, source transparency scoring, and Track DS's coordination
+detection and graph centrality compose directly into investigative
+workflows — corroborating a claim across independent sources,
+reconstructing a timeline, mapping who-connects-to-whom, spotting
+coordinated narratives. Track OSINT packages these into an investigation
+posture: a `research`-style domain pack (or Track-P-provisioned domain)
+plus a few OSINT-specific tools and panels, and — the real deliverable —
+a **provenance and corroboration discipline** the rest of the platform
+already half-implements.
+
+### Scope (read this before the tool list)
+
+Track OSINT is **defensive/analytical only**: it reasons over documents
+**already ingested** through the normal connector pipeline (news, blogs,
+papers, transcripts, filings, public web the operator chose to collect).
+It is an analysis layer, not a collection tool.
+
+Out of scope, by design — enforced as the absence of tools, not a policy
+note:
+
+- **No active/targeted collection.** No scraping keyed to a named
+  individual, no login-walled or private data, no purchased data brokers,
+  no de-anonymization. Ingestion stays the general connector framework,
+  which pulls *sources*, not *people*.
+- **No surveillance of private persons.** Person entities are analyzed
+  only as they appear in already-public documents; the unit of analysis
+  is the *claim and its sourcing*, not a dossier on an individual.
+- **No offensive/operational output.** No target packages, no
+  location-tracking of individuals, no anything whose primary use is to
+  act against a person. Geotemporal tools resolve *where an event was
+  reported to occur*, from document content — not where a person is.
+
+This scope is the mission: the same "hold sources accountable, show your
+work" ethic as the transparency ranking, pointed at investigations.
+
+### Tools (compose first, add sparingly)
+
+Most OSINT value is composition of existing capabilities; only a few
+genuinely new tools are needed.
+
+| Tool | Built on | Panel | Role |
+|---|---|---|---|
+| `corroborate(claim_id)` | M6 claims + RAG + `source_scores` | Corroboration panel: independent sources for/against, weighted by source credibility | The core OSINT primitive — how many *independent* sources support this, and how good are they |
+| `entity_dossier(entity_id)` | M3 resolution + KG + mentions | Entity brief: every public mention, resolved aliases, first/last seen, connected entities — all cited | A *cited* profile from public docs only; every line links to its source document |
+| `relationship_path(a, b)` | KG shortest-path / centrality (Track DS) | Connection graph between two entities | "How is A connected to B" across the corpus, with the evidence on each edge |
+| `timeline_reconstruct(topic|entity)` | claims + `created_at` + burst/changepoint (Track DS) | Evidence timeline with corroboration density per event | Reconstructs a sequence of events from dated, cited claims |
+| `source_reliability(source)` | transparency machinery, generalized to any source_type | Reliability card (track record, corroboration hit-rate, correction history) | Extends outlet scoring into an OSINT-grade source-vetting signal |
+| `narrative_coordination(topic)` | Track DS `coordination_detect` | Coordinated-cohort graph | Astroturf / influence-operation surfacing — flag cohorts, never accuse |
+| `geolocate_claims(topic)` | NER (places) + geocoding of document *content* | Event map (where events are *reported* to occur) | Places extracted from text, not people tracked; strictly event-geography |
+| `contradiction_scan(entity|topic)` | M6 CONTRADICTS edges | Contradiction ledger | Surfaces where the public record disagrees with itself |
+
+### The non-negotiable: an evidence discipline
+
+OSINT output that can't be traced is worse than useless. Track OSINT
+tightens the honesty contract into an **evidentiary** one:
+
+| Rule | Meaning |
+|---|---|
+| **Every assertion is a link.** | No claim, edge, or timeline entry renders without a citation to the source document + chunk (`path`). "Uncited" is a render state, flagged, never hidden. |
+| **Corroboration is explicit.** | Panels show *independent-source count* and credibility, not a single confidence number. One source = clearly marked single-sourced. |
+| **Confidence is calibrated, not asserted.** | Reuses Track DS calibration/conformal work; an entity match or geolocation carries an interval, and resolution ambiguity (M3) is surfaced, not resolved silently. |
+| **Provenance chain is inspectable.** | `lineage_mcp` already models this — an investigation artifact can be traced source → connector → enrichment → claim → panel. |
+| **Audit trail on RW actions.** | Any provisioning (a Track-P investigation KG) or export is logged; investigations are reconstructable. |
+| **Person-entity guardrail.** | Tools operating on person entities require the person to appear in ≥1 ingested public document and surface only document-sourced facts; no inference-only claims about individuals. |
+
+### Delivery
+
+- As a **domain pack / MCP server** (`osint`), it rides Stage 1: its
+  annotated tools become panels via discovery, gated by an `osint`
+  `ui_flag`. No genui code changes.
+- It **composes Track DS** (coordination, centrality, burst, calibration)
+  and **Track P** (an investigation is naturally a provisioned,
+  namespaced KG fed by a chosen source set — with the audit trail Track P
+  already mandates).
+- Empty-canvas telemetry, when the OSINT pack dominates, shifts from
+  "trending topics" to "open threads / newly corroborated / newly
+  contradicted".
+
+Sequencing: after Stage 1 + the first Track DS tools (`corroborate`
+needs source scoring and claims, both present; the rest lean on DS).
+Start with `corroborate` + `source_reliability` + `contradiction_scan`
+(pure composition, highest value, lowest risk), then `entity_dossier` /
+`relationship_path`, with `geolocate_claims` and `narrative_coordination`
+last and behind the strictest review — they are the most abusable and the
+most false-positive-prone.
+*Effort: mostly composition; medium. Risk: **misuse and false
+confidence** — mitigated by the scope boundary (analysis over ingested
+open sources only, enforced by which tools exist) and the evidence
+discipline above. This track's guardrails are load-bearing, not
+decorative.*
 
 ## What deliberately does not change
 

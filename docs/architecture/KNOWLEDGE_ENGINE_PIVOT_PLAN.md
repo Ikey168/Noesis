@@ -413,9 +413,13 @@ concrete residue, in priority order:
   packs are enabled), and anchor overview availability on `documents`
   rather than `news_articles`.
 - **N3 — Domains via Track P.** Finance (earnings-call transcripts —
-  the media connector already transcribes) and legal/policy arrive as
+  the media connector already transcribes), legal/policy, and **OSINT /
+  investigation** (see `MCP_REARCHITECTURE_PLAN.md` Track OSINT) arrive as
   *provisioned* domains, not hand-built packs: the acceptance test for
-  Track P is standing up one of these without writing a pack.
+  Track P is standing up one of these without writing a pack. OSINT is
+  the sharpest fit — it is mostly composition of capabilities already
+  built (entity resolution, cited claims, source scoring, coordination
+  detection) under an evidence discipline.
 - **N4 — Naming/alias sweep.** `NOESIS_*` env vars with `NEURONEWS_*`
   fallbacks, package/server renames, API title — mechanical, last, and
   alias-first so nothing breaks.
