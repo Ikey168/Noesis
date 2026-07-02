@@ -99,7 +99,20 @@ def kg_ontology() -> dict:
     }
 
 
-@mcp.tool()
+@mcp.tool(
+    meta={"panel": {
+        "type": "entity_graph",
+        "title": "Entity graph",
+        "description": "Co-mention network of entities in recent coverage.",
+        "endpoint": "/api/v1/entity_graph",
+        "facets": ["entities", "actors", "overview"],
+        "tables": ["news_articles"],
+        "ui_flag": "influence_graph",
+        "default_span": 6,
+        "days_param": "days",
+        "max_days": 30,
+    }},
+)
 def list_entities(
     entity_type: Optional[str] = None,
     name_filter: Optional[str] = None,
@@ -254,7 +267,20 @@ def emerging_connections(
     return get_emerging_connections(since=since, limit=limit)
 
 
-@mcp.tool()
+@mcp.tool(
+    meta={"panel": {
+        "type": "trending",
+        "title": "Trending topics",
+        "description": "Topics ranked by mention velocity.",
+        "endpoint": "/topics/trending",
+        "facets": ["overview", "trend", "events"],
+        "tables": ["news_articles"],
+        "ui_flag": "trending",
+        "default_span": 6,
+        "days_param": "days",
+        "max_days": 30,
+    }},
+)
 def evolving_topics(
     window_minutes: int = 60,
     top_n: int = 15,

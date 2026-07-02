@@ -113,13 +113,26 @@ async def _default_session(spec: ServerSpec):
             yield session
 
 
-async def _list_tools(session: Any) -> List[Dict[str, str]]:
-    """One health-check round-trip; doubles as the discovery refresh."""
+async def _list_tools(session: Any) -> List[Dict[str, Any]]:
+    """One health-check round-trip; doubles as the discovery refresh.
+
+    Each cached tool carries its ``_meta`` block and whether it declares an
+    ``outputSchema`` — the two things the R2 discovery-derived catalog
+    (src/genui/discovery.py) needs to map annotated tools into PanelDefs.
+    """
     result = await asyncio.wait_for(session.list_tools(), CALL_TIMEOUT)
-    return [
-        {"name": tool.name, "description": (tool.description or "").strip()}
-        for tool in result.tools
-    ]
+    tools: List[Dict[str, Any]] = []
+    for tool in result.tools:
+        meta = getattr(tool, "meta", None)
+        tools.append(
+            {
+                "name": tool.name,
+                "description": (tool.description or "").strip(),
+                "meta": meta if isinstance(meta, dict) else {},
+                "has_output_schema": getattr(tool, "outputSchema", None) is not None,
+            }
+        )
+    return tools
 
 
 def sdk_available() -> bool:
@@ -308,8 +321,9 @@ class MCPHost:
             "servers": servers,
         }
 
-    def tools(self, server: Optional[str] = None) -> Dict[str, List[Dict[str, str]]]:
-        """Cached discovery results (name/description per tool), per server."""
+    def tools(self, server: Optional[str] = None) -> Dict[str, List[Dict[str, Any]]]:
+        """Cached discovery results per server (name, description, meta,
+        has_output_schema). Snapshot read; never triggers a round-trip."""
         with self._lock:
             if server is not None:
                 status = self._statuses.get(server)

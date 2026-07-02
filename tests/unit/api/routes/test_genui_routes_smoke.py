@@ -165,3 +165,51 @@ def test_panels_exposes_catalog(client):
         assert "type" in panel
         assert "title" in panel
         assert "facets" in panel
+
+
+# R2 litmus (a): a new annotated server surfaces its panel type through
+# /api/v1/ui/panels with zero genui code changes — only the host cache
+# differs between this test and the static one below.
+def test_panels_surfaces_discovered_type(client, monkeypatch):
+    class FakeHost:
+        _data = {
+            "research-server": [
+                {
+                    "name": "citations",
+                    "description": "Citation network for papers.",
+                    "meta": {
+                        "panel": {
+                            "type": "citation_graph",
+                            "title": "Citation graph",
+                            "facets": ["entities", "library"],
+                            "default_span": 6,
+                        }
+                    },
+                    "has_output_schema": True,
+                }
+            ]
+        }
+
+        def tools(self, server=None):
+            if server is not None:
+                return {server: self._data.get(server, [])}
+            return dict(self._data)
+
+    monkeypatch.setattr("src.mcp_host.get_host", lambda: FakeHost())
+    body = client.get("/api/v1/ui/panels").json()
+    by_type = {p["type"]: p for p in body["panels"]}
+    assert "citation_graph" in by_type
+    assert by_type["citation_graph"]["source"] == "research-server"
+    assert by_type["claims"]["source"] == "static"
+    assert body["count"] == len(body["panels"])
+
+
+# R2 litmus (b): with no discovery (host down/absent) the payload is
+# byte-identical to the static catalog.
+def test_panels_byte_identical_without_discovery(client, monkeypatch):
+    monkeypatch.setattr("src.mcp_host.get_host", lambda: None)
+    from src.genui.catalog import panel_catalog_dict
+
+    body = client.get("/api/v1/ui/panels").json()
+    static = panel_catalog_dict()
+    assert body == {"panels": static, "count": len(static)}

@@ -13,7 +13,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field, field_validator
 
 from src.genui.adaptivity import data_availability, merged_ui_flags
-from src.genui.catalog import panel_catalog_dict
+from src.genui.discovery import merged_catalog_dict
 from src.genui.llm import llm_config, plan_with_llm
 from src.genui.planner import plan
 from src.genui.spec import MAX_INTENT_LENGTH, SOURCE_TYPES, validate_spec
@@ -119,9 +119,15 @@ def ui_context() -> Dict[str, Any]:
 
 @router.get("/panels")
 async def ui_panels() -> Dict[str, Any]:
-    """Expose the panel catalog the frontend renderer mirrors."""
+    """Expose the panel catalog the frontend renderer mirrors.
+
+    R2: discovery-derived defs from annotated MCP tools merge over the
+    static catalog; with no servers connected the payload is byte-identical
+    to the static catalog. Reads the host's cache only, so this stays
+    non-blocking in the event loop.
+    """
     try:
-        panels = panel_catalog_dict()
+        panels = merged_catalog_dict()
         return {"panels": panels, "count": len(panels)}
     except Exception as err:
         raise HTTPException(status_code=500, detail=f"UI panel catalog failed: {err}")

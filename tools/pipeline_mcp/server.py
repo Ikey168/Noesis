@@ -21,6 +21,12 @@ Tools:
   trigger_followthrough_check(limit?)       -> run nightly follow-through batch on-demand (#111)
   query_conflicts(topic?, source_type?, ...) -> query claim_conflicts table for conflict pairs (#112)
   compute_conflicts(limit?, date_range?)    -> run semantic-similarity conflict detection batch (#112)
+  article_stats(days?)                      -> headline warehouse counts (signal-summary panel)
+  latest_articles(topic?, limit?)           -> newest matching article summaries
+  document_stats(source_type?)              -> ingested-document counts by source type
+  sentiment_by_topic(days?)                 -> average sentiment per topic
+  sentiment_heatmap(days?)                  -> topic-by-day sentiment grid
+  coverage_clusters(days?)                  -> grouped coverage summary (clusters panel)
 
 Design constraints (learned the hard way in this repo):
   * Lazy imports inside tools. The top of this module imports only stdlib +
@@ -619,7 +625,24 @@ def trace_article(id: str) -> dict:
     return trace
 
 
-@mcp.tool
+@mcp.tool(
+    output_schema={
+        "type": "object",
+        "properties": {"count": {"type": "integer"}, "positions": {"type": "array"}},
+        "additionalProperties": True,
+    },
+    meta={"panel": {
+        "type": "positions",
+        "title": "Actor positions",
+        "description": "Policy positions held by actors, with updates over time.",
+        "endpoint": "/api/v1/arguments/positions",
+        "facets": ["actors", "stance"],
+        "tables": ["policy_positions"],
+        "default_span": 6,
+        "topic_param": "topic",
+        "source_type_param": "source_type",
+    }},
+)
 def query_positions(
     actor: Optional[str] = None,
     topic: Optional[str] = None,
@@ -808,7 +831,24 @@ def trigger_followthrough_check(limit: int = 50) -> dict:
         return {"error": str(exc)}
 
 
-@mcp.tool
+@mcp.tool(
+    output_schema={
+        "type": "object",
+        "properties": {"count": {"type": "integer"}, "conflicts": {"type": "array"}},
+        "additionalProperties": True,
+    },
+    meta={"panel": {
+        "type": "controversy",
+        "title": "Conflicts",
+        "description": "Actor pairs with contradicting claims, by intensity.",
+        "endpoint": "/api/v1/arguments/controversy",
+        "facets": ["conflict", "claims"],
+        "tables": ["claim_conflicts"],
+        "default_span": 6,
+        "topic_param": "topic",
+        "source_type_param": "source_type",
+    }},
+)
 def query_conflicts(
     topic: Optional[str] = None,
     source_type: Optional[str] = None,
@@ -921,6 +961,361 @@ def compute_conflicts(limit: int = 300, date_range: Optional[str] = None) -> dic
         return {"status": "ok", **counts}
     except Exception as exc:
         return {"error": str(exc)}
+
+
+# --------------------------------------------------------------------------- #
+# Panel-shaped warehouse summaries (R2 discovery counterparts; see            #
+# docs/architecture/ADR-001-tool-panel-annotation.md). Read-only, capped,     #
+# and never full payloads — same house rules as the tools above.             #
+# --------------------------------------------------------------------------- #
+
+def _cutoff(days: int):
+    from datetime import datetime, timedelta, timezone
+
+    return datetime.now(timezone.utc) - timedelta(days=max(1, days))
+
+
+@mcp.tool(
+    output_schema={
+        "type": "object",
+        "properties": {
+            "total_articles": {"type": "integer"},
+            "window_articles": {"type": "integer"},
+            "sources": {"type": "integer"},
+            "categories": {"type": "array"},
+        },
+        "additionalProperties": True,
+    },
+    meta={"panel": {
+        "type": "kpi_row",
+        "title": "Signal summary",
+        "description": "Headline counts across articles, clusters and topics.",
+        "endpoint": "/api/v1/news/articles",
+        "facets": ["overview"],
+        "tables": ["news_articles"],
+        "default_span": 12,
+    }},
+)
+def article_stats(days: int = 7) -> dict:
+    """Headline warehouse counts: total articles, articles in the window,
+    distinct sources, and per-category counts.
+
+    Args:
+        days: Look-back window in days (default 7).
+    """
+    try:
+        con = _warehouse_ro()
+    except Exception as exc:
+        return {"error": str(exc)}
+    try:
+        total = con.execute("SELECT COUNT(*) FROM news_articles").fetchone()[0]
+        window = con.execute(
+            "SELECT COUNT(*) FROM news_articles WHERE publish_date >= ?", [_cutoff(days)]
+        ).fetchone()[0]
+        sources = con.execute("SELECT COUNT(DISTINCT source) FROM news_articles").fetchone()[0]
+        cats = con.execute(
+            "SELECT category, COUNT(*) FROM news_articles GROUP BY category "
+            "ORDER BY COUNT(*) DESC LIMIT 12"
+        ).fetchall()
+        return {
+            "total_articles": total,
+            "window_articles": window,
+            "window_days": max(1, days),
+            "sources": sources,
+            "categories": [{"category": c, "articles": n} for c, n in cats],
+        }
+    except Exception as exc:
+        return {"error": str(exc)}
+    finally:
+        con.close()
+
+
+@mcp.tool(
+    output_schema={
+        "type": "object",
+        "properties": {"count": {"type": "integer"}, "articles": {"type": "array"}},
+        "additionalProperties": True,
+    },
+    meta={"panel": {
+        "type": "articles",
+        "title": "Latest documents",
+        "description": "Most recent matching articles and documents.",
+        "endpoint": "/api/v1/news/articles",
+        "facets": ["overview", "sentiment"],
+        "tables": ["news_articles"],
+        "default_span": 6,
+    }},
+)
+def latest_articles(topic: Optional[str] = None, limit: int = 10) -> dict:
+    """Newest articles as compact summaries (title, source, date, sentiment
+    label) — never full content.
+
+    Args:
+        topic: Substring match against the title (ILIKE).
+        limit: Max rows (default 10, max 20).
+    """
+    try:
+        con = _warehouse_ro()
+    except Exception as exc:
+        return {"error": str(exc)}
+    limit = min(max(1, limit), 20)
+    where, params = "", []
+    if topic:
+        where = "WHERE title ILIKE ?"
+        params.append(f"%{topic}%")
+    params.append(limit)
+    try:
+        rows = con.execute(
+            f"""
+            SELECT id, title, source, category, publish_date, sentiment_label
+            FROM news_articles {where}
+            ORDER BY publish_date DESC NULLS LAST
+            LIMIT ?
+            """,
+            params,
+        ).fetchall()
+        return {
+            "count": len(rows),
+            "articles": [
+                {
+                    "id": r[0],
+                    "title": r[1],
+                    "source": r[2],
+                    "category": r[3],
+                    "publish_date": r[4].isoformat() if r[4] else None,
+                    "sentiment_label": r[5],
+                }
+                for r in rows
+            ],
+        }
+    except Exception as exc:
+        return {"error": str(exc)}
+    finally:
+        con.close()
+
+
+@mcp.tool(
+    output_schema={
+        "type": "object",
+        "properties": {"total_documents": {"type": "integer"}, "by_source_type": {"type": "array"}},
+        "additionalProperties": True,
+    },
+    meta={"panel": {
+        "type": "documents",
+        "title": "Library",
+        "description": "Ingested documents across all source types (books, papers, transcripts, …).",
+        "endpoint": "/api/v1/documents",
+        "facets": ["library", "overview"],
+        "default_span": 6,
+        "source_type_param": "source_type",
+    }},
+)
+def document_stats(source_type: Optional[str] = None) -> dict:
+    """Ingested-document counts by source type from the ``documents`` corpus
+    table; reports ``table_missing`` when the corpus has not been created yet.
+
+    Args:
+        source_type: Restrict counts to one source type.
+    """
+    try:
+        con = _warehouse_ro()
+    except Exception as exc:
+        return {"error": str(exc)}
+    try:
+        where, params = "", []
+        if source_type:
+            where = "WHERE source_type = ?"
+            params.append(source_type)
+        rows = con.execute(
+            f"SELECT source_type, COUNT(*) FROM documents {where} "
+            "GROUP BY source_type ORDER BY COUNT(*) DESC",
+            params,
+        ).fetchall()
+        return {
+            "total_documents": sum(r[1] for r in rows),
+            "by_source_type": [{"source_type": r[0], "documents": r[1]} for r in rows],
+        }
+    except Exception as exc:
+        msg = str(exc)
+        if "does not exist" in msg or "not found" in msg.lower():
+            return {"total_documents": 0, "by_source_type": [], "status": "table_missing: documents"}
+        return {"error": msg}
+    finally:
+        con.close()
+
+
+@mcp.tool(
+    output_schema={
+        "type": "object",
+        "properties": {"count": {"type": "integer"}, "topics": {"type": "array"}},
+        "additionalProperties": True,
+    },
+    meta={"panel": {
+        "type": "topic_sentiment",
+        "title": "Sentiment by topic",
+        "description": "Average sentiment score per topic.",
+        "endpoint": "/news_sentiment/topics",
+        "facets": ["sentiment"],
+        "tables": ["news_articles"],
+        "ui_flag": "sentiment_dashboard",
+        "default_span": 6,
+        "days_param": "days",
+        "max_days": 90,
+    }},
+)
+def sentiment_by_topic(days: int = 30) -> dict:
+    """Average sentiment score and article count per topic (category) in the
+    window.
+
+    Args:
+        days: Look-back window in days (default 30, max 90).
+    """
+    days = min(max(1, days), 90)
+    try:
+        con = _warehouse_ro()
+    except Exception as exc:
+        return {"error": str(exc)}
+    try:
+        rows = con.execute(
+            """
+            SELECT category, AVG(sentiment_score), COUNT(*)
+            FROM news_articles WHERE publish_date >= ?
+            GROUP BY category ORDER BY COUNT(*) DESC LIMIT 20
+            """,
+            [_cutoff(days)],
+        ).fetchall()
+        return {
+            "count": len(rows),
+            "window_days": days,
+            "topics": [
+                {
+                    "topic": r[0],
+                    "avg_sentiment": float(r[1]) if r[1] is not None else 0.0,
+                    "articles": r[2],
+                }
+                for r in rows
+            ],
+        }
+    except Exception as exc:
+        return {"error": str(exc)}
+    finally:
+        con.close()
+
+
+@mcp.tool(
+    output_schema={
+        "type": "object",
+        "properties": {"count": {"type": "integer"}, "cells": {"type": "array"}},
+        "additionalProperties": True,
+    },
+    meta={"panel": {
+        "type": "sentiment_heatmap",
+        "title": "Sentiment heatmap",
+        "description": "Topic × time sentiment intensity grid.",
+        "endpoint": "/news_sentiment/heatmap",
+        "facets": ["sentiment", "trend"],
+        "tables": ["news_articles"],
+        "ui_flag": "sentiment_dashboard",
+        "default_span": 6,
+        "days_param": "days",
+        "max_days": 60,
+    }},
+)
+def sentiment_heatmap(days: int = 14) -> dict:
+    """Topic-by-day average sentiment cells for the heatmap panel.
+
+    Args:
+        days: Look-back window in days (default 14, max 60).
+    """
+    days = min(max(1, days), 60)
+    try:
+        con = _warehouse_ro()
+    except Exception as exc:
+        return {"error": str(exc)}
+    try:
+        rows = con.execute(
+            """
+            SELECT category, CAST(publish_date AS DATE), AVG(sentiment_score), COUNT(*)
+            FROM news_articles WHERE publish_date >= ?
+            GROUP BY 1, 2 ORDER BY 2 DESC, 4 DESC LIMIT 200
+            """,
+            [_cutoff(days)],
+        ).fetchall()
+        return {
+            "count": len(rows),
+            "window_days": days,
+            "cells": [
+                {
+                    "topic": r[0],
+                    "date": r[1].isoformat() if r[1] else None,
+                    "avg_sentiment": float(r[2]) if r[2] is not None else 0.0,
+                    "articles": r[3],
+                }
+                for r in rows
+            ],
+        }
+    except Exception as exc:
+        return {"error": str(exc)}
+    finally:
+        con.close()
+
+
+@mcp.tool(
+    output_schema={
+        "type": "object",
+        "properties": {"count": {"type": "integer"}, "clusters": {"type": "array"}},
+        "additionalProperties": True,
+    },
+    meta={"panel": {
+        "type": "clusters",
+        "title": "Event clusters",
+        "description": "Grouped event coverage with velocity and impact.",
+        "endpoint": "/api/v1/events/clusters",
+        "facets": ["overview", "events"],
+        "tables": ["news_articles"],
+        "ui_flag": "clusters",
+        "default_span": 6,
+    }},
+)
+def coverage_clusters(days: int = 7) -> dict:
+    """Cluster-shaped coverage summary: articles grouped by category with
+    volume, distinct-source count and latest publish time. This is a plain
+    warehouse aggregation, not the API's event-clustering pipeline — it
+    answers "where is coverage concentrated" for planners and inspection.
+
+    Args:
+        days: Look-back window in days (default 7).
+    """
+    try:
+        con = _warehouse_ro()
+    except Exception as exc:
+        return {"error": str(exc)}
+    try:
+        rows = con.execute(
+            """
+            SELECT category, COUNT(*), COUNT(DISTINCT source), MAX(publish_date)
+            FROM news_articles WHERE publish_date >= ?
+            GROUP BY category ORDER BY COUNT(*) DESC LIMIT 15
+            """,
+            [_cutoff(days)],
+        ).fetchall()
+        return {
+            "count": len(rows),
+            "window_days": max(1, days),
+            "clusters": [
+                {
+                    "label": r[0],
+                    "articles": r[1],
+                    "sources": r[2],
+                    "latest": r[3].isoformat() if r[3] else None,
+                }
+                for r in rows
+            ],
+        }
+    except Exception as exc:
+        return {"error": str(exc)}
+    finally:
+        con.close()
 
 
 if __name__ == "__main__":

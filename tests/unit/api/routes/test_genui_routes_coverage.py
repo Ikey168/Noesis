@@ -231,7 +231,7 @@ def test_panels_error_returns_500(client, monkeypatch):
     def boom():
         raise RuntimeError("catalog broke")
 
-    monkeypatch.setattr(mod, "panel_catalog_dict", boom)
+    monkeypatch.setattr(mod, "merged_catalog_dict", boom)
     resp = client.get("/api/v1/ui/panels")
     assert resp.status_code == 500
     assert "UI panel catalog failed" in resp.json()["detail"]
