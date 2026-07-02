@@ -221,6 +221,41 @@ argument analysis), not by novelty:
 | `forecast_topic(topic, horizon)` | Exponential smoothing / lightweight ARIMA on velocity | Forecast band on trend panels | Flashy but noisiest for news; ship last, always with intervals |
 | `model_drift_report()` | PSI/KS data-drift + score-drift vs benchmark baselines | Model-health panel | Ties the existing `monitoring_mcp` + benchmark gate into the canvas |
 
+### Wave 2 — deeper techniques (after Wave 1 proves the pattern)
+
+| Tool | Technique | Canvas panel | Why it earns its keep |
+|---|---|---|---|
+| `coverage_bias(source)` | Agenda-setting analysis: log-odds with Dirichlet prior ("Fightin' Words", Monroe et al.) of an outlet's topic mix vs the corpus baseline | "What X over/under-covers" diverging bars | The sharpest transparency tool on this list: *selection* bias, which framing metrics miss entirely — and it is one SQL aggregation + a closed-form statistic |
+| `coordination_detect(window?)` | Lockstep detection: correlation clustering over outlets' publish-timing/framing/narrative vectors; flags improbably synchronized groups | Coordination graph with cohort highlights | Coordinated-narrative / astroturf detection — mission-critical for a disinformation-aware platform, and a genuine differentiator |
+| `burst_detect(term?, topic?)` | Kleinberg burst model on term/entity streams | Burst timeline (onset, intensity, decay) | The canonical news-stream algorithm; sharper than generic anomaly detection for term-level events; near-zero dependencies |
+| `event_impact(topic, event_date)` | Event-study / difference-in-differences: coverage & sentiment vs a synthetic control basket of topics | Before/after impact panel with effect size + CI | Turns "did the announcement change the coverage?" from vibes into an estimate; scipy-only |
+| `story_cascade(topic)` | Hawkes (self-exciting) process fit on cross-outlet publication times | Cascade tree / intensity curve | The natural mechanistic model of how stories propagate; upgrades `lead_lag` from correlation to dynamics |
+| `story_survival(kind?)` | Kaplan–Meier survival curves + hazard factors for narrative lifetimes | "How long do stories like this live?" curve | Cheap (closed-form), visual, and feeds forecasting honesty: expected remaining lifetime with bands |
+| `outlet_stylometry(source)` / `rhetoric_profile(source)` | Readability, hedging/certainty markers, emotional-language ratios, loaded-language lexicons | Style fingerprint radar per outlet | Enriches transparency profiles beyond *what* outlets say into *how*; lexicon fallback is pure house style |
+| `claim_certainty(claim_id?)` | Epistemic-marker scoring (hedged vs asserted) on claims | Certainty column in claim panels | Complements fact-check verdicts: flags confident assertions of unverified claims — the risky quadrant |
+| `novelty_score(document_id)` | KL divergence of a document's content vs the trailing corpus | "Actually new here" ranking in feeds | Anti-redundancy signal readers feel immediately; also a dedup assist |
+| `model_calibration()` / conformal sets | Reliability diagrams + ECE on classifier confidences; split-conformal prediction sets | Calibration panel; claims carry coverage-guaranteed label sets | The UI already displays model confidences — this makes them *mean something*, with distribution-free guarantees at trivial cost |
+| `suggest_labeling_batch(n)` | Active learning (uncertainty/diversity sampling) over unlabeled documents | — (feeds `dataset_mcp` labeling, not a panel) | Closes the loop: the platform chooses what to annotate next to improve its own models fastest |
+
+**Adaptive-UI-facing ML (a distinct category).** Two candidates improve
+the *generative UI itself* rather than rendering panels: a contextual
+bandit ranking the empty-canvas suggestions and mover list by observed
+click-through (Thompson sampling over the existing usage signals), and
+panel-affinity recommendations (light matrix factorization over
+pin/mute/touch history) feeding `apply_signals` priors. These consume the
+adaptivity telemetry the canvas already collects, run entirely locally,
+and need no new UI — the canvas just gets measurably better at guessing.
+They should ship behind the same signals-reset control the UI already
+has, and their effect must remain inspectable (the plan note says when a
+learned prior influenced ranking — same honesty norm).
+
+Wave-2 selection rules: prefer closed-form/frequentist methods with
+scipy-grade dependencies; anything requiring a trained model must have a
+lexicon/statistical fallback; every tool reports effect sizes with
+uncertainty, never bare scores. Deliberately excluded for now: optimal
+transport document distances, agent-based simulation, and deep temporal
+KG models — cost/complexity out of proportion to mission value.
+
 Integration rules (inherited from the rest of the plan):
 
 - **Precompute heavy, serve light.** Fits run as batch jobs (existing
@@ -243,12 +278,20 @@ Integration rules (inherited from the rest of the plan):
   analytics plane for free.
 
 Sequencing: after Stage 1 (tools-as-panels is the delivery mechanism);
-pairs naturally with Stage 2. Start with `detect_anomalies` +
+pairs naturally with Stage 2. Wave 1: start with `detect_anomalies` +
 `score_confidence` (highest value, lowest risk), then `lead_lag` and
 `cluster_narratives`; treat forecasting as the deliberate caboose.
+Wave 2, by the same value ranking: `coverage_bias` and `burst_detect`
+first (cheapest, sharpest), then `model_calibration` (retrofits meaning
+onto confidences the UI already shows), `event_impact`,
+`coordination_detect` (the differentiator, but needs careful
+false-positive discipline — flag cohorts, never accuse), then the
+text-profile family, with the adaptive-UI bandit as a parallel
+experiment gated on the honesty norm.
 *Effort: incremental per tool (that is the point). Risk: statistical
 misuse at scale — mitigated by the honesty contract and precompute-first
-rule.*
+rule; coordination findings additionally require conservative thresholds
+and human review before any public-facing surface.*
 
 ## What deliberately does not change
 
