@@ -49,6 +49,7 @@ class ScriptedServer:
         self.fail_connects = 0
         self.alive = True
         self.connects = 0
+        self.tool_calls = 0
         self.call_result = SimpleNamespace(
             isError=False, structuredContent={"ok": True}
         )
@@ -71,6 +72,7 @@ class ScriptedServer:
     async def call_tool(self, name, arguments):
         if not self.alive:
             raise ConnectionError("server killed")
+        self.tool_calls += 1
         return self.call_result
 
 
@@ -119,8 +121,20 @@ def test_connects_and_reports_connected(make_host):
     assert status["restarts"] == 0
     assert h.tools("fake") == {
         "fake": [
-            {"name": "alpha", "description": "d", "meta": {}, "has_output_schema": False},
-            {"name": "beta", "description": "d", "meta": {}, "has_output_schema": False},
+            {
+                "name": "alpha",
+                "description": "d",
+                "meta": {},
+                "has_output_schema": False,
+                "input_schema": {"type": "object"},
+            },
+            {
+                "name": "beta",
+                "description": "d",
+                "meta": {},
+                "has_output_schema": False,
+                "input_schema": {"type": "object"},
+            },
         ]
     }
 
@@ -305,6 +319,64 @@ def test_call_tool_non_dict_content_becomes_empty(make_host):
     h.start()
     assert wait_until(lambda: state_of(h) == STATE_CONNECTED)
     assert h.call_tool("fake", "anything") == {}
+
+
+# ---------------------------------------------------------------------------
+# call_tool_cached (R4 #593: shared stats cache)
+# ---------------------------------------------------------------------------
+
+
+def test_call_tool_cached_caches_within_ttl(make_host):
+    server = ScriptedServer()
+    server.call_result = SimpleNamespace(isError=False, structuredContent={"v": 1})
+    h = make_host(server)
+    h.start()
+    assert wait_until(lambda: state_of(h) == STATE_CONNECTED)
+
+    assert h.call_tool_cached("fake", "t", {"a": 1}) == {"v": 1}
+    n = server.tool_calls
+    # Same (server, tool, args): served from cache, no new round-trip.
+    assert h.call_tool_cached("fake", "t", {"a": 1}) == {"v": 1}
+    assert server.tool_calls == n
+    # Different args are a different cache key.
+    h.call_tool_cached("fake", "t", {"a": 2})
+    assert server.tool_calls == n + 1
+
+
+def test_invalidate_cached_calls(make_host):
+    server = ScriptedServer()
+    server.call_result = SimpleNamespace(isError=False, structuredContent={"v": 1})
+    h = make_host(server)
+    h.start()
+    assert wait_until(lambda: state_of(h) == STATE_CONNECTED)
+    h.call_tool_cached("fake", "t")
+    n = server.tool_calls
+    h.invalidate_cached_calls("fake")
+    h.call_tool_cached("fake", "t")
+    assert server.tool_calls == n + 1
+    # Invalidate-all also clears.
+    h.invalidate_cached_calls()
+    h.call_tool_cached("fake", "t")
+    assert server.tool_calls == n + 2
+
+
+def test_reconnect_invalidates_call_cache(make_host):
+    server = ScriptedServer()
+    server.call_result = SimpleNamespace(isError=False, structuredContent={"v": 1})
+    h = make_host(server, ttl=0.05)
+    h.start()
+    assert wait_until(lambda: state_of(h) == STATE_CONNECTED)
+    assert h.call_tool_cached("fake", "t") == {"v": 1}
+
+    # Kill; on reconnect the server reports a new value, and the stale cache
+    # entry must be dropped so the fresh value is served.
+    server.alive = False
+    assert wait_until(lambda: state_of(h) != STATE_CONNECTED)
+    server.call_result = SimpleNamespace(isError=False, structuredContent={"v": 2})
+    server.alive = True
+    assert wait_until(lambda: h.status()["servers"]["fake"]["restarts"] >= 1)
+    assert wait_until(lambda: state_of(h) == STATE_CONNECTED)
+    assert h.call_tool_cached("fake", "t") == {"v": 2}
 
 
 # ---------------------------------------------------------------------------

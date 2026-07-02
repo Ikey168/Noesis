@@ -264,29 +264,39 @@ def _servers_connected(host, names) -> bool:
     return all(servers.get(n, {}).get("state") == "connected" for n in names)
 
 
+def _cached_call(host, server: str, tool: str, arguments=None) -> Dict[str, Any]:
+    """Read a stats tool through the host's shared cache (R4 #593) when
+    available, so the adaptivity layer and the LLM planning loop don't each
+    re-inspect. Falls back to a plain call on older hosts."""
+    cached = getattr(host, "call_tool_cached", None)
+    if callable(cached):
+        return cached(server, tool, arguments)
+    return host.call_tool(server, tool, arguments)
+
+
 def _tool_counts(host) -> Dict[str, int]:
     """Row counts for every catalog table via the servers' stats tools."""
     counts: Dict[str, int] = {}
 
-    am = host.call_tool("neuronews-arguments", "am_stats")
+    am = _cached_call(host, "neuronews-arguments", "am_stats")
     if "error" in am:
         raise RuntimeError(am["error"])
     for table in _AM_STATS_TABLES:
         value = am.get(table)
         counts[table] = value if isinstance(value, int) else 0
 
-    articles = host.call_tool("neuronews-pipeline", "article_stats")
+    articles = _cached_call(host, "neuronews-pipeline", "article_stats")
     if "error" in articles:
         raise RuntimeError(articles["error"])
     counts["news_articles"] = int(articles.get("total_articles", 0))
 
-    documents = host.call_tool("neuronews-pipeline", "document_stats")
+    documents = _cached_call(host, "neuronews-pipeline", "document_stats")
     if "error" in documents:
         raise RuntimeError(documents["error"])
     counts["documents"] = int(documents.get("total_documents", 0))
 
     for table, tool in _LIMIT_PROBE_TOOLS:
-        result = host.call_tool("neuronews-arguments", tool, {"limit": 1})
+        result = _cached_call(host, "neuronews-arguments", tool, {"limit": 1})
         if "error" in result:
             raise RuntimeError(result["error"])
         counts[table] = int(result.get("count", 0))
@@ -328,7 +338,7 @@ def resolve_ui_flags() -> Tuple[Dict[str, bool], str]:
     try:
         host = _get_host()
         if host is not None and _servers_connected(host, (_FLAGS_SERVER,)):
-            result = host.call_tool(_FLAGS_SERVER, "get_ui_flags")
+            result = _cached_call(host, _FLAGS_SERVER, "get_ui_flags")
             flags = result.get("flags")
             if isinstance(flags, dict):
                 flags = {str(k): bool(v) for k, v in flags.items()}

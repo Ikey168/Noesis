@@ -500,6 +500,21 @@ output still sanitized, validated, signal-enforced.
 panels; p95 generate latency with the loop stays within an agreed
 budget.
 
+*Delivered.* The loop lives in `src/genui/llm.py`: with the host up the
+LLM planner may call a curated read-only inspection allowlist
+(`am_stats`, `article_stats`, `document_stats`, the `list_*` / `*_stats`
+tools — never the RW `trigger_*`/`run_*`/`compute_*` tools) for up to
+`MAX_TOOL_ROUNDS` (3) rounds, then emits the spec. **Latency budget:**
+`NOESIS_GENUI_LOOP_BUDGET_MS` (default 9000 ms) bounds the whole loop's
+wall-clock; when the remaining budget drops below `MIN_LOOP_BUDGET_MS`
+(1500 ms) at the start, or the deadline is crossed mid-loop, the planner
+degrades to a single one-shot completion (the pre-R4 path) rather than
+issuing more turns. Tool results are served through the host's shared
+`call_tool_cached` (per `(server, tool, args)`, TTL
+`NOESIS_MCP_STATS_TTL`, default 60 s, invalidated on reconnect), which
+the adaptivity layer also reads — so two consecutive generates trigger at
+most one live round per stats tool. Kill switch: `NOESIS_GENUI_LOOP=off`.
+
 **R5 — Analytics foundation + first tools** *(Track DS Wave 1a)*
 The batch-fit pattern (trigger tools / scheduler → result tables →
 MLflow) plus `detect_anomalies` and `score_confidence` with

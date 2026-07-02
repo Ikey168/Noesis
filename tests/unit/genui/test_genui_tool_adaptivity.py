@@ -175,6 +175,29 @@ def test_get_host_reads_the_singleton(monkeypatch):
     assert availability is not None
 
 
+def test_availability_reads_through_shared_cache(monkeypatch):
+    """R4 #593: when the host exposes call_tool_cached, adaptivity uses it
+    (the shared stats cache) rather than call_tool, so results are shared
+    with the planning loop."""
+
+    class CachingHost(FakeHost):
+        def __init__(self):
+            super().__init__(ALL_STATS_SERVERS, GOOD_RESULTS)
+            self.cached_calls = []
+
+        def call_tool_cached(self, server, tool, arguments=None, timeout=10.0, ttl=None):
+            self.cached_calls.append((server, tool))
+            return self.call_tool(server, tool, arguments)
+
+    host = CachingHost()
+    install(monkeypatch, host)
+    availability, source = resolve_availability()
+    assert source == "tools"
+    # Every stats read went through the shared cache, not the raw path.
+    assert host.cached_calls
+    assert len(host.cached_calls) == len(host.calls)
+
+
 # ---------------------------------------------------------------------------
 # resolve_ui_flags
 # ---------------------------------------------------------------------------
