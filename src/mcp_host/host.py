@@ -55,6 +55,10 @@ STATE_DEGRADED = "degraded"
 STATE_DOWN = "down"
 
 DEFAULT_TTL_SECONDS = 60.0
+# Shared stats cache (R4): tool-call results cached per (server, tool, args)
+# and reused by the adaptivity layer and the LLM planning loop, so repeated
+# generates do not re-inspect. Invalidated per server on reconnect.
+STATS_CACHE_TTL = 60.0
 CONNECT_TIMEOUT = 15.0
 CALL_TIMEOUT = 10.0
 BACKOFF_BASE = 1.0
@@ -124,12 +128,16 @@ async def _list_tools(session: Any) -> List[Dict[str, Any]]:
     tools: List[Dict[str, Any]] = []
     for tool in result.tools:
         meta = getattr(tool, "meta", None)
+        input_schema = getattr(tool, "inputSchema", None)
         tools.append(
             {
                 "name": tool.name,
                 "description": (tool.description or "").strip(),
                 "meta": meta if isinstance(meta, dict) else {},
                 "has_output_schema": getattr(tool, "outputSchema", None) is not None,
+                # The R4 planning loop advertises tools to the LLM provider,
+                # which needs each tool's argument schema.
+                "input_schema": input_schema if isinstance(input_schema, dict) else {"type": "object"},
             }
         )
     return tools
@@ -172,6 +180,13 @@ class MCPHost:
         # Live session objects for call_tool, keyed by server name; entries
         # exist only while the supervise loop holds an open session.
         self._sessions: Dict[str, Any] = {}
+        # (server, tool, canonical-args) -> (result, expires_at).
+        self._call_cache: Dict[Any, Any] = {}
+        env_stats_ttl = os.getenv("NOESIS_MCP_STATS_TTL", "").strip()
+        try:
+            self.stats_ttl = float(env_stats_ttl) if env_stats_ttl else STATS_CACHE_TTL
+        except ValueError:
+            self.stats_ttl = STATS_CACHE_TTL
         self._thread: Optional[threading.Thread] = None
         self._loop: Optional[asyncio.AbstractEventLoop] = None
         # Created loop-less here (safe since 3.10) so stop() always has an
@@ -275,6 +290,10 @@ class MCPHost:
         self, name: str, tools: List[Dict[str, str]], reconnected: bool = False
     ) -> None:
         now = time.time()
+        if reconnected:
+            # A restarted server may hold different data: cached call
+            # results for it are stale by definition.
+            self.invalidate_cached_calls(name)
         with self._lock:
             status = self._statuses[name]
             status.state = STATE_CONNECTED
@@ -335,6 +354,41 @@ class MCPHost:
             raise RuntimeError(f"tool {tool!r} returned an error: {result.content}")
         structured = getattr(result, "structuredContent", None)
         return structured if isinstance(structured, dict) else {}
+
+    def call_tool_cached(
+        self,
+        server: str,
+        tool: str,
+        arguments: Optional[Dict[str, Any]] = None,
+        timeout: float = CALL_TIMEOUT,
+        ttl: Optional[float] = None,
+    ) -> Dict[str, Any]:
+        """``call_tool`` with a TTL result cache keyed per (server, tool,
+        args) — the shared stats cache (R4, #593). The adaptivity layer and
+        the LLM planning loop both read through this, so two consecutive
+        generates trigger at most one live round per tool within the TTL.
+        Errors are never cached."""
+        import json as _json
+
+        key = (server, tool, _json.dumps(arguments or {}, sort_keys=True, default=str))
+        now = time.time()
+        with self._lock:
+            hit = self._call_cache.get(key)
+            if hit is not None and now < hit[1]:
+                return hit[0]
+        result = self.call_tool(server, tool, arguments, timeout=timeout)
+        with self._lock:
+            self._call_cache[key] = (result, now + (ttl if ttl is not None else self.stats_ttl))
+        return result
+
+    def invalidate_cached_calls(self, server: Optional[str] = None) -> None:
+        """Drop cached tool results, for one server or all of them."""
+        with self._lock:
+            if server is None:
+                self._call_cache.clear()
+            else:
+                for key in [k for k in self._call_cache if k[0] == server]:
+                    del self._call_cache[key]
 
     # -- non-blocking readers ------------------------------------------------
 

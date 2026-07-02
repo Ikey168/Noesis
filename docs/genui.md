@@ -44,7 +44,7 @@ intent ──► POST /api/v1/ui/generate ──► ui-spec-v1 ──► SpecRen
 | `planner.py` | Heuristic planner: facet scoring from keyword evidence, topic / source-type / time-window extraction, panel assembly. No model, no network. |
 | `adaptivity.py` | The adaptive inputs. Since R3 availability and `ui_flags` are tool-sourced (`resolve_availability` / `resolve_ui_flags` call the servers' stats tools through the MCP host, cached ~30s) with the DuckDB probe and pack registry as servers-down fallbacks; usage-signal re-ranking (`apply_signals`). Overview panels anchor on the `documents` corpus (union of `documents` and `news_articles`), so a zero-news corpus keeps a live overview. |
 | `telemetry.py` | Pack-supplied empty-canvas telemetry (R3): enabled packs advertise `signals`/`movers`/`ticker` via `DomainPack.telemetry`; the engine's library fallback (recently ingested documents) fills whatever no pack supplies. |
-| `llm.py` | Optional LLM planner (Anthropic or OpenAI). Any failure — no key, no SDK, bad JSON, invalid spec — falls back to the heuristic planner. |
+| `llm.py` | Optional LLM planner (Anthropic or OpenAI). Since R4, with the MCP host up it runs as a bounded tool-use loop: the model may call a read-only inspection allowlist (stats/listing tools) to ground the layout in what data exists, then emits the spec. The loop is budgeted (`NOESIS_GENUI_LOOP_BUDGET_MS`, default 9000; `MAX_TOOL_ROUNDS` = 3) and degrades to one-shot planning when the budget would be blown. Any failure — no key, no SDK, bad JSON, invalid spec — falls back to the heuristic planner. |
 
 Routes (`src/api/routes/genui_routes.py`, registered via the standard
 feature-flag pattern in `src/api/app.py`):
