@@ -28,6 +28,8 @@ FACET_KEYWORDS: Dict[str, Tuple[str, ...]] = {
         "trend", "trends", "trending", "over time", "shift", "shifted",
         "evolution", "evolve", "evolved", "changing", "changed", "history",
         "momentum", "trajectory", "drift",
+        "unusual", "anomaly", "anomalies", "anomalous", "spike", "spikes",
+        "surge", "abnormal", "outlier", "outliers",
     ),
     "sentiment": (
         "sentiment", "tone", "mood", "feeling", "positive", "negative",

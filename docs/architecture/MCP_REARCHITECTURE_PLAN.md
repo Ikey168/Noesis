@@ -523,6 +523,23 @@ MLflow) plus `detect_anomalies` and `score_confidence` with
 tables via R2 discovery; no tool output ships without its uncertainty
 fields.
 
+*Delivered.* The analytics plane lives in `src/analytics/` (stdlib-only
+maths — no numpy/scipy needed, so the tool servers stay import-safe):
+`honesty.py` is the statistical-honesty contract (`n` / `method` /
+`assumptions` required, headline figures carry intervals,
+`validate_analytic_output` is the gate); `framework.py` is the
+`AnalyticJob` + `run_job` batch pattern (result table + optional MLflow,
+which degrades to a warning when absent); `anomalies.py` is the reference
+analytic (robust z-score over per-topic daily volume/sentiment) with an
+`AnomalyJob` fit and a `detect_anomalies` read tool; `confidence.py` adds
+`score_confidence` (bootstrap CI) and `stance_significance` (permutation
+test). Tools: `trigger_detect_anomalies` + `detect_anomalies`
+(pipeline_mcp, annotated for the `anomaly_timeline` panel),
+`score_confidence` + `stance_significance` (argument_mcp). The
+`anomaly_timeline` panel type + error bars on `outlet_ranking` render the
+uncertainty fields; the tools read precomputed tables and the panel data
+path lands on the MCP data proxy at R12 (demo data until then).
+
 **R6 — Analytics breadth** *(Track DS Wave 1b, then Wave 2 rolling)*
 `lead_lag`, `cluster_narratives`, `kg_communities`/`centrality`,
 `semantic_drift`; `forecast_topic` last. Wave 2 tools (coverage bias,

@@ -10,7 +10,7 @@ import type { UsageSignals } from "./signals";
 
 const FACET_KEYWORDS: Record<Facet, string[]> = {
   overview: [],
-  trend: ["trend", "trends", "trending", "over time", "shift", "shifted", "evolution", "evolve", "evolved", "changing", "changed", "history", "momentum", "trajectory", "drift"],
+  trend: ["trend", "trends", "trending", "over time", "shift", "shifted", "evolution", "evolve", "evolved", "changing", "changed", "history", "momentum", "trajectory", "drift", "unusual", "anomaly", "anomalies", "anomalous", "spike", "spikes", "surge", "abnormal", "outlier", "outliers"],
   sentiment: ["sentiment", "tone", "mood", "feeling", "positive", "negative", "emotion", "optimism", "pessimism"],
   claims: ["claim", "claims", "fact", "facts", "factcheck", "fact-check", "verify", "verified", "unverified", "true", "false", "misinformation", "disinformation", "evidence", "assertion", "unsourced"],
   stance: ["stance", "stances", "support", "supports", "supportive", "oppose", "opposes", "opposition", "critical", "position", "positions", "agree", "agrees", "disagree", "disagrees", "pro", "against"],

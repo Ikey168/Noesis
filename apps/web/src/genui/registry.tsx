@@ -29,6 +29,7 @@ import Heatmap from "../components/charts/Heatmap";
 import EntityGraph from "../components/charts/EntityGraph";
 import Sparkline from "../components/charts/Sparkline";
 import GenPanel from "./GenPanel";
+import type { OutletScore } from "../types";
 import type { PanelSpec, PanelType } from "./spec";
 
 export interface PanelProps {
@@ -558,10 +559,29 @@ function DriftPanel(props: PanelProps) {
   );
 }
 
+// R5: a horizontal error bar for a composite score with a bootstrap CI. The
+// bar spans lo..hi on the 0..1 scale, with a tick at the point estimate, so
+// the ranking shows a defensible interval instead of a naked number.
+function ScoreBar({ value, ci }: { value: number | null; ci?: OutletScore["ci"] }) {
+  const v = value ?? 0;
+  const lo = ci ? Math.max(0, Math.min(ci.lo, v)) : v;
+  const hi = ci ? Math.min(1, Math.max(ci.hi, v)) : v;
+  return (
+    <div style={{ position: "relative", width: 64, height: 10 }} title={ci ? `${(ci.level * 100).toFixed(0)}% CI [${ci.lo.toFixed(2)}, ${ci.hi.toFixed(2)}], n=${ci.n}` : undefined}>
+      <div style={{ position: "absolute", top: 4, left: 0, right: 0, height: 2, background: "#1b2b33" }} />
+      {ci ? (
+        <div style={{ position: "absolute", top: 3.5, left: `${lo * 100}%`, width: `${Math.max(2, (hi - lo) * 100)}%`, height: 3, background: `${palette.teal}66`, borderRadius: 2 }} />
+      ) : null}
+      <div style={{ position: "absolute", top: 1, left: `calc(${v * 100}% - 1px)`, width: 2, height: 8, background: palette.teal }} />
+    </div>
+  );
+}
+
 function OutletRankingPanel(props: PanelProps) {
   const sourceType = props.panel.params?.source_type as string | undefined;
   const { data: outlets, source, isLoading } = useOutletRanking({ source_type: sourceType });
   const rows = outlets.slice(0, 5);
+  const withCi = rows.some((o) => o.ci);
   return (
     <GenPanel {...props} source={source} isLoading={isLoading}>
       {rows.length === 0 ? (
@@ -572,12 +592,70 @@ function OutletRankingPanel(props: PanelProps) {
             <div key={`${o.source}-${o.source_type}`} style={{ display: "flex", alignItems: "center", gap: 10 }}>
               <span style={{ ...mono, width: 18 }}>#{o.rank}</span>
               <div style={{ flex: 1, minWidth: 0, fontSize: 12.5, fontWeight: 500, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{o.source}</div>
-              {o.trend.length > 1 ? <Sparkline values={o.trend} color={ACCENT} /> : null}
+              {o.ci ? <ScoreBar value={o.composite_score} ci={o.ci} /> : o.trend.length > 1 ? <Sparkline values={o.trend} color={ACCENT} /> : null}
               <span style={{ fontFamily: fonts.mono, fontSize: 11.5, color: palette.teal, width: 40, textAlign: "right" }}>
                 {o.composite_score != null ? o.composite_score.toFixed(2) : "—"}
               </span>
             </div>
           ))}
+          {withCi ? (
+            <div style={{ ...mono, marginTop: 2 }}>
+              bars show 95% bootstrap CI on the composite score
+            </div>
+          ) : null}
+        </div>
+      )}
+    </GenPanel>
+  );
+}
+
+// R5: the anomaly timeline. Flagged windows where a topic's daily coverage
+// volume or mean sentiment deviated from its own recent history (robust
+// z-score). Renders the honesty envelope (method / n / assumptions) so no
+// point estimate ships naked. Data path lands with the R12 MCP data proxy;
+// until then the panel shows a representative fixture.
+const DEMO_ANOMALIES = {
+  n: 21,
+  method: "robust z-score (median/MAD) over per-topic daily series",
+  assumptions: [
+    "each topic's series is judged against its own recent history",
+    "windows need at least 5 days of data; sparser topics are skipped",
+  ],
+  windows: [
+    { window_date: "2025-06-11", metric: "volume", value: 34, robust_z: 4.2, is_anomaly: true },
+    { window_date: "2025-06-14", metric: "sentiment", value: -0.42, robust_z: -3.8, is_anomaly: true },
+    { window_date: "2025-06-18", metric: "volume", value: 28, robust_z: 3.6, is_anomaly: true },
+  ],
+};
+
+function AnomalyTimelinePanel(props: PanelProps) {
+  const topic = props.panel.params?.topic;
+  const flagged = DEMO_ANOMALIES.windows.filter((w) => w.is_anomaly);
+  return (
+    <GenPanel {...props} source="demo">
+      {flagged.length === 0 ? (
+        <Empty text="No anomalies flagged" />
+      ) : (
+        <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
+          {flagged.map((w) => {
+            const neg = w.robust_z < 0;
+            return (
+              <div key={`${w.metric}-${w.window_date}`} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <span style={{ ...mono, width: 74 }}>{w.window_date}</span>
+                <span style={chip(w.metric === "volume" ? ACCENT : palette.amber)}>{w.metric}</span>
+                <div style={{ flex: 1, minWidth: 0, fontSize: 12.5 }}>
+                  {w.metric === "volume" ? `${w.value} articles` : `sentiment ${w.value.toFixed(2)}`}
+                </div>
+                <span style={{ fontFamily: fonts.mono, fontSize: 11.5, color: neg ? palette.neg : palette.pos, width: 52, textAlign: "right" }}>
+                  z {w.robust_z > 0 ? "+" : ""}{w.robust_z.toFixed(1)}
+                </span>
+              </div>
+            );
+          })}
+          <div style={{ ...mono, marginTop: 2 }}>
+            {DEMO_ANOMALIES.method} · n={DEMO_ANOMALIES.n}
+            {typeof topic === "string" && topic ? ` · ${topic}` : ""}
+          </div>
         </div>
       )}
     </GenPanel>
@@ -682,6 +760,7 @@ const REGISTRY: Record<PanelType, ComponentType<PanelProps>> = {
   outlet_ranking: OutletRankingPanel,
   outlet_clusters: OutletClustersPanel,
   actors: ActorsPanel,
+  anomaly_timeline: AnomalyTimelinePanel,
 };
 
 export function panelComponent(type: string): ComponentType<PanelProps> {

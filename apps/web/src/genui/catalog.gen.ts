@@ -10,6 +10,7 @@ export type PanelType =
   | "kpi_row"
   | "articles"
   | "documents"
+  | "anomaly_timeline"
   | "trending"
   | "clusters"
   | "watchlists"
@@ -60,6 +61,7 @@ export const PANEL_CATALOG: PanelDef[] = [
   { type: "kpi_row", title: "Signal summary", facets: ["overview"], defaultSpan: 12 },
   { type: "articles", title: "Latest documents", facets: ["overview", "sentiment"], defaultSpan: 6 },
   { type: "documents", title: "Library", facets: ["library", "overview"], defaultSpan: 6, sourceTypeParam: true },
+  { type: "anomaly_timeline", title: "Anomaly timeline", facets: ["trend", "overview"], defaultSpan: 6, topicParam: true },
   { type: "trending", title: "Trending topics", facets: ["overview", "trend", "events"], defaultSpan: 6, daysParam: true, maxDays: 30 },
   { type: "clusters", title: "Event clusters", facets: ["overview", "events"], defaultSpan: 6 },
   { type: "watchlists", title: "Watchlist", facets: ["events", "trend"], defaultSpan: 6 },
