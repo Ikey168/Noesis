@@ -57,11 +57,46 @@ def _significance_sample(seed, conn, lock=None):
     return stance_significance_payload(conn, "OutletA", "OutletB", "energy", resamples=300)
 
 
+def _lead_lag_sample(seed, conn, lock=None):
+    from src.analytics.lead_lag import lead_lag_payload
+
+    rows = []
+    for d in ["2025-06-01", "2025-06-03", "2025-06-05", "2025-06-07"]:
+        rows += [{"source": "Reuters", "category": "energy", "publish_date": d}] * 4
+        rows += [{"source": "The Guardian", "category": "energy", "publish_date": d}] * 3
+    seed.articles(conn, rows)
+    return lead_lag_payload(conn, "energy")
+
+
+def _narrative_sample(seed, conn, lock=None):
+    from src.analytics.narratives import cluster_narratives_payload
+
+    rows = [{"title": "solar subsidy grid renewable", "category": "energy", "publish_date": "2025-06-01"} for _ in range(4)]
+    seed.articles(conn, rows)
+    return cluster_narratives_payload(conn, "energy")
+
+
+def _forecast_sample(seed, conn, lock=None):
+    from datetime import datetime, timedelta, timezone
+    from src.analytics.drift import forecast_topic_payload
+
+    now = datetime.now(timezone.utc)
+    rows = []
+    for day in range(15):
+        for _ in range(3 + day % 3):
+            rows.append({"category": "energy", "publish_date": (now - timedelta(days=15 - day)).date().isoformat()})
+    seed.articles(conn, rows)
+    return forecast_topic_payload(conn, "energy", horizon=4)
+
+
 # (builder, interval_fields) for every analytic tool.
 SAMPLES = [
     ("detect_anomalies", _anomaly_sample, []),
     ("score_confidence", _confidence_sample, ["composite"]),
     ("stance_significance", _significance_sample, ["divergence"]),
+    ("lead_lag", _lead_lag_sample, []),
+    ("cluster_narratives", _narrative_sample, []),
+    ("forecast_topic", _forecast_sample, []),
 ]
 
 

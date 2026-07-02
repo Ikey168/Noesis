@@ -10,13 +10,13 @@ import type { UsageSignals } from "./signals";
 
 const FACET_KEYWORDS: Record<Facet, string[]> = {
   overview: [],
-  trend: ["trend", "trends", "trending", "over time", "shift", "shifted", "evolution", "evolve", "evolved", "changing", "changed", "history", "momentum", "trajectory", "drift", "unusual", "anomaly", "anomalies", "anomalous", "spike", "spikes", "surge", "abnormal", "outlier", "outliers"],
+  trend: ["trend", "trends", "trending", "over time", "shift", "shifted", "evolution", "evolve", "evolved", "changing", "changed", "history", "momentum", "trajectory", "drift", "unusual", "anomaly", "anomalies", "anomalous", "spike", "spikes", "surge", "abnormal", "outlier", "outliers", "semantic", "meaning", "forecast", "forecasts", "predict", "prediction", "projection", "outlook", "future", "expected"],
   sentiment: ["sentiment", "tone", "mood", "feeling", "positive", "negative", "emotion", "optimism", "pessimism"],
   claims: ["claim", "claims", "fact", "facts", "factcheck", "fact-check", "verify", "verified", "unverified", "true", "false", "misinformation", "disinformation", "evidence", "assertion", "unsourced"],
   stance: ["stance", "stances", "support", "supports", "supportive", "oppose", "opposes", "opposition", "critical", "position", "positions", "agree", "agrees", "disagree", "disagrees", "pro", "against"],
   actors: ["who", "actor", "actors", "stakeholder", "stakeholders", "politician", "politicians", "speaker", "speakers", "people", "person", "says", "said", "voices"],
   conflict: ["conflict", "conflicts", "controversy", "controversial", "contradict", "contradicts", "contradiction", "contradictions", "dispute", "disputes", "disagreement", "clash", "debate"],
-  sources: ["outlet", "outlets", "source", "sources", "bias", "biased", "framing", "frame", "frames", "coverage", "compare", "comparison", "transparency", "media", "publisher", "publishers"],
+  sources: ["outlet", "outlets", "source", "sources", "bias", "biased", "framing", "frame", "frames", "coverage", "compare", "comparison", "transparency", "media", "publisher", "publishers", "leads", "lead", "leader", "leaders", "follows", "follow", "followers", "agenda", "first", "earliest", "sets"],
   entities: ["entity", "entities", "network", "graph", "connection", "connections", "related", "relationship", "relationships", "influence"],
   events: ["event", "events", "cluster", "clusters", "story", "stories", "breaking", "timeline", "happening", "developments", "watchlist", "watchlists", "alert", "alerts"],
   library: ["library", "document", "documents", "docs", "archive", "reading", "publications", "ingested", "corpus"],

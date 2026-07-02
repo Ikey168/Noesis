@@ -26,7 +26,11 @@ export type PanelType =
   | "drift"
   | "outlet_ranking"
   | "outlet_clusters"
-  | "actors";
+  | "actors"
+  | "lead_lag"
+  | "narrative_thread"
+  | "drift_trajectory"
+  | "forecast";
 
 export type Facet =
   | "overview"
@@ -78,6 +82,10 @@ export const PANEL_CATALOG: PanelDef[] = [
   { type: "outlet_ranking", title: "Outlet transparency ranking", facets: ["sources"], defaultSpan: 6, sourceTypeParam: true },
   { type: "outlet_clusters", title: "Outlet clusters", facets: ["sources", "entities"], defaultSpan: 6, sourceTypeParam: true },
   { type: "actors", title: "Key actors", facets: ["actors", "entities"], defaultSpan: 6, sourceTypeParam: true },
+  { type: "lead_lag", title: "Who leads, who follows", facets: ["sources", "trend"], defaultSpan: 6, topicParam: true },
+  { type: "narrative_thread", title: "Narrative threads", facets: ["events", "overview"], defaultSpan: 6, topicParam: true, daysParam: true, maxDays: 90 },
+  { type: "drift_trajectory", title: "Meaning drift", facets: ["trend"], defaultSpan: 6, topicParam: true },
+  { type: "forecast", title: "Coverage forecast", facets: ["trend"], defaultSpan: 6, topicParam: true },
 ];
 
 export const PANEL_DEFS: Partial<Record<PanelType, PanelDef>> = Object.fromEntries(
