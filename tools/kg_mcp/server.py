@@ -106,7 +106,7 @@ def kg_ontology() -> dict:
         "description": "Co-mention network of entities in recent coverage.",
         "endpoint": "/api/v1/entity_graph",
         "facets": ["entities", "actors", "overview"],
-        "tables": ["news_articles"],
+        "tables": ["documents"],
         "ui_flag": "influence_graph",
         "default_span": 6,
         "days_param": "days",

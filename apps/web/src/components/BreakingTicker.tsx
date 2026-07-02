@@ -1,10 +1,13 @@
 import { palette, fonts } from "../theme";
 
+// The pack-provided signal strip: news supplies BREAKING, the library
+// fallback supplies NEW IN LIBRARY — the label comes from telemetry.
 interface Props {
   text: string;
+  label?: string;
 }
 
-export default function BreakingTicker({ text }: Props) {
+export default function BreakingTicker({ text, label = "BREAKING" }: Props) {
   return (
     <div
       style={{
@@ -33,7 +36,7 @@ export default function BreakingTicker({ text }: Props) {
           zIndex: 2,
         }}
       >
-        BREAKING
+        {label}
       </div>
       <div style={{ flex: 1, overflow: "hidden", whiteSpace: "nowrap" }}>
         <div

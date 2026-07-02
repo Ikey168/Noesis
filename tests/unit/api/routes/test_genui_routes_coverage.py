@@ -6,8 +6,8 @@ ui_flag gating, the LLM planner path (spec returned / None fallback),
 planner and validation failures (500), and the context/panels error paths.
 
 The route module is loaded BY PATH (never via ``src.api.routes``, whose
-__init__ eagerly imports heavy ML modules). ``data_availability``,
-``merged_ui_flags``, ``plan``, ``plan_with_llm``, ``llm_config``,
+__init__ eagerly imports heavy ML modules). ``resolve_availability``,
+``resolve_ui_flags``, ``plan``, ``plan_with_llm``, ``llm_config``,
 ``validate_spec`` and ``panel_catalog_dict`` are from-imported into the
 route module's namespace, so every patch targets the loaded module object
 (``mod``) via monkeypatch — state never leaks across tests or files.
@@ -49,8 +49,8 @@ def _hermetic(monkeypatch):
     """Deterministic defaults; individual tests override per branch."""
     monkeypatch.setenv("NOESIS_GENUI_LLM", "off")
     monkeypatch.setenv("NOESIS_MCP_HOST", "off")
-    monkeypatch.setattr(mod, "data_availability", lambda: None)
-    monkeypatch.setattr(mod, "merged_ui_flags", lambda: {})
+    monkeypatch.setattr(mod, "resolve_availability", lambda: (None, "unknown"))
+    monkeypatch.setattr(mod, "resolve_ui_flags", lambda: ({}, "packs"))
 
 
 @pytest.fixture
@@ -87,7 +87,9 @@ def test_generate_signals_dismissed_removed_pinned_added(client):
 # ---------------------------------------------------------------------------
 def test_generate_availability_all_false_keeps_only_tableless_panels(client, monkeypatch):
     monkeypatch.setattr(
-        mod, "data_availability", lambda: {t: False for t in ALL_TABLES}
+        mod,
+        "resolve_availability",
+        lambda: ({t: False for t in ALL_TABLES}, "warehouse"),
     )
     resp = client.post("/api/v1/ui/generate", json={"intent": "ai overview"})
     assert resp.status_code == 200
@@ -102,7 +104,9 @@ def test_generate_availability_all_false_keeps_only_tableless_panels(client, mon
 
 def test_generate_availability_all_false_falls_back_for_warehouse_only_facet(client, monkeypatch):
     monkeypatch.setattr(
-        mod, "data_availability", lambda: {t: False for t in ALL_TABLES}
+        mod,
+        "resolve_availability",
+        lambda: ({t: False for t in ALL_TABLES}, "warehouse"),
     )
     # A stance/conflict intent selects only warehouse-backed panels, so the
     # fallback-overview path fires when every table is empty.
@@ -116,7 +120,7 @@ def test_generate_availability_all_false_falls_back_for_warehouse_only_facet(cli
 
 
 def test_generate_availability_unknown(client, monkeypatch):
-    monkeypatch.setattr(mod, "data_availability", lambda: None)
+    monkeypatch.setattr(mod, "resolve_availability", lambda: (None, "unknown"))
     resp = client.post("/api/v1/ui/generate", json={"intent": "ai overview"})
     assert resp.status_code == 200
     body = resp.json()
@@ -128,7 +132,7 @@ def test_generate_availability_unknown(client, monkeypatch):
 # POST /generate — ui_flags gating
 # ---------------------------------------------------------------------------
 def test_generate_ui_flag_hides_trending_panel(client, monkeypatch):
-    monkeypatch.setattr(mod, "merged_ui_flags", lambda: {"trending": False})
+    monkeypatch.setattr(mod, "resolve_ui_flags", lambda: ({"trending": False}, "packs"))
     resp = client.post(
         "/api/v1/ui/generate", json={"intent": "trending topics this week"}
     )
@@ -203,7 +207,9 @@ def test_context_llm_enabled(client, monkeypatch):
         "llm_config",
         lambda: {"provider": "anthropic", "model": "m", "api_key": "k"},
     )
-    monkeypatch.setattr(mod, "data_availability", lambda: {"news_articles": True})
+    monkeypatch.setattr(
+        mod, "resolve_availability", lambda: ({"news_articles": True}, "warehouse")
+    )
     resp = client.get("/api/v1/ui/context")
     assert resp.status_code == 200
     body = resp.json()
@@ -218,7 +224,7 @@ def test_context_error_returns_500(client, monkeypatch):
     def boom():
         raise RuntimeError("warehouse down")
 
-    monkeypatch.setattr(mod, "data_availability", boom)
+    monkeypatch.setattr(mod, "resolve_availability", boom)
     resp = client.get("/api/v1/ui/context")
     assert resp.status_code == 500
     assert "UI context failed" in resp.json()["detail"]

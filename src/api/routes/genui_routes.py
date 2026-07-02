@@ -12,11 +12,12 @@ from typing import Any, Dict, List, Optional
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field, field_validator
 
-from src.genui.adaptivity import data_availability, merged_ui_flags
+from src.genui.adaptivity import resolve_availability, resolve_ui_flags
 from src.genui.discovery import merged_catalog_dict
 from src.genui.llm import llm_config, plan_with_llm
 from src.genui.planner import plan
 from src.genui.spec import MAX_INTENT_LENGTH, SOURCE_TYPES, validate_spec
+from src.genui.telemetry import pack_telemetry
 from src.mcp_host import host_status
 
 router = APIRouter(prefix="/api/v1/ui", tags=["generative_ui"])
@@ -54,8 +55,8 @@ def generate_ui(request: GenerateUiRequest) -> Dict[str, Any]:
     event loop.
     """
     try:
-        availability = data_availability()
-        ui_flags = merged_ui_flags()
+        availability, availability_source = resolve_availability()
+        ui_flags, _ = resolve_ui_flags()
         signals = request.signals.model_dump() if request.signals else None
 
         spec = plan_with_llm(
@@ -86,6 +87,7 @@ def generate_ui(request: GenerateUiRequest) -> Dict[str, Any]:
             "meta": {
                 "generated_by": spec.generated_by,
                 "availability_known": availability is not None,
+                "availability_source": availability_source,
                 "ui_flags": ui_flags,
             },
         }
@@ -97,13 +99,21 @@ def generate_ui(request: GenerateUiRequest) -> Dict[str, Any]:
 
 @router.get("/context")
 def ui_context() -> Dict[str, Any]:
-    """Expose the adaptive inputs the planner uses (sync: blocking probe)."""
+    """Expose the adaptive inputs the planner uses (sync: blocking probe).
+
+    R3: availability and ui_flags come from the servers' stats tools when
+    the host runtime is up (source ``tools``); the DuckDB probe / registry
+    fallbacks report ``warehouse`` / ``packs``.
+    """
     try:
-        availability = data_availability()
+        availability, availability_source = resolve_availability()
+        ui_flags, ui_flags_source = resolve_ui_flags()
         config = llm_config()
         return {
-            "ui_flags": merged_ui_flags(),
+            "ui_flags": ui_flags,
+            "ui_flags_source": ui_flags_source,
             "availability": availability,
+            "availability_source": availability_source,
             "availability_known": availability is not None,
             "llm": {
                 "enabled": config is not None,
@@ -115,6 +125,20 @@ def ui_context() -> Dict[str, Any]:
         }
     except Exception as err:
         raise HTTPException(status_code=500, detail=f"UI context failed: {err}")
+
+
+@router.get("/telemetry")
+def ui_telemetry() -> Dict[str, Any]:
+    """Ambient empty-canvas telemetry supplied by the enabled packs (R3).
+
+    Sync on purpose (warehouse reads run in the threadpool). With the news
+    pack disabled the payload still carries the engine's library telemetry
+    (recently ingested documents), never an empty gap.
+    """
+    try:
+        return pack_telemetry()
+    except Exception as err:
+        raise HTTPException(status_code=500, detail=f"UI telemetry failed: {err}")
 
 
 @router.get("/panels")

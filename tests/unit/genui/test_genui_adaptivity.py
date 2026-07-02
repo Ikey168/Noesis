@@ -153,7 +153,7 @@ class TestAvailabilityAndFlags:
 
     def test_filter_panels_drops_by_availability(self):
         panels = [_panel("note"), _panel("claims"), _panel("articles")]
-        availability = {"argument_claims": False, "news_articles": True}
+        availability = {"argument_claims": False, "documents": True}
         kept, dropped = filter_panels(panels, availability, None)
         assert [p.type for p in kept] == ["note", "articles"]
         assert dropped == ["claims"]

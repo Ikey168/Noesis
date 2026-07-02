@@ -64,13 +64,16 @@ PANEL_CATALOG: Tuple[PanelDef, ...] = (
         facets=FACETS,
         default_span=12,
     ),
+    # Overview panels anchor availability on the "documents" corpus (Track
+    # N2 / R3): adaptivity treats it as the union of the documents table and
+    # news_articles, so a zero-news corpus still gets a live overview.
     PanelDef(
         type="kpi_row",
         title="Signal summary",
         description="Headline counts across articles, clusters and topics.",
         endpoint="/api/v1/news/articles",
         facets=("overview",),
-        tables=("news_articles",),
+        tables=("documents",),
         default_span=12,
     ),
     PanelDef(
@@ -79,7 +82,7 @@ PANEL_CATALOG: Tuple[PanelDef, ...] = (
         description="Most recent matching articles and documents.",
         endpoint="/api/v1/news/articles",
         facets=("overview", "sentiment"),
-        tables=("news_articles",),
+        tables=("documents",),
         default_span=6,
     ),
     PanelDef(
@@ -162,7 +165,7 @@ PANEL_CATALOG: Tuple[PanelDef, ...] = (
         description="Co-mention network of entities in recent coverage.",
         endpoint="/api/v1/entity_graph",
         facets=("entities", "actors", "overview"),
-        tables=("news_articles",),
+        tables=("documents",),
         ui_flag="influence_graph",
         default_span=6,
         days_param="days",

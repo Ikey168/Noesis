@@ -6,7 +6,7 @@
 import { RotateCcw } from "lucide-react";
 import SpecRenderer from "./SpecRenderer";
 import EntityGraph from "../components/charts/EntityGraph";
-import { useArticles, useClusters, useEntityGraph, useTrending, usePackStatus } from "../lib/queries";
+import { useArticles, useClusters, useEntityGraph, useUiTelemetry } from "../lib/queries";
 import { useUiSpec } from "./useUiSpec";
 import { useAdaptiveSignals, hasSignals } from "./signals";
 import { PANEL_DEFS } from "./spec";
@@ -35,12 +35,21 @@ const PLANNER_BADGE: Record<string, { label: string; className: string; hint: st
 const QUIET_SUGGESTIONS = ["daily briefing", "fact-check claims about the economy", "library documents"];
 
 function EmptyState({ onIntent }: { onIntent: (intent: string) => void }) {
-  const { newsPack } = usePackStatus();
+  // The ambient signal is pack-supplied (R3): whichever packs the backend
+  // has enabled advertise movers/signals; the library fallback keeps a
+  // zero-news corpus alive. No news hook is hardcoded here anymore.
+  const { data: telemetry } = useUiTelemetry();
   const { data: graph } = useEntityGraph();
-  const { data: trending } = useTrending();
   const { data: articles } = useArticles();
   const { data: clusters } = useClusters();
-  const movers = trending.slice(0, 5);
+  const movers = telemetry.movers;
+  const signals = telemetry.signals.length
+    ? telemetry.signals
+    : [
+        { label: "DOCS", value: articles.length },
+        { label: "CLUSTERS", value: clusters.length },
+        { label: "TOPICS MOVING", value: movers.length },
+      ];
 
   return (
     <div className="relative flex-1 overflow-hidden">
@@ -65,36 +74,40 @@ function EmptyState({ onIntent }: { onIntent: (intent: string) => void }) {
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" style={{ animation: "blink 2s infinite" }} />
             LIVE SIGNAL
           </span>
-          <span>{articles.length} DOCS</span>
-          <span>{clusters.length} CLUSTERS</span>
-          <span>{trending.length} TOPICS MOVING</span>
+          {signals.map((s) => (
+            <span key={s.label}>
+              {s.value} {s.label}
+            </span>
+          ))}
         </div>
 
-        {newsPack && movers.length > 0 ? (
+        {movers.length > 0 ? (
           <div className="w-full max-w-lg">
             <div className="mb-2 text-center font-mono text-[9.5px] tracking-[0.16em] text-muted-foreground/60">
-              MOVING NOW — GENERATE A COVERAGE VIEW
+              MOVING NOW — GENERATE A VIEW
             </div>
             <div className="flex flex-col gap-1">
               {movers.map((t, i) => (
                 <Button
-                  key={t.topic}
+                  key={t.label}
                   variant="ghost"
-                  onClick={() => onIntent(`coverage of ${t.topic.toLowerCase()}`)}
-                  title={`Generate: “coverage of ${t.topic.toLowerCase()}”`}
+                  onClick={() => onIntent(t.intent)}
+                  title={`Generate: “${t.intent}”`}
                   className="h-auto w-full justify-start gap-3 px-3 py-2 font-normal"
                 >
                   <span className="w-4 shrink-0 text-right font-mono text-[11px] text-muted-foreground/50">
                     {i + 1}
                   </span>
-                  <span className="min-w-0 flex-1 truncate text-left text-[13px]">{t.topic}</span>
-                  <span
-                    className={
-                      "font-mono text-[11px] " + (t.change >= 0 ? "text-emerald-400" : "text-red-400")
-                    }
-                  >
-                    {(t.change >= 0 ? "+" : "") + t.change}%
-                  </span>
+                  <span className="min-w-0 flex-1 truncate text-left text-[13px]">{t.label}</span>
+                  {typeof t.change === "number" ? (
+                    <span
+                      className={
+                        "font-mono text-[11px] " + (t.change >= 0 ? "text-emerald-400" : "text-red-400")
+                      }
+                    >
+                      {(t.change >= 0 ? "+" : "") + t.change}%
+                    </span>
+                  ) : null}
                   <span className="font-mono text-[10px] text-muted-foreground/40">▸ generate</span>
                 </Button>
               ))}

@@ -6,6 +6,7 @@ and tests can import the pack object directly without triggering registration.
 """
 
 from src.domains.base import DomainPack, Enricher
+from src.domains.news.telemetry import news_telemetry
 from src.domains.news.enrichers import (
     event_clusterer_enricher,
     fake_news_enricher,
@@ -73,4 +74,5 @@ NewsDomainPack = DomainPack(
     enrichers=_NEWS_ENRICHERS,
     route_modules=_NEWS_ROUTE_MODULES,
     ui_flags=_NEWS_UI_FLAGS,
+    telemetry=news_telemetry,
 )
