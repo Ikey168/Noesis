@@ -454,6 +454,129 @@ small, wide.*
 Sequencing summary: N1 now → N2 with Stage 1 → N3 as Track P's exit
 criterion → N4 cleanup.
 
+## Milestones (proposed sequence)
+
+The stages and tracks above define scope; this is the dependency-ordered
+delivery sequence, in the same style as the pivot plan's M0–M12 (each
+independently shippable, each with an exit criterion).
+
+### Foundation
+
+**R0 — Catalog codegen** *(Stage 0)*
+`spec.ts` types/catalog and the contract enums generated from
+`catalog.py`; CI staleness check.
+*Exit:* editing `catalog.py` without regenerating fails CI; the
+hand-written mirrors are deleted.
+
+**R1 — MCP host runtime**
+Pooled, supervised FastMCP sessions inside the API process: lazy
+connect, health checks, discovery cache (TTL), per-server status in
+`GET /api/v1/ui/context`. No planning behavior changes yet — this is
+the risky infrastructure, isolated.
+*Exit:* all 12 servers connected with health visible; killing a server
+is reflected within one TTL; API boot time within ±10% of today.
+
+**R2 — Discovery-derived catalog** *(Stage 1)*
+Decide the tool→panel annotation format (open question 1), annotate the
+existing servers' panel-shaped tools, and merge discovered `PanelDef`s
+over the static catalog (which remains the fallback).
+*Exit:* dropping in a new annotated server surfaces a panel type in
+`/api/v1/ui/panels` with zero genui changes; with every server down the
+canvas is byte-identical to today.
+
+**R3 — Adaptivity from tools** *(Stage 1 + N2)*
+`merged_ui_flags`/availability from server presence + stats tools
+(DuckDB probe demoted to fallback); overview availability re-anchored
+on `documents`; empty-canvas telemetry becomes pack-supplied.
+*Exit:* `/api/v1/ui/context` availability is tool-sourced when servers
+are up; a corpus with zero news still gets a live overview canvas.
+
+### Intelligence
+
+**R4 — Grounded LLM planning** *(Stage 2)*
+Bounded tool-use loop (allowlist, call/time budgets, stats caching);
+output still sanitized, validated, signal-enforced.
+*Exit:* with a mocked MCP client, plans demonstrably skip empty-data
+panels; p95 generate latency with the loop stays within an agreed
+budget.
+
+**R5 — Analytics foundation + first tools** *(Track DS Wave 1a)*
+The batch-fit pattern (trigger tools / scheduler → result tables →
+MLflow) plus `detect_anomalies` and `score_confidence` with
+`outputSchema` carrying n / intervals / assumptions.
+*Exit:* anomaly and confidence-interval panels render from precomputed
+tables via R2 discovery; no tool output ships without its uncertainty
+fields.
+
+**R6 — Analytics breadth** *(Track DS Wave 1b, then Wave 2 rolling)*
+`lead_lag`, `cluster_narratives`, `kg_communities`/`centrality`,
+`semantic_drift`; `forecast_topic` last. Wave 2 tools (coverage bias,
+burst, calibration, …) then land as independent per-tool increments —
+no milestone gate each.
+*Exit:* "who leads on X" plans a lead-lag matrix panel end-to-end.
+
+### Expansion
+
+**R7 — Research pack** *(Track N1)*
+The second first-class domain: `research` pack/server with
+`citation_graph`, `venues`, `literature_claims` panels and
+research-flavored telemetry.
+*Exit:* with research on and news off, the canvas is fully functional
+on research panels; venue credibility renders via the generalized
+transparency machinery.
+
+**R8 — Provisioning plane** *(Track P)*
+`kg_deploy` / `kg_attach_sources` / `kg_ingest` / `kg_status` /
+`kg_teardown` with table-prefix namespacing, lineage registration,
+quotas, approval gates, idempotent upserts.
+*Exit:* deploy → attach by criteria → ingest → scoped panels appear via
+discovery; teardown archives; every step visible in lineage.
+
+**R9 — Provisioned-domain proof** *(Track N3 = Track P acceptance)*
+Stand up finance (earnings-call transcripts) as a provisioned domain,
+writing no pack code; repeat with a second domain to prove it wasn't a
+fluke.
+*Exit:* two domains live via provisioning alone.
+
+**R10 — OSINT composition** *(Track OSINT, phase 1)*
+`corroborate`, `source_reliability`, `contradiction_scan` under the
+evidence discipline (citations mandatory, single-source flagged,
+calibrated confidence).
+*Exit:* a corroboration panel shows independent-source counts weighted
+by credibility; uncited assertions render visibly flagged, never
+hidden.
+
+**R11 — OSINT investigation surface** *(Track OSINT, phase 2)*
+`entity_dossier`, `relationship_path`, `timeline_reconstruct`;
+"investigation" formalized as a provisioned KG with audit trail;
+person-entity guardrails enforced in the tools. `geolocate_claims` and
+`narrative_coordination` stay behind an explicit review gate and may
+ship later or not at all.
+*Exit:* an entity brief where every line links to its source document;
+guardrail tests prove person-tools refuse non-document-sourced facts.
+
+### Ecosystem
+
+**R12 — Data-plane benchmark and Stage 3 decision** *(Stage 3 gate)*
+Data-mode tool variants, a `/api/v1/ui/data` proxy prototype, and a
+latency benchmark against the equivalent REST routes; go/no-go recorded
+as an ADR.
+*Exit:* the decision is written down with numbers; if go, one panel
+family serves via the proxy at production parity.
+
+**R13 — Noesis as MCP server + naming sweep** *(Stage 4 + N4)*
+`noesis_generate_view` over Streamable HTTP for external hosts;
+`NOESIS_*` env aliases (`NEURONEWS_*` fallbacks), package/server/API
+title renames.
+*Exit:* an external MCP host generates and receives a valid
+`ui-spec-v1`; both env prefixes verified working.
+
+**Critical path:** R0 → R1 → R2 → R3 → R8 → R9. The analytics/OSINT
+chain (R5 → R6 → R10 → R11) runs in parallel after R2; R4 upgrades
+quality anywhere after R2; R7 can start immediately on the static
+catalog and re-lands on discovery at R2; R12–R13 are opportunistic once
+R1–R2 have soaked.
+
 ## What deliberately does not change
 
 - `ui-spec-v1` contract, validators, and fixtures.
@@ -515,3 +638,7 @@ plumbing lands: each tool is an independent increment, the first two
 (`detect_anomalies`, `score_confidence`) need nothing but Stage 1 and
 libraries already in the stack, and every tool automatically benefits
 Track P domains later.
+
+The milestone sequence R0–R13 above is the executable form of all of
+this: R0–R3 are the commitment-light foundation, everything after is a
+choice made with working infrastructure underneath it.
