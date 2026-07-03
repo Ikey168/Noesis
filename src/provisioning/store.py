@@ -32,12 +32,25 @@ def ensure_schema(conn) -> None:
         "CREATE TABLE IF NOT EXISTS provisioned_kgs ("
         "name VARCHAR PRIMARY KEY, description VARCHAR, ontology VARCHAR, "
         "status VARCHAR, created_at TIMESTAMP, updated_at TIMESTAMP, "
-        "last_ingest_at TIMESTAMP)"
+        "last_ingest_at TIMESTAMP, backend VARCHAR, db_path VARCHAR)"
     )
+    # Migrate an R8/R9 registry that predates the backend columns (P2 / #640).
+    for col, decl in (("backend", "VARCHAR"), ("db_path", "VARCHAR")):
+        try:
+            conn.execute(f"ALTER TABLE provisioned_kgs ADD COLUMN IF NOT EXISTS {col} {decl}")
+        except Exception:
+            pass
     conn.execute(
         "CREATE TABLE IF NOT EXISTS provisioned_kg_sources ("
         "kg_name VARCHAR, source VARCHAR, source_type VARCHAR, reason VARCHAR, "
         "attached_at TIMESTAMP, PRIMARY KEY (kg_name, source))"
+    )
+    # Bound pipelines (connectors/feeds) per KG (P2 / #641).
+    conn.execute(
+        "CREATE TABLE IF NOT EXISTS provisioned_kg_pipelines ("
+        "kg_name VARCHAR, connector VARCHAR, connector_type VARCHAR, "
+        "config VARCHAR, contract VARCHAR, attached_at TIMESTAMP, "
+        "PRIMARY KEY (kg_name, connector))"
     )
     conn.execute(
         "CREATE TABLE IF NOT EXISTS provisioning_events ("
@@ -74,7 +87,15 @@ def _row_to_kg(row) -> Dict[str, Any]:
         "created_at": str(row[4]) if row[4] is not None else None,
         "updated_at": str(row[5]) if row[5] is not None else None,
         "last_ingest_at": str(row[6]) if row[6] is not None else None,
+        "backend": (row[7] if len(row) > 7 and row[7] else "table-prefix"),
+        "db_path": (row[8] if len(row) > 8 else None),
     }
+
+
+_KG_COLUMNS = (
+    "name, description, ontology, status, created_at, updated_at, "
+    "last_ingest_at, backend, db_path"
+)
 
 
 def get_kg(conn, name: str) -> Optional[Dict[str, Any]]:
@@ -82,8 +103,7 @@ def get_kg(conn, name: str) -> Optional[Dict[str, Any]]:
     if not schema_ready(conn):
         return None
     row = conn.execute(
-        "SELECT name, description, ontology, status, created_at, updated_at, "
-        "last_ingest_at FROM provisioned_kgs WHERE name = ?",
+        f"SELECT {_KG_COLUMNS} FROM provisioned_kgs WHERE name = ?",
         [name],
     ).fetchone()
     return _row_to_kg(row) if row else None
@@ -93,10 +113,7 @@ def list_kgs(conn, include_archived: bool = False) -> List[Dict[str, Any]]:
     """List KGs, deployed-only by default."""
     if not schema_ready(conn):
         return []
-    sql = (
-        "SELECT name, description, ontology, status, created_at, updated_at, "
-        "last_ingest_at FROM provisioned_kgs"
-    )
+    sql = f"SELECT {_KG_COLUMNS} FROM provisioned_kgs"
     params: List[Any] = []
     if not include_archived:
         sql += " WHERE status = ?"
@@ -124,17 +141,21 @@ def upsert_kg(
     ontology: Any,
     now: Any,
     status: str = STATUS_DEPLOYED,
+    backend: str = "table-prefix",
+    db_path: Optional[str] = None,
 ) -> Dict[str, Any]:
     """Insert or update a KG keyed by name (idempotent). Preserves the original
-    ``created_at`` on re-deploy so a converging re-run does not reset it."""
+    ``created_at`` and the ``backend``/``db_path`` on re-deploy so a converging
+    re-run does not reset them."""
     ontology_json = json.dumps(ontology) if ontology is not None else None
     existing = get_kg(conn, name)
     if existing is None:
         conn.execute(
             "INSERT INTO provisioned_kgs "
             "(name, description, ontology, status, created_at, updated_at, "
-            "last_ingest_at) VALUES (?, ?, ?, ?, ?, ?, NULL)",
-            [name, description, ontology_json, status, now, now],
+            "last_ingest_at, backend, db_path) "
+            "VALUES (?, ?, ?, ?, ?, ?, NULL, ?, ?)",
+            [name, description, ontology_json, status, now, now, backend, db_path],
         )
     else:
         conn.execute(
@@ -228,6 +249,89 @@ def detach_all_sources(conn, name: str) -> int:
     """Unbind every source from a KG (teardown). Returns the count removed."""
     n = count_sources(conn, name)
     conn.execute("DELETE FROM provisioned_kg_sources WHERE kg_name = ?", [name])
+    return n
+
+
+# --------------------------------------------------------------------------- #
+# Bound pipelines (P2 / #641)
+# --------------------------------------------------------------------------- #
+
+def count_pipelines(conn, name: str) -> int:
+    """How many pipelines are bound to a KG (for the max-pipelines quota)."""
+    if not schema_ready(conn):
+        return 0
+    return int(
+        conn.execute(
+            "SELECT COUNT(*) FROM provisioned_kg_pipelines WHERE kg_name = ?",
+            [name],
+        ).fetchone()[0]
+    )
+
+
+def upsert_pipeline(
+    conn,
+    name: str,
+    connector: str,
+    connector_type: str,
+    config: Any,
+    contract: Optional[str],
+    now: Any,
+) -> bool:
+    """Bind a pipeline (connector/feed) to a KG (idempotent by ``(kg,
+    connector)``). Returns True if newly bound, False if it was already bound
+    (updated)."""
+    config_json = json.dumps(config, default=str) if config is not None else None
+    row = conn.execute(
+        "SELECT 1 FROM provisioned_kg_pipelines WHERE kg_name = ? AND connector = ?",
+        [name, connector],
+    ).fetchone()
+    if row is None:
+        conn.execute(
+            "INSERT INTO provisioned_kg_pipelines "
+            "(kg_name, connector, connector_type, config, contract, attached_at) "
+            "VALUES (?, ?, ?, ?, ?, ?)",
+            [name, connector, connector_type, config_json, contract, now],
+        )
+        return True
+    conn.execute(
+        "UPDATE provisioned_kg_pipelines SET connector_type = ?, config = ?, "
+        "contract = ? WHERE kg_name = ? AND connector = ?",
+        [connector_type, config_json, contract, name, connector],
+    )
+    return False
+
+
+def list_pipelines(conn, name: str) -> List[Dict[str, Any]]:
+    """The pipelines bound to a KG."""
+    if not schema_ready(conn):
+        return []
+    rows = conn.execute(
+        "SELECT connector, connector_type, config, contract, attached_at "
+        "FROM provisioned_kg_pipelines WHERE kg_name = ? ORDER BY connector",
+        [name],
+    ).fetchall()
+    out = []
+    for r in rows:
+        try:
+            config = json.loads(r[2]) if r[2] else {}
+        except Exception:
+            config = {}
+        out.append(
+            {
+                "connector": r[0],
+                "connector_type": r[1],
+                "config": config,
+                "contract": r[3],
+                "attached_at": str(r[4]) if r[4] is not None else None,
+            }
+        )
+    return out
+
+
+def detach_all_pipelines(conn, name: str) -> int:
+    """Unbind every pipeline from a KG (teardown). Returns the count removed."""
+    n = count_pipelines(conn, name)
+    conn.execute("DELETE FROM provisioned_kg_pipelines WHERE kg_name = ?", [name])
     return n
 
 

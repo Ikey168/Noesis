@@ -51,6 +51,9 @@ class Quotas:
     max_kgs: int = 8
     max_sources_per_kg: int = 20
     ingest_min_interval_s: int = 0
+    # P2 (#643): blast radius for provisioned databases and pipelines.
+    max_databases: int = 4
+    max_pipelines_per_kg: int = 8
 
     @classmethod
     def from_env(cls) -> "Quotas":
@@ -58,7 +61,27 @@ class Quotas:
             max_kgs=_env_int("NOESIS_PROV_MAX_KGS", 8),
             max_sources_per_kg=_env_int("NOESIS_PROV_MAX_SOURCES", 20),
             ingest_min_interval_s=_env_int("NOESIS_PROV_INGEST_MIN_INTERVAL_S", 0),
+            max_databases=_env_int("NOESIS_PROV_MAX_DATABASES", 4),
+            max_pipelines_per_kg=_env_int("NOESIS_PROV_MAX_PIPELINES", 8),
         )
+
+    def check_database_quota(self, deployed_db_count: int, is_new_db: bool) -> None:
+        """Refuse a *new* attached-database deploy past the max-databases quota."""
+        if is_new_db and deployed_db_count >= self.max_databases:
+            raise GuardrailError(
+                "quota_max_databases",
+                f"database quota reached: {deployed_db_count}/{self.max_databases} "
+                f"provisioned. Tear one down or raise NOESIS_PROV_MAX_DATABASES.",
+            )
+
+    def check_pipelines_quota(self, current: int, adding: int) -> None:
+        """Refuse a pipeline attach past the max-pipelines-per-KG quota."""
+        if current + adding > self.max_pipelines_per_kg:
+            raise GuardrailError(
+                "quota_max_pipelines",
+                f"pipeline quota exceeded: {current} bound + {adding} requested "
+                f"> {self.max_pipelines_per_kg} per KG.",
+            )
 
     def check_deploy_quota(self, deployed_count: int, is_new: bool) -> None:
         """Refuse a *new* deploy that would exceed the max-KGs quota. Re-deploy

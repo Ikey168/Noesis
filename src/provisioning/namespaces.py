@@ -24,6 +24,7 @@ from __future__ import annotations
 
 import re
 from collections import Counter
+from pathlib import Path
 from typing import Any, Dict, List, Optional, Sequence
 
 _NAME_RE = re.compile(r"^[a-z][a-z0-9_]{1,30}$")
@@ -55,35 +56,115 @@ def require_valid_name(name: str) -> str:
     return name
 
 
+# Isolation backends (P2 / #640). ``table-prefix`` keeps a KG's tables in the
+# shared warehouse (R8 default); ``attached`` gives a KG its own DuckDB file,
+# attached under the alias ``kg_<name>`` so its data lives in a separate
+# database entirely.
+BACKEND_TABLE_PREFIX = "table-prefix"
+BACKEND_ATTACHED = "attached"
+_ROLES = ("documents", "entities", "claims")
+
+
 def namespace_prefix(name: str) -> str:
     """The table prefix for a KG, e.g. ``kg_climate_`` for ``climate``."""
     return f"kg_{require_valid_name(name)}_"
 
 
-def namespace_tables(name: str) -> Dict[str, str]:
-    """The three namespaced table names for a KG, keyed by role."""
-    prefix = namespace_prefix(name)
-    return {
-        "documents": f"{prefix}documents",
-        "entities": f"{prefix}entities",
-        "claims": f"{prefix}claims",
-    }
+def attached_alias(name: str) -> str:
+    """The attached-database alias for a KG (its own DuckDB), e.g. ``kg_climate``."""
+    return f"kg_{require_valid_name(name)}"
 
 
-def _table_exists(conn, table: str) -> bool:
+def attached_db_path(name: str, base_dir: Optional[str] = None) -> str:
+    """The on-disk file for a KG's attached database. Defaults to a
+    ``provisioned/`` directory beside the shared warehouse."""
+    require_valid_name(name)
+    if base_dir is None:
+        try:
+            from src.config.env import warehouse_path
+
+            base_dir = str(Path(warehouse_path()).resolve().parent / "provisioned")
+        except Exception:
+            base_dir = str(Path.cwd() / "data" / "provisioned")
+    return str(Path(base_dir) / f"kg_{name}.duckdb")
+
+
+def _is_attached(conn, alias: str) -> bool:
     try:
         rows = conn.execute(
-            "SELECT 1 FROM information_schema.tables WHERE table_name = ?",
-            [table],
+            "SELECT 1 FROM duckdb_databases() WHERE database_name = ?", [alias]
         ).fetchall()
         return bool(rows)
     except Exception:
         return False
 
 
-def create_namespace(conn, name: str) -> Dict[str, str]:
-    """Create the three namespaced tables for a KG if absent (idempotent)."""
-    tables = namespace_tables(name)
+def ensure_attached(conn, name: str, db_path: Optional[str] = None) -> str:
+    """Attach a KG's own DuckDB file under its alias if not already attached
+    in this connection. Returns the alias. The file is created on first attach."""
+    alias = attached_alias(name)
+    if _is_attached(conn, alias):
+        return alias
+    path = db_path or attached_db_path(name)
+    Path(path).parent.mkdir(parents=True, exist_ok=True)
+    # The alias is derived from a validated name, and the path is quoted; no
+    # untrusted input reaches the ATTACH statement.
+    conn.execute(f"ATTACH '{path}' AS {alias}")
+    return alias
+
+
+def detach(conn, name: str) -> None:
+    """Detach a KG's database if attached (the file is left on disk)."""
+    alias = attached_alias(name)
+    if _is_attached(conn, alias):
+        conn.execute(f"DETACH {alias}")
+
+
+def namespace_tables(name: str, backend: str = BACKEND_TABLE_PREFIX) -> Dict[str, str]:
+    """The three namespaced table references for a KG, keyed by role. For the
+    ``attached`` backend these are qualified by the KG's database alias."""
+    if backend == BACKEND_ATTACHED:
+        alias = attached_alias(name)
+        return {role: f"{alias}.{role}" for role in _ROLES}
+    prefix = namespace_prefix(name)
+    return {role: f"{prefix}{role}" for role in _ROLES}
+
+
+def _prepare(conn, name: str, backend: str, db_path: Optional[str]) -> Dict[str, str]:
+    """Ensure the backend is ready (attach the DB for ``attached``) and return
+    the table refs."""
+    if backend == BACKEND_ATTACHED:
+        ensure_attached(conn, name, db_path)
+    return namespace_tables(name, backend)
+
+
+def _table_exists(conn, table: str) -> bool:
+    """Whether a table exists. Handles a bare name (shared warehouse) and a
+    ``db.table`` reference (an attached backend), which information_schema does
+    not see from the main catalog."""
+    try:
+        if "." in table:
+            db, tbl = table.split(".", 1)
+            rows = conn.execute(
+                "SELECT 1 FROM duckdb_tables() WHERE database_name = ? AND table_name = ?",
+                [db, tbl],
+            ).fetchall()
+        else:
+            rows = conn.execute(
+                "SELECT 1 FROM information_schema.tables WHERE table_name = ?",
+                [table],
+            ).fetchall()
+        return bool(rows)
+    except Exception:
+        return False
+
+
+def create_namespace(
+    conn, name: str, backend: str = BACKEND_TABLE_PREFIX, db_path: Optional[str] = None
+) -> Dict[str, str]:
+    """Create the three namespaced tables for a KG if absent (idempotent). For
+    the ``attached`` backend, attaches the KG's own database first."""
+    tables = _prepare(conn, name, backend, db_path)
     conn.execute(
         f"CREATE TABLE IF NOT EXISTS {tables['documents']} ("
         "id VARCHAR, title VARCHAR, source VARCHAR, source_type VARCHAR, "
@@ -101,17 +182,24 @@ def create_namespace(conn, name: str) -> Dict[str, str]:
     return tables
 
 
-def drop_namespace(conn, name: str) -> None:
+def drop_namespace(conn, name: str, backend: str = BACKEND_TABLE_PREFIX) -> None:
     """Drop the three namespaced tables for a KG (used only after archival)."""
-    for table in namespace_tables(name).values():
+    for table in namespace_tables(name, backend).values():
         conn.execute(f"DROP TABLE IF EXISTS {table}")
 
 
-def archive_namespace(conn, name: str) -> Dict[str, str]:
-    """Rename the namespace tables to a ``zz_archived__`` prefix so they stop
-    reading as live but are never silently deleted (the teardown guarantee).
-    Returns the archived table names."""
+def archive_namespace(
+    conn, name: str, backend: str = BACKEND_TABLE_PREFIX, db_path: Optional[str] = None
+) -> Dict[str, str]:
+    """Archive a KG's namespace without deleting it (the teardown guarantee).
+
+    For ``table-prefix`` the tables are renamed aside under ``zz_archived__``;
+    for ``attached`` the database is detached and its file left on disk."""
     require_valid_name(name)
+    if backend == BACKEND_ATTACHED:
+        path = db_path or attached_db_path(name)
+        detach(conn, name)
+        return {"detached_db": path}
     archived: Dict[str, str] = {}
     for role, table in namespace_tables(name).items():
         target = f"zz_archived__{table}"
@@ -146,16 +234,20 @@ def route_documents(
     sources: Sequence[str],
     now: Any,
     backfill_days: Optional[int] = None,
+    backend: str = BACKEND_TABLE_PREFIX,
+    db_path: Optional[str] = None,
 ) -> Dict[str, int]:
     """Route documents (and their claims and derived entities) from the shared
     corpus into the KG's namespace tables.
 
     Only rows whose ``source`` is one of ``sources`` are copied, and a document
     already present in the namespace is skipped, so re-running ingest converges
-    rather than duplicating. Returns the counts newly added.
+    rather than duplicating. Returns the counts newly added. For the
+    ``attached`` backend the rows land in the KG's own database, while the read
+    of the shared corpus stays in the main warehouse (a cross-database copy).
     """
     require_valid_name(name)
-    tables = create_namespace(conn, name)
+    tables = create_namespace(conn, name, backend, db_path)
     if not sources:
         return {"documents": 0, "claims": 0, "entities": 0}
 
@@ -247,12 +339,16 @@ def namespace_sample(
     docs: int = 6,
     entities: int = 12,
     claims: int = 6,
+    backend: str = BACKEND_TABLE_PREFIX,
+    db_path: Optional[str] = None,
 ) -> Dict[str, Any]:
     """The scoped panel family for a KG namespace: a sample of routed
     documents, the top derived entities, and a sample of scoped claims. This
     is what a per-namespace ``documents`` / ``entity_graph`` / ``claims`` view
     reads (the R9 scoped family)."""
-    tables = namespace_tables(name)
+    if backend == BACKEND_ATTACHED:
+        ensure_attached(conn, name, db_path)
+    tables = namespace_tables(name, backend)
     out: Dict[str, Any] = {"documents": [], "entities": [], "claims": []}
     if _table_exists(conn, tables["documents"]):
         rows = conn.execute(
@@ -291,9 +387,13 @@ def namespace_sample(
     return out
 
 
-def namespace_counts(conn, name: str) -> Dict[str, int]:
+def namespace_counts(
+    conn, name: str, backend: str = BACKEND_TABLE_PREFIX, db_path: Optional[str] = None
+) -> Dict[str, int]:
     """Live row counts for a KG's three namespace tables (0 when absent)."""
-    tables = namespace_tables(name)
+    if backend == BACKEND_ATTACHED:
+        ensure_attached(conn, name, db_path)
+    tables = namespace_tables(name, backend)
     out: Dict[str, int] = {}
     for role, table in tables.items():
         if _table_exists(conn, table):
