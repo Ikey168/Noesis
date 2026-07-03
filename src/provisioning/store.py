@@ -32,10 +32,12 @@ def ensure_schema(conn) -> None:
         "CREATE TABLE IF NOT EXISTS provisioned_kgs ("
         "name VARCHAR PRIMARY KEY, description VARCHAR, ontology VARCHAR, "
         "status VARCHAR, created_at TIMESTAMP, updated_at TIMESTAMP, "
-        "last_ingest_at TIMESTAMP, backend VARCHAR, db_path VARCHAR)"
+        "last_ingest_at TIMESTAMP, backend VARCHAR, db_path VARCHAR, "
+        "tenant VARCHAR)"
     )
-    # Migrate an R8/R9 registry that predates the backend columns (P2 / #640).
-    for col, decl in (("backend", "VARCHAR"), ("db_path", "VARCHAR")):
+    # Migrate an R8/R9 registry that predates the backend columns (P2 / #640) and
+    # the tenant column (M4.1). Older rows get tenant NULL, read back as DEFAULT.
+    for col, decl in (("backend", "VARCHAR"), ("db_path", "VARCHAR"), ("tenant", "VARCHAR")):
         try:
             conn.execute(f"ALTER TABLE provisioned_kgs ADD COLUMN IF NOT EXISTS {col} {decl}")
         except Exception:
@@ -89,49 +91,69 @@ def _row_to_kg(row) -> Dict[str, Any]:
         "last_ingest_at": str(row[6]) if row[6] is not None else None,
         "backend": (row[7] if len(row) > 7 and row[7] else "table-prefix"),
         "db_path": (row[8] if len(row) > 8 else None),
+        "tenant": (row[9] if len(row) > 9 and row[9] else DEFAULT_TENANT),
     }
 
 
+# The tenant an unscoped caller (and pre-M4.1 rows) belong to.
+DEFAULT_TENANT = "default"
+
 _KG_COLUMNS = (
     "name, description, ontology, status, created_at, updated_at, "
-    "last_ingest_at, backend, db_path"
+    "last_ingest_at, backend, db_path, tenant"
 )
 
 
-def get_kg(conn, name: str) -> Optional[Dict[str, Any]]:
-    """Return the KG record for ``name``, or None."""
+def get_kg(conn, name: str, tenant: Optional[str] = None) -> Optional[Dict[str, Any]]:
+    """Return the KG record for ``name``, or None. When ``tenant`` is given, a KG
+    owned by a different tenant reads back as None (isolation), so one tenant can
+    never see or act on another's namespace."""
     if not schema_ready(conn):
         return None
     row = conn.execute(
         f"SELECT {_KG_COLUMNS} FROM provisioned_kgs WHERE name = ?",
         [name],
     ).fetchone()
-    return _row_to_kg(row) if row else None
+    if not row:
+        return None
+    kg = _row_to_kg(row)
+    if tenant is not None and kg.get("tenant", DEFAULT_TENANT) != tenant:
+        return None
+    return kg
 
 
-def list_kgs(conn, include_archived: bool = False) -> List[Dict[str, Any]]:
-    """List KGs, deployed-only by default."""
+def list_kgs(
+    conn, include_archived: bool = False, tenant: Optional[str] = None
+) -> List[Dict[str, Any]]:
+    """List KGs, deployed-only by default. Scoped to ``tenant`` when given."""
     if not schema_ready(conn):
         return []
     sql = f"SELECT {_KG_COLUMNS} FROM provisioned_kgs"
+    where: List[str] = []
     params: List[Any] = []
     if not include_archived:
-        sql += " WHERE status = ?"
+        where.append("status = ?")
         params.append(STATUS_DEPLOYED)
+    if tenant is not None:
+        where.append("COALESCE(tenant, ?) = ?")
+        params.extend([DEFAULT_TENANT, tenant])
+    if where:
+        sql += " WHERE " + " AND ".join(where)
     sql += " ORDER BY created_at NULLS LAST, name"
     return [_row_to_kg(r) for r in conn.execute(sql, params).fetchall()]
 
 
-def count_deployed(conn) -> int:
-    """How many KGs are currently deployed (for the max-KGs quota)."""
+def count_deployed(conn, tenant: Optional[str] = None) -> int:
+    """How many KGs are currently deployed (for the max-KGs quota), scoped to
+    ``tenant`` when given so each tenant's quota is counted independently."""
     if not schema_ready(conn):
         return 0
-    return int(
-        conn.execute(
-            "SELECT COUNT(*) FROM provisioned_kgs WHERE status = ?",
-            [STATUS_DEPLOYED],
-        ).fetchone()[0]
-    )
+    sql = "SELECT COUNT(*) FROM provisioned_kgs WHERE status = ?"
+    params: List[Any] = [STATUS_DEPLOYED]
+    if tenant is not None:
+        sql += " AND COALESCE(tenant, ?) = ?"
+        params.extend([DEFAULT_TENANT, tenant])
+    return int(conn.execute(sql, params).fetchone()[0])
 
 
 def upsert_kg(
@@ -143,19 +165,20 @@ def upsert_kg(
     status: str = STATUS_DEPLOYED,
     backend: str = "table-prefix",
     db_path: Optional[str] = None,
+    tenant: str = DEFAULT_TENANT,
 ) -> Dict[str, Any]:
     """Insert or update a KG keyed by name (idempotent). Preserves the original
-    ``created_at`` and the ``backend``/``db_path`` on re-deploy so a converging
-    re-run does not reset them."""
+    ``created_at`` and the ``backend``/``db_path``/``tenant`` on re-deploy so a
+    converging re-run does not reset them."""
     ontology_json = json.dumps(ontology) if ontology is not None else None
     existing = get_kg(conn, name)
     if existing is None:
         conn.execute(
             "INSERT INTO provisioned_kgs "
             "(name, description, ontology, status, created_at, updated_at, "
-            "last_ingest_at, backend, db_path) "
-            "VALUES (?, ?, ?, ?, ?, ?, NULL, ?, ?)",
-            [name, description, ontology_json, status, now, now, backend, db_path],
+            "last_ingest_at, backend, db_path, tenant) "
+            "VALUES (?, ?, ?, ?, ?, ?, NULL, ?, ?, ?)",
+            [name, description, ontology_json, status, now, now, backend, db_path, tenant],
         )
     else:
         conn.execute(
