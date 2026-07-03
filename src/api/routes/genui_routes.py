@@ -82,6 +82,16 @@ def generate_ui(request: GenerateUiRequest) -> Dict[str, Any]:
                 status_code=500,
                 detail=f"Generated spec failed validation: {'; '.join(errors[:3])}",
             )
+        # R12/#639 cold-path lever: when the data proxy is on, warm the data-mode
+        # cache for this spec's panels in the background, so the browser's first
+        # /ui/data fetch is a cache hit rather than a cold MCP round-trip. Never
+        # blocks the response; a no-op when the flag is off.
+        try:
+            from src.genui.dataplane import prewarm_from_spec
+
+            prewarm_from_spec(spec_dict)
+        except Exception:
+            pass
         return {
             "spec": spec_dict,
             "meta": {

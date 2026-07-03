@@ -177,7 +177,11 @@ corroborated / newly contradicted. The most abusable tools
 (`geolocate_claims`, `narrative_coordination`) stay behind the review gate in
 `docs/osint-review-gate.md`, absent from the served surface until it passes.
 These surface as the `entity_dossier`, `relationship_path` and
-`evidence_timeline` panels.
+`evidence_timeline` panels. `trace_artifact(claim_id | document_id)` completes
+the discipline with a full provenance chain: source to connector to document to
+enrichment to claim to any provisioned KG the document was routed into, every
+stage cited, surfaced as the `provenance_trace` panel. It answers "where did
+this come from and what happened to it" without leaving the canvas.
 
 ### Data-plane proxy (`src/genui/dataplane.py`, R12)
 
@@ -198,6 +202,10 @@ every path; `rest_direct` 13.3 ms p50, `proxy_cold` 50.4 ms, `proxy_cached`
 flag cache-served (the frontend `useDataPlaneArticles` hook renders it through
 the proxy when enabled, badged `MCP`, falling back to REST/demo otherwise); do
 not move cold first-loads onto the proxy until the transport overhead closes.
+The first cold-path lever is in: `dataplane.prewarm_from_spec` warms the
+data-mode cache for a spec's panels on generate (background, best-effort), so
+the browser's first fetch for a just-planned panel is a cache hit (~0.1 ms) not
+a cold round-trip (see the ADR-002 update).
 
 ### Noesis as an MCP server (`tools/noesis_mcp/`, R13)
 

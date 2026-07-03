@@ -167,3 +167,43 @@ def test_invoke_without_host(no_host):
         invoke_data_tool("srv", "articles_data", {})
     # not allowlisted (no host -> empty allowlist) is checked first.
     assert exc.value.status == 403
+
+
+# --- pre-warm on generate (ADR-002 cold-path lever) -------------------------
+
+
+class WarmHost(FakeHost):
+    def __init__(self, tools_by_server):
+        super().__init__(tools_by_server, results={})
+        self.warmed = []
+
+    def call_tool_cached(self, server, tool, arguments=None, **kw):
+        self.warmed.append((server, tool, arguments))
+        return {"count": 0, "articles": []}
+
+
+def test_prewarm_warms_data_backed_panels(monkeypatch):
+    monkeypatch.setenv("NOESIS_GENUI_DATA_PROXY", "on")
+    host = WarmHost({"srv": [_data_tool("articles_data", panel="articles")]})
+    monkeypatch.setattr("src.mcp_host.get_host", lambda: host)
+    spec = {"panels": [{"type": "articles"}, {"type": "note"}, {"type": "claims"}]}
+    n = dataplane.prewarm_from_spec(spec, background=False)
+    assert n == 1  # only the articles panel has a data-mode tool
+    assert host.warmed == [("srv", "articles_data", {})]  # empty args, matches the client
+
+
+def test_prewarm_noop_when_flag_off(monkeypatch):
+    monkeypatch.setenv("NOESIS_GENUI_DATA_PROXY", "off")
+    host = WarmHost({"srv": [_data_tool("articles_data")]})
+    monkeypatch.setattr("src.mcp_host.get_host", lambda: host)
+    assert dataplane.prewarm_from_spec({"panels": [{"type": "articles"}]}, background=False) == 0
+    assert host.warmed == []
+
+
+def test_prewarm_dedupes_and_skips_unbacked(monkeypatch):
+    monkeypatch.setenv("NOESIS_GENUI_DATA_PROXY", "on")
+    host = WarmHost({"srv": [_data_tool("articles_data", panel="articles")]})
+    monkeypatch.setattr("src.mcp_host.get_host", lambda: host)
+    spec = {"panels": [{"type": "articles"}, {"type": "articles"}, {"type": "stance"}]}
+    assert dataplane.prewarm_from_spec(spec, background=False) == 1
+    assert len(host.warmed) == 1  # deduped

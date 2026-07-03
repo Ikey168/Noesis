@@ -432,6 +432,17 @@ PANEL_CATALOG: Tuple[PanelDef, ...] = (
         default_span=6,
         topic_param="topic",
     ),
+    PanelDef(
+        type="provenance_trace",
+        title="Provenance trace",
+        description="The full chain behind an artifact: from the source that ingested it, through the document and its enrichments, to the claim and any provisioned KG it was routed into, every stage cited.",
+        endpoint=None,
+        facets=("claims", "sources", "library"),
+        tables=("argument_claims",),
+        ui_flag="osint",
+        default_span=6,
+        topic_param="claim_id",
+    ),
 )
 
 PANEL_TYPES: Tuple[str, ...] = tuple(p.type for p in PANEL_CATALOG)

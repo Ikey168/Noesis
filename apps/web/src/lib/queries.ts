@@ -126,7 +126,9 @@ export function useDataPlaneArticles(): Result<Article[]> & { proxied: boolean }
       const tools = await api.uiDataTools();
       const tool = tools.enabled ? tools.tools.find((t) => t.panel === "articles") : undefined;
       if (!tool) return { data: [], source: "demo", proxied: false };
-      const res = await api.uiData({ server: tool.server, tool: tool.tool, arguments: { limit: 20 } });
+      // No args, so the cache key matches the server-side pre-warm on generate
+      // (which warms with empty args); the tool's own default limit applies.
+      const res = await api.uiData({ server: tool.server, tool: tool.tool });
       const raw: RawArticle[] = (res.data.articles ?? []).map((a) => ({
         id: a.id ?? "",
         title: a.title ?? "",

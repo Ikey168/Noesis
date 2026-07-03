@@ -144,6 +144,68 @@ def check_request_size(arguments: Any) -> None:
                              f"request {size} bytes over {MAX_REQUEST_BYTES} cap")
 
 
+def _data_tool_for_panel(panel_type: str) -> Optional[Tuple[str, str]]:
+    """The ``(server, tool)`` data-mode tool that serves a panel type, or None."""
+    for (server, tool), meta in data_mode_tools().items():
+        if meta.get("panel") == panel_type:
+            return (server, tool)
+    return None
+
+
+def prewarm_from_spec(spec: Dict[str, Any], background: bool = True) -> int:
+    """Warm the shared tool cache for every panel in a spec that a data-mode
+    tool can serve, so the browser's first ``/ui/data`` fetch is a cache hit
+    (the ADR-002 cold-path lever: pre-warm on generate).
+
+    Returns the number of distinct data-mode tools scheduled. Best-effort:
+    warming errors are swallowed, and with ``background`` (the default) the
+    warming runs on a daemon thread so it never adds latency to the generate
+    response. Tests pass ``background=False`` to warm synchronously.
+    """
+    if not data_proxy_enabled():
+        return 0
+    panels = spec.get("panels") if isinstance(spec, dict) else None
+    if not isinstance(panels, list):
+        return 0
+
+    targets: list[Tuple[str, str]] = []
+    seen = set()
+    for panel in panels:
+        ptype = panel.get("type") if isinstance(panel, dict) else None
+        if not ptype:
+            continue
+        target = _data_tool_for_panel(ptype)
+        if target and target not in seen:
+            seen.add(target)
+            targets.append(target)
+    if not targets:
+        return 0
+
+    def _warm() -> None:
+        try:
+            from src.mcp_host import get_host
+
+            host = get_host()
+        except Exception:
+            host = None
+        if host is None:
+            return
+        for server, tool in targets:
+            try:
+                # Same empty-args call the browser makes, so the cache key matches.
+                host.call_tool_cached(server, tool, {})
+            except Exception:
+                continue  # best-effort; a cold miss just falls back to the live path
+
+    if background:
+        import threading
+
+        threading.Thread(target=_warm, name="dataplane-prewarm", daemon=True).start()
+    else:
+        _warm()
+    return len(targets)
+
+
 def invoke_data_tool(
     server: str, tool: str, arguments: Optional[Dict[str, Any]] = None
 ) -> Dict[str, Any]:
