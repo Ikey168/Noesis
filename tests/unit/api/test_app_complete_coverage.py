@@ -115,7 +115,7 @@ def test_create_app():
         
         # Verify app is created with correct configuration
         assert isinstance(app, FastAPI)
-        assert app.title == "NeuroNews API"
+        assert app.title == "Noesis API"
         assert app.version == "0.1.0"
         assert "RBAC" in app.description
         
@@ -374,7 +374,7 @@ def test_endpoints():
     async def test_root():
         result = await root()
         assert result["status"] == "ok"
-        assert result["message"] == "NeuroNews API is running"
+        assert result["message"] == "Noesis API is running"
         assert "features" in result
         assert isinstance(result["features"], dict)
     

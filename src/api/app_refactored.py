@@ -265,10 +265,11 @@ def create_app():
     
     # Create FastAPI app instance
     app = FastAPI(
-        title="NeuroNews API",
+        title="Noesis API",
         description=(
-            "API for accessing news articles and knowledge graph with RBAC, "
-            "rate limiting, API key management, and AWS WAF security"
+            "API for the Noesis knowledge engine: documents, knowledge graph, "
+            "analytics and the generative canvas, with RBAC, rate limiting, API "
+            "key management, and AWS WAF security"
         ),
         version="0.1.0",
     )
@@ -512,7 +513,7 @@ async def root():
     """Root endpoint."""
     return {
         "status": "ok",
-        "message": "NeuroNews API is running",
+        "message": "Noesis API is running",
         "features": {
             "rate_limiting": RATE_LIMITING_AVAILABLE,
             "rbac": RBAC_AVAILABLE,

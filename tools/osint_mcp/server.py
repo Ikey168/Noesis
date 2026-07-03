@@ -39,7 +39,8 @@ mcp = FastMCP("neuronews-osint")
 def _warehouse_ro():
     import duckdb
 
-    path = os.getenv("NEURONEWS_DB_PATH", str(REPO_ROOT / "data" / "neuronews.duckdb"))
+    from src.config.env import warehouse_path
+    path = warehouse_path(str(REPO_ROOT / "data" / "neuronews.duckdb"))
     if not os.path.exists(path):
         raise FileNotFoundError(f"warehouse not found at {path}")
     return duckdb.connect(path, read_only=True)
