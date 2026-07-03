@@ -1,0 +1,28 @@
+{
+  "description": "Golden multi-turn scenarios for the agentic-canvas eval (M6.4). Each scenario starts from an intent, then applies a sequence of refinement instructions; after each turn the canvas must satisfy expect_present / expect_absent panels and an optional expect_topic. Scored by the fraction of per-turn checks satisfied (the heuristic refiner, M6.3, drives the diffs).",
+  "scenarios": [
+    {
+      "intent": "who are the key actors",
+      "turns": [
+        {"instruction": "add a contradiction ledger", "expect_present": ["contradiction_ledger"]},
+        {"instruction": "focus on energy", "expect_topic": "energy"},
+        {"instruction": "drop the relationship path", "expect_absent": ["relationship_path"]}
+      ]
+    },
+    {
+      "intent": "compare outlet reliability",
+      "turns": [
+        {"instruction": "add an entity graph", "expect_present": ["entity_graph"]},
+        {"instruction": "remove the lead lag panel", "expect_absent": ["lead_lag"]},
+        {"instruction": "focus on media bias", "expect_topic": "media bias"}
+      ]
+    },
+    {
+      "intent": "fact-check the claims",
+      "turns": [
+        {"instruction": "drop the frames panel", "expect_absent": ["frames"]},
+        {"instruction": "add a reliability card", "expect_present": ["reliability_card"]}
+      ]
+    }
+  ]
+}
