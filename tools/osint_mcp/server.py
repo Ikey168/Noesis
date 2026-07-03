@@ -183,5 +183,179 @@ def contradiction_scan(
         con.close()
 
 
+# --------------------------------------------------------------------------- #
+# Investigation surface (R11 / Track OSINT phase 2)
+# --------------------------------------------------------------------------- #
+
+@mcp.tool(
+    output_schema={
+        "type": "object",
+        "properties": {
+            "entity": {"type": "string"},
+            "is_person": {"type": "boolean"},
+            "found": {"type": "boolean"},
+            "mention_count": {"type": "integer"},
+            "uncited_count": {"type": "integer"},
+            "aliases": {"type": "array"},
+            "first_seen": {"type": ["string", "null"]},
+            "last_seen": {"type": ["string", "null"]},
+            "mentions": {"type": "array"},
+            "connected_entities": {"type": "array"},
+        },
+        "additionalProperties": True,
+    },
+    meta={"panel": {
+        "type": "entity_dossier",
+        "title": "Entity dossier",
+        "description": "A cited brief for an entity from ingested public documents: every mention, aliases, first and last seen, and connected entities, each line linked to its source. Person entities require a document; no inference-only facts.",
+        "endpoint": None,
+        "facets": ["entities", "actors"],
+        "tables": ["document_actors"],
+        "ui_flag": "osint",
+        "default_span": 6,
+        "topic_param": "entity",
+    }},
+)
+def entity_dossier(entity: str, entity_type: Optional[str] = None) -> dict:
+    """A cited entity brief from already-ingested public documents only. A
+    person entity with no ingested document is refused (person guardrail).
+
+    Args:
+        entity: the entity name or id (see kg_mcp.list_entities).
+        entity_type: optional type hint (e.g. "person") to enforce the guardrail.
+    """
+    try:
+        con = _warehouse_ro()
+    except Exception as exc:
+        return {"error": str(exc)}
+    try:
+        from src.osint import entity_dossier as _dossier
+
+        return _dossier(con, entity, entity_type=entity_type)
+    except Exception as exc:
+        return {"error": str(exc)}
+    finally:
+        con.close()
+
+
+@mcp.tool(
+    output_schema={
+        "type": "object",
+        "properties": {
+            "connected": {"type": "boolean"},
+            "a": {"type": "string"},
+            "b": {"type": "string"},
+            "path": {"type": "array"},
+            "hops": {"type": "integer"},
+            "edges": {"type": "array"},
+            "resolution": {"type": "object"},
+            "ambiguous": {"type": "boolean"},
+        },
+        "additionalProperties": True,
+    },
+    meta={"panel": {
+        "type": "relationship_path",
+        "title": "Connection path",
+        "description": "How two entities are connected across the corpus, via the shortest co-mention path; each edge carries the cited documents that establish it. Resolution ambiguity is surfaced, not collapsed.",
+        "endpoint": None,
+        "facets": ["entities", "actors"],
+        "tables": ["document_actors"],
+        "ui_flag": "osint",
+        "default_span": 6,
+    }},
+)
+def relationship_path(a: str, b: str) -> dict:
+    """The shortest co-mention path between two entities, with cited evidence
+    on every edge.
+
+    Args:
+        a: the first entity name.
+        b: the second entity name.
+    """
+    try:
+        con = _warehouse_ro()
+    except Exception as exc:
+        return {"error": str(exc)}
+    try:
+        from src.osint import relationship_path as _path
+
+        return _path(con, a, b)
+    except Exception as exc:
+        return {"error": str(exc)}
+    finally:
+        con.close()
+
+
+@mcp.tool(
+    output_schema={
+        "type": "object",
+        "properties": {
+            "events": {"type": "array"},
+            "count": {"type": "integer"},
+            "claim_count": {"type": "integer"},
+            "topic": {"type": ["string", "null"]},
+            "entity": {"type": ["string", "null"]},
+        },
+        "additionalProperties": True,
+    },
+    meta={"panel": {
+        "type": "evidence_timeline",
+        "title": "Evidence timeline",
+        "description": "A reconstructed event sequence from dated, cited claims, each event carrying its corroboration density (independent-source count); uncited entries flagged.",
+        "endpoint": None,
+        "facets": ["events", "trend", "claims"],
+        "tables": ["argument_claims"],
+        "ui_flag": "osint",
+        "default_span": 6,
+        "topic_param": "topic",
+    }},
+)
+def timeline_reconstruct(
+    topic: Optional[str] = None, entity: Optional[str] = None
+) -> dict:
+    """A cited event timeline for a topic or entity, each event with its
+    corroboration density.
+
+    Args:
+        topic: optional topic filter (claim-text substring).
+        entity: optional entity filter (an actor in the corpus).
+    """
+    try:
+        con = _warehouse_ro()
+    except Exception as exc:
+        return {"error": str(exc)}
+    try:
+        from src.osint import timeline_reconstruct as _timeline
+
+        return _timeline(con, topic=topic, entity=entity)
+    except Exception as exc:
+        return {"error": str(exc)}
+    finally:
+        con.close()
+
+
+@mcp.tool
+def investigation_audit(investigation: str) -> dict:
+    """Reconstruct an investigation from its provisioning audit trail: the KG
+    record, bound sources, and every logged action in order. An investigation
+    is a Track P-provisioned namespaced KG; this replays its trail.
+
+    Args:
+        investigation: the investigation (provisioned KG) name.
+    """
+    try:
+        con = _warehouse_ro()
+    except Exception as exc:
+        return {"error": str(exc)}
+    try:
+        from src.osint import investigation_audit as _audit
+
+        return _audit(con, investigation)
+    except Exception as exc:
+        return {"error": str(exc)}
+    finally:
+        con.close()
+
+
 if __name__ == "__main__":
     mcp.run()

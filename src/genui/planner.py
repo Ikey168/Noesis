@@ -53,6 +53,7 @@ FACET_KEYWORDS: Dict[str, Tuple[str, ...]] = {
         "who", "actor", "actors", "stakeholder", "stakeholders",
         "politician", "politicians", "speaker", "speakers", "people",
         "person", "says", "said", "voices",
+        "dossier", "brief", "investigate", "investigation", "profile",
     ),
     "conflict": (
         "conflict", "conflicts", "controversy", "controversial",
@@ -73,6 +74,7 @@ FACET_KEYWORDS: Dict[str, Tuple[str, ...]] = {
         "influence",
         "knowledge graph", "provisioned", "provisioning", "namespace",
         "namespaces", "deployed kg",
+        "path", "dossier", "connected to", "linked",
     ),
     "events": (
         "event", "events", "cluster", "clusters", "story", "stories",

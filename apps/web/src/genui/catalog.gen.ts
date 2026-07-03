@@ -37,7 +37,10 @@ export type PanelType =
   | "provisioned_kg"
   | "corroboration"
   | "reliability_card"
-  | "contradiction_ledger";
+  | "contradiction_ledger"
+  | "entity_dossier"
+  | "relationship_path"
+  | "evidence_timeline";
 
 export type Facet =
   | "overview"
@@ -100,6 +103,9 @@ export const PANEL_CATALOG: PanelDef[] = [
   { type: "corroboration", title: "Claim corroboration", facets: ["claims", "sources", "conflict"], defaultSpan: 6 },
   { type: "reliability_card", title: "Source reliability", facets: ["sources"], defaultSpan: 6 },
   { type: "contradiction_ledger", title: "Contradiction ledger", facets: ["conflict", "claims"], defaultSpan: 6, topicParam: true },
+  { type: "entity_dossier", title: "Entity dossier", facets: ["entities", "actors"], defaultSpan: 6, topicParam: true },
+  { type: "relationship_path", title: "Connection path", facets: ["entities", "actors"], defaultSpan: 6 },
+  { type: "evidence_timeline", title: "Evidence timeline", facets: ["events", "trend", "claims"], defaultSpan: 6, topicParam: true },
 ];
 
 export const PANEL_DEFS: Partial<Record<PanelType, PanelDef>> = Object.fromEntries(

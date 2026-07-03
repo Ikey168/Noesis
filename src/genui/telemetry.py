@@ -114,6 +114,17 @@ def _library_telemetry() -> Dict[str, Any]:
     }
 
 
+def _osint_telemetry() -> Dict[str, Any]:
+    """OSINT-dominant ambient signal from investigations and the claim layer.
+    Empty when there is no OSINT activity, so the library fallback still runs."""
+    from src.database.local_analytics_connector import _LOCK, get_shared_connection
+    from src.osint import osint_telemetry
+
+    conn = get_shared_connection()
+    with _LOCK:
+        return osint_telemetry(conn)
+
+
 def pack_telemetry() -> Dict[str, Any]:
     """Collect ambient telemetry from whichever packs are enabled.
 
@@ -151,6 +162,28 @@ def pack_telemetry() -> Dict[str, Any]:
         if ticker is None:
             ticker = pack_ticker
         contributing.append(pack.name)
+
+    # OSINT-dominant ambient signal (R11 / Track OSINT phase 2): when
+    # investigations exist, the empty canvas leads with open threads, newly
+    # corroborated and newly contradicted before the library fallback.
+    if not (signals and movers and ticker):
+        try:
+            osint = _osint_telemetry()
+        except Exception:
+            logger.warning("osint telemetry failed", exc_info=True)
+            osint = {}
+        if osint:
+            osint_signals = _clean_signals(osint.get("signals"))
+            osint_movers = _clean_movers(osint.get("movers"))
+            osint_ticker = _clean_ticker(osint.get("ticker"))
+            if osint_signals or osint_movers or osint_ticker:
+                if not signals:
+                    signals = osint_signals
+                if not movers:
+                    movers = osint_movers
+                if ticker is None:
+                    ticker = osint_ticker
+                contributing.append("osint")
 
     # Engine fallback: fill whatever no pack supplied from the corpus.
     if not (signals and movers and ticker):

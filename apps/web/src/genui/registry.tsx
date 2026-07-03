@@ -1191,6 +1191,121 @@ function ContradictionLedgerPanel(props: PanelProps) {
   );
 }
 
+const DEMO_DOSSIER = {
+  entity: "Jordan Rivera",
+  is_person: true,
+  mention_count: 12,
+  aliases: ["J. Rivera", "Jordan A. Rivera"],
+  first_seen: "2025-11-03",
+  last_seen: "2026-06-21",
+  mentions: [
+    { title: "Rivera testifies on grid resilience", source: "Alpha Wire", role: "speaker", cited: true },
+    { title: "Committee questions Rivera on costs", source: "Beta Journal", role: "subject", cited: true },
+    { title: "Unattributed brief names Rivera", source: "unknown", role: "subject", cited: false },
+  ],
+  connected_entities: [
+    { entity: "Grid Authority", shared_documents: 5 },
+    { entity: "Sen. Park", shared_documents: 3 },
+  ],
+};
+
+function EntityDossierPanel(props: PanelProps) {
+  const d = DEMO_DOSSIER;
+  return (
+    <GenPanel {...props} source="demo">
+      <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
+        <span style={{ fontSize: 14, fontWeight: 600 }}>{d.entity}</span>
+        {d.is_person ? <span style={{ ...chip(palette.amber) }}>person</span> : null}
+        <span style={{ ...mono }}>{d.mention_count} mentions</span>
+      </div>
+      <div style={{ ...mono, marginTop: 2 }}>
+        aka {d.aliases.join(", ")} ; seen {d.first_seen} to {d.last_seen}
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 4, marginTop: 6 }}>
+        {d.mentions.map((m, i) => (
+          <div key={i} style={{ display: "flex", gap: 6, alignItems: "flex-start", fontSize: 11.5 }}>
+            <span style={{ ...chip(m.cited ? palette.teal : palette.amber), marginTop: 2 }}>{m.cited ? m.source : "uncited"}</span>
+            <span style={{ flex: 1, minWidth: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{m.title}</span>
+            <span style={{ ...mono }}>{m.role}</span>
+          </div>
+        ))}
+      </div>
+      <div style={{ marginTop: 6 }}>
+        <div style={{ ...mono, color: palette.teal }}>connected</div>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+          {d.connected_entities.map((c) => (
+            <span key={c.entity} style={{ ...chip(palette.dim) }}>{c.entity} ({c.shared_documents})</span>
+          ))}
+        </div>
+      </div>
+      <div style={{ ...mono, marginTop: 4 }}>every line links to its source document; person facts document-sourced only</div>
+    </GenPanel>
+  );
+}
+
+const DEMO_PATH = {
+  path: ["Jordan Rivera", "Grid Authority", "Delphi Energy"],
+  hops: 2,
+  edges: [
+    { from: "Jordan Rivera", to: "Grid Authority", shared_documents: 5 },
+    { from: "Grid Authority", to: "Delphi Energy", shared_documents: 2 },
+  ],
+};
+
+function RelationshipPathPanel(props: PanelProps) {
+  const p = DEMO_PATH;
+  return (
+    <GenPanel {...props} source="demo">
+      <div style={{ ...mono, marginBottom: 6 }}>{p.hops} hops</div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+        {p.edges.map((e, i) => (
+          <div key={i}>
+            <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12.5 }}>
+              <span style={{ fontWeight: 600 }}>{e.from}</span>
+              <span style={{ color: palette.dim }}>to</span>
+              <span style={{ fontWeight: 600 }}>{e.to}</span>
+            </div>
+            <div style={{ ...mono, color: palette.teal }}>{e.shared_documents} shared documents (cited evidence)</div>
+          </div>
+        ))}
+      </div>
+      <div style={{ ...mono, marginTop: 4 }}>each edge carries the cited documents that establish it</div>
+    </GenPanel>
+  );
+}
+
+const DEMO_TIMELINE = [
+  { date: "2025-11-03", claim_count: 1, corroboration_density: 1, state: "single_sourced", entries: [{ text: "Rule first proposed.", source: "Alpha Wire", cited: true }] },
+  { date: "2026-02-14", claim_count: 3, corroboration_density: 3, state: "cited", entries: [{ text: "Three outlets confirm the delay.", source: "Beta Journal", cited: true }] },
+  { date: "2026-06-21", claim_count: 1, corroboration_density: 0, state: "uncited", entries: [{ text: "Anonymous brief claims reversal.", source: "unknown", cited: false }] },
+];
+
+const STATE_COLOR: Record<string, string> = { cited: palette.pos, single_sourced: palette.amber, uncited: palette.neg };
+
+function EvidenceTimelinePanel(props: PanelProps) {
+  return (
+    <GenPanel {...props} source="demo">
+      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        {DEMO_TIMELINE.map((ev, i) => (
+          <div key={i} style={{ borderLeft: `2px solid ${STATE_COLOR[ev.state] ?? palette.dim}`, paddingLeft: 10 }}>
+            <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
+              <span style={{ fontFamily: fonts.mono, fontSize: 12 }}>{ev.date}</span>
+              <span style={{ ...chip(STATE_COLOR[ev.state] ?? palette.dim) }}>{ev.corroboration_density} sources</span>
+            </div>
+            {ev.entries.map((e, j) => (
+              <div key={j} style={{ fontSize: 11.5, marginTop: 2 }}>
+                {e.text}
+                <span style={{ ...mono, marginLeft: 6, color: e.cited ? palette.teal : palette.amber }}>{e.cited ? e.source : "uncited"}</span>
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
+      <div style={{ ...mono, marginTop: 4 }}>corroboration density per event; uncited entries flagged, never hidden</div>
+    </GenPanel>
+  );
+}
+
 function UnknownPanel(props: PanelProps) {
   return (
     <GenPanel {...props}>
@@ -1232,6 +1347,9 @@ const REGISTRY: Record<PanelType, ComponentType<PanelProps>> = {
   corroboration: CorroborationPanel,
   reliability_card: ReliabilityCardPanel,
   contradiction_ledger: ContradictionLedgerPanel,
+  entity_dossier: EntityDossierPanel,
+  relationship_path: RelationshipPathPanel,
+  evidence_timeline: EvidenceTimelinePanel,
 };
 
 export function panelComponent(type: string): ComponentType<PanelProps> {

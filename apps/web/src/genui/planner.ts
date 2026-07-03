@@ -14,10 +14,10 @@ const FACET_KEYWORDS: Record<Facet, string[]> = {
   sentiment: ["sentiment", "tone", "mood", "feeling", "positive", "negative", "emotion", "optimism", "pessimism"],
   claims: ["claim", "claims", "fact", "facts", "factcheck", "fact-check", "verify", "verified", "unverified", "true", "false", "misinformation", "disinformation", "evidence", "assertion", "unsourced", "corroborate", "corroboration", "corroborated", "independent", "osint"],
   stance: ["stance", "stances", "support", "supports", "supportive", "oppose", "opposes", "opposition", "critical", "position", "positions", "agree", "agrees", "disagree", "disagrees", "pro", "against"],
-  actors: ["who", "actor", "actors", "stakeholder", "stakeholders", "politician", "politicians", "speaker", "speakers", "people", "person", "says", "said", "voices"],
+  actors: ["who", "actor", "actors", "stakeholder", "stakeholders", "politician", "politicians", "speaker", "speakers", "people", "person", "says", "said", "voices", "dossier", "brief", "investigate", "investigation", "profile"],
   conflict: ["conflict", "conflicts", "controversy", "controversial", "contradict", "contradicts", "contradiction", "contradictions", "dispute", "disputes", "disagreement", "clash", "debate"],
   sources: ["outlet", "outlets", "source", "sources", "bias", "biased", "framing", "frame", "frames", "coverage", "compare", "comparison", "transparency", "media", "publisher", "publishers", "leads", "lead", "leader", "leaders", "follows", "follow", "followers", "agenda", "first", "earliest", "sets"],
-  entities: ["entity", "entities", "network", "graph", "connection", "connections", "related", "relationship", "relationships", "influence", "knowledge graph", "provisioned", "provisioning", "namespace", "namespaces", "deployed kg"],
+  entities: ["entity", "entities", "network", "graph", "connection", "connections", "related", "relationship", "relationships", "influence", "knowledge graph", "provisioned", "provisioning", "namespace", "namespaces", "deployed kg", "path", "dossier", "connected to", "linked"],
   events: ["event", "events", "cluster", "clusters", "story", "stories", "breaking", "timeline", "happening", "developments", "watchlist", "watchlists", "alert", "alerts"],
   library: ["library", "document", "documents", "docs", "archive", "reading", "publications", "ingested", "corpus", "paper", "papers", "research", "scholarly", "academic", "literature", "citation", "citations", "cite", "cited", "venue", "venues", "journal", "journals", "peer-reviewed", "preprint", "study", "studies"],
 };

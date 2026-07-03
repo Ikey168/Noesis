@@ -399,6 +399,39 @@ PANEL_CATALOG: Tuple[PanelDef, ...] = (
         default_span=6,
         topic_param="topic",
     ),
+    # OSINT investigation surface (R11 / Track OSINT phase 2), gated by osint.
+    PanelDef(
+        type="entity_dossier",
+        title="Entity dossier",
+        description="A cited brief for an entity from ingested public documents: every mention, aliases, first and last seen, and connected entities, each line linked to its source. Person entities require a document; no inference-only facts.",
+        endpoint=None,
+        facets=("entities", "actors"),
+        tables=("document_actors",),
+        ui_flag="osint",
+        default_span=6,
+        topic_param="entity",
+    ),
+    PanelDef(
+        type="relationship_path",
+        title="Connection path",
+        description="How two entities are connected across the corpus, via the shortest co-mention path; each edge carries the cited documents that establish it. Resolution ambiguity is surfaced, not collapsed.",
+        endpoint=None,
+        facets=("entities", "actors"),
+        tables=("document_actors",),
+        ui_flag="osint",
+        default_span=6,
+    ),
+    PanelDef(
+        type="evidence_timeline",
+        title="Evidence timeline",
+        description="A reconstructed event sequence from dated, cited claims, each event carrying its corroboration density (independent-source count); uncited entries flagged.",
+        endpoint=None,
+        facets=("events", "trend", "claims"),
+        tables=("argument_claims",),
+        ui_flag="osint",
+        default_span=6,
+        topic_param="topic",
+    ),
 )
 
 PANEL_TYPES: Tuple[str, ...] = tuple(p.type for p in PANEL_CATALOG)
