@@ -137,3 +137,69 @@ def test_update_in_place_with_id(client):
     assert listed["count"] == 1  # updated, not duplicated
     canvas = client.get(f"/api/v1/ui/canvas/{cid}", headers={"X-Canvas-Owner": "alice"}).json()["canvas"]
     assert canvas["spec"]["topic"] == "energy transition"
+
+
+# --- M8.2: read-only sharing through the routes --------------------------------
+
+
+def _own(cid_owner):
+    return {"X-Canvas-Owner": cid_owner}
+
+
+def test_share_link_renders_for_a_second_user_read_only(client):
+    cid = client.post(
+        "/api/v1/ui/canvas", json={"spec": _valid_spec(), "data_bindings": _bindings()},
+        headers=_own("alice"),
+    ).json()["canvas"]["id"]
+
+    share = client.post(f"/api/v1/ui/canvas/{cid}/share", headers=_own("alice"))
+    assert share.status_code == 200
+    token = share.json()["share_token"]
+    assert token and share.json()["url"].endswith(f"/canvas/shared/{token}")
+
+    # A second user (different owner) opens the link and gets the canvas read-only,
+    # with its live data bindings, and no owner identity leaked.
+    viewed = client.get(f"/api/v1/ui/canvas/shared/{token}", headers=_own("bob"))
+    assert viewed.status_code == 200
+    canvas = viewed.json()["canvas"]
+    assert canvas["read_only"] is True
+    assert canvas["spec"] == _valid_spec()
+    assert canvas["data_bindings"] == _bindings()
+    assert "owner" not in canvas
+
+
+def test_second_user_cannot_edit_the_shared_canvas(client):
+    cid = client.post(
+        "/api/v1/ui/canvas", json={"spec": _valid_spec("original")}, headers=_own("alice")
+    ).json()["canvas"]["id"]
+    client.post(f"/api/v1/ui/canvas/{cid}/share", headers=_own("alice"))
+
+    # Bob cannot reopen it by id (owner-scoped) ...
+    assert client.get(f"/api/v1/ui/canvas/{cid}", headers=_own("bob")).status_code == 404
+    # ... and POSTing with Alice's id under Bob's owner makes Bob a *copy*, never
+    # mutating Alice's canvas.
+    bob_id = client.post(
+        "/api/v1/ui/canvas", json={"spec": _valid_spec("hijacked"), "id": cid}, headers=_own("bob")
+    ).json()["canvas"]["id"]
+    assert bob_id != cid
+    alice_view = client.get(f"/api/v1/ui/canvas/{cid}", headers=_own("alice")).json()["canvas"]
+    assert alice_view["spec"]["topic"] == "original"  # untouched
+
+
+def test_revoked_link_stops_resolving(client):
+    cid = client.post(
+        "/api/v1/ui/canvas", json={"spec": _valid_spec()}, headers=_own("alice")
+    ).json()["canvas"]["id"]
+    token = client.post(f"/api/v1/ui/canvas/{cid}/share", headers=_own("alice")).json()["share_token"]
+    assert client.get(f"/api/v1/ui/canvas/shared/{token}").status_code == 200
+
+    revoke = client.delete(f"/api/v1/ui/canvas/{cid}/share", headers=_own("alice"))
+    assert revoke.status_code == 200
+    assert client.get(f"/api/v1/ui/canvas/shared/{token}").status_code == 404
+
+
+def test_non_owner_cannot_mint_a_share_link(client):
+    cid = client.post(
+        "/api/v1/ui/canvas", json={"spec": _valid_spec()}, headers=_own("alice")
+    ).json()["canvas"]["id"]
+    assert client.post(f"/api/v1/ui/canvas/{cid}/share", headers=_own("bob")).status_code == 404
