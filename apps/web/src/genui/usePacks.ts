@@ -47,3 +47,12 @@ export function useDeployTemplate() {
     mutationFn: (name: string) => packsApi.deployTemplate(name),
   });
 }
+
+export function usePublishPack() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (vars: { manifest: Record<string, unknown>; force?: boolean }) =>
+      packsApi.publish(vars.manifest, vars.force),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["packs"] }),
+  });
+}
