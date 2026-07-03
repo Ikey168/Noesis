@@ -217,13 +217,18 @@ def kg_ingest(kg: str, backfill_days: Optional[int] = None) -> dict:
         backfill_days: optional lookback window for the routed corpus.
     """
     from src.provisioning import Provisioner
+    from src.provisioning.pipeline_runner import build_pipeline_runner
 
     try:
         con = _warehouse_rw()
     except Exception as exc:
         return {"error": str(exc)}
     try:
-        prov = Provisioner(con, lock=_WRITE_LOCK)
+        # M3.1: run bound connectors for real (the live pipeline runner harvests
+        # documents into the corpus) before routing them into the namespace.
+        prov = Provisioner(
+            con, lock=_WRITE_LOCK, pipeline_runner=build_pipeline_runner(con)
+        )
         return prov.ingest(kg, backfill_days=backfill_days)
     except Exception as exc:
         return {"error": str(exc)}
