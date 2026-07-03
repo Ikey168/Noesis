@@ -1446,7 +1446,7 @@ _ANOMALY_WINDOW_SCHEMA = {
             "windows": _ANOMALY_WINDOW_SCHEMA,
         }
     ),
-    meta={"panel": {
+    meta={"data": {"panel": "anomaly_timeline", "rest_route": None}, "panel": {
         "type": "anomaly_timeline",
         "title": "Anomaly timeline",
         "description": "Coverage-volume and sentiment windows flagged as unusual, with expected bands and robust z-scores.",
@@ -1530,7 +1530,7 @@ def _outlet_list(outlets: Optional[str]):
             "pairs": {"type": "array"},
         }
     ),
-    meta={"panel": {
+    meta={"data": {"panel": "lead_lag", "rest_route": None}, "panel": {
         "type": "lead_lag",
         "title": "Who leads, who follows",
         "description": "Outlets ranked by whether they set the agenda or follow it, from cross-correlation lead-lag of coverage.",
@@ -1567,7 +1567,7 @@ def lead_lag(topic: str, outlets: Optional[str] = None) -> dict:
     output_schema=honesty_output_schema(
         {"topic": {"type": ["string", "null"]}, "clusters": {"type": "array"}}
     ),
-    meta={"panel": {
+    meta={"data": {"panel": "narrative_thread", "rest_route": None}, "panel": {
         "type": "narrative_thread",
         "title": "Narrative threads",
         "description": "Competing storylines on a topic, clustered from document text with size and cohesion.",
@@ -1611,7 +1611,7 @@ def cluster_narratives(topic: Optional[str] = None, days: Optional[int] = None) 
             "falling_terms": {"type": "array"},
         }
     ),
-    meta={"panel": {
+    meta={"data": {"panel": "drift_trajectory", "rest_route": None}, "panel": {
         "type": "drift_trajectory",
         "title": "Meaning drift",
         "description": "How a term's coverage context shifts over time, with rising and falling associated terms.",
@@ -1653,7 +1653,7 @@ def semantic_drift(term: str, window: int = 90) -> dict:
             "points": {"type": "array"},
         }
     ),
-    meta={"panel": {
+    meta={"data": {"panel": "forecast", "rest_route": None}, "panel": {
         "type": "forecast",
         "title": "Coverage forecast",
         "description": "Projected coverage velocity for a topic with a prediction band (never a bare point forecast).",
