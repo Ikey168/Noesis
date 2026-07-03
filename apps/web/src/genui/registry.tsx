@@ -8,6 +8,7 @@ import { ACCENT, palette, fonts } from "../theme";
 import { sentColor, sentLabel } from "../lib/sentiment";
 import {
   useArticles,
+  useDataPlaneArticles,
   useClusters,
   useDocuments,
   useTrending,
@@ -129,7 +130,14 @@ function KpiRowPanel(props: PanelProps) {
 }
 
 function ArticlesPanel(props: PanelProps) {
-  const { data: articles, source, isLoading } = useArticles();
+  // R12: prefer the data-plane proxy when it is enabled and serving the
+  // articles family; otherwise fall back to the REST/demo path.
+  const proxy = useDataPlaneArticles();
+  const rest = useArticles();
+  const usingProxy = proxy.proxied && proxy.data.length > 0;
+  const articles = usingProxy ? proxy.data : rest.data;
+  const source = usingProxy ? proxy.source : rest.source;
+  const isLoading = usingProxy ? proxy.isLoading : rest.isLoading;
   const topic = props.panel.params?.topic;
   const matched = articles.filter((a) => topicMatch(topic, `${a.title} ${a.summary} ${a.entities.join(" ")}`));
   const rows = (matched.length ? matched : articles).slice(0, 5);

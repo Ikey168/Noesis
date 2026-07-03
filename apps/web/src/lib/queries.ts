@@ -32,7 +32,7 @@ import {
   mockOutletRanking,
   mockOutletClusters,
 } from "../data/mock";
-import type { RawClaim, RawStanceSummary, RawActorPosition, RawPositionUpdate, RawSourceStance, RawDriftEvent, RawFrameSource, RawActorSummary, RawOutletCluster, RawOutletScore } from "./api";
+import type { RawArticle, RawClaim, RawStanceSummary, RawActorPosition, RawPositionUpdate, RawSourceStance, RawDriftEvent, RawFrameSource, RawActorSummary, RawOutletCluster, RawOutletScore } from "./api";
 import { palette, ACCENT } from "../theme";
 import type {
   Article,
@@ -57,7 +57,7 @@ import type {
   OutletScore,
 } from "../types";
 
-export type Source = "live" | "demo";
+export type Source = "live" | "demo" | "mcp";
 export interface Result<T> {
   data: T;
   source: Source;
@@ -113,6 +113,40 @@ function useWithFallback<T>(key: string, fn: () => Promise<T>, fallback: T): Res
 
 export function useArticles(): Result<Article[]> {
   return useWithFallback("articles", async () => adaptArticles(await api.articles()), mockArticles);
+}
+
+// Data-plane proxy path (R12): when NOESIS_GENUI_DATA_PROXY is on and an
+// `articles` data-mode tool is allowlisted, the articles panel can render its
+// rows through POST /api/v1/ui/data instead of the REST route. Off by default,
+// so `proxied` is false and the panel keeps its REST/demo path.
+export function useDataPlaneArticles(): Result<Article[]> & { proxied: boolean } {
+  const q = useQuery({
+    queryKey: ["dataplane-articles"],
+    queryFn: async (): Promise<{ data: Article[]; source: Source; proxied: boolean }> => {
+      const tools = await api.uiDataTools();
+      const tool = tools.enabled ? tools.tools.find((t) => t.panel === "articles") : undefined;
+      if (!tool) return { data: [], source: "demo", proxied: false };
+      const res = await api.uiData({ server: tool.server, tool: tool.tool, arguments: { limit: 20 } });
+      const raw: RawArticle[] = (res.data.articles ?? []).map((a) => ({
+        id: a.id ?? "",
+        title: a.title ?? "",
+        url: a.url ?? "",
+        publish_date: a.publish_date,
+        source: a.source ?? "",
+        category: a.category ?? "",
+        sentiment: { score: a.sentiment_score, label: a.sentiment_label },
+      }));
+      return { data: adaptArticles(raw), source: "mcp", proxied: true };
+    },
+    staleTime: STALE,
+    retry: false,
+  });
+  return {
+    data: q.data?.data ?? [],
+    source: q.data?.source ?? "demo",
+    isLoading: q.isLoading,
+    proxied: q.data?.proxied ?? false,
+  };
 }
 
 export function useClusters(): Result<Cluster[]> {

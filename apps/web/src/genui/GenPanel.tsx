@@ -44,8 +44,8 @@ export default function GenPanel({
           {panel.title}
         </div>
         {source ? (
-          <Badge variant={isLoading ? "sync" : source === "live" ? "live" : "demo"}>
-            {isLoading ? "SYNC" : source === "live" ? "LIVE" : "DEMO"}
+          <Badge variant={isLoading ? "sync" : source === "live" || source === "mcp" ? "live" : "demo"}>
+            {isLoading ? "SYNC" : source === "mcp" ? "MCP" : source === "live" ? "LIVE" : "DEMO"}
           </Badge>
         ) : null}
         {adjustable ? (

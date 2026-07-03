@@ -30,6 +30,7 @@ METRICS_ROUTES_AVAILABLE = False
 PRIVACY_ROUTES_AVAILABLE = False
 SECURITY_ROUTES_AVAILABLE = False
 GENUI_ROUTES_AVAILABLE = False
+GENUI_DATA_ROUTES_AVAILABLE = False
 
 # Store imported modules globally
 _imported_modules = {}
@@ -378,6 +379,19 @@ def try_import_genui_routes():
         return False
 
 
+def try_import_genui_data_routes():
+    """Try to import the data-plane proxy routes (R12, behind a feature flag)."""
+    global GENUI_DATA_ROUTES_AVAILABLE
+    try:
+        from src.api.routes import genui_data_routes
+        _imported_modules['genui_data_routes'] = genui_data_routes
+        GENUI_DATA_ROUTES_AVAILABLE = True
+        return True
+    except ImportError:
+        GENUI_DATA_ROUTES_AVAILABLE = False
+        return False
+
+
 def try_import_report_routes():
     """Try to import report generation routes (issues #51, #52)."""
     global REPORT_ROUTES_AVAILABLE
@@ -436,6 +450,7 @@ def check_all_imports():
     try_import_privacy_routes()
     try_import_security_routes()
     try_import_genui_routes()
+    try_import_genui_data_routes()
     _load_domain_packs()
 
 
@@ -764,6 +779,14 @@ def include_optional_routers(app):
             app.include_router(genui_routes.router)
             routers_included += 1
 
+    # Include the data-plane proxy routes (R12 prototype; behind a flag at
+    # request time, but always mounted so /data/tools can report enabled=false)
+    if GENUI_DATA_ROUTES_AVAILABLE:
+        genui_data_routes = _imported_modules.get('genui_data_routes')
+        if genui_data_routes:
+            app.include_router(genui_data_routes.router)
+            routers_included += 1
+
     return routers_included
 
 
@@ -882,6 +905,7 @@ async def root():
             "privacy": PRIVACY_ROUTES_AVAILABLE,
             "local_storage_security": SECURITY_ROUTES_AVAILABLE,
             "generative_ui": GENUI_ROUTES_AVAILABLE,
+            "generative_ui_data": GENUI_DATA_ROUTES_AVAILABLE,
         },
     }
 
