@@ -25,6 +25,7 @@ from __future__ import annotations
 import math
 from typing import Any, Dict
 
+from src.analytics.conformal import coverage_of_band
 from src.analytics.honesty import analytic_envelope, interval
 from src.osint import common
 
@@ -120,9 +121,15 @@ def source_reliability(conn, source: str) -> Dict[str, Any]:
     parts = [p for p in (transparency, hit_rate, clean_rate) if p is not None]
     composite = sum(parts) / len(parts) if parts else common.DEFAULT_CREDIBILITY
 
-    # Interval width shrinks with evidence: more documents, tighter band.
+    # M7.2: the band width stays evidence-driven (a sparse source carries a wider
+    # interval), and the reported coverage is the *measured* fraction of the
+    # components that fall inside it — a documented coverage rate, not a claimed
+    # one. A band too tight for disagreeing components reads back as low coverage.
     evidence = max(track["documents"], total_claims, 1)
     half = 0.3 / math.sqrt(evidence)
+    level = 0.9
+    component_devs = [p - composite for p in parts]
+    coverage = round(coverage_of_band(component_devs, half), 4)
 
     return analytic_envelope(
         n=evidence,
@@ -131,8 +138,10 @@ def source_reliability(conn, source: str) -> Dict[str, Any]:
         source=source,
         found=track["documents"] > 0 or total_claims > 0,
         reliability=interval(
-            composite, max(0.0, composite - half), min(1.0, composite + half)
+            composite, max(0.0, composite - half), min(1.0, composite + half), level
         ),
+        coverage=coverage,
+        calibration_n=len(parts),
         components=components,
         track_record={
             "documents": track["documents"],

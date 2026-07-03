@@ -45,6 +45,17 @@ def calibration_coverage(residuals: Sequence[float], level: float = 0.95) -> flo
     return sum(1 for r in abs_res if r <= q) / len(abs_res)
 
 
+def coverage_of_band(residuals: Sequence[float], half: float) -> float:
+    """The measured coverage of an already-chosen band half-width over a
+    calibration sample: the fraction of ``|residual|`` within ``half``. Used to
+    *document* the coverage of an interval whose width is set by another lever
+    (e.g. evidence), rather than by the conformal quantile."""
+    abs_res = [abs(float(r)) for r in residuals]
+    if not abs_res:
+        return 1.0
+    return sum(1 for r in abs_res if r <= float(half)) / len(abs_res)
+
+
 def conformal_interval(
     value: float, residuals: Sequence[float], level: float = 0.95, scale: float = 1.0
 ) -> Dict[str, float]:

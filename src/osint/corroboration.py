@@ -26,7 +26,8 @@ from __future__ import annotations
 
 from typing import Any, Dict, List, Optional
 
-from src.analytics.honesty import analytic_envelope
+from src.analytics.conformal import calibrated_envelope_fields, conformal_interval
+from src.analytics.honesty import analytic_envelope, interval
 from src.osint import common
 
 METHOD = "independent-source corroboration over RAG evidence and conflict edges"
@@ -163,6 +164,26 @@ def corroborate(conn, claim_id: str) -> Dict[str, Any]:
     independent_total = len(set(support_sources) | set(contradict_sources))
     single_sourced = independent_total == 0
 
+    # M7.2: a *calibrated* corroboration-strength range instead of a bare
+    # weighted number. The supporting sources' credibilities are the calibration
+    # sample; the conformal band over their spread covers them at the target
+    # level, and the measured coverage ships alongside. No support -> no range.
+    level = 0.9
+    support_creds = [common.credibility_or_default(cred.get(s)) for s in support_sources]
+    if support_creds:
+        mean_cred = sum(support_creds) / len(support_creds)
+        cred_residuals = (
+            [c - mean_cred for c in support_creds] if len(support_creds) >= 2 else [0.25]
+        )
+        band = conformal_interval(mean_cred, cred_residuals, level)
+        support_credibility = interval(
+            mean_cred, max(0.0, band["lo"]), min(1.0, band["hi"]), level
+        )
+        support_calib = calibrated_envelope_fields(cred_residuals, level)
+    else:
+        support_credibility = None
+        support_calib = {"coverage": None, "calibration_n": 0}
+
     return analytic_envelope(
         n=independent_total,
         method=METHOD,
@@ -182,6 +203,9 @@ def corroborate(conn, claim_id: str) -> Dict[str, Any]:
         weighted_support=_weighted(support_sources),
         weighted_contradict=_weighted(contradict_sources),
         single_sourced=single_sourced,
+        support_credibility=support_credibility,
+        support_coverage=support_calib["coverage"],
+        support_calibration_n=support_calib["calibration_n"],
     )
 
 
