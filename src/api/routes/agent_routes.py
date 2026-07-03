@@ -25,14 +25,36 @@ from src.agent.analyst import AnalystAgent
 from src.agent.audit import provisioning_audit_sink, replay_run
 from src.agent.investigator import InvestigatorAgent
 from src.agent.local_backend import build_local_caller
-from src.agent.runtime import AgentRuntime, Budget
+from src.agent.runtime import AgentRuntime, Budget, live_caller
 
 router = APIRouter(prefix="/api/v1/agent", tags=["agent"])
+
+# Transports an agent run can drive:
+#   "local" - the in-process backend against the shared warehouse (default),
+#   "live"  - the real MCP servers via the supervised host (runtime.live_caller).
+TRANSPORTS = ("local", "live")
 
 
 def agent_enabled() -> bool:
     """Whether the agent run endpoints are enabled (``NOESIS_AGENT_API``)."""
     return os.getenv("NOESIS_AGENT_API", "off").lower() in ("on", "1", "true")
+
+
+def default_transport() -> str:
+    """The default run transport (``NOESIS_AGENT_TRANSPORT``); ``local`` unless
+    explicitly set to ``live``."""
+    value = os.getenv("NOESIS_AGENT_TRANSPORT", "local").lower()
+    return value if value in TRANSPORTS else "local"
+
+
+def _build_caller(conn, transport: Optional[str]):
+    """Resolve the tool caller for a run. ``live`` drives the real MCP surface
+    (and fails loudly if the host is down); anything else is the in-process
+    backend against ``conn``."""
+    chosen = (transport or default_transport()).lower()
+    if chosen == "live":
+        return live_caller(), "live"
+    return build_local_caller(conn), "local"
 
 
 def _require_enabled() -> None:
@@ -58,6 +80,7 @@ class AnalystRequest(BaseModel):
     claim_id: Optional[str] = None
     source: Optional[str] = None
     max_steps: int = Field(default=24, ge=1, le=100)
+    transport: Optional[str] = Field(default=None, description="local | live")
 
 
 class InvestigatorRequest(BaseModel):
@@ -68,6 +91,7 @@ class InvestigatorRequest(BaseModel):
     claim_id: Optional[str] = None
     sources: Optional[List[str]] = None
     max_steps: int = Field(default=24, ge=1, le=100)
+    transport: Optional[str] = Field(default=None, description="local | live")
 
 
 @router.get("")
@@ -83,10 +107,11 @@ def run_analyst(request: AnalystRequest) -> Dict[str, Any]:
     _require_enabled()
     conn, lock = _conn()
     run_id = "analyst-" + secrets.token_urlsafe(6)
+    caller, transport = _build_caller(conn, request.transport)
     try:
         with lock:
             runtime = AgentRuntime(
-                build_local_caller(conn),
+                caller,
                 budget=Budget(max_steps=request.max_steps),
                 audit_sink=provisioning_audit_sink(conn, run_id),
             )
@@ -103,6 +128,7 @@ def run_analyst(request: AnalystRequest) -> Dict[str, Any]:
         raise HTTPException(status_code=500, detail=f"analyst run failed: {err}")
     return {
         "run_id": run_id,
+        "transport": transport,
         "goal": result.goal,
         "kg": result.kg,
         "osint": result.osint,
@@ -119,10 +145,11 @@ def run_investigator(request: InvestigatorRequest) -> Dict[str, Any]:
     _require_enabled()
     conn, lock = _conn()
     run_id = "investigation-" + secrets.token_urlsafe(6)
+    caller, transport = _build_caller(conn, request.transport)
     try:
         with lock:
             runtime = AgentRuntime(
-                build_local_caller(conn),
+                caller,
                 budget=Budget(max_steps=request.max_steps),
                 audit_sink=provisioning_audit_sink(conn, run_id),
             )
@@ -138,6 +165,7 @@ def run_investigator(request: InvestigatorRequest) -> Dict[str, Any]:
         raise HTTPException(status_code=500, detail=f"investigation run failed: {err}")
     return {
         "run_id": run_id,
+        "transport": transport,
         "title": result.title,
         "kg": result.kg,
         "surface": result.surface,
