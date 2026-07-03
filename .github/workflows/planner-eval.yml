@@ -1,0 +1,41 @@
+name: Planner Eval
+
+# M5.3: score the generative-UI planner against the golden intent set on every
+# change to the planner, its keywords, the catalog, or the golden fixtures, and
+# fail the build when the score regresses below the threshold.
+on:
+  pull_request:
+    paths:
+      - 'src/genui/planner.py'
+      - 'src/genui/planner_eval.py'
+      - 'src/genui/catalog.py'
+      - 'src/genui/llm.py'
+      - 'tests/data/planner_golden.json'
+      - '.github/workflows/planner-eval.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'src/genui/planner.py'
+      - 'src/genui/catalog.py'
+      - 'tests/data/planner_golden.json'
+
+jobs:
+  planner-eval:
+    name: Planner eval (golden set)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Run the planner eval gate
+        run: |
+          echo "Scoring the planner against the golden intent set..."
+          python -m src.genui.planner_eval

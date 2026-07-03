@@ -96,16 +96,25 @@ def _fmt(result: Optional[Dict[str, Any]]) -> str:
     )
 
 
-def main() -> None:
+def gate_passes(out: Dict[str, Any]) -> bool:
+    """The CI gate (M5.3): the heuristic planner's score must not regress below
+    the threshold. The LLM planner is reported but never gates (it is optional
+    and may be unavailable in CI)."""
+    heur = out.get("heuristic")
+    return heur is not None and heur["score"] >= SCORE_THRESHOLD
+
+
+def main() -> int:
     out = evaluate()
     print("Planner eval (golden set)\n")
     for name in ("heuristic", "llm"):
         print(f"  {name:<10} {_fmt(out[name])}")
-    heur = out["heuristic"]
-    if heur is not None:
-        gate = "PASS" if heur["score"] >= SCORE_THRESHOLD else "FAIL"
-        print(f"\nthreshold {SCORE_THRESHOLD}: heuristic {gate}")
+    passed = gate_passes(out)
+    print(f"\nthreshold {SCORE_THRESHOLD}: heuristic {'PASS' if passed else 'FAIL'}")
+    return 0 if passed else 1
 
 
 if __name__ == "__main__":
-    main()
+    import sys
+
+    sys.exit(main())
