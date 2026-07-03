@@ -85,6 +85,14 @@
       ],
       "env": {}
     },
+    "neuronews-research": {
+      "type": "stdio",
+      "command": "python3",
+      "args": [
+        "tools/research_mcp/server.py"
+      ],
+      "env": {}
+    },
     "neuronews-dataset": {
       "type": "stdio",
       "command": "python3",

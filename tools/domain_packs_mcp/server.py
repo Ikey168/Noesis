@@ -70,6 +70,7 @@ CONTENT_PREVIEW = 300
 def _registry():
     """Lazy-import the domain registry after ensuring built-in packs are registered."""
     import src.domains.news  # noqa: F401 — triggers register_pack(NewsDomainPack)
+    import src.domains.research  # noqa: F401 — triggers register_pack(ResearchDomainPack)
     from src.domains import registry
     return registry
 

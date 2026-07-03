@@ -571,6 +571,22 @@ research-flavored telemetry.
 on research panels; venue credibility renders via the generalized
 transparency machinery.
 
+*Delivered.* `src/domains/research/` is the second first-class pack,
+built the same way as news: paper-metadata enrichers (venue, citations,
+concept), `ui_flags` gating the research panel family, and
+`research_telemetry` (recent papers, emerging concepts) surfaced when the
+pack dominates. `tools/research_mcp/` exposes `venues`
+(credibility as a composite of concept diversity, attribution and
+citation impact, generalizing outlet transparency scoring, honesty-
+wrapped), `citation_graph` (paper citation network) and
+`literature_claims` (claims scoped to papers), annotated for the three
+new panels and surfaced through R2 discovery. The pack is registered in
+`.mcp.json` and at API/domain-pack startup; enable it with
+`NEURONEWS_ENABLED_PACKS=research`. Verified end-to-end with research on
+and news off: the three panels discover and plan, venue credibility
+carries a CI, telemetry becomes NEW PAPERS, and a generic briefing still
+gets a live overview.
+
 **R8 — Provisioning plane** *(Track P)*
 `kg_deploy` / `kg_attach_sources` / `kg_ingest` / `kg_status` /
 `kg_teardown` with table-prefix namespacing, lineage registration,

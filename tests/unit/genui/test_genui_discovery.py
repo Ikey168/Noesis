@@ -30,7 +30,7 @@ def make_tool(panel=None, name="some_tool", has_output_schema=True, meta=None):
 
 
 GOOD = {
-    "type": "citation_graph",
+    "type": "custom_widget",
     "title": "Citation graph",
     "description": "Paper citation network.",
     "endpoint": "/api/v1/research/citations",
@@ -77,7 +77,7 @@ def no_host(monkeypatch):
 def test_valid_annotation_builds_panel_def():
     panel = panel_def_from_annotation("research", make_tool(GOOD))
     assert panel is not None
-    assert panel.type == "citation_graph"
+    assert panel.type == "custom_widget"
     assert panel.title == "Citation graph"
     assert panel.endpoint == "/api/v1/research/citations"
     assert panel.facets == ("entities", "library")
@@ -158,8 +158,8 @@ def test_duplicate_type_first_server_wins(fake_host):
         }
     )
     defs = discovered_panel_defs()
-    assert defs["citation_graph"][0].title == "From A"
-    assert defs["citation_graph"][1] == "a-server"
+    assert defs["custom_widget"][0].title == "From A"
+    assert defs["custom_widget"][1] == "a-server"
 
 
 def test_merge_overrides_in_place_and_appends_new(fake_host):
@@ -175,12 +175,12 @@ def test_merge_overrides_in_place_and_appends_new(fake_host):
     types = [p.type for p, _ in merged]
     static_types = [p.type for p in PANEL_CATALOG]
     # Same order as static, with the new type appended at the end.
-    assert types == static_types + ["citation_graph"]
+    assert types == static_types + ["custom_widget"]
 
     by_type = {p.type: (p, src) for p, src in merged}
     assert by_type["claims"][0].title == "Discovered claims"
     assert by_type["claims"][1] == "srv"
-    assert by_type["citation_graph"][1] == "srv"
+    assert by_type["custom_widget"][1] == "srv"
     # Untouched static entries carry no source server.
     assert by_type["kpi_row"][1] is None
 
@@ -189,7 +189,7 @@ def test_merged_dict_carries_source_only_when_discovery_contributes(fake_host):
     fake_host({"srv": [make_tool(GOOD)]})
     panels = merged_catalog_dict()
     by_type = {p["type"]: p for p in panels}
-    assert by_type["citation_graph"]["source"] == "srv"
+    assert by_type["custom_widget"]["source"] == "srv"
     assert by_type["claims"]["source"] == "static"
     # Every static field is still present alongside source.
     assert set(panel_catalog_dict()[0]) | {"source"} == set(by_type["claims"])

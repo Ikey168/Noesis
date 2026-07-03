@@ -891,6 +891,82 @@ function ActorsPanel(props: PanelProps) {
   );
 }
 
+// R7 research-pack renderers. Data path lands with the MCP data proxy (R12);
+// until then each shows a representative fixture.
+const DEMO_VENUES = [
+  { venue: "Nature Climate Change", papers: 58, credibility: { value: 0.82, lo: 0.79, hi: 0.85 } },
+  { venue: "PNAS", papers: 41, credibility: { value: 0.76, lo: 0.72, hi: 0.8 } },
+  { venue: "arXiv preprint", papers: 120, credibility: { value: 0.58, lo: 0.55, hi: 0.61 } },
+  { venue: "Energy Policy", papers: 33, credibility: { value: 0.71, lo: 0.66, hi: 0.76 } },
+];
+
+function VenuesPanel(props: PanelProps) {
+  return (
+    <GenPanel {...props} source="demo">
+      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        {DEMO_VENUES.map((v, i) => (
+          <div key={v.venue} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <span style={{ ...mono, width: 18 }}>#{i + 1}</span>
+            <div style={{ flex: 1, minWidth: 0, fontSize: 12.5, fontWeight: 500, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{v.venue}</div>
+            <span style={{ ...mono, width: 52, textAlign: "right" }}>{v.papers} papers</span>
+            <ScoreBar value={v.credibility.value} ci={{ lo: v.credibility.lo, hi: v.credibility.hi, level: 0.95, n: v.papers }} />
+            <span style={{ fontFamily: fonts.mono, fontSize: 11.5, color: palette.teal, width: 34, textAlign: "right" }}>{v.credibility.value.toFixed(2)}</span>
+          </div>
+        ))}
+      </div>
+      <div style={{ ...mono, marginTop: 4 }}>credibility generalizes the outlet transparency score to venues (95% CI)</div>
+    </GenPanel>
+  );
+}
+
+const DEMO_CITATIONS = {
+  nodes: [
+    { id: "p1", count: 120, color: ACCENT }, { id: "p2", count: 58, color: ACCENT },
+    { id: "p3", count: 41, color: palette.teal }, { id: "p4", count: 33, color: palette.teal },
+    { id: "p5", count: 22, color: palette.amber }, { id: "p6", count: 14, color: palette.amber },
+  ],
+  edges: [
+    { source: "p2", target: "p1" }, { source: "p3", target: "p1" },
+    { source: "p4", target: "p2" }, { source: "p5", target: "p3" }, { source: "p6", target: "p2" },
+  ],
+};
+
+function CitationGraphPanel(props: PanelProps) {
+  return (
+    <GenPanel {...props} source="demo">
+      <EntityGraph data={DEMO_CITATIONS as unknown as import("../types").LiveGraph} />
+      <div style={{ ...mono, marginTop: 4 }}>papers linked by citation, sized by citation count</div>
+    </GenPanel>
+  );
+}
+
+const DEMO_LIT_CLAIMS = [
+  { text: "Carbon capture at current cost is not scalable to 2030 targets.", verdict: "disputed", attributed: true },
+  { text: "Solar LCOE fell below coal in most markets by 2024.", verdict: "supported", attributed: true },
+  { text: "Grid storage duration is the binding constraint on renewables.", verdict: "unverified", attributed: false },
+];
+
+const VERDICT_COLOR: Record<string, string> = { supported: palette.pos, disputed: palette.neg, unverified: palette.dim };
+
+function LiteratureClaimsPanel(props: PanelProps) {
+  return (
+    <GenPanel {...props} source="demo">
+      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        {DEMO_LIT_CLAIMS.map((c, i) => (
+          <div key={i} style={{ display: "flex", gap: 8, alignItems: "flex-start" }}>
+            <span style={{ ...chip(VERDICT_COLOR[c.verdict] ?? palette.dim), marginTop: 2 }}>{c.verdict}</span>
+            <div style={{ flex: 1, minWidth: 0, fontSize: 12.5, lineHeight: 1.35 }}>
+              {c.text}
+              {!c.attributed ? <span style={{ ...mono, color: palette.amber, marginLeft: 6 }}>uncited</span> : null}
+            </div>
+          </div>
+        ))}
+      </div>
+      <div style={{ ...mono, marginTop: 4 }}>claims scoped to papers, from the shared claim layer</div>
+    </GenPanel>
+  );
+}
+
 function UnknownPanel(props: PanelProps) {
   return (
     <GenPanel {...props}>
@@ -925,6 +1001,9 @@ const REGISTRY: Record<PanelType, ComponentType<PanelProps>> = {
   narrative_thread: NarrativeThreadPanel,
   drift_trajectory: DriftTrajectoryPanel,
   forecast: ForecastPanel,
+  venues: VenuesPanel,
+  citation_graph: CitationGraphPanel,
+  literature_claims: LiteratureClaimsPanel,
 };
 
 export function panelComponent(type: string): ComponentType<PanelProps> {

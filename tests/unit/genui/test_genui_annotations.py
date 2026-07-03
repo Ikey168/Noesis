@@ -33,6 +33,7 @@ ANNOTATED_SERVERS = {
     "neuronews-kg": REPO / "tools/kg_mcp/server.py",
     "neuronews-blog-feeds": REPO / "tools/blog_mcp/server.py",
     "neuronews-pipeline": REPO / "tools/pipeline_mcp/server.py",
+    "neuronews-research": REPO / "tools/research_mcp/server.py",
 }
 
 COMPOSED_PANELS = {"note", "timeline"}  # ADR-001 exemptions
