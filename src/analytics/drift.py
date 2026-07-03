@@ -15,10 +15,12 @@ Honesty envelope throughout; pure-stdlib maths.
 
 from __future__ import annotations
 
+import math
 import random
 from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional
 
+from src.analytics.conformal import calibrated_envelope_fields, conformal_interval
 from src.analytics.honesty import analytic_envelope, interval
 from src.analytics.stats import cosine, holt_forecast
 from src.analytics.text import context_counts, tokenize
@@ -119,21 +121,31 @@ def forecast_topic_payload(
         )
     horizon = max(1, min(horizon, 30))
     fc = holt_forecast(series, horizon)
+    # M7.1: build a *calibrated* (split-conformal) band from the in-sample
+    # one-step residuals instead of the asserted Gaussian z*sigma band, so the
+    # 95% is measured, not claimed. The band widens with sqrt(step).
+    residuals = fc.get("residuals") or []
+    level = 0.95
     points = [
         {
             "step": i + 1,
-            # Coverage volume can't go negative; clamp the band at zero.
-            "forecast": interval(
-                max(0.0, fc["points"][i]),
-                max(0.0, fc["lo"][i]),
-                max(0.0, fc["hi"][i]),
-                0.95,
+            # Coverage volume can't go negative; clamp the calibrated band at zero.
+            "forecast": _clamp_lo(
+                conformal_interval(fc["points"][i], residuals, level, scale=math.sqrt(i + 1))
             ),
         }
         for i in range(horizon)
     ]
+    calib = calibrated_envelope_fields(residuals, level)
     return analytic_envelope(
         n=len(series), method=FORECAST_METHOD, assumptions=FORECAST_ASSUMPTIONS,
         topic=topic, horizon=horizon, history=series[-14:],
         residual_sigma=round(float(fc["sigma"]), 4), points=points,
+        coverage=calib["coverage"], level=calib["level"],
+        calibration_n=calib["calibration_n"],
     )
+
+
+def _clamp_lo(iv: Dict[str, Any]) -> Dict[str, Any]:
+    """Clamp a coverage-count interval at zero without breaking lo <= value <= hi."""
+    return interval(max(0.0, iv["value"]), max(0.0, iv["lo"]), max(0.0, iv["hi"]), iv["level"])

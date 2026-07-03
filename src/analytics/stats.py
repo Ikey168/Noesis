@@ -252,7 +252,7 @@ def holt_forecast(
     n = len(series)
     if n < 2 or horizon < 1:
         last = series[-1] if series else 0.0
-        return {"points": [last] * max(0, horizon), "lo": [], "hi": [], "sigma": 0.0}
+        return {"points": [last] * max(0, horizon), "lo": [], "hi": [], "sigma": 0.0, "residuals": []}
 
     level = series[0]
     trend = series[1] - series[0]
@@ -273,7 +273,9 @@ def holt_forecast(
         points.append(point)
         lo.append(point - width)
         hi.append(point + width)
-    return {"points": points, "lo": lo, "hi": hi, "sigma": sigma}
+    # Expose the in-sample one-step residuals so a caller can build a calibrated
+    # (conformal) band instead of the Gaussian one (M7.1).
+    return {"points": points, "lo": lo, "hi": hi, "sigma": sigma, "residuals": residuals}
 
 
 def cosine(a: Dict[str, float], b: Dict[str, float]) -> float:
