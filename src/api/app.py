@@ -31,6 +31,7 @@ PRIVACY_ROUTES_AVAILABLE = False
 SECURITY_ROUTES_AVAILABLE = False
 GENUI_ROUTES_AVAILABLE = False
 GENUI_DATA_ROUTES_AVAILABLE = False
+CANVAS_ROUTES_AVAILABLE = False
 
 # Store imported modules globally
 _imported_modules = {}
@@ -392,6 +393,19 @@ def try_import_genui_data_routes():
         return False
 
 
+def try_import_canvas_routes():
+    """Try to import the persisted-canvas routes (M8: save/reopen/share)."""
+    global CANVAS_ROUTES_AVAILABLE
+    try:
+        from src.api.routes import canvas_routes
+        _imported_modules['canvas_routes'] = canvas_routes
+        CANVAS_ROUTES_AVAILABLE = True
+        return True
+    except ImportError:
+        CANVAS_ROUTES_AVAILABLE = False
+        return False
+
+
 def try_import_report_routes():
     """Try to import report generation routes (issues #51, #52)."""
     global REPORT_ROUTES_AVAILABLE
@@ -451,6 +465,7 @@ def check_all_imports():
     try_import_security_routes()
     try_import_genui_routes()
     try_import_genui_data_routes()
+    try_import_canvas_routes()
     _load_domain_packs()
 
 
@@ -788,6 +803,13 @@ def include_optional_routers(app):
             app.include_router(genui_data_routes.router)
             routers_included += 1
 
+    # Include the persisted-canvas routes (M8: save/reopen/share).
+    if CANVAS_ROUTES_AVAILABLE:
+        canvas_routes = _imported_modules.get('canvas_routes')
+        if canvas_routes:
+            app.include_router(canvas_routes.router)
+            routers_included += 1
+
     return routers_included
 
 
@@ -907,6 +929,7 @@ async def root():
             "local_storage_security": SECURITY_ROUTES_AVAILABLE,
             "generative_ui": GENUI_ROUTES_AVAILABLE,
             "generative_ui_data": GENUI_DATA_ROUTES_AVAILABLE,
+            "generative_ui_canvas": CANVAS_ROUTES_AVAILABLE,
         },
     }
 
