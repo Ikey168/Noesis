@@ -179,6 +179,26 @@ corroborated / newly contradicted. The most abusable tools
 These surface as the `entity_dossier`, `relationship_path` and
 `evidence_timeline` panels.
 
+### Data-plane proxy (`src/genui/dataplane.py`, R12)
+
+A prototype answer to the Stage 3 question, "should panel data flow through MCP
+too?", behind the `NOESIS_GENUI_DATA_PROXY` flag (off by default). A data-mode
+tool carries a `meta.data` block (distinct from the `meta.panel` block, so
+planner-facing stats tools are untouched) and returns a full panel payload;
+`articles_data` on the pipeline server is the first, byte-identical to the
+`/api/v1/news/articles` REST route. `POST /api/v1/ui/data` lets the browser have
+the API invoke an allowlisted data-mode tool (the browser never speaks MCP);
+`GET /api/v1/ui/data/tools` exposes the allowlist. The proxy is allowlist-gated
+(data-mode tools only), rate-limited per client, and size-capped both ways, and
+serves through the R4 shared tool cache. The benchmark
+(`scripts/genui/dataplane_benchmark.py`) drove the Stage 3 go/no-go recorded in
+`docs/architecture/ADR-002-data-plane-stage3.md`: same 50,743-byte payload on
+every path; `rest_direct` 13.3 ms p50, `proxy_cold` 50.4 ms, `proxy_cached`
+0.36 ms. Decision: conditional go, promote the `articles` family behind the
+flag cache-served (the frontend `useDataPlaneArticles` hook renders it through
+the proxy when enabled, badged `MCP`, falling back to REST/demo otherwise); do
+not move cold first-loads onto the proxy until the transport overhead closes.
+
 ### MCP host runtime (`src/mcp_host/`, R1)
 
 The API process supervises the repo's 12 `tools/*_mcp` stdio servers:

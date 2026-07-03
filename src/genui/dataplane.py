@@ -1,0 +1,180 @@
+"""
+Data-plane proxy support (MCP rearchitecture plan, R12 / Stage 3 gate).
+
+Stage 1 turned MCP tools into panels; Stage 3 asks whether panel *data* should
+flow through MCP too. This module is the backend for a prototype answer: a
+narrow, guardrailed way for the browser to have the API invoke a **data-mode**
+MCP tool on its behalf (the browser never speaks MCP).
+
+* :func:`data_mode_tools` discovers the data-mode allowlist from the R1 tool
+  cache: a tool is data-mode when its ``meta`` carries a ``data`` block (format
+  mirrors the ADR-001 ``panel`` block). Only allowlisted tools are callable.
+* :class:`RateLimiter` is a per-client token bucket.
+* :func:`invoke_data_tool` enforces the allowlist and the response-size cap and
+  calls the tool through the host's shared cache.
+
+Everything is behind the ``NOESIS_GENUI_DATA_PROXY`` feature flag; the whole
+prototype is off by default. Import-safe (stdlib + src.mcp_host only).
+"""
+
+from __future__ import annotations
+
+import os
+import time
+from dataclasses import dataclass
+from threading import Lock
+from typing import Any, Dict, Optional, Tuple
+
+DATA_ANNOTATION_KEY = "data"
+
+# Caps (bytes). Requests/responses beyond these are rejected, not truncated.
+MAX_REQUEST_BYTES = 16 * 1024
+MAX_RESPONSE_BYTES = 2 * 1024 * 1024
+
+# Per-client rate limit defaults (token bucket).
+DEFAULT_RATE_PER_MIN = 120
+
+
+class DataPlaneError(Exception):
+    """A data-plane request was refused. ``status`` is the HTTP code to map to."""
+
+    def __init__(self, status: int, code: str, message: str):
+        super().__init__(message)
+        self.status = status
+        self.code = code
+        self.message = message
+
+
+def data_proxy_enabled() -> bool:
+    """True when the data-plane proxy prototype is switched on."""
+    return os.getenv("NOESIS_GENUI_DATA_PROXY", "off").lower() in ("on", "1", "true")
+
+
+def data_mode_tools() -> Dict[Tuple[str, str], Dict[str, Any]]:
+    """The data-mode allowlist: ``{(server, tool): {panel, rest_route}}`` from
+    the host's tool cache. Empty when the host is down or nothing is annotated,
+    so an empty allowlist safely rejects everything."""
+    try:
+        from src.mcp_host import get_host
+
+        host = get_host()
+    except Exception:  # pragma: no cover - defensive import guard
+        return {}
+    if host is None:
+        return {}
+
+    out: Dict[Tuple[str, str], Dict[str, Any]] = {}
+    for server in sorted(host.tools()):
+        for tool in host.tools(server).get(server, []):
+            meta = tool.get("meta")
+            block = meta.get(DATA_ANNOTATION_KEY) if isinstance(meta, dict) else None
+            if not isinstance(block, dict):
+                continue
+            name = tool.get("name")
+            if not isinstance(name, str) or not name:
+                continue
+            if not tool.get("has_output_schema", False):
+                # Data-mode tools must declare a schema, same discipline as panels.
+                continue
+            out[(server, name)] = {
+                "panel": block.get("panel"),
+                "rest_route": block.get("rest_route"),
+            }
+    return out
+
+
+def is_allowed(server: str, tool: str) -> bool:
+    """Whether ``(server, tool)`` is an allowlisted data-mode tool."""
+    return (server, tool) in data_mode_tools()
+
+
+@dataclass
+class _Bucket:
+    tokens: float
+    updated: float
+
+
+class RateLimiter:
+    """A per-client token bucket: ``rate`` requests per minute, burst = rate."""
+
+    def __init__(self, rate_per_min: int = DEFAULT_RATE_PER_MIN):
+        self.rate = max(1, int(rate_per_min))
+        self._buckets: Dict[str, _Bucket] = {}
+        self._lock = Lock()
+
+    def allow(self, client: str, now: Optional[float] = None) -> bool:
+        now = time.time() if now is None else now
+        refill_per_sec = self.rate / 60.0
+        with self._lock:
+            bucket = self._buckets.get(client)
+            if bucket is None:
+                self._buckets[client] = _Bucket(tokens=self.rate - 1, updated=now)
+                return True
+            elapsed = max(0.0, now - bucket.updated)
+            bucket.tokens = min(self.rate, bucket.tokens + elapsed * refill_per_sec)
+            bucket.updated = now
+            if bucket.tokens >= 1.0:
+                bucket.tokens -= 1.0
+                return True
+            return False
+
+
+# One shared limiter for the process; the rate is read once at import.
+_LIMITER = RateLimiter(
+    int(os.getenv("NOESIS_GENUI_DATA_RATE_PER_MIN", str(DEFAULT_RATE_PER_MIN)))
+)
+
+
+def check_rate(client: str) -> None:
+    """Raise :class:`DataPlaneError` (429) when ``client`` is over its limit."""
+    if not _LIMITER.allow(client):
+        raise DataPlaneError(429, "rate_limited", "data-plane rate limit exceeded")
+
+
+def check_request_size(arguments: Any) -> None:
+    """Raise (413) when the argument payload exceeds the request cap."""
+    import json
+
+    try:
+        size = len(json.dumps(arguments or {}, default=str).encode("utf-8"))
+    except Exception:
+        raise DataPlaneError(400, "bad_request", "arguments are not JSON-serializable")
+    if size > MAX_REQUEST_BYTES:
+        raise DataPlaneError(413, "request_too_large",
+                             f"request {size} bytes over {MAX_REQUEST_BYTES} cap")
+
+
+def invoke_data_tool(
+    server: str, tool: str, arguments: Optional[Dict[str, Any]] = None
+) -> Dict[str, Any]:
+    """Invoke an allowlisted data-mode tool through the host cache, enforcing
+    the allowlist and the response-size cap. Raises :class:`DataPlaneError`."""
+    import json
+
+    if not is_allowed(server, tool):
+        raise DataPlaneError(403, "not_allowed",
+                             f"tool {server}:{tool} is not an allowlisted data-mode tool")
+    try:
+        from src.mcp_host import get_host
+
+        host = get_host()
+    except Exception:
+        host = None
+    if host is None:
+        raise DataPlaneError(503, "host_unavailable", "MCP host is not available")
+
+    try:
+        result = host.call_tool_cached(server, tool, arguments or {})
+    except Exception as exc:
+        raise DataPlaneError(502, "tool_error", f"tool call failed: {exc}")
+
+    if not isinstance(result, dict):
+        raise DataPlaneError(502, "bad_result", "tool returned a non-object result")
+    if "error" in result:
+        raise DataPlaneError(502, "tool_error", str(result["error"]))
+
+    size = len(json.dumps(result, default=str).encode("utf-8"))
+    if size > MAX_RESPONSE_BYTES:
+        raise DataPlaneError(413, "response_too_large",
+                             f"response {size} bytes over {MAX_RESPONSE_BYTES} cap")
+    return result

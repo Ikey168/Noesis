@@ -381,6 +381,37 @@ export interface RawUiTelemetry {
   packs: string[];
 }
 
+// Data-plane proxy (R12): the allowlist and a data-mode tool invocation.
+export interface RawDataTool {
+  server: string;
+  tool: string;
+  panel?: string;
+  rest_route?: string;
+}
+
+export interface RawDataTools {
+  enabled: boolean;
+  tools: RawDataTool[];
+  count?: number;
+}
+
+export interface RawDataArticle {
+  id: string | null;
+  title: string | null;
+  url: string | null;
+  publish_date: string | null;
+  source: string | null;
+  category: string | null;
+  sentiment_score: number | null;
+  sentiment_label: string | null;
+}
+
+export interface RawDataResponse {
+  server: string;
+  tool: string;
+  data: { count: number; articles: RawDataArticle[] };
+}
+
 // ---------- endpoint calls ----------
 
 export const api = {
@@ -395,6 +426,13 @@ export const api = {
   uiContext: () => request<RawUiContext>("/api/v1/ui/context"),
 
   uiTelemetry: () => request<RawUiTelemetry>("/api/v1/ui/telemetry"),
+
+  // Data-plane proxy prototype (R12): the allowlist, and invoking a data-mode
+  // tool. Both no-op safely when the NOESIS_GENUI_DATA_PROXY flag is off.
+  uiDataTools: () => request<RawDataTools>("/api/v1/ui/data/tools"),
+
+  uiData: (body: { server: string; tool: string; arguments?: Record<string, unknown> }) =>
+    requestPost<RawDataResponse>("/api/v1/ui/data", body),
 
   articles: (params?: { category?: string; source?: string }) =>
     request<RawArticle[]>("/api/v1/news/articles", params),

@@ -1100,6 +1100,99 @@ def latest_articles(topic: Optional[str] = None, limit: int = 10) -> dict:
 @mcp.tool(
     output_schema={
         "type": "object",
+        "properties": {
+            "count": {"type": "integer"},
+            "articles": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "id": {"type": ["string", "null"]},
+                        "title": {"type": ["string", "null"]},
+                        "url": {"type": ["string", "null"]},
+                        "publish_date": {"type": ["string", "null"]},
+                        "source": {"type": ["string", "null"]},
+                        "category": {"type": ["string", "null"]},
+                        "sentiment_score": {"type": ["number", "null"]},
+                        "sentiment_label": {"type": ["string", "null"]},
+                    },
+                },
+            },
+        },
+        "additionalProperties": True,
+    },
+    # Data-mode (R12 #619): a full-payload variant of the `articles` panel,
+    # equivalent to the /api/v1/news/articles REST route. The `data` meta block
+    # marks it callable through the /api/v1/ui/data proxy allowlist; it is not a
+    # planner-facing stats tool.
+    meta={"data": {
+        "panel": "articles",
+        "rest_route": "/api/v1/news/articles",
+    }},
+)
+def articles_data(
+    source: Optional[str] = None,
+    category: Optional[str] = None,
+    limit: int = 50,
+) -> dict:
+    """Full article rows for the `articles` panel (data mode): the same fields
+    the /api/v1/news/articles REST route returns, served through the MCP layer.
+
+    Args:
+        source: optional exact source filter.
+        category: optional exact category filter.
+        limit: max rows (default 50, max 200).
+    """
+    try:
+        con = _warehouse_ro()
+    except Exception as exc:
+        return {"error": str(exc)}
+    limit = min(max(1, limit), 200)
+    where, params = [], []
+    if source:
+        where.append("source = ?")
+        params.append(source)
+    if category:
+        where.append("category = ?")
+        params.append(category)
+    clause = ("WHERE " + " AND ".join(where)) if where else ""
+    params.append(limit)
+    try:
+        rows = con.execute(
+            f"""
+            SELECT id, title, url, publish_date, source, category,
+                   sentiment_score, sentiment_label
+            FROM news_articles {clause}
+            ORDER BY publish_date DESC NULLS LAST
+            LIMIT ?
+            """,
+            params,
+        ).fetchall()
+        return {
+            "count": len(rows),
+            "articles": [
+                {
+                    "id": r[0],
+                    "title": r[1],
+                    "url": r[2],
+                    "publish_date": r[3].isoformat() if r[3] else None,
+                    "source": r[4],
+                    "category": r[5],
+                    "sentiment_score": float(r[6]) if r[6] is not None else None,
+                    "sentiment_label": r[7],
+                }
+                for r in rows
+            ],
+        }
+    except Exception as exc:
+        return {"error": str(exc)}
+    finally:
+        con.close()
+
+
+@mcp.tool(
+    output_schema={
+        "type": "object",
         "properties": {"total_documents": {"type": "integer"}, "by_source_type": {"type": "array"}},
         "additionalProperties": True,
     },

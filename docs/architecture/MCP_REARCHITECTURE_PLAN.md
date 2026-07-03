@@ -697,6 +697,22 @@ as an ADR.
 *Exit:* the decision is written down with numbers; if go, one panel
 family serves via the proxy at production parity.
 
+*Delivered.* The `articles_data` data-mode tool (pipeline server, `meta.data`
+block) returns the full `articles` payload, byte-identical to
+`/api/v1/news/articles`. The `POST /api/v1/ui/data` proxy
+(`src/genui/dataplane.py` + `src/api/routes/genui_data_routes.py`, behind the
+`NOESIS_GENUI_DATA_PROXY` flag) invokes only allowlisted data-mode tools,
+rate-limited per client and size-capped both ways. The benchmark
+(`scripts/genui/dataplane_benchmark.py`) measured, on a 200-row payload:
+`rest_direct` 13.3 ms p50, `mcp_tool` 46.1 ms, `proxy_cold` 50.4 ms,
+`proxy_cached` 0.36 ms, all at the same 50,743-byte payload. Decision (recorded
+in `docs/architecture/ADR-002-data-plane-stage3.md`): **conditional go**,
+promote the `articles` family behind the flag cache-served (proxy_cached beats
+REST), do not move cold first-loads onto the proxy until the transport overhead
+(~3.8x today) closes; retirement criteria documented. The frontend renders the
+articles panel through the proxy when the flag reports enabled, falling back to
+demo otherwise.
+
 **R13 — Noesis as MCP server + naming sweep** *(Stage 4 + N4)*
 `noesis_generate_view` over Streamable HTTP for external hosts;
 `NOESIS_*` env aliases (`NEURONEWS_*` fallbacks), package/server/API
