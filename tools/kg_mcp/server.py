@@ -331,6 +331,10 @@ def _comention_graph():
             "assignments": {"type": "array"},
         }
     ),
+    # Data-mode (M1.3): the community-coloring payload for the entity_graph
+    # panel, servable through the /api/v1/ui/data proxy. Base nodes/edges stay
+    # available via the existing /api/v1/entity_graph REST route.
+    meta={"data": {"panel": "entity_graph", "rest_route": "/api/v1/entity_graph"}},
 )
 def kg_communities(kg: Optional[str] = None) -> dict:
     """Community detection (label propagation) over the KG co-mention graph,
