@@ -203,6 +203,20 @@ approval). It does not depend on Stage 3.
 *Effort: large (namespacing + routing are the real work). Risk: RW agent
 surface — mitigated by the guardrail table above.*
 
+*Delivered (phase 1, R8/R9): table-prefix namespacing, routing, and the
+`kg_*` tool surface with guardrails, on a two-domain acceptance. Phase 2 (P2,
+issues #640-#644) extends the same surface to orchestrate databases and
+pipelines: a KG can deploy into its own attached DuckDB database (`backend`:
+`table-prefix` or `attached`), bind a pipeline with `kg_attach_pipeline`
+(contract-validated at attach), and `kg_ingest` runs the bound connectors
+before routing (connector to contract to enrich to route), with quotas on
+databases and pipelines and a teardown that detaches the database and unbinds
+the connectors, never cascading to the shared corpus. Two domains stand up
+with their own database and pipeline via provisioning alone;
+`docs/provisioning-p2-acceptance.md` is the write-up. The one remaining
+integration point is wiring the ingest runner to the real `pipeline_mcp`
+connector execution.*
+
 ## Track DS — the analytics plane: data-science techniques as MCP tools
 
 The same discovery pattern that turns servers into panels turns

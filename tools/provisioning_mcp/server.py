@@ -84,6 +84,7 @@ def kg_deploy(
     description: str = "",
     ontology: Optional[dict] = None,
     approve: bool = False,
+    backend: str = "table-prefix",
 ) -> dict:
     """Deploy a namespaced knowledge graph (approval-gated).
 
@@ -92,10 +93,12 @@ def kg_deploy(
     converges (idempotent upsert) rather than duplicating.
 
     Args:
-        name: KG identifier, lowercase ``[a-z][a-z0-9_]*`` (becomes the table prefix).
+        name: KG identifier, lowercase ``[a-z][a-z0-9_]*``.
         description: human-readable summary.
         ontology: optional ontology hint (stored as JSON).
         approve: must be true to actually deploy.
+        backend: ``table-prefix`` (default; tables in the shared warehouse) or
+            ``attached`` (the KG gets its own DuckDB database file).
     """
     from src.provisioning import Provisioner
 
@@ -106,7 +109,7 @@ def kg_deploy(
             return {"error": str(exc)}
         try:
             return Provisioner(con, ensure=False).deploy(
-                name, description, ontology, approve=False
+                name, description, ontology, approve=False, backend=backend
             )
         finally:
             con.close()
@@ -116,7 +119,56 @@ def kg_deploy(
         return {"error": str(exc)}
     try:
         prov = Provisioner(con, lock=_WRITE_LOCK)
-        return prov.deploy(name, description, ontology, approve=True)
+        return prov.deploy(name, description, ontology, approve=True, backend=backend)
+    except Exception as exc:
+        return {"error": str(exc)}
+    finally:
+        con.close()
+
+
+@mcp.tool
+def kg_attach_pipeline(
+    kg: str,
+    connector: str,
+    connector_type: str,
+    config: Optional[dict] = None,
+    contract: Optional[str] = None,
+    approve: bool = False,
+) -> dict:
+    """Bind a pipeline (a connector or feed) to a deployed KG, contract-validated
+    at attach. Approval-gated (the connector will run on ingest); idempotent by
+    ``(kg, connector)``.
+
+    Args:
+        kg: the deployed KG name.
+        connector: a name for this binding (e.g. "energy-rss").
+        connector_type: the connector kind (e.g. "rss", "document").
+        config: connector config (e.g. {"url": "http://.../feed.xml"}).
+        contract: optional ingest contract id override.
+        approve: must be true to bind (a preview is returned otherwise).
+    """
+    from src.provisioning import Provisioner
+
+    if not approve:
+        try:
+            con = _warehouse_ro()
+        except Exception as exc:
+            return {"error": str(exc)}
+        try:
+            return Provisioner(con, ensure=False).attach_pipeline(
+                kg, connector, connector_type, config=config, contract=contract, approve=False
+            )
+        finally:
+            con.close()
+    try:
+        con = _warehouse_rw()
+    except Exception as exc:
+        return {"error": str(exc)}
+    try:
+        prov = Provisioner(con, lock=_WRITE_LOCK)
+        return prov.attach_pipeline(
+            kg, connector, connector_type, config=config, contract=contract, approve=True
+        )
     except Exception as exc:
         return {"error": str(exc)}
     finally:

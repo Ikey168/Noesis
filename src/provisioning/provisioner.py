@@ -55,11 +55,20 @@ class Provisioner:
         quotas: Optional[Quotas] = None,
         clock: Callable[[], datetime] = _utcnow,
         ensure: bool = True,
+        pipeline_runner: Optional[Callable[[Dict[str, Any]], Dict[str, Any]]] = None,
+        contract_validator: Optional[Callable[[str, Dict[str, Any]], Dict[str, Any]]] = None,
     ):
         self._conn = conn
         self._lock = lock if lock is not None else _NullLock()
         self._quotas = quotas if quotas is not None else Quotas.from_env()
         self._clock = clock
+        # P2: how a bound pipeline actually runs (injected so the server wires
+        # it to the MCP pipeline server and tests inject a fake); and how a
+        # pipeline config is contract-validated at attach. Both optional: with
+        # no runner, ingest degrades to routing already-ingested documents, and
+        # with no validator a local sanity check is used.
+        self._pipeline_runner = pipeline_runner
+        self._contract_validator = contract_validator
         # Read-only callers pass ensure=False: the schema is created lazily on
         # the first write path, so a read tool never needs DDL rights.
         if ensure:
@@ -74,46 +83,77 @@ class Provisioner:
         description: str = "",
         ontology: Any = None,
         approve: bool = False,
+        backend: str = namespaces.BACKEND_TABLE_PREFIX,
     ) -> Dict[str, Any]:
         """Deploy (or converge onto) a namespaced KG. Approval-gated: without
-        ``approve`` it returns a free dry-run preview and writes nothing."""
+        ``approve`` it returns a free dry-run preview and writes nothing.
+
+        ``backend`` selects the isolation: ``table-prefix`` (default; tables in
+        the shared warehouse) or ``attached`` (the KG gets its own DuckDB file)."""
         try:
             namespaces.require_valid_name(name)
         except ValueError as exc:
             return {"error": str(exc), "code": "invalid_name"}
+        if backend not in (namespaces.BACKEND_TABLE_PREFIX, namespaces.BACKEND_ATTACHED):
+            return {"error": f"unknown backend {backend!r}", "code": "bad_backend"}
 
         existing = store.get_kg(self._conn, name)
         is_new = existing is None or existing.get("status") != store.STATUS_DEPLOYED
+        # A converging re-deploy keeps the original backend.
+        if existing is not None and existing.get("backend"):
+            backend = existing["backend"]
+        is_attached = backend == namespaces.BACKEND_ATTACHED
+        db_path = (
+            (existing or {}).get("db_path")
+            or (namespaces.attached_db_path(name) if is_attached else None)
+        )
 
         if not approve:
             try:
                 self._quotas.check_deploy_quota(store.count_deployed(self._conn), is_new)
+                if is_attached:
+                    self._quotas.check_database_quota(self._count_databases(), is_new)
             except GuardrailError as exc:
                 return {"error": exc.message, "code": exc.code}
             return {
                 "preview": True,
                 "kg": name,
                 "would": "deploy" if is_new else "update",
-                "namespace_tables": namespaces.namespace_tables(name),
+                "backend": backend,
+                "db_path": db_path,
+                "namespace_tables": namespaces.namespace_tables(name, backend),
                 "note": "approval-gated; re-run with approve=true to execute",
             }
 
         try:
             with self._lock:
                 self._quotas.check_deploy_quota(store.count_deployed(self._conn), is_new)
+                if is_attached:
+                    self._quotas.check_database_quota(self._count_databases(), is_new)
                 now = self._clock()
-                namespaces.create_namespace(self._conn, name)
-                kg = store.upsert_kg(self._conn, name, description, ontology, now)
+                namespaces.create_namespace(self._conn, name, backend, db_path)
+                kg = store.upsert_kg(
+                    self._conn, name, description, ontology, now,
+                    backend=backend, db_path=db_path,
+                )
                 store.record_event(
                     self._conn,
                     name,
                     "deploy",
-                    {"new": is_new, "namespace": namespaces.namespace_prefix(name)},
+                    {"new": is_new, "backend": backend, "db_path": db_path},
                     now,
                 )
         except GuardrailError as exc:
             return {"error": exc.message, "code": exc.code}
-        return {"deployed": True, "created": is_new, "kg": kg}
+        return {"deployed": True, "created": is_new, "backend": backend, "kg": kg}
+
+    def _count_databases(self) -> int:
+        """How many deployed KGs use the attached-database backend."""
+        return sum(
+            1
+            for kg in store.list_kgs(self._conn, include_archived=False)
+            if kg.get("backend") == namespaces.BACKEND_ATTACHED
+        )
 
     # ----------------------------------------------------------------- attach
 
@@ -238,17 +278,126 @@ class Provisioner:
             )
         return out
 
+    # --------------------------------------------------------------- pipelines
+
+    def attach_pipeline(
+        self,
+        name: str,
+        connector: str,
+        connector_type: str,
+        config: Optional[Dict[str, Any]] = None,
+        contract: Optional[str] = None,
+        approve: bool = False,
+    ) -> Dict[str, Any]:
+        """Bind a pipeline (a connector or feed) to a KG, contract-validated at
+        attach. Approval-gated (it binds a connector that will run on ingest);
+        idempotent by ``(kg, connector)``."""
+        kg = store.get_kg(self._conn, name)
+        if kg is None or kg.get("status") != store.STATUS_DEPLOYED:
+            return {"error": f"KG {name!r} is not deployed", "code": "not_deployed"}
+        if not connector or not connector_type:
+            return {"error": "connector and connector_type are required", "code": "no_input"}
+        config = config or {}
+
+        # Contract-validate the config before it can ever run.
+        validation = self._validate_pipeline(connector_type, config, contract)
+        if not validation.get("valid", False):
+            return {
+                "error": f"pipeline failed contract validation: {validation.get('reason')}",
+                "code": "contract_invalid",
+                "validation": validation,
+            }
+
+        already = any(
+            p["connector"] == connector for p in store.list_pipelines(self._conn, name)
+        )
+        if not approve:
+            return {
+                "preview": True,
+                "kg": name,
+                "would": "update" if already else "attach",
+                "connector": connector,
+                "connector_type": connector_type,
+                "validation": validation,
+                "note": "approval-gated; re-run with approve=true to bind",
+            }
+
+        try:
+            with self._lock:
+                current = store.count_pipelines(self._conn, name)
+                self._quotas.check_pipelines_quota(current, 0 if already else 1)
+                now = self._clock()
+                newly = store.upsert_pipeline(
+                    self._conn, name, connector, connector_type, config,
+                    validation.get("contract"), now,
+                )
+                store.record_event(
+                    self._conn,
+                    name,
+                    "attach_pipeline",
+                    {"connector": connector, "connector_type": connector_type,
+                     "newly_bound": newly, "contract": validation.get("contract")},
+                    now,
+                )
+        except GuardrailError as exc:
+            return {"error": exc.message, "code": exc.code}
+        return {
+            "attached": newly,
+            "kg": name,
+            "connector": connector,
+            "pipelines": store.list_pipelines(self._conn, name),
+        }
+
+    def _validate_pipeline(
+        self, connector_type: str, config: Dict[str, Any], contract: Optional[str]
+    ) -> Dict[str, Any]:
+        """Validate a pipeline config against its ingest contract. Uses the
+        injected validator (the contracts server) when present, else a local
+        sanity check that the connector type and required config are present."""
+        if self._contract_validator is not None:
+            try:
+                result = self._contract_validator(connector_type, config)
+                if isinstance(result, dict):
+                    result.setdefault("valid", True)
+                    result.setdefault("contract", contract or result.get("contract"))
+                    return result
+            except Exception as exc:
+                return {"valid": False, "reason": f"validator error: {exc}"}
+        # Local fallback: a connector must name its type and, for a feed, a url.
+        if not isinstance(config, dict):
+            return {"valid": False, "reason": "config must be an object"}
+        if connector_type in ("rss", "feed", "blog") and not config.get("url"):
+            return {"valid": False, "reason": "a feed connector requires a 'url'"}
+        default_contract = (
+            "document-ingest-v1"
+            if connector_type in ("document", "paper", "book", "transcript")
+            else "article-ingest-v1"
+        )
+        return {"valid": True, "contract": contract or default_contract,
+                "checked_by": "local"}
+
     # ----------------------------------------------------------------- ingest
 
     def ingest(self, name: str, backfill_days: Optional[int] = None) -> Dict[str, Any]:
-        """Route the bound sources' documents (and claims / derived entities)
-        into the KG namespace. Rate-capped, idempotent (re-ingest converges)."""
+        """Run the KG's bound pipelines, then route the bound sources' documents
+        into the KG namespace. Rate-capped, idempotent (re-ingest converges).
+
+        With bound pipelines and a runner (the MCP pipeline server), each
+        connector runs first (connector to contract to enrich), then routing
+        copies the matching documents into the namespace. With no pipeline or
+        runner, it degrades to routing already-ingested documents (R8 behaviour).
+        """
         kg = store.get_kg(self._conn, name)
         if kg is None or kg.get("status") != store.STATUS_DEPLOYED:
             return {"error": f"KG {name!r} is not deployed", "code": "not_deployed"}
         bound = [r["source"] for r in store.list_sources(self._conn, name)]
-        if not bound:
-            return {"error": "no sources bound; attach first", "code": "no_sources"}
+        pipelines = store.list_pipelines(self._conn, name)
+        if not bound and not pipelines:
+            return {"error": "no sources or pipelines bound; attach first",
+                    "code": "no_sources"}
+
+        backend = kg.get("backend") or namespaces.BACKEND_TABLE_PREFIX
+        db_path = kg.get("db_path")
 
         try:
             with self._lock:
@@ -256,21 +405,51 @@ class Provisioner:
                 self._quotas.check_ingest_rate(
                     self._seconds_since_last_ingest(kg, now)
                 )
+                # Stage 1: run the bound pipelines (connector -> contract ->
+                # enrich), collecting per-pipeline progress.
+                pipeline_runs = self._run_pipelines(pipelines)
+                # Stage 2: route the matching documents into the namespace.
                 routed = namespaces.route_documents(
-                    self._conn, name, bound, now, backfill_days
+                    self._conn, name, bound, now, backfill_days, backend, db_path
                 )
                 store.mark_ingested(self._conn, name, now)
                 store.record_event(
                     self._conn,
                     name,
                     "ingest",
-                    {"routed": routed, "sources": bound, "backfill_days": backfill_days},
+                    {"routed": routed, "sources": bound,
+                     "pipeline_runs": pipeline_runs, "backfill_days": backfill_days},
                     now,
                 )
         except GuardrailError as exc:
             return {"error": exc.message, "code": exc.code}
-        return {"ingested": True, "kg": name, "routed": routed,
-                "totals": namespaces.namespace_counts(self._conn, name)}
+        return {
+            "ingested": True,
+            "kg": name,
+            "backend": backend,
+            "routed": routed,
+            "pipeline_runs": pipeline_runs,
+            "totals": namespaces.namespace_counts(self._conn, name, backend, db_path),
+        }
+
+    def _run_pipelines(self, pipelines: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """Run each bound pipeline through the injected runner, returning
+        per-pipeline progress. No runner (or none bound) yields an empty list,
+        so ingest degrades to pure routing."""
+        if not pipelines or self._pipeline_runner is None:
+            return []
+        runs = []
+        for p in pipelines:
+            try:
+                result = self._pipeline_runner(
+                    {"connector": p["connector"], "connector_type": p["connector_type"],
+                     "config": p.get("config", {})}
+                )
+                runs.append({"connector": p["connector"], "ok": True,
+                             "result": result if isinstance(result, dict) else {}})
+            except Exception as exc:
+                runs.append({"connector": p["connector"], "ok": False, "error": str(exc)})
+        return runs
 
     @staticmethod
     def _seconds_since_last_ingest(kg: Dict[str, Any], now: datetime) -> Optional[float]:
@@ -294,12 +473,17 @@ class Provisioner:
         if kg is None:
             return {"error": f"KG {name!r} not found", "code": "not_found"}
         sources = store.list_sources(self._conn, name)
-        counts = namespaces.namespace_counts(self._conn, name)
+        pipelines = store.list_pipelines(self._conn, name)
+        backend = kg.get("backend") or namespaces.BACKEND_TABLE_PREFIX
+        counts = namespaces.namespace_counts(self._conn, name, backend, kg.get("db_path"))
         health = self._source_health([s["source"] for s in sources])
         return {
             "kg": kg,
+            "backend": backend,
             "sources": sources,
             "source_count": len(sources),
+            "pipelines": pipelines,
+            "pipeline_count": len(pipelines),
             "counts": counts,
             "source_health": health,
             "lineage": store.list_events(self._conn, name, limit=20),
@@ -331,11 +515,15 @@ class Provisioner:
         kgs = store.list_kgs(self._conn, include_archived=include_archived)
         out = []
         for kg in kgs:
+            backend = kg.get("backend") or namespaces.BACKEND_TABLE_PREFIX
             out.append(
                 {
                     **kg,
                     "source_count": store.count_sources(self._conn, kg["name"]),
-                    "counts": namespaces.namespace_counts(self._conn, kg["name"]),
+                    "pipeline_count": store.count_pipelines(self._conn, kg["name"]),
+                    "counts": namespaces.namespace_counts(
+                        self._conn, kg["name"], backend, kg.get("db_path")
+                    ),
                 }
             )
         return {"kgs": out, "count": len(out)}
@@ -350,13 +538,19 @@ class Provisioner:
             kgs = [k for k in kgs if k["name"] == name]
         out = []
         for kg in kgs:
-            sample = namespaces.namespace_sample(self._conn, kg["name"])
+            backend = kg.get("backend") or namespaces.BACKEND_TABLE_PREFIX
+            sample = namespaces.namespace_sample(
+                self._conn, kg["name"], backend=backend, db_path=kg.get("db_path")
+            )
             out.append(
                 {
                     **kg,
                     "source_count": store.count_sources(self._conn, kg["name"]),
-                    "counts": namespaces.namespace_counts(self._conn, kg["name"]),
+                    "counts": namespaces.namespace_counts(
+                        self._conn, kg["name"], backend, kg.get("db_path")
+                    ),
                     "sources": store.list_sources(self._conn, kg["name"]),
+                    "pipelines": store.list_pipelines(self._conn, kg["name"]),
                     "sample": sample,
                 }
             )
@@ -369,14 +563,17 @@ class Provisioner:
     # --------------------------------------------------------------- teardown
 
     def teardown(self, name: str, confirm: bool = False) -> Dict[str, Any]:
-        """Archive a KG: rename its namespace tables aside (never delete),
-        detach its sources, mark it archived. Confirm-gated; never touches the
-        shared corpus."""
+        """Archive a KG: for ``table-prefix`` rename its tables aside, for
+        ``attached`` detach its database (the file is left on disk); detach its
+        sources and pipelines; mark it archived. Confirm-gated; never touches
+        the shared corpus."""
         kg = store.get_kg(self._conn, name)
         if kg is None:
             return {"error": f"KG {name!r} not found", "code": "not_found"}
         if kg.get("status") == store.STATUS_ARCHIVED:
             return {"error": f"KG {name!r} already archived", "code": "already_archived"}
+        backend = kg.get("backend") or namespaces.BACKEND_TABLE_PREFIX
+        db_path = kg.get("db_path")
         try:
             require_confirm(confirm, "teardown")
         except GuardrailError as exc:
@@ -384,29 +581,35 @@ class Provisioner:
                 "error": exc.message,
                 "code": exc.code,
                 "preview": True,
-                "would_archive": namespaces.namespace_tables(name),
+                "backend": backend,
+                "would_archive": namespaces.namespace_tables(name, backend),
             }
         with self._lock:
             now = self._clock()
-            counts = namespaces.namespace_counts(self._conn, name)
-            archived_tables = namespaces.archive_namespace(self._conn, name)
+            counts = namespaces.namespace_counts(self._conn, name, backend, db_path)
+            archived = namespaces.archive_namespace(self._conn, name, backend, db_path)
             detached = store.detach_all_sources(self._conn, name)
+            pipelines_detached = store.detach_all_pipelines(self._conn, name)
             store.set_status(self._conn, name, store.STATUS_ARCHIVED, now)
             store.record_event(
                 self._conn,
                 name,
                 "teardown",
                 {
+                    "backend": backend,
                     "archived_counts": counts,
-                    "archived_tables": archived_tables,
+                    "archived": archived,
                     "sources_detached": detached,
+                    "pipelines_detached": pipelines_detached,
                 },
                 now,
             )
         return {
             "archived": True,
             "kg": name,
-            "archived_tables": archived_tables,
+            "backend": backend,
+            "archived_location": archived,
             "archived_counts": counts,
             "sources_detached": detached,
+            "pipelines_detached": pipelines_detached,
         }
