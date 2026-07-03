@@ -9,6 +9,9 @@ export interface CanvasDef {
   id: string;
   label: string;
   intent: string;
+  // Set when this canvas is a server-persisted one (M8): it renders from the
+  // saved spec (fetched by id) rather than from a freshly generated intent.
+  savedId?: string;
 }
 
 // The home canvas is intentionally empty: startup shows a bare surface
@@ -65,6 +68,7 @@ export interface CanvasManager {
   active: CanvasDef;
   setActive: (id: string) => void;
   open: (intent: string, label?: string) => void;
+  openSaved: (savedId: string, label: string) => void;
   remove: (id: string) => void;
 }
 
@@ -102,6 +106,17 @@ export function useCanvases(): CanvasManager {
     [update],
   );
 
+  const openSaved = useCallback(
+    (savedId: string, label: string) =>
+      update((s) => {
+        const existing = s.canvases.find((c) => c.savedId === savedId);
+        if (existing) return { ...s, activeId: existing.id };
+        const canvas: CanvasDef = { id: `s-${savedId}`, label, intent: "", savedId };
+        return { canvases: [...s.canvases, canvas], activeId: canvas.id };
+      }),
+    [update],
+  );
+
   const remove = useCallback(
     (id: string) =>
       update((s) => {
@@ -113,5 +128,5 @@ export function useCanvases(): CanvasManager {
   );
 
   const active = state.canvases.find((c) => c.id === state.activeId) ?? HOME;
-  return { canvases: state.canvases, active, setActive, open, remove };
+  return { canvases: state.canvases, active, setActive, open, openSaved, remove };
 }
