@@ -30,7 +30,10 @@ export type PanelType =
   | "lead_lag"
   | "narrative_thread"
   | "drift_trajectory"
-  | "forecast";
+  | "forecast"
+  | "venues"
+  | "citation_graph"
+  | "literature_claims";
 
 export type Facet =
   | "overview"
@@ -86,6 +89,9 @@ export const PANEL_CATALOG: PanelDef[] = [
   { type: "narrative_thread", title: "Narrative threads", facets: ["events", "overview"], defaultSpan: 6, topicParam: true, daysParam: true, maxDays: 90 },
   { type: "drift_trajectory", title: "Meaning drift", facets: ["trend"], defaultSpan: 6, topicParam: true },
   { type: "forecast", title: "Coverage forecast", facets: ["trend"], defaultSpan: 6, topicParam: true },
+  { type: "venues", title: "Venue credibility", facets: ["sources", "library"], defaultSpan: 6 },
+  { type: "citation_graph", title: "Citation graph", facets: ["entities", "library"], defaultSpan: 6, topicParam: true },
+  { type: "literature_claims", title: "Literature claims", facets: ["claims", "library"], defaultSpan: 6, topicParam: true },
 ];
 
 export const PANEL_DEFS: Partial<Record<PanelType, PanelDef>> = Object.fromEntries(

@@ -78,6 +78,9 @@ FACET_KEYWORDS: Dict[str, Tuple[str, ...]] = {
     "library": (
         "library", "document", "documents", "docs", "archive", "reading",
         "publications", "ingested", "corpus",
+        "paper", "papers", "research", "scholarly", "academic", "literature",
+        "citation", "citations", "cite", "cited", "venue", "venues", "journal",
+        "journals", "peer-reviewed", "preprint", "study", "studies",
     ),
 }
 

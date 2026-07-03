@@ -92,6 +92,18 @@ tool servers stay import-safe. The panels render the uncertainty fields
 today from demo data; live panel data arrives with the MCP data proxy
 (R12).
 
+### Research pack (`src/domains/research/`, R7)
+
+The second first-class domain, proving pack-plurality. Paper-metadata
+enrichers (venue, citations, concept) plus `ui_flags` gating a research
+panel family: `venues` (credibility generalizing the outlet transparency
+score to publication venues), `citation_graph` (paper citation network),
+`literature_claims` (claims scoped to papers). Served by
+`tools/research_mcp/` and surfaced through R2 discovery; research-flavored
+telemetry (recent papers, emerging concepts) takes over the empty canvas
+when the pack dominates. Enable with `NEURONEWS_ENABLED_PACKS=research`;
+with news off the canvas is fully functional on research panels.
+
 ### MCP host runtime (`src/mcp_host/`, R1)
 
 The API process supervises the repo's 12 `tools/*_mcp` stdio servers:

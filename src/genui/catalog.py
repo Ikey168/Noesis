@@ -320,6 +320,39 @@ PANEL_CATALOG: Tuple[PanelDef, ...] = (
         default_span=6,
         topic_param="topic",
     ),
+    # Research-pack panels (R7 / Track N1), gated by the research ui_flags.
+    PanelDef(
+        type="venues",
+        title="Venue credibility",
+        description="Publication venues scored by concept diversity, attribution and citation impact, generalizing the outlet transparency ranking.",
+        endpoint=None,
+        facets=("sources", "library"),
+        tables=("documents",),
+        ui_flag="venues",
+        default_span=6,
+    ),
+    PanelDef(
+        type="citation_graph",
+        title="Citation graph",
+        description="The paper citation network: papers linked by their references, sized by citation count.",
+        endpoint=None,
+        facets=("entities", "library"),
+        tables=("documents",),
+        ui_flag="citation_graph",
+        default_span=6,
+        topic_param="topic",
+    ),
+    PanelDef(
+        type="literature_claims",
+        title="Literature claims",
+        description="Claims mined from papers with fact-check verdicts and attribution, from the shared claim layer.",
+        endpoint=None,
+        facets=("claims", "library"),
+        tables=("argument_claims",),
+        ui_flag="literature_claims",
+        default_span=6,
+        topic_param="topic",
+    ),
 )
 
 PANEL_TYPES: Tuple[str, ...] = tuple(p.type for p in PANEL_CATALOG)
