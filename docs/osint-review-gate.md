@@ -4,9 +4,16 @@ Track OSINT is defensive and analytical: it reads already-ingested public
 documents and never crawls, targets, or de-anonymizes. Two tools named in the
 plan are the most abusable and the most false-positive-prone, so they stay
 behind an explicit review gate. They are **absent from the served tool
-surface** until this gate passes, and a test
+surface** by default, and a test
 (`tests/unit/osint/test_investigations.py::test_gated_tools_are_absent`)
-asserts they are not exposed.
+asserts they are not exposed unless the gate is deliberately opened.
+
+**Status (issue #639 item 3): implemented, gated off.** Both tools now exist,
+purpose-limited in code, in `src/osint/gated.py`, and are registered on the
+OSINT server only when `NOESIS_OSINT_GATED_TOOLS` is turned on. The flag off
+(the default) keeps them absent; turning it on is the human sign-off after
+reviewing the abuse analysis in `docs/osint-abuse-analysis.md`. The flag *is*
+the enforcement of criterion 5.
 
 ## Gated tools
 
@@ -16,7 +23,8 @@ asserts they are not exposed.
 | `narrative_coordination` | Coordinated-behavior detection is highly false-positive-prone and can smear coincidental cohorts. | Findings flag a cohort for human review, never accuse; every edge cited; a calibrated null model, not a threshold on raw co-occurrence. |
 
 `src/osint/investigations.py` names them in `GATED_TOOLS`; `is_gated(tool)`
-returns True for both. Neither is registered on `tools/osint_mcp/server.py`.
+returns True for both. They are registered on `tools/osint_mcp/server.py` only
+behind the `NOESIS_OSINT_GATED_TOOLS` flag (off by default).
 
 ## Gate criteria (must all pass before either tool is served)
 

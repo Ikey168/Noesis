@@ -23,6 +23,7 @@ Stdlib-only; the caller injects a read-only DuckDB connection.
 from src.osint.contradictions import contradiction_scan
 from src.osint.corroboration import corroborate
 from src.osint.dossier import entity_dossier
+from src.osint.gated import geolocate_claims, narrative_coordination
 from src.osint.investigations import (
     GATED_TOOLS,
     investigation_audit,
@@ -50,4 +51,7 @@ __all__ = [
     "osint_telemetry",
     "GATED_TOOLS",
     "is_gated",
+    # Review-gated (off by default; see docs/osint-review-gate.md)
+    "geolocate_claims",
+    "narrative_coordination",
 ]
