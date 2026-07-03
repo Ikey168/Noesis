@@ -25,6 +25,8 @@ import json
 import secrets
 from typing import Any, Dict, List, Optional
 
+from src.genui import canvas_access
+
 # Size ceiling for a persisted canvas payload (spec + bindings, serialized), so a
 # runaway spec cannot bloat the warehouse. Enforced by :func:`save_canvas`.
 MAX_CANVAS_BYTES = 256 * 1024
@@ -156,7 +158,9 @@ def get_canvas(
     if not row:
         return None
     canvas = _row_to_canvas(row)
-    if owner is not None and canvas["owner"] != owner:
+    # Owner-scoped read: the access model is the single authority. Only the owner
+    # role can read, so a non-owner requester reads back as None (isolation).
+    if owner is not None and not canvas_access.authorize(canvas, owner, canvas_access.READ):
         return None
     return canvas
 
