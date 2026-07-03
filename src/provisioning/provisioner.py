@@ -64,7 +64,9 @@ class Provisioner:
         # tenant can never see or touch another tenant's namespaces.
         self._tenant = tenant or store.DEFAULT_TENANT
         self._lock = lock if lock is not None else _NullLock()
-        self._quotas = quotas if quotas is not None else Quotas.from_env()
+        # M4.2: quotas resolve per tenant (env overrides per tenant, counted
+        # per tenant) unless an explicit Quotas is injected.
+        self._quotas = quotas if quotas is not None else Quotas.for_tenant(self._tenant)
         self._clock = clock
         # P2: how a bound pipeline actually runs (injected so the server wires
         # it to the MCP pipeline server and tests inject a fake); and how a

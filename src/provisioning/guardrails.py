@@ -65,6 +65,28 @@ class Quotas:
             max_pipelines_per_kg=_env_int("NOESIS_PROV_MAX_PIPELINES", 8),
         )
 
+    @classmethod
+    def for_tenant(cls, tenant: str) -> "Quotas":
+        """Per-tenant quotas (M4.2): each limit can be overridden for one tenant
+        via ``NOESIS_PROV_MAX_KGS_<TENANT>`` (etc.), else the global default. The
+        quotas are counted per tenant (``store.count_deployed`` is tenant-scoped),
+        so one tenant hitting its budget never blocks another."""
+        base = cls.from_env()
+        if not tenant or tenant == "default":
+            return base
+        suffix = "_" + "".join(c if c.isalnum() else "_" for c in tenant).upper()
+        return cls(
+            max_kgs=_env_int("NOESIS_PROV_MAX_KGS" + suffix, base.max_kgs),
+            max_sources_per_kg=_env_int("NOESIS_PROV_MAX_SOURCES" + suffix, base.max_sources_per_kg),
+            ingest_min_interval_s=_env_int(
+                "NOESIS_PROV_INGEST_MIN_INTERVAL_S" + suffix, base.ingest_min_interval_s
+            ),
+            max_databases=_env_int("NOESIS_PROV_MAX_DATABASES" + suffix, base.max_databases),
+            max_pipelines_per_kg=_env_int(
+                "NOESIS_PROV_MAX_PIPELINES" + suffix, base.max_pipelines_per_kg
+            ),
+        )
+
     def check_database_quota(self, deployed_db_count: int, is_new_db: bool) -> None:
         """Refuse a *new* attached-database deploy past the max-databases quota."""
         if is_new_db and deployed_db_count >= self.max_databases:
