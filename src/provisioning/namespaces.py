@@ -62,7 +62,18 @@ def require_valid_name(name: str) -> str:
 # database entirely.
 BACKEND_TABLE_PREFIX = "table-prefix"
 BACKEND_ATTACHED = "attached"
+# M4.3: an external Postgres database attached under the KG's alias via DuckDB's
+# postgres extension, so the namespace lives in Postgres rather than a DuckDB
+# file. Reuses the attached-backend machinery (alias-qualified tables); the only
+# difference is the ATTACH target (a DSN) and TYPE.
+BACKEND_POSTGRES = "postgres"
 _ROLES = ("documents", "entities", "claims")
+
+
+def _attached_like(backend: str) -> bool:
+    """Backends whose namespace lives in a database attached under the KG alias
+    (its own DuckDB file, or an external Postgres), so tables are alias.role."""
+    return backend in (BACKEND_ATTACHED, BACKEND_POSTGRES)
 
 
 def namespace_prefix(name: str) -> str:
@@ -114,16 +125,64 @@ def ensure_attached(conn, name: str, db_path: Optional[str] = None) -> str:
 
 
 def detach(conn, name: str) -> None:
-    """Detach a KG's database if attached (the file is left on disk)."""
+    """Detach a KG's database if attached (the file / Postgres schema is left in
+    place)."""
     alias = attached_alias(name)
     if _is_attached(conn, alias):
         conn.execute(f"DETACH {alias}")
 
 
+def postgres_dsn(name: str, dsn: Optional[str] = None, tenant: Optional[str] = None) -> str:
+    """Resolve the Postgres DSN for a KG's attached database (M4.3). Explicit
+    ``dsn`` wins; otherwise a per-tenant ``NOESIS_PROV_PG_DSN_<TENANT>`` env var,
+    then the shared ``NOESIS_PROV_PG_DSN``. Raises when none is configured, so a
+    Postgres deploy fails clearly rather than silently falling back."""
+    require_valid_name(name)
+    if dsn:
+        return dsn
+    import os
+
+    if tenant and tenant != "default":
+        suffix = "_" + "".join(c if c.isalnum() else "_" for c in tenant).upper()
+        per_tenant = os.getenv("NOESIS_PROV_PG_DSN" + suffix)
+        if per_tenant:
+            return per_tenant
+    shared = os.getenv("NOESIS_PROV_PG_DSN")
+    if shared:
+        return shared
+    raise ValueError(
+        "no Postgres DSN configured; set NOESIS_PROV_PG_DSN (or a per-tenant "
+        "NOESIS_PROV_PG_DSN_<TENANT>) to use the postgres backend"
+    )
+
+
+def postgres_attach_sql(name: str, dsn: str) -> str:
+    """The ATTACH statement for a KG's Postgres database. The alias is derived
+    from a validated name; the DSN is quoted."""
+    alias = attached_alias(name)
+    return f"ATTACH '{dsn}' AS {alias} (TYPE POSTGRES)"
+
+
+def ensure_attached_postgres(conn, name: str, dsn: str) -> str:
+    """Attach a KG's external Postgres database under its alias if not already
+    attached in this connection (M4.3). Requires DuckDB's postgres extension."""
+    alias = attached_alias(name)
+    if _is_attached(conn, alias):
+        return alias
+    try:
+        conn.execute("INSTALL postgres")
+        conn.execute("LOAD postgres")
+    except Exception:
+        pass  # extension may be bundled or preloaded; ATTACH will error if not
+    conn.execute(postgres_attach_sql(name, dsn))
+    return alias
+
+
 def namespace_tables(name: str, backend: str = BACKEND_TABLE_PREFIX) -> Dict[str, str]:
-    """The three namespaced table references for a KG, keyed by role. For the
-    ``attached`` backend these are qualified by the KG's database alias."""
-    if backend == BACKEND_ATTACHED:
+    """The three namespaced table references for a KG, keyed by role. For an
+    attached backend (own DuckDB file or external Postgres) these are qualified
+    by the KG's database alias."""
+    if _attached_like(backend):
         alias = attached_alias(name)
         return {role: f"{alias}.{role}" for role in _ROLES}
     prefix = namespace_prefix(name)
@@ -131,10 +190,12 @@ def namespace_tables(name: str, backend: str = BACKEND_TABLE_PREFIX) -> Dict[str
 
 
 def _prepare(conn, name: str, backend: str, db_path: Optional[str]) -> Dict[str, str]:
-    """Ensure the backend is ready (attach the DB for ``attached``) and return
-    the table refs."""
+    """Ensure the backend is ready (attach the DB for an attached backend) and
+    return the table refs. For ``postgres`` ``db_path`` carries the DSN."""
     if backend == BACKEND_ATTACHED:
         ensure_attached(conn, name, db_path)
+    elif backend == BACKEND_POSTGRES:
+        ensure_attached_postgres(conn, name, postgres_dsn(name, db_path))
     return namespace_tables(name, backend)
 
 
@@ -194,12 +255,16 @@ def archive_namespace(
     """Archive a KG's namespace without deleting it (the teardown guarantee).
 
     For ``table-prefix`` the tables are renamed aside under ``zz_archived__``;
-    for ``attached`` the database is detached and its file left on disk."""
+    for an attached backend the database is detached and its file / Postgres
+    schema left in place (never dropped)."""
     require_valid_name(name)
-    if backend == BACKEND_ATTACHED:
-        path = db_path or attached_db_path(name)
+    if _attached_like(backend):
+        if backend == BACKEND_POSTGRES:
+            target = db_path or "postgres"
+        else:
+            target = db_path or attached_db_path(name)
         detach(conn, name)
-        return {"detached_db": path}
+        return {"detached_db": target}
     archived: Dict[str, str] = {}
     for role, table in namespace_tables(name).items():
         target = f"zz_archived__{table}"
@@ -346,9 +411,7 @@ def namespace_sample(
     documents, the top derived entities, and a sample of scoped claims. This
     is what a per-namespace ``documents`` / ``entity_graph`` / ``claims`` view
     reads (the R9 scoped family)."""
-    if backend == BACKEND_ATTACHED:
-        ensure_attached(conn, name, db_path)
-    tables = namespace_tables(name, backend)
+    tables = _prepare(conn, name, backend, db_path)
     out: Dict[str, Any] = {"documents": [], "entities": [], "claims": []}
     if _table_exists(conn, tables["documents"]):
         rows = conn.execute(
@@ -391,9 +454,7 @@ def namespace_counts(
     conn, name: str, backend: str = BACKEND_TABLE_PREFIX, db_path: Optional[str] = None
 ) -> Dict[str, int]:
     """Live row counts for a KG's three namespace tables (0 when absent)."""
-    if backend == BACKEND_ATTACHED:
-        ensure_attached(conn, name, db_path)
-    tables = namespace_tables(name, backend)
+    tables = _prepare(conn, name, backend, db_path)
     out: Dict[str, int] = {}
     for role, table in tables.items():
         if _table_exists(conn, table):
