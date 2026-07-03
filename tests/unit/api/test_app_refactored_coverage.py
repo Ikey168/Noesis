@@ -210,7 +210,7 @@ def test_try_import_core_routes_success_populates_registry(clean_state):
 def test_create_app_returns_configured_fastapi(clean_state):
     app = appref.create_app()
     assert isinstance(app, FastAPI)
-    assert app.title == "NeuroNews API"
+    assert app.title == "Noesis API"
     assert app.version == "0.1.0"
 
 
@@ -400,7 +400,7 @@ def test_initialize_app_returns_fastapi(clean_state):
 async def test_root_endpoint_reports_status_and_features():
     body = await appref.root()
     assert body["status"] == "ok"
-    assert "NeuroNews API" in body["message"]
+    assert "Noesis API" in body["message"]
     features = body["features"]
     # Feature booleans mirror the module-level flags.
     assert features["rate_limiting"] == appref.RATE_LIMITING_AVAILABLE

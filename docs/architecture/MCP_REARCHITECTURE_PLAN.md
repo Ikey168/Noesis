@@ -720,6 +720,21 @@ title renames.
 *Exit:* an external MCP host generates and receives a valid
 `ui-spec-v1`; both env prefixes verified working.
 
+*Delivered.* `tools/noesis_mcp/server.py` exposes Noesis as an MCP server:
+`noesis_generate_view(intent)` returns a validated `ui-spec-v1` (reusing the
+heuristic planner and pack `ui_flags`) and `noesis_panels()` returns the
+catalog, over stdio or Streamable HTTP (`NOESIS_MCP_TRANSPORT=http`), with an
+optional `NOESIS_MCP_AUTH_TOKEN` gate (auth story in
+`docs/noesis-mcp-server.md`). Verified live: an external FastMCP client over
+HTTP generated and received a valid spec. `src/config/env.py` is the one shared
+resolver (`NOESIS_X`, else `NEURONEWS_X`), applied at the config surface
+(enabled packs, warehouse path across the canvas tool servers and the shared
+connector); both prefixes resolve identically (tested). The user-facing
+surfaces are renamed to Noesis (web package `@noesis/web`, page and API titles,
+API root message); the retained `neuronews-*` MCP server names, `NEURONEWS_*`
+env prefix and on-disk warehouse filename survive as documented aliases
+(`docs/naming.md`).
+
 **Critical path:** R0 → R1 → R2 → R3 → R8 → R9. The analytics/OSINT
 chain (R5 → R6 → R10 → R11) runs in parallel after R2; R4 upgrades
 quality anywhere after R2; R7 can start immediately on the static

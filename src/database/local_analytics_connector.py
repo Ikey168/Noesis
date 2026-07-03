@@ -74,7 +74,8 @@ def get_shared_connection() -> duckdb.DuckDBPyConnection:
     if _CONNECTION is None:
         with _LOCK:
             if _CONNECTION is None:
-                path = os.getenv("NEURONEWS_DB_PATH", _default_db_path())
+                from src.config.env import warehouse_path
+                path = warehouse_path(_default_db_path())
                 Path(path).parent.mkdir(parents=True, exist_ok=True)
                 logger.info("Opening local analytics warehouse at %s", path)
                 conn = duckdb.connect(path)

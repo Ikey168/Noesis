@@ -480,10 +480,11 @@ def create_app():
     
     # Create FastAPI app instance
     app = FastAPI(
-        title="NeuroNews API",
+        title="Noesis API",
         description=(
-            "API for accessing news articles and knowledge graph with RBAC, "
-            "rate limiting, API key management, and AWS WAF security"
+            "API for the Noesis knowledge engine: documents, knowledge graph, "
+            "analytics and the generative canvas, with RBAC, rate limiting, API "
+            "key management, and AWS WAF security"
         ),
         version="0.1.0",
     )
@@ -874,7 +875,7 @@ if not os.environ.get('TESTING', False):
     app = initialize_app()
 else:
     # In test mode, create a minimal app to avoid heavy imports
-    app = FastAPI(title="NeuroNews API", version="0.1.0")
+    app = FastAPI(title="Noesis API", version="0.1.0")
 
 
 async def root():
@@ -882,7 +883,7 @@ async def root():
     from src.domains.registry import is_pack_enabled
     return {
         "status": "ok",
-        "message": "NeuroNews API is running",
+        "message": "Noesis API is running",
         "domain_packs": {
             "news": is_pack_enabled("news"),
         },

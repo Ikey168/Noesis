@@ -604,7 +604,7 @@ class TestAppComprehensiveCoverage:
         from src.api.app import create_app
         app = create_app()
         assert app is not None
-        assert app.title == "NeuroNews API"
+        assert app.title == "Noesis API"
 
     @patch.dict(os.environ, {'TESTING': 'True'})
     def test_configure_error_handlers_if_available_true(self):
@@ -822,7 +822,7 @@ class TestAppComprehensiveCoverage:
         from src.api.app import initialize_app
         app = initialize_app()
         assert app is not None
-        assert app.title == "NeuroNews API"
+        assert app.title == "Noesis API"
 
     @patch.dict(os.environ, {'TESTING': 'True'})
     @pytest.mark.asyncio

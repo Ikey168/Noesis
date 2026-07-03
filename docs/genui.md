@@ -199,6 +199,19 @@ flag cache-served (the frontend `useDataPlaneArticles` hook renders it through
 the proxy when enabled, badged `MCP`, falling back to REST/demo otherwise); do
 not move cold first-loads onto the proxy until the transport overhead closes.
 
+### Noesis as an MCP server (`tools/noesis_mcp/`, R13)
+
+The inverse of the host runtime: instead of MCP servers feeding the canvas,
+Noesis is exposed as an MCP server so an external host can plan a Noesis view.
+`noesis_generate_view(intent)` returns a validated `ui-spec-v1` (reusing the
+heuristic planner and pack `ui_flags`, a thin transport over
+`/api/v1/ui/generate`), and `noesis_panels()` returns the catalog, over stdio
+or Streamable HTTP (`NOESIS_MCP_TRANSPORT=http`), with an optional
+`NOESIS_MCP_AUTH_TOKEN` gate (`docs/noesis-mcp-server.md`). Configuration is
+alias-first: `src/config/env.py` reads `NOESIS_*` then the legacy `NEURONEWS_*`
+so both resolve identically, and the user-facing surfaces are renamed to Noesis
+with the legacy identifiers retained as documented aliases (`docs/naming.md`).
+
 ### MCP host runtime (`src/mcp_host/`, R1)
 
 The API process supervises the repo's 12 `tools/*_mcp` stdio servers:

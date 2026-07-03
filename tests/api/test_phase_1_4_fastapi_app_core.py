@@ -34,7 +34,7 @@ class TestAppConfiguration:
                                 from src.api.app import app
                                 
                                 assert isinstance(app, FastAPI)
-                                assert app.title == "NeuroNews API"
+                                assert app.title == "Noesis API"
                                 assert app.version == "0.1.0"
                                 assert "API for accessing news articles" in app.description
     
@@ -67,7 +67,7 @@ class TestAppConfiguration:
                                 from src.api.app import app
                                 
                                 # Verify basic structure
-                                assert app.title == "NeuroNews API"
+                                assert app.title == "Noesis API"
                                 assert app.version == "0.1.0"
                                 
                                 # Test endpoints
@@ -393,7 +393,7 @@ class TestAppEndpoints:
                                     assert key in data
                                 
                                 assert data["status"] == "ok"
-                                assert "NeuroNews API is running" in data["message"]
+                                assert "Noesis API is running" in data["message"]
                                 
                                 # Verify features section structure
                                 features = data["features"]

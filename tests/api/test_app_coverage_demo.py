@@ -214,8 +214,8 @@ class TestImportFunctionsCoverage:
                 app = create_app()
                 
                 # Verify app properties
-                assert app.title == "NeuroNews API"
-                assert "NeuroNews API" in app.description
+                assert app.title == "Noesis API"
+                assert "Noesis" in app.description
                 assert app.version == "0.1.0"
 
     @pytest.mark.asyncio
@@ -234,7 +234,7 @@ class TestImportFunctionsCoverage:
                 result = await root()
                 
                 assert result["status"] == "ok"
-                assert result["message"] == "NeuroNews API is running"
+                assert result["message"] == "Noesis API is running"
                 assert "features" in result
                 assert result["features"]["rate_limiting"] is True
                 assert result["features"]["rbac"] is False

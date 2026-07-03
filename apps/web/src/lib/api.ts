@@ -1,4 +1,4 @@
-// Thin typed client over the NeuroNews FastAPI backend.
+// Thin typed client over the Noesis FastAPI backend.
 //
 // In development, requests use relative paths and are proxied to the backend
 // by Vite (see vite.config.ts). In other environments set VITE_API_BASE_URL

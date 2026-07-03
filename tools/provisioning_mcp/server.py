@@ -49,7 +49,8 @@ _WRITE_LOCK = threading.Lock()
 
 
 def _db_path() -> str:
-    return os.getenv("NEURONEWS_DB_PATH", str(REPO_ROOT / "data" / "neuronews.duckdb"))
+    from src.config.env import warehouse_path
+    return warehouse_path(str(REPO_ROOT / "data" / "neuronews.duckdb"))
 
 
 def _warehouse_ro():

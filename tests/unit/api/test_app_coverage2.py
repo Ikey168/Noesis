@@ -107,7 +107,7 @@ def test_create_app_returns_configured_fastapi(monkeypatch):
     monkeypatch.setattr(appmod, "try_import_core_routes", lambda: True)
     application = appmod.create_app()
     assert isinstance(application, FastAPI)
-    assert application.title == "NeuroNews API"
+    assert application.title == "Noesis API"
     assert application.version == "0.1.0"
 
 

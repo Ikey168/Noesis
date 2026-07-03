@@ -176,7 +176,7 @@ class TestAppImportFunctions:
                  patch('src.api.app.try_import_core_routes', return_value=True):
                 
                 app = create_app()
-                assert app.title == "NeuroNews API"
+                assert app.title == "Noesis API"
                 assert app.version == "0.1.0"
 
 

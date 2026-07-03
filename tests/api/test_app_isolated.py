@@ -279,7 +279,7 @@ def test_app_versioning():
         app_instance = app_module.create_app()
 
     # Test basic app metadata
-    assert app_instance.title == "NeuroNews API"
+    assert app_instance.title == "Noesis API"
     assert app_instance.version == "0.1.0"
     assert "API for accessing news articles" in app_instance.description
 
@@ -335,7 +335,7 @@ def test_root_endpoint_async():
     # Verify basic structure
     assert isinstance(response, dict)
     assert response["status"] == "ok"
-    assert "NeuroNews API is running" in response["message"]
+    assert "Noesis API is running" in response["message"]
 
 
 def test_health_endpoint_async():
@@ -486,7 +486,7 @@ def test_app_metadata_configuration():
     with patch('src.api.app.check_all_imports'), \
          patch('src.api.app.try_import_core_routes', return_value=True):
         app_instance = app_module.create_app()
-    assert app_instance.title == "NeuroNews API"
+    assert app_instance.title == "Noesis API"
     assert "0.1.0" in app_instance.version
     assert "API for accessing news articles" in app_instance.description
 

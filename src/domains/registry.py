@@ -83,9 +83,11 @@ def load_config(path: Optional[str] = None) -> List[str]:
     except (FileNotFoundError, json.JSONDecodeError, OSError):
         enabled = ["news"]
 
-    # Also honour the NEURONEWS_ENABLED_PACKS env var (comma-separated),
-    # useful for test fixtures and CI overrides.
-    env_override = os.getenv("NEURONEWS_ENABLED_PACKS", "").strip()
+    # Also honour the NOESIS_ENABLED_PACKS env var (NEURONEWS_ENABLED_PACKS is
+    # a retained alias), comma-separated, useful for test fixtures and CI.
+    from src.config.env import enabled_packs as _enabled_packs
+
+    env_override = _enabled_packs().strip()
     if env_override:
         enabled = [p.strip() for p in env_override.split(",") if p.strip()]
 
