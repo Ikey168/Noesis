@@ -14,7 +14,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
 
-from src.genui.catalog import FACETS, PANEL_TYPES, get_panel_def
+from src.genui.catalog import FACETS, get_panel_def
 
 SPEC_VERSION = "ui-spec-v1"
 
@@ -201,7 +201,9 @@ def validate_spec(data: Dict[str, Any]) -> List[str]:
             seen_ids.add(pid)
 
         ptype = panel.get("type")
-        if ptype not in PANEL_TYPES:
+        # Accept static catalog panels and installed-pack panels (M9.3): a
+        # panel type is valid iff the catalog can resolve a def for it.
+        if not isinstance(ptype, str) or get_panel_def(ptype) is None:
             errors.append(f"{where}.type '{ptype}' is not in the panel catalog")
 
         if not isinstance(panel.get("title"), str) or not panel.get("title"):

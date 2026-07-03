@@ -449,10 +449,38 @@ PANEL_TYPES: Tuple[str, ...] = tuple(p.type for p in PANEL_CATALOG)
 
 _BY_TYPE: Dict[str, PanelDef] = {p.type: p for p in PANEL_CATALOG}
 
+# Runtime panel registry (M9.3): installed domain packs contribute panel defs
+# here at install time, so a pack surfaces its panels without editing the static
+# catalog. A static entry is authoritative and is never overridden by a pack.
+_RUNTIME_PANELS: Dict[str, PanelDef] = {}
+
+
+def register_panel(paneldef: PanelDef) -> None:
+    """Register a runtime panel def (e.g. from an installed domain pack). A panel
+    whose type is already in the static catalog is left untouched."""
+    if paneldef.type not in _BY_TYPE:
+        _RUNTIME_PANELS[paneldef.type] = paneldef
+
+
+def unregister_panel(panel_type: str) -> None:
+    """Remove a runtime panel def (pack uninstall)."""
+    _RUNTIME_PANELS.pop(panel_type, None)
+
+
+def runtime_panels() -> Tuple[PanelDef, ...]:
+    """The currently-registered runtime (pack) panel defs."""
+    return tuple(_RUNTIME_PANELS.values())
+
+
+def all_panel_types() -> Tuple[str, ...]:
+    """Every renderable panel type: static catalog plus installed-pack panels."""
+    return PANEL_TYPES + tuple(t for t in _RUNTIME_PANELS if t not in _BY_TYPE)
+
 
 def get_panel_def(panel_type: str) -> Optional[PanelDef]:
-    """Return the catalog entry for a panel type, or None."""
-    return _BY_TYPE.get(panel_type)
+    """Return the catalog entry for a panel type, or None. Consults the static
+    catalog first, then installed-pack panels."""
+    return _BY_TYPE.get(panel_type) or _RUNTIME_PANELS.get(panel_type)
 
 
 def panel_catalog_dict() -> List[Dict[str, Any]]:

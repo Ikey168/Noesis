@@ -167,6 +167,14 @@ def merged_catalog() -> List[Tuple[PanelDef, Optional[str]]]:
             merged.append((panel, None))
     for panel_type in sorted(discovered):
         merged.append(discovered[panel_type])
+    # M9.3: installed domain packs contribute runtime panels; surface them so
+    # GET /api/v1/ui/panels exposes an installed pack's panels to the frontend.
+    from src.genui.catalog import runtime_panels
+
+    present = {p.type for p, _ in merged}
+    for panel in runtime_panels():
+        if panel.type not in present:
+            merged.append((panel, "pack"))
     return merged
 
 
