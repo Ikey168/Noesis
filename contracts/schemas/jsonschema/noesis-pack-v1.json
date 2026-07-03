@@ -1,0 +1,132 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.com/schemas/domains/noesis-pack-v1.json",
+  "title": "Noesis domain pack",
+  "description": "Distributable domain-pack manifest (M9). Bundles a pack's panels, planner keywords, enrichers, provisioning templates and UI flags into one installable unit. Validated in pure Python by src/domains/pack_format.py:validate_manifest.",
+  "type": "object",
+  "required": ["pack_format", "name", "version"],
+  "properties": {
+    "pack_format": {
+      "type": "string",
+      "const": "noesis-pack-v1",
+      "description": "Contract version tag"
+    },
+    "name": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_-]{1,31}$",
+      "description": "Pack name (a namespace token)"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Semver-ish version (major.minor.patch)"
+    },
+    "description": {
+      "type": "string"
+    },
+    "source_types": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["news", "blog", "paper", "book", "transcript", "web", "note"]
+      }
+    },
+    "ui_flags": {
+      "type": "object",
+      "additionalProperties": {"type": "boolean"},
+      "description": "Feature flags that gate the pack's panels"
+    },
+    "panels": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["type", "title", "facets"],
+        "properties": {
+          "type": {"type": "string", "minLength": 1},
+          "title": {"type": "string", "minLength": 1},
+          "description": {"type": "string"},
+          "endpoint": {"type": ["string", "null"]},
+          "facets": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["overview", "trend", "sentiment", "claims", "stance", "actors", "conflict", "sources", "entities", "events", "library"]
+            }
+          },
+          "tables": {"type": "array", "items": {"type": "string"}},
+          "ui_flag": {"type": ["string", "null"]},
+          "default_span": {"type": "integer", "minimum": 3, "maximum": 12},
+          "topic_param": {"type": ["string", "null"]},
+          "source_type_param": {"type": ["string", "null"]}
+        }
+      }
+    },
+    "planner_keywords": {
+      "type": "object",
+      "propertyNames": {
+        "enum": ["overview", "trend", "sentiment", "claims", "stance", "actors", "conflict", "sources", "entities", "events", "library"]
+      },
+      "additionalProperties": {
+        "type": "array",
+        "items": {"type": "string"}
+      },
+      "description": "facet -> keywords, merged into the planner's routing on install"
+    },
+    "enrichers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "kind"],
+        "properties": {
+          "name": {"type": "string", "minLength": 1},
+          "kind": {"type": "string", "enum": ["keyword_tag"]},
+          "description": {"type": "string"},
+          "source_types": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["news", "blog", "paper", "book", "transcript", "web", "note"]
+            }
+          },
+          "params": {"type": "object"}
+        },
+        "allOf": [
+          {
+            "if": {"properties": {"kind": {"const": "keyword_tag"}}},
+            "then": {
+              "properties": {
+                "params": {
+                  "type": "object",
+                  "required": ["field", "keywords", "label"],
+                  "properties": {
+                    "field": {"type": "string", "minLength": 1},
+                    "label": {"type": "string", "minLength": 1},
+                    "keywords": {
+                      "type": "array",
+                      "minItems": 1,
+                      "items": {"type": "string"}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    "provisioning_templates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": {"type": "string", "pattern": "^[a-z][a-z0-9_]{1,30}$"},
+          "description": {"type": "string"},
+          "ontology": {},
+          "sources": {"type": "array", "items": {"type": "string"}},
+          "backend": {"type": "string", "enum": ["table-prefix", "attached", "postgres"]}
+        }
+      }
+    }
+  }
+}
