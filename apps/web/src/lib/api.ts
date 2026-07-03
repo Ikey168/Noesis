@@ -406,6 +406,12 @@ export interface RawDataArticle {
   sentiment_label: string | null;
 }
 
+export interface RawDataPanelResponse {
+  server: string;
+  tool: string;
+  data: Record<string, unknown>;
+}
+
 export interface RawDataResponse {
   server: string;
   tool: string;
@@ -433,6 +439,12 @@ export const api = {
 
   uiData: (body: { server: string; tool: string; arguments?: Record<string, unknown> }) =>
     requestPost<RawDataResponse>("/api/v1/ui/data", body),
+
+  // Generic data-mode invocation for any panel family (M1.4): same proxy
+  // endpoint, but the payload shape is panel-specific so it stays untyped here
+  // and each panel adapts it. No-ops safely when the flag is off.
+  uiDataPanel: (body: { server: string; tool: string; arguments?: Record<string, unknown> }) =>
+    requestPost<RawDataPanelResponse>("/api/v1/ui/data", body),
 
   articles: (params?: { category?: string; source?: string }) =>
     request<RawArticle[]>("/api/v1/news/articles", params),

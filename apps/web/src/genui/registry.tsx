@@ -9,6 +9,7 @@ import { sentColor, sentLabel } from "../lib/sentiment";
 import {
   useArticles,
   useDataPlaneArticles,
+  useDataPlanePanel,
   useClusters,
   useDocuments,
   useTrending,
@@ -25,6 +26,7 @@ import {
   useOutletRanking,
   useOutletClusters,
 } from "../lib/queries";
+import type { Source } from "../lib/queries";
 import { mockStories, mockTimeline, mockWatchlist } from "../data/mock";
 import Heatmap from "../components/charts/Heatmap";
 import EntityGraph from "../components/charts/EntityGraph";
@@ -88,6 +90,41 @@ function topicMatch(topic: unknown, haystack: string): boolean {
 function daysParam(panel: PanelSpec): number | undefined {
   const days = panel.params?.days;
   return typeof days === "number" && days >= 1 ? Math.round(days) : undefined;
+}
+
+// M1.4: prefer the live data-plane payload for a panel type, otherwise the demo
+// fixture. `adapt` maps the raw proxy payload onto the panel's render shape and
+// returns null on a shape it does not recognize, so an unexpected payload
+// degrades to the demo rather than rendering broken. When live data is used the
+// panel badges "MCP"; with the proxy off (the default) nothing changes.
+function useLiveOrDemo<T>(
+  panelType: PanelType,
+  demo: T,
+  adapt: (raw: Record<string, unknown>) => T | null,
+  params?: Record<string, unknown>,
+): { d: T; source: Source; isLoading: boolean; live: boolean } {
+  const proxy = useDataPlanePanel(panelType, params);
+  let adapted: T | null = null;
+  if (proxy.proxied && proxy.data) {
+    try {
+      adapted = adapt(proxy.data);
+    } catch {
+      adapted = null;
+    }
+  }
+  return {
+    d: adapted ?? demo,
+    source: adapted ? "mcp" : "demo",
+    isLoading: proxy.isLoading,
+    live: adapted != null,
+  };
+}
+
+// Most data-mode payloads already match the panel's demo shape field-for-field
+// (the equivalence tests in M1.1-M1.3 pin them to the same src outputs); this
+// accepts the payload when a required key is present and casts it, else null.
+function castWhen<T>(raw: Record<string, unknown>, requiredKey: string): T | null {
+  return requiredKey in raw && raw[requiredKey] != null ? (raw as unknown as T) : null;
 }
 
 // ── panels ───────────────────────────────────────────────────────────────────
@@ -422,11 +459,14 @@ const DEMO_LEAD_LAG = {
 };
 
 function LeadLagPanel(props: PanelProps) {
-  const max = Math.max(1, ...DEMO_LEAD_LAG.outlets.map((o) => Math.abs(o.lead_score)));
+  const { d, source, isLoading } = useLiveOrDemo("lead_lag", DEMO_LEAD_LAG, (r) =>
+    Array.isArray(r.outlets) ? (r as unknown as typeof DEMO_LEAD_LAG) : null,
+  );
+  const max = Math.max(1, ...d.outlets.map((o) => Math.abs(o.lead_score)));
   return (
-    <GenPanel {...props} source="demo">
+    <GenPanel {...props} source={source} isLoading={isLoading}>
       <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
-        {DEMO_LEAD_LAG.outlets.map((o) => {
+        {d.outlets.map((o) => {
           const leads = o.lead_score >= 0;
           return (
             <div key={o.outlet} style={{ display: "flex", alignItems: "center", gap: 10 }}>
@@ -441,7 +481,7 @@ function LeadLagPanel(props: PanelProps) {
           );
         })}
       </div>
-      <AnalyticCaption method={DEMO_LEAD_LAG.method} n={DEMO_LEAD_LAG.n} />
+      <AnalyticCaption method={d.method} n={d.n} />
     </GenPanel>
   );
 }
@@ -457,10 +497,13 @@ const DEMO_NARRATIVES = {
 };
 
 function NarrativeThreadPanel(props: PanelProps) {
+  const { d, source, isLoading } = useLiveOrDemo("narrative_thread", DEMO_NARRATIVES, (r) =>
+    Array.isArray(r.clusters) ? (r as unknown as typeof DEMO_NARRATIVES) : null,
+  );
   return (
-    <GenPanel {...props} source="demo">
+    <GenPanel {...props} source={source} isLoading={isLoading}>
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-        {DEMO_NARRATIVES.clusters.map((c, i) => (
+        {d.clusters.map((c, i) => (
           <div key={i} style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <span style={{ ...mono, width: 46 }}>{c.size} docs</span>
             <div style={{ flex: 1, minWidth: 0, fontSize: 12.5, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
@@ -470,7 +513,7 @@ function NarrativeThreadPanel(props: PanelProps) {
           </div>
         ))}
       </div>
-      <AnalyticCaption method={DEMO_NARRATIVES.method} n={DEMO_NARRATIVES.n} />
+      <AnalyticCaption method={d.method} n={d.n} />
     </GenPanel>
   );
 }
@@ -484,9 +527,12 @@ const DEMO_DRIFT = {
 };
 
 function DriftTrajectoryPanel(props: PanelProps) {
-  const d = DEMO_DRIFT.drift;
+  const { d: dd, source, isLoading } = useLiveOrDemo("drift_trajectory", DEMO_DRIFT, (r) =>
+    r.drift && typeof r.drift === "object" ? (r as unknown as typeof DEMO_DRIFT) : null,
+  );
+  const d = dd.drift;
   return (
-    <GenPanel {...props} source="demo">
+    <GenPanel {...props} source={source} isLoading={isLoading}>
       <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 8 }}>
         <span style={{ fontFamily: fonts.mono, fontSize: 20, color: ACCENT }}>{d.value.toFixed(2)}</span>
         <span style={{ ...mono }}>drift [{d.lo.toFixed(2)}, {d.hi.toFixed(2)}]</span>
@@ -494,14 +540,14 @@ function DriftTrajectoryPanel(props: PanelProps) {
       <div style={{ display: "flex", gap: 14 }}>
         <div style={{ flex: 1 }}>
           <div style={{ ...mono, color: palette.pos }}>rising</div>
-          {DEMO_DRIFT.rising_terms.map((t) => <div key={t} style={{ fontSize: 12 }}>{t}</div>)}
+          {dd.rising_terms.map((t) => <div key={t} style={{ fontSize: 12 }}>{t}</div>)}
         </div>
         <div style={{ flex: 1 }}>
           <div style={{ ...mono, color: palette.neg }}>falling</div>
-          {DEMO_DRIFT.falling_terms.map((t) => <div key={t} style={{ fontSize: 12 }}>{t}</div>)}
+          {dd.falling_terms.map((t) => <div key={t} style={{ fontSize: 12 }}>{t}</div>)}
         </div>
       </div>
-      <AnalyticCaption method={DEMO_DRIFT.method} n={DEMO_DRIFT.n} />
+      <AnalyticCaption method={dd.method} n={dd.n} />
     </GenPanel>
   );
 }
@@ -518,12 +564,15 @@ const DEMO_FORECAST = {
 };
 
 function ForecastPanel(props: PanelProps) {
-  const hist = DEMO_FORECAST.history;
-  const fc = DEMO_FORECAST.points;
+  const { d, source, isLoading } = useLiveOrDemo("forecast", DEMO_FORECAST, (r) =>
+    Array.isArray(r.points) && Array.isArray(r.history) ? (r as unknown as typeof DEMO_FORECAST) : null,
+  );
+  const hist = d.history;
+  const fc = d.points;
   const all = [...hist, ...fc.map((p) => p.forecast.hi)];
   const max = Math.max(1, ...all);
   return (
-    <GenPanel {...props} source="demo">
+    <GenPanel {...props} source={source} isLoading={isLoading}>
       <div style={{ display: "flex", alignItems: "flex-end", gap: 3, height: 64 }}>
         {hist.map((v, i) => (
           <div key={`h${i}`} style={{ flex: 1, height: `${(v / max) * 100}%`, background: "#1b3540", borderRadius: 1 }} />
@@ -535,7 +584,7 @@ function ForecastPanel(props: PanelProps) {
         ))}
       </div>
       <div style={{ ...mono, marginTop: 4 }}>solid = history · outlined = forecast with 95% band</div>
-      <AnalyticCaption method={DEMO_FORECAST.method} n={DEMO_FORECAST.n} />
+      <AnalyticCaption method={d.method} n={d.n} />
     </GenPanel>
   );
 }
@@ -798,9 +847,12 @@ const DEMO_ANOMALIES = {
 
 function AnomalyTimelinePanel(props: PanelProps) {
   const topic = props.panel.params?.topic;
-  const flagged = DEMO_ANOMALIES.windows.filter((w) => w.is_anomaly);
+  const { d, source, isLoading } = useLiveOrDemo("anomaly_timeline", DEMO_ANOMALIES, (r) =>
+    Array.isArray(r.windows) ? (r as unknown as typeof DEMO_ANOMALIES) : null,
+  );
+  const flagged = d.windows.filter((w) => w.is_anomaly);
   return (
-    <GenPanel {...props} source="demo">
+    <GenPanel {...props} source={source} isLoading={isLoading}>
       {flagged.length === 0 ? (
         <Empty text="No anomalies flagged" />
       ) : (
@@ -821,7 +873,7 @@ function AnomalyTimelinePanel(props: PanelProps) {
             );
           })}
           <div style={{ ...mono, marginTop: 2 }}>
-            {DEMO_ANOMALIES.method} · n={DEMO_ANOMALIES.n}
+            {d.method} · n={d.n}
             {typeof topic === "string" && topic ? ` · ${topic}` : ""}
           </div>
         </div>
@@ -909,10 +961,13 @@ const DEMO_VENUES = [
 ];
 
 function VenuesPanel(props: PanelProps) {
+  const { d: rows, source, isLoading } = useLiveOrDemo("venues", DEMO_VENUES, (r) =>
+    Array.isArray(r.venues) ? (r.venues as unknown as typeof DEMO_VENUES) : null,
+  );
   return (
-    <GenPanel {...props} source="demo">
+    <GenPanel {...props} source={source} isLoading={isLoading}>
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-        {DEMO_VENUES.map((v, i) => (
+        {rows.map((v, i) => (
           <div key={v.venue} style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <span style={{ ...mono, width: 18 }}>#{i + 1}</span>
             <div style={{ flex: 1, minWidth: 0, fontSize: 12.5, fontWeight: 500, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{v.venue}</div>
@@ -940,9 +995,12 @@ const DEMO_CITATIONS = {
 };
 
 function CitationGraphPanel(props: PanelProps) {
+  const { d, source, isLoading } = useLiveOrDemo("citation_graph", DEMO_CITATIONS, (r) =>
+    Array.isArray(r.nodes) && Array.isArray(r.edges) ? (r as unknown as typeof DEMO_CITATIONS) : null,
+  );
   return (
-    <GenPanel {...props} source="demo">
-      <EntityGraph data={DEMO_CITATIONS as unknown as import("../types").LiveGraph} />
+    <GenPanel {...props} source={source} isLoading={isLoading}>
+      <EntityGraph data={d as unknown as import("../types").LiveGraph} />
       <div style={{ ...mono, marginTop: 4 }}>papers linked by citation, sized by citation count</div>
     </GenPanel>
   );
@@ -957,10 +1015,19 @@ const DEMO_LIT_CLAIMS = [
 const VERDICT_COLOR: Record<string, string> = { supported: palette.pos, disputed: palette.neg, unverified: palette.dim };
 
 function LiteratureClaimsPanel(props: PanelProps) {
+  const { d: rows, source, isLoading } = useLiveOrDemo("literature_claims", DEMO_LIT_CLAIMS, (r) =>
+    Array.isArray(r.claims)
+      ? (r.claims as Array<Record<string, unknown>>).map((c) => ({
+          text: String(c.text ?? c.claim_text ?? ""),
+          verdict: String(c.verdict ?? c.factcheck_verdict ?? "unverified"),
+          attributed: Boolean(c.attributed),
+        }))
+      : null,
+  );
   return (
-    <GenPanel {...props} source="demo">
+    <GenPanel {...props} source={source} isLoading={isLoading}>
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-        {DEMO_LIT_CLAIMS.map((c, i) => (
+        {rows.map((c, i) => (
           <div key={i} style={{ display: "flex", gap: 8, alignItems: "flex-start" }}>
             <span style={{ ...chip(VERDICT_COLOR[c.verdict] ?? palette.dim), marginTop: 2 }}>{c.verdict}</span>
             <div style={{ flex: 1, minWidth: 0, fontSize: 12.5, lineHeight: 1.35 }}>
@@ -1091,7 +1158,9 @@ const DEMO_CORROBORATION = {
 };
 
 function CorroborationPanel(props: PanelProps) {
-  const c = DEMO_CORROBORATION;
+  const { d: c, source, isLoading } = useLiveOrDemo("corroboration", DEMO_CORROBORATION, (r) =>
+    castWhen<typeof DEMO_CORROBORATION>(r, "support"),
+  );
   const Row = ({ s, kind }: { s: { source: string; credibility: number; via: string }; kind: "for" | "against" }) => (
     <div key={s.source} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12 }}>
       <span style={{ ...chip(kind === "for" ? palette.pos : palette.neg) }}>{kind}</span>
@@ -1102,7 +1171,7 @@ function CorroborationPanel(props: PanelProps) {
     </div>
   );
   return (
-    <GenPanel {...props} source="demo">
+    <GenPanel {...props} source={source} isLoading={isLoading}>
       <div style={{ fontSize: 12.5, lineHeight: 1.35, marginBottom: 6 }}>{c.claim.text}</div>
       <div style={{ ...mono, marginBottom: 8 }}>claimed by {c.claim.source} (credibility {c.claim.credibility.toFixed(2)})</div>
       {c.single_sourced ? (
@@ -1129,14 +1198,16 @@ const DEMO_RELIABILITY = {
 };
 
 function ReliabilityCardPanel(props: PanelProps) {
-  const r = DEMO_RELIABILITY;
+  const { d: r, source, isLoading } = useLiveOrDemo("reliability_card", DEMO_RELIABILITY, (raw) =>
+    castWhen<typeof DEMO_RELIABILITY>(raw, "reliability"),
+  );
   const rows: [string, number][] = [
     ["transparency", r.components.transparency],
     ["corroboration hit-rate", r.components.corroboration_hit_rate],
     ["clean record rate", r.components.clean_record_rate],
   ];
   return (
-    <GenPanel {...props} source="demo">
+    <GenPanel {...props} source={source} isLoading={isLoading}>
       <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 6 }}>
         <span style={{ fontSize: 14, fontWeight: 600 }}>{r.source}</span>
         <span style={{ ...mono }}>{r.track_record.documents} docs, {r.track_record.claims} claims</span>
@@ -1176,10 +1247,13 @@ const DEMO_CONTRADICTIONS = [
 ];
 
 function ContradictionLedgerPanel(props: PanelProps) {
+  const { d: rows, source, isLoading } = useLiveOrDemo("contradiction_ledger", DEMO_CONTRADICTIONS, (r) =>
+    Array.isArray(r.contradictions) ? (r.contradictions as unknown as typeof DEMO_CONTRADICTIONS) : null,
+  );
   return (
-    <GenPanel {...props} source="demo">
+    <GenPanel {...props} source={source} isLoading={isLoading}>
       <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-        {DEMO_CONTRADICTIONS.map((c, i) => (
+        {rows.map((c, i) => (
           <div key={i} style={{ borderLeft: `2px solid ${palette.neg}`, paddingLeft: 10 }}>
             <div style={{ ...mono, color: palette.amber }}>{c.topic}</div>
             {[c.claim_a, c.claim_b].map((cl, j) => (
@@ -1218,9 +1292,11 @@ const DEMO_DOSSIER = {
 };
 
 function EntityDossierPanel(props: PanelProps) {
-  const d = DEMO_DOSSIER;
+  const { d, source, isLoading } = useLiveOrDemo("entity_dossier", DEMO_DOSSIER, (r) =>
+    castWhen<typeof DEMO_DOSSIER>(r, "mentions"),
+  );
   return (
-    <GenPanel {...props} source="demo">
+    <GenPanel {...props} source={source} isLoading={isLoading}>
       <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
         <span style={{ fontSize: 14, fontWeight: 600 }}>{d.entity}</span>
         {d.is_person ? <span style={{ ...chip(palette.amber) }}>person</span> : null}
@@ -1261,9 +1337,11 @@ const DEMO_PATH = {
 };
 
 function RelationshipPathPanel(props: PanelProps) {
-  const p = DEMO_PATH;
+  const { d: p, source, isLoading } = useLiveOrDemo("relationship_path", DEMO_PATH, (r) =>
+    castWhen<typeof DEMO_PATH>(r, "edges"),
+  );
   return (
-    <GenPanel {...props} source="demo">
+    <GenPanel {...props} source={source} isLoading={isLoading}>
       <div style={{ ...mono, marginBottom: 6 }}>{p.hops} hops</div>
       <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
         {p.edges.map((e, i) => (
@@ -1291,10 +1369,13 @@ const DEMO_TIMELINE = [
 const STATE_COLOR: Record<string, string> = { cited: palette.pos, single_sourced: palette.amber, uncited: palette.neg };
 
 function EvidenceTimelinePanel(props: PanelProps) {
+  const { d: rows, source, isLoading } = useLiveOrDemo("evidence_timeline", DEMO_TIMELINE, (r) =>
+    Array.isArray(r.events) ? (r.events as unknown as typeof DEMO_TIMELINE) : null,
+  );
   return (
-    <GenPanel {...props} source="demo">
+    <GenPanel {...props} source={source} isLoading={isLoading}>
       <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-        {DEMO_TIMELINE.map((ev, i) => (
+        {rows.map((ev, i) => (
           <div key={i} style={{ borderLeft: `2px solid ${STATE_COLOR[ev.state] ?? palette.dim}`, paddingLeft: 10 }}>
             <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
               <span style={{ fontFamily: fonts.mono, fontSize: 12 }}>{ev.date}</span>
@@ -1335,9 +1416,11 @@ const STAGE_COLOR: Record<string, string> = {
 };
 
 function ProvenanceTracePanel(props: PanelProps) {
-  const t = DEMO_TRACE;
+  const { d: t, source, isLoading } = useLiveOrDemo("provenance_trace", DEMO_TRACE, (r) =>
+    castWhen<typeof DEMO_TRACE>(r, "chain"),
+  );
   return (
-    <GenPanel {...props} source="demo">
+    <GenPanel {...props} source={source} isLoading={isLoading}>
       <div style={{ ...mono, marginBottom: 8 }}>
         {t.artifact.type} {t.artifact.id}
         {t.cited ? null : <span style={{ color: palette.amber, marginLeft: 6 }}>uncited</span>}
