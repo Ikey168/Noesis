@@ -16,7 +16,9 @@ from src.genui.adaptivity import resolve_availability, resolve_ui_flags
 from src.genui.discovery import merged_catalog_dict
 from src.genui.llm import llm_config, plan_with_llm
 from src.genui.planner import plan
-from src.genui.spec import MAX_INTENT_LENGTH, SOURCE_TYPES, validate_spec
+from src.genui.refine import refine_to_diff
+from src.genui.spec import MAX_INTENT_LENGTH, SOURCE_TYPES, spec_from_dict, validate_spec
+from src.genui.spec_diff import apply_diff
 from src.genui.telemetry import pack_telemetry
 from src.mcp_host import host_status
 
@@ -165,3 +167,48 @@ async def ui_panels() -> Dict[str, Any]:
         return {"panels": panels, "count": len(panels)}
     except Exception as err:
         raise HTTPException(status_code=500, detail=f"UI panel catalog failed: {err}")
+
+
+class RefineUiRequest(BaseModel):
+    """Body for POST /api/v1/ui/refine (M6 in-canvas refinement)."""
+
+    spec: Dict[str, Any] = Field(..., description="The current ui-spec-v1 layout")
+    instruction: str = Field("", max_length=MAX_INTENT_LENGTH, description="Refinement instruction")
+
+
+@router.post("/refine")
+def refine_ui(request: RefineUiRequest) -> Dict[str, Any]:
+    """Apply a natural-language refinement to an existing canvas (M6): turn the
+    instruction into a spec diff and apply it in place, so a follow-up mutates
+    the current layout instead of regenerating it.
+
+    Returns the refined spec, the diff that was applied, and any per-op errors.
+    An unrecognized instruction is a no-op (``changed`` is false, spec unchanged).
+    """
+    errors = validate_spec(request.spec)
+    if errors:
+        raise HTTPException(
+            status_code=400,
+            detail=f"spec failed validation: {'; '.join(errors[:3])}",
+        )
+    try:
+        spec = spec_from_dict(request.spec)
+        diff = refine_to_diff(spec, request.instruction)
+        # An unrecognized instruction changes nothing: return the input untouched.
+        if not diff:
+            return {"spec": request.spec, "diff": [], "errors": [], "changed": False}
+        new_spec, apply_errors = apply_diff(spec, diff)
+        new_dict = new_spec.to_dict()
+        # The diff engine already caps/validates, but double-check the contract;
+        # on any violation fall back to the original spec rather than emit an
+        # invalid layout.
+        if validate_spec(new_dict):
+            return {"spec": request.spec, "diff": [], "errors": apply_errors, "changed": False}
+        return {
+            "spec": new_dict,
+            "diff": diff,
+            "errors": apply_errors,
+            "changed": True,
+        }
+    except Exception as err:
+        raise HTTPException(status_code=500, detail=f"UI refinement failed: {err}")
