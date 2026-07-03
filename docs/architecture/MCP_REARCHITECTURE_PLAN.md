@@ -667,6 +667,27 @@ ship later or not at all.
 *Exit:* an entity brief where every line links to its source document;
 guardrail tests prove person-tools refuse non-document-sourced facts.
 
+*Delivered.* The investigation surface extends `src/osint/` (stdlib-only,
+pure composition over `document_actors` / `argument_claims` /
+`news_articles`; the connection is injected read-only): `evidence.py` is the
+shared evidence discipline (a citation on every line, the cited /
+single_sourced / uncited render states); `dossier.py` is
+`entity_dossier(entity)`, a cited brief (mentions, aliases, first/last seen,
+connected entities) with the person-entity guardrail enforced in code, a
+person with no ingested document is refused rather than described from
+inference; `paths.py` is `relationship_path(a, b)`, the shortest co-mention
+path with the establishing documents cited on every edge and resolution
+ambiguity surfaced; `timeline.py` is `timeline_reconstruct(topic|entity)`,
+dated cited claims bucketed into events each carrying its corroboration
+density. `investigations.py` formalizes an investigation as a Track
+P-provisioned KG reconstructable from its provisioning audit trail
+(`investigation_audit`), supplies the OSINT-dominant empty-canvas telemetry
+(open threads / newly corroborated / newly contradicted), and names the
+review-gated `geolocate_claims` / `narrative_coordination` (absent from the
+served surface, enforced by a test; gate in `docs/osint-review-gate.md`).
+Served by `tools/osint_mcp/` as the `entity_dossier`, `relationship_path` and
+`evidence_timeline` panels via R2 discovery under the `osint` `ui_flag`.
+
 ### Ecosystem
 
 **R12 — Data-plane benchmark and Stage 3 decision** *(Stage 3 gate)*

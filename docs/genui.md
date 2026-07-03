@@ -161,6 +161,24 @@ and citations, flagging uncited entries rather than hiding them. Served by
 citation fields from demo data today; live panel data arrives with the MCP
 data proxy (R12).
 
+The investigation surface (R11) extends the same package under one evidence
+discipline (`src/osint/evidence.py`: a citation on every line, the cited /
+single_sourced / uncited render states). `entity_dossier(entity)` is a cited
+brief (mentions, aliases, first/last seen, connected entities) with a
+person-entity guardrail enforced in code: a person with no ingested document
+is refused, never described from inference. `relationship_path(a, b)` is the
+shortest co-mention path between two entities with the establishing documents
+cited on every edge and resolution ambiguity surfaced.
+`timeline_reconstruct(topic | entity)` buckets dated cited claims into events,
+each carrying its corroboration density. An investigation is a Track
+P-provisioned KG reconstructable from its audit trail (`investigation_audit`),
+and the OSINT-dominant empty canvas leads with open threads / newly
+corroborated / newly contradicted. The most abusable tools
+(`geolocate_claims`, `narrative_coordination`) stay behind the review gate in
+`docs/osint-review-gate.md`, absent from the served surface until it passes.
+These surface as the `entity_dossier`, `relationship_path` and
+`evidence_timeline` panels.
+
 ### MCP host runtime (`src/mcp_host/`, R1)
 
 The API process supervises the repo's 12 `tools/*_mcp` stdio servers:

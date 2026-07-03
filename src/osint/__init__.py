@@ -22,6 +22,30 @@ Stdlib-only; the caller injects a read-only DuckDB connection.
 
 from src.osint.contradictions import contradiction_scan
 from src.osint.corroboration import corroborate
+from src.osint.dossier import entity_dossier
+from src.osint.investigations import (
+    GATED_TOOLS,
+    investigation_audit,
+    is_gated,
+    list_investigations,
+    osint_telemetry,
+)
+from src.osint.paths import relationship_path
 from src.osint.reliability import source_reliability
+from src.osint.timeline import timeline_reconstruct
 
-__all__ = ["corroborate", "source_reliability", "contradiction_scan"]
+__all__ = [
+    # R10 composition
+    "corroborate",
+    "source_reliability",
+    "contradiction_scan",
+    # R11 investigation surface
+    "entity_dossier",
+    "relationship_path",
+    "timeline_reconstruct",
+    "investigation_audit",
+    "list_investigations",
+    "osint_telemetry",
+    "GATED_TOOLS",
+    "is_gated",
+]

@@ -84,6 +84,20 @@ def _outlet_scores(conn, rows):
         )
 
 
+def _actors(conn, rows):
+    conn.execute(
+        "CREATE TABLE IF NOT EXISTS document_actors ("
+        "document_id VARCHAR, source_type VARCHAR, actor_name VARCHAR, "
+        "entity_id VARCHAR, role VARCHAR, confidence DOUBLE, extracted_at VARCHAR)"
+    )
+    if rows:
+        conn.executemany(
+            "INSERT INTO document_actors (document_id, actor_name, entity_id, role) "
+            "VALUES (?, ?, ?, ?)",
+            rows,
+        )
+
+
 @pytest.fixture
 def conn(tmp_path):
     c = duckdb.connect(str(tmp_path / "wh.duckdb"))
@@ -100,4 +114,5 @@ def seed(conn):
         evidence=lambda rows: _evidence(conn, rows),
         conflicts=lambda rows: _conflicts(conn, rows),
         outlet_scores=lambda rows: _outlet_scores(conn, rows),
+        actors=lambda rows: _actors(conn, rows),
     )
