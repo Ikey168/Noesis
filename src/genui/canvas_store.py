@@ -92,6 +92,12 @@ def new_id() -> str:
     return secrets.token_urlsafe(9)
 
 
+def new_share_token() -> str:
+    """An unguessable, URL-safe share token (longer than a canvas id, since it
+    is the only credential a read-only link carries)."""
+    return secrets.token_urlsafe(24)
+
+
 def save_canvas(
     conn,
     owner: str,
@@ -190,3 +196,61 @@ def delete_canvas(conn, canvas_id: str, owner: str) -> bool:
         return False
     conn.execute("DELETE FROM saved_canvases WHERE id = ?", [canvas_id])
     return True
+
+
+# --------------------------------------------------------------------------- #
+# Read-only sharing (M8.2)
+# --------------------------------------------------------------------------- #
+
+def share_canvas(conn, canvas_id: str, owner: str) -> Optional[str]:
+    """Mint (or return the existing) read-only share token for a canvas the
+    owner owns. Idempotent: sharing an already-shared canvas returns the same
+    token, so a shared link stays stable. Returns None if the owner does not own
+    the canvas."""
+    canvas = get_canvas(conn, canvas_id, owner=owner)
+    if canvas is None:
+        return None
+    if canvas["share_token"]:
+        return canvas["share_token"]
+    token = new_share_token()
+    conn.execute(
+        "UPDATE saved_canvases SET share_token = ? WHERE id = ?", [token, canvas_id]
+    )
+    return token
+
+
+def unshare_canvas(conn, canvas_id: str, owner: str) -> bool:
+    """Revoke a canvas's share token so its read-only link stops resolving.
+    Returns True if the owner owns the canvas (whether or not it was shared)."""
+    canvas = get_canvas(conn, canvas_id, owner=owner)
+    if canvas is None:
+        return False
+    conn.execute(
+        "UPDATE saved_canvases SET share_token = NULL WHERE id = ?", [canvas_id]
+    )
+    return True
+
+
+def get_shared_canvas(conn, share_token: str) -> Optional[Dict[str, Any]]:
+    """Resolve a canvas by its read-only share token, for a viewer who is not the
+    owner. Returns the record with ``read_only`` set and the owner elided, or
+    None when the token is unknown or revoked. This path never mutates and never
+    exposes the owner's identity."""
+    if not schema_ready(conn) or not share_token:
+        return None
+    row = conn.execute(
+        f"SELECT {_COLUMNS} FROM saved_canvases WHERE share_token = ?",
+        [share_token],
+    ).fetchone()
+    if not row:
+        return None
+    canvas = _row_to_canvas(row)
+    return {
+        "id": canvas["id"],
+        "title": canvas["title"],
+        "spec": canvas["spec"],
+        "data_bindings": canvas["data_bindings"],
+        "read_only": True,
+        "created_at": canvas["created_at"],
+        "updated_at": canvas["updated_at"],
+    }

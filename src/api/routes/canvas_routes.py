@@ -17,7 +17,7 @@ never stored.
 from datetime import datetime, timezone
 from typing import Any, Dict, Optional
 
-from fastapi import APIRouter, Header, HTTPException
+from fastapi import APIRouter, Header, HTTPException, Request
 from pydantic import BaseModel, Field
 
 from src.genui import canvas_store
@@ -151,3 +151,71 @@ def delete_canvas(
     if not removed:
         raise HTTPException(status_code=404, detail="canvas not found")
     return {"deleted": canvas_id}
+
+
+# --------------------------------------------------------------------------- #
+# Read-only sharing (M8.2)
+# --------------------------------------------------------------------------- #
+
+def _share_url(request: Request, token: str) -> str:
+    """The read-only link a viewer opens, resolved against the request host."""
+    base = str(request.base_url).rstrip("/")
+    return f"{base}/api/v1/ui/canvas/shared/{token}"
+
+
+@router.post("/canvas/{canvas_id}/share")
+def share_canvas(
+    canvas_id: str,
+    request: Request,
+    x_canvas_owner: Optional[str] = Header(default=None),
+) -> Dict[str, Any]:
+    """Mint (or return the existing) read-only share link for one of the owner's
+    canvases. Idempotent, so the link stays stable across calls."""
+    owner = _owner(x_canvas_owner)
+    conn, lock = _conn()
+    try:
+        with lock:
+            canvas_store.ensure_schema(conn)
+            token = canvas_store.share_canvas(conn, canvas_id, owner)
+    except Exception as err:
+        raise HTTPException(status_code=500, detail=f"canvas share failed: {err}")
+    if token is None:
+        raise HTTPException(status_code=404, detail="canvas not found")
+    return {"canvas_id": canvas_id, "share_token": token, "url": _share_url(request, token)}
+
+
+@router.delete("/canvas/{canvas_id}/share")
+def unshare_canvas(
+    canvas_id: str,
+    x_canvas_owner: Optional[str] = Header(default=None),
+) -> Dict[str, Any]:
+    """Revoke a canvas's read-only link (owner only)."""
+    owner = _owner(x_canvas_owner)
+    conn, lock = _conn()
+    try:
+        with lock:
+            canvas_store.ensure_schema(conn)
+            ok = canvas_store.unshare_canvas(conn, canvas_id, owner)
+    except Exception as err:
+        raise HTTPException(status_code=500, detail=f"canvas unshare failed: {err}")
+    if not ok:
+        raise HTTPException(status_code=404, detail="canvas not found")
+    return {"canvas_id": canvas_id, "revoked": True}
+
+
+@router.get("/canvas/shared/{share_token}")
+def get_shared_canvas(share_token: str) -> Dict[str, Any]:
+    """Render a canvas from a read-only share link, for a viewer who is not the
+    owner. No owner header is required; the response is marked read-only and the
+    owner's identity is never exposed. There is no write path through a token, so
+    a viewer can view but not edit."""
+    conn, lock = _conn()
+    try:
+        with lock:
+            canvas_store.ensure_schema(conn)
+            canvas = canvas_store.get_shared_canvas(conn, share_token)
+    except Exception as err:
+        raise HTTPException(status_code=500, detail=f"shared canvas read failed: {err}")
+    if canvas is None:
+        raise HTTPException(status_code=404, detail="shared canvas not found or link revoked")
+    return {"canvas": canvas}
