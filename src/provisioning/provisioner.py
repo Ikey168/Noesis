@@ -408,6 +408,27 @@ class Provisioner:
                 # Stage 1: run the bound pipelines (connector -> contract ->
                 # enrich), collecting per-pipeline progress.
                 pipeline_runs = self._run_pipelines(pipelines)
+                # M3.2: record each connector run as its own lineage entry so the
+                # audit trail names the real run (connector, source, run id, and
+                # the fetched/written document counts), not just a nested blob.
+                for run in pipeline_runs:
+                    result = run.get("result", {}) if isinstance(run, dict) else {}
+                    connector = run.get("connector")
+                    store.record_event(
+                        self._conn,
+                        name,
+                        "pipeline_run",
+                        {
+                            "run_id": f"{name}:{connector}:{now.isoformat()}",
+                            "connector": connector,
+                            "source": result.get("source"),
+                            "fetched": result.get("fetched"),
+                            "written": result.get("written"),
+                            "ok": run.get("ok"),
+                            "error": run.get("error"),
+                        },
+                        now,
+                    )
                 # Stage 2: route the matching documents into the namespace.
                 routed = namespaces.route_documents(
                     self._conn, name, bound, now, backfill_days, backend, db_path
