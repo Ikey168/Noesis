@@ -1,0 +1,50 @@
+{
+  "pack_format": "noesis-pack-v1",
+  "name": "energy",
+  "version": "1.0.0",
+  "description": "Energy-sector domain pack: a grid-outage panel, energy-coverage planner keywords, a keyword-tag enricher, and a provisioning template for an energy knowledge graph. Distributable and installable without code changes.",
+  "source_types": ["news"],
+  "ui_flags": {"energy": true},
+  "panels": [
+    {
+      "type": "energy_outages",
+      "title": "Grid outages",
+      "description": "Reported grid outages and load-shedding events over time, from energy coverage.",
+      "endpoint": null,
+      "facets": ["events", "trend"],
+      "tables": ["news_articles"],
+      "ui_flag": "energy",
+      "default_span": 6,
+      "topic_param": "topic"
+    }
+  ],
+  "planner_keywords": {
+    "trend": ["grid", "outage", "outages", "load-shedding", "blackout", "megawatt", "capacity"],
+    "events": ["blackout", "outage", "curtailment"]
+  },
+  "enrichers": [
+    {
+      "name": "energy_tag",
+      "kind": "keyword_tag",
+      "description": "Tag documents that mention grid or energy terms.",
+      "source_types": ["news"],
+      "params": {
+        "field": "content",
+        "label": "energy",
+        "keywords": ["grid", "megawatt", "outage", "blackout", "renewable"]
+      }
+    }
+  ],
+  "provisioning_templates": [
+    {
+      "name": "energy_kg",
+      "description": "An energy-sector knowledge graph fed by energy news sources.",
+      "ontology": {
+        "entities": ["utility", "grid_operator", "plant"],
+        "relations": ["supplies", "operates"]
+      },
+      "sources": ["Energy Wire"],
+      "backend": "table-prefix"
+    }
+  ]
+}
