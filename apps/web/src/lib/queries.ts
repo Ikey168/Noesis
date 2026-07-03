@@ -151,6 +151,38 @@ export function useDataPlaneArticles(): Result<Article[]> & { proxied: boolean }
   };
 }
 
+// Generic data-plane panel fetch (M1.4): resolve the data-mode tool for a
+// panel type from the allowlist and invoke it through POST /api/v1/ui/data,
+// returning the raw structured payload. When the proxy is off or no data-mode
+// tool serves this panel, `proxied` is false and `data` is null, so the caller
+// keeps its demo/REST path. This generalizes the R12 articles-only hook to the
+// OSINT, research and analytics panel families.
+export function useDataPlanePanel(
+  panelType: string,
+  args?: Record<string, unknown>,
+): { data: Record<string, unknown> | null; source: Source; isLoading: boolean; proxied: boolean } {
+  const q = useQuery({
+    queryKey: ["dataplane-panel", panelType, args ?? {}],
+    queryFn: async (): Promise<{ data: Record<string, unknown> | null; source: Source; proxied: boolean }> => {
+      const tools = await api.uiDataTools();
+      const tool = tools.enabled ? tools.tools.find((t) => t.panel === panelType) : undefined;
+      if (!tool) return { data: null, source: "demo", proxied: false };
+      const res = await api.uiDataPanel({ server: tool.server, tool: tool.tool, arguments: args });
+      const payload = res.data;
+      const ok = payload && typeof payload === "object" && !("error" in payload);
+      return { data: ok ? payload : null, source: ok ? "mcp" : "demo", proxied: !!ok };
+    },
+    staleTime: STALE,
+    retry: false,
+  });
+  return {
+    data: q.data?.data ?? null,
+    source: q.data?.source ?? "demo",
+    isLoading: q.isLoading,
+    proxied: q.data?.proxied ?? false,
+  };
+}
+
 export function useClusters(): Result<Cluster[]> {
   return useWithFallback("clusters", async () => adaptClusters(await api.eventClusters()), mockClusters);
 }
