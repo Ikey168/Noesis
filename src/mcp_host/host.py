@@ -381,6 +381,13 @@ class MCPHost:
             self._call_cache[key] = (result, now + (ttl if ttl is not None else self.stats_ttl))
         return result
 
+    def is_connected(self, server: str) -> bool:
+        """True when ``server`` holds a live supervised session — a warm
+        connection the data proxy can reuse without paying connect cost (M2.2).
+        Thread-safe: reads the session map under the lock."""
+        with self._lock:
+            return self._sessions.get(server) is not None
+
     def invalidate_cached_calls(self, server: Optional[str] = None) -> None:
         """Drop cached tool results, for one server or all of them."""
         with self._lock:

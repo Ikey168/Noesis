@@ -152,6 +152,47 @@ def _data_tool_for_panel(panel_type: str) -> Optional[Tuple[str, str]]:
     return None
 
 
+def warm_data_plane() -> Dict[str, Any]:
+    """Warmth summary for the data-plane servers (M2.2): which MCP servers that
+    back a data-mode panel currently hold a live (warm) session the proxy can
+    reuse. A ``/ui/data`` request against a warm server skips the connect cost;
+    a request against a cold server pays it (or falls back). ``ready`` is True
+    only when every data-plane server is warm."""
+    servers = sorted({server for (server, _tool) in data_mode_tools()})
+    try:
+        from src.mcp_host import get_host
+
+        host = get_host()
+    except Exception:  # pragma: no cover - defensive import guard
+        host = None
+    warm: Dict[str, bool] = {}
+    for server in servers:
+        warm[server] = bool(
+            host is not None
+            and hasattr(host, "is_connected")
+            and host.is_connected(server)
+        )
+    return {
+        "ready": bool(servers) and all(warm.values()),
+        "servers": warm,
+        "count": len(servers),
+        "warm_count": sum(1 for v in warm.values() if v),
+    }
+
+
+def wait_warm(timeout: float = 2.0, interval: float = 0.05) -> Dict[str, Any]:
+    """Poll :func:`warm_data_plane` until every data-plane server is warm or the
+    timeout elapses. Returns the final warmth summary. Used to gate the cold
+    path: the first fetch (or the generate pre-warm) can wait briefly for the
+    supervised sessions to come up instead of racing startup and missing."""
+    deadline = time.time() + max(0.0, timeout)
+    summary = warm_data_plane()
+    while not summary["ready"] and time.time() < deadline:
+        time.sleep(max(0.001, interval))
+        summary = warm_data_plane()
+    return summary
+
+
 def prewarm_from_spec(spec: Dict[str, Any], background: bool = True) -> int:
     """Warm the shared tool cache for every panel in a spec that a data-mode
     tool can serve, so the browser's first ``/ui/data`` fetch is a cache hit
@@ -190,6 +231,11 @@ def prewarm_from_spec(spec: Dict[str, Any], background: bool = True) -> int:
             host = None
         if host is None:
             return
+        # M2.2: wait briefly for the supervised sessions to be warm before
+        # warming the cache, so a startup race does not make the pre-warm miss
+        # (a cold session would drop the warming call and the browser's first
+        # fetch would still pay the connect cost).
+        wait_warm(timeout=2.0)
         for server, tool in targets:
             try:
                 # Same empty-args call the browser makes, so the cache key matches.
