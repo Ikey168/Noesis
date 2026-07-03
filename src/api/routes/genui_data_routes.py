@@ -12,7 +12,7 @@ panels can be served through the proxy.
 
 from typing import Any, Dict, Optional
 
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Request, Response
 from pydantic import BaseModel, Field
 
 from src.genui.dataplane import (
@@ -21,6 +21,7 @@ from src.genui.dataplane import (
     check_request_size,
     data_mode_tools,
     data_proxy_enabled,
+    encode_payload,
     invoke_data_tool,
 )
 
@@ -57,13 +58,17 @@ def data_tools() -> Dict[str, Any]:
 
 
 @router.post("/data")
-def ui_data(request: DataRequest, http_request: Request) -> Dict[str, Any]:
+def ui_data(request: DataRequest, http_request: Request) -> Response:
     """Invoke an allowlisted data-mode MCP tool and return its payload.
 
     Refuses when the flag is off (404), when the tool is not allowlisted (403),
     when the client is over its rate limit (429), or when a size cap is
     exceeded (413). Sync on purpose: the blocking MCP call runs in the
     threadpool.
+
+    The response uses the lighter data-plane encoding (M2.1): compact JSON,
+    gzip-compressed when the client accepts it and the payload is large enough
+    to benefit, which shrinks the cold-path transfer.
     """
     if not data_proxy_enabled():
         raise HTTPException(
@@ -76,8 +81,12 @@ def ui_data(request: DataRequest, http_request: Request) -> Dict[str, Any]:
         payload = invoke_data_tool(request.server, request.tool, request.arguments)
     except DataPlaneError as err:
         raise HTTPException(status_code=err.status, detail=err.message)
-    return {
-        "server": request.server,
-        "tool": request.tool,
-        "data": payload,
-    }
+    body = {"server": request.server, "tool": request.tool, "data": payload}
+    data_bytes, encoding = encode_payload(
+        body, http_request.headers.get("accept-encoding", "")
+    )
+    headers = {"Content-Length": str(len(data_bytes))}
+    if encoding:
+        headers["Content-Encoding"] = encoding
+        headers["Vary"] = "Accept-Encoding"
+    return Response(content=data_bytes, media_type="application/json", headers=headers)

@@ -206,6 +206,29 @@ def prewarm_from_spec(spec: Dict[str, Any], background: bool = True) -> int:
     return len(targets)
 
 
+# Lighter-encoding threshold (M2.1): payloads at or above this size are worth
+# gzip-compressing; smaller ones ship raw so tiny responses pay no CPU cost.
+COMPRESS_MIN_BYTES = 2 * 1024
+
+
+def encode_payload(body: Any, accept_encoding: str = "") -> Tuple[bytes, Optional[str]]:
+    """Serialize a data-plane response body to compact JSON bytes, gzip-compressing
+    it when the client accepts gzip and the payload is large enough to benefit.
+
+    Returns ``(data_bytes, content_encoding)`` where ``content_encoding`` is
+    ``"gzip"`` or ``None``. Pure (stdlib only) so the route stays thin and this
+    is unit-testable without FastAPI. The compact separators drop inter-token
+    whitespace even on the uncompressed path.
+    """
+    import gzip
+    import json
+
+    raw = json.dumps(body, separators=(",", ":"), default=str).encode("utf-8")
+    if len(raw) >= COMPRESS_MIN_BYTES and "gzip" in (accept_encoding or "").lower():
+        return gzip.compress(raw, compresslevel=6), "gzip"
+    return raw, None
+
+
 def invoke_data_tool(
     server: str, tool: str, arguments: Optional[Dict[str, Any]] = None
 ) -> Dict[str, Any]:
