@@ -166,6 +166,15 @@ async def _run(db: str, iterations: int):
                 dataplane.invoke_data_tool("neuronews-pipeline", "articles_data", {"limit": 200})
             ).encode()
         )
+        # M2.1 lighter encoding: the gzip-compressed transfer size the browser
+        # actually receives (the response body is server/tool/data).
+        _body = {
+            "server": "neuronews-pipeline",
+            "tool": "articles_data",
+            "data": dataplane.invoke_data_tool("neuronews-pipeline", "articles_data", {"limit": 200}),
+        }
+        _enc_bytes, _enc = dataplane.encode_payload(_body, "gzip")
+        proxy_encoded = {"encoding": _enc, "bytes": len(_enc_bytes)}
         for _ in range(iterations):
             host.invalidate_cached_calls()  # measure the live path, not the cache
             t0 = time.perf_counter()
@@ -189,6 +198,7 @@ async def _run(db: str, iterations: int):
         "mcp_tool": {**_stats(mcp_samples), "payload_bytes": mcp_payload},
         "proxy_cold": {**_stats(proxy_samples), "payload_bytes": proxy_payload},
         "proxy_cached": _stats(cached_samples),
+        "proxy_encoded": proxy_encoded,
     }
 
 

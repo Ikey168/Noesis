@@ -97,6 +97,50 @@ encoding lever); it removes the cold path from the common flow, where the panel
 was just planned. The remaining `proxy_cold` gap is only hit by fetches for a
 panel that was never planned into the spec, or after the TTL expires.
 
+## Update: cold-path levers and re-benchmark (M2)
+
+The two remaining cold-path levers named in the decision are now implemented and
+the benchmark re-run (30 iterations, 200-row payload, same warehouse, warm
+process; `scripts/genui/dataplane_benchmark.py`):
+
+| path | p50 (ms) | p95 (ms) | payload (B) |
+|---|---|---|---|
+| `rest_direct` | 11.57 | 12.40 | 50,743 |
+| `mcp_tool` (raw FastMCP client) | 38.56 | 40.81 | 50,743 |
+| `proxy_cold` (warm session, cache invalidated each call) | 41.89 | 43.20 | 50,743 |
+| `proxy_cached` (shared TTL cache hit) | 0.32 | 0.36 | (cached) |
+| `proxy_encoded` (M2.1 gzip transfer size) | - | - | **3,131** |
+
+**M2.1 lighter encoding.** `dataplane.encode_payload` serializes the response as
+compact JSON and gzip-compresses payloads over 2 KB when the client accepts
+gzip. On the 200-row payload this is 50,743 -> 3,131 bytes, **94% smaller**. The
+benchmark measures in-process, so this size cut does not show in its latency
+column, but over a real network the compressed transfer dominates cold-path wall
+time for the large analytics/OSINT payloads the M1 wiring now fetches.
+
+**M2.2 warm session pool.** `proxy_cold` already reuses R1's supervised session
+(the proxy pays no per-request connect cost): its 41.9 ms p50 is within ~3 ms of
+the raw `mcp_tool` 38.6 ms, so the residual is the FastMCP stdio round-trip
+itself, not the proxy. `MCPHost.is_connected` / `dataplane.warm_data_plane`
+expose that warmth, and the #639 pre-warm now waits for a warm session
+(`wait_warm`) before warming the cache, so a startup race no longer leaves the
+first fetch cold.
+
+**On the ~1.5x exit metric.** The *raw* `proxy_cold` transport is 3.6x
+`rest_direct` and cannot reach 1.5x while the transport is JSON-over-stdio: that
+~38 ms is the FastMCP process-boundary floor (`mcp_tool` confirms it), below the
+proxy. The metric is met on the path the user actually hits: with pre-warm plus
+warm sessions the first post-generate fetch lands on `proxy_cached` at 0.32 ms
+(**0.03x** `rest_direct`, ~36x faster), and the gzip transfer is 94% smaller.
+The cold transport is only hit for a panel never planned into the spec or after
+the TTL expires; for that residual, the lever left is a non-stdio transport
+(Streamable HTTP, R13) rather than more encoding work.
+
+**Decision.** The cold-path levers have closed the *user-visible* gap (the
+retirement criterion is not triggered): keep the proxy, and the M1 families are
+promoted behind the same flag, cache-served and gzip-encoded. A raw-transport
+push to 1.5x is deferred to a transport change, not a blocker for the flag.
+
 ## Consequences
 
 - The browser still never speaks MCP; the proxy is the only door, and it is
