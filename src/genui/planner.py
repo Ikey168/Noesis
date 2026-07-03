@@ -42,6 +42,7 @@ FACET_KEYWORDS: Dict[str, Tuple[str, ...]] = {
         "verify", "verified", "unverified", "true", "false",
         "misinformation", "disinformation", "evidence", "assertion",
         "unsourced",
+        "corroborate", "corroboration", "corroborated", "independent", "osint",
     ),
     "stance": (
         "stance", "stances", "support", "supports", "supportive", "oppose",
@@ -64,6 +65,7 @@ FACET_KEYWORDS: Dict[str, Tuple[str, ...]] = {
         "transparency", "media", "publisher", "publishers",
         "leads", "lead", "leader", "leaders", "follows", "follow",
         "followers", "agenda", "first", "earliest", "sets",
+        "reliability", "reliable", "vetting", "credibility", "trustworthiness",
     ),
     "entities": (
         "entity", "entities", "network", "graph", "connection",

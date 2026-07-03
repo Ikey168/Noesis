@@ -641,6 +641,23 @@ calibrated confidence).
 by credibility; uncited assertions render visibly flagged, never
 hidden.
 
+*Delivered.* The OSINT plane lives in `src/osint/` (stdlib-only, pure
+composition of the claim / evidence / conflict / outlet-score layers; the
+connection is injected read-only): `corroboration.py` is `corroborate(claim_id)`,
+counting the independent sources that support or contradict a claim (by
+distinct outlet, excluding the claim's own source) each weighted by its
+transparency composite, flagging a claim as `single_sourced` rather than
+inventing a confidence number; `reliability.py` is `source_reliability(source)`,
+the outlet transparency score generalized to any source_type plus a
+corroboration hit-rate and a disputed-claim rate, honesty-wrapped with a
+track-record-weighted interval; `contradictions.py` is
+`contradiction_scan(topic|entity)` over the CONTRADICTS edges, every pair
+joined back to both sources and citations with uncited entries flagged, never
+dropped. Served by `tools/osint_mcp/` (read-only, 15 project servers), each
+tool annotated for the `corroboration` / `reliability_card` /
+`contradiction_ledger` panels surfaced via R2 discovery under the `osint`
+`ui_flag`.
+
 **R11 — OSINT investigation surface** *(Track OSINT, phase 2)*
 `entity_dossier`, `relationship_path`, `timeline_reconstruct`;
 "investigation" formalized as a provisioned KG with audit trail;

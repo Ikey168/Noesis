@@ -12,7 +12,7 @@ const FACET_KEYWORDS: Record<Facet, string[]> = {
   overview: [],
   trend: ["trend", "trends", "trending", "over time", "shift", "shifted", "evolution", "evolve", "evolved", "changing", "changed", "history", "momentum", "trajectory", "drift", "unusual", "anomaly", "anomalies", "anomalous", "spike", "spikes", "surge", "abnormal", "outlier", "outliers", "semantic", "meaning", "forecast", "forecasts", "predict", "prediction", "projection", "outlook", "future", "expected"],
   sentiment: ["sentiment", "tone", "mood", "feeling", "positive", "negative", "emotion", "optimism", "pessimism"],
-  claims: ["claim", "claims", "fact", "facts", "factcheck", "fact-check", "verify", "verified", "unverified", "true", "false", "misinformation", "disinformation", "evidence", "assertion", "unsourced"],
+  claims: ["claim", "claims", "fact", "facts", "factcheck", "fact-check", "verify", "verified", "unverified", "true", "false", "misinformation", "disinformation", "evidence", "assertion", "unsourced", "corroborate", "corroboration", "corroborated", "independent", "osint"],
   stance: ["stance", "stances", "support", "supports", "supportive", "oppose", "opposes", "opposition", "critical", "position", "positions", "agree", "agrees", "disagree", "disagrees", "pro", "against"],
   actors: ["who", "actor", "actors", "stakeholder", "stakeholders", "politician", "politicians", "speaker", "speakers", "people", "person", "says", "said", "voices"],
   conflict: ["conflict", "conflicts", "controversy", "controversial", "contradict", "contradicts", "contradiction", "contradictions", "dispute", "disputes", "disagreement", "clash", "debate"],
