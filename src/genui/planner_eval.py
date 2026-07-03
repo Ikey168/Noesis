@@ -21,6 +21,11 @@ from typing import Any, Callable, Dict, List, Optional, Tuple
 SCORE_THRESHOLD = 0.9
 
 _GOLDEN = Path(__file__).resolve().parents[2] / "tests" / "data" / "planner_golden.json"
+_MULTITURN = Path(__file__).resolve().parents[2] / "tests" / "data" / "planner_multiturn_golden.json"
+
+# The multi-turn agentic flow (M6.4) must satisfy at least this fraction of the
+# per-turn checks. Gated by CI alongside the single-turn score.
+MULTITURN_THRESHOLD = 0.9
 
 # A planner returns (facets, panel_types) for an intent, or None if unavailable.
 PlannerFn = Callable[[str], Optional[Tuple[List[str], List[str]]]]
@@ -76,6 +81,57 @@ def llm_planner(intent: str) -> Optional[Tuple[List[str], List[str]]]:
     return list(spec.facets), [p.type for p in spec.panels if p.type != "note"]
 
 
+def load_multiturn(path: Optional[Path] = None) -> List[Dict[str, Any]]:
+    return json.loads((path or _MULTITURN).read_text())["scenarios"]
+
+
+def score_multiturn(scenarios: Optional[List[Dict[str, Any]]] = None) -> Dict[str, Any]:
+    """Run each scenario through a CanvasSession driven by the M6.3 heuristic
+    refiner and score the fraction of per-turn checks (expect_present /
+    expect_absent / expect_topic) satisfied. This scores the agentic flow, not a
+    one-shot plan."""
+    from src.genui.canvas_session import start_session
+    from src.genui.refine import refine_to_diff
+
+    scenarios = scenarios if scenarios is not None else load_multiturn()
+    total, ok = 0, 0
+    per_scenario: List[Dict[str, Any]] = []
+    for scenario in scenarios:
+        session = start_session(scenario["intent"])
+        turns: List[Dict[str, Any]] = []
+        for turn in scenario["turns"]:
+            session.refine_with(turn["instruction"], refine_to_diff)
+            types = {p.type for p in session.spec.panels if p.type != "note"}
+            topics = {(p.params or {}).get("topic") for p in session.spec.panels if p.type != "note"}
+            turn_ok = True
+            for panel in turn.get("expect_present", []):
+                total += 1
+                if panel in types:
+                    ok += 1
+                else:
+                    turn_ok = False
+            for panel in turn.get("expect_absent", []):
+                total += 1
+                if panel not in types:
+                    ok += 1
+                else:
+                    turn_ok = False
+            if "expect_topic" in turn:
+                total += 1
+                if turn["expect_topic"] in topics:
+                    ok += 1
+                else:
+                    turn_ok = False
+            turns.append({"instruction": turn["instruction"], "ok": turn_ok})
+        per_scenario.append({"intent": scenario["intent"], "turns": turns})
+    return {
+        "scenarios": len(scenarios),
+        "checks": total,
+        "score": (ok / total) if total else 1.0,
+        "per_scenario": per_scenario,
+    }
+
+
 def evaluate(path: Optional[Path] = None) -> Dict[str, Any]:
     """Score the heuristic and LLM planners on the golden set. The LLM entry is
     None when no LLM is configured."""
@@ -83,6 +139,7 @@ def evaluate(path: Optional[Path] = None) -> Dict[str, Any]:
     return {
         "heuristic": score_planner(cases, heuristic_planner),
         "llm": score_planner(cases, llm_planner),
+        "multiturn": score_multiturn(),
     }
 
 
@@ -97,11 +154,16 @@ def _fmt(result: Optional[Dict[str, Any]]) -> str:
 
 
 def gate_passes(out: Dict[str, Any]) -> bool:
-    """The CI gate (M5.3): the heuristic planner's score must not regress below
-    the threshold. The LLM planner is reported but never gates (it is optional
-    and may be unavailable in CI)."""
+    """The CI gate (M5.3, M6.4): the heuristic single-turn score and the
+    multi-turn agentic-flow score must not regress below their thresholds. The
+    LLM planner is reported but never gates (optional, may be unavailable)."""
     heur = out.get("heuristic")
-    return heur is not None and heur["score"] >= SCORE_THRESHOLD
+    mt = out.get("multiturn")
+    if heur is None or heur["score"] < SCORE_THRESHOLD:
+        return False
+    if mt is not None and mt["score"] < MULTITURN_THRESHOLD:
+        return False
+    return True
 
 
 def main() -> int:
@@ -109,8 +171,13 @@ def main() -> int:
     print("Planner eval (golden set)\n")
     for name in ("heuristic", "llm"):
         print(f"  {name:<10} {_fmt(out[name])}")
+    mt = out.get("multiturn")
+    if mt is not None:
+        print(f"  {'multiturn':<10} score={mt['score']:.3f}  "
+              f"({mt['scenarios']} scenarios, {mt['checks']} checks)")
     passed = gate_passes(out)
-    print(f"\nthreshold {SCORE_THRESHOLD}: heuristic {'PASS' if passed else 'FAIL'}")
+    print(f"\nthresholds single={SCORE_THRESHOLD} multiturn={MULTITURN_THRESHOLD}: "
+          f"{'PASS' if passed else 'FAIL'}")
     return 0 if passed else 1
 
 
