@@ -14,6 +14,7 @@ import {
   usePackTemplates,
   useUninstallPack,
 } from "./usePacks";
+import PackPublish from "./PackPublish";
 
 function PacksModal({ onClose }: { onClose: () => void }) {
   const discovery = usePackDiscovery();
@@ -139,6 +140,9 @@ function PacksModal({ onClose }: { onClose: () => void }) {
               </div>
             </div>
           ) : null}
+
+          {/* Author and publish a new pack to the registry (M9). */}
+          <PackPublish admin={admin} />
         </div>
       </div>
     </div>

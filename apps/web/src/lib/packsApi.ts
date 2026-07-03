@@ -94,4 +94,10 @@ export const packsApi = {
       `/api/v1/packs/templates/${encodeURIComponent(name)}/deploy`,
       { method: "POST" },
     ).then((r) => r.deployed),
+
+  publish: (manifest: Record<string, unknown>, force = false) =>
+    call<{ published: { name: string; version: string; path: string } }>("/api/v1/packs/publish", {
+      method: "POST",
+      body: { manifest, force },
+    }).then((r) => r.published),
 };
