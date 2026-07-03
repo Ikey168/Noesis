@@ -241,6 +241,56 @@ def route_documents(
     }
 
 
+def namespace_sample(
+    conn,
+    name: str,
+    docs: int = 6,
+    entities: int = 12,
+    claims: int = 6,
+) -> Dict[str, Any]:
+    """The scoped panel family for a KG namespace: a sample of routed
+    documents, the top derived entities, and a sample of scoped claims. This
+    is what a per-namespace ``documents`` / ``entity_graph`` / ``claims`` view
+    reads (the R9 scoped family)."""
+    tables = namespace_tables(name)
+    out: Dict[str, Any] = {"documents": [], "entities": [], "claims": []}
+    if _table_exists(conn, tables["documents"]):
+        rows = conn.execute(
+            f"SELECT id, title, source, source_type, published_at "
+            f"FROM {tables['documents']} ORDER BY published_at DESC NULLS LAST "
+            f"LIMIT ?",
+            [int(docs)],
+        ).fetchall()
+        out["documents"] = [
+            {
+                "id": r[0],
+                "title": r[1],
+                "source": r[2],
+                "source_type": r[3],
+                "published_at": str(r[4]) if r[4] is not None else None,
+            }
+            for r in rows
+        ]
+    if _table_exists(conn, tables["entities"]):
+        rows = conn.execute(
+            f"SELECT entity, mentions FROM {tables['entities']} "
+            f"ORDER BY mentions DESC LIMIT ?",
+            [int(entities)],
+        ).fetchall()
+        out["entities"] = [{"entity": r[0], "mentions": int(r[1])} for r in rows]
+    if _table_exists(conn, tables["claims"]):
+        rows = conn.execute(
+            f"SELECT claim_id, claim_text, verdict FROM {tables['claims']} "
+            f"LIMIT ?",
+            [int(claims)],
+        ).fetchall()
+        out["claims"] = [
+            {"claim_id": r[0], "text": (r[1] or "")[:180], "verdict": r[2]}
+            for r in rows
+        ]
+    return out
+
+
 def namespace_counts(conn, name: str) -> Dict[str, int]:
     """Live row counts for a KG's three namespace tables (0 when absent)."""
     tables = namespace_tables(name)

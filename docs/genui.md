@@ -131,6 +131,15 @@ deletes) and detaches sources; re-running a failed provision converges without
 duplicating. Every deploy/attach/ingest/teardown is in the lineage log, so each
 step is visible.
 
+R9 is the acceptance of that plane: two domains, `finance` (earnings-call
+transcripts) and `legal` (policy filings), stand up over the real
+`provisioning_mcp` server with no pack code, each deploy-to-ingested in roughly
+250 ms, each namespace scoped to its own routed documents. `kg_view(kg)` returns
+the scoped documents/entities/claims family the `provisioned_kg` panel renders.
+The harness is `scripts/provisioning/acceptance.py`, the regression is
+`tests/unit/provisioning/test_acceptance.py`, and the write-up (with the
+friction fed back into R8) is `docs/provisioning-acceptance.md`.
+
 ### MCP host runtime (`src/mcp_host/`, R1)
 
 The API process supervises the repo's 12 `tools/*_mcp` stdio servers:
