@@ -54,6 +54,7 @@ export interface AgentFinding {
 
 export interface AnalystResult {
   run_id: string;
+  transport?: string;
   goal: string;
   kg: AgentKg;
   osint: AgentFinding[];
@@ -64,6 +65,7 @@ export interface AnalystResult {
 
 export interface InvestigatorResult {
   run_id: string;
+  transport?: string;
   title: string;
   kg: AgentKg;
   surface: AgentFinding[];
@@ -90,6 +92,7 @@ export interface AnalystInput {
   entity?: string;
   claim_id?: string;
   source?: string;
+  transport?: "local" | "live";
 }
 
 export interface InvestigatorInput {
@@ -99,6 +102,7 @@ export interface InvestigatorInput {
   topic?: string;
   claim_id?: string;
   sources?: string[];
+  transport?: "local" | "live";
 }
 
 export const agentApi = {

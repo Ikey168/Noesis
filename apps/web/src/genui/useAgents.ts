@@ -2,13 +2,22 @@
 // the analyst / investigator run mutations.
 
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { agentApi, type AnalystInput, type InvestigatorInput } from "../lib/agentApi";
+import { agentApi, type AnalystInput, type InvestigatorInput, type RunCall } from "../lib/agentApi";
 
 export function useAgentStatus() {
   return useQuery<{ enabled: boolean }>({
     queryKey: ["agent", "status"],
     queryFn: agentApi.status,
     staleTime: 60_000,
+    retry: false,
+  });
+}
+
+export function useRunReplay(runId: string | null, enabled: boolean) {
+  return useQuery<{ run_id: string; calls: RunCall[]; count: number }>({
+    enabled: enabled && !!runId,
+    queryKey: ["agent", "run", runId],
+    queryFn: () => agentApi.run(runId as string),
     retry: false,
   });
 }

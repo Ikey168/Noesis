@@ -124,3 +124,52 @@ def test_status_and_gating(monkeypatch):
 
 def test_replay_unknown_run_is_404(client):
     assert client.get("/api/v1/agent/runs/does-not-exist").status_code == 404
+
+
+# --- transport switch (live MCP vs in-process) --------------------------------
+
+
+def test_default_transport_is_local(client):
+    body = client.post("/api/v1/agent/analyst", json={"goal": "delta flooding", "claim_id": "k1"}).json()
+    assert body["transport"] == "local"
+
+
+def test_live_transport_uses_the_live_caller(client, monkeypatch):
+    from src.agent.local_backend import build_local_caller
+
+    conn = mod._conn()[0]
+    used = {"live": False}
+
+    def fake_live_caller():
+        used["live"] = True
+        return build_local_caller(conn)  # drive the seeded warehouse, but via the live path
+
+    monkeypatch.setattr(mod, "live_caller", fake_live_caller)
+    resp = client.post(
+        "/api/v1/agent/analyst",
+        json={"goal": "delta flooding", "claim_id": "k1", "transport": "live"},
+    )
+    assert resp.status_code == 200
+    assert resp.json()["transport"] == "live"
+    assert used["live"] is True
+
+
+def test_live_transport_degrades_when_the_caller_errors(client, monkeypatch):
+    # The runtime absorbs per-call tool errors (records ok=False), so a live run
+    # whose caller fails still returns a well-formed response with no findings
+    # rather than a 500 -- the run is auditable either way.
+    def failing_caller():
+        def _call(server, tool, arguments):
+            raise RuntimeError("MCP host is not running")
+        return _call
+
+    monkeypatch.setattr(mod, "live_caller", failing_caller)
+    resp = client.post(
+        "/api/v1/agent/analyst",
+        json={"goal": "delta flooding", "claim_id": "k1", "transport": "live"},
+    )
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["transport"] == "live"
+    assert body["findings"] == 0
+    assert body["kg"]["provisioned"] is True  # deploy call was attempted (and recorded)
