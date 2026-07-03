@@ -1314,6 +1314,55 @@ function EvidenceTimelinePanel(props: PanelProps) {
   );
 }
 
+const DEMO_TRACE = {
+  artifact: { type: "claim", id: "k1" },
+  cited: true,
+  chain: [
+    { stage: "source", source: "Alpha Wire", detail: "ingested via rss connector" },
+    { stage: "document", title: "Rule cuts sector output by 12 percent", detail: "http://a/1" },
+    { stage: "enrichment", detail: "3 claims, 6 entities, 2 frames extracted" },
+    { stage: "claim", detail: "The rule cuts output 12 percent (verdict: disputed)" },
+    { stage: "namespaces", detail: "routed into kg_energy_" },
+  ],
+};
+
+const STAGE_COLOR: Record<string, string> = {
+  source: ACCENT,
+  document: palette.teal,
+  enrichment: palette.amber,
+  claim: palette.pos,
+  namespaces: palette.blue,
+};
+
+function ProvenanceTracePanel(props: PanelProps) {
+  const t = DEMO_TRACE;
+  return (
+    <GenPanel {...props} source="demo">
+      <div style={{ ...mono, marginBottom: 8 }}>
+        {t.artifact.type} {t.artifact.id}
+        {t.cited ? null : <span style={{ color: palette.amber, marginLeft: 6 }}>uncited</span>}
+      </div>
+      <div style={{ display: "flex", flexDirection: "column" }}>
+        {t.chain.map((s, i) => (
+          <div key={i} style={{ display: "flex", gap: 10, alignItems: "flex-start", paddingBottom: i < t.chain.length - 1 ? 10 : 0, position: "relative" }}>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+              <span style={{ width: 9, height: 9, borderRadius: "50%", background: STAGE_COLOR[s.stage] ?? palette.dim, flex: "none", marginTop: 3 }} />
+              {i < t.chain.length - 1 ? <span style={{ width: 2, flex: 1, background: "#1b2f3a", minHeight: 14 }} /> : null}
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 12, fontWeight: 600, color: STAGE_COLOR[s.stage] ?? palette.dim }}>{s.stage}</div>
+              <div style={{ fontSize: 11.5, color: palette.dim, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                {"source" in s && s.source ? `${s.source} - ` : ""}{s.detail}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div style={{ ...mono, marginTop: 4 }}>source to connector to document to enrichment to claim, every stage cited</div>
+    </GenPanel>
+  );
+}
+
 function UnknownPanel(props: PanelProps) {
   return (
     <GenPanel {...props}>
@@ -1358,6 +1407,7 @@ const REGISTRY: Record<PanelType, ComponentType<PanelProps>> = {
   entity_dossier: EntityDossierPanel,
   relationship_path: RelationshipPathPanel,
   evidence_timeline: EvidenceTimelinePanel,
+  provenance_trace: ProvenanceTracePanel,
 };
 
 export function panelComponent(type: string): ComponentType<PanelProps> {

@@ -76,6 +76,27 @@ benefits, retire the proxy: delete `src/genui/dataplane.py`, the
 on REST. The prototype is cheap to remove precisely because it is one flag, one
 route, one tool.
 
+## Update: pre-warm on generate (issue #639)
+
+The first cold-path lever is now implemented. `dataplane.prewarm_from_spec` runs
+when `/api/v1/ui/generate` produces a spec: for every panel a data-mode tool can
+serve, it warms the shared tool cache on a background thread with the same
+empty-args call the browser makes, so the browser's first `/ui/data` fetch is a
+cache hit rather than a cold MCP round-trip. It is best-effort (warming errors
+fall back to the live path), never blocks the generate response, and is a no-op
+when the flag is off. The frontend `useDataPlaneArticles` hook was aligned to
+fetch with empty args so its cache key matches the pre-warm.
+
+Measured effect (live, same setup as the table): after `prewarm_from_spec`, the
+articles fetch is a warm cache hit at ~0.1 ms versus ~24 ms cold on the same
+run. In other words, pre-warm moves the *user-visible* first load onto the
+`proxy_cached` row for any panel that was in the generated spec.
+
+This does not lower the *raw* uncached cold path (that still needs the lighter
+encoding lever); it removes the cold path from the common flow, where the panel
+was just planned. The remaining `proxy_cold` gap is only hit by fetches for a
+panel that was never planned into the spec, or after the TTL expires.
+
 ## Consequences
 
 - The browser still never speaks MCP; the proxy is the only door, and it is

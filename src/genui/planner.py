@@ -43,6 +43,7 @@ FACET_KEYWORDS: Dict[str, Tuple[str, ...]] = {
         "misinformation", "disinformation", "evidence", "assertion",
         "unsourced",
         "corroborate", "corroboration", "corroborated", "independent", "osint",
+        "provenance", "trace", "chain", "origin", "where from",
     ),
     "stance": (
         "stance", "stances", "support", "supports", "supportive", "oppose",

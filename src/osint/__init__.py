@@ -31,6 +31,7 @@ from src.osint.investigations import (
     osint_telemetry,
 )
 from src.osint.paths import relationship_path
+from src.osint.provenance import trace_artifact
 from src.osint.reliability import source_reliability
 from src.osint.timeline import timeline_reconstruct
 
@@ -43,6 +44,7 @@ __all__ = [
     "entity_dossier",
     "relationship_path",
     "timeline_reconstruct",
+    "trace_artifact",
     "investigation_audit",
     "list_investigations",
     "osint_telemetry",

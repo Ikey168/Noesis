@@ -335,6 +335,55 @@ def timeline_reconstruct(
         con.close()
 
 
+@mcp.tool(
+    output_schema={
+        "type": "object",
+        "properties": {
+            "artifact": {"type": "object"},
+            "cited": {"type": "boolean"},
+            "chain": {"type": "array"},
+            "stage_count": {"type": "integer"},
+            "claims": {"type": "array"},
+        },
+        "additionalProperties": True,
+    },
+    meta={"panel": {
+        "type": "provenance_trace",
+        "title": "Provenance trace",
+        "description": "The full chain behind an artifact: from the source that ingested it, through the document and its enrichments, to the claim and any provisioned KG it was routed into, every stage cited.",
+        "endpoint": None,
+        "facets": ["claims", "sources", "library"],
+        "tables": ["argument_claims"],
+        "ui_flag": "osint",
+        "default_span": 6,
+        "topic_param": "claim_id",
+    }},
+)
+def trace_artifact(
+    claim_id: Optional[str] = None, document_id: Optional[str] = None
+) -> dict:
+    """Trace one artifact (a claim or a document) end to end: source to
+    connector to document to enrichment to claim to routed namespace, every
+    stage cited. Answers "where did this come from and what happened to it".
+
+    Args:
+        claim_id: trace a claim (see argument_mcp.list_claims).
+        document_id: trace a document (a news_articles id).
+    """
+    try:
+        con = _warehouse_ro()
+    except Exception as exc:
+        return {"error": str(exc)}
+    try:
+        from src.osint import trace_artifact as _trace
+
+        return _trace(con, claim_id=claim_id, document_id=document_id)
+    except Exception as exc:
+        return {"error": str(exc)}
+    finally:
+        con.close()
+
+
 @mcp.tool
 def investigation_audit(investigation: str) -> dict:
     """Reconstruct an investigation from its provisioning audit trail: the KG
