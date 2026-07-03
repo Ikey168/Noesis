@@ -3,8 +3,9 @@
 // else is generated — intents come from the composer, and suggestions live
 // on the empty canvas itself.
 
-import { Plus, Sparkles, X } from "lucide-react";
+import { Bookmark, Plus, Share2, Sparkles, X } from "lucide-react";
 import { HOME, type CanvasDef } from "../genui/canvases";
+import { useSavedCanvases } from "../genui/useSavedCanvases";
 import { Button } from "./ui/button";
 import { cn } from "../lib/utils";
 
@@ -12,11 +13,13 @@ interface Props {
   canvases: CanvasDef[];
   activeId: string;
   onSelect: (id: string) => void;
+  onOpenSaved: (savedId: string, label: string) => void;
   onRemove: (id: string) => void;
   ingestRate: string;
 }
 
-export default function Sidebar({ canvases, activeId, onSelect, onRemove, ingestRate }: Props) {
+export default function Sidebar({ canvases, activeId, onSelect, onOpenSaved, onRemove, ingestRate }: Props) {
+  const { data: saved } = useSavedCanvases();
   return (
     <aside className="flex w-60 shrink-0 flex-col border-r bg-[#070d13]">
       {/* Brand */}
@@ -69,6 +72,33 @@ export default function Sidebar({ canvases, activeId, onSelect, onRemove, ingest
             ) : null}
           </Button>
         ))}
+
+        {/* Server-persisted canvases (M8): saved and shareable, reopened by id. */}
+        {saved && saved.length > 0 ? (
+          <>
+            <div className="px-2.5 pb-1.5 pt-4 font-mono text-[9.5px] tracking-[0.16em] text-muted-foreground/60">
+              SAVED
+            </div>
+            {saved.map((s) => (
+              <Button
+                key={s.id}
+                variant="ghost"
+                onClick={() => onOpenSaved(s.id, s.title)}
+                title={`Reopen saved canvas — ${s.panel_count} panel${s.panel_count === 1 ? "" : "s"}`}
+                className={cn(
+                  "h-auto w-full justify-start gap-2.5 px-2.5 py-2 text-[13px] font-medium text-muted-foreground",
+                  `s-${s.id}` === activeId && "bg-primary/10 text-primary hover:bg-primary/10 hover:text-primary",
+                )}
+              >
+                <span className="w-[18px] shrink-0 text-center">
+                  <Bookmark className="size-3.5" />
+                </span>
+                <span className="min-w-0 flex-1 truncate text-left">{s.title}</span>
+                {s.shared ? <Share2 className="size-3 shrink-0 text-sky-400/70" /> : null}
+              </Button>
+            ))}
+          </>
+        ) : null}
       </nav>
 
       {/* Footer */}

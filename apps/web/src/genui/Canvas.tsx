@@ -5,6 +5,8 @@
 
 import { RotateCcw } from "lucide-react";
 import SpecRenderer from "./SpecRenderer";
+import SavedCanvasView from "./SavedCanvasView";
+import CanvasActions from "./CanvasActions";
 import EntityGraph from "../components/charts/EntityGraph";
 import { useArticles, useClusters, useEntityGraph, useUiTelemetry } from "../lib/queries";
 import { useUiSpec } from "./useUiSpec";
@@ -143,10 +145,20 @@ interface Props {
 
 export default function Canvas({ canvas, onIntent }: Props) {
   const adaptive = useAdaptiveSignals();
+  const isSaved = !!canvas.savedId;
   const hasIntent = canvas.intent.trim().length > 0;
-  const { spec, source, isLoading } = useUiSpec(canvas.intent, adaptive.signals, hasIntent);
+  const { spec, source, isLoading } = useUiSpec(canvas.intent, adaptive.signals, hasIntent && !isSaved);
 
   const planner = PLANNER_BADGE[spec.generated_by] ?? PLANNER_BADGE.heuristic;
+
+  // A server-persisted canvas renders from its stored spec, not a fresh plan.
+  if (isSaved && canvas.savedId) {
+    return (
+      <div className="flex h-full min-h-0 flex-col">
+        <SavedCanvasView savedId={canvas.savedId} />
+      </div>
+    );
+  }
 
   if (!hasIntent) {
     return (
@@ -197,6 +209,8 @@ export default function Canvas({ canvas, onIntent }: Props) {
             <RotateCcw className="!size-3" /> RESET
           </Button>
         ) : null}
+        {/* Persist / share this canvas server-side (M8). */}
+        <CanvasActions spec={spec} />
       </div>
 
       <SpecRenderer spec={spec} adaptive={adaptive} />
