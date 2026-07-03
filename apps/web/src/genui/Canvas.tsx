@@ -3,10 +3,13 @@
 // the pipeline (entity constellation, movers, ingest stats) and points at
 // the ⌘K command bar. With an intent, the planned layout fills the surface.
 
+import { useEffect, useState } from "react";
 import { RotateCcw } from "lucide-react";
 import SpecRenderer from "./SpecRenderer";
 import SavedCanvasView from "./SavedCanvasView";
 import CanvasActions from "./CanvasActions";
+import RefineBar from "./RefineBar";
+import type { UISpec } from "./spec";
 import EntityGraph from "../components/charts/EntityGraph";
 import { useArticles, useClusters, useEntityGraph, useUiTelemetry } from "../lib/queries";
 import { useUiSpec } from "./useUiSpec";
@@ -149,7 +152,13 @@ export default function Canvas({ canvas, onIntent }: Props) {
   const hasIntent = canvas.intent.trim().length > 0;
   const { spec, source, isLoading } = useUiSpec(canvas.intent, adaptive.signals, hasIntent && !isSaved);
 
-  const planner = PLANNER_BADGE[spec.generated_by] ?? PLANNER_BADGE.heuristic;
+  // M6 in-canvas refinement: an applied refinement overlays the generated spec
+  // until the base plan changes (new intent / regenerate), when it is dropped.
+  const [refined, setRefined] = useState<UISpec | null>(null);
+  useEffect(() => setRefined(null), [spec]);
+  const view = refined ?? spec;
+
+  const planner = PLANNER_BADGE[view.generated_by] ?? PLANNER_BADGE.heuristic;
 
   // A server-persisted canvas renders from its stored spec, not a fresh plan.
   if (isSaved && canvas.savedId) {
@@ -178,9 +187,14 @@ export default function Canvas({ canvas, onIntent }: Props) {
         <Badge variant={isLoading ? "sync" : source === "live" ? "live" : "demo"}>
           {isLoading ? "SYNC" : source === "live" ? "LIVE" : "DEMO"}
         </Badge>
-        <span className="font-grotesk text-sm font-semibold">{spec.title}</span>
-        {spec.subtitle ? (
-          <span className="font-mono text-[10.5px] text-muted-foreground">{spec.subtitle}</span>
+        <span className="font-grotesk text-sm font-semibold">{view.title}</span>
+        {view.subtitle ? (
+          <span className="font-mono text-[10.5px] text-muted-foreground">{view.subtitle}</span>
+        ) : null}
+        {refined ? (
+          <Badge variant="outline" className="border-violet-400/30 bg-violet-400/10 text-violet-400" title="This canvas has been refined in place">
+            REFINED
+          </Badge>
         ) : null}
         <span className="flex-1" />
         {adaptive.signals.dismissed.length > 0 ? (
@@ -210,10 +224,15 @@ export default function Canvas({ canvas, onIntent }: Props) {
           </Button>
         ) : null}
         {/* Persist / share this canvas server-side (M8). */}
-        <CanvasActions spec={spec} />
+        <CanvasActions spec={view} />
       </div>
 
-      <SpecRenderer spec={spec} adaptive={adaptive} />
+      {/* In-canvas refinement (M6): mutate this layout with a follow-up. */}
+      <div className="mb-4">
+        <RefineBar spec={view} onRefined={setRefined} />
+      </div>
+
+      <SpecRenderer spec={view} adaptive={adaptive} />
     </div>
   );
 }
