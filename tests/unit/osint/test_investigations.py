@@ -102,6 +102,42 @@ def test_gated_tools_are_absent_from_the_server():
         assert gated not in served, f"gated tool {gated} must not be served"
 
 
+def _served_tool_names(monkeypatch, flag):
+    import asyncio
+    import importlib.util
+    import sys
+    from pathlib import Path
+
+    if flag is None:
+        monkeypatch.delenv("NOESIS_OSINT_GATED_TOOLS", raising=False)
+    else:
+        monkeypatch.setenv("NOESIS_OSINT_GATED_TOOLS", flag)
+    repo = Path(__file__).resolve().parents[3]
+    path = repo / "tools/osint_mcp/server.py"
+    spec = importlib.util.spec_from_file_location(f"osint_gate_{flag}", path)
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+
+    from fastmcp.client import Client
+
+    async def _names():
+        async with Client(module.mcp) as c:
+            return {t.name for t in await c.list_tools()}
+
+    return asyncio.run(_names())
+
+
+def test_gated_tools_appear_only_when_the_flag_is_on(monkeypatch):
+    """The flag is the gate's enforcement: absent by default, present when a
+    human deliberately turns NOESIS_OSINT_GATED_TOOLS on."""
+    off = _served_tool_names(monkeypatch, None)
+    assert "geolocate_claims" not in off and "narrative_coordination" not in off
+
+    on = _served_tool_names(monkeypatch, "on")
+    assert "geolocate_claims" in on and "narrative_coordination" in on
+
+
 def test_is_gated():
     assert is_gated("geolocate_claims")
     assert is_gated("narrative_coordination")

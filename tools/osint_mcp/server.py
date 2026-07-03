@@ -407,5 +407,68 @@ def investigation_audit(investigation: str) -> dict:
         con.close()
 
 
+# --------------------------------------------------------------------------- #
+# Review-gated tools (issue #639 item 3). Absent from the served surface unless
+# NOESIS_OSINT_GATED_TOOLS is explicitly turned on, which is the human sign-off
+# after the review in docs/osint-review-gate.md + docs/osint-abuse-analysis.md.
+# Purpose limitation is enforced in src/osint/gated.py, not just here.
+# --------------------------------------------------------------------------- #
+
+def _gated_enabled() -> bool:
+    from src.config.env import resolve_env
+
+    return (resolve_env("OSINT_GATED_TOOLS", "off") or "off").lower() in ("on", "1", "true")
+
+
+if _gated_enabled():
+
+    @mcp.tool
+    def geolocate_claims(
+        topic: Optional[str] = None, entity: Optional[str] = None
+    ) -> dict:
+        """Event geography from claim text (review-gated). Resolves only where an
+        event is reported to have happened, cited and flagged unverified; refuses
+        to geolocate a person.
+
+        Args:
+            topic: optional topic filter.
+            entity: optional entity filter; a person entity is refused.
+        """
+        try:
+            con = _warehouse_ro()
+        except Exception as exc:
+            return {"error": str(exc)}
+        try:
+            from src.osint.gated import geolocate_claims as _geo
+
+            return _geo(con, topic=topic, entity=entity)
+        except Exception as exc:
+            return {"error": str(exc)}
+        finally:
+            con.close()
+
+    @mcp.tool
+    def narrative_coordination(topic: Optional[str] = None) -> dict:
+        """Flag cohorts of sources publishing near-identical claims for human
+        review (review-gated). Never accuses; every cohort is "warrants review"
+        with a caveat that similarity is often coincidental.
+
+        Args:
+            topic: optional topic filter.
+        """
+        try:
+            con = _warehouse_ro()
+        except Exception as exc:
+            return {"error": str(exc)}
+        try:
+            from src.osint.gated import narrative_coordination as _coord
+
+            return _coord(con, topic=topic)
+        except Exception as exc:
+            return {"error": str(exc)}
+        finally:
+            con.close()
+
+
 if __name__ == "__main__":
     mcp.run()
