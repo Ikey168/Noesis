@@ -57,8 +57,12 @@ class Provisioner:
         ensure: bool = True,
         pipeline_runner: Optional[Callable[[Dict[str, Any]], Dict[str, Any]]] = None,
         contract_validator: Optional[Callable[[str, Dict[str, Any]], Dict[str, Any]]] = None,
+        tenant: str = store.DEFAULT_TENANT,
     ):
         self._conn = conn
+        # M4.1: the owning tenant. Every read/list/act is scoped to it, so one
+        # tenant can never see or touch another tenant's namespaces.
+        self._tenant = tenant or store.DEFAULT_TENANT
         self._lock = lock if lock is not None else _NullLock()
         self._quotas = quotas if quotas is not None else Quotas.from_env()
         self._clock = clock
@@ -97,7 +101,16 @@ class Provisioner:
         if backend not in (namespaces.BACKEND_TABLE_PREFIX, namespaces.BACKEND_ATTACHED):
             return {"error": f"unknown backend {backend!r}", "code": "bad_backend"}
 
-        existing = store.get_kg(self._conn, name)
+        # Namespace names are globally unique (shared tables); a name owned by
+        # another tenant is refused rather than silently co-opted.
+        global_existing = store.get_kg(self._conn, name)
+        if (
+            global_existing is not None
+            and global_existing.get("tenant", store.DEFAULT_TENANT) != self._tenant
+        ):
+            return {"error": f"KG name {name!r} is owned by another tenant",
+                    "code": "name_taken"}
+        existing = store.get_kg(self._conn, name, tenant=self._tenant)
         is_new = existing is None or existing.get("status") != store.STATUS_DEPLOYED
         # A converging re-deploy keeps the original backend.
         if existing is not None and existing.get("backend"):
@@ -110,7 +123,7 @@ class Provisioner:
 
         if not approve:
             try:
-                self._quotas.check_deploy_quota(store.count_deployed(self._conn), is_new)
+                self._quotas.check_deploy_quota(store.count_deployed(self._conn, tenant=self._tenant), is_new)
                 if is_attached:
                     self._quotas.check_database_quota(self._count_databases(), is_new)
             except GuardrailError as exc:
@@ -127,14 +140,14 @@ class Provisioner:
 
         try:
             with self._lock:
-                self._quotas.check_deploy_quota(store.count_deployed(self._conn), is_new)
+                self._quotas.check_deploy_quota(store.count_deployed(self._conn, tenant=self._tenant), is_new)
                 if is_attached:
                     self._quotas.check_database_quota(self._count_databases(), is_new)
                 now = self._clock()
                 namespaces.create_namespace(self._conn, name, backend, db_path)
                 kg = store.upsert_kg(
                     self._conn, name, description, ontology, now,
-                    backend=backend, db_path=db_path,
+                    backend=backend, db_path=db_path, tenant=self._tenant,
                 )
                 store.record_event(
                     self._conn,
@@ -151,7 +164,7 @@ class Provisioner:
         """How many deployed KGs use the attached-database backend."""
         return sum(
             1
-            for kg in store.list_kgs(self._conn, include_archived=False)
+            for kg in store.list_kgs(self._conn, include_archived=False, tenant=self._tenant)
             if kg.get("backend") == namespaces.BACKEND_ATTACHED
         )
 
@@ -166,7 +179,7 @@ class Provisioner:
         """Bind sources to a KG, explicitly or by a quality criterion resolved
         against the outlet transparency scores. Idempotent by ``(kg, source)``.
         """
-        kg = store.get_kg(self._conn, name)
+        kg = store.get_kg(self._conn, name, tenant=self._tenant)
         if kg is None or kg.get("status") != store.STATUS_DEPLOYED:
             return {"error": f"KG {name!r} is not deployed", "code": "not_deployed"}
 
@@ -292,7 +305,7 @@ class Provisioner:
         """Bind a pipeline (a connector or feed) to a KG, contract-validated at
         attach. Approval-gated (it binds a connector that will run on ingest);
         idempotent by ``(kg, connector)``."""
-        kg = store.get_kg(self._conn, name)
+        kg = store.get_kg(self._conn, name, tenant=self._tenant)
         if kg is None or kg.get("status") != store.STATUS_DEPLOYED:
             return {"error": f"KG {name!r} is not deployed", "code": "not_deployed"}
         if not connector or not connector_type:
@@ -387,7 +400,7 @@ class Provisioner:
         copies the matching documents into the namespace. With no pipeline or
         runner, it degrades to routing already-ingested documents (R8 behaviour).
         """
-        kg = store.get_kg(self._conn, name)
+        kg = store.get_kg(self._conn, name, tenant=self._tenant)
         if kg is None or kg.get("status") != store.STATUS_DEPLOYED:
             return {"error": f"KG {name!r} is not deployed", "code": "not_deployed"}
         bound = [r["source"] for r in store.list_sources(self._conn, name)]
@@ -490,7 +503,7 @@ class Provisioner:
     def status(self, name: str) -> Dict[str, Any]:
         """Entity/document/claim counts, bound-source health and ingest lag for
         a KG. Read-only and free (no approval needed)."""
-        kg = store.get_kg(self._conn, name)
+        kg = store.get_kg(self._conn, name, tenant=self._tenant)
         if kg is None:
             return {"error": f"KG {name!r} not found", "code": "not_found"}
         sources = store.list_sources(self._conn, name)
@@ -533,7 +546,7 @@ class Provisioner:
 
     def list_kgs(self, include_archived: bool = False) -> Dict[str, Any]:
         """List KGs with their namespace counts."""
-        kgs = store.list_kgs(self._conn, include_archived=include_archived)
+        kgs = store.list_kgs(self._conn, include_archived=include_archived, tenant=self._tenant)
         out = []
         for kg in kgs:
             backend = kg.get("backend") or namespaces.BACKEND_TABLE_PREFIX
@@ -554,7 +567,7 @@ class Provisioner:
         counts, bound sources (and why), and a sample of its routed documents,
         top entities and scoped claims. With ``name``, scopes to one KG. This
         is what the discovered ``provisioned_kg`` panel renders."""
-        kgs = store.list_kgs(self._conn, include_archived=False)
+        kgs = store.list_kgs(self._conn, include_archived=False, tenant=self._tenant)
         if name is not None:
             kgs = [k for k in kgs if k["name"] == name]
         out = []
@@ -588,7 +601,7 @@ class Provisioner:
         ``attached`` detach its database (the file is left on disk); detach its
         sources and pipelines; mark it archived. Confirm-gated; never touches
         the shared corpus."""
-        kg = store.get_kg(self._conn, name)
+        kg = store.get_kg(self._conn, name, tenant=self._tenant)
         if kg is None:
             return {"error": f"KG {name!r} not found", "code": "not_found"}
         if kg.get("status") == store.STATUS_ARCHIVED:
