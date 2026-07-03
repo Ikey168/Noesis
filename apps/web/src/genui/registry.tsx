@@ -967,6 +967,57 @@ function LiteratureClaimsPanel(props: PanelProps) {
   );
 }
 
+const DEMO_KGS = [
+  {
+    name: "semiconductors",
+    description: "Chip supply-chain and fab coverage",
+    counts: { documents: 148, entities: 32, claims: 27 },
+    sources: [
+      { source: "Reuters Tech", reason: "selected because transparency 0.82 >= 0.70" },
+      { source: "The Verge", reason: "selected because transparency 0.74 >= 0.70" },
+    ],
+  },
+  {
+    name: "climate_policy",
+    description: "Emissions targets and grid transition",
+    counts: { documents: 91, entities: 21, claims: 18 },
+    sources: [{ source: "Carbon Brief", reason: "explicitly listed" }],
+  },
+];
+
+function ProvisionedKgPanel(props: PanelProps) {
+  return (
+    <GenPanel {...props} source="demo">
+      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        {DEMO_KGS.map((kg) => (
+          <div key={kg.name} style={{ borderLeft: `2px solid ${palette.teal}`, paddingLeft: 10 }}>
+            <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
+              <span style={{ fontSize: 13, fontWeight: 600 }}>{kg.name}</span>
+              <span style={{ ...mono }}>kg_{kg.name}_*</span>
+            </div>
+            <div style={{ fontSize: 12, color: palette.dim, margin: "2px 0 4px" }}>{kg.description}</div>
+            <div style={{ display: "flex", gap: 12, ...mono }}>
+              <span>{kg.counts.documents} docs</span>
+              <span>{kg.counts.entities} entities</span>
+              <span>{kg.counts.claims} claims</span>
+              <span>{kg.sources.length} sources</span>
+            </div>
+            <div style={{ marginTop: 4, display: "flex", flexDirection: "column", gap: 2 }}>
+              {kg.sources.map((s) => (
+                <div key={s.source} style={{ fontSize: 11.5 }}>
+                  <span style={{ color: palette.teal }}>{s.source}</span>
+                  <span style={{ color: palette.dim }}> - {s.reason}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+      <div style={{ ...mono, marginTop: 4 }}>agent-deployed knowledge graphs, fed by selected sources</div>
+    </GenPanel>
+  );
+}
+
 function UnknownPanel(props: PanelProps) {
   return (
     <GenPanel {...props}>
@@ -1004,6 +1055,7 @@ const REGISTRY: Record<PanelType, ComponentType<PanelProps>> = {
   venues: VenuesPanel,
   citation_graph: CitationGraphPanel,
   literature_claims: LiteratureClaimsPanel,
+  provisioned_kg: ProvisionedKgPanel,
 };
 
 export function panelComponent(type: string): ComponentType<PanelProps> {

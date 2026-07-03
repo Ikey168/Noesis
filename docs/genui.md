@@ -104,6 +104,33 @@ telemetry (recent papers, emerging concepts) takes over the empty canvas
 when the pack dominates. Enable with `NEURONEWS_ENABLED_PACKS=research`;
 with news off the canvas is fully functional on research panels.
 
+### Provisioning plane (`src/provisioning/`, R8)
+
+Turns MCP from the read/compose plane into one that can *provision* knowledge
+domains: an agent deploys a namespaced knowledge graph, binds the sources that
+feed it (explicitly or by a quality criterion), routes matching documents into
+the namespace, and the canvas grows a `provisioned_kg` panel for it via R2
+discovery. A per-KG namespace is a table prefix (`kg_<name>_documents` /
+`_entities` / `_claims`); routing copies only the rows whose `source` is bound
+to the KG out of the shared corpus, so a namespace holds only routed documents
+and the shared tables are read, never mutated. `namespaces.py` owns the prefix
+DDL and routing (the KG name is validated to `[a-z][a-z0-9_]*` before it ever
+reaches a table identifier); `store.py` is the registry plus an append-only
+lineage event log, every write an idempotent upsert keyed by name; `guardrails.py`
+enforces the RW guardrails (max KGs, max sources per KG, an ingest rate cap,
+a deploy approval gate, a teardown confirm gate); `provisioner.py` ties them
+into `deploy` / `attach_sources` / `ingest` / `status` / `list` / `teardown`,
+resolving criteria (transparency, attribution, type) against `outlet_scores`.
+Served by `tools/provisioning_mcp/`: the write tools (`kg_deploy`,
+`kg_attach_sources`, `kg_ingest`, `kg_teardown`) hold a process lock over a
+read-write warehouse, mirroring the pipeline server's trigger tools; the read
+tools (`kg_status`, `kg_list`, `kg_lineage`, `kg_view`) open it read-only.
+Deploy and teardown are approval-gated by default (a free dry-run preview
+otherwise); teardown archives (renames the namespace tables aside, never
+deletes) and detaches sources; re-running a failed provision converges without
+duplicating. Every deploy/attach/ingest/teardown is in the lineage log, so each
+step is visible.
+
 ### MCP host runtime (`src/mcp_host/`, R1)
 
 The API process supervises the repo's 12 `tools/*_mcp` stdio servers:

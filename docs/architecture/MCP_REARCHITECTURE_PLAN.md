@@ -594,6 +594,25 @@ quotas, approval gates, idempotent upserts.
 *Exit:* deploy → attach by criteria → ingest → scoped panels appear via
 discovery; teardown archives; every step visible in lineage.
 
+*Delivered.* The provisioning plane lives in `src/provisioning/` (stdlib-only;
+the caller injects the DuckDB connection, so nothing here opens the warehouse
+itself): `namespaces.py` is the table-prefix namespacing (`kg_<name>_documents`
+/ `_entities` / `_claims`, name validated to `[a-z][a-z0-9_]*` before it ever
+reaches a table identifier) plus the routing that copies only the rows whose
+source is bound to a KG out of the shared corpus, leaving the shared tables
+untouched; `store.py` is the registry and an append-only lineage event log,
+every write an idempotent upsert keyed by name; `guardrails.py` is the quotas
+(max KGs, max sources per KG, ingest rate cap), the deploy/teardown approval
+gate and the confirm gate; `provisioner.py` ties them into deploy / attach /
+ingest / status / list / teardown, resolving quality criteria (transparency,
+attribution, type) against `outlet_scores`. Served by
+`tools/provisioning_mcp/` (write tools hold a process lock over a read-write
+warehouse, mirroring the pipeline server's trigger tools; read tools open
+read-only). The `provisioned_kg` panel type surfaces the plane on the canvas
+via R2 discovery (the `kg_view` tool is annotated). Teardown archives (renames
+the namespace tables aside, never deletes) and detaches sources; re-running a
+failed provision converges without duplicating.
+
 **R9 — Provisioned-domain proof** *(Track N3 = Track P acceptance)*
 Stand up finance (earnings-call transcripts) as a provisioned domain,
 writing no pack code; repeat with a second domain to prove it wasn't a
