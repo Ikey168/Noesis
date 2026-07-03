@@ -59,7 +59,7 @@ def _warehouse_ro():
             "single_sourced": {"type": "boolean"},
         }
     ),
-    meta={"panel": {
+    meta={"data": {"panel": "corroboration", "rest_route": None}, "panel": {
         "type": "corroboration",
         "title": "Claim corroboration",
         "description": "Independent sources supporting or contradicting a claim, weighted by source credibility; single-sourced claims are flagged, never given a false confidence.",
@@ -104,7 +104,7 @@ def corroborate(claim_id: str) -> dict:
             "scored_as_outlet": {"type": "boolean"},
         }
     ),
-    meta={"panel": {
+    meta={"data": {"panel": "reliability_card", "rest_route": None}, "panel": {
         "type": "reliability_card",
         "title": "Source reliability",
         "description": "OSINT source vetting: the outlet transparency score generalized to any source type, with corroboration hit-rate and correction history.",
@@ -148,7 +148,7 @@ def source_reliability(source: str) -> dict:
         },
         "additionalProperties": True,
     },
-    meta={"panel": {
+    meta={"data": {"panel": "contradiction_ledger", "rest_route": None}, "panel": {
         "type": "contradiction_ledger",
         "title": "Contradiction ledger",
         "description": "Where the public record disagrees with itself: contradicting claim pairs with both sources and citations; uncited entries are flagged, never hidden.",
@@ -205,7 +205,7 @@ def contradiction_scan(
         },
         "additionalProperties": True,
     },
-    meta={"panel": {
+    meta={"data": {"panel": "entity_dossier", "rest_route": None}, "panel": {
         "type": "entity_dossier",
         "title": "Entity dossier",
         "description": "A cited brief for an entity from ingested public documents: every mention, aliases, first and last seen, and connected entities, each line linked to its source. Person entities require a document; no inference-only facts.",
@@ -254,7 +254,7 @@ def entity_dossier(entity: str, entity_type: Optional[str] = None) -> dict:
         },
         "additionalProperties": True,
     },
-    meta={"panel": {
+    meta={"data": {"panel": "relationship_path", "rest_route": None}, "panel": {
         "type": "relationship_path",
         "title": "Connection path",
         "description": "How two entities are connected across the corpus, via the shortest co-mention path; each edge carries the cited documents that establish it. Resolution ambiguity is surfaced, not collapsed.",
@@ -299,7 +299,7 @@ def relationship_path(a: str, b: str) -> dict:
         },
         "additionalProperties": True,
     },
-    meta={"panel": {
+    meta={"data": {"panel": "evidence_timeline", "rest_route": None}, "panel": {
         "type": "evidence_timeline",
         "title": "Evidence timeline",
         "description": "A reconstructed event sequence from dated, cited claims, each event carrying its corroboration density (independent-source count); uncited entries flagged.",
@@ -347,7 +347,7 @@ def timeline_reconstruct(
         },
         "additionalProperties": True,
     },
-    meta={"panel": {
+    meta={"data": {"panel": "provenance_trace", "rest_route": None}, "panel": {
         "type": "provenance_trace",
         "title": "Provenance trace",
         "description": "The full chain behind an artifact: from the source that ingested it, through the document and its enrichments, to the claim and any provisioned KG it was routed into, every stage cited.",
