@@ -69,6 +69,8 @@ FACET_KEYWORDS: Dict[str, Tuple[str, ...]] = {
         "entity", "entities", "network", "graph", "connection",
         "connections", "related", "relationship", "relationships",
         "influence",
+        "knowledge graph", "provisioned", "provisioning", "namespace",
+        "namespaces", "deployed kg",
     ),
     "events": (
         "event", "events", "cluster", "clusters", "story", "stories",

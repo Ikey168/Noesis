@@ -353,6 +353,18 @@ PANEL_CATALOG: Tuple[PanelDef, ...] = (
         default_span=6,
         topic_param="topic",
     ),
+    # Provisioning plane (R8 / Track P): agent-deployed namespaced KGs surface
+    # as a scoped panel via R2 discovery from the provisioning server.
+    PanelDef(
+        type="provisioned_kg",
+        title="Provisioned knowledge graphs",
+        description="Agent-deployed namespaced knowledge graphs: entity and document counts, the sources feeding each and why they were selected.",
+        endpoint=None,
+        facets=("entities", "overview", "library"),
+        tables=("provisioned_kgs",),
+        default_span=6,
+        topic_param="kg",
+    ),
 )
 
 PANEL_TYPES: Tuple[str, ...] = tuple(p.type for p in PANEL_CATALOG)
