@@ -130,6 +130,43 @@ _DAYS_RE = re.compile(r"(\d+)\s*day")
 
 DEFAULT_FACETS = ("overview",)
 
+# Runtime keyword registry (M9.3): installed domain packs add facet keywords
+# here, so a pack's vocabulary steers the planner without editing FACET_KEYWORDS.
+# Facets are always existing catalog facets (the manifest validates that), so a
+# pack only enriches routing, never invents a facet.
+_RUNTIME_KEYWORDS: Dict[str, Tuple[str, ...]] = {}
+
+
+def register_keywords(facet: str, keywords: Iterable[str]) -> None:
+    """Add facet keywords contributed by an installed pack (deduplicated)."""
+    existing = set(_RUNTIME_KEYWORDS.get(facet, ()))
+    existing.update(k.lower() for k in keywords if k)
+    _RUNTIME_KEYWORDS[facet] = tuple(sorted(existing))
+
+
+def unregister_keywords(facet: str, keywords: Optional[Iterable[str]] = None) -> None:
+    """Remove pack-contributed keywords (pack uninstall). With ``keywords`` None,
+    drops all of a facet's runtime keywords."""
+    if keywords is None:
+        _RUNTIME_KEYWORDS.pop(facet, None)
+        return
+    remaining = set(_RUNTIME_KEYWORDS.get(facet, ())) - {k.lower() for k in keywords}
+    if remaining:
+        _RUNTIME_KEYWORDS[facet] = tuple(sorted(remaining))
+    else:
+        _RUNTIME_KEYWORDS.pop(facet, None)
+
+
+def effective_keywords() -> Dict[str, Tuple[str, ...]]:
+    """The planner's keyword map: the static ``FACET_KEYWORDS`` plus any
+    installed-pack keywords merged in per facet."""
+    if not _RUNTIME_KEYWORDS:
+        return FACET_KEYWORDS
+    merged = {facet: tuple(kws) for facet, kws in FACET_KEYWORDS.items()}
+    for facet, kws in _RUNTIME_KEYWORDS.items():
+        merged[facet] = tuple(merged.get(facet, ())) + tuple(kws)
+    return merged
+
 
 def _tokenize(text: str) -> List[str]:
     return _TOKEN_RE.findall(text.lower())
@@ -140,7 +177,7 @@ def score_facets(intent: str) -> Dict[str, int]:
     normalized = " ".join(_tokenize(intent))
     tokens = set(normalized.split())
     scores: Dict[str, int] = {}
-    for facet, keywords in FACET_KEYWORDS.items():
+    for facet, keywords in effective_keywords().items():
         hits = 0
         for kw in keywords:
             if " " in kw or "-" in kw:
@@ -176,7 +213,7 @@ def detect_days(intent: str) -> Optional[int]:
 def extract_topic(intent: str) -> Optional[str]:
     """Extract the topic phrase: what's left after facet/time/type words."""
     facet_words = set()
-    for keywords in FACET_KEYWORDS.values():
+    for keywords in effective_keywords().values():
         for kw in keywords:
             facet_words.update(kw.replace("-", " ").split())
     keep: List[str] = []
