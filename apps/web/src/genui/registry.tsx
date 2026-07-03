@@ -1446,10 +1446,43 @@ function ProvenanceTracePanel(props: PanelProps) {
   );
 }
 
+// Generic renderer for a panel type with no dedicated component — notably a
+// panel contributed by an installed domain pack (M9). It renders what the spec
+// carries (rationale, body, params) so a pack panel is meaningful even without
+// a bespoke visualization.
 function UnknownPanel(props: PanelProps) {
+  const { panel } = props;
+  const params = Object.entries(panel.params ?? {}).filter(
+    ([, v]) => v != null && v !== "",
+  );
+  const hasContent = !!panel.rationale || !!panel.body || params.length > 0;
+  if (!hasContent) {
+    return (
+      <GenPanel {...props}>
+        <Empty text={`Renderer for '${panel.type}' not installed`} />
+      </GenPanel>
+    );
+  }
   return (
     <GenPanel {...props}>
-      <Empty text={`Renderer for '${props.panel.type}' not installed`} />
+      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        {panel.rationale ? (
+          <div style={{ fontSize: 12, lineHeight: 1.45, color: "#c7d3d9" }}>{panel.rationale}</div>
+        ) : null}
+        {panel.body ? (
+          <div style={{ fontSize: 12, lineHeight: 1.45, color: "#c7d3d9" }}>{panel.body}</div>
+        ) : null}
+        {params.length ? (
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+            {params.map(([k, v]) => (
+              <span key={k} style={chip("#5f7580")}>
+                {k}: {String(v)}
+              </span>
+            ))}
+          </div>
+        ) : null}
+        <div style={mono}>generic view · panel type “{panel.type}” from an installed pack</div>
+      </div>
     </GenPanel>
   );
 }
