@@ -969,26 +969,53 @@ function LiteratureClaimsPanel(props: PanelProps) {
 
 const DEMO_KGS = [
   {
-    name: "semiconductors",
-    description: "Chip supply-chain and fab coverage",
-    counts: { documents: 148, entities: 32, claims: 27 },
+    name: "finance",
+    description: "Earnings-call transcripts, provisioned (no pack code)",
+    counts: { documents: 84, entities: 26, claims: 19 },
     sources: [
-      { source: "Reuters Tech", reason: "selected because transparency 0.82 >= 0.70" },
-      { source: "The Verge", reason: "selected because transparency 0.74 >= 0.70" },
+      { source: "Acme Corp Earnings", reason: "selected because transparency 0.81 >= 0.70" },
+      { source: "Globex Investor Call", reason: "selected because transparency 0.76 >= 0.70" },
     ],
+    sample: {
+      documents: [
+        { title: "Acme Corp Q3 earnings call transcript", source: "Acme Corp Earnings" },
+        { title: "Globex FY guidance revised upward", source: "Globex Investor Call" },
+      ],
+      entities: [
+        { entity: "earnings", mentions: 18 },
+        { entity: "guidance", mentions: 12 },
+        { entity: "margin", mentions: 9 },
+      ],
+      claims: [
+        { text: "Cloud revenue grew 34 percent year over year.", verdict: "supported" },
+        { text: "Guidance assumes no further rate hikes.", verdict: "unverified" },
+      ],
+    },
   },
   {
-    name: "climate_policy",
-    description: "Emissions targets and grid transition",
-    counts: { documents: 91, entities: 21, claims: 18 },
-    sources: [{ source: "Carbon Brief", reason: "explicitly listed" }],
+    name: "legal",
+    description: "Policy and legal filings, provisioned (no pack code)",
+    counts: { documents: 57, entities: 21, claims: 14 },
+    sources: [{ source: "Federal Register", reason: "explicitly listed" }],
+    sample: {
+      documents: [
+        { title: "Proposed rule on emissions disclosure", source: "Federal Register" },
+        { title: "Comment period opens for data-privacy rule", source: "Federal Register" },
+      ],
+      entities: [
+        { entity: "rule", mentions: 15 },
+        { entity: "disclosure", mentions: 10 },
+        { entity: "compliance", mentions: 7 },
+      ],
+      claims: [{ text: "The rule takes effect 90 days after publication.", verdict: "supported" }],
+    },
   },
 ];
 
 function ProvisionedKgPanel(props: PanelProps) {
   return (
     <GenPanel {...props} source="demo">
-      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
         {DEMO_KGS.map((kg) => (
           <div key={kg.name} style={{ borderLeft: `2px solid ${palette.teal}`, paddingLeft: 10 }}>
             <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
@@ -1002,9 +1029,34 @@ function ProvisionedKgPanel(props: PanelProps) {
               <span>{kg.counts.claims} claims</span>
               <span>{kg.sources.length} sources</span>
             </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginTop: 6 }}>
+              <div>
+                <div style={{ ...mono, color: palette.teal }}>documents</div>
+                {kg.sample.documents.map((d) => (
+                  <div key={d.title} style={{ fontSize: 11.5, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{d.title}</div>
+                ))}
+              </div>
+              <div>
+                <div style={{ ...mono, color: palette.teal }}>entities</div>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+                  {kg.sample.entities.map((e) => (
+                    <span key={e.entity} style={{ ...chip(palette.dim) }}>{e.entity} {e.mentions}</span>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div style={{ marginTop: 6 }}>
+              <div style={{ ...mono, color: palette.teal }}>claims</div>
+              {kg.sample.claims.map((c) => (
+                <div key={c.text} style={{ fontSize: 11.5, display: "flex", gap: 6, alignItems: "flex-start" }}>
+                  <span style={{ ...chip(VERDICT_COLOR[c.verdict] ?? palette.dim), marginTop: 2 }}>{c.verdict}</span>
+                  <span style={{ flex: 1, minWidth: 0 }}>{c.text}</span>
+                </div>
+              ))}
+            </div>
             <div style={{ marginTop: 4, display: "flex", flexDirection: "column", gap: 2 }}>
               {kg.sources.map((s) => (
-                <div key={s.source} style={{ fontSize: 11.5 }}>
+                <div key={s.source} style={{ fontSize: 11 }}>
                   <span style={{ color: palette.teal }}>{s.source}</span>
                   <span style={{ color: palette.dim }}> - {s.reason}</span>
                 </div>
@@ -1013,7 +1065,7 @@ function ProvisionedKgPanel(props: PanelProps) {
           </div>
         ))}
       </div>
-      <div style={{ ...mono, marginTop: 4 }}>agent-deployed knowledge graphs, fed by selected sources</div>
+      <div style={{ ...mono, marginTop: 4 }}>domains stood up by provisioning alone, no pack code</div>
     </GenPanel>
   );
 }

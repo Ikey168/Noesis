@@ -619,6 +619,20 @@ writing no pack code; repeat with a second domain to prove it wasn't a
 fluke.
 *Exit:* two domains live via provisioning alone.
 
+*Delivered.* Two domains stand up over the real `provisioning_mcp` server
+with no pack code: `finance` (earnings-call transcripts, bound by explicit
+source list) and `legal` (policy filings, bound by a `min_transparency`
+criterion resolved against the outlet scores), each deploy to ingested in
+roughly 250 ms. Each namespace holds only its own routed documents (the
+shared corpus is read, never written) and exposes a scoped
+documents/entities/claims family through `kg_view(kg)`, surfaced on the
+canvas by the discovered `provisioned_kg` panel. The one R8 friction found,
+that `kg_view` returned counts without the scoped sample, is fixed in the
+provisioning plane (`namespaces.namespace_sample` + `Provisioner.view`), not
+with pack code. The executable harness is `scripts/provisioning/acceptance.py`,
+the regression is `tests/unit/provisioning/test_acceptance.py`, and the
+write-up with the friction list is `docs/provisioning-acceptance.md`.
+
 **R10 — OSINT composition** *(Track OSINT, phase 1)*
 `corroborate`, `source_reliability`, `contradiction_scan` under the
 evidence discipline (citations mandatory, single-source flagged,

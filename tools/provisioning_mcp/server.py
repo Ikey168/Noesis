@@ -297,6 +297,14 @@ def kg_lineage(kg: Optional[str] = None, limit: int = 50) -> dict:
                         "source_count": {"type": "integer"},
                         "counts": {"type": "object"},
                         "sources": {"type": "array"},
+                        "sample": {
+                            "type": "object",
+                            "properties": {
+                                "documents": {"type": "array"},
+                                "entities": {"type": "array"},
+                                "claims": {"type": "array"},
+                            },
+                        },
                     },
                 },
             },
@@ -307,7 +315,7 @@ def kg_lineage(kg: Optional[str] = None, limit: int = 50) -> dict:
     meta={"panel": {
         "type": "provisioned_kg",
         "title": "Provisioned knowledge graphs",
-        "description": "Agent-deployed namespaced knowledge graphs: entity and document counts, the sources feeding each and why they were selected.",
+        "description": "Agent-deployed namespaced knowledge graphs: the scoped documents, entities and claims per namespace, plus the sources feeding each and why they were selected.",
         "endpoint": None,
         "facets": ["entities", "overview", "library"],
         "tables": ["provisioned_kgs"],
@@ -317,9 +325,10 @@ def kg_lineage(kg: Optional[str] = None, limit: int = 50) -> dict:
     }},
 )
 def kg_view(kg: Optional[str] = None) -> dict:
-    """The `provisioned_kg` panel view: deployed KGs with their namespace
-    counts and the sources feeding each (with the selection rationale). With a
-    ``kg`` argument, scopes to that one KG.
+    """The `provisioned_kg` panel view: deployed KGs with their scoped panel
+    family (a sample of the namespace's documents, top entities and claims),
+    their namespace counts, and the sources feeding each (with the selection
+    rationale). With a ``kg`` argument, scopes to that one namespace.
 
     Args:
         kg: optional KG name to scope the view.
@@ -331,16 +340,7 @@ def kg_view(kg: Optional[str] = None) -> dict:
     except Exception as exc:
         return {"error": str(exc)}
     try:
-        prov = Provisioner(con, ensure=False)
-        listing = prov.list_kgs(include_archived=False)
-        kgs = listing["kgs"]
-        if kg is not None:
-            kgs = [k for k in kgs if k["name"] == kg]
-        from src.provisioning import store
-
-        for k in kgs:
-            k["sources"] = store.list_sources(con, k["name"])
-        return {"kgs": kgs, "count": len(kgs)}
+        return Provisioner(con, ensure=False).view(kg)
     except Exception as exc:
         return {"error": str(exc)}
     finally:

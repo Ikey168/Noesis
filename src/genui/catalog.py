@@ -358,7 +358,7 @@ PANEL_CATALOG: Tuple[PanelDef, ...] = (
     PanelDef(
         type="provisioned_kg",
         title="Provisioned knowledge graphs",
-        description="Agent-deployed namespaced knowledge graphs: entity and document counts, the sources feeding each and why they were selected.",
+        description="Agent-deployed namespaced knowledge graphs: the scoped documents, entities and claims per namespace, plus the sources feeding each and why they were selected.",
         endpoint=None,
         facets=("entities", "overview", "library"),
         tables=("provisioned_kgs",),

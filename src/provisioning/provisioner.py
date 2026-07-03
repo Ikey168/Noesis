@@ -340,6 +340,28 @@ class Provisioner:
             )
         return {"kgs": out, "count": len(out)}
 
+    def view(self, name: Optional[str] = None) -> Dict[str, Any]:
+        """The scoped panel family for the provisioned KGs: each KG with its
+        counts, bound sources (and why), and a sample of its routed documents,
+        top entities and scoped claims. With ``name``, scopes to one KG. This
+        is what the discovered ``provisioned_kg`` panel renders."""
+        kgs = store.list_kgs(self._conn, include_archived=False)
+        if name is not None:
+            kgs = [k for k in kgs if k["name"] == name]
+        out = []
+        for kg in kgs:
+            sample = namespaces.namespace_sample(self._conn, kg["name"])
+            out.append(
+                {
+                    **kg,
+                    "source_count": store.count_sources(self._conn, kg["name"]),
+                    "counts": namespaces.namespace_counts(self._conn, kg["name"]),
+                    "sources": store.list_sources(self._conn, kg["name"]),
+                    "sample": sample,
+                }
+            )
+        return {"kgs": out, "count": len(out)}
+
     def lineage(self, name: Optional[str] = None, limit: int = 50) -> Dict[str, Any]:
         """The provisioning lineage event log (all KGs, or one)."""
         return {"events": store.list_events(self._conn, name, limit=limit)}
