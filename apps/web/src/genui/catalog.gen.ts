@@ -34,7 +34,10 @@ export type PanelType =
   | "venues"
   | "citation_graph"
   | "literature_claims"
-  | "provisioned_kg";
+  | "provisioned_kg"
+  | "corroboration"
+  | "reliability_card"
+  | "contradiction_ledger";
 
 export type Facet =
   | "overview"
@@ -94,6 +97,9 @@ export const PANEL_CATALOG: PanelDef[] = [
   { type: "citation_graph", title: "Citation graph", facets: ["entities", "library"], defaultSpan: 6, topicParam: true },
   { type: "literature_claims", title: "Literature claims", facets: ["claims", "library"], defaultSpan: 6, topicParam: true },
   { type: "provisioned_kg", title: "Provisioned knowledge graphs", facets: ["entities", "overview", "library"], defaultSpan: 6, topicParam: true },
+  { type: "corroboration", title: "Claim corroboration", facets: ["claims", "sources", "conflict"], defaultSpan: 6 },
+  { type: "reliability_card", title: "Source reliability", facets: ["sources"], defaultSpan: 6 },
+  { type: "contradiction_ledger", title: "Contradiction ledger", facets: ["conflict", "claims"], defaultSpan: 6, topicParam: true },
 ];
 
 export const PANEL_DEFS: Partial<Record<PanelType, PanelDef>> = Object.fromEntries(

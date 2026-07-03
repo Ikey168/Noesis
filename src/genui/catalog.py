@@ -365,6 +365,40 @@ PANEL_CATALOG: Tuple[PanelDef, ...] = (
         default_span=6,
         topic_param="kg",
     ),
+    # OSINT composition (R10 / Track OSINT), gated by the `osint` ui_flag;
+    # pure-composition reads over the existing claim / evidence / conflict
+    # layers.
+    PanelDef(
+        type="corroboration",
+        title="Claim corroboration",
+        description="Independent sources supporting or contradicting a claim, weighted by source credibility; single-sourced claims are flagged, never given a false confidence.",
+        endpoint=None,
+        facets=("claims", "sources", "conflict"),
+        tables=("argument_claims",),
+        ui_flag="osint",
+        default_span=6,
+    ),
+    PanelDef(
+        type="reliability_card",
+        title="Source reliability",
+        description="OSINT source vetting: the outlet transparency score generalized to any source type, with corroboration hit-rate and correction history.",
+        endpoint=None,
+        facets=("sources",),
+        tables=("outlet_scores",),
+        ui_flag="osint",
+        default_span=6,
+    ),
+    PanelDef(
+        type="contradiction_ledger",
+        title="Contradiction ledger",
+        description="Where the public record disagrees with itself: contradicting claim pairs with both sources and citations; uncited entries are flagged, never hidden.",
+        endpoint=None,
+        facets=("conflict", "claims"),
+        tables=("claim_conflicts",),
+        ui_flag="osint",
+        default_span=6,
+        topic_param="topic",
+    ),
 )
 
 PANEL_TYPES: Tuple[str, ...] = tuple(p.type for p in PANEL_CATALOG)

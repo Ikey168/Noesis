@@ -1070,6 +1070,127 @@ function ProvisionedKgPanel(props: PanelProps) {
   );
 }
 
+const DEMO_CORROBORATION = {
+  claim: { text: "The new emissions rule cuts sector output by 12 percent by 2030.", source: "Alpha Wire", credibility: 0.78 },
+  support: [
+    { source: "Beta Journal", credibility: 0.81, via: "evidence" },
+    { source: "Gamma Review", credibility: 0.66, via: "evidence" },
+  ],
+  contradict: [{ source: "Delta Post", credibility: 0.42, via: "conflict" }],
+  independent_support_count: 2,
+  independent_contradict_count: 1,
+  single_sourced: false,
+};
+
+function CorroborationPanel(props: PanelProps) {
+  const c = DEMO_CORROBORATION;
+  const Row = ({ s, kind }: { s: { source: string; credibility: number; via: string }; kind: "for" | "against" }) => (
+    <div key={s.source} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12 }}>
+      <span style={{ ...chip(kind === "for" ? palette.pos : palette.neg) }}>{kind}</span>
+      <span style={{ flex: 1, minWidth: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{s.source}</span>
+      <span style={{ ...mono }}>{s.via}</span>
+      <ScoreBar value={s.credibility} />
+      <span style={{ fontFamily: fonts.mono, fontSize: 11, color: palette.teal, width: 30, textAlign: "right" }}>{s.credibility.toFixed(2)}</span>
+    </div>
+  );
+  return (
+    <GenPanel {...props} source="demo">
+      <div style={{ fontSize: 12.5, lineHeight: 1.35, marginBottom: 6 }}>{c.claim.text}</div>
+      <div style={{ ...mono, marginBottom: 8 }}>claimed by {c.claim.source} (credibility {c.claim.credibility.toFixed(2)})</div>
+      {c.single_sourced ? (
+        <div style={{ ...chip(palette.amber) }}>single-sourced, not corroborated</div>
+      ) : (
+        <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+          <div style={{ ...mono }}>{c.independent_support_count} independent for, {c.independent_contradict_count} against</div>
+          {c.support.map((s) => <Row key={s.source} s={s} kind="for" />)}
+          {c.contradict.map((s) => <Row key={s.source} s={s} kind="against" />)}
+        </div>
+      )}
+      <div style={{ ...mono, marginTop: 6 }}>independent-source counts weighted by credibility, never one confidence number</div>
+    </GenPanel>
+  );
+}
+
+const DEMO_RELIABILITY = {
+  source: "Grid Policy Weekly",
+  reliability: { value: 0.71, lo: 0.6, hi: 0.82 },
+  components: { transparency: 0.74, corroboration_hit_rate: 0.68, clean_record_rate: 0.92 },
+  track_record: { documents: 214, claims: 88 },
+  corrections: { disputed_claims: 7 },
+  scored_as_outlet: true,
+};
+
+function ReliabilityCardPanel(props: PanelProps) {
+  const r = DEMO_RELIABILITY;
+  const rows: [string, number][] = [
+    ["transparency", r.components.transparency],
+    ["corroboration hit-rate", r.components.corroboration_hit_rate],
+    ["clean record rate", r.components.clean_record_rate],
+  ];
+  return (
+    <GenPanel {...props} source="demo">
+      <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 6 }}>
+        <span style={{ fontSize: 14, fontWeight: 600 }}>{r.source}</span>
+        <span style={{ ...mono }}>{r.track_record.documents} docs, {r.track_record.claims} claims</span>
+      </div>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+        <span style={{ ...mono, width: 64 }}>reliability</span>
+        <ScoreBar value={r.reliability.value} ci={{ lo: r.reliability.lo, hi: r.reliability.hi, level: 0.95, n: r.track_record.documents }} />
+        <span style={{ fontFamily: fonts.mono, fontSize: 12, color: palette.teal }}>{r.reliability.value.toFixed(2)}</span>
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+        {rows.map(([label, v]) => (
+          <div key={label} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 11.5 }}>
+            <span style={{ width: 118, color: palette.dim }}>{label}</span>
+            <ScoreBar value={v} />
+            <span style={{ fontFamily: fonts.mono, fontSize: 11, width: 30, textAlign: "right" }}>{v.toFixed(2)}</span>
+          </div>
+        ))}
+      </div>
+      <div style={{ ...mono, marginTop: 6 }}>
+        {r.corrections.disputed_claims} disputed claims{r.scored_as_outlet ? " ; scored on the outlet transparency path" : ""}
+      </div>
+    </GenPanel>
+  );
+}
+
+const DEMO_CONTRADICTIONS = [
+  {
+    claim_a: { text: "Storage costs fell 40 percent since 2022.", source: "Alpha Wire", cited: true },
+    claim_b: { text: "Storage costs are essentially flat since 2022.", source: "Delta Post", cited: true },
+    topic: "energy storage",
+  },
+  {
+    claim_a: { text: "The rule takes effect in 90 days.", source: "Federal Register", cited: true },
+    claim_b: { text: "The rule is delayed indefinitely.", source: "Unattributed brief", cited: false },
+    topic: "emissions rule",
+  },
+];
+
+function ContradictionLedgerPanel(props: PanelProps) {
+  return (
+    <GenPanel {...props} source="demo">
+      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        {DEMO_CONTRADICTIONS.map((c, i) => (
+          <div key={i} style={{ borderLeft: `2px solid ${palette.neg}`, paddingLeft: 10 }}>
+            <div style={{ ...mono, color: palette.amber }}>{c.topic}</div>
+            {[c.claim_a, c.claim_b].map((cl, j) => (
+              <div key={j} style={{ display: "flex", gap: 6, alignItems: "flex-start", fontSize: 11.5, marginTop: 2 }}>
+                <span style={{ ...chip(j === 0 ? ACCENT : palette.teal), marginTop: 2 }}>{cl.source}</span>
+                <span style={{ flex: 1, minWidth: 0 }}>
+                  {cl.text}
+                  {!cl.cited ? <span style={{ ...mono, color: palette.amber, marginLeft: 6 }}>uncited</span> : null}
+                </span>
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
+      <div style={{ ...mono, marginTop: 4 }}>where the record disagrees with itself; uncited entries flagged, never hidden</div>
+    </GenPanel>
+  );
+}
+
 function UnknownPanel(props: PanelProps) {
   return (
     <GenPanel {...props}>
@@ -1108,6 +1229,9 @@ const REGISTRY: Record<PanelType, ComponentType<PanelProps>> = {
   citation_graph: CitationGraphPanel,
   literature_claims: LiteratureClaimsPanel,
   provisioned_kg: ProvisionedKgPanel,
+  corroboration: CorroborationPanel,
+  reliability_card: ReliabilityCardPanel,
+  contradiction_ledger: ContradictionLedgerPanel,
 };
 
 export function panelComponent(type: string): ComponentType<PanelProps> {

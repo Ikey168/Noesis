@@ -140,6 +140,27 @@ The harness is `scripts/provisioning/acceptance.py`, the regression is
 `tests/unit/provisioning/test_acceptance.py`, and the write-up (with the
 friction fed back into R8) is `docs/provisioning-acceptance.md`.
 
+### OSINT composition (`src/osint/`, R10)
+
+Defensive, analytical primitives over already-ingested public documents, each a
+pure composition of layers Noesis already builds (M6 claims, the RAG evidence
+links, the semantic conflict edges, the outlet/source scores). Nothing crawls,
+targets or de-anonymizes; the tools only read the warehouse.
+`corroborate(claim_id)` counts the independent sources (by distinct outlet,
+excluding the claim's own source) that support or contradict a claim, each
+weighted by its transparency composite, and flags a claim as `single_sourced`
+rather than emitting a single confidence number. `source_reliability(source)`
+generalizes the outlet transparency score to any source_type (blogs, papers,
+filings) and adds a corroboration hit-rate and a disputed-claim rate,
+honesty-wrapped with a track-record-weighted interval. `contradiction_scan(topic
+| entity)` reads the CONTRADICTS edges and joins each pair back to both sources
+and citations, flagging uncited entries rather than hiding them. Served by
+`tools/osint_mcp/` (read-only) and surfaced through R2 discovery under the
+`osint` `ui_flag` as the `corroboration`, `reliability_card` and
+`contradiction_ledger` panels. The panels render the uncertainty and
+citation fields from demo data today; live panel data arrives with the MCP
+data proxy (R12).
+
 ### MCP host runtime (`src/mcp_host/`, R1)
 
 The API process supervises the repo's 12 `tools/*_mcp` stdio servers:
