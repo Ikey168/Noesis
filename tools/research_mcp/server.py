@@ -60,7 +60,7 @@ def _warehouse_ro():
             },
         }
     ),
-    meta={"panel": {
+    meta={"data": {"panel": "venues", "rest_route": None}, "panel": {
         "type": "venues",
         "title": "Venue credibility",
         "description": "Publication venues scored by concept diversity, attribution and citation impact, generalizing the outlet transparency ranking.",
@@ -101,7 +101,7 @@ def venues() -> dict:
         },
         "additionalProperties": True,
     },
-    meta={"panel": {
+    meta={"data": {"panel": "citation_graph", "rest_route": None}, "panel": {
         "type": "citation_graph",
         "title": "Citation graph",
         "description": "The paper citation network: papers linked by their references, sized by citation count.",
@@ -144,7 +144,7 @@ def citation_graph(topic: Optional[str] = None) -> dict:
         },
         "additionalProperties": True,
     },
-    meta={"panel": {
+    meta={"data": {"panel": "literature_claims", "rest_route": None}, "panel": {
         "type": "literature_claims",
         "title": "Literature claims",
         "description": "Claims mined from papers with fact-check verdicts and attribution, from the shared claim layer.",
