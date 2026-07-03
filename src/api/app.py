@@ -33,6 +33,7 @@ GENUI_ROUTES_AVAILABLE = False
 GENUI_DATA_ROUTES_AVAILABLE = False
 CANVAS_ROUTES_AVAILABLE = False
 PACK_ROUTES_AVAILABLE = False
+AGENT_ROUTES_AVAILABLE = False
 
 # Store imported modules globally
 _imported_modules = {}
@@ -420,6 +421,19 @@ def try_import_pack_routes():
         return False
 
 
+def try_import_agent_routes():
+    """Try to import the agent host routes (M10: analyst/investigator/replay)."""
+    global AGENT_ROUTES_AVAILABLE
+    try:
+        from src.api.routes import agent_routes
+        _imported_modules['agent_routes'] = agent_routes
+        AGENT_ROUTES_AVAILABLE = True
+        return True
+    except ImportError:
+        AGENT_ROUTES_AVAILABLE = False
+        return False
+
+
 def try_import_report_routes():
     """Try to import report generation routes (issues #51, #52)."""
     global REPORT_ROUTES_AVAILABLE
@@ -481,6 +495,7 @@ def check_all_imports():
     try_import_genui_data_routes()
     try_import_canvas_routes()
     try_import_pack_routes()
+    try_import_agent_routes()
     _load_domain_packs()
 
 
@@ -832,6 +847,13 @@ def include_optional_routers(app):
             app.include_router(pack_routes.router)
             routers_included += 1
 
+    # Include the agent host routes (M10: analyst/investigator/replay).
+    if AGENT_ROUTES_AVAILABLE:
+        agent_routes = _imported_modules.get('agent_routes')
+        if agent_routes:
+            app.include_router(agent_routes.router)
+            routers_included += 1
+
     return routers_included
 
 
@@ -953,6 +975,7 @@ async def root():
             "generative_ui_data": GENUI_DATA_ROUTES_AVAILABLE,
             "generative_ui_canvas": CANVAS_ROUTES_AVAILABLE,
             "domain_packs": PACK_ROUTES_AVAILABLE,
+            "agent": AGENT_ROUTES_AVAILABLE,
         },
     }
 
