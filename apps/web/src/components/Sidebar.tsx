@@ -7,6 +7,7 @@ import { Bookmark, Plus, Share2, Sparkles, X } from "lucide-react";
 import { HOME, type CanvasDef } from "../genui/canvases";
 import { useSavedCanvases } from "../genui/useSavedCanvases";
 import PacksButton from "../genui/PacksButton";
+import AgentButton from "../genui/AgentButton";
 import { Button } from "./ui/button";
 import { cn } from "../lib/utils";
 
@@ -104,7 +105,8 @@ export default function Sidebar({ canvases, activeId, onSelect, onOpenSaved, onR
 
       {/* Footer */}
       <div className="flex flex-col gap-2 border-t px-4 py-3.5">
-        {/* Domain-pack manager (M9). */}
+        {/* Agent launcher (M10) and domain-pack manager (M9). */}
+        <AgentButton onOpenSaved={onOpenSaved} />
         <PacksButton />
         <div className="flex items-center gap-2">
           <span className="h-[7px] w-[7px] rounded-full bg-emerald-400" style={{ animation: "blink 2s infinite" }} />
