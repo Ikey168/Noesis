@@ -1,0 +1,65 @@
+{
+  "description": "Golden intents for the planner eval harness (M5). Each item maps a representative user intent to the facets the planner should select and the panels that must appear in the generated canvas. Covers every facet in FACET_KEYWORDS with at least one labeled intent. must_panels is the minimal relevant set (recall target); the planner may add more (precision is scored against the union of all golden panels for a facet).",
+  "cases": [
+    {
+      "intent": "how has coverage of the energy transition trended over time",
+      "facets": ["trend"],
+      "must_panels": ["trending", "anomaly_timeline"]
+    },
+    {
+      "intent": "what is the sentiment and mood around nuclear power",
+      "facets": ["sentiment"],
+      "must_panels": ["topic_sentiment", "sentiment_heatmap"]
+    },
+    {
+      "intent": "fact-check the claims about the emissions rule",
+      "facets": ["claims"],
+      "must_panels": ["claims", "corroboration", "contradiction_ledger"]
+    },
+    {
+      "intent": "which actors support or oppose the carbon bill",
+      "facets": ["stance"],
+      "must_panels": ["stance", "positions"]
+    },
+    {
+      "intent": "who are the key people and speakers on this story",
+      "facets": ["actors"],
+      "must_panels": ["actors", "entity_dossier"]
+    },
+    {
+      "intent": "where does the public record contradict itself on storage costs",
+      "facets": ["conflict"],
+      "must_panels": ["controversy", "contradiction_ledger"]
+    },
+    {
+      "intent": "compare outlet reliability and framing bias",
+      "facets": ["sources"],
+      "must_panels": ["outlet_ranking", "reliability_card"]
+    },
+    {
+      "intent": "show the entity network and how they are connected",
+      "facets": ["entities"],
+      "must_panels": ["entity_graph", "relationship_path"]
+    },
+    {
+      "intent": "breaking events and the story timeline this week",
+      "facets": ["events"],
+      "must_panels": ["clusters", "timeline"]
+    },
+    {
+      "intent": "what do the papers and citations say about grid storage",
+      "facets": ["library"],
+      "must_panels": ["documents", "citation_graph", "literature_claims"]
+    },
+    {
+      "intent": "sentiment trend for the energy sector over time",
+      "facets": ["sentiment", "trend"],
+      "must_panels": ["topic_sentiment", "anomaly_timeline"]
+    },
+    {
+      "intent": "corroborate this claim and trace its provenance",
+      "facets": ["claims"],
+      "must_panels": ["corroboration", "provenance_trace"]
+    }
+  ]
+}
