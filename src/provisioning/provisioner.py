@@ -100,7 +100,11 @@ class Provisioner:
             namespaces.require_valid_name(name)
         except ValueError as exc:
             return {"error": str(exc), "code": "invalid_name"}
-        if backend not in (namespaces.BACKEND_TABLE_PREFIX, namespaces.BACKEND_ATTACHED):
+        if backend not in (
+            namespaces.BACKEND_TABLE_PREFIX,
+            namespaces.BACKEND_ATTACHED,
+            namespaces.BACKEND_POSTGRES,
+        ):
             return {"error": f"unknown backend {backend!r}", "code": "bad_backend"}
 
         # Namespace names are globally unique (shared tables); a name owned by
@@ -117,11 +121,21 @@ class Provisioner:
         # A converging re-deploy keeps the original backend.
         if existing is not None and existing.get("backend"):
             backend = existing["backend"]
-        is_attached = backend == namespaces.BACKEND_ATTACHED
-        db_path = (
-            (existing or {}).get("db_path")
-            or (namespaces.attached_db_path(name) if is_attached else None)
-        )
+        # Both the own-DuckDB and external-Postgres backends give a KG its own
+        # database, so both count toward the database quota. For Postgres,
+        # db_path carries the resolved DSN.
+        is_own_db = namespaces._attached_like(backend)
+        prior_db = (existing or {}).get("db_path")
+        if backend == namespaces.BACKEND_ATTACHED:
+            db_path = prior_db or namespaces.attached_db_path(name)
+        elif backend == namespaces.BACKEND_POSTGRES:
+            try:
+                db_path = prior_db or namespaces.postgres_dsn(name, tenant=self._tenant)
+            except ValueError as exc:
+                return {"error": str(exc), "code": "no_pg_dsn"}
+        else:
+            db_path = None
+        is_attached = is_own_db
 
         if not approve:
             try:
@@ -167,7 +181,7 @@ class Provisioner:
         return sum(
             1
             for kg in store.list_kgs(self._conn, include_archived=False, tenant=self._tenant)
-            if kg.get("backend") == namespaces.BACKEND_ATTACHED
+            if namespaces._attached_like(kg.get("backend"))
         )
 
     # ----------------------------------------------------------------- attach
