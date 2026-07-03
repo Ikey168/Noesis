@@ -32,9 +32,18 @@ behind the `NOESIS_OSINT_GATED_TOOLS` flag (off by default).
    event-geography from document text; a test proves it never emits a person
    location. `narrative_coordination` outputs cohorts marked "for review" with
    no accusatory language and a citation on every edge.
-2. **Calibration.** Both reuse the Track DS calibration/conformal work: a
-   documented false-positive rate on a labeled fixture, not an unvalidated
-   threshold.
+2. **Calibration. Met (M7.3).** Both thresholds are calibrated on a labeled
+   fixture with a documented false-positive rate, not an unvalidated threshold.
+   `src/osint/gated_calibration.py` sweeps `narrative_coordination`'s
+   `min_similarity` over coordinated vs coincidental cohorts and reports the
+   FPR/TPR per threshold; on the fixture in
+   `tests/unit/osint/test_gated_calibration.py` the loose thresholds (0.3-0.5)
+   flag the coincidental cohort at an FPR of 0.5, while the served default of
+   0.6 reaches FPR 0.0 with a true-positive rate of 1.0, so 0.6 is the
+   recommended (smallest within-target) threshold. `geolocate_claims` is
+   measured to refuse every person location on a labeled set of person entities:
+   its person-location false-positive rate is 0.0. The calibration reruns as a
+   test, so the documented rates stay honest.
 3. **Evidence discipline.** Every output line carries a citation
    (`src/osint/evidence.py`); uncited findings are flagged, never hidden.
 4. **Abuse review.** A written misuse analysis (who could weaponize this, and
