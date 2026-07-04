@@ -13,6 +13,7 @@ export type PanelType =
   | "anomaly_timeline"
   | "trending"
   | "clusters"
+  | "event_axis"
   | "watchlists"
   | "timeline"
   | "sentiment_heatmap"
@@ -80,6 +81,7 @@ export const PANEL_CATALOG: PanelDef[] = [
   { type: "anomaly_timeline", title: "Anomaly timeline", facets: ["trend", "overview"], defaultSpan: 6, topicParam: true },
   { type: "trending", title: "Trending topics", facets: ["overview", "trend", "events"], defaultSpan: 6, daysParam: true, maxDays: 30 },
   { type: "clusters", title: "Event clusters", facets: ["overview", "events"], defaultSpan: 6 },
+  { type: "event_axis", title: "Coverage timeline", facets: ["events", "trend"], defaultSpan: 6, topicParam: true, daysParam: true, maxDays: 90 },
   { type: "watchlists", title: "Watchlist", facets: ["events", "trend"], defaultSpan: 6 },
   { type: "timeline", title: "Story timeline", facets: ["events"], defaultSpan: 6, topicParam: true },
   { type: "sentiment_heatmap", title: "Sentiment heatmap", facets: ["sentiment", "trend"], defaultSpan: 6, daysParam: true, maxDays: 60 },

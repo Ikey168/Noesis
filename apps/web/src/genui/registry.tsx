@@ -33,6 +33,8 @@ import EntityGraph from "../components/charts/EntityGraph";
 import Sparkline from "../components/charts/Sparkline";
 import LineBand from "../components/charts/LineBand";
 import type { LinePoint } from "../components/charts/LineBand";
+import TimelineAxis from "../components/charts/TimelineAxis";
+import type { TimelineEvent } from "../components/charts/TimelineAxis";
 import GenPanel from "./GenPanel";
 import type { OutletScore } from "../types";
 import type { PanelSpec, PanelType } from "./spec";
@@ -367,6 +369,36 @@ function ClustersPanel(props: PanelProps) {
           })}
         </div>
       )}
+    </GenPanel>
+  );
+}
+
+const DEMO_EVENT_AXIS: { method: string; n: number; events: TimelineEvent[] } = {
+  method: "coverage-volume peaks and sentiment shifts on the topic timeline",
+  n: 64,
+  events: [
+    { t: 0, date: "Jun 20", label: "First reports", volume: 6, sentiment: -0.05 },
+    { t: 4, date: "Jun 24", label: "Summit opens", volume: 22, sentiment: 0.18 },
+    { t: 7, date: "Jun 27", label: "Talks stall", volume: 31, sentiment: -0.34 },
+    { t: 11, date: "Jul 01", label: "Draft accord", volume: 18, sentiment: 0.12 },
+    { t: 15, date: "Jul 05", label: "Signed", volume: 27, sentiment: 0.29 },
+  ],
+};
+
+function EventAxisPanel(props: PanelProps) {
+  const { d, source, isLoading } = useLiveOrDemo(
+    "event_axis",
+    DEMO_EVENT_AXIS,
+    (r) =>
+      Array.isArray(r.events) && r.events.length > 0
+        ? (r as unknown as typeof DEMO_EVENT_AXIS)
+        : null,
+    { topic: props.panel.params?.topic, days: daysParam(props.panel) },
+  );
+  return (
+    <GenPanel {...props} source={source} isLoading={isLoading}>
+      <TimelineAxis events={d.events} />
+      <AnalyticCaption method={d.method} n={d.n} />
     </GenPanel>
   );
 }
@@ -1530,6 +1562,7 @@ const REGISTRY: Record<PanelType, ComponentType<PanelProps>> = {
   documents: DocumentsPanel,
   trending: TrendingPanel,
   clusters: ClustersPanel,
+  event_axis: EventAxisPanel,
   watchlists: WatchlistsPanel,
   timeline: TimelinePanel,
   sentiment_heatmap: SentimentHeatmapPanel,
