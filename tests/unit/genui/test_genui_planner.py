@@ -203,3 +203,10 @@ class TestPlan:
         assert "sentiment_trend" in types
         trend = next(p for p in spec.panels if p.type == "sentiment_trend")
         assert trend.params["topic"] == "climate policy"
+
+    def test_event_axis_selected_for_timeline_intent(self):
+        spec = plan("timeline of events on climate policy")
+        types = [p.type for p in spec.panels]
+        assert "event_axis" in types
+        axis = next(p for p in spec.panels if p.type == "event_axis")
+        assert axis.params["topic"] == "climate policy"

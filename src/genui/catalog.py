@@ -127,6 +127,18 @@ PANEL_CATALOG: Tuple[PanelDef, ...] = (
         default_span=6,
     ),
     PanelDef(
+        type="event_axis",
+        title="Coverage timeline",
+        description="A topic's notable coverage moments on a dated axis, each marker sized by coverage volume and colored by sentiment; relative timing and clustering are read directly, not inferred from a list.",
+        endpoint=None,
+        facets=("events", "trend"),
+        tables=("news_articles",),
+        default_span=6,
+        topic_param="topic",
+        days_param="days",
+        max_days=90,
+    ),
+    PanelDef(
         type="watchlists",
         title="Watchlist",
         description="Tracked entities and topics with mention velocity and alerts.",
