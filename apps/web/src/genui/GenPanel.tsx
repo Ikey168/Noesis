@@ -4,8 +4,8 @@
 import type { ReactNode } from "react";
 import { Pin, X } from "lucide-react";
 import { Card } from "../components/ui/card";
-import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
+import SourceBadge from "./SourceBadge";
 import { cn } from "../lib/utils";
 import type { Source } from "../lib/queries";
 import type { PanelSpec } from "./spec";
@@ -35,7 +35,7 @@ export default function GenPanel({
   const adjustable = panel.type !== "note";
   return (
     <Card
-      className="hud-corners flex h-full min-w-0 flex-col transition-shadow duration-300 hover:shadow-[0_0_28px_-10px_hsl(var(--primary)/0.45)]"
+      className="hud-corners flex h-full min-h-[148px] min-w-0 flex-col transition-shadow duration-300 hover:shadow-[0_0_28px_-10px_hsl(var(--primary)/0.45)]"
       onClick={adjustable ? onTouch : undefined}
       title={panel.rationale || undefined}
     >
@@ -43,11 +43,7 @@ export default function GenPanel({
         <div className="min-w-0 flex-1 truncate font-grotesk text-[13.5px] font-semibold">
           {panel.title}
         </div>
-        {source ? (
-          <Badge variant={isLoading ? "sync" : source === "live" || source === "mcp" ? "live" : "demo"}>
-            {isLoading ? "SYNC" : source === "mcp" ? "MCP" : source === "live" ? "LIVE" : "DEMO"}
-          </Badge>
-        ) : null}
+        {source ? <SourceBadge source={source} isLoading={isLoading} /> : null}
         {adjustable ? (
           <>
             <Button

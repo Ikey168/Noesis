@@ -9,6 +9,7 @@ import SpecRenderer from "./SpecRenderer";
 import SavedCanvasView from "./SavedCanvasView";
 import CanvasActions from "./CanvasActions";
 import RefineBar from "./RefineBar";
+import SourceBadge from "./SourceBadge";
 import type { UISpec } from "./spec";
 import EntityGraph from "../components/charts/EntityGraph";
 import { useArticles, useClusters, useEntityGraph, useUiTelemetry } from "../lib/queries";
@@ -184,9 +185,7 @@ export default function Canvas({ canvas, onIntent }: Props) {
         <Badge variant="outline" className={planner.className} title={planner.hint}>
           {planner.label}
         </Badge>
-        <Badge variant={isLoading ? "sync" : source === "live" ? "live" : "demo"}>
-          {isLoading ? "SYNC" : source === "live" ? "LIVE" : "DEMO"}
-        </Badge>
+        <SourceBadge source={source} isLoading={isLoading} />
         <span className="font-grotesk text-sm font-semibold">{view.title}</span>
         {view.subtitle ? (
           <span className="font-mono text-[10.5px] text-muted-foreground">{view.subtitle}</span>

@@ -4,7 +4,7 @@
 // rather than crashing the canvas.
 
 import type { CSSProperties, ComponentType } from "react";
-import { ACCENT, palette, fonts } from "../theme";
+import { ACCENT, colors, palette, fonts } from "../theme";
 import { sentColor, sentLabel } from "../lib/sentiment";
 import {
   useArticles,
@@ -67,20 +67,54 @@ function chip(color: string): CSSProperties {
   };
 }
 
+// Purposeful empty state: a faint dashed-frame glyph plus legible copy that
+// fills the panel body, so a slice with no rows reads as "nothing here yet"
+// rather than a broken or half-loaded panel.
 function Empty({ text }: { text: string }) {
   return (
     <div
       style={{
-        height: 90,
+        height: "100%",
+        minHeight: 96,
         display: "flex",
+        flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        color: "#5f7580",
-        fontFamily: fonts.mono,
-        fontSize: 11.5,
+        gap: 10,
+        textAlign: "center",
+        padding: "0 12px",
       }}
     >
-      {text}
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" aria-hidden="true" style={{ opacity: 0.85 }}>
+        <rect
+          x="3.5"
+          y="3.5"
+          width="17"
+          height="17"
+          rx="3.5"
+          stroke={colors.border4}
+          strokeWidth="1.2"
+          strokeDasharray="2.5 3"
+        />
+        <path
+          d="M8 14.3l3-3.1 2.2 2.2 3-3.4"
+          stroke={colors.border4}
+          strokeWidth="1.3"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+      <span
+        style={{
+          fontFamily: fonts.mono,
+          fontSize: 11,
+          letterSpacing: "0.04em",
+          color: colors.textSubtle,
+          opacity: 0.85,
+        }}
+      >
+        {text}
+      </span>
     </div>
   );
 }
