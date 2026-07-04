@@ -292,6 +292,17 @@ PANEL_CATALOG: Tuple[PanelDef, ...] = (
         source_type_param="source_type",
     ),
     PanelDef(
+        type="coverage_flow",
+        title="Coverage flow",
+        description="How the corpus composes as a flow from source type to category to sentiment; ribbon width is the share of coverage, so routing and proportion are read at a glance rather than from a table.",
+        endpoint=None,
+        facets=("sources", "overview"),
+        tables=("news_articles",),
+        default_span=6,
+        days_param="days",
+        max_days=90,
+    ),
+    PanelDef(
         type="actors",
         title="Key actors",
         description="Most-mentioned speakers, subjects and authors.",

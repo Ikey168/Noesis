@@ -210,3 +210,8 @@ class TestPlan:
         assert "event_axis" in types
         axis = next(p for p in spec.panels if p.type == "event_axis")
         assert axis.params["topic"] == "climate policy"
+
+    def test_coverage_flow_selected_for_composition_intent(self):
+        spec = plan("how coverage breaks down across sources and sentiment")
+        types = [p.type for p in spec.panels]
+        assert "coverage_flow" in types

@@ -28,6 +28,7 @@ export type PanelType =
   | "drift"
   | "outlet_ranking"
   | "outlet_clusters"
+  | "coverage_flow"
   | "actors"
   | "lead_lag"
   | "narrative_thread"
@@ -96,6 +97,7 @@ export const PANEL_CATALOG: PanelDef[] = [
   { type: "drift", title: "Stance drift", facets: ["trend", "stance"], defaultSpan: 6, topicParam: true, sourceTypeParam: true },
   { type: "outlet_ranking", title: "Outlet transparency ranking", facets: ["sources"], defaultSpan: 6, sourceTypeParam: true },
   { type: "outlet_clusters", title: "Outlet clusters", facets: ["sources", "entities"], defaultSpan: 6, sourceTypeParam: true },
+  { type: "coverage_flow", title: "Coverage flow", facets: ["sources", "overview"], defaultSpan: 6, daysParam: true, maxDays: 90 },
   { type: "actors", title: "Key actors", facets: ["actors", "entities"], defaultSpan: 6, sourceTypeParam: true },
   { type: "lead_lag", title: "Who leads, who follows", facets: ["sources", "trend"], defaultSpan: 6, topicParam: true },
   { type: "narrative_thread", title: "Narrative threads", facets: ["events", "overview"], defaultSpan: 6, topicParam: true, daysParam: true, maxDays: 90 },
