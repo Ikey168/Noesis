@@ -35,6 +35,8 @@ import LineBand from "../components/charts/LineBand";
 import type { LinePoint } from "../components/charts/LineBand";
 import TimelineAxis from "../components/charts/TimelineAxis";
 import type { TimelineEvent } from "../components/charts/TimelineAxis";
+import Sankey from "../components/charts/Sankey";
+import type { SankeyNode, SankeyLink } from "../components/charts/Sankey";
 import GenPanel from "./GenPanel";
 import type { OutletScore } from "../types";
 import type { PanelSpec, PanelType } from "./spec";
@@ -1555,6 +1557,54 @@ function UnknownPanel(props: PanelProps) {
   );
 }
 
+const DEMO_COVERAGE_FLOW: { method: string; n: number; nodes: SankeyNode[]; links: SankeyLink[] } = {
+  method: "share of coverage from source type to category to sentiment",
+  n: 64,
+  nodes: [
+    { id: "news", layer: 0, label: "News" },
+    { id: "blog", layer: 0, label: "Blogs" },
+    { id: "econ", layer: 1, label: "Economy" },
+    { id: "tech", layer: 1, label: "Technology" },
+    { id: "energy", layer: 1, label: "Energy" },
+    { id: "pos", layer: 2, label: "Positive" },
+    { id: "neu", layer: 2, label: "Neutral" },
+    { id: "neg", layer: 2, label: "Negative" },
+  ],
+  links: [
+    { source: "news", target: "econ", value: 18 },
+    { source: "news", target: "tech", value: 12 },
+    { source: "news", target: "energy", value: 8 },
+    { source: "blog", target: "econ", value: 6 },
+    { source: "blog", target: "tech", value: 10 },
+    { source: "econ", target: "pos", value: 9 },
+    { source: "econ", target: "neu", value: 8 },
+    { source: "econ", target: "neg", value: 7 },
+    { source: "tech", target: "pos", value: 13 },
+    { source: "tech", target: "neu", value: 6 },
+    { source: "tech", target: "neg", value: 3 },
+    { source: "energy", target: "neu", value: 3 },
+    { source: "energy", target: "neg", value: 5 },
+  ],
+};
+
+function CoverageFlowPanel(props: PanelProps) {
+  const { d, source, isLoading } = useLiveOrDemo(
+    "coverage_flow",
+    DEMO_COVERAGE_FLOW,
+    (r) =>
+      Array.isArray(r.nodes) && Array.isArray(r.links) && r.links.length > 0
+        ? (r as unknown as typeof DEMO_COVERAGE_FLOW)
+        : null,
+    { days: daysParam(props.panel) },
+  );
+  return (
+    <GenPanel {...props} source={source} isLoading={isLoading}>
+      <Sankey nodes={d.nodes} links={d.links} />
+      <AnalyticCaption method={d.method} n={d.n} />
+    </GenPanel>
+  );
+}
+
 const REGISTRY: Record<PanelType, ComponentType<PanelProps>> = {
   note: NotePanel,
   kpi_row: KpiRowPanel,
@@ -1577,6 +1627,7 @@ const REGISTRY: Record<PanelType, ComponentType<PanelProps>> = {
   drift: DriftPanel,
   outlet_ranking: OutletRankingPanel,
   outlet_clusters: OutletClustersPanel,
+  coverage_flow: CoverageFlowPanel,
   actors: ActorsPanel,
   anomaly_timeline: AnomalyTimelinePanel,
   lead_lag: LeadLagPanel,
