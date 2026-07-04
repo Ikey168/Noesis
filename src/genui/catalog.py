@@ -170,6 +170,18 @@ PANEL_CATALOG: Tuple[PanelDef, ...] = (
         max_days=90,
     ),
     PanelDef(
+        type="sentiment_trend",
+        title="Sentiment trajectory",
+        description="How sentiment on a topic moves over time, as a smoothed line with a confidence band; never a bare point estimate.",
+        endpoint=None,
+        facets=("sentiment", "trend"),
+        tables=("news_articles",),
+        default_span=6,
+        topic_param="topic",
+        days_param="days",
+        max_days=90,
+    ),
+    PanelDef(
         type="entity_graph",
         title="Entity graph",
         description="Co-mention network of entities in recent coverage.",
