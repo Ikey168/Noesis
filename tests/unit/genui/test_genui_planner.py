@@ -222,3 +222,10 @@ class TestPlan:
         assert "claim_verdicts" in types
         panel = next(p for p in spec.panels if p.type == "claim_verdicts")
         assert panel.params["topic"] == "climate policy"
+
+    def test_claims_trend_selected_for_corroboration_over_time_intent(self):
+        spec = plan("how corroboration changed over time on climate policy")
+        types = [p.type for p in spec.panels]
+        assert "claims_trend" in types
+        panel = next(p for p in spec.panels if p.type == "claims_trend")
+        assert panel.params["topic"] == "climate policy"

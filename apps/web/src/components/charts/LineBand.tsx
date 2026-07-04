@@ -22,12 +22,17 @@ interface Props {
   points: LinePoint[];
   height?: number;
   unit?: string;
+  // Diverging series (default): domain includes zero, a zero baseline is drawn,
+  // and the latest value is signed and sign-tinted. Set false for a rate or
+  // volume: domain follows the data, the baseline shows only if the data spans
+  // zero, and the latest value is unsigned in the accent color.
+  signed?: boolean;
 }
 
 const INSET_X = 2; // % horizontal padding so end dots are not clipped
 const PAD_Y = 8; // % vertical padding around the value range
 
-export default function LineBand({ points, height = 118, unit = "" }: Props) {
+export default function LineBand({ points, height = 118, unit = "", signed = true }: Props) {
   if (points.length < 2) {
     return (
       <div
@@ -49,9 +54,10 @@ export default function LineBand({ points, height = 118, unit = "" }: Props) {
   const values = points.map((p) => p.value);
   const los = points.map((p) => (p.lo ?? p.value));
   const his = points.map((p) => (p.hi ?? p.value));
-  // Domain always includes zero so the baseline is meaningful for polarity.
-  const lo = Math.min(0, ...los, ...values);
-  const hi = Math.max(0, ...his, ...values);
+  // Diverging series pin zero into the domain so the baseline is meaningful;
+  // a rate/volume series lets the domain follow the data.
+  const lo = Math.min(...(signed ? [0] : []), ...los, ...values);
+  const hi = Math.max(...(signed ? [0] : []), ...his, ...values);
   const span = hi - lo || 1;
 
   const x = (i: number) => INSET_X + (i / (points.length - 1)) * (100 - 2 * INSET_X);
@@ -72,9 +78,11 @@ export default function LineBand({ points, height = 118, unit = "" }: Props) {
       .join(" ");
 
   const zeroY = y(0);
+  const showZero = lo <= 0 && hi >= 0;
   const last = points[points.length - 1];
-  const lastSign = last.value >= 0 ? palette.pos : palette.neg;
+  const lastSign = !signed ? ACCENT : last.value >= 0 ? palette.pos : palette.neg;
   const hasBand = points.some((p) => p.lo != null && p.hi != null);
+  const fmt = (v: number) => `${signed && v >= 0 ? "+" : ""}${v.toFixed(2)}${unit}`;
 
   // Which x labels to show: first, last, and a couple in between.
   const tickEvery = Math.max(1, Math.round((points.length - 1) / 3));
@@ -90,18 +98,20 @@ export default function LineBand({ points, height = 118, unit = "" }: Props) {
           style={{ display: "block", overflow: "visible" }}
         >
           {hasBand ? <polygon points={bandPts} fill={`${ACCENT}22`} stroke="none" /> : null}
-          {/* zero baseline — neutral, recessive */}
-          <line
-            x1="0"
-            x2="100"
-            y1={zeroY}
-            y2={zeroY}
-            stroke={palette.neu}
-            strokeWidth={1}
-            strokeDasharray="3 3"
-            vectorEffect="non-scaling-stroke"
-            opacity={0.5}
-          />
+          {/* zero baseline — neutral, recessive; only when the domain spans zero */}
+          {showZero ? (
+            <line
+              x1="0"
+              x2="100"
+              y1={zeroY}
+              y2={zeroY}
+              stroke={palette.neu}
+              strokeWidth={1}
+              strokeDasharray="3 3"
+              vectorEffect="non-scaling-stroke"
+              opacity={0.5}
+            />
+          ) : null}
           <polyline
             points={linePts}
             fill="none"
@@ -117,7 +127,7 @@ export default function LineBand({ points, height = 118, unit = "" }: Props) {
         {points.map((p, i) => (
           <div
             key={i}
-            title={`${p.label} · ${p.value >= 0 ? "+" : ""}${p.value.toFixed(2)}${unit}${
+            title={`${p.label} · ${fmt(p.value)}${
               p.lo != null && p.hi != null ? ` [${p.lo.toFixed(2)}, ${p.hi.toFixed(2)}]` : ""
             }`}
             style={{
@@ -151,9 +161,7 @@ export default function LineBand({ points, height = 118, unit = "" }: Props) {
             borderRadius: 3,
           }}
         >
-          {last.value >= 0 ? "+" : ""}
-          {last.value.toFixed(2)}
-          {unit}
+          {fmt(last.value)}
         </div>
       </div>
 
