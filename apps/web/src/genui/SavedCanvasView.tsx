@@ -38,8 +38,8 @@ export default function SavedCanvasView({ savedId, sharedToken }: Props) {
   }
 
   return (
-    <div className="h-full min-h-0 overflow-y-auto px-6 pb-6 pt-5">
-      <div className="mb-4 flex flex-wrap items-center gap-2.5">
+    <div className="flex h-full min-h-0 flex-col px-6 pb-4 pt-5">
+      <div className="mb-3 flex shrink-0 flex-wrap items-center gap-2.5">
         <Badge
           variant="outline"
           className={
@@ -57,7 +57,9 @@ export default function SavedCanvasView({ savedId, sharedToken }: Props) {
         ) : null}
       </div>
 
-      <SpecRenderer spec={spec} adaptive={adaptive} />
+      <div className="min-h-0 flex-1">
+        <SpecRenderer spec={spec} adaptive={adaptive} />
+      </div>
     </div>
   );
 }

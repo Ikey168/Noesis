@@ -178,9 +178,9 @@ export default function Canvas({ canvas, onIntent }: Props) {
   }
 
   return (
-    <div className="h-full min-h-0 overflow-y-auto px-6 pb-6 pt-5">
+    <div className="flex h-full min-h-0 flex-col px-6 pb-4 pt-5">
       {/* Provenance strip */}
-      <div className="mb-4 flex flex-wrap items-center gap-2.5">
+      <div className="mb-3 flex shrink-0 flex-wrap items-center gap-2.5">
         <Badge variant="outline" className={planner.className} title={planner.hint}>
           {planner.label}
         </Badge>
@@ -228,11 +228,13 @@ export default function Canvas({ canvas, onIntent }: Props) {
       </div>
 
       {/* In-canvas refinement (M6): mutate this layout with a follow-up. */}
-      <div className="mb-4">
+      <div className="mb-3 shrink-0">
         <RefineBar spec={view} onRefined={setRefined} />
       </div>
 
-      <SpecRenderer spec={view} adaptive={adaptive} />
+      <div className="min-h-0 flex-1">
+        <SpecRenderer spec={view} adaptive={adaptive} />
+      </div>
     </div>
   );
 }
