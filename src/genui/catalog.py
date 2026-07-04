@@ -252,6 +252,18 @@ PANEL_CATALOG: Tuple[PanelDef, ...] = (
         max_days=90,
     ),
     PanelDef(
+        type="claim_flow",
+        title="Claim to verdict flow",
+        description="How claims flow from source to claim type to fact-check verdict, ribbon width proportional to claim counts; which sources produce which kinds of claims and how those check out is read at a glance.",
+        endpoint=None,
+        facets=("claims", "sources"),
+        tables=("argument_claims",),
+        default_span=6,
+        topic_param="topic",
+        days_param="days",
+        max_days=90,
+    ),
+    PanelDef(
         type="stance",
         title="Stance breakdown",
         description="Supportive / critical / neutral stance mix per topic.",
