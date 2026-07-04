@@ -229,3 +229,10 @@ class TestPlan:
         assert "claims_trend" in types
         panel = next(p for p in spec.panels if p.type == "claims_trend")
         assert panel.params["topic"] == "climate policy"
+
+    def test_evidence_axis_selected_for_claim_timeline_intent(self):
+        spec = plan("timeline of claims and evidence on climate policy")
+        types = [p.type for p in spec.panels]
+        assert "evidence_axis" in types
+        panel = next(p for p in spec.panels if p.type == "evidence_axis")
+        assert panel.params["topic"] == "climate policy"
