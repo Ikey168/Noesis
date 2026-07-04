@@ -23,6 +23,7 @@ export type PanelType =
   | "claims"
   | "claim_verdicts"
   | "claims_trend"
+  | "evidence_axis"
   | "stance"
   | "frames"
   | "positions"
@@ -94,6 +95,7 @@ export const PANEL_CATALOG: PanelDef[] = [
   { type: "claims", title: "Extracted claims", facets: ["claims", "conflict"], defaultSpan: 6, topicParam: true, sourceTypeParam: true },
   { type: "claim_verdicts", title: "Fact-check scoreboard", facets: ["claims", "sources"], defaultSpan: 6, topicParam: true, sourceTypeParam: true },
   { type: "claims_trend", title: "Corroboration over time", facets: ["claims", "trend"], defaultSpan: 6, topicParam: true, daysParam: true, maxDays: 90 },
+  { type: "evidence_axis", title: "Claim timeline", facets: ["claims", "events"], defaultSpan: 6, topicParam: true, daysParam: true, maxDays: 90 },
   { type: "stance", title: "Stance breakdown", facets: ["stance", "conflict", "sentiment"], defaultSpan: 6, topicParam: true, sourceTypeParam: true },
   { type: "frames", title: "Framing by source", facets: ["sources", "claims"], defaultSpan: 6, topicParam: true, sourceTypeParam: true },
   { type: "positions", title: "Actor positions", facets: ["actors", "stance"], defaultSpan: 6, topicParam: true, sourceTypeParam: true },

@@ -1669,6 +1669,47 @@ function ClaimsTrendPanel(props: PanelProps) {
   );
 }
 
+// Verdict maps to the signed signal TimelineAxis colors by: verified positive
+// (green), disputed negative (red), unverified neutral (gray).
+const VERDICT_SIGNAL: Record<string, number> = { verified: 1, disputed: -1, unverified: 0 };
+const DEMO_EVIDENCE_AXIS: { method: string; n: number; events: TimelineEvent[] } = {
+  method: "dated claims with independent-source counts and fact-check verdicts",
+  n: 142,
+  events: [
+    { t: 0, date: "Jun 20", label: "Emissions cut pledged", volume: 5, sentiment: 1, tag: "verified" },
+    { t: 5, date: "Jun 25", label: "Cost figure cited", volume: 2, sentiment: -1, tag: "disputed" },
+    { t: 9, date: "Jun 29", label: "Jobs impact claim", volume: 1, sentiment: 0, tag: "unverified" },
+    { t: 13, date: "Jul 03", label: "Treaty text confirmed", volume: 6, sentiment: 1, tag: "verified" },
+    { t: 16, date: "Jul 06", label: "Funding source claim", volume: 3, sentiment: -1, tag: "disputed" },
+  ],
+};
+
+function EvidenceAxisPanel(props: PanelProps) {
+  const { d, source, isLoading } = useLiveOrDemo(
+    "evidence_axis",
+    DEMO_EVIDENCE_AXIS,
+    (r) =>
+      Array.isArray(r.events) && r.events.length > 0
+        ? (r as unknown as typeof DEMO_EVIDENCE_AXIS)
+        : null,
+    { topic: props.panel.params?.topic, days: daysParam(props.panel) },
+  );
+  // Accept a live payload that carries a verdict tag but no signed signal.
+  const events = d.events.map((e) => ({
+    ...e,
+    sentiment: e.sentiment ?? (e.tag ? VERDICT_SIGNAL[e.tag] ?? 0 : 0),
+  }));
+  return (
+    <GenPanel {...props} source={source} isLoading={isLoading}>
+      <TimelineAxis
+        events={events}
+        legend="marker size = corroboration density · color = verdict (green verified / red disputed / gray unverified)"
+      />
+      <AnalyticCaption method={d.method} n={d.n} />
+    </GenPanel>
+  );
+}
+
 const REGISTRY: Record<PanelType, ComponentType<PanelProps>> = {
   note: NotePanel,
   kpi_row: KpiRowPanel,
@@ -1677,6 +1718,7 @@ const REGISTRY: Record<PanelType, ComponentType<PanelProps>> = {
   trending: TrendingPanel,
   clusters: ClustersPanel,
   event_axis: EventAxisPanel,
+  evidence_axis: EvidenceAxisPanel,
   watchlists: WatchlistsPanel,
   timeline: TimelinePanel,
   sentiment_heatmap: SentimentHeatmapPanel,

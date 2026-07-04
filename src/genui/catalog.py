@@ -240,6 +240,18 @@ PANEL_CATALOG: Tuple[PanelDef, ...] = (
         max_days=90,
     ),
     PanelDef(
+        type="evidence_axis",
+        title="Claim timeline",
+        description="Cited claims on a dated axis, each marker sized by corroboration density (independent-source count) and colored by fact-check verdict; when the key claims landed and how they checked out is read directly.",
+        endpoint=None,
+        facets=("claims", "events"),
+        tables=("argument_claims",),
+        default_span=6,
+        topic_param="topic",
+        days_param="days",
+        max_days=90,
+    ),
+    PanelDef(
         type="stance",
         title="Stance breakdown",
         description="Supportive / critical / neutral stance mix per topic.",

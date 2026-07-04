@@ -11,10 +11,13 @@ export interface TimelineEvent {
   t: number; // position on the axis (e.g. day offset); larger = later
   date: string; // display label for the timestamp
   label: string; // what happened
-  volume: number; // coverage volume -> marker radius
-  sentiment: number; // -1..1 -> marker color + stalk style
+  volume: number; // magnitude -> marker radius
+  sentiment: number; // -1..1 -> marker color + stalk style (a signed signal)
+  tag?: string; // optional short caption shown instead of the signed value
 }
 
+const DEFAULT_LEGEND =
+  "marker size = coverage volume · color = sentiment (green up / red down) · dashed stalk = negative";
 const INSET = 7; // % horizontal padding so end markers are not clipped
 
 function sentColor(v: number): string {
@@ -30,9 +33,11 @@ function signed(v: number): string {
 export default function TimelineAxis({
   events,
   height = 150,
+  legend = DEFAULT_LEGEND,
 }: {
   events: TimelineEvent[];
   height?: number;
+  legend?: string;
 }) {
   if (!events.length) {
     return (
@@ -84,7 +89,7 @@ export default function TimelineAxis({
               />
               {/* marker */}
               <div
-                title={`${e.date} · ${e.label} · vol ${e.volume} · sentiment ${signed(e.sentiment)}`}
+                title={`${e.date} · ${e.label} · vol ${e.volume} · ${e.tag ?? signed(e.sentiment)}`}
                 style={{
                   position: "absolute",
                   left: `${cx}%`,
@@ -115,16 +120,14 @@ export default function TimelineAxis({
                   {e.label}
                 </div>
                 <div style={{ fontFamily: fonts.mono, fontSize: 9, color: palette.faint }}>
-                  {e.date} · <span style={{ color: col }}>{signed(e.sentiment)}</span>
+                  {e.date} · <span style={{ color: col }}>{e.tag ?? signed(e.sentiment)}</span>
                 </div>
               </div>
             </div>
           );
         })}
       </div>
-      <div style={{ fontFamily: fonts.mono, fontSize: 10, color: palette.faint }}>
-        marker size = coverage volume · color = sentiment (green up / red down) · dashed stalk = negative
-      </div>
+      <div style={{ fontFamily: fonts.mono, fontSize: 10, color: palette.faint }}>{legend}</div>
     </div>
   );
 }
