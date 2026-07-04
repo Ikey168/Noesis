@@ -215,3 +215,10 @@ class TestPlan:
         spec = plan("how coverage breaks down across sources and sentiment")
         types = [p.type for p in spec.panels]
         assert "coverage_flow" in types
+
+    def test_claim_verdicts_selected_for_factcheck_intent(self):
+        spec = plan("verified and unverified claims by source on climate policy")
+        types = [p.type for p in spec.panels]
+        assert "claim_verdicts" in types
+        panel = next(p for p in spec.panels if p.type == "claim_verdicts")
+        assert panel.params["topic"] == "climate policy"
