@@ -161,12 +161,12 @@ cd apps/web && npm install && cd ../..
 ```bash
 NEURONEWS_DEV_MODE=true \
 NOESIS_DB_PATH=/tmp/noesis-dev.duckdb \
-uvicorn src.api.app:app --port 8012
+uvicorn src.api.app:app --port 8000
 ```
 
 `NEURONEWS_DEV_MODE=true` disables the WAF so development requests are not
 rejected. Use a separate `NOESIS_DB_PATH` to avoid locking the main warehouse
-file.
+file. Port 8000 is what the frontend dev proxy targets by default (see below).
 
 ### 4. Run the frontend
 
@@ -175,8 +175,11 @@ cd apps/web
 npm run dev          # http://localhost:5173
 ```
 
-The React app falls back to bundled demo data when the API is unreachable, so
-the canvas works standalone for UI development.
+The Vite dev server proxies `/health`, `/api`, and the other backend prefixes
+to `http://localhost:8000`. If the API runs on a different port, point the
+proxy at it: `VITE_API_PROXY_TARGET=http://localhost:8012 npm run dev`. When
+the API is unreachable, the React app falls back to bundled demo data, so the
+canvas still works standalone for UI development.
 
 ### 5. Run tests
 
