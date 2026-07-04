@@ -217,6 +217,17 @@ PANEL_CATALOG: Tuple[PanelDef, ...] = (
         source_type_param="source_type",
     ),
     PanelDef(
+        type="claim_verdicts",
+        title="Fact-check scoreboard",
+        description="Verified, disputed and unverified claim counts per source, as grouped bars; which outlets carry corroborated claims and which carry unchecked ones is read directly.",
+        endpoint=None,
+        facets=("claims", "sources"),
+        tables=("argument_claims",),
+        default_span=6,
+        topic_param="topic",
+        source_type_param="source_type",
+    ),
+    PanelDef(
         type="stance",
         title="Stance breakdown",
         description="Supportive / critical / neutral stance mix per topic.",

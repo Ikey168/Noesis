@@ -21,6 +21,7 @@ export type PanelType =
   | "sentiment_trend"
   | "entity_graph"
   | "claims"
+  | "claim_verdicts"
   | "stance"
   | "frames"
   | "positions"
@@ -90,6 +91,7 @@ export const PANEL_CATALOG: PanelDef[] = [
   { type: "sentiment_trend", title: "Sentiment trajectory", facets: ["sentiment", "trend"], defaultSpan: 6, topicParam: true, daysParam: true, maxDays: 90 },
   { type: "entity_graph", title: "Entity graph", facets: ["entities", "actors", "overview"], defaultSpan: 6, daysParam: true, maxDays: 30 },
   { type: "claims", title: "Extracted claims", facets: ["claims", "conflict"], defaultSpan: 6, topicParam: true, sourceTypeParam: true },
+  { type: "claim_verdicts", title: "Fact-check scoreboard", facets: ["claims", "sources"], defaultSpan: 6, topicParam: true, sourceTypeParam: true },
   { type: "stance", title: "Stance breakdown", facets: ["stance", "conflict", "sentiment"], defaultSpan: 6, topicParam: true, sourceTypeParam: true },
   { type: "frames", title: "Framing by source", facets: ["sources", "claims"], defaultSpan: 6, topicParam: true, sourceTypeParam: true },
   { type: "positions", title: "Actor positions", facets: ["actors", "stance"], defaultSpan: 6, topicParam: true, sourceTypeParam: true },

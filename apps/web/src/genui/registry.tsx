@@ -37,6 +37,8 @@ import TimelineAxis from "../components/charts/TimelineAxis";
 import type { TimelineEvent } from "../components/charts/TimelineAxis";
 import Sankey from "../components/charts/Sankey";
 import type { SankeyNode, SankeyLink } from "../components/charts/Sankey";
+import { GroupedBars } from "../components/charts/BarKit";
+import type { GroupedRow } from "../components/charts/BarKit";
 import GenPanel from "./GenPanel";
 import type { OutletScore } from "../types";
 import type { PanelSpec, PanelType } from "./spec";
@@ -1605,6 +1607,36 @@ function CoverageFlowPanel(props: PanelProps) {
   );
 }
 
+const CLAIM_VERDICT_SERIES = ["verified", "disputed", "unverified"];
+const DEMO_CLAIM_VERDICTS: { method: string; n: number; rows: GroupedRow[] } = {
+  method: "fact-check verdicts over claims mined per source",
+  n: 128,
+  rows: [
+    { label: "Reuters", values: [{ key: "verified", value: 14 }, { key: "disputed", value: 2 }, { key: "unverified", value: 5 }] },
+    { label: "Bloomberg", values: [{ key: "verified", value: 11 }, { key: "disputed", value: 3 }, { key: "unverified", value: 7 }] },
+    { label: "The Guardian", values: [{ key: "verified", value: 8 }, { key: "disputed", value: 6 }, { key: "unverified", value: 9 }] },
+    { label: "Substack blogs", values: [{ key: "verified", value: 3 }, { key: "disputed", value: 9 }, { key: "unverified", value: 18 }] },
+  ],
+};
+
+function ClaimVerdictsPanel(props: PanelProps) {
+  const { d, source, isLoading } = useLiveOrDemo(
+    "claim_verdicts",
+    DEMO_CLAIM_VERDICTS,
+    (r) =>
+      Array.isArray(r.rows) && r.rows.length > 0
+        ? (r as unknown as typeof DEMO_CLAIM_VERDICTS)
+        : null,
+    { topic: props.panel.params?.topic, source_type: props.panel.params?.source_type },
+  );
+  return (
+    <GenPanel {...props} source={source} isLoading={isLoading}>
+      <GroupedBars rows={d.rows} series={CLAIM_VERDICT_SERIES} />
+      <AnalyticCaption method={d.method} n={d.n} />
+    </GenPanel>
+  );
+}
+
 const REGISTRY: Record<PanelType, ComponentType<PanelProps>> = {
   note: NotePanel,
   kpi_row: KpiRowPanel,
@@ -1620,6 +1652,7 @@ const REGISTRY: Record<PanelType, ComponentType<PanelProps>> = {
   sentiment_trend: SentimentTrendPanel,
   entity_graph: EntityGraphPanel,
   claims: ClaimsPanel,
+  claim_verdicts: ClaimVerdictsPanel,
   stance: StancePanel,
   frames: FramesPanel,
   positions: PositionsPanel,
