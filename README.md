@@ -172,11 +172,14 @@ file.
 
 ```bash
 cd apps/web
-npm run dev          # http://localhost:5173
+VITE_API_PROXY_TARGET=http://localhost:8012 npm run dev   # http://localhost:5173
 ```
 
-The React app falls back to bundled demo data when the API is unreachable, so
-the canvas works standalone for UI development.
+The dev server proxies `/api`, `/health`, and the other backend routes to
+`VITE_API_PROXY_TARGET` (default `http://localhost:8000`); point it at the API
+port from step 3, or the browser gets 500s on every API call. The React app
+falls back to bundled demo data when the API is unreachable, so the canvas also
+works standalone for UI development.
 
 ### 5. Run tests
 

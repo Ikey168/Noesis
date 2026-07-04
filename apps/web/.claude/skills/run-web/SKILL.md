@@ -1,9 +1,9 @@
 ---
 name: run-web
-description: Run, launch, start, build, screenshot, or smoke-test the NeuroNews Intelligence Terminal web frontend (apps/web — React + Vite + TypeScript SPA). Use when asked to see the web UI working, capture screenshots of a canvas (home, sentiment, claims, outlets, entity network, etc.), or verify a frontend change renders.
+description: Run, launch, start, build, screenshot, or smoke-test the Noesis Intelligence Terminal web frontend (apps/web, a React + Vite + TypeScript SPA). Use when asked to see the web UI working, capture screenshots of a canvas (home, sentiment, claims, outlets, entity network, etc.), or verify a frontend change renders.
 ---
 
-# Run the NeuroNews web frontend (Intelligence Terminal)
+# Run the Noesis web frontend (Intelligence Terminal)
 
 `apps/web` is a React 18 + Vite + TypeScript single-page app — a dark
 "terminal" generative canvas: every screen is planned from an intent typed

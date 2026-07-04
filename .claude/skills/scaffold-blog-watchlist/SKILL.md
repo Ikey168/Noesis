@@ -1,9 +1,9 @@
 ---
 name: scaffold-blog-watchlist
-description: Scaffold a new blog watchlist for NeuroNews. Use when you want to monitor a set of keywords across subscribed RSS/Atom feeds and surface matching posts as a digest. Covers FeedSubscription setup, WatchlistEntry definition, running the watchlist via the blog-feeds MCP, and optionally wiring a digest endpoint into the API.
+description: Scaffold a new blog watchlist for Noesis. Use when you want to monitor a set of keywords across subscribed RSS/Atom feeds and surface matching posts as a digest. Covers FeedSubscription setup, WatchlistEntry definition, running the watchlist via the blog-feeds MCP, and optionally wiring a digest endpoint into the API.
 ---
 
-# Scaffold a NeuroNews blog watchlist
+# Scaffold a Noesis blog watchlist
 
 A watchlist monitors a set of keywords across all ingested blog/RSS/Atom posts.
 When any post's title or content contains a keyword, it surfaces in the

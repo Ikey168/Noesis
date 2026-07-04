@@ -1,9 +1,9 @@
 ---
 name: scaffold-document-connector
-description: Scaffold a new document connector for the NeuroNews knowledge-engine pipeline. Use when adding a new media type (DOCX, database snapshot, API dump, audio, video, web page, …) that should produce document-ingest-v1 records via the Connector base class. Covers the connector module, the Document model, and the verify loop using the pipeline + contracts + lineage MCP servers.
+description: Scaffold a new document connector for the Noesis knowledge-engine pipeline. Use when adding a new media type (DOCX, database snapshot, API dump, audio, video, web page, …) that should produce document-ingest-v1 records via the Connector base class. Covers the connector module, the Document model, and the verify loop using the pipeline + contracts + lineage MCP servers.
 ---
 
-# Scaffold a NeuroNews document connector
+# Scaffold a Noesis document connector
 
 The knowledge-engine pipeline ingests arbitrary media types through a single
 interface: **discover → fetch → parse → `Document`**. A document connector
