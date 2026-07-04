@@ -19,8 +19,8 @@ const STATUS_META: Record<BackendStatus, { className: string; dot: string; label
   offline: {
     className: "border-slate-500/30 bg-slate-500/10 text-slate-400",
     dot: "bg-slate-400",
-    label: "DEMO MODE",
-    hint: "Backend unreachable — panels fall back to the demo dataset",
+    label: "SAMPLE DATA",
+    hint: "Backend unreachable. Panels show a representative sample dataset.",
   },
 };
 

@@ -7,12 +7,13 @@ import { panelComponent } from "./registry";
 import type { PanelSpec, UISpec } from "./spec";
 import type { AdaptiveSignals } from "./signals";
 
-const MIN = 3;
+const MIN = 4;
 const MAX = 12;
 
-// Walk the panels row by row and stretch each row's last panel so every row
-// fills the 12-column grid — no dangling half-empty rows. Exported for the
-// command bar's live ghost preview, which mirrors the real layout.
+// Walk the panels row by row and spread each row's leftover columns evenly
+// across its panels so every row fills the 12-column grid without a dangling
+// half-empty slot or one lopsided giant panel. Exported for the command bar's
+// live ghost preview, which mirrors the real layout.
 export function fitSpans(panels: PanelSpec[]): number[] {
   const spans = panels.map((p) => Math.max(MIN, Math.min(MAX, p.span || 6)));
   let i = 0;
@@ -23,7 +24,13 @@ export function fitSpans(panels: PanelSpec[]): number[] {
       used += spans[i];
       i += 1;
     }
-    if (i > start && used < MAX) spans[i - 1] += MAX - used;
+    const count = i - start;
+    // Distribute the remaining columns one at a time across the row, left
+    // first, so widths differ by at most one column instead of piling the
+    // slack onto the final panel.
+    for (let k = 0; k < MAX - used && count > 0; k += 1) {
+      spans[start + (k % count)] += 1;
+    }
   }
   return spans;
 }
