@@ -1,53 +1,82 @@
-![Airflow DAG Check](https://github.com/Ikey168/NeuroNews/actions/workflows/airflow-dag-check.yml/badge.svg)
-![MLflow CI](https://github.com/Ikey168/NeuroNews/actions/workflows/mlops-ci.yml/badge.svg)
+![Airflow DAG Check](https://github.com/Ikey168/Noesis/actions/workflows/airflow-dag-check.yml/badge.svg)
+![MLflow CI](https://github.com/Ikey168/Noesis/actions/workflows/mlops-ci.yml/badge.svg)
 
-# Noesis — Generative Knowledge Engine
+# Noesis: Generative Knowledge Engine
 
-Noesis (formerly NeuroNews) is a knowledge engine that ingests articles,
-blog posts, papers, and transcripts, mines arguments from them, and surfaces
-everything through a **fully generative UI**: there are no fixed pages —
-every screen is a layout planned at runtime from a natural-language intent,
-adapted to the data that actually exists, the enabled knowledge domains, and
-the operator's habits.
+Noesis (formerly NeuroNews) ingests documents (news, blogs, papers,
+transcripts), mines arguments and evidence from them, and exposes everything
+through two surfaces:
 
-The architecture is converging on **MCP as the capability plane**: the
-platform's subsystems are already exposed as MCP servers, and the
-[rearchitecture plan](docs/architecture/MCP_REARCHITECTURE_PLAN.md) takes
-this to its end state — agents that don't just compose views over existing
-knowledge, but **provision new knowledge domains**: deploying knowledge
-graphs and selecting the sources that feed them, with the UI growing panels
-for new domains through tool discovery alone.
+- a **generative UI**, where there are no fixed pages: every screen is a
+  layout planned at runtime from a natural-language intent, adapted to the
+  data that actually exists, the enabled knowledge domains, and the operator's
+  habits;
+- an **MCP capability plane**, where every subsystem is a tool server that the
+  UI, development agents, and autonomous agents compose against.
+
+The capability plane is not just for reading. Agents provision new knowledge
+domains: they stand up namespaced knowledge graphs, select and attach the
+sources that feed them, run the pipelines, and the UI grows panels for those
+domains through tool discovery alone. The full design lives in the
+[MCP rearchitecture plan](docs/architecture/MCP_REARCHITECTURE_PLAN.md).
+
+---
+
+## The three pillars
+
+1. **Generative canvas.** The frontend has no fixed views. Each screen is a
+   `ui-spec-v1` document planned from an intent ("compare outlet framing on
+   climate policy"), validated against a contract, and rendered from a registry
+   of 43 panel types built on a small set of reusable chart primitives. The
+   only control is a command bar; the planner runs as you type.
+2. **MCP capability plane.** Sixteen subsystem MCP servers expose the platform:
+   ingestion, argument mining, evidence and OSINT, the knowledge graph,
+   provisioning, research, lineage, security, and more. The panel catalog, the
+   panel data, and the LLM planner are all grounded in tool discovery and tool
+   calls.
+3. **Agent-provisioned knowledge.** An audited agent host runs analyst and
+   investigator agents over the provisioning, OSINT, and generative-UI planes.
+   Agents deploy knowledge graphs with their own storage and pipelines under
+   quota and approval guardrails, and every run is budgeted, allowlisted, and
+   recorded as a replayable transcript.
 
 ---
 
 ## What it does
 
-- **Adaptive generative UI** — the entire frontend is a generative canvas:
-  there are no fixed views. Every screen is planned from a natural-language
-  intent ("compare outlet framing on climate policy") as a validated
-  `ui-spec-v1` document — heuristically or by an LLM when a key is
-  configured — and adapted to warehouse data availability, domain packs,
-  and the operator's pins/mutes. The sidebar only manages open canvases —
-  all navigation is the prompt. See [docs/genui.md](docs/genui.md).
-- **Argument mining** — detects claims, classifies stances, identifies frames
-  (economic / security / humanitarian / legal / political / scientific / other),
-  extracts actor/entity mentions, and tracks how policy positions evolve over
-  time.
-- **Source transparency ranking** — scores every outlet by framing diversity,
-  claim attribution rate, and stance neutrality; publishes a weekly snapshot
-  with sparkline history.
-- **Outlet clustering** — groups sources by editorial framing using k-means +
-  Ward hierarchical clustering, with a PCA 2-D scatter plot.
-- **Conflict graph** — visualises claim conflicts and contradictions between
-  sources.
-- **Fact-checking integration** — links claims to external verdicts; flags
-  unsourced assertions.
-- **Blog / feed ingestion** — subscribes to Atom/RSS watchlists and ingests
-  matching posts into the pipeline.
-- **News scraping** — Scrapy-based spiders with Playwright/Selenium rendering
-  for JavaScript-heavy pages.
-- **NLP & sentiment** — named-entity extraction, sentiment scoring, keyword
-  trends, knowledge-graph linking.
+- **Adaptive generative UI.** Every screen is planned from an intent as a
+  validated `ui-spec-v1` document (heuristically, or by an LLM when a key is
+  configured) and adapted to warehouse data availability, installed domain
+  packs, and the operator's pins and mutes. Canvases can be saved, reopened,
+  refined in place, and shared by read-only link. See [docs/genui.md](docs/genui.md).
+- **Argument mining.** Detects claims, classifies stances, identifies frames
+  (economic, security, humanitarian, legal, political, scientific, other),
+  extracts actor and entity mentions, and tracks how policy positions evolve.
+- **Fact-check and corroboration.** Links claims to verdicts, scores
+  corroboration by independent-source count, flags unsourced assertions, and
+  keeps a contradiction ledger of where the public record disagrees with itself.
+- **OSINT investigation surface.** Entity dossiers, relationship paths,
+  reconstructed timelines, and provenance traces over ingested open sources,
+  all under a strict evidence discipline (every line is cited; uncited entries
+  are flagged, never hidden). Sensitive tools stay off by default behind a flag.
+- **Source transparency.** Scores every outlet by framing diversity, claim
+  attribution rate, and stance neutrality, generalized to any source type, with
+  weekly snapshots and sparkline history.
+- **Data-science analytics as tools.** Anomaly detection, lead-lag, narrative
+  clustering, coverage forecasting, semantic drift, graph science, and
+  significance testing are planner-composable tools that report honest
+  uncertainty (confidence intervals and prediction bands, never a bare point).
+- **Domain packs.** Knowledge domains are installable `noesis-pack-v1`
+  manifests with their own source types, enrichers, planner vocabulary, and
+  panels. A research pack (citation graph, venue credibility, literature
+  claims) is a first-class second domain; finance and legal domains are stood
+  up through provisioning alone.
+- **Ingestion.** Scrapy spiders with Playwright and Selenium rendering for
+  JavaScript-heavy pages, plus Atom and RSS blog watchlists, feeding a
+  contract-validated pipeline.
+- **NLP and knowledge graph.** Named-entity extraction, sentiment scoring,
+  keyword trends, and knowledge-graph linking with community and centrality
+  analysis.
 
 ---
 
@@ -57,52 +86,57 @@ for new domains through tool discovery alone.
 
 | Layer | Technology |
 |---|---|
-| Frontend | React 18, Vite, TypeScript, React Query, Tailwind CSS + shadcn/ui |
+| Frontend | React 18, Vite, TypeScript, TanStack Query, Tailwind CSS with shadcn/ui |
 | Backend | FastAPI, uvicorn |
-| Analytics warehouse | DuckDB (local file; single-writer) |
-| Argument mining | distilbert / heuristic fallback, scikit-learn, spaCy |
+| Analytics warehouse | DuckDB (local file, single-writer) |
+| Argument mining | distilbert with heuristic fallback, scikit-learn, spaCy |
 | Scraping | Scrapy, Playwright, Selenium |
 | Orchestration | Apache Airflow |
 | MLOps | MLflow |
-| Vector search | Qdrant, PostgreSQL/pgvector |
+| Vector search | Qdrant, PostgreSQL with pgvector |
 | Object storage | S3-compatible (MinIO) |
-| Metadata store | DynamoDB-compatible |
-| Streaming | Kafka (`localhost:9092` default) |
+| Streaming | Kafka |
+| Capability plane | FastMCP servers (stdio and Streamable HTTP) |
 
 ### Local-first
 
-Every external service has a localhost default. Set environment variables to
-point at managed equivalents in production:
+Every external service has a localhost default. Environment variables use the
+`NOESIS_` prefix, with `NEURONEWS_` accepted as a fallback for continuity. Set
+them to point at managed equivalents in production:
 
-```
-S3_ENDPOINT_URL        http://localhost:9000     # MinIO
-DYNAMODB_ENDPOINT_URL  http://localhost:8000     # DynamoDB Local
+```text
+NOESIS_DB_PATH         data/local_warehouse.duckdb   # DuckDB warehouse path
+S3_ENDPOINT_URL        http://localhost:9000          # MinIO
+DYNAMODB_ENDPOINT_URL  http://localhost:8000          # DynamoDB Local
 NEPTUNE_ENDPOINT       ws://localhost:8182/gremlin
-NEURONEWS_DB_PATH      data/local_warehouse.duckdb  # DuckDB warehouse path
 ```
 
-### MCP servers
+### MCP capability plane
 
-Every subsystem is exposed as a FastMCP stdio server. Today they serve
-development agents (token-efficient, read-only against the warehouse so
-they never conflict with the API writer) — and, per the
-[MCP rearchitecture plan](docs/architecture/MCP_REARCHITECTURE_PLAN.md),
-they are the basis of the future capability plane: the generative-UI panel
-catalog derived from tool discovery, domain packs as connected servers,
-LLM planning grounded in tool calls, and provisioning tools
-(`kg_deploy` / `kg_attach_sources`) that stand up new knowledge graphs at
-runtime.
+Every subsystem is a FastMCP server. Read tools run against the warehouse and
+never conflict with the API writer, so they are safe for both development
+agents and the live UI. The generative-UI panel catalog is derived from tool
+discovery, domain packs arrive as connected servers, and provisioning tools
+stand up new knowledge graphs at runtime.
 
-| Server | Tools |
+| Server | Focus |
 |---|---|
-| `tools/argument_mcp/` | `am_stats`, `list_claims`, `list_stances`, `list_drift_events`, `claim_evidence_pairs`, `list_unsourced_claims`, `trigger_attribution_batch`, `list_actors`, `actor_summary`, `trigger_actor_batch`, `list_outlet_clusters`, `trigger_outlet_clustering`, `list_outlet_scores`, `trigger_outlet_scoring`, `get_benchmark_results` |
-| `tools/pipeline_mcp/` | `list_sources`, `run_connector`, `run_stage`, `trace_article` |
-| `tools/contract_mcp/` | `list_contracts`, `get_contract`, `validate` |
-| `tools/lineage_mcp/` | `list_namespaces`, `list_nodes`, `lineage`, `impact`, `run_history` |
-| `tools/domain_packs_mcp/` | `list`, `enable`, `disable`, `run_enrichers`, `get_ui_flags` |
-| `tools/blog_mcp/` | `subscribe_feed`, `ingest_feeds`, `run_watchlist`, `harvest_feed` |
-| `tools/schema_mcp/` | `list_tables`, `get_schema`, `list_routes`, `get_route` |
-| `tools/dataset_mcp/` | `get_stats`, `get_schema`, `label_distribution`, `sample_examples`, `check_criteria` |
+| `pipeline_mcp` | Connectors, ingestion stages, article stats, and the analytics tools (anomaly, lead-lag, narratives, forecast, drift, sentiment, positions, conflicts) |
+| `argument_mcp` | Claims, stances, frames, actors, outlet clustering and scoring, stance drift, benchmarks |
+| `osint_mcp` | Corroboration, contradiction scan, source reliability, entity dossier, relationship path, timeline reconstruction, provenance trace, investigation audit |
+| `kg_mcp` | Knowledge-graph stats, entities, communities, centrality, corrections, evolving topics |
+| `provisioning_mcp` | Deploy, attach sources and pipelines, ingest, status, list, view, teardown, lineage for namespaced knowledge graphs |
+| `research_mcp` | Citation graph, venue credibility, literature claims |
+| `sources_mcp` | Source profiles, trustworthiness, comparison, outlet clusters |
+| `domain_packs_mcp` | Enable, disable, run enrichers, get UI flags |
+| `blog_mcp` | Subscribe, ingest, and harvest Atom and RSS watchlists |
+| `contract_mcp` | List, get, and validate data contracts |
+| `lineage_mcp` | Namespaces, nodes, lineage, impact, run history |
+| `dataset_mcp` | Training-dataset stats, schema, label distribution, sampling |
+| `monitoring_mcp` | Current and historical metrics and summaries |
+| `security_mcp` | Security posture, secret and TLS checks, backups, DB permissions |
+| `schema_mcp` | Tables, schemas, routes, hooks, mock exports |
+| `noesis_mcp` | External-facing generate-view server over Streamable HTTP |
 
 ---
 
@@ -111,115 +145,118 @@ runtime.
 ### 1. Clone
 
 ```bash
-git clone https://github.com/Ikey168/NeuroNews.git
-cd NeuroNews
+git clone https://github.com/Ikey168/Noesis.git
+cd Noesis
 ```
 
-### 2. Install Python dependencies
+### 2. Install dependencies
 
 ```bash
 pip install -r requirements.txt
-```
-
-### 3. Install frontend dependencies
-
-```bash
 cd apps/web && npm install && cd ../..
 ```
 
-### 4. Run the API
+### 3. Run the API
 
 ```bash
 NEURONEWS_DEV_MODE=true \
-NEURONEWS_DB_PATH=/tmp/neuronews-dev.duckdb \
+NOESIS_DB_PATH=/tmp/noesis-dev.duckdb \
 uvicorn src.api.app:app --port 8012
 ```
 
 `NEURONEWS_DEV_MODE=true` disables the WAF so development requests are not
-rejected. Use a separate `NEURONEWS_DB_PATH` to avoid locking the main
-warehouse file.
+rejected. Use a separate `NOESIS_DB_PATH` to avoid locking the main warehouse
+file.
 
-### 5. Run the frontend
+### 4. Run the frontend
 
 ```bash
 cd apps/web
 npm run dev          # http://localhost:5173
 ```
 
-The React app falls back to bundled mock data when the API is unreachable, so
-the dashboard works standalone for UI development.
+The React app falls back to bundled demo data when the API is unreachable, so
+the canvas works standalone for UI development.
 
-### 6. Run tests
+### 5. Run tests
 
 ```bash
-pytest                      # unit + integration tests
-npx tsc --noEmit -p apps/web/tsconfig.json   # TypeScript type check
+pytest                                        # unit and integration tests
+npx tsc --noEmit -p apps/web/tsconfig.json    # TypeScript type check
+python scripts/genui/codegen.py --check       # generated genui artifacts are current
 ```
 
-### 7. Evaluate argument mining models
+### 6. Other entry points
 
 ```bash
-# Evaluate ClaimDetector, StanceClassifier, FrameClassifier on test split
+# Argument-mining model benchmarks and the merge gate
 python scripts/benchmark_models.py
-
-# Enforce the ≥2 pp F1 improvement gate before merging a new checkpoint
 python scripts/benchmark_models.py --gate
 
-# With external benchmark datasets (optional)
-python scripts/benchmark_models.py --fever /data/fever/ --liar /data/liar/
-```
-
-Results are written to `docs/benchmark_results.json` and
-`docs/model_benchmarks.md`.
-
-### 8. Train argument mining models
-
-```bash
-# Requires data/argument_mining/{claims,stance,frames}.parquet (issue #109)
+# Train models (falls back to heuristics when a checkpoint is absent)
 python -m src.argument_mining.train_claim  --data data/argument_mining
-python -m src.argument_mining.train_stance --data data/argument_mining
-python -m src.argument_mining.train_frames --data data/argument_mining
-```
 
-Models are saved to `models/{claim_detector,stance_classifier,frame_classifier}/`.
-When a trained checkpoint is absent the pipeline falls back to keyword heuristics
-and still returns valid predictions.
-
-### 9. Run the scraper
-
-```bash
-python -m src.scraper.run --help
+# Scraper
 python -m src.scraper.run --spider bbc
-python -m src.scraper.run --multi-source
-```
 
-### 10. Docker (optional)
-
-```bash
+# Docker
 docker compose up --build
-docker compose -f docker-compose.test-minimal.yml up --build --abort-on-container-exit
 ```
 
 ---
 
 ## Generative canvas
 
-The frontend has no fixed views. Each screen is a **canvas**: a `ui-spec-v1`
+The frontend has no fixed views. Each screen is a canvas: a `ui-spec-v1`
 layout generated from an intent by `POST /api/v1/ui/generate` (or by a
 client-side planner when the backend is unreachable) and rendered from a
-registry of ~20 panel types — articles, library documents, trending, event
-clusters, sentiment heatmap, entity graph, claims, stance, framing, actor
-positions, conflicts, stance drift, outlet ranking/clusters, watchlist,
-story timeline, and more.
+registry of 43 panel types. Panels span articles and library documents,
+trending and event clusters, sentiment and claims, framing and stance, actor
+positions and conflicts, outlet ranking and clustering, the entity graph, the
+research family, provisioned knowledge graphs, and the OSINT surface.
 
-The single control is a ⌘K command bar: the planner runs as you type,
-showing parsed intent tokens and a live ghost of the layout before ⏎
-commits it. An empty canvas shows the live pipeline signal (entity
-constellation, moving topics that generate coverage views) instead of a
-greeting. The sidebar only manages open canvases (persisted in
-localStorage). The surface is built with Tailwind + shadcn/ui. Layouts adapt to warehouse data availability, enabled
-domain packs, and the operator's pins/mutes/interaction history. See
-[docs/genui.md](docs/genui.md).
+Panels are built on seven reusable chart primitives in
+`apps/web/src/components/charts/`: `LineBand` (line with a confidence band),
+`TimelineAxis` (dated event axis), `Sankey` (layered flow), `BarKit` (grouped
+and diverging bars), plus `Heatmap`, `EntityGraph`, and `Sparkline`. Each
+primitive serves several panels across different data layers.
+
+The single control is a command bar: the planner runs as you type, showing
+parsed intent tokens and a live preview of the layout before you commit it. An
+empty canvas shows the live pipeline signal instead of a greeting. Layouts
+adapt to warehouse data availability, enabled domain packs, and the operator's
+pins, mutes, and interaction history. Canvases persist locally, can be refined
+in place with a follow-up instruction, and can be shared by read-only link.
+See [docs/genui.md](docs/genui.md).
+
+---
+
+## Agents, packs, and provisioning
+
+These surfaces ship behind feature flags that are off by default:
+
+| Flag | Enables |
+|---|---|
+| `NOESIS_GENUI_LLM` | LLM planner (grounded, tool-using) instead of the heuristic planner |
+| `NOESIS_GENUI_DATA_PROXY` | Live panel data over MCP through the `POST /api/v1/ui/data` proxy |
+| `NOESIS_PACKS_ADMIN` | Pack install and publish routes |
+| `NOESIS_AGENT_API` | Analyst and investigator agent routes |
+| `NOESIS_AGENT_TRANSPORT` | `local` (in-process) or `live` (real MCP host) for agent runs |
+| `NOESIS_OSINT_GATED_TOOLS` | Sensitive OSINT tools, kept off unless explicitly enabled |
+| `NOESIS_ENABLED_PACKS` | Domain packs to load at startup |
+
+- **Domain packs** are installable `noesis-pack-v1` manifests: a pack declares
+  its source types, enrichers, planner keywords, UI flags, and panels, and the
+  registry keeps immutable versions. A pack surfaces its panels and vocabulary
+  without editing the core catalog.
+- **Agents** run over three planes (provisioning, OSINT, generative UI) through
+  a runtime that budgets tokens, enforces an allowlist, and audits every tool
+  call. Runs can dispatch in-process or against the live MCP host, and each
+  produces a replayable transcript.
+- **Provisioning** lets an agent deploy a namespaced knowledge graph with its
+  own attached storage and pipelines, bounded by quotas and an approval gate,
+  with idempotent upserts and lineage. Finance and legal domains are stood up
+  this way, with no core code changes.
 
 ---
 
@@ -231,13 +268,16 @@ domain packs, and the operator's pins/mutes/interaction history. See
 | `argument_claims` | Detected claims with attribution and fact-check verdicts |
 | `source_stances` | Per-source stance aggregations by topic |
 | `stance_drift_events` | Detected stance reversals |
-| `document_frames` | Per-document frame scores (7 dimensions) |
-| `document_actors` | Actor/entity mentions extracted from documents |
+| `document_frames` | Per-document frame scores (seven dimensions) |
+| `document_actors` | Actor and entity mentions extracted from documents |
 | `policy_positions` | Extracted actor policy stances |
-| `position_updates` | Tracked changes to policy positions |
-| `claim_conflicts` | Claim-vs-claim contradiction records |
-| `outlet_clusters` | k-means / hierarchical cluster assignments |
-| `outlet_scores` | Weekly transparency scores (diversity / attribution / neutrality) |
+| `claim_conflicts` | Claim-versus-claim contradiction records |
+| `outlet_clusters` | k-means and hierarchical cluster assignments |
+| `outlet_scores` | Weekly transparency scores (diversity, attribution, neutrality) |
+
+Provisioned knowledge graphs live in namespaced tables (and optionally their
+own attached DuckDB databases), so a new domain never collides with the news
+corpus.
 
 ---
 
@@ -249,16 +289,18 @@ domain packs, and the operator's pins/mutes/interaction history. See
 | StanceClassifier | 0.4506 macro | Neutral class dominates; minority stances underperform |
 | FrameClassifier | 0.5200 macro | Political frame recall is near zero in heuristic mode |
 
-See [`docs/model_benchmarks.md`](docs/model_benchmarks.md) for full breakdown
-by source type, article length, and per-class metrics.
+See [docs/model_benchmarks.md](docs/model_benchmarks.md) for the full breakdown
+by source type, length, and per-class metrics. When a trained checkpoint is
+absent the pipeline falls back to keyword heuristics and still returns valid
+predictions.
 
 ---
 
 ## Documentation
 
-- [Documentation index](docs/index.md) — full doc map by topic
-- [Generative UI](docs/genui.md) — the canvas, planners, adaptivity, ui-spec-v1
-- [MCP rearchitecture plan](docs/architecture/MCP_REARCHITECTURE_PLAN.md) — capability plane + agent-provisioned knowledge graphs
+- [Documentation index](docs/index.md): full doc map by topic
+- [Generative UI](docs/genui.md): the canvas, planners, adaptivity, ui-spec-v1
+- [MCP rearchitecture plan](docs/architecture/MCP_REARCHITECTURE_PLAN.md): capability plane and agent-provisioned knowledge graphs
 - [Project structure](docs/PROJECT_STRUCTURE.md)
 - [Model benchmarks](docs/model_benchmarks.md)
 - [Exactly-once delivery design](docs/EXACTLY_ONCE_DESIGN.md)
@@ -267,38 +309,30 @@ by source type, article length, and per-class metrics.
 
 ## Roadmap
 
-- Phase 1: Web scraping and data ingestion — complete
-- Phase 2: NLP, sentiment analysis, and knowledge graph — complete
-- Phase 3: Event detection and AI summarisation — complete
-- Phase 4: Interactive dashboards and REST API — complete
-- Phase 5: Argument mining pipeline (claims, stances, frames, positions, conflicts, actors) — complete
-- Phase 6: Outlet analysis (clustering, transparency scoring, conflict graph) — complete
-- Phase 7: Fully generative adaptive UI — fixed views replaced by the
-  intent-planned canvas (`ui-spec-v1`, heuristic + optional LLM planner,
-  ⌘K command bar with live plan preview, usage-signal adaptivity) — complete
-- Phase 8: MCP rearchitecture — MCP as the capability plane
-  ([plan](docs/architecture/MCP_REARCHITECTURE_PLAN.md), staged):
-  catalog-from-discovery, grounded LLM planning, MCP-backed panel data,
-  Noesis-as-MCP-server, **Track P** — agent-provisioned knowledge graphs
-  with quality-driven source selection — and **Track DS** — data-science
-  techniques (anomaly detection, lead-lag, narrative clustering, graph
-  science, significance testing) as planner-composable tools — proposed
-- Phase 9: Beyond news — research domain pack (citation graph, venue
-  credibility, literature claims) as the second first-class pack;
-  finance/legal and an **OSINT / investigation** domain (corroboration,
-  entity dossiers, relationship paths, timeline reconstruction — defensive
-  analysis over ingested open sources, under a strict evidence discipline)
-  provisioned via Track P; pack-aware canvas telemetry and outlet→source
-  generalisation
-  ([Track N](docs/architecture/MCP_REARCHITECTURE_PLAN.md)) — proposed
-- Also upcoming: trained model checkpoints; cross-dataset generalisation
-  (FEVER / LIAR / AVeriTeC); predictive analytics; real-time fact-checking
+Phases 1 through 6 (scraping and ingestion; NLP, sentiment, and knowledge
+graph; event detection and summarisation; dashboards and REST API; the
+argument-mining pipeline; outlet analysis) are complete.
+
+- **Phase 7, fully generative adaptive UI.** Complete. Fixed views replaced by
+  the intent-planned canvas (`ui-spec-v1`, heuristic and optional LLM planner,
+  a command bar with live plan preview, usage-signal adaptivity).
+- **Phase 8, MCP as the capability plane.** Complete. Catalog from discovery,
+  grounded LLM planning, MCP-backed panel data, Noesis as an MCP server, and
+  the data-science analytics tools.
+- **Phase 9, agent-provisioned knowledge.** Complete. Multi-tenant
+  provisioning of namespaced knowledge graphs with their own storage and
+  pipelines, and the audited agent host that drives them.
+- **Phase 10, beyond news.** Complete. The research domain pack, finance and
+  legal domains stood up through provisioning, and the OSINT investigation
+  surface under evidence discipline.
+- **Upcoming.** Trained model checkpoints; cross-dataset generalisation
+  (FEVER, LIAR, AVeriTeC); predictive analytics; live panel data on by default.
 
 ---
 
 ## Contact and contributions
 
 - GitHub Issues: bug reports and feature requests
-- Pull Requests: contributions welcome — see CONTRIBUTING.md
+- Pull Requests: contributions welcome
 - Email: ikey168@proton.me
 - License: MIT
