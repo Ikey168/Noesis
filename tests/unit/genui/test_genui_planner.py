@@ -196,3 +196,10 @@ class TestPlan:
         assert "climate policy" in body
         assert "blog" in body
         assert "14" in body
+
+    def test_sentiment_trajectory_selected_for_over_time_intent(self):
+        spec = plan("how sentiment shifted over time on climate policy")
+        types = [p.type for p in spec.panels]
+        assert "sentiment_trend" in types
+        trend = next(p for p in spec.panels if p.type == "sentiment_trend")
+        assert trend.params["topic"] == "climate policy"

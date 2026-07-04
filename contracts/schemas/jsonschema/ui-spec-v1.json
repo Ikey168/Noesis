@@ -60,7 +60,7 @@
           },
           "type": {
             "type": "string",
-            "enum": ["note", "kpi_row", "articles", "documents", "anomaly_timeline", "trending", "clusters", "watchlists", "timeline", "sentiment_heatmap", "topic_sentiment", "entity_graph", "claims", "stance", "frames", "positions", "controversy", "drift", "outlet_ranking", "outlet_clusters", "actors", "lead_lag", "narrative_thread", "drift_trajectory", "forecast", "venues", "citation_graph", "literature_claims", "provisioned_kg", "corroboration", "reliability_card", "contradiction_ledger", "entity_dossier", "relationship_path", "evidence_timeline", "provenance_trace"],
+            "enum": ["note", "kpi_row", "articles", "documents", "anomaly_timeline", "trending", "clusters", "watchlists", "timeline", "sentiment_heatmap", "topic_sentiment", "sentiment_trend", "entity_graph", "claims", "stance", "frames", "positions", "controversy", "drift", "outlet_ranking", "outlet_clusters", "actors", "lead_lag", "narrative_thread", "drift_trajectory", "forecast", "venues", "citation_graph", "literature_claims", "provisioned_kg", "corroboration", "reliability_card", "contradiction_ledger", "entity_dossier", "relationship_path", "evidence_timeline", "provenance_trace"],
             "description": "Renderer key in the frontend panel registry"
           },
           "title": {

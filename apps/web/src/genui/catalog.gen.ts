@@ -17,6 +17,7 @@ export type PanelType =
   | "timeline"
   | "sentiment_heatmap"
   | "topic_sentiment"
+  | "sentiment_trend"
   | "entity_graph"
   | "claims"
   | "stance"
@@ -83,6 +84,7 @@ export const PANEL_CATALOG: PanelDef[] = [
   { type: "timeline", title: "Story timeline", facets: ["events"], defaultSpan: 6, topicParam: true },
   { type: "sentiment_heatmap", title: "Sentiment heatmap", facets: ["sentiment", "trend"], defaultSpan: 6, daysParam: true, maxDays: 60 },
   { type: "topic_sentiment", title: "Sentiment by topic", facets: ["sentiment"], defaultSpan: 6, daysParam: true, maxDays: 90 },
+  { type: "sentiment_trend", title: "Sentiment trajectory", facets: ["sentiment", "trend"], defaultSpan: 6, topicParam: true, daysParam: true, maxDays: 90 },
   { type: "entity_graph", title: "Entity graph", facets: ["entities", "actors", "overview"], defaultSpan: 6, daysParam: true, maxDays: 30 },
   { type: "claims", title: "Extracted claims", facets: ["claims", "conflict"], defaultSpan: 6, topicParam: true, sourceTypeParam: true },
   { type: "stance", title: "Stance breakdown", facets: ["stance", "conflict", "sentiment"], defaultSpan: 6, topicParam: true, sourceTypeParam: true },

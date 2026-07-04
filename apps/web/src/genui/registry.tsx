@@ -31,6 +31,8 @@ import { mockStories, mockTimeline, mockWatchlist } from "../data/mock";
 import Heatmap from "../components/charts/Heatmap";
 import EntityGraph from "../components/charts/EntityGraph";
 import Sparkline from "../components/charts/Sparkline";
+import LineBand from "../components/charts/LineBand";
+import type { LinePoint } from "../components/charts/LineBand";
 import GenPanel from "./GenPanel";
 import type { OutletScore } from "../types";
 import type { PanelSpec, PanelType } from "./spec";
@@ -404,6 +406,40 @@ function TopicSentimentPanel(props: PanelProps) {
           })}
         </div>
       )}
+    </GenPanel>
+  );
+}
+
+const DEMO_SENTIMENT_TREND: { method: string; n: number; unit: string; points: LinePoint[] } = {
+  method: "7-day rolling mean sentiment with a bootstrap 90% band",
+  n: 64,
+  unit: "",
+  points: [
+    { label: "Jun 21", value: -0.14, lo: -0.26, hi: -0.02 },
+    { label: "Jun 23", value: -0.18, lo: -0.29, hi: -0.07 },
+    { label: "Jun 25", value: -0.09, lo: -0.2, hi: 0.02 },
+    { label: "Jun 27", value: 0.02, lo: -0.09, hi: 0.13 },
+    { label: "Jun 29", value: -0.03, lo: -0.15, hi: 0.09 },
+    { label: "Jul 01", value: 0.11, lo: 0.0, hi: 0.22 },
+    { label: "Jul 03", value: 0.19, lo: 0.07, hi: 0.31 },
+    { label: "Jul 05", value: 0.24, lo: 0.1, hi: 0.38 },
+  ],
+};
+
+function SentimentTrendPanel(props: PanelProps) {
+  const { d, source, isLoading } = useLiveOrDemo(
+    "sentiment_trend",
+    DEMO_SENTIMENT_TREND,
+    (r) =>
+      Array.isArray(r.points) && r.points.length > 1
+        ? (r as unknown as typeof DEMO_SENTIMENT_TREND)
+        : null,
+    { topic: props.panel.params?.topic, days: daysParam(props.panel) },
+  );
+  return (
+    <GenPanel {...props} source={source} isLoading={isLoading}>
+      <LineBand points={d.points} unit={d.unit} />
+      <AnalyticCaption method={d.method} n={d.n} />
     </GenPanel>
   );
 }
@@ -1498,6 +1534,7 @@ const REGISTRY: Record<PanelType, ComponentType<PanelProps>> = {
   timeline: TimelinePanel,
   sentiment_heatmap: SentimentHeatmapPanel,
   topic_sentiment: TopicSentimentPanel,
+  sentiment_trend: SentimentTrendPanel,
   entity_graph: EntityGraphPanel,
   claims: ClaimsPanel,
   stance: StancePanel,
