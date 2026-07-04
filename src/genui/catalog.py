@@ -228,6 +228,18 @@ PANEL_CATALOG: Tuple[PanelDef, ...] = (
         source_type_param="source_type",
     ),
     PanelDef(
+        type="claims_trend",
+        title="Corroboration over time",
+        description="The share of claims on a topic backed by independent sources, tracked over time as a line with a confidence band; whether the public record is getting better or worse corroborated is read directly.",
+        endpoint=None,
+        facets=("claims", "trend"),
+        tables=("argument_claims",),
+        default_span=6,
+        topic_param="topic",
+        days_param="days",
+        max_days=90,
+    ),
+    PanelDef(
         type="stance",
         title="Stance breakdown",
         description="Supportive / critical / neutral stance mix per topic.",

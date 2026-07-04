@@ -1637,6 +1637,38 @@ function ClaimVerdictsPanel(props: PanelProps) {
   );
 }
 
+const DEMO_CLAIMS_TREND: { method: string; n: number; unit: string; points: LinePoint[] } = {
+  method: "share of claims with two or more independent sources, 7-day rolling",
+  n: 142,
+  unit: "",
+  points: [
+    { label: "Jun 21", value: 0.41, lo: 0.32, hi: 0.5 },
+    { label: "Jun 24", value: 0.46, lo: 0.37, hi: 0.55 },
+    { label: "Jun 27", value: 0.52, lo: 0.43, hi: 0.61 },
+    { label: "Jun 30", value: 0.49, lo: 0.4, hi: 0.58 },
+    { label: "Jul 03", value: 0.58, lo: 0.49, hi: 0.67 },
+    { label: "Jul 06", value: 0.63, lo: 0.53, hi: 0.73 },
+  ],
+};
+
+function ClaimsTrendPanel(props: PanelProps) {
+  const { d, source, isLoading } = useLiveOrDemo(
+    "claims_trend",
+    DEMO_CLAIMS_TREND,
+    (r) =>
+      Array.isArray(r.points) && r.points.length > 1
+        ? (r as unknown as typeof DEMO_CLAIMS_TREND)
+        : null,
+    { topic: props.panel.params?.topic, days: daysParam(props.panel) },
+  );
+  return (
+    <GenPanel {...props} source={source} isLoading={isLoading}>
+      <LineBand points={d.points} unit={d.unit} signed={false} />
+      <AnalyticCaption method={d.method} n={d.n} />
+    </GenPanel>
+  );
+}
+
 const REGISTRY: Record<PanelType, ComponentType<PanelProps>> = {
   note: NotePanel,
   kpi_row: KpiRowPanel,
@@ -1653,6 +1685,7 @@ const REGISTRY: Record<PanelType, ComponentType<PanelProps>> = {
   entity_graph: EntityGraphPanel,
   claims: ClaimsPanel,
   claim_verdicts: ClaimVerdictsPanel,
+  claims_trend: ClaimsTrendPanel,
   stance: StancePanel,
   frames: FramesPanel,
   positions: PositionsPanel,
