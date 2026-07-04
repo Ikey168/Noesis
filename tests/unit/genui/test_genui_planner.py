@@ -236,3 +236,8 @@ class TestPlan:
         assert "evidence_axis" in types
         panel = next(p for p in spec.panels if p.type == "evidence_axis")
         assert panel.params["topic"] == "climate policy"
+
+    def test_claim_flow_selected_for_claim_flow_intent(self):
+        spec = plan("how claims flow from each source to a verdict")
+        types = [p.type for p in spec.panels]
+        assert "claim_flow" in types

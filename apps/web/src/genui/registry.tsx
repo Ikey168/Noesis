@@ -1607,6 +1607,54 @@ function CoverageFlowPanel(props: PanelProps) {
   );
 }
 
+const DEMO_CLAIM_FLOW: { method: string; n: number; nodes: SankeyNode[]; links: SankeyLink[] } = {
+  method: "claims routed from source to claim type to fact-check verdict",
+  n: 128,
+  nodes: [
+    { id: "wire", layer: 0, label: "Wire services" },
+    { id: "blog", layer: 0, label: "Blogs" },
+    { id: "stat", layer: 1, label: "Statistical" },
+    { id: "causal", layer: 1, label: "Causal" },
+    { id: "predict", layer: 1, label: "Predictive" },
+    { id: "verified", layer: 2, label: "Verified" },
+    { id: "disputed", layer: 2, label: "Disputed" },
+    { id: "unverified", layer: 2, label: "Unverified" },
+  ],
+  links: [
+    { source: "wire", target: "stat", value: 16 },
+    { source: "wire", target: "causal", value: 9 },
+    { source: "wire", target: "predict", value: 5 },
+    { source: "blog", target: "causal", value: 11 },
+    { source: "blog", target: "predict", value: 14 },
+    { source: "stat", target: "verified", value: 12 },
+    { source: "stat", target: "disputed", value: 3 },
+    { source: "stat", target: "unverified", value: 1 },
+    { source: "causal", target: "verified", value: 6 },
+    { source: "causal", target: "disputed", value: 8 },
+    { source: "causal", target: "unverified", value: 6 },
+    { source: "predict", target: "disputed", value: 4 },
+    { source: "predict", target: "unverified", value: 15 },
+  ],
+};
+
+function ClaimFlowPanel(props: PanelProps) {
+  const { d, source, isLoading } = useLiveOrDemo(
+    "claim_flow",
+    DEMO_CLAIM_FLOW,
+    (r) =>
+      Array.isArray(r.nodes) && Array.isArray(r.links) && r.links.length > 0
+        ? (r as unknown as typeof DEMO_CLAIM_FLOW)
+        : null,
+    { topic: props.panel.params?.topic, days: daysParam(props.panel) },
+  );
+  return (
+    <GenPanel {...props} source={source} isLoading={isLoading}>
+      <Sankey nodes={d.nodes} links={d.links} />
+      <AnalyticCaption method={d.method} n={d.n} />
+    </GenPanel>
+  );
+}
+
 const CLAIM_VERDICT_SERIES = ["verified", "disputed", "unverified"];
 const DEMO_CLAIM_VERDICTS: { method: string; n: number; rows: GroupedRow[] } = {
   method: "fact-check verdicts over claims mined per source",
@@ -1736,6 +1784,7 @@ const REGISTRY: Record<PanelType, ComponentType<PanelProps>> = {
   outlet_ranking: OutletRankingPanel,
   outlet_clusters: OutletClustersPanel,
   coverage_flow: CoverageFlowPanel,
+  claim_flow: ClaimFlowPanel,
   actors: ActorsPanel,
   anomaly_timeline: AnomalyTimelinePanel,
   lead_lag: LeadLagPanel,
