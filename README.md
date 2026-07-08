@@ -1,11 +1,16 @@
 ![Airflow DAG Check](https://github.com/Ikey168/Noesis/actions/workflows/airflow-dag-check.yml/badge.svg)
 ![MLflow CI](https://github.com/Ikey168/Noesis/actions/workflows/mlops-ci.yml/badge.svg)
 
-# Noesis: Generative Knowledge Engine
+# Noesis: Investigation Engine
 
-Noesis (formerly NeuroNews) ingests documents (news, blogs, papers,
-transcripts), mines arguments and evidence from them, and exposes everything
-through two surfaces:
+Noesis (formerly NeuroNews) investigates questions against an ingested public
+record. It ingests documents (news, blogs, papers, transcripts), mines claims
+and evidence from them, and then does what a knowledge base cannot: it takes
+a **question**, holds **competing hypotheses** against the record, pursues
+**leads**, weighs cited evidence by independent-source corroboration, and
+either reaches a verdict or refuses to and names exactly what is missing.
+
+Everything is exposed through two surfaces:
 
 - a **generative UI**, where there are no fixed pages: every screen is a
   layout planned at runtime from a natural-language intent, adapted to the
@@ -14,27 +19,36 @@ through two surfaces:
 - an **MCP capability plane**, where every subsystem is a tool server that the
   UI, development agents, and autonomous agents compose against.
 
-The capability plane is not just for reading. Agents provision new knowledge
-domains: they stand up namespaced knowledge graphs, select and attach the
-sources that feed them, run the pipelines, and the UI grows panels for those
-domains through tool discovery alone. The full design lives in the
+The capability plane is not just for reading. Agents open and drive
+investigations, and provision new knowledge domains: they stand up namespaced
+knowledge graphs, select and attach the sources that feed them, run the
+pipelines, and the UI grows panels for those domains through tool discovery
+alone. The full design lives in the
 [MCP rearchitecture plan](docs/architecture/MCP_REARCHITECTURE_PLAN.md).
 
 ---
 
-## The three pillars
+## The four pillars
 
-1. **Generative canvas.** The frontend has no fixed views. Each screen is a
+1. **Investigation engine.** A case is a durable object: a question, at least
+   two competing hypotheses (every case can state its own disconfirmation),
+   replayable leads over the OSINT layer, cited credibility-weighted evidence,
+   and an append-only journal. The engine plans leads, pursues them, scores
+   the hypothesis matrix ACH-style, and concludes only through an
+   evidence-discipline gate - enough independent sources, a real margin, no
+   unanswered contradiction, no open leads - otherwise the case stays open
+   with its gaps named. See [docs/investigations.md](docs/investigations.md).
+2. **Generative canvas.** The frontend has no fixed views. Each screen is a
    `ui-spec-v1` document planned from an intent ("compare outlet framing on
    climate policy"), validated against a contract, and rendered from a registry
    of 43 panel types built on a small set of reusable chart primitives. The
    only control is a command bar; the planner runs as you type.
-2. **MCP capability plane.** Sixteen subsystem MCP servers expose the platform:
-   ingestion, argument mining, evidence and OSINT, the knowledge graph,
-   provisioning, research, lineage, security, and more. The panel catalog, the
-   panel data, and the LLM planner are all grounded in tool discovery and tool
-   calls.
-3. **Agent-provisioned knowledge.** An audited agent host runs analyst and
+3. **MCP capability plane.** Seventeen subsystem MCP servers expose the
+   platform: the investigation engine, ingestion, argument mining, evidence
+   and OSINT, the knowledge graph, provisioning, research, lineage, security,
+   and more. The panel catalog, the panel data, and the LLM planner are all
+   grounded in tool discovery and tool calls.
+4. **Agent-provisioned knowledge.** An audited agent host runs analyst and
    investigator agents over the provisioning, OSINT, and generative-UI planes.
    Agents deploy knowledge graphs with their own storage and pipelines under
    quota and approval guardrails, and every run is budgeted, allowlisted, and
@@ -44,6 +58,14 @@ domains through tool discovery alone. The full design lives in the
 
 ## What it does
 
+- **Case work.** Open a case on a question (`POST /api/v1/investigation/run`
+  or the `noesis-investigation` MCP tools) and the engine corroborates every
+  claim that speaks to it, scans for contradictions, reconstructs the
+  timeline, pulls entity dossiers and connection paths, vets every source its
+  own evidence introduced, and delivers a cited brief: a verdict when the
+  evidence-discipline gate passes, the named gaps when it does not. Counter-
+  claims are recognized through the conflict graph, so corroboration of an
+  opposing claim counts with its direction flipped.
 - **Adaptive generative UI.** Every screen is planned from an intent as a
   validated `ui-spec-v1` document (heuristically, or by an LLM when a key is
   configured) and adapted to warehouse data availability, installed domain
@@ -121,6 +143,7 @@ stand up new knowledge graphs at runtime.
 
 | Server | Focus |
 |---|---|
+| `investigation_mcp` | The investigation engine: open, run, advance and conclude cases; case files, ACH hypothesis matrices, cited briefs |
 | `pipeline_mcp` | Connectors, ingestion stages, article stats, and the analytics tools (anomaly, lead-lag, narratives, forecast, drift, sentiment, positions, conflicts) |
 | `argument_mcp` | Claims, stances, frames, actors, outlet clustering and scoring, stance drift, benchmarks |
 | `osint_mcp` | Corroboration, contradiction scan, source reliability, entity dossier, relationship path, timeline reconstruction, provenance trace, investigation audit |
@@ -274,6 +297,10 @@ These surfaces ship behind feature flags that are off by default:
 | `claim_conflicts` | Claim-versus-claim contradiction records |
 | `outlet_clusters` | k-means and hierarchical cluster assignments |
 | `outlet_scores` | Weekly transparency scores (diversity, attribution, neutrality) |
+| `investigations` | Case records: question, hypotheses scope, status, verdict |
+| `investigation_evidence` | Cited, credibility-weighted evidence rows per case |
+| `investigation_leads` | Planned and pursued leads (replayable tool calls) |
+| `investigation_events` | The append-only case journal |
 
 Provisioned knowledge graphs live in namespaced tables (and optionally their
 own attached DuckDB databases), so a new domain never collides with the news
@@ -299,6 +326,7 @@ predictions.
 ## Documentation
 
 - [Documentation index](docs/index.md): full doc map by topic
+- [Investigation engine](docs/investigations.md): cases, hypotheses, leads, the evidence-discipline gate
 - [Generative UI](docs/genui.md): the canvas, planners, adaptivity, ui-spec-v1
 - [MCP rearchitecture plan](docs/architecture/MCP_REARCHITECTURE_PLAN.md): capability plane and agent-provisioned knowledge graphs
 - [Project structure](docs/PROJECT_STRUCTURE.md)
@@ -325,8 +353,14 @@ argument-mining pipeline; outlet analysis) are complete.
 - **Phase 10, beyond news.** Complete. The research domain pack, finance and
   legal domains stood up through provisioning, and the OSINT investigation
   surface under evidence discipline.
+- **Phase 11, the investigation engine.** Complete. Cases as first-class
+  durable objects (question, competing hypotheses, leads, cited evidence,
+  journal), the plan/pursue/evaluate loop over the OSINT layer, ACH hypothesis
+  matrices under the honesty envelope, the evidence-discipline conclusion
+  gate, and the case brief - over HTTP and MCP.
 - **Upcoming.** Trained model checkpoints; cross-dataset generalisation
-  (FEVER, LIAR, AVeriTeC); predictive analytics; live panel data on by default.
+  (FEVER, LIAR, AVeriTeC); predictive analytics; live panel data on by default;
+  investigation canvas panels (case board, hypothesis matrix, brief).
 
 ---
 

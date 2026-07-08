@@ -1,8 +1,9 @@
 # Noesis Documentation
 
-Noesis (formerly NeuroNews) is a full-stack news intelligence platform that
-ingests articles, blog posts, papers, and transcripts, mines arguments from
-them, and surfaces insights through a React dashboard and a FastAPI backend.
+Noesis (formerly NeuroNews) is an investigation engine: it ingests articles,
+blog posts, papers, and transcripts, mines arguments from them, and drives
+question-led investigations over that record, surfaced through a React
+dashboard and a FastAPI backend.
 
 For a project overview, the tech stack, and local setup, start with the
 [root README](../README.md). This index links the deeper reference docs.
@@ -15,6 +16,7 @@ For a project overview, the tech stack, and local setup, start with the
 
 ## Architecture & design
 
+- [Investigation engine](investigations.md) — cases, competing hypotheses, leads, and the evidence-discipline gate
 - [Knowledge-engine pivot plan](architecture/KNOWLEDGE_ENGINE_PIVOT_PLAN.md) — claim/triple-centric knowledge graph design
 - [Exactly-once delivery design](EXACTLY_ONCE_DESIGN.md) — streaming delivery guarantees
 - [Data lineage naming](lineage_naming.md) — OpenLineage namespace and naming conventions

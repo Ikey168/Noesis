@@ -109,6 +109,14 @@
       ],
       "env": {}
     },
+    "noesis-investigation": {
+      "type": "stdio",
+      "command": "python3",
+      "args": [
+        "tools/investigation_mcp/server.py"
+      ],
+      "env": {}
+    },
     "neuronews-dataset": {
       "type": "stdio",
       "command": "python3",

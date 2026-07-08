@@ -34,6 +34,7 @@ GENUI_DATA_ROUTES_AVAILABLE = False
 CANVAS_ROUTES_AVAILABLE = False
 PACK_ROUTES_AVAILABLE = False
 AGENT_ROUTES_AVAILABLE = False
+INVESTIGATION_ROUTES_AVAILABLE = False
 
 # Store imported modules globally
 _imported_modules = {}
@@ -434,6 +435,20 @@ def try_import_agent_routes():
         return False
 
 
+def try_import_investigation_routes():
+    """Try to import the investigation engine routes (case work: open, run,
+    advance, conclude, case file, matrix, brief)."""
+    global INVESTIGATION_ROUTES_AVAILABLE
+    try:
+        from src.api.routes import investigation_routes
+        _imported_modules['investigation_routes'] = investigation_routes
+        INVESTIGATION_ROUTES_AVAILABLE = True
+        return True
+    except ImportError:
+        INVESTIGATION_ROUTES_AVAILABLE = False
+        return False
+
+
 def try_import_report_routes():
     """Try to import report generation routes (issues #51, #52)."""
     global REPORT_ROUTES_AVAILABLE
@@ -496,6 +511,7 @@ def check_all_imports():
     try_import_canvas_routes()
     try_import_pack_routes()
     try_import_agent_routes()
+    try_import_investigation_routes()
     _load_domain_packs()
 
 
@@ -852,6 +868,13 @@ def include_optional_routers(app):
         agent_routes = _imported_modules.get('agent_routes')
         if agent_routes:
             app.include_router(agent_routes.router)
+            routers_included += 1
+
+    # Include the investigation engine routes (case work over the OSINT layer).
+    if INVESTIGATION_ROUTES_AVAILABLE:
+        investigation_routes = _imported_modules.get('investigation_routes')
+        if investigation_routes:
+            app.include_router(investigation_routes.router)
             routers_included += 1
 
     return routers_included
