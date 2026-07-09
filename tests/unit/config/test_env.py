@@ -6,7 +6,12 @@ identically, alias-first (NOESIS_* canonical, NEURONEWS_* fallback).
 
 import pytest
 
-from src.config.env import enabled_packs, resolve_env, warehouse_path
+from src.config.env import (
+    enabled_packs,
+    imagery_queue_path,
+    resolve_env,
+    warehouse_path,
+)
 
 
 def test_canonical_prefix_wins(monkeypatch):
@@ -68,6 +73,23 @@ def test_warehouse_path_default_keeps_legacy_filename(monkeypatch):
     monkeypatch.delenv("NEURONEWS_DB_PATH", raising=False)
     assert warehouse_path().endswith("data/neuronews.duckdb")
     assert warehouse_path("/override.db") == "/override.db"
+
+
+def test_imagery_queue_path_prefers_env_then_default(monkeypatch):
+    monkeypatch.delenv("NOESIS_IMAGERY_QUEUE_PATH", raising=False)
+    monkeypatch.setenv("NEURONEWS_IMAGERY_QUEUE_PATH", "/data/q.db")
+    assert imagery_queue_path() == "/data/q.db"
+    monkeypatch.setenv("NOESIS_IMAGERY_QUEUE_PATH", "/data/noesis-q.db")
+    assert imagery_queue_path() == "/data/noesis-q.db"
+
+
+def test_imagery_queue_path_defaults_to_a_separate_store(monkeypatch):
+    monkeypatch.delenv("NOESIS_IMAGERY_QUEUE_PATH", raising=False)
+    monkeypatch.delenv("NEURONEWS_IMAGERY_QUEUE_PATH", raising=False)
+    # A dedicated file, distinct from the corpus warehouse (least privilege).
+    assert imagery_queue_path().endswith("data/osint_imagery_queue.duckdb")
+    assert imagery_queue_path() != warehouse_path()
+    assert imagery_queue_path("/override-q.db") == "/override-q.db"
 
 
 def test_enabled_packs_helper(monkeypatch):

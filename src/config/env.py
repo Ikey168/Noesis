@@ -60,6 +60,25 @@ def warehouse_path(default: Optional[str] = None) -> Optional[str]:
     return str(Path(__file__).resolve().parents[2] / "data" / "neuronews.duckdb")
 
 
+def imagery_queue_path(default: Optional[str] = None) -> Optional[str]:
+    """The dedicated OSINT imagery review-queue store path
+    (``NOESIS_IMAGERY_QUEUE_PATH`` / ``NEURONEWS_IMAGERY_QUEUE_PATH``).
+
+    The gated imagery tier reads corpus assets from the warehouse *read-only* but
+    must write review-queue suggestions somewhere; per least privilege those
+    writes go to this separate DuckDB file (holding only the review queue), never
+    to the read-write corpus warehouse. Falls back to
+    ``<repo>/data/osint_imagery_queue.duckdb`` when neither var nor ``default``
+    is set.
+    """
+    resolved = resolve_env("IMAGERY_QUEUE_PATH")
+    if resolved is not None:
+        return resolved
+    if default is not None:
+        return default
+    return str(Path(__file__).resolve().parents[2] / "data" / "osint_imagery_queue.duckdb")
+
+
 def enabled_packs(default: str = "") -> str:
     """The enabled domain packs, comma-separated
     (``NOESIS_ENABLED_PACKS`` / ``NEURONEWS_ENABLED_PACKS``)."""
