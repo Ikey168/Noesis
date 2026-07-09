@@ -11,7 +11,7 @@ alone and confirms it matches the live transcript call for call:
 
 Run:  python scripts/agent/m10_acceptance.py
 
-The executable form of docs/agent-m10-acceptance.md.
+The executable form of docs/milestones/agent-m10.md.
 """
 
 from __future__ import annotations

@@ -643,8 +643,11 @@ def main() -> int:
 
     out_dir = args.out
     out_dir.mkdir(parents=True, exist_ok=True)
+    # JSON stays at docs/benchmark_results.json (read by the get_benchmark_results
+    # MCP tool); the human-readable report lives under the subsystems section.
     json_path = out_dir / "benchmark_results.json"
-    md_path = out_dir / "model_benchmarks.md"
+    md_path = out_dir / "subsystems" / "argument-mining-benchmarks.md"
+    md_path.parent.mkdir(parents=True, exist_ok=True)
 
     # ── Load previous checkpoint ──────────────────────────────────────────────
     previous: Optional[dict] = None

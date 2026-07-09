@@ -2,7 +2,7 @@
 Generalized Document data model and Article<->Document adapter.
 
 Part of M0 (keystone) of the knowledge-engine pivot. See
-``docs/architecture/KNOWLEDGE_ENGINE_PIVOT_PLAN.md``.
+``docs/architecture/knowledge-engine-pivot.md``.
 
 The ``Document`` record generalizes the news-specific ``ArticleIngest`` so the
 pipeline can ingest news, blogs, books, papers, transcripts, and arbitrary

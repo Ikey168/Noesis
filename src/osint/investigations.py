@@ -10,7 +10,7 @@ its audit trail. :func:`investigation_audit` replays that trail.
 The review gate: ``geolocate_claims`` and ``narrative_coordination`` are the
 most abusable and false-positive-prone tools. They stay behind an explicit
 review gate: they are **absent** from the served tool surface until the gate
-documented in ``docs/osint-review-gate.md`` passes. :data:`GATED_TOOLS` names
+documented in ``docs/security/osint-review-gate.md`` passes. :data:`GATED_TOOLS` names
 them so a test can assert they are not exposed.
 
 :func:`osint_telemetry` supplies the empty-canvas ambient signal when the OSINT

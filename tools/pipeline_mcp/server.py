@@ -947,7 +947,7 @@ def compute_conflicts(limit: int = 300, date_range: Optional[str] = None) -> dic
 
 # --------------------------------------------------------------------------- #
 # Panel-shaped warehouse summaries (R2 discovery counterparts; see            #
-# docs/architecture/ADR-001-tool-panel-annotation.md). Read-only, capped,     #
+# docs/architecture/decisions/ADR-001-tool-panel-annotation.md). Read-only, capped,     #
 # and never full payloads — same house rules as the tools above.             #
 # --------------------------------------------------------------------------- #
 

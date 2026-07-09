@@ -1,7 +1,7 @@
 # document-ingest-v1 examples
 
 Golden fixtures for the generalized `document-ingest-v1` contract (M0 keystone of
-the knowledge-engine pivot — see `docs/architecture/KNOWLEDGE_ENGINE_PIVOT_PLAN.md`).
+the knowledge-engine pivot — see `docs/architecture/knowledge-engine-pivot.md`).
 
 `Document` generalizes the news-specific `ArticleIngest`; `news` is now one
 `source_type` among `news | blog | book | paper | transcript | web | note`.

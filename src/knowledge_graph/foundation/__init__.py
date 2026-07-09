@@ -4,7 +4,7 @@ and a backend-agnostic store.
 
 Replaces the implicit, untyped entity-relationship graph with a real knowledge
 graph centered on concepts and claims, where documents are anchors and every
-fact is a cited triple. See ``docs/architecture/KNOWLEDGE_ENGINE_PIVOT_PLAN.md``.
+fact is a cited triple. See ``docs/architecture/knowledge-engine-pivot.md``.
 """
 
 from src.knowledge_graph.foundation.model import (

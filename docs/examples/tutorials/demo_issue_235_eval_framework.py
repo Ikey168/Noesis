@@ -25,7 +25,7 @@ print("📁 File Structure Check:")
 required_files = [
     "evals/qa_dev.jsonl",
     "evals/run_eval.py",
-    "docs/rag/evaluation.md"
+    "docs/subsystems/rag/evaluation.md"
 ]
 
 for file_path in required_files:
@@ -173,7 +173,7 @@ print("📊 Implementation Summary:")
 print()
 print("Issue #235 Requirements:")
 print("✅ Scope: Ground 25-50 item evaluation harness for repeatable checks")
-print("✅ Files: qa_dev.jsonl (50 items), run_eval.py, docs/rag/evaluation.md")
+print("✅ Files: qa_dev.jsonl (50 items), run_eval.py, docs/subsystems/rag/evaluation.md")
 print("✅ Metrics: Recall@k, nDCG@k, MRR, Answer exact/partial match, Token F1")
 print("✅ CLI: Configuration comparison with fusion weights, k, reranker on/off")
 print("✅ Output: CSV output + MLflow logging support")

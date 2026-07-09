@@ -9,7 +9,7 @@ people, generic fuzzy/containment matching, and an optional embedding
 similarity fallback. It can also backfill an existing store, merging duplicate
 nodes and rewriting triples to canonical ids.
 
-See ``docs/architecture/KNOWLEDGE_ENGINE_PIVOT_PLAN.md``.
+See ``docs/architecture/knowledge-engine-pivot.md``.
 """
 
 from __future__ import annotations

@@ -80,7 +80,7 @@ jobs:
 
       - name: Run unit tests
         # ADVISORY (de-scoped): this legacy whole-tree gate + 90%-coverage bar is
-        # systemically red pending docs/development/TEST_SUITE_REPAIR_PLAN.md. The
+        # systemically red pending docs/development/test-suite-repair-plan.md. The
         # authoritative PR gate is the curated .github/workflows/unit-tests.yml
         # (#818); this step reports but must not fail the build.
         continue-on-error: true
@@ -99,7 +99,7 @@ jobs:
           # module and counts as success. IGNORE_PREFIXES need optional feature
           # deps (snowflake, qdrant/vector, AWS/quicksight, scraper connectors)
           # or repeatedly reload the app (torch/DynamoDB re-import); tracked
-          # separately in docs/development/TEST_SUITE_REPAIR_PLAN.md.
+          # separately in docs/development/test-suite-repair-plan.md.
           set -uo pipefail
           IGNORE_PREFIXES=(
             "tests/integration/"

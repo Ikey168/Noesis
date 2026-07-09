@@ -8,7 +8,7 @@ heuristic and dependency-free (sentence splitting + a verb-anchored SPO parse
 with negation detection); it is the integration point where an LLM-based
 extractor can be swapped in later.
 
-See ``docs/architecture/KNOWLEDGE_ENGINE_PIVOT_PLAN.md`` (claim extraction and
+See ``docs/architecture/knowledge-engine-pivot.md`` (claim extraction and
 knowledge layer).
 """
 

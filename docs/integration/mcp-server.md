@@ -47,4 +47,4 @@ whole story.
 
 This outward server is named `noesis` (not `neuronews-*`). The internal
 `tools/*_mcp` servers that feed the canvas keep their `neuronews-*` names as
-documented aliases (see `docs/naming.md`); they are not user-facing.
+documented aliases (see `docs/development/naming.md`); they are not user-facing.

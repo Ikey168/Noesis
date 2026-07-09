@@ -3,7 +3,7 @@
 **Status:** Proposal (design review requested)
 **Date:** 2026-07-02
 **Scope:** capability layer, generative-UI planner, panel data plane
-**Related:** `docs/genui.md`, `docs/architecture/KNOWLEDGE_ENGINE_PIVOT_PLAN.md`
+**Related:** `docs/genui.md`, `docs/architecture/knowledge-engine-pivot.md`
 
 ## Summary
 
@@ -213,7 +213,7 @@ before routing (connector to contract to enrich to route), with quotas on
 databases and pipelines and a teardown that detaches the database and unbinds
 the connectors, never cascading to the shared corpus. Two domains stand up
 with their own database and pipeline via provisioning alone;
-`docs/provisioning-p2-acceptance.md` is the write-up. The one remaining
+`docs/milestones/provisioning-p2.md` is the write-up. The one remaining
 integration point is wiring the ingest runner to the real `pipeline_mcp`
 connector execution.*
 
@@ -645,7 +645,7 @@ that `kg_view` returned counts without the scoped sample, is fixed in the
 provisioning plane (`namespaces.namespace_sample` + `Provisioner.view`), not
 with pack code. The executable harness is `scripts/provisioning/acceptance.py`,
 the regression is `tests/unit/provisioning/test_acceptance.py`, and the
-write-up with the friction list is `docs/provisioning-acceptance.md`.
+write-up with the friction list is `docs/milestones/provisioning.md`.
 
 **R10 — OSINT composition** *(Track OSINT, phase 1)*
 `corroborate`, `source_reliability`, `contradiction_scan` under the
@@ -698,7 +698,7 @@ P-provisioned KG reconstructable from its provisioning audit trail
 (`investigation_audit`), supplies the OSINT-dominant empty-canvas telemetry
 (open threads / newly corroborated / newly contradicted), and names the
 review-gated `geolocate_claims` / `narrative_coordination` (absent from the
-served surface, enforced by a test; gate in `docs/osint-review-gate.md`).
+served surface, enforced by a test; gate in `docs/security/osint-review-gate.md`).
 Served by `tools/osint_mcp/` as the `entity_dossier`, `relationship_path` and
 `evidence_timeline` panels via R2 discovery under the `osint` `ui_flag`.
 
@@ -720,7 +720,7 @@ rate-limited per client and size-capped both ways. The benchmark
 (`scripts/genui/dataplane_benchmark.py`) measured, on a 200-row payload:
 `rest_direct` 13.3 ms p50, `mcp_tool` 46.1 ms, `proxy_cold` 50.4 ms,
 `proxy_cached` 0.36 ms, all at the same 50,743-byte payload. Decision (recorded
-in `docs/architecture/ADR-002-data-plane-stage3.md`): **conditional go**,
+in `docs/architecture/decisions/ADR-002-data-plane-stage3.md`): **conditional go**,
 promote the `articles` family behind the flag cache-served (proxy_cached beats
 REST), do not move cold first-loads onto the proxy until the transport overhead
 (~3.8x today) closes; retirement criteria documented. The frontend renders the
@@ -739,7 +739,7 @@ title renames.
 heuristic planner and pack `ui_flags`) and `noesis_panels()` returns the
 catalog, over stdio or Streamable HTTP (`NOESIS_MCP_TRANSPORT=http`), with an
 optional `NOESIS_MCP_AUTH_TOKEN` gate (auth story in
-`docs/noesis-mcp-server.md`). Verified live: an external FastMCP client over
+`docs/integration/mcp-server.md`). Verified live: an external FastMCP client over
 HTTP generated and received a valid spec. `src/config/env.py` is the one shared
 resolver (`NOESIS_X`, else `NEURONEWS_X`), applied at the config surface
 (enabled packs, warehouse path across the canvas tool servers and the shared
@@ -747,7 +747,7 @@ connector); both prefixes resolve identically (tested). The user-facing
 surfaces are renamed to Noesis (web package `@noesis/web`, page and API titles,
 API root message); the retained `neuronews-*` MCP server names, `NEURONEWS_*`
 env prefix and on-disk warehouse filename survive as documented aliases
-(`docs/naming.md`).
+(`docs/development/naming.md`).
 
 **Critical path:** R0 → R1 → R2 → R3 → R8 → R9. The analytics/OSINT
 chain (R5 → R6 → R10 → R11) runs in parallel after R2; R4 upgrades

@@ -305,6 +305,4 @@ make analyze-dataset-performance
 ```
 
 ## Related Documentation
-- [OpenLineage Configuration Guide](./openlineage_config.md)
-- [Data Pipeline Architecture](./pipeline_architecture.md)
-- [Airflow DAG Development Guide](./airflow_development.md)
+- [OpenLineage + Marquez implementation](../development/openlineage-marquez.md)

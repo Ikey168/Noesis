@@ -14,7 +14,7 @@ without caring about the source. New media types (papers, books, transcripts,
 uploads) plug in by subclassing :class:`Connector` and registering a
 ``source_type`` in :mod:`src.ingestion.connectors.registry`.
 
-See ``docs/architecture/KNOWLEDGE_ENGINE_PIVOT_PLAN.md``.
+See ``docs/architecture/knowledge-engine-pivot.md``.
 """
 
 from __future__ import annotations

@@ -6,7 +6,7 @@ the rest of the pipeline does not care whether a document came from a news feed,
 a paper repository, a book file, or an audio transcript.
 
 Part of the knowledge-engine pivot; see
-`docs/architecture/KNOWLEDGE_ENGINE_PIVOT_PLAN.md`.
+`docs/architecture/knowledge-engine-pivot.md`.
 
 ## Interface
 

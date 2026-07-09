@@ -4,7 +4,7 @@
 shipped, what changed, and the beyond-news continuation
 **Owner:** TBD
 **Date:** 2026-06-21 (status update 2026-07-02)
-**Related:** `docs/architecture/MCP_REARCHITECTURE_PLAN.md`, `docs/genui.md`
+**Related:** `docs/architecture/mcp-rearchitecture.md`, `docs/genui.md`
 **Decisions locked in:**
 
 - First new source type built end-to-end: **Academic papers** (arXiv / PubMed / PDF).

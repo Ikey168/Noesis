@@ -5,8 +5,8 @@ Review-gated OSINT tools (issue #639 item 3 / #618 review gate).
 OSINT primitives. They are implemented here under strict, in-code purpose
 limitation, and they stay behind the ``NOESIS_OSINT_GATED_TOOLS`` flag (off by
 default) so they are absent from the served surface until a human deliberately
-enables them after the review in ``docs/osint-review-gate.md`` and the abuse
-analysis in ``docs/osint-abuse-analysis.md``. The flag is the gate's
+enables them after the review in ``docs/security/osint-review-gate.md`` and the abuse
+analysis in ``docs/security/osint-abuse-analysis.md``. The flag is the gate's
 enforcement; a test asserts the tools are absent while it is off.
 
 Purpose limitation, enforced not just documented:

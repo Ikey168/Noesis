@@ -8,7 +8,7 @@ list, the REST API surface, auth, and example calls.
 ## MCP servers
 
 Every subsystem is a [FastMCP](https://github.com/jlowin/fastmcp) server under
-`tools/<name>_mcp/server.py`, declared in [`.mcp.json`](../.mcp.json). Each runs
+`tools/<name>_mcp/server.py`, declared in [`.mcp.json`](../../.mcp.json). Each runs
 standalone over stdio:
 
 ```bash
@@ -51,7 +51,7 @@ config:
 }
 ```
 
-The full set is in [`.mcp.json`](../.mcp.json) — copy the entries you need.
+The full set is in [`.mcp.json`](../../.mcp.json) — copy the entries you need.
 
 ### Remote access (Streamable HTTP + auth)
 
@@ -103,7 +103,7 @@ An HTTP client entry then looks like:
 - **Review gate.** Sensitive OSINT tools (`geolocate_claims`,
   `narrative_coordination`, and the imagery external tier) stay off unless
   `NOESIS_OSINT_GATED_TOOLS` is on. See
-  [osint-review-gate.md](osint-review-gate.md).
+  [osint-review-gate.md](../security/osint-review-gate.md).
 
 ## REST API
 
@@ -127,7 +127,7 @@ the live route list.
 - `NEURONEWS_DEV_MODE=true` disables the WAF for local development.
 - In production, the API enforces WAF + rate limiting; API-key and RBAC routes
   are under `src/api/routes/` (`api_key_routes`, `rbac_routes`, `auth_routes`).
-  See [security.md](security.md).
+  See [security.md](../security/overview.md).
 
 ## Example: check a quantitative claim against data
 

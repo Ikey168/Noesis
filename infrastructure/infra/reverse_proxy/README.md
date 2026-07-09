@@ -200,7 +200,7 @@ For containerized deployment, see the main project's Docker configuration and ad
 
 ## Related Documentation
 
-- [MLflow Security Guide](../../docs/mlops/security.md) - Comprehensive security documentation
+- [MLflow Security Guide](../../docs/subsystems/mlops/security.md) - Comprehensive security documentation
 - [Project Docker Setup](../../docker-compose.yml) - Container configuration
 - [MLflow Official Docs](https://mlflow.org/docs/latest/index.html) - MLflow documentation
 

@@ -8,9 +8,9 @@ bind and run its own pipeline, and the whole domain reconstructs from its audit
 trail.
 
 The executable form of this report is
-[`scripts/provisioning/p2_acceptance.py`](../scripts/provisioning/p2_acceptance.py);
+[`scripts/provisioning/p2_acceptance.py`](../../scripts/provisioning/p2_acceptance.py);
 the regression is
-[`tests/unit/provisioning/test_p2_backends_pipelines.py`](../tests/unit/provisioning/test_p2_backends_pipelines.py).
+[`tests/unit/provisioning/test_p2_backends_pipelines.py`](../../tests/unit/provisioning/test_p2_backends_pipelines.py).
 
 ## What changed
 
