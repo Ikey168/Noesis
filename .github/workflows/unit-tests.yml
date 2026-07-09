@@ -75,6 +75,7 @@ jobs:
             tests/unit/osint \
             tests/unit/provisioning \
             tests/unit/reports \
+            tests/unit/scraper_adaptive \
             tests/unit/services_api \
             tests/unit/tools \
             --ignore=tests/unit/argument_mining/test_frames_by_source.py \
