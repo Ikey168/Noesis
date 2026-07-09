@@ -17,6 +17,7 @@
 # uses MLflow as a client against a local file store and does not expose a
 # tracking server, so the server-side CVEs are not reachable in this usage.
 # Fixes span 2.22.4 .. 3.11.0; a full MLflow 3 upgrade is tracked separately.
+CVE-2026-2651
 CVE-2024-1483
 CVE-2024-1558
 CVE-2024-27134
@@ -43,6 +44,7 @@ CVE-2026-4137
 # Fixes require Airflow 3.x, which is a breaking migration (the DAG-check job
 # pins Airflow 2.8.1). Airflow runs in a controlled internal environment.
 # Tracked for a separate Airflow 3 migration.
+CVE-2026-40961
 CVE-2024-39877
 CVE-2024-45034
 CVE-2024-56373
