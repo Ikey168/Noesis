@@ -117,6 +117,14 @@
       ],
       "env": {}
     },
+    "neuronews-statistics": {
+      "type": "stdio",
+      "command": "python3",
+      "args": [
+        "tools/statistics_mcp/server.py"
+      ],
+      "env": {}
+    },
     "neuronews-arguments": {
       "type": "stdio",
       "command": "python3",

@@ -12,8 +12,9 @@ def test_real_mcp_json_yields_only_project_servers():
     specs = load_server_specs()
     assert DEFAULT_MCP_JSON.exists()
     names = {s.name for s in specs}
-    # All 15 tools/*_mcp servers, and nothing npx-launched.
-    assert len(specs) == 15
+    # All 16 tools/*_mcp servers, and nothing npx-launched.
+    assert len(specs) == 16
+    assert "neuronews-statistics" in names
     assert "neuronews-kg" in names
     assert "neuronews-pipeline" in names
     assert "memory" not in names
