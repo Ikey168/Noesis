@@ -1,2 +1,0 @@
-# This file ensures the logs directory is tracked in git
-# Airflow will write log files here when running

@@ -22,6 +22,9 @@ def create_spark_session():
         .config("spark.sql.catalog.demo.uri", "http://localhost:8181") \
         .config("spark.sql.catalog.demo.warehouse", "s3a://demo-warehouse/") \
         .config("spark.sql.catalog.demo.io-impl", "org.apache.iceberg.aws.s3.S3FileIO") \
+        .config("spark.sql.catalog.local", "org.apache.iceberg.spark.SparkCatalog") \
+        .config("spark.sql.catalog.local.type", "hadoop") \
+        .config("spark.sql.catalog.local.warehouse", "/warehouse") \
         .config("spark.hadoop.fs.s3a.access.key", "minioadmin") \
         .config("spark.hadoop.fs.s3a.secret.key", "minioadmin") \
         .config("spark.hadoop.fs.s3a.endpoint", "http://localhost:9000") \
@@ -78,9 +81,12 @@ def expire_snapshots(spark, table_name, older_than, retain_last):
     print(f"   - Expiring snapshots older than: {older_than}")
     print(f"   - Retaining last: {retain_last} snapshots")
     
+    # Extract catalog from table name
+    catalog = table_name.split('.')[0]
+    
     # Call Iceberg procedure for snapshot expiration
     expire_sql = f"""
-    CALL demo.system.expire_snapshots(
+    CALL {catalog}.system.expire_snapshots(
         table => '{table_name}',
         older_than => TIMESTAMP '{older_than}',
         retain_last => {retain_last}

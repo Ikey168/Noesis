@@ -1,10 +1,24 @@
 """
 Batch writer for Iceberg (bronze/raw) table: demo.news.articles_raw
 Issue #288
+Issue #337: Added unit economics tracking for articles processed
 """
 import os
+import sys
 from pyspark.sql import SparkSession
 from pyspark.sql import DataFrame
+
+# Add path for imports  
+sys.path.append(os.path.join(os.path.dirname(__file__), "../.."))
+
+# Import unit economics tracking
+try:
+    from services.monitoring.unit_economics import increment_articles_ingested
+except ImportError:
+    # Fallback function if import fails
+    def increment_articles_ingested(*args, **kwargs):
+        print("Unit economics tracking not available")
+        pass
 
 # Path to latest scraped files (CSV, Parquet, or JSON)
 SCRAPED_DATA_PATH = os.getenv("SCRAPED_DATA_PATH", "data/scraped/latest/*.csv")
@@ -45,5 +59,17 @@ else:
 row_count = df.count()
 print(f"Rows written to {ICEBERG_TABLE}: {row_count}")
 assert row_count > 0, "No rows written!"
+
+# Track unit economics metrics for batch article processing
+try:
+    increment_articles_ingested(
+        pipeline="batch",
+        source="scraped",
+        status="success",
+        count=row_count
+    )
+    print(f"Unit economics: Tracked {row_count} articles ingested via batch pipeline")
+except Exception as e:
+    print(f"Unit economics tracking failed: {e}")
 
 spark.stop()
