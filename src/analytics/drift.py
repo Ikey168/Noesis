@@ -24,6 +24,7 @@ from src.analytics.conformal import calibrated_envelope_fields, conformal_interv
 from src.analytics.honesty import analytic_envelope, interval
 from src.analytics.stats import cosine, holt_forecast
 from src.analytics.text import context_counts, tokenize
+from src.database.news_articles_compat import corpus_table
 
 DRIFT_METHOD = "lexical context-vector cosine drift (embedding fallback)"
 DRIFT_ASSUMPTIONS = [
@@ -43,7 +44,7 @@ FORECAST_ASSUMPTIONS = [
 def _mentions(conn, term: str, days: int) -> List[Dict[str, Any]]:
     cutoff = datetime.now(timezone.utc) - timedelta(days=max(2, days))
     rows = conn.execute(
-        "SELECT title, publish_date FROM news_articles "
+        f"SELECT title, publish_date FROM {corpus_table(conn)} "
         "WHERE title ILIKE ? AND publish_date >= ? ORDER BY publish_date",
         [f"%{term}%", cutoff],
     ).fetchall()
@@ -100,7 +101,7 @@ def _velocity_series(conn, topic: str, days: int) -> List[float]:
     cutoff = datetime.now(timezone.utc) - timedelta(days=max(3, days))
     rows = conn.execute(
         "SELECT CAST(publish_date AS DATE) AS day, COUNT(*) "
-        "FROM news_articles WHERE category = ? AND publish_date >= ? "
+        f"FROM {corpus_table(conn)} WHERE category = ? AND publish_date >= ? "
         "GROUP BY 1 ORDER BY 1",
         [topic, cutoff],
     ).fetchall()

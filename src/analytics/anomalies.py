@@ -23,6 +23,7 @@ from typing import Any, Dict, List, Optional
 from src.analytics.framework import AnalyticJob, read_results
 from src.analytics.honesty import analytic_envelope, interval
 from src.analytics.stats import mad, median, robust_z_scores
+from src.database.news_articles_compat import corpus_table
 
 RESULT_TABLE = "analytics_anomalies"
 DEFAULT_THRESHOLD = 3.5
@@ -41,12 +42,12 @@ ASSUMPTIONS = [
 def _series_by_topic(conn) -> Dict[str, List[Dict[str, Any]]]:
     """Per-topic daily (date, volume, sentiment) points, ordered by date."""
     rows = conn.execute(
-        """
+        f"""
         SELECT category AS topic,
                CAST(publish_date AS DATE) AS day,
                COUNT(*) AS volume,
                AVG(sentiment_score) AS sentiment
-        FROM news_articles
+        FROM {corpus_table(conn)}
         WHERE category IS NOT NULL AND publish_date IS NOT NULL
         GROUP BY 1, 2
         ORDER BY 1, 2
@@ -74,7 +75,8 @@ def compute_anomalies(
 
     Returns one row per (topic, metric, day) carrying the observed value, its
     robust z-score and an anomaly flag, plus the series' median/MAD so the
-    panel can draw the expected band. Read-only against ``news_articles``.
+    panel can draw the expected band. Read-only against the corpus
+    (``corpus_documents`` when present, else ``news_articles``).
     """
     computed_at = datetime.now(timezone.utc).isoformat()
     out: List[Dict[str, Any]] = []

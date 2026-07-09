@@ -21,6 +21,7 @@ from typing import Any, Dict, List, Optional
 from src.analytics.framework import AnalyticJob
 from src.analytics.honesty import analytic_envelope
 from src.analytics.stats import cross_correlation_lag
+from src.database.news_articles_compat import corpus_table
 
 RESULT_TABLE = "analytics_lead_lag"
 MAX_LAG = 7
@@ -46,7 +47,7 @@ def _outlet_series(conn, topic: str, outlets: Optional[List[str]]):
     rows = conn.execute(
         f"""
         SELECT source, CAST(publish_date AS DATE) AS day, COUNT(*) AS volume
-        FROM news_articles
+        FROM {corpus_table(conn)}
         WHERE {' AND '.join(clauses)} AND publish_date IS NOT NULL
         GROUP BY 1, 2
         ORDER BY 1, 2
@@ -145,7 +146,7 @@ class LeadLagJob(AnalyticJob):
         topics = [
             r[0]
             for r in conn.execute(
-                "SELECT DISTINCT category FROM news_articles WHERE category IS NOT NULL"
+                f"SELECT DISTINCT category FROM {corpus_table(conn)} WHERE category IS NOT NULL"
             ).fetchall()
         ]
         out: List[Dict[str, Any]] = []

@@ -22,6 +22,7 @@ from src.analytics.framework import AnalyticJob
 from src.analytics.honesty import analytic_envelope
 from src.analytics.stats import cosine
 from src.analytics.text import tf_vector, top_terms
+from src.database.news_articles_compat import corpus_table
 
 RESULT_TABLE = "analytics_narratives"
 SIM_THRESHOLD = 0.18
@@ -50,7 +51,7 @@ def _docs(conn, topic: Optional[str], days: Optional[int]) -> List[Dict[str, Any
     where = ("WHERE " + " AND ".join(clauses)) if clauses else ""
     params.append(MAX_DOCS)
     rows = conn.execute(
-        f"SELECT id, title, category FROM news_articles {where} "
+        f"SELECT id, title, category FROM {corpus_table(conn)} {where} "
         f"ORDER BY publish_date DESC NULLS LAST LIMIT ?",
         params,
     ).fetchall()
@@ -159,7 +160,7 @@ class NarrativeJob(AnalyticJob):
         topics = [
             r[0]
             for r in conn.execute(
-                "SELECT DISTINCT category FROM news_articles WHERE category IS NOT NULL"
+                f"SELECT DISTINCT category FROM {corpus_table(conn)} WHERE category IS NOT NULL"
             ).fetchall()
         ]
         out: List[Dict[str, Any]] = []
