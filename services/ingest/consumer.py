@@ -21,14 +21,19 @@ from datetime import datetime
 from typing import Any, Dict, Optional, List, Callable
 from dataclasses import dataclass, asdict
 
-from confluent_kafka import Consumer, Producer, KafkaException
-from confluent_kafka.serialization import SerializationContext, MessageField
-from confluent_kafka.schema_registry import SchemaRegistryClient
-from confluent_kafka.schema_registry.avro import AvroDeserializer
+try:  # confluent_kafka is only needed to actually consume, not to import this module.
+    from confluent_kafka import Consumer, Producer, KafkaException
+    from confluent_kafka.serialization import SerializationContext, MessageField
+    from confluent_kafka.schema_registry import SchemaRegistryClient
+    from confluent_kafka.schema_registry.avro import AvroDeserializer
+except ImportError:  # pragma: no cover - optional dependency
+    Consumer = Producer = KafkaException = None
+    SerializationContext = MessageField = None
+    SchemaRegistryClient = AvroDeserializer = None
 
 from services.ingest.common.contracts import (
-    ArticleIngestValidator, 
-    DataContractViolation, 
+    ArticleIngestValidator,
+    DataContractViolation,
     ContractValidationMetrics
 )
 
@@ -212,10 +217,14 @@ class ArticleIngestConsumer:
             self.metrics.increment_failure()
             return False
     
+    def _dlq_key(self, payload: Dict[str, Any]) -> str:
+        """Kafka key for a DLQ message (overridden by the document consumer)."""
+        return payload.get('article_id', 'unknown')
+
     def _send_to_dlq(
-        self, 
-        original_payload: Dict[str, Any], 
-        error_message: str, 
+        self,
+        original_payload: Dict[str, Any],
+        error_message: str,
         error_type: str,
         message
     ):
@@ -238,7 +247,7 @@ class ArticleIngestConsumer:
             self.dlq_producer.produce(
                 topic=self.dlq_topic,
                 value=dlq_payload.encode('utf-8'),
-                key=str(original_payload.get('article_id', 'unknown')).encode('utf-8'),
+                key=str(self._dlq_key(original_payload)).encode('utf-8'),
                 headers={
                     'error_type': error_type,
                     'schema_version': self.schema_version,
@@ -460,6 +469,93 @@ def create_default_consumer(
         topic=topic,
         dlq_topic=dlq_topic,
         consumer_group=consumer_group
+    )
+
+
+class DocumentIngestConsumer(ArticleIngestConsumer):
+    """Kafka consumer that validates ``document-ingest-v1`` and persists to a DocumentStore.
+
+    Reuses the base consumer's Kafka + DLQ machinery, but validates and sinks
+    through :class:`~services.ingest.document_sink.DocumentSink` (which upserts
+    into the unified ``documents`` corpus), bridges legacy ``article-ingest-v1``
+    messages to documents, and keys the DLQ by ``document_id``.
+    """
+
+    def __init__(
+        self,
+        kafka_config: Dict[str, Any],
+        store,
+        topic: str = "document_ingest",
+        dlq_topic: str = "document_ingest_dlq",
+        consumer_group: str = "document-ingest-consumer",
+        schema_registry_url: Optional[str] = None,
+        schema_version: str = "v1",
+        max_retries: int = 3,
+    ):
+        # Validation + persistence happen in the sink, not the article validator.
+        super().__init__(
+            kafka_config=kafka_config, topic=topic, dlq_topic=dlq_topic,
+            consumer_group=consumer_group, schema_registry_url=schema_registry_url,
+            schema_version=schema_version, max_retries=max_retries,
+            enable_validation=False,
+        )
+        from services.ingest.document_sink import DocumentSink
+        self._sink = DocumentSink(store)
+
+    def _dlq_key(self, payload: Dict[str, Any]) -> str:
+        from services.ingest.document_sink import to_document_payload
+        return to_document_payload(payload).get("document_id", "unknown")
+
+    def process_message(
+        self, message, callback: Optional[Callable[[Dict[str, Any]], None]] = None
+    ) -> bool:
+        """Deserialize, validate-and-persist through the sink, DLQ on failure."""
+        from services.ingest.document_sink import to_document_payload
+
+        try:
+            payload = self._deserialize_message(message)
+        except ConsumerValidationError as e:
+            raw_payload = {"raw_value": message.value().decode("utf-8", errors="ignore")}
+            self._send_to_dlq(raw_payload, str(e), "PROCESSING_ERROR", message)
+            return False
+
+        result = self._sink(payload)
+        if result["outcome"] == "invalid":
+            self.metrics.increment_failure()
+            self._send_to_dlq(
+                to_document_payload(payload),
+                result.get("error", "Schema validation failed"),
+                "VALIDATION_ERROR",
+                message,
+            )
+            return False
+
+        self.processed_count += 1
+        self.metrics.increment_success()
+        if callback:
+            callback(to_document_payload(payload))
+        return True
+
+    def get_metrics(self) -> Dict[str, int]:
+        return {**super().get_metrics(), **self._sink.metrics()}
+
+
+def create_document_consumer(
+    store,
+    bootstrap_servers: str = "localhost:9092",
+    topic: str = "document_ingest",
+    dlq_topic: str = "document_ingest_dlq",
+    consumer_group: str = "document-ingest-consumer",
+) -> "DocumentIngestConsumer":
+    """Create a document consumer sinking to ``store`` (a DocumentStore)."""
+    kafka_config = {
+        'bootstrap.servers': bootstrap_servers,
+        'auto.offset.reset': 'earliest',
+        'enable.auto.commit': False,
+    }
+    return DocumentIngestConsumer(
+        kafka_config=kafka_config, store=store, topic=topic,
+        dlq_topic=dlq_topic, consumer_group=consumer_group,
     )
 
 
