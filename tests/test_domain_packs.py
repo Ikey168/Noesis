@@ -342,15 +342,18 @@ class TestEnricherImplementations:
 
 @pytest.fixture()
 def doc_client():
+    import duckdb
     from fastapi import FastAPI
     from src.api.routes import document_routes
+    from src.ingestion.document_store import DocumentStore
 
-    # Reset the in-memory store before each test.
-    document_routes._store.clear()
+    # Back the routes with a fresh in-memory store per test.
+    document_routes.use_store_for_testing(DocumentStore(duckdb.connect(":memory:")))
 
     app = FastAPI()
     app.include_router(document_routes.router)
-    return TestClient(app)
+    yield TestClient(app)
+    document_routes.use_store_for_testing(None)
 
 
 _SAMPLE_DOC: Dict[str, Any] = {

@@ -264,3 +264,45 @@ def test_upsert_summary_dataclass_defaults():
     s = UpsertSummary()
     assert s.as_dict() == {"received": 0, "inserted": 0, "duplicate": 0, "invalid": 0}
     assert s.dead_letter == []
+
+
+# --------------------------------------------------------------------------- #
+# list_documents / delete
+# --------------------------------------------------------------------------- #
+
+
+def test_list_documents_returns_all(store: DocumentStore):
+    store.upsert([
+        _doc("d1", content="One", url="https://ex.com/1"),
+        _doc("d2", content="Two", url="https://ex.com/2"),
+    ])
+    docs = store.list_documents()
+    assert {d["document_id"] for d in docs} == {"d1", "d2"}
+    # Rows are fully hydrated (authors/metadata decoded).
+    assert all(isinstance(d["authors"], list) and isinstance(d["metadata"], dict) for d in docs)
+
+
+def test_list_documents_filters_by_source_type(store: DocumentStore):
+    store.upsert([
+        _doc("n1", content="News", url="https://ex.com/n", source_type="news"),
+        _doc("b1", content="Blog", url="https://ex.com/b", source_type="blog"),
+    ])
+    blogs = store.list_documents(source_type="blog")
+    assert [d["document_id"] for d in blogs] == ["b1"]
+
+
+def test_list_documents_pages(store: DocumentStore):
+    store.upsert([_doc(f"d{i}", content=f"body {i}", url=f"https://ex.com/{i}")
+                  for i in range(5)])
+    page = store.list_documents(limit=2, offset=0)
+    assert len(page) == 2
+    assert len(store.list_documents(limit=2, offset=4)) == 1
+
+
+def test_delete_removes_and_reports_existence(store: DocumentStore):
+    store.upsert([_doc("d1", url="https://ex.com/1")])
+    assert store.delete("d1") is True
+    assert store.get("d1") is None
+    assert store.count() == 0
+    # Deleting a missing doc reports False, does not raise.
+    assert store.delete("nope") is False

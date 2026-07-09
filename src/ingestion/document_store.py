@@ -33,6 +33,13 @@ logger = logging.getLogger(__name__)
 # A validator raises on an invalid payload; the default uses document-ingest-v1.
 Validator = Callable[[Dict[str, Any]], None]
 
+# Columns of the documents table, in schema order.
+_COLUMNS = (
+    "document_id", "source_type", "language", "ingested_at", "created_at",
+    "source_id", "url", "canonical_url", "content_hash", "title", "content",
+    "content_ref", "authors", "metadata",
+)
+
 _SCHEMA = """
 CREATE TABLE IF NOT EXISTS documents (
     document_id   TEXT PRIMARY KEY,
@@ -168,21 +175,40 @@ class DocumentStore:
         return self.conn.execute("SELECT COUNT(*) FROM documents").fetchone()[0]
 
     def get(self, document_id: str) -> Optional[Dict[str, Any]]:
-        cols = [
-            "document_id", "source_type", "language", "ingested_at", "created_at",
-            "source_id", "url", "canonical_url", "content_hash", "title",
-            "content", "content_ref", "authors", "metadata",
-        ]
         row = self.conn.execute(
-            f"SELECT {', '.join(cols)} FROM documents WHERE document_id = ?",
+            f"SELECT {', '.join(_COLUMNS)} FROM documents WHERE document_id = ?",
             [document_id],
         ).fetchone()
-        if row is None:
-            return None
-        rec = dict(zip(cols, row))
-        rec["authors"] = json.loads(rec["authors"]) if rec["authors"] else []
-        rec["metadata"] = json.loads(rec["metadata"]) if rec["metadata"] else {}
-        return rec
+        return self._row_to_dict(row) if row is not None else None
+
+    def list_documents(
+        self,
+        source_type: Optional[str] = None,
+        limit: int = 50,
+        offset: int = 0,
+    ) -> List[Dict[str, Any]]:
+        """Return stored documents, most-recently-ingested first.
+
+        Optionally filtered by ``source_type`` and paged by ``limit``/``offset``.
+        """
+        query = f"SELECT {', '.join(_COLUMNS)} FROM documents"
+        params: List[Any] = []
+        if source_type:
+            query += " WHERE source_type = ?"
+            params.append(source_type)
+        query += " ORDER BY ingested_at DESC LIMIT ? OFFSET ?"
+        params.extend([limit, offset])
+        rows = self.conn.execute(query, params).fetchall()
+        return [self._row_to_dict(r) for r in rows]
+
+    def delete(self, document_id: str) -> bool:
+        """Delete a document; return whether it existed."""
+        existed = self.get(document_id) is not None
+        if existed:
+            self.conn.execute(
+                "DELETE FROM documents WHERE document_id = ?", [document_id]
+            )
+        return existed
 
     # ------------------------------------------------------------------ #
 
@@ -198,6 +224,13 @@ class DocumentStore:
             ).fetchall()
         }
         return ids, hashes
+
+    @staticmethod
+    def _row_to_dict(row) -> Dict[str, Any]:
+        rec = dict(zip(_COLUMNS, row))
+        rec["authors"] = json.loads(rec["authors"]) if rec["authors"] else []
+        rec["metadata"] = json.loads(rec["metadata"]) if rec["metadata"] else {}
+        return rec
 
     @staticmethod
     def _to_row(doc: Document, canonical_url: Optional[str], chash: str) -> Tuple:

@@ -9,12 +9,14 @@ pack routes and are only registered when that pack is enabled.
 from __future__ import annotations
 
 import time
-from typing import Any, Dict, List, Optional
+from contextlib import contextmanager
+from typing import Any, Dict, Iterator, List, Optional
 
 from fastapi import APIRouter, BackgroundTasks, HTTPException, Query
 from pydantic import BaseModel, Field
 
 from services.ingest.common.document_model import SOURCE_TYPES
+from src.ingestion.document_store import DocumentStore
 
 router = APIRouter(prefix="/documents", tags=["documents"])
 
@@ -33,7 +35,9 @@ class DocumentIn(BaseModel):
     url: Optional[str] = None
     source_id: Optional[str] = None
     authors: List[str] = Field(default_factory=list)
-    created_at: Optional[str] = None
+    created_at: Optional[int] = Field(
+        None, description="Original publish time, epoch milliseconds (document-ingest-v1)"
+    )
     metadata: Dict[str, Any] = Field(default_factory=dict)
 
 
@@ -47,10 +51,39 @@ class EnrichmentOut(BaseModel):
 
 
 # --------------------------------------------------------------------------- #
-# In-memory store (placeholder; replace with DB layer when wired up)
+# Persistence — DocumentStore over the shared warehouse connection
 # --------------------------------------------------------------------------- #
 
-_store: Dict[str, Dict[str, Any]] = {}
+# When set (by tests), this store is used instead of the shared warehouse, so
+# route behaviour is exercised offline against an in-memory DuckDB.
+_test_store: Optional[DocumentStore] = None
+_shared_store: Optional[DocumentStore] = None
+
+
+def use_store_for_testing(store: Optional[DocumentStore]) -> None:
+    """Point the document routes at ``store`` (or reset to the warehouse if None)."""
+    global _test_store
+    _test_store = store
+
+
+@contextmanager
+def _store_ctx() -> Iterator[DocumentStore]:
+    """Yield the active DocumentStore, serialized against the shared connection.
+
+    Tests inject an in-memory store (no warehouse, no lock); in production the
+    store wraps the process-wide DuckDB connection and every access is held
+    under the warehouse lock, since a DuckDB connection is not concurrency-safe.
+    """
+    if _test_store is not None:
+        yield _test_store
+        return
+    from src.database.local_analytics_connector import locked_connection
+
+    global _shared_store
+    with locked_connection() as conn:
+        if _shared_store is None:
+            _shared_store = DocumentStore(conn)
+        yield _shared_store
 
 
 # --------------------------------------------------------------------------- #
@@ -79,7 +112,13 @@ async def ingest_document(
         )
     record = doc.model_dump()
     record["ingested_at"] = int(time.time() * 1000)
-    _store[doc.document_id] = record
+
+    with _store_ctx() as store:
+        summary = store.upsert([record])
+    if summary.invalid:
+        # Contract violation the source_type pre-check did not catch.
+        detail = summary.dead_letter[0]["error"] if summary.dead_letter else "invalid document"
+        raise HTTPException(status_code=422, detail=detail)
 
     try:
         from src.knowledge_graph.kg_updater import update_from_document
@@ -102,10 +141,8 @@ async def list_documents(
             status_code=422,
             detail=f"Unknown source_type {source_type!r}. Must be one of: {list(SOURCE_TYPES)}",
         )
-    docs = list(_store.values())
-    if source_type:
-        docs = [d for d in docs if d.get("source_type") == source_type]
-    return docs[offset : offset + limit]
+    with _store_ctx() as store:
+        return store.list_documents(source_type=source_type, limit=limit, offset=offset)
 
 
 @router.get("/source-types", response_model=List[str])
@@ -117,7 +154,8 @@ async def list_source_types() -> List[str]:
 @router.get("/{document_id}", response_model=DocumentOut)
 async def get_document(document_id: str) -> Dict[str, Any]:
     """Retrieve a single document by ID."""
-    doc = _store.get(document_id)
+    with _store_ctx() as store:
+        doc = store.get(document_id)
     if doc is None:
         raise HTTPException(status_code=404, detail=f"Document {document_id!r} not found")
     return doc
@@ -126,9 +164,10 @@ async def get_document(document_id: str) -> Dict[str, Any]:
 @router.delete("/{document_id}", status_code=204)
 async def delete_document(document_id: str) -> None:
     """Remove a document from the store."""
-    if document_id not in _store:
+    with _store_ctx() as store:
+        existed = store.delete(document_id)
+    if not existed:
         raise HTTPException(status_code=404, detail=f"Document {document_id!r} not found")
-    del _store[document_id]
 
 
 @router.get("/{document_id}/enrichments", response_model=EnrichmentOut)
@@ -138,12 +177,13 @@ async def get_enrichments(document_id: str) -> Dict[str, Any]:
     Enrichments are produced by the domain packs that are enabled. If no pack
     has enriched this document yet the ``enrichments`` dict is empty.
     """
-    if document_id not in _store:
+    with _store_ctx() as store:
+        doc = store.get(document_id)
+    if doc is None:
         raise HTTPException(status_code=404, detail=f"Document {document_id!r} not found")
 
     from src.domains.registry import get_enabled_packs
 
-    doc = _store[document_id]
     source_type = doc.get("source_type", "")
     enrichments: Dict[str, Any] = {}
 
