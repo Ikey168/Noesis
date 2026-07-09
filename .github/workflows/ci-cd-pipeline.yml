@@ -183,7 +183,13 @@ jobs:
   security-scan:
     name: Security Scanning
     runs-on: ubuntu-latest
-    
+    # SARIF upload to the code-scanning API needs security-events: write; the
+    # repo-default token is read-only, which failed the upload with "Resource
+    # not accessible by integration" and skipped the vuln gate below.
+    permissions:
+      contents: read
+      security-events: write
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v7
@@ -200,12 +206,19 @@ jobs:
           ignore-unfixed: true
 
       - name: Upload Trivy scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@v3
+        # Best-effort Security-tab reporting: a code-scanning upload hiccup must
+        # never fail CI or skip the vulnerability gate below (which is the real
+        # enforcement). v3 — the v1/v2 CodeQL actions are deprecated.
         if: always()
+        continue-on-error: true
         with:
           sarif_file: 'trivy-results.sarif'
 
       - name: Run Trivy scanner for critical vulnerabilities
+        # Always run the gate — it is authoritative and must not be skipped just
+        # because the best-effort Security-tab upload above had a problem.
+        if: always()
         uses: aquasecurity/trivy-action@master
         with:
           scan-type: 'fs'
@@ -285,8 +298,9 @@ jobs:
           output: 'trivy-image-${{ matrix.service.name }}.sarif'
 
       - name: Upload image scan results
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@v3
         if: always()
+        continue-on-error: true
         with:
           sarif_file: 'trivy-image-${{ matrix.service.name }}.sarif'
 
