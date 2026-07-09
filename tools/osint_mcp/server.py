@@ -469,6 +469,58 @@ if _gated_enabled():
         finally:
             con.close()
 
+    # -- Track C / C4: imagery external tier (review-queued, no default provider)
+    def _warehouse_rw():
+        import duckdb
+
+        from src.config.env import warehouse_path
+        path = warehouse_path(str(REPO_ROOT / "data" / "neuronews.duckdb"))
+        return duckdb.connect(path)
+
+    @mcp.tool
+    def reverse_image_search(sha256: str) -> dict:
+        """Queue reverse-image-search suggestions for a corpus asset (review-
+        gated). No default provider ships, so this returns no_provider_configured
+        until one is supplied; results are uncited until an operator confirms.
+
+        Args:
+            sha256: a corpus image asset hash (never an operator-supplied photo).
+        """
+        try:
+            con = _warehouse_rw()
+        except Exception as exc:
+            return {"error": str(exc)}
+        try:
+            from src.osint.imagery_gated import reverse_image_search as _ris
+
+            return _ris(con, sha256, provider=None)  # no default provider
+        except Exception as exc:
+            return {"error": str(exc)}
+        finally:
+            con.close()
+
+    @mcp.tool
+    def geolocate_image(sha256: str) -> dict:
+        """Queue visible-landmark geolocation hypotheses for a corpus asset
+        (review-gated). Suggestion-grade, about the scene not the subject, never
+        auto-cited; needs a vision backend to produce anything.
+
+        Args:
+            sha256: a corpus image asset hash.
+        """
+        try:
+            con = _warehouse_rw()
+        except Exception as exc:
+            return {"error": str(exc)}
+        try:
+            from src.osint.imagery_gated import geolocate_image as _geo
+
+            return _geo(con, sha256, vlm=None)  # no default backend
+        except Exception as exc:
+            return {"error": str(exc)}
+        finally:
+            con.close()
+
 
 @mcp.tool(
     output_schema={
