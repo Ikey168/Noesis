@@ -13,6 +13,7 @@ from src.ingestion.connectors.dataset.base import (
     RawSeries,
     SeriesRef,
 )
+from src.ingestion.connectors.dataset.eurostat import EurostatConnector
 from src.ingestion.connectors.dataset.fred import FredConnector
 from src.ingestion.connectors.dataset.store import ObservationStore
 from src.ingestion.connectors.dataset.worldbank import WorldBankConnector
@@ -24,4 +25,5 @@ __all__ = [
     "ObservationStore",
     "WorldBankConnector",
     "FredConnector",
+    "EurostatConnector",
 ]
