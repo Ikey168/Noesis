@@ -42,6 +42,8 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Dict, List, Sequence, Tuple
 
+from src.database.news_articles_compat import corpus_table
+
 logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
@@ -417,20 +419,20 @@ def store_actors(records: List[ActorRecord], conn) -> None:
 
 def run_actor_batch(conn, lock, limit: int = 200) -> dict:
     """
-    Extract actors for news_articles documents not yet in ``document_actors``.
+    Extract actors for corpus documents not yet in ``document_actors``.
 
-    Sweeps ``news_articles`` for documents whose ``id`` is absent from
-    ``document_actors``, extracts actors, and persists them.  Safe to call
-    repeatedly.
+    Sweeps the whole corpus (every source type, via ``corpus_table``) for
+    documents whose ``id`` is absent from ``document_actors``, extracts actors,
+    and persists them.  Safe to call repeatedly.
     """
     from services.ingest.common.document_model import Document  # type: ignore[import]
 
     try:
         with lock:
             rows = conn.execute(
-                """
+                f"""
                 SELECT id, title, content, source, category
-                FROM news_articles
+                FROM {corpus_table(conn)}
                 WHERE id NOT IN (SELECT DISTINCT document_id FROM document_actors)
                 LIMIT ?
                 """,
