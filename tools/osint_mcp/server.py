@@ -470,5 +470,118 @@ if _gated_enabled():
             con.close()
 
 
+@mcp.tool(
+    output_schema={
+        "type": "object",
+        "properties": {
+            "sha256": {"type": "string"},
+            "phash": {"type": ["string", "null"]},
+            "exif": {"type": "object"},
+            "appearances": {"type": "array"},
+        },
+        "additionalProperties": True,
+    },
+    meta={"data": {"panel": "image_provenance", "rest_route": None}, "panel": {
+        "type": "image_provenance",
+        "title": "Image provenance",
+        "description": "What an image claims about itself (EXIF, file-claimed not verified), its content credentials, and every document it appears in.",
+        "endpoint": None,
+        "facets": ["entities", "library"],
+        "tables": ["image_assets", "image_appearances"],
+        "ui_flag": "osint",
+        "default_span": 6,
+    }},
+)
+def image_provenance(sha256: str) -> dict:
+    """Provenance for one image asset: EXIF (file-claimed), pHash, C2PA, and
+    every document the asset appears in.
+
+    Args:
+        sha256: the asset's content hash.
+    """
+    try:
+        con = _warehouse_ro()
+    except Exception as exc:
+        return {"error": str(exc)}
+    try:
+        from src.analytics.image_reuse import image_provenance as _ip
+
+        return _ip(con, sha256)
+    except Exception as exc:
+        return {"error": str(exc)}
+    finally:
+        con.close()
+
+
+@mcp.tool(
+    output_schema=honesty_output_schema(
+        {
+            "findings": {"type": "array"},
+            "finding_count": {"type": "integer"},
+            "truncated": {"type": "boolean"},
+        }
+    ),
+    meta={"data": {"panel": "image_reuse_ledger", "rest_route": None}, "panel": {
+        "type": "image_reuse_ledger",
+        "title": "Image reuse",
+        "description": "Recycled images: near-duplicate photos appearing across multiple documents, each finding citing every appearance. Flags recycling, not fakery.",
+        "endpoint": None,
+        "facets": ["entities", "conflict", "library"],
+        "tables": ["image_assets", "image_appearances"],
+        "ui_flag": "osint",
+        "default_span": 6,
+        "topic_param": "topic",
+    }},
+)
+def image_reuse_findings(topic: Optional[str] = None) -> dict:
+    """Reuse findings across the corpus: near-duplicate image clusters spanning
+    multiple documents, honesty-enveloped and citing each appearance.
+
+    Args:
+        topic: optional case-insensitive filter on appearance context.
+    """
+    try:
+        con = _warehouse_ro()
+    except Exception as exc:
+        return {"error": str(exc)}
+    try:
+        from src.analytics.image_reuse import find_reuse
+
+        return find_reuse(con, topic=topic)
+    except Exception as exc:
+        return {"error": str(exc)}
+    finally:
+        con.close()
+
+
+@mcp.tool(
+    output_schema=honesty_output_schema(
+        {
+            "sha256": {"type": "string"},
+            "near_duplicates": {"type": "array"},
+            "near_duplicate_count": {"type": "integer"},
+        }
+    ),
+)
+def image_reuse(sha256: str) -> dict:
+    """Near-duplicates of one asset and where each appears.
+
+    Args:
+        sha256: the asset's content hash.
+    """
+    try:
+        con = _warehouse_ro()
+    except Exception as exc:
+        return {"error": str(exc)}
+    try:
+        from src.analytics.image_reuse import image_reuse as _ir
+
+        return _ir(con, sha256)
+    except Exception as exc:
+        return {"error": str(exc)}
+    finally:
+        con.close()
+
+
 if __name__ == "__main__":
     mcp.run()
