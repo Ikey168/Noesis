@@ -4,7 +4,7 @@ pytest-cov>=4.0.0
 pytest-asyncio>=0.21.0,<1.0.0
 httpx>=0.24.0
 moto>=4.2.0
-pytest-mock>=3.10.0 # Added for mocking
+pytest-mock>=3.15.1 # Added for mocking
 
 # Graph Database
 gremlinpython>=3.6.0
