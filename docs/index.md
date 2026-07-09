@@ -15,80 +15,115 @@ flowchart LR
 ```
 
 For the project overview and local setup, start with the
-[root README](../README.md).
+[root README](../README.md). This page maps the documentation by topic.
 
 ## Start here
 
 - **[System architecture](architecture/overview.md)** — the whole system with
   diagrams: ingestion pipeline, capability plane, worked claim-check flow
-- **[Integrate via MCP + API](integrate-via-mcp.md)** — consuming Noesis from
-  another project: server table, stdio/HTTP transport, auth, REST examples
-- [Project structure](PROJECT_STRUCTURE.md) — directory layout, where things live
+- **[Integrate via MCP + API](integration/mcp-and-api.md)** — consuming Noesis
+  from another project: server table, stdio/HTTP transport, auth, REST examples
+- [Project structure](development/project-structure.md) — where things live in
+  the codebase
 
-## Architecture & design
+## Documentation map
 
-- [System architecture overview](architecture/overview.md) *(diagrams)*
+| Section | What's in it |
+|---|---|
+| [Architecture](#architecture) | How the system works, plans, and decision records |
+| [Integration](#integration) | Consuming Noesis over MCP and REST |
+| [Security & safety](#security--safety) | API hardening and OSINT guardrails |
+| [Subsystems](#subsystems) | Per-subsystem reference (RAG, MLOps, models) |
+| [Data platform](#data-platform) | Warehouse, lakehouse, streaming, lineage |
+| [Operations](#operations) | Deployment and operational guides |
+| [Development](#development) | Conventions and internal deep-dives |
+| [Milestones](#milestones) | Point-in-time acceptance records |
+
+## Architecture
+
+- [Overview](architecture/overview.md) *(diagrams)* — ingestion → warehouse →
+  capability plane, with the in-code disciplines (honesty, evidence, review gate)
 - [Adaptive scraping](architecture/adaptive-scraping.md) *(diagrams)* — drift
   detection, extraction cascade, escalation, selector self-repair
-- [MCP rearchitecture plan](architecture/MCP_REARCHITECTURE_PLAN.md) — the
+- [MCP rearchitecture](architecture/mcp-rearchitecture.md) — the
   capability-plane design and its stages
-- [Knowledge-engine pivot plan](architecture/KNOWLEDGE_ENGINE_PIVOT_PLAN.md) —
+- [Knowledge-engine pivot](architecture/knowledge-engine-pivot.md) —
   claim/triple-centric knowledge-graph design
-- ADRs: [tool panel annotation](architecture/ADR-001-tool-panel-annotation.md) ·
-  [data plane stage 3](architecture/ADR-002-data-plane-stage3.md)
-- [Exactly-once delivery design](EXACTLY_ONCE_DESIGN.md)
-- [Naming conventions](naming.md) · [lineage naming](lineage_naming.md)
+- [Exactly-once delivery](architecture/exactly-once-delivery.md) — streaming
+  delivery guarantees
+- Decision records:
+  [ADR-001 tool-panel annotation](architecture/decisions/ADR-001-tool-panel-annotation.md) ·
+  [ADR-002 data-plane stage 3](architecture/decisions/ADR-002-data-plane-stage3.md)
 
-## Safety & security
+## Integration
 
-- [Security](security.md) — API hardening, WAF, auth
-- [OSINT review gate](osint-review-gate.md) — how sensitive tools are gated
-- [OSINT abuse analysis](osint-abuse-analysis.md) — dual-use analysis behind
-  the guardrails (no person identification, fail-closed)
+- [MCP + API](integration/mcp-and-api.md) — server list, stdio/HTTP transport,
+  auth, and worked examples
+- [MCP server notes](integration/mcp-server.md) — the standalone MCP server
+
+## Security & safety
+
+- [Security overview](security/overview.md) — API hardening, WAF, auth
+- [OSINT review gate](security/osint-review-gate.md) — how sensitive tools are
+  gated behind `NOESIS_OSINT_GATED_TOOLS`
+- [OSINT abuse analysis](security/osint-abuse-analysis.md) — the dual-use
+  analysis behind the guardrails (no person identification, fail-closed)
 
 ## Subsystems
 
-- **RAG:** [quickstart](rag/quickstart.md) ·
-  [evaluation](rag/evaluation.md) ·
-  [Qdrant / pgvector parity](rag/qdrant_parity.md)
-- **MLOps:** [experiment tracking](mlops/experiments.md) ·
-  [model registry](mlops/model_registry.md) ·
-  [reproducibility](mlops/reproducibility_framework.md) ·
-  [MLflow security](mlops/security.md)
-- **Model quality:** [argument-mining benchmarks](model_benchmarks.md)
-- **MCP server (legacy notes):** [noesis-mcp-server](noesis-mcp-server.md)
+- **RAG:** [quickstart](subsystems/rag/quickstart.md) ·
+  [evaluation](subsystems/rag/evaluation.md) ·
+  [Qdrant / pgvector parity](subsystems/rag/qdrant-parity.md)
+- **MLOps:** [experiment tracking](subsystems/mlops/experiments.md) ·
+  [model registry](subsystems/mlops/model-registry.md) ·
+  [reproducibility](subsystems/mlops/reproducibility.md) ·
+  [MLflow security](subsystems/mlops/security.md)
+- **Models:** [argument-mining benchmarks](subsystems/argument-mining-benchmarks.md)
 
 ## Data platform
 
-- [dbt quickstart](dbt_quickstart.md) ·
-  [incremental strategy](incremental_strategy.md)
-- Lakehouse: [Spark + Iceberg](lakehouse/spark-iceberg-integration.md) ·
-  [Kafka → Spark → Iceberg streaming](lakehouse/kafka_spark_iceberg_streaming.md) ·
-  [enrichment upsert/merge](lakehouse/enrichment_upsert_merge.md) ·
-  [streaming backfill](streaming-backfill.md)
+- [dbt quickstart](data-platform/dbt-quickstart.md) ·
+  [incremental strategy](data-platform/incremental-strategy.md)
+- [Lineage naming](data-platform/lineage-naming.md) — OpenLineage namespaces
+- Lakehouse:
+  [Spark + Iceberg](data-platform/lakehouse/spark-iceberg-integration.md) ·
+  [Kafka → Spark → Iceberg streaming](data-platform/lakehouse/kafka-spark-iceberg-streaming.md) ·
+  [enrichment upsert/merge](data-platform/lakehouse/enrichment-upsert-merge.md)
+- [Streaming backfill](data-platform/streaming-backfill.md)
+
+## Operations
+
+- [AWS deployment](operations/aws-deployment.md) ·
+  [CI/CD with Ansible](operations/cicd-ansible.md) ·
+  [Lambda scraper automation](operations/lambda-scraper-automation.md)
+- [Monitoring system](operations/monitoring-system.md) ·
+  [Anti-detection scraping](operations/anti-detection.md) ·
+  [Python integration](operations/python-integration.md)
 
 ## Development
 
-- [Test-suite repair plan](development/TEST_SUITE_REPAIR_PLAN.md) — status of
-  the legacy whole-tree test job (the enforcing CI gate is
+- [Project structure](development/project-structure.md) ·
+  [naming conventions](development/naming.md)
+- [Test-suite repair plan](development/test-suite-repair-plan.md) — status of
+  the legacy whole-tree test job (the enforcing gate is
   `.github/workflows/unit-tests.yml`)
-- [Graph-based search](development/GRAPH_BASED_SEARCH_IMPLEMENTATION.md) ·
-  [Iceberg maintenance](development/ICEBERG_MAINTENANCE_IMPLEMENTATION.md) ·
-  [OpenLineage + Marquez](development/OPENLINEAGE_MARQUEZ_IMPLEMENTATION.md)
-- Milestone acceptance records:
-  [agents](agent-m10-acceptance.md) ·
-  [provisioning](provisioning-acceptance.md)
-  ([M3](provisioning-m3-acceptance.md) ·
-  [M4](provisioning-m4-acceptance.md) ·
-  [P2](provisioning-p2-acceptance.md))
+- [Graph-based search](development/graph-based-search.md) ·
+  [Iceberg maintenance](development/iceberg-maintenance.md) ·
+  [OpenLineage + Marquez](development/openlineage-marquez.md)
 
-## Runnable examples
+## Milestones
 
-- [`examples/`](examples/) — tutorials and ML demos
-- [`notebooks/`](notebooks/) — Jupyter notebooks
+Point-in-time acceptance records:
+[agents (M10)](milestones/agent-m10.md) ·
+[provisioning](milestones/provisioning.md)
+([M3](milestones/provisioning-m3.md) ·
+[M4](milestones/provisioning-m4.md) ·
+[P2](milestones/provisioning-p2.md))
 
-## Archive
+## Examples & archive
 
-Historical docs (Snowflake/Redshift era, the removed generative UI, per-issue
-implementation writeups, old demos) live in [`archive/`](archive/README.md).
-They describe past states of the system, not current guidance.
+- [`examples/`](examples/) — runnable tutorials and ML demos ·
+  [`notebooks/`](notebooks/) — Jupyter notebooks
+- [`archive/`](archive/README.md) — historical docs (Snowflake/Redshift era,
+  the removed UI, per-issue writeups, old demos); past states, not current
+  guidance

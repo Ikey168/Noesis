@@ -11,7 +11,7 @@ per-domain time-to-live.
 
 Run:  python scripts/provisioning/acceptance.py
 
-This is the executable form of docs/provisioning-acceptance.md.
+This is the executable form of docs/milestones/provisioning.md.
 """
 
 from __future__ import annotations

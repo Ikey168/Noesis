@@ -3,8 +3,8 @@ Review-gated imagery tools (Track C / C4).
 
 The external imagery tier: ``reverse_image_search`` and ``geolocate_image``.
 These point at the outside world, so they ship only behind the OSINT review gate
-(``docs/osint-review-gate.md``) and the imagery abuse analysis
-(``docs/osint-abuse-analysis.md``, "Imagery"), off by default. This module is
+(``docs/security/osint-review-gate.md``) and the imagery abuse analysis
+(``docs/security/osint-abuse-analysis.md``, "Imagery"), off by default. This module is
 the enforcement, not just the docs:
 
 * **Corpus images only.** Both tools take a corpus asset ``sha256`` that must

@@ -1,6 +1,6 @@
 # run-benchmark skill
 
-Run the argument-mining benchmark evaluation and update `docs/model_benchmarks.md`.
+Run the argument-mining benchmark evaluation and update `docs/subsystems/argument-mining-benchmarks.md`.
 
 **All paths relative to repo root** (`/home/Ikey/NeuroNews`).
 
@@ -37,7 +37,7 @@ and per-length-bucket (short <100 chars / medium 100-300 / long >300).
 ## Outputs
 
 - `docs/benchmark_results.json` — machine-readable, consumed by `get_benchmark_results` MCP tool
-- `docs/model_benchmarks.md` — human-readable report with tables
+- `docs/subsystems/argument-mining-benchmarks.md` — human-readable report with tables
 
 ## F1 gate
 

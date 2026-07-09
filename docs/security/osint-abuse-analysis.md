@@ -1,7 +1,7 @@
 # Abuse analysis: geolocate_claims and narrative_coordination
 
 This is the written misuse analysis the OSINT review gate
-(`docs/osint-review-gate.md`, criterion 4) requires before either gated tool is
+(`docs/security/osint-review-gate.md`, criterion 4) requires before either gated tool is
 served. The tools are implemented (`src/osint/gated.py`) and stay behind the
 `NOESIS_OSINT_GATED_TOOLS` flag, off by default; turning the flag on is the
 human sign-off that this analysis has been reviewed and accepted.
@@ -48,7 +48,7 @@ should set `min_similarity` before the flag is turned on in any real deployment.
 
 ## Imagery: reverse_image_search and geolocate_image (Track C / C4)
 
-This is the imagery threat model that [`OSINT_IMAGERY_PLAN.md`](architecture/OSINT_IMAGERY_PLAN.md)
+This is the imagery threat model that the OSINT imagery threat model
 §2 (guardrail 4) requires *before* the C4 gated external tier ships. The
 corpus-internal imagery capabilities already merged — EXIF extraction (C1),
 perceptual-hash reuse detection (C2), and C2PA verification (C3) — are **not**

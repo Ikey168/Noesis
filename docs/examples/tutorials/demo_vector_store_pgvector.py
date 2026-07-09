@@ -459,7 +459,7 @@ def main():
         print("🔗 Access Points:")
         print("   - Database: postgresql://neuronews:neuronews_vector_pass@localhost:5433/neuronews_vector")
         print("   - pgAdmin: http://localhost:5050 (admin@neuronews.com/admin)")
-        print("   - Documentation: docs/rag/quickstart.md")
+        print("   - Documentation: docs/subsystems/rag/quickstart.md")
         
         return 0
         

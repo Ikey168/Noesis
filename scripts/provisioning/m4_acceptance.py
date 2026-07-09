@@ -14,7 +14,7 @@ Each tenant is reconstructed from its own audit trail at the end.
 
 Run:  python scripts/provisioning/m4_acceptance.py
 
-The executable form of docs/provisioning-m4-acceptance.md.
+The executable form of docs/milestones/provisioning-m4.md.
 """
 
 from __future__ import annotations

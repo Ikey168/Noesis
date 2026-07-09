@@ -328,7 +328,7 @@ git.branch: unknown
 
 ## Model Registry
 
-The model registry provides comprehensive model lifecycle management. See [Model Registry Documentation](../../docs/mlops/model_registry.md) for detailed usage.
+The model registry provides comprehensive model lifecycle management. See [Model Registry Documentation](../../docs/subsystems/mlops/model-registry.md) for detailed usage.
 
 ### Standard Models
 
@@ -363,6 +363,6 @@ model = mlflow.pyfunc.load_model(uri)
 
 ## Documentation
 
-- **Experiment Tracking**: [experiments.md](../../docs/mlops/experiments.md)
-- **Model Registry**: [model_registry.md](../../docs/mlops/model_registry.md)
+- **Experiment Tracking**: [experiments.md](../../docs/subsystems/mlops/experiments.md)
+- **Model Registry**: [model_registry.md](../../docs/subsystems/mlops/model-registry.md)
 - **MLflow Setup**: [docker/mlflow/README.md](../../docker/mlflow/README.md)

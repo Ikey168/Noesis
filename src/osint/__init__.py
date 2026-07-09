@@ -51,7 +51,7 @@ __all__ = [
     "osint_telemetry",
     "GATED_TOOLS",
     "is_gated",
-    # Review-gated (off by default; see docs/osint-review-gate.md)
+    # Review-gated (off by default; see docs/security/osint-review-gate.md)
     "geolocate_claims",
     "narrative_coordination",
 ]

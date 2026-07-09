@@ -135,7 +135,7 @@ def update_readme():
         readme_content = readme_path.read_text()
     
     # Add design doc link if not present
-    design_link = "- [Exactly-Once Delivery Design](docs/EXACTLY_ONCE_DESIGN.md)"
+    design_link = "- [Exactly-Once Delivery Design](docs/architecture/exactly-once-delivery.md)"
     
     if design_link not in readme_content:
         if "## Documentation" in readme_content:

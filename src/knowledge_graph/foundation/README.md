@@ -6,7 +6,7 @@ typed entities, typed relations, reified provenance-bearing triples, and a
 backend-agnostic store that enforces an ontology on every write.
 
 Part of the knowledge-engine pivot; see
-`docs/architecture/KNOWLEDGE_ENGINE_PIVOT_PLAN.md`.
+`docs/architecture/knowledge-engine-pivot.md`.
 
 ## What changed conceptually
 

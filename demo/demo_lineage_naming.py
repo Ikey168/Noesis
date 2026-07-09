@@ -474,7 +474,7 @@ def main():
             logger.info("• Convenience functions: build_uri, build_metadata, validate_dataset_uri")
             
             logger.info("\n📚 Documentation:")
-            logger.info("• docs/lineage_naming.md - Complete naming convention specification")
+            logger.info("• docs/data-platform/lineage-naming.md - Complete naming convention specification")
             logger.info("• airflow/plugins/lineage_utils.py - Helper implementation")
             logger.info("• Demo script validates all functionality")
             

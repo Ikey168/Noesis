@@ -276,7 +276,7 @@ def create_summary_report():
         print(item)
     
     print("\n📚 Documentation:")
-    print("   - Playbook: docs/streaming-backfill.md")
+    print("   - Playbook: docs/data-platform/streaming-backfill.md")
     print("   - Backfill Script: jobs/spark/batch_backfill_kafka.py")
     print("   - Parallel Script: scripts/parallel_backfill.sh")
     
@@ -329,7 +329,7 @@ def main():
     
     if success_rate == 1.0:
         print("\n🎉 All demo steps completed successfully!")
-        print("✅ DoD satisfied: /docs/streaming-backfill.md with copy-paste commands")
+        print("✅ DoD satisfied: /docs/data-platform/streaming-backfill.md with copy-paste commands")
         return 0
     else:
         print(f"\n⚠️  Some demo steps had issues")

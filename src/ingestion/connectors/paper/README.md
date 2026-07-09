@@ -3,7 +3,7 @@
 Ingests academic papers (arXiv) as `document-ingest-v1` records and into the
 knowledge graph, turning a paper's references into first-class `CITES` edges.
 First end-to-end source type of the knowledge-engine pivot; see
-`docs/architecture/KNOWLEDGE_ENGINE_PIVOT_PLAN.md`.
+`docs/architecture/knowledge-engine-pivot.md`.
 
 ## Modules
 

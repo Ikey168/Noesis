@@ -14,10 +14,10 @@ The capability plane is not just for reading. Agents provision new knowledge
 domains: they stand up namespaced knowledge graphs, select and attach the
 sources that feed them, and run the pipelines — all through the same tool
 surface. The full design lives in the
-[MCP rearchitecture plan](docs/architecture/MCP_REARCHITECTURE_PLAN.md).
+[MCP rearchitecture plan](docs/architecture/mcp-rearchitecture.md).
 
 > **Consuming Noesis from another project?** See
-> [docs/integrate-via-mcp.md](docs/integrate-via-mcp.md) for the MCP server
+> [docs/integration/mcp-and-api.md](docs/integration/mcp-and-api.md) for the MCP server
 > list, the REST API surface, auth, and example tool calls.
 
 ---
@@ -163,7 +163,7 @@ file.
 
 The MCP tool servers are declared in [`.mcp.json`](.mcp.json) and each runs
 standalone (`python tools/<name>_mcp/server.py`). See
-[docs/integrate-via-mcp.md](docs/integrate-via-mcp.md) for connecting an
+[docs/integration/mcp-and-api.md](docs/integration/mcp-and-api.md) for connecting an
 external host and example tool calls.
 
 ### 5. Run tests
@@ -249,7 +249,7 @@ corpus.
 | StanceClassifier | 0.4506 macro | Neutral class dominates; minority stances underperform |
 | FrameClassifier | 0.5200 macro | Political frame recall is near zero in heuristic mode |
 
-See [docs/model_benchmarks.md](docs/model_benchmarks.md) for the full breakdown
+See [docs/subsystems/argument-mining-benchmarks.md](docs/subsystems/argument-mining-benchmarks.md) for the full breakdown
 by source type, length, and per-class metrics. When a trained checkpoint is
 absent the pipeline falls back to keyword heuristics and still returns valid
 predictions.
@@ -259,11 +259,11 @@ predictions.
 ## Documentation
 
 - [Documentation index](docs/index.md): full doc map by topic
-- [Integrate via MCP + API](docs/integrate-via-mcp.md): consuming Noesis from another project
-- [MCP rearchitecture plan](docs/architecture/MCP_REARCHITECTURE_PLAN.md): capability plane and agent-provisioned knowledge graphs
-- [Project structure](docs/PROJECT_STRUCTURE.md)
-- [Model benchmarks](docs/model_benchmarks.md)
-- [Exactly-once delivery design](docs/EXACTLY_ONCE_DESIGN.md)
+- [Integrate via MCP + API](docs/integration/mcp-and-api.md): consuming Noesis from another project
+- [MCP rearchitecture plan](docs/architecture/mcp-rearchitecture.md): capability plane and agent-provisioned knowledge graphs
+- [Project structure](docs/development/project-structure.md)
+- [Model benchmarks](docs/subsystems/argument-mining-benchmarks.md)
+- [Exactly-once delivery design](docs/architecture/exactly-once-delivery.md)
 
 ---
 

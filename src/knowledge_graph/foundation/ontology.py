@@ -6,7 +6,7 @@ news ``Article`` vertices and edges were inferred by co-occurrence) with a
 typed ontology that validates what entity and relation types may exist and which
 relations are allowed between which entity types.
 
-See ``docs/architecture/KNOWLEDGE_ENGINE_PIVOT_PLAN.md`` (knowledge graph
+See ``docs/architecture/knowledge-engine-pivot.md`` (knowledge graph
 foundation).
 """
 

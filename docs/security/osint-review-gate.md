@@ -12,7 +12,7 @@ asserts they are not exposed unless the gate is deliberately opened.
 purpose-limited in code, in `src/osint/gated.py`, and are registered on the
 OSINT server only when `NOESIS_OSINT_GATED_TOOLS` is turned on. The flag off
 (the default) keeps them absent; turning it on is the human sign-off after
-reviewing the abuse analysis in `docs/osint-abuse-analysis.md`. The flag *is*
+reviewing the abuse analysis in `docs/security/osint-abuse-analysis.md`. The flag *is*
 the enforcement of criterion 5.
 
 ## Gated tools

@@ -336,7 +336,7 @@ def investigation_audit(investigation: str) -> dict:
 # --------------------------------------------------------------------------- #
 # Review-gated tools (issue #639 item 3). Absent from the served surface unless
 # NOESIS_OSINT_GATED_TOOLS is explicitly turned on, which is the human sign-off
-# after the review in docs/osint-review-gate.md + docs/osint-abuse-analysis.md.
+# after the review in docs/security/osint-review-gate.md + docs/security/osint-abuse-analysis.md.
 # Purpose limitation is enforced in src/osint/gated.py, not just here.
 # --------------------------------------------------------------------------- #
 

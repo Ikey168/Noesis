@@ -67,7 +67,7 @@ Key properties, enforced in code rather than by convention:
   `contradicted` / `unverifiable` — a claim with no matching data is
   *unverifiable*, never a guess.
 - **Review gate.** Sensitive OSINT tools stay off unless
-  `NOESIS_OSINT_GATED_TOOLS` is set ([osint-review-gate](../osint-review-gate.md)).
+  `NOESIS_OSINT_GATED_TOOLS` is set ([osint-review-gate](../security/osint-review-gate.md)).
 
 ## Ingestion pipeline
 
@@ -128,7 +128,7 @@ flowchart TB
   (`src/api/app.py`).
 
 Connection examples and the full server table live in
-[integrate-via-mcp.md](../integrate-via-mcp.md).
+[integrate-via-mcp.md](../integration/mcp-and-api.md).
 
 ## Worked flow: checking a quantitative claim
 

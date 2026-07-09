@@ -14,7 +14,7 @@ runner's persist-and-route is the real path.
 
 Run:  python scripts/provisioning/m3_acceptance.py
 
-The executable form of docs/provisioning-m3-acceptance.md.
+The executable form of docs/milestones/provisioning-m3.md.
 """
 
 from __future__ import annotations

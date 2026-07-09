@@ -1,8 +1,8 @@
 # Project Structure
 
 How the Noesis repository is laid out. For setup and the tech stack, see the
-[root README](../README.md); for the documentation map, see
-[`docs/index.md`](index.md).
+[root README](../../README.md); for the documentation map, see
+[`docs/index.md`](../index.md).
 
 ## Application code
 
@@ -46,11 +46,15 @@ How the Noesis repository is laid out. For setup and the tech stack, see the
 | Path | Contents |
 |---|---|
 | `tests/` | Unit, integration, and end-to-end tests. |
-| `docs/` | Documentation (see [`docs/index.md`](index.md)). |
-| `docs/architecture/` | System architecture and design, with diagrams ([overview](architecture/overview.md), [adaptive scraping](architecture/adaptive-scraping.md), ADRs, plans). |
-| `docs/guides/` | Operational and integration guides. |
-| `docs/development/` | Development deep-dives. |
-| `docs/mlops/`, `docs/rag/`, `docs/lakehouse/` | Subsystem reference docs. |
+| `docs/` | Documentation, organized by topic (see [`docs/index.md`](../index.md)). |
+| `docs/architecture/` | How the system works — diagrams ([overview](../architecture/overview.md), [adaptive scraping](../architecture/adaptive-scraping.md)), plans, and `decisions/` (ADRs). |
+| `docs/integration/` | Consuming Noesis over MCP and REST. |
+| `docs/security/` | API hardening and OSINT guardrails. |
+| `docs/subsystems/` | Per-subsystem reference (`rag/`, `mlops/`, model benchmarks). |
+| `docs/data-platform/` | Warehouse, `lakehouse/`, streaming, dbt, lineage. |
+| `docs/operations/` | Deployment and operational guides. |
+| `docs/development/` | Conventions and internal deep-dives. |
+| `docs/milestones/` | Point-in-time acceptance records. |
 | `docs/examples/`, `docs/notebooks/` | Runnable examples and notebooks. |
 | `docs/archive/` | Historical docs (Snowflake/Redshift era, removed UI, per-issue writeups, old demos). |
 | `archive/`, `artifacts/` | Archived material and build artifacts. |

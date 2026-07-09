@@ -8,10 +8,10 @@ R9 is the acceptance of that claim. It provisions **two** domains this way, to
 show the R8 result was not a fluke.
 
 The executable form of this report is
-[`scripts/provisioning/acceptance.py`](../scripts/provisioning/acceptance.py),
+[`scripts/provisioning/acceptance.py`](../../scripts/provisioning/acceptance.py),
 which drives the real `provisioning_mcp` server over a FastMCP client on a
 throwaway warehouse. The committed regression is
-[`tests/unit/provisioning/test_acceptance.py`](../tests/unit/provisioning/test_acceptance.py).
+[`tests/unit/provisioning/test_acceptance.py`](../../tests/unit/provisioning/test_acceptance.py).
 
 ## The two domains
 

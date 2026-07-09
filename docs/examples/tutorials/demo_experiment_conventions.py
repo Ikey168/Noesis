@@ -398,7 +398,7 @@ def main():
         print(f"   • Required: git.sha, env, pipeline, data_version")
         print(f"   • Optional: notes, model_type, task_type, dataset_type")
         
-        print(f"\n📝 Documentation: docs/mlops/experiments.md")
+        print(f"\n📝 Documentation: docs/subsystems/mlops/experiments.md")
         
     except Exception as e:
         print(f"\n❌ Demo failed: {e}")

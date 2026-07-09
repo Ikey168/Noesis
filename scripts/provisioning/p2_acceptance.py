@@ -13,7 +13,7 @@ trail at the end.
 
 Run:  python scripts/provisioning/p2_acceptance.py
 
-The executable form of docs/provisioning-p2-acceptance.md.
+The executable form of docs/milestones/provisioning-p2.md.
 """
 
 from __future__ import annotations
