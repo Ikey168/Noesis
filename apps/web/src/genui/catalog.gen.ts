@@ -56,7 +56,8 @@ export type PanelType =
   | "image_provenance"
   | "image_reuse_ledger"
   | "corrections"
-  | "speaker_balance";
+  | "speaker_balance"
+  | "geo_map";
 
 export type Facet =
   | "overview"
@@ -138,6 +139,7 @@ export const PANEL_CATALOG: PanelDef[] = [
   { type: "image_reuse_ledger", title: "Image reuse", facets: [], defaultSpan: 6, topicParam: true },
   { type: "corrections", title: "Corrections & retractions", facets: [], defaultSpan: 6 },
   { type: "speaker_balance", title: "Speaker balance", facets: [], defaultSpan: 6, topicParam: true },
+  { type: "geo_map", title: "Coverage map", facets: [], defaultSpan: 6, topicParam: true },
 ];
 
 export const PANEL_DEFS: Partial<Record<PanelType, PanelDef>> = Object.fromEntries(

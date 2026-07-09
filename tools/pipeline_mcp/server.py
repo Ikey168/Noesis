@@ -1826,6 +1826,44 @@ def corrections_ledger(change_class: Optional[str] = None) -> dict:
 
 
 @mcp.tool(
+    output_schema={
+        "type": "object",
+        "properties": {"places": {"type": "array"}, "count": {"type": "integer"}},
+        "additionalProperties": True,
+    },
+    meta={"data": {"panel": "geo_map", "rest_route": None}, "panel": {
+        "type": "geo_map",
+        "title": "Coverage map",
+        "description": "Where a topic's coverage is geolocated — places mentioned across documents, corroborated by independent-source count.",
+        "endpoint": None,
+        "facets": ["overview", "library"],
+        "tables": ["documents"],
+        "default_span": 6,
+        "topic_param": "topic",
+    }},
+)
+def geo_map(topic: Optional[str] = None) -> dict:
+    """Geocoded places across the documents matching a topic, with per-place
+    independent-source counts.
+
+    Args:
+        topic: optional topic filter.
+    """
+    try:
+        con = _warehouse_ro()
+    except Exception as exc:
+        return {"places": [], "count": 0, "note": str(exc)}
+    try:
+        from src.analytics.geospatial import place_coverage
+
+        return place_coverage(con, topic)
+    except Exception as exc:
+        return {"error": str(exc)}
+    finally:
+        con.close()
+
+
+@mcp.tool(
     output_schema=honesty_output_schema({
         "speakers": {"type": "array"},
         "interruptions": {"type": "array"},
