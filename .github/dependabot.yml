@@ -5,7 +5,12 @@
 version: 2
 updates:
   - package-ecosystem: pip
-    directory: /
+    # Root requirements.txt plus the Airflow image requirements under
+    # workflows/ — the latter is where Trivy found the apache-airflow / mlflow
+    # CVEs that no root-only scan would ever propose a fix for (#820 follow-up).
+    directories:
+      - /
+      - /workflows
     schedule:
       interval: weekly
     open-pull-requests-limit: 10
