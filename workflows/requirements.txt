@@ -72,7 +72,7 @@ bcrypt==5.0.0
 
 # Task queue and messaging
 celery==5.3.4
-redis==5.0.1
+redis==8.0.1
 
 # File format support
 openpyxl==3.1.2
