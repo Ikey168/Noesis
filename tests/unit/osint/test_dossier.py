@@ -48,12 +48,25 @@ def test_person_with_no_document_is_refused(seed):
     assert "mentions" not in out  # no inference-only facts surfaced
 
 
-def test_person_inferred_from_role_is_guardrailed(seed):
+def test_unknown_entity_defaults_to_person_and_is_refused(seed):
     _corpus(seed)
-    # A person known only by a person-role but with no documents of their own.
+    # An entity absent from the corpus with no explicit non-person type is
+    # treated as a person (fail-closed): rather than describe an individual from
+    # nothing, the guardrail refuses instead of returning an empty brief.
     out = entity_dossier(seed.conn, "Nonexistent Speaker")
-    # Not a person (no rows -> not classified person) so returns not-found, not a crash.
-    assert out["found"] is False
+    assert out.get("code") == "person_requires_documents"
+    assert out["is_person"] is True
+
+
+def test_person_with_office_role_is_classified_person(seed):
+    _corpus(seed)
+    # Only role is "president" — under the old subset test this slipped the guard
+    # (not a subset of the 5-word person vocabulary). ANY person-denoting role
+    # now classifies the entity as a person.
+    seed.actors([("d1", "Sam Cole", "person:sc", "president")])
+    out = entity_dossier(seed.conn, "Sam Cole")
+    assert out["is_person"] is True
+    assert out["found"] is True
 
 
 def test_non_person_with_no_documents_is_allowed_empty(seed):
