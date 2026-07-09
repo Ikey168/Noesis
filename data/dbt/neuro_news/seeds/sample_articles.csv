@@ -1,4 +1,0 @@
-id,title,content,url,source,sentiment,created_at,updated_at,scraped_at
-1,"Sample Article 1","This is a sample article content about technology trends.","https://example.com/article1","TechNews","positive","2024-01-01 10:00:00","2024-01-01 10:00:00","2024-01-01 10:00:00"
-2,"Sample Article 2","Another sample article discussing market trends.","https://example.com/article2","MarketWatch","neutral","2024-01-02 11:00:00","2024-01-02 11:00:00","2024-01-02 11:00:00"
-3,"Sample Article 3","A negative outlook on economic indicators.","https://example.com/article3","EconNews","negative","2024-01-03 12:00:00","2024-01-03 12:00:00","2024-01-03 12:00:00"

@@ -24,6 +24,9 @@ def create_spark_session():
         .config("spark.sql.catalog.demo.uri", "http://localhost:8181") \
         .config("spark.sql.catalog.demo.warehouse", "s3a://demo-warehouse/") \
         .config("spark.sql.catalog.demo.io-impl", "org.apache.iceberg.aws.s3.S3FileIO") \
+        .config("spark.sql.catalog.local", "org.apache.iceberg.spark.SparkCatalog") \
+        .config("spark.sql.catalog.local.type", "hadoop") \
+        .config("spark.sql.catalog.local.warehouse", "/warehouse") \
         .config("spark.hadoop.fs.s3a.access.key", "minioadmin") \
         .config("spark.hadoop.fs.s3a.secret.key", "minioadmin") \
         .config("spark.hadoop.fs.s3a.endpoint", "http://localhost:9000") \
@@ -82,8 +85,11 @@ def rewrite_data_files(spark, table_name):
     """Rewrite data files to consolidate small files."""
     print(f"🔄 Starting data files rewrite for {table_name}...")
     
+    # Extract catalog from table name
+    catalog = table_name.split('.')[0]
+    
     # Call Iceberg procedure for data file rewrite
-    result = spark.sql(f"CALL demo.system.rewrite_data_files(table => '{table_name}')")
+    result = spark.sql(f"CALL {catalog}.system.rewrite_data_files(table => '{table_name}')")
     
     print("✅ Data files rewrite completed")
     result.show()
@@ -93,8 +99,11 @@ def rewrite_manifests(spark, table_name):
     """Rewrite manifest files to improve query performance."""
     print(f"🔄 Starting manifest rewrite for {table_name}...")
     
+    # Extract catalog from table name
+    catalog = table_name.split('.')[0]
+    
     # Call Iceberg procedure for manifest rewrite
-    result = spark.sql(f"CALL demo.system.rewrite_manifests(table => '{table_name}')")
+    result = spark.sql(f"CALL {catalog}.system.rewrite_manifests(table => '{table_name}')")
     
     print("✅ Manifest rewrite completed")
     result.show()

@@ -1,0 +1,20 @@
+# Spark Structured Streaming CDC to Iceberg Requirements
+# 
+# Core dependencies for running Spark Structured Streaming jobs
+# with Kafka integration and Iceberg table format support
+
+# PySpark with Structured Streaming support
+pyspark>=3.4.0,<4.0.0
+
+# Kafka integration for Spark Structured Streaming
+# Note: Actual JAR dependencies are managed via spark/download_jars.sh
+# This is for any Python-level Kafka utilities if needed
+kafka-python>=2.0.0
+
+# Additional utilities for data processing
+pandas>=1.5.0
+pyarrow>=10.0.0
+
+# Development and testing
+pytest>=7.0.0
+pytest-spark>=0.6.0
