@@ -234,7 +234,7 @@ jobs:
         dbt docs generate
 
     - name: Upload dbt artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v7
       if: always()
       with:
         name: dbt-artifacts

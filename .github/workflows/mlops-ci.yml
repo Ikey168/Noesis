@@ -82,7 +82,7 @@ jobs:
         fi
         
     - name: Upload MLflow runs as artifacts
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       if: always()
       with:
         name: mlflow-runs-${{ matrix.python-version }}-${{ github.run_number }}
@@ -90,7 +90,7 @@ jobs:
         retention-days: 30
         
     - name: Upload evaluation summary
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       if: always()
       with:
         name: evaluation-summary-${{ matrix.python-version }}-${{ github.run_number }}
