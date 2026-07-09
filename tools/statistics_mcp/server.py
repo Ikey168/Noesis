@@ -198,6 +198,98 @@ def series_explorer(topic: Optional[str] = None) -> dict:
         con.close()
 
 
+_CHECK_ITEM_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "check_id": {"type": "string"},
+        "subject": {"type": ["string", "null"]},
+        "direction": {"type": ["string", "null"]},
+        "series_id": {"type": ["string", "null"]},
+        "verdict": {"type": "string"},
+        "match_confidence": {"type": ["number", "null"]},
+    },
+    "additionalProperties": True,
+}
+
+
+@mcp.tool(
+    output_schema={
+        "type": "object",
+        "properties": {
+            "checks": {"type": "array", "items": _CHECK_ITEM_SCHEMA},
+            "count": {"type": "integer"},
+        },
+        "additionalProperties": True,
+    },
+    meta={"data": {"panel": "claim_vs_data", "rest_route": None}, "panel": {
+        "type": "claim_vs_data",
+        "title": "Claims vs data",
+        "description": "Quantitative claims checked against official statistical series: the claim, the resolved series with its observed interval, and a supported / contradicted / unverifiable verdict under the statistical-honesty contract.",
+        "endpoint": None,
+        "facets": ["claims", "library"],
+        "tables": ["claim_data_checks", "dataset_series"],
+        "default_span": 6,
+        "topic_param": "topic",
+    }},
+)
+def claim_vs_data(topic: Optional[str] = None) -> dict:
+    """Recent claim-vs-data checks with verdicts and observed intervals.
+
+    Args:
+        topic: optional case-insensitive substring of the claim subject.
+    """
+    try:
+        con = _warehouse_ro()
+    except Exception as exc:  # noqa: BLE001
+        return {"checks": [], "count": 0, "note": str(exc)}
+    try:
+        from src.analytics.claim_check import claim_vs_data as _cvd
+
+        return _cvd(con, topic)
+    finally:
+        con.close()
+
+
+@mcp.tool(
+    output_schema={
+        "type": "object",
+        "properties": {
+            "checks": {"type": "array", "items": _CHECK_ITEM_SCHEMA},
+            "count": {"type": "integer"},
+            "verdict": {"type": ["string", "null"]},
+        },
+        "additionalProperties": True,
+    },
+    meta={"data": {"panel": "data_check_ledger", "rest_route": None}, "panel": {
+        "type": "data_check_ledger",
+        "title": "Data-check ledger",
+        "description": "The quantitative wing of the contradiction ledger: claims the data contradicts, each citing the series and vintage checked.",
+        "endpoint": None,
+        "facets": ["claims", "library"],
+        "tables": ["claim_data_checks"],
+        "default_span": 6,
+        "topic_param": "topic",
+    }},
+)
+def data_check_ledger(verdict: Optional[str] = "contradicted", topic: Optional[str] = None) -> dict:
+    """Recorded checks, defaulting to the contradicted ones (the ledger).
+
+    Args:
+        verdict: filter by verdict; defaults to 'contradicted'. Pass null for all.
+        topic: optional case-insensitive substring of the claim subject.
+    """
+    try:
+        con = _warehouse_ro()
+    except Exception as exc:  # noqa: BLE001
+        return {"checks": [], "count": 0, "note": str(exc)}
+    try:
+        from src.analytics.claim_check import data_check_ledger as _dcl
+
+        return _dcl(con, verdict=verdict, topic=topic)
+    finally:
+        con.close()
+
+
 @mcp.tool(
     output_schema={
         "type": "object",
