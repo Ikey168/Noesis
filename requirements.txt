@@ -73,7 +73,7 @@ pyotp>=2.9.0  # TOTP/MFA (src/api/auth/totp_mfa.py)
 websockets>=10.0 # Added for Neptune testing/mocking
 email-validator>=2.1.0
 tenacity>=8.2.3
-psycopg2-binary>=2.9.9
+psycopg2-binary>=2.9.12
 
 # UMAP for topic modeling (nlp/kubernetes/ai_processor.py)
 umap-learn>=0.5.0

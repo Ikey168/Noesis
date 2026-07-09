@@ -68,4 +68,4 @@ PyJWT>=2.8.0
 websockets>=10.0 # Added for Neptune testing/mocking
 email-validator>=2.1.0
 tenacity>=8.2.3
-psycopg2-binary>=2.9.9
+psycopg2-binary>=2.9.12
