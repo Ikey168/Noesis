@@ -227,6 +227,13 @@ class AsyncNewsScraperEngine:
 
         self.user_agent_rotator = UserAgentRotator()
 
+        # Adaptive behaviors (#883, #884): pure-logic policies, thin wiring.
+        from .adaptive.escalation import FetchEscalationPolicy
+        from .adaptive.rate import AdaptiveRateLimiter
+
+        self.escalation = FetchEscalationPolicy()
+        self.adaptive_rate = AdaptiveRateLimiter()
+
         # CAPTCHA solver
         self.captcha_solver = None
         if captcha_api_key:
@@ -452,19 +459,42 @@ class AsyncNewsScraperEngine:
         return all_articles
 
     async def scrape_source_async(self, source: NewsSource) -> List[Article]:
-        """Scrape a single source asynchronously."""
+        """Scrape a single source asynchronously.
+
+        The JS-vs-HTTP decision goes through the escalation policy (#883):
+        configured ``requires_js`` still wins, but an HTTP pass that extracts
+        nothing is retried through Playwright in the same run, and repeated
+        JS successes sticky-promote the source to JS-first.
+        """
         rate_limiter = self.get_rate_limiter(source)
+        self.adaptive_rate.set_base(source.name, 1.0 / max(source.rate_limit, 0.1))
 
         async with rate_limiter:
             try:
+                use_js = self.escalation.should_use_js(source.name, source.requires_js)
                 self.logger.info(
-                    f"Scraping {source.name} ({'JS' if source.requires_js else 'HTTP'})"
+                    f"Scraping {source.name} ({'JS' if use_js else 'HTTP'})"
                 )
 
-                if source.requires_js:
-                    return await self.scrape_js_source(source)
-                else:
-                    return await self.scrape_http_source(source)
+                if use_js:
+                    articles = await self.scrape_js_source(source)
+                    self.escalation.record_js_result(source.name, len(articles))
+                    return articles
+
+                articles = await self.scrape_http_source(source)
+                from .adaptive.escalation import ESCALATE
+
+                if (
+                    self.escalation.assess(source.name, len(articles)) == ESCALATE
+                    and self.browser is not None
+                ):
+                    self.logger.warning(
+                        "HTTP pass for %s extracted nothing; escalating to "
+                        "Playwright (#883)", source.name,
+                    )
+                    articles = await self.scrape_js_source(source)
+                    self.escalation.record_js_result(source.name, len(articles))
+                return articles
 
             except Exception as e:
                 self.logger.error("Error scraping {0}: {1}".format(source.name, e))
@@ -566,6 +596,11 @@ class AsyncNewsScraperEngine:
     ) -> Optional[Article]:
         """Scrape individual article using HTTP."""
         async with semaphore:
+            # Adaptive pacing (#884): wait this source's learned delay, then
+            # feed the outcome back so pressure (429/503/slow/errors) backs
+            # off and sustained success decays toward the configured base.
+            await asyncio.sleep(self.adaptive_rate.next_delay(source.name))
+            started = time.monotonic()
             try:
                 # Rotate user agent
                 headers = (
@@ -582,6 +617,11 @@ class AsyncNewsScraperEngine:
                 async with self.session.get(
                     url, headers=headers, proxy=proxy
                 ) as response:
+                    self.adaptive_rate.record(
+                        source.name,
+                        status=response.status,
+                        latency_s=time.monotonic() - started,
+                    )
                     if response.status == 200:
                         html = await response.text()
                         # CAPTCHA detection (simple placeholder)
@@ -606,6 +646,7 @@ class AsyncNewsScraperEngine:
                         )
                         return None
             except Exception as e:
+                self.adaptive_rate.record(source.name, error=True)
                 self.logger.error("Error scraping article {0}: {1}".format(url, e))
                 return None
 
