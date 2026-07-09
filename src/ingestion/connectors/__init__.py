@@ -22,6 +22,7 @@ from src.ingestion.connectors import upload  # noqa: E402,F401
 from src.ingestion.connectors import media  # noqa: E402,F401
 from src.ingestion.connectors import book  # noqa: E402,F401
 from src.ingestion.connectors import blog  # noqa: E402,F401
+from src.ingestion.connectors import filings_connector  # noqa: E402,F401
 
 __all__ = [
     "Connector",
