@@ -47,7 +47,7 @@ jobs:
 
     - name: Upload coverage to Codecov
       if: always()
-      uses: codecov/codecov-action@v3
+      uses: codecov/codecov-action@v7
       with:
         file: ./test-results/test-results.xml
         flags: unittests
