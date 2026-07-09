@@ -28,7 +28,12 @@ from src.osint import common
 
 # Tools held behind the explicit review gate; absent from the server until the
 # gate passes. Named here so enforcement is testable.
-GATED_TOOLS = ("geolocate_claims", "narrative_coordination")
+GATED_TOOLS = (
+    "geolocate_claims",
+    "narrative_coordination",
+    "reverse_image_search",
+    "geolocate_image",
+)
 
 
 def is_gated(tool_name: str) -> bool:
