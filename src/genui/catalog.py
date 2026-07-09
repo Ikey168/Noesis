@@ -537,6 +537,59 @@ PANEL_CATALOG: Tuple[PanelDef, ...] = (
         default_span=6,
         topic_param="topic",
     ),
+    # Evidence panels backed by discovery tools (Track A / C). Empty facets so
+    # the heuristic planner never auto-selects them (they surface via discovery
+    # and the LLM planner); the catalog entry exists so the frontend registry
+    # has a PanelType and renderer for each.
+    PanelDef(
+        type="series_explorer",
+        title="Statistical series",
+        description="Official statistical series harvested as evidence, each with a compact latest-vintage summary.",
+        endpoint=None,
+        facets=(),
+        tables=("dataset_series", "dataset_observations"),
+        default_span=6,
+        topic_param="topic",
+    ),
+    PanelDef(
+        type="claim_vs_data",
+        title="Claims vs data",
+        description="Quantitative claims checked against official statistical series, with a supported / contradicted / unverifiable verdict.",
+        endpoint=None,
+        facets=(),
+        tables=("claim_data_checks", "dataset_series"),
+        default_span=6,
+        topic_param="topic",
+    ),
+    PanelDef(
+        type="data_check_ledger",
+        title="Data-check ledger",
+        description="The quantitative wing of the contradiction ledger: claims the data contradicts, each citing the series and vintage checked.",
+        endpoint=None,
+        facets=(),
+        tables=("claim_data_checks",),
+        default_span=6,
+        topic_param="topic",
+    ),
+    PanelDef(
+        type="image_provenance",
+        title="Image provenance",
+        description="What an image claims about itself (EXIF, file-claimed), its content credentials, and every document it appears in.",
+        endpoint=None,
+        facets=(),
+        tables=("image_assets", "image_appearances"),
+        default_span=6,
+    ),
+    PanelDef(
+        type="image_reuse_ledger",
+        title="Image reuse",
+        description="Recycled images: near-duplicate photos appearing across multiple documents, each finding citing every appearance.",
+        endpoint=None,
+        facets=(),
+        tables=("image_assets", "image_appearances"),
+        default_span=6,
+        topic_param="topic",
+    ),
 )
 
 PANEL_TYPES: Tuple[str, ...] = tuple(p.type for p in PANEL_CATALOG)
