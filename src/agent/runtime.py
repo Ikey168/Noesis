@@ -13,8 +13,10 @@ the R4 tool-loop discipline (a per-server allowlist plus a call budget), it:
 
 * refuses any tool not on its plane's allowlist,
 * refuses a **gated** OSINT tool while the review gate is off, so an agent can
-  never invoke ``geolocate_claims`` / ``narrative_coordination`` unless a human
-  has opened the gate (M10.3 / the R11 review gate),
+  never invoke any tool in the canonical gated set
+  (:data:`src.osint.investigations.GATED_TOOLS` — ``geolocate_claims``,
+  ``narrative_coordination`` and the imagery tier) unless a human has opened the
+  gate (M10.3 / the R11 review gate),
 * enforces a step budget (total, and optionally per plane), so a runaway agent
   is bounded, and
 * records every call to a transcript and an optional audit sink, so the whole
@@ -26,9 +28,10 @@ the agents inject a dispatcher. Stdlib-only.
 
 from __future__ import annotations
 
-import os
 from dataclasses import dataclass, field
 from typing import Any, Callable, Dict, List, Optional
+
+from src.config.env import resolve_env
 
 PLANE_PROVISIONING = "provisioning"
 PLANE_OSINT = "osint"
@@ -47,22 +50,35 @@ _OSINT_TOOLS = frozenset({
     "corroborate", "source_reliability", "contradiction_scan", "entity_dossier",
     "relationship_path", "timeline_reconstruct", "trace_artifact", "investigation_audit",
 })
-# The review-gated OSINT tools: allowlisted only when the gate is open.
-_OSINT_GATED_TOOLS = frozenset({"geolocate_claims", "narrative_coordination"})
+
+
+def _osint_gated_tools() -> frozenset:
+    """The review-gated OSINT tools, from the single canonical list
+    (:data:`src.osint.investigations.GATED_TOOLS`) so the runtime gate and the
+    served surface can never drift — the imagery tier is gated here too.
+
+    Imported lazily to keep this module's import stdlib-light (the ``src.osint``
+    package pulls the analytics stack); ``default_planes`` resolves it at
+    agent-setup time, not at import."""
+    from src.osint.investigations import GATED_TOOLS
+
+    return frozenset(GATED_TOOLS)
 
 
 def gated_tools_enabled() -> bool:
-    """Whether the OSINT review gate is open (``NOESIS_OSINT_GATED_TOOLS``)."""
-    return os.getenv("NOESIS_OSINT_GATED_TOOLS", "off").lower() in ("on", "1", "true")
+    """Whether the OSINT review gate is open
+    (``NOESIS_OSINT_GATED_TOOLS`` / legacy ``NEURONEWS_OSINT_GATED_TOOLS``)."""
+    return (resolve_env("OSINT_GATED_TOOLS", "off") or "off").lower() in ("on", "1", "true")
 
 
 def default_planes() -> Dict[str, Dict[str, Any]]:
     """The planes, with per-plane server and tool allowlist. The OSINT
     plane admits the gated tools only while the review gate is open."""
-    osint_tools = _OSINT_TOOLS | (_OSINT_GATED_TOOLS if gated_tools_enabled() else frozenset())
+    gated = _osint_gated_tools()
+    osint_tools = _OSINT_TOOLS | (gated if gated_tools_enabled() else frozenset())
     return {
         PLANE_PROVISIONING: {"server": _PLANE_SERVERS[PLANE_PROVISIONING], "tools": _PROVISIONING_TOOLS},
-        PLANE_OSINT: {"server": _PLANE_SERVERS[PLANE_OSINT], "tools": osint_tools, "gated": _OSINT_GATED_TOOLS},
+        PLANE_OSINT: {"server": _PLANE_SERVERS[PLANE_OSINT], "tools": osint_tools, "gated": gated},
     }
 
 
