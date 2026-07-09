@@ -21,10 +21,17 @@ the enforcement of criterion 5.
 |---|---|---|
 | `geolocate_claims` | Location inference is the most abusable OSINT primitive. | Strictly event-geography derived from document content (where an event is reported to have happened), never person location. |
 | `narrative_coordination` | Coordinated-behavior detection is highly false-positive-prone and can smear coincidental cohorts. | Findings flag a cohort for human review, never accuse; every edge cited; a calibrated null model, not a threshold on raw co-occurrence. |
+| `reverse_image_search` (Track C / C4) | Any capability pointed at the open web is where the imagery abuse surface is. | Submits *corpus images* only; results enter the review queue as `cited: false` until an operator confirms; key-gated, rate-limited, allowlisted, **no default provider**. No person identification, ever. |
+| `geolocate_image` (Track C / C4) | Scene geolocation can be misread as person location. | Reasons about the *place in the scene*, never the subject; suggestion-grade, never auto-cited; EXIF-GPS stays file-claimed, not fact. |
 
 `src/osint/investigations.py` names them in `GATED_TOOLS`; `is_gated(tool)`
 returns True for both. They are registered on `tools/osint_mcp/server.py` only
-behind the `NOESIS_OSINT_GATED_TOOLS` flag (off by default).
+behind the `NOESIS_OSINT_GATED_TOOLS` flag (off by default). The imagery
+external tier (C4) is analysed in
+[`osint-abuse-analysis.md`](osint-abuse-analysis.md) ("Imagery") and inherits
+the same five criteria; the corpus-internal imagery tools (`image_provenance`,
+`image_reuse_findings`) are **not** gated — they read only the operator's own
+assets and identify images, never people.
 
 ## Gate criteria (must all pass before either tool is served)
 
