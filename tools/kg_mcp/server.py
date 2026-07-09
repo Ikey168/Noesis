@@ -356,4 +356,6 @@ def kg_centrality(kg: Optional[str] = None, top: int = 20) -> dict:
 # ---------------------------------------------------------------------------
 
 if __name__ == "__main__":
-    mcp.run()
+    from src.mcp_host.transport import run_server
+
+    run_server(mcp)  # stdio by default; HTTP via NOESIS_MCP_TRANSPORT=http

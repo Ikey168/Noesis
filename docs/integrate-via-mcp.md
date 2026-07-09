@@ -53,6 +53,44 @@ config:
 
 The full set is in [`.mcp.json`](../.mcp.json) — copy the entries you need.
 
+### Remote access (Streamable HTTP + auth)
+
+stdio works when the consuming project can spawn the server process locally.
+For anything else — another machine, a container, a hosted agent — every
+server also runs over **Streamable HTTP**, opt-in via env vars
+(`src/mcp_host/transport.py`):
+
+```bash
+NOESIS_MCP_TRANSPORT=http \
+NOESIS_MCP_HTTP_HOST=0.0.0.0 \
+NOESIS_MCP_HTTP_PORT=8110 \
+NOESIS_MCP_AUTH_TOKEN=your-shared-secret \
+python tools/statistics_mcp/server.py
+```
+
+- **stdio stays the default**; nothing changes for spawned-process setups.
+- **One port per server** — there is no bundled gateway; pick a port range
+  (e.g. 8100–8115) and run the servers you need. The default bind is
+  `127.0.0.1`, so exposure beyond localhost is a deliberate choice.
+- **Auth is fail-closed.** With `NOESIS_MCP_AUTH_TOKEN` set, every HTTP
+  request must present the token as a Bearer credential; if the installed
+  fastmcp offers no supported token verifier, the server **refuses to start**
+  rather than silently serving unauthenticated. Unset means open — intended
+  only for the localhost default.
+
+An HTTP client entry then looks like:
+
+```jsonc
+{
+  "mcpServers": {
+    "noesis-statistics": {
+      "url": "http://noesis-host:8110/mcp",
+      "headers": { "Authorization": "Bearer your-shared-secret" }
+    }
+  }
+}
+```
+
 ### Discipline the servers follow
 
 - **Read-only against the warehouse.** Read tools open DuckDB read-only, so they

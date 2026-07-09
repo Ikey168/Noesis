@@ -395,4 +395,6 @@ def kg_view(kg: Optional[str] = None) -> dict:
 
 
 if __name__ == "__main__":
-    mcp.run()
+    from src.mcp_host.transport import run_server
+
+    run_server(mcp)  # stdio by default; HTTP via NOESIS_MCP_TRANSPORT=http
