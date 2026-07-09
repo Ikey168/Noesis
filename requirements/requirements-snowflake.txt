@@ -3,7 +3,7 @@
 
 # Core Snowflake connectivity
 snowflake-connector-python>=3.5.0
-snowflake-sqlalchemy>=1.5.0
+snowflake-sqlalchemy>=1.11.0
 
 # Analytics and data processing
 pandas>=2.0.0
