@@ -59,19 +59,27 @@ def render_state(independent_sources: int) -> str:
 
 
 def document_citations(conn, document_ids: Sequence[str]) -> Dict[str, Dict[str, Any]]:
-    """Resolve document ids to citations via ``news_articles``. A document id
-    with no matching article yields a citation with ``cited=False`` so the gap
-    is visible."""
+    """Resolve document ids to citations via the source-agnostic citation table
+    (:func:`common.citation_table`), so a document of any ``source_type``
+    resolves. A document id with no matching row yields a citation with
+    ``cited=False`` so the gap is visible. When the source-agnostic
+    ``corpus_documents`` view is in use, a resolved citation also carries the
+    enrichment ``topics``."""
+    import json
+
     uniq = [d for d in dict.fromkeys(document_ids) if d]
     out: Dict[str, Dict[str, Any]] = {}
     resolved: Dict[str, Any] = {}
-    if uniq and common.table_exists(conn, "news_articles"):
+    citation_tbl = common.citation_table(conn)
+    if uniq and citation_tbl:
         ph = ", ".join("?" for _ in uniq)
+        # Only corpus_documents carries topics; news_articles has no such column.
+        topics_expr = "topics" if citation_tbl == "corpus_documents" else "NULL"
         for r in conn.execute(
-            f"SELECT id, source, url, title FROM news_articles WHERE id IN ({ph})",
+            f"SELECT id, source, url, title, {topics_expr} FROM {citation_tbl} WHERE id IN ({ph})",
             uniq,
         ).fetchall():
-            resolved[r[0]] = {"source": r[1], "url": r[2], "title": r[3]}
+            resolved[r[0]] = {"source": r[1], "url": r[2], "title": r[3], "topics": r[4]}
     for d in uniq:
         info = resolved.get(d)
         out[d] = citation(
@@ -82,6 +90,12 @@ def document_citations(conn, document_ids: Sequence[str]) -> Dict[str, Dict[str,
         )
         if info is not None:
             out[d]["title"] = info.get("title")
+            raw_topics = info.get("topics")
+            if raw_topics is not None:
+                try:
+                    out[d]["topics"] = json.loads(raw_topics) if isinstance(raw_topics, str) else list(raw_topics)
+                except (ValueError, TypeError):
+                    out[d]["topics"] = []
     return out
 
 
