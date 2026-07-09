@@ -116,7 +116,37 @@ def test_every_call_reaches_the_audit_sink():
 
 
 def test_gated_tools_enabled_reads_the_env(monkeypatch):
+    monkeypatch.delenv("NEURONEWS_OSINT_GATED_TOOLS", raising=False)
     monkeypatch.setenv("NOESIS_OSINT_GATED_TOOLS", "on")
     assert runtime.gated_tools_enabled() is True
     monkeypatch.setenv("NOESIS_OSINT_GATED_TOOLS", "off")
     assert runtime.gated_tools_enabled() is False
+
+
+def test_gated_tools_enabled_honors_the_legacy_alias(monkeypatch):
+    # The gate honors both env prefixes (alias-first, per src.config.env).
+    monkeypatch.delenv("NOESIS_OSINT_GATED_TOOLS", raising=False)
+    monkeypatch.setenv("NEURONEWS_OSINT_GATED_TOOLS", "on")
+    assert runtime.gated_tools_enabled() is True
+
+
+def test_runtime_gated_set_matches_the_canonical_list(monkeypatch):
+    # The runtime's gated set is the single canonical GATED_TOOLS — no drift
+    # from the served surface, so the imagery tier is gate-enforced here too.
+    from src.osint.investigations import GATED_TOOLS
+
+    monkeypatch.setenv("NOESIS_OSINT_GATED_TOOLS", "on")
+    planes = default_planes()
+    assert planes[PLANE_OSINT]["gated"] == frozenset(GATED_TOOLS)
+    assert {"reverse_image_search", "geolocate_image"} <= planes[PLANE_OSINT]["gated"]
+    # With the gate open every canonical gated tool is admitted to the plane.
+    assert frozenset(GATED_TOOLS) <= planes[PLANE_OSINT]["tools"]
+
+
+def test_imagery_gated_tool_is_refused_while_gate_closed(monkeypatch):
+    monkeypatch.delenv("NEURONEWS_OSINT_GATED_TOOLS", raising=False)
+    monkeypatch.setenv("NOESIS_OSINT_GATED_TOOLS", "off")
+    rt = AgentRuntime(_fake_caller(), planes=default_planes())
+    with pytest.raises(NotAllowed):
+        rt.call(PLANE_OSINT, "reverse_image_search", {"sha256": "0" * 64})
+    assert rt.steps_used == 0

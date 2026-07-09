@@ -74,13 +74,17 @@ def test_osint_telemetry_empty_without_activity(seed):
     assert osint_telemetry(seed.conn) == {}
 
 
-def test_gated_tools_are_absent_from_the_server():
-    """Enforcement of the review gate: the two gated tools must not be exposed
-    by the OSINT MCP server until the gate passes."""
+def test_gated_tools_are_absent_from_the_server(monkeypatch):
+    """Enforcement of the review gate: the gated tools must not be exposed by the
+    OSINT MCP server until the gate passes."""
     import importlib.util
     import sys
     from pathlib import Path
 
+    # Hermetic: the gate reads either env prefix, so clear both to assert the
+    # default-closed state regardless of the ambient environment.
+    monkeypatch.delenv("NOESIS_OSINT_GATED_TOOLS", raising=False)
+    monkeypatch.delenv("NEURONEWS_OSINT_GATED_TOOLS", raising=False)
     repo = Path(__file__).resolve().parents[3]
     path = repo / "tools/osint_mcp/server.py"
     spec = importlib.util.spec_from_file_location("osint_gate_check", path)
@@ -108,6 +112,10 @@ def _served_tool_names(monkeypatch, flag):
     import sys
     from pathlib import Path
 
+    # Hermetic: the gate reads either env prefix. Always clear the legacy prefix,
+    # and drive only the canonical one, so an ambient NEURONEWS_ value cannot
+    # flip the gate under the test.
+    monkeypatch.delenv("NEURONEWS_OSINT_GATED_TOOLS", raising=False)
     if flag is None:
         monkeypatch.delenv("NOESIS_OSINT_GATED_TOOLS", raising=False)
     else:
