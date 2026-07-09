@@ -115,6 +115,12 @@ class Connector(abc.ABC):
     #: document-ingest-v1 source_type this connector produces.
     source_type: str = ""
 
+    #: Registry key for this connector. Defaults to ``source_type`` when unset,
+    #: so a connector may declare a distinct ``name`` to coexist with another
+    #: that emits the same ``source_type`` (e.g. ``upload`` and ``filings`` both
+    #: produce ``source_type="note"``).
+    name: str = ""
+
     @abc.abstractmethod
     def discover(self, query: Optional[Any] = None) -> Iterable[SourceRef]:
         """Enumerate the sources to ingest (optionally narrowed by ``query``)."""

@@ -37,8 +37,9 @@ def register_connector(
         source_type = getattr(cls, "source_type", "")
         if not source_type:
             raise ValueError(f"{cls.__name__} must set a non-empty source_type to register")
-        _REGISTRY[source_type] = cls
-        _INSTANCES.pop(source_type, None)  # drop any stale cached instance
+        key = getattr(cls, "name", "") or source_type
+        _REGISTRY[key] = cls
+        _INSTANCES.pop(key, None)  # drop any stale cached instance
         return cls
 
     if connector_cls is not None:
@@ -46,22 +47,36 @@ def register_connector(
     return _do_register
 
 
-def get_connector(source_type: str) -> Connector:
-    """Return a (cached) connector instance for ``source_type``."""
-    if source_type not in _REGISTRY:
+def get_connector(name: str) -> Connector:
+    """Return a (cached) connector instance by registry ``name``.
+
+    The registry key is the connector's ``name`` (defaulting to its
+    ``source_type``), so for the built-in connectors this is still the source
+    type (``"news"``, ``"paper"``, …), while a connector that sets a distinct
+    ``name`` (e.g. ``"filings"``) is resolved by that name.
+    """
+    if name not in _REGISTRY:
         raise KeyError(
-            f"No connector registered for source_type {source_type!r}; "
-            f"available: {available_source_types()}"
+            f"No connector registered as {name!r}; available: {available_source_types()}"
         )
-    if source_type not in _INSTANCES:
-        _INSTANCES[source_type] = _REGISTRY[source_type]()
-    return _INSTANCES[source_type]
+    if name not in _INSTANCES:
+        _INSTANCES[name] = _REGISTRY[name]()
+    return _INSTANCES[name]
 
 
 def available_source_types() -> List[str]:
-    """List the source types that currently have a registered connector."""
+    """List the registry keys (connector names) that resolve via ``get_connector``.
+
+    For the built-in connectors these equal their ``source_type``; a connector
+    with a distinct ``name`` appears under that name.
+    """
     return sorted(_REGISTRY)
 
 
-def is_registered(source_type: str) -> bool:
-    return source_type in _REGISTRY
+def is_registered(name: str) -> bool:
+    return name in _REGISTRY
+
+
+def source_types() -> List[str]:
+    """List the distinct document source types the registered connectors emit."""
+    return sorted({getattr(cls, "source_type", "") for cls in _REGISTRY.values()})
