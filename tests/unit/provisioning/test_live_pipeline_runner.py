@@ -85,3 +85,68 @@ def test_ingest_without_runner_degrades_to_routing(conn, seed):
 def test_default_harvester_unknown_connector_is_empty():
     # Best-effort: an unregistered connector type yields nothing, never raises.
     assert default_harvester("not-a-real-connector-type", {"query": None}) == []
+
+
+# --------------------------------------------------------------------------- #
+# Live harvest_run path: documents sink + news_articles bridge (#907)
+# --------------------------------------------------------------------------- #
+
+
+def _fake_connector(docs):
+    from src.ingestion.connectors.base import Connector, RawDocument, SourceRef
+    from services.ingest.common.document_model import Document
+
+    class _FakeConnector(Connector):
+        source_type = "news"
+
+        def discover(self, query=None):
+            return [SourceRef("feed", metadata={"source_id": "feed-1"})]
+
+        def fetch(self, ref):
+            return RawDocument(ref=ref, content="raw")
+
+        def parse(self, raw):
+            return [
+                Document(
+                    document_id=d["id"], source_type="news", language="en",
+                    ingested_at=1_700_000_000_000, title=d.get("title"),
+                    content=d.get("content"), url=d.get("url"),
+                )
+                for d in docs
+            ]
+
+    return _FakeConnector()
+
+
+def test_live_path_persists_to_documents_and_bridges_to_news_articles(conn):
+    docs = [
+        {"id": "d1", "title": "One", "content": "Body one.", "url": "https://ex.com/1"},
+        {"id": "d2", "title": "Two", "content": "Body two.", "url": "https://ex.com/2"},
+    ]
+    runner = build_pipeline_runner(conn, connector_resolver=lambda ct: _fake_connector(docs))
+    res = runner({"connector": "grid", "connector_type": "news", "config": {"source": "Feed"}})
+
+    assert res["documents"] == 2       # unified documents sink
+    assert res["written"] == 2         # bridged into news_articles
+    assert conn.execute("SELECT COUNT(*) FROM documents").fetchone()[0] == 2
+    assert conn.execute(
+        "SELECT COUNT(*) FROM news_articles WHERE source = 'Feed'"
+    ).fetchone()[0] == 2
+
+
+def test_live_path_is_idempotent(conn):
+    docs = [{"id": "d1", "title": "One", "content": "Body.", "url": "https://ex.com/1"}]
+    runner = build_pipeline_runner(conn, connector_resolver=lambda ct: _fake_connector(docs))
+    spec = {"connector": "grid", "connector_type": "news", "config": {"source": "Feed"}}
+    runner(spec)
+    second = runner(spec)
+    assert second["documents"] == 0    # already ingested -> no new documents
+    assert conn.execute("SELECT COUNT(*) FROM documents").fetchone()[0] == 1
+
+
+def test_live_path_unknown_connector_returns_zeros(conn):
+    runner = build_pipeline_runner(conn, connector_resolver=lambda ct: None)
+    res = runner({"connector": "x", "connector_type": "nope", "config": {}})
+    assert res == {
+        "connector": "x", "source": "x", "fetched": 0, "written": 0, "documents": 0,
+    }

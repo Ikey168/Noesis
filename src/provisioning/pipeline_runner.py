@@ -4,13 +4,20 @@ Track P2 wired ``Provisioner.ingest`` to run bound pipelines through an injected
 ``pipeline_runner`` callable, but left that callable unbound in the serving path
 so ``kg_ingest`` degraded to routing already-ingested documents. This module is
 the real runner: it runs a bound connector through the ingestion connector
-registry (the same connectors ``pipeline_mcp`` exposes), and persists the
-harvested documents into the shared ``news_articles`` corpus so ingest routing
-copies them into the KG namespace. No simulation branch.
+registry (the same connectors ``pipeline_mcp`` exposes).
+
+By default it drives the connector through :meth:`Connector.harvest_run` (#896)
+— so every source gets retry, ``SourceHealthTracker`` drift detection, and
+scheduling — persisting the harvested documents through a :class:`DocumentStore`
+into the unified ``documents`` sink (#894). A :class:`_BridgingStore` mirrors the
+same documents into the legacy ``news_articles`` corpus so ingest routing (which
+still reads ``news_articles``) copies them into the KG namespace and existing
+readers keep working. That bridge is removed once the ``news_articles``
+compatibility view (#909) lands.
 
 Persistence is idempotent by document id, so re-ingesting a connector converges
-rather than duplicating. The harvester is injectable so tests can exercise the
-real persist-and-route path without a live network fetch.
+rather than duplicating. The harvester (legacy records path) is still injectable
+so existing tests exercise the persist-and-route path without a live fetch.
 """
 
 from __future__ import annotations
@@ -134,30 +141,106 @@ def default_harvester(connector_type: str, config: Dict[str, Any]) -> List[Dict[
     return records[:DEFAULT_LIMIT]
 
 
+def _resolve_connector(connector_type: str):
+    """Resolve a registered connector instance, or None if unavailable."""
+    try:
+        import src.ingestion.connectors  # noqa: F401 - trigger registrations
+        from src.ingestion.connectors.registry import get_connector, is_registered
+    except Exception:  # noqa: BLE001
+        return None
+    if not connector_type or not is_registered(connector_type):
+        return None
+    try:
+        return get_connector(connector_type)
+    except Exception:  # noqa: BLE001
+        return None
+
+
+class _BridgingStore:
+    """A DocumentStore-compatible sink that also mirrors documents to ``news_articles``.
+
+    ``harvest_run`` persists through the injected ``store`` and hands us the
+    :class:`Document`\\ s per source. We upsert them into the unified
+    ``documents`` sink and, during the transition, mirror them into the legacy
+    ``news_articles`` corpus (idempotent by id) so KG ingest routing and the
+    existing ``news_articles`` readers keep working until the compatibility
+    view (#909) replaces the corpus.
+    """
+
+    def __init__(self, doc_store, conn, source: str):
+        self._docs = doc_store
+        self._conn = conn
+        self._source = source
+        self.bridged = 0
+
+    def upsert(self, documents):
+        summary = self._docs.upsert(documents)
+        records = []
+        for doc in documents:
+            rec = _doc_to_record(doc, getattr(doc, "source_type", "") or "note")
+            rec.setdefault("source", self._source)
+            records.append(rec)
+        self.bridged += persist_records(self._conn, self._source, records)
+        return summary
+
+
 def build_pipeline_runner(
     conn,
     harvester: Optional[Callable[[str, Dict[str, Any]], List[Dict[str, Any]]]] = None,
+    connector_resolver: Optional[Callable[[str], Any]] = None,
 ) -> Callable[[Dict[str, Any]], Dict[str, Any]]:
-    """Return the ``pipeline_runner`` callable ``Provisioner`` invokes per bound
-    pipeline: run the connector for real and persist its documents into the
-    corpus so ingest routing picks them up. The harvester defaults to the live
-    connector registry and is injectable for tests."""
-    harvest = harvester or default_harvester
+    """Return the ``pipeline_runner`` callable ``Provisioner`` invokes per bound pipeline.
+
+    Default (no ``harvester``): resolve the connector and run it through
+    ``harvest_run`` into the ``documents`` sink, bridging to ``news_articles``.
+    If a ``harvester`` is injected, the legacy records path is used instead (it
+    persists to ``news_articles`` only) — this preserves existing tests and
+    custom record-shaped harvesters. ``connector_resolver`` is injectable so the
+    live path is testable with a fake connector.
+    """
+    resolve = connector_resolver or _resolve_connector
 
     def runner(spec: Dict[str, Any]) -> Dict[str, Any]:
         connector = spec.get("connector")
         connector_type = spec.get("connector_type") or ""
         config = spec.get("config") or {}
         source = config.get("source") or connector
-        records = harvest(connector_type, config)
-        for rec in records:
-            rec.setdefault("source", source)
-        written = persist_records(conn, source, records)
+        query = config.get("query") if isinstance(config, dict) else None
+
+        # Legacy injected records path — persist to news_articles only.
+        if harvester is not None:
+            records = harvester(connector_type, config) or []
+            for rec in records:
+                rec.setdefault("source", source)
+            written = persist_records(conn, source, records)
+            return {
+                "connector": connector, "source": source,
+                "fetched": len(records), "written": written, "documents": 0,
+            }
+
+        # Default live path — harvest_run into the documents sink + bridge.
+        connector_obj = resolve(connector_type)
+        if connector_obj is None:
+            return {
+                "connector": connector, "source": source,
+                "fetched": 0, "written": 0, "documents": 0,
+            }
+
+        from src.ingestion.document_store import DocumentStore
+        from src.ingestion.source_health import SourceHealthTracker
+
+        health_path = config.get("health_path") if isinstance(config, dict) else None
+        bridge = _BridgingStore(DocumentStore(conn), conn, source)
+        summary = connector_obj.harvest_run(
+            query=query,
+            store=bridge,
+            health=SourceHealthTracker(health_path),
+            respect_schedule=False,
+        )
         return {
-            "connector": connector,
-            "source": source,
-            "fetched": len(records),
-            "written": written,
+            "connector": connector, "source": source,
+            "fetched": summary.documents, "written": bridge.bridged,
+            "documents": summary.inserted,
         }
 
     return runner
