@@ -45,6 +45,18 @@ CREATE TABLE IF NOT EXISTS image_assets (
 )
 """
 
+# Track C (#771): every document an asset appears in, so a recycled image is
+# visible as one asset with multiple appearances.
+_APPEARANCES_DDL = """
+CREATE TABLE IF NOT EXISTS image_appearances (
+    sha256          TEXT NOT NULL,
+    document_id     TEXT NOT NULL,
+    first_seen_at   BIGINT,
+    context         TEXT,
+    PRIMARY KEY (sha256, document_id)
+)
+"""
+
 
 @dataclass
 class ImageAsset:
@@ -75,6 +87,7 @@ class ImageAssetStore:
         self._root = root
         os.makedirs(self._root, exist_ok=True)
         self._conn.execute(_ASSETS_DDL)
+        self._conn.execute(_APPEARANCES_DDL)
 
     @classmethod
     def open(cls, db_path: str = ":memory:", root: str = "artifacts/figures") -> "ImageAssetStore":
@@ -168,3 +181,119 @@ class ImageAssetStore:
 
     def count(self) -> int:
         return self._conn.execute("SELECT COUNT(*) FROM image_assets").fetchone()[0]
+
+    # --- Track C (#771): appearances + provenance extraction ---------------
+
+    def record_appearance(
+        self,
+        sha256: str,
+        document_id: str,
+        context: Optional[str] = None,
+        now_ms: Optional[int] = None,
+    ) -> None:
+        """Record that an asset appears in a document (idempotent per pair)."""
+        self._conn.execute(
+            """
+            INSERT INTO image_appearances (sha256, document_id, first_seen_at, context)
+            VALUES (?, ?, ?, ?)
+            ON CONFLICT (sha256, document_id) DO NOTHING
+            """,
+            [sha256, document_id, now_ms, context],
+        )
+
+    def appearances(self, sha256: str) -> List[Dict[str, Any]]:
+        """Every document an asset appears in, earliest first."""
+        rows = self._conn.execute(
+            """
+            SELECT sha256, document_id, first_seen_at, context
+            FROM image_appearances WHERE sha256 = ?
+            ORDER BY first_seen_at NULLS LAST, document_id
+            """,
+            [sha256],
+        ).fetchall()
+        keys = ["sha256", "document_id", "first_seen_at", "context"]
+        return [dict(zip(keys, r)) for r in rows]
+
+    def enrich(
+        self,
+        sha256: str,
+        phash: Optional[str] = None,
+        exif: Optional[Dict[str, Any]] = None,
+        c2pa: Optional[Dict[str, Any]] = None,
+    ) -> None:
+        """Populate the reserved provenance columns for an asset (only the
+        provided ones; None leaves a column unchanged)."""
+        import json
+
+        sets: List[str] = []
+        params: List[Any] = []
+        if phash is not None:
+            sets.append("phash = ?")
+            params.append(phash)
+        if exif is not None:
+            sets.append("exif = ?")
+            params.append(json.dumps(exif))
+        if c2pa is not None:
+            sets.append("c2pa = ?")
+            params.append(json.dumps(c2pa))
+        if not sets:
+            return
+        params.append(sha256)
+        self._conn.execute(f"UPDATE image_assets SET {', '.join(sets)} WHERE sha256 = ?", params)
+
+    def get_provenance(self, sha256: str) -> Optional[Dict[str, Any]]:
+        """Return the provenance columns (phash/exif/c2pa) for an asset."""
+        import json
+
+        row = self._conn.execute(
+            "SELECT phash, exif, c2pa FROM image_assets WHERE sha256 = ?", [sha256]
+        ).fetchone()
+        if row is None:
+            return None
+        phash, exif, c2pa = row
+        return {
+            "phash": phash,
+            "exif": json.loads(exif) if isinstance(exif, str) else exif,
+            "c2pa": json.loads(c2pa) if isinstance(c2pa, str) else c2pa,
+        }
+
+    def ingest(
+        self,
+        data: bytes,
+        document_id: Optional[str] = None,
+        context: Optional[str] = None,
+        now_ms: Optional[int] = None,
+        mime_hint: Optional[str] = None,
+        extract: bool = True,
+    ) -> ImageAsset:
+        """Store bytes, record the appearance, and (by default) extract phash +
+        EXIF. The one call a connector uses per encountered image: dedupes by
+        content, tracks every source the image appears in, and populates
+        provenance the first time.
+        """
+        asset = self.put(data, parent_document_id=document_id, now_ms=now_ms, mime_hint=mime_hint)
+        if document_id is not None:
+            self.record_appearance(asset.sha256, document_id, context=context, now_ms=now_ms)
+        if extract and self.get_provenance(asset.sha256).get("phash") is None:
+            from src.ingestion.assets.provenance import extract_exif, perceptual_hash
+
+            self.enrich(asset.sha256, phash=perceptual_hash(data), exif=extract_exif(data))
+        return asset
+
+    def backfill_provenance(self, limit: Optional[int] = None) -> int:
+        """Compute phash + EXIF for stored assets missing a phash. Returns the
+        number enriched. The batch path for assets ingested before C1."""
+        from src.ingestion.assets.provenance import extract_exif, perceptual_hash
+
+        clause = f" LIMIT {int(limit)}" if limit else ""
+        rows = self._conn.execute(
+            f"SELECT sha256 FROM image_assets WHERE phash IS NULL{clause}"
+        ).fetchall()
+        enriched = 0
+        for (sha256,) in rows:
+            data = self.read_bytes(sha256)
+            if data is None:
+                continue
+            self.enrich(sha256, phash=perceptual_hash(data), exif=extract_exif(data))
+            enriched += 1
+        return enriched
