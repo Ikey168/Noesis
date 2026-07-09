@@ -149,3 +149,84 @@ def resolve_citation(store: SnapshotStore, url: str, live_ok: bool = False) -> D
         }
     # Dead link and no snapshot: the flagged state the evidence discipline shows.
     return {"url": url, "cited": False, "archived": False, "source": "none"}
+
+
+# --------------------------------------------------------------------------- #
+# Wiring (#825): ingest-path snapshotting, liveness, retention.
+#
+# Posture: snapshots are an operator-side archive so *the operator's own
+# citations* survive link rot — they are never republished or served to third
+# parties. Snapshot only what a connector already fetched (no second fetch, so
+# the robots/rate posture is whatever the fetching connector already honoured).
+# --------------------------------------------------------------------------- #
+
+
+def snapshot_document(store: SnapshotStore, document: Any, html: Optional[str], fetched_at: int) -> Optional[Dict[str, Any]]:
+    """Archive the page a connector just fetched for ``document``.
+
+    The ingest-path hook: connectors that pulled a URL call this with the HTML
+    they already have — never a second fetch. No-op (None) for documents
+    without a URL (books, uploads, notes)."""
+    url = getattr(document, "url", None) or (document.get("url") if isinstance(document, dict) else None)
+    if not url:
+        return None
+    return store.snapshot(url, html, fetched_at=fetched_at)
+
+
+def check_liveness(url: str, http_head: Optional[Any] = None, timeout: float = 10.0) -> bool:
+    """Whether a URL currently resolves (HEAD, 2xx/3xx). Injectable checker;
+    any network failure counts as dead — the archive fallback then applies."""
+    if http_head is not None:
+        try:
+            return bool(http_head(url))
+        except Exception:  # noqa: BLE001 - a failing checker means "not live"
+            return False
+    try:  # pragma: no cover - trivial network shim
+        import urllib.request
+
+        request = urllib.request.Request(url, method="HEAD")
+        with urllib.request.urlopen(request, timeout=timeout) as resp:
+            return 200 <= resp.status < 400
+    except Exception:  # noqa: BLE001
+        return False
+
+
+def resolve_citation_live(
+    store: SnapshotStore, url: str, http_head: Optional[Any] = None
+) -> Dict[str, Any]:
+    """resolve_citation with the liveness check performed here: live links
+    resolve live; dead links fall back to the archive; dead-and-unsnapshotted
+    stays the flagged uncited state."""
+    return resolve_citation(store, url, live_ok=check_liveness(url, http_head=http_head))
+
+
+def prune_snapshots(
+    store: SnapshotStore,
+    now_ms: int,
+    max_age_ms: Optional[int] = None,
+    keep_latest: bool = True,
+) -> int:
+    """Retention: drop snapshots older than ``max_age_ms``, by default always
+    keeping each URL's latest so a citation never loses its last archive copy.
+    Returns rows deleted. ``max_age_ms=None`` prunes nothing."""
+    if max_age_ms is None:
+        return 0
+    cutoff = now_ms - max_age_ms
+    if keep_latest:
+        result = store._conn.execute(
+            """
+            DELETE FROM url_snapshots
+            WHERE fetched_at < ?
+              AND fetched_at < (
+                  SELECT MAX(s2.fetched_at) FROM url_snapshots s2
+                  WHERE s2.url = url_snapshots.url
+              )
+            """,
+            [cutoff],
+        )
+    else:
+        result = store._conn.execute(
+            "DELETE FROM url_snapshots WHERE fetched_at < ?", [cutoff]
+        )
+    row = result.fetchone()
+    return int(row[0]) if row and row[0] is not None else 0
