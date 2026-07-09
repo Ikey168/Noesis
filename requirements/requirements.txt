@@ -6,7 +6,7 @@ httpx>=0.24.0
 pytest-mock>=3.15.1 # Added for mocking
 
 # Graph Database
-gremlinpython>=3.6.0
+gremlinpython>=3.8.1
 
 # Storage (local filesystem + SQLite via stdlib; no cloud SDK required)
 

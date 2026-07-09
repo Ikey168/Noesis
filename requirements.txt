@@ -7,7 +7,7 @@ moto>=4.2.0
 pytest-mock>=3.15.1 # Added for mocking
 
 # Graph Database
-gremlinpython>=3.6.0
+gremlinpython>=3.8.1
 
 # Storage
 boto3>=1.26.0
