@@ -609,6 +609,16 @@ PANEL_CATALOG: Tuple[PanelDef, ...] = (
         default_span=6,
         topic_param="media",
     ),
+    PanelDef(
+        type="geo_map",
+        title="Coverage map",
+        description="Where a topic's coverage is geolocated — places mentioned across documents, corroborated by independent-source count.",
+        endpoint=None,
+        facets=(),
+        tables=("documents",),
+        default_span=6,
+        topic_param="topic",
+    ),
 )
 
 PANEL_TYPES: Tuple[str, ...] = tuple(p.type for p in PANEL_CATALOG)

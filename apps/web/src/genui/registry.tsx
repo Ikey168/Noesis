@@ -485,6 +485,40 @@ const CHANGE_COLORS: Record<string, string> = {
   correction_notice: palette.teal,
 };
 
+function GeoMapPanel(props: PanelProps) {
+  const topic = props.panel.params?.topic;
+  const { data, source, isLoading } = useDataPlanePanel("geo_map", {
+    topic: typeof topic === "string" ? topic : undefined,
+  });
+  const places = Array.isArray(data?.places) ? (data!.places as Record<string, unknown>[]) : [];
+  const rows = places.slice(0, 8);
+  const maxCount = rows.reduce((m, p) => Math.max(m, Number(p.document_count) || 0), 1);
+  return (
+    <GenPanel {...props} source={source} isLoading={isLoading}>
+      {rows.length === 0 ? (
+        <Empty text="No geolocated places for this topic" />
+      ) : (
+        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+          {rows.map((p) => {
+            const count = Number(p.document_count) || 0;
+            return (
+              <div key={String(p.place)} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <span style={{ flex: 1, minWidth: 0, fontSize: 12.5, textTransform: "capitalize", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                  {String(p.place)} {p.corroborated ? <span style={{ color: palette.teal, fontSize: 10 }}>✓ corroborated</span> : null}
+                </span>
+                <div style={{ width: 90, height: 8, background: "#12242e", borderRadius: 3, overflow: "hidden" }}>
+                  <div style={{ width: `${Math.round((count / maxCount) * 100)}%`, height: "100%", background: p.corroborated ? palette.teal : palette.neu }} />
+                </div>
+                <span style={{ fontFamily: fonts.mono, fontSize: 10.5, color: palette.neu, width: 22, textAlign: "right" }}>{count}</span>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </GenPanel>
+  );
+}
+
 function SpeakerBalancePanel(props: PanelProps) {
   const media = props.panel.params?.media;
   const { data, source, isLoading } = useDataPlanePanel("speaker_balance", {
@@ -2071,6 +2105,7 @@ const REGISTRY: Record<PanelType, ComponentType<PanelProps>> = {
   image_reuse_ledger: ImageReuseLedgerPanel,
   corrections: CorrectionsPanel,
   speaker_balance: SpeakerBalancePanel,
+  geo_map: GeoMapPanel,
   trending: TrendingPanel,
   clusters: ClustersPanel,
   event_axis: EventAxisPanel,
