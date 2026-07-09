@@ -247,6 +247,9 @@ jobs:
     timeout-minutes: 30
     
     strategy:
+      # Validation builds are independent — one failing image shouldn't cancel
+      # the others, so every leg's result is visible in a single run.
+      fail-fast: false
       matrix:
         service:
           - name: api

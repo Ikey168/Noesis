@@ -69,7 +69,10 @@ USER neuronews
 COPY --chown=neuronews:neuronews . .
 
 # Create data directory
-RUN mkdir -p /app/data /app/logs
+USER root
+RUN mkdir -p /app/data /app/logs \
+    && chown -R neuronews:neuronews /app/data /app/logs
+USER neuronews
 
 # Health check
 HEALTHCHECK --interval=60s --timeout=30s --start-period=60s --retries=3 \
@@ -90,7 +93,10 @@ COPY --chown=neuronews:neuronews config/ ./config/
 COPY --chown=neuronews:neuronews requirements.txt ./
 
 # Create directories
-RUN mkdir -p /app/data /app/logs
+USER root
+RUN mkdir -p /app/data /app/logs \
+    && chown -R neuronews:neuronews /app/data /app/logs
+USER neuronews
 
 # Health check
 HEALTHCHECK --interval=60s --timeout=30s --start-period=60s --retries=3 \
