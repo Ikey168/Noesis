@@ -1,0 +1,85 @@
+name: Unit Tests
+
+# Gates the capability plane (src/ + tools/) with the unit suites that were
+# previously never run in CI (issue #818). Scope note: the heavy-dependency
+# test areas (nlp, scraper, api routes, rag/vector, database, knowledge_graph,
+# middleware — ~130 files needing scrapy/mlflow/torch/snowflake and friends)
+# are NOT yet gated here; widening the scope is follow-up work. Every
+# directory below collects and passes with the curated dependency set.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "tools/**"
+      - "services/**"
+      - "contracts/**"
+      - "tests/**"
+      - "requirements*.txt"
+      - ".github/workflows/unit-tests.yml"
+  pull_request:
+    paths:
+      - "src/**"
+      - "tools/**"
+      - "services/**"
+      - "contracts/**"
+      - "tests/**"
+      - "requirements*.txt"
+      - ".github/workflows/unit-tests.yml"
+
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: .github/workflows/unit-tests.yml
+
+      - name: Install test dependencies
+        # Curated set: everything the gated suites import, verified by a
+        # collection triage. Deliberately not `-r requirements.txt` (which
+        # pulls the full ML/warehouse stack) — widen alongside the scope.
+        run: |
+          python -m pip install --upgrade pip
+          pip install \
+            pytest pytest-asyncio \
+            duckdb jsonschema \
+            Pillow numpy pandas scikit-learn \
+            fastapi httpx uvicorn \
+            aiofiles psutil requests \
+            fastavro beautifulsoup4 lxml \
+            fastmcp
+
+      - name: Run unit tests (capability plane)
+        run: |
+          python -m pytest \
+            tests/unit/agent \
+            tests/unit/alerts \
+            tests/unit/analytics \
+            tests/unit/app \
+            tests/unit/argument_mining \
+            tests/unit/config \
+            tests/unit/domains \
+            tests/unit/handlers \
+            tests/unit/ingestion \
+            tests/unit/logging \
+            tests/unit/mcp_host \
+            tests/unit/ml \
+            tests/unit/monitoring \
+            tests/unit/osint \
+            tests/unit/provisioning \
+            tests/unit/reports \
+            tests/unit/services_api \
+            tests/unit/tools \
+            --ignore=tests/unit/argument_mining/test_frames_by_source.py \
+            -q
+        # test_frames_by_source.py is excluded: it imports
+        # src.api.routes.argument_routes, whose package __init__ pulls the
+        # entire API route surface (bcrypt, and the rest of the API stack).
+        # It moves into scope with the api-routes widening follow-up.
