@@ -133,7 +133,8 @@ def test_http_get_reads_response(monkeypatch):
     out = si._http_get("http://example.com/feed")
     assert out == b"<rss>data</rss>"
     assert captured["timeout"] == si.HTTP_TIMEOUT
-    assert "NeuroNewsBot" in captured["ua"]
+    # UA now rotates through a realistic pool (#880).
+    assert captured["ua"] in si._USER_AGENTS
 
 
 # --------------------------------------------------------------------------- #
@@ -324,7 +325,7 @@ def test_ingest_returns_summary(monkeypatch):
     conn = _FakeConn()
     conn._count = 7
     _install_fake_warehouse(monkeypatch, conn)
-    monkeypatch.setattr(si, "fetch_articles", lambda feeds, limit_per_feed: [_make_article()])
+    monkeypatch.setattr(si, "fetch_articles", lambda feeds, limit_per_feed, **kw: [_make_article()])
     stats = si.ingest(limit_per_feed=3, replace=False)
     assert stats["fetched"] == 1
     assert stats["inserted"] == 1
@@ -334,7 +335,7 @@ def test_ingest_returns_summary(monkeypatch):
 def test_main_success(monkeypatch):
     monkeypatch.setattr(
         si, "ingest",
-        lambda limit_per_feed, replace: {
+        lambda limit_per_feed, replace, **kw: {
             "fetched": 2, "inserted": 2, "total_in_warehouse": 2,
         },
     )
@@ -344,7 +345,7 @@ def test_main_success(monkeypatch):
 def test_main_replace_flag_passed(monkeypatch):
     captured = {}
 
-    def _fake_ingest(limit_per_feed, replace):
+    def _fake_ingest(limit_per_feed, replace, **kw):
         captured["limit"] = limit_per_feed
         captured["replace"] = replace
         return {"fetched": 0, "inserted": 0, "total_in_warehouse": 0}
@@ -356,7 +357,7 @@ def test_main_replace_flag_passed(monkeypatch):
 
 
 def test_main_handles_failure(monkeypatch):
-    def _boom(limit_per_feed, replace):
+    def _boom(limit_per_feed, replace, **kw):
         raise RuntimeError("db locked")
 
     monkeypatch.setattr(si, "ingest", _boom)
