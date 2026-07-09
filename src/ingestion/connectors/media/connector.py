@@ -139,11 +139,17 @@ class MediaConnector(Connector):
         language: Optional[str] = None,
         hf_token: Optional[str] = None,
         diarize: bool = False,
+        frame_sampler: Optional[Any] = None,
+        ocr: Optional[Any] = None,
     ) -> None:
         self._model_size = model_size
         self._language = language
         self._hf_token = hf_token
         self._diarize = diarize
+        # Keyframe backends (#823): injectable for tests; None means "resolve
+        # the real ffmpeg/tesseract backends lazily at parse time".
+        self._frame_sampler = frame_sampler
+        self._ocr = ocr
 
     def discover(self, query: Optional[Any] = None) -> Iterable[SourceRef]:
         if query is None:
@@ -197,4 +203,58 @@ class MediaConnector(Connector):
             meta.segments = assign_speakers(content, meta.segments, self._hf_token)
             meta.speakers = sorted({s.speaker for s in meta.segments if s.speaker})
 
-        return media_metadata_to_documents(meta, raw.fetched_at)
+        documents = media_metadata_to_documents(meta, raw.fetched_at)
+        documents.extend(
+            self._keyframe_documents(content, locator, title, file_ext, raw.fetched_at)
+        )
+        return documents
+
+    def _keyframe_documents(
+        self, content: bytes, locator: str, title: str, file_ext: str, ingested_at: int
+    ) -> List[Document]:
+        """On-screen-text keyframe documents for a video (#823).
+
+        Video only, on by default, disabled by NOESIS_MEDIA_KEYFRAMES=off.
+        Degrades to [] when ffmpeg/tesseract are absent — a harvest never
+        aborts on missing binaries.
+        """
+        if f".{file_ext.lstrip('.')}" not in _VIDEO_EXTENSIONS:
+            return []
+        from src.ingestion.connectors.media.backends import default_backends, keyframes_enabled
+        from src.ingestion.connectors.media.keyframes import keyframe_documents
+        from src.ingestion.connectors.media.models import media_id
+
+        if not keyframes_enabled():
+            return []
+        sampler = self._frame_sampler
+        ocr = self._ocr
+        if sampler is None or ocr is None:
+            default_sampler, default_ocr = default_backends()
+            sampler = sampler or default_sampler
+            ocr = ocr or default_ocr
+        if sampler is None or ocr is None:
+            return []  # missing binary: transcript-only, already warned
+
+        try:
+            frames = sampler(content, file_ext=file_ext)
+        except TypeError:
+            frames = sampler(content)  # samplers without the file_ext kwarg
+        if not frames:
+            return []
+
+        is_url = _is_url(locator)
+        doc_id = media_id(
+            url=locator if is_url else None,
+            file_path=None if is_url else str(Path(locator).resolve()),
+            title=title,
+        )
+        parent = Document(
+            document_id=doc_id,
+            source_type=self.source_type,
+            language=self._language or "en",
+            ingested_at=ingested_at,
+            title=title,
+            url=locator if is_url else None,
+        )
+        media_ref = locator if is_url else f"file://{Path(locator).resolve()}"
+        return keyframe_documents(parent, media_ref, doc_id, frames, ocr=ocr, ingested_at=ingested_at)
