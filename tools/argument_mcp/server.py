@@ -1186,4 +1186,6 @@ def stance_significance(a: str, b: str, topic: str) -> dict:
 
 
 if __name__ == "__main__":
-    mcp.run()
+    from src.mcp_host.transport import run_server
+
+    run_server(mcp)  # stdio by default; HTTP via NOESIS_MCP_TRANSPORT=http

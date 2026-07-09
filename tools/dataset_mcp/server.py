@@ -298,4 +298,6 @@ def check_criteria() -> dict[str, Any]:
 
 
 if __name__ == "__main__":
-    mcp.run()  # stdio transport by default
+    from src.mcp_host.transport import run_server
+
+    run_server(mcp)  # stdio by default; HTTP via NOESIS_MCP_TRANSPORT=http
