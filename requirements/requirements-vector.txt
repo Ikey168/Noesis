@@ -6,7 +6,7 @@ psycopg2-binary==2.9.12
 pgvector==0.2.4
 
 # Vector operations and ML
-numpy==1.24.3
+numpy==2.5.1
 sentence-transformers==2.2.2
 torch==2.0.1
 transformers==5.13.0

@@ -20,7 +20,7 @@ uvicorn>=0.23.0
 
 # Data Processing
 pandas>=1.3.0
-numpy>=1.21.0
+numpy>=2.5.1
 
 # Schema Validation & Data Contracts
 fastavro>=1.12.0

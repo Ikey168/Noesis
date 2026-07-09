@@ -2,7 +2,7 @@
 # Issue #228: Embedding provider (local + cloud pluggable)
 
 # Core embedding dependencies
-numpy>=1.21.0
+numpy>=2.5.1
 sentence-transformers>=2.0.0
 
 # Optional: OpenAI provider (cloud backend)

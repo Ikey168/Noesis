@@ -5,4 +5,4 @@
 qdrant-client>=1.18.0,<2.0.0
 
 # Additional dependencies for vector operations
-numpy>=1.24.0
+numpy>=2.5.1
