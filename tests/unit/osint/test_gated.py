@@ -44,6 +44,33 @@ def test_geolocate_refuses_a_person(seed):
     assert "locations" not in out  # emits nothing for a person
 
 
+def test_geolocate_refuses_person_with_office_role(seed):
+    _corpus(seed)
+    # Only role is "president" — under the old subset test this slipped the guard
+    # (president is not one of the 5 whitelisted person roles). ANY person-
+    # denoting role now classifies the entity as a person and refuses.
+    seed.actors([("d2", "Sam Cole", "person:sc", "president")])
+    out = geolocate_claims(seed.conn, entity="Sam Cole")
+    assert out.get("code") == "person_geolocation_refused"
+
+
+def test_geolocate_refuses_person_named_as_topic(seed):
+    _corpus(seed)
+    # The guard covers the topic path, not just the entity filter: a topic that
+    # positively names a known person is refused.
+    out = geolocate_claims(seed.conn, topic="Jordan Rivera")
+    assert out.get("code") == "person_geolocation_refused"
+
+
+def test_geolocate_allows_ordinary_topic_not_a_person(seed):
+    _corpus(seed)
+    # An ordinary topic (not a name) still resolves event geography — the topic
+    # guard is positive-only, so it does not over-refuse free text.
+    out = geolocate_claims(seed.conn, topic="flooding")
+    assert "code" not in out
+    assert out["locations"]
+
+
 def test_geolocate_never_labels_a_person_location(seed):
     _corpus(seed)
     out = geolocate_claims(seed.conn)  # unscoped

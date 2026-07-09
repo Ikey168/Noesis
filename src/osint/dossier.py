@@ -11,7 +11,10 @@ Person-entity guardrail (enforced here, not just documented): a person entity
 must have at least one ingested public document, and only document-sourced
 facts are surfaced. A person with no ingested documents is refused rather than
 described from inference, so the tool never emits an unsourced claim about an
-individual.
+individual. Person-ness is classified fail-closed by
+:func:`src.osint.common.is_person`: an entity that cannot be confidently
+classified as non-human (no explicit ``entity_type``, no roles) is treated as a
+person, so the guardrail errs toward refusal.
 
 Stdlib-only; the connection is injected read-only.
 """
@@ -21,29 +24,6 @@ from __future__ import annotations
 from typing import Any, Dict, List, Optional
 
 from src.osint import common, evidence
-
-# Roles that denote a human individual, used to infer person-ness when the
-# caller does not pass an explicit entity_type.
-_PERSON_ROLES = {"speaker", "author", "subject", "person", "spokesperson"}
-
-
-def _is_person(conn, entity: str, entity_type: Optional[str]) -> bool:
-    if entity_type and entity_type.strip().lower() in ("person", "people", "individual"):
-        return True
-    if isinstance(entity, str) and entity.lower().startswith("person:"):
-        return True
-    if not common.table_exists(conn, "document_actors"):
-        return False
-    try:
-        rows = conn.execute(
-            "SELECT DISTINCT lower(role) FROM document_actors "
-            "WHERE actor_name = ? OR entity_id = ?",
-            [entity, entity],
-        ).fetchall()
-    except Exception:
-        return False
-    roles = {r[0] for r in rows if r[0]}
-    return bool(roles) and roles.issubset(_PERSON_ROLES)
 
 
 def _mentions(conn, entity: str) -> List[Dict[str, Any]]:
@@ -129,7 +109,7 @@ def entity_dossier(conn, entity: str, entity_type: Optional[str] = None) -> Dict
     if not common.table_exists(conn, "document_actors"):
         return {"error": "no entity-mention layer available", "entity": entity}
 
-    is_person = _is_person(conn, entity, entity_type)
+    is_person = common.is_person(conn, entity, entity_type)
     mentions = _mentions(conn, entity)
 
     if is_person and not mentions:

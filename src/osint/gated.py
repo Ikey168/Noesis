@@ -47,9 +47,6 @@ _PLACE_RE = re.compile(
     re.IGNORECASE,
 )
 
-# Roles that denote a human individual; geolocation of these is refused.
-_PERSON_ROLES = {"speaker", "author", "subject", "person", "spokesperson"}
-
 # Words dropped before comparing claim text for narrative-coordination overlap.
 _STOP = frozenset(
     """a an and are as at be by for from has have in into is it its of on or that
@@ -58,21 +55,14 @@ _STOP = frozenset(
 _TOKEN_RE = re.compile(r"[a-z0-9][a-z0-9'\-]+")
 
 
-def _is_person(conn, entity: str) -> bool:
-    if isinstance(entity, str) and entity.lower().startswith("person:"):
-        return True
-    if not common.table_exists(conn, "document_actors"):
-        return False
-    try:
-        rows = conn.execute(
-            "SELECT DISTINCT lower(role) FROM document_actors "
-            "WHERE actor_name = ? OR entity_id = ?",
-            [entity, entity],
-        ).fetchall()
-    except Exception:
-        return False
-    roles = {r[0] for r in rows if r[0]}
-    return bool(roles) and roles.issubset(_PERSON_ROLES)
+def _person_refusal(who: str) -> Dict[str, Any]:
+    return {
+        "error": (
+            f"refused: {who!r} is a person; geolocate_claims resolves only "
+            f"event geography, never a person's location"
+        ),
+        "code": "person_geolocation_refused",
+    }
 
 
 def geolocate_claims(
@@ -86,14 +76,15 @@ def geolocate_claims(
         entity: optional entity filter (an actor in the corpus). A person
             entity is refused; this tool never locates individuals.
     """
-    if entity is not None and _is_person(conn, entity):
-        return {
-            "error": (
-                f"refused: {entity!r} is a person; geolocate_claims resolves only "
-                f"event geography, never a person's location"
-            ),
-            "code": "person_geolocation_refused",
-        }
+    # Fail-closed person guard on the entity filter: an entity we cannot
+    # confidently classify as non-human is treated as a person and refused.
+    if entity is not None and common.is_person(conn, entity):
+        return _person_refusal(entity)
+    # The same guard on the topic path: a topic that positively names a known
+    # person is refused too (unknown_is_person=False so ordinary topics — which
+    # are not names — still resolve event geography).
+    if topic and common.is_person(conn, topic, unknown_is_person=False):
+        return _person_refusal(topic)
     if not common.table_exists(conn, "argument_claims"):
         return {"locations": [], "count": 0, "note": "no claim layer available"}
 
