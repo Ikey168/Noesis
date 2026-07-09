@@ -20,7 +20,7 @@ apache-airflow-providers-http==4.7.0
 
 # Data processing and analysis libraries (for DAGs)
 pandas==2.1.4
-numpy==1.24.4
+numpy==2.5.1
 requests==2.31.0
 sqlalchemy==2.0.25
 
