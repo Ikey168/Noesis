@@ -429,28 +429,28 @@ def store_articles(articles: Sequence[Article], replace: bool = False) -> int:
     """
     from src.database.local_analytics_connector import get_shared_connection
     from src.database.local_warehouse_seed import ensure_schema
+    from src.database.news_articles_compat import (
+        NEWS_ARTICLES_COLUMNS,
+        write_news_articles,
+    )
 
     conn = get_shared_connection()
-    ensure_schema(conn)
+    ensure_schema(conn)  # documents + document_enrichments + news_articles view
 
+    # news_articles is a view over documents (#909); write through to the base.
     if replace:
-        conn.execute("DELETE FROM news_articles")
+        conn.execute("DELETE FROM documents WHERE source_type = 'news'")
     else:
         # Remove the synthetic sample seed so real news isn't mixed with it.
-        conn.execute("DELETE FROM news_articles WHERE id LIKE 'art-%'")
+        conn.execute("DELETE FROM documents WHERE document_id LIKE 'art-%'")
 
-    existing = {row[0] for row in conn.execute("SELECT id FROM news_articles").fetchall()}
+    existing = {
+        row[0] for row in conn.execute(
+            "SELECT document_id FROM documents WHERE source_type = 'news'"
+        ).fetchall()
+    }
     new_rows = [a.as_row() for a in articles if a.id not in existing]
-    if new_rows:
-        conn.executemany(
-            """
-            INSERT INTO news_articles
-                (id, title, url, content, publish_date, source, category,
-                 sentiment_score, sentiment_label)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """,
-            new_rows,
-        )
+    write_news_articles(conn, [dict(zip(NEWS_ARTICLES_COLUMNS, r)) for r in new_rows])
     return len(new_rows)
 
 

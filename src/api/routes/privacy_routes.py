@@ -26,10 +26,13 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/user", tags=["privacy"])
 
 # Tables that contain user-generated or curated data that can be erased.
-# (news_articles, source_stances, and argument_claims as stated in the issue;
-#  plus the derived/linked tables that reference them.)
+# (the documents corpus, source_stances, and argument_claims as stated in the
+#  issue; plus the derived/linked tables that reference them.) news_articles is
+#  now a view over documents (#909), so the base tables documents +
+#  document_enrichments are erased instead.
 _ERASABLE_TABLES = [
-    "news_articles",
+    "documents",
+    "document_enrichments",
     "argument_claims",
     "claim_evidence",
     "source_stances",
