@@ -525,6 +525,18 @@ PANEL_CATALOG: Tuple[PanelDef, ...] = (
         default_span=6,
         topic_param="claim_id",
     ),
+    # Figure evidence (Track B / B3): a specialized library panel placed last so
+    # it never displaces core panels in facet assembly.
+    PanelDef(
+        type="figure_evidence",
+        title="Figure evidence",
+        description="Figures and images matching the topic — chart/photo descriptions with an image preview, each cited to the document it came from.",
+        endpoint=None,
+        facets=("library",),
+        tables=("documents",),
+        default_span=6,
+        topic_param="topic",
+    ),
 )
 
 PANEL_TYPES: Tuple[str, ...] = tuple(p.type for p in PANEL_CATALOG)

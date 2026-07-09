@@ -281,6 +281,56 @@ function DocumentsPanel(props: PanelProps) {
   );
 }
 
+type FigureRow = {
+  document_id: string;
+  source_type?: string | null;
+  title?: string | null;
+  content?: string | null;
+  content_ref?: string | null;
+  parent_document_id?: string | null;
+  figure_label?: string | null;
+};
+
+function FigureEvidencePanel(props: PanelProps) {
+  const topic = props.panel.params?.topic;
+  const { data, source, isLoading } = useDataPlanePanel("figure_evidence", {
+    topic: typeof topic === "string" ? topic : undefined,
+  });
+  const figures = Array.isArray(data?.figures) ? (data!.figures as FigureRow[]) : [];
+  const rows = figures.slice(0, 4);
+  return (
+    <GenPanel {...props} source={source} isLoading={isLoading}>
+      {rows.length === 0 ? (
+        <Empty text="No figure evidence for this topic" />
+      ) : (
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          {rows.map((f, i) => {
+            const ref = f.content_ref ?? "";
+            const previewable = /^https?:\/\//i.test(ref);
+            return (
+              <div key={f.document_id} style={{ display: "flex", gap: 11, alignItems: "flex-start", padding: "8px 0", borderBottom: i < rows.length - 1 ? "1px solid #12242e" : "none" }}>
+                {previewable ? (
+                  <img src={ref} alt={f.figure_label ?? "figure"} style={{ width: 54, height: 54, objectFit: "cover", borderRadius: 4, flexShrink: 0, border: "1px solid #12242e" }} />
+                ) : (
+                  <span style={{ ...chip(palette.teal), flexShrink: 0 }}>{(f.figure_label ?? "FIGURE").toUpperCase()}</span>
+                )}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 12.5, lineHeight: 1.4, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical" }}>
+                    {f.content ?? f.title ?? f.document_id}
+                  </div>
+                  {f.parent_document_id ? (
+                    <div style={{ ...mono, marginTop: 4 }}>cited: {f.parent_document_id}</div>
+                  ) : null}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </GenPanel>
+  );
+}
+
 const WATCH_TYPE_COLORS: Record<string, string> = {
   Entity: ACCENT,
   Topic: palette.amber,
@@ -1797,6 +1847,7 @@ const REGISTRY: Record<PanelType, ComponentType<PanelProps>> = {
   kpi_row: KpiRowPanel,
   articles: ArticlesPanel,
   documents: DocumentsPanel,
+  figure_evidence: FigureEvidencePanel,
   trending: TrendingPanel,
   clusters: ClustersPanel,
   event_axis: EventAxisPanel,

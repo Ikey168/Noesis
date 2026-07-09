@@ -48,7 +48,8 @@ export type PanelType =
   | "entity_dossier"
   | "relationship_path"
   | "evidence_timeline"
-  | "provenance_trace";
+  | "provenance_trace"
+  | "figure_evidence";
 
 export type Facet =
   | "overview"
@@ -122,6 +123,7 @@ export const PANEL_CATALOG: PanelDef[] = [
   { type: "relationship_path", title: "Connection path", facets: ["entities", "actors"], defaultSpan: 6 },
   { type: "evidence_timeline", title: "Evidence timeline", facets: ["events", "trend", "claims"], defaultSpan: 6, topicParam: true },
   { type: "provenance_trace", title: "Provenance trace", facets: ["claims", "sources", "library"], defaultSpan: 6, topicParam: true },
+  { type: "figure_evidence", title: "Figure evidence", facets: ["library"], defaultSpan: 6, topicParam: true },
 ];
 
 export const PANEL_DEFS: Partial<Record<PanelType, PanelDef>> = Object.fromEntries(
