@@ -1,0 +1,156 @@
+"""
+``news_articles`` as a compatibility view over the unified ``documents`` sink (#909).
+
+The knowledge-engine pivot made ``documents`` (document-ingest-v1) the canonical
+corpus, but ~40 consumers still read ``FROM news_articles``. Rather than rewrite
+every query, ``news_articles`` becomes a **view** projecting the news documents
+(``source_type='news'``) back into the legacy column shape, joined to the
+``document_enrichments`` sink for sentiment. Readers are unchanged; the base of
+truth is ``documents`` (+ ``document_enrichments``).
+
+Because a view is not writable, the few paths that used to ``INSERT INTO
+news_articles`` write through :func:`write_news_articles`, which maps the legacy
+columns onto ``documents`` + ``document_enrichments`` (the inverse of the view).
+"""
+
+from __future__ import annotations
+
+import json
+from typing import Any, Dict, Iterable, Optional
+
+from src.ingestion.document_store import DocumentStore
+from src.ingestion.enrichment_store import EnrichmentStore
+
+# Legacy news_articles columns, in order.
+NEWS_ARTICLES_COLUMNS = (
+    "id", "title", "url", "content", "publish_date",
+    "source", "category", "sentiment_score", "sentiment_label",
+)
+
+# news_articles projected from documents (+ enrichments). created_at is epoch ms;
+# source/category live in metadata; sentiment comes from the enrichment sink.
+_VIEW_SQL = """
+CREATE VIEW news_articles AS
+SELECT
+    d.document_id AS id,
+    d.title       AS title,
+    d.url         AS url,
+    d.content     AS content,
+    CASE WHEN d.created_at IS NULL THEN NULL
+         ELSE CAST(to_timestamp(d.created_at / 1000) AS TIMESTAMP) END AS publish_date,
+    COALESCE(d.source_id, json_extract_string(d.metadata, '$.source')) AS source,
+    json_extract_string(d.metadata, '$.category') AS category,
+    e.sentiment_score AS sentiment_score,
+    e.sentiment_label AS sentiment_label
+FROM documents d
+LEFT JOIN document_enrichments e ON e.document_id = d.document_id
+WHERE d.source_type = 'news'
+"""
+
+
+def _news_articles_is_view(conn) -> bool:
+    row = conn.execute(
+        "SELECT table_type FROM information_schema.tables WHERE table_name = 'news_articles'"
+    ).fetchone()
+    return bool(row) and str(row[0]).upper() == "VIEW"
+
+
+def ensure_documents_schema(conn) -> None:
+    """Ensure the base tables the view depends on exist."""
+    DocumentStore(conn)     # documents (+ content_hash index)
+    EnrichmentStore(conn)   # document_enrichments
+
+
+def ensure_news_articles_view(conn) -> None:
+    """Create the ``news_articles`` view over ``documents`` if it is not present.
+
+    A no-op if ``news_articles`` already exists as a view. If it exists as a base
+    table (a legacy warehouse, or a test that created its own), it is left alone
+    — callers that want the view over a legacy table must migrate it first (see
+    :func:`migrate_news_articles_to_view`).
+    """
+    ensure_documents_schema(conn)
+    exists = conn.execute(
+        "SELECT table_type FROM information_schema.tables WHERE table_name = 'news_articles'"
+    ).fetchone()
+    if exists is None:
+        conn.execute(_VIEW_SQL)
+
+
+def write_news_articles(conn, rows: Iterable[Dict[str, Any]]) -> int:
+    """Write legacy ``news_articles``-shaped rows through to ``documents``.
+
+    Each row is a dict with any subset of :data:`NEWS_ARTICLES_COLUMNS` (``id``
+    required). ``source``/``category`` fold into ``documents.metadata``,
+    ``publish_date`` into ``created_at`` (epoch ms), and sentiment into
+    ``document_enrichments``. Idempotent by ``document_id``. Returns the number
+    of documents written.
+    """
+    ensure_documents_schema(conn)
+    written = 0
+    for row in rows:
+        doc_id = row.get("id")
+        if not doc_id:
+            continue
+        metadata: Dict[str, Any] = {}
+        if row.get("source") is not None:
+            metadata["source"] = row["source"]
+        if row.get("category") is not None:
+            metadata["category"] = row["category"]
+        pub = row.get("publish_date")
+        conn.execute(
+            """
+            INSERT INTO documents
+                (document_id, source_type, language, ingested_at, created_at,
+                 source_id, url, title, content, metadata)
+            VALUES (?, 'news', 'en', ?,
+                    CASE WHEN ? IS NULL THEN NULL ELSE epoch_ms(CAST(? AS TIMESTAMP)) END,
+                    ?, ?, ?, ?, ?)
+            ON CONFLICT (document_id) DO NOTHING
+            """,
+            [
+                doc_id, int(row.get("ingested_at") or 0),
+                pub, pub,
+                row.get("source"), row.get("url"),
+                row.get("title"), row.get("content"),
+                json.dumps(metadata),
+            ],
+        )
+        if row.get("sentiment_score") is not None or row.get("sentiment_label") is not None:
+            EnrichmentStore(conn).upsert(
+                doc_id,
+                sentiment_score=row.get("sentiment_score"),
+                sentiment_label=row.get("sentiment_label"),
+            )
+        written += 1
+    return written
+
+
+def migrate_news_articles_to_view(conn) -> int:
+    """Migrate a legacy ``news_articles`` base table into ``documents`` + the view.
+
+    Copies every existing ``news_articles`` row into ``documents`` (+
+    ``document_enrichments``) via :func:`write_news_articles`, drops the base
+    table, and creates the view. Idempotent: when ``news_articles`` is already
+    the view (or absent), this only ensures the view exists and returns 0.
+    Returns the number of migrated rows.
+    """
+    row = conn.execute(
+        "SELECT table_type FROM information_schema.tables WHERE table_name = 'news_articles'"
+    ).fetchone()
+    migrated = 0
+    if row is not None and str(row[0]).upper() in ("BASE TABLE", "LOCAL TEMPORARY"):
+        colnames = [
+            c[0] for c in conn.execute(
+                "SELECT column_name FROM information_schema.columns "
+                "WHERE table_name = 'news_articles'"
+            ).fetchall()
+        ]
+        legacy = conn.execute(
+            f"SELECT {', '.join(colnames)} FROM news_articles"
+        ).fetchall()
+        dict_rows = [dict(zip(colnames, r)) for r in legacy]
+        conn.execute("DROP TABLE news_articles")
+        migrated = write_news_articles(conn, dict_rows)
+    ensure_news_articles_view(conn)
+    return migrated

@@ -301,24 +301,46 @@ def _make_article(id_="rss-1", url="http://a"):
     )
 
 
+def _install_real_warehouse(monkeypatch, conn):
+    """Point store_articles' shared connection at a real in-memory DuckDB."""
+    monkeypatch.setattr(
+        "src.database.local_analytics_connector.get_shared_connection", lambda: conn
+    )
+
+
 def test_store_articles_inserts_only_new(monkeypatch):
-    conn = _FakeConn()
-    conn._existing_ids = ["rss-existing"]
-    _install_fake_warehouse(monkeypatch, conn)
+    import duckdb
+
+    from src.database.news_articles_compat import ensure_news_articles_view, write_news_articles
+
+    conn = duckdb.connect(":memory:")
+    ensure_news_articles_view(conn)
+    write_news_articles(conn, [{"id": "rss-existing", "title": "t", "source": "s"}])
+    _install_real_warehouse(monkeypatch, conn)
+
     arts = [_make_article("rss-existing"), _make_article("rss-new", "http://b")]
     n = si.store_articles(arts, replace=False)
     assert n == 1  # only rss-new inserted
-    assert len(conn.inserted) == 1
-    # Non-replace path deletes the synthetic seed.
-    assert any("art-%" in d for d in conn.deleted)
+    # news_articles is a view over documents; both survive.
+    ids = {r[0] for r in conn.execute("SELECT id FROM news_articles").fetchall()}
+    assert ids == {"rss-existing", "rss-new"}
 
 
 def test_store_articles_replace_clears_table(monkeypatch):
-    conn = _FakeConn()
-    _install_fake_warehouse(monkeypatch, conn)
+    import duckdb
+
+    from src.database.news_articles_compat import ensure_news_articles_view, write_news_articles
+
+    conn = duckdb.connect(":memory:")
+    ensure_news_articles_view(conn)
+    write_news_articles(conn, [{"id": "rss-old", "title": "old", "source": "s"}])
+    _install_real_warehouse(monkeypatch, conn)
+
     n = si.store_articles([_make_article()], replace=True)
     assert n == 1
-    assert any(d == "DELETE FROM news_articles" for d in conn.deleted)
+    # replace wiped the prior news documents.
+    ids = {r[0] for r in conn.execute("SELECT id FROM news_articles").fetchall()}
+    assert ids == {"rss-1"}
 
 
 def test_ingest_returns_summary(monkeypatch):

@@ -20,18 +20,6 @@ logger = logging.getLogger(__name__)
 
 
 _SCHEMA = """
-CREATE TABLE IF NOT EXISTS news_articles (
-    id            VARCHAR,
-    title         VARCHAR,
-    url           VARCHAR,
-    content       VARCHAR,
-    publish_date  TIMESTAMP,
-    source        VARCHAR,
-    category      VARCHAR,
-    sentiment_score DOUBLE,
-    sentiment_label VARCHAR
-);
-
 CREATE TABLE IF NOT EXISTS document_frames (
     document_id   VARCHAR,
     source_type   VARCHAR,
@@ -304,28 +292,33 @@ def _migrate_attribution_columns(conn: duckdb.DuckDBPyConnection) -> None:
 
 
 def ensure_schema(conn: duckdb.DuckDBPyConnection) -> None:
-    """Create the news_articles table if it does not exist."""
+    """Create the analytics tables and the ``news_articles`` compatibility view.
+
+    ``news_articles`` is now a view over the unified ``documents`` sink (#909);
+    the analysis tables (frames, claims, stances, …) remain base tables.
+    """
     conn.execute(_SCHEMA)
     _migrate_factcheck_columns(conn)
     _migrate_attribution_columns(conn)
+    # Base tables (documents, document_enrichments) + the news_articles view.
+    from src.database.news_articles_compat import ensure_news_articles_view
+    ensure_news_articles_view(conn)
 
 
 def seed_if_empty(conn: duckdb.DuckDBPyConnection) -> None:
-    """Seed sample articles only when the table has no rows."""
+    """Seed sample news documents only when the corpus is empty."""
+    from src.database.news_articles_compat import (
+        NEWS_ARTICLES_COLUMNS,
+        write_news_articles,
+    )
+
     count = conn.execute("SELECT COUNT(*) FROM news_articles").fetchone()[0]
     if count and count > 0:
         return
 
     rows = _build_rows(datetime.now())
-    conn.executemany(
-        """
-        INSERT INTO news_articles
-            (id, title, url, content, publish_date, source, category,
-             sentiment_score, sentiment_label)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """,
-        rows,
-    )
+    dict_rows = [dict(zip(NEWS_ARTICLES_COLUMNS, row)) for row in rows]
+    write_news_articles(conn, dict_rows)
     logger.info("Seeded local warehouse with %d sample articles", len(rows))
 
 

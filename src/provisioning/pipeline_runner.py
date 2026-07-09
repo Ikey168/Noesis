@@ -9,11 +9,9 @@ registry (the same connectors ``pipeline_mcp`` exposes).
 By default it drives the connector through :meth:`Connector.harvest_run` (#896)
 — so every source gets retry, ``SourceHealthTracker`` drift detection, and
 scheduling — persisting the harvested documents through a :class:`DocumentStore`
-into the unified ``documents`` sink (#894). A :class:`_BridgingStore` mirrors the
-same documents into the legacy ``news_articles`` corpus so ingest routing (which
-still reads ``news_articles``) copies them into the KG namespace and existing
-readers keep working. That bridge is removed once the ``news_articles``
-compatibility view (#909) lands.
+into the unified ``documents`` sink (#894). ``news_articles`` is now a view over
+``documents`` (#909), so KG ingest routing (which reads ``news_articles``) sees
+the harvested documents without a separate mirror.
 
 Persistence is idempotent by document id, so re-ingesting a connector converges
 rather than duplicating. The harvester (legacy records path) is still injectable
@@ -156,34 +154,6 @@ def _resolve_connector(connector_type: str):
         return None
 
 
-class _BridgingStore:
-    """A DocumentStore-compatible sink that also mirrors documents to ``news_articles``.
-
-    ``harvest_run`` persists through the injected ``store`` and hands us the
-    :class:`Document`\\ s per source. We upsert them into the unified
-    ``documents`` sink and, during the transition, mirror them into the legacy
-    ``news_articles`` corpus (idempotent by id) so KG ingest routing and the
-    existing ``news_articles`` readers keep working until the compatibility
-    view (#909) replaces the corpus.
-    """
-
-    def __init__(self, doc_store, conn, source: str):
-        self._docs = doc_store
-        self._conn = conn
-        self._source = source
-        self.bridged = 0
-
-    def upsert(self, documents):
-        summary = self._docs.upsert(documents)
-        records = []
-        for doc in documents:
-            rec = _doc_to_record(doc, getattr(doc, "source_type", "") or "note")
-            rec.setdefault("source", self._source)
-            records.append(rec)
-        self.bridged += persist_records(self._conn, self._source, records)
-        return summary
-
-
 def build_pipeline_runner(
     conn,
     harvester: Optional[Callable[[str, Dict[str, Any]], List[Dict[str, Any]]]] = None,
@@ -218,7 +188,7 @@ def build_pipeline_runner(
                 "fetched": len(records), "written": written, "documents": 0,
             }
 
-        # Default live path — harvest_run into the documents sink + bridge.
+        # Default live path — harvest_run into the unified documents sink.
         connector_obj = resolve(connector_type)
         if connector_obj is None:
             return {
@@ -226,20 +196,24 @@ def build_pipeline_runner(
                 "fetched": 0, "written": 0, "documents": 0,
             }
 
+        from src.database.news_articles_compat import ensure_news_articles_view
         from src.ingestion.document_store import DocumentStore
         from src.ingestion.source_health import SourceHealthTracker
 
+        # documents(+enrichments) + the news_articles view, so KG ingest routing
+        # (which reads news_articles) sees the harvested documents (#909).
+        ensure_news_articles_view(conn)
         health_path = config.get("health_path") if isinstance(config, dict) else None
-        bridge = _BridgingStore(DocumentStore(conn), conn, source)
+        store = DocumentStore(conn)
         summary = connector_obj.harvest_run(
             query=query,
-            store=bridge,
+            store=store,
             health=SourceHealthTracker(health_path),
             respect_schedule=False,
         )
         return {
             "connector": connector, "source": source,
-            "fetched": summary.documents, "written": bridge.bridged,
+            "fetched": summary.documents, "written": summary.inserted,
             "documents": summary.inserted,
         }
 

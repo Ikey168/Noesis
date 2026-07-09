@@ -118,7 +118,7 @@ def _fake_connector(docs):
     return _FakeConnector()
 
 
-def test_live_path_persists_to_documents_and_bridges_to_news_articles(conn):
+def test_live_path_persists_to_documents_and_view_reflects_them(conn):
     docs = [
         {"id": "d1", "title": "One", "content": "Body one.", "url": "https://ex.com/1"},
         {"id": "d2", "title": "Two", "content": "Body two.", "url": "https://ex.com/2"},
@@ -127,11 +127,9 @@ def test_live_path_persists_to_documents_and_bridges_to_news_articles(conn):
     res = runner({"connector": "grid", "connector_type": "news", "config": {"source": "Feed"}})
 
     assert res["documents"] == 2       # unified documents sink
-    assert res["written"] == 2         # bridged into news_articles
     assert conn.execute("SELECT COUNT(*) FROM documents").fetchone()[0] == 2
-    assert conn.execute(
-        "SELECT COUNT(*) FROM news_articles WHERE source = 'Feed'"
-    ).fetchone()[0] == 2
+    # news_articles is a view over documents, so KG routing sees the harvest.
+    assert conn.execute("SELECT COUNT(*) FROM news_articles").fetchone()[0] == 2
 
 
 def test_live_path_is_idempotent(conn):
