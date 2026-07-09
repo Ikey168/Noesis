@@ -26,6 +26,8 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import List, Tuple
 
+from src.database.news_articles_compat import corpus_table
+
 logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
@@ -241,9 +243,9 @@ def run_followthrough_batch(conn, lock, limit: int = 50) -> dict:
 
         with lock:
             articles = conn.execute(
-                """
+                f"""
                 SELECT id, content, publish_date
-                FROM news_articles
+                FROM {corpus_table(conn)}
                 WHERE CAST(publish_date AS VARCHAR) > ?
                 LIMIT 200
                 """,

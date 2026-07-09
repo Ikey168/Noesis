@@ -34,6 +34,8 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional, Set, Tuple
 
+from src.database.news_articles_compat import corpus_table
+
 logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
@@ -219,7 +221,7 @@ def compute_claim_conflicts(
                    COALESCE(n.source, c.source_type) AS source_name,
                    n.id AS article_id
             FROM argument_claims c
-            LEFT JOIN news_articles n ON c.document_id = n.id
+            LEFT JOIN {corpus_table(conn)} n ON c.document_id = n.id
             WHERE {" AND ".join(where_parts)}
             ORDER BY c.extracted_at DESC NULLS LAST
             LIMIT ?
@@ -376,8 +378,8 @@ def build_conflict_graph(
                 FROM claim_conflicts cf
                 JOIN argument_claims ca ON cf.claim_id_a = ca.claim_id
                 JOIN argument_claims cb ON cf.claim_id_b = cb.claim_id
-                LEFT JOIN news_articles na ON ca.document_id = na.id
-                LEFT JOIN news_articles nb ON cb.document_id = nb.id
+                LEFT JOIN {corpus_table(conn)} na ON ca.document_id = na.id
+                LEFT JOIN {corpus_table(conn)} nb ON cb.document_id = nb.id
                 {where_clause}
                 ORDER BY cf.similarity_score DESC
                 LIMIT ?

@@ -332,9 +332,12 @@ class TestComputeClaimConflicts(unittest.TestCase):
             ("FROM claim_evidence e", []),
         ])
         compute_claim_conflicts(conn, _lock(), limit=50, date_range="2026-01-01")
-        # First executed statement is the claim load; params include date + limit
-        load_sql, load_params = conn.executed[0]
-        self.assertIn("FROM argument_claims c", load_sql)
+        # The claim-load statement (found by content, since the corpus-table
+        # resolver may run introspection queries first); params include date + limit
+        load_sql, load_params = next(
+            e for e in conn.executed if "FROM argument_claims c" in e[0]
+        )
+        self.assertIn("2026-01-01", load_params)
         self.assertIn("2026-01-01", load_params)
         self.assertIn(50, load_params)
 
@@ -424,7 +427,7 @@ class TestBuildConflictGraph(unittest.TestCase):
             topic="Economy", source_type="news",
             date_cutoff="2026-05-01", limit=10,
         )
-        sql, params = conn.executed[0]
+        sql, params = next(e for e in conn.executed if "claim_conflicts cf" in e[0])
         self.assertIn("WHERE", sql)
         self.assertIn("news", params)          # source_type filter (twice)
         self.assertIn("%Economy%", params)     # topic ILIKE

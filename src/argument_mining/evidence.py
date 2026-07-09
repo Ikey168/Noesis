@@ -25,8 +25,14 @@ from typing import Callable, List, Optional, Tuple
 
 from services.ingest.common.document_model import Document
 from src.argument_mining.models import get_claim_detector
+from src.database.news_articles_compat import corpus_table
 
 logger = logging.getLogger(__name__)
+
+# Cap on the default retrieval corpus. Was a hard-coded 500 (news-only); raised
+# and named so a corpus with papers/books/blogs is not truncated to an
+# unrepresentative slice. Override via NOESIS_EVIDENCE_CORPUS_LIMIT.
+_DEFAULT_CORPUS_LIMIT = 5000
 
 # Minimum cosine similarity to consider a sentence as evidence
 SIMILARITY_THRESHOLD = 0.20
@@ -283,14 +289,25 @@ def run_pipeline(
 
 
 def _default_corpus(conn, exclude_document_id: str) -> List[CorpusEntry]:
-    """Load all content from news_articles as a sentence corpus."""
+    """Load content from the whole corpus as a sentence corpus.
+
+    Reads every source type (via ``corpus_table``), not just news, so evidence
+    matching is representative once the corpus holds papers, books, or blogs.
+    """
+    import os
+
+    try:
+        limit = int(os.getenv("NOESIS_EVIDENCE_CORPUS_LIMIT", _DEFAULT_CORPUS_LIMIT))
+    except (TypeError, ValueError):
+        limit = _DEFAULT_CORPUS_LIMIT
     try:
         rows = conn.execute(
-            "SELECT id, content FROM news_articles WHERE id != ? AND content IS NOT NULL LIMIT 500",
-            [exclude_document_id],
+            f"SELECT id, content FROM {corpus_table(conn)} "
+            "WHERE id != ? AND content IS NOT NULL LIMIT ?",
+            [exclude_document_id, limit],
         ).fetchall()
     except Exception as exc:
-        logger.warning("Could not load corpus from news_articles: %s", exc)
+        logger.warning("Could not load corpus: %s", exc)
         return []
 
     corpus: List[CorpusEntry] = []

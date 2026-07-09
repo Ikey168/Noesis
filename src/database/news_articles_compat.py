@@ -89,12 +89,17 @@ def corpus_table(conn) -> str:
     fixtures that only seed it. Always returns a name — defaulting to
     ``news_articles`` preserves the prior behaviour when neither view exists.
     """
-    for name in ("corpus_documents", "news_articles"):
-        row = conn.execute(
-            "SELECT 1 FROM information_schema.tables WHERE table_name = ?", [name]
-        ).fetchone()
-        if row:
-            return name
+    try:
+        for name in ("corpus_documents", "news_articles"):
+            row = conn.execute(
+                "SELECT 1 FROM information_schema.tables WHERE table_name = ?", [name]
+            ).fetchone()
+            if row:
+                return name
+    except Exception:
+        # A connection that cannot introspect (e.g. a white-box test double):
+        # fall back to the legacy name rather than crashing the caller.
+        pass
     return "news_articles"
 
 

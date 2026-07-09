@@ -11,6 +11,8 @@ import threading
 import time
 from datetime import datetime, timedelta, timezone
 
+from src.database.news_articles_compat import corpus_table
+
 logger = logging.getLogger(__name__)
 
 _WINDOW_DAYS = 7
@@ -40,9 +42,9 @@ def run_stance_aggregation(
 
     with lock:
         rows = conn.execute(
-            """
+            f"""
             SELECT id, title, content, source, category
-            FROM news_articles
+            FROM {corpus_table(conn)}
             WHERE publish_date >= ?
             ORDER BY publish_date DESC
             LIMIT ?
