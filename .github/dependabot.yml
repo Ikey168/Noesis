@@ -1,0 +1,21 @@
+# Keeps the dependency baseline from decaying again (issue #820).
+# The npm ecosystem is intentionally absent: the frontend (apps/web) was
+# removed in #817, taking its package-lock.json — and the bulk of the old
+# alert count — with it.
+version: 2
+updates:
+  - package-ecosystem: pip
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 10
+    groups:
+      security-and-patches:
+        applies-to: security-updates
+        patterns: ["*"]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
