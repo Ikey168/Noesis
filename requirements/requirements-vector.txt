@@ -2,7 +2,7 @@
 # Install with: pip install -r requirements-vector.txt
 
 # Database connectivity
-psycopg2-binary==2.9.7
+psycopg2-binary==2.9.12
 pgvector==0.2.4
 
 # Vector operations and ML
