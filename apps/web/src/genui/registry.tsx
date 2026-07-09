@@ -485,6 +485,40 @@ const CHANGE_COLORS: Record<string, string> = {
   correction_notice: palette.teal,
 };
 
+function SpeakerBalancePanel(props: PanelProps) {
+  const media = props.panel.params?.media;
+  const { data, source, isLoading } = useDataPlanePanel("speaker_balance", {
+    media: typeof media === "string" ? media : undefined,
+  });
+  const speakers = Array.isArray(data?.speakers) ? (data!.speakers as Record<string, unknown>[]) : [];
+  const rows = speakers.slice(0, 6);
+  return (
+    <GenPanel {...props} source={source} isLoading={isLoading}>
+      {rows.length === 0 ? (
+        <Empty text="No diarized speakers" />
+      ) : (
+        <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
+          {rows.map((s) => {
+            const share = typeof s.floor_share === "number" ? s.floor_share : 0;
+            return (
+              <div key={String(s.speaker)} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <span style={{ ...mono, width: 78, flexShrink: 0 }}>{String(s.speaker)}</span>
+                <div style={{ flex: 1, height: 8, background: "#12242e", borderRadius: 3, overflow: "hidden" }}>
+                  <div style={{ width: `${Math.round(share * 100)}%`, height: "100%", background: palette.teal }} />
+                </div>
+                <span style={{ fontFamily: fonts.mono, fontSize: 10.5, color: palette.neu, width: 34, textAlign: "right" }}>{Math.round(share * 100)}%</span>
+              </div>
+            );
+          })}
+          {typeof data?.total_airtime_s === "number" ? (
+            <div style={{ ...mono, marginTop: 3 }}>{Math.round(data.total_airtime_s as number)}s total</div>
+          ) : null}
+        </div>
+      )}
+    </GenPanel>
+  );
+}
+
 function CorrectionsPanel(props: PanelProps) {
   const { data, source, isLoading } = useDataPlanePanel("corrections", {});
   const entries = Array.isArray(data?.entries) ? (data!.entries as Record<string, unknown>[]) : [];
@@ -2036,6 +2070,7 @@ const REGISTRY: Record<PanelType, ComponentType<PanelProps>> = {
   image_provenance: ImageProvenancePanel,
   image_reuse_ledger: ImageReuseLedgerPanel,
   corrections: CorrectionsPanel,
+  speaker_balance: SpeakerBalancePanel,
   trending: TrendingPanel,
   clusters: ClustersPanel,
   event_axis: EventAxisPanel,
