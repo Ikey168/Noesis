@@ -133,10 +133,7 @@ main() {
     
     # Build NLP service
     build_image "nlp" "docker/nlp.Dockerfile"
-    
-    # Build Dashboard service
-    build_image "dashboard" "docker/dashboard.Dockerfile"
-    
+
     # Optimize images
     optimize_images
     

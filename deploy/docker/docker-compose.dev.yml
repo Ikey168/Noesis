@@ -107,34 +107,6 @@ services:
     restart: unless-stopped
     command: ["tail", "-f", "/dev/null"]  # Keep running for manual processing
 
-  # Streamlit Dashboard Service
-  dashboard:
-    build:
-      context: .
-      dockerfile: docker/dashboard.Dockerfile
-      target: development
-    container_name: neuronews-dashboard-dev
-    ports:
-      - "8501:8501"
-    environment:
-      - PYTHONPATH=/app
-      - ENVIRONMENT=development
-      - FASTAPI_URL=http://fastapi:8000
-      - DB_HOST=postgres
-      - DB_PORT=5432
-      - DB_NAME=neuronews_dev
-      - DB_USER=neuronews
-      - DB_PASSWORD=dev_password
-    volumes:
-      - .:/app
-      - /app/__pycache__
-    depends_on:
-      - fastapi
-      - postgres
-    networks:
-      - neuronews-network
-    restart: unless-stopped
-
   # PostgreSQL Database
   postgres:
     image: postgres:15-alpine

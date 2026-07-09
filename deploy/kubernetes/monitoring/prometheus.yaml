@@ -92,13 +92,6 @@ data:
         metrics_path: '/metrics'
         scrape_interval: 15s
 
-      # NeuroNews Dashboard
-      - job_name: 'neuronews-dashboard'
-        static_configs:
-        - targets: ['dashboard-service.neuronews.svc.cluster.local:8502']
-        metrics_path: '/metrics'
-        scrape_interval: 15s
-
       # NeuroNews Scrapers
       - job_name: 'neuronews-scrapers'
         kubernetes_sd_configs:
@@ -152,16 +145,6 @@ data:
         annotations:
           summary: "NeuroNews API is down"
           description: "The NeuroNews FastAPI service has been down for more than 2 minutes."
-
-      - alert: NeuroNewsDashboardDown
-        expr: up{job="neuronews-dashboard"} == 0
-        for: 2m
-        labels:
-          severity: critical
-          service: dashboard
-        annotations:
-          summary: "NeuroNews Dashboard is down"
-          description: "The NeuroNews Dashboard service has been down for more than 2 minutes."
 
       - alert: NeuroNewsHighErrorRate
         expr: rate(http_requests_total{job=~"neuronews-.*",status=~"5.."}[5m]) > 0.1

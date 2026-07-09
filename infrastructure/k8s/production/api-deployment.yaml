@@ -221,9 +221,6 @@ spec:
           name: ingress-nginx
     - podSelector:
         matchLabels:
-          app: neuronews-dashboard
-    - podSelector:
-        matchLabels:
           app: neuronews-scrapers
     ports:
     - protocol: TCP

@@ -4,13 +4,12 @@ on:
   workflow_dispatch:
     inputs:
       service:
-        description: 'Service to deploy (api, dashboard, scraper, nlp-processor, all)'
+        description: 'Service to deploy (api, scraper, nlp-processor, all)'
         required: true
         default: 'all'
         type: choice
         options:
           - api
-          - dashboard
           - scraper
           - nlp-processor
           - all
@@ -98,7 +97,7 @@ jobs:
         run: |
           IMAGE_TAG="${{ github.event.inputs.image_tag }}"
           TRAFFIC_PERCENT="${{ github.event.inputs.traffic_percentage }}"
-          SERVICES=("api" "dashboard" "scraper" "nlp-processor")
+          SERVICES=("api" "scraper" "nlp-processor")
           
           echo "Deploying canary for all services with $TRAFFIC_PERCENT% traffic"
           
@@ -186,7 +185,7 @@ jobs:
             echo "🔍 Checking canary health..."
             
             if [ "$SERVICE" = "all" ]; then
-              services=("api" "dashboard" "scraper" "nlp-processor")
+              services=("api" "scraper" "nlp-processor")
             else
               services=("$SERVICE")
             fi
@@ -236,7 +235,7 @@ jobs:
           echo "🚀 Auto-promoting canary deployment..."
           
           if [ "${{ github.event.inputs.service }}" = "all" ]; then
-            services=("api" "dashboard" "scraper" "nlp-processor")
+            services=("api" "scraper" "nlp-processor")
           else
             services=("${{ github.event.inputs.service }}")
           fi
@@ -261,7 +260,7 @@ jobs:
           echo "🔄 Auto-rolling back canary deployment..."
           
           if [ "${{ github.event.inputs.service }}" = "all" ]; then
-            services=("api" "dashboard" "scraper" "nlp-processor")
+            services=("api" "scraper" "nlp-processor")
           else
             services=("${{ github.event.inputs.service }}")
           fi

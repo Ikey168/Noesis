@@ -9,8 +9,7 @@ snowflake-sqlalchemy>=1.11.0
 pandas>=2.0.0
 numpy>=1.24.0
 
-# Dashboard and visualization
-streamlit>=1.28.0
+# Visualization
 plotly>=5.17.0,<6.0.0
 networkx>=3.2.0
 
