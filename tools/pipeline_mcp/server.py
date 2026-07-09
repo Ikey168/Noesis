@@ -1897,6 +1897,37 @@ def trigger_summarize_documents(limit: Optional[int] = None) -> dict:
         con.close()
 
 
+# --------------------------------------------------------------------------- #
+# Embedding-based topic modelling over document_embeddings. Read-only; the
+# lexical cluster_narratives tool is the bag-of-words counterpart.
+# --------------------------------------------------------------------------- #
+
+
+@mcp.tool
+def topic_model(min_similarity: float = 0.35, min_cluster_size: int = 3) -> dict:
+    """Unsupervised topics over the document embeddings — clusters of similar
+    documents, each labelled with its salient terms. Requires the corpus to be
+    embedded (run trigger_embed_documents first).
+
+    Args:
+        min_similarity: cosine threshold for grouping documents into a topic.
+        min_cluster_size: drop topics smaller than this many documents.
+    """
+    try:
+        con = _warehouse_ro()
+    except Exception as exc:
+        return {"error": str(exc)}
+    try:
+        from src.analytics.topics import model_topics
+
+        return model_topics(con, min_similarity=min_similarity,
+                            min_cluster_size=min_cluster_size)
+    except Exception as exc:
+        return {"error": str(exc)}
+    finally:
+        con.close()
+
+
 if __name__ == "__main__":
     from src.mcp_host.transport import run_server
 
