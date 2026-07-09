@@ -1824,6 +1824,79 @@ def trigger_embed_documents(limit: Optional[int] = None) -> dict:
         con.close()
 
 
+# --------------------------------------------------------------------------- #
+# Summarization over the corpus (document_summaries sink).
+# The batch index is built by trigger_summarize_documents; single-document and
+# per-topic summaries are computed read-only (extractive) when not pre-stored.
+# --------------------------------------------------------------------------- #
+
+
+@mcp.tool
+def summarize_document(document_id: str) -> dict:
+    """A short summary of one document — the stored summary if the batch has run,
+    else an extractive summary computed on the fly from its content.
+
+    Args:
+        document_id: the document to summarize.
+    """
+    try:
+        con = _warehouse_ro()
+    except Exception as exc:
+        return {"error": str(exc)}
+    try:
+        from src.ingestion.summarize import document_summary
+
+        return document_summary(con, document_id)
+    except Exception as exc:
+        return {"error": str(exc)}
+    finally:
+        con.close()
+
+
+@mcp.tool
+def summarize_topic(topic: str) -> dict:
+    """A short brief for a topic (category), summarizing its most recent
+    documents extractively, with the documents it drew on.
+
+    Args:
+        topic: the topic (category) to summarize.
+    """
+    try:
+        con = _warehouse_ro()
+    except Exception as exc:
+        return {"error": str(exc)}
+    try:
+        from src.ingestion.summarize import summarize_topic as _st
+
+        return _st(con, topic)
+    except Exception as exc:
+        return {"error": str(exc)}
+    finally:
+        con.close()
+
+
+@mcp.tool
+def trigger_summarize_documents(limit: Optional[int] = None) -> dict:
+    """Summarize documents that have no summary yet into ``document_summaries``
+    (RW), using the extractive summarizer. Idempotent; returns the count.
+
+    Args:
+        limit: optional cap on how many documents to summarize this pass.
+    """
+    try:
+        con = _warehouse_rw()
+    except Exception as exc:
+        return {"error": str(exc)}
+    try:
+        from src.ingestion.summarize import summarize_documents
+
+        return {"summarized": summarize_documents(con, limit=limit)}
+    except Exception as exc:
+        return {"error": str(exc)}
+    finally:
+        con.close()
+
+
 if __name__ == "__main__":
     from src.mcp_host.transport import run_server
 
