@@ -431,7 +431,7 @@ class TestTaskIntegration:
         ``@task``-decorated functions nested inside the ``@dag`` factory rather
         than module-level callables. Assert they exist as tasks on the DAG.
         """
-        expected_tasks = {"scrape", "clean", "nlp", "publish"}
+        expected_tasks = {"scrape", "clean", "nlp", "analyze_arguments", "publish"}
 
         try:
             from airflow.models import DagBag
