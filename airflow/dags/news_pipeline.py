@@ -10,6 +10,10 @@ Runs the real ingestion engine on a schedule (was a mock demo, #922):
   in ``DocumentStore``);
 - **nlp** → :func:`src.ingestion.enrich.enrich_documents` writes sentiment/topics
   into ``document_enrichments``;
+- **analyze** → the argument-mining batches (conflict detection, stance
+  aggregation, follow-through position tracking, fact-check) run under DAG
+  orchestration via each scheduler's ``run_once``, instead of out-of-band
+  APScheduler; a failing batch is recorded, not fatal;
 - **publish** → an analytics summary over the real corpus.
 
 Task bodies import the engine lazily, so the DAG imports (for dag-check) without
@@ -21,7 +25,7 @@ from pathlib import Path
 import json
 import pandas as pd
 import yaml
-from typing import Dict, List, Any
+from typing import Any, Dict, List, Optional
 
 from airflow.decorators import dag, task
 from airflow.models import Variable
@@ -59,7 +63,7 @@ def load_io_paths() -> Dict[str, Any]:
 @dag(
     dag_id='news_pipeline',
     default_args=default_args,
-    description='NeuroNews data pipeline: scrape → clean → nlp → publish',
+    description='NeuroNews data pipeline: scrape → clean → nlp → analyze → publish',
     schedule_interval='0 8 * * *',  # Daily at 08:00 Europe/Berlin
     start_date=datetime(2025, 8, 1),
     catchup=False,
@@ -135,11 +139,42 @@ def news_pipeline():
         return {"enriched": enriched}
 
     @task
-    def publish(nlp_result: Dict[str, Any], **context) -> Dict[str, Any]:
+    def analyze_arguments(nlp_result: Dict[str, Any], **context) -> Dict[str, Any]:
+        """Run the argument-mining batches on the enriched corpus under DAG
+        orchestration (retry + monitoring) instead of out-of-band APScheduler.
+
+        Each batch delegates to its scheduler's ``run_once`` — conflict
+        detection, stance aggregation, follow-through position tracking, and
+        fact-check. A batch that fails is recorded and does not abort the others;
+        the task returns per-batch summary counts. Imports are lazy so the DAG
+        imports (for dag-check) without the argument-mining deps on the path.
+        """
+        import importlib
+
+        batches = [
+            ("conflicts", "src.argument_mining.conflict_scheduler"),
+            ("stance", "src.argument_mining.stance_aggregator"),
+            ("positions", "src.argument_mining.followthrough_scheduler"),
+            ("factcheck", "src.argument_mining.factcheck_scheduler"),
+        ]
+        summary: Dict[str, Any] = {}
+        for name, module_path in batches:
+            try:
+                result = importlib.import_module(module_path).run_once()
+                summary[name] = result if result is not None else "ok"
+                print(f"✅ argument-mining[{name}]: {summary[name]}")
+            except Exception as exc:  # one batch never aborts the others
+                summary[name] = {"error": str(exc)}
+                print(f"⚠️ argument-mining[{name}] failed: {exc}")
+        return summary
+
+    @task
+    def publish(nlp_result: Dict[str, Any], analyze_result: Optional[Dict[str, Any]] = None, **context) -> Dict[str, Any]:
         """Business-ready analytics summary over the real corpus.
 
         Aggregates counts by source_type and the sentiment distribution from
-        the documents + document_enrichments tables.
+        the documents + document_enrichments tables, plus the argument-mining
+        batch outcomes.
         """
         from src.database.local_analytics_connector import get_shared_connection
 
@@ -160,6 +195,7 @@ def news_pipeline():
             "documents_by_source_type": by_source_type,
             "documents_by_sentiment": by_sentiment,
             "enriched_this_run": nlp_result["enriched"],
+            "argument_mining": analyze_result,
         }
         print(f"📊 Published corpus summary: {summary}")
         return summary
@@ -168,7 +204,8 @@ def news_pipeline():
     scrape_result = scrape()
     clean_result = clean(scrape_result)
     nlp_result = nlp(clean_result)
-    publish_result = publish(nlp_result)
+    analyze_result = analyze_arguments(nlp_result)
+    publish_result = publish(nlp_result, analyze_result)
 
 
 # Create the DAG instance
