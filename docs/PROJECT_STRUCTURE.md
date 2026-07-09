@@ -47,11 +47,12 @@ How the Noesis repository is laid out. For setup and the tech stack, see the
 |---|---|
 | `tests/` | Unit, integration, and end-to-end tests. |
 | `docs/` | Documentation (see [`docs/index.md`](index.md)). |
+| `docs/architecture/` | System architecture and design, with diagrams ([overview](architecture/overview.md), [adaptive scraping](architecture/adaptive-scraping.md), ADRs, plans). |
 | `docs/guides/` | Operational and integration guides. |
-| `docs/implementation/` | Per-feature implementation writeups. |
 | `docs/development/` | Development deep-dives. |
-| `docs/mlops/`, `docs/rag/`, `docs/lakehouse/`, `docs/architecture/` | Topic-specific reference docs. |
-| `docs/examples/`, `docs/demo/`, `docs/notebooks/` | Runnable examples and notebooks. |
+| `docs/mlops/`, `docs/rag/`, `docs/lakehouse/` | Subsystem reference docs. |
+| `docs/examples/`, `docs/notebooks/` | Runnable examples and notebooks. |
+| `docs/archive/` | Historical docs (Snowflake/Redshift era, removed UI, per-issue writeups, old demos). |
 | `archive/`, `artifacts/` | Archived material and build artifacts. |
 
 ## Root files
