@@ -19,24 +19,6 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: neuronews-dashboard-service
-  namespace: neuronews
-  labels:
-    app: neuronews-dashboard
-    component: frontend
-spec:
-  selector:
-    app: neuronews-dashboard
-  ports:
-  - port: 80
-    targetPort: 8501
-    protocol: TCP
-    name: http
-  type: ClusterIP
----
-apiVersion: v1
-kind: Service
-metadata:
   name: redis-service
   namespace: neuronews
   labels:

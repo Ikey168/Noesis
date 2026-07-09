@@ -18,7 +18,6 @@ spec:
   tls:
   - hosts:
     - api.neuronews.com
-    - dashboard.neuronews.com
     secretName: neuronews-tls
   rules:
   - host: api.neuronews.com
@@ -29,16 +28,6 @@ spec:
         backend:
           service:
             name: neuronews-api-service
-            port:
-              number: 80
-  - host: dashboard.neuronews.com
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: neuronews-dashboard-service
             port:
               number: 80
 ---
@@ -59,9 +48,6 @@ spec:
     - namespaceSelector:
         matchLabels:
           name: ingress-nginx
-    - podSelector:
-        matchLabels:
-          app: neuronews-dashboard
     ports:
     - protocol: TCP
       port: 8000

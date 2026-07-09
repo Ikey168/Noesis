@@ -133,41 +133,6 @@ services:
           cpus: '1.0'
           memory: 1G
 
-  # Streamlit Dashboard Service
-  dashboard:
-    build:
-      context: .
-      dockerfile: docker/dashboard.Dockerfile
-      target: production
-    container_name: neuronews-dashboard-prod
-    ports:
-      - "8501:8501"
-    environment:
-      - PYTHONPATH=/app
-      - ENVIRONMENT=production
-      - FASTAPI_URL=http://fastapi:8000
-      - DB_HOST=postgres
-      - DB_PORT=5432
-      - DB_NAME=neuronews_prod
-      - DB_USER=neuronews
-      - DB_PASSWORD=${DB_PASSWORD}
-    volumes:
-      - dashboard_data:/app/data
-    depends_on:
-      - fastapi
-      - postgres
-    networks:
-      - neuronews-network
-    restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 512M
-        reservations:
-          cpus: '0.25'
-          memory: 256M
-
   # PostgreSQL Database
   postgres:
     image: postgres:15-alpine
@@ -338,8 +303,6 @@ volumes:
   nlp_logs:
     driver: local
   nlp_models:
-    driver: local
-  dashboard_data:
     driver: local
   nginx_logs:
     driver: local
