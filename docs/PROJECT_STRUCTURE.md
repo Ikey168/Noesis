@@ -8,8 +8,7 @@ How the Noesis repository is laid out. For setup and the tech stack, see the
 
 | Path | Contents |
 |---|---|
-| `src/` | Python backend. Notable packages: `api/` (FastAPI app and routes), `argument_mining/` (claim/stance/frame models), `nlp/`, `knowledge_graph/`, `ingestion/`, `scraper/`, `ml/`, `security/`, `monitoring/`, `reports/`, `dashboards/`, `domains/`. |
-| `apps/` | User-facing apps: `web/` (React 18 + Vite dashboard) and `streamlit/` (debug UI). |
+| `src/` | Python backend. Notable packages: `api/` (FastAPI app and routes), `argument_mining/` (claim/stance/frame models), `nlp/`, `knowledge_graph/`, `ingestion/`, `scraper/`, `ml/`, `security/`, `monitoring/`, `reports/`, `domains/`. |
 | `services/` | Standalone services: `api/`, `rag/`, `embeddings/`, `mlops/`, `ingest/`, `monitoring/`, `obs/`, `metrics-api/`. |
 | `tools/` | Token-efficient MCP stdio servers for development (`argument_mcp/`, `pipeline_mcp/`, `contract_mcp/`, `lineage_mcp/`, `kg_mcp/`, `blog_mcp/`, `schema_mcp/`, `dataset_mcp/`, `domain_packs_mcp/`, `sources_mcp/`, `security_mcp/`, `monitoring_mcp/`). |
 | `connectors/` | News/data source connector definitions. |
