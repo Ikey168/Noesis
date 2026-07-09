@@ -7,6 +7,7 @@ See ``docs/architecture/VISUAL_EVIDENCE_PLAN.md`` (Track B) and
 
 from __future__ import annotations
 
+from src.ingestion.assets.c2pa import has_c2pa_marker, verify_c2pa
 from src.ingestion.assets.imageinfo import extension_for, sniff
 from src.ingestion.assets.provenance import (
     extract_exif,
@@ -23,4 +24,6 @@ __all__ = [
     "perceptual_hash",
     "hamming_distance",
     "extract_exif",
+    "verify_c2pa",
+    "has_c2pa_marker",
 ]
