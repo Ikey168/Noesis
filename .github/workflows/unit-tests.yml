@@ -77,4 +77,9 @@ jobs:
             tests/unit/reports \
             tests/unit/services_api \
             tests/unit/tools \
+            --ignore=tests/unit/argument_mining/test_frames_by_source.py \
             -q
+        # test_frames_by_source.py is excluded: it imports
+        # src.api.routes.argument_routes, whose package __init__ pulls the
+        # entire API route surface (bcrypt, and the rest of the API stack).
+        # It moves into scope with the api-routes widening follow-up.
