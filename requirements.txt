@@ -45,7 +45,7 @@ scrapy>=2.11.2
 
 # AsyncIO Scraping
 aiohttp>=3.10.11
-aiofiles>=23.0.0
+aiofiles>=25.1.0
 playwright>=1.40.0
 asyncio-throttle>=1.0.2
 psutil>=5.9.0
