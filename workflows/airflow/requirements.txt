@@ -33,7 +33,7 @@ feedparser==6.0.10
 # Machine learning and NLP libraries
 scikit-learn==1.3.2
 nltk==3.8.1
-textblob==0.17.1
+textblob==0.20.0
 
 # Graph database integration
 gremlinpython==3.7.0
