@@ -1728,5 +1728,62 @@ def trigger_cluster_narratives() -> dict:
         con.close()
 
 
+@mcp.tool(
+    output_schema={
+        "type": "object",
+        "properties": {
+            "figures": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "document_id": {"type": "string"},
+                        "source_type": {"type": ["string", "null"]},
+                        "title": {"type": ["string", "null"]},
+                        "content": {"type": ["string", "null"]},
+                        "content_ref": {"type": ["string", "null"]},
+                        "parent_document_id": {"type": ["string", "null"]},
+                        "figure_label": {"type": ["string", "null"]},
+                    },
+                    "additionalProperties": True,
+                },
+            },
+            "count": {"type": "integer"},
+            "truncated": {"type": "boolean"},
+        },
+        "additionalProperties": True,
+    },
+    meta={"data": {"panel": "figure_evidence", "rest_route": None}, "panel": {
+        "type": "figure_evidence",
+        "title": "Figure evidence",
+        "description": "Figures and images matching the topic — chart/photo descriptions with an image preview, each cited to the document it came from.",
+        "endpoint": None,
+        "facets": ["library", "entities"],
+        "tables": ["documents"],
+        "default_span": 6,
+        "topic_param": "topic",
+    }},
+)
+def figure_evidence(topic: Optional[str] = None) -> dict:
+    """Figure documents (metadata.modality='image') matching an optional topic,
+    each with its description, image content_ref, and parent-document citation.
+
+    Args:
+        topic: optional case-insensitive substring over the figure text.
+    """
+    try:
+        con = _warehouse_ro()
+    except Exception as exc:
+        return {"figures": [], "count": 0, "note": str(exc)}
+    try:
+        from src.ingestion.describers.figure_query import figure_evidence as _fe
+
+        return _fe(con, topic)
+    except Exception as exc:
+        return {"error": str(exc)}
+    finally:
+        con.close()
+
+
 if __name__ == "__main__":
     mcp.run()  # stdio transport by default
