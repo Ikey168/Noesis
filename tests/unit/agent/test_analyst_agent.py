@@ -1,4 +1,4 @@
-"""M10.2: the analyst agent completes goal -> KG -> OSINT -> canvas on a sample
+"""M10.2: the analyst agent completes goal -> KG -> OSINT on a sample
 goal, over the MCP surface (driven here by the in-process backend, which mirrors
 the live MCP tool surface)."""
 
@@ -6,8 +6,7 @@ import pytest
 
 from src.agent.analyst import AnalystAgent, kg_name_for
 from src.agent.local_backend import build_local_caller
-from src.agent.runtime import AgentRuntime, PLANE_GENUI, PLANE_OSINT, PLANE_PROVISIONING
-from src.genui.spec import validate_spec
+from src.agent.runtime import AgentRuntime, PLANE_OSINT, PLANE_PROVISIONING
 
 duckdb = pytest.importorskip("duckdb")
 
@@ -73,7 +72,7 @@ def runtime(tmp_path):
 GOAL = "flooding in the coastal delta"
 
 
-def test_analyst_completes_goal_to_kg_to_osint_to_canvas(runtime):
+def test_analyst_completes_goal_to_kg_to_osint(runtime):
     agent = AnalystAgent(runtime)
     result = agent.run(
         GOAL,
@@ -92,13 +91,9 @@ def test_analyst_completes_goal_to_kg_to_osint_to_canvas(runtime):
     corroboration = next(f for f in result.osint if f["tool"] == "corroborate")
     assert corroboration["result"]["independent_support_count"] == 2
 
-    # Canvas: a valid ui-spec-v1 layout for the goal.
-    assert validate_spec(result.canvas) == []
-    assert result.canvas["intent"] == GOAL
-
-    # The run genuinely crossed all three planes.
+    # The run genuinely crossed both planes.
     planes = {c.plane for c in runtime.transcript()}
-    assert planes == {PLANE_PROVISIONING, PLANE_OSINT, PLANE_GENUI}
+    assert planes == {PLANE_PROVISIONING, PLANE_OSINT}
 
 
 def test_analyst_selects_an_existing_kg_instead_of_reprovisioning(runtime):

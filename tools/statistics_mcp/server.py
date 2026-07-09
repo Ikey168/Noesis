@@ -169,16 +169,6 @@ def get_observations(series_id: str, as_of: Optional[int] = None) -> dict:
         },
         "additionalProperties": True,
     },
-    meta={"data": {"panel": "series_explorer", "rest_route": None}, "panel": {
-        "type": "series_explorer",
-        "title": "Statistical series",
-        "description": "Official statistical series harvested as evidence, each with a compact latest-vintage summary. The basis for checking quantitative claims against data.",
-        "endpoint": None,
-        "facets": ["library", "sources"],
-        "tables": ["dataset_series", "dataset_observations"],
-        "default_span": 6,
-        "topic_param": "topic",
-    }},
 )
 def series_explorer(topic: Optional[str] = None) -> dict:
     """Panel payload: series matching an optional topic with spark-line summaries.
@@ -221,16 +211,6 @@ _CHECK_ITEM_SCHEMA = {
         },
         "additionalProperties": True,
     },
-    meta={"data": {"panel": "claim_vs_data", "rest_route": None}, "panel": {
-        "type": "claim_vs_data",
-        "title": "Claims vs data",
-        "description": "Quantitative claims checked against official statistical series: the claim, the resolved series with its observed interval, and a supported / contradicted / unverifiable verdict under the statistical-honesty contract.",
-        "endpoint": None,
-        "facets": ["claims", "library"],
-        "tables": ["claim_data_checks", "dataset_series"],
-        "default_span": 6,
-        "topic_param": "topic",
-    }},
 )
 def claim_vs_data(topic: Optional[str] = None) -> dict:
     """Recent claim-vs-data checks with verdicts and observed intervals.
@@ -260,16 +240,6 @@ def claim_vs_data(topic: Optional[str] = None) -> dict:
         },
         "additionalProperties": True,
     },
-    meta={"data": {"panel": "data_check_ledger", "rest_route": None}, "panel": {
-        "type": "data_check_ledger",
-        "title": "Data-check ledger",
-        "description": "The quantitative wing of the contradiction ledger: claims the data contradicts, each citing the series and vintage checked.",
-        "endpoint": None,
-        "facets": ["claims", "library"],
-        "tables": ["claim_data_checks"],
-        "default_span": 6,
-        "topic_param": "topic",
-    }},
 )
 def data_check_ledger(verdict: Optional[str] = "contradicted", topic: Optional[str] = None) -> dict:
     """Recorded checks, defaulting to the contradicted ones (the ledger).

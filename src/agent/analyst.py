@@ -8,9 +8,7 @@ through the agent runtime (M10.1) and thus over the MCP surface:
    (deploy, attach sources, ingest) on the **provisioning** plane;
 2. **OSINT** - run a composition sweep on the **osint** plane (contradiction
    scan, plus corroboration / dossier / reliability when the goal names a claim,
-   entity or source);
-3. **Canvas** - assemble a ``ui-spec-v1`` layout for the goal on the **genui**
-   plane.
+   entity or source).
 
 The agent only ever calls ``runtime.call(plane, tool, args)``, so every step is
 allowlisted, budgeted and audited by the runtime, and the agent is identical
@@ -25,7 +23,6 @@ from typing import Any, Dict, List, Optional
 
 from src.agent.runtime import (
     AgentRuntime,
-    PLANE_GENUI,
     PLANE_OSINT,
     PLANE_PROVISIONING,
 )
@@ -47,7 +44,6 @@ class AnalystResult:
     goal: str
     kg: Dict[str, Any]
     osint: List[Dict[str, Any]] = field(default_factory=list)
-    canvas: Optional[Dict[str, Any]] = None
     steps: int = 0
 
     @property
@@ -57,7 +53,7 @@ class AnalystResult:
 
 
 class AnalystAgent:
-    """Drives goal -> KG -> OSINT -> canvas over the runtime."""
+    """Drives goal -> KG -> OSINT over the runtime."""
 
     def __init__(self, runtime: AgentRuntime):
         self._rt = runtime
@@ -103,14 +99,10 @@ class AnalystAgent:
         if source:
             osint.append(self._osint("source_reliability", {"source": source}))
 
-        # 3) Assemble the canvas.
-        canvas = self._rt.call(PLANE_GENUI, "noesis_generate_view", {"intent": goal})
-
         return AnalystResult(
             goal=goal,
             kg={"name": name, "provisioned": provisioned, "status": status},
             osint=osint,
-            canvas=canvas,
             steps=self._rt.steps_used,
         )
 

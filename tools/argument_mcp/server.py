@@ -139,26 +139,12 @@ def am_stats() -> dict:
     return counts
 
 
-# ADR-001 reference implementation: the meta.panel block marks this tool as
-# the discovery counterpart of a canvas panel type; the block's fields mirror
-# the PanelDef in src/genui/catalog.py. See docs/architecture/ADR-001.
 @mcp.tool(
     output_schema={
         "type": "object",
         "properties": {"count": {"type": "integer"}, "claims": {"type": "array"}},
         "additionalProperties": True,
     },
-    meta={"panel": {
-        "type": "claims",
-        "title": "Extracted claims",
-        "description": "Claims mined from documents with fact-check verdicts.",
-        "endpoint": "/api/v1/arguments/claims",
-        "facets": ["claims", "conflict"],
-        "tables": ["argument_claims"],
-        "default_span": 6,
-        "topic_param": "topic",
-        "source_type_param": "source_type",
-    }},
 )
 def list_claims(
     source_type: Optional[str] = None,
@@ -241,17 +227,6 @@ def list_claims(
         "properties": {"count": {"type": "integer"}, "stances": {"type": "array"}},
         "additionalProperties": True,
     },
-    meta={"panel": {
-        "type": "stance",
-        "title": "Stance breakdown",
-        "description": "Supportive / critical / neutral stance mix per topic.",
-        "endpoint": "/api/v1/arguments/stance",
-        "facets": ["stance", "conflict", "sentiment"],
-        "tables": ["source_stances"],
-        "default_span": 6,
-        "topic_param": "topic",
-        "source_type_param": "source_type",
-    }},
 )
 def list_stances(
     source: Optional[str] = None,
@@ -331,17 +306,6 @@ def list_stances(
         "properties": {"count": {"type": "integer"}, "events": {"type": "array"}},
         "additionalProperties": True,
     },
-    meta={"panel": {
-        "type": "drift",
-        "title": "Stance drift",
-        "description": "Detected stance reversals and shifts per source.",
-        "endpoint": "/api/v1/arguments/stance/drift",
-        "facets": ["trend", "stance"],
-        "tables": ["stance_drift_events"],
-        "default_span": 6,
-        "topic_param": "topic",
-        "source_type_param": "source_type",
-    }},
 )
 def list_drift_events(
     source: Optional[str] = None,
@@ -419,17 +383,6 @@ def list_drift_events(
         "properties": {"count": {"type": "integer"}, "frames": {"type": "array"}},
         "additionalProperties": True,
     },
-    meta={"panel": {
-        "type": "frames",
-        "title": "Framing by source",
-        "description": "How each outlet frames the story (economic, legal, …).",
-        "endpoint": "/api/v1/arguments/frames/source",
-        "facets": ["sources", "claims"],
-        "tables": ["document_frames"],
-        "default_span": 6,
-        "topic_param": "topic",
-        "source_type_param": "source_type",
-    }},
 )
 def list_frames(
     source_type: Optional[str] = None,
@@ -758,16 +711,6 @@ def list_actors(
         "properties": {"count": {"type": "integer"}, "actors": {"type": "array"}},
         "additionalProperties": True,
     },
-    meta={"panel": {
-        "type": "actors",
-        "title": "Key actors",
-        "description": "Most-mentioned speakers, subjects and authors.",
-        "endpoint": "/api/v1/arguments/actors/summary",
-        "facets": ["actors", "entities"],
-        "tables": ["document_actors"],
-        "default_span": 6,
-        "source_type_param": "source_type",
-    }},
 )
 def actor_summary(
     source_type: Optional[str] = None,
@@ -874,16 +817,6 @@ def trigger_actor_batch(limit: int = 200) -> dict:
         "properties": {"count": {"type": "integer"}, "outlets": {"type": "array"}},
         "additionalProperties": True,
     },
-    meta={"panel": {
-        "type": "outlet_clusters",
-        "title": "Outlet clusters",
-        "description": "Outlets grouped by editorial framing (PCA scatter).",
-        "endpoint": "/api/v1/arguments/outlets/clusters",
-        "facets": ["sources", "entities"],
-        "tables": ["outlet_clusters"],
-        "default_span": 6,
-        "source_type_param": "source_type",
-    }},
 )
 def list_outlet_clusters(
     source_type: Optional[str] = None,
@@ -1003,16 +936,6 @@ def trigger_outlet_clustering(
         "properties": {"count": {"type": "integer"}, "outlets": {"type": "array"}},
         "additionalProperties": True,
     },
-    meta={"panel": {
-        "type": "outlet_ranking",
-        "title": "Outlet transparency ranking",
-        "description": "Outlets scored by framing diversity, attribution, neutrality.",
-        "endpoint": "/api/v1/arguments/outlets/ranking",
-        "facets": ["sources"],
-        "tables": ["outlet_scores"],
-        "default_span": 6,
-        "source_type_param": "source_type",
-    }},
 )
 def list_outlet_scores(
     source_type: Optional[str] = None,

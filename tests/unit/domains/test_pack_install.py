@@ -8,10 +8,6 @@ import pytest
 from src.domains import pack_install, pack_registry
 from src.domains import registry as domain_registry
 from src.domains.pack_format import PackManifest
-from src.genui import catalog, planner
-from src.genui.adaptivity import merged_ui_flags
-from src.genui.discovery import merged_catalog_dict
-from src.genui.spec import validate_spec
 
 duckdb = pytest.importorskip("duckdb")
 
@@ -79,32 +75,6 @@ def test_install_pulls_from_registry_without_code_changes(installed):
     assert pack_install.installed_packs() == {"energy": "1.0.0"}
 
 
-def test_installed_pack_panel_surfaces_and_validates(installed):
-    # The pack panel resolves in the catalog ...
-    assert catalog.get_panel_def("energy_outages") is not None
-    assert "energy_outages" in catalog.all_panel_types()
-    # ... surfaces on the merged catalog (GET /api/v1/ui/panels) ...
-    types = {p["type"] for p in merged_catalog_dict()}
-    assert "energy_outages" in types
-    # ... and a spec that uses it validates.
-    spec = {
-        "spec_version": "ui-spec-v1",
-        "intent": "grid outages",
-        "title": "Energy",
-        "subtitle": "",
-        "generated_by": "heuristic",
-        "facets": ["trend", "events"],
-        "topic": "grid",
-        "source_type": None,
-        "panels": [
-            {"id": "p1", "type": "energy_outages", "title": "Grid outages", "span": 6,
-             "priority": 0.7, "rationale": "", "endpoint": None,
-             "params": {"topic": "grid"}, "body": ""}
-        ],
-    }
-    assert validate_spec(spec) == []
-
-
 def test_installed_pack_enricher_runs(installed):
     pack = domain_registry.get_pack("energy")
     assert pack is not None and len(pack.enrichers) == 1
@@ -115,12 +85,10 @@ def test_installed_pack_enricher_runs(installed):
 
 
 def test_installed_pack_ui_flags_are_active(installed):
-    assert merged_ui_flags().get("energy") is True
-
-
-def test_installed_pack_keywords_steer_the_planner(installed):
-    scores = planner.score_facets("grid capacity and megawatt output")
-    assert scores.get("trend", 0) >= 2  # grid + megawatt both hit the trend facet
+    # ui_flags are advisory metadata now (the UI retired), but the installed
+    # pack still carries them on its DomainPack.
+    pack = domain_registry.get_pack("energy")
+    assert pack is not None and pack.ui_flags.get("energy") is True
 
 
 def test_installed_pack_template_is_deployable(installed):
@@ -150,16 +118,12 @@ def test_uninstall_reverses_everything(tmp_path):
     root = str(tmp_path / "registry")
     pack_registry.publish(_manifest(), root=root)
     pack_install.install("energy", root=root)
-    assert catalog.get_panel_def("energy_outages") is not None
+    assert "energy" in pack_install.installed_packs()
 
     assert pack_install.uninstall("energy") is True
     domain_registry._REGISTRY.pop("energy", None)
     domain_registry._ENABLED.discard("energy")
 
     # Everything the pack contributed is gone.
-    assert catalog.get_panel_def("energy_outages") is None
     assert "energy" not in pack_install.installed_packs()
     assert "energy_kg" not in pack_install.list_templates()
-    assert merged_ui_flags().get("energy") is None
-    # The planner keywords are withdrawn (blackout was a pack-only keyword).
-    assert planner.score_facets("blackout").get("trend", 0) == 0

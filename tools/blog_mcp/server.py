@@ -268,15 +268,6 @@ def ingest_feeds(
         "properties": {"matches": {"type": "array"}, "feeds_checked": {"type": "integer"}},
         "additionalProperties": True,
     },
-    meta={"panel": {
-        "type": "watchlists",
-        "title": "Watchlist",
-        "description": "Tracked entities and topics with mention velocity and alerts.",
-        "endpoint": None,
-        "facets": ["events", "trend"],
-        "ui_flag": "watchlists",
-        "default_span": 6,
-    }},
 )
 def run_watchlist(
     keywords: str,

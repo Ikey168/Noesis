@@ -31,8 +31,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from src.genui.catalog import FACETS
-from src.genui.spec import MAX_SPAN, MIN_SPAN, SOURCE_TYPES
+from src.domains.pack_vocab import FACETS
+from src.domains.pack_vocab import MAX_SPAN, MIN_SPAN, SOURCE_TYPES
 
 PACK_FORMAT = "noesis-pack-v1"
 

@@ -635,17 +635,6 @@ def trace_article(id: str) -> dict:
         "properties": {"count": {"type": "integer"}, "positions": {"type": "array"}},
         "additionalProperties": True,
     },
-    meta={"panel": {
-        "type": "positions",
-        "title": "Actor positions",
-        "description": "Policy positions held by actors, with updates over time.",
-        "endpoint": "/api/v1/arguments/positions",
-        "facets": ["actors", "stance"],
-        "tables": ["policy_positions"],
-        "default_span": 6,
-        "topic_param": "topic",
-        "source_type_param": "source_type",
-    }},
 )
 def query_positions(
     actor: Optional[str] = None,
@@ -841,17 +830,6 @@ def trigger_followthrough_check(limit: int = 50) -> dict:
         "properties": {"count": {"type": "integer"}, "conflicts": {"type": "array"}},
         "additionalProperties": True,
     },
-    meta={"panel": {
-        "type": "controversy",
-        "title": "Conflicts",
-        "description": "Actor pairs with contradicting claims, by intensity.",
-        "endpoint": "/api/v1/arguments/controversy",
-        "facets": ["conflict", "claims"],
-        "tables": ["claim_conflicts"],
-        "default_span": 6,
-        "topic_param": "topic",
-        "source_type_param": "source_type",
-    }},
 )
 def query_conflicts(
     topic: Optional[str] = None,
@@ -990,15 +968,6 @@ def _cutoff(days: int):
         },
         "additionalProperties": True,
     },
-    meta={"panel": {
-        "type": "kpi_row",
-        "title": "Signal summary",
-        "description": "Headline counts across articles, clusters and topics.",
-        "endpoint": "/api/v1/news/articles",
-        "facets": ["overview"],
-        "tables": ["documents"],
-        "default_span": 12,
-    }},
 )
 def article_stats(days: int = 7) -> dict:
     """Headline warehouse counts: total articles, articles in the window,
@@ -1040,15 +1009,6 @@ def article_stats(days: int = 7) -> dict:
         "properties": {"count": {"type": "integer"}, "articles": {"type": "array"}},
         "additionalProperties": True,
     },
-    meta={"panel": {
-        "type": "articles",
-        "title": "Latest documents",
-        "description": "Most recent matching articles and documents.",
-        "endpoint": "/api/v1/news/articles",
-        "facets": ["overview", "sentiment"],
-        "tables": ["documents"],
-        "default_span": 6,
-    }},
 )
 def latest_articles(topic: Optional[str] = None, limit: int = 10) -> dict:
     """Newest articles as compact summaries (title, source, date, sentiment
@@ -1126,10 +1086,6 @@ def latest_articles(topic: Optional[str] = None, limit: int = 10) -> dict:
     # equivalent to the /api/v1/news/articles REST route. The `data` meta block
     # marks it callable through the /api/v1/ui/data proxy allowlist; it is not a
     # planner-facing stats tool.
-    meta={"data": {
-        "panel": "articles",
-        "rest_route": "/api/v1/news/articles",
-    }},
 )
 def articles_data(
     source: Optional[str] = None,
@@ -1197,15 +1153,6 @@ def articles_data(
         "properties": {"total_documents": {"type": "integer"}, "by_source_type": {"type": "array"}},
         "additionalProperties": True,
     },
-    meta={"panel": {
-        "type": "documents",
-        "title": "Library",
-        "description": "Ingested documents across all source types (books, papers, transcripts, …).",
-        "endpoint": "/api/v1/documents",
-        "facets": ["library", "overview"],
-        "default_span": 6,
-        "source_type_param": "source_type",
-    }},
 )
 def document_stats(source_type: Optional[str] = None) -> dict:
     """Ingested-document counts by source type from the ``documents`` corpus
@@ -1247,18 +1194,6 @@ def document_stats(source_type: Optional[str] = None) -> dict:
         "properties": {"count": {"type": "integer"}, "topics": {"type": "array"}},
         "additionalProperties": True,
     },
-    meta={"panel": {
-        "type": "topic_sentiment",
-        "title": "Sentiment by topic",
-        "description": "Average sentiment score per topic.",
-        "endpoint": "/news_sentiment/topics",
-        "facets": ["sentiment"],
-        "tables": ["news_articles"],
-        "ui_flag": "sentiment_dashboard",
-        "default_span": 6,
-        "days_param": "days",
-        "max_days": 90,
-    }},
 )
 def sentiment_by_topic(days: int = 30) -> dict:
     """Average sentiment score and article count per topic (category) in the
@@ -1305,18 +1240,6 @@ def sentiment_by_topic(days: int = 30) -> dict:
         "properties": {"count": {"type": "integer"}, "cells": {"type": "array"}},
         "additionalProperties": True,
     },
-    meta={"panel": {
-        "type": "sentiment_heatmap",
-        "title": "Sentiment heatmap",
-        "description": "Topic × time sentiment intensity grid.",
-        "endpoint": "/news_sentiment/heatmap",
-        "facets": ["sentiment", "trend"],
-        "tables": ["news_articles"],
-        "ui_flag": "sentiment_dashboard",
-        "default_span": 6,
-        "days_param": "days",
-        "max_days": 60,
-    }},
 )
 def sentiment_heatmap(days: int = 14) -> dict:
     """Topic-by-day average sentiment cells for the heatmap panel.
@@ -1363,16 +1286,6 @@ def sentiment_heatmap(days: int = 14) -> dict:
         "properties": {"count": {"type": "integer"}, "clusters": {"type": "array"}},
         "additionalProperties": True,
     },
-    meta={"panel": {
-        "type": "clusters",
-        "title": "Event clusters",
-        "description": "Grouped event coverage with velocity and impact.",
-        "endpoint": "/api/v1/events/clusters",
-        "facets": ["overview", "events"],
-        "tables": ["news_articles"],
-        "ui_flag": "clusters",
-        "default_span": 6,
-    }},
 )
 def coverage_clusters(days: int = 7) -> dict:
     """Cluster-shaped coverage summary: articles grouped by category with
@@ -1446,16 +1359,6 @@ _ANOMALY_WINDOW_SCHEMA = {
             "windows": _ANOMALY_WINDOW_SCHEMA,
         }
     ),
-    meta={"data": {"panel": "anomaly_timeline", "rest_route": None}, "panel": {
-        "type": "anomaly_timeline",
-        "title": "Anomaly timeline",
-        "description": "Coverage-volume and sentiment windows flagged as unusual, with expected bands and robust z-scores.",
-        "endpoint": None,
-        "facets": ["trend", "overview"],
-        "tables": ["news_articles"],
-        "default_span": 6,
-        "topic_param": "topic",
-    }},
 )
 def detect_anomalies(topic: Optional[str] = None, metric: Optional[str] = None) -> dict:
     """Windows where a topic's daily coverage volume or mean sentiment deviates
@@ -1530,16 +1433,6 @@ def _outlet_list(outlets: Optional[str]):
             "pairs": {"type": "array"},
         }
     ),
-    meta={"data": {"panel": "lead_lag", "rest_route": None}, "panel": {
-        "type": "lead_lag",
-        "title": "Who leads, who follows",
-        "description": "Outlets ranked by whether they set the agenda or follow it, from cross-correlation lead-lag of coverage.",
-        "endpoint": None,
-        "facets": ["sources", "trend"],
-        "tables": ["news_articles"],
-        "default_span": 6,
-        "topic_param": "topic",
-    }},
 )
 def lead_lag(topic: str, outlets: Optional[str] = None) -> dict:
     """Which outlets lead vs follow on a topic, by cross-correlation of their
@@ -1567,18 +1460,6 @@ def lead_lag(topic: str, outlets: Optional[str] = None) -> dict:
     output_schema=honesty_output_schema(
         {"topic": {"type": ["string", "null"]}, "clusters": {"type": "array"}}
     ),
-    meta={"data": {"panel": "narrative_thread", "rest_route": None}, "panel": {
-        "type": "narrative_thread",
-        "title": "Narrative threads",
-        "description": "Competing storylines on a topic, clustered from document text with size and cohesion.",
-        "endpoint": None,
-        "facets": ["events", "overview"],
-        "tables": ["news_articles"],
-        "default_span": 6,
-        "topic_param": "topic",
-        "days_param": "days",
-        "max_days": 90,
-    }},
 )
 def cluster_narratives(topic: Optional[str] = None, days: Optional[int] = None) -> dict:
     """Competing narrative threads on a topic: documents clustered by shared
@@ -1611,16 +1492,6 @@ def cluster_narratives(topic: Optional[str] = None, days: Optional[int] = None) 
             "falling_terms": {"type": "array"},
         }
     ),
-    meta={"data": {"panel": "drift_trajectory", "rest_route": None}, "panel": {
-        "type": "drift_trajectory",
-        "title": "Meaning drift",
-        "description": "How a term's coverage context shifts over time, with rising and falling associated terms.",
-        "endpoint": None,
-        "facets": ["trend"],
-        "tables": ["news_articles"],
-        "default_span": 6,
-        "topic_param": "term",
-    }},
 )
 def semantic_drift(term: str, window: int = 90) -> dict:
     """How a term's *meaning* (its coverage context) shifts across a window,
@@ -1653,16 +1524,6 @@ def semantic_drift(term: str, window: int = 90) -> dict:
             "points": {"type": "array"},
         }
     ),
-    meta={"data": {"panel": "forecast", "rest_route": None}, "panel": {
-        "type": "forecast",
-        "title": "Coverage forecast",
-        "description": "Projected coverage velocity for a topic with a prediction band (never a bare point forecast).",
-        "endpoint": None,
-        "facets": ["trend"],
-        "tables": ["news_articles"],
-        "default_span": 6,
-        "topic_param": "topic",
-    }},
 )
 def forecast_topic(topic: str, horizon: int = 7) -> dict:
     """Forecast a topic's daily coverage velocity with Holt exponential
@@ -1753,16 +1614,6 @@ def trigger_cluster_narratives() -> dict:
         },
         "additionalProperties": True,
     },
-    meta={"data": {"panel": "figure_evidence", "rest_route": None}, "panel": {
-        "type": "figure_evidence",
-        "title": "Figure evidence",
-        "description": "Figures and images matching the topic — chart/photo descriptions with an image preview, each cited to the document it came from.",
-        "endpoint": None,
-        "facets": ["library", "entities"],
-        "tables": ["documents"],
-        "default_span": 6,
-        "topic_param": "topic",
-    }},
 )
 def figure_evidence(topic: Optional[str] = None) -> dict:
     """Figure documents (metadata.modality='image') matching an optional topic,
@@ -1794,15 +1645,6 @@ def figure_evidence(topic: Optional[str] = None) -> dict:
         },
         "additionalProperties": True,
     },
-    meta={"data": {"panel": "corrections", "rest_route": None}, "panel": {
-        "type": "corrections",
-        "title": "Corrections & retractions",
-        "description": "Documents whose record changed after ingest — silent edits, flagged corrections, retractions and takedowns — each citing the revision pair.",
-        "endpoint": None,
-        "facets": ["library", "sources"],
-        "tables": ["document_revisions"],
-        "default_span": 6,
-    }},
 )
 def corrections_ledger(change_class: Optional[str] = None) -> dict:
     """Documents whose content changed after ingest, classified.
@@ -1831,16 +1673,6 @@ def corrections_ledger(change_class: Optional[str] = None) -> dict:
         "properties": {"places": {"type": "array"}, "count": {"type": "integer"}},
         "additionalProperties": True,
     },
-    meta={"data": {"panel": "geo_map", "rest_route": None}, "panel": {
-        "type": "geo_map",
-        "title": "Coverage map",
-        "description": "Where a topic's coverage is geolocated — places mentioned across documents, corroborated by independent-source count.",
-        "endpoint": None,
-        "facets": ["overview", "library"],
-        "tables": ["documents"],
-        "default_span": 6,
-        "topic_param": "topic",
-    }},
 )
 def geo_map(topic: Optional[str] = None) -> dict:
     """Geocoded places across the documents matching a topic, with per-place
@@ -1870,16 +1702,6 @@ def geo_map(topic: Optional[str] = None) -> dict:
         "speaker_count": {"type": "integer"},
         "total_airtime_s": {"type": "number"},
     }),
-    meta={"data": {"panel": "speaker_balance", "rest_route": None}, "panel": {
-        "type": "speaker_balance",
-        "title": "Speaker balance",
-        "description": "Airtime, floor share and interruptions across diarized speakers in a recording — framing evidence the transcript text does not carry.",
-        "endpoint": None,
-        "facets": ["library"],
-        "tables": ["documents"],
-        "default_span": 6,
-        "topic_param": "media",
-    }},
 )
 def speaker_balance(media: Optional[str] = None) -> dict:
     """Per-speaker airtime, floor share and interruptions over diarized

@@ -122,7 +122,7 @@ async def _list_tools(session: Any) -> List[Dict[str, Any]]:
 
     Each cached tool carries its ``_meta`` block and whether it declares an
     ``outputSchema`` — the two things the R2 discovery-derived catalog
-    (src/genui/discovery.py) needs to map annotated tools into PanelDefs.
+    external MCP clients consume through tool discovery.
     """
     result = await asyncio.wait_for(session.list_tools(), CALL_TIMEOUT)
     tools: List[Dict[str, Any]] = []

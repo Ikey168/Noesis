@@ -59,16 +59,6 @@ def _warehouse_ro():
             "single_sourced": {"type": "boolean"},
         }
     ),
-    meta={"data": {"panel": "corroboration", "rest_route": None}, "panel": {
-        "type": "corroboration",
-        "title": "Claim corroboration",
-        "description": "Independent sources supporting or contradicting a claim, weighted by source credibility; single-sourced claims are flagged, never given a false confidence.",
-        "endpoint": None,
-        "facets": ["claims", "sources", "conflict"],
-        "tables": ["argument_claims"],
-        "ui_flag": "osint",
-        "default_span": 6,
-    }},
 )
 def corroborate(claim_id: str) -> dict:
     """How many independent sources support or contradict a claim, and how
@@ -104,16 +94,6 @@ def corroborate(claim_id: str) -> dict:
             "scored_as_outlet": {"type": "boolean"},
         }
     ),
-    meta={"data": {"panel": "reliability_card", "rest_route": None}, "panel": {
-        "type": "reliability_card",
-        "title": "Source reliability",
-        "description": "OSINT source vetting: the outlet transparency score generalized to any source type, with corroboration hit-rate and correction history.",
-        "endpoint": None,
-        "facets": ["sources"],
-        "tables": ["outlet_scores"],
-        "ui_flag": "osint",
-        "default_span": 6,
-    }},
 )
 def source_reliability(source: str) -> dict:
     """Reliability card for any source (blog, paper venue, filing, outlet),
@@ -148,17 +128,6 @@ def source_reliability(source: str) -> dict:
         },
         "additionalProperties": True,
     },
-    meta={"data": {"panel": "contradiction_ledger", "rest_route": None}, "panel": {
-        "type": "contradiction_ledger",
-        "title": "Contradiction ledger",
-        "description": "Where the public record disagrees with itself: contradicting claim pairs with both sources and citations; uncited entries are flagged, never hidden.",
-        "endpoint": None,
-        "facets": ["conflict", "claims"],
-        "tables": ["claim_conflicts"],
-        "ui_flag": "osint",
-        "default_span": 6,
-        "topic_param": "topic",
-    }},
 )
 def contradiction_scan(
     topic: Optional[str] = None, entity: Optional[str] = None
@@ -205,17 +174,6 @@ def contradiction_scan(
         },
         "additionalProperties": True,
     },
-    meta={"data": {"panel": "entity_dossier", "rest_route": None}, "panel": {
-        "type": "entity_dossier",
-        "title": "Entity dossier",
-        "description": "A cited brief for an entity from ingested public documents: every mention, aliases, first and last seen, and connected entities, each line linked to its source. Person entities require a document; no inference-only facts.",
-        "endpoint": None,
-        "facets": ["entities", "actors"],
-        "tables": ["document_actors"],
-        "ui_flag": "osint",
-        "default_span": 6,
-        "topic_param": "entity",
-    }},
 )
 def entity_dossier(entity: str, entity_type: Optional[str] = None) -> dict:
     """A cited entity brief from already-ingested public documents only. A
@@ -254,16 +212,6 @@ def entity_dossier(entity: str, entity_type: Optional[str] = None) -> dict:
         },
         "additionalProperties": True,
     },
-    meta={"data": {"panel": "relationship_path", "rest_route": None}, "panel": {
-        "type": "relationship_path",
-        "title": "Connection path",
-        "description": "How two entities are connected across the corpus, via the shortest co-mention path; each edge carries the cited documents that establish it. Resolution ambiguity is surfaced, not collapsed.",
-        "endpoint": None,
-        "facets": ["entities", "actors"],
-        "tables": ["document_actors"],
-        "ui_flag": "osint",
-        "default_span": 6,
-    }},
 )
 def relationship_path(a: str, b: str) -> dict:
     """The shortest co-mention path between two entities, with cited evidence
@@ -299,17 +247,6 @@ def relationship_path(a: str, b: str) -> dict:
         },
         "additionalProperties": True,
     },
-    meta={"data": {"panel": "evidence_timeline", "rest_route": None}, "panel": {
-        "type": "evidence_timeline",
-        "title": "Evidence timeline",
-        "description": "A reconstructed event sequence from dated, cited claims, each event carrying its corroboration density (independent-source count); uncited entries flagged.",
-        "endpoint": None,
-        "facets": ["events", "trend", "claims"],
-        "tables": ["argument_claims"],
-        "ui_flag": "osint",
-        "default_span": 6,
-        "topic_param": "topic",
-    }},
 )
 def timeline_reconstruct(
     topic: Optional[str] = None, entity: Optional[str] = None
@@ -347,17 +284,6 @@ def timeline_reconstruct(
         },
         "additionalProperties": True,
     },
-    meta={"data": {"panel": "provenance_trace", "rest_route": None}, "panel": {
-        "type": "provenance_trace",
-        "title": "Provenance trace",
-        "description": "The full chain behind an artifact: from the source that ingested it, through the document and its enrichments, to the claim and any provisioned KG it was routed into, every stage cited.",
-        "endpoint": None,
-        "facets": ["claims", "sources", "library"],
-        "tables": ["argument_claims"],
-        "ui_flag": "osint",
-        "default_span": 6,
-        "topic_param": "claim_id",
-    }},
 )
 def trace_artifact(
     claim_id: Optional[str] = None, document_id: Optional[str] = None
@@ -533,16 +459,6 @@ if _gated_enabled():
         },
         "additionalProperties": True,
     },
-    meta={"data": {"panel": "image_provenance", "rest_route": None}, "panel": {
-        "type": "image_provenance",
-        "title": "Image provenance",
-        "description": "What an image claims about itself (EXIF, file-claimed not verified), its content credentials, and every document it appears in.",
-        "endpoint": None,
-        "facets": ["entities", "library"],
-        "tables": ["image_assets", "image_appearances"],
-        "ui_flag": "osint",
-        "default_span": 6,
-    }},
 )
 def image_provenance(sha256: str) -> dict:
     """Provenance for one image asset: EXIF (file-claimed), pHash, C2PA, and
@@ -573,17 +489,6 @@ def image_provenance(sha256: str) -> dict:
             "truncated": {"type": "boolean"},
         }
     ),
-    meta={"data": {"panel": "image_reuse_ledger", "rest_route": None}, "panel": {
-        "type": "image_reuse_ledger",
-        "title": "Image reuse",
-        "description": "Recycled images: near-duplicate photos appearing across multiple documents, each finding citing every appearance. Flags recycling, not fakery.",
-        "endpoint": None,
-        "facets": ["entities", "conflict", "library"],
-        "tables": ["image_assets", "image_appearances"],
-        "ui_flag": "osint",
-        "default_span": 6,
-        "topic_param": "topic",
-    }},
 )
 def image_reuse_findings(topic: Optional[str] = None) -> dict:
     """Reuse findings across the corpus: near-duplicate image clusters spanning

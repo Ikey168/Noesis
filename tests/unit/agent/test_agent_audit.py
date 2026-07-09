@@ -9,7 +9,7 @@ from pathlib import Path
 import pytest
 
 from src.agent.audit import AGENT_EVENT, provisioning_audit_sink, replay_run
-from src.agent.runtime import AgentRuntime, PLANE_GENUI, PLANE_OSINT, PLANE_PROVISIONING
+from src.agent.runtime import AgentRuntime, PLANE_OSINT, PLANE_PROVISIONING
 
 duckdb = pytest.importorskip("duckdb")
 
@@ -31,14 +31,14 @@ def test_every_agent_call_is_written_to_the_provisioning_audit_trail(conn):
     rt = AgentRuntime(_fake_caller, audit_sink=provisioning_audit_sink(conn, "run-1"))
     rt.call(PLANE_PROVISIONING, "kg_deploy", {"name": "energy_kg"})
     rt.call(PLANE_OSINT, "corroborate", {"claim_id": "k1"})
-    rt.call(PLANE_GENUI, "noesis_generate_view", {"intent": "energy"})
+    rt.call(PLANE_OSINT, "entity_dossier", {"entity": "X"})
 
     from src.provisioning import store
     events = store.list_events(conn, name="run-1", limit=100)
     assert len(events) == 3
     assert all(e["event"] == AGENT_EVENT for e in events)
     # The trail lives in the same provisioning_events log used for KG lineage.
-    assert {e["detail"]["tool"] for e in events} == {"kg_deploy", "corroborate", "noesis_generate_view"}
+    assert {e["detail"]["tool"] for e in events} == {"kg_deploy", "corroborate", "entity_dossier"}
 
 
 def test_run_is_reconstructable_from_the_trail(conn):
@@ -63,7 +63,7 @@ def test_replay_is_scoped_to_its_run(conn):
     sink_b = provisioning_audit_sink(conn, "run-b")
     AgentRuntime(_fake_caller, audit_sink=sink_a).call(PLANE_OSINT, "corroborate", {"claim_id": "k1"})
     rt_b = AgentRuntime(_fake_caller, audit_sink=sink_b)
-    rt_b.call(PLANE_GENUI, "noesis_generate_view", {"intent": "x"})
+    rt_b.call(PLANE_OSINT, "corroborate", {"claim_id": "x"})
     rt_b.call(PLANE_OSINT, "source_reliability", {"source": "Alpha"})
 
     assert len(replay_run(conn, "run-a")) == 1

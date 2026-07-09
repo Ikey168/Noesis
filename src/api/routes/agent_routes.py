@@ -102,7 +102,7 @@ def status() -> Dict[str, Any]:
 
 @router.post("/analyst")
 def run_analyst(request: AnalystRequest) -> Dict[str, Any]:
-    """Run the analyst agent on a goal (goal -> KG -> OSINT -> canvas), recording
+    """Run the analyst agent on a goal (goal -> KG -> OSINT), recording
     every call to the audit trail under a fresh run id."""
     _require_enabled()
     conn, lock = _conn()
@@ -132,7 +132,6 @@ def run_analyst(request: AnalystRequest) -> Dict[str, Any]:
         "goal": result.goal,
         "kg": result.kg,
         "osint": result.osint,
-        "canvas": result.canvas,
         "steps": result.steps,
         "findings": result.findings,
     }
@@ -140,7 +139,7 @@ def run_analyst(request: AnalystRequest) -> Dict[str, Any]:
 
 @router.post("/investigator")
 def run_investigator(request: InvestigatorRequest) -> Dict[str, Any]:
-    """Run an investigation (open KG -> R11 surface -> canvas), respecting the
+    """Run an investigation (open KG -> R11 surface), respecting the
     review gate and recording every call to the audit trail."""
     _require_enabled()
     conn, lock = _conn()
@@ -170,7 +169,6 @@ def run_investigator(request: InvestigatorRequest) -> Dict[str, Any]:
         "kg": result.kg,
         "surface": result.surface,
         "audit": result.audit,
-        "canvas": result.canvas,
         "steps": result.steps,
         "gated_calls": result.gated_calls,
         "findings": result.findings,

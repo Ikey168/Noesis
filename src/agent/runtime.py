@@ -1,13 +1,12 @@
 """
 Agent host runtime over the MCP surface (M10.1).
 
-An agent drives Noesis by calling tools across three planes:
+An agent drives Noesis by calling tools across two planes:
 
 * **provisioning** (``neuronews-provisioning``) - deploy/attach/ingest/teardown a
   namespaced KG,
 * **osint** (``neuronews-osint``) - corroboration, dossiers, relationship paths,
   timelines, provenance traces,
-* **genui** (``noesis``) - turn a goal into a canvas (a ``ui-spec-v1`` layout).
 
 This runtime is the disciplined gate between an agent and those planes. Reusing
 the R4 tool-loop discipline (a per-server allowlist plus a call budget), it:
@@ -33,13 +32,11 @@ from typing import Any, Callable, Dict, List, Optional
 
 PLANE_PROVISIONING = "provisioning"
 PLANE_OSINT = "osint"
-PLANE_GENUI = "genui"
 
 # The MCP server backing each plane.
 _PLANE_SERVERS = {
     PLANE_PROVISIONING: "neuronews-provisioning",
     PLANE_OSINT: "neuronews-osint",
-    PLANE_GENUI: "noesis",
 }
 
 _PROVISIONING_TOOLS = frozenset({
@@ -52,7 +49,6 @@ _OSINT_TOOLS = frozenset({
 })
 # The review-gated OSINT tools: allowlisted only when the gate is open.
 _OSINT_GATED_TOOLS = frozenset({"geolocate_claims", "narrative_coordination"})
-_GENUI_TOOLS = frozenset({"noesis_generate_view", "noesis_panels"})
 
 
 def gated_tools_enabled() -> bool:
@@ -61,13 +57,12 @@ def gated_tools_enabled() -> bool:
 
 
 def default_planes() -> Dict[str, Dict[str, Any]]:
-    """The three planes, with per-plane server and tool allowlist. The OSINT
+    """The planes, with per-plane server and tool allowlist. The OSINT
     plane admits the gated tools only while the review gate is open."""
     osint_tools = _OSINT_TOOLS | (_OSINT_GATED_TOOLS if gated_tools_enabled() else frozenset())
     return {
         PLANE_PROVISIONING: {"server": _PLANE_SERVERS[PLANE_PROVISIONING], "tools": _PROVISIONING_TOOLS},
         PLANE_OSINT: {"server": _PLANE_SERVERS[PLANE_OSINT], "tools": osint_tools, "gated": _OSINT_GATED_TOOLS},
-        PLANE_GENUI: {"server": _PLANE_SERVERS[PLANE_GENUI], "tools": _GENUI_TOOLS},
     }
 
 
@@ -211,7 +206,6 @@ def live_caller() -> Callable[[str, str, Dict[str, Any]], Any]:
 __all__ = [
     "PLANE_PROVISIONING",
     "PLANE_OSINT",
-    "PLANE_GENUI",
     "Budget",
     "ToolCall",
     "BudgetExceeded",
