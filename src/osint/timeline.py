@@ -55,9 +55,10 @@ def timeline_reconstruct(
         where.append("c.document_id IN (" + ", ".join("?" for _ in doc_ids) + ")")
         params.extend(doc_ids)
 
-    has_articles = common.table_exists(conn, "news_articles")
+    citation_tbl = common.citation_table(conn)
+    has_articles = citation_tbl is not None
     date_expr = "a.publish_date" if has_articles else "CAST(NULL AS TIMESTAMP)"
-    join = "LEFT JOIN news_articles a ON c.document_id = a.id" if has_articles else ""
+    join = f"LEFT JOIN {citation_tbl} a ON c.document_id = a.id" if has_articles else ""
     clause = ("WHERE " + " AND ".join(where)) if where else ""
     params.append(int(limit))
 

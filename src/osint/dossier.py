@@ -55,11 +55,12 @@ def _mentions(conn, entity: str) -> List[Dict[str, Any]]:
 
 
 def _first_last_seen(conn, document_ids: List[str]) -> Dict[str, Optional[str]]:
-    if not document_ids or not common.table_exists(conn, "news_articles"):
+    citation_tbl = common.citation_table(conn)
+    if not document_ids or not citation_tbl:
         return {"first_seen": None, "last_seen": None}
     ph = ", ".join("?" for _ in document_ids)
     row = conn.execute(
-        f"SELECT MIN(publish_date), MAX(publish_date) FROM news_articles WHERE id IN ({ph})",
+        f"SELECT MIN(publish_date), MAX(publish_date) FROM {citation_tbl} WHERE id IN ({ph})",
         document_ids,
     ).fetchone()
     return {

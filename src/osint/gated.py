@@ -106,8 +106,9 @@ def geolocate_claims(
         where.append("c.document_id IN (" + ", ".join("?" for _ in doc_ids) + ")")
         params.extend(doc_ids)
 
-    has_articles = common.table_exists(conn, "news_articles")
-    join = "LEFT JOIN news_articles a ON c.document_id = a.id" if has_articles else ""
+    citation_tbl = common.citation_table(conn)
+    has_articles = citation_tbl is not None
+    join = f"LEFT JOIN {citation_tbl} a ON c.document_id = a.id" if has_articles else ""
     src = "a.source" if has_articles else "NULL"
     url = "a.url" if has_articles else "NULL"
     clause = ("WHERE " + " AND ".join(where)) if where else ""
@@ -158,7 +159,8 @@ def narrative_coordination(
         topic: optional topic filter (claim-text substring).
         min_similarity: Jaccard threshold for two claims to count as echoing.
     """
-    if not (common.table_exists(conn, "argument_claims") and common.table_exists(conn, "news_articles")):
+    citation_tbl = common.citation_table(conn)
+    if not (common.table_exists(conn, "argument_claims") and citation_tbl):
         return {"cohorts": [], "count": 0, "note": "claim and source layers required"}
 
     where = ["a.source IS NOT NULL"]
@@ -168,8 +170,8 @@ def narrative_coordination(
         params.append(f"%{topic}%")
     params.append(int(limit))
     rows = conn.execute(
-        "SELECT c.claim_id, c.claim_text, a.source FROM argument_claims c "
-        "JOIN news_articles a ON c.document_id = a.id "
+        f"SELECT c.claim_id, c.claim_text, a.source FROM argument_claims c "
+        f"JOIN {citation_tbl} a ON c.document_id = a.id "
         f"WHERE {' AND '.join(where)} LIMIT ?",
         params,
     ).fetchall()

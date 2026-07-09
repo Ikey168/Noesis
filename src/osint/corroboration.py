@@ -46,14 +46,14 @@ def _support_contradict_from_evidence(
     whose source and credibility we resolve."""
     if not common.table_exists(conn, "claim_evidence"):
         return []
-    has_articles = common.table_exists(conn, "news_articles")
-    if has_articles:
+    citation_tbl = common.citation_table(conn)
+    if citation_tbl:
         rows = conn.execute(
-            """
+            f"""
             SELECT e.relation, e.evidence_source_type, e.similarity_score,
                    a.source
             FROM claim_evidence e
-            LEFT JOIN news_articles a ON e.evidence_document_id = a.id
+            LEFT JOIN {citation_tbl} a ON e.evidence_document_id = a.id
             WHERE e.claim_id = ?
               AND lower(e.relation) IN ('supports', 'contradicts')
             """,

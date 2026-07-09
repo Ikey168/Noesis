@@ -48,6 +48,31 @@ WHERE d.source_type = 'news'
 """
 
 
+# The source-type-agnostic companion of the news_articles view: the same legacy
+# column shape over *every* document (no source_type filter), plus source_type
+# and the enrichment topics. OSINT resolves citations from this so a blog, paper
+# or filing resolves to its source exactly like a news article does, instead of
+# being mis-flagged uncited by the news-only view.
+_CORPUS_VIEW_SQL = """
+CREATE VIEW corpus_documents AS
+SELECT
+    d.document_id AS id,
+    d.title       AS title,
+    d.url         AS url,
+    d.content     AS content,
+    CASE WHEN d.created_at IS NULL THEN NULL
+         ELSE CAST(to_timestamp(d.created_at / 1000) AS TIMESTAMP) END AS publish_date,
+    COALESCE(d.source_id, json_extract_string(d.metadata, '$.source')) AS source,
+    json_extract_string(d.metadata, '$.category') AS category,
+    d.source_type     AS source_type,
+    e.sentiment_score AS sentiment_score,
+    e.sentiment_label AS sentiment_label,
+    e.topics          AS topics
+FROM documents d
+LEFT JOIN document_enrichments e ON e.document_id = d.document_id
+"""
+
+
 def _news_articles_is_view(conn) -> bool:
     row = conn.execute(
         "SELECT table_type FROM information_schema.tables WHERE table_name = 'news_articles'"
@@ -61,6 +86,23 @@ def ensure_documents_schema(conn) -> None:
     EnrichmentStore(conn)   # document_enrichments
 
 
+def ensure_corpus_documents_view(conn) -> None:
+    """Create the source-type-agnostic ``corpus_documents`` view if absent.
+
+    Unlike ``news_articles`` (news-only), this projects every document into the
+    legacy column shape, so OSINT and other source-agnostic readers resolve a
+    document's source/citation regardless of its ``source_type``. A no-op if it
+    already exists. ``corpus_documents`` is a new name, so it never collides with
+    a legacy ``news_articles`` base table.
+    """
+    ensure_documents_schema(conn)
+    exists = conn.execute(
+        "SELECT table_type FROM information_schema.tables WHERE table_name = 'corpus_documents'"
+    ).fetchone()
+    if exists is None:
+        conn.execute(_CORPUS_VIEW_SQL)
+
+
 def ensure_news_articles_view(conn) -> None:
     """Create the ``news_articles`` view over ``documents`` if it is not present.
 
@@ -68,6 +110,9 @@ def ensure_news_articles_view(conn) -> None:
     table (a legacy warehouse, or a test that created its own), it is left alone
     — callers that want the view over a legacy table must migrate it first (see
     :func:`migrate_news_articles_to_view`).
+
+    The source-agnostic ``corpus_documents`` view is ensured alongside, so every
+    warehouse-setup path that builds the news view also gets the corpus view.
     """
     ensure_documents_schema(conn)
     exists = conn.execute(
@@ -75,6 +120,7 @@ def ensure_news_articles_view(conn) -> None:
     ).fetchone()
     if exists is None:
         conn.execute(_VIEW_SQL)
+    ensure_corpus_documents_view(conn)
 
 
 def write_news_articles(conn, rows: Iterable[Dict[str, Any]]) -> int:

@@ -25,11 +25,12 @@ from src.osint import common, evidence
 
 
 def _document_row(conn, document_id: str) -> Optional[Dict[str, Any]]:
-    if not common.table_exists(conn, "news_articles"):
+    citation_tbl = common.citation_table(conn)
+    if not citation_tbl:
         return None
     row = conn.execute(
-        "SELECT id, title, source, url, publish_date, category "
-        "FROM news_articles WHERE id = ?",
+        f"SELECT id, title, source, url, publish_date, category "
+        f"FROM {citation_tbl} WHERE id = ?",
         [document_id],
     ).fetchone()
     if row is None:

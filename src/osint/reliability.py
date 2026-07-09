@@ -39,10 +39,11 @@ ASSUMPTIONS = [
 
 
 def _track_record(conn, source: str) -> Dict[str, Any]:
-    if not common.table_exists(conn, "news_articles"):
+    citation_tbl = common.citation_table(conn)
+    if not citation_tbl:
         return {"documents": 0, "last_seen": None}
     row = conn.execute(
-        "SELECT COUNT(*), MAX(publish_date) FROM news_articles WHERE source = ?",
+        f"SELECT COUNT(*), MAX(publish_date) FROM {citation_tbl} WHERE source = ?",
         [source],
     ).fetchone()
     return {
@@ -53,16 +54,14 @@ def _track_record(conn, source: str) -> Dict[str, Any]:
 
 def _claim_record(conn, source: str) -> Dict[str, Any]:
     """Corroboration hit-rate and disputed-rate over the source's claims."""
-    if not (
-        common.table_exists(conn, "argument_claims")
-        and common.table_exists(conn, "news_articles")
-    ):
+    citation_tbl = common.citation_table(conn)
+    if not (common.table_exists(conn, "argument_claims") and citation_tbl):
         return {"claims": 0, "corroborated": 0, "disputed": 0}
     claim_rows = conn.execute(
-        """
+        f"""
         SELECT c.claim_id, COALESCE(c.factcheck_verdict, '')
         FROM argument_claims c
-        JOIN news_articles a ON c.document_id = a.id
+        JOIN {citation_tbl} a ON c.document_id = a.id
         WHERE a.source = ?
         """,
         [source],

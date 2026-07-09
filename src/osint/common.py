@@ -122,22 +122,38 @@ def table_exists(conn, table: str) -> bool:
         return False
 
 
+def citation_table(conn) -> Optional[str]:
+    """The table OSINT resolves a document's citation (source/url/title/date)
+    from, source-type-agnostic when available.
+
+    Prefers the source-agnostic ``corpus_documents`` view (every ``source_type``)
+    so a blog, paper or filing resolves to its source exactly like a news
+    article; falls back to the news-only ``news_articles`` view/table for legacy
+    warehouses and test fixtures that only seed it. ``None`` when neither exists.
+    """
+    if table_exists(conn, "corpus_documents"):
+        return "corpus_documents"
+    if table_exists(conn, "news_articles"):
+        return "news_articles"
+    return None
+
+
 def claim_sources(conn, claim_ids: Sequence[str]) -> Dict[str, Dict[str, Any]]:
     """Map each claim_id to its carrying source: ``{source, source_type, url,
-    document_id}``. Resolves the outlet name via ``news_articles`` when the
-    claim's document is a news article, else falls back to the claim's
-    ``source_type`` as the source label."""
+    document_id}``. Resolves the outlet name via the source-agnostic citation
+    table (:func:`citation_table`) for a document of any ``source_type``, else
+    falls back to the claim's ``source_type`` as the source label."""
     if not claim_ids or not table_exists(conn, "argument_claims"):
         return {}
     ph = ", ".join("?" for _ in claim_ids)
-    has_articles = table_exists(conn, "news_articles")
-    if has_articles:
+    citation_tbl = citation_table(conn)
+    if citation_tbl:
         rows = conn.execute(
             f"""
             SELECT c.claim_id, c.source_type, c.document_id,
                    a.source, a.url
             FROM argument_claims c
-            LEFT JOIN news_articles a ON c.document_id = a.id
+            LEFT JOIN {citation_tbl} a ON c.document_id = a.id
             WHERE c.claim_id IN ({ph})
             """,
             list(claim_ids),
