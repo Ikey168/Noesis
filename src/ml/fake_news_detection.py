@@ -12,8 +12,9 @@ import os
 from datetime import datetime
 from typing import Any, Dict, Optional
 
-import torch
-from transformers import AutoModelForSequenceClassification, AutoTokenizer, pipeline
+# torch / transformers are imported lazily inside the methods that need them, so
+# importing this module (e.g. to reference the class or for collection) does not
+# pull the heavy ML stack. Model construction still loads a model on demand.
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -41,7 +42,7 @@ class FakeNewsDetector:
             config_path: Path to configuration file
         """
         self.model_name = model_name
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.device = None  # resolved lazily in _initialize_model (needs torch)
 
         # Load configuration
         self.config = self._load_config(config_path)
@@ -82,7 +83,26 @@ class FakeNewsDetector:
         return default_config
 
     def _initialize_model(self):
-        """Initialize the transformer model and tokenizer."""
+        """Initialize the transformer model and tokenizer.
+
+        torch / transformers are imported here (not at module load) so importing
+        the module stays dependency-light; they are required only to build a
+        detector. If they are unavailable, fall through to the rule-based path.
+        """
+        try:
+            import torch
+            from transformers import (
+                AutoModelForSequenceClassification,
+                AutoTokenizer,
+                pipeline,
+            )
+        except Exception as exc:  # torch/transformers not installed
+            logger.warning("ML deps unavailable (%s); using rule-based fallback", exc)
+            self.classifier = None
+            self.model = None
+            return
+
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         try:
             # Try to use a pipeline first for simplicity
             self.classifier = pipeline(
