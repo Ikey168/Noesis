@@ -30,8 +30,9 @@ import logging
 import os
 import stat
 import threading
+from contextlib import contextmanager
 from pathlib import Path
-from typing import Any, List, Optional, Sequence
+from typing import Any, Iterator, List, Optional, Sequence
 
 import duckdb
 
@@ -83,6 +84,20 @@ def get_shared_connection() -> duckdb.DuckDBPyConnection:
                 _enforce_db_permissions(path)
                 _CONNECTION = conn
     return _CONNECTION
+
+
+@contextmanager
+def locked_connection() -> Iterator[duckdb.DuckDBPyConnection]:
+    """Yield the shared warehouse connection while holding the process-wide lock.
+
+    Writers that bypass :class:`LocalAnalyticsConnector` (e.g. a ``DocumentStore``
+    over the shared connection) must go through this so their access is
+    serialized against ``execute_query`` — a DuckDB connection object is not
+    safe for concurrent use.
+    """
+    conn = get_shared_connection()
+    with _LOCK:
+        yield conn
 
 
 class LocalAnalyticsConnector:
