@@ -71,7 +71,7 @@ cryptography==41.0.8
 bcrypt==4.1.2
 
 # Task queue and messaging
-celery==5.3.4
+celery==5.6.3
 redis==5.0.1
 
 # File format support
