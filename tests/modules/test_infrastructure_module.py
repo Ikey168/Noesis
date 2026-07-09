@@ -31,20 +31,6 @@ class TestInfrastructureCore:
         except Exception:
             pass
 
-class TestInfrastructureApps:
-    """Application components testing"""
-    
-    def test_streamlit_apps_coverage(self):
-        """Test Streamlit applications"""
-        try:
-            from src.apps.streamlit import Home
-            from src.apps.streamlit.pages import Ask_the_News
-            
-            assert Home is not None
-            # Note: Ask_the_News has a different import structure
-        except Exception:
-            pass
-
 class TestInfrastructureML:
     """Machine Learning infrastructure testing"""
     

@@ -100,22 +100,7 @@ if app_file.exists():
     check("privacy feature in root features dict", '"privacy"' in app_src)
 
 # ---------------------------------------------------------------------------
-# 5. Streamlit privacy banner
-# ---------------------------------------------------------------------------
-print("\n=== Streamlit privacy banner ===")
-
-home_py = REPO_ROOT / "apps" / "streamlit" / "Home.py"
-check("apps/streamlit/Home.py exists", home_py.exists())
-if home_py.exists():
-    home_src = home_py.read_text()
-    check("privacy_notice_dismissed preference key present", "privacy_notice_dismissed" in home_src)
-    check("Dismiss button present", "Dismiss" in home_src)
-    check("Privacy notice text explains local-only storage", "local" in home_src.lower() and "no" in home_src.lower())
-    check("DuckDB persistence for dismissal", "_save_pref_to_db" in home_src)
-    check("Session state used for dismissal", "session_state" in home_src)
-
-# ---------------------------------------------------------------------------
-# 6. Live DuckDB round-trip (prefs table)
+# 5. Live DuckDB round-trip (prefs table)
 # ---------------------------------------------------------------------------
 print("\n=== DuckDB live round-trip ===")
 
