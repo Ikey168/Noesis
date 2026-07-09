@@ -16,7 +16,7 @@ apache-airflow-providers-mysql==5.4.0
 
 # Cloud providers for AWS integration
 apache-airflow-providers-amazon==8.15.0
-apache-airflow-providers-http==4.7.0
+apache-airflow-providers-http==6.0.4
 
 # Data processing and analysis libraries (for DAGs)
 pandas==2.1.4
