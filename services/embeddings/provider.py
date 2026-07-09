@@ -100,6 +100,11 @@ class EmbeddingProvider:
                 model_name=model_name or "text-embedding-ada-002",
                 **kwargs
             )
+        elif provider == "hashing":
+            # Deterministic, dependency-light backend: offline default for tests
+            # and the fallback where sentence-transformers is unavailable.
+            from .backends.hashing import HashingBackend
+            return HashingBackend(**kwargs)
         else:
             raise ValueError(f"Unknown provider: {provider}")
     

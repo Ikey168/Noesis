@@ -1724,6 +1724,106 @@ def speaker_balance(media: Optional[str] = None) -> dict:
         con.close()
 
 
+# --------------------------------------------------------------------------- #
+# Semantic search over the document embedding sink (document_embeddings).
+# The index is built by trigger_embed_documents; queries embed with the
+# env-configured provider (EMBEDDING_PROVIDER; "hashing" for an offline default).
+# --------------------------------------------------------------------------- #
+
+
+@mcp.tool
+def semantic_search(query: str, top_k: int = 10) -> dict:
+    """Documents most semantically similar to a free-text query, by embedding
+    cosine, each cited to its source. Returns a note if the corpus is not yet
+    embedded (run trigger_embed_documents first).
+
+    Args:
+        query: the free-text query to search for.
+        top_k: number of results to return (default 10).
+    """
+    try:
+        con = _warehouse_ro()
+    except Exception as exc:
+        return {"error": str(exc)}
+    try:
+        from src.analytics.semantic_search import semantic_search as _search
+
+        return _search(con, query, top_k=top_k)
+    except Exception as exc:
+        return {"error": str(exc)}
+    finally:
+        con.close()
+
+
+@mcp.tool
+def similar_documents(document_id: str, top_k: int = 10) -> dict:
+    """Documents most similar to a given document (by embedding cosine),
+    excluding the document itself.
+
+    Args:
+        document_id: the document to find neighbours for.
+        top_k: number of neighbours to return (default 10).
+    """
+    try:
+        con = _warehouse_ro()
+    except Exception as exc:
+        return {"error": str(exc)}
+    try:
+        from src.analytics.semantic_search import similar_documents as _sim
+
+        return _sim(con, document_id, top_k=top_k)
+    except Exception as exc:
+        return {"error": str(exc)}
+    finally:
+        con.close()
+
+
+@mcp.tool
+def near_duplicate_documents(threshold: float = 0.9) -> dict:
+    """Clusters of near-identical documents by embedding cosine (>= threshold);
+    flags reuse/echo. Similarity can be coincidental (wire copy, quotations).
+
+    Args:
+        threshold: cosine cutoff for two documents to count as near-duplicates.
+    """
+    try:
+        con = _warehouse_ro()
+    except Exception as exc:
+        return {"error": str(exc)}
+    try:
+        from src.analytics.semantic_search import near_duplicates as _nd
+
+        return _nd(con, threshold=threshold)
+    except Exception as exc:
+        return {"error": str(exc)}
+    finally:
+        con.close()
+
+
+@mcp.tool
+def trigger_embed_documents(limit: Optional[int] = None) -> dict:
+    """Embed documents that have no embedding yet into ``document_embeddings``
+    (RW), using the env-configured embedding provider. Idempotent; returns the
+    number embedded.
+
+    Args:
+        limit: optional cap on how many documents to embed this pass.
+    """
+    try:
+        con = _warehouse_rw()
+    except Exception as exc:
+        return {"error": str(exc)}
+    try:
+        from src.ingestion.embed import embed_documents
+
+        embedded = embed_documents(con, limit=limit)
+        return {"embedded": embedded}
+    except Exception as exc:
+        return {"error": str(exc)}
+    finally:
+        con.close()
+
+
 if __name__ == "__main__":
     from src.mcp_host.transport import run_server
 
