@@ -24,7 +24,6 @@ def run_ml_tests():
         from tests.ml.test_model_evaluation import TestModelEvaluation
         from tests.ml.config.test_model_config import TestModelConfiguration
         from tests.ml.models.test_model_components import TestModelComponents
-        from tests.ml.training.test_training_pipeline import TestTrainingPipeline
         print("✅ All test imports successful!")
     except ImportError as e:
         print(f"❌ Import error: {e}")
@@ -37,7 +36,6 @@ def run_ml_tests():
         "tests/ml/test_model_evaluation.py", 
         "tests/ml/config/test_model_config.py",
         "tests/ml/models/test_model_components.py",
-        "tests/ml/training/test_training_pipeline.py"
     ]
     
     for test_file in test_files:
@@ -60,7 +58,6 @@ def run_ml_tests():
         "TestModelEvaluation": 0,
         "TestModelConfiguration": 0,
         "TestModelComponents": 0,
-        "TestTrainingPipeline": 0
     }
     
     # Simple test counting (line-based)

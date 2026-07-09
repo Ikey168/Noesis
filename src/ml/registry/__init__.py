@@ -1,1 +1,0 @@
-"""Model registry abstractions."""
