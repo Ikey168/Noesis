@@ -9,7 +9,7 @@ pgvector==0.2.4
 numpy==1.24.3
 sentence-transformers==2.2.2
 torch==2.0.1
-transformers==4.33.2
+transformers==5.13.0
 
 # Data processing
 pandas==2.0.3
