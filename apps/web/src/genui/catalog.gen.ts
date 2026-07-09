@@ -49,7 +49,12 @@ export type PanelType =
   | "relationship_path"
   | "evidence_timeline"
   | "provenance_trace"
-  | "figure_evidence";
+  | "figure_evidence"
+  | "series_explorer"
+  | "claim_vs_data"
+  | "data_check_ledger"
+  | "image_provenance"
+  | "image_reuse_ledger";
 
 export type Facet =
   | "overview"
@@ -124,6 +129,11 @@ export const PANEL_CATALOG: PanelDef[] = [
   { type: "evidence_timeline", title: "Evidence timeline", facets: ["events", "trend", "claims"], defaultSpan: 6, topicParam: true },
   { type: "provenance_trace", title: "Provenance trace", facets: ["claims", "sources", "library"], defaultSpan: 6, topicParam: true },
   { type: "figure_evidence", title: "Figure evidence", facets: ["library"], defaultSpan: 6, topicParam: true },
+  { type: "series_explorer", title: "Statistical series", facets: [], defaultSpan: 6, topicParam: true },
+  { type: "claim_vs_data", title: "Claims vs data", facets: [], defaultSpan: 6, topicParam: true },
+  { type: "data_check_ledger", title: "Data-check ledger", facets: [], defaultSpan: 6, topicParam: true },
+  { type: "image_provenance", title: "Image provenance", facets: [], defaultSpan: 6 },
+  { type: "image_reuse_ledger", title: "Image reuse", facets: [], defaultSpan: 6, topicParam: true },
 ];
 
 export const PANEL_DEFS: Partial<Record<PanelType, PanelDef>> = Object.fromEntries(

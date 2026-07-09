@@ -331,6 +331,153 @@ function FigureEvidencePanel(props: PanelProps) {
   );
 }
 
+const VERDICT_COLORS: Record<string, string> = {
+  supported: palette.teal,
+  contradicted: palette.amber,
+  unverifiable: palette.neu,
+};
+
+function SeriesExplorerPanel(props: PanelProps) {
+  const topic = props.panel.params?.topic;
+  const { data, source, isLoading } = useDataPlanePanel("series_explorer", {
+    topic: typeof topic === "string" ? topic : undefined,
+  });
+  const series = Array.isArray(data?.series) ? (data!.series as Record<string, unknown>[]) : [];
+  const rows = series.slice(0, 6);
+  return (
+    <GenPanel {...props} source={source} isLoading={isLoading}>
+      {rows.length === 0 ? (
+        <Empty text="No statistical series harvested" />
+      ) : (
+        <div style={{ display: "flex", flexDirection: "column" }}>
+          {rows.map((s, i) => (
+            <div key={String(s.series_id)} style={{ display: "flex", gap: 10, alignItems: "baseline", padding: "7px 0", borderBottom: i < rows.length - 1 ? "1px solid #12242e" : "none" }}>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={rowTitle}>{String(s.title ?? s.series_id)}</div>
+                <div style={{ ...mono, marginTop: 3 }}>{String(s.provider ?? "")}{s.geography ? ` · ${String(s.geography)}` : ""}{s.observation_count != null ? ` · ${String(s.observation_count)} obs` : ""}</div>
+              </div>
+              {s.latest_value != null ? (
+                <span style={{ fontFamily: fonts.mono, fontSize: 12, color: palette.teal }}>{String(s.latest_value)}{s.unit === "percent" ? "%" : ""}</span>
+              ) : null}
+            </div>
+          ))}
+        </div>
+      )}
+    </GenPanel>
+  );
+}
+
+function ClaimVsDataPanel(props: PanelProps) {
+  const topic = props.panel.params?.topic;
+  const { data, source, isLoading } = useDataPlanePanel("claim_vs_data", {
+    topic: typeof topic === "string" ? topic : undefined,
+  });
+  const checks = Array.isArray(data?.checks) ? (data!.checks as Record<string, unknown>[]) : [];
+  const rows = checks.slice(0, 5);
+  return (
+    <GenPanel {...props} source={source} isLoading={isLoading}>
+      {rows.length === 0 ? (
+        <Empty text="No claim-vs-data checks yet" />
+      ) : (
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          {rows.map((c, i) => {
+            const verdict = String(c.verdict ?? "unverifiable");
+            return (
+              <div key={String(c.check_id ?? i)} style={{ display: "flex", gap: 10, alignItems: "baseline" }}>
+                <span style={chip(VERDICT_COLORS[verdict] ?? palette.neu)}>{verdict.toUpperCase()}</span>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={rowTitle}>{String(c.subject ?? "")} <span style={{ color: palette.neu }}>({String(c.direction ?? "")})</span></div>
+                  {c.series_title ? <div style={{ ...mono, marginTop: 3 }}>{String(c.series_title)}</div> : null}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </GenPanel>
+  );
+}
+
+function DataCheckLedgerPanel(props: PanelProps) {
+  const topic = props.panel.params?.topic;
+  const { data, source, isLoading } = useDataPlanePanel("data_check_ledger", {
+    topic: typeof topic === "string" ? topic : undefined,
+  });
+  const checks = Array.isArray(data?.checks) ? (data!.checks as Record<string, unknown>[]) : [];
+  const rows = checks.slice(0, 6);
+  return (
+    <GenPanel {...props} source={source} isLoading={isLoading}>
+      {rows.length === 0 ? (
+        <Empty text="No contradicted claims on record" />
+      ) : (
+        <div style={{ display: "flex", flexDirection: "column" }}>
+          {rows.map((c, i) => (
+            <div key={String(c.check_id ?? i)} style={{ display: "flex", gap: 10, alignItems: "baseline", padding: "7px 0", borderBottom: i < rows.length - 1 ? "1px solid #12242e" : "none" }}>
+              <span style={chip(palette.amber)}>CONTRADICTED</span>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={rowTitle}>{String(c.subject ?? "")}</div>
+                <div style={{ ...mono, marginTop: 3 }}>{String(c.series_id ?? "")}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </GenPanel>
+  );
+}
+
+function ImageProvenancePanel(props: PanelProps) {
+  const { data, source, isLoading } = useDataPlanePanel("image_provenance", {});
+  const appearances = Array.isArray(data?.appearances) ? (data!.appearances as Record<string, unknown>[]) : [];
+  return (
+    <GenPanel {...props} source={source} isLoading={isLoading}>
+      {data == null ? (
+        <Empty text="Select an image to trace its provenance" />
+      ) : (
+        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+          <div style={mono}>phash {String(data.phash ?? "—")}</div>
+          <div style={{ fontSize: 11, color: palette.neu }}>EXIF is claimed by the file, not verified</div>
+          <div style={{ marginTop: 4, fontSize: 12 }}>Appears in {appearances.length} document{appearances.length === 1 ? "" : "s"}:</div>
+          {appearances.slice(0, 5).map((a, i) => (
+            <div key={i} style={mono}>{String(a.document_id)}</div>
+          ))}
+        </div>
+      )}
+    </GenPanel>
+  );
+}
+
+function ImageReuseLedgerPanel(props: PanelProps) {
+  const topic = props.panel.params?.topic;
+  const { data, source, isLoading } = useDataPlanePanel("image_reuse_ledger", {
+    topic: typeof topic === "string" ? topic : undefined,
+  });
+  const findings = Array.isArray(data?.findings) ? (data!.findings as Record<string, unknown>[]) : [];
+  const rows = findings.slice(0, 5);
+  return (
+    <GenPanel {...props} source={source} isLoading={isLoading}>
+      {rows.length === 0 ? (
+        <Empty text="No recycled images detected" />
+      ) : (
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          {rows.map((f, i) => {
+            const docs = Array.isArray(f.documents) ? (f.documents as string[]) : [];
+            return (
+              <div key={i} style={{ display: "flex", gap: 10, alignItems: "baseline" }}>
+                <span style={chip(palette.amber)}>{String(f.confidence ?? "").toUpperCase() || "REUSE"}</span>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={rowTitle}>Reused across {String(f.distinct_document_count ?? docs.length)} documents</div>
+                  <div style={{ ...mono, marginTop: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{docs.join(" · ")}</div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </GenPanel>
+  );
+}
+
 const WATCH_TYPE_COLORS: Record<string, string> = {
   Entity: ACCENT,
   Topic: palette.amber,
@@ -1848,6 +1995,11 @@ const REGISTRY: Record<PanelType, ComponentType<PanelProps>> = {
   articles: ArticlesPanel,
   documents: DocumentsPanel,
   figure_evidence: FigureEvidencePanel,
+  series_explorer: SeriesExplorerPanel,
+  claim_vs_data: ClaimVsDataPanel,
+  data_check_ledger: DataCheckLedgerPanel,
+  image_provenance: ImageProvenancePanel,
+  image_reuse_ledger: ImageReuseLedgerPanel,
   trending: TrendingPanel,
   clusters: ClustersPanel,
   event_axis: EventAxisPanel,
