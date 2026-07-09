@@ -92,7 +92,6 @@ def test_analyst_run_then_replay(client):
     assert body["run_id"].startswith("analyst-")
     assert body["kg"]["provisioned"] is True
     assert body["findings"] >= 2
-    assert body["canvas"]["spec_version"] == "ui-spec-v1"
 
     # The run is replayable from its audit trail.
     replay = client.get(f"/api/v1/agent/runs/{body['run_id']}")
@@ -110,7 +109,6 @@ def test_investigator_run_respects_the_gate(client):
     body = resp.json()
     assert body["gated_calls"] == 0  # never touches a gated tool while the gate is off
     assert body["findings"] >= 2
-    assert body["canvas"]["spec_version"] == "ui-spec-v1"
 
 
 def test_status_and_gating(monkeypatch):

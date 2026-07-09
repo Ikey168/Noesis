@@ -9,6 +9,7 @@ For a project overview, the tech stack, and local setup, start with the
 
 ## Project reference
 
+- [Integrate via MCP + API](integrate-via-mcp.md) — consuming Noesis from another project (server list, REST API, auth, examples)
 - [Project structure](PROJECT_STRUCTURE.md) — directory layout and where things live
 - [Security](security.md) — API hardening, WAF, and auth notes
 - [Model benchmarks](model_benchmarks.md) — argument-mining model metrics

@@ -7,8 +7,7 @@ import pytest
 from src.agent.analyst import kg_name_for
 from src.agent.investigator import GATED_TOOLS, InvestigatorAgent
 from src.agent.local_backend import build_local_caller
-from src.agent.runtime import AgentRuntime, NotAllowed, PLANE_GENUI, PLANE_OSINT, PLANE_PROVISIONING
-from src.genui.spec import validate_spec
+from src.agent.runtime import AgentRuntime, NotAllowed, PLANE_OSINT, PLANE_PROVISIONING
 
 duckdb = pytest.importorskip("duckdb")
 
@@ -82,9 +81,8 @@ def test_investigator_runs_end_to_end_over_the_r11_surface(runtime):
     assert {"entity_dossier", "relationship_path", "timeline_reconstruct", "trace_artifact"} <= tools_run
     assert result.findings >= 3
 
-    # It is auditable, and it surfaced a valid canvas.
+    # It is auditable.
     assert result.audit is not None
-    assert validate_spec(result.canvas) == []
 
 
 def test_investigator_never_invokes_a_gated_tool_while_the_gate_is_off(runtime):
@@ -104,7 +102,7 @@ def test_runtime_refuses_a_gated_tool_while_the_gate_is_off(runtime):
         runtime.call(PLANE_OSINT, "narrative_coordination", {"topic": "delta"})
 
 
-def test_investigator_crosses_provisioning_osint_and_genui(runtime):
+def test_investigator_crosses_provisioning_and_osint(runtime):
     InvestigatorAgent(runtime).run(TITLE, entities=["Jordan Rivera"], topic="delta")
     planes = {c.plane for c in runtime.transcript()}
-    assert planes == {PLANE_PROVISIONING, PLANE_OSINT, PLANE_GENUI}
+    assert planes == {PLANE_PROVISIONING, PLANE_OSINT}

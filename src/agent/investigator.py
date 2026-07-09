@@ -8,9 +8,9 @@ the runtime:
 * **entity_dossier** - a cited brief per entity,
 * **relationship_path** - how two entities are connected, edge by cited edge,
 * **timeline_reconstruct** - a dated, corroboration-weighted event sequence,
-* **trace_artifact** - the provenance chain behind a claim,
+* **trace_artifact** - the provenance chain behind a claim.
 
-then surfaces the findings on a canvas. Because it runs entirely through the
+Because it runs entirely through the
 runtime, it inherits the review gate: it only ever calls the ungated R11 tools,
 and the runtime would refuse a gated tool (``geolocate_claims`` /
 ``narrative_coordination``) while the gate is closed. The run is auditable via
@@ -25,7 +25,6 @@ from typing import Any, Dict, List, Optional, Tuple
 from src.agent.analyst import kg_name_for
 from src.agent.runtime import (
     AgentRuntime,
-    PLANE_GENUI,
     PLANE_OSINT,
     PLANE_PROVISIONING,
 )
@@ -42,7 +41,6 @@ class InvestigationResult:
     kg: Dict[str, Any]
     surface: List[Dict[str, Any]] = field(default_factory=list)
     audit: Optional[Dict[str, Any]] = None
-    canvas: Optional[Dict[str, Any]] = None
     steps: int = 0
     gated_calls: int = 0
 
@@ -52,7 +50,7 @@ class InvestigationResult:
 
 
 class InvestigatorAgent:
-    """Drives open-investigation -> R11 surface -> canvas over the runtime,
+    """Drives open-investigation -> R11 surface over the runtime,
     respecting the review gate."""
 
     def __init__(self, runtime: AgentRuntime):
@@ -98,19 +96,12 @@ class InvestigatorAgent:
         # 3) The investigation is auditable from its namespace.
         audit = self._rt.call(PLANE_PROVISIONING, "kg_lineage", {"name": name})
 
-        # 4) Surface the findings on a canvas.
-        canvas = self._rt.call(
-            PLANE_GENUI, "noesis_generate_view",
-            {"intent": f"investigation dossier connections and timeline for {title}"},
-        )
-
         gated_calls = sum(1 for c in self._rt.transcript() if c.tool in GATED_TOOLS)
         return InvestigationResult(
             title=title,
             kg={"name": name, "provisioned": provisioned},
             surface=surface,
             audit=audit,
-            canvas=canvas,
             steps=self._rt.steps_used,
             gated_calls=gated_calls,
         )

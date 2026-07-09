@@ -103,18 +103,6 @@ def kg_ontology() -> dict:
 
 
 @mcp.tool(
-    meta={"panel": {
-        "type": "entity_graph",
-        "title": "Entity graph",
-        "description": "Co-mention network of entities in recent coverage.",
-        "endpoint": "/api/v1/entity_graph",
-        "facets": ["entities", "actors", "overview"],
-        "tables": ["documents"],
-        "ui_flag": "influence_graph",
-        "default_span": 6,
-        "days_param": "days",
-        "max_days": 30,
-    }},
 )
 def list_entities(
     entity_type: Optional[str] = None,
@@ -271,18 +259,6 @@ def emerging_connections(
 
 
 @mcp.tool(
-    meta={"panel": {
-        "type": "trending",
-        "title": "Trending topics",
-        "description": "Topics ranked by mention velocity.",
-        "endpoint": "/topics/trending",
-        "facets": ["overview", "trend", "events"],
-        "tables": ["news_articles"],
-        "ui_flag": "trending",
-        "default_span": 6,
-        "days_param": "days",
-        "max_days": 30,
-    }},
 )
 def evolving_topics(
     window_minutes: int = 60,
@@ -334,7 +310,6 @@ def _comention_graph():
     # Data-mode (M1.3): the community-coloring payload for the entity_graph
     # panel, servable through the /api/v1/ui/data proxy. Base nodes/edges stay
     # available via the existing /api/v1/entity_graph REST route.
-    meta={"data": {"panel": "entity_graph", "rest_route": "/api/v1/entity_graph"}},
 )
 def kg_communities(kg: Optional[str] = None) -> dict:
     """Community detection (label propagation) over the KG co-mention graph,

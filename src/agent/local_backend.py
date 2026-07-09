@@ -7,7 +7,6 @@ DuckDB connection, instead of over live MCP transports:
 
 * **provisioning** -> :class:`src.provisioning.provisioner.Provisioner`,
 * **osint** -> the ``src.osint`` composition functions,
-* **genui** -> :func:`src.genui.planner.plan`.
 
 The tool names and argument shapes match the MCP tool surface, so an agent
 written against the runtime is identical whether it runs over live MCP
@@ -24,7 +23,7 @@ from typing import Any, Callable, Dict, Optional
 
 def build_local_caller(conn, clock: Optional[Callable[[], Any]] = None):
     """A ``(server, tool, arguments) -> result`` caller backed by the real
-    provisioning / OSINT / genui code against ``conn``."""
+    provisioning / OSINT code against ``conn``."""
     from src.provisioning.provisioner import Provisioner
 
     prov = Provisioner(conn, clock=clock) if clock else Provisioner(conn)
@@ -84,23 +83,12 @@ def build_local_caller(conn, clock: Optional[Callable[[], Any]] = None):
             return fn(conn, **{k: v for k, v in a.items()})
         raise RuntimeError(f"no local backend for osint tool {tool!r}")
 
-    def _genui(tool: str, a: Dict[str, Any]) -> Any:
-        if tool == "noesis_generate_view":
-            from src.genui.planner import plan
-            return plan(a.get("intent", ""), source_type=a.get("source_type")).to_dict()
-        if tool == "noesis_panels":
-            from src.genui.discovery import merged_catalog_dict
-            return {"panels": merged_catalog_dict()}
-        raise RuntimeError(f"no local backend for genui tool {tool!r}")
-
     def caller(server: str, tool: str, arguments: Dict[str, Any]) -> Any:
         args = arguments or {}
         if server == "neuronews-provisioning":
             return _provisioning(tool, args)
         if server == "neuronews-osint":
             return _osint(tool, args)
-        if server == "noesis":
-            return _genui(tool, args)
         raise RuntimeError(f"no local backend for server {server!r}")
 
     return caller

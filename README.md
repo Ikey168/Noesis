@@ -1,54 +1,47 @@
 ![Airflow DAG Check](https://github.com/Ikey168/Noesis/actions/workflows/airflow-dag-check.yml/badge.svg)
 ![MLflow CI](https://github.com/Ikey168/Noesis/actions/workflows/mlops-ci.yml/badge.svg)
 
-# Noesis: Generative Knowledge Engine
+# Noesis: Knowledge Engine
 
 Noesis (formerly NeuroNews) ingests documents (news, blogs, papers,
-transcripts), mines arguments and evidence from them, and exposes everything
-through two surfaces:
-
-- a **generative UI**, where there are no fixed pages: every screen is a
-  layout planned at runtime from a natural-language intent, adapted to the
-  data that actually exists, the enabled knowledge domains, and the operator's
-  habits;
-- an **MCP capability plane**, where every subsystem is a tool server that the
-  UI, development agents, and autonomous agents compose against.
+transcripts, books, filings, media), mines arguments and evidence from them,
+and exposes everything as a **capability plane** — a set of MCP tool servers
+and a REST API that other projects, development agents, and autonomous agents
+compose against. There is no bespoke UI: Noesis is a backend you drive from
+your own client, an agent, or another service.
 
 The capability plane is not just for reading. Agents provision new knowledge
 domains: they stand up namespaced knowledge graphs, select and attach the
-sources that feed them, run the pipelines, and the UI grows panels for those
-domains through tool discovery alone. The full design lives in the
+sources that feed them, and run the pipelines — all through the same tool
+surface. The full design lives in the
 [MCP rearchitecture plan](docs/architecture/MCP_REARCHITECTURE_PLAN.md).
+
+> **Consuming Noesis from another project?** See
+> [docs/integrate-via-mcp.md](docs/integrate-via-mcp.md) for the MCP server
+> list, the REST API surface, auth, and example tool calls.
 
 ---
 
 ## The three pillars
 
-1. **Generative canvas.** The frontend has no fixed views. Each screen is a
-   `ui-spec-v1` document planned from an intent ("compare outlet framing on
-   climate policy"), validated against a contract, and rendered from a registry
-   of 43 panel types built on a small set of reusable chart primitives. The
-   only control is a command bar; the planner runs as you type.
-2. **MCP capability plane.** Sixteen subsystem MCP servers expose the platform:
+1. **MCP capability plane.** Subsystem MCP servers expose the platform:
    ingestion, argument mining, evidence and OSINT, the knowledge graph,
-   provisioning, research, lineage, security, and more. The panel catalog, the
-   panel data, and the LLM planner are all grounded in tool discovery and tool
-   calls.
+   statistics, provisioning, research, lineage, security, and more. Every
+   subsystem is a tool server; external hosts (Claude Desktop, another agent,
+   your own service) discover and call the tools directly.
+2. **REST API.** The same subsystems are reachable over HTTP (`src/api/`) for
+   clients that prefer REST to MCP — documents, argument mining, the knowledge
+   graph, evidence, search, reports, and more.
 3. **Agent-provisioned knowledge.** An audited agent host runs analyst and
-   investigator agents over the provisioning, OSINT, and generative-UI planes.
-   Agents deploy knowledge graphs with their own storage and pipelines under
-   quota and approval guardrails, and every run is budgeted, allowlisted, and
-   recorded as a replayable transcript.
+   investigator agents over the provisioning and OSINT planes. Agents deploy
+   knowledge graphs with their own storage and pipelines under quota and
+   approval guardrails, and every run is budgeted, allowlisted, and recorded as
+   a replayable transcript.
 
 ---
 
 ## What it does
 
-- **Adaptive generative UI.** Every screen is planned from an intent as a
-  validated `ui-spec-v1` document (heuristically, or by an LLM when a key is
-  configured) and adapted to warehouse data availability, installed domain
-  packs, and the operator's pins and mutes. Canvases can be saved, reopened,
-  refined in place, and shared by read-only link. See [docs/genui.md](docs/genui.md).
 - **Argument mining.** Detects claims, classifies stances, identifies frames
   (economic, security, humanitarian, legal, political, scientific, other),
   extracts actor and entity mentions, and tracks how policy positions evolve.
@@ -115,9 +108,8 @@ NEPTUNE_ENDPOINT       ws://localhost:8182/gremlin
 
 Every subsystem is a FastMCP server. Read tools run against the warehouse and
 never conflict with the API writer, so they are safe for both development
-agents and the live UI. The generative-UI panel catalog is derived from tool
-discovery, domain packs arrive as connected servers, and provisioning tools
-stand up new knowledge graphs at runtime.
+agents and external hosts. Domain packs arrive as connected servers, and
+provisioning tools stand up new knowledge graphs at runtime.
 
 | Server | Focus |
 |---|---|
@@ -153,7 +145,6 @@ cd Noesis
 
 ```bash
 pip install -r requirements.txt
-cd apps/web && npm install && cd ../..
 ```
 
 ### 3. Run the API
@@ -168,22 +159,17 @@ uvicorn src.api.app:app --port 8012
 rejected. Use a separate `NOESIS_DB_PATH` to avoid locking the main warehouse
 file.
 
-### 4. Run the frontend
+### 4. Use the MCP servers
 
-```bash
-cd apps/web
-npm run dev          # http://localhost:5173
-```
-
-The React app falls back to bundled demo data when the API is unreachable, so
-the canvas works standalone for UI development.
+The MCP tool servers are declared in [`.mcp.json`](.mcp.json) and each runs
+standalone (`python tools/<name>_mcp/server.py`). See
+[docs/integrate-via-mcp.md](docs/integrate-via-mcp.md) for connecting an
+external host and example tool calls.
 
 ### 5. Run tests
 
 ```bash
 pytest                                        # unit and integration tests
-npx tsc --noEmit -p apps/web/tsconfig.json    # TypeScript type check
-python scripts/genui/codegen.py --check       # generated genui artifacts are current
 ```
 
 ### 6. Other entry points
@@ -205,32 +191,6 @@ docker compose up --build
 
 ---
 
-## Generative canvas
-
-The frontend has no fixed views. Each screen is a canvas: a `ui-spec-v1`
-layout generated from an intent by `POST /api/v1/ui/generate` (or by a
-client-side planner when the backend is unreachable) and rendered from a
-registry of 43 panel types. Panels span articles and library documents,
-trending and event clusters, sentiment and claims, framing and stance, actor
-positions and conflicts, outlet ranking and clustering, the entity graph, the
-research family, provisioned knowledge graphs, and the OSINT surface.
-
-Panels are built on seven reusable chart primitives in
-`apps/web/src/components/charts/`: `LineBand` (line with a confidence band),
-`TimelineAxis` (dated event axis), `Sankey` (layered flow), `BarKit` (grouped
-and diverging bars), plus `Heatmap`, `EntityGraph`, and `Sparkline`. Each
-primitive serves several panels across different data layers.
-
-The single control is a command bar: the planner runs as you type, showing
-parsed intent tokens and a live preview of the layout before you commit it. An
-empty canvas shows the live pipeline signal instead of a greeting. Layouts
-adapt to warehouse data availability, enabled domain packs, and the operator's
-pins, mutes, and interaction history. Canvases persist locally, can be refined
-in place with a follow-up instruction, and can be shared by read-only link.
-See [docs/genui.md](docs/genui.md).
-
----
-
 ## Agents, packs, and provisioning
 
 These surfaces ship behind feature flags that are off by default:
@@ -246,13 +206,13 @@ These surfaces ship behind feature flags that are off by default:
 | `NOESIS_ENABLED_PACKS` | Domain packs to load at startup |
 
 - **Domain packs** are installable `noesis-pack-v1` manifests: a pack declares
-  its source types, enrichers, planner keywords, UI flags, and panels, and the
-  registry keeps immutable versions. A pack surfaces its panels and vocabulary
-  without editing the core catalog.
-- **Agents** run over three planes (provisioning, OSINT, generative UI) through
-  a runtime that budgets tokens, enforces an allowlist, and audits every tool
-  call. Runs can dispatch in-process or against the live MCP host, and each
-  produces a replayable transcript.
+  its source types, enrichers, sources and provisioning templates, and the
+  registry keeps immutable versions. A pack extends the platform without
+  editing core code.
+- **Agents** run over two planes (provisioning, OSINT) through a runtime that
+  budgets tokens, enforces an allowlist, and audits every tool call. Runs can
+  dispatch in-process or against the live MCP host, and each produces a
+  replayable transcript.
 - **Provisioning** lets an agent deploy a namespaced knowledge graph with its
   own attached storage and pipelines, bounded by quotas and an approval gate,
   with idempotent upserts and lineage. Finance and legal domains are stood up
@@ -299,7 +259,7 @@ predictions.
 ## Documentation
 
 - [Documentation index](docs/index.md): full doc map by topic
-- [Generative UI](docs/genui.md): the canvas, planners, adaptivity, ui-spec-v1
+- [Integrate via MCP + API](docs/integrate-via-mcp.md): consuming Noesis from another project
 - [MCP rearchitecture plan](docs/architecture/MCP_REARCHITECTURE_PLAN.md): capability plane and agent-provisioned knowledge graphs
 - [Project structure](docs/PROJECT_STRUCTURE.md)
 - [Model benchmarks](docs/model_benchmarks.md)
@@ -313,12 +273,11 @@ Phases 1 through 6 (scraping and ingestion; NLP, sentiment, and knowledge
 graph; event detection and summarisation; dashboards and REST API; the
 argument-mining pipeline; outlet analysis) are complete.
 
-- **Phase 7, fully generative adaptive UI.** Complete. Fixed views replaced by
-  the intent-planned canvas (`ui-spec-v1`, heuristic and optional LLM planner,
-  a command bar with live plan preview, usage-signal adaptivity).
-- **Phase 8, MCP as the capability plane.** Complete. Catalog from discovery,
-  grounded LLM planning, MCP-backed panel data, Noesis as an MCP server, and
-  the data-science analytics tools.
+- **Phase 7, generative adaptive UI.** Shipped, then retired: Noesis now
+  exposes its capabilities purely through the MCP servers and REST API, and
+  the bespoke frontend has been removed.
+- **Phase 8, MCP as the capability plane.** Complete. Every subsystem is an MCP
+  tool server, plus the data-science analytics tools.
 - **Phase 9, agent-provisioned knowledge.** Complete. Multi-tenant
   provisioning of namespaced knowledge graphs with their own storage and
   pipelines, and the audited agent host that drives them.

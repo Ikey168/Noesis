@@ -1,4 +1,4 @@
-"""M10.1: the agent host runtime. An agent calls across all three planes through
+"""M10.1: the agent host runtime. An agent calls across the planes through
 the runtime within enforced budgets and allowlists; gated OSINT tools are refused
 while the review gate is closed; every call is recorded."""
 
@@ -10,7 +10,6 @@ from src.agent.runtime import (
     Budget,
     BudgetExceeded,
     NotAllowed,
-    PLANE_GENUI,
     PLANE_OSINT,
     PLANE_PROVISIONING,
     default_planes,
@@ -33,21 +32,18 @@ def _fake_caller(results=None):
     return caller
 
 
-def test_agent_calls_across_all_three_planes():
+def test_agent_calls_across_planes():
     rt = AgentRuntime(_fake_caller())
     prov = rt.call(PLANE_PROVISIONING, "kg_deploy", {"name": "energy_kg"})
     osint = rt.call(PLANE_OSINT, "corroborate", {"claim_id": "k1"})
-    canvas = rt.call(PLANE_GENUI, "noesis_generate_view", {"intent": "energy risk"})
 
     assert prov["tool"] == "kg_deploy"
     assert osint["tool"] == "corroborate"
-    assert canvas["tool"] == "noesis_generate_view"
-    # All three planes were exercised and recorded, on the right servers.
+    # Both planes were exercised and recorded, on the right servers.
     transcript = rt.transcript()
-    assert [c.plane for c in transcript] == [PLANE_PROVISIONING, PLANE_OSINT, PLANE_GENUI]
+    assert [c.plane for c in transcript] == [PLANE_PROVISIONING, PLANE_OSINT]
     assert transcript[0].server == "neuronews-provisioning"
     assert transcript[1].server == "neuronews-osint"
-    assert transcript[2].server == "noesis"
     assert all(c.ok for c in transcript)
 
 
@@ -57,7 +53,7 @@ def test_step_budget_is_enforced():
     rt.call(PLANE_OSINT, "corroborate")
     assert rt.steps_remaining() == 0
     with pytest.raises(BudgetExceeded):
-        rt.call(PLANE_GENUI, "noesis_generate_view")
+        rt.call(PLANE_OSINT, "corroborate")
 
 
 def test_per_plane_budget_is_enforced():
@@ -111,8 +107,8 @@ def test_every_call_reaches_the_audit_sink():
     seen = []
     rt = AgentRuntime(_fake_caller(), audit_sink=seen.append)
     rt.call(PLANE_PROVISIONING, "kg_deploy", {"name": "energy_kg"})
-    rt.call(PLANE_GENUI, "noesis_generate_view", {"intent": "x"})
-    assert [c.tool for c in seen] == ["kg_deploy", "noesis_generate_view"]
+    rt.call(PLANE_OSINT, "corroborate", {"claim_id": "x"})
+    assert [c.tool for c in seen] == ["kg_deploy", "corroborate"]
     # The audit record is JSON-ready and elides the bulky result payload.
     summary = seen[0].summary()
     assert summary["plane"] == "provisioning" and summary["ok"] is True

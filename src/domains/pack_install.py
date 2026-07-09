@@ -29,8 +29,6 @@ from src.domains import pack_registry
 from src.domains import registry as domain_registry
 from src.domains.base import DomainPack, Enricher
 from src.domains.pack_format import PackManifest
-from src.genui import catalog, planner
-from src.genui.catalog import PanelDef
 
 # Installed packs and the runtime registrations to undo on uninstall.
 _INSTALLED: Dict[str, Dict[str, Any]] = {}
@@ -75,34 +73,16 @@ def _compile_enricher(desc: Dict[str, Any]) -> Enricher:
     raise PackInstallError(f"unknown enricher kind {kind!r}")
 
 
-def _panel_def(d: Dict[str, Any]) -> PanelDef:
-    return PanelDef(
-        type=d["type"],
-        title=d["title"],
-        description=d.get("description", ""),
-        endpoint=d.get("endpoint"),
-        facets=tuple(d.get("facets", ())),
-        tables=tuple(d.get("tables", ())),
-        ui_flag=d.get("ui_flag"),
-        default_span=int(d.get("default_span", 6)),
-        topic_param=d.get("topic_param"),
-        source_type_param=d.get("source_type_param"),
-    )
-
-
 def install_manifest(manifest: PackManifest) -> Dict[str, Any]:
     """Install an in-memory manifest's capabilities into the running instance.
-    Reinstalling the same pack replaces its prior registration."""
+    Reinstalling the same pack replaces its prior registration.
+
+    A pack's ``panels`` and ``planner_keywords`` are recorded but no longer
+    registered anywhere: the generative UI they fed has been retired, so they
+    are advisory metadata now. The pack's enrichers, ui_flags and provisioning
+    templates install as before."""
     if manifest.name in _INSTALLED:
         uninstall(manifest.name)
-
-    # Panels -> catalog runtime.
-    for panel in manifest.panels:
-        catalog.register_panel(_panel_def(panel))
-
-    # Planner keywords -> facet routing.
-    for facet, words in manifest.planner_keywords.items():
-        planner.register_keywords(facet, words)
 
     # Enrichers -> a synthesized, enabled DomainPack (also carries the ui_flags).
     enrichers = [_compile_enricher(e) for e in manifest.enrichers]
@@ -196,10 +176,6 @@ def uninstall(name: str) -> bool:
     info = _INSTALLED.pop(name, None)
     if info is None:
         return False
-    for panel_type in info["panels"]:
-        catalog.unregister_panel(panel_type)
-    for facet, words in info["keywords"].items():
-        planner.unregister_keywords(facet, words)
     for template_name in info["templates"]:
         _TEMPLATES.pop(template_name, None)
     domain_registry.disable_pack(name)

@@ -370,17 +370,6 @@ def kg_lineage(kg: Optional[str] = None, limit: int = 50) -> dict:
         },
         "additionalProperties": True,
     },
-    meta={"panel": {
-        "type": "provisioned_kg",
-        "title": "Provisioned knowledge graphs",
-        "description": "Agent-deployed namespaced knowledge graphs: the scoped documents, entities and claims per namespace, plus the sources feeding each and why they were selected.",
-        "endpoint": None,
-        "facets": ["entities", "overview", "library"],
-        "tables": ["provisioned_kgs"],
-        "ui_flag": None,
-        "default_span": 6,
-        "topic_param": "kg",
-    }},
 )
 def kg_view(kg: Optional[str] = None) -> dict:
     """The `provisioned_kg` panel view: deployed KGs with their scoped panel

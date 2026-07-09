@@ -52,50 +52,9 @@ def server(monkeypatch):
     return module
 
 
-def test_series_explorer_annotation_validates(server):
-    from src.genui.discovery import panel_def_from_annotation
-
-    meta = server.series_explorer._mcp_meta
-    assert meta is not None and "panel" in meta
-    tool = {
-        "name": "series_explorer",
-        "description": "series explorer",
-        "meta": meta,
-        "has_output_schema": True,
-    }
-    panel = panel_def_from_annotation("neuronews-statistics", tool)
-    assert panel is not None, "series_explorer panel annotation must be valid"
-    assert panel.type == "series_explorer"
-    assert "dataset_series" in panel.tables
-    assert panel.topic_param == "topic"
-
-
 def test_annotated_tool_declares_output_schema(server):
-    # ADR-001 requires an outputSchema on annotated tools.
+    # Tools still declare an outputSchema for MCP consumers.
     assert server.series_explorer._mcp_output_schema is not None
-
-
-@pytest.mark.parametrize(
-    "tool_name,expected_type,expected_table",
-    [
-        ("claim_vs_data", "claim_vs_data", "claim_data_checks"),
-        ("data_check_ledger", "data_check_ledger", "claim_data_checks"),
-    ],
-)
-def test_a4_panel_annotations_validate(server, tool_name, expected_type, expected_table):
-    from src.genui.discovery import panel_def_from_annotation
-
-    fn = getattr(server, tool_name)
-    tool = {
-        "name": tool_name,
-        "description": tool_name,
-        "meta": fn._mcp_meta,
-        "has_output_schema": True,
-    }
-    panel = panel_def_from_annotation("neuronews-statistics", tool)
-    assert panel is not None, f"{tool_name} annotation must be valid"
-    assert panel.type == expected_type
-    assert expected_table in panel.tables
 
 
 def test_a4_tools_degrade_without_warehouse(server, monkeypatch):

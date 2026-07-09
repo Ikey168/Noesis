@@ -60,16 +60,6 @@ def _warehouse_ro():
             },
         }
     ),
-    meta={"data": {"panel": "venues", "rest_route": None}, "panel": {
-        "type": "venues",
-        "title": "Venue credibility",
-        "description": "Publication venues scored by concept diversity, attribution and citation impact, generalizing the outlet transparency ranking.",
-        "endpoint": None,
-        "facets": ["sources", "library"],
-        "tables": ["documents"],
-        "ui_flag": "venues",
-        "default_span": 6,
-    }},
 )
 def venues() -> dict:
     """Per-venue credibility over the ingested paper corpus, reusing the
@@ -101,17 +91,6 @@ def venues() -> dict:
         },
         "additionalProperties": True,
     },
-    meta={"data": {"panel": "citation_graph", "rest_route": None}, "panel": {
-        "type": "citation_graph",
-        "title": "Citation graph",
-        "description": "The paper citation network: papers linked by their references, sized by citation count.",
-        "endpoint": None,
-        "facets": ["entities", "library"],
-        "tables": ["documents"],
-        "ui_flag": "citation_graph",
-        "default_span": 6,
-        "topic_param": "topic",
-    }},
 )
 def citation_graph(topic: Optional[str] = None) -> dict:
     """The paper citation network (nodes = papers, edges = citations) from the
@@ -144,17 +123,6 @@ def citation_graph(topic: Optional[str] = None) -> dict:
         },
         "additionalProperties": True,
     },
-    meta={"data": {"panel": "literature_claims", "rest_route": None}, "panel": {
-        "type": "literature_claims",
-        "title": "Literature claims",
-        "description": "Claims mined from papers with fact-check verdicts and attribution, from the shared claim layer.",
-        "endpoint": None,
-        "facets": ["claims", "library"],
-        "tables": ["argument_claims"],
-        "ui_flag": "literature_claims",
-        "default_span": 6,
-        "topic_param": "topic",
-    }},
 )
 def literature_claims(topic: Optional[str] = None) -> dict:
     """SUPPORTS/CONTRADICTS-style claims scoped to papers, from the claim layer.

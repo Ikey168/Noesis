@@ -6,10 +6,9 @@ description aimed at what mining needs — chart type, axes, units, the headline
 relationship, and any legible numbers — so a figure becomes searchable, minable,
 and citable while the pipeline stays text-native.
 
-Key-gated with graceful degradation, exactly like the LLM planner
-(``src/genui/llm.py``): with no key, no SDK, an API failure, or no image bytes,
-:meth:`describe` returns ``None`` and the caller falls back to caption-only.
-Ingestion therefore never blocks on the model.
+Key-gated with graceful degradation: with no key, no SDK, an API failure, or no
+image bytes, :meth:`describe` returns ``None`` and the caller falls back to
+caption-only. Ingestion therefore never blocks on the model.
 
 Configuration (all optional):
 
