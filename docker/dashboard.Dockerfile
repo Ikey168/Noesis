@@ -96,10 +96,12 @@ FROM base as production
 # Switch to non-root user
 USER neuronews
 
-# Copy only necessary files for production
+# Copy only necessary files for production. The Streamlit app entrypoint is
+# src/dashboards/streamlit_dashboard.py (copied via src/); launch_dashboard.py
+# lives under scripts/utilities/ and is not used by the production CMD, so it is
+# intentionally not copied here (the stale root-level COPY broke the build).
 COPY --chown=neuronews:neuronews src/ ./src/
 COPY --chown=neuronews:neuronews config/ ./config/
-COPY --chown=neuronews:neuronews launch_dashboard.py ./
 COPY --chown=neuronews:neuronews requirements.txt ./
 
 # Create streamlit config directory

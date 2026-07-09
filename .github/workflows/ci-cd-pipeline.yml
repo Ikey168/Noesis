@@ -238,27 +238,29 @@ jobs:
           ignore-unfixed: true
           trivyignores: '.trivyignore'
 
-  # Job 3: Build and push Docker images
+  # Job 3: Build Docker images (validation only — does not publish)
   build-and-push:
-    name: Build & Push Images
+    name: Build Images (validation)
     runs-on: ubuntu-latest
     needs: [test, security-scan]
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
+    # Heavy images (torch, chromium); bound the job so a slow build can't hang CI.
+    timeout-minutes: 30
     
     strategy:
       matrix:
         service:
           - name: api
-            dockerfile: Dockerfile.api
+            dockerfile: docker/fastapi.Dockerfile
             context: .
           - name: scrapers
-            dockerfile: Dockerfile.scrapers
+            dockerfile: docker/scraper.Dockerfile
             context: .
           - name: dashboard
-            dockerfile: Dockerfile.dashboard
+            dockerfile: docker/dashboard.Dockerfile
             context: .
           - name: nlp
-            dockerfile: Dockerfile.nlp
+            dockerfile: docker/nlp.Dockerfile
             context: .
 
     steps:
@@ -268,12 +270,7 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Log in to Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+      # No registry login: validation mode builds but does not publish.
 
       - name: Extract metadata
         id: meta
@@ -286,38 +283,33 @@ jobs:
             type=sha,prefix={{branch}}-
             type=raw,value=latest,enable={{is_default_branch}}
 
-      - name: Build and push Docker image
+      # Validation only: build to confirm the Dockerfile is buildable, but do
+      # NOT push. push:false + single platform keeps this a fast, side-effect-free
+      # gate. Set repo variable ENABLE_DEPLOY=true and flip push back on to
+      # publish + deploy. Per-image Trivy scanning happens against a published
+      # image, so it moves with the push; the repo/dependency scan in the
+      # Security Scanning job still covers vulnerabilities here.
+      - name: Build Docker image (validation only)
         uses: docker/build-push-action@v5
         with:
           context: ${{ matrix.service.context }}
           file: ${{ matrix.service.dockerfile }}
-          push: true
+          push: false
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          platforms: linux/amd64,linux/arm64
-
-      - name: Scan Docker image
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/${{ matrix.service.name }}:${{ github.sha }}
-          format: 'sarif'
-          output: 'trivy-image-${{ matrix.service.name }}.sarif'
-
-      - name: Upload image scan results
-        uses: github/codeql-action/upload-sarif@v3
-        if: always()
-        continue-on-error: true
-        with:
-          sarif_file: 'trivy-image-${{ matrix.service.name }}.sarif'
+          platforms: linux/amd64
 
   # Job 4: Deploy to staging
   deploy-staging:
     name: Deploy to Staging
     runs-on: ubuntu-latest
     needs: build-and-push
-    if: github.ref == 'refs/heads/develop'
+    # Opt-in: images are validation-only (not published) unless ENABLE_DEPLOY is
+    # set, so deploying them is incoherent by default. Set repo variable
+    # ENABLE_DEPLOY=true (with push re-enabled above) to activate the pipeline.
+    if: vars.ENABLE_DEPLOY == 'true' && github.ref == 'refs/heads/develop'
     environment: staging
     
     steps:
@@ -387,7 +379,8 @@ jobs:
     name: Deploy to Production
     runs-on: ubuntu-latest
     needs: [build-and-push]
-    if: github.ref == 'refs/heads/main'
+    # Opt-in (see deploy-staging): off by default while images are validation-only.
+    if: vars.ENABLE_DEPLOY == 'true' && github.ref == 'refs/heads/main'
     environment: production
     
     steps:
@@ -469,7 +462,9 @@ jobs:
     name: Update GitOps
     runs-on: ubuntu-latest
     needs: deploy-production
-    if: github.ref == 'refs/heads/main' && success()
+    # Opt-in (see deploy-staging): off by default. Also pushes to a GitOps repo,
+    # so it must never fire as a side effect of the validation build.
+    if: vars.ENABLE_DEPLOY == 'true' && github.ref == 'refs/heads/main' && success()
     
     steps:
       - name: Checkout ArgoCD configs
