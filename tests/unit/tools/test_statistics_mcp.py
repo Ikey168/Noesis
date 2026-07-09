@@ -75,6 +75,35 @@ def test_annotated_tool_declares_output_schema(server):
     assert server.series_explorer._mcp_output_schema is not None
 
 
+@pytest.mark.parametrize(
+    "tool_name,expected_type,expected_table",
+    [
+        ("claim_vs_data", "claim_vs_data", "claim_data_checks"),
+        ("data_check_ledger", "data_check_ledger", "claim_data_checks"),
+    ],
+)
+def test_a4_panel_annotations_validate(server, tool_name, expected_type, expected_table):
+    from src.genui.discovery import panel_def_from_annotation
+
+    fn = getattr(server, tool_name)
+    tool = {
+        "name": tool_name,
+        "description": tool_name,
+        "meta": fn._mcp_meta,
+        "has_output_schema": True,
+    }
+    panel = panel_def_from_annotation("neuronews-statistics", tool)
+    assert panel is not None, f"{tool_name} annotation must be valid"
+    assert panel.type == expected_type
+    assert expected_table in panel.tables
+
+
+def test_a4_tools_degrade_without_warehouse(server, monkeypatch):
+    monkeypatch.setattr(server, "_warehouse_ro", lambda: (_ for _ in ()).throw(FileNotFoundError("no db")))
+    assert server.claim_vs_data()["checks"] == []
+    assert server.data_check_ledger()["checks"] == []
+
+
 def test_tools_degrade_gracefully_without_warehouse(server, monkeypatch):
     # No warehouse file -> tools return empty/valid payloads, never raise.
     monkeypatch.setattr(server, "_warehouse_ro", lambda: (_ for _ in ()).throw(FileNotFoundError("no db")))
