@@ -85,6 +85,11 @@ duckdb>=1.0.0,<2.0.0
 # host reports itself unavailable when this is missing.
 mcp>=1.28.1
 
+# Article-extraction cascade (#877) — both optional; src/ingestion/extract.py
+# degrades trafilatura -> readability-lxml -> bs4 heuristic without them
+trafilatura>=1.8.0
+readability-lxml>=0.8.1
+
 # Media connector (#523) — all optional; connector degrades gracefully without them
 openai-whisper>=20231117   # local Whisper model inference (pip install openai-whisper)
 faster-whisper>=1.0.0      # faster CTranslate2-based Whisper (GPU/CPU)
