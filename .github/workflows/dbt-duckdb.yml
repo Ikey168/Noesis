@@ -74,7 +74,7 @@ jobs:
         dbt docs generate --profiles-dir ../
         
     - name: Upload dbt artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v7
       if: always()
       with:
         name: dbt-artifacts-${{ github.run_number }}
@@ -85,7 +85,7 @@ jobs:
         retention-days: 30
         
     - name: Upload dbt docs
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v7
       if: success()
       with:
         name: dbt-docs-${{ github.run_number }}
