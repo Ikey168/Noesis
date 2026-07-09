@@ -53,7 +53,7 @@ plotly>=5.17.0
 networkx>=3.1
 
 # Rate Limiting & Security (Issue #59)
-redis>=4.5.0
+redis>=8.0.1
 pydantic[email]>=2.0.0
 
 # Observability & Monitoring (Issue #236)
