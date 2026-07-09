@@ -1185,6 +1185,80 @@ def stance_significance(a: str, b: str, topic: str) -> dict:
         return {"error": str(e)}
 
 
+# --------------------------------------------------------------------------- #
+# Relation extraction (document_relations): subject-relation-object triples
+# between entities. Entities come from the same NER as the actor batch; the
+# batch is built by trigger_relation_extraction.
+# --------------------------------------------------------------------------- #
+
+
+@mcp.tool
+def document_relations(document_id: str) -> dict:
+    """Relations extracted from one document (subject-relation-object), each
+    cited to its source sentence.
+
+    Args:
+        document_id: the document to list relations for.
+    """
+    conn, err = _warehouse_ro()
+    if err or conn is None:
+        return {"error": err or "no connection"}
+    try:
+        from src.argument_mining.relations import document_relations as _dr
+
+        return _dr(conn, document_id)
+    except Exception as e:
+        return {"error": str(e)}
+
+
+@mcp.tool
+def entity_relations(entity: str) -> dict:
+    """Relations involving an entity, as subject or object (by name or entity_id).
+
+    Args:
+        entity: the entity name or ``ent-...`` id.
+    """
+    conn, err = _warehouse_ro()
+    if err or conn is None:
+        return {"error": err or "no connection"}
+    try:
+        from src.argument_mining.relations import entity_relations as _er
+
+        return _er(conn, entity)
+    except Exception as e:
+        return {"error": str(e)}
+
+
+@mcp.tool
+def trigger_relation_extraction(limit: int = 200) -> dict:
+    """Extract relations for corpus documents not yet processed into
+    ``document_relations`` (RW). Safe to call repeatedly.
+
+    Args:
+        limit: max documents per call (default 200).
+
+    Returns {"documents_processed": int, "relations_found": int}.
+    """
+    import os
+    import duckdb
+
+    try:
+        from src.argument_mining.relations import extract_document_relations
+    except ImportError as e:
+        return {"error": f"relations module unavailable: {e}"}
+
+    db_path = os.environ.get(
+        "NEURONEWS_DB_PATH", str(REPO_ROOT / "data" / "local_warehouse.duckdb")
+    )
+    try:
+        rw_conn = duckdb.connect(db_path, read_only=False)
+        result = extract_document_relations(rw_conn, limit=limit)
+        rw_conn.close()
+        return result
+    except Exception as e:
+        return {"error": f"write connection failed — warehouse may be locked: {e}"}
+
+
 if __name__ == "__main__":
     from src.mcp_host.transport import run_server
 
