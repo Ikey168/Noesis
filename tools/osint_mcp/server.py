@@ -396,12 +396,14 @@ if _gated_enabled():
             con.close()
 
     # -- Track C / C4: imagery external tier (review-queued, no default provider)
-    def _warehouse_rw():
+    # Least privilege: corpus assets are read from the read-only warehouse; the
+    # review-queue write goes to a *separate* store, so the gated imagery tier
+    # never holds write access to the corpus warehouse.
+    def _imagery_queue_rw():
         import duckdb
 
-        from src.config.env import warehouse_path
-        path = warehouse_path(str(REPO_ROOT / "data" / "neuronews.duckdb"))
-        return duckdb.connect(path)
+        from src.config.env import imagery_queue_path
+        return duckdb.connect(imagery_queue_path())
 
     @mcp.tool
     def reverse_image_search(sha256: str) -> dict:
@@ -413,17 +415,19 @@ if _gated_enabled():
             sha256: a corpus image asset hash (never an operator-supplied photo).
         """
         try:
-            con = _warehouse_rw()
+            con = _warehouse_ro()
+            queue = _imagery_queue_rw()
         except Exception as exc:
             return {"error": str(exc)}
         try:
             from src.osint.imagery_gated import reverse_image_search as _ris
 
-            return _ris(con, sha256, provider=None)  # no default provider
+            return _ris(con, sha256, provider=None, queue_conn=queue)  # no default provider
         except Exception as exc:
             return {"error": str(exc)}
         finally:
             con.close()
+            queue.close()
 
     @mcp.tool
     def geolocate_image(sha256: str) -> dict:
@@ -435,17 +439,19 @@ if _gated_enabled():
             sha256: a corpus image asset hash.
         """
         try:
-            con = _warehouse_rw()
+            con = _warehouse_ro()
+            queue = _imagery_queue_rw()
         except Exception as exc:
             return {"error": str(exc)}
         try:
             from src.osint.imagery_gated import geolocate_image as _geo
 
-            return _geo(con, sha256, vlm=None)  # no default backend
+            return _geo(con, sha256, vlm=None, queue_conn=queue)  # no default backend
         except Exception as exc:
             return {"error": str(exc)}
         finally:
             con.close()
+            queue.close()
 
 
 @mcp.tool(

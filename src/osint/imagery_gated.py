@@ -17,6 +17,12 @@ the enforcement, not just the docs:
   becomes citable only when an operator confirms it via :func:`confirm_suggestion`.
 * **No default provider.** ``reverse_image_search`` needs an injected provider;
   with none configured the tier is inert (``no_provider_configured``).
+* **Least privilege for the queue.** The corpus asset is read from a *read-only*
+  warehouse connection; the review-queue write goes to a separate ``queue_conn``
+  (a dedicated store) so the gated imagery tier never holds write access to the
+  corpus warehouse. ``queue_conn`` defaults to ``conn`` for single-store callers
+  (e.g. tests); the served tools pass a read-only corpus conn and a distinct
+  read-write queue conn.
 
 See ``docs/architecture/OSINT_IMAGERY_PLAN.md`` §3.3.
 """
@@ -104,12 +110,16 @@ def reverse_image_search(
     sha256: str,
     provider: Optional[ReverseSearchProvider] = None,
     now_ms: Optional[int] = None,
+    queue_conn=None,
 ) -> Dict[str, Any]:
     """Queue reverse-image-search *suggestions* for a corpus asset.
 
     No default provider ships; with none configured the tier is inert. Results
-    are queued uncited — evidence only after operator confirmation.
+    are queued uncited — evidence only after operator confirmation. The corpus
+    asset is read from ``conn`` (read-only); the queue write goes to
+    ``queue_conn`` (defaults to ``conn``).
     """
+    queue_conn = conn if queue_conn is None else queue_conn
     if provider is None:
         return {"status": "no_provider_configured", "sha256": sha256,
                 "note": "reverse image search has no default provider; supply one to enable"}
@@ -124,7 +134,7 @@ def reverse_image_search(
     queued = []
     for hit in hits:
         suggestion = {"url": hit.get("url"), "title": hit.get("title"), "cited": False}
-        sid = _queue_suggestion(conn, "reverse_image_search", sha256, suggestion, now_ms)
+        sid = _queue_suggestion(queue_conn, "reverse_image_search", sha256, suggestion, now_ms)
         queued.append({"suggestion_id": sid, **suggestion})
     return {
         "status": "queued",
@@ -140,12 +150,16 @@ def geolocate_image(
     sha256: str,
     vlm: Optional[GeoVLM] = None,
     now_ms: Optional[int] = None,
+    queue_conn=None,
 ) -> Dict[str, Any]:
     """Queue visible-landmark geolocation *hypotheses* for a corpus asset.
 
     Suggestion-grade, never auto-cited. Reasons about the place in the scene,
-    never the subject (no person identification).
+    never the subject (no person identification). The corpus asset is read from
+    ``conn`` (read-only); the queue write goes to ``queue_conn`` (defaults to
+    ``conn``).
     """
+    queue_conn = conn if queue_conn is None else queue_conn
     if vlm is None:
         return {"status": "no_backend_configured", "sha256": sha256,
                 "note": "geolocation assist needs a vision backend"}
@@ -165,7 +179,7 @@ def geolocate_image(
             "grade": "suggestion",
             "cited": False,
         }
-        sid = _queue_suggestion(conn, "geolocate_image", sha256, suggestion, now_ms)
+        sid = _queue_suggestion(queue_conn, "geolocate_image", sha256, suggestion, now_ms)
         queued.append({"suggestion_id": sid, **suggestion})
     return {
         "status": "queued",

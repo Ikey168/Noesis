@@ -60,6 +60,45 @@ def test_reverse_search_queues_uncited_suggestions(conn_with_asset):
     assert queue["count"] == 1
 
 
+def test_queue_writes_go_to_a_separate_store(conn_with_asset, tmp_path):
+    # Least privilege: the corpus asset is read from `conn`, but the review-queue
+    # write lands in a *separate* queue store — the corpus connection is never
+    # written to (no queue table appears there).
+    duckdb = pytest.importorskip("duckdb")
+    corpus, sha = conn_with_asset
+    queue = duckdb.connect(str(tmp_path / "queue.duckdb"))
+    provider = lambda b: [{"url": "https://other.example/story", "title": "Elsewhere"}]
+    res = reverse_image_search(corpus, sha, provider=provider, now_ms=10, queue_conn=queue)
+    assert res["status"] == "queued"
+    # The suggestion is in the dedicated queue store...
+    assert list_review_queue(queue, cited=False)["count"] == 1
+    # ...and the corpus connection holds no review queue at all.
+    corpus_tables = {
+        r[0] for r in corpus.execute(
+            "SELECT table_name FROM information_schema.tables"
+        ).fetchall()
+    }
+    assert "imagery_review_queue" not in corpus_tables
+    queue.close()
+
+
+def test_geolocate_queue_write_goes_to_separate_store(conn_with_asset, tmp_path):
+    duckdb = pytest.importorskip("duckdb")
+    corpus, sha = conn_with_asset
+    queue = duckdb.connect(str(tmp_path / "queue.duckdb"))
+    vlm = lambda b: [{"landmark": "a bridge", "place": "somewhere", "confidence": 0.4}]
+    res = geolocate_image(corpus, sha, vlm=vlm, now_ms=5, queue_conn=queue)
+    assert res["status"] == "queued"
+    assert list_review_queue(queue)["count"] == 1
+    corpus_tables = {
+        r[0] for r in corpus.execute(
+            "SELECT table_name FROM information_schema.tables"
+        ).fetchall()
+    }
+    assert "imagery_review_queue" not in corpus_tables
+    queue.close()
+
+
 def test_geolocate_image_no_backend(conn_with_asset):
     conn, sha = conn_with_asset
     assert geolocate_image(conn, sha, vlm=None)["status"] == "no_backend_configured"
