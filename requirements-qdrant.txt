@@ -2,7 +2,7 @@
 # Issue #239: Qdrant backend parity
 
 # Qdrant client library
-qdrant-client>=1.7.0,<2.0.0
+qdrant-client>=1.18.0,<2.0.0
 
 # Additional dependencies for vector operations
 numpy>=1.24.0
