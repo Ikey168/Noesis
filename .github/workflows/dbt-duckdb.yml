@@ -29,7 +29,7 @@ jobs:
         python-version: "3.12"
         
     - name: Cache Python dependencies
-      uses: actions/cache@v3
+      uses: actions/cache@v6
       with:
         path: ~/.cache/pip
         key: ${{ runner.os }}-pip-dbt-${{ hashFiles('**/requirements.txt', '**/packages.yml') }}
@@ -38,7 +38,7 @@ jobs:
           ${{ runner.os }}-pip-
         
     - name: Cache dbt dependencies
-      uses: actions/cache@v3
+      uses: actions/cache@v6
       with:
         path: |
           ~/.dbt
