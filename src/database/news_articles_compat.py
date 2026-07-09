@@ -80,6 +80,24 @@ def _news_articles_is_view(conn) -> bool:
     return bool(row) and str(row[0]).upper() == "VIEW"
 
 
+def corpus_table(conn) -> str:
+    """The corpus table a *source-agnostic* reader should query.
+
+    Prefers the ``corpus_documents`` view (every ``source_type``) so blog, paper,
+    transcript, book and note documents are counted alongside news; falls back to
+    the news-only ``news_articles`` view/table for legacy warehouses and test
+    fixtures that only seed it. Always returns a name — defaulting to
+    ``news_articles`` preserves the prior behaviour when neither view exists.
+    """
+    for name in ("corpus_documents", "news_articles"):
+        row = conn.execute(
+            "SELECT 1 FROM information_schema.tables WHERE table_name = ?", [name]
+        ).fetchone()
+        if row:
+            return name
+    return "news_articles"
+
+
 def ensure_documents_schema(conn) -> None:
     """Ensure the base tables the view depends on exist."""
     DocumentStore(conn)     # documents (+ content_hash index)
