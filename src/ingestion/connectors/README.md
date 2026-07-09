@@ -56,3 +56,15 @@ class MyConnector(Connector):
 
 Planned connectors (tracked as issues): papers (#517), books (#521), blogs/RSS
 (#522), media/transcripts (#523), generic upload (#524).
+
+## Dataset connectors (statistical evidence)
+
+`dataset/` is a parallel connector family for **statistical series**, not
+documents. Statistical series (World Bank, FRED, Eurostat, ...) are versioned
+numeric evidence for checking quantitative claims, so they carry their own
+contract (`dataset-series-v1`) and emit `SeriesRecord`s rather than
+`Document`s. The interface mirrors this one (`discover` → `fetch` → `parse` →
+`harvest`) via `DatasetConnector`, and `ObservationStore` persists series into
+DuckDB with vintage-keyed observations. See
+[EVIDENCE_DATASETS_PLAN.md](../../../docs/architecture/EVIDENCE_DATASETS_PLAN.md)
+and the beyond-text roadmap (#765).

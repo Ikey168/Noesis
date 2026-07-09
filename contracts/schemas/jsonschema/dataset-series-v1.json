@@ -1,0 +1,105 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://contracts.neuronews.com/schemas/dataset-series-v1.json",
+  "title": "DatasetSeries v1",
+  "description": "A statistical time series as harvested from an official provider (World Bank, FRED, Eurostat, ...). Statistical series are first-class evidence for checking quantitative claims; they are NOT documents (they are versioned, revisable, and numeric), so they carry their own contract rather than document-ingest-v1. Observations are vintaged by as_of so a claim check records which revision it ran against and is replayable. See docs/architecture/EVIDENCE_DATASETS_PLAN.md.",
+  "type": "object",
+  "properties": {
+    "series_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Provider-scoped, stable series identifier of the form '<provider>:<code>[:<geography>]', e.g. 'wb:SL.UEM.TOTL.ZS:DE'."
+    },
+    "provider": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Data provider short name (e.g. 'worldbank', 'fred', 'eurostat', 'document', 'filing')."
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Human-readable series title, e.g. 'Unemployment, total (% of labor force) - Germany'."
+    },
+    "unit": {
+      "type": ["string", "null"],
+      "description": "Unit of the observation values, normalized where possible (e.g. 'percent', 'usd', 'index', 'count'). Null when unknown."
+    },
+    "frequency": {
+      "type": "string",
+      "enum": ["annual", "quarterly", "monthly", "weekly", "daily", "irregular"],
+      "description": "Observation frequency."
+    },
+    "geography": {
+      "type": ["string", "null"],
+      "description": "Geographic scope where applicable (ISO 3166 alpha-2 country code, or a provider region code). Null for non-geographic series."
+    },
+    "license": {
+      "type": ["string", "null"],
+      "description": "License/terms under which the series is published (e.g. 'CC-BY-4.0'). Rendered in the citation block."
+    },
+    "as_of": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Provider vintage of this harvest as milliseconds since the Unix epoch. Observations are keyed by (series_id, period, as_of) so revisions are retained."
+    },
+    "source_url": {
+      "type": ["string", "null"],
+      "format": "uri",
+      "description": "URL the series was harvested from, for citation."
+    },
+    "observations": {
+      "type": "array",
+      "description": "The observed values, ordered by period ascending. May be empty (a series with no data yet).",
+      "items": {
+        "type": "object",
+        "properties": {
+          "period": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Period label in a normalized form: 'YYYY' (annual), 'YYYY-Qn' (quarterly), 'YYYY-MM' (monthly), or 'YYYY-MM-DD' (daily/weekly)."
+          },
+          "value": {
+            "type": ["number", "null"],
+            "description": "Observed value, or null when the provider reports the period as missing."
+          }
+        },
+        "required": ["period", "value"],
+        "additionalProperties": false
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Provider-specific fields that do not fit the core record (e.g. seasonal adjustment, indicator code, source note).",
+      "additionalProperties": true,
+      "default": {}
+    }
+  },
+  "required": [
+    "series_id",
+    "provider",
+    "title",
+    "frequency",
+    "as_of",
+    "observations"
+  ],
+  "additionalProperties": false,
+  "examples": [
+    {
+      "series_id": "wb:SL.UEM.TOTL.ZS:DE",
+      "provider": "worldbank",
+      "title": "Unemployment, total (% of total labor force) (modeled ILO estimate) - Germany",
+      "unit": "percent",
+      "frequency": "annual",
+      "geography": "DE",
+      "license": "CC-BY-4.0",
+      "as_of": 1767225600000,
+      "source_url": "https://api.worldbank.org/v2/country/DE/indicator/SL.UEM.TOTL.ZS?format=json",
+      "observations": [
+        {"period": "2022", "value": 3.13},
+        {"period": "2023", "value": 3.02},
+        {"period": "2024", "value": 3.4}
+      ],
+      "metadata": {"indicator": "SL.UEM.TOTL.ZS"}
+    }
+  ]
+}
