@@ -7,7 +7,7 @@ and upserts them into an Iceberg v2 table with merge-on-read capabilities.
 
 The job provides exactly-once semantics through:
 1. Kafka consumer group with checkpointed offsets
-2. Idempotent upserts keyed by article_id
+2. Idempotent upserts keyed by document_id (mapped from the source article_id)
 3. Deduplication window by ts_ms in MERGE operations
 4. Safe reprocessing with startingOffsets=earliest
 
@@ -106,21 +106,26 @@ def create_iceberg_table(spark):
     logger.info("Creating Iceberg table with exactly-once guarantees...")
     
     spark.sql("""
-        CREATE TABLE IF NOT EXISTS local.news.articles (
-            article_id string,
-            source_id  string,
-            url        string,
-            title      string,
-            body       string,
-            language   string,
-            country    string,
-            published_at timestamp,
-            updated_at   timestamp,
-            ts_ms      bigint,
-            lsn        bigint
+        CREATE TABLE IF NOT EXISTS local.documents (
+            document_id  string,
+            source_type  string,
+            source_id    string,
+            url          string,
+            title        string,
+            content      string,
+            content_ref  string,
+            language     string,
+            authors      array<string>,
+            created_at   timestamp,
+            ingested_at  timestamp,
+            metadata     map<string, string>,
+            op           string,
+            ts_ms        bigint,
+            lsn          bigint,
+            processing_time timestamp
         )
         USING iceberg
-        PARTITIONED BY (days(published_at))
+        PARTITIONED BY (days(created_at))
         TBLPROPERTIES (
             'format-version'='2',
             'write.delete.mode'='merge-on-read',
@@ -157,9 +162,9 @@ def upsert_batch(batch_df, batch_id):
         # Deduplication within batch: keep latest by ts_ms, then by lsn
         # This ensures exactly-once semantics even with duplicate CDC events
         deduped = (batch_df
-                   .withColumn("row_number", 
+                   .withColumn("row_number",
                                F.row_number().over(
-                                   F.Window.partitionBy("article_id")
+                                   F.Window.partitionBy("document_id")
                                    .orderBy(F.desc("ts_ms"), F.desc("lsn"))
                                ))
                    .filter(F.col("row_number") == 1)
@@ -194,43 +199,30 @@ def upsert_batch(batch_df, batch_id):
                 }
             )
         
-        # Perform MERGE operation with exactly-once semantics
+        # Perform MERGE operation with exactly-once semantics. The Iceberg table
+        # now speaks document-ingest-v1 (#—): the news CDC stream is mapped onto
+        # document columns in main(), keyed by document_id.
+        merge_cols = (
+            "source_type = s.source_type, source_id = s.source_id, url = s.url, "
+            "title = s.title, content = s.content, content_ref = s.content_ref, "
+            "language = s.language, authors = s.authors, created_at = s.created_at, "
+            "ingested_at = s.ingested_at, metadata = s.metadata, op = s.op, "
+            "ts_ms = s.ts_ms, lsn = s.lsn, processing_time = s.processing_time"
+        )
         merge_query = f"""
-        MERGE INTO local.articles t
-        USING {temp_view} s ON t.article_id = s.article_id
-        WHEN MATCHED AND s.ts_ms > t.ts_ms THEN 
-            UPDATE SET 
-                source_id = s.source_id,
-                url = s.url,
-                title = s.title,
-                body = s.body,
-                language = s.language,
-                country = s.country,
-                published_at = s.published_at,
-                updated_at = s.updated_at,
-                op = s.op,
-                ts_ms = s.ts_ms,
-                lsn = s.lsn,
-                processing_time = s.processing_time
+        MERGE INTO local.documents t
+        USING {temp_view} s ON t.document_id = s.document_id
+        WHEN MATCHED AND s.ts_ms > t.ts_ms THEN
+            UPDATE SET {merge_cols}
         WHEN MATCHED AND s.ts_ms = t.ts_ms AND s.lsn > t.lsn THEN
-            UPDATE SET 
-                source_id = s.source_id,
-                url = s.url,
-                title = s.title,
-                body = s.body,
-                language = s.language,
-                country = s.country,
-                published_at = s.published_at,
-                updated_at = s.updated_at,
-                op = s.op,
-                ts_ms = s.ts_ms,
-                lsn = s.lsn,
-                processing_time = s.processing_time
-        WHEN NOT MATCHED THEN 
-            INSERT (article_id, source_id, url, title, body, language, country, 
-                   published_at, updated_at, op, ts_ms, lsn, processing_time)
-            VALUES (s.article_id, s.source_id, s.url, s.title, s.body, s.language, s.country,
-                   s.published_at, s.updated_at, s.op, s.ts_ms, s.lsn, s.processing_time)
+            UPDATE SET {merge_cols}
+        WHEN NOT MATCHED THEN
+            INSERT (document_id, source_type, source_id, url, title, content,
+                   content_ref, language, authors, created_at, ingested_at,
+                   metadata, op, ts_ms, lsn, processing_time)
+            VALUES (s.document_id, s.source_type, s.source_id, s.url, s.title, s.content,
+                   s.content_ref, s.language, s.authors, s.created_at, s.ingested_at,
+                   s.metadata, s.op, s.ts_ms, s.lsn, s.processing_time)
         """
         
         # Execute MERGE with transaction semantics
@@ -253,8 +245,8 @@ def upsert_batch(batch_df, batch_id):
         if OPENLINEAGE_AVAILABLE:
             log_lineage_event(
                 spark, 
-                f"cdc_batch_complete_{batch_id}", 
-                "local.articles", 
+                f"cdc_batch_complete_{batch_id}",
+                "local.documents",
                 "write",
                 metadata={
                     "batch_id": str(batch_id),
@@ -371,9 +363,28 @@ def main():
             F.col("timestamp").alias("kafka_timestamp")
         )
         
-        # Flatten and add CDC metadata for exactly-once processing
+        # Flatten, then map the news CDC payload onto document-ingest-v1 columns
+        # (article_id -> document_id, body -> content, published_at -> created_at,
+        # country -> metadata; source_type is constant 'news' for this stream).
         flat = (parsed.select("cdc_record.*", "kafka_offset", "kafka_partition", "kafka_timestamp")
                 .filter(F.col("article_id").isNotNull())  # Skip invalid records
+                .select(
+                    F.col("article_id").alias("document_id"),
+                    F.lit("news").alias("source_type"),
+                    F.col("source_id"),
+                    F.col("url"),
+                    F.col("title"),
+                    F.col("body").alias("content"),
+                    F.lit(None).cast("string").alias("content_ref"),
+                    F.col("language"),
+                    F.array().cast("array<string>").alias("authors"),
+                    F.col("published_at").alias("created_at"),
+                    F.current_timestamp().alias("ingested_at"),
+                    F.create_map(F.lit("country"), F.col("country").cast("string")).alias("metadata"),
+                    F.col("op"),
+                    F.col("ts_ms"),
+                    F.col("lsn"),
+                )
                 .withColumn("processing_time", F.current_timestamp()))
         
         # Start streaming query with exactly-once guarantees and observability

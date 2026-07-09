@@ -125,7 +125,7 @@
         "type": "text",
         "gridPos": {"h": 6, "w": 24, "x": 0, "y": 24},
         "options": {
-          "content": "### OpenLineage Data Lineage\n\n**Source:** Kafka Topic `neuronews.public.articles`  \n**Processor:** Spark Structured Streaming (Consumer Group: `cdc_to_iceberg`)  \n**Target:** Iceberg Table `local.articles`  \n\n**Lineage Tracking:**\n- ✅ Read events from Kafka topic\n- ✅ Batch processing with deduplication\n- ✅ MERGE operations to Iceberg table\n- ✅ Error tracking and failure recovery\n\n**Access Marquez UI:** [http://marquez:3000](http://marquez:3000)"
+          "content": "### OpenLineage Data Lineage\n\n**Source:** Kafka Topic `neuronews.public.articles`  \n**Processor:** Spark Structured Streaming (Consumer Group: `cdc_to_iceberg`)  \n**Target:** Iceberg Table `local.documents` (document-ingest-v1)  \n\n**Lineage Tracking:**\n- ✅ Read events from Kafka topic\n- ✅ Batch processing with deduplication\n- ✅ MERGE operations to Iceberg table\n- ✅ Error tracking and failure recovery\n\n**Access Marquez UI:** [http://marquez:3000](http://marquez:3000)"
         }
       }
     ],
