@@ -84,7 +84,7 @@ duckdb>=1.0.0,<2.0.0
 # MCP host runtime (src/mcp_host): client SDK used to supervise the repo's
 # tools/*_mcp stdio servers from the API process. Optional at runtime: the
 # host reports itself unavailable when this is missing.
-mcp>=1.0.0
+mcp>=1.28.1
 
 # Media connector (#523) — all optional; connector degrades gracefully without them
 openai-whisper>=20231117   # local Whisper model inference (pip install openai-whisper)
