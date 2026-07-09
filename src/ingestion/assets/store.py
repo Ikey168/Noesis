@@ -280,6 +280,19 @@ class ImageAssetStore:
             self.enrich(asset.sha256, phash=perceptual_hash(data), exif=extract_exif(data))
         return asset
 
+    def verify_credentials(self, sha256: str) -> Optional[Dict[str, Any]]:
+        """Verify C2PA content credentials for a stored asset, persist the
+        result into the ``c2pa`` column, and return it. None if the asset or its
+        bytes are missing."""
+        data = self.read_bytes(sha256)
+        if data is None:
+            return None
+        from src.ingestion.assets.c2pa import verify_c2pa
+
+        result = verify_c2pa(data)
+        self.enrich(sha256, c2pa=result)
+        return result
+
     def backfill_provenance(self, limit: Optional[int] = None) -> int:
         """Compute phash + EXIF for stored assets missing a phash. Returns the
         number enriched. The batch path for assets ingested before C1."""
