@@ -915,8 +915,28 @@ class AsyncNewsScraperEngine:
         return self.monitor.get_stats()
 
 
-# Pre-configured news sources
-ASYNC_NEWS_SOURCES = [
+# Pre-configured news sources — built from config_async.json, the single
+# source of truth (#881). The former in-code literal duplicated the JSON and
+# the two drifted; a minimal fallback remains only for a missing/broken file.
+def load_async_sources(path=None) -> List[NewsSource]:
+    """Build NewsSource objects from the canonical sources config (#881)."""
+    from .sources_config import enabled_sources
+
+    return [
+        NewsSource(
+            name=entry["name"],
+            base_url=entry["base_url"],
+            article_selectors=dict(entry["article_selectors"]),
+            link_patterns=list(entry.get("link_patterns", [])),
+            requires_js=bool(entry.get("requires_js", False)),
+            rate_limit=float(entry.get("rate_limit", 1.0)),
+            timeout=int(entry.get("timeout", 30)),
+        )
+        for entry in enabled_sources(path)
+    ]
+
+
+_FALLBACK_SOURCES = [
     NewsSource(
         name="BBC",
         base_url="https://www.bbc.com/news",
@@ -930,56 +950,12 @@ ASYNC_NEWS_SOURCES = [
         requires_js=False,
         rate_limit=1.0,
     ),
-    NewsSource(
-        name="CNN",
-        base_url="https://www.cnn.com",
-        article_selectors={
-            "title": "h1.headline__text, h1",
-            "content": ".zn-body__paragraph, article p",
-            "author": ".byline__name",
-            "date": ".update-time",
-        },
-        link_patterns=[r"/2024/.*", r"/2025/.*"],
-        requires_js=False,
-        rate_limit=1.0,
-    ),
-    NewsSource(
-        name="TechCrunch",
-        base_url="https://techcrunch.com",
-        article_selectors={
-            "title": "h1.article__title, h1",
-            "content": ".article-content p",
-            "author": ".article__byline a",
-            "date": "time[datetime]",
-        },
-        link_patterns=[r"/2024/.*", r"/2025/.*"],
-        requires_js=False,
-        rate_limit=2.0,
-    ),
-    NewsSource(
-        name="The Verge",
-        base_url="https://www.theverge.com",
-        article_selectors={
-            "title": "h1.c-page-title, h1",
-            "content": ".c-entry-content p",
-            "author": ".c-byline__author-name",
-            "date": "time[datetime]",
-        },
-        link_patterns=[r"/2024/.*", r"/2025/.*"],
-        requires_js=True,
-        rate_limit=1.0,
-    ),
-    NewsSource(
-        name="Wired",
-        base_url="https://www.wired.com",
-        article_selectors={
-            "title": "h1[data-testid='ContentHeaderHed'], h1",
-            "content": "div[data-testid='ArticleBodyWrapper'] p",
-            "author": "a[data-testid='ContentHeaderAuthorLink']",
-            "date": "time[data-testid='ContentHeaderPublishDate']",
-        },
-        link_patterns=[r"/story/.*"],
-        requires_js=True,
-        rate_limit=1.0,
-    ),
 ]
+
+try:
+    ASYNC_NEWS_SOURCES = load_async_sources()
+except Exception as _exc:  # config missing/broken: stay importable, log loudly
+    logging.getLogger(__name__).error(
+        "sources config unusable (%s); using minimal fallback source list", _exc
+    )
+    ASYNC_NEWS_SOURCES = _FALLBACK_SOURCES
