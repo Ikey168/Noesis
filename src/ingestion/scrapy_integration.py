@@ -21,12 +21,17 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import itertools
 import logging
+import os
+import random
 import re
+import time
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
-from typing import List, Optional, Sequence, Tuple
+from typing import Callable, List, Optional, Sequence, Tuple
+from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 import xml.etree.ElementTree as ET
 
@@ -39,6 +44,24 @@ logger = logging.getLogger(__name__)
 USER_AGENT = "NeuroNewsBot/1.0 (+https://github.com/Ikey168/NeuroNews)"
 HTTP_TIMEOUT = 15
 _ATOM = "{http://www.w3.org/2005/Atom}"
+
+# Hardening (#880): rotating realistic UAs + retry policy for the live path.
+_USER_AGENTS = (
+    USER_AGENT,
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+    "(KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 "
+    "(KHTML, like Gecko) Version/17.4 Safari/605.1.15",
+    "Mozilla/5.0 (X11; Linux x86_64; rv:126.0) Gecko/20100101 Firefox/126.0",
+)
+_UA_POOL = itertools.cycle(_USER_AGENTS)
+_RETRY_STATUSES = {429, 500, 502, 503, 504}
+_RETRIES = 3
+_RETRY_BASE_DELAY = 0.5  # seconds; exponential with jitter
+
+# Optional full-text bodies (#880): opt-in via env or fetch_articles(full_text=).
+FULL_TEXT_ENV = "NOESIS_INGEST_FULL_TEXT"
+FULL_TEXT_CAP = 20  # max page fetches per feed per run (politeness)
 
 
 @dataclass(frozen=True)
@@ -181,10 +204,38 @@ def score_sentiment(text: str) -> Tuple[float, str]:
 # --------------------------------------------------------------------------- #
 
 
-def _http_get(url: str) -> bytes:
-    req = Request(url, headers={"User-Agent": USER_AGENT, "Accept": "application/rss+xml, application/xml, text/xml, */*"})
-    with urlopen(req, timeout=HTTP_TIMEOUT) as resp:
-        return resp.read()
+def _http_get(
+    url: str,
+    retries: int = _RETRIES,
+    _urlopen: Optional[Callable] = None,
+    _sleep: Callable[[float], None] = time.sleep,
+) -> bytes:
+    """GET with rotating User-Agent and retry on transient failures (#880).
+
+    Retries 429/5xx/network errors with exponential backoff + jitter;
+    permanent HTTP errors (403/404/...) raise immediately.
+    """
+    opener = _urlopen or urlopen  # resolved at call time (patchable)
+    last_exc: Exception = RuntimeError("unreachable")
+    for attempt in range(retries):
+        req = Request(url, headers={
+            "User-Agent": next(_UA_POOL),
+            "Accept": "application/rss+xml, application/xml, text/xml, "
+                      "text/html, */*",
+        })
+        try:
+            with opener(req, timeout=HTTP_TIMEOUT) as resp:
+                return resp.read()
+        except HTTPError as exc:
+            if exc.code not in _RETRY_STATUSES:
+                raise  # permanent — do not hammer the server
+            last_exc = exc
+        except (URLError, TimeoutError, OSError) as exc:
+            last_exc = exc
+        if attempt < retries - 1:
+            delay = _RETRY_BASE_DELAY * (2 ** attempt)
+            _sleep(delay + random.uniform(0, delay / 4))
+    raise last_exc
 
 
 def _strip_html(text: Optional[str]) -> str:
@@ -278,21 +329,89 @@ def _build_article(
     )
 
 
+def _full_text_enabled(full_text: Optional[bool]) -> bool:
+    if full_text is not None:
+        return full_text
+    return os.environ.get(FULL_TEXT_ENV, "").lower() in ("1", "true", "yes")
+
+
+def _upgrade_to_full_text(
+    articles: List[Article], http_get: Callable[[str], bytes], cap: int
+) -> int:
+    """Replace RSS-summary bodies with extracted page text where possible (#880).
+
+    Best-effort: any per-article failure keeps the summary. Returns the number
+    of upgraded articles. Capped per run for politeness.
+    """
+    from src.ingestion.extract import extract_article
+
+    upgraded = 0
+    for article in articles[:cap]:
+        try:
+            result = extract_article(http_get(article.url), url=article.url)
+        except Exception:  # noqa: BLE001 - degrade to the summary, never abort
+            continue
+        if result is not None and len(result.text) > len(article.content):
+            article.content = result.text
+            article.sentiment_score, article.sentiment_label = score_sentiment(
+                "{0}. {1}".format(article.title, result.text)
+            )
+            upgraded += 1
+    return upgraded
+
+
 def fetch_articles(
-    feeds: Optional[Sequence[Feed]] = None, limit_per_feed: int = 25
+    feeds: Optional[Sequence[Feed]] = None,
+    limit_per_feed: int = 25,
+    full_text: Optional[bool] = None,
+    full_text_cap: int = FULL_TEXT_CAP,
+    http_get: Optional[Callable[[str], bytes]] = None,
+    health=None,
+    now_ms: Optional[int] = None,
 ) -> List[Article]:
-    """Fetch and parse all feeds, skipping any that fail."""
+    """Fetch and parse all feeds, skipping any that fail.
+
+    ``full_text`` (default: the ``NOESIS_INGEST_FULL_TEXT`` env flag) upgrades
+    article bodies from the RSS summary to extracted page text via the generic
+    cascade (#877), capped per feed. Passing a ``SourceHealthTracker`` as
+    ``health`` records every pass (drift detection, #878) and skips feeds that
+    are not yet due or quarantined (adaptive scheduling, #879). Both are
+    opt-in; default behavior is unchanged.
+    """
     feeds = list(feeds) if feeds is not None else DEFAULT_FEEDS
+    getter = http_get or _http_get
+    want_full_text = _full_text_enabled(full_text)
     articles: List[Article] = []
     for feed in feeds:
+        if health is not None and not health.due(feed.name, now_ms=now_ms):
+            logger.info("Skipping %s (not due / quarantined)", feed.name)
+            continue
+        fetch_errors = 0
+        parsed: List[Article] = []
         try:
             logger.info("Fetching %s (%s)", feed.name, feed.url)
-            raw = _http_get(feed.url)
+            raw = getter(feed.url)
             parsed = parse_feed(raw, feed, limit=limit_per_feed)
+            if want_full_text and parsed:
+                upgraded = _upgrade_to_full_text(parsed, getter, full_text_cap)
+                logger.info("  upgraded %d/%d bodies to full text", upgraded, len(parsed))
             logger.info("  %d articles from %s", len(parsed), feed.name)
             articles.extend(parsed)
         except Exception as exc:
+            fetch_errors = 1
             logger.warning("Failed to fetch %s: %s", feed.name, exc)
+        if health is not None:
+            from src.ingestion.source_health import field_fill_rates
+
+            health.record_run(
+                feed.name,
+                len(parsed),
+                field_fill_rates(
+                    [{"title": a.title, "content": a.content} for a in parsed]
+                ),
+                fetch_errors=fetch_errors,
+                now_ms=now_ms,
+            )
     return articles
 
 
@@ -339,11 +458,15 @@ def ingest(
     feeds: Optional[Sequence[Feed]] = None,
     limit_per_feed: int = 25,
     replace: bool = False,
+    full_text: Optional[bool] = None,
+    health=None,
 ) -> dict:
     """Fetch real news and store it. Returns summary stats."""
     from src.database.local_analytics_connector import get_shared_connection
 
-    articles = fetch_articles(feeds, limit_per_feed=limit_per_feed)
+    articles = fetch_articles(
+        feeds, limit_per_feed=limit_per_feed, full_text=full_text, health=health
+    )
     inserted = store_articles(articles, replace=replace)
     total = get_shared_connection().execute(
         "SELECT COUNT(*) FROM news_articles"
@@ -357,11 +480,29 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     parser.add_argument(
         "--replace", action="store_true", help="Wipe the table before inserting"
     )
+    parser.add_argument(
+        "--full-text", action="store_true",
+        help="Upgrade bodies from RSS summaries to extracted page text (#880)",
+    )
+    parser.add_argument(
+        "--adaptive", action="store_true",
+        help="Track source health and skip feeds not due / quarantined (#878/#879)",
+    )
     args = parser.parse_args(argv)
 
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
+    health = None
+    if args.adaptive:
+        from src.ingestion.source_health import SourceHealthTracker
+
+        health = SourceHealthTracker(path=os.path.join("data", "source_health.json"))
     try:
-        stats = ingest(limit_per_feed=args.limit, replace=args.replace)
+        stats = ingest(
+            limit_per_feed=args.limit,
+            replace=args.replace,
+            full_text=True if args.full_text else None,
+            health=health,
+        )
     except Exception as exc:  # most commonly the DuckDB single-writer lock
         logger.error("Ingestion failed: %s", exc)
         logger.error(
