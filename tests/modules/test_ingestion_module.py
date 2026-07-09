@@ -23,14 +23,6 @@ class TestIngestionCore:
             assert integration is not None
         except Exception:
             pass
-    
-    def test_optimized_pipeline_coverage(self):
-        """Test optimized ingestion pipeline"""
-        try:
-            from src.ingestion import optimized_pipeline
-            assert optimized_pipeline is not None
-        except Exception:
-            pass
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
