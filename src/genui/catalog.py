@@ -590,6 +590,15 @@ PANEL_CATALOG: Tuple[PanelDef, ...] = (
         default_span=6,
         topic_param="topic",
     ),
+    PanelDef(
+        type="corrections",
+        title="Corrections & retractions",
+        description="Documents whose record changed after ingest — silent edits, flagged corrections, retractions and takedowns — each citing the revision pair.",
+        endpoint=None,
+        facets=(),
+        tables=("document_revisions",),
+        default_span=6,
+    ),
 )
 
 PANEL_TYPES: Tuple[str, ...] = tuple(p.type for p in PANEL_CATALOG)

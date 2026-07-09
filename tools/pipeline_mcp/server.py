@@ -1785,5 +1785,45 @@ def figure_evidence(topic: Optional[str] = None) -> dict:
         con.close()
 
 
+@mcp.tool(
+    output_schema={
+        "type": "object",
+        "properties": {
+            "entries": {"type": "array"},
+            "count": {"type": "integer"},
+        },
+        "additionalProperties": True,
+    },
+    meta={"data": {"panel": "corrections", "rest_route": None}, "panel": {
+        "type": "corrections",
+        "title": "Corrections & retractions",
+        "description": "Documents whose record changed after ingest — silent edits, flagged corrections, retractions and takedowns — each citing the revision pair.",
+        "endpoint": None,
+        "facets": ["library", "sources"],
+        "tables": ["document_revisions"],
+        "default_span": 6,
+    }},
+)
+def corrections_ledger(change_class: Optional[str] = None) -> dict:
+    """Documents whose content changed after ingest, classified.
+
+    Args:
+        change_class: optional filter (silent_substantive, correction_notice,
+            retraction, takedown).
+    """
+    try:
+        con = _warehouse_ro()
+    except Exception as exc:
+        return {"entries": [], "count": 0, "note": str(exc)}
+    try:
+        from src.ingestion.corrections import corrections_ledger as _cl
+
+        return _cl(con, change_class=change_class)
+    except Exception as exc:
+        return {"error": str(exc)}
+    finally:
+        con.close()
+
+
 if __name__ == "__main__":
     mcp.run()  # stdio transport by default
