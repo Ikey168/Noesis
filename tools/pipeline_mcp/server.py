@@ -1825,5 +1825,44 @@ def corrections_ledger(change_class: Optional[str] = None) -> dict:
         con.close()
 
 
+@mcp.tool(
+    output_schema=honesty_output_schema({
+        "speakers": {"type": "array"},
+        "interruptions": {"type": "array"},
+        "speaker_count": {"type": "integer"},
+        "total_airtime_s": {"type": "number"},
+    }),
+    meta={"data": {"panel": "speaker_balance", "rest_route": None}, "panel": {
+        "type": "speaker_balance",
+        "title": "Speaker balance",
+        "description": "Airtime, floor share and interruptions across diarized speakers in a recording — framing evidence the transcript text does not carry.",
+        "endpoint": None,
+        "facets": ["library"],
+        "tables": ["documents"],
+        "default_span": 6,
+        "topic_param": "media",
+    }},
+)
+def speaker_balance(media: Optional[str] = None) -> dict:
+    """Per-speaker airtime, floor share and interruptions over diarized
+    transcript segments.
+
+    Args:
+        media: optional substring of the recording's url/content_ref.
+    """
+    try:
+        con = _warehouse_ro()
+    except Exception as exc:
+        return {"error": str(exc)}
+    try:
+        from src.analytics.speaker_turns import speaker_balance as _sb
+
+        return _sb(con, media)
+    except Exception as exc:
+        return {"error": str(exc)}
+    finally:
+        con.close()
+
+
 if __name__ == "__main__":
     mcp.run()  # stdio transport by default

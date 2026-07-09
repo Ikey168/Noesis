@@ -599,6 +599,16 @@ PANEL_CATALOG: Tuple[PanelDef, ...] = (
         tables=("document_revisions",),
         default_span=6,
     ),
+    PanelDef(
+        type="speaker_balance",
+        title="Speaker balance",
+        description="Airtime, floor share and interruptions across diarized speakers in a recording.",
+        endpoint=None,
+        facets=(),
+        tables=("documents",),
+        default_span=6,
+        topic_param="media",
+    ),
 )
 
 PANEL_TYPES: Tuple[str, ...] = tuple(p.type for p in PANEL_CATALOG)
