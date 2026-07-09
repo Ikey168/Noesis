@@ -478,6 +478,41 @@ function ImageReuseLedgerPanel(props: PanelProps) {
   );
 }
 
+const CHANGE_COLORS: Record<string, string> = {
+  silent_substantive: palette.amber,
+  retraction: palette.amber,
+  takedown: palette.amber,
+  correction_notice: palette.teal,
+};
+
+function CorrectionsPanel(props: PanelProps) {
+  const { data, source, isLoading } = useDataPlanePanel("corrections", {});
+  const entries = Array.isArray(data?.entries) ? (data!.entries as Record<string, unknown>[]) : [];
+  const rows = entries.slice(0, 6);
+  return (
+    <GenPanel {...props} source={source} isLoading={isLoading}>
+      {rows.length === 0 ? (
+        <Empty text="No post-ingest changes detected" />
+      ) : (
+        <div style={{ display: "flex", flexDirection: "column" }}>
+          {rows.map((e, i) => {
+            const cls = String(e.change_class ?? "");
+            return (
+              <div key={`${String(e.document_id)}-${String(e.revision)}`} style={{ display: "flex", gap: 10, alignItems: "baseline", padding: "7px 0", borderBottom: i < rows.length - 1 ? "1px solid #12242e" : "none" }}>
+                <span style={chip(CHANGE_COLORS[cls] ?? palette.neu)}>{cls.replace(/_/g, " ").toUpperCase()}</span>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={rowTitle}>{String(e.document_id)}</div>
+                  <div style={{ ...mono, marginTop: 3 }}>revision {String(e.revision)}</div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </GenPanel>
+  );
+}
+
 const WATCH_TYPE_COLORS: Record<string, string> = {
   Entity: ACCENT,
   Topic: palette.amber,
@@ -2000,6 +2035,7 @@ const REGISTRY: Record<PanelType, ComponentType<PanelProps>> = {
   data_check_ledger: DataCheckLedgerPanel,
   image_provenance: ImageProvenancePanel,
   image_reuse_ledger: ImageReuseLedgerPanel,
+  corrections: CorrectionsPanel,
   trending: TrendingPanel,
   clusters: ClustersPanel,
   event_axis: EventAxisPanel,

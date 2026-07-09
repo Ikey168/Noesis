@@ -54,7 +54,8 @@ export type PanelType =
   | "claim_vs_data"
   | "data_check_ledger"
   | "image_provenance"
-  | "image_reuse_ledger";
+  | "image_reuse_ledger"
+  | "corrections";
 
 export type Facet =
   | "overview"
@@ -134,6 +135,7 @@ export const PANEL_CATALOG: PanelDef[] = [
   { type: "data_check_ledger", title: "Data-check ledger", facets: [], defaultSpan: 6, topicParam: true },
   { type: "image_provenance", title: "Image provenance", facets: [], defaultSpan: 6 },
   { type: "image_reuse_ledger", title: "Image reuse", facets: [], defaultSpan: 6, topicParam: true },
+  { type: "corrections", title: "Corrections & retractions", facets: [], defaultSpan: 6 },
 ];
 
 export const PANEL_DEFS: Partial<Record<PanelType, PanelDef>> = Object.fromEntries(
