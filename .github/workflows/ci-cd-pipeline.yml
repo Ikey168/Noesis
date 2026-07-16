@@ -213,7 +213,7 @@ jobs:
           ignore-unfixed: true
 
       - name: Upload Trivy scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         # Best-effort Security-tab reporting: a code-scanning upload hiccup must
         # never fail CI or skip the vulnerability gate below (which is the real
         # enforcement). v3 — the v1/v2 CodeQL actions are deprecated.
