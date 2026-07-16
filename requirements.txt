@@ -99,5 +99,5 @@ pyannote.audio>=3.1.0      # speaker diarization (requires HF_TOKEN + accept mod
 ebooklib>=0.18       # EPUB: richer ToC/structure extraction
 PyMuPDF>=1.24.0      # PDF: text + bookmark outline (install as fitz)
 pdfminer.six>=20221105  # PDF: pure-Python fallback text extraction
-pytesseract>=0.3.10  # OCR: Python wrapper for Tesseract (requires system tesseract)
+pytesseract>=0.3.13  # OCR: Python wrapper for Tesseract (requires system tesseract)
 pdf2image>=1.17.0    # OCR: PDF->PIL images for pytesseract (requires system poppler)
