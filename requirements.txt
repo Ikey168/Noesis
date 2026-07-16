@@ -91,7 +91,7 @@ trafilatura>=1.8.0
 readability-lxml>=0.8.1
 
 # Media connector (#523) — all optional; connector degrades gracefully without them
-openai-whisper>=20231117   # local Whisper model inference (pip install openai-whisper)
+openai-whisper>=20250625   # local Whisper model inference (pip install openai-whisper)
 faster-whisper>=1.0.0      # faster CTranslate2-based Whisper (GPU/CPU)
 pyannote.audio>=3.1.0      # speaker diarization (requires HF_TOKEN + accept model terms)
 # ffmpeg is used via subprocess — install the system package (ffmpeg / ffmpeg-bin)
