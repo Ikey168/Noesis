@@ -289,7 +289,7 @@ jobs:
       # image, so it moves with the push; the repo/dependency scan in the
       # Security Scanning job still covers vulnerabilities here.
       - name: Build Docker image (validation only)
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v7
         with:
           context: ${{ matrix.service.context }}
           file: ${{ matrix.service.dockerfile }}
