@@ -7,7 +7,7 @@ apache-airflow[postgres,celery,redis,ssh,ftp,sftp,s3,docker,kubernetes]==2.8.1
 
 # OpenLineage providers for data lineage tracking
 apache-airflow-providers-openlineage==1.4.0
-openlineage-airflow==1.9.0
+openlineage-airflow==1.41.0
 openlineage-python==1.9.0
 
 # Database providers
