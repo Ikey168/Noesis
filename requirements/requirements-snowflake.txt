@@ -32,5 +32,5 @@ pyarrow>=14.0.0  # For improved pandas integration
 fastparquet>=2023.10.0  # For Parquet file support
 
 # Optional: Advanced analytics
-scipy>=1.11.0  # For statistical functions
+scipy>=1.18.0  # For statistical functions
 scikit-learn>=1.3.0  # For ML-based analytics
