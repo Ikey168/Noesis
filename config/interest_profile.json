@@ -1,0 +1,22 @@
+{
+  "name": "default",
+  "window_hours": 24,
+  "topics": [
+    {
+      "name": "Economics & markets",
+      "keywords": ["econom", "inflation", "interest rate", "central bank", "market", "gdp", "recession", "trade"]
+    },
+    {
+      "name": "Technology",
+      "keywords": ["tech", "artificial intelligence", "software", "semiconductor", "chip", "startup", "cloud"]
+    },
+    {
+      "name": "Web3",
+      "keywords": ["web3", "crypto", "blockchain", "bitcoin", "ethereum", "defi", "stablecoin", "token"]
+    },
+    {
+      "name": "Local events",
+      "keywords": ["local", "city council", "municipal", "community", "regional"]
+    }
+  ]
+}
