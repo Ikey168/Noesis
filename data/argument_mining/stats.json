@@ -1,32 +1,57 @@
 {
-  "total_examples": 5000,
+  "total_examples": 5326,
   "by_source_type": {
-    "blog": 800,
-    "book": 600,
+    "blog": 840,
+    "book": 669,
     "news": 1500,
-    "note": 600,
-    "paper": 800,
-    "transcript": 700
+    "note": 754,
+    "paper": 826,
+    "transcript": 737
   },
   "by_split": {
-    "test": 750,
+    "test": 1076,
     "train": 3500,
     "val": 750
   },
   "claim_distribution": {
-    "1": 4342,
-    "0": 658
+    "1": 4564,
+    "0": 762
   },
   "stance_distribution": {
-    "neutral": 3403,
-    "critical": 615,
-    "supportive": 541,
-    "ambiguous": 441
+    "neutral": 3583,
+    "critical": 661,
+    "supportive": 585,
+    "ambiguous": 497
   },
   "iaa": {
     "n_examples": 500,
-    "kappa_claim": 0.7632,
-    "kappa_stance": 0.7529
+    "kappa_claim": 0.701,
+    "kappa_stance": 0.7287,
+    "new_slices_kappa_claim": 0.7834,
+    "new_slices_kappa_stance": 0.7845
+  },
+  "test_support": {
+    "per_stance_class": {
+      "neutral": 696,
+      "critical": 134,
+      "supportive": 125,
+      "ambiguous": 121
+    },
+    "per_source_type": {
+      "note": 250,
+      "news": 226,
+      "blog": 150,
+      "book": 150,
+      "transcript": 150,
+      "paper": 150
+    },
+    "other_frame_test_examples": 100,
+    "claim_pairs_per_relation": {
+      "contradicts": 100,
+      "duplicate": 100,
+      "supports": 100,
+      "unrelated": 100
+    }
   },
   "acceptance_criteria": {
     "total_ge_5000": true,
