@@ -325,6 +325,10 @@ models:
 	@echo "Fetching pinned pretrained model backends (NLI + claim detection)..."
 	python3 -m src.argument_mining.fetch_models
 
+kb-brief:
+	@echo "Harvesting feeds and rendering the daily brief..."
+	python3 scripts/kb_brief.py --harvest
+
 kb-bootstrap:
 	@echo "Bootstrapping knowledge domains (seed feeds + harvest + membership)..."
 	python3 scripts/kb_bootstrap.py
