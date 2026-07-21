@@ -67,9 +67,9 @@ class TestLoading:
             load_registry(_write(tmp_path, "version: 2\ndomains: []\n"))
 
     def test_repo_default_config_is_valid(self):
-        # config/domains.yml ships empty until the seeding increment, but it
-        # must always parse.
-        assert load_registry().domains() == []
+        # The shipped config must always load; starter-domain specifics are
+        # covered in test_seeding.py.
+        assert len(load_registry().domains()) >= 1
 
 
 class TestValidation:

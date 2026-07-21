@@ -8,10 +8,168 @@
 #
 # Default policy: start as a corpus-view; promote to a namespace when the
 # domain earns its own lifecycle (retention, re-index cadence, quotas).
-# Every domain must declare embedding_model — cross-domain similarity only
-# means anything inside one shared embedding space.
+# Every domain declares embedding_model — cross-domain similarity only means
+# anything inside one shared embedding space.
 #
-# Starter definitions (news, economics, technology, web3, local, papers)
-# arrive with the seeding increment.
+# Feed curation rationale lives in docs/kb/starter-domains.md. Seeding is
+# idempotent: `make kb-bootstrap` (scripts/kb_bootstrap.py) subscribes any
+# missing feeds under the domain's tags, harvests, and runs the membership
+# pass.
 version: 1
-domains: []
+domains:
+  - name: news
+    backing: corpus-view
+    description: General world news — the broad daily stream.
+    embedding_model: all-MiniLM-L6-v2
+    tags: [news]
+    keywords: []
+    embedding_anchors:
+      - breaking world news, politics, and current events reporting
+    feeds:
+      - url: http://feeds.bbci.co.uk/news/world/rss.xml
+        name: BBC World
+        tags: [news]
+      - url: https://www.theguardian.com/world/rss
+        name: The Guardian World
+        tags: [news]
+      - url: https://feeds.npr.org/1001/rss.xml
+        name: NPR News
+        tags: [news]
+      - url: https://www.aljazeera.com/xml/rss/all.xml
+        name: Al Jazeera
+        tags: [news]
+
+  - name: economics
+    backing: corpus-view
+    description: Macro, markets, and economic policy.
+    embedding_model: all-MiniLM-L6-v2
+    tags: [economics]
+    keywords:
+      - inflation
+      - interest rates
+      - gdp
+      - central bank
+      - recession
+      - monetary policy
+      - fiscal policy
+      - unemployment
+      - tariffs
+    embedding_anchors:
+      - macroeconomic indicators, inflation, central bank policy, and markets
+    feeds:
+      - url: https://www.economist.com/finance-and-economics/rss.xml
+        name: The Economist — Finance & economics
+        tags: [economics]
+      - url: https://fredblog.stlouisfed.org/feed/
+        name: FRED Blog (St. Louis Fed)
+        tags: [economics]
+      - url: https://marginalrevolution.com/feed
+        name: Marginal Revolution
+        tags: [economics]
+      - url: https://www.calculatedriskblog.com/feeds/posts/default
+        name: Calculated Risk
+        tags: [economics]
+      - url: https://www.cnbc.com/id/20910258/device/rss/rss.html
+        name: CNBC Economy
+        tags: [economics]
+
+  - name: technology
+    backing: corpus-view
+    description: Technology industry, research, and engineering.
+    embedding_model: all-MiniLM-L6-v2
+    tags: [technology, tech]
+    keywords:
+      - artificial intelligence
+      - machine learning
+      - semiconductor
+      - cybersecurity
+      - open source
+      - robotics
+      - software
+      - startup
+    embedding_anchors:
+      - technology industry news, software engineering, AI research, and startups
+    feeds:
+      - url: https://feeds.arstechnica.com/arstechnica/index
+        name: Ars Technica
+        tags: [technology]
+      - url: https://www.theverge.com/rss/index.xml
+        name: The Verge
+        tags: [technology]
+      - url: https://www.technologyreview.com/feed/
+        name: MIT Technology Review
+        tags: [technology]
+      - url: https://hnrss.org/frontpage
+        name: Hacker News frontpage
+        tags: [technology]
+
+  - name: web3
+    backing: corpus-view
+    description: Crypto ecosystems, protocols, and on-chain governance.
+    embedding_model: all-MiniLM-L6-v2
+    tags: [web3, crypto]
+    keywords:
+      - defi
+      - stablecoin
+      - ethereum
+      - bitcoin
+      - blockchain
+      - smart contract
+      - staking
+      - tokenization
+      - crypto
+      - dao
+    embedding_anchors:
+      - decentralized finance protocols, blockchains, and on-chain governance
+    feeds:
+      - url: https://www.coindesk.com/arc/outboundfeeds/rss/
+        name: CoinDesk
+        tags: [web3]
+      - url: https://cointelegraph.com/rss
+        name: Cointelegraph
+        tags: [web3]
+      - url: https://blog.ethereum.org/en/feed.xml
+        name: Ethereum Foundation Blog
+        tags: [web3]
+      - url: https://vitalik.eth.limo/feed.xml
+        name: Vitalik Buterin
+        tags: [web3]
+
+  - name: local
+    backing: corpus-view
+    description: >
+      Local events — a documented stub: there is no good generic source for
+      local news/events, so add your city's feeds here (any RSS/Atom URL)
+      under the `local` tag. A proper ICS/calendar connector is a tracked
+      expansion.
+    embedding_model: all-MiniLM-L6-v2
+    tags: [local]
+    keywords: []
+    embedding_anchors:
+      - local city news, community events, and municipal announcements
+    feeds: []
+
+  - name: papers
+    backing: corpus-view
+    description: >
+      Research papers via arXiv category RSS — papers are just another feed
+      domain on day one. Promoted to the namespace-backed reference corpus
+      later (full-text ingestion, books, different retention).
+    embedding_model: all-MiniLM-L6-v2
+    tags: [papers, research]
+    keywords: []
+    embedding_anchors:
+      - peer-reviewed research papers, preprints, methods, and experiments
+    feeds:
+      - url: https://rss.arxiv.org/rss/cs.AI
+        name: arXiv cs.AI
+        tags: [papers]
+      - url: https://rss.arxiv.org/rss/cs.CL
+        name: arXiv cs.CL
+        tags: [papers]
+      - url: https://rss.arxiv.org/rss/cs.CR
+        name: arXiv cs.CR
+        tags: [papers]
+      - url: https://rss.arxiv.org/rss/econ.GN
+        name: arXiv econ.GN
+        tags: [papers]

@@ -321,6 +321,14 @@ contract.validate:
 	fi
 	@echo "✅ Event validation complete!"
 
+kb-bootstrap:
+	@echo "Bootstrapping knowledge domains (seed feeds + harvest + membership)..."
+	python3 scripts/kb_bootstrap.py
+
+kb-bootstrap-offline:
+	@echo "Bootstrapping knowledge domains (offline: seed + membership only)..."
+	python3 scripts/kb_bootstrap.py --no-harvest
+
 demo:
 	@echo "Running NeuroNews offline demo pipeline..."
 	python3 scripts/demo.py
