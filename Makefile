@@ -321,6 +321,10 @@ contract.validate:
 	fi
 	@echo "✅ Event validation complete!"
 
+models:
+	@echo "Fetching pinned pretrained model backends (NLI + claim detection)..."
+	python3 -m src.argument_mining.fetch_models
+
 kb-bootstrap:
 	@echo "Bootstrapping knowledge domains (seed feeds + harvest + membership)..."
 	python3 scripts/kb_bootstrap.py

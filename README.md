@@ -147,7 +147,20 @@ cd Noesis
 pip install -r requirements.txt
 ```
 
-### 3. Run the API
+### 3. Fetch the pretrained model backends (optional, recommended)
+
+```bash
+make models
+```
+
+Downloads the pinned zero-shot NLI and claim-detection models into the local
+cache and writes `models/pins.lock.json` with the resolved revisions. Enable
+the backends with `NOESIS_STANCE_BACKEND=nli NOESIS_FRAMES_BACKEND=nli
+NOESIS_CLAIMS_BACKEND=pretrained`; without them (or offline) everything
+falls back to the heuristics, and every prediction row records which mode
+produced it (`prediction_mode`).
+
+### 4. Run the API
 
 ```bash
 NEURONEWS_DEV_MODE=true \
@@ -159,20 +172,20 @@ uvicorn src.api.app:app --port 8012
 rejected. Use a separate `NOESIS_DB_PATH` to avoid locking the main warehouse
 file.
 
-### 4. Use the MCP servers
+### 5. Use the MCP servers
 
 The MCP tool servers are declared in [`.mcp.json`](.mcp.json) and each runs
 standalone (`python tools/<name>_mcp/server.py`). See
 [docs/integration/mcp-and-api.md](docs/integration/mcp-and-api.md) for connecting an
 external host and example tool calls.
 
-### 5. Run tests
+### 6. Run tests
 
 ```bash
 pytest                                        # unit and integration tests
 ```
 
-### 6. Other entry points
+### 7. Other entry points
 
 ```bash
 # Argument-mining model benchmarks and the merge gate
