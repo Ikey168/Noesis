@@ -38,15 +38,42 @@ class DomainBacking:
     def __init__(self, definition: "DomainDefinition", conn: Any = None) -> None:
         self.definition = definition
         self._conn = conn
+        # True when we lazily adopted the process-wide shared connection —
+        # every execute must then hold the module's lock (the shared handle
+        # is not safe for concurrent use).
+        self._on_shared_conn = False
 
     @property
     def conn(self) -> Any:
-        """Warehouse connection, defaulting to the shared read connection."""
+        """Warehouse connection, defaulting to the shared connection.
+
+        The default is **in-process only**: it adopts the warehouse-owning
+        process's shared DuckDB handle (creating and seeding the warehouse
+        file if this process is the first opener — a write side effect).
+        DuckDB allows a single read-write process per file, so a second
+        process taking this default while the API holds the file will fail
+        to connect. Out-of-process callers (jobs, CLIs, tests) must inject
+        their own connection instead.
+        """
         if self._conn is None:
             from src.database.local_analytics_connector import get_shared_connection
 
             self._conn = get_shared_connection()
+            self._on_shared_conn = True
         return self._conn
+
+    def _lock(self):
+        """Serialize shared-connection access; no-op for injected conns."""
+        if self._on_shared_conn or self._conn is None:
+            # Touch .conn first so adoption happens before locking.
+            _ = self.conn
+        if self._on_shared_conn:
+            from src.database.local_analytics_connector import _LOCK
+
+            return _LOCK
+        from contextlib import nullcontext
+
+        return nullcontext()
 
     # -- retrieve -----------------------------------------------------------
 
@@ -128,41 +155,58 @@ class CorpusViewBacking(DomainBacking):
         from src.kb.membership import ensure_domain_views, view_name
 
         name = view_name(self.definition.name)
-        exists = self.conn.execute(
-            "SELECT 1 FROM information_schema.tables WHERE table_name = ?",
-            [name],
-        ).fetchone()
-        if exists is None:
-            from src.kb.registry import KnowledgeDomainRegistry
+        with self._lock():
+            exists = self.conn.execute(
+                "SELECT 1 FROM information_schema.tables WHERE table_name = ?",
+                [name],
+            ).fetchone()
+            if exists is None:
+                from src.kb.registry import KnowledgeDomainRegistry
 
-            ensure_domain_views(
-                self.conn, KnowledgeDomainRegistry([self.definition])
-            )
+                ensure_domain_views(
+                    self.conn, KnowledgeDomainRegistry([self.definition])
+                )
         return name
 
     def _rows(self, sql: str, params: List[Any]) -> List[Dict[str, Any]]:
-        rows = self.conn.execute(sql, params).fetchall()
+        with self._lock():
+            rows = self.conn.execute(sql, params).fetchall()
         return [dict(zip(self._DOCUMENT_COLUMNS, row)) for row in rows]
+
+    @staticmethod
+    def _like_pattern(query: str) -> str:
+        """Contains-pattern with LIKE wildcards escaped (used with ESCAPE '\\')."""
+        escaped = (
+            query.lower()
+            .replace("\\", "\\\\")
+            .replace("%", "\\%")
+            .replace("_", "\\_")
+        )
+        return f"%{escaped}%"
 
     def documents(
         self,
         limit: int = 50,
         since: Optional[str] = None,
     ) -> List[Dict[str, Any]]:
+        """Member documents, newest *arrival* first.
+
+        ``since`` filters on ingestion time — "what entered the domain since
+        T" — not on publication date; a backfilled 2020 paper ingested today
+        is new domain content today. Publication time (``created_at``) is
+        returned on each row for display.
+        """
         view = self._view()
         columns = ", ".join(self._DOCUMENT_COLUMNS)
         params: List[Any] = []
         where = ""
         if since:
-            where = (
-                "WHERE COALESCE(created_at, ingested_at, 0)"
-                " >= epoch_ms(CAST(? AS TIMESTAMP))"
-            )
+            where = "WHERE COALESCE(ingested_at, 0) >= epoch_ms(CAST(? AS TIMESTAMP))"
             params.append(since)
         params.append(int(limit))
         return self._rows(
             f"SELECT {columns} FROM {view} {where}"
-            " ORDER BY COALESCE(created_at, ingested_at, 0) DESC LIMIT ?",
+            " ORDER BY COALESCE(ingested_at, 0) DESC LIMIT ?",
             params,
         )
 
@@ -170,42 +214,42 @@ class CorpusViewBacking(DomainBacking):
         """Lexical search within the domain (semantic lands with the contract)."""
         view = self._view()
         columns = ", ".join(self._DOCUMENT_COLUMNS)
-        pattern = f"%{query.lower()}%"
+        pattern = self._like_pattern(query)
         return self._rows(
             f"SELECT {columns} FROM {view}"
-            " WHERE lower(COALESCE(title, '')) LIKE ?"
-            "    OR lower(COALESCE(content, '')) LIKE ?"
-            " ORDER BY COALESCE(created_at, ingested_at, 0) DESC LIMIT ?",
+            " WHERE lower(COALESCE(title, '')) LIKE ? ESCAPE '\\'"
+            "    OR lower(COALESCE(content, '')) LIKE ? ESCAPE '\\'"
+            " ORDER BY COALESCE(ingested_at, 0) DESC LIMIT ?",
             [pattern, pattern, int(limit)],
         )
 
     def coverage(self) -> Dict[str, Any]:
         payload = super().coverage()
         view = self._view()
-        total, first_seen, last_seen = self.conn.execute(
-            f"SELECT COUNT(*), MIN(COALESCE(created_at, ingested_at)),"
-            f" MAX(COALESCE(created_at, ingested_at)) FROM {view}"
-        ).fetchone()
-        methods = dict(
-            self.conn.execute(
-                "SELECT method, COUNT(*) FROM document_domains"
-                " WHERE domain = ? GROUP BY method",
-                [self.definition.name],
-            ).fetchall()
-        )
-        sources = [
-            row[0]
-            for row in self.conn.execute(
-                f"SELECT source_id FROM {view} WHERE source_id IS NOT NULL"
-                " GROUP BY source_id ORDER BY COUNT(*) DESC LIMIT 25"
-            ).fetchall()
-        ]
+        with self._lock():
+            total, first_ingested, last_ingested = self.conn.execute(
+                f"SELECT COUNT(*), MIN(ingested_at), MAX(ingested_at) FROM {view}"
+            ).fetchone()
+            methods = dict(
+                self.conn.execute(
+                    "SELECT method, COUNT(*) FROM document_domains"
+                    " WHERE domain = ? GROUP BY method",
+                    [self.definition.name],
+                ).fetchall()
+            )
+            sources = [
+                row[0]
+                for row in self.conn.execute(
+                    f"SELECT source_id FROM {view} WHERE source_id IS NOT NULL"
+                    " GROUP BY source_id ORDER BY COUNT(*) DESC LIMIT 25"
+                ).fetchall()
+            ]
         payload.update(
             {
                 "ready": True,
                 "documents": int(total or 0),
-                "first_seen_ms": first_seen,
-                "last_seen_ms": last_seen,
+                "first_ingested_ms": first_ingested,
+                "last_ingested_ms": last_ingested,
                 "assignment_methods": methods,
                 "sources": sources,
             }

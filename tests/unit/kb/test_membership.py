@@ -169,7 +169,7 @@ class TestAssignment:
 
 
 class TestIncrementalRuns:
-    def test_idempotent_and_watermarked(self, conn, registry):
+    def test_idempotent_and_incremental(self, conn, registry):
         _seed(conn, [_doc("d1", "Defi staking", "defi staking news.", ingested_at=1000)])
         first = run_membership_pass(conn, registry)
         assert first["domains"]["web3"]["scanned"] == 1
@@ -183,6 +183,38 @@ class TestIncrementalRuns:
         assert third["domains"]["web3"]["scanned"] == 1
         assert set(_assignments(conn, "web3")) == {"d1", "d2"}
 
+    def test_out_of_order_arrival_is_not_skipped(self, conn, registry):
+        # A document committed later with an *older* payload timestamp must
+        # still be assessed — incrementality is set-based, not clock-based.
+        _seed(conn, [_doc("late-clock", "Defi staking", "defi staking now.", ingested_at=5000)])
+        run_membership_pass(conn, registry)
+        _seed(conn, [_doc("early-clock", "Old defi staking", "defi staking then.", ingested_at=100)])
+        run_membership_pass(conn, registry)
+        assert set(_assignments(conn, "web3")) == {"late-clock", "early-clock"}
+
+    def test_zero_ingested_at_documents_are_scanned(self, conn, registry):
+        # Legacy compat writers (seed, migration) store ingested_at = 0.
+        _seed(conn, [_doc("legacy", "Defi staking", "defi staking legacy.", ingested_at=None)])
+        conn.execute("UPDATE documents SET ingested_at = 0 WHERE document_id = 'legacy'")
+        run_membership_pass(conn, registry)
+        assert "legacy" in _assignments(conn, "web3")
+
+    def test_late_arriving_embedding_is_reassessed(self, conn, registry):
+        _seed(conn, [_doc("late-vec", "Chain analysis", "on chain data only.")])
+        run_membership_pass(conn, registry, provider=FakeProvider())
+        assert "late-vec" not in _assignments(conn, "web3")
+
+        EmbeddingStore(conn).upsert(
+            "late-vec",
+            model="hashing-model",
+            vector=FakeProvider().embed_texts(
+                ["decentralized finance staking chain"]
+            )[0],
+        )
+        summary = run_membership_pass(conn, registry, provider=FakeProvider())
+        assert summary["domains"]["web3"]["scanned"] >= 1
+        assert _assignments(conn, "web3")["late-vec"][0] == "embedding"
+
     def test_config_change_rebuilds_domain(self, conn, registry, tmp_path):
         _seed(conn, [_doc("d1", "Defi staking", "defi staking news.")])
         run_membership_pass(conn, registry)
@@ -193,6 +225,27 @@ class TestIncrementalRuns:
         path.write_text(changed)
         run_membership_pass(conn, load_registry(path))
         assert "d1" not in _assignments(conn, "web3")
+
+    def test_failed_rebuild_keeps_previous_assignments(self, conn, registry, tmp_path):
+        class ExplodingProvider:
+            def embed_texts(self, texts):
+                raise RuntimeError("provider outage")
+
+        _seed(conn, [_doc("d1", "Defi staking", "defi staking news.")])
+        run_membership_pass(conn, registry)
+        assert "d1" in _assignments(conn, "web3")
+
+        changed = CONFIG.replace("[defi, staking, stablecoin]", "[defi, staking]")
+        path = tmp_path / "changed.yml"
+        path.write_text(changed)
+        with pytest.raises(RuntimeError, match="outage"):
+            run_membership_pass(conn, load_registry(path), provider=ExplodingProvider())
+        # The failed rebuild must not have emptied the domain.
+        assert "d1" in _assignments(conn, "web3")
+
+        # A later healthy pass self-heals onto the new definition.
+        run_membership_pass(conn, load_registry(path))
+        assert "d1" in _assignments(conn, "web3")
 
 
 class TestViewsAndBacking:
@@ -235,7 +288,7 @@ class TestViewsAndBacking:
         assert coverage["assignment_methods"] == {"source": 2}
         assert coverage["sources"] == ["feed"]
 
-    def test_backing_since_filter(self, conn, registry):
+    def test_backing_since_filters_on_ingestion_time(self, conn, registry):
         old_ms = 1_600_000_000_000
         new_ms = 1_900_000_000_000
         _seed(
@@ -245,8 +298,31 @@ class TestViewsAndBacking:
                 _doc("new", "New defi staking", "defi staking, the sequel.", tags=["web3"], ingested_at=new_ms),
             ],
         )
-        conn.execute("UPDATE documents SET created_at = ingested_at")
+        # A backfilled document published long ago but ingested *now* is new
+        # domain content — publication date must not hide it from `since`.
+        conn.execute(
+            "UPDATE documents SET created_at = 1_000_000_000_000"
+            " WHERE document_id = 'new'"
+        )
         run_membership_pass(conn, registry)
         backing = registry.resolve("web3", conn=conn)
         recent = backing.documents(since="2025-01-01")
         assert [doc["document_id"] for doc in recent] == ["new"]
+
+    def test_search_escapes_like_wildcards(self, conn, registry):
+        _seed(
+            conn,
+            [
+                _doc("pct", "Markets", "stocks saw a 50% gain today, defi staking up.", tags=["web3"]),
+                _doc("nopct", "Markets again", "a 50 point gain today, defi staking up.", tags=["web3"]),
+            ],
+        )
+        run_membership_pass(conn, registry)
+        backing = registry.resolve("web3", conn=conn)
+
+        hits = backing.search("50% gain")
+        assert [hit["document_id"] for hit in hits] == ["pct"]
+        # Wildcards are literals now: "%" finds the doc containing a literal
+        # percent sign; "_" (present nowhere) must not match everything.
+        assert [hit["document_id"] for hit in backing.search("%")] == ["pct"]
+        assert backing.search("_") == []
