@@ -258,6 +258,18 @@ class CorpusViewBacking(DomainBacking):
             [pattern, pattern, int(limit)],
         )
 
+    def diff(self, since: str) -> Dict[str, Any]:
+        """What changed in this domain since ``since`` (ISO-8601, UTC).
+
+        Computed from consolidation outputs — see :mod:`src.kb.diffs`.
+        """
+        from src.kb.diffs import compute_corpus_diff
+
+        with self._lock():
+            return compute_corpus_diff(
+                self.conn, self.definition.name, _since_to_epoch_ms(since)
+            )
+
     def coverage(self) -> Dict[str, Any]:
         payload = super().coverage()
         view = self._view()
@@ -466,6 +478,16 @@ class NamespaceBacking(DomainBacking):
                 params,
             ).fetchall()
         return [{"entity": row[0], "mentions": row[1]} for row in rows]
+
+    def diff(self, since: str) -> Dict[str, Any]:
+        """Namespace change feed — same shape as corpus diffs, honest gaps
+        (entity surges are ``None``: no mention timeline exists here)."""
+        from src.kb.diffs import compute_namespace_diff
+
+        with self._lock():
+            return compute_namespace_diff(
+                self.conn, self.definition, _since_to_epoch_ms(since)
+            )
 
     def _link_table_exists(self) -> bool:
         return (
