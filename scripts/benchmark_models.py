@@ -641,6 +641,17 @@ def main() -> int:
     if args.quiet:
         logging.getLogger().setLevel(logging.WARNING)
 
+    # Prepared external benchmarks are picked up by default when present
+    # (scripts/prepare_external_benchmarks.py puts them here); an explicit
+    # --fever/--liar/--averitec path always wins. (#957)
+    external_root = REPO / "data" / "external_benchmarks"
+    for attr in ("fever", "liar", "averitec"):
+        if getattr(args, attr) is None:
+            candidate = external_root / attr
+            if candidate.exists():
+                setattr(args, attr, candidate)
+                log.info("Using prepared %s benchmark at %s", attr.upper(), candidate)
+
     out_dir = args.out
     out_dir.mkdir(parents=True, exist_ok=True)
     # JSON stays at docs/benchmark_results.json (read by the get_benchmark_results
