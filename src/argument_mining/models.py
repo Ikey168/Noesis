@@ -187,10 +187,47 @@ class StanceClassifier:
     keyword-based heuristic otherwise.
     """
 
-    def __init__(self, model_dir: Optional[Path] = None) -> None:
+    #: hypothesis templates per stance class for the zero-shot NLI backend
+    NLI_TEMPLATES = {
+        "supportive": "This text is supportive of {topic}.",
+        "critical": "This text is critical of {topic}.",
+        "neutral": "This text reports on {topic} neutrally.",
+        "ambiguous": "This text is ambiguous about {topic}.",
+    }
+    #: below this best-entailment score the NLI backend answers neutral
+    NLI_FLOOR = 0.40
+
+    def __init__(self, model_dir: Optional[Path] = None, nli: Optional[Any] = None) -> None:
         self._model_dir = model_dir or _STANCE_MODEL_DIR
         self._pipeline = None
+        self._nli = nli
+        self._nli_cache: dict = {}
         self._try_load()
+        if self._pipeline is None and self._nli is None:
+            self._try_load_nli()
+
+    def _try_load_nli(self) -> None:
+        """Zero-shot NLI backend (#954), opt-in via NOESIS_STANCE_BACKEND=nli.
+
+        Opt-in because loading the pinned cross-encoder can trigger a model
+        download; the fetch flow (#959) prepares the cache, after which this
+        activates on every fresh install.
+        """
+        import os
+
+        if os.environ.get("NOESIS_STANCE_BACKEND", "").lower() != "nli":
+            return
+        try:
+            from src.kb.nli import TransformersNLI
+
+            self._nli = TransformersNLI()
+            logger.info("StanceClassifier: zero-shot NLI backend active (%s)",
+                        self._nli.model_name)
+        except Exception:
+            logger.warning(
+                "StanceClassifier: NLI backend unavailable — using heuristic fallback",
+                exc_info=True,
+            )
 
     def _try_load(self) -> None:
         if not (self._model_dir / "config.json").exists():
@@ -214,9 +251,11 @@ class StanceClassifier:
 
     @property
     def prediction_mode(self) -> str:
-        """`model:<dir>` when a checkpoint is active, else `heuristic` (#958)."""
+        """`model:<dir>` | `zero-shot:<model>` | `heuristic` (#958, #954)."""
         if self._pipeline is not None:
             return f"model:{self._model_dir.name}"
+        if self._nli is not None:
+            return self._nli.prediction_mode
         return "heuristic"
 
     # ------------------------------------------------------------------
@@ -230,7 +269,45 @@ class StanceClassifier:
             return []
         if self._pipeline is not None:
             return self._predict_model(sentences, topic)
+        if self._nli is not None:
+            return self._predict_nli(sentences, topic)
         return [_stance_heuristic(s, i, topic) for i, s in enumerate(sentences)]
+
+    def _predict_nli(self, sentences: List[str], topic: str) -> List[StancePrediction]:
+        """Stance via entailment: one hypothesis per class, argmax wins.
+
+        Scores are normalized across the four class hypotheses so the
+        confidence reflects the margin between stances rather than a raw
+        entailment probability; results are cached per (sentence, topic).
+        """
+        results = []
+        for i, sentence in enumerate(sentences):
+            key = (sentence, topic)
+            if key not in self._nli_cache:
+                scores = {}
+                for stance, template in self.NLI_TEMPLATES.items():
+                    outcome = self._nli.classify(
+                        sentence, template.format(topic=topic)
+                    )
+                    scores[stance] = (
+                        outcome.confidence if outcome.label == "entailment" else 0.0
+                    )
+                best = max(scores, key=scores.get)
+                total = sum(scores.values())
+                if scores[best] < self.NLI_FLOOR or total <= 0:
+                    self._nli_cache[key] = ("neutral", 0.5)
+                else:
+                    self._nli_cache[key] = (
+                        best, round(scores[best] / total, 4)
+                    )
+            stance, confidence = self._nli_cache[key]
+            results.append(
+                StancePrediction(
+                    text=sentence, sentence_idx=i, topic=topic,
+                    stance=stance, confidence=confidence,
+                )
+            )
+        return results
 
     def predict_text(self, text: str, topic: str) -> StancePrediction:
         """Convenience method for a single sentence."""
