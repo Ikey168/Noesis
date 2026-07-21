@@ -94,6 +94,16 @@ def ensure_membership_schema(conn) -> None:
     EmbeddingStore(conn)
     conn.execute(_MEMBERSHIP_SCHEMA)
     conn.execute(_SCANS_SCHEMA)
+    # kb_membership_state is derived metadata (fingerprints + run markers):
+    # a legacy pre-ledger shape is dropped, not migrated — the scan ledger
+    # and assignments survive, and the next pass repopulates the state rows.
+    legacy = conn.execute(
+        "SELECT 1 FROM information_schema.columns"
+        " WHERE table_name = 'kb_membership_state'"
+        "   AND column_name = 'watermark_ingested_at'"
+    ).fetchone()
+    if legacy is not None:
+        conn.execute("DROP TABLE kb_membership_state")
     conn.execute(_STATE_SCHEMA)
 
 
