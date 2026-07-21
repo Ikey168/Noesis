@@ -14,7 +14,7 @@ import logging
 import re
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List, Optional
+from typing import Any, List, Optional
 
 from services.ingest.common.document_model import Document
 from src.argument_mining.dataset import sentences_from_document, ID2STANCE
@@ -59,10 +59,56 @@ class ClaimDetector:
     heuristic otherwise.
     """
 
-    def __init__(self, model_dir: Optional[Path] = None) -> None:
+    #: env-pinned pretrained claim/check-worthiness model (#956, fetched by #959)
+    PRETRAINED_MODEL_ENV = "NOESIS_CLAIM_MODEL"
+    DEFAULT_PRETRAINED_MODEL = "Nithiwat/mdeberta-v3-base_claimbuster"
+
+    def __init__(self, model_dir: Optional[Path] = None, pretrained: Optional[Any] = None) -> None:
         self._model_dir = model_dir or _CLAIM_MODEL_DIR
         self._pipeline = None
+        self._pretrained = pretrained          # (pipeline, model_name) or None
         self._try_load()
+        if self._pipeline is None and self._pretrained is None:
+            self._try_load_pretrained()
+
+    def _try_load_pretrained(self) -> None:
+        """Pretrained ClaimBuster-style backend, opt-in via
+        NOESIS_CLAIMS_BACKEND=pretrained (a fresh install must never stall
+        on a surprise model download — the #959 fetch flow prepares the
+        cache first)."""
+        import os
+
+        if os.environ.get("NOESIS_CLAIMS_BACKEND", "").lower() != "pretrained":
+            return
+        model_name = os.environ.get(
+            self.PRETRAINED_MODEL_ENV, self.DEFAULT_PRETRAINED_MODEL
+        )
+        try:
+            from transformers import pipeline as hf_pipeline
+
+            self._pretrained = (
+                hf_pipeline("text-classification", model=model_name, device=-1),
+                model_name,
+            )
+            logger.info("ClaimDetector: pretrained backend active (%s)", model_name)
+        except Exception:
+            logger.warning(
+                "ClaimDetector: pretrained backend unavailable — using heuristic",
+                exc_info=True,
+            )
+
+    @staticmethod
+    def _pretrained_is_claim(label: str) -> bool:
+        """Normalize label schemes across published claim-detection models.
+
+        ClaimBuster-style checkpoints variously use LABEL_1, "claim",
+        "checkworthy", "check-worthy factual sentence", or "cfs"."""
+        text = label.lower()
+        if text.startswith(("not", "non")) or text in ("label_0", "0", "nfs"):
+            return False
+        if text in ("label_1", "1", "cfs"):
+            return True
+        return "claim" in text or "check" in text
 
     def _try_load(self) -> None:
         if not (self._model_dir / "config.json").exists():
@@ -86,9 +132,11 @@ class ClaimDetector:
 
     @property
     def prediction_mode(self) -> str:
-        """`model:<dir>` when a checkpoint is active, else `heuristic` (#958)."""
+        """`model:<dir>` | `pretrained:<model>` | `heuristic` (#958, #956)."""
         if self._pipeline is not None:
             return f"model:{self._model_dir.name}"
+        if self._pretrained is not None:
+            return f"pretrained:{self._pretrained[1]}"
         return "heuristic"
 
     # ------------------------------------------------------------------
@@ -97,12 +145,34 @@ class ClaimDetector:
 
     def predict(self, document: Document) -> List[ClaimPrediction]:
         """Return one ClaimPrediction per sentence in the document."""
+        if document.source_type == "transcript" and document.content:
+            from dataclasses import replace as dc_replace
+
+            document = dc_replace(
+                document, content=normalize_transcript_text(document.content)
+            )
         sentences = sentences_from_document(document)
         if not sentences:
             return []
         if self._pipeline is not None:
             return self._predict_model(sentences)
+        if self._pretrained is not None:
+            return self._predict_pretrained(sentences)
         return [_claim_heuristic(s, i) for i, s in enumerate(sentences)]
+
+    def _predict_pretrained(self, sentences: List[str]) -> List[ClaimPrediction]:
+        pipeline_fn, _model_name = self._pretrained
+        batch = pipeline_fn(sentences, truncation=True, max_length=128, batch_size=16)
+        results = []
+        for i, (sent, pred) in enumerate(zip(sentences, batch)):
+            is_claim = self._pretrained_is_claim(str(pred["label"]))
+            results.append(ClaimPrediction(
+                text=sent,
+                sentence_idx=i,
+                is_claim=is_claim,
+                confidence=round(float(pred["score"]), 4),
+            ))
+        return results
 
     def predict_text(self, text: str) -> ClaimPrediction:
         """Convenience method for a single sentence (useful for tests and API)."""
@@ -137,6 +207,29 @@ class ClaimDetector:
                 confidence=raw_score if is_claim else 1.0 - raw_score,
             ))
         return results
+
+
+_TRANSCRIPT_TIMESTAMP = re.compile(r"[\[\(]?\b\d{1,2}:\d{2}(?::\d{2})?\b[\]\)]?")
+_TRANSCRIPT_SPEAKER = re.compile(r"^[A-Z][A-Za-z .'-]{0,30}:\s+", re.MULTILINE)
+_TRANSCRIPT_DISFLUENCY = re.compile(
+    r"\b(?:um+|uh+|erm+|you know|i mean),?\s+|\blike,\s+", re.IGNORECASE
+)
+
+
+def normalize_transcript_text(text: str) -> str:
+    """Normalize transcript artifacts before sentence-level claim detection.
+
+    Timestamps and speaker tags are stripped, common disfluencies removed,
+    and single line breaks (timestamped chunking mid-sentence) rejoined so
+    fragmented sentences reassemble — the dominant transcript failure mode
+    behind the recall gap (#956).
+    """
+    text = _TRANSCRIPT_TIMESTAMP.sub(" ", text)
+    text = _TRANSCRIPT_SPEAKER.sub("", text)
+    text = _TRANSCRIPT_DISFLUENCY.sub("", text)
+    # Rejoin single newlines (chunking), keep paragraph breaks.
+    text = re.sub(r"(?<!\n)\n(?!\n)", " ", text)
+    return re.sub(r"[ \t]+", " ", text).strip()
 
 
 def _claim_heuristic(text: str, idx: int) -> ClaimPrediction:
