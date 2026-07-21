@@ -164,6 +164,14 @@
         "tools/monitoring_mcp/server.py"
       ],
       "env": {}
+    },
+    "noesis-kb": {
+      "type": "stdio",
+      "command": "python3",
+      "args": [
+        "tools/kb_mcp/server.py"
+      ],
+      "env": {}
     }
   }
 }
