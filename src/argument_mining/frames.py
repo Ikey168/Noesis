@@ -16,7 +16,7 @@ import re
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 
 from services.ingest.common.document_model import Document
 
@@ -138,10 +138,53 @@ class FrameClassifier:
     keyword heuristic runs.
     """
 
-    def __init__(self, model_dir: Optional[Path] = None) -> None:
+    #: entailment hypothesis per frame for the zero-shot NLI backend (#955)
+    NLI_TEMPLATES = {
+        "economic": "This text frames the issue as an economic issue.",
+        "security": "This text frames the issue as a security issue.",
+        "humanitarian": "This text frames the issue as a humanitarian issue.",
+        "legal": "This text frames the issue as a legal issue.",
+        "political": "This text frames the issue as a political issue.",
+        "scientific": "This text frames the issue as a scientific issue.",
+        "other": "This text frames the issue outside economics, security, humanitarian, legal, political, or scientific terms.",
+    }
+    #: per-label decision thresholds — deliberately permissive for the frames
+    #: the heuristic starved of recall (political 0.16, humanitarian 0.25)
+    NLI_THRESHOLDS = {
+        "political": 0.35,
+        "humanitarian": 0.35,
+    }
+    NLI_DEFAULT_THRESHOLD = 0.45
+
+    def __init__(self, model_dir: Optional[Path] = None, nli: Optional[Any] = None) -> None:
         self._model_dir = model_dir or _FRAME_MODEL_DIR
         self._pipeline = None
+        self._nli = nli
         self._try_load()
+        if self._pipeline is None and self._nli is None:
+            self._try_load_nli()
+
+    def _try_load_nli(self) -> None:
+        """Zero-shot NLI backend, opt-in via NOESIS_FRAMES_BACKEND=nli.
+
+        Opt-in because loading the pinned cross-encoder can trigger a model
+        download; the fetch flow (#959) prepares the cache first.
+        """
+        import os
+
+        if os.environ.get("NOESIS_FRAMES_BACKEND", "").lower() != "nli":
+            return
+        try:
+            from src.kb.nli import TransformersNLI
+
+            self._nli = TransformersNLI()
+            logger.info("FrameClassifier: zero-shot NLI backend active (%s)",
+                        self._nli.model_name)
+        except Exception:
+            logger.warning(
+                "FrameClassifier: NLI backend unavailable — using heuristic fallback",
+                exc_info=True,
+            )
 
     def _try_load(self) -> None:
         if not (self._model_dir / "config.json").exists():
@@ -165,9 +208,11 @@ class FrameClassifier:
 
     @property
     def prediction_mode(self) -> str:
-        """`model:<dir>` when a checkpoint is active, else `heuristic` (#958)."""
+        """`model:<dir>` | `zero-shot:<model>` | `heuristic` (#958, #955)."""
         if self._pipeline is not None:
             return f"model:{self._model_dir.name}"
+        if self._nli is not None:
+            return self._nli.prediction_mode
         return "heuristic"
 
     # ------------------------------------------------------------------
@@ -186,7 +231,35 @@ class FrameClassifier:
             )
         if self._pipeline is not None:
             return self._predict_model(document, text)
+        if self._nli is not None:
+            return self._predict_nli(document, text)
         return _frame_heuristic(text, document.document_id, document.source_type)
+
+    def _predict_nli(self, document: Document, text: str) -> FramePrediction:
+        """Multi-label frames via independent entailment per hypothesis.
+
+        Each frame's score is its entailment confidence (0 when the model
+        answers contradiction/neutral); a frame is *on* when its score
+        clears its per-label threshold. Dominant = highest score, `other`
+        when nothing clears — the same shape the heuristic produces, so
+        downstream consumers are agnostic.
+        """
+        snippet = text[:1500]
+        scores: Dict[str, float] = {}
+        for frame, hypothesis in self.NLI_TEMPLATES.items():
+            outcome = self._nli.classify(snippet, hypothesis)
+            score = outcome.confidence if outcome.label == "entailment" else 0.0
+            threshold = self.NLI_THRESHOLDS.get(frame, self.NLI_DEFAULT_THRESHOLD)
+            scores[frame] = round(score, 4) if score >= threshold else 0.0
+        dominant = max(scores, key=scores.get)
+        if scores[dominant] <= 0.0:
+            dominant = "other"
+        return FramePrediction(
+            document_id=document.document_id,
+            source_type=document.source_type,
+            frames=scores,
+            dominant=dominant,
+        )
 
     def predict_text(self, text: str, source_type: str = "news") -> FramePrediction:
         """Convenience method for raw text."""
