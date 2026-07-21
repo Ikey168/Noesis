@@ -223,6 +223,28 @@ class CorpusViewBacking(DomainBacking):
             params,
         )
 
+    def claims(
+        self,
+        since: Optional[str] = None,
+        limit: int = 50,
+    ) -> List[Dict[str, Any]]:
+        """Clustered, cited claims for this domain (presentation merge).
+
+        Each entry is a cluster: representative + full citation list,
+        corroboration count, cross-cluster contradictions, and supersedence
+        flags. See :func:`src.kb.clusters.cluster_claims`.
+        """
+        from src.kb.clusters import cluster_claims
+
+        since_ms = _since_to_epoch_ms(since) if since else None
+        with self._lock():
+            return cluster_claims(
+                self.conn,
+                domain=self.definition.name,
+                limit=limit,
+                since=since_ms,
+            )
+
     def search(self, query: str, limit: int = 20) -> List[Dict[str, Any]]:
         """Lexical search within the domain (semantic lands with the contract)."""
         view = self._view()
