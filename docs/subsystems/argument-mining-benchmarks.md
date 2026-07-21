@@ -1,6 +1,6 @@
 # Argument Mining Model Benchmarks
 
-> Generated: 2026-06-26T13:50:54.124112+00:00  
+> Generated: 2026-07-21T20:50:45.110823+00:00  
 > Dataset: held-out test split (n=750 per model)
 
 ## ✓ Gate Status: PASSED
@@ -9,101 +9,101 @@
 
 | Mode | Precision | Recall | F1 | Accuracy | N |
 |------|-----------|--------|----|----------|---|
-| heuristic | 0.8909 | 0.8396 | 0.8645 | 0.7747 | 750 |
+| heuristic | 0.8457 | 0.8438 | 0.8447 | 0.7509 | 1076 |
 
 ### Per Source Type
 
 | Source Type | Precision | Recall | F1 | N |
 |-------------|-----------|--------|-----|---|
-| blog | 0.8281 | 0.6543 | 0.7310 | 110 |
-| book | 0.9474 | 0.9863 | 0.9664 | 81 |
+| blog | 0.7791 | 0.6442 | 0.7053 | 150 |
+| book | 0.8551 | 0.9916 | 0.9183 | 150 |
 | news | 0.9318 | 0.9762 | 0.9535 | 226 |
-| note | 0.7949 | 0.8052 | 0.8000 | 96 |
-| paper | 0.8952 | 0.8319 | 0.8624 | 124 |
-| transcript | 0.8548 | 0.6023 | 0.7067 | 113 |
+| note | 0.7681 | 0.8595 | 0.8112 | 250 |
+| paper | 0.8629 | 0.8106 | 0.8359 | 150 |
+| transcript | 0.8391 | 0.6404 | 0.7264 | 150 |
 
 ### Failure Modes by Article Length
 
 | Length Bucket | F1 | Precision | Recall | N |
 |---------------|----|-----------|--------|---|
-| medium | 0.8454 | 0.9318 | 0.7736 | 59 |
-| short | 0.8661 | 0.8877 | 0.8455 | 691 |
+| medium | 0.8254 | 0.8814 | 0.7761 | 80 |
+| short | 0.8463 | 0.8431 | 0.8494 | 996 |
 
 ## Stance Classifier
 
 | Mode | Macro F1 | Accuracy | N |
 |------|----------|----------|---|
-| heuristic | 0.4506 | 0.7187 | 750 |
+| heuristic | 0.4277 | 0.6831 | 1076 |
 
 ### Per Class
 
 | Class | Precision | Recall | F1 | Support |
 |-------|-----------|--------|----|---------|
-| supportive | 0.3333 | 0.2593 | 0.2917 | 81 |
-| critical | 0.9130 | 0.2386 | 0.3784 | 88 |
-| neutral | 0.7630 | 0.9360 | 0.8407 | 516 |
-| ambiguous | 0.4516 | 0.2154 | 0.2917 | 65 |
+| supportive | 0.3425 | 0.2000 | 0.2525 | 125 |
+| critical | 0.8250 | 0.2463 | 0.3793 | 134 |
+| neutral | 0.7120 | 0.9411 | 0.8106 | 696 |
+| ambiguous | 0.5116 | 0.1818 | 0.2683 | 121 |
 
 ### Per Source Type
 
 | Source Type | Macro F1 | Accuracy | N |
 |-------------|----------|----------|---|
-| blog | 0.4358 | 0.6091 | 110 |
-| book | 0.3765 | 0.6667 | 81 |
+| blog | 0.4306 | 0.5933 | 150 |
+| book | 0.3880 | 0.6133 | 150 |
 | news | 0.5948 | 0.8761 | 226 |
-| note | 0.2037 | 0.6875 | 96 |
-| paper | 0.4146 | 0.6613 | 124 |
-| transcript | 0.2307 | 0.6372 | 113 |
+| note | 0.1981 | 0.6560 | 250 |
+| paper | 0.4143 | 0.6333 | 150 |
+| transcript | 0.3402 | 0.6467 | 150 |
 
 ### Failure Modes by Article Length
 
 | Length | Macro F1 | Accuracy | N |
 |--------|----------|----------|---|
-| medium | 0.4947 | 0.5254 | 59 |
-| short | 0.4337 | 0.7352 | 691 |
+| medium | 0.4405 | 0.4875 | 80 |
+| short | 0.4195 | 0.6988 | 996 |
 
 ## Frame Classifier
 
 | Mode | Macro F1 | Subset Accuracy | Dominant Accuracy | N |
 |------|----------|-----------------|-------------------|---|
-| heuristic | 0.5200 | 0.4947 | 0.4440 | 750 |
+| heuristic | 0.4590 | 0.5195 | 0.4424 | 1076 |
 
 ### Per Frame Label
 
 | Frame | Precision | Recall | F1 | Support |
 |-------|-----------|--------|----|---------|
-| economic | 0.8282 | 0.4341 | 0.5696 | 311 |
-| security | 0.7727 | 0.4474 | 0.5667 | 38 |
-| humanitarian | 1.0000 | 0.2500 | 0.4000 | 100 |
-| legal | 1.0000 | 0.6154 | 0.7619 | 78 |
-| political | 0.9697 | 0.1576 | 0.2712 | 203 |
-| scientific | 0.9268 | 0.3918 | 0.5507 | 291 |
-| other | 0.0000 | 0.0000 | 0.0000 | 0 |
+| economic | 0.8241 | 0.3942 | 0.5333 | 416 |
+| security | 0.7500 | 0.3684 | 0.4941 | 57 |
+| humanitarian | 1.0000 | 0.2409 | 0.3882 | 137 |
+| legal | 1.0000 | 0.5179 | 0.6824 | 112 |
+| political | 0.9512 | 0.1364 | 0.2385 | 286 |
+| scientific | 0.8639 | 0.4294 | 0.5737 | 340 |
+| other | 0.1788 | 0.9800 | 0.3025 | 100 |
 
 ### Per Source Type
 
 | Source Type | Macro F1 | Subset Accuracy | N |
 |-------------|----------|-----------------|---|
-| blog | 0.3222 | 0.3455 | 110 |
-| book | 0.4855 | 0.4444 | 81 |
+| blog | 0.3212 | 0.3533 | 150 |
+| book | 0.4438 | 0.3667 | 150 |
 | news | 0.6809 | 0.6726 | 226 |
-| note | 0.1207 | 0.1562 | 96 |
-| paper | 0.4201 | 0.5081 | 124 |
-| transcript | 0.4333 | 0.5929 | 113 |
+| note | 0.2451 | 0.5240 | 250 |
+| paper | 0.4224 | 0.5600 | 150 |
+| transcript | 0.4390 | 0.5600 | 150 |
 
 ### Failure Modes by Article Length
 
 | Length | Macro F1 | Subset Accuracy | N |
 |--------|----------|-----------------|---|
-| medium | 0.3781 | 0.7119 | 59 |
-| short | 0.5137 | 0.4761 | 691 |
+| medium | 0.3594 | 0.6500 | 80 |
+| short | 0.4548 | 0.5090 | 996 |
 
 ## Inter-Annotator Agreement (IAA)
 
 | Metric | κ (Cohen's Kappa) |
 |--------|-------------------|
-| Claim detection | 0.7632 |
-| Stance classification | 0.7529 |
+| Claim detection | 0.7010 |
+| Stance classification | 0.7287 |
 
 > IAA computed over 500 doubly-annotated examples.
 

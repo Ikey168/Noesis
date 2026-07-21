@@ -674,6 +674,91 @@ _NOTE: List[Tuple[str, int, str, List[str], str]] = [
 # ---------------------------------------------------------------------------
 
 
+# ── `other`-frame bank (#953): community/culture/sport templates so the
+# `other` label stops being unmeasurable (it previously had zero test support)
+_OTHER_FRAME: List[Tuple[str, int, str, List[str], str]] = [
+    ("The city festival drew {val} thousand visitors over {period}.",
+     1, "neutral", ["other"], "political"),
+    ("The museum's new exhibition opens to the public next weekend.",
+     0, "neutral", ["other"], "political"),
+    ("The home side won {val} of its last {val2} matches this season.",
+     1, "neutral", ["other"], "political"),
+    ("Critics called the album the band's most ambitious work in years.",
+     0, "ambiguous", ["other"], "political"),
+    ("Local volunteers restored the community garden after {period}.",
+     1, "supportive", ["other"], "political"),
+    ("The film festival announced its lineup of {val} premieres.",
+     1, "neutral", ["other"], "political"),
+    ("Season ticket renewals rose {pct}% after the championship run.",
+     1, "neutral", ["other"], "political"),
+    ("The choir's tour schedule remains subject to change.",
+     0, "neutral", ["other"], "political"),
+    ("The recipe collection celebrates {val} regional cuisines.",
+     0, "neutral", ["other"], "political"),
+    ("Attendance at the fair disappointed organisers for a second year.",
+     1, "critical", ["other"], "political"),
+]
+
+# ── claim-pair templates (#953): benchmark set for the NLI relation
+# classifier used by the claim-linking pass. Placeholders are filled once
+# and shared across a pair so the relation holds by construction.
+_PAIR_TEMPLATES = {
+    "duplicate": [
+        ("{cb} raised rates by {bp} basis points in {period}.",
+         "In {period}, {cb} lifted rates {bp} basis points."),
+        ("Inflation reached {pct}% in {period}.",
+         "The inflation rate hit {pct}% during {period}."),
+        ("{org} laid off {val} thousand employees.",
+         "{val} thousand jobs were cut at {org}."),
+    ],
+    "supports": [
+        ("Inflation rose {pct}% in {period}.",
+         "Prices increased across most categories in {period}."),
+        ("{cb} raised rates by {bp} basis points.",
+         "{cb} tightened monetary policy."),
+        ("{org} reported record revenue of {val} billion.",
+         "{org} had a strong financial quarter."),
+    ],
+    "contradicts": [
+        ("Inflation rose {pct}% in {period}.",
+         "Inflation fell {pct2}% in {period}."),
+        ("{cb} raised rates by {bp} basis points.",
+         "{cb} did not raise rates."),
+        ("{org} confirmed the acquisition talks.",
+         "{org} denied any acquisition talks."),
+    ],
+    "unrelated": [
+        ("{cb} raised rates by {bp} basis points.",
+         "The museum's new exhibition opens next weekend."),
+        ("Inflation reached {pct}% in {period}.",
+         "The home side won {val} of its recent matches."),
+        ("{org} laid off {val} thousand employees.",
+         "The city festival drew record crowds this year."),
+    ],
+}
+
+
+def _generate_claim_pairs(rng: random.Random, per_relation: int = 100) -> List[Dict]:
+    """Labelled (text_a, text_b, relation) pairs, all test split."""
+    pairs: List[Dict] = []
+    for relation, templates in _PAIR_TEMPLATES.items():
+        for _ in range(per_relation):
+            tmpl_a, tmpl_b = rng.choice(templates)
+            # One replacement map shared across the pair keeps the relation
+            # true by construction (same numbers on both sides).
+            combined = tmpl_a + "\x00" + tmpl_b
+            filled = _fill(combined, rng)
+            text_a, text_b = filled.split("\x00")
+            pairs.append({
+                "id": str(uuid.uuid4()),
+                "text_a": text_a,
+                "text_b": text_b,
+                "relation": relation,
+                "split": "test",
+            })
+    return pairs
+
+
 def _sample(lst: list, rng: random.Random) -> str:
     return str(rng.choice(lst))
 
@@ -827,6 +912,73 @@ def _assign_splits(examples: List[Dict], rng: random.Random) -> List[Dict]:
 
 
 # ---------------------------------------------------------------------------
+# Test-support top-up (#953)
+# ---------------------------------------------------------------------------
+
+#: minimum test-split support the benchmarks need to be trustworthy
+TEST_MIN_PER_STANCE_CLASS = 100
+TEST_MIN_PER_SOURCE_TYPE = 150
+TEST_MIN_OTHER_FRAME = 100
+
+
+def _top_up_test_support(
+    all_examples: List[Dict],
+    banks: Dict[str, List],
+    rng: random.Random,
+    topics_dict: Dict,
+) -> List[Dict]:
+    """Generate extra *test-only* examples until every slice has support.
+
+    Order matters: source-type deficits are filled first (which also adds
+    stance/frame counts), then minority stance classes, then the `other`
+    frame — each pass only generating what is still missing.
+    """
+
+    def test_examples():
+        return [e for e in all_examples if e["split"] == "test"]
+
+    def add(example: Dict) -> None:
+        example["split"] = "test"
+        all_examples.append(example)
+
+    # 1) source types to >= TEST_MIN_PER_SOURCE_TYPE
+    for stype, bank in banks.items():
+        have = sum(1 for e in test_examples() if e["source_type"] == stype)
+        if have < TEST_MIN_PER_SOURCE_TYPE:
+            for example in _generate_from_bank(
+                bank, stype, TEST_MIN_PER_SOURCE_TYPE - have, rng, topics_dict
+            ):
+                add(example)
+
+    # 2) minority stance classes to >= TEST_MIN_PER_STANCE_CLASS
+    stance_banks: Dict[str, List[Tuple[str, List, str]]] = {}
+    for stype, bank in banks.items():
+        for entry in bank:
+            stance_banks.setdefault(entry[2], []).append((stype, [entry], stype))
+    for stance in ("supportive", "critical", "ambiguous"):
+        have = sum(1 for e in test_examples() if e["stance"] == stance)
+        candidates = stance_banks.get(stance, [])
+        while have < TEST_MIN_PER_STANCE_CLASS and candidates:
+            stype, entry_bank, _ = rng.choice(candidates)
+            example = _generate_from_bank(
+                entry_bank, stype, 1, rng, topics_dict, max_per_text=8
+            )[0]
+            add(example)
+            have += 1
+
+    # 3) the `other` frame to >= TEST_MIN_OTHER_FRAME
+    have = sum(1 for e in test_examples() if "other" in e["frames"])
+    if have < TEST_MIN_OTHER_FRAME:
+        for example in _generate_from_bank(
+            _OTHER_FRAME, "note", TEST_MIN_OTHER_FRAME - have, rng,
+            topics_dict, max_per_text=16,
+        ):
+            add(example)
+
+    return all_examples
+
+
+# ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
 
@@ -860,8 +1012,9 @@ def build(output_dir: Path, seed: int = 42) -> None:
         print(f"  {stype:12s}: {len(examples):5d} examples")
 
     all_examples = _assign_splits(all_examples, rng)
+    all_examples = _top_up_test_support(all_examples, banks, rng, _TOPICS)
     total = len(all_examples)
-    print(f"\n  Total: {total} examples")
+    print(f"\n  Total: {total} examples (after test-support top-up)")
 
     # ── claims.parquet ────────────────────────────────────────────────────
     claims_df = pd.DataFrame([
@@ -921,6 +1074,28 @@ def build(output_dir: Path, seed: int = 42) -> None:
     print(f"    Cohen's κ (claim):  {kappa_claim:.3f}")
     print(f"    Cohen's κ (stance): {kappa_stance:.3f}")
 
+    # ── claim_pairs.parquet (#953: NLI relation benchmark set) ────────────
+    pair_rows = _generate_claim_pairs(rng)
+    pairs_df = pd.DataFrame(pair_rows)
+    pairs_df.to_parquet(output_dir / "claim_pairs.parquet", index=False)
+    print(f"  claim_pairs.parquet — {len(pairs_df)} rows"
+          f" ({len(pair_rows) // 4} per relation)")
+
+    # ── IAA re-check on the new test slices (#953) ────────────────────────
+    test_examples = [e for e in all_examples if e["split"] == "test"]
+    minority_slice = [
+        e for e in test_examples
+        if e["stance"] in ("supportive", "critical", "ambiguous")
+        or e["source_type"] in ("note", "transcript")
+    ][:500]
+    _, _, kappa_new_claim = _simulate_iaa(minority_slice, "is_claim", [0, 1], 0.875, rng)
+    _, _, kappa_new_stance = _simulate_iaa(
+        minority_slice, "stance",
+        ["supportive", "critical", "neutral", "ambiguous"], 0.840, rng
+    )
+    print(f"    Cohen's κ new slices (claim):  {kappa_new_claim:.3f}")
+    print(f"    Cohen's κ new slices (stance): {kappa_new_stance:.3f}")
+
     # ── stats.json ────────────────────────────────────────────────────────
     by_type = claims_df.groupby("source_type").size().to_dict()
     by_split = claims_df.groupby("split").size().to_dict()
@@ -936,6 +1111,28 @@ def build(output_dir: Path, seed: int = 42) -> None:
             "n_examples": len(iaa_df),
             "kappa_claim": round(kappa_claim, 4),
             "kappa_stance": round(kappa_stance, 4),
+            "new_slices_kappa_claim": round(kappa_new_claim, 4),
+            "new_slices_kappa_stance": round(kappa_new_stance, 4),
+        },
+        "test_support": {
+            "per_stance_class": {
+                str(k): int(v)
+                for k, v in stance_df[stance_df["split"] == "test"]["stance"]
+                .value_counts().items()
+            },
+            "per_source_type": {
+                str(k): int(v)
+                for k, v in claims_df[claims_df["split"] == "test"]["source_type"]
+                .value_counts().items()
+            },
+            "other_frame_test_examples": int(sum(
+                1 for e in all_examples
+                if e["split"] == "test" and "other" in e["frames"]
+            )),
+            "claim_pairs_per_relation": {
+                relation: int((pairs_df["relation"] == relation).sum())
+                for relation in sorted(pairs_df["relation"].unique())
+            },
         },
         "acceptance_criteria": {
             "total_ge_5000": total >= 5000,
