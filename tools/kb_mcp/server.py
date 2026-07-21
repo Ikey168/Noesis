@@ -110,6 +110,23 @@ def kb_diff(domain: str, since: str) -> Dict[str, Any]:
 
 
 @mcp.tool()
+def kb_brief(
+    domains: Optional[list] = None,
+    since: Optional[str] = None,
+    budget: int = 15,
+) -> Dict[str, Any]:
+    """The daily brief: per-domain changes since T under a hard item budget
+    (dropped count reported), with a New-publications section for research
+    domains. Returns {markdown, sections, meta}; every line cited."""
+    from src.kb.brief import generate_brief
+
+    try:
+        return generate_brief(domains=domains, since=since, budget=budget)
+    except Exception as exc:  # noqa: BLE001 - tool boundary
+        return {"error": {"code": "internal", "message": str(exc)}}
+
+
+@mcp.tool()
 def kb_coverage(domain: str) -> Dict[str, Any]:
     """Corpus stats, freshness, sources, backing, embedding model —
     so a consumer can honestly say when coverage is thin."""
