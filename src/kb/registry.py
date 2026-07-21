@@ -84,6 +84,7 @@ class DomainDefinition:
     embedding_anchors: List[str] = field(default_factory=list)
     membership_threshold: float = 0.35
     namespace: Optional[str] = None
+    namespace_backend: Optional[str] = None
 
 
 def _require_str_list(raw: Any, domain: str, key: str) -> List[str]:
@@ -151,10 +152,26 @@ def _parse_domain(raw: Any) -> DomainDefinition:
     if namespace is not None and not isinstance(namespace, str):
         raise DomainConfigError(f"domain {name!r}: namespace must be a string")
     if backing == "namespace" and not namespace:
-        namespace = name
+        # Provisioning namespace names use [a-z][a-z0-9_]; slugs use dashes.
+        namespace = name.replace("-", "_")
     if backing == "corpus-view" and namespace:
         raise DomainConfigError(
             f"domain {name!r}: namespace is only valid for namespace backing"
+        )
+
+    namespace_backend = raw.get("namespace_backend")
+    if namespace_backend is not None and namespace_backend not in (
+        "table-prefix",
+        "attached",
+    ):
+        raise DomainConfigError(
+            f"domain {name!r}: namespace_backend must be table-prefix or attached"
+        )
+    if backing == "namespace" and namespace_backend is None:
+        namespace_backend = "table-prefix"
+    if backing == "corpus-view" and namespace_backend:
+        raise DomainConfigError(
+            f"domain {name!r}: namespace_backend is only valid for namespace backing"
         )
 
     return DomainDefinition(
@@ -170,6 +187,7 @@ def _parse_domain(raw: Any) -> DomainDefinition:
         ),
         membership_threshold=float(threshold),
         namespace=namespace,
+        namespace_backend=namespace_backend,
     )
 
 

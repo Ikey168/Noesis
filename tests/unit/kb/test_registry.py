@@ -155,10 +155,13 @@ class TestResolution:
         assert coverage["ready"] is True
         assert coverage["documents"] == 0
 
-        namespace_coverage = registry.resolve("reference").coverage()
+        namespace_coverage = registry.resolve(
+            "reference", conn=duckdb.connect()
+        ).coverage()
         assert namespace_coverage["backing"] == "namespace"
         assert namespace_coverage["namespace"] == "reference"
-        assert namespace_coverage["ready"] is False
+        assert namespace_coverage["ready"] is True
+        assert namespace_coverage["documents"] == 0
 
     def test_unimplemented_reads_fail_loudly(self, registry):
         import duckdb

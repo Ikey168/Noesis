@@ -434,6 +434,137 @@ def _link_pair(
         summary["links"][relation] += 1
 
 
+def run_cross_backing_link_pass(
+    conn,
+    registry: Any,
+    provider: Optional[Any] = None,
+    nli: Optional[Any] = None,
+    run_id: Optional[str] = None,
+    embedding_model: str = "all-MiniLM-L6-v2",
+    time_window_days: int = 3650,
+    k_neighbors: int = 8,
+    candidate_threshold: float = 0.5,
+    duplicate_threshold: float = 0.88,
+    min_link_confidence: float = 0.55,
+) -> Dict[str, Any]:
+    """Link namespace-native claims to the shared corpus (depth linkage).
+
+    A lighter pass than intra-corpus linking: only claims that live *solely*
+    in a namespace (never seen by ``argument_claims``) are candidates, and
+    they bridge into the corpus along embedding similarity. The default time
+    window is effectively unbounded — a 2019 paper contradicting today's
+    claim is exactly the point.
+
+    Enforces the shared embedding space: a namespace domain declaring a
+    different ``embedding_model`` than the corpus domains fails loudly.
+    """
+    from src.kb.registry import DomainConfigError
+    from src.provisioning.namespaces import (
+        BACKEND_ATTACHED,
+        BACKEND_TABLE_PREFIX,
+        ensure_attached,
+        namespace_tables,
+    )
+
+    ensure_claim_link_schema(conn)
+    nli = nli or HeuristicNLI()
+    run_id = run_id or f"kb-cross-links-{uuid.uuid4().hex[:12]}"
+    window_ms = time_window_days * 86_400_000
+
+    models = registry.embedding_models()
+    summary: Dict[str, Any] = {
+        "run_id": run_id,
+        "domains": {},
+        "mode": getattr(nli, "prediction_mode", "heuristic"),
+    }
+
+    for definition in registry.domains():
+        if definition.backing != "namespace":
+            continue
+        corpus_models = {
+            model
+            for name, model in models.items()
+            if registry.get(name).backing == "corpus-view"
+        }
+        if corpus_models and definition.embedding_model not in corpus_models:
+            raise DomainConfigError(
+                f"domain {definition.name!r} embeds with "
+                f"{definition.embedding_model!r} but the corpus uses "
+                f"{sorted(corpus_models)}; cross-backing similarity needs one "
+                "shared embedding space"
+            )
+
+        backend = (
+            BACKEND_ATTACHED
+            if definition.namespace_backend == "attached"
+            else BACKEND_TABLE_PREFIX
+        )
+        if backend == BACKEND_ATTACHED:
+            ensure_attached(conn, definition.namespace)
+        tables = namespace_tables(definition.namespace, backend)
+
+        native = conn.execute(
+            f"""
+            SELECT n.claim_id, n.claim_text
+            FROM {tables['claims']} n
+            LEFT JOIN argument_claims shared ON shared.claim_id = n.claim_id
+            LEFT JOIN kb_claim_link_scans s ON s.claim_id = n.claim_id
+            WHERE shared.claim_id IS NULL AND s.claim_id IS NULL
+            ORDER BY n.claim_id
+            """
+        ).fetchall()
+
+        counts = {"scanned": len(native), "links": 0}
+        if native and provider is not None:
+            _embed_new_claims(conn, native, provider, embedding_model)
+
+        conn.execute("BEGIN TRANSACTION")
+        try:
+            for claim_id, claim_text in native:
+                candidates = _candidates_for(
+                    conn, claim_id, claim_text, 0,
+                    provider is not None, embedding_model,
+                    window_ms, k_neighbors, candidate_threshold,
+                )
+                for other_id, other_text, other_doc, other_ingested, similarity in candidates:
+                    before = conn.execute(
+                        "SELECT COUNT(*) FROM claim_links WHERE run_id = ?",
+                        [run_id],
+                    ).fetchone()[0]
+                    _link_pair(
+                        conn, nli, run_id,
+                        {"links": {r: 0 for r in RELATIONS}},
+                        (definition.name, claim_id, claim_text, 0),
+                        (
+                            _claim_domain(conn, other_doc),
+                            other_id, other_text, other_ingested,
+                        ),
+                        similarity, duplicate_threshold,
+                        min_link_confidence, 10**15,
+                    )
+                    after = conn.execute(
+                        "SELECT COUNT(*) FROM claim_links WHERE run_id = ?",
+                        [run_id],
+                    ).fetchone()[0]
+                    counts["links"] += max(0, after - before)
+                conn.execute(
+                    """
+                    INSERT INTO kb_claim_link_scans (claim_id, run_id, scanned_at)
+                    VALUES (?, ?, ?)
+                    ON CONFLICT (claim_id) DO UPDATE SET
+                        run_id = excluded.run_id, scanned_at = excluded.scanned_at
+                    """,
+                    [claim_id, run_id, int(time.time() * 1000)],
+                )
+            conn.execute("COMMIT")
+        except Exception:
+            conn.execute("ROLLBACK")
+            raise
+        summary["domains"][definition.name] = counts
+
+    return summary
+
+
 def delete_run(conn, run_id: str) -> Dict[str, int]:
     """Revert one run: its links and scan-ledger rows are removed.
 
