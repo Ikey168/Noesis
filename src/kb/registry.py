@@ -230,10 +230,14 @@ class KnowledgeDomainRegistry:
                 f"unknown domain {name!r}; configured: {self.names()}"
             ) from None
 
-    def resolve(self, name: str) -> DomainBacking:
-        """Resolve a domain name to its backing implementation."""
+    def resolve(self, name: str, conn: Any = None) -> DomainBacking:
+        """Resolve a domain name to its backing implementation.
+
+        ``conn`` optionally injects a warehouse connection (tests, attached
+        databases); by default the backing lazily uses the shared connection.
+        """
         definition = self.get(name)
-        return _BACKING_CLASSES[definition.backing](definition)
+        return _BACKING_CLASSES[definition.backing](definition, conn=conn)
 
     def embedding_models(self) -> Dict[str, str]:
         """Domain -> embedding model, for shared-space consistency checks."""

@@ -145,21 +145,27 @@ class TestResolution:
         with pytest.raises(DomainConfigError, match="unknown domain"):
             registry.resolve("finance")
 
-    def test_coverage_answers_before_data_paths_exist(self, registry):
-        coverage = registry.resolve("web3").coverage()
+    def test_coverage_answers_on_an_empty_warehouse(self, registry):
+        import duckdb
+
+        coverage = registry.resolve("web3", conn=duckdb.connect()).coverage()
         assert coverage["domain"] == "web3"
         assert coverage["backing"] == "corpus-view"
         assert coverage["embedding_model"] == "all-MiniLM-L6-v2"
-        assert coverage["ready"] is False
+        assert coverage["ready"] is True
+        assert coverage["documents"] == 0
 
         namespace_coverage = registry.resolve("reference").coverage()
         assert namespace_coverage["backing"] == "namespace"
         assert namespace_coverage["namespace"] == "reference"
+        assert namespace_coverage["ready"] is False
 
     def test_unimplemented_reads_fail_loudly(self, registry):
-        backing = registry.resolve("web3")
-        with pytest.raises(NotImplementedError, match="search"):
-            backing.search("stablecoin regulation")
+        import duckdb
+
+        backing = registry.resolve("web3", conn=duckdb.connect())
+        with pytest.raises(NotImplementedError, match="claims"):
+            backing.claims()
         with pytest.raises(NotImplementedError, match="diff"):
             backing.diff(since="2026-07-01")
 
