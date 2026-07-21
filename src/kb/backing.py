@@ -35,8 +35,18 @@ class DomainBacking:
     #: machine-readable backing discriminator, overridden per subclass
     backing_type: str = "abstract"
 
-    def __init__(self, definition: "DomainDefinition") -> None:
+    def __init__(self, definition: "DomainDefinition", conn: Any = None) -> None:
         self.definition = definition
+        self._conn = conn
+
+    @property
+    def conn(self) -> Any:
+        """Warehouse connection, defaulting to the shared read connection."""
+        if self._conn is None:
+            from src.database.local_analytics_connector import get_shared_connection
+
+            self._conn = get_shared_connection()
+        return self._conn
 
     # -- retrieve -----------------------------------------------------------
 
@@ -100,12 +110,107 @@ class DomainBacking:
 class CorpusViewBacking(DomainBacking):
     """Domain served by membership rows + views over the shared corpus.
 
-    The data paths (membership pass, per-domain views) are wired by the
-    corpus-view implementation issue; until then only :meth:`coverage`
-    answers.
+    Reads go through the per-domain view (``kb_domain_<name>``) built from
+    ``document_domains`` — membership is data written by the membership pass,
+    never a per-query classification. ``claims``/``entities``/``diff`` arrive
+    with the consolidation increments.
     """
 
     backing_type = "corpus-view"
+
+    _DOCUMENT_COLUMNS = (
+        "document_id", "source_type", "source_id", "url", "title",
+        "language", "ingested_at", "created_at",
+        "domain_score", "domain_method", "sentiment_score", "sentiment_label",
+    )
+
+    def _view(self) -> str:
+        from src.kb.membership import ensure_domain_views, view_name
+
+        name = view_name(self.definition.name)
+        exists = self.conn.execute(
+            "SELECT 1 FROM information_schema.tables WHERE table_name = ?",
+            [name],
+        ).fetchone()
+        if exists is None:
+            from src.kb.registry import KnowledgeDomainRegistry
+
+            ensure_domain_views(
+                self.conn, KnowledgeDomainRegistry([self.definition])
+            )
+        return name
+
+    def _rows(self, sql: str, params: List[Any]) -> List[Dict[str, Any]]:
+        rows = self.conn.execute(sql, params).fetchall()
+        return [dict(zip(self._DOCUMENT_COLUMNS, row)) for row in rows]
+
+    def documents(
+        self,
+        limit: int = 50,
+        since: Optional[str] = None,
+    ) -> List[Dict[str, Any]]:
+        view = self._view()
+        columns = ", ".join(self._DOCUMENT_COLUMNS)
+        params: List[Any] = []
+        where = ""
+        if since:
+            where = (
+                "WHERE COALESCE(created_at, ingested_at, 0)"
+                " >= epoch_ms(CAST(? AS TIMESTAMP))"
+            )
+            params.append(since)
+        params.append(int(limit))
+        return self._rows(
+            f"SELECT {columns} FROM {view} {where}"
+            " ORDER BY COALESCE(created_at, ingested_at, 0) DESC LIMIT ?",
+            params,
+        )
+
+    def search(self, query: str, limit: int = 20) -> List[Dict[str, Any]]:
+        """Lexical search within the domain (semantic lands with the contract)."""
+        view = self._view()
+        columns = ", ".join(self._DOCUMENT_COLUMNS)
+        pattern = f"%{query.lower()}%"
+        return self._rows(
+            f"SELECT {columns} FROM {view}"
+            " WHERE lower(COALESCE(title, '')) LIKE ?"
+            "    OR lower(COALESCE(content, '')) LIKE ?"
+            " ORDER BY COALESCE(created_at, ingested_at, 0) DESC LIMIT ?",
+            [pattern, pattern, int(limit)],
+        )
+
+    def coverage(self) -> Dict[str, Any]:
+        payload = super().coverage()
+        view = self._view()
+        total, first_seen, last_seen = self.conn.execute(
+            f"SELECT COUNT(*), MIN(COALESCE(created_at, ingested_at)),"
+            f" MAX(COALESCE(created_at, ingested_at)) FROM {view}"
+        ).fetchone()
+        methods = dict(
+            self.conn.execute(
+                "SELECT method, COUNT(*) FROM document_domains"
+                " WHERE domain = ? GROUP BY method",
+                [self.definition.name],
+            ).fetchall()
+        )
+        sources = [
+            row[0]
+            for row in self.conn.execute(
+                f"SELECT source_id FROM {view} WHERE source_id IS NOT NULL"
+                " GROUP BY source_id ORDER BY COUNT(*) DESC LIMIT 25"
+            ).fetchall()
+        ]
+        payload.update(
+            {
+                "ready": True,
+                "documents": int(total or 0),
+                "first_seen_ms": first_seen,
+                "last_seen_ms": last_seen,
+                "assignment_methods": methods,
+                "sources": sources,
+            }
+        )
+        return payload
 
 
 class NamespaceBacking(DomainBacking):
