@@ -293,8 +293,24 @@ def _run_domain(
 
             embedding_assessed = False
             if not assigned and anchor is not None and vector_json:
-                embedding_assessed = True
-                similarity = _cosine(anchor, json.loads(vector_json))
+                try:
+                    vector = json.loads(vector_json)
+                except (TypeError, ValueError):
+                    # One corrupt vector row must not wedge the whole pass;
+                    # the document stays embedding_pending until repaired.
+                    import logging
+
+                    logging.getLogger(__name__).warning(
+                        "kb-membership: malformed embedding vector for %s; "
+                        "leaving embedding assessment pending",
+                        document_id,
+                    )
+                    vector = None
+                if vector is not None:
+                    embedding_assessed = True
+                    similarity = _cosine(anchor, vector)
+                else:
+                    similarity = -1.0
                 if similarity >= definition.membership_threshold:
                     _upsert_assignment(
                         conn,

@@ -18,10 +18,23 @@ The read surface mirrors the planned ``noesis-kb-v1`` contract:
 
 from __future__ import annotations
 
+from datetime import datetime, timezone
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 if TYPE_CHECKING:  # pragma: no cover - import cycle guard, typing only
     from src.kb.registry import DomainDefinition
+
+
+def _since_to_epoch_ms(since: str) -> int:
+    """Parse an ISO-8601 ``since`` into epoch ms, honouring UTC offsets.
+
+    Naive timestamps are interpreted as UTC (casting in SQL would silently
+    drop non-zero offsets); malformed input raises ``ValueError`` loudly.
+    """
+    parsed = datetime.fromisoformat(since.replace("Z", "+00:00"))
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=timezone.utc)
+    return int(parsed.timestamp() * 1000)
 
 
 class DomainBacking:
@@ -201,8 +214,8 @@ class CorpusViewBacking(DomainBacking):
         params: List[Any] = []
         where = ""
         if since:
-            where = "WHERE COALESCE(ingested_at, 0) >= epoch_ms(CAST(? AS TIMESTAMP))"
-            params.append(since)
+            where = "WHERE COALESCE(ingested_at, 0) >= ?"
+            params.append(_since_to_epoch_ms(since))
         params.append(int(limit))
         return self._rows(
             f"SELECT {columns} FROM {view} {where}"

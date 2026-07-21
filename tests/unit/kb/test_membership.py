@@ -215,6 +215,29 @@ class TestIncrementalRuns:
         assert summary["domains"]["web3"]["scanned"] >= 1
         assert _assignments(conn, "web3")["late-vec"][0] == "embedding"
 
+    def test_malformed_vector_row_does_not_wedge_the_pass(self, conn, registry):
+        _seed(
+            conn,
+            [
+                _doc("corrupt", "Chain analysis", "on chain data only."),
+                _doc("healthy", "Defi staking", "defi staking news."),
+            ],
+        )
+        EmbeddingStore(conn).upsert("corrupt", model="hashing-model", vector=[0.1])
+        conn.execute(
+            "UPDATE document_embeddings SET vector = 'not-json'"
+            " WHERE document_id = 'corrupt'"
+        )
+        summary = run_membership_pass(conn, registry, provider=FakeProvider())
+        assert summary["domains"]["web3"]["scanned"] == 2
+        assert "healthy" in _assignments(conn, "web3")
+        # The corrupt row stays pending, ready for reassessment once repaired.
+        pending = conn.execute(
+            "SELECT embedding_pending FROM kb_membership_scans"
+            " WHERE document_id = 'corrupt' AND domain = 'web3'"
+        ).fetchone()[0]
+        assert pending is True
+
     def test_config_change_rebuilds_domain(self, conn, registry, tmp_path):
         _seed(conn, [_doc("d1", "Defi staking", "defi staking news.")])
         run_membership_pass(conn, registry)
@@ -308,6 +331,12 @@ class TestViewsAndBacking:
         backing = registry.resolve("web3", conn=conn)
         recent = backing.documents(since="2025-01-01")
         assert [doc["document_id"] for doc in recent] == ["new"]
+
+        # UTC offsets are honoured, not silently dropped: new_ms is
+        # 2030-03-17T17:46:40Z; a since 1s later in a +05:00 offset that is
+        # still earlier in UTC must include the doc, 1s after in UTC must not.
+        assert backing.documents(since="2030-03-17T22:46:39+05:00") != []
+        assert backing.documents(since="2030-03-17T17:46:41+00:00") == []
 
     def test_search_escapes_like_wildcards(self, conn, registry):
         _seed(
