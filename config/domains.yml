@@ -1,0 +1,17 @@
+# Knowledge-domain registry (see src/kb/registry.py for the schema).
+#
+# A domain scopes synthesized knowledge (documents, claims, entities) that
+# applications consume through the KB contract. Each domain declares its
+# backing:
+#   corpus-view — membership rows + views over the shared documents sink
+#   namespace   — a provisioned knowledge graph with its own storage
+#
+# Default policy: start as a corpus-view; promote to a namespace when the
+# domain earns its own lifecycle (retention, re-index cadence, quotas).
+# Every domain must declare embedding_model — cross-domain similarity only
+# means anything inside one shared embedding space.
+#
+# Starter definitions (news, economics, technology, web3, local, papers)
+# arrive with the seeding increment.
+version: 1
+domains: []
