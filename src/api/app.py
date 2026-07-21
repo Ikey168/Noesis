@@ -11,6 +11,7 @@ ENHANCED_KG_AVAILABLE = False
 EVENT_TIMELINE_AVAILABLE = False
 QUICKSIGHT_AVAILABLE = False
 TOPIC_ROUTES_AVAILABLE = False
+KB_ROUTES_AVAILABLE = False
 GRAPH_SEARCH_AVAILABLE = False
 INFLUENCE_ANALYSIS_AVAILABLE = False
 RATE_LIMITING_AVAILABLE = False
@@ -98,6 +99,19 @@ def try_import_topic_routes():
         return True
     except ImportError:
         TOPIC_ROUTES_AVAILABLE = False
+        return False
+
+
+def try_import_kb_routes():
+    """Try to import the KB contract routes (noesis-kb-v1)."""
+    global KB_ROUTES_AVAILABLE
+    try:
+        from src.api.routes import kb_routes
+        _imported_modules['kb_routes'] = kb_routes
+        KB_ROUTES_AVAILABLE = True
+        return True
+    except ImportError:
+        KB_ROUTES_AVAILABLE = False
         return False
 
 
@@ -431,6 +445,7 @@ def check_all_imports():
     try_import_event_timeline_routes()
     try_import_quicksight_routes()
     try_import_topic_routes()
+    try_import_kb_routes()
     try_import_graph_search_routes()
     try_import_influence_routes()
     try_import_rate_limiting()
@@ -680,6 +695,13 @@ def include_optional_routers(app):
         topic_routes = _imported_modules.get('topic_routes')
         if topic_routes:
             app.include_router(topic_routes.router)
+            routers_included += 1
+
+    # Include the KB contract routes if available (noesis-kb-v1)
+    if KB_ROUTES_AVAILABLE:
+        kb_routes = _imported_modules.get('kb_routes')
+        if kb_routes:
+            app.include_router(kb_routes.router)
             routers_included += 1
 
     # Include graph search routes if available (Issue #39)

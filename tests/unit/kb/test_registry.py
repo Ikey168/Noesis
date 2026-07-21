@@ -164,11 +164,16 @@ class TestResolution:
         assert namespace_coverage["documents"] == 0
 
     def test_unimplemented_reads_fail_loudly(self, registry):
-        import duckdb
+        # The shipped backings implement the full surface; the base class
+        # still guarantees that any future unwired call names itself and
+        # the backing instead of failing silently.
+        from src.kb.backing import DomainBacking
 
-        backing = registry.resolve("web3", conn=duckdb.connect())
-        with pytest.raises(NotImplementedError, match="entities"):
-            backing.entities()
+        backing = DomainBacking(registry.get("web3"))
+        with pytest.raises(NotImplementedError, match="search"):
+            backing.search("anything")
+        with pytest.raises(NotImplementedError, match="web3"):
+            backing.diff(since="2026-07-01")
 
     def test_embedding_models_map(self, registry):
         assert registry.embedding_models() == {

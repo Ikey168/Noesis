@@ -258,6 +258,68 @@ class CorpusViewBacking(DomainBacking):
             [pattern, pattern, int(limit)],
         )
 
+    def entities(self, name: Optional[str] = None) -> List[Dict[str, Any]]:
+        """Canonical entities mentioned in this domain, aliases folded.
+
+        Mentions come from ``document_actors`` scoped through membership and
+        resolved through ``entity_aliases``; surfaces with no alias row yet
+        group under their normalized form.
+        """
+        from src.kb.entities import ensure_entity_schema, normalize_surface
+
+        with self._lock():
+            ensure_entity_schema(self.conn)
+            mention_rows = self.conn.execute(
+                """
+                SELECT a.actor_name, COUNT(*)
+                FROM document_actors a
+                JOIN document_domains m
+                  ON m.document_id = a.document_id AND m.domain = ?
+                GROUP BY a.actor_name
+                """,
+                [self.definition.name],
+            ).fetchall()
+            aliases = dict(
+                self.conn.execute(
+                    "SELECT surface_form, canonical_id FROM entity_aliases"
+                ).fetchall()
+            )
+            preferred = dict(
+                self.conn.execute(
+                    "SELECT canonical_id, preferred_name FROM canonical_entities"
+                ).fetchall()
+            )
+
+        folded: Dict[str, Dict[str, Any]] = {}
+        for actor_name, count in mention_rows:
+            normalized = normalize_surface(actor_name)
+            canonical = aliases.get(normalized, f"raw:{normalized}")
+            entry = folded.setdefault(
+                canonical,
+                {
+                    "canonical_id": canonical,
+                    "name": preferred.get(canonical, actor_name),
+                    "mentions": 0,
+                    "aliases": [],
+                },
+            )
+            entry["mentions"] += int(count)
+            if actor_name not in entry["aliases"]:
+                entry["aliases"].append(actor_name)
+
+        results = sorted(
+            folded.values(), key=lambda entry: entry["mentions"], reverse=True
+        )
+        if name:
+            needle = name.lower()
+            results = [
+                entry
+                for entry in results
+                if needle in entry["name"].lower()
+                or any(needle in alias.lower() for alias in entry["aliases"])
+            ]
+        return results
+
     def diff(self, since: str) -> Dict[str, Any]:
         """What changed in this domain since ``since`` (ISO-8601, UTC).
 
