@@ -295,14 +295,222 @@ class CorpusViewBacking(DomainBacking):
 class NamespaceBacking(DomainBacking):
     """Domain served by a provisioned namespace with its own storage.
 
-    Wired against the provisioning plane in a later increment; until then
-    only :meth:`coverage` answers. ``namespace`` defaults to the domain name
-    at validation time, so the field is always present here.
+    Reads go against the provisioning plane's namespaced tables
+    (``kg_<name>_documents/entities/claims``), either table-prefixed in the
+    shared warehouse or alias-qualified in the namespace's own attached
+    DuckDB file (``namespace_backend: attached`` — one engine, so
+    cross-backing SQL joins stay possible). The base namespaced schema is
+    thin; promotion (:mod:`src.kb.promotion`) extends it with ``content``
+    and ``ingested_at`` columns, and every read here tolerates their
+    absence. ``diff`` arrives with the change-feed increment.
     """
 
     backing_type = "namespace"
 
+    def _tables(self) -> Dict[str, str]:
+        from src.provisioning.namespaces import (
+            BACKEND_ATTACHED,
+            BACKEND_TABLE_PREFIX,
+            create_namespace,
+        )
+
+        backend = (
+            BACKEND_ATTACHED
+            if self.definition.namespace_backend == "attached"
+            else BACKEND_TABLE_PREFIX
+        )
+        with self._lock():
+            return create_namespace(self.conn, self.definition.namespace, backend)
+
+    def _has_column(self, table: str, column: str) -> bool:
+        from src.provisioning.namespaces import _has_column
+
+        return _has_column(self.conn, table, column)
+
+    def documents(
+        self,
+        limit: int = 50,
+        since: Optional[str] = None,
+    ) -> List[Dict[str, Any]]:
+        tables = self._tables()
+        docs = tables["documents"]
+        has_content = self._has_column(docs, "content")
+        has_ingested = self._has_column(docs, "ingested_at")
+        content_expr = "content" if has_content else "NULL AS content"
+        arrival = "ingested_at" if has_ingested else "epoch_ms(routed_at)"
+        params: List[Any] = []
+        where = ""
+        if since:
+            where = f"WHERE COALESCE({arrival}, 0) >= ?"
+            params.append(_since_to_epoch_ms(since))
+        params.append(int(limit))
+        with self._lock():
+            rows = self.conn.execute(
+                f"SELECT id, title, source, source_type, url,"
+                f" epoch_ms(published_at), COALESCE({arrival}, 0), {content_expr}"
+                f" FROM {docs} {where}"
+                f" ORDER BY COALESCE({arrival}, 0) DESC LIMIT ?",
+                params,
+            ).fetchall()
+        return [
+            {
+                "document_id": row[0],
+                "title": row[1],
+                "source_id": row[2],
+                "source_type": row[3],
+                "url": row[4],
+                "created_at": row[5],
+                "ingested_at": row[6],
+                "content": row[7],
+            }
+            for row in rows
+        ]
+
+    def search(self, query: str, limit: int = 20) -> List[Dict[str, Any]]:
+        tables = self._tables()
+        docs = tables["documents"]
+        has_content = self._has_column(docs, "content")
+        pattern = CorpusViewBacking._like_pattern(query)
+        content_clause = (
+            " OR lower(COALESCE(content, '')) LIKE ? ESCAPE '\\'"
+            if has_content
+            else ""
+        )
+        params: List[Any] = [pattern] + ([pattern] if has_content else [])
+        params.append(int(limit))
+        with self._lock():
+            rows = self.conn.execute(
+                f"SELECT id, title, source, url FROM {docs}"
+                f" WHERE lower(COALESCE(title, '')) LIKE ? ESCAPE '\\'{content_clause}"
+                f" ORDER BY routed_at DESC NULLS LAST LIMIT ?",
+                params,
+            ).fetchall()
+        return [
+            {"document_id": row[0], "title": row[1], "source_id": row[2], "url": row[3]}
+            for row in rows
+        ]
+
+    def claims(
+        self,
+        since: Optional[str] = None,
+        limit: int = 50,
+    ) -> List[Dict[str, Any]]:
+        """Namespace claims in the same cluster shape corpus domains serve.
+
+        Namespace-native claims are clusters of one until the cross-backing
+        link pass connects them; links they participate in live in the
+        shared ``claim_links`` table and are cited here.
+        """
+        tables = self._tables()
+        with self._lock():
+            rows = self.conn.execute(
+                f"SELECT claim_id, claim_text, verdict, document_id"
+                f" FROM {tables['claims']} ORDER BY claim_id LIMIT ?",
+                [int(limit)],
+            ).fetchall()
+            links = self.conn.execute(
+                "SELECT claim_a, claim_b, relation, confidence, prediction_mode"
+                " FROM claim_links WHERE relation IN ('supports', 'contradicts')"
+            ).fetchall() if self._link_table_exists() else []
+        by_claim: Dict[str, List[Dict[str, Any]]] = {}
+        for claim_a, claim_b, relation, confidence, mode in links:
+            by_claim.setdefault(claim_a, []).append(
+                {"claim_id": claim_b, "relation": relation,
+                 "confidence": confidence, "prediction_mode": mode}
+            )
+            by_claim.setdefault(claim_b, []).append(
+                {"claim_id": claim_a, "relation": relation,
+                 "confidence": confidence, "prediction_mode": mode}
+            )
+        clusters = []
+        for claim_id, text, verdict, document_id in rows:
+            related = by_claim.get(claim_id, [])
+            clusters.append(
+                {
+                    "cluster_id": f"cl-{claim_id}",
+                    "representative": {
+                        "claim_id": claim_id,
+                        "claim_text": text,
+                        "document_id": document_id,
+                        "verdict": verdict,
+                        "superseded": False,
+                    },
+                    "citations": [
+                        {"claim_id": claim_id, "claim_text": text,
+                         "document_id": document_id, "verdict": verdict,
+                         "superseded": False}
+                    ],
+                    "corroboration": 1,
+                    "contradictions": [
+                        link for link in related if link["relation"] == "contradicts"
+                    ],
+                    "supports": [
+                        link for link in related if link["relation"] == "supports"
+                    ],
+                    "size": 1,
+                }
+            )
+        return clusters
+
+    def entities(self, name: Optional[str] = None) -> List[Dict[str, Any]]:
+        tables = self._tables()
+        params: List[Any] = []
+        where = ""
+        if name:
+            where = "WHERE lower(entity) LIKE ? ESCAPE '\\'"
+            params.append(CorpusViewBacking._like_pattern(name))
+        with self._lock():
+            rows = self.conn.execute(
+                f"SELECT entity, mentions FROM {tables['entities']} {where}"
+                " ORDER BY mentions DESC NULLS LAST",
+                params,
+            ).fetchall()
+        return [{"entity": row[0], "mentions": row[1]} for row in rows]
+
+    def _link_table_exists(self) -> bool:
+        return (
+            self.conn.execute(
+                "SELECT 1 FROM information_schema.tables"
+                " WHERE table_name = 'claim_links'"
+            ).fetchone()
+            is not None
+        )
+
     def coverage(self) -> Dict[str, Any]:
         payload = super().coverage()
         payload["namespace"] = self.definition.namespace
+        payload["namespace_backend"] = self.definition.namespace_backend
+        tables = self._tables()
+        with self._lock():
+            documents = self.conn.execute(
+                f"SELECT COUNT(*) FROM {tables['documents']}"
+            ).fetchone()[0]
+            claims = self.conn.execute(
+                f"SELECT COUNT(*) FROM {tables['claims']}"
+            ).fetchone()[0]
+            # Shared-embedding-space guard: vectors for this namespace's
+            # documents embedded under a *different* model are a loud
+            # mismatch, not silently bad similarity.
+            mismatches = 0
+            if (
+                self.conn.execute(
+                    "SELECT 1 FROM information_schema.tables"
+                    " WHERE table_name = 'document_embeddings'"
+                ).fetchone()
+                is not None
+            ):
+                mismatches = self.conn.execute(
+                    f"SELECT COUNT(*) FROM document_embeddings e"
+                    f" JOIN {tables['documents']} n ON n.id = e.document_id"
+                    f" WHERE e.model <> ?",
+                    [self.definition.embedding_model],
+                ).fetchone()[0]
+        payload.update(
+            {
+                "ready": True,
+                "documents": int(documents or 0),
+                "claims": int(claims or 0),
+                "embedding_model_mismatches": int(mismatches or 0),
+            }
+        )
         return payload
