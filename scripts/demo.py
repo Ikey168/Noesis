@@ -56,9 +56,21 @@ def _warn(text: str) -> None:
 # ---------------------------------------------------------------------------
 
 def ingest_articles(conn, articles: List[Dict[str, Any]], reset: bool) -> int:
-    """Insert demo articles into news_articles, return count inserted."""
+    """Insert demo articles into the documents sink, return count inserted.
+
+    ``news_articles`` is a view over ``documents`` (#909), so writes go through
+    the compat writer and the schema is created here for a fresh warehouse.
+    """
+    from src.database.news_articles_compat import (
+        ensure_news_articles_view,
+        write_news_articles,
+    )
+
+    ensure_news_articles_view(conn)
+
     if reset:
-        conn.execute("DELETE FROM news_articles WHERE id LIKE 'demo-%'")
+        conn.execute("DELETE FROM document_enrichments WHERE document_id LIKE 'demo-%'")
+        conn.execute("DELETE FROM documents WHERE document_id LIKE 'demo-%'")
 
     existing = {
         r[0] for r in conn.execute(
@@ -66,32 +78,24 @@ def ingest_articles(conn, articles: List[Dict[str, Any]], reset: bool) -> int:
         ).fetchall()
     }
 
-    inserted = 0
-    for art in articles:
-        if art["id"] in existing:
-            continue
-        conn.execute(
-            """
-            INSERT INTO news_articles
-                (id, title, url, content, source, category,
-                 publish_date, sentiment_score, sentiment_label)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """,
-            [
-                art["id"],
-                art["title"],
-                art["url"],
-                art["content"],
-                art["source"],
-                art["category"],
-                art.get("published_date", datetime.now(timezone.utc).isoformat()),
-                art.get("sentiment_score", 0.0),
-                art.get("sentiment_label", "neutral"),
-            ],
-        )
-        inserted += 1
-
-    return inserted
+    rows = [
+        {
+            "id": art["id"],
+            "title": art["title"],
+            "url": art["url"],
+            "content": art["content"],
+            "source": art["source"],
+            "category": art["category"],
+            "publish_date": art.get(
+                "published_date", datetime.now(timezone.utc).isoformat()
+            ),
+            "sentiment_score": art.get("sentiment_score", 0.0),
+            "sentiment_label": art.get("sentiment_label", "neutral"),
+        }
+        for art in articles
+        if art["id"] not in existing
+    ]
+    return write_news_articles(conn, rows)
 
 
 # ---------------------------------------------------------------------------
@@ -208,7 +212,7 @@ def run_kg_update(articles: List[Dict[str, Any]]) -> Dict[str, int]:
     """Populate an in-process KnowledgeGraphStore from articles + claims."""
     try:
         from src.knowledge_graph.claim_graph import (
-            KnowledgeGraphStore, build_claim_graph, ExtractedClaim
+            EntityType, KnowledgeGraphStore, Node, build_claim_graph, ExtractedClaim
         )
         from src.argument_mining.models import ClaimDetector
 
@@ -216,6 +220,13 @@ def run_kg_update(articles: List[Dict[str, Any]]) -> Dict[str, int]:
         cd = ClaimDetector()
 
         for art in articles:
+            # build_claim_graph requires the source document node to exist.
+            kg.add_node(Node(
+                type=EntityType.DOCUMENT,
+                name=art["title"],
+                node_id=art["id"],
+                properties={"source": art["source"], "url": art["url"]},
+            ))
             sentences = [s.strip() for s in art["content"].split(". ") if len(s.strip()) > 20]
             extracted: List[ExtractedClaim] = []
             for sent in sentences[:5]:
