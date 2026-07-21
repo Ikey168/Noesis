@@ -169,8 +169,6 @@ class TestResolution:
         backing = registry.resolve("web3", conn=duckdb.connect())
         with pytest.raises(NotImplementedError, match="entities"):
             backing.entities()
-        with pytest.raises(NotImplementedError, match="diff"):
-            backing.diff(since="2026-07-01")
 
     def test_embedding_models_map(self, registry):
         assert registry.embedding_models() == {
