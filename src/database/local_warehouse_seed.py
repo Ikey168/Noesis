@@ -291,6 +291,42 @@ def _migrate_attribution_columns(conn: duckdb.DuckDBPyConnection) -> None:
             pass  # column already exists
 
 
+#: prediction tables that carry model-vs-heuristic provenance (#958)
+_PREDICTION_TABLES = (
+    "argument_claims",
+    "source_stances",
+    "document_frames",
+    "policy_positions",
+    "claim_conflicts",
+    "stance_drift_events",
+)
+
+
+def _migrate_prediction_mode_columns(conn: duckdb.DuckDBPyConnection) -> None:
+    """Add prediction_mode (+ confidence where absent) to prediction tables.
+
+    Pre-existing rows are backfilled as ``heuristic`` — everything written
+    before #958 came from the heuristic fallbacks, and marking them keeps
+    the evidence-quality summary honest instead of unknown.
+    """
+    for table in _PREDICTION_TABLES:
+        try:
+            conn.execute(f"ALTER TABLE {table} ADD COLUMN prediction_mode VARCHAR")
+        except Exception:
+            pass  # column already exists
+        try:
+            conn.execute(f"ALTER TABLE {table} ADD COLUMN confidence DOUBLE")
+        except Exception:
+            pass  # column already exists (several tables ship with it)
+        try:
+            conn.execute(
+                f"UPDATE {table} SET prediction_mode = 'heuristic'"
+                " WHERE prediction_mode IS NULL"
+            )
+        except Exception:
+            pass
+
+
 def ensure_schema(conn: duckdb.DuckDBPyConnection) -> None:
     """Create the analytics tables and the ``news_articles`` compatibility view.
 
@@ -300,6 +336,7 @@ def ensure_schema(conn: duckdb.DuckDBPyConnection) -> None:
     conn.execute(_SCHEMA)
     _migrate_factcheck_columns(conn)
     _migrate_attribution_columns(conn)
+    _migrate_prediction_mode_columns(conn)
     # Base tables (documents, document_enrichments) + the news_articles view.
     from src.database.news_articles_compat import ensure_news_articles_view
     ensure_news_articles_view(conn)

@@ -150,4 +150,13 @@ def kb_diff(
 
 def kb_coverage(domain: str, conn=None, config_path=None) -> Dict[str, Any]:
     backing = _backing(domain, conn, config_path)
-    return _envelope(domain, backing.coverage())
+    payload = backing.coverage()
+    # Honesty rider (#958): every coverage answer states what fraction of
+    # the underlying analysis is model-grade vs heuristic.
+    from src.kb.evidence import evidence_quality_summary
+
+    try:
+        payload["evidence_quality"] = evidence_quality_summary(backing.conn)
+    except Exception:
+        payload["evidence_quality"] = None
+    return _envelope(domain, payload)
