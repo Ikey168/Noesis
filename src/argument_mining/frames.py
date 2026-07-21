@@ -163,6 +163,13 @@ class FrameClassifier:
         except Exception:
             logger.warning("FrameClassifier: load failed — using heuristic fallback", exc_info=True)
 
+    @property
+    def prediction_mode(self) -> str:
+        """`model:<dir>` when a checkpoint is active, else `heuristic` (#958)."""
+        if self._pipeline is not None:
+            return f"model:{self._model_dir.name}"
+        return "heuristic"
+
     # ------------------------------------------------------------------
     # Public API
     # ------------------------------------------------------------------

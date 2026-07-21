@@ -83,6 +83,14 @@ class ClaimDetector:
         except Exception:
             logger.warning("ClaimDetector: load failed — using heuristic fallback", exc_info=True)
 
+
+    @property
+    def prediction_mode(self) -> str:
+        """`model:<dir>` when a checkpoint is active, else `heuristic` (#958)."""
+        if self._pipeline is not None:
+            return f"model:{self._model_dir.name}"
+        return "heuristic"
+
     # ------------------------------------------------------------------
     # Public API
     # ------------------------------------------------------------------
@@ -202,6 +210,14 @@ class StanceClassifier:
             logger.info("StanceClassifier: loaded model from %s", self._model_dir)
         except Exception:
             logger.warning("StanceClassifier: load failed — using heuristic fallback", exc_info=True)
+
+
+    @property
+    def prediction_mode(self) -> str:
+        """`model:<dir>` when a checkpoint is active, else `heuristic` (#958)."""
+        if self._pipeline is not None:
+            return f"model:{self._model_dir.name}"
+        return "heuristic"
 
     # ------------------------------------------------------------------
     # Public API
