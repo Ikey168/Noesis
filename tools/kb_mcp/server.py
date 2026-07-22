@@ -118,12 +118,9 @@ def kb_brief(
     """The daily brief: per-domain changes since T under a hard item budget
     (dropped count reported), with a New-publications section for research
     domains. Returns {markdown, sections, meta}; every line cited."""
-    from src.kb.brief import generate_brief
+    from src.kb import contract
 
-    try:
-        return generate_brief(domains=domains, since=since, budget=budget)
-    except Exception as exc:  # noqa: BLE001 - tool boundary
-        return {"error": {"code": "internal", "message": str(exc)}}
+    return _run(contract.kb_brief, domains, since, budget)
 
 
 @mcp.tool()
