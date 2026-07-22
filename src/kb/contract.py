@@ -148,6 +148,35 @@ def kb_diff(
         raise KBContractError("bad_since", str(exc)) from exc
 
 
+def kb_brief(
+    domains: Optional[List[str]] = None,
+    since: Optional[str] = None,
+    budget: int = 15,
+    conn=None,
+    config_path=None,
+) -> Dict[str, Any]:
+    """The daily brief as a contract call (markdown + sections + meta).
+
+    External consumers (Modulo, dashboards) fetch this instead of composing
+    diffs themselves; the envelope carries no single domain, so ``domain``
+    is ``None`` and the per-domain breakdown lives in ``data.sections``.
+    """
+    from src.kb.brief import generate_brief
+    from src.kb.registry import DomainConfigError
+
+    try:
+        brief = generate_brief(
+            domains=domains, since=since, budget=int(budget),
+            conn=conn, config_path=config_path,
+        )
+    except DomainConfigError as exc:
+        raise KBContractError("unknown_domain", str(exc)) from exc
+    except ValueError as exc:
+        raise KBContractError("bad_since", str(exc)) from exc
+
+    return _envelope(None, brief)
+
+
 def kb_coverage(domain: str, conn=None, config_path=None) -> Dict[str, Any]:
     backing = _backing(domain, conn, config_path)
     payload = backing.coverage()

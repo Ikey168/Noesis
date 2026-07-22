@@ -35,6 +35,24 @@ def list_domains():
     return _run(contract.kb_domains)
 
 
+@router.get("/brief")
+def brief(
+    domains: Optional[str] = None,
+    since: Optional[str] = None,
+    budget: int = 15,
+):
+    """The daily brief (markdown + sections + meta) for external consumers.
+
+    ``domains`` is a comma-separated list; omit for all configured domains.
+    """
+    domain_list = (
+        [name.strip() for name in domains.split(",") if name.strip()]
+        if domains
+        else None
+    )
+    return _run(contract.kb_brief, domain_list, since, budget)
+
+
 @router.get("/{domain}/search")
 def search(domain: str, q: str, limit: int = 20):
     return _run(contract.kb_search, domain, q, limit)

@@ -121,6 +121,61 @@ class TestBrief:
         assert "nothing new (no arrivals from any feed)" in brief["markdown"]
         assert brief["meta"]["kept"] == 0
 
+    def test_contract_call_wraps_brief_in_envelope(self, conn, config_path):
+        from src.kb import contract
+        from src.kb.contract import KBContractError
+
+        _seed_world(conn, config_path)
+        payload = contract.kb_brief(
+            since=SINCE_DAY2, conn=conn, config_path=config_path
+        )
+        assert payload["contract"] == "noesis-kb-v1"
+        assert payload["domain"] is None
+        assert "markdown" in payload["data"]
+        assert payload["data"]["meta"]["kept"] >= 1
+
+        with pytest.raises(KBContractError) as excinfo:
+            contract.kb_brief(
+                domains=["finance"], conn=conn, config_path=config_path
+            )
+        assert excinfo.value.code == "unknown_domain"
+
+    def test_rest_brief_route(self, conn, config_path, tmp_path, monkeypatch):
+        import importlib.util
+        from pathlib import Path
+
+        from fastapi import FastAPI
+        from fastapi.testclient import TestClient
+
+        db_path = tmp_path / "wh.duckdb"
+        file_conn = __import__("duckdb").connect(str(db_path))
+        _seed_world(file_conn, config_path)
+        file_conn.close()
+
+        monkeypatch.setenv("NOESIS_DOMAINS_CONFIG", str(config_path))
+        monkeypatch.setenv("NOESIS_DB_PATH", str(db_path))
+        import src.database.local_analytics_connector as lac
+
+        monkeypatch.setattr(lac, "_CONNECTION", None, raising=False)
+
+        spec = importlib.util.spec_from_file_location(
+            "kb_routes_brief_test",
+            Path(__file__).resolve().parents[3] / "src/api/routes/kb_routes.py",
+        )
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        app = FastAPI()
+        app.include_router(module.router)
+
+        response = TestClient(app).get(
+            "/api/v1/kb/brief",
+            params={"domains": "papers", "since": SINCE_DAY2},
+        )
+        assert response.status_code == 200
+        data = response.json()["data"]
+        assert [s["domain"] for s in data["sections"]] == ["papers"]
+        assert "New publications" in data["markdown"]
+
     def test_domain_selection(self, conn, config_path):
         _seed_world(conn, config_path)
         brief = generate_brief(
