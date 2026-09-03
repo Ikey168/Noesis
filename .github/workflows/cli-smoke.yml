@@ -1,0 +1,63 @@
+name: Noesis CLI fresh-install smoke
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "pyproject.toml"
+      - "noesis"
+      - "src/noesis_cli/**"
+      - "src/evidence_bundle/**"
+      - "src/kb/**"
+      - "src/ingestion/**"
+      - "services/ingest/**"
+      - "contracts/**"
+      - "examples/quickstart/**"
+      - "tests/unit/cli/**"
+      - ".github/workflows/cli-smoke.yml"
+  push:
+    branches: [main]
+    paths:
+      - "pyproject.toml"
+      - "noesis"
+      - "src/noesis_cli/**"
+      - "contracts/**"
+      - "tests/unit/cli/**"
+
+jobs:
+  fresh-install:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install ".[minimal]"
+      - name: Exercise local journey outside the checkout
+        run: |
+          workspace="$(mktemp -d)"
+          cd "$workspace"
+          noesis init --non-interactive --json
+          noesis doctor --json
+          noesis ingest "$GITHUB_WORKSPACE/examples/quickstart/moon-mission.md" --domain local --json
+          noesis ask "What was the mission result?" --domain local --format json
+          noesis export answer --domain local --question "What was the mission result?" --include-private --output answer.bundle.json --json
+          noesis verify answer.bundle.json --json
+          noesis serve --surface api --dry-run --json
+
+  extras-resolve:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        extra: [minimal, server, models, vector, media, orchestration, cloud, full]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install --dry-run ".[${{ matrix.extra }}]"

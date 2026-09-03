@@ -1,0 +1,109 @@
+[build-system]
+requires = ["setuptools>=77", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "noesis-evidence"
+version = "0.1.0"
+description = "Local-first, verifiable evidence infrastructure for agents"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+authors = [{name = "Noesis contributors"}]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+]
+dependencies = [
+  "duckdb>=1.0,<2.0",
+  "fastavro>=1.12,<2.0",
+  "jsonschema>=4.23,<5.0",
+  "PyYAML>=6.0,<7.0",
+]
+
+[project.optional-dependencies]
+minimal = []
+server = [
+  "fastapi>=0.109.1,<1.0",
+  "fastmcp>=2.0,<3.0",
+  "mcp>=1.28.1,<2.0",
+  "uvicorn>=0.23,<1.0",
+]
+models = [
+  "huggingface-hub>=0.20,<2.0",
+  "sentence-transformers>=2.0",
+  "torch>=2.0",
+  "transformers>=5.13",
+]
+vector = [
+  "psycopg2-binary>=2.9.12",
+  "qdrant-client>=1.7,<2.0",
+]
+media = [
+  "beautifulsoup4>=4.12",
+  "ebooklib>=0.18",
+  "lxml>=5.0",
+  "pdf2image>=1.17",
+  "pdfminer.six>=20221105",
+  "Pillow>=10.0",
+  "PyMuPDF>=1.24",
+  "pytesseract>=0.3.10",
+]
+orchestration = [
+  "apache-airflow>=2.8,<4.0",
+  "apscheduler>=3.10,<4.0",
+  "dbt-core>=1.7,<2.0",
+  "mlflow>=2.0,<4.0",
+]
+cloud = [
+  "boto3>=1.26",
+  "botocore>=1.29",
+  "redis>=5.0",
+]
+full = [
+  "apache-airflow>=2.8,<4.0",
+  "apscheduler>=3.10,<4.0",
+  "beautifulsoup4>=4.12",
+  "boto3>=1.26",
+  "botocore>=1.29",
+  "dbt-core>=1.7,<2.0",
+  "ebooklib>=0.18",
+  "fastapi>=0.109.1,<1.0",
+  "fastmcp>=2.0,<3.0",
+  "huggingface-hub>=0.20,<2.0",
+  "lxml>=5.0",
+  "mcp>=1.28.1,<2.0",
+  "mlflow>=2.0,<4.0",
+  "pdf2image>=1.17",
+  "pdfminer.six>=20221105",
+  "Pillow>=10.0",
+  "psycopg2-binary>=2.9.12",
+  "PyMuPDF>=1.24",
+  "pytesseract>=0.3.10",
+  "qdrant-client>=1.7,<2.0",
+  "redis>=5.0",
+  "sentence-transformers>=2.0",
+  "torch>=2.0",
+  "transformers>=5.13",
+  "uvicorn>=0.23,<1.0",
+]
+
+[project.scripts]
+noesis = "src.noesis_cli.app:main"
+
+[project.urls]
+Homepage = "https://github.com/Ikey168/Noesis"
+Issues = "https://github.com/Ikey168/Noesis/issues"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["contracts*", "src*", "services*", "tools*"]
+namespaces = true
+
+[tool.setuptools.package-data]
+"contracts.schemas.avro" = ["*.avsc"]
+"contracts.schemas.jsonschema" = ["*.json"]
+"src.noesis_cli" = ["resources/*"]

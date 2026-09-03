@@ -58,6 +58,8 @@ STAGE_ALIASES = {
     "origin-graph": "noesis-evidence-independence-v1",
     "evidence-bundle": "noesis-evidence-bundle-v1",
     "bundle": "noesis-evidence-bundle-v1",
+    "cli": "noesis-cli-v1",
+    "command-line": "noesis-cli-v1",
     "search": "search-request",
     "article-request": "article-request",
 }
