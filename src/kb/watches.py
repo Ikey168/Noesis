@@ -32,6 +32,7 @@ EVENT_TYPES = (
     "quantitative_verdict_changed",
     "coverage_stale",
     "source_delivery_failed",
+    "guidance_stale",
 )
 
 _EVENT_ORDER = {name: index for index, name in enumerate(EVENT_TYPES)}
@@ -950,6 +951,23 @@ def _event_specs(
         if spec:
             specs.append(spec)
 
+    old_guidance = before.get("guidance_status", {})
+    new_guidance = after.get("guidance_status", {})
+    if (
+        old_guidance
+        and not old_guidance.get("stale")
+        and new_guidance.get("stale")
+    ):
+        spec = _event_spec(
+            "guidance_stale",
+            "private_guidance_conflicts_with_newer_public_record",
+            "Authorized private guidance conflicts with a newer public record.",
+            new_guidance.get("evidence", []),
+            str(new_guidance.get("comparison_id") or _digest(new_guidance)),
+        )
+        if spec:
+            specs.append(spec)
+
     old_coverage = before.get("coverage", {})
     new_coverage = after.get("coverage", {})
     if not old_coverage.get("stale") and new_coverage.get("stale"):
@@ -1047,6 +1065,126 @@ def _insert_event(
         [idempotency],
     ).fetchone()[0]
     return before_count == 0 and after_count == 1
+
+
+def record_external_snapshot(
+    conn: Any,
+    principal_id: str,
+    watch_id: str,
+    watermark: int,
+    state: Mapping[str, Any],
+    *,
+    observed_at_ms: int | None = None,
+) -> dict[str, Any]:
+    """Append a canonical connector-produced state to an owned watch.
+
+    This is the reusable bridge for evidence types that are not derived by the
+    claim-cluster matcher itself. It retains the same committed-watermark,
+    ordering, idempotency, authorization, snapshot, and replay guarantees.
+    """
+    watch, previous_raw = _owned_watch(conn, principal_id, watch_id)
+    previous = _load(previous_raw, None)
+    if watch["status"] != "active":
+        raise WatchError("bad_request", "only active watches accept snapshots")
+    value = _positive_watermark(watermark)
+    committed = conn.execute(
+        "SELECT consolidation_json FROM claim_watch_watermarks WHERE watermark = ?",
+        [value],
+    ).fetchone()
+    if committed is None:
+        raise WatchError(
+            "watermark_uncommitted",
+            f"watermark {value} has not been marked complete",
+        )
+    snapshot = dict(state)
+    observed = _timestamp(observed_at_ms)
+    snapshot.setdefault("watermark_observed_at_ms", observed)
+    snapshot.setdefault("n", 0)
+    snapshot.setdefault("method", "connector-produced canonical watch state")
+    snapshot.setdefault("assumptions", [])
+    snapshot.setdefault("selector", watch["selector"])
+    snapshot.setdefault("claims", [])
+    snapshot.setdefault("integrity_findings", [])
+    snapshot.setdefault("coverage", {})
+    if watch.get("last_watermark") is not None:
+        last_watermark = int(watch["last_watermark"])
+        if value < last_watermark:
+            raise WatchError(
+                "bad_request", "external snapshots must be watermark ordered"
+            )
+        if value == last_watermark:
+            retained = conn.execute(
+                "SELECT state_hash FROM claim_watch_snapshots"
+                " WHERE watch_id = ? AND watermark = ?",
+                [watch_id, value],
+            ).fetchone()
+            if retained is None or retained[0] != _digest(snapshot):
+                raise WatchError(
+                    "watermark_conflict",
+                    "a different state is already retained at this watermark",
+                )
+            return {
+                "watch_contract": WATCH_CONTRACT_VERSION,
+                "watch_id": watch_id,
+                "domain": watch["domain"],
+                "watermark": value,
+                "emitted_events": 0,
+                "n": 0,
+            }
+    specs = [] if previous is None else _event_specs(previous, snapshot)
+    specs = [spec for spec in specs if spec["event_type"] in set(watch["event_types"])]
+    inserted = 0
+    conn.execute("BEGIN TRANSACTION")
+    try:
+        for spec in specs:
+            inserted += int(
+                _insert_event(
+                    conn,
+                    watch,
+                    value,
+                    _load(committed[0], {}),
+                    observed,
+                    previous,
+                    snapshot,
+                    spec,
+                )
+            )
+        conn.execute(
+            "INSERT OR REPLACE INTO claim_watch_snapshots VALUES (?, ?, ?, ?, ?, ?)",
+            [
+                watch_id,
+                value,
+                _canonical(snapshot),
+                _digest(snapshot),
+                observed,
+                committed[0],
+            ],
+        )
+        conn.execute(
+            "UPDATE claim_watches SET last_watermark = ?, last_state_json = ?,"
+            " updated_at_ms = ? WHERE watch_id = ?",
+            [value, _canonical(snapshot), observed, watch_id],
+        )
+        conn.execute("COMMIT")
+    except Exception:
+        conn.execute("ROLLBACK")
+        raise
+    _audit(
+        conn,
+        watch["principal_id"],
+        watch_id,
+        "external_snapshot",
+        {"watermark": value, "emitted_events": inserted},
+        at_ms=observed,
+    )
+    return {
+        "watch_contract": WATCH_CONTRACT_VERSION,
+        "watch_id": watch_id,
+        "domain": watch["domain"],
+        "watermark": value,
+        "emitted_events": inserted,
+        "n": inserted,
+    }
 
 
 def _record_failure(

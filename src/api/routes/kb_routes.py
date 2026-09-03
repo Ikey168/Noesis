@@ -92,6 +92,38 @@ async def brief(
     return _run(contract.kb_brief, domain_list, since, budget)
 
 
+@router.get("/policy-monitor")
+def policy_monitor_public():
+    """Cited public status with no redaction markers or hidden-corpus counts."""
+    return _run(contract.policy_monitor_status)
+
+
+@router.get("/policy-monitor/private")
+def policy_monitor_private(current_user: dict = Depends(require_auth)):
+    """Compare private guidance only for an explicitly granted principal."""
+    return _run(
+        contract.policy_monitor_status,
+        _watch_principal(current_user),
+        True,
+    )
+
+
+@router.get("/policy-monitor/bundle")
+def policy_monitor_public_bundle():
+    """Export the default public-only verifiable evidence bundle."""
+    return _run(contract.policy_monitor_bundle)
+
+
+@router.get("/policy-monitor/private/bundle")
+def policy_monitor_private_bundle(current_user: dict = Depends(require_auth)):
+    """Export private evidence only for an explicitly granted principal."""
+    return _run(
+        contract.policy_monitor_bundle,
+        _watch_principal(current_user),
+        True,
+    )
+
+
 @router.post("/watches")
 def create_watch(
     request: WatchCreateRequest,

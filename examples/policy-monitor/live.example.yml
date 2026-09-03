@@ -1,0 +1,33 @@
+# Opt-in template only. No live source is contacted by the offline demo.
+version: 1
+enabled: false
+domain: policy-monitor-live
+license_policy:
+  require_redistribution_or_storage_permission: true
+  retain_source_terms: true
+sources:
+  legislation:
+    connector: legislative
+    endpoint_env: NOESIS_POLICY_LEGISLATION_SOURCE
+    requests_per_minute: 6
+    required_permission: public-domain-or-licensed
+  filings:
+    connector: filings
+    endpoint_env: NOESIS_POLICY_FILINGS_SOURCE
+    requests_per_minute: 6
+    required_permission: public-domain-or-licensed
+  reporting:
+    connector: blog
+    feeds_env: NOESIS_POLICY_REPORTING_FEEDS
+    requests_per_minute: 12
+    required_permission: metadata-and-excerpt-ingestion
+  private_guidance:
+    connector: upload
+    local_path_env: NOESIS_POLICY_PRIVATE_PATH
+    requests_per_minute: 0
+    required_permission: operator-owned-content
+privacy:
+  public_domain: policy-monitor-live
+  private_domain: policy-monitor-live-private
+  require_explicit_private_grant: true
+  public_exports_include_private: false

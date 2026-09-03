@@ -1,0 +1,56 @@
+name: Policy Monitor
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "examples/policy-monitor/**"
+      - "src/policy_monitor/**"
+      - "src/ingestion/connectors/manifest.py"
+      - "src/kb/watches.py"
+      - "src/kb/assertions.py"
+      - "src/kb/contract.py"
+      - "tools/kb_mcp/server.py"
+      - "src/api/routes/kb_routes.py"
+      - "scripts/policy_monitor_demo.py"
+      - "tests/unit/policy_monitor/**"
+      - "contracts/noesis-policy-monitor-v1.md"
+      - "contracts/schemas/jsonschema/noesis-policy-monitor-v1.json"
+      - ".github/workflows/policy-monitor.yml"
+  pull_request:
+    paths:
+      - "examples/policy-monitor/**"
+      - "src/policy_monitor/**"
+      - "src/ingestion/connectors/manifest.py"
+      - "src/kb/watches.py"
+      - "src/kb/assertions.py"
+      - "src/kb/contract.py"
+      - "tools/kb_mcp/server.py"
+      - "src/api/routes/kb_routes.py"
+      - "scripts/policy_monitor_demo.py"
+      - "tests/unit/policy_monitor/**"
+      - "contracts/noesis-policy-monitor-v1.md"
+      - "contracts/schemas/jsonschema/noesis-policy-monitor-v1.json"
+      - ".github/workflows/policy-monitor.yml"
+
+jobs:
+  offline-policy-monitor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install local runtime and test dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[server]" pytest scikit-learn
+      - name: Run workflow with network denied by the test harness
+        run: python -m pytest tests/unit/policy_monitor -q
+      - name: Run the documented one-command scenario
+        run: make policy-monitor
+      - name: Verify the generated evidence bundle
+        run: python scripts/evidence_bundle.py verify artifacts/policy-monitor/evidence-bundle.json

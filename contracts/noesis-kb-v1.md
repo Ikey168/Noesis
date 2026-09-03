@@ -39,6 +39,8 @@ new domain content today.
 | `kb_answer(domain, question, limit, minimum_relevance)` | additive `noesis-answer-v1` payload with statement-level verdicts, separate supporting/contradicting evidence, explicit refusal, and a reproducible evidence plan |
 | `kb_corroborate(domain, claim_id)` | origin-aware publication, probable-origin, unresolved, and dependency-evidence counts; distinct-source compatibility fallback |
 | `watch_create/list/poll/pause/resume/delete(...)` | additive `noesis-claim-watch-v1` lifecycle and opaque-cursor event polling, principal/domain scoped |
+| `policy_monitor_status(principal_id?, include_private?)` | additive `noesis-policy-monitor-v1` cited receipt; public by default, grant-gated when private is explicit |
+| `policy_monitor_bundle(principal_id?, include_private?)` | offline-verifiable bundle of that receipt with the same private-evidence gate |
 | `kb_documents(domain, since?, limit)` | document rows, newest arrival first |
 | `kb_claims(domain, since?, limit)` | **clusters**: `{cluster_id, representative, citations[], corroboration, independence, contradictions[], size}` — `corroboration` remains the compatible integer while `independence` separates publications, probable origins, and unresolved lineage; representative = recency + source quality, never a superseded member while a live one exists |
 | `kb_entities(domain, name?)` | `[{canonical_id, name, mentions, aliases[]}]`, alias mentions folded |

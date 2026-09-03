@@ -1,0 +1,40 @@
+{
+  "contract": "noesis-policy-monitor-v1",
+  "scenario_id": "clean-heat-rule",
+  "public_document_count": 9,
+  "private_document_count_authorized": 1,
+  "revision_class": "silent_substantive",
+  "publication_count": 4,
+  "probable_origin_count": 2,
+  "contradiction_count": 1,
+  "vote_count": 1,
+  "quantitative_observation": {"value": 12400, "unit": "MWh"},
+  "quantitative_verdict": "below_revised_threshold",
+  "statement_evidence": {
+    "policy-final-text": ["policy:clean-heat-rule#revision-1"],
+    "reporting-origins": [
+      "policy:civic-wire",
+      "policy:daily-ledger-copy",
+      "policy:evening-post-copy",
+      "policy:independent-review"
+    ],
+    "contradiction": [
+      "policy:contradiction",
+      "policy:clean-heat-rule#revision-1"
+    ],
+    "quantitative-observation": [
+      "dataset:filing:northstar-ceramics:coveredenergyuse#2025"
+    ],
+    "vote": ["legislative:29ebd9eda04388c83b24"]
+  },
+  "prediction_statements": ["reporting-origins"],
+  "source_record_statements": [
+    "policy-final-text",
+    "contradiction",
+    "quantitative-observation",
+    "vote"
+  ],
+  "watch_events": ["guidance_stale"],
+  "public_private_fields": [],
+  "bundle_status": "valid"
+}

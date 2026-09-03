@@ -1,4 +1,4 @@
-.PHONY: help install init doctor test-cli legacy-help demo airflow-up airflow-down airflow-logs marquez-ui airflow-init airflow-status airflow-build airflow-test-openlineage mlflow-up mlflow-down mlflow-ui rag-up rag-down rag-migrate rag-connect rag-reset rag-logs rag-index contract.publish contract.validate models models-verify
+.PHONY: help install init doctor test-cli policy-monitor legacy-help demo airflow-up airflow-down airflow-logs marquez-ui airflow-init airflow-status airflow-build airflow-test-openlineage mlflow-up mlflow-down mlflow-ui rag-up rag-down rag-migrate rag-connect rag-reset rag-logs rag-index contract.publish contract.validate models models-verify
 
 # Default target
 help:
@@ -8,6 +8,7 @@ help:
 	@echo "  make init         - Create .noesis config and local warehouse"
 	@echo "  make doctor       - Diagnose local readiness without network access"
 	@echo "  make test-cli     - Run the CLI acceptance tests"
+	@echo "  make policy-monitor - Run the offline policy-monitor workflow"
 	@echo "  make legacy-help  - Show retained advanced infrastructure recipes"
 
 install:
@@ -21,6 +22,9 @@ doctor:
 
 test-cli:
 	python -m pytest tests/unit/cli -q
+
+policy-monitor:
+	python3 scripts/policy_monitor_demo.py
 
 legacy-help:
 	@echo "Advanced compatibility and infrastructure recipes"
