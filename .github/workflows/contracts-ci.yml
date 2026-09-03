@@ -146,17 +146,7 @@ jobs:
           echo "🔍 Validating JSON Schema syntax..."
           find contracts/schemas -name "*.json" -type f | while read -r file; do
             echo "Validating $file"
-            python -c "
-            import json
-            import sys
-            try:
-                with open('$file', 'r') as f:
-                    json.load(f)
-                print('✅ Valid JSON: $file')
-            except Exception as e:
-                print(f'❌ Invalid JSON in $file: {e}')
-                sys.exit(1)
-            "
+            python -c 'import json, sys; json.load(open(sys.argv[1], encoding="utf-8")); print(f"✅ Valid JSON: {sys.argv[1]}")' "$file"
           done
           
       - name: Validate Avro Schemas
@@ -164,19 +154,7 @@ jobs:
           echo "🔍 Validating Avro Schema syntax..."
           find contracts/schemas -name "*.avsc" -type f | while read -r file; do
             echo "Validating $file"
-            python -c "
-            import json
-            import sys
-            try:
-                import fastavro
-                with open('$file', 'r') as f:
-                    schema_dict = json.load(f)
-                fastavro.parse_schema(schema_dict)
-                print('✅ Valid Avro schema: $file')
-            except Exception as e:
-                print(f'❌ Invalid Avro schema in $file: {e}')
-                sys.exit(1)
-            "
+            python -c 'import json, sys, fastavro; fastavro.parse_schema(json.load(open(sys.argv[1], encoding="utf-8"))); print(f"✅ Valid Avro schema: {sys.argv[1]}")' "$file"
           done
           
       - name: Check schema naming conventions
