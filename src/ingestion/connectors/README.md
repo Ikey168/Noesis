@@ -60,6 +60,7 @@ class MyConnector(Connector):
 | `note` | `upload/` | Local PDF, DOCX, mail, HTML, Markdown, text, and pasted notes. |
 | `filings` (`note`) | `filings_connector.py` | Regulatory filing documents. |
 | `legislative` | `legislative.py` | JSON, JSONL, or CSV roll-call records; configured with `NOESIS_LEGISLATIVE_SOURCES`. |
+| `political-official` (`note`) | `political_official.py` | Fail-closed official executive, regulatory, electoral, and parliamentary manifests. Offline fixtures are the default; live reachability is doubly opt-in. |
 
 The legislative connector maps each vote to a cited `note` document whose
 metadata retains actor, bill, topic, date, normalized position, external id,

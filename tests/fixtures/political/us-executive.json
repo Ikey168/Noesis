@@ -1,0 +1,16 @@
+{
+  "contract": "political-records-v1",
+  "source_id": "us-federal-register-executive",
+  "records": [
+    {
+      "record_id": "EO-TEST-101",
+      "document_type": "executive_order",
+      "title": "Test clean procurement order",
+      "content": "The executive orders agencies to apply the clean procurement standard.",
+      "issued_at": "2026-01-10T15:00:00-05:00",
+      "effective_from": "2026-01-15",
+      "canonical_url": "https://example.invalid/us/EO-TEST-101",
+      "political": {"fixture": "us-executive", "instrument_id": "instrument:us:eo-test-101"}
+    }
+  ]
+}

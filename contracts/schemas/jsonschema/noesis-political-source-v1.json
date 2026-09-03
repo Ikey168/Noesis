@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/contracts/noesis-political-source-v1.json",
+  "title": "Noesis official political source catalog v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["contract", "sources"],
+  "properties": {
+    "contract": {"const": "noesis-political-source-v1"},
+    "sources": {
+      "type": "array",
+      "minItems": 4,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "source_id", "source_class", "jurisdiction", "issuing_institution",
+          "document_types", "identifier_fields", "license", "update_cadence",
+          "canonical_url", "parser", "fixture_path", "live"
+        ],
+        "properties": {
+          "source_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]+$"},
+          "source_class": {"enum": ["executive", "regulatory", "electoral", "parliamentary"]},
+          "jurisdiction": {"type": "string", "minLength": 1},
+          "issuing_institution": {"type": "string", "minLength": 1},
+          "document_types": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+          "identifier_fields": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+          "license": {"type": "string", "minLength": 1},
+          "terms_url": {"type": ["string", "null"], "format": "uri"},
+          "update_cadence": {"type": "string", "minLength": 1},
+          "canonical_url": {"type": "string", "pattern": "^https://"},
+          "parser": {"const": "political-records-v1"},
+          "fixture_path": {"type": "string", "minLength": 1},
+          "live": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["enabled", "max_requests"],
+            "properties": {
+              "enabled": {"type": "boolean"},
+              "max_requests": {"type": "integer", "minimum": 1, "maximum": 10},
+              "requires_api_key": {"type": "boolean"},
+              "api_key_env": {"type": "string", "pattern": "^NOESIS_[A-Z0-9_]+$"}
+            },
+            "allOf": [
+              {
+                "if": {"properties": {"requires_api_key": {"const": true}}, "required": ["requires_api_key"]},
+                "then": {"required": ["api_key_env"]}
+              }
+            ]
+          }
+        }
+      }
+    }
+  }
+}

@@ -20,6 +20,7 @@ Tools:
                     limits?, principal?)      -> cross-domain Answer v1
   kb_cross_links(domains? | all_authorized)   -> entity/claim equivalence links
   kb_temporal(domain, time axes?, history?)   -> bitemporal assertions/history
+  kb_political(domain, query, jurisdiction)   -> cited political research
   kb_corroborate(domain, claim_id)             -> publication/origin counts
   kb_documents(domain, since?, limit=50)      -> member documents, newest arrival first
   kb_claims(domain, since?, limit=50)         -> clustered, cited claims
@@ -212,6 +213,43 @@ def kb_temporal(
         include_retracted,
         limit,
         cursor,
+        principal_id,
+        include_private,
+    )
+
+
+@mcp.tool()
+def kb_political(
+    domain: str,
+    query_type: str,
+    jurisdiction: str,
+    at: Optional[str] = None,
+    observed_before: Optional[str] = None,
+    office_id: Optional[str] = None,
+    proposal_id: Optional[str] = None,
+    actor_id: Optional[str] = None,
+    institution_id: Optional[str] = None,
+    limit: int = 50,
+    principal_id: Optional[str] = None,
+    include_private: bool = False,
+) -> Dict[str, Any]:
+    """Query officeholders, proposal lifecycles, votes, institutional
+    positions, or cited policy changes with explicit jurisdiction, valid time,
+    observation cutoff, coverage, and uncertainty."""
+    from src.kb import contract
+
+    return _run(
+        contract.kb_political,
+        domain,
+        query_type,
+        jurisdiction,
+        at,
+        observed_before,
+        office_id,
+        proposal_id,
+        actor_id,
+        institution_id,
+        limit,
         principal_id,
         include_private,
     )
