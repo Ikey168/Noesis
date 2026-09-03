@@ -18,6 +18,7 @@ The read surface mirrors the planned ``noesis-kb-v1`` contract:
 
 from __future__ import annotations
 
+import json
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
@@ -113,6 +114,39 @@ class DomainBacking:
     def entities(self, name: Optional[str] = None) -> List[Dict[str, Any]]:
         """Canonical entities (with aliases) mentioned in this domain."""
         raise self._not_implemented("entities")
+
+    def quantitative_check(self, claim_id: str) -> Optional[Dict[str, Any]]:
+        """Latest stored claim-vs-data honesty envelope for a visible claim.
+
+        The caller obtains ``claim_id`` from this backing's claim surface, so
+        this shared implementation can safely query the consolidation ledger
+        without creating a backing-specific answer shape.
+        """
+        with self._lock():
+            exists = self.conn.execute(
+                "SELECT 1 FROM information_schema.tables"
+                " WHERE table_name = 'claim_data_checks'"
+            ).fetchone()
+            if exists is None:
+                return None
+            row = self.conn.execute(
+                "SELECT envelope FROM claim_data_checks WHERE claim_id = ?"
+                " ORDER BY created_at DESC NULLS LAST, check_id LIMIT 1",
+                [claim_id],
+            ).fetchone()
+        if row is None:
+            return None
+        envelope = row[0]
+        if isinstance(envelope, str):
+            return json.loads(envelope)
+        return dict(envelope) if isinstance(envelope, dict) else None
+
+    def integrity_evidence(self, document_ids: List[str]) -> Dict[str, Any]:
+        """Integrity ledger restricted to documents visible through this backing."""
+        from src.integrity.ledger import integrity_ledger
+
+        with self._lock():
+            return integrity_ledger(self.conn, document_ids, limit=len(document_ids))
 
     # -- diff ---------------------------------------------------------------
 

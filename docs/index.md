@@ -63,6 +63,9 @@ For the project overview and local setup, start with the
 - [Portable evidence bundles](../contracts/noesis-evidence-bundle-v1.md) —
   content-addressed answer, claim, integrity, and receipt exports with offline
   verification
+- [Verifiable Answer v1](../contracts/noesis-answer-v1.md) — deterministic,
+  statement-level answers with separate evidence, uncertainty, and refusal
+  semantics
 
 ## Security & safety
 

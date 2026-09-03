@@ -1,0 +1,336 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/contracts/noesis-answer-v1.json",
+  "title": "Noesis Answer v1",
+  "description": "A noesis-kb-v1 envelope containing deterministic, statement-level evidence and explicit refusal semantics.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["contract", "domain", "as_of_ms", "data"],
+  "properties": {
+    "contract": {"const": "noesis-kb-v1"},
+    "domain": {"type": "string", "minLength": 1},
+    "as_of_ms": {"type": "integer", "minimum": 0},
+    "data": {"$ref": "#/definitions/answer"}
+  },
+  "definitions": {
+    "interval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value", "lo", "hi", "level"],
+      "properties": {
+        "value": {"type": "number"},
+        "lo": {"type": "number"},
+        "hi": {"type": "number"},
+        "level": {"type": "number", "exclusiveMinimum": 0, "maximum": 1}
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "document_id",
+        "source",
+        "url",
+        "path",
+        "cited",
+        "title",
+        "excerpt",
+        "claim_id",
+        "visibility"
+      ],
+      "properties": {
+        "document_id": {"type": ["string", "null"]},
+        "source": {"type": "string"},
+        "url": {"type": ["string", "null"]},
+        "path": {"type": ["string", "null"]},
+        "cited": {"type": "boolean"},
+        "title": {"type": ["string", "null"]},
+        "excerpt": {"type": ["string", "null"]},
+        "claim_id": {"type": ["string", "null"]},
+        "visibility": {"enum": ["public", "private"]}
+      }
+    },
+    "corroboration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "n",
+        "publication_count",
+        "independent_source_count",
+        "unresolved_count",
+        "method",
+        "assumptions"
+      ],
+      "properties": {
+        "n": {"type": "integer", "minimum": 0},
+        "publication_count": {"type": "integer", "minimum": 0},
+        "independent_source_count": {"type": "integer", "minimum": 0},
+        "unresolved_count": {"type": "integer", "minimum": 0},
+        "method": {"type": "string", "minLength": 1},
+        "assumptions": {
+          "type": "array",
+          "items": {"type": "string"}
+        }
+      }
+    },
+    "quantitative_check": {
+      "type": "object",
+      "required": ["n", "method", "assumptions", "verdict"],
+      "properties": {
+        "n": {"type": "integer", "minimum": 0},
+        "method": {"type": "string", "minLength": 1},
+        "assumptions": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "verdict": {
+          "enum": ["supported", "contradicted", "unverifiable"]
+        },
+        "observed": {"$ref": "#/definitions/interval"}
+      },
+      "additionalProperties": true
+    },
+    "integrity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["n", "status", "findings", "method", "assumptions"],
+      "properties": {
+        "n": {"type": "integer", "minimum": 0},
+        "status": {"enum": ["findings", "no_findings", "not_available"]},
+        "findings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["kind", "severity", "evidence"],
+            "properties": {
+              "kind": {"type": "string", "minLength": 1},
+              "severity": {"type": "string", "minLength": 1},
+              "evidence": {
+                "type": "array",
+                "items": {"$ref": "#/definitions/evidence"}
+              }
+            }
+          }
+        },
+        "method": {"type": "string", "minLength": 1},
+        "assumptions": {
+          "type": "array",
+          "items": {"type": "string"}
+        }
+      }
+    },
+    "statement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "claim_id",
+        "text",
+        "verdict",
+        "supporting_evidence",
+        "contradicting_evidence",
+        "citation_state",
+        "corroboration",
+        "prediction_mode",
+        "confidence",
+        "confidence_scope",
+        "interval",
+        "quantitative_check",
+        "integrity",
+        "n",
+        "method",
+        "assumptions"
+      ],
+      "properties": {
+        "id": {"type": "string", "pattern": "^stmt:[a-f0-9]{16}$"},
+        "claim_id": {"type": ["string", "null"]},
+        "text": {"type": "string", "minLength": 1},
+        "verdict": {
+          "enum": ["supported", "contradicted", "unverifiable"]
+        },
+        "supporting_evidence": {
+          "type": "array",
+          "items": {"$ref": "#/definitions/evidence"}
+        },
+        "contradicting_evidence": {
+          "type": "array",
+          "items": {"$ref": "#/definitions/evidence"}
+        },
+        "citation_state": {
+          "enum": ["cited", "single_sourced", "uncited"]
+        },
+        "corroboration": {"$ref": "#/definitions/corroboration"},
+        "prediction_mode": {"type": "string", "minLength": 1},
+        "confidence": {
+          "type": ["number", "null"],
+          "minimum": 0,
+          "maximum": 1
+        },
+        "confidence_scope": {
+          "enum": ["claim_extraction", "not_available"]
+        },
+        "interval": {
+          "anyOf": [
+            {"$ref": "#/definitions/interval"},
+            {"type": "null"}
+          ]
+        },
+        "quantitative_check": {
+          "anyOf": [
+            {"$ref": "#/definitions/quantitative_check"},
+            {"type": "null"}
+          ]
+        },
+        "integrity": {"$ref": "#/definitions/integrity"},
+        "n": {"type": "integer", "minimum": 0},
+        "method": {"type": "string", "minLength": 1},
+        "assumptions": {
+          "type": "array",
+          "items": {"type": "string"}
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "verdict": {"enum": ["supported", "contradicted"]}
+            }
+          },
+          "then": {
+            "anyOf": [
+              {
+                "properties": {
+                  "supporting_evidence": {
+                    "contains": {
+                      "type": "object",
+                      "required": ["cited"],
+                      "properties": {"cited": {"const": true}}
+                    }
+                  }
+                }
+              },
+              {
+                "properties": {
+                  "contradicting_evidence": {
+                    "contains": {
+                      "type": "object",
+                      "required": ["cited"],
+                      "properties": {"cited": {"const": true}}
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "answer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "answer_contract",
+        "question",
+        "answer_status",
+        "statements",
+        "rendered",
+        "refusal",
+        "partial_reasons",
+        "evidence_plan",
+        "n",
+        "method",
+        "assumptions",
+        "prediction_mode"
+      ],
+      "properties": {
+        "answer_contract": {"const": "noesis-answer-v1"},
+        "question": {"type": "string", "minLength": 1, "maxLength": 5000},
+        "answer_status": {"enum": ["answered", "partial", "refused"]},
+        "statements": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 20,
+          "items": {"$ref": "#/definitions/statement"}
+        },
+        "rendered": {"type": "string", "minLength": 1},
+        "refusal": {
+          "anyOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["code", "message"],
+              "properties": {
+                "code": {"const": "insufficient_evidence"},
+                "message": {"type": "string", "minLength": 1}
+              }
+            },
+            {"type": "null"}
+          ]
+        },
+        "partial_reasons": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "one_or_more_statements_unverifiable",
+              "one_or_more_evidence_locators_unresolved",
+              "output_budget_exhausted"
+            ]
+          }
+        },
+        "evidence_plan": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "n",
+            "method",
+            "assumptions",
+            "minimum_relevance",
+            "question_tokens",
+            "claim_clusters_considered",
+            "documents_considered",
+            "selected"
+          ],
+          "properties": {
+            "n": {"type": "integer", "minimum": 0},
+            "method": {"type": "string", "minLength": 1},
+            "assumptions": {
+              "type": "array",
+              "items": {"type": "string"}
+            },
+            "minimum_relevance": {"type": "number", "minimum": 0, "maximum": 1},
+            "question_tokens": {
+              "type": "array",
+              "items": {"type": "string"},
+              "uniqueItems": true
+            },
+            "claim_clusters_considered": {"type": "integer", "minimum": 0},
+            "documents_considered": {"type": "integer", "minimum": 0},
+            "selected": {
+              "type": "array",
+              "maxItems": 20,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["kind", "id", "relevance"],
+                "properties": {
+                  "kind": {"enum": ["claim", "document"]},
+                  "id": {"type": "string"},
+                  "relevance": {"type": "number", "minimum": 0, "maximum": 1}
+                }
+              }
+            }
+          }
+        },
+        "n": {"type": "integer", "minimum": 1, "maximum": 20},
+        "method": {"type": "string", "minLength": 1},
+        "assumptions": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "prediction_mode": {"const": "deterministic-extractive"}
+      }
+    }
+  }
+}

@@ -14,6 +14,15 @@ def test_evidence_showcase_receipts_are_machine_validated():
     assert receipt["flow"]["corroborate"]["independent_support_count"] == 1
     assert receipt["intentional_failure_states"]["uncited"]["cited"] is False
     assert receipt["intentional_failure_states"]["unverifiable"]["verdict"] == "unverifiable"
+    assert receipt["flow"]["kb_answer"]["data"]["answer_status"] == "answered"
+    assert receipt["answer_quality"]["passed"] is True
+    assert receipt["answer_bundle_verification"]["valid"] is True
+    assert (
+        receipt["intentional_failure_states"]["answer_refusal"]["data"][
+            "answer_status"
+        ]
+        == "refused"
+    )
 
 
 def test_evidence_showcase_emits_a_verifiable_portable_bundle():

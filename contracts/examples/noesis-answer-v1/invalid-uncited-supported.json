@@ -1,0 +1,61 @@
+{
+  "contract": "noesis-kb-v1",
+  "domain": "economics",
+  "as_of_ms": 0,
+  "data": {
+    "answer_contract": "noesis-answer-v1",
+    "question": "What was annual inflation?",
+    "answer_status": "answered",
+    "statements": [
+      {
+        "id": "stmt:aaaaaaaaaaaaaaaa",
+        "claim_id": null,
+        "text": "Annual inflation was 3.0 percent.",
+        "verdict": "supported",
+        "supporting_evidence": [],
+        "contradicting_evidence": [],
+        "citation_state": "uncited",
+        "corroboration": {
+          "n": 0,
+          "publication_count": 0,
+          "independent_source_count": 0,
+          "unresolved_count": 0,
+          "method": "distinct-source",
+          "assumptions": []
+        },
+        "prediction_mode": "deterministic-extractive",
+        "confidence": null,
+        "confidence_scope": "not_available",
+        "interval": null,
+        "quantitative_check": null,
+        "integrity": {
+          "n": 0,
+          "status": "not_available",
+          "findings": [],
+          "method": "integrity ledger aggregation v1",
+          "assumptions": []
+        },
+        "n": 0,
+        "method": "unsupported synthesis",
+        "assumptions": []
+      }
+    ],
+    "rendered": "- Annual inflation was 3.0 percent.",
+    "refusal": null,
+    "partial_reasons": [],
+    "evidence_plan": {
+      "n": 0,
+      "method": "invalid fixture",
+      "assumptions": [],
+      "minimum_relevance": 0.34,
+      "question_tokens": ["annual", "inflation"],
+      "claim_clusters_considered": 0,
+      "documents_considered": 0,
+      "selected": []
+    },
+    "n": 1,
+    "method": "invalid fixture",
+    "assumptions": [],
+    "prediction_mode": "deterministic-extractive"
+  }
+}

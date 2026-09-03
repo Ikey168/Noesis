@@ -86,6 +86,52 @@ def kb_search(
     return _envelope(domain, backing.search(query, limit=int(limit)))
 
 
+def kb_answer(
+    domain: str,
+    question: str,
+    limit: int = 5,
+    minimum_relevance: float = 0.34,
+    conn=None,
+    config_path=None,
+) -> Dict[str, Any]:
+    """One question in, one structured and machine-verifiable answer out.
+
+    This is an additive ``noesis-kb-v1`` operation.  Its ``data`` payload is
+    versioned independently as ``noesis-answer-v1`` so existing KB response
+    shapes stay unchanged while answer semantics can evolve explicitly.
+    """
+    if not isinstance(question, str) or not question.strip():
+        raise KBContractError("bad_request", "question must be non-empty")
+    if len(question) > 5_000:
+        raise KBContractError("bad_request", "question must be at most 5000 characters")
+    try:
+        limit = int(limit)
+        minimum_relevance = float(minimum_relevance)
+    except (TypeError, ValueError) as exc:
+        raise KBContractError(
+            "bad_request", "limit and minimum_relevance must be numeric"
+        ) from exc
+    if not 1 <= limit <= 20:
+        raise KBContractError("bad_request", "limit must be between 1 and 20")
+    if not 0.0 <= minimum_relevance <= 1.0:
+        raise KBContractError(
+            "bad_request", "minimum_relevance must be between 0 and 1"
+        )
+
+    from src.kb.answer import build_answer
+
+    backing = _backing(domain, conn, config_path)
+    return _envelope(
+        domain,
+        build_answer(
+            backing,
+            question,
+            limit=limit,
+            minimum_relevance=minimum_relevance,
+        ),
+    )
+
+
 def kb_documents(
     domain: str,
     since: Optional[str] = None,

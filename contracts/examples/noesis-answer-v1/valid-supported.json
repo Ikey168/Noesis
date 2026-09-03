@@ -1,0 +1,79 @@
+{
+  "contract": "noesis-kb-v1",
+  "domain": "economics",
+  "as_of_ms": 0,
+  "data": {
+    "answer_contract": "noesis-answer-v1",
+    "question": "What was annual inflation in 2025?",
+    "answer_status": "answered",
+    "statements": [
+      {
+        "id": "stmt:0123456789abcdef",
+        "claim_id": "claim-inflation",
+        "text": "Annual inflation was 3.0 percent in 2025.",
+        "verdict": "supported",
+        "supporting_evidence": [
+          {
+            "document_id": "document-inflation",
+            "source": "Example statistical office",
+            "url": "https://example.invalid/inflation",
+            "path": "document-inflation",
+            "cited": true,
+            "title": "Annual inflation release",
+            "excerpt": "Annual inflation was 3.0 percent in 2025.",
+            "claim_id": "claim-inflation",
+            "visibility": "public"
+          }
+        ],
+        "contradicting_evidence": [],
+        "citation_state": "single_sourced",
+        "corroboration": {
+          "n": 1,
+          "publication_count": 1,
+          "independent_source_count": 1,
+          "unresolved_count": 0,
+          "method": "distinct-source",
+          "assumptions": ["syndication is not inferred"]
+        },
+        "prediction_mode": "deterministic-extractive",
+        "confidence": null,
+        "confidence_scope": "not_available",
+        "interval": null,
+        "quantitative_check": null,
+        "integrity": {
+          "n": 1,
+          "status": "no_findings",
+          "findings": [],
+          "method": "integrity ledger aggregation v1",
+          "assumptions": ["absence of findings is not evidence of authenticity"]
+        },
+        "n": 1,
+        "method": "extractive selection of an existing claim cluster",
+        "assumptions": ["citation does not establish factual truth"]
+      }
+    ],
+    "rendered": "- Annual inflation was 3.0 percent in 2025. — supported; evidence: document-inflation",
+    "refusal": null,
+    "partial_reasons": [],
+    "evidence_plan": {
+      "n": 2,
+      "method": "deterministic token-overlap evidence planning with extractive rendering",
+      "assumptions": ["token overlap is a relevance heuristic"],
+      "minimum_relevance": 0.34,
+      "question_tokens": ["2025", "annual", "inflation"],
+      "claim_clusters_considered": 1,
+      "documents_considered": 1,
+      "selected": [
+        {
+          "kind": "claim",
+          "id": "cluster-inflation",
+          "relevance": 0.8
+        }
+      ]
+    },
+    "n": 1,
+    "method": "deterministic token-overlap evidence planning with extractive rendering",
+    "assumptions": ["citation does not establish factual truth"],
+    "prediction_mode": "deterministic-extractive"
+  }
+}

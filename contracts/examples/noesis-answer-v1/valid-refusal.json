@@ -1,0 +1,64 @@
+{
+  "contract": "noesis-kb-v1",
+  "domain": "economics",
+  "as_of_ms": 0,
+  "data": {
+    "answer_contract": "noesis-answer-v1",
+    "question": "What was lunar rainfall in 1900?",
+    "answer_status": "refused",
+    "statements": [
+      {
+        "id": "stmt:fedcba9876543210",
+        "claim_id": null,
+        "text": "No relevant evidence was found in the selected domain.",
+        "verdict": "unverifiable",
+        "supporting_evidence": [],
+        "contradicting_evidence": [],
+        "citation_state": "uncited",
+        "corroboration": {
+          "n": 0,
+          "publication_count": 0,
+          "independent_source_count": 0,
+          "unresolved_count": 0,
+          "method": "distinct-source",
+          "assumptions": ["no candidate passed the threshold"]
+        },
+        "prediction_mode": "deterministic-extractive",
+        "confidence": null,
+        "confidence_scope": "not_available",
+        "interval": null,
+        "quantitative_check": null,
+        "integrity": {
+          "n": 0,
+          "status": "not_available",
+          "findings": [],
+          "method": "integrity ledger aggregation v1",
+          "assumptions": ["no evidence document was available to inspect"]
+        },
+        "n": 0,
+        "method": "explicit insufficient-evidence refusal",
+        "assumptions": ["absence of evidence is not evidence of absence"]
+      }
+    ],
+    "rendered": "- No relevant evidence was found in the selected domain. — uncited — unverifiable",
+    "refusal": {
+      "code": "insufficient_evidence",
+      "message": "No relevant evidence passed the deterministic relevance threshold."
+    },
+    "partial_reasons": [],
+    "evidence_plan": {
+      "n": 0,
+      "method": "deterministic token-overlap evidence planning with extractive rendering",
+      "assumptions": ["token overlap is a relevance heuristic"],
+      "minimum_relevance": 0.34,
+      "question_tokens": ["1900", "lunar", "rainfall"],
+      "claim_clusters_considered": 0,
+      "documents_considered": 0,
+      "selected": []
+    },
+    "n": 1,
+    "method": "deterministic token-overlap evidence planning with extractive rendering",
+    "assumptions": ["absence of evidence is not evidence of absence"],
+    "prediction_mode": "deterministic-extractive"
+  }
+}

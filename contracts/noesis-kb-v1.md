@@ -36,6 +36,7 @@ new domain content today.
 |---|---|
 | `kb_domains()` | `[{name, backing, description, embedding_model}]` |
 | `kb_search(domain, query, limit)` | document rows (cited: id, title, url, source, domain score/method) — lexical; wildcards are literals |
+| `kb_answer(domain, question, limit, minimum_relevance)` | additive `noesis-answer-v1` payload with statement-level verdicts, separate supporting/contradicting evidence, explicit refusal, and a reproducible evidence plan |
 | `kb_documents(domain, since?, limit)` | document rows, newest arrival first |
 | `kb_claims(domain, since?, limit)` | **clusters**: `{cluster_id, representative, citations[], corroboration, contradictions[], size}` — representative = recency + source quality, never a superseded member while a live one exists; every citation carries source/url; contradictions carry `prediction_mode` + confidence |
 | `kb_entities(domain, name?)` | `[{canonical_id, name, mentions, aliases[]}]`, alias mentions folded |
@@ -58,3 +59,7 @@ new domain content today.
 - **Stability.** Internal schema changes without a contract bump must keep
   the shape tests green. Breaking changes mean `noesis-kb-v2`, not a
   mutation of this document.
+
+`kb_answer` is additive, so it does not require `noesis-kb-v2`. Its nested
+payload has its own `answer_contract: noesis-answer-v1` discriminator and
+schema. Existing calls and response shapes are unchanged.
