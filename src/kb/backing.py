@@ -583,7 +583,34 @@ class NamespaceBacking(DomainBacking):
                 " ORDER BY mentions DESC NULLS LAST",
                 params,
             ).fetchall()
-        return [{"entity": row[0], "mentions": row[1]} for row in rows]
+        # Resolve namespace-native surface forms through the shared canonical
+        # alias table when possible.  Returning the same entity shape as a
+        # corpus view lets cross-domain consumers link identities without
+        # learning which backing served them.
+        from src.kb.entities import normalize_surface, resolve
+
+        results = []
+        for surface, mentions in rows:
+            try:
+                resolution = resolve(self.conn, str(surface))
+            except Exception:  # canonical tables may not exist in a thin namespace
+                resolution = None
+            canonical_id = (
+                resolution["canonical_id"]
+                if resolution
+                else f"raw:{normalize_surface(str(surface))}"
+            )
+            results.append(
+                {
+                    "canonical_id": canonical_id,
+                    "name": (
+                        resolution["preferred_name"] if resolution else str(surface)
+                    ),
+                    "mentions": int(mentions or 0),
+                    "aliases": [str(surface)],
+                }
+            )
+        return results
 
     def diff(self, since: str) -> Dict[str, Any]:
         """Namespace change feed — same shape as corpus diffs, honest gaps

@@ -156,7 +156,7 @@ provisioning tools stand up new knowledge graphs at runtime.
 | `monitoring_mcp` | Current and historical metrics and summaries |
 | `security_mcp` | Security posture, secret and TLS checks, backups, DB permissions |
 | `schema_mcp` | Tables, schemas, and REST routes |
-| `kb_mcp` | Versioned `noesis-kb-v1` search, claims, entities, diffs, coverage, integrity, and daily brief |
+| `kb_mcp` | Versioned `noesis-kb-v1` single- and cross-domain search/answers, claims, entities, links, diffs, coverage, integrity, and daily brief |
 
 ---
 

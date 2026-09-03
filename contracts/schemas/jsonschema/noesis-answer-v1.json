@@ -8,10 +8,25 @@
   "required": ["contract", "domain", "as_of_ms", "data"],
   "properties": {
     "contract": {"const": "noesis-kb-v1"},
-    "domain": {"type": "string", "minLength": 1},
+    "domain": {"type": ["string", "null"], "minLength": 1},
     "as_of_ms": {"type": "integer", "minimum": 0},
     "data": {"$ref": "#/definitions/answer"}
   },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "data": {"required": ["cross_domain_contract"]}
+        }
+      },
+      "then": {"properties": {"domain": {"const": null}}},
+      "else": {
+        "properties": {
+          "domain": {"type": "string", "minLength": 1}
+        }
+      }
+    }
+  ],
   "definitions": {
     "interval": {
       "type": "object",
@@ -47,7 +62,17 @@
         "title": {"type": ["string", "null"]},
         "excerpt": {"type": ["string", "null"]},
         "claim_id": {"type": ["string", "null"]},
-        "visibility": {"enum": ["public", "private"]}
+        "visibility": {"enum": ["public", "private"]},
+        "domains": {
+          "type": "array",
+          "items": {"type": "string", "minLength": 1},
+          "uniqueItems": true
+        },
+        "backings": {
+          "type": "array",
+          "items": {"enum": ["corpus-view", "namespace"]},
+          "uniqueItems": true
+        }
       }
     },
     "corroboration": {
@@ -194,6 +219,16 @@
         "assumptions": {
           "type": "array",
           "items": {"type": "string"}
+        },
+        "domains": {
+          "type": "array",
+          "items": {"type": "string", "minLength": 1},
+          "uniqueItems": true
+        },
+        "backings": {
+          "type": "array",
+          "items": {"enum": ["corpus-view", "namespace"]},
+          "uniqueItems": true
         }
       },
       "allOf": [
@@ -281,7 +316,8 @@
             "enum": [
               "one_or_more_statements_unverifiable",
               "one_or_more_evidence_locators_unresolved",
-              "output_budget_exhausted"
+              "output_budget_exhausted",
+              "one_or_more_domains_unavailable"
             ]
           }
         },
@@ -323,10 +359,25 @@
                 "properties": {
                   "kind": {"enum": ["claim", "document"]},
                   "id": {"type": "string"},
-                  "relevance": {"type": "number", "minimum": 0, "maximum": 1}
+                  "relevance": {"type": "number", "minimum": 0, "maximum": 1},
+                  "domains": {
+                    "type": "array",
+                    "items": {"type": "string", "minLength": 1},
+                    "uniqueItems": true
+                  },
+                  "backings": {
+                    "type": "array",
+                    "items": {"enum": ["corpus-view", "namespace"]},
+                    "uniqueItems": true
+                  },
+                  "rank_score": {"type": "number", "minimum": 0}
                 }
               }
-            }
+            },
+            "scope": {"type": "object"},
+            "domain_runs": {"type": "array", "items": {"type": "object"}},
+            "coverage_gaps": {"type": "array", "items": {"type": "object"}},
+            "partial_failures": {"type": "array", "items": {"type": "object"}}
           }
         },
         "n": {"type": "integer", "minimum": 1, "maximum": 20},
@@ -335,7 +386,11 @@
           "type": "array",
           "items": {"type": "string"}
         },
-        "prediction_mode": {"const": "deterministic-extractive"}
+        "prediction_mode": {"const": "deterministic-extractive"},
+        "cross_domain_contract": {"const": "noesis-cross-domain-v1"},
+        "operation": {"const": "answer"},
+        "partial_failures": {"type": "array", "items": {"type": "object"}},
+        "scope": {"type": "object"}
       }
     }
   }

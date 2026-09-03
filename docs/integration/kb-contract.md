@@ -2,7 +2,7 @@
 
 The KB contract is the one interface applications build against — the daily
 brief, alerting, research assistants, and your own tools all compose the
-same eight calls. Full contract: [`contracts/noesis-kb-v1.md`](../../contracts/noesis-kb-v1.md).
+same versioned calls. Full contract: [`contracts/noesis-kb-v1.md`](../../contracts/noesis-kb-v1.md).
 
 ## Over MCP
 
@@ -20,6 +20,10 @@ kb_diff("economics", since="2026-07-20")        # what changed since yesterday
 kb_claims("web3", limit=10)                     # clustered, cited claims
 kb_contradictions("news")                       # where the record disagrees
 kb_search("papers", "inflation lags")
+kb_search_domains("inflation lags", domains=["economics", "papers"])
+kb_answer_domains("What does research say about inflation lags?",
+                  domains=["economics", "papers"])
+kb_cross_links(domains=["economics", "papers"])
 kb_coverage("technology")                       # is coverage thin?
 ```
 
@@ -44,6 +48,9 @@ curl 'http://localhost:8012/api/v1/kb/web3/claims?limit=10'
 - Every analytic entry is cited and carries `prediction_mode`/confidence.
 - `since` filters on ingestion time, offsets honoured, naive = UTC.
 - Errors are typed: `unknown_domain` (404), `bad_request`/`bad_since` (400).
+- Cross-domain calls require an explicit ordered domain list or
+  `all_authorized=true`. They deduplicate shared documents, retain per-domain
+  provenance, and report partial backing failures instead of hiding them.
 
 ## Feeding the domains
 

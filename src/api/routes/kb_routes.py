@@ -52,6 +52,31 @@ class WatchReplayRequest(BaseModel):
     to_watermark: int = Field(gt=0)
 
 
+class CrossDomainSearchRequest(BaseModel):
+    query: str = Field(min_length=1, max_length=5000)
+    domains: Optional[list[str]] = None
+    all_authorized: bool = False
+    limit: int = Field(default=20, ge=1, le=100)
+    per_domain_limit: int = Field(default=20, ge=1, le=100)
+
+
+class CrossDomainAnswerRequest(BaseModel):
+    question: str = Field(min_length=1, max_length=5000)
+    domains: Optional[list[str]] = None
+    all_authorized: bool = False
+    limit: int = Field(default=5, ge=1, le=20)
+    per_domain_limit: int = Field(default=5, ge=1, le=20)
+    minimum_relevance: float = Field(default=0.34, ge=0, le=1)
+
+
+class CrossDomainLinksRequest(BaseModel):
+    domains: Optional[list[str]] = None
+    all_authorized: bool = False
+    kind: Optional[str] = None
+    relation: Optional[str] = None
+    limit: int = Field(default=100, ge=1, le=100)
+
+
 def _watch_principal(current_user: dict) -> str:
     principal = current_user.get("sub") or current_user.get("user_id")
     if not principal:
@@ -112,6 +137,98 @@ def policy_monitor_private(current_user: dict = Depends(require_auth)):
 def policy_monitor_public_bundle():
     """Export the default public-only verifiable evidence bundle."""
     return _run(contract.policy_monitor_bundle)
+
+
+@router.post("/cross-domain/search")
+def cross_domain_search(request: CrossDomainSearchRequest):
+    """Search explicit or all public domains with rank-fusion provenance."""
+    return _run(
+        contract.kb_search_domains,
+        request.query,
+        request.domains,
+        request.all_authorized,
+        request.limit,
+        request.per_domain_limit,
+    )
+
+
+@router.post("/cross-domain/answer")
+def cross_domain_answer(request: CrossDomainAnswerRequest):
+    """Build one cited answer from an explicit or all-public domain scope."""
+    return _run(
+        contract.kb_answer_domains,
+        request.question,
+        request.domains,
+        request.all_authorized,
+        request.limit,
+        request.per_domain_limit,
+        request.minimum_relevance,
+    )
+
+
+@router.post("/cross-domain/links")
+def cross_domain_links(request: CrossDomainLinksRequest):
+    """Inspect public entity equivalences and cross-domain claim links."""
+    return _run(
+        contract.kb_cross_links,
+        request.domains,
+        request.all_authorized,
+        request.kind,
+        request.relation,
+        request.limit,
+    )
+
+
+@router.post("/cross-domain/private/search")
+def private_cross_domain_search(
+    request: CrossDomainSearchRequest,
+    current_user: dict = Depends(require_auth),
+):
+    return _run(
+        contract.kb_search_domains,
+        request.query,
+        request.domains,
+        request.all_authorized,
+        request.limit,
+        request.per_domain_limit,
+        _watch_principal(current_user),
+        True,
+    )
+
+
+@router.post("/cross-domain/private/answer")
+def private_cross_domain_answer(
+    request: CrossDomainAnswerRequest,
+    current_user: dict = Depends(require_auth),
+):
+    return _run(
+        contract.kb_answer_domains,
+        request.question,
+        request.domains,
+        request.all_authorized,
+        request.limit,
+        request.per_domain_limit,
+        request.minimum_relevance,
+        _watch_principal(current_user),
+        True,
+    )
+
+
+@router.post("/cross-domain/private/links")
+def private_cross_domain_links(
+    request: CrossDomainLinksRequest,
+    current_user: dict = Depends(require_auth),
+):
+    return _run(
+        contract.kb_cross_links,
+        request.domains,
+        request.all_authorized,
+        request.kind,
+        request.relation,
+        request.limit,
+        _watch_principal(current_user),
+        True,
+    )
 
 
 @router.get("/policy-monitor/private/bundle")

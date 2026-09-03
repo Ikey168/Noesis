@@ -12,8 +12,13 @@ provisioned namespace — the tools route through the domain registry and the
 Tools:
   kb_domains()                                -> configured domains + backing
   kb_search(domain, query, limit=20)          -> lexical search, cited rows
+  kb_search_domains(query, domains? | all_authorized,
+                    limits?, principal?)      -> cross-domain rank fusion
   kb_answer(domain, question, limit=5,
             minimum_relevance=.34)            -> structured extractive answer
+  kb_answer_domains(question, domains? | all_authorized,
+                    limits?, principal?)      -> cross-domain Answer v1
+  kb_cross_links(domains? | all_authorized)   -> entity/claim equivalence links
   kb_corroborate(domain, claim_id)             -> publication/origin counts
   kb_documents(domain, since?, limit=50)      -> member documents, newest arrival first
   kb_claims(domain, since?, limit=50)         -> clustered, cited claims
@@ -71,6 +76,33 @@ def kb_search(domain: str, query: str, limit: int = 20) -> Dict[str, Any]:
 
 
 @mcp.tool()
+def kb_search_domains(
+    query: str,
+    domains: Optional[list[str]] = None,
+    all_authorized: bool = False,
+    limit: int = 20,
+    per_domain_limit: int = 20,
+    principal_id: Optional[str] = None,
+    include_private: bool = False,
+) -> Dict[str, Any]:
+    """Search an explicit ordered domain list, or every domain authorized to
+    the caller. Results use reciprocal-rank fusion; the score is an ordering
+    aid, never a probability. Private domains require an explicit grant."""
+    from src.kb import contract
+
+    return _run(
+        contract.kb_search_domains,
+        query,
+        domains,
+        all_authorized,
+        limit,
+        per_domain_limit,
+        principal_id,
+        include_private,
+    )
+
+
+@mcp.tool()
 def kb_answer(
     domain: str,
     question: str,
@@ -88,6 +120,62 @@ def kb_answer(
         question,
         limit,
         minimum_relevance,
+    )
+
+
+@mcp.tool()
+def kb_answer_domains(
+    question: str,
+    domains: Optional[list[str]] = None,
+    all_authorized: bool = False,
+    limit: int = 5,
+    per_domain_limit: int = 5,
+    minimum_relevance: float = 0.34,
+    principal_id: Optional[str] = None,
+    include_private: bool = False,
+) -> Dict[str, Any]:
+    """Build one deterministic Answer v1 response from several authorized
+    domains. Every citation records its domain/backing memberships and the
+    evidence plan reports unavailable or evidence-thin domains."""
+    from src.kb import contract
+
+    return _run(
+        contract.kb_answer_domains,
+        question,
+        domains,
+        all_authorized,
+        limit,
+        per_domain_limit,
+        minimum_relevance,
+        principal_id,
+        include_private,
+    )
+
+
+@mcp.tool()
+def kb_cross_links(
+    domains: Optional[list[str]] = None,
+    all_authorized: bool = False,
+    kind: Optional[str] = None,
+    relation: Optional[str] = None,
+    limit: int = 100,
+    principal_id: Optional[str] = None,
+    include_private: bool = False,
+) -> Dict[str, Any]:
+    """Inspect reversible entity equivalences and claim links across an
+    authorized domain scope, including method, confidence, model/run
+    provenance, and endpoint evidence."""
+    from src.kb import contract
+
+    return _run(
+        contract.kb_cross_links,
+        domains,
+        all_authorized,
+        kind,
+        relation,
+        limit,
+        principal_id,
+        include_private,
     )
 
 

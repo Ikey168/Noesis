@@ -52,6 +52,8 @@ STAGE_ALIASES = {
     "ask-response": "ask-response-v1",
     "kb-answer": "noesis-answer-v1",
     "verifiable-answer": "noesis-answer-v1",
+    "cross-domain-request": "noesis-cross-domain-request-v1",
+    "cross-domain-response": "noesis-cross-domain-response-v1",
     "claim-watch": "noesis-claim-watch-v1",
     "watch-event": "noesis-claim-watch-v1",
     "evidence-independence": "noesis-evidence-independence-v1",
