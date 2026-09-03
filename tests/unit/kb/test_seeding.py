@@ -10,7 +10,9 @@ from src.kb import load_registry
 from src.kb.membership import run_membership_pass
 from src.kb.seeding import seed_domain_feeds
 
-EXPECTED_DOMAINS = ["news", "economics", "technology", "web3", "local", "papers"]
+EXPECTED_DOMAINS = [
+    "news", "economics", "technology", "web3", "local", "political", "papers"
+]
 
 
 class TestShippedConfig:
@@ -33,6 +35,12 @@ class TestShippedConfig:
         assert {"local", "private"} <= set(local.tags)
         assert local.keywords
         assert "private" in local.description.lower()
+
+    def test_political_uses_manifest_ingestion_not_network_feeds(self):
+        political = load_registry().get("political")
+        assert political.backing == "corpus-view"
+        assert political.feeds == []
+        assert {"political", "government", "election"} <= set(political.tags)
 
     def test_every_feed_carries_its_domain_tags(self):
         registry = load_registry()

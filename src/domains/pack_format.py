@@ -12,6 +12,8 @@ bundles everything a pack contributes into one installable manifest:
 * **enrichers** - declarative enricher descriptors (a small, code-free rule set),
 * **provisioning_templates** - named deploy/attach templates (Track P / P2),
 * **ui_flags** and **source_types** - the gating and routing metadata.
+* **capabilities**, **schema_versions**, and **ontology_extensions** - explicit
+  machine-readable contracts for domain-specific knowledge behavior.
 
 The manifest is pure data (JSON), so a pack is a single file that can be
 validated, published (M9.2) and installed into a fresh instance without code
@@ -29,7 +31,7 @@ import json
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 from src.domains.pack_vocab import FACETS
 from src.domains.pack_vocab import MAX_SPAN, MIN_SPAN, SOURCE_TYPES
@@ -64,6 +66,9 @@ class PackManifest:
     planner_keywords: Dict[str, List[str]] = field(default_factory=dict)
     enrichers: List[Dict[str, Any]] = field(default_factory=list)
     provisioning_templates: List[Dict[str, Any]] = field(default_factory=list)
+    capabilities: List[str] = field(default_factory=list)
+    schema_versions: Dict[str, str] = field(default_factory=dict)
+    ontology_extensions: Dict[str, Any] = field(default_factory=dict)
     pack_format: str = PACK_FORMAT
 
     def to_dict(self) -> Dict[str, Any]:
@@ -78,6 +83,9 @@ class PackManifest:
             "planner_keywords": {k: list(v) for k, v in self.planner_keywords.items()},
             "enrichers": [dict(e) for e in self.enrichers],
             "provisioning_templates": [dict(t) for t in self.provisioning_templates],
+            "capabilities": list(self.capabilities),
+            "schema_versions": dict(self.schema_versions),
+            "ontology_extensions": dict(self.ontology_extensions),
         }
 
     @classmethod
@@ -100,6 +108,12 @@ class PackManifest:
             provisioning_templates=[
                 t for t in (data.get("provisioning_templates") or []) if isinstance(t, dict)
             ],
+            capabilities=[str(value) for value in (data.get("capabilities") or [])],
+            schema_versions={
+                str(key): str(value)
+                for key, value in (data.get("schema_versions") or {}).items()
+            },
+            ontology_extensions=dict(data.get("ontology_extensions") or {}),
             pack_format=str(data.get("pack_format") or PACK_FORMAT),
         )
 
@@ -234,9 +248,30 @@ def validate_manifest(data: Dict[str, Any]) -> List[str]:
         for i, template in enumerate(templates):
             _validate_template(template, f"provisioning_templates[{i}]", errors)
 
+    capabilities = data.get("capabilities", [])
+    if not isinstance(capabilities, list) or any(
+        not isinstance(value, str) or not value for value in capabilities
+    ):
+        errors.append("capabilities must be a list of non-empty strings")
+
+    schema_versions = data.get("schema_versions", {})
+    if not isinstance(schema_versions, dict) or any(
+        not isinstance(key, str)
+        or not key
+        or not isinstance(value, str)
+        or not VERSION_RE.match(value)
+        for key, value in schema_versions.items()
+    ):
+        errors.append("schema_versions must map non-empty names to semantic versions")
+
+    ontology = data.get("ontology_extensions", {})
+    if not isinstance(ontology, dict):
+        errors.append("ontology_extensions must be an object")
+
     # A pack must contribute *something* to be worth distributing.
     if not any(data.get(k) for k in ("panels", "planner_keywords", "enrichers",
-                                     "provisioning_templates", "ui_flags")):
+                                     "provisioning_templates", "ui_flags",
+                                     "capabilities", "ontology_extensions")):
         errors.append("a pack must contribute at least one capability")
 
     return errors

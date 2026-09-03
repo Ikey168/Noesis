@@ -1,0 +1,50 @@
+{
+  "contract": "political-benchmark-v1",
+  "objects": [
+    {"object_id": "jurisdiction:us", "object_type": "jurisdiction", "canonical_name": "United States", "jurisdiction_id": "US", "observed_at_ms": 1000, "source_document_id": "political:us-federal-register-executive:EO-TEST-101"},
+    {"object_id": "institution:us:executive", "object_type": "institution", "canonical_name": "United States Executive", "jurisdiction_id": "US", "parent_id": "jurisdiction:us", "observed_at_ms": 1000, "source_document_id": "political:us-federal-register-executive:EO-TEST-101"},
+    {"object_id": "office:us:procurement-director", "object_type": "office", "canonical_name": "Federal Procurement Director", "jurisdiction_id": "US", "parent_id": "institution:us:executive", "observed_at_ms": 1000, "source_document_id": "political:us-federal-register-executive:EO-TEST-101"},
+    {"object_id": "person:us:alex-morgan", "object_type": "person", "canonical_name": "Alex Morgan", "jurisdiction_id": "US", "observed_at_ms": 1000, "source_document_id": "political:us-federal-register-executive:EO-TEST-101"},
+    {"object_id": "person:us:jordan-lee", "object_type": "person", "canonical_name": "Jordan Lee", "jurisdiction_id": "US", "observed_at_ms": 1000, "source_document_id": "political:us-federal-register-executive:EO-TEST-101"},
+    {"object_id": "proposal:us:clean-procurement", "object_type": "proposal", "canonical_name": "Clean Procurement Proposal", "jurisdiction_id": "US", "parent_id": "institution:us:executive", "observed_at_ms": 1000, "source_document_id": "political:us-federal-register-executive:EO-TEST-101", "attributes": {"status": "adopted"}},
+    {"object_id": "instrument:us:eo-test-101", "object_type": "instrument", "canonical_name": "Clean Procurement Order", "jurisdiction_id": "US", "parent_id": "institution:us:executive", "valid_from_ms": 1768435200000, "observed_at_ms": 1000, "source_document_id": "political:us-federal-register-executive:EO-TEST-101", "attributes": {"instrument_type": "executive_order"}},
+
+    {"object_id": "jurisdiction:de", "object_type": "jurisdiction", "canonical_name": "Germany", "jurisdiction_id": "DE", "observed_at_ms": 1000, "source_document_id": "political:de-bundestag-dip:BT-TEST-21-42"},
+    {"object_id": "institution:de:bundestag", "object_type": "institution", "canonical_name": "Deutscher Bundestag", "jurisdiction_id": "DE", "parent_id": "jurisdiction:de", "observed_at_ms": 1000, "source_document_id": "political:de-bundestag-dip:BT-TEST-21-42"},
+    {"object_id": "person:de:lea-fischer", "object_type": "person", "canonical_name": "Lea Fischer", "jurisdiction_id": "DE", "observed_at_ms": 1000, "source_document_id": "political:de-bundestag-dip:BT-TEST-21-42"},
+    {"object_id": "party:de:green-federal", "object_type": "party", "canonical_name": "Green Party Germany", "jurisdiction_id": "DE", "parent_id": "jurisdiction:de", "observed_at_ms": 1000, "source_document_id": "political:de-bundestag-dip:BT-TEST-21-42"},
+    {"object_id": "party:de:green-berlin", "object_type": "party", "canonical_name": "Green Party Berlin", "jurisdiction_id": "DE", "parent_id": "jurisdiction:de:berlin", "observed_at_ms": 1000, "source_document_id": "political:de-bundestag-dip:BT-TEST-21-42"},
+    {"object_id": "proposal:de:bt-test-42", "object_type": "proposal", "canonical_name": "Clean Heating Proposal", "jurisdiction_id": "DE", "parent_id": "institution:de:bundestag", "observed_at_ms": 1000, "source_document_id": "political:de-bundestag-dip:BT-TEST-21-42", "attributes": {"status": "roll_call_complete"}},
+    {"object_id": "proposal:de:bt-test-42-a1", "object_type": "proposal", "canonical_name": "Clean Heating Amendment 1", "jurisdiction_id": "DE", "parent_id": "institution:de:bundestag", "observed_at_ms": 1000, "source_document_id": "political:de-bundestag-dip:BT-TEST-21-42", "attributes": {"status": "filed"}},
+    {"object_id": "vote:de:lea-bt-test-42", "object_type": "vote", "canonical_name": "Lea Fischer vote on BT-TEST-42", "jurisdiction_id": "DE", "parent_id": "institution:de:bundestag", "valid_from_ms": 1775952000000, "observed_at_ms": 1000, "source_document_id": "political:de-bundestag-dip:BT-TEST-21-42", "attributes": {"position": "for", "outcome": "adopted"}},
+
+    {"object_id": "jurisdiction:eu", "object_type": "jurisdiction", "canonical_name": "European Union", "jurisdiction_id": "EU", "observed_at_ms": 1000, "source_document_id": "political:eu-eurlex-regulatory:CELEX-TEST-2026R0001"},
+    {"object_id": "institution:eu:commission", "object_type": "institution", "canonical_name": "European Commission", "jurisdiction_id": "EU", "parent_id": "jurisdiction:eu", "observed_at_ms": 1000, "source_document_id": "political:eu-eurlex-regulatory:CELEX-TEST-2026R0001"},
+    {"object_id": "proposal:eu:clean-products", "object_type": "proposal", "canonical_name": "Clean Products Proposal", "jurisdiction_id": "EU", "parent_id": "institution:eu:commission", "observed_at_ms": 1000, "source_document_id": "political:eu-eurlex-regulatory:CELEX-TEST-2026R0001", "attributes": {"status": "adopted"}},
+    {"object_id": "instrument:eu:test-2026r0001", "object_type": "instrument", "canonical_name": "Clean Products Regulation", "jurisdiction_id": "EU", "parent_id": "institution:eu:commission", "valid_from_ms": 1772323200000, "observed_at_ms": 1000, "source_document_id": "political:eu-eurlex-regulatory:CELEX-TEST-2026R0001", "attributes": {"instrument_type": "regulation"}},
+
+    {"object_id": "jurisdiction:ca", "object_type": "jurisdiction", "canonical_name": "Canada", "jurisdiction_id": "CA", "observed_at_ms": 1000, "source_document_id": "political:ca-elections-results:GE-TEST-44-35001"},
+    {"object_id": "election:ca:test-44", "object_type": "election", "canonical_name": "Test 44th Federal Election", "jurisdiction_id": "CA", "parent_id": "jurisdiction:ca", "valid_from_ms": 1758499200000, "observed_at_ms": 1000, "source_document_id": "political:ca-elections-results:GE-TEST-44-35001", "attributes": {"status": "certified"}}
+  ],
+  "aliases": [
+    {"object_id": "person:us:alex-morgan", "alias": "Alex Morgan"},
+    {"object_id": "person:de:lea-fischer", "alias": "Lea Fischer"},
+    {"object_id": "party:de:green-federal", "alias": "Green Party"},
+    {"object_id": "party:de:green-berlin", "alias": "Green Party"}
+  ],
+  "office_terms": [
+    {"term_id": "term:us:procurement:alex", "person_id": "person:us:alex-morgan", "office_id": "office:us:procurement-director", "valid_from_ms": 1735689600000, "valid_to_ms": 1767225600000, "observed_at_ms": 1000, "source_document_id": "political:us-federal-register-executive:EO-TEST-101"},
+    {"term_id": "term:us:procurement:jordan", "person_id": "person:us:jordan-lee", "office_id": "office:us:procurement-director", "valid_from_ms": 1767225600000, "valid_to_ms": 1798761600000, "observed_at_ms": 1000, "source_document_id": "political:us-federal-register-executive:EO-TEST-101"}
+  ],
+  "relations": [
+    {"relation_type": "proposal_sponsored_by", "subject_id": "proposal:us:clean-procurement", "object_id": "institution:us:executive", "observed_at_ms": 1000, "source_document_id": "political:us-federal-register-executive:EO-TEST-101"},
+    {"relation_type": "adopted_as", "subject_id": "proposal:us:clean-procurement", "object_id": "instrument:us:eo-test-101", "valid_from_ms": 1768435200000, "observed_at_ms": 1000, "source_document_id": "political:us-federal-register-executive:EO-TEST-101"},
+    {"relation_type": "proposal_amends", "subject_id": "proposal:de:bt-test-42-a1", "object_id": "proposal:de:bt-test-42", "observed_at_ms": 1000, "source_document_id": "political:de-bundestag-dip:BT-TEST-21-42"},
+    {"relation_type": "proposal_sponsored_by", "subject_id": "proposal:de:bt-test-42", "object_id": "person:de:lea-fischer", "observed_at_ms": 1000, "source_document_id": "political:de-bundestag-dip:BT-TEST-21-42"},
+    {"relation_type": "roll_call_on", "subject_id": "vote:de:lea-bt-test-42", "object_id": "proposal:de:bt-test-42", "valid_from_ms": 1775952000000, "observed_at_ms": 1000, "source_document_id": "political:de-bundestag-dip:BT-TEST-21-42"},
+    {"relation_type": "vote_cast_by", "subject_id": "vote:de:lea-bt-test-42", "object_id": "person:de:lea-fischer", "valid_from_ms": 1775952000000, "observed_at_ms": 1000, "source_document_id": "political:de-bundestag-dip:BT-TEST-21-42"},
+    {"relation_type": "proposal_sponsored_by", "subject_id": "proposal:eu:clean-products", "object_id": "institution:eu:commission", "observed_at_ms": 1000, "source_document_id": "political:eu-eurlex-regulatory:CELEX-TEST-2026R0001"},
+    {"relation_type": "institutional_position", "subject_id": "institution:eu:commission", "object_id": "proposal:eu:clean-products", "observed_at_ms": 1000, "source_document_id": "political:eu-eurlex-regulatory:CELEX-TEST-2026R0001", "attributes": {"position": "supports"}},
+    {"relation_type": "adopted_as", "subject_id": "proposal:eu:clean-products", "object_id": "instrument:eu:test-2026r0001", "valid_from_ms": 1772323200000, "observed_at_ms": 1000, "source_document_id": "political:eu-eurlex-regulatory:CELEX-TEST-2026R0001"}
+  ]
+}

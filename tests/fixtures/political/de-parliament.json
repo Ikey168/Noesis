@@ -1,0 +1,15 @@
+{
+  "contract": "political-records-v1",
+  "source_id": "de-bundestag-dip",
+  "records": [
+    {
+      "record_id": "BT-TEST-21-42",
+      "document_type": "roll_call",
+      "title": "Test roll call on clean heating proposal",
+      "content": "The Bundestag recorded a fictional roll call on proposal BT-TEST-42.",
+      "issued_at": "2026-04-12T18:30:00+02:00",
+      "canonical_url": "https://example.invalid/de/BT-TEST-21-42",
+      "political": {"fixture": "de-parliament", "proposal_id": "proposal:de:bt-test-42"}
+    }
+  ]
+}

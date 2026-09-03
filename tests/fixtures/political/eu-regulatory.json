@@ -1,0 +1,16 @@
+{
+  "contract": "political-records-v1",
+  "source_id": "eu-eurlex-regulatory",
+  "records": [
+    {
+      "record_id": "CELEX-TEST-2026R0001",
+      "document_type": "regulation",
+      "title": "Test clean products regulation",
+      "content": "The regulation establishes a clean products reporting standard.",
+      "issued_at": "2026-02-01",
+      "effective_from": "2026-03-01",
+      "canonical_url": "https://example.invalid/eu/CELEX-TEST-2026R0001",
+      "political": {"fixture": "eu-regulatory", "instrument_id": "instrument:eu:test-2026r0001"}
+    }
+  ]
+}

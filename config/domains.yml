@@ -148,6 +148,27 @@ domains:
       - personal notes, private documents, project decisions, and correspondence
     feeds: []
 
+  - name: political
+    backing: corpus-view
+    description: >
+      Official political and institutional records, including offices, terms,
+      elections, proposals, votes, executive acts, and regulatory instruments.
+    embedding_model: all-MiniLM-L6-v2
+    tags: [political, politics, government, parliament, regulation, election]
+    keywords:
+      - officeholder
+      - legislature
+      - parliament
+      - election
+      - proposal
+      - amendment
+      - roll call
+      - executive order
+      - regulation
+    embedding_anchors:
+      - official political institutions, office terms, elections, proposals, votes, and policy instruments
+    feeds: []
+
   - name: papers
     backing: corpus-view
     description: >

@@ -94,6 +94,19 @@ class TemporalQueryRequest(BaseModel):
     cursor: Optional[str] = None
 
 
+class PoliticalQueryRequest(BaseModel):
+    domain: str = Field(min_length=1)
+    query_type: str = Field(min_length=1)
+    jurisdiction: str = Field(min_length=1)
+    at: Optional[int | str] = None
+    observed_before: Optional[int | str] = None
+    office_id: Optional[str] = None
+    proposal_id: Optional[str] = None
+    actor_id: Optional[str] = None
+    institution_id: Optional[str] = None
+    limit: int = Field(default=50, ge=1, le=100)
+
+
 def _watch_principal(current_user: dict) -> str:
     principal = current_user.get("sub") or current_user.get("user_id")
     if not principal:
@@ -284,6 +297,47 @@ def private_temporal_query(
         request.include_retracted,
         request.limit,
         request.cursor,
+        _watch_principal(current_user),
+        True,
+    )
+
+
+@router.post("/political")
+def political_query(request: PoliticalQueryRequest):
+    """Run a public cited political-research query."""
+    return _run(
+        contract.kb_political,
+        request.domain,
+        request.query_type,
+        request.jurisdiction,
+        request.at,
+        request.observed_before,
+        request.office_id,
+        request.proposal_id,
+        request.actor_id,
+        request.institution_id,
+        request.limit,
+    )
+
+
+@router.post("/political/private")
+def private_political_query(
+    request: PoliticalQueryRequest,
+    current_user: dict = Depends(require_auth),
+):
+    """Run the same query against a grant-authorized private domain."""
+    return _run(
+        contract.kb_political,
+        request.domain,
+        request.query_type,
+        request.jurisdiction,
+        request.at,
+        request.observed_before,
+        request.office_id,
+        request.proposal_id,
+        request.actor_id,
+        request.institution_id,
+        request.limit,
         _watch_principal(current_user),
         True,
     )

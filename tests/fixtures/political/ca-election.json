@@ -1,0 +1,15 @@
+{
+  "contract": "political-records-v1",
+  "source_id": "ca-elections-results",
+  "records": [
+    {
+      "record_id": "GE-TEST-44-35001",
+      "document_type": "election_result",
+      "title": "Test federal district result",
+      "content": "The returning officer certified the fictional district result.",
+      "issued_at": "2025-09-22",
+      "canonical_url": "https://example.invalid/ca/GE-TEST-44-35001",
+      "political": {"fixture": "ca-election", "election_id": "election:ca:test-44"}
+    }
+  ]
+}

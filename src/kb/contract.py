@@ -265,6 +265,55 @@ def kb_temporal(
         raise KBContractError(exc.code, str(exc)) from exc
 
 
+def kb_political(
+    domain: str,
+    query_type: str,
+    jurisdiction: str,
+    at: Any = None,
+    observed_before: Any = None,
+    office_id: Optional[str] = None,
+    proposal_id: Optional[str] = None,
+    actor_id: Optional[str] = None,
+    institution_id: Optional[str] = None,
+    limit: int = 50,
+    principal_id: Optional[str] = None,
+    include_private: bool = False,
+    conn=None,
+    config_path=None,
+) -> Dict[str, Any]:
+    """Run a cited political query inside one authorized KB domain."""
+
+    from src.domains.political.queries import PoliticalQueryError, political_research
+    from src.kb.cross_domain import CrossDomainError, resolve_scope
+    from src.kb.temporal import TemporalError
+
+    try:
+        resolved, _scope = resolve_scope(
+            _registry(config_path),
+            conn=conn,
+            domains=[domain],
+            principal_id=principal_id,
+            include_private=include_private,
+            limit=limit,
+            per_domain_limit=limit,
+        )
+        payload = political_research(
+            resolved[0][1],
+            query_type=query_type,
+            jurisdiction=jurisdiction,
+            at=at,
+            observed_before=observed_before,
+            office_id=office_id,
+            proposal_id=proposal_id,
+            actor_id=actor_id,
+            institution_id=institution_id,
+            limit=limit,
+        )
+        return _envelope(domain, payload)
+    except (CrossDomainError, PoliticalQueryError, TemporalError) as exc:
+        raise KBContractError(exc.code, str(exc)) from exc
+
+
 def kb_answer(
     domain: str,
     question: str,
