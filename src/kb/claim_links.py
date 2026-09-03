@@ -467,11 +467,29 @@ def run_cross_backing_link_pass(
     )
 
     ensure_claim_link_schema(conn)
+    models = registry.embedding_models()
+    corpus_models = {
+        model
+        for name, model in models.items()
+        if registry.get(name).backing == "corpus-view"
+    }
+    for definition in registry.domains():
+        if (
+            definition.backing == "namespace"
+            and corpus_models
+            and definition.embedding_model not in corpus_models
+        ):
+            raise DomainConfigError(
+                f"domain {definition.name!r} embeds with "
+                f"{definition.embedding_model!r} but the corpus uses "
+                f"{sorted(corpus_models)}; cross-backing similarity needs one "
+                "shared embedding space"
+            )
+
     nli = nli or get_nli_backend()
     run_id = run_id or f"kb-cross-links-{uuid.uuid4().hex[:12]}"
     window_ms = time_window_days * 86_400_000
 
-    models = registry.embedding_models()
     summary: Dict[str, Any] = {
         "run_id": run_id,
         "domains": {},
@@ -481,19 +499,6 @@ def run_cross_backing_link_pass(
     for definition in registry.domains():
         if definition.backing != "namespace":
             continue
-        corpus_models = {
-            model
-            for name, model in models.items()
-            if registry.get(name).backing == "corpus-view"
-        }
-        if corpus_models and definition.embedding_model not in corpus_models:
-            raise DomainConfigError(
-                f"domain {definition.name!r} embeds with "
-                f"{definition.embedding_model!r} but the corpus uses "
-                f"{sorted(corpus_models)}; cross-backing similarity needs one "
-                "shared embedding space"
-            )
-
         backend = (
             BACKEND_ATTACHED
             if definition.namespace_backend == "attached"

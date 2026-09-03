@@ -83,7 +83,6 @@ class ClaimDetector:
     def _try_load_pretrained(self) -> None:
         """Load the pinned ClaimBuster backend from the local model cache."""
         from src.argument_mining.model_registry import cached_model_path, resolved_pins
-        from transformers import pipeline as hf_pipeline
 
         pin = resolved_pins()["claim"]
         local_path = cached_model_path("claim")
@@ -91,6 +90,8 @@ class ClaimDetector:
             raise RuntimeError(
                 "pinned claim weights are not in the local cache; run `make models`"
             )
+        from transformers import pipeline as hf_pipeline
+
         model_name = pin["model"]
         self._pretrained = (
             hf_pipeline(
