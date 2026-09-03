@@ -70,6 +70,10 @@ surface. The full design lives in the
   `noesis-answer-v1` evidence plan: every extractive statement separates
   supporting and contradicting citations or refuses explicitly when evidence
   is insufficient. Python, MCP, and REST share the same implementation.
+- **Claim Watches.** Durable claim, entity, topic, and saved-query watches emit
+  immutable evidence-change events after committed consolidation watermarks.
+  Owner-bound polling resumes through opaque cursors without gaps or duplicate
+  logical events; private domains require explicit grants.
 - **OSINT investigation surface.** Entity dossiers, relationship paths,
   reconstructed timelines, and provenance traces over ingested open sources,
   all under a strict evidence discipline (every line is cited; uncited entries

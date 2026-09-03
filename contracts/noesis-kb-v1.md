@@ -37,6 +37,7 @@ new domain content today.
 | `kb_domains()` | `[{name, backing, description, embedding_model}]` |
 | `kb_search(domain, query, limit)` | document rows (cited: id, title, url, source, domain score/method) — lexical; wildcards are literals |
 | `kb_answer(domain, question, limit, minimum_relevance)` | additive `noesis-answer-v1` payload with statement-level verdicts, separate supporting/contradicting evidence, explicit refusal, and a reproducible evidence plan |
+| `watch_create/list/poll/pause/resume/delete(...)` | additive `noesis-claim-watch-v1` lifecycle and opaque-cursor event polling, principal/domain scoped |
 | `kb_documents(domain, since?, limit)` | document rows, newest arrival first |
 | `kb_claims(domain, since?, limit)` | **clusters**: `{cluster_id, representative, citations[], corroboration, contradictions[], size}` — representative = recency + source quality, never a superseded member while a live one exists; every citation carries source/url; contradictions carry `prediction_mode` + confidence |
 | `kb_entities(domain, name?)` | `[{canonical_id, name, mentions, aliases[]}]`, alias mentions folded |

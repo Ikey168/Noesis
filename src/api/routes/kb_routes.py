@@ -10,14 +10,53 @@ from __future__ import annotations
 
 from typing import Optional
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
+from pydantic import BaseModel, Field
 
+from src.api.auth.jwt_auth import require_auth
 from src.kb import contract
 from src.kb.contract import KBContractError
 
 router = APIRouter(prefix="/api/v1/kb", tags=["knowledge-base"])
 
-_STATUS = {"unknown_domain": 404, "not_found": 404, "bad_request": 400, "bad_since": 400}
+_STATUS = {
+    "unknown_domain": 404,
+    "not_found": 404,
+    "watch_not_found": 404,
+    "unauthorized": 403,
+    "bad_request": 400,
+    "bad_selector": 400,
+    "bad_since": 400,
+    "confirmation_required": 400,
+    "cursor_stale": 409,
+    "watermark_conflict": 409,
+    "watermark_uncommitted": 409,
+    "watch_deleted": 409,
+}
+
+
+class WatchCreateRequest(BaseModel):
+    domain: str
+    selector: dict
+    event_types: Optional[list[str]] = None
+    stale_after_ms: int = Field(default=86_400_000, gt=0)
+
+
+class WatchScanRequest(BaseModel):
+    watermark: int = Field(gt=0)
+    observed_at_ms: Optional[int] = None
+
+
+class WatchReplayRequest(BaseModel):
+    from_watermark: int = Field(gt=0)
+    to_watermark: int = Field(gt=0)
+
+
+def _watch_principal(current_user: dict) -> str:
+    principal = current_user.get("sub") or current_user.get("user_id")
+    if not principal:
+        raise HTTPException(status_code=401, detail="authenticated principal is missing")
+    return str(principal)
 
 
 def _run(fn, *args, **kwargs):
@@ -51,6 +90,118 @@ async def brief(
         else None
     )
     return _run(contract.kb_brief, domain_list, since, budget)
+
+
+@router.post("/watches")
+def create_watch(
+    request: WatchCreateRequest,
+    current_user: dict = Depends(require_auth),
+):
+    principal_id = _watch_principal(current_user)
+    return _run(
+        contract.watch_create,
+        request.domain,
+        principal_id,
+        request.selector,
+        request.event_types,
+        request.stale_after_ms,
+    )
+
+
+@router.get("/watches")
+def watches(
+    domain: Optional[str] = None,
+    current_user: dict = Depends(require_auth),
+):
+    principal_id = _watch_principal(current_user)
+    return _run(contract.watch_list, principal_id, domain)
+
+
+@router.get("/watches/metrics")
+def watch_metrics(_current_user: dict = Depends(require_auth)):
+    return _run(contract.watch_observability)
+
+
+@router.get("/watches/{watch_id}/events")
+def poll_watch(
+    watch_id: str,
+    cursor: Optional[str] = None,
+    limit: int = 50,
+    event_types: Optional[str] = None,
+    current_user: dict = Depends(require_auth),
+):
+    principal_id = _watch_principal(current_user)
+    selected = (
+        [item.strip() for item in event_types.split(",") if item.strip()]
+        if event_types is not None
+        else None
+    )
+    return _run(
+        contract.watch_poll,
+        watch_id,
+        principal_id,
+        cursor,
+        limit,
+        selected,
+    )
+
+
+@router.post("/watches/{watch_id}/pause")
+def pause_watch(
+    watch_id: str,
+    current_user: dict = Depends(require_auth),
+):
+    principal_id = _watch_principal(current_user)
+    return _run(contract.watch_pause, watch_id, principal_id)
+
+
+@router.post("/watches/{watch_id}/resume")
+def resume_watch(
+    watch_id: str,
+    current_user: dict = Depends(require_auth),
+):
+    principal_id = _watch_principal(current_user)
+    return _run(contract.watch_resume, watch_id, principal_id)
+
+
+@router.post("/watches/{watch_id}/replay")
+def replay_watch(
+    watch_id: str,
+    request: WatchReplayRequest,
+    current_user: dict = Depends(require_auth),
+):
+    principal_id = _watch_principal(current_user)
+    return _run(
+        contract.watch_replay,
+        watch_id,
+        principal_id,
+        request.from_watermark,
+        request.to_watermark,
+    )
+
+
+@router.delete("/watches/{watch_id}")
+def remove_watch(
+    watch_id: str,
+    confirm: bool = False,
+    current_user: dict = Depends(require_auth),
+):
+    principal_id = _watch_principal(current_user)
+    return _run(contract.watch_delete, watch_id, principal_id, confirm)
+
+
+@router.post("/watches/scan")
+def scan_watches(
+    request: WatchScanRequest,
+    current_user: dict = Depends(require_auth),
+):
+    principal_id = _watch_principal(current_user)
+    return _run(
+        contract.watch_scan,
+        principal_id,
+        request.watermark,
+        request.observed_at_ms,
+    )
 
 
 @router.get("/{domain}/search")

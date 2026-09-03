@@ -1,0 +1,20 @@
+{
+  "contract": "noesis-kb-v1",
+  "domain": "economics",
+  "as_of_ms": 1000,
+  "data": {
+    "watch_contract": "noesis-claim-watch-v1",
+    "watch_id": "watch:0123456789abcdef01234567",
+    "principal_id": "principal-123",
+    "domain": "economics",
+    "visibility": "public",
+    "selector": {"type": "topic", "value": "inflation"},
+    "event_types": ["support_gained", "contradiction_added"],
+    "stale_after_ms": 86400000,
+    "status": "active",
+    "created_at_ms": 1000,
+    "updated_at_ms": 1000,
+    "deleted_at_ms": null,
+    "last_watermark": null
+  }
+}

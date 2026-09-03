@@ -10,6 +10,49 @@ from src.kb import contract
 DEFAULT_BUDGET = 15
 
 
+def watch_event_digest(
+    events: List[Dict[str, Any]], budget: int = DEFAULT_BUDGET
+) -> Dict[str, Any]:
+    """Render a bounded daily-brief section from immutable watch events.
+
+    The event repository remains the source of truth. This projection neither
+    mutates matcher progress nor creates events, and reports all budget drops.
+    """
+    actual_budget = max(0, min(int(budget), DEFAULT_BUDGET))
+    ordered = sorted(
+        events,
+        key=lambda event: (
+            int(event.get("sequence") or 0),
+            str(event.get("event_id") or ""),
+        ),
+    )
+    kept = ordered[:actual_budget]
+    lines = ["## Claim Watch changes", ""]
+    if not kept:
+        lines.append("_No matching watch events._")
+    for event in kept:
+        evidence = event.get("evidence") or []
+        locators = ", ".join(
+            str(item.get("path") or item.get("document_id") or "uncited — flagged")
+            for item in evidence
+        )
+        lines.append(
+            f"- **{event.get('event_type', 'change')}** — "
+            f"{event.get('explanation', '')} Evidence: {locators or 'uncited — flagged'}"
+        )
+    return {
+        "markdown": "\n".join(lines),
+        "events": kept,
+        "meta": {
+            "source": "claim_watch_events",
+            "source_of_truth": False,
+            "budget": actual_budget,
+            "kept": len(kept),
+            "dropped": max(0, len(ordered) - len(kept)),
+        },
+    }
+
+
 def _default_since() -> str:
     return (datetime.now(timezone.utc) - timedelta(hours=24)).strftime("%Y-%m-%dT%H:%M:%SZ")
 
