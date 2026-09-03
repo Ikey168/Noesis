@@ -1,0 +1,192 @@
+{
+  "partition": "development",
+  "cases": [
+    {
+      "name": "exact replicas from two feeds",
+      "documents": [
+        {
+          "document_id": "exact-a",
+          "source_type": "news",
+          "source_id": "outlet-a",
+          "url": "https://a.example/story",
+          "created_at": 100,
+          "title": "Rates remain unchanged",
+          "content": "The central bank left interest rates unchanged after its meeting.",
+          "authors": ["A Reporter"],
+          "metadata": {},
+          "expected_origin": "exact",
+          "expected_state": "likely_dependent"
+        },
+        {
+          "document_id": "exact-b",
+          "source_type": "news",
+          "source_id": "outlet-b",
+          "url": "https://b.example/copy",
+          "created_at": 120,
+          "title": "Rates remain unchanged",
+          "content": "The central bank left interest rates unchanged after its meeting.",
+          "authors": [],
+          "metadata": {},
+          "expected_origin": "exact",
+          "expected_state": "likely_dependent"
+        }
+      ]
+    },
+    {
+      "name": "near duplicate rewrite with shared byline",
+      "documents": [
+        {
+          "document_id": "rewrite-a",
+          "source_type": "article",
+          "source_id": "city-desk",
+          "title": "Council approves the transit plan",
+          "content": "City council members approved the regional transit plan on Tuesday after a long public meeting. The plan funds three rail stations and two bus routes next year.",
+          "authors": ["Jordan Lee"],
+          "metadata": {"source_links": ["https://city.example/agenda"], "claim_texts": ["Council approved the transit plan"]},
+          "expected_origin": "rewrite",
+          "expected_state": "likely_dependent"
+        },
+        {
+          "document_id": "rewrite-b",
+          "source_type": "article",
+          "source_id": "metro-daily",
+          "title": "Council approves regional transit plan",
+          "content": "City council members approved the regional transit plan Tuesday following a long public meeting. The plan will fund three rail stations and two bus routes next year.",
+          "authors": ["Jordan Lee"],
+          "metadata": {"source_links": ["https://city.example/agenda"], "claim_texts": ["Council approved the transit plan"]},
+          "expected_origin": "rewrite",
+          "expected_state": "likely_dependent"
+        }
+      ]
+    },
+    {
+      "name": "explicit Reuters syndication",
+      "documents": [
+        {
+          "document_id": "wire-a",
+          "source_type": "feed",
+          "source_id": "paper-a",
+          "title": "Factory output rises",
+          "content": "Reuters reported that factory output rose in May as export demand recovered across the region.",
+          "metadata": {"wire_service": "Reuters", "dateline": "Berlin, May 4"},
+          "expected_origin": "wire",
+          "expected_state": "likely_dependent"
+        },
+        {
+          "document_id": "wire-b",
+          "source_type": "article",
+          "source_id": "paper-b",
+          "title": "Factory output rises in May",
+          "content": "According to Reuters, factory output rose during May as export demand recovered throughout the region.",
+          "metadata": {},
+          "expected_origin": "wire",
+          "expected_state": "likely_dependent"
+        }
+      ]
+    },
+    {
+      "name": "independent reports on one event",
+      "documents": [
+        {
+          "document_id": "independent-a",
+          "source_type": "article",
+          "source_id": "north-news",
+          "title": "Harbor closes after storm",
+          "content": "A North News reporter observed crews closing the harbor after waves damaged the eastern pier.",
+          "authors": ["Nora North"],
+          "metadata": {"original_reporting": true},
+          "expected_origin": "north",
+          "expected_state": "known_independent"
+        },
+        {
+          "document_id": "independent-b",
+          "source_type": "article",
+          "source_id": "south-journal",
+          "title": "Ferry passengers diverted",
+          "content": "The South Journal interviewed ferry passengers diverted inland when the storm shut local sailings.",
+          "authors": ["Sam South"],
+          "metadata": {"original_reporting": true},
+          "expected_origin": "south",
+          "expected_state": "known_independent"
+        }
+      ]
+    },
+    {
+      "name": "shared ownership is not shared reporting",
+      "documents": [
+        {
+          "document_id": "owner-a",
+          "source_type": "article",
+          "source_id": "brand-a",
+          "title": "School budget vote",
+          "content": "Parents addressed the school board about classroom staffing before the annual budget vote.",
+          "metadata": {"publisher_owner": "Example Group"},
+          "expected_origin": null,
+          "expected_state": "unknown"
+        },
+        {
+          "document_id": "owner-b",
+          "source_type": "article",
+          "source_id": "brand-b",
+          "title": "School budget vote",
+          "content": "Bond markets steadied while traders waited for the central bank inflation forecast and policy decision.",
+          "metadata": {"publisher_owner": "Example Group"},
+          "expected_origin": null,
+          "expected_state": "unknown"
+        }
+      ]
+    },
+    {
+      "name": "canonical redirect",
+      "documents": [
+        {
+          "document_id": "canonical-a",
+          "source_type": "article",
+          "source_id": "publisher",
+          "url": "https://example.com/story?utm_source=feed",
+          "title": "Canonical story",
+          "content": "First edition text.",
+          "metadata": {},
+          "expected_origin": "canonical",
+          "expected_state": "likely_dependent"
+        },
+        {
+          "document_id": "canonical-b",
+          "source_type": "article",
+          "source_id": "publisher",
+          "url": "https://example.com/story",
+          "title": "Updated canonical story",
+          "content": "Second edition text with a correction.",
+          "metadata": {},
+          "expected_origin": "canonical",
+          "expected_state": "likely_dependent"
+        }
+      ]
+    },
+    {
+      "name": "conflicting explicit wire signals",
+      "documents": [
+        {
+          "document_id": "conflict-a",
+          "source_type": "article",
+          "source_id": "one",
+          "title": "Crop forecast increases",
+          "content": "According to Reuters the national crop forecast increased after sustained rainfall across northern farms this month.",
+          "metadata": {},
+          "expected_origin": null,
+          "expected_state": "unknown"
+        },
+        {
+          "document_id": "conflict-b",
+          "source_type": "article",
+          "source_id": "two",
+          "title": "Crop forecast increases",
+          "content": "According to AP the national crop forecast increased after sustained rainfall across northern farms this month.",
+          "metadata": {},
+          "expected_origin": null,
+          "expected_state": "unknown"
+        }
+      ]
+    }
+  ]
+}

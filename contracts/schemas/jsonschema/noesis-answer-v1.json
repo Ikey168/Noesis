@@ -64,9 +64,15 @@
       "properties": {
         "n": {"type": "integer", "minimum": 0},
         "publication_count": {"type": "integer", "minimum": 0},
+        "probable_origin_count": {"type": "integer", "minimum": 0},
         "independent_source_count": {"type": "integer", "minimum": 0},
+        "known_independent_count": {"type": "integer", "minimum": 0},
+        "likely_dependent_count": {"type": "integer", "minimum": 0},
         "unresolved_count": {"type": "integer", "minimum": 0},
+        "dependency_evidence": {"type": "array", "items": {"type": "object"}},
         "method": {"type": "string", "minLength": 1},
+        "method_version": {"type": ["string", "null"]},
+        "lineage_available": {"type": "boolean"},
         "assumptions": {
           "type": "array",
           "items": {"type": "string"}

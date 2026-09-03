@@ -220,6 +220,12 @@ def answer(
     return _run(contract.kb_answer, domain, q, limit, minimum_relevance)
 
 
+@router.get("/{domain}/claims/{claim_id}/corroboration")
+def corroboration(domain: str, claim_id: str):
+    """Origin-aware publication, probable-origin, and unresolved counts."""
+    return _run(contract.kb_corroborate, domain, claim_id)
+
+
 @router.get("/{domain}/documents")
 def documents(domain: str, since: Optional[str] = None, limit: int = 50):
     return _run(contract.kb_documents, domain, since, limit)

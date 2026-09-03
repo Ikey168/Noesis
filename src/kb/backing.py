@@ -512,8 +512,9 @@ class NamespaceBacking(DomainBacking):
         tables = self._tables()
         with self._lock():
             rows = self.conn.execute(
-                f"SELECT claim_id, claim_text, verdict, document_id"
-                f" FROM {tables['claims']} ORDER BY claim_id LIMIT ?",
+                f"SELECT c.claim_id, c.claim_text, c.verdict, c.document_id, d.source"
+                f" FROM {tables['claims']} c LEFT JOIN {tables['documents']} d"
+                " ON d.id = c.document_id ORDER BY c.claim_id LIMIT ?",
                 [int(limit)],
             ).fetchall()
             links = self.conn.execute(
@@ -531,8 +532,15 @@ class NamespaceBacking(DomainBacking):
                  "confidence": confidence, "prediction_mode": mode}
             )
         clusters = []
-        for claim_id, text, verdict, document_id in rows:
+        from src.osint.independence import origin_summary
+
+        for claim_id, text, verdict, document_id, source in rows:
             related = by_claim.get(claim_id, [])
+            independence = origin_summary(
+                self.conn,
+                [document_id],
+                sources=[source],
+            )
             clusters.append(
                 {
                     "cluster_id": f"cl-{claim_id}",
@@ -545,10 +553,12 @@ class NamespaceBacking(DomainBacking):
                     },
                     "citations": [
                         {"claim_id": claim_id, "claim_text": text,
-                         "document_id": document_id, "verdict": verdict,
+                         "document_id": document_id, "source": source,
+                         "verdict": verdict,
                          "superseded": False}
                     ],
-                    "corroboration": 1,
+                    "corroboration": independence["independent_source_count"],
+                    "independence": independence,
                     "contradictions": [
                         link for link in related if link["relation"] == "contradicts"
                     ],

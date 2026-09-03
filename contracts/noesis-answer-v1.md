@@ -46,7 +46,7 @@ Each statement contains:
 
 - stable `id`, exact extractive `text`, and three-valued `verdict`;
 - `supporting_evidence[]` and `contradicting_evidence[]` locators;
-- publication, distinct-source, and unresolved-source counts;
+- publication, probable-reporting-origin, and unresolved-lineage counts;
 - the active independence method and assumptions;
 - `prediction_mode`, model confidence when retained by the backing, and an
   interval when a stored quantitative check provides one;
@@ -61,10 +61,11 @@ source counts, relevance, integrity findings, and quantitative intervals are
 heterogeneous observations and must not be collapsed into one misleading
 number.
 
-Distinct source identity is the v1 independence method. It does not infer
-syndication or shared reporting origin; that limitation is explicit so the
-Evidence Independence Graph can replace the method without changing the rest
-of the response shape.
+When the Evidence Independence Graph is materialized, corroboration separates
+publication count, probable reporting origins, and unresolved provenance and
+includes decisive dependency evidence. Warehouses without lineage retain the
+compatible distinct-source count and explicitly name
+`distinct-source-fallback-v1`.
 
 ## Surfaces
 

@@ -54,6 +54,8 @@ STAGE_ALIASES = {
     "verifiable-answer": "noesis-answer-v1",
     "claim-watch": "noesis-claim-watch-v1",
     "watch-event": "noesis-claim-watch-v1",
+    "evidence-independence": "noesis-evidence-independence-v1",
+    "origin-graph": "noesis-evidence-independence-v1",
     "evidence-bundle": "noesis-evidence-bundle-v1",
     "bundle": "noesis-evidence-bundle-v1",
     "search": "search-request",
