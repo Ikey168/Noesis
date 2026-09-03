@@ -7,6 +7,18 @@ import pytest
 import scripts.prepare_external_benchmarks as prep
 
 
+class FakeClaimDetector:
+    _pipeline = None
+    _pretrained = None
+
+    @staticmethod
+    def predict_text(text):
+        from src.argument_mining.models import ClaimPrediction
+
+        is_claim = "unverifiable" not in text.lower()
+        return ClaimPrediction(text, 0, is_claim, 0.9)
+
+
 class TestPrepare:
     @pytest.fixture()
     def sandbox(self, tmp_path, monkeypatch):
@@ -82,7 +94,7 @@ class TestHarnessEvaluators:
         (fever / "paper_dev.jsonl").write_text(
             "\n".join(json.dumps(r) for r in rows)
         )
-        metrics = bench._try_fever(fever)
+        metrics = bench._try_fever(fever, detector=FakeClaimDetector())
         assert metrics is not None
         assert metrics["n"] == 2
         assert 0.0 <= metrics["f1"] <= 1.0
@@ -96,6 +108,6 @@ class TestHarnessEvaluators:
             "id1\tfalse\tThe deficit doubled last year.\tmeta\n"
             "id2\ttrue\tUnemployment fell to 4 percent.\tmeta\n"
         )
-        metrics = bench._try_liar(liar)
+        metrics = bench._try_liar(liar, detector=FakeClaimDetector())
         assert metrics is not None
         assert metrics["n"] == 2

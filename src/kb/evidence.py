@@ -1,9 +1,8 @@
 """
-Evidence-quality summary: "what fraction of this analysis is heuristic-grade?"
+Evidence-quality summary: "what fraction of this analysis is model-grade?"
 
 The platform's honesty contract requires that any analytic answer can state
-its evidence quality. Prediction rows carry ``prediction_mode`` (#958:
-``heuristic`` | ``model:<checkpoint>`` | ``zero-shot:<model>``) and a
+its evidence quality. Prediction rows carry ``prediction_mode`` (#958) and a
 confidence; this module aggregates them per table and overall, and the KB
 contract attaches the summary to every ``coverage`` answer, so it rides both
 the MCP and REST surfaces for free.
@@ -49,10 +48,9 @@ def _has_column(conn, table: str, column: str) -> bool:
 def evidence_quality_summary(conn) -> Dict[str, Any]:
     """Per-table and overall mode distribution + mean confidence.
 
-    ``model_grade_fraction`` counts every non-heuristic mode (fine-tuned
-    checkpoints and pretrained zero-shot backends alike) against the total;
-    rows with a NULL mode are reported as ``unknown``, never silently
-    folded into either side.
+    ``model_grade_fraction`` counts fine-tuned and pretrained model modes
+    against the total; rows with unrecognized or NULL modes are not silently
+    counted as model output.
     """
     tables: Dict[str, Any] = {}
     total_rows = 0
@@ -83,7 +81,7 @@ def evidence_quality_summary(conn) -> Dict[str, Any]:
         model_grade = sum(
             int(count)
             for mode, count in modes.items()
-            if mode not in ("heuristic", "unknown")
+            if mode.startswith(("model:", "pretrained:", "zero-shot:"))
         )
         tables[table] = {
             "rows": rows,

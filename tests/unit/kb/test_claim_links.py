@@ -1,4 +1,4 @@
-"""Unit tests for the claim linking pass and the shared NLI heuristic floor."""
+"""Unit tests for the claim linking pass and shared pretrained NLI backend."""
 
 import duckdb
 import pytest
@@ -8,7 +8,7 @@ from src.kb.claim_links import (
     ensure_claim_link_schema,
     run_claim_linking_pass,
 )
-from src.kb.nli import CONTRADICTION, ENTAILMENT, NEUTRAL, HeuristicNLI
+from src.kb.nli import CONTRADICTION, ENTAILMENT, NEUTRAL
 
 DAY_MS = 86_400_000
 BASE_MS = 1_750_000_000_000
@@ -154,7 +154,7 @@ class TestLinking:
         run_claim_linking_pass(conn, provider=FakeProvider(), nli=FakeNLI())
         assert conn.execute("SELECT COUNT(*) FROM claim_links").fetchone()[0] == 0
 
-    def test_offline_heuristic_mode_links_duplicates(self, conn):
+    def test_default_shared_model_backend_links_duplicates(self, conn, monkeypatch):
         _seed_claims(
             conn,
             [
@@ -163,8 +163,9 @@ class TestLinking:
                 ("c3", CONTRA, "d3", BASE_MS + DAY_MS, None),
             ],
         )
-        summary = run_claim_linking_pass(conn)  # no provider, no NLI
-        assert summary["mode"] == "heuristic"
+        monkeypatch.setattr("src.kb.claim_links.get_nli_backend", lambda: FakeNLI())
+        summary = run_claim_linking_pass(conn)  # no provider or explicit NLI
+        assert summary["mode"] == "zero-shot:fake-model"
         relations = {
             row[0]: row[1]
             for row in conn.execute(
@@ -172,7 +173,7 @@ class TestLinking:
             ).fetchall()
         }
         assert "duplicate" in relations
-        assert relations["duplicate"] == "heuristic"
+        assert relations["duplicate"] == "zero-shot:fake-model"
         assert "contradicts" in relations
 
 
@@ -225,7 +226,6 @@ class TestIncrementality:
         )
         summary = run_claim_linking_pass(conn, provider=FakeProvider(), nli=FakeNLI())
         assert conn.execute("SELECT COUNT(*) FROM claim_links").fetchone()[0] > 0
-
         result = delete_run(conn, summary["run_id"])
         assert result["links_deleted"] > 0
         assert conn.execute("SELECT COUNT(*) FROM claim_links").fetchone()[0] == 0
@@ -233,25 +233,3 @@ class TestIncrementality:
         rerun = run_claim_linking_pass(conn, provider=FakeProvider(), nli=FakeNLI())
         assert rerun["scanned"] == 2
         assert conn.execute("SELECT COUNT(*) FROM claim_links").fetchone()[0] > 0
-
-
-class TestHeuristicNLI:
-    def test_entailment_on_high_overlap(self):
-        result = HeuristicNLI().classify(DUP_A, DUP_B)
-        assert result.label == ENTAILMENT
-        assert result.prediction_mode == "heuristic"
-
-    def test_contradiction_on_negation_flip(self):
-        result = HeuristicNLI().classify(DUP_A, CONTRA)
-        assert result.label == CONTRADICTION
-
-    def test_contradiction_on_antonyms(self):
-        result = HeuristicNLI().classify(
-            "Inflation rose sharply last quarter in Europe.",
-            "Inflation fell sharply last quarter in Europe.",
-        )
-        assert result.label == CONTRADICTION
-
-    def test_neutral_on_disjoint_topics(self):
-        result = HeuristicNLI().classify(DUP_A, UNRELATED)
-        assert result.label == NEUTRAL

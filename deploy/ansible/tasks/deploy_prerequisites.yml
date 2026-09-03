@@ -72,8 +72,6 @@
         REDIS_DB: "{{ redis.db }}"
         AWS_REGION: "{{ aws.region }}"
         S3_BUCKET: "{{ aws.s3_bucket }}"
-        NEPTUNE_ENDPOINT: "{{ aws.neptune_endpoint }}"
-        NEPTUNE_PORT: "{{ aws.neptune_port }}"
         LOG_LEVEL: "{{ logging.level }}"
         LOG_FORMAT: "{{ logging.format }}"
         PROMETHEUS_ENABLED: "{{ monitoring.prometheus.enabled | string }}"

@@ -24,14 +24,6 @@ data:
   FASTAPI_RELOAD: "false"
   FASTAPI_DEBUG: "false"
   
-  # Neptune Configuration
-  NEPTUNE_ENDPOINT: "wss://neuronews-neptune-cluster.cluster-cxxxxx.us-west-2.neptune.amazonaws.com:8182/gremlin"
-  NEPTUNE_REGION: "us-west-2"
-  NEPTUNE_USE_SSL: "true"
-  NEPTUNE_CONNECTION_TIMEOUT: "30"
-  NEPTUNE_READ_TIMEOUT: "60"
-  NEPTUNE_MAX_CONNECTIONS: "20"
-  
   # Redis Cache Configuration
   REDIS_HOST: "kg-api-redis-service"
   REDIS_PORT: "6379"

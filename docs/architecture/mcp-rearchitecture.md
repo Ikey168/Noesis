@@ -11,9 +11,10 @@ Noesis maintains two parallel capability surfaces: ~30 FastAPI REST routes
 consumed by the generative canvas, and 12 FastMCP stdio servers
 (`tools/*_mcp/`) consumed by development agents. Every subsystem —
 argument mining, pipeline, knowledge graph, feeds, domain packs, lineage,
-contracts, monitoring — is wrapped twice, and the generative-UI panel
-catalog is hand-mirrored in three more places (`src/genui/catalog.py`,
-`apps/web/src/genui/spec.ts`, `contracts/schemas/jsonschema/ui-spec-v1.json`).
+contracts, monitoring — is wrapped twice, and the former generative-UI panel
+catalog was hand-mirrored in multiple places (`src/genui/catalog.py` and
+`contracts/schemas/jsonschema/ui-spec-v1.json`). The browser application
+described in this proposal has since been removed.
 
 This proposal makes MCP the **capability and control plane**: panels,
 planner inputs, and domain-pack state derive from MCP tool discovery
@@ -51,7 +52,7 @@ naming sweep.
 
 ```
                        ┌────────────────────────────────────────────┐
- browser (apps/web)    │ FastAPI backend = MCP HOST                 │   MCP servers (FastMCP)
+ external client       │ FastAPI backend = MCP HOST                 │   MCP servers (FastMCP)
  ───────────────────►  │                                            │  ┌──────────────────────┐
   REST (unchanged):    │  genui planner ──── MCP client sessions ───┼─►│ neuronews-arguments  │
   /api/v1/ui/generate  │   · catalog ⇐ tool discovery               │  │ neuronews-pipeline   │
@@ -153,9 +154,9 @@ MCP **provision knowledge domains**: an agent (or an operator through one)
 deploys a new knowledge graph, selects the sources that feed it, and the
 generative canvas grows panels for it — with no code change and no deploy.
 
-Today the pieces exist but do not compose: `graph_builder` /
-`enhanced_graph_populator` build the KG, `kg_updater` updates it per
-ingested document, `blog_mcp.subscribe_feed` adds feeds,
+Today the pieces exist but do not compose: the DuckDB-backed foundation
+stores the KG, `kg_updater` updates it per ingested document,
+`blog_mcp.subscribe_feed` adds feeds,
 `pipeline_mcp.run_connector` runs ingestion, `sources_mcp` profiles
 outlets — and `kg_mcp` is read-only. Track P wires them into a domain
 factory behind a small RW tool surface (a new `provisioning_mcp` server,
@@ -734,7 +735,7 @@ title renames.
 *Exit:* an external MCP host generates and receives a valid
 `ui-spec-v1`; both env prefixes verified working.
 
-*Delivered.* `tools/noesis_mcp/server.py` exposes Noesis as an MCP server:
+*Delivered.* `tools/kb_mcp/server.py` exposes the versioned Noesis KB contract:
 `noesis_generate_view(intent)` returns a validated `ui-spec-v1` (reusing the
 heuristic planner and pack `ui_flags`) and `noesis_panels()` returns the
 catalog, over stdio or Streamable HTTP (`NOESIS_MCP_TRANSPORT=http`), with an
@@ -789,7 +790,7 @@ R1–R2 have soaked.
    calls for panel data?
 5. Track P namespacing: per-KG DuckDB table prefixes (simple, plays well
    with the existing warehouse) vs. graph partitions in a real graph store
-   (Neptune/Gremlin config exists but is not the local-first default).
+   (the typed DuckDB knowledge graph is the only graph backend).
    Proposal: table prefixes first; the namespace abstraction hides it.
 6. Track P source criteria: how expressive should `kg_attach_sources`
    criteria be — a fixed filter schema over `sources_mcp` profile fields,

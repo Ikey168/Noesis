@@ -8,8 +8,8 @@ Runs the real ingestion engine on a schedule (was a mock demo, #922):
   corpus (retry + drift detection + adaptive back-off);
 - **clean** → a corpus checkpoint (validation/dedup already happen at write time
   in ``DocumentStore``);
-- **nlp** → :func:`src.ingestion.enrich.enrich_documents` writes sentiment/topics
-  into ``document_enrichments``;
+- **nlp** → enrichment plus incremental claim/frame extraction; the scan ledger
+  guarantees stance/drift jobs see newly ingested documents;
 - **analyze** → the argument-mining batches (conflict detection, stance
   aggregation, follow-through position tracking, fact-check) run under DAG
   orchestration via each scheduler's ``run_once``, instead of out-of-band
@@ -132,11 +132,14 @@ def news_pipeline():
         """
         from src.database.local_analytics_connector import get_shared_connection
         from src.ingestion.enrich import enrich_documents
+        from src.ingestion.argument_mining import mine_unprocessed_documents
 
         conn = get_shared_connection()
         enriched = enrich_documents(conn)
+        mined = mine_unprocessed_documents(conn)
         print(f"✅ Enriched {enriched} documents into document_enrichments")
-        return {"enriched": enriched}
+        print(f"✅ Argument-mined {mined['processed']} documents; pending={mined['documents_pending']}")
+        return {"enriched": enriched, "argument_mining": mined}
 
     @task
     def analyze_arguments(nlp_result: Dict[str, Any], **context) -> Dict[str, Any]:

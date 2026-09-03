@@ -24,10 +24,10 @@ Part of the knowledge-engine pivot; see
   (`is_valid_relation`, `validate_relation`).
 - `model.py`: `Node`, `Provenance` (required on every fact), and `Triple`
   (reified, provenance-bearing edge with arbitrary properties).
-- `store.py`: `KnowledgeGraphStore`, an in-memory store that enforces the
-  ontology, requires both endpoints to exist, and accumulates provenance when a
-  fact is re-asserted. The interface is backend-agnostic so a Gremlin/Neptune
-  implementation can follow without changing callers.
+- `store.py`: `KnowledgeGraphStore` for isolated tests and
+  `DuckDBKnowledgeGraphStore` for durable production use. Both enforce the
+  ontology, require endpoints to exist, and accumulate provenance when a fact
+  is re-asserted.
 - `resolution.py`: `EntityResolver` assigns canonical entity ids so different
   surface forms of one entity collapse into a single node, and
   `canonicalize_store` backfills an existing store (merging duplicate nodes and
@@ -95,10 +95,8 @@ kg.add_triple(Triple(
 ))
 ```
 
-## Not in scope here
+## Persistence boundary
 
-- Entity resolution (canonicalizing `Hinton` / `G. Hinton` across documents) is
-  tracked separately (#516); `make_node_id` here is a stable surrogate key, not
-  resolution.
-- Claim extraction that populates `Claim` nodes is tracked in #519.
-- A persistent Gremlin/Neptune-backed store implementation.
+The API/ingestion writer owns the read-write DuckDB connection. Standalone MCP
+servers open the same file read-only, and correction approval synchronizes the
+durable store. The in-memory class remains only for fast, isolated tests.

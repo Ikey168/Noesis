@@ -1,14 +1,20 @@
 ![Airflow DAG Check](https://github.com/Ikey168/Noesis/actions/workflows/airflow-dag-check.yml/badge.svg)
 ![MLflow CI](https://github.com/Ikey168/Noesis/actions/workflows/mlops-ci.yml/badge.svg)
 
-# Noesis: Knowledge Engine
+# Noesis: the verifiable evidence layer for agents
 
 Noesis (formerly NeuroNews) ingests documents (news, blogs, papers,
 transcripts, books, filings, media), mines arguments and evidence from them,
-and exposes everything as a **capability plane** — a set of MCP tool servers
-and a REST API that other projects, development agents, and autonomous agents
-compose against. There is no bespoke UI: Noesis is a backend you drive from
-your own client, an agent, or another service.
+and exposes everything as a **capability plane** for agents. Every factual line
+has a source locator or remains visibly `uncited`; corroboration is a count of
+independent sources; model outputs identify their `prediction_mode`; and every
+inferential headline number carries an interval plus `n`, method, and
+assumptions. Those are executable contracts, not presentation conventions.
+
+The same evidence discipline works over public feeds and a private corpus kept
+on your own machine. Content-addressed snapshots, silent-edit detection, image
+reuse, C2PA status, and cross-modal contradictions form one integrity ledger,
+so an agent can check both what a source says and whether the record changed.
 
 The capability plane is not just for reading. Agents provision new knowledge
 domains: they stand up namespaced knowledge graphs, select and attach the
@@ -19,6 +25,8 @@ surface. The full design lives in the
 > **Consuming Noesis from another project?** See
 > [docs/integration/mcp-and-api.md](docs/integration/mcp-and-api.md) for the MCP server
 > list, the REST API surface, auth, and example tool calls.
+> To verify the receipts offline, run `make evidence-showcase`; see the
+> [evidence showcase](docs/guides/evidence-showcase.md).
 
 ---
 
@@ -48,6 +56,13 @@ surface. The full design lives in the
 - **Fact-check and corroboration.** Links claims to verdicts, scores
   corroboration by independent-source count, flags unsourced assertions, and
   keeps a contradiction ledger of where the public record disagrees with itself.
+- **Private corpus, local first.** Applies the same claim, contradiction,
+  provenance, and diff surfaces to PDFs, DOCX, email, books, filings, notes,
+  and transcripts without uploading them to a hosted service. See the
+  [private-corpus quickstart](docs/guides/private-corpus.md).
+- **Integrity ledger.** Unifies cited snapshots, silent corrections, image
+  reuse, C2PA content credentials, and prose-versus-figure checks behind one
+  MCP/REST/KB surface.
 - **OSINT investigation surface.** Entity dossiers, relationship paths,
   reconstructed timelines, and provenance traces over ingested open sources,
   all under a strict evidence discipline (every line is cited; uncited entries
@@ -79,10 +94,9 @@ surface. The full design lives in the
 
 | Layer | Technology |
 |---|---|
-| Frontend | React 18, Vite, TypeScript, TanStack Query, Tailwind CSS with shadcn/ui |
 | Backend | FastAPI, uvicorn |
 | Analytics warehouse | DuckDB (local file, single-writer) |
-| Argument mining | distilbert with heuristic fallback, scikit-learn, spaCy |
+| Argument mining | Pinned ClaimBuster and DeBERTa NLI models, distilbert, scikit-learn, spaCy |
 | Scraping | Scrapy, Playwright, Selenium |
 | Orchestration | Apache Airflow |
 | MLOps | MLflow |
@@ -101,7 +115,6 @@ them to point at managed equivalents in production:
 NOESIS_DB_PATH         data/local_warehouse.duckdb   # DuckDB warehouse path
 S3_ENDPOINT_URL        http://localhost:9000          # MinIO
 DYNAMODB_ENDPOINT_URL  http://localhost:8000          # DynamoDB Local
-NEPTUNE_ENDPOINT       ws://localhost:8182/gremlin
 ```
 
 ### MCP capability plane
@@ -127,8 +140,8 @@ provisioning tools stand up new knowledge graphs at runtime.
 | `dataset_mcp` | Training-dataset stats, schema, label distribution, sampling |
 | `monitoring_mcp` | Current and historical metrics and summaries |
 | `security_mcp` | Security posture, secret and TLS checks, backups, DB permissions |
-| `schema_mcp` | Tables, schemas, routes, hooks, mock exports |
-| `noesis_mcp` | External-facing generate-view server over Streamable HTTP |
+| `schema_mcp` | Tables, schemas, and REST routes |
+| `kb_mcp` | Versioned `noesis-kb-v1` search, claims, entities, diffs, coverage, integrity, and daily brief |
 
 ---
 
@@ -147,18 +160,17 @@ cd Noesis
 pip install -r requirements.txt
 ```
 
-### 3. Fetch the pretrained model backends (optional, recommended)
+### 3. Fetch the pretrained model backends (recommended)
 
 ```bash
 make models
 ```
 
 Downloads the pinned zero-shot NLI and claim-detection models into the local
-cache and writes `models/pins.lock.json` with the resolved revisions. Enable
-the backends with `NOESIS_STANCE_BACKEND=nli NOESIS_FRAMES_BACKEND=nli
-NOESIS_CLAIMS_BACKEND=pretrained`; without them (or offline) everything
-falls back to the heuristics, and every prediction row records which mode
-produced it (`prediction_mode`).
+cache. The immutable revisions are committed in `models/pins.lock.json` and
+verified in CI. Cached pretrained backends are selected automatically. Missing
+weights or model dependencies are explicit errors; inference never substitutes
+a rule-based prediction. Every prediction row records the active model.
 
 ### 4. Run the API
 
@@ -192,7 +204,10 @@ pytest                                        # unit and integration tests
 python scripts/benchmark_models.py
 python scripts/benchmark_models.py --gate
 
-# Train models (falls back to heuristics when a checkpoint is absent)
+# Offline evidence flow; exits non-zero if receipts fail validation
+make evidence-showcase
+
+# Train a fine-tuned claim model (the pinned pretrained model remains available)
 python -m src.argument_mining.train_claim  --data data/argument_mining
 
 # Scraper
@@ -254,18 +269,19 @@ corpus.
 
 ---
 
-## Model benchmarks (heuristic baseline)
+## Model benchmarks (current defaults)
 
 | Model | F1 | Notes |
 |---|---|---|
-| ClaimDetector | 0.8645 | Binary; blog and transcript are the weakest source types |
-| StanceClassifier | 0.4506 macro | Neutral class dominates; minority stances underperform |
-| FrameClassifier | 0.5200 macro | Political frame recall is near zero in heuristic mode |
+| ClaimDetector | 0.9197 | Pinned ClaimBuster backend; external F1: FEVER 0.8038, LIAR 0.9418, AVeriTeC 0.9305 |
+| StanceClassifier | 0.3288 macro | Pinned zero-shot NLI; promotion remains blocked on the real human gold set |
+| FrameClassifier | 0.4193 macro | Zero-shot NLI; political and humanitarian recall remain weak |
 
 See [docs/subsystems/argument-mining-benchmarks.md](docs/subsystems/argument-mining-benchmarks.md) for the full breakdown
-by source type, length, and per-class metrics. When a trained checkpoint is
-absent the pipeline falls back to keyword heuristics and still returns valid
-predictions.
+by source type, length, external dataset, and per-class metrics. The
+internal six-source test set is synthetic and is labelled as such; it is not a
+substitute for the pending human evaluation. Run `make models` before inference;
+when weights are absent the pipeline fails closed with an actionable error.
 
 ---
 
@@ -297,8 +313,10 @@ argument-mining pipeline; outlet analysis) are complete.
 - **Phase 10, beyond news.** Complete. The research domain pack, finance and
   legal domains stood up through provisioning, and the OSINT investigation
   surface under evidence discipline.
-- **Upcoming.** Trained model checkpoints; cross-dataset generalisation
-  (FEVER, LIAR, AVeriTeC); predictive analytics; live panel data on by default.
+- **Upcoming.** A two-annotator human gold set and a stance model trained on
+  it; predictive analytics; live panel data on by default. Cross-dataset claim
+  generalisation on FEVER, LIAR, and AVeriTeC is now published in the benchmark
+  report.
 
 ---
 

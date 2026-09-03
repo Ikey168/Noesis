@@ -6,12 +6,14 @@ Fixtures cover the three required cross-source scenarios:
   - paper ↔ news contradiction    (dispute       → "contradicts")
   - transcript with no match      (no evidence found)
 
-All tests run fully offline — no DuckDB, no trained model, no network.
+All tests run fully offline with an injected model double.
 """
 from __future__ import annotations
 
 import sys
 from pathlib import Path
+
+import pytest
 
 # Ensure repo root is on path
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
@@ -28,6 +30,8 @@ from src.argument_mining.evidence import (
     store_evidence,
 )
 from services.ingest.common.document_model import Document
+from src.argument_mining.dataset import sentences_from_document
+from src.argument_mining.models import ClaimPrediction
 
 
 # ---------------------------------------------------------------------------
@@ -52,6 +56,27 @@ def _claim(claim_id: str, claim_text: str, document_id: str, source_type: str) -
         source_type=source_type,
         confidence=0.75,
     )
+
+
+@pytest.fixture(autouse=True)
+def _claim_model(monkeypatch):
+    class Detector:
+        prediction_mode = "pretrained:test-claim-model"
+
+        @staticmethod
+        def predict(document):
+            predictions = []
+            for index, sentence in enumerate(sentences_from_document(document)):
+                lowered = sentence.lower()
+                nonclaim = sentence.endswith("?") or any(
+                    word in lowered for word in ("might", "perhaps", "do you think")
+                )
+                predictions.append(ClaimPrediction(
+                    sentence, index, not nonclaim, 0.9 if nonclaim else 0.88
+                ))
+            return predictions
+
+    monkeypatch.setattr("src.argument_mining.evidence.get_claim_detector", lambda: Detector())
 
 
 # ---------------------------------------------------------------------------
@@ -115,7 +140,7 @@ def test_extract_claims_filters_non_claims():
         "Do you think we should consider it?",
     )
     records = extract_claims(doc)
-    # Hedged opinion + question — heuristic should return no claims or very few
+    # Hedged opinion + question should return no claims or very few.
     for r in records:
         assert r.confidence < 0.9  # no high-confidence claims in pure opinion text
 

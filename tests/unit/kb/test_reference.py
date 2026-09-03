@@ -31,6 +31,14 @@ domains:
 """
 
 
+class FakeClaimDetector:
+    @staticmethod
+    def predict_text(text):
+        from src.argument_mining.models import ClaimPrediction
+
+        return ClaimPrediction(text, 0, True, 0.9)
+
+
 def _minimal_epub() -> bytes:
     """A tiny EPUB the stdlib parser can read: two chapters."""
     buffer = io.BytesIO()
@@ -181,7 +189,7 @@ class TestBookIngest:
 
         summary = ingest_documents_into_namespace(
             conn, config_path, documents, provider=FakeProvider(),
-            embedding_model="fake-embed",
+            embedding_model="fake-embed", claim_detector=FakeClaimDetector(),
         )
         assert summary["documents"] == 2
         assert summary["embedded"] == 2
@@ -196,7 +204,7 @@ class TestBookIngest:
         # Re-ingest is a no-op.
         again = ingest_documents_into_namespace(
             conn, config_path, documents, provider=FakeProvider(),
-            embedding_model="fake-embed",
+            embedding_model="fake-embed", claim_detector=FakeClaimDetector(),
         )
         assert again["documents"] == 0 and again["skipped"] == 2
 

@@ -13,12 +13,27 @@ class TestPins:
         monkeypatch.setenv("NOESIS_NLI_MODEL", "my-org/other-nli")
         assert model_registry.resolved_pins()["nli"]["model"] == "my-org/other-nli"
 
+    def test_fetch_manifest_excludes_duplicate_framework_exports(self):
+        nli = model_registry.inference_files("nli")
+        claim = model_registry.inference_files("claim")
+        assert "model.safetensors" in nli
+        assert "pytorch_model.bin" not in nli
+        assert "pytorch_model.bin" in claim
+        assert all(not path.startswith("onnx/") for path in nli + claim)
+
+    def test_cache_requires_the_selected_weight_file(self, tmp_path):
+        snapshot = tmp_path / "snapshot"
+        snapshot.mkdir()
+        assert model_registry._has_inference_weights("claim", snapshot) is False
+        (snapshot / "pytorch_model.bin").write_bytes(b"weights")
+        assert model_registry._has_inference_weights("claim", snapshot) is True
+
 
 class TestFetchAndLock:
     def _fake_downloader(self, calls):
         def downloader(model, revision):
             calls.append((model, revision))
-            return {"revision": "abc123", "path": f"/cache/{model}"}
+            return {"revision": "a" * 40, "path": f"/cache/{model}"}
 
         return downloader
 
@@ -35,7 +50,7 @@ class TestFetchAndLock:
         assert summary["warnings"] == []
 
         lock = model_registry.read_lock(lock_path)
-        assert lock["nli"]["resolved_revision"] == "abc123"
+        assert lock["nli"]["resolved_revision"] == "a" * 40
         assert lock["nli"]["model"] == "cross-encoder/nli-deberta-v3-base"
         assert lock["claim"]["serves"] == ["claim detection (#956)"]
 
@@ -45,7 +60,7 @@ class TestFetchAndLock:
         def flaky(model, revision):
             if "nli" in model:
                 raise OSError("network down")
-            return {"revision": "abc123", "path": "/cache/x"}
+            return {"revision": "a" * 40, "path": "/cache/x"}
 
         summary = model_registry.fetch_models(
             downloader=flaky, lock_path=tmp_path / "pins.lock.json"
@@ -68,7 +83,7 @@ class TestDriftEnforcement:
         assert len(warnings) == 2
 
         model_registry.fetch_models(
-            downloader=lambda m, r: {"revision": "abc123", "path": "/x"},
+            downloader=lambda m, r: {"revision": "a" * 40, "path": "/x"},
             lock_path=lock_path,
         )
         assert model_registry.verify_pins(lock_path) == []
@@ -82,9 +97,15 @@ class TestDriftEnforcement:
 
 class TestBackendStatus:
     def test_status_reports_all_three_wrappers(self, monkeypatch):
-        for env in ("NOESIS_STANCE_BACKEND", "NOESIS_FRAMES_BACKEND",
-                    "NOESIS_CLAIMS_BACKEND"):
-            monkeypatch.delenv(env, raising=False)
+        import src.argument_mining.frames as frames
+        import src.argument_mining.models as models
+
+        class Wrapper:
+            prediction_mode = "pretrained:test-model"
+
+        monkeypatch.setattr(models, "ClaimDetector", Wrapper)
+        monkeypatch.setattr(models, "StanceClassifier", Wrapper)
+        monkeypatch.setattr(frames, "FrameClassifier", Wrapper)
         status = model_registry.backend_status()
         assert set(status) == {"claims", "stance", "frames"}
-        assert all(mode == "heuristic" for mode in status.values())
+        assert all(mode == "pretrained:test-model" for mode in status.values())

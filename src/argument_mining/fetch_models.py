@@ -5,24 +5,35 @@ Fetch the pinned pretrained backends (``make models``, #959).
 Downloads every model in :mod:`src.argument_mining.model_registry` into the
 local Hugging Face cache (idempotent, resumable), writes
 ``models/pins.lock.json`` with the resolved immutable revisions, then
-reports the active prediction mode per wrapper — with the backend env
-toggles set, a fresh clone goes from heuristic to model-grade analytics in
-this one command:
+reports the active prediction mode per wrapper. A fresh clone enables
+model-backed analytics with this one command:
 
     make models
-    NOESIS_STANCE_BACKEND=nli NOESIS_FRAMES_BACKEND=nli \\
-    NOESIS_CLAIMS_BACKEND=pretrained python3 ...
+    python3 ...
 
-No weights land in git; the heuristic fallback keeps working fully offline.
+No weights land in git; runtime inference reads only the local cache.
 """
 from __future__ import annotations
 
-import os
+import argparse
 import sys
 
 
 def main() -> int:
-    from src.argument_mining.model_registry import backend_status, fetch_models
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--check", action="store_true", help="verify registry/lock consistency without downloading")
+    parser.add_argument("--require-cache", action="store_true", help="also require both local snapshots")
+    args = parser.parse_args()
+
+    from src.argument_mining.model_registry import backend_status, fetch_models, verify_pins
+
+    if args.check:
+        warnings = verify_pins(require_cache=args.require_cache)
+        for warning in warnings:
+            print(f"[fail] {warning}", file=sys.stderr)
+        if not warnings:
+            print("[ok] model registry and lock file agree")
+        return 1 if warnings else 0
 
     summary = fetch_models()
     for entry in summary["fetched"]:
@@ -34,11 +45,6 @@ def main() -> int:
         print(f"[warn] {warning}", file=sys.stderr)
     print(f"[lock] {summary['lock_path']}")
 
-    # Activate the pretrained tiers for the status report so it shows what
-    # a configured install will actually run.
-    os.environ.setdefault("NOESIS_STANCE_BACKEND", "nli")
-    os.environ.setdefault("NOESIS_FRAMES_BACKEND", "nli")
-    os.environ.setdefault("NOESIS_CLAIMS_BACKEND", "pretrained")
     print("\nActive backends:")
     for name, mode in backend_status().items():
         print(f"  {name:<7} {mode}")

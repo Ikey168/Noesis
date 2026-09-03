@@ -1,0 +1,8 @@
+# One cross-domain watchlist. Override the recipient with
+# NOESIS_DAILY_BRIEF_TO; an empty recipient keeps generation enabled but does
+# not send mail.
+domains: [news, economics, technology, web3, private, papers]
+budget: 15
+hour_utc: 7
+minute_utc: 0
+recipient: ""

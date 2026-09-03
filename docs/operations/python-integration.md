@@ -269,7 +269,7 @@ def process_articles_batch(articles_json_path):
 Articles flow into the same knowledge graph structure:
 
 ```python
-# src/knowledge_graph/graph_builder.py (no changes needed)
+# integrate through src/knowledge_graph/foundation/store.py
 def add_article_to_graph(article_data):
     # Article format is identical regardless of scraper
     create_article_node(article_data)

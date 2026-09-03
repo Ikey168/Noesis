@@ -138,15 +138,14 @@ domains:
   - name: local
     backing: corpus-view
     description: >
-      Local events — a documented stub: there is no good generic source for
-      local news/events, so add your city's feeds here (any RSS/Atom URL)
-      under the `local` tag. A proper ICS/calendar connector is a tracked
-      expansion.
+      Private, user-supplied notes, mail, documents, books, and transcripts.
+      It has no network feeds: membership comes only from locally ingested
+      documents carrying the private tag.
     embedding_model: all-MiniLM-L6-v2
-    tags: [local]
-    keywords: []
+    tags: [local, private]
+    keywords: [meeting, decision, project, memo, research, transcript]
     embedding_anchors:
-      - local city news, community events, and municipal announcements
+      - personal notes, private documents, project decisions, and correspondence
     feeds: []
 
   - name: papers

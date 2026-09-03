@@ -18,14 +18,17 @@ from tests.unit.kb.test_contract import CONFIG
 
 
 class TestWrapperModes:
-    def test_all_three_wrappers_expose_heuristic_mode(self):
+    def test_all_three_wrappers_expose_model_mode(self):
         from src.argument_mining.frames import FrameClassifier
         from src.argument_mining.models import ClaimDetector, StanceClassifier
 
-        # No checkpoints in this environment -> heuristic everywhere.
-        assert ClaimDetector().prediction_mode == "heuristic"
-        assert StanceClassifier().prediction_mode == "heuristic"
-        assert FrameClassifier().prediction_mode == "heuristic"
+        class NLI:
+            prediction_mode = "zero-shot:test-nli"
+
+        claim = ClaimDetector(pretrained=(object(), "test-claim"))
+        assert claim.prediction_mode == "pretrained:test-claim"
+        assert StanceClassifier(nli=NLI()).prediction_mode == "zero-shot:test-nli"
+        assert FrameClassifier(nli=NLI()).prediction_mode == "zero-shot:test-nli"
 
 
 class TestMigration:
@@ -47,7 +50,7 @@ class TestMigration:
         mode = conn.execute(
             "SELECT prediction_mode FROM argument_claims WHERE claim_id = 'legacy'"
         ).fetchone()[0]
-        assert mode == "heuristic"
+        assert mode == "legacy-unknown"
         # Every prediction table now carries the column.
         for table in (
             "source_stances", "document_frames", "policy_positions",
@@ -76,7 +79,7 @@ class TestSummary:
 
         summary = evidence_quality_summary(conn)
         claims = summary["tables"]["argument_claims"]
-        assert claims["modes"] == {"heuristic": 2}
+        assert claims["modes"] == {"legacy-unknown": 2}
         assert claims["model_grade_fraction"] == 0.0
 
         links = summary["tables"]["claim_links"]
@@ -111,10 +114,10 @@ class TestSummary:
         conn.execute(
             "INSERT INTO argument_claims (claim_id, claim_text, document_id,"
             " source_type, confidence, prediction_mode)"
-            " VALUES ('c1', ?, 'd1', 'news', 0.8, 'heuristic')",
+            " VALUES ('c1', ?, 'd1', 'news', 0.8, 'legacy-unknown')",
             [DUP_A],
         )
         payload = contract.kb_coverage("web3", conn=conn, config_path=config_path)
         quality = payload["data"]["evidence_quality"]
-        assert quality["tables"]["argument_claims"]["modes"] == {"heuristic": 1}
+        assert quality["tables"]["argument_claims"]["modes"] == {"legacy-unknown": 1}
         assert quality["model_grade_fraction"] == 0.0

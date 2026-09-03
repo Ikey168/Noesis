@@ -140,12 +140,13 @@ class TestBrief:
             )
         assert excinfo.value.code == "unknown_domain"
 
-    def test_rest_brief_route(self, conn, config_path, tmp_path, monkeypatch):
+    @pytest.mark.asyncio
+    async def test_rest_brief_route(self, conn, config_path, tmp_path, monkeypatch):
         import importlib.util
         from pathlib import Path
 
         from fastapi import FastAPI
-        from fastapi.testclient import TestClient
+        from httpx import ASGITransport, AsyncClient
 
         db_path = tmp_path / "wh.duckdb"
         file_conn = __import__("duckdb").connect(str(db_path))
@@ -167,10 +168,16 @@ class TestBrief:
         app = FastAPI()
         app.include_router(module.router)
 
-        response = TestClient(app).get(
-            "/api/v1/kb/brief",
-            params={"domains": "papers", "since": SINCE_DAY2},
-        )
+        # Exercise the ASGI contract directly.  This avoids TestClient's
+        # blocking portal and keeps the test valid across Starlette/httpx
+        # transport generations.
+        async with AsyncClient(
+            transport=ASGITransport(app=app), base_url="http://test"
+        ) as client:
+            response = await client.get(
+                "/api/v1/kb/brief",
+                params={"domains": "papers", "since": SINCE_DAY2},
+            )
         assert response.status_code == 200
         data = response.json()["data"]
         assert [s["domain"] for s in data["sections"]] == ["papers"]

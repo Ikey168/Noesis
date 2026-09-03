@@ -1,0 +1,5 @@
+{
+  "status": "not_collected",
+  "synthetic_data": false,
+  "required_next_step": "Collect two independent human annotations over 500-1000 real ingested sentences, then run scripts/human_annotation.py finalize."
+}

@@ -1,5 +1,7 @@
 """Unit tests for the pretrained claim-detection backend + transcript normalization (#956)."""
 
+import pytest
+
 from src.argument_mining.models import ClaimDetector, normalize_transcript_text
 
 
@@ -32,7 +34,10 @@ class TestPretrainedBackend:
         assert non_claim.is_claim is False
 
     def test_label_scheme_normalization(self):
-        for label in ("LABEL_1", "claim", "Check-worthy factual sentence", "CFS"):
+        for label in (
+            "LABEL_1", "claim", "Check-worthy factual sentence", "CFS",
+            "Unimportant Factual",
+        ):
             assert ClaimDetector._pretrained_is_claim(label) is True
         for label in ("LABEL_0", "not_checkworthy", "opinion", "nfs-other"):
             # nfs-other contains neither marker; not_checkworthy contains
@@ -40,17 +45,18 @@ class TestPretrainedBackend:
             pass
         assert ClaimDetector._pretrained_is_claim("LABEL_0") is False
         assert ClaimDetector._pretrained_is_claim("opinion") is False
+        assert ClaimDetector._pretrained_is_claim("Non-factual") is False
 
-    def test_without_opt_in_stays_heuristic(self, monkeypatch):
-        monkeypatch.delenv("NOESIS_CLAIMS_BACKEND", raising=False)
-        detector = ClaimDetector()
-        assert detector.prediction_mode == "heuristic"
+    def test_removed_backend_setting_is_rejected(self, monkeypatch):
+        monkeypatch.setenv("NOESIS_CLAIMS_BACKEND", "heuristic")
+        with pytest.raises(ValueError, match="has been removed"):
+            ClaimDetector()
 
-    def test_opt_in_survives_missing_stack(self, monkeypatch):
+    def test_missing_pretrained_weights_fail_closed(self, monkeypatch):
         monkeypatch.setenv("NOESIS_CLAIMS_BACKEND", "pretrained")
         monkeypatch.setenv("NOESIS_CLAIM_MODEL", "definitely/not-a-real-model")
-        detector = ClaimDetector()
-        assert detector.prediction_mode == "heuristic"
+        with pytest.raises(RuntimeError, match="make models"):
+            ClaimDetector()
 
 
 class TestTranscriptNormalization:

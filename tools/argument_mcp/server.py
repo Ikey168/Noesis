@@ -136,6 +136,11 @@ def am_stats() -> dict:
             counts[t] = "table_missing"
 
     counts["total_claims"] = counts.get("argument_claims", 0)
+    try:
+        from src.ingestion.argument_mining import mining_freshness
+        counts["pipeline_freshness"] = mining_freshness(conn)
+    except Exception as exc:
+        counts["pipeline_freshness"] = {"error": str(exc)}
     return counts
 
 

@@ -1,4 +1,4 @@
-.PHONY: help demo airflow-up airflow-down airflow-logs marquez-ui airflow-init airflow-status airflow-build airflow-test-openlineage mlflow-up mlflow-down mlflow-ui rag-up rag-down rag-migrate rag-connect rag-reset rag-logs rag-index contract.publish contract.validate
+.PHONY: help demo airflow-up airflow-down airflow-logs marquez-ui airflow-init airflow-status airflow-build airflow-test-openlineage mlflow-up mlflow-down mlflow-ui rag-up rag-down rag-migrate rag-connect rag-reset rag-logs rag-index contract.publish contract.validate models models-verify
 
 # Default target
 help:
@@ -325,6 +325,9 @@ models:
 	@echo "Fetching pinned pretrained model backends (NLI + claim detection)..."
 	python3 -m src.argument_mining.fetch_models
 
+models-verify:
+	python3 -m src.argument_mining.fetch_models --check
+
 kb-brief:
 	@echo "Harvesting feeds and rendering the daily brief..."
 	python3 scripts/kb_brief.py --harvest
@@ -340,6 +343,10 @@ kb-bootstrap-offline:
 demo:
 	@echo "Running NeuroNews offline demo pipeline..."
 	python3 scripts/demo.py
+
+evidence-showcase:
+	@echo "Running the offline verifiable-evidence showcase..."
+	python3 scripts/evidence_showcase.py
 
 demo-api:
 	@echo "Running NeuroNews offline demo pipeline (with API server)..."

@@ -14,11 +14,22 @@ See ``docs/architecture/BEYOND_TEXT_ROADMAP.md`` §4.
 
 from __future__ import annotations
 
+import csv
+import hashlib
+import io
+import json
+import os
 import re
+import time
+import urllib.request
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+from services.ingest.common.document_model import Document
 from src.analytics.honesty import analytic_envelope
+from src.ingestion.connectors.base import Connector, PermanentFetchError, RawDocument, SourceRef
+from src.ingestion.connectors.registry import register_connector
 
 # Normalized positions.
 FOR = "for"
@@ -187,3 +198,141 @@ def check_position_claim(conn, claim_text: str) -> Dict[str, Any]:
     if parsed is None:
         return analytic_envelope(n=0, method="position-vs-record check", assumptions=["not a position claim"], verdict="unverifiable")
     return check_position(conn, parsed.actor, parsed.topic, parsed.claimed_position)
+
+
+# ---------------------------------------------------------------------------
+# Registered ingestion connector
+# ---------------------------------------------------------------------------
+
+LEGISLATIVE_SOURCES_ENV = "NOESIS_LEGISLATIVE_SOURCES"
+
+
+def _source_locators() -> List[str]:
+    return [value.strip() for value in os.getenv(LEGISLATIVE_SOURCES_ENV, "").split(",")
+            if value.strip()]
+
+
+def _payload_rows(content: str, content_type: str = "") -> List[Dict[str, Any]]:
+    stripped = content.lstrip()
+    if "csv" in content_type or (not stripped.startswith(("{", "[")) and "\t" not in stripped):
+        try:
+            return [dict(row) for row in csv.DictReader(io.StringIO(content))]
+        except csv.Error:
+            pass
+    if stripped.startswith("["):
+        data = json.loads(content)
+        return [dict(row) for row in data]
+    if stripped.startswith("{"):
+        try:
+            data = json.loads(content)
+        except json.JSONDecodeError:
+            return [json.loads(line) for line in content.splitlines() if line.strip()]
+        if isinstance(data, dict):
+            for key in ("records", "votes", "results", "data"):
+                if isinstance(data.get(key), list):
+                    return [dict(row) for row in data[key]]
+            return [data]
+    return [json.loads(line) for line in content.splitlines() if line.strip()]
+
+
+def _first(row: Dict[str, Any], *keys: str) -> Any:
+    for key in keys:
+        value = row.get(key)
+        if value not in (None, ""):
+            return value
+    return None
+
+
+def _epoch_ms(value: Any) -> Optional[int]:
+    if value in (None, ""):
+        return None
+    if isinstance(value, (int, float)):
+        number = int(value)
+        return number if number > 10_000_000_000 else number * 1000
+    from datetime import datetime
+    try:
+        return int(datetime.fromisoformat(str(value).replace("Z", "+00:00")).timestamp() * 1000)
+    except ValueError:
+        return None
+
+
+@register_connector
+class LegislativeConnector(Connector):
+    """Ingest JSON/JSONL/CSV roll-call exports into canonical documents.
+
+    Sources come from an explicit query, constructor injection, or the
+    comma-separated ``NOESIS_LEGISLATIVE_SOURCES`` setting. HTTPS and local
+    files share the same deterministic parser and are fully fixture-testable.
+    """
+
+    name = "legislative"
+    source_type = "note"
+
+    def __init__(self, sources: Optional[List[str]] = None, opener=None):
+        self._sources = list(sources) if sources is not None else None
+        self._opener = opener or urllib.request.urlopen
+
+    def discover(self, query: Optional[Any] = None):
+        if query is None:
+            sources = self._sources if self._sources is not None else _source_locators()
+        elif isinstance(query, (str, Path)):
+            sources = [str(query)]
+        else:
+            sources = [str(value) for value in query]
+        for locator in sources:
+            yield SourceRef(locator=locator, metadata={"source_id": f"legislative:{locator}"})
+
+    def fetch(self, ref: SourceRef) -> RawDocument:
+        if ref.locator.startswith(("https://", "http://")):
+            request = urllib.request.Request(
+                ref.locator, headers={"User-Agent": "Noesis/1.0 legislative connector"}
+            )
+            try:
+                with self._opener(request, timeout=30) as response:
+                    payload = response.read()
+                    content_type = response.headers.get_content_type()
+            except Exception as exc:
+                raise PermanentFetchError(f"could not fetch legislative export: {exc}") from exc
+            return RawDocument(ref=ref, content=payload, content_type=content_type)
+        path = Path(ref.locator).expanduser()
+        if not path.is_file():
+            raise PermanentFetchError(f"legislative export not found: {path}")
+        content_type = "text/csv" if path.suffix.lower() == ".csv" else "application/json"
+        return RawDocument(ref=ref, content=path.read_bytes(), content_type=content_type)
+
+    def parse(self, raw: RawDocument) -> List[Document]:
+        text = raw.content.decode("utf-8-sig") if isinstance(raw.content, bytes) else raw.content
+        documents: List[Document] = []
+        for index, row in enumerate(_payload_rows(text, raw.content_type or "")):
+            actor = str(_first(row, "actor", "member", "legislator", "name") or "").strip()
+            raw_position = str(_first(row, "position", "vote", "choice", "result") or "").strip()
+            position = normalize_position(raw_position)
+            bill = str(_first(row, "bill", "bill_id", "measure", "motion") or "").strip()
+            topic = str(_first(row, "topic", "subject", "title", "description") or bill).strip()
+            if not actor or not topic or position is None:
+                raise ValueError(
+                    f"record {index} needs actor, topic/bill, and a recognized position"
+                )
+            date = _epoch_ms(_first(row, "date", "voted_at", "timestamp"))
+            source = str(_first(row, "source", "source_url", "roll_call_url")
+                         or raw.ref.locator)
+            external_id = str(_first(row, "id", "record_id", "vote_id") or index)
+            digest = hashlib.sha256(
+                f"{raw.ref.locator}|{external_id}|{actor}|{topic}|{date}".encode()
+            ).hexdigest()[:20]
+            doc_id = f"legislative:{digest}"
+            verb = "supported" if position == FOR else "opposed" if position == AGAINST else "abstained on"
+            title = f"{actor}: {bill or topic}"
+            content = f"{actor} {verb} {bill or topic}."
+            documents.append(Document(
+                document_id=doc_id, source_type="note", language="en",
+                ingested_at=raw.fetched_at or int(time.time() * 1000),
+                created_at=date, source_id="legislative", url=source,
+                title=title, content=content,
+                metadata={
+                    "record_type": "legislative_vote", "actor": actor,
+                    "topic": topic, "bill": bill or None, "position": position,
+                    "date": date, "source": source, "external_id": external_id,
+                },
+            ))
+        return documents

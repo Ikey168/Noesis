@@ -21,26 +21,29 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
-# Import optimized NLP components from Issue #35
+# Import optimized NLP components from Issue #35.  Keep the symbols bound in
+# lean installations so callers get a deliberate availability error rather
+# than an environment-dependent NameError.
+OPTIMIZED_NLP_AVAILABLE = False
+IntegratedNLPProcessor = None
+NLPConfig = None
 try:
     from src.nlp.nlp_integration import IntegratedNLPProcessor
-except Exception:
-    pass
     from src.nlp.optimized_nlp_pipeline import NLPConfig
-
+except Exception:  # optional heavyweight NLP dependencies
+    pass
+else:
     OPTIMIZED_NLP_AVAILABLE = True
-except ImportError:
-    OPTIMIZED_NLP_AVAILABLE = False
 
 # Import existing components
+KNOWLEDGE_GRAPH_AVAILABLE = False
+NERProcessor = None
 try:
     from src.nlp.ner_processor import NERProcessor
-except Exception:
+except Exception:  # optional model dependencies
     pass
-
+else:
     KNOWLEDGE_GRAPH_AVAILABLE = True
-except ImportError:
-    KNOWLEDGE_GRAPH_AVAILABLE = False
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -293,7 +296,11 @@ class AdvancedEntityExtractor:
         """Initialize NLP processing components."""
         try:
             # Try to use optimized NLP pipeline first
-            if OPTIMIZED_NLP_AVAILABLE:
+            if (
+                OPTIMIZED_NLP_AVAILABLE
+                and NLPConfig is not None
+                and IntegratedNLPProcessor is not None
+            ):
                 nlp_config = NLPConfig(
                     max_worker_threads=4,
                     batch_size=16,
@@ -305,6 +312,8 @@ class AdvancedEntityExtractor:
                     "Using optimized NLP pipeline for entity extraction")
 
             # Initialize NER processor
+            if NERProcessor is None:
+                raise RuntimeError("NER processor dependencies are unavailable")
             self.ner_processor = NERProcessor(
                 confidence_threshold=self.confidence_threshold
             )

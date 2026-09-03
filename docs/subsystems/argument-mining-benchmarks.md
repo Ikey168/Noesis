@@ -1,7 +1,7 @@
 # Argument Mining Model Benchmarks
 
-> Generated: 2026-07-21T20:50:45.110823+00:00  
-> Dataset: held-out test split (n=750 per model)
+> Generated: 2026-09-03T15:41:43.486475+00:00
+> Dataset: held-out test split (claim n=1076, stance n=1076, frame n=1076)
 
 ## ✓ Gate Status: PASSED
 
@@ -9,103 +9,102 @@
 
 | Mode | Precision | Recall | F1 | Accuracy | N |
 |------|-----------|--------|----|----------|---|
-| heuristic | 0.8457 | 0.8438 | 0.8447 | 0.7509 | 1076 |
+| pretrained:Nithiwat/mdeberta-v3-base_claimbuster | 0.9181 | 0.9213 | 0.9197 | 0.8708 | 1076 |
 
 ### Per Source Type
 
 | Source Type | Precision | Recall | F1 | N |
 |-------------|-----------|--------|-----|---|
-| blog | 0.7791 | 0.6442 | 0.7053 | 150 |
-| book | 0.8551 | 0.9916 | 0.9183 | 150 |
-| news | 0.9318 | 0.9762 | 0.9535 | 226 |
-| note | 0.7681 | 0.8595 | 0.8112 | 250 |
-| paper | 0.8629 | 0.8106 | 0.8359 | 150 |
-| transcript | 0.8391 | 0.6404 | 0.7264 | 150 |
+| blog | 1.0000 | 1.0000 | 1.0000 | 150 |
+| book | 0.9565 | 0.7395 | 0.8341 | 150 |
+| news | 0.9858 | 0.9905 | 0.9881 | 226 |
+| note | 0.7880 | 0.9243 | 0.8507 | 250 |
+| paper | 0.9612 | 0.9394 | 0.9502 | 150 |
+| transcript | 0.8860 | 0.8860 | 0.8860 | 150 |
 
 ### Failure Modes by Article Length
 
 | Length Bucket | F1 | Precision | Recall | N |
 |---------------|----|-----------|--------|---|
-| medium | 0.8254 | 0.8814 | 0.7761 | 80 |
-| short | 0.8463 | 0.8431 | 0.8494 | 996 |
+| medium | 0.9771 | 1.0000 | 0.9552 | 80 |
+| short | 0.9150 | 0.9116 | 0.9184 | 996 |
 
 ## Stance Classifier
 
 | Mode | Macro F1 | Accuracy | N |
 |------|----------|----------|---|
-| heuristic | 0.4277 | 0.6831 | 1076 |
+| zero-shot:cross-encoder/nli-deberta-v3-base | 0.3288 | 0.4851 | 1076 |
 
 ### Per Class
 
 | Class | Precision | Recall | F1 | Support |
 |-------|-----------|--------|----|---------|
-| supportive | 0.3425 | 0.2000 | 0.2525 | 125 |
-| critical | 0.8250 | 0.2463 | 0.3793 | 134 |
-| neutral | 0.7120 | 0.9411 | 0.8106 | 696 |
-| ambiguous | 0.5116 | 0.1818 | 0.2683 | 121 |
+| supportive | 0.1877 | 0.5120 | 0.2747 | 125 |
+| critical | 0.3611 | 0.0970 | 0.1529 | 134 |
+| neutral | 0.6283 | 0.6121 | 0.6201 | 696 |
+| ambiguous | 0.9048 | 0.1570 | 0.2676 | 121 |
 
 ### Per Source Type
 
 | Source Type | Macro F1 | Accuracy | N |
 |-------------|----------|----------|---|
-| blog | 0.4306 | 0.5933 | 150 |
-| book | 0.3880 | 0.6133 | 150 |
-| news | 0.5948 | 0.8761 | 226 |
-| note | 0.1981 | 0.6560 | 250 |
-| paper | 0.4143 | 0.6333 | 150 |
-| transcript | 0.3402 | 0.6467 | 150 |
+| blog | 0.3652 | 0.5533 | 150 |
+| book | 0.4027 | 0.4867 | 150 |
+| news | 0.3207 | 0.4690 | 226 |
+| note | 0.2672 | 0.5360 | 250 |
+| paper | 0.2712 | 0.3800 | 150 |
+| transcript | 0.2876 | 0.4600 | 150 |
 
 ### Failure Modes by Article Length
 
 | Length | Macro F1 | Accuracy | N |
 |--------|----------|----------|---|
-| medium | 0.4405 | 0.4875 | 80 |
-| short | 0.4195 | 0.6988 | 996 |
+| medium | 0.2535 | 0.3125 | 80 |
+| short | 0.3363 | 0.4990 | 996 |
 
 ## Frame Classifier
 
 | Mode | Macro F1 | Subset Accuracy | Dominant Accuracy | N |
 |------|----------|-----------------|-------------------|---|
-| heuristic | 0.4590 | 0.5195 | 0.4424 | 1076 |
+| zero-shot:cross-encoder/nli-deberta-v3-base | 0.4193 | 0.4712 | 0.3727 | 1076 |
 
 ### Per Frame Label
 
 | Frame | Precision | Recall | F1 | Support |
 |-------|-----------|--------|----|---------|
-| economic | 0.8241 | 0.3942 | 0.5333 | 416 |
-| security | 0.7500 | 0.3684 | 0.4941 | 57 |
-| humanitarian | 1.0000 | 0.2409 | 0.3882 | 137 |
-| legal | 1.0000 | 0.5179 | 0.6824 | 112 |
-| political | 0.9512 | 0.1364 | 0.2385 | 286 |
-| scientific | 0.8639 | 0.4294 | 0.5737 | 340 |
-| other | 0.1788 | 0.9800 | 0.3025 | 100 |
+| economic | 0.8148 | 0.3173 | 0.4567 | 416 |
+| security | 0.7407 | 0.3509 | 0.4762 | 57 |
+| humanitarian | 0.9655 | 0.2044 | 0.3373 | 137 |
+| legal | 0.8108 | 0.5357 | 0.6452 | 112 |
+| political | 1.0000 | 0.0839 | 0.1548 | 286 |
+| scientific | 0.9474 | 0.4235 | 0.5854 | 340 |
+| other | 0.1628 | 0.9900 | 0.2797 | 100 |
 
 ### Per Source Type
 
 | Source Type | Macro F1 | Subset Accuracy | N |
 |-------------|----------|-----------------|---|
-| blog | 0.3212 | 0.3533 | 150 |
-| book | 0.4438 | 0.3667 | 150 |
-| news | 0.6809 | 0.6726 | 226 |
-| note | 0.2451 | 0.5240 | 250 |
-| paper | 0.4224 | 0.5600 | 150 |
-| transcript | 0.4390 | 0.5600 | 150 |
+| blog | 0.1905 | 0.2067 | 150 |
+| book | 0.4696 | 0.4733 | 150 |
+| news | 0.6551 | 0.6991 | 226 |
+| note | 0.3477 | 0.5200 | 250 |
+| paper | 0.4615 | 0.5867 | 150 |
+| transcript | 0.2262 | 0.1933 | 150 |
 
 ### Failure Modes by Article Length
 
 | Length | Macro F1 | Subset Accuracy | N |
 |--------|----------|-----------------|---|
-| medium | 0.3594 | 0.6500 | 80 |
-| short | 0.4548 | 0.5090 | 996 |
+| medium | 0.2004 | 0.4375 | 80 |
+| short | 0.4287 | 0.4739 | 996 |
 
-## Inter-Annotator Agreement (IAA)
+## Annotation provenance
 
-| Metric | κ (Cohen's Kappa) |
-|--------|-------------------|
-| Claim detection | 0.7010 |
-| Stance classification | 0.7287 |
+Human evaluation status: **not_collected**.
 
-> IAA computed over 500 doubly-annotated examples.
+
+> Synthetic labels are used only for pipeline smoke tests. The
+> random-perturbation similarity numbers are not IAA or a quality gate.
 
 ## Cross-Dataset Generalisation
 
@@ -113,9 +112,9 @@ Claim detector (binary) evaluated against external benchmarks.
 
 | Dataset | Precision | Recall | F1 | N | Notes |
 |---------|-----------|--------|----|---|-------|
-| FEVER | — | — | — | — | not available; set --fever to path |
-| LIAR | — | — | — | — | not available; set --liar to path |
-| AVeriTeC | — | — | — | — | not available; set --averitec to path |
+| FEVER | 0.7427 | 0.8759 | 0.8038 | 200 | SUPPORTS/REFUTES=claim; NEI=non-claim |
+| LIAR | 1.0000 | 0.8900 | 0.9418 | 200 | all political claims (sanity check) |
+| AVeriTeC | 1.0000 | 0.8700 | 0.9305 | 200 | verifiable real-world claims |
 
 ## Model Update Gate
 

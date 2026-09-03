@@ -10,7 +10,6 @@ from src.domains.news.telemetry import news_telemetry
 from src.domains.news.enrichers import (
     event_clusterer_enricher,
     fake_news_enricher,
-    influence_enricher,
     sentiment_enricher,
 )
 
@@ -33,12 +32,6 @@ _NEWS_ENRICHERS = [
         source_types=["news"],
         description="Tags documents as eligible for event-cluster batch processing.",
     ),
-    Enricher(
-        name="influence_network_analyzer",
-        fn=influence_enricher,
-        source_types=["news"],
-        description="Source influence score from the influence-network graph.",
-    ),
 ]
 
 # Route modules whose .router should be mounted when the news pack is enabled.
@@ -50,7 +43,6 @@ _NEWS_ROUTE_MODULES = [
     "src.api.routes.event_routes",
     "src.api.routes.event_timeline_routes",
     "src.api.routes.veracity_routes",
-    "src.api.routes.influence_routes",
 ]
 
 # UI feature flags surfaced to the frontend.
@@ -60,14 +52,14 @@ _NEWS_UI_FLAGS = {
     "clusters": True,
     "trending": True,
     "watchlists": True,
-    "influence_graph": True,
+    "influence_graph": False,
 }
 
 NewsDomainPack = DomainPack(
     name="news",
     description=(
         "News-domain analytics: fake-news detection, sentiment analysis, "
-        "event clustering, and influence-network analysis. "
+        "and event clustering. Graph analytics use the persistent foundation store. "
         "Runs only for source_type='news' documents."
     ),
     source_types=["news"],

@@ -10,14 +10,9 @@ Targets the remaining reachable lines the existing extractor suite leaves out:
   * _validate_relationship_types() valid / unknown / mismatch branches
     (lines 790-813)
 
-NOTE on a genuine source bug: at module import time
-``OPTIMIZED_NLP_AVAILABLE`` is left UNDEFINED (the try/except block on lines
-25-33 is malformed -- the ``OPTIMIZED_NLP_AVAILABLE = True`` assignment sits
-after an ``except Exception: pass`` that swallows the import, and the name is
-never bound on the happy path). Calling ``initialize_nlp_components`` therefore
-raises ``NameError`` unless the flag is injected. These tests inject the flag
-explicitly (mirroring what a fixed module would expose) so the real branch
-logic can be exercised; we also assert the buggy default is missing.
+The optional NLP imports always expose explicit availability flags and bound
+placeholders, so the branch behavior is stable in both lean CI and full model
+environments.
 """
 from __future__ import annotations
 
@@ -45,12 +40,12 @@ def _entity(text, label, start=0, end=0, confidence=0.9):
 
 
 # ---------------------------------------------------------------------------
-# The documented source bug
+# Optional-dependency contract
 # ---------------------------------------------------------------------------
 
-def test_optimized_nlp_available_flag_is_undefined_bug():
-    # Genuine bug: the module never binds OPTIMIZED_NLP_AVAILABLE on import.
-    assert not hasattr(eee, "OPTIMIZED_NLP_AVAILABLE")
+def test_optional_nlp_symbols_are_always_bound():
+    assert isinstance(eee.OPTIMIZED_NLP_AVAILABLE, bool)
+    assert hasattr(eee, "NERProcessor")
 
 
 # ---------------------------------------------------------------------------

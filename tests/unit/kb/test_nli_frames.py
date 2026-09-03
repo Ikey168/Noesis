@@ -1,5 +1,7 @@
 """Unit tests for the zero-shot NLI frame backend (#955)."""
 
+import pytest
+
 from src.argument_mining.frames import FrameClassifier
 from src.kb.nli import ENTAILMENT, NEUTRAL, NLIResult
 
@@ -54,14 +56,13 @@ class TestNLIFrames:
         prediction = classifier.predict_text("A quiet afternoon by the lake.")
         assert prediction.dominant == "other"
 
-    def test_without_nli_or_checkpoint_stays_heuristic(self, monkeypatch):
-        monkeypatch.delenv("NOESIS_FRAMES_BACKEND", raising=False)
-        classifier = FrameClassifier()
-        assert classifier.prediction_mode == "heuristic"
+    def test_removed_backend_setting_is_rejected(self, monkeypatch):
+        monkeypatch.setenv("NOESIS_FRAMES_BACKEND", "heuristic")
+        with pytest.raises(ValueError, match="has been removed"):
+            FrameClassifier()
 
-    def test_env_opt_in_survives_missing_stack(self, monkeypatch):
+    def test_missing_nli_weights_fail_closed(self, monkeypatch):
         monkeypatch.setenv("NOESIS_FRAMES_BACKEND", "nli")
         monkeypatch.setenv("NOESIS_NLI_MODEL", "definitely/not-a-real-model")
-        classifier = FrameClassifier()
-        assert classifier._nli is None
-        assert classifier.prediction_mode == "heuristic"
+        with pytest.raises(RuntimeError, match="make models"):
+            FrameClassifier()

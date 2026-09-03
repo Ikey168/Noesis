@@ -24,7 +24,7 @@ How the Noesis repository is laid out. For setup and the tech stack, see the
 | `data/`, `test_data/` | Local datasets and fixtures. |
 | `data_quality/` | Data-quality checks and expectations. |
 | `migrations/`, `db/` | Database migrations and schema. |
-| `models/` | Trained model checkpoints (gitignored when absent; heuristics used as fallback). |
+| `models/` | Model pins and optional fine-tuned checkpoints (weights are fetched locally). |
 | `evals/` | Evaluation harnesses and results. |
 
 ## Orchestration & infrastructure

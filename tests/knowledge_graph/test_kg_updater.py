@@ -36,13 +36,16 @@ def _doc(
 # ---------------------------------------------------------------------------
 
 @pytest.fixture(autouse=True)
-def reset_kg_state():
+def reset_kg_state(tmp_path, monkeypatch):
     """Reset the process-level KG store and event log before every test."""
     import src.knowledge_graph.kg_updater as mod
+    monkeypatch.setenv("NOESIS_DB_PATH", str(tmp_path / "kg.duckdb"))
     mod._store = None
     mod._resolver = None
     mod._events.clear()
     yield
+    if mod._store is not None and hasattr(mod._store, "close"):
+        mod._store.close()
     mod._store = None
     mod._resolver = None
     mod._events.clear()
@@ -225,6 +228,11 @@ class TestGetEvolvingTopics:
         old_ts = datetime.now(timezone.utc) - timedelta(seconds=120)
         for e in mod._events:
             e.ts = old_ts
+        # Mutation events are durable now; backdate the persisted source of
+        # truth as well as the compatibility in-process event view.
+        mod._store.connection.execute(
+            "UPDATE kg_mutation_events SET created_at = ?", [old_ts]
+        )
         results = get_evolving_topics(window_seconds=1)
         assert results == []
 
@@ -239,7 +247,7 @@ class TestGetStoreStats:
         stats = get_store_stats()
         assert stats["node_count"] == 0
         assert stats["triple_count"] == 0
-        assert stats["status"] == "live"
+        assert stats["status"] == "persisted"
 
     def test_stats_after_update(self):
         from src.knowledge_graph.kg_updater import update_from_document, get_store_stats

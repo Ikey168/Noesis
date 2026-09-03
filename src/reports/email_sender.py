@@ -28,6 +28,7 @@ from email import encoders
 from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from html import escape
 
 logger = logging.getLogger(__name__)
 
@@ -119,3 +120,23 @@ def send_report_email(
 
     _send_raw(msg)
     logger.info("Report email sent to %s (topic=%s token=%s)", to, topic, tracking_token)
+
+
+def send_markdown_email(*, to: str, subject: str, markdown: str) -> None:
+    """Send a plain-text/HTML-safe Markdown brief without an attachment.
+
+    The HTML part deliberately wraps escaped text rather than interpreting
+    user- or source-controlled Markdown as HTML.
+    """
+    msg = MIMEMultipart("alternative")
+    msg["Subject"] = subject
+    msg["From"] = _cfg("SMTP_FROM", "reports@noesis.local")
+    msg["To"] = to
+    msg.attach(MIMEText(markdown, "plain", "utf-8"))
+    safe = escape(markdown)
+    msg.attach(MIMEText(
+        f'<html><body><pre style="white-space:pre-wrap;font-family:sans-serif">{safe}</pre></body></html>',
+        "html", "utf-8",
+    ))
+    _send_raw(msg)
+    logger.info("Daily brief sent to %s", to)

@@ -6,7 +6,7 @@ Generates:
   data/argument_mining/claims.parquet     — binary claim detection (train/val/test)
   data/argument_mining/stance.parquet     — 4-class stance classification
   data/argument_mining/frames.parquet     — multi-label frame classification
-  data/argument_mining/iaa_subset.parquet — 500-example inter-annotator agreement validation
+  data/argument_mining/noise_robustness_subset.parquet — simulated label-noise check
   data/argument_mining/stats.json         — dataset statistics
 
 Run from the repo root:
@@ -857,18 +857,23 @@ def _generate_from_bank(
 
 
 # ---------------------------------------------------------------------------
-# IAA simulation — returns (annotator1_labels, annotator2_labels, kappa)
+# Simulated label-noise diagnostic
 # ---------------------------------------------------------------------------
 
 
-def _simulate_iaa(
+def _simulate_label_noise(
     examples: List[Dict],
     label_key: str,
     label_set: List,
     agreement_rate: float,
     rng: random.Random,
 ) -> Tuple[List, List, float]:
-    """Generate a second annotator's labels with controlled noise, compute Cohen's κ."""
+    """Perturb generated labels to measure robustness to synthetic noise.
+
+    This is emphatically not inter-annotator agreement: both columns derive
+    from one generated label and a random corruption process.  No threshold is
+    optimized or treated as a quality gate.
+    """
     ann1: List = []
     ann2: List = []
     for ex in examples:
@@ -881,12 +886,6 @@ def _simulate_iaa(
             ann2.append(rng.choice(alternatives) if alternatives else label)
 
     kappa = float(cohen_kappa_score(ann1, ann2))
-    # Nudge upward if needed (rare edge case)
-    while kappa < 0.70:
-        for i in range(len(ann2)):
-            if ann2[i] != ann1[i] and rng.random() < 0.4:
-                ann2[i] = ann1[i]
-        kappa = float(cohen_kappa_score(ann1, ann2))
     return ann1, ann2, kappa
 
 
@@ -1043,36 +1042,36 @@ def build(output_dir: Path, seed: int = 42) -> None:
     frames_df.to_parquet(output_dir / "frames.parquet", index=False)
     print(f"  frames.parquet  — {len(frames_df)} rows")
 
-    # ── IAA subset (first 500 from train split) ───────────────────────────
+    # ── Simulated label-noise subset (not human IAA) ──────────────────────
     train_examples = [e for e in all_examples if e["split"] == "train"]
-    iaa_examples = train_examples[:500]
+    noise_examples = train_examples[:500]
 
-    ann1_claim, ann2_claim, kappa_claim = _simulate_iaa(
-        iaa_examples, "is_claim", [0, 1], 0.875, rng
+    base_claim, noisy_claim, kappa_claim = _simulate_label_noise(
+        noise_examples, "is_claim", [0, 1], 0.875, rng
     )
-    ann1_stance, ann2_stance, kappa_stance = _simulate_iaa(
-        iaa_examples, "stance",
+    base_stance, noisy_stance, kappa_stance = _simulate_label_noise(
+        noise_examples, "stance",
         ["supportive", "critical", "neutral", "ambiguous"], 0.840, rng
     )
 
-    iaa_df = pd.DataFrame([
+    noise_df = pd.DataFrame([
         {
             "id": ex["id"],
             "text": ex["text"],
             "source_type": ex["source_type"],
-            "annotator1_claim": a1c,
-            "annotator2_claim": a2c,
-            "annotator1_stance": a1s,
-            "annotator2_stance": a2s,
+            "generated_claim": a1c,
+            "perturbed_claim": a2c,
+            "generated_stance": a1s,
+            "perturbed_stance": a2s,
         }
         for ex, a1c, a2c, a1s, a2s in zip(
-            iaa_examples, ann1_claim, ann2_claim, ann1_stance, ann2_stance
+            noise_examples, base_claim, noisy_claim, base_stance, noisy_stance
         )
     ])
-    iaa_df.to_parquet(output_dir / "iaa_subset.parquet", index=False)
-    print(f"  iaa_subset.parquet — {len(iaa_df)} rows")
-    print(f"    Cohen's κ (claim):  {kappa_claim:.3f}")
-    print(f"    Cohen's κ (stance): {kappa_stance:.3f}")
+    noise_df.to_parquet(output_dir / "noise_robustness_subset.parquet", index=False)
+    print(f"  noise_robustness_subset.parquet — {len(noise_df)} rows")
+    print(f"    synthetic perturbation similarity (claim κ):  {kappa_claim:.3f}")
+    print(f"    synthetic perturbation similarity (stance κ): {kappa_stance:.3f}")
 
     # ── claim_pairs.parquet (#953: NLI relation benchmark set) ────────────
     pair_rows = _generate_claim_pairs(rng)
@@ -1081,20 +1080,20 @@ def build(output_dir: Path, seed: int = 42) -> None:
     print(f"  claim_pairs.parquet — {len(pairs_df)} rows"
           f" ({len(pair_rows) // 4} per relation)")
 
-    # ── IAA re-check on the new test slices (#953) ────────────────────────
+    # ── Noise diagnostic on the new test slices (#953) ───────────────────
     test_examples = [e for e in all_examples if e["split"] == "test"]
     minority_slice = [
         e for e in test_examples
         if e["stance"] in ("supportive", "critical", "ambiguous")
         or e["source_type"] in ("note", "transcript")
     ][:500]
-    _, _, kappa_new_claim = _simulate_iaa(minority_slice, "is_claim", [0, 1], 0.875, rng)
-    _, _, kappa_new_stance = _simulate_iaa(
+    _, _, kappa_new_claim = _simulate_label_noise(minority_slice, "is_claim", [0, 1], 0.875, rng)
+    _, _, kappa_new_stance = _simulate_label_noise(
         minority_slice, "stance",
         ["supportive", "critical", "neutral", "ambiguous"], 0.840, rng
     )
-    print(f"    Cohen's κ new slices (claim):  {kappa_new_claim:.3f}")
-    print(f"    Cohen's κ new slices (stance): {kappa_new_stance:.3f}")
+    print(f"    synthetic similarity, new slices (claim κ):  {kappa_new_claim:.3f}")
+    print(f"    synthetic similarity, new slices (stance κ): {kappa_new_stance:.3f}")
 
     # ── stats.json ────────────────────────────────────────────────────────
     by_type = claims_df.groupby("source_type").size().to_dict()
@@ -1107,12 +1106,13 @@ def build(output_dir: Path, seed: int = 42) -> None:
         "by_split": {k: int(v) for k, v in by_split.items()},
         "claim_distribution": {str(k): int(v) for k, v in claim_dist.items()},
         "stance_distribution": {str(k): int(v) for k, v in stance_dist.items()},
-        "iaa": {
-            "n_examples": len(iaa_df),
-            "kappa_claim": round(kappa_claim, 4),
-            "kappa_stance": round(kappa_stance, 4),
-            "new_slices_kappa_claim": round(kappa_new_claim, 4),
-            "new_slices_kappa_stance": round(kappa_new_stance, 4),
+        "simulated_noise_robustness": {
+            "method": "generated labels compared with random perturbations; not human IAA",
+            "n_examples": len(noise_df),
+            "similarity_kappa_claim": round(kappa_claim, 4),
+            "similarity_kappa_stance": round(kappa_stance, 4),
+            "new_slices_similarity_kappa_claim": round(kappa_new_claim, 4),
+            "new_slices_similarity_kappa_stance": round(kappa_new_stance, 4),
         },
         "test_support": {
             "per_stance_class": {
@@ -1137,8 +1137,6 @@ def build(output_dir: Path, seed: int = 42) -> None:
         "acceptance_criteria": {
             "total_ge_5000": total >= 5000,
             "all_types_ge_500": all(int(v) >= 500 for v in by_type.values()),
-            "iaa_claim_kappa_ge_070": kappa_claim >= 0.70,
-            "iaa_stance_kappa_ge_070": kappa_stance >= 0.70,
         },
     }
     (output_dir / "stats.json").write_text(json.dumps(stats, indent=2))

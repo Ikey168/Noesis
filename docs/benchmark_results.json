@@ -1,71 +1,71 @@
 {
-  "evaluated_at": "2026-07-21T20:50:45.110823+00:00",
+  "evaluated_at": "2026-09-03T15:41:43.486475+00:00",
   "claim_detector": {
     "overall": {
-      "precision": 0.8457,
-      "recall": 0.8438,
-      "f1": 0.8447,
-      "accuracy": 0.7509,
+      "precision": 0.9181,
+      "recall": 0.9213,
+      "f1": 0.9197,
+      "accuracy": 0.8708,
       "n": 1076,
-      "mode": "heuristic"
+      "mode": "pretrained:Nithiwat/mdeberta-v3-base_claimbuster"
     },
     "per_source_type": {
       "blog": {
-        "precision": 0.7791,
-        "recall": 0.6442,
-        "f1": 0.7053,
-        "accuracy": 0.6267,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "accuracy": 1.0,
         "n": 150
       },
       "book": {
-        "precision": 0.8551,
-        "recall": 0.9916,
-        "f1": 0.9183,
-        "accuracy": 0.86,
+        "precision": 0.9565,
+        "recall": 0.7395,
+        "f1": 0.8341,
+        "accuracy": 0.7667,
         "n": 150
       },
       "news": {
-        "precision": 0.9318,
-        "recall": 0.9762,
-        "f1": 0.9535,
-        "accuracy": 0.9115,
+        "precision": 0.9858,
+        "recall": 0.9905,
+        "f1": 0.9881,
+        "accuracy": 0.9779,
         "n": 226
       },
       "note": {
-        "precision": 0.7681,
-        "recall": 0.8595,
-        "f1": 0.8112,
-        "accuracy": 0.704,
+        "precision": 0.788,
+        "recall": 0.9243,
+        "f1": 0.8507,
+        "accuracy": 0.76,
         "n": 250
       },
       "paper": {
-        "precision": 0.8629,
-        "recall": 0.8106,
-        "f1": 0.8359,
-        "accuracy": 0.72,
+        "precision": 0.9612,
+        "recall": 0.9394,
+        "f1": 0.9502,
+        "accuracy": 0.9133,
         "n": 150
       },
       "transcript": {
-        "precision": 0.8391,
-        "recall": 0.6404,
-        "f1": 0.7264,
-        "accuracy": 0.6333,
+        "precision": 0.886,
+        "recall": 0.886,
+        "f1": 0.886,
+        "accuracy": 0.8267,
         "n": 150
       }
     },
     "per_length": {
       "medium": {
-        "precision": 0.8814,
-        "recall": 0.7761,
-        "f1": 0.8254,
-        "accuracy": 0.725,
+        "precision": 1.0,
+        "recall": 0.9552,
+        "f1": 0.9771,
+        "accuracy": 0.9625,
         "n": 80
       },
       "short": {
-        "precision": 0.8431,
-        "recall": 0.8494,
-        "f1": 0.8463,
-        "accuracy": 0.753,
+        "precision": 0.9116,
+        "recall": 0.9184,
+        "f1": 0.915,
+        "accuracy": 0.8635,
         "n": 996
       }
     }
@@ -74,76 +74,76 @@
     "overall": {
       "per_class": {
         "supportive": {
-          "precision": 0.3425,
-          "recall": 0.2,
-          "f1": 0.2525,
+          "precision": 0.1877,
+          "recall": 0.512,
+          "f1": 0.2747,
           "support": 125
         },
         "critical": {
-          "precision": 0.825,
-          "recall": 0.2463,
-          "f1": 0.3793,
+          "precision": 0.3611,
+          "recall": 0.097,
+          "f1": 0.1529,
           "support": 134
         },
         "neutral": {
-          "precision": 0.712,
-          "recall": 0.9411,
-          "f1": 0.8106,
+          "precision": 0.6283,
+          "recall": 0.6121,
+          "f1": 0.6201,
           "support": 696
         },
         "ambiguous": {
-          "precision": 0.5116,
-          "recall": 0.1818,
-          "f1": 0.2683,
+          "precision": 0.9048,
+          "recall": 0.157,
+          "f1": 0.2676,
           "support": 121
         }
       },
-      "macro_f1": 0.4277,
-      "accuracy": 0.6831,
+      "macro_f1": 0.3288,
+      "accuracy": 0.4851,
       "n": 1076,
-      "mode": "heuristic"
+      "mode": "zero-shot:cross-encoder/nli-deberta-v3-base"
     },
     "per_source_type": {
       "blog": {
-        "macro_f1": 0.4306,
-        "accuracy": 0.5933,
+        "macro_f1": 0.3652,
+        "accuracy": 0.5533,
         "n": 150
       },
       "book": {
-        "macro_f1": 0.388,
-        "accuracy": 0.6133,
+        "macro_f1": 0.4027,
+        "accuracy": 0.4867,
         "n": 150
       },
       "news": {
-        "macro_f1": 0.5948,
-        "accuracy": 0.8761,
+        "macro_f1": 0.3207,
+        "accuracy": 0.469,
         "n": 226
       },
       "note": {
-        "macro_f1": 0.1981,
-        "accuracy": 0.656,
+        "macro_f1": 0.2672,
+        "accuracy": 0.536,
         "n": 250
       },
       "paper": {
-        "macro_f1": 0.4143,
-        "accuracy": 0.6333,
+        "macro_f1": 0.2712,
+        "accuracy": 0.38,
         "n": 150
       },
       "transcript": {
-        "macro_f1": 0.3402,
-        "accuracy": 0.6467,
+        "macro_f1": 0.2876,
+        "accuracy": 0.46,
         "n": 150
       }
     },
     "per_length": {
       "medium": {
-        "macro_f1": 0.4405,
-        "accuracy": 0.4875,
+        "macro_f1": 0.2535,
+        "accuracy": 0.3125,
         "n": 80
       },
       "short": {
-        "macro_f1": 0.4195,
-        "accuracy": 0.6988,
+        "macro_f1": 0.3363,
+        "accuracy": 0.499,
         "n": 996
       }
     }
@@ -152,105 +152,134 @@
     "overall": {
       "per_label": {
         "economic": {
-          "precision": 0.8241,
-          "recall": 0.3942,
-          "f1": 0.5333,
+          "precision": 0.8148,
+          "recall": 0.3173,
+          "f1": 0.4567,
           "support": 416
         },
         "security": {
-          "precision": 0.75,
-          "recall": 0.3684,
-          "f1": 0.4941,
+          "precision": 0.7407,
+          "recall": 0.3509,
+          "f1": 0.4762,
           "support": 57
         },
         "humanitarian": {
-          "precision": 1.0,
-          "recall": 0.2409,
-          "f1": 0.3882,
+          "precision": 0.9655,
+          "recall": 0.2044,
+          "f1": 0.3373,
           "support": 137
         },
         "legal": {
-          "precision": 1.0,
-          "recall": 0.5179,
-          "f1": 0.6824,
+          "precision": 0.8108,
+          "recall": 0.5357,
+          "f1": 0.6452,
           "support": 112
         },
         "political": {
-          "precision": 0.9512,
-          "recall": 0.1364,
-          "f1": 0.2385,
+          "precision": 1.0,
+          "recall": 0.0839,
+          "f1": 0.1548,
           "support": 286
         },
         "scientific": {
-          "precision": 0.8639,
-          "recall": 0.4294,
-          "f1": 0.5737,
+          "precision": 0.9474,
+          "recall": 0.4235,
+          "f1": 0.5854,
           "support": 340
         },
         "other": {
-          "precision": 0.1788,
-          "recall": 0.98,
-          "f1": 0.3025,
+          "precision": 0.1628,
+          "recall": 0.99,
+          "f1": 0.2797,
           "support": 100
         }
       },
-      "macro_f1": 0.459,
-      "subset_accuracy": 0.5195,
+      "macro_f1": 0.4193,
+      "subset_accuracy": 0.4712,
       "n": 1076,
-      "mode": "heuristic",
-      "dominant_accuracy": 0.4424
+      "mode": "zero-shot:cross-encoder/nli-deberta-v3-base",
+      "dominant_accuracy": 0.3727
     },
     "per_source_type": {
       "blog": {
-        "macro_f1": 0.3212,
-        "subset_accuracy": 0.3533,
+        "macro_f1": 0.1905,
+        "subset_accuracy": 0.2067,
         "n": 150
       },
       "book": {
-        "macro_f1": 0.4438,
-        "subset_accuracy": 0.3667,
+        "macro_f1": 0.4696,
+        "subset_accuracy": 0.4733,
         "n": 150
       },
       "news": {
-        "macro_f1": 0.6809,
-        "subset_accuracy": 0.6726,
+        "macro_f1": 0.6551,
+        "subset_accuracy": 0.6991,
         "n": 226
       },
       "note": {
-        "macro_f1": 0.2451,
-        "subset_accuracy": 0.524,
+        "macro_f1": 0.3477,
+        "subset_accuracy": 0.52,
         "n": 250
       },
       "paper": {
-        "macro_f1": 0.4224,
-        "subset_accuracy": 0.56,
+        "macro_f1": 0.4615,
+        "subset_accuracy": 0.5867,
         "n": 150
       },
       "transcript": {
-        "macro_f1": 0.439,
-        "subset_accuracy": 0.56,
+        "macro_f1": 0.2262,
+        "subset_accuracy": 0.1933,
         "n": 150
       }
     },
     "per_length": {
       "medium": {
-        "macro_f1": 0.3594,
-        "subset_accuracy": 0.65,
+        "macro_f1": 0.2004,
+        "subset_accuracy": 0.4375,
         "n": 80
       },
       "short": {
-        "macro_f1": 0.4548,
-        "subset_accuracy": 0.509,
+        "macro_f1": 0.4287,
+        "subset_accuracy": 0.4739,
         "n": 996
       }
     }
   },
-  "iaa": {
-    "n_examples": 500,
-    "kappa_claim": 0.701,
-    "kappa_stance": 0.7287,
-    "new_slices_kappa_claim": 0.7834,
-    "new_slices_kappa_stance": 0.7845
+  "annotation": {
+    "human_evaluation": {
+      "status": "not_collected",
+      "note": "Noesis does not report synthetic perturbations as annotator agreement. Run scripts/human_annotation.py with two independent annotators."
+    },
+    "simulated_noise_robustness": {
+      "method": "generated labels compared with random perturbations; not human IAA",
+      "n_examples": 500,
+      "similarity_kappa_claim": 0.701,
+      "similarity_kappa_stance": 0.7287,
+      "new_slices_similarity_kappa_claim": 0.7834,
+      "new_slices_similarity_kappa_stance": 0.7845
+    }
   },
-  "cross_dataset": {}
+  "cross_dataset": {
+    "fever": {
+      "precision": 0.7427,
+      "recall": 0.8759,
+      "f1": 0.8038,
+      "accuracy": 0.69,
+      "n": 200
+    },
+    "liar": {
+      "precision": 1.0,
+      "recall": 0.89,
+      "f1": 0.9418,
+      "accuracy": 0.89,
+      "n": 200
+    },
+    "averitec": {
+      "precision": 1.0,
+      "recall": 0.87,
+      "f1": 0.9305,
+      "accuracy": 0.87,
+      "n": 200
+    }
+  }
 }

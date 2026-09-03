@@ -17,6 +17,7 @@ Tools:
   kb_entities(domain, name?)                  -> canonical entities, aliases folded
   kb_contradictions(domain, since?)           -> contradiction ledger, both sides cited
   kb_diff(domain, since)                      -> the change feed (six sections)
+  kb_integrity(domain, document_id?, limit?)  -> snapshots/revisions/media ledger
   kb_coverage(domain)                         -> corpus stats, freshness, backing
 
 Contract doc: contracts/noesis-kb-v1.md. Errors return
@@ -28,6 +29,7 @@ from __future__ import annotations
 from typing import Any, Dict, Optional
 
 from fastmcp import FastMCP
+from src.mcp_host.transport import run_server
 
 mcp = FastMCP("noesis-kb")
 
@@ -132,5 +134,17 @@ def kb_coverage(domain: str) -> Dict[str, Any]:
     return _run(contract.kb_coverage, domain)
 
 
+@mcp.tool()
+def kb_integrity(
+    domain: str, document_id: Optional[str] = None, limit: int = 100
+) -> Dict[str, Any]:
+    """Per-document integrity: snapshots, refetch revisions (both versions),
+    correction/retraction class, image reuse/C2PA, and cross-modal findings.
+    Every finding contains evidence locators; absence of C2PA is neutral."""
+    from src.kb import contract
+
+    return _run(contract.kb_integrity, domain, document_id, limit)
+
+
 if __name__ == "__main__":
-    mcp.run()
+    run_server(mcp)

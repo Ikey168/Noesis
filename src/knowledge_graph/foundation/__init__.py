@@ -27,7 +27,7 @@ from src.knowledge_graph.foundation.resolution import (
     EntityResolver,
     canonicalize_store,
 )
-from src.knowledge_graph.foundation.store import KnowledgeGraphStore
+from src.knowledge_graph.foundation.store import DuckDBKnowledgeGraphStore, KnowledgeGraphStore
 
 __all__ = [
     "EntityResolver",
@@ -45,4 +45,5 @@ __all__ = [
     "Triple",
     "make_node_id",
     "KnowledgeGraphStore",
+    "DuckDBKnowledgeGraphStore",
 ]

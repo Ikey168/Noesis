@@ -20,6 +20,7 @@ python tools/statistics_mcp/server.py     # one server, stdio transport
 | `neuronews-pipeline` | `tools/pipeline_mcp` | Documents, articles, trending, clusters, sentiment; figures, corrections, geo, speaker balance |
 | `neuronews-arguments` | `tools/argument_mcp` | Claims, stances, frames, positions, outlet scoring/clustering |
 | `neuronews-kg` | `tools/kg_mcp` | Knowledge-graph entities, relations, communities, centrality |
+| `noesis-kb` | `tools/kb_mcp` | Unified KB contract, briefs, diffs, claims, evidence, and integrity verification |
 | `neuronews-osint` | `tools/osint_mcp` | Corroboration, reliability, contradiction ledger, dossiers, paths, timelines, image provenance/reuse |
 | `neuronews-statistics` | `tools/statistics_mcp` | Statistical series, claim-vs-data checks, the data-check ledger |
 | `neuronews-research` | `tools/research_mcp` | Venues, citation graph, literature claims |

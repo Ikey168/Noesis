@@ -2,10 +2,8 @@
 Coverage-focused unit tests for src/argument_mining/models.py.
 
 Targets the model-backed prediction paths (_try_load + _predict_model for both
-ClaimDetector and StanceClassifier), the load-failure fallback, the
-predict_text empty-result fallbacks, the remaining _stance_heuristic branches
-(multi-neutral / balanced-zero fallthrough), and the module-level singletons
-and convenience functions.
+ClaimDetector and StanceClassifier), fail-closed loading, predict_text empty
+results, and the module-level singletons and convenience functions.
 
 transformers is resolved lazily via ``from transformers import pipeline`` inside
 _try_load; transformers' lazy loader ignores attribute patching, so a stub
@@ -28,7 +26,6 @@ from src.argument_mining.models import (
     ClaimPrediction,
     StanceClassifier,
     StancePrediction,
-    _stance_heuristic,
     get_claim_detector,
     get_stance_classifier,
     predict_claims,
@@ -57,6 +54,24 @@ def _model_dir_with_config() -> Path:
     d = Path(tempfile.mkdtemp())
     (d / "config.json").write_text("{}")
     return d
+
+
+def _claim_double() -> ClaimDetector:
+    def pipeline(inputs, **_kwargs):
+        return [{"label": "LABEL_1", "score": 0.9} for _ in inputs]
+    return ClaimDetector(pretrained=(pipeline, "test-claim-model"))
+
+
+def _stance_double() -> StanceClassifier:
+    class NLI:
+        prediction_mode = "zero-shot:test-nli-model"
+
+        @staticmethod
+        def entailment_scores(pairs):
+            return [0.9 if "supportive" in hypothesis else 0.1
+                    for _premise, hypothesis in pairs]
+
+    return StanceClassifier(nli=NLI())
 
 
 _TWO_SENTENCE = (
@@ -117,7 +132,7 @@ class TestClaimDetectorModelPath:
 
 
 class TestClaimDetectorLoadFailure:
-    def test_load_error_falls_back_to_heuristic(self):
+    def test_load_error_fails_closed_when_pretrained_unavailable(self):
         model_dir = _model_dir_with_config()
 
         def boom(*args, **kwargs):
@@ -125,11 +140,8 @@ class TestClaimDetectorLoadFailure:
 
         mod = types.ModuleType("transformers")
         mod.pipeline = boom
-        with mock.patch.dict(sys.modules, {"transformers": mod}):
-            cd = ClaimDetector(model_dir=model_dir)
-            assert cd._pipeline is None
-            r = cd.predict_text("The court ruled the legislation unconstitutional in a 5-4 decision.")
-        assert r.is_claim is True
+        with mock.patch.dict(sys.modules, {"transformers": mod}), pytest.raises(RuntimeError):
+            ClaimDetector(model_dir=model_dir)
 
 
 # ---------------------------------------------------------------------------
@@ -186,7 +198,7 @@ class TestStanceClassifierModelPath:
 
 
 class TestStanceClassifierLoadFailure:
-    def test_load_error_falls_back_to_heuristic(self):
+    def test_load_error_fails_closed_when_nli_unavailable(self):
         model_dir = _model_dir_with_config()
 
         def boom(*args, **kwargs):
@@ -194,14 +206,8 @@ class TestStanceClassifierLoadFailure:
 
         mod = types.ModuleType("transformers")
         mod.pipeline = boom
-        with mock.patch.dict(sys.modules, {"transformers": mod}):
-            sc = StanceClassifier(model_dir=model_dir)
-            assert sc._pipeline is None
-            r = sc.predict_text(
-                "The renewable transition is creating jobs and driving growth.",
-                topic="renewable energy",
-            )
-        assert r.stance == "supportive"
+        with mock.patch.dict(sys.modules, {"transformers": mod}), pytest.raises(RuntimeError):
+            StanceClassifier(model_dir=model_dir)
 
 
 # ---------------------------------------------------------------------------
@@ -210,7 +216,7 @@ class TestStanceClassifierLoadFailure:
 
 class TestPredictTextEmptyFallback:
     def test_claim_predict_text_short_input_fallback(self):
-        cd = ClaimDetector(model_dir=Path("/tmp/_nope_claim_dir"))
+        cd = _claim_double()
         # "short" is < 20 chars -> no sentences -> constructed fallback
         r = cd.predict_text("short")
         assert r.is_claim is False
@@ -219,7 +225,7 @@ class TestPredictTextEmptyFallback:
         assert r.sentence_idx == 0
 
     def test_stance_predict_text_short_input_fallback(self):
-        sc = StanceClassifier(model_dir=Path("/tmp/_nope_stance_dir"))
+        sc = _stance_double()
         r = sc.predict_text("short", topic="topic-x")
         assert r.stance == "neutral"
         assert r.confidence == 0.5
@@ -228,58 +234,12 @@ class TestPredictTextEmptyFallback:
 
 
 # ---------------------------------------------------------------------------
-# _stance_heuristic remaining branches
-# ---------------------------------------------------------------------------
-
-class TestStanceHeuristicBranches:
-    def test_multi_neutral_words_yield_neutral_high_confidence(self):
-        # >=2 neutral words, no pos/neg -> neutral @ 0.65
-        r = _stance_heuristic(
-            "The bill was signed and published according to the released data.",
-            0,
-            "topic",
-        )
-        assert r.stance == "neutral"
-        assert r.confidence == pytest.approx(0.65)
-
-    def test_balanced_zero_signals_fall_through_to_neutral(self):
-        # no pos/neg/neutral/hedge signals at all -> final neutral @ 0.50
-        r = _stance_heuristic("The cat sat on the mat quietly today.", 3, "topic")
-        assert r.stance == "neutral"
-        assert r.confidence == pytest.approx(0.50)
-        assert r.sentence_idx == 3
-
-    def test_hedge_only_yields_ambiguous(self):
-        r = _stance_heuristic(
-            "The outcome remains unclear and difficult to predict.", 0, "topic"
-        )
-        assert r.stance == "ambiguous"
-
-    def test_balanced_pos_neg_yields_ambiguous(self):
-        r = _stance_heuristic(
-            "The reform delivers benefit but the failure of oversight is damaging.",
-            0,
-            "topic",
-        )
-        assert r.stance == "ambiguous"
-
-    def test_critical_scaling_confidence(self):
-        r = _stance_heuristic(
-            "The reckless plan is a disastrous failure that will harm millions.",
-            0,
-            "topic",
-        )
-        assert r.stance == "critical"
-        assert r.confidence > 0.55
-
-
-# ---------------------------------------------------------------------------
 # Module-level singletons / convenience
 # ---------------------------------------------------------------------------
 
 class TestModuleHelpers:
     def test_get_claim_detector_singleton(self):
-        models_mod._claim_detector = None
+        models_mod._claim_detector = _claim_double()
         try:
             first = get_claim_detector()
             second = get_claim_detector()
@@ -289,7 +249,7 @@ class TestModuleHelpers:
             models_mod._claim_detector = None
 
     def test_get_stance_classifier_singleton(self):
-        models_mod._stance_classifier = None
+        models_mod._stance_classifier = _stance_double()
         try:
             first = get_stance_classifier()
             second = get_stance_classifier()
@@ -299,7 +259,7 @@ class TestModuleHelpers:
             models_mod._stance_classifier = None
 
     def test_predict_claims_convenience(self):
-        models_mod._claim_detector = None
+        models_mod._claim_detector = _claim_double()
         try:
             results = predict_claims(
                 _doc("The central bank raised interest rates by 25 basis points to 5.25%.")
@@ -310,7 +270,7 @@ class TestModuleHelpers:
             models_mod._claim_detector = None
 
     def test_predict_stance_convenience(self):
-        models_mod._stance_classifier = None
+        models_mod._stance_classifier = _stance_double()
         try:
             results = predict_stance(
                 _doc("This landmark reform delivers vital protections for workers."),

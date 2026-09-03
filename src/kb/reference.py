@@ -11,7 +11,7 @@ lifecycle a long-lived reference corpus needs:
 - :func:`ingest_documents_into_namespace` — namespace-native ingest for any
   connector's ``Document`` stream (books via the section-aware
   ``BookConnector``, full-text papers via the ``PaperConnector``), with
-  enrichment parity: heuristic claim extraction into the namespace claims
+  enrichment parity: model-backed claim extraction into the namespace claims
   table and embeddings into the shared space so cross-backing similarity
   works. Citations point to the section: each book Document *is* a
   chapter/section with its ``section_path`` in metadata and title.
@@ -65,14 +65,15 @@ def stand_up_reference(
     return promote_to_namespace(conn, domain, Path(config_path), backend=backend)
 
 
-def _extract_claims(text: str, max_sentences: int = 200) -> List[Dict[str, Any]]:
-    """Heuristic claim extraction (model-grade arrives with the #956 backend)."""
-    try:
-        from src.argument_mining.models import ClaimDetector
+def _extract_claims(
+    text: str,
+    max_sentences: int = 200,
+    claim_detector: Optional[Any] = None,
+) -> List[Dict[str, Any]]:
+    """Extract claims with the configured trained-model backend."""
+    from src.argument_mining.models import get_claim_detector
 
-        detector = ClaimDetector()
-    except Exception:
-        return []
+    detector = claim_detector or get_claim_detector()
     claims = []
     sentences = [
         sentence.strip()
@@ -80,10 +81,7 @@ def _extract_claims(text: str, max_sentences: int = 200) -> List[Dict[str, Any]]
         if len(sentence.strip()) > 30
     ]
     for sentence in sentences[:max_sentences]:
-        try:
-            prediction = detector.predict_text(sentence)
-        except Exception:
-            continue
+        prediction = detector.predict_text(sentence)
         if getattr(prediction, "is_claim", False):
             claims.append(
                 {
@@ -102,6 +100,7 @@ def ingest_documents_into_namespace(
     provider: Optional[Any] = None,
     embedding_model: str = "all-MiniLM-L6-v2",
     extract_claims: bool = True,
+    claim_detector: Optional[Any] = None,
 ) -> Dict[str, Any]:
     """Namespace-native ingest with enrichment parity.
 
@@ -163,7 +162,9 @@ def ingest_documents_into_namespace(
             new_texts.append((doc_id, f"{get('title') or ''}\n{content}"[:4000]))
 
         if extract_claims and content:
-            for index, claim in enumerate(_extract_claims(content)):
+            for index, claim in enumerate(_extract_claims(
+                content, claim_detector=claim_detector
+            )):
                 conn.execute(
                     f"""
                     INSERT INTO {tables['claims']}

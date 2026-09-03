@@ -5,7 +5,7 @@ Identifies sentences where a named actor asserts an intention or commitment on
 a policy topic, then returns structured (actor, topic, position_text, date,
 document_id, source_type) tuples.
 
-Works across all six Noesis source types without requiring trained NLP models:
+Works across all six Noesis source types using the configured claim model:
   - news / blog  — named-actor commitment sentences, editorial positions
   - paper        — author recommendations and policy-implication statements
   - transcript   — speaker-attributed commitments
@@ -189,20 +189,24 @@ class PositionRecord:
 # ---------------------------------------------------------------------------
 
 
-def _is_position_bearing(sentence: str, min_confidence: float) -> Tuple[bool, float]:
-    """Return (is_position, confidence) using claim heuristic + commitment pattern.
+def _is_position_bearing(
+    sentence: str,
+    min_confidence: float,
+    claim_detector=None,
+) -> Tuple[bool, float]:
+    """Return (is_position, confidence) using the claim model and commitment pattern.
 
     Questions are never position statements even when they contain commitment verbs.
-    We use the raw heuristic score (not the inverted confidence) so that the boost
-    for commitment verbs doesn't accidentally promote uncertain non-claims.
+    The model's negative-class confidence is inverted to obtain a claim score before
+    applying the commitment boost.
     """
     if sentence.strip().endswith("?"):
         return False, 0.0
 
-    from src.argument_mining.models import _claim_heuristic
+    from src.argument_mining.models import get_claim_detector
 
-    claim_pred = _claim_heuristic(sentence, 0)
-    # _claim_heuristic returns confidence = 1 - score for non-claims; recover raw score.
+    detector = claim_detector or get_claim_detector()
+    claim_pred = detector.predict_text(sentence)
     raw_score = claim_pred.confidence if claim_pred.is_claim else (1.0 - claim_pred.confidence)
     has_commitment = bool(_COMMITMENT_PATTERN.search(sentence))
     adjusted = min(0.95, raw_score + 0.15) if has_commitment else raw_score
@@ -296,7 +300,7 @@ def _position_id(document_id: str, sentence: str, actor: str) -> str:
 # ---------------------------------------------------------------------------
 
 
-def extract_positions(document: Document) -> List[PositionRecord]:
+def extract_positions(document: Document, claim_detector=None) -> List[PositionRecord]:
     """Extract policy positions from any Document.
 
     Returns a list of PositionRecord instances — one per distinct
@@ -314,7 +318,9 @@ def extract_positions(document: Document) -> List[PositionRecord]:
     seen_ids: set = set()
 
     for sent in sentences:
-        is_pos, confidence = _is_position_bearing(sent, _MIN_CONFIDENCE)
+        is_pos, confidence = _is_position_bearing(
+            sent, _MIN_CONFIDENCE, claim_detector
+        )
         if not is_pos:
             continue
 
@@ -379,7 +385,7 @@ def store_positions(records: List[PositionRecord], conn) -> None:
     )
 
 
-def run_position_pipeline(document: Document, conn) -> List[PositionRecord]:
+def run_position_pipeline(document: Document, conn, claim_detector=None) -> List[PositionRecord]:
     """Extract positions and persist them to the DB in one call.
 
     Designed to be called as a post-ingestion stage after
@@ -392,7 +398,7 @@ def run_position_pipeline(document: Document, conn) -> List[PositionRecord]:
 
     Returns the list of PositionRecord objects persisted.
     """
-    records = extract_positions(document)
+    records = extract_positions(document, claim_detector)
     store_positions(records, conn)
     logger.info(
         "run_position_pipeline: doc=%s source=%s positions_stored=%d",

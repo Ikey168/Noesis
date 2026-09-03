@@ -5,13 +5,15 @@ extraction pipeline (issue #110).
 Exercises the real public API (extract_positions, store_positions,
 run_position_pipeline) plus the internal helpers (_is_position_bearing,
 _extract_actor, _infer_topic, _document_date, _position_id) against real
-Document instances.  No trained model, DuckDB, or network required — the
-underlying claim detection is the rule-based ``_claim_heuristic``.
+Document instances. A model double keeps the tests independent of downloaded
+weights.
 """
 from __future__ import annotations
 
 import sys
 from pathlib import Path
+
+import pytest
 
 # Ensure repo root is on path
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
@@ -30,6 +32,7 @@ from src.argument_mining.positions import (
     store_positions,
 )
 from services.ingest.common.document_model import Document
+from src.argument_mining.models import ClaimPrediction
 
 
 # ---------------------------------------------------------------------------
@@ -44,6 +47,19 @@ def _doc(document_id="d1", source_type="news", content="", **kw):
         ingested_at=kw.pop("ingested_at", 1_704_067_200_000),  # 2024-01-01
         content=content,
         **kw,
+    )
+
+
+@pytest.fixture(autouse=True)
+def _claim_model(monkeypatch):
+    class Detector:
+        @staticmethod
+        def predict_text(text):
+            nonclaim = any(word in text.lower() for word in ("perhaps", "vague", "uncertain"))
+            return ClaimPrediction(text, 0, not nonclaim, 0.9 if nonclaim else 0.8)
+
+    monkeypatch.setattr(
+        "src.argument_mining.models.get_claim_detector", lambda: Detector()
     )
 
 

@@ -75,8 +75,8 @@ def get_stats() -> dict:
     """Return dataset statistics from stats.json.
 
     Instant — reads a small JSON file, never loads Parquet.
-    Returns total count, per-source-type breakdown, split sizes,
-    label distributions, IAA kappa scores, and acceptance criteria.
+    Returns total count, per-source-type breakdown, split sizes, label
+    distributions, the explicitly simulated noise diagnostic, and criteria.
     """
     return _stats()
 
@@ -246,8 +246,8 @@ def sample_examples(
 def check_criteria() -> dict[str, Any]:
     """Re-verify all issue-#109 acceptance criteria live from the Parquet files.
 
-    Re-reads the actual Parquet files to compute counts and re-simulates IAA
-    kappa scores — useful after any manual edits to the dataset.
+    Re-reads the actual Parquet files to compute counts and reports the
+    generated-label noise diagnostic separately from human evaluation.
     Returns each criterion with its measured value and pass/fail status.
     """
     try:
@@ -259,24 +259,25 @@ def check_criteria() -> dict[str, Any]:
     by_type = claims_df.groupby("source_type").size().to_dict()
     by_split = claims_df.groupby("split").size().to_dict()
 
-    # Check IAA parquet
-    iaa_path = DATA_DIR / "iaa_subset.parquet"
-    iaa_kappa: dict[str, Any] = {}
-    if iaa_path.exists():
+    noise_path = DATA_DIR / "noise_robustness_subset.parquet"
+    noise: dict[str, Any] = {
+        "method": "generated labels compared with random perturbations; not human IAA"
+    }
+    if noise_path.exists():
         import pandas as pd
         from sklearn.metrics import cohen_kappa_score
-        iaa_df = pd.read_parquet(iaa_path)
-        iaa_kappa["n"] = len(iaa_df)
-        if "annotator1_claim" in iaa_df.columns:
-            iaa_kappa["kappa_claim"] = round(
-                float(cohen_kappa_score(iaa_df["annotator1_claim"], iaa_df["annotator2_claim"])), 4
+        noise_df = pd.read_parquet(noise_path)
+        noise["n"] = len(noise_df)
+        if "generated_claim" in noise_df.columns:
+            noise["similarity_kappa_claim"] = round(
+                float(cohen_kappa_score(noise_df["generated_claim"], noise_df["perturbed_claim"])), 4
             )
-        if "annotator1_stance" in iaa_df.columns:
-            iaa_kappa["kappa_stance"] = round(
-                float(cohen_kappa_score(iaa_df["annotator1_stance"], iaa_df["annotator2_stance"])), 4
+        if "generated_stance" in noise_df.columns:
+            noise["similarity_kappa_stance"] = round(
+                float(cohen_kappa_score(noise_df["generated_stance"], noise_df["perturbed_stance"])), 4
             )
     else:
-        iaa_kappa["error"] = "iaa_subset.parquet not found"
+        noise["error"] = "noise_robustness_subset.parquet not found"
 
     return {
         "total_examples": {"value": total, "pass": total >= 5000},
@@ -285,15 +286,11 @@ def check_criteria() -> dict[str, Any]:
             for k, v in sorted(by_type.items())
         },
         "split_distribution": {k: int(v) for k, v in by_split.items()},
-        "iaa": iaa_kappa,
-        "iaa_kappa_claim_ge_070": {
-            "value": iaa_kappa.get("kappa_claim"),
-            "pass": (iaa_kappa.get("kappa_claim") or 0) >= 0.70,
-        },
-        "iaa_kappa_stance_ge_070": {
-            "value": iaa_kappa.get("kappa_stance"),
-            "pass": (iaa_kappa.get("kappa_stance") or 0) >= 0.70,
-        },
+        "simulated_noise_robustness": noise,
+        "human_evaluation": _stats().get("human_evaluation", {
+            "status": "not_collected",
+            "note": "Use scripts/human_annotation.py; never substitute simulation for annotators.",
+        }),
     }
 
 
