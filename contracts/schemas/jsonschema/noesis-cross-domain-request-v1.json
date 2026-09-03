@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/contracts/noesis-cross-domain-request-v1.json",
+  "title": "Noesis Cross-domain Request v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["contract", "operation", "all_authorized"],
+  "properties": {
+    "contract": {"const": "noesis-cross-domain-v1"},
+    "operation": {"enum": ["search", "answer", "links"]},
+    "domains": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 50,
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "all_authorized": {"type": "boolean"},
+    "query": {"type": "string", "minLength": 1, "maxLength": 5000},
+    "question": {"type": "string", "minLength": 1, "maxLength": 5000},
+    "kind": {"enum": ["entity", "claim", null]},
+    "relation": {
+      "enum": ["equivalent", "duplicate", "supports", "contradicts", "supersedes", null]
+    },
+    "limit": {"type": "integer", "minimum": 1, "maximum": 100},
+    "per_domain_limit": {"type": "integer", "minimum": 1, "maximum": 100},
+    "minimum_relevance": {"type": "number", "minimum": 0, "maximum": 1},
+    "principal_id": {"type": ["string", "null"], "minLength": 1},
+    "include_private": {"type": "boolean", "default": false}
+  },
+  "oneOf": [
+    {
+      "required": ["domains"],
+      "properties": {"all_authorized": {"const": false}}
+    },
+    {
+      "properties": {"all_authorized": {"const": true}},
+      "not": {"required": ["domains"]}
+    }
+  ],
+  "allOf": [
+    {
+      "if": {"properties": {"operation": {"const": "search"}}},
+      "then": {"required": ["query"]}
+    },
+    {
+      "if": {"properties": {"operation": {"const": "answer"}}},
+      "then": {"required": ["question"]}
+    },
+    {
+      "if": {"properties": {"include_private": {"const": true}}, "required": ["include_private"]},
+      "then": {"required": ["principal_id"]}
+    }
+  ]
+}

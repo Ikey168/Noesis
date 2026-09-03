@@ -37,6 +37,9 @@ new domain content today.
 | `kb_domains()` | `[{name, backing, description, embedding_model}]` |
 | `kb_search(domain, query, limit)` | document rows (cited: id, title, url, source, domain score/method) — lexical; wildcards are literals |
 | `kb_answer(domain, question, limit, minimum_relevance)` | additive `noesis-answer-v1` payload with statement-level verdicts, separate supporting/contradicting evidence, explicit refusal, and a reproducible evidence plan |
+| `kb_search_domains(query, domains? \| all_authorized, limits?, principal?)` | additive `noesis-cross-domain-v1` scope receipt plus a deduplicated reciprocal-rank-fusion result set; every hit retains all domain/backing retrieval receipts |
+| `kb_answer_domains(question, domains? \| all_authorized, limits?, principal?)` | one `noesis-answer-v1` synthesis over the selected domains; statement evidence names its domains/backings and the plan reports per-domain coverage and failures |
+| `kb_cross_links(domains? \| all_authorized, kind?, relation?, limit?)` | inspectable entity equivalences and claim links across domains, including confidence, method, model/run provenance, endpoint evidence, and reversibility |
 | `kb_corroborate(domain, claim_id)` | origin-aware publication, probable-origin, unresolved, and dependency-evidence counts; distinct-source compatibility fallback |
 | `watch_create/list/poll/pause/resume/delete(...)` | additive `noesis-claim-watch-v1` lifecycle and opaque-cursor event polling, principal/domain scoped |
 | `policy_monitor_status(principal_id?, include_private?)` | additive `noesis-policy-monitor-v1` cited receipt; public by default, grant-gated when private is explicit |
@@ -63,6 +66,33 @@ new domain content today.
 - **Stability.** Internal schema changes without a contract bump must keep
   the shape tests green. Breaking changes mean `noesis-kb-v2`, not a
   mutation of this document.
+
+## Cross-domain scope
+
+Cross-domain operations are an additive extension; every single-domain call
+above remains unchanged. A caller supplies exactly one of:
+
+- an explicitly ordered, unique `domains` list; or
+- `all_authorized=true`, which walks registry order and omits domains the
+  caller cannot read.
+
+Private domains additionally require `include_private=true`, an authenticated
+`principal_id`, and a stored domain grant. Explicit unauthorized requests fail
+with `unauthorized`; all-authorized discovery records the omission in the
+scope receipt. Unknown explicit domains fail with `unknown_domain`. A backing
+that becomes unavailable during fan-out is recorded as a typed partial failure
+while healthy-domain results survive.
+
+Cross-domain search compares per-backing *rank*, not raw relevance values. Its
+reciprocal-rank-fusion score is only a deterministic ordering aid and is never
+described as a probability. Mixed embedding models are therefore supported but
+reported as incompatible in the scope receipt. Shared documents are returned
+once with every domain/backing retrieval path attached.
+
+The governed schemas are `noesis-cross-domain-request-v1` and
+`noesis-cross-domain-response-v1`. Cross-domain answers also validate as
+`noesis-answer-v1`; their outer `domain` is the reserved string `cross-domain`, and the complete domain
+scope lives in the evidence plan.
 
 `kb_answer` is additive, so it does not require `noesis-kb-v2`. Its nested
 payload has its own `answer_contract: noesis-answer-v1` discriminator and

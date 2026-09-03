@@ -13,6 +13,9 @@ python tools/kb_mcp/server.py
 
 It exposes domain discovery, scoped search/documents/claims/entities, diffs,
 coverage, integrity envelopes, and the daily brief through `noesis-kb-v1`.
+Its additive cross-domain tools search, answer, and inspect equivalence links
+over explicit or all-authorized domain scopes through
+`noesis-cross-domain-v1`; private domains remain grant-gated.
 All successful responses carry the versioned contract envelope. Query-only KB
 and KG servers open the configured DuckDB file read-only when they run as a
 standalone process.

@@ -86,6 +86,137 @@ def kb_search(
     return _envelope(domain, backing.search(query, limit=int(limit)))
 
 
+def _cross_domain_call(
+    operation,
+    *,
+    domains: Optional[List[str]],
+    all_authorized: bool,
+    principal_id: Optional[str],
+    include_private: bool,
+    limit: int,
+    per_domain_limit: int,
+    conn=None,
+    config_path=None,
+    **kwargs,
+) -> Dict[str, Any]:
+    """Resolve one authorized multi-domain scope and invoke ``operation``."""
+    from src.kb.cross_domain import CrossDomainError, resolve_scope
+
+    try:
+        registry = _registry(config_path)
+        resolved, scope = resolve_scope(
+            registry,
+            conn=conn,
+            domains=domains,
+            all_authorized=all_authorized,
+            principal_id=principal_id,
+            include_private=include_private,
+            limit=limit,
+            per_domain_limit=per_domain_limit,
+        )
+        return _envelope("cross-domain", operation(resolved, scope, **kwargs))
+    except CrossDomainError as exc:
+        raise KBContractError(exc.code, str(exc)) from exc
+
+
+def kb_search_domains(
+    query: str,
+    domains: Optional[List[str]] = None,
+    all_authorized: bool = False,
+    limit: int = 20,
+    per_domain_limit: int = 20,
+    principal_id: Optional[str] = None,
+    include_private: bool = False,
+    conn=None,
+    config_path=None,
+) -> Dict[str, Any]:
+    """Search an explicit domain set or all domains authorized to a principal."""
+    from src.kb.cross_domain import search_across
+
+    return _cross_domain_call(
+        search_across,
+        domains=domains,
+        all_authorized=all_authorized,
+        principal_id=principal_id,
+        include_private=include_private,
+        limit=limit,
+        per_domain_limit=per_domain_limit,
+        conn=conn,
+        config_path=config_path,
+        query=query,
+    )
+
+
+def kb_answer_domains(
+    question: str,
+    domains: Optional[List[str]] = None,
+    all_authorized: bool = False,
+    limit: int = 5,
+    per_domain_limit: int = 5,
+    minimum_relevance: float = 0.34,
+    principal_id: Optional[str] = None,
+    include_private: bool = False,
+    conn=None,
+    config_path=None,
+) -> Dict[str, Any]:
+    """Build one cited Answer v1 response from several authorized domains."""
+    from src.kb.cross_domain import answer_across
+
+    try:
+        answer_limit = int(limit)
+        answer_per_domain_limit = int(per_domain_limit)
+    except (TypeError, ValueError) as exc:
+        raise KBContractError(
+            "bad_request", "limit and per_domain_limit must be integers"
+        ) from exc
+    if not 1 <= answer_limit <= 20 or not 1 <= answer_per_domain_limit <= 20:
+        raise KBContractError(
+            "bad_request", "answer limits must be between 1 and 20"
+        )
+    return _cross_domain_call(
+        answer_across,
+        domains=domains,
+        all_authorized=all_authorized,
+        principal_id=principal_id,
+        include_private=include_private,
+        limit=answer_limit,
+        per_domain_limit=answer_per_domain_limit,
+        conn=conn,
+        config_path=config_path,
+        question=question,
+        minimum_relevance=minimum_relevance,
+    )
+
+
+def kb_cross_links(
+    domains: Optional[List[str]] = None,
+    all_authorized: bool = False,
+    kind: Optional[str] = None,
+    relation: Optional[str] = None,
+    limit: int = 100,
+    principal_id: Optional[str] = None,
+    include_private: bool = False,
+    conn=None,
+    config_path=None,
+) -> Dict[str, Any]:
+    """Inspect reversible entity equivalences and claim links across domains."""
+    from src.kb.cross_domain import links_across
+
+    return _cross_domain_call(
+        links_across,
+        domains=domains,
+        all_authorized=all_authorized,
+        principal_id=principal_id,
+        include_private=include_private,
+        limit=limit,
+        per_domain_limit=limit,
+        conn=conn,
+        config_path=config_path,
+        kind=kind,
+        relation=relation,
+    )
+
+
 def kb_answer(
     domain: str,
     question: str,
