@@ -695,6 +695,14 @@ def _snapshot(backing: Any, watch: Mapping[str, Any], observed_at_ms: int) -> di
                 if isinstance(check, Mapping) and check.get("verdict")
                 else "unverifiable"
             )
+        independence = cluster.get("independence") or {
+            "method": "distinct-source-fallback-v1",
+            "publication_count": sum(1 for row in support if row.get("cited")),
+            "independent_source_count": len(sources),
+            "probable_origin_count": len(sources),
+            "unresolved_count": 0,
+            "dependency_evidence": [],
+        }
         state = {
             "cluster_id": str(cluster.get("cluster_id") or ""),
             "claim_ids": sorted(
@@ -705,12 +713,7 @@ def _snapshot(backing: Any, watch: Mapping[str, Any], observed_at_ms: int) -> di
             "support": support,
             "contradictions": contradictions,
             "contradiction_keys": sorted(set(contradiction_keys)),
-            "independence": {
-                "method": "distinct-source-v1",
-                "publication_count": sum(1 for row in support if row.get("cited")),
-                "independent_source_count": len(sources),
-                "origins": sources,
-            },
+            "independence": independence,
             "quantitative_verdicts": quantitative,
         }
         claim_states.append(state)

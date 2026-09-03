@@ -35,6 +35,7 @@ ASSUMPTIONS = [
     "transparency reuses the outlet composite score, which keys on source not on being news",
     "corroboration hit-rate needs claims with evidence; sparse sources carry wide intervals",
     "correction history approximated by disputed fact-check verdicts on the source's claims",
+    "origin lineage is reported separately and never collapsed into the reliability figure",
 ]
 
 
@@ -130,6 +131,23 @@ def source_reliability(conn, source: str) -> Dict[str, Any]:
     component_devs = [p - composite for p in parts]
     coverage = round(coverage_of_band(component_devs, half), 4)
 
+    document_ids = []
+    if common.table_exists(conn, "documents"):
+        document_ids = [
+            row[0]
+            for row in conn.execute(
+                "SELECT document_id FROM documents WHERE source_id = ? ORDER BY document_id",
+                [source],
+            ).fetchall()
+        ]
+    from src.osint.independence import origin_summary
+
+    lineage = origin_summary(
+        conn,
+        document_ids,
+        sources=[source for _document_id in document_ids],
+    )
+
     return analytic_envelope(
         n=evidence,
         method=METHOD,
@@ -149,5 +167,6 @@ def source_reliability(conn, source: str) -> Dict[str, Any]:
         },
         corroboration={"corroborated_claims": claims["corroborated"], "total_claims": total_claims},
         corrections={"disputed_claims": claims["disputed"]},
+        lineage=lineage,
         scored_as_outlet=transparency is not None,
     )

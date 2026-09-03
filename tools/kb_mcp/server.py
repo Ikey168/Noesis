@@ -14,6 +14,7 @@ Tools:
   kb_search(domain, query, limit=20)          -> lexical search, cited rows
   kb_answer(domain, question, limit=5,
             minimum_relevance=.34)            -> structured extractive answer
+  kb_corroborate(domain, claim_id)             -> publication/origin counts
   kb_documents(domain, since?, limit=50)      -> member documents, newest arrival first
   kb_claims(domain, since?, limit=50)         -> clustered, cited claims
   kb_entities(domain, name?)                  -> canonical entities, aliases folded
@@ -84,6 +85,14 @@ def kb_answer(
         limit,
         minimum_relevance,
     )
+
+
+@mcp.tool()
+def kb_corroborate(domain: str, claim_id: str) -> Dict[str, Any]:
+    """Origin-aware corroboration with publications, origins, and unresolved counts."""
+    from src.kb import contract
+
+    return _run(contract.kb_corroborate, domain, claim_id)
 
 
 @mcp.tool()

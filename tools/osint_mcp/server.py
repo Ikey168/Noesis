@@ -6,8 +6,10 @@ pure composition of layers Noesis already builds. Nothing here crawls, targets
 or de-anonymizes; the tools only read the warehouse.
 
 Tools (all annotated for R2 discovery under the `osint` ui_flag):
-  corroborate(claim_id)              -> corroboration panel: independent sources
+  corroborate(claim_id)              -> publication and probable-origin counts
                                         for/against, weighted by credibility
+  origin_signals(document_id)        -> extracted provenance signals only
+  evidence_origin_graph(document_ids?)-> probable origins + typed relations
   source_reliability(source)         -> reliability card: transparency,
                                         corroboration hit-rate, corrections
   contradiction_scan(topic?, entity?)-> contradiction ledger: cited CONTRADICTS
@@ -54,6 +56,13 @@ def _warehouse_ro():
             "contradict": {"type": "array"},
             "independent_support_count": {"type": "integer"},
             "independent_contradict_count": {"type": "integer"},
+            "publication_support_count": {"type": "integer"},
+            "publication_contradict_count": {"type": "integer"},
+            "probable_origin_support_count": {"type": "integer"},
+            "probable_origin_contradict_count": {"type": "integer"},
+            "unresolved_support_count": {"type": "integer"},
+            "unresolved_contradict_count": {"type": "integer"},
+            "independence": {"type": "object"},
             "weighted_support": {"type": "number"},
             "weighted_contradict": {"type": "number"},
             "single_sourced": {"type": "boolean"},
@@ -61,8 +70,8 @@ def _warehouse_ro():
     ),
 )
 def corroborate(claim_id: str) -> dict:
-    """How many independent sources support or contradict a claim, and how
-    credible they are. Never collapses to a single confidence number.
+    """How many probable origins support or contradict a claim, alongside
+    publication counts and credibility. Never collapses to one confidence.
 
     Args:
         claim_id: the claim to corroborate (see argument_mcp.list_claims).
@@ -81,6 +90,43 @@ def corroborate(claim_id: str) -> dict:
         con.close()
 
 
+@mcp.tool()
+def origin_signals(document_id: str) -> dict:
+    """Read deterministic provenance signals independently of clustering."""
+    try:
+        con = _warehouse_ro()
+    except Exception as exc:
+        return {"error": str(exc)}
+    try:
+        from src.osint.independence import document_signals
+
+        return document_signals(con, document_id) or {
+            "document_id": document_id,
+            "status": "not_available",
+        }
+    except Exception as exc:
+        return {"error": str(exc)}
+    finally:
+        con.close()
+
+
+@mcp.tool()
+def evidence_origin_graph(document_ids: Optional[list[str]] = None) -> dict:
+    """Current probable reporting origins and explainable document relations."""
+    try:
+        con = _warehouse_ro()
+    except Exception as exc:
+        return {"error": str(exc)}
+    try:
+        from src.osint.independence import origin_graph
+
+        return origin_graph(con, document_ids)
+    except Exception as exc:
+        return {"error": str(exc)}
+    finally:
+        con.close()
+
+
 @mcp.tool(
     output_schema=honesty_output_schema(
         {
@@ -91,6 +137,7 @@ def corroborate(claim_id: str) -> dict:
             "track_record": {"type": "object"},
             "corroboration": {"type": "object"},
             "corrections": {"type": "object"},
+            "lineage": {"type": "object"},
             "scored_as_outlet": {"type": "boolean"},
         }
     ),

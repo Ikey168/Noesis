@@ -69,6 +69,9 @@ For the project overview and local setup, start with the
 - [Claim Watch v1](../contracts/noesis-claim-watch-v1.md) — durable,
   principal-scoped evidence-change subscriptions with committed watermarks,
   replay, and opaque cursors
+- [Evidence Independence Graph v1](../contracts/noesis-evidence-independence-v1.md)
+  — probable reporting origins, inspectable dependency evidence, calibrated
+  offline evaluation, and a truthful distinct-source fallback
 
 ## Security & safety
 

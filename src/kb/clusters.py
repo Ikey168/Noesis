@@ -14,8 +14,8 @@ of a story collapse to one entry with a source list.
 - **Representative** = recency blended with source quality, using the
   existing ``outlet_scores`` transparency scores as the quality input.
   Superseded claims are never chosen while a live member exists.
-- **Corroboration** = independent sources per cluster (distinct normalized
-  ``source_id``), not raw row count.
+- **Corroboration** = probable reporting origins per cluster when lineage is
+  materialized, otherwise the explicitly identified distinct-source fallback.
 - **Contradictions** = ``contradicts`` links whose endpoints land in
   different clusters, cited on both sides.
 - **Supersedence** honoured at presentation: superseded members are marked
@@ -255,19 +255,21 @@ def cluster_claims(
                      "confidence": confidence, "prediction_mode": mode}
                 )
 
-        corroboration = len(
-            {
-                str(c["source"]).strip().lower()
-                for c in citations
-                if c["source"]
-            }
+        from src.osint.independence import origin_summary
+
+        independence = origin_summary(
+            conn,
+            [citation.get("document_id") for citation in citations],
+            sources=[citation.get("source") for citation in citations],
         )
+        corroboration = independence["independent_source_count"]
         clusters.append(
             {
                 "cluster_id": cluster_id,
                 "representative": representative,
                 "citations": citations,
                 "corroboration": corroboration,
+                "independence": independence,
                 "contradictions": contradictions,
                 "size": len(citations),
                 "last_ingested_ms": newest[cluster_id],

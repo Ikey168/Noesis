@@ -31,6 +31,7 @@ from src.osint.investigations import (
     list_investigations,
     osint_telemetry,
 )
+from src.osint.independence import document_signals, origin_graph, origin_summary
 from src.osint.paths import relationship_path
 from src.osint.provenance import trace_artifact
 from src.osint.reliability import source_reliability
@@ -41,6 +42,9 @@ __all__ = [
     "corroborate",
     "source_reliability",
     "contradiction_scan",
+    "document_signals",
+    "origin_graph",
+    "origin_summary",
     # R11 investigation surface
     "entity_dossier",
     "relationship_path",

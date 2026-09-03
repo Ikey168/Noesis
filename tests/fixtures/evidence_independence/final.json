@@ -1,0 +1,123 @@
+{
+  "partition": "final-test",
+  "cases": [
+    {
+      "name": "press release republication",
+      "documents": [
+        {
+          "document_id": "press-a",
+          "source_type": "filing",
+          "source_id": "ministry",
+          "title": "Ministry launches grant program",
+          "content": "For immediate release. The ministry launched a grant program for rural clinics with applications opening Monday.",
+          "metadata": {"document_kind": "press_release", "original_reporting": true, "upstream_source": "Health Ministry"},
+          "expected_origin": "press",
+          "expected_state": "known_independent"
+        },
+        {
+          "document_id": "press-b",
+          "source_type": "article",
+          "source_id": "health-daily",
+          "title": "Ministry launches rural clinic grants",
+          "content": "The ministry launched a grant program for rural clinics and said applications will open on Monday.",
+          "metadata": {"upstream_source": "Health Ministry"},
+          "expected_origin": "press",
+          "expected_state": "likely_dependent"
+        }
+      ]
+    },
+    {
+      "name": "shared media and quoted passage rewrite",
+      "documents": [
+        {
+          "document_id": "media-a",
+          "source_type": "article",
+          "source_id": "local-one",
+          "title": "Bridge repair begins",
+          "content": "Bridge repair work began Wednesday. “The crossing will remain open throughout construction,” the engineer said. Crews expect completion in June.",
+          "authors": ["Taylor Kim"],
+          "metadata": {"media_hashes": ["image-bridge-01"]},
+          "expected_origin": "bridge",
+          "expected_state": "likely_dependent"
+        },
+        {
+          "document_id": "media-b",
+          "source_type": "article",
+          "source_id": "local-two",
+          "title": "Work starts on bridge repair",
+          "content": "Bridge repair work started Wednesday. “The crossing will remain open throughout construction,” the engineer said. The crews expect to finish during June.",
+          "authors": ["Taylor Kim"],
+          "metadata": {"media_hashes": ["image-bridge-01"]},
+          "expected_origin": "bridge",
+          "expected_state": "likely_dependent"
+        }
+      ]
+    },
+    {
+      "name": "paper and filing independently establish one claim",
+      "documents": [
+        {
+          "document_id": "paper-a",
+          "source_type": "paper",
+          "source_id": "research-journal",
+          "title": "River temperature measurements",
+          "content": "Researchers measured a two degree increase using sensors at twelve upstream sampling stations.",
+          "authors": ["Research Team"],
+          "metadata": {"original_reporting": true, "references": ["https://doi.example/data"]},
+          "expected_origin": "research",
+          "expected_state": "known_independent"
+        },
+        {
+          "document_id": "filing-a",
+          "source_type": "filing",
+          "source_id": "water-agency",
+          "title": "Annual river filing",
+          "content": "The regulator filing reports warmer water based on its independent station audit and instrument logs.",
+          "metadata": {"original_reporting": true},
+          "expected_origin": "regulator",
+          "expected_state": "known_independent"
+        }
+      ]
+    },
+    {
+      "name": "shared outbound source supports a near copy",
+      "documents": [
+        {
+          "document_id": "link-a",
+          "source_type": "article",
+          "source_id": "desk-a",
+          "title": "Election commission publishes totals",
+          "content": "The election commission published final district totals after completing the recount on Friday evening.",
+          "metadata": {"source_links": ["https://commission.example/results"]},
+          "expected_origin": "link-copy",
+          "expected_state": "likely_dependent"
+        },
+        {
+          "document_id": "link-b",
+          "source_type": "article",
+          "source_id": "desk-b",
+          "title": "Election commission publishes final totals",
+          "content": "The election commission published the final district totals after completing Friday evening's recount.",
+          "metadata": {"source_links": ["https://commission.example/results"]},
+          "expected_origin": "link-copy",
+          "expected_state": "likely_dependent"
+        }
+      ]
+    },
+    {
+      "name": "unknown source remains unresolved",
+      "documents": [
+        {
+          "document_id": "unknown-a",
+          "source_type": "unknown",
+          "source_id": null,
+          "title": "Unattributed bulletin",
+          "content": "A short bulletin lists a closure but supplies no author, links, timestamp, or upstream attribution.",
+          "metadata": {},
+          "expected_origin": null,
+          "expected_state": "unknown"
+        }
+      ]
+    }
+  ]
+}

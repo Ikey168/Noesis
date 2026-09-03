@@ -74,6 +74,10 @@ surface. The full design lives in the
   immutable evidence-change events after committed consolidation watermarks.
   Owner-bound polling resumes through opaque cursors without gaps or duplicate
   logical events; private domains require explicit grants.
+- **Evidence Independence Graph.** Corroboration keeps publication count
+  separate from probable reporting origins, preserves unknown provenance, and
+  exposes the signals behind syndication and dependency inference. Existing
+  warehouses retain an explicit distinct-source fallback until backfilled.
 - **OSINT investigation surface.** Entity dossiers, relationship paths,
   reconstructed timelines, and provenance traces over ingested open sources,
   all under a strict evidence discipline (every line is cited; uncited entries

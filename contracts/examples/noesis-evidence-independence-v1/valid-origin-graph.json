@@ -1,0 +1,65 @@
+{
+  "method": "deterministic evidence-independence graph",
+  "method_version": "origin-inference-v1",
+  "origins": [
+    {
+      "origin_id": "origin:0123456789abcdef01234567",
+      "origin_state": "probable",
+      "representative_document_id": "wire-a",
+      "member_count": 2,
+      "n": 2,
+      "method": "deterministic evidence-independence graph",
+      "method_version": "origin-inference-v1",
+      "assumptions": ["the node is a probable reporting origin, not proven authorship"]
+    }
+  ],
+  "links": [
+    {
+      "document_id": "wire-a",
+      "origin_id": "origin:0123456789abcdef01234567",
+      "relation_state": "likely_dependent",
+      "confidence": {"value": 0.99, "lo": 0.89, "hi": 1.0, "level": 0.9},
+      "reason_codes": ["exact_content_match"],
+      "decisive_signals": {"component_reasons": ["exact_content_match"]},
+      "as_of_ms": 1000,
+      "run_id": "example-run",
+      "n": 1,
+      "method": "deterministic evidence-independence graph",
+      "method_version": "origin-inference-v1",
+      "assumptions": ["this relation is an origin inference, not proven authorship"]
+    },
+    {
+      "document_id": "wire-b",
+      "origin_id": "origin:0123456789abcdef01234567",
+      "relation_state": "likely_dependent",
+      "confidence": {"value": 0.99, "lo": 0.89, "hi": 1.0, "level": 0.9},
+      "reason_codes": ["exact_content_match"],
+      "decisive_signals": {"component_reasons": ["exact_content_match"]},
+      "as_of_ms": 1000,
+      "run_id": "example-run",
+      "n": 1,
+      "method": "deterministic evidence-independence graph",
+      "method_version": "origin-inference-v1",
+      "assumptions": ["this relation is an origin inference, not proven authorship"]
+    },
+    {
+      "document_id": "unknown-a",
+      "origin_id": null,
+      "relation_state": "unknown",
+      "confidence": {"value": 0.5, "lo": 0.0, "hi": 1.0, "level": 0.9},
+      "reason_codes": ["insufficient_provenance"],
+      "decisive_signals": {},
+      "as_of_ms": 1000,
+      "run_id": "example-run",
+      "n": 1,
+      "method": "deterministic evidence-independence graph",
+      "method_version": "origin-inference-v1",
+      "assumptions": ["this relation is an origin inference, not proven authorship"]
+    }
+  ],
+  "publication_count": 3,
+  "probable_origin_count": 1,
+  "unresolved_count": 1,
+  "n": 3,
+  "assumptions": ["probable origins preserve every publication and expose unresolved provenance"]
+}

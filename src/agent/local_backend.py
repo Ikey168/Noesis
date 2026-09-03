@@ -63,6 +63,14 @@ def build_local_caller(conn, clock: Optional[Callable[[], Any]] = None):
 
         if tool == "corroborate":
             return corroborate(conn, a["claim_id"])
+        if tool == "origin_signals":
+            from src.osint.independence import document_signals
+
+            return document_signals(conn, a["document_id"])
+        if tool == "evidence_origin_graph":
+            from src.osint.independence import origin_graph
+
+            return origin_graph(conn, a.get("document_ids"))
         if tool == "source_reliability":
             return source_reliability(conn, a["source"])
         if tool == "contradiction_scan":

@@ -132,6 +132,31 @@ def kb_answer(
     )
 
 
+def kb_corroborate(
+    domain: str,
+    claim_id: str,
+    conn=None,
+    config_path=None,
+) -> Dict[str, Any]:
+    """Origin-aware corroboration for one claim visible in the domain."""
+    if not isinstance(claim_id, str) or not claim_id.strip():
+        raise KBContractError("bad_request", "claim_id must be non-empty")
+    backing = _backing(domain, conn, config_path)
+    visible = {
+        str(citation.get("claim_id"))
+        for cluster in backing.claims(limit=100_000)
+        for citation in cluster.get("citations", [])
+        if citation.get("claim_id")
+    }
+    if claim_id not in visible:
+        raise KBContractError(
+            "not_found", f"claim {claim_id!r} is not a member of domain {domain!r}"
+        )
+    from src.osint.corroboration import corroborate
+
+    return _envelope(domain, corroborate(backing.conn, claim_id))
+
+
 def _watch_connection(conn=None):
     if conn is not None:
         return conn
