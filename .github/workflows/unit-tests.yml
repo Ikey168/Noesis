@@ -6,6 +6,7 @@ name: Unit Tests
 # suites run on the scheduled full lane.
 
 on:
+  workflow_dispatch:
   push:
     branches: [main]
     paths:
