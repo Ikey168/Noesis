@@ -1,0 +1,11 @@
+#!/usr/bin/env python3
+"""Repository-local Noesis CLI launcher.
+
+Evidence-bundle verification is the first command. The packaging/CLI epic can
+extend the same parser and install this entry point without changing its
+contract or exit codes.
+"""
+
+from src.evidence_bundle.cli import main
+
+raise SystemExit(main())

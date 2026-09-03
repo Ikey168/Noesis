@@ -68,6 +68,7 @@ jobs:
             tests/unit/argument_mining \
             tests/unit/config \
             tests/unit/domains \
+            tests/unit/evidence_bundle \
             tests/unit/handlers \
             tests/unit/ingestion \
             tests/unit/kb \
