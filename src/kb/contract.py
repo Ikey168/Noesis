@@ -337,6 +337,66 @@ def watch_observability(conn=None) -> Dict[str, Any]:
     return _envelope(None, watch_metrics(_watch_connection(conn)))
 
 
+def policy_monitor_status(
+    principal_id: Optional[str] = None,
+    include_private: bool = False,
+    conn=None,
+    fixture_path=None,
+) -> Dict[str, Any]:
+    """Read the fictional policy scenario through its privacy-safe contract.
+
+    The public response is built only from public domain membership. Private
+    guidance is compared only after both an authenticated principal and an
+    explicit domain grant are present.
+    """
+    from src.policy_monitor import PolicyMonitorError, authorized_view, public_view
+
+    connection = _watch_connection(conn)
+    kwargs = {"fixture_path": fixture_path} if fixture_path is not None else {}
+    try:
+        if include_private:
+            if not principal_id:
+                raise KBContractError(
+                    "unauthorized", "private policy status requires a principal"
+                )
+            payload = authorized_view(connection, principal_id, **kwargs)
+        else:
+            payload = public_view(connection, **kwargs)
+    except PolicyMonitorError as exc:
+        raise KBContractError("unauthorized", str(exc)) from exc
+    except (KeyError, IndexError) as exc:
+        raise KBContractError(
+            "not_found", "the policy monitor scenario has not been provisioned"
+        ) from exc
+    return _envelope("clean-heat-public", payload)
+
+
+def policy_monitor_bundle(
+    principal_id: Optional[str] = None,
+    include_private: bool = False,
+    conn=None,
+    fixture_path=None,
+) -> Dict[str, Any]:
+    """Export a verifiable public bundle, or an explicitly authorized private one."""
+    from src.policy_monitor import PolicyMonitorError, export_policy_bundle
+
+    kwargs = {"fixture_path": fixture_path} if fixture_path is not None else {}
+    try:
+        payload = export_policy_bundle(
+            _watch_connection(conn),
+            principal_id=principal_id,
+            include_private=bool(include_private),
+            **kwargs,
+        )
+    except PolicyMonitorError as exc:
+        raise KBContractError("unauthorized", str(exc)) from exc
+    except (KeyError, IndexError) as exc:
+        raise KBContractError(
+            "not_found", "the policy monitor scenario has not been provisioned"
+        ) from exc
+    return _envelope("clean-heat-public", payload)
+
+
 def kb_documents(
     domain: str,
     since: Optional[str] = None,

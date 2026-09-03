@@ -22,6 +22,10 @@ Tools:
   kb_diff(domain, since)                      -> the change feed (six sections)
   kb_integrity(domain, document_id?, limit?)  -> snapshots/revisions/media ledger
   kb_coverage(domain)                         -> corpus stats, freshness, backing
+  policy_monitor_status(include_private?,
+                        principal_id?)         -> cited policy-monitor receipt
+  policy_monitor_bundle(include_private?,
+                        principal_id?)         -> verifiable policy bundle
   watch_create/list/poll/pause/resume/delete  -> durable cursor-based watches
 
 Contract doc: contracts/noesis-kb-v1.md. Errors return
@@ -178,6 +182,38 @@ def kb_integrity(
     from src.kb import contract
 
     return _run(contract.kb_integrity, domain, document_id, limit)
+
+
+@mcp.tool()
+def policy_monitor_status(
+    include_private: bool = False,
+    principal_id: Optional[str] = None,
+) -> Dict[str, Any]:
+    """Return the fictional policy scenario's cited public status. Authorized
+    callers may explicitly request the stale private-guidance comparison."""
+    from src.kb import contract
+
+    return _run(
+        contract.policy_monitor_status,
+        principal_id,
+        include_private,
+    )
+
+
+@mcp.tool()
+def policy_monitor_bundle(
+    include_private: bool = False,
+    principal_id: Optional[str] = None,
+) -> Dict[str, Any]:
+    """Export a verifiable public policy bundle. Private evidence requires an
+    authenticated principal with a stored private-domain grant."""
+    from src.kb import contract
+
+    return _run(
+        contract.policy_monitor_bundle,
+        principal_id,
+        include_private,
+    )
 
 
 @mcp.tool()

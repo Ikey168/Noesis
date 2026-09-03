@@ -1,0 +1,162 @@
+{
+  "contract": "noesis-policy-monitor-fixture-v1",
+  "scenario_id": "clean-heat-rule",
+  "title": "Fictional Clean Heat Reporting Rule",
+  "license": "CC0-1.0",
+  "synthetic": true,
+  "disclaimer": "All organizations, people, rules, votes, URLs, and figures are fictional.",
+  "timeline": {
+    "baseline_watermark": 1,
+    "revision_watermark": 2,
+    "as_of_ms": 1770336000000
+  },
+  "documents": [
+    {
+      "document_id": "policy:clean-heat-rule",
+      "source_type": "note",
+      "language": "en",
+      "ingested_at": 1767225600000,
+      "created_at": 1767225600000,
+      "source_id": "Northland Rule Register",
+      "url": "https://policy.invalid/clean-heat-rule",
+      "title": "Clean Heat Reporting Rule — original text",
+      "content": "Covered facilities using at least 10,000 megawatt-hours annually must begin reporting in January 2028.",
+      "assertions": {"energy_threshold_mwh": 10000, "reporting_start": "2028-01"},
+      "metadata": {
+        "tags": ["policy-monitor"],
+        "role": "primary_legislation",
+        "license": "CC0-1.0"
+      }
+    },
+    {
+      "document_id": "policy:agency-bulletin",
+      "source_type": "note",
+      "language": "en",
+      "ingested_at": 1770249600000,
+      "created_at": 1770249600000,
+      "source_id": "Northland Energy Office",
+      "url": "https://agency.invalid/bulletin-17",
+      "title": "Bulletin 17 confirms amended threshold",
+      "content": "The final Clean Heat rule covers facilities at or above 15,000 megawatt-hours and begins in January 2027.",
+      "metadata": {
+        "tags": ["policy-monitor"],
+        "role": "agency_filing",
+        "license": "CC0-1.0",
+        "original_reporting": true,
+        "claim_texts": ["The threshold is 15,000 MWh and reporting begins January 2027."]
+      }
+    },
+    {
+      "document_id": "policy:civic-wire",
+      "source_type": "news",
+      "language": "en",
+      "ingested_at": 1770249660000,
+      "created_at": 1770249660000,
+      "source_id": "Civic Wire",
+      "url": "https://civic-wire.invalid/clean-heat-amended",
+      "title": "Clean Heat threshold raised in final text",
+      "content": "Civic Wire reviewed the final text: the threshold is 15,000 MWh and reporting begins in January 2027.",
+      "metadata": {
+        "tags": ["policy-monitor"],
+        "role": "reporting",
+        "license": "CC0-1.0",
+        "original_reporting": true,
+        "upstream_source": "Civic Wire",
+        "claim_texts": ["The threshold is 15,000 MWh and reporting begins January 2027."]
+      }
+    },
+    {
+      "document_id": "policy:daily-ledger-copy",
+      "source_type": "news",
+      "language": "en",
+      "ingested_at": 1770249720000,
+      "created_at": 1770249720000,
+      "source_id": "Daily Ledger",
+      "url": "https://ledger.invalid/clean-heat",
+      "title": "Final rule raises Clean Heat threshold",
+      "content": "According to Civic Wire, the final threshold is 15,000 MWh and reporting starts in January 2027.",
+      "metadata": {
+        "tags": ["policy-monitor"],
+        "role": "reporting",
+        "license": "CC0-1.0",
+        "upstream_source": "Civic Wire",
+        "claim_texts": ["The threshold is 15,000 MWh and reporting begins January 2027."]
+      }
+    },
+    {
+      "document_id": "policy:evening-post-copy",
+      "source_type": "news",
+      "language": "en",
+      "ingested_at": 1770249780000,
+      "created_at": 1770249780000,
+      "source_id": "Evening Post",
+      "url": "https://post.invalid/clean-heat",
+      "title": "Clean Heat reporting starts sooner",
+      "content": "Via Civic Wire, covered facilities now face a 15,000 MWh threshold and a January 2027 start.",
+      "metadata": {
+        "tags": ["policy-monitor"],
+        "role": "reporting",
+        "license": "CC0-1.0",
+        "upstream_source": "Civic Wire",
+        "claim_texts": ["The threshold is 15,000 MWh and reporting begins January 2027."]
+      }
+    },
+    {
+      "document_id": "policy:independent-review",
+      "source_type": "blog",
+      "language": "en",
+      "ingested_at": 1770249840000,
+      "created_at": 1770249840000,
+      "source_id": "Northland Policy Review",
+      "url": "https://review.invalid/clean-heat-analysis",
+      "title": "Independent comparison of Clean Heat drafts",
+      "content": "Our independent comparison found that the final threshold is 15,000 MWh and the start moved to January 2027.",
+      "metadata": {
+        "tags": ["policy-monitor"],
+        "role": "reporting",
+        "license": "CC0-1.0",
+        "original_reporting": true,
+        "claim_texts": ["The threshold is 15,000 MWh and reporting begins January 2027."]
+      }
+    },
+    {
+      "document_id": "policy:contradiction",
+      "source_type": "blog",
+      "language": "en",
+      "ingested_at": 1770249900000,
+      "created_at": 1770249900000,
+      "source_id": "Factory Forum",
+      "url": "https://forum.invalid/clean-heat-commentary",
+      "title": "Commentary says old threshold remains",
+      "content": "The Clean Heat threshold remains 10,000 MWh and reporting will not begin before January 2028.",
+      "metadata": {
+        "tags": ["policy-monitor"],
+        "role": "contradicting_reporting",
+        "license": "CC0-1.0",
+        "original_reporting": true,
+        "claim_texts": ["The threshold remains 10,000 MWh and reporting begins January 2028."]
+      }
+    }
+  ],
+  "revision": {
+    "document_id": "policy:clean-heat-rule",
+    "fetched_at_ms": 1770163200000,
+    "content": "Covered facilities using at least 15,000 megawatt-hours annually must begin reporting in January 2027.",
+    "assertions": {"energy_threshold_mwh": 15000, "reporting_start": "2027-01"}
+  },
+  "filing": {
+    "filer": "Northstar Ceramics",
+    "filing_id": "northstar-2026-energy",
+    "filed_at": 1770076800000,
+    "source_url": "https://filings.invalid/northstar-2026",
+    "narrative": "Northstar Ceramics annual covered energy use was 12,400 MWh in 2025.",
+    "facts": [{"concept": "CoveredEnergyUse", "value": 12400, "period": "2025", "unit": "MWh"}]
+  },
+  "private_memo": {
+    "title": "Clean Heat compliance guidance",
+    "as_of_ms": 1767657600000,
+    "content": "Internal guidance: Northstar exceeds the 10,000 MWh threshold and should prepare for reporting in January 2028.",
+    "assertions": {"energy_threshold_mwh": 10000, "reporting_start": "2028-01"}
+  },
+  "vote_source": "votes.json"
+}

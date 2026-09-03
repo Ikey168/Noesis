@@ -261,6 +261,11 @@ These surfaces ship behind feature flags that are off by default:
 | `outlet_clusters` | k-means and hierarchical cluster assignments |
 | `outlet_scores` | Weekly transparency scores (diversity, attribution, neutrality) |
 
+For a complete offline policy-change example—including revision detection,
+origin-aware corroboration, an authorized stale-guidance watch, and a verified
+evidence bundle—run `make policy-monitor`. See the
+[policy monitor tutorial](docs/guides/policy-monitor.md).
+
 Provisioned knowledge graphs live in namespaced tables (and optionally their
 own attached DuckDB databases), so a new domain never collides with the news
 corpus.

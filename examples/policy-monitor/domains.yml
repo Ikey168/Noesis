@@ -1,0 +1,18 @@
+version: 1
+domains:
+  - name: clean-heat-public
+    backing: corpus-view
+    description: Public record for the fictional Clean Heat Reporting Rule.
+    embedding_model: all-MiniLM-L6-v2
+    tags: [policy-monitor]
+    keywords: []
+    embedding_anchors: []
+    feeds: []
+  - name: clean-heat-private
+    backing: corpus-view
+    description: Authorized internal guidance for the fictional Clean Heat rule.
+    embedding_model: all-MiniLM-L6-v2
+    tags: [policy-monitor-private, private]
+    keywords: []
+    embedding_anchors: []
+    feeds: []
