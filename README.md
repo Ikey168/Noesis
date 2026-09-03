@@ -66,6 +66,10 @@ surface. The full design lives in the
 - **Portable evidence bundles.** Exports answers, claims, integrity records,
   and receipts as content-addressed `noesis-evidence-bundle-v1` packages that
   recipients can verify offline without a warehouse or network connection.
+- **Verifiable answers.** `kb_answer` turns one question into a deterministic
+  `noesis-answer-v1` evidence plan: every extractive statement separates
+  supporting and contradicting citations or refuses explicitly when evidence
+  is insufficient. Python, MCP, and REST share the same implementation.
 - **OSINT investigation surface.** Entity dossiers, relationship paths,
   reconstructed timelines, and provenance traces over ingested open sources,
   all under a strict evidence discipline (every line is cited; uncited entries

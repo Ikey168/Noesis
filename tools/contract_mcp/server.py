@@ -50,6 +50,8 @@ STAGE_ALIASES = {
     "ask-request": "ask-request-v1",
     "answer": "ask-response-v1",
     "ask-response": "ask-response-v1",
+    "kb-answer": "noesis-answer-v1",
+    "verifiable-answer": "noesis-answer-v1",
     "evidence-bundle": "noesis-evidence-bundle-v1",
     "bundle": "noesis-evidence-bundle-v1",
     "search": "search-request",

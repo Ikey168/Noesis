@@ -83,7 +83,9 @@ def build_receipts(conn, config_path: Path) -> dict[str, Any]:
     from src.analytics.claim_check import check_assertion, record_check
     from src.analytics.honesty import validate_analytic_output
     from src.argument_mining.quantities import QuantityExtractor
-    from src.kb.contract import kb_brief, kb_claims, kb_search
+    from src.evidence_bundle import export_answer, verify_bundle
+    from src.kb.answer_eval import evaluate_answer
+    from src.kb.contract import kb_answer, kb_brief, kb_claims, kb_search
     from src.osint.corroboration import corroborate
     from src.osint.dossier import entity_dossier
     from src.osint.evidence import citation
@@ -98,6 +100,26 @@ def build_receipts(conn, config_path: Path) -> dict[str, Any]:
     )[0]
     data_check = check_assertion(conn, assertion)
     record_check(conn, data_check, claim_id="showcase-unverifiable")
+
+    answer = kb_answer(
+        "news",
+        "What was annual inflation in 2025?",
+        conn=conn,
+        config_path=config_path,
+    )
+    answer_refusal = kb_answer(
+        "news",
+        "What was lunar rainfall in 1900?",
+        conn=conn,
+        config_path=config_path,
+    )
+    answer_evaluation = evaluate_answer(answer)
+    answer_bundle = export_answer(
+        answer,
+        inputs={"domain": "news", "question": answer["data"]["question"]},
+        created_at_ms=answer["as_of_ms"],
+    )
+    answer_bundle_verification = verify_bundle(answer_bundle).to_dict()
 
     brief = kb_brief(
         domains=["news"], since="1970-01-01T00:00:00Z", budget=5,
@@ -118,6 +140,13 @@ def build_receipts(conn, config_path: Path) -> dict[str, Any]:
         "uncited_is_flagged": uncited.get("cited") is False,
         "person_refusal_is_explicit": refusal.get("code") == "person_requires_documents",
         "brief_is_cited": "uncited — flagged" not in brief["data"]["markdown"],
+        "answer_contract_valid": answer_evaluation["passed"],
+        "answer_bundle_valid": answer_bundle_verification["valid"],
+        "answer_refusal_is_explicit": (
+            answer_refusal["data"]["answer_status"] == "refused"
+            and answer_refusal["data"]["refusal"]["code"]
+            == "insufficient_evidence"
+        ),
     }
     return {
         "flow": {
@@ -126,12 +155,16 @@ def build_receipts(conn, config_path: Path) -> dict[str, Any]:
             "corroborate": corroboration,
             "claim_vs_data": data_check,
             "kb_brief": brief,
+            "kb_answer": answer,
         },
         "intentional_failure_states": {
             "uncited": uncited,
             "unverifiable": data_check,
             "person_dossier_refusal": refusal,
+            "answer_refusal": answer_refusal,
         },
+        "answer_quality": answer_evaluation,
+        "answer_bundle_verification": answer_bundle_verification,
         "verification": {**checks, "all_passed": all(checks.values())},
     }
 
@@ -143,6 +176,11 @@ def main() -> int:
         "--bundle-output",
         type=Path,
         help="also write a verified noesis-evidence-bundle-v1 package",
+    )
+    parser.add_argument(
+        "--answer-bundle-output",
+        type=Path,
+        help="also write the showcase answer as a verified evidence bundle",
     )
     args = parser.parse_args()
 
@@ -173,6 +211,29 @@ def main() -> int:
         receipt["evidence_bundle"] = {
             "path": str(args.bundle_output),
             "bundle_id": bundle["bundle_id"],
+            "verification": verification.to_dict(),
+        }
+    if args.answer_bundle_output:
+        from src.evidence_bundle import export_answer, verify_bundle
+
+        answer = receipt["flow"]["kb_answer"]
+        answer_bundle = export_answer(
+            answer,
+            inputs={"domain": "news", "question": answer["data"]["question"]},
+            created_at_ms=answer["as_of_ms"],
+        )
+        verification = verify_bundle(
+            answer_bundle, bundle_path=args.answer_bundle_output
+        )
+        bundle_valid = bundle_valid and verification.valid
+        args.answer_bundle_output.parent.mkdir(parents=True, exist_ok=True)
+        args.answer_bundle_output.write_text(
+            json.dumps(answer_bundle, indent=2, default=str) + "\n",
+            encoding="utf-8",
+        )
+        receipt["answer_evidence_bundle"] = {
+            "path": str(args.answer_bundle_output),
+            "bundle_id": answer_bundle["bundle_id"],
             "verification": verification.to_dict(),
         }
     rendered = json.dumps(receipt, indent=2, default=str)

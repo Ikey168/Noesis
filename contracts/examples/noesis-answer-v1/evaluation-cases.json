@@ -1,0 +1,68 @@
+[
+  {
+    "id": "inflation-supported",
+    "question": "What was annual inflation in 2025?",
+    "expected_status": "answered",
+    "expected_verdicts": ["supported"],
+    "minimum_cited_statements": 1,
+    "expected_document_ids": ["inflation-a", "inflation-b"],
+    "expected_visibility": "public",
+    "expected_quantitative": false,
+    "expected_integrity_status": "no_findings"
+  },
+  {
+    "id": "inflation-contradicted",
+    "question": "Was annual inflation reported as 3.0 percent in 2025?",
+    "expected_status": "answered",
+    "expected_verdicts": ["contradicted"],
+    "minimum_cited_statements": 1,
+    "expected_document_ids": ["inflation-a", "inflation-b", "inflation-c"],
+    "expected_visibility": "public",
+    "expected_quantitative": false,
+    "expected_integrity_status": "no_findings"
+  },
+  {
+    "id": "missing-evidence-refusal",
+    "question": "What was lunar rainfall in 1900?",
+    "expected_status": "refused",
+    "expected_verdicts": ["unverifiable"],
+    "minimum_cited_statements": 0,
+    "expected_document_ids": [],
+    "expected_quantitative": false,
+    "expected_integrity_status": "not_available"
+  },
+  {
+    "id": "inflation-quantitative",
+    "question": "What did sources report for annual inflation in 2025?",
+    "expected_status": "answered",
+    "expected_verdicts": ["supported"],
+    "minimum_cited_statements": 1,
+    "expected_document_ids": ["inflation-a", "inflation-b"],
+    "expected_visibility": "public",
+    "expected_quantitative": true,
+    "expected_integrity_status": "no_findings"
+  },
+  {
+    "id": "private-domain",
+    "question": "What did the private Acme memo decide?",
+    "expected_status": "answered",
+    "expected_verdicts": ["supported"],
+    "minimum_cited_statements": 1,
+    "expected_document_ids": ["private-memo"],
+    "forbidden_document_ids": ["inflation-a", "inflation-b", "inflation-c"],
+    "expected_visibility": "private",
+    "expected_quantitative": false,
+    "expected_integrity_status": "no_findings"
+  },
+  {
+    "id": "source-integrity",
+    "question": "What did the second annual inflation release report?",
+    "expected_status": "answered",
+    "expected_verdicts": ["supported"],
+    "minimum_cited_statements": 1,
+    "expected_document_ids": ["inflation-a", "inflation-b"],
+    "expected_visibility": "public",
+    "expected_quantitative": false,
+    "expected_integrity_status": "findings"
+  }
+]

@@ -58,6 +58,17 @@ def search(domain: str, q: str, limit: int = 20):
     return _run(contract.kb_search, domain, q, limit)
 
 
+@router.get("/{domain}/answer")
+def answer(
+    domain: str,
+    q: str,
+    limit: int = 5,
+    minimum_relevance: float = 0.34,
+):
+    """Structured offline answer; ``q`` is the question to evidence-plan."""
+    return _run(contract.kb_answer, domain, q, limit, minimum_relevance)
+
+
 @router.get("/{domain}/documents")
 def documents(domain: str, since: Optional[str] = None, limit: int = 50):
     return _run(contract.kb_documents, domain, since, limit)

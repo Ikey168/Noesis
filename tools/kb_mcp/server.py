@@ -12,6 +12,8 @@ provisioned namespace — the tools route through the domain registry and the
 Tools:
   kb_domains()                                -> configured domains + backing
   kb_search(domain, query, limit=20)          -> lexical search, cited rows
+  kb_answer(domain, question, limit=5,
+            minimum_relevance=.34)            -> structured extractive answer
   kb_documents(domain, since?, limit=50)      -> member documents, newest arrival first
   kb_claims(domain, since?, limit=50)         -> clustered, cited claims
   kb_entities(domain, name?)                  -> canonical entities, aliases folded
@@ -29,6 +31,7 @@ from __future__ import annotations
 from typing import Any, Dict, Optional
 
 from fastmcp import FastMCP
+
 from src.mcp_host.transport import run_server
 
 mcp = FastMCP("noesis-kb")
@@ -59,6 +62,27 @@ def kb_search(domain: str, query: str, limit: int = 20) -> Dict[str, Any]:
     from src.kb import contract
 
     return _run(contract.kb_search, domain, query, limit)
+
+
+@mcp.tool()
+def kb_answer(
+    domain: str,
+    question: str,
+    limit: int = 5,
+    minimum_relevance: float = 0.34,
+) -> Dict[str, Any]:
+    """Answer from a deterministic evidence plan. Every factual statement
+    carries separate supporting and contradicting locators; insufficient
+    evidence returns an explicit unverifiable refusal instead of synthesis."""
+    from src.kb import contract
+
+    return _run(
+        contract.kb_answer,
+        domain,
+        question,
+        limit,
+        minimum_relevance,
+    )
 
 
 @mcp.tool()
