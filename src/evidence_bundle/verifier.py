@@ -18,13 +18,32 @@ from src.analytics.honesty import is_interval, validate_analytic_output
 from .builder import compute_bundle_id, compute_object_digest
 from .canonical import sha256_file
 
-SCHEMA_PATH = (
+_REPOSITORY_SCHEMA_PATH = (
     Path(__file__).resolve().parents[2]
     / "contracts"
     / "schemas"
     / "jsonschema"
     / "noesis-evidence-bundle-v1.json"
 )
+
+
+def _default_schema_path() -> Path:
+    if _REPOSITORY_SCHEMA_PATH.is_file():
+        return _REPOSITORY_SCHEMA_PATH
+    try:
+        from importlib.resources import files
+
+        packaged = files("contracts.schemas.jsonschema").joinpath(
+            "noesis-evidence-bundle-v1.json"
+        )
+        if packaged.is_file():
+            return Path(str(packaged))
+    except (ImportError, ModuleNotFoundError):
+        pass
+    return _REPOSITORY_SCHEMA_PATH
+
+
+SCHEMA_PATH = _default_schema_path()
 
 VALID = "valid"
 VALID_EXTERNAL = "valid_with_external_references"

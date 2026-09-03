@@ -19,6 +19,8 @@ For the project overview and local setup, start with the
 
 ## Start here
 
+- **[Local-first CLI](guides/cli.md)** — install, initialize, ingest, ask,
+  watch, export, verify, and serve without Docker or cloud credentials
 - **[System architecture](architecture/overview.md)** — the whole system with
   diagrams: ingestion pipeline, capability plane, worked claim-check flow
 - **[Integrate via MCP + API](integration/mcp-and-api.md)** — consuming Noesis
@@ -57,6 +59,8 @@ For the project overview and local setup, start with the
 
 ## Integration
 
+- [CLI contract](../contracts/noesis-cli-v1.md) — stable commands, JSON
+  envelopes, exit codes, privacy defaults, and compatibility policy
 - [MCP + API](integration/mcp-and-api.md) — server list, stdio/HTTP transport,
   auth, and worked examples
 - [MCP server notes](integration/mcp-server.md) — the standalone MCP server

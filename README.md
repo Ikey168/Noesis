@@ -162,75 +162,58 @@ provisioning tools stand up new knowledge graphs at runtime.
 
 ## Getting started
 
-### 1. Clone
+### 1. Clone and create an environment
 
 ```bash
 git clone https://github.com/Ikey168/Noesis.git
 cd Noesis
+python -m venv .venv
+source .venv/bin/activate
 ```
 
-### 2. Install dependencies
+### 2. Install the local-first CLI
 
 ```bash
-pip install -r requirements.txt
+python -m pip install -e ".[minimal]"
+noesis init --non-interactive
+noesis doctor
 ```
 
-### 3. Fetch the pretrained model backends (recommended)
+This creates a private local DuckDB workspace. It does not require Docker,
+cloud services, an API key, or a model download.
+
+### 3. Ingest, ask, and verify
 
 ```bash
-make models
+noesis ingest examples/quickstart/moon-mission.md --domain local
+noesis ask "What was the mission result?" --domain local
+noesis export answer \
+  --domain local \
+  --question "What was the mission result?" \
+  --include-private \
+  --output answer.bundle.json
+noesis verify answer.bundle.json
 ```
 
-Downloads the pinned zero-shot NLI and claim-detection models into the local
-cache. The immutable revisions are committed in `models/pins.lock.json` and
-verified in CI. Cached pretrained backends are selected automatically. Missing
-weights or model dependencies are explicit errors; inference never substitutes
-a rule-based prediction. Every prediction row records the active model.
+See the [CLI guide](docs/guides/cli.md) for Claim Watches, JSON output, server
+launchers, configuration, and optional dependency groups.
 
-### 4. Run the API
+### 4. Run a supported server surface
 
 ```bash
-NEURONEWS_DEV_MODE=true \
-NOESIS_DB_PATH=/tmp/noesis-dev.duckdb \
-uvicorn src.api.app:app --port 8012
+python -m pip install -e ".[server]"
+noesis serve --surface api
+# or: noesis serve --surface kb-mcp --transport http
 ```
 
-`NEURONEWS_DEV_MODE=true` disables the WAF so development requests are not
-rejected. Use a separate `NOESIS_DB_PATH` to avoid locking the main warehouse
-file.
-
-### 5. Use the MCP servers
-
-The MCP tool servers are declared in [`.mcp.json`](.mcp.json) and each runs
-standalone (`python tools/<name>_mcp/server.py`). See
-[docs/integration/mcp-and-api.md](docs/integration/mcp-and-api.md) for connecting an
-external host and example tool calls.
-
-### 6. Run tests
+### 5. Run tests
 
 ```bash
 pytest                                        # unit and integration tests
 ```
 
-### 7. Other entry points
-
-```bash
-# Argument-mining model benchmarks and the merge gate
-python scripts/benchmark_models.py
-python scripts/benchmark_models.py --gate
-
-# Offline evidence flow; exits non-zero if receipts fail validation
-make evidence-showcase
-
-# Train a fine-tuned claim model (the pinned pretrained model remains available)
-python -m src.argument_mining.train_claim  --data data/argument_mining
-
-# Scraper
-python -m src.scraper.run --spider bbc
-
-# Docker
-docker compose up --build
-```
+Advanced model, service, scraper, and Docker commands remain supported and are
+documented in [legacy and advanced entry points](docs/development/legacy-entry-points.md).
 
 ---
 

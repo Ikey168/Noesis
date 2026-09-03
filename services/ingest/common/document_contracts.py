@@ -46,9 +46,19 @@ class DocumentIngestValidator:
         current_dir = Path(__file__).parent
         repo_root = current_dir.parent.parent.parent  # services/ingest/common -> repo root
         schema_path = repo_root / "contracts" / "schemas" / "avro" / "document-ingest-v1.avsc"
-        if not schema_path.exists():
-            raise FileNotFoundError(f"Default schema not found at {schema_path}")
-        return str(schema_path)
+        if schema_path.exists():
+            return str(schema_path)
+        try:
+            from importlib.resources import files
+
+            packaged = files("contracts.schemas.avro").joinpath(
+                "document-ingest-v1.avsc"
+            )
+            if packaged.is_file():
+                return str(packaged)
+        except (ImportError, ModuleNotFoundError):
+            pass
+        raise FileNotFoundError(f"Default schema not found at {schema_path}")
 
     def validate_document(self, payload: Dict[str, Any]) -> None:
         """Validate a document payload; raise DataContractViolation on failure."""
