@@ -1,0 +1,18 @@
+{
+  "temporal_id": "ta:4444444444444444444444444444",
+  "assertion_kind": "observation",
+  "assertion_id": "cpi:2026-07",
+  "valid_from_ms": 1782864000000,
+  "valid_to_ms": null,
+  "observed_at_ms": 1785542400000,
+  "ingested_at_ms": 1785542400000,
+  "retracted_at_ms": null,
+  "valid_time_precision": "month",
+  "valid_time_approximate": false,
+  "source_reported": true,
+  "inferred": false,
+  "source_document_id": null,
+  "visibility": "public",
+  "payload": {"series_id": "cpi", "period": "2026-07", "value": 118.2},
+  "temporal_provenance": {"valid_from_ms": {"original": "2026-07"}}
+}

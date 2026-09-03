@@ -16,6 +16,9 @@ coverage, integrity envelopes, and the daily brief through `noesis-kb-v1`.
 Its additive cross-domain tools search, answer, and inspect equivalence links
 over explicit or all-authorized domain scopes through
 `noesis-cross-domain-v1`; private domains remain grant-gated.
+`kb_temporal` adds bitemporal snapshots and history through
+`noesis-temporal-v1`, with independent valid/observation clocks, source-time
+precision and provenance, typed revision transitions, and stable cursors.
 All successful responses carry the versioned contract envelope. Query-only KB
 and KG servers open the configured DuckDB file read-only when they run as a
 standalone process.

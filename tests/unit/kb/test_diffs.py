@@ -149,6 +149,10 @@ class TestCorpusDiff:
                 ("new", DUP_B, "d2", DAY1 + 5 * DAY_MS, "web3"),
             ],
         )
+        conn.execute(
+            "UPDATE documents SET source_id = 'same-wire' "
+            "WHERE document_id IN ('d1', 'd2')"
+        )
         _consolidate(conn)
         backing = load_registry(config_path).resolve("web3", conn=conn)
         diff = backing.diff(since=SINCE_DAY2)

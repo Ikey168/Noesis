@@ -40,6 +40,7 @@ new domain content today.
 | `kb_search_domains(query, domains? \| all_authorized, limits?, principal?)` | additive `noesis-cross-domain-v1` scope receipt plus a deduplicated reciprocal-rank-fusion result set; every hit retains all domain/backing retrieval receipts |
 | `kb_answer_domains(question, domains? \| all_authorized, limits?, principal?)` | one `noesis-answer-v1` synthesis over the selected domains; statement evidence names its domains/backings and the plan reports per-domain coverage and failures |
 | `kb_cross_links(domains? \| all_authorized, kind?, relation?, limit?)` | inspectable entity equivalences and claim links across domains, including confidence, method, model/run provenance, endpoint evidence, and reversibility |
+| `kb_temporal(domain, assertion_kind?, assertion_id?, as_of?, valid_at?, observed_before?, history?, include_retracted?, limit?, cursor?)` | additive `noesis-temporal-v1` snapshot/history query over independent valid and observation clocks; returns immutable documents, claims, entities, relations, or observations with precision, provenance, typed revision transitions, coverage limitations, and stable pagination |
 | `kb_corroborate(domain, claim_id)` | origin-aware publication, probable-origin, unresolved, and dependency-evidence counts; distinct-source compatibility fallback |
 | `watch_create/list/poll/pause/resume/delete(...)` | additive `noesis-claim-watch-v1` lifecycle and opaque-cursor event polling, principal/domain scoped |
 | `policy_monitor_status(principal_id?, include_private?)` | additive `noesis-policy-monitor-v1` cited receipt; public by default, grant-gated when private is explicit |
@@ -97,3 +98,8 @@ scope lives in the evidence plan.
 `kb_answer` is additive, so it does not require `noesis-kb-v2`. Its nested
 payload has its own `answer_contract: noesis-answer-v1` discriminator and
 schema. Existing calls and response shapes are unchanged.
+
+`kb_temporal` is additive for the same reason. Its nested payload carries the
+`noesis-temporal-v1` discriminator. Exact clock precedence, interval boundaries,
+normalization, migration, and revision semantics are governed by
+[`noesis-temporal-v1.md`](noesis-temporal-v1.md).

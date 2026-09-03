@@ -118,6 +118,7 @@ class DocumentStore:
         summary = UpsertSummary()
         seen_ids, seen_hashes = self._load_existing()
         rows: List[Tuple] = []
+        temporal_payloads: List[Dict[str, Any]] = []
 
         for item in documents:
             summary.received += 1
@@ -156,6 +157,7 @@ class DocumentStore:
             seen_ids.add(doc.document_id)
             seen_hashes.add(hkey)
             rows.append(self._to_row(doc, canonicalize_url(doc.url) if doc.url else None, chash))
+            temporal_payloads.append(doc.to_dict())
 
         if rows:
             self.conn.executemany(
@@ -169,6 +171,10 @@ class DocumentStore:
                 rows,
             )
             summary.inserted = len(rows)
+            from src.kb.temporal import store_document_times
+
+            for payload in temporal_payloads:
+                store_document_times(self.conn, payload)
         return summary
 
     def count(self) -> int:

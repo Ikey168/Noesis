@@ -1,0 +1,18 @@
+{
+  "temporal_id": "ta:2222222222222222222222222222",
+  "assertion_kind": "claim",
+  "assertion_id": "claim:rate-1",
+  "valid_from_ms": null,
+  "valid_to_ms": null,
+  "observed_at_ms": 1782950400000,
+  "ingested_at_ms": 1782950400000,
+  "retracted_at_ms": null,
+  "valid_time_precision": "unknown",
+  "valid_time_approximate": false,
+  "source_reported": false,
+  "inferred": true,
+  "source_document_id": "news:rate",
+  "visibility": "public",
+  "payload": {"claim_text": "The rate was revised."},
+  "temporal_provenance": {}
+}

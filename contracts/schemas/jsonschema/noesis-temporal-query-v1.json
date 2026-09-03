@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/contracts/noesis-temporal-query-v1.json",
+  "title": "Noesis Temporal Query v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["domain"],
+  "properties": {
+    "domain": {"type": "string", "minLength": 1},
+    "assertion_kind": {"enum": ["document", "claim", "entity", "relation", "observation", null]},
+    "assertion_id": {"type": ["string", "null"]},
+    "as_of": {"type": ["integer", "string", "null"]},
+    "valid_at": {"type": ["integer", "string", "null"]},
+    "observed_before": {"type": ["integer", "string", "null"]},
+    "history": {"type": "boolean", "default": false},
+    "include_retracted": {"type": "boolean", "default": false},
+    "limit": {"type": "integer", "minimum": 1, "maximum": 100, "default": 50},
+    "cursor": {"type": ["string", "null"]},
+    "principal_id": {"type": ["string", "null"]},
+    "include_private": {"type": "boolean", "default": false}
+  }
+}

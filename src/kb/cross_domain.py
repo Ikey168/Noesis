@@ -667,7 +667,15 @@ def links_across(
 
     if kind not in (None, "entity", "claim"):
         raise CrossDomainError("bad_request", "kind must be entity or claim")
-    allowed_relations = {"equivalent", "duplicate", "supports", "contradicts", "supersedes"}
+    allowed_relations = {
+        "equivalent",
+        "duplicate",
+        "supports",
+        "contradicts",
+        "supersedes",
+        "corrects",
+        "retracts",
+    }
     if relation is not None and relation not in allowed_relations:
         raise CrossDomainError(
             "bad_request", f"relation must be one of {sorted(allowed_relations)}"

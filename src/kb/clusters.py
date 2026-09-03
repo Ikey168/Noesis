@@ -130,7 +130,8 @@ def _superseded_claims(conn) -> Set[str]:
     return {
         row[0]
         for row in conn.execute(
-            "SELECT claim_b FROM claim_links WHERE relation = 'supersedes'"
+            "SELECT claim_b FROM claim_links "
+            "WHERE relation IN ('supersedes', 'corrects', 'retracts')"
         ).fetchall()
     }
 

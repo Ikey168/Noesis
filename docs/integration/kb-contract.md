@@ -24,6 +24,8 @@ kb_search_domains("inflation lags", domains=["economics", "papers"])
 kb_answer_domains("What does research say about inflation lags?",
                   domains=["economics", "papers"])
 kb_cross_links(domains=["economics", "papers"])
+kb_temporal("economics", as_of="2026-07-20T12:00:00Z")
+kb_temporal("economics", assertion_kind="claim", history=True, limit=50)
 kb_coverage("technology")                       # is coverage thin?
 ```
 
@@ -38,6 +40,9 @@ NEURONEWS_DEV_MODE=true NOESIS_DB_PATH=/tmp/noesis-dev.duckdb \
 curl 'http://localhost:8012/api/v1/kb/domains'
 curl 'http://localhost:8012/api/v1/kb/economics/diff?since=2026-07-20'
 curl 'http://localhost:8012/api/v1/kb/web3/claims?limit=10'
+curl -X POST 'http://localhost:8012/api/v1/kb/temporal' \
+  -H 'content-type: application/json' \
+  -d '{"domain":"economics","valid_at":"2026-07-20","observed_before":"2026-07-21","history":true}'
 ```
 
 ## The rules the contract keeps
@@ -51,6 +56,11 @@ curl 'http://localhost:8012/api/v1/kb/web3/claims?limit=10'
 - Cross-domain calls require an explicit ordered domain list or
   `all_authorized=true`. They deduplicate shared documents, retain per-domain
   provenance, and report partial backing failures instead of hiding them.
+- Temporal calls keep world-validity and Noesis-observation time independent;
+  `as_of` supplies both unless the corresponding explicit clock overrides it.
+  Valid intervals are half-open, observation cutoffs inclusive, and cursors
+  freeze the observation cutoff across pages. Private history uses the
+  authenticated `/api/v1/kb/temporal/private` route and an explicit grant.
 
 ## Feeding the domains
 

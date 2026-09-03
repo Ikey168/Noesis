@@ -27,6 +27,10 @@ _STATUS = {
     "bad_request": 400,
     "bad_selector": 400,
     "bad_since": 400,
+    "bad_time": 400,
+    "malformed_time": 400,
+    "impossible_interval": 400,
+    "bad_cursor": 400,
     "confirmation_required": 400,
     "cursor_stale": 409,
     "watermark_conflict": 409,
@@ -75,6 +79,19 @@ class CrossDomainLinksRequest(BaseModel):
     kind: Optional[str] = None
     relation: Optional[str] = None
     limit: int = Field(default=100, ge=1, le=100)
+
+
+class TemporalQueryRequest(BaseModel):
+    domain: str = Field(min_length=1)
+    assertion_kind: Optional[str] = None
+    assertion_id: Optional[str] = None
+    as_of: Optional[int | str] = None
+    valid_at: Optional[int | str] = None
+    observed_before: Optional[int | str] = None
+    history: bool = False
+    include_retracted: bool = False
+    limit: int = Field(default=50, ge=1, le=100)
+    cursor: Optional[str] = None
 
 
 def _watch_principal(current_user: dict) -> str:
@@ -226,6 +243,47 @@ def private_cross_domain_links(
         request.kind,
         request.relation,
         request.limit,
+        _watch_principal(current_user),
+        True,
+    )
+
+
+@router.post("/temporal")
+def temporal_query(request: TemporalQueryRequest):
+    """Query public domain history with independent valid/system-time axes."""
+    return _run(
+        contract.kb_temporal,
+        request.domain,
+        request.assertion_kind,
+        request.assertion_id,
+        request.as_of,
+        request.valid_at,
+        request.observed_before,
+        request.history,
+        request.include_retracted,
+        request.limit,
+        request.cursor,
+    )
+
+
+@router.post("/temporal/private")
+def private_temporal_query(
+    request: TemporalQueryRequest,
+    current_user: dict = Depends(require_auth),
+):
+    """Query grant-authorized private history without leaking other domains."""
+    return _run(
+        contract.kb_temporal,
+        request.domain,
+        request.assertion_kind,
+        request.assertion_id,
+        request.as_of,
+        request.valid_at,
+        request.observed_before,
+        request.history,
+        request.include_retracted,
+        request.limit,
+        request.cursor,
         _watch_principal(current_user),
         True,
     )
