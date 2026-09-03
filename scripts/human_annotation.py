@@ -27,12 +27,20 @@ from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlsplit
 
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO))
 
 SOURCE_TYPES = ("news", "blog", "paper", "transcript", "book", "note")
 STANCE = ("supportive", "critical", "neutral", "ambiguous")
+
+
+def _is_example_url(url: str) -> bool:
+    """Return true only for reserved example hosts, not substring matches."""
+    hostname = (urlsplit(url).hostname or "").lower().rstrip(".")
+    reserved = ("example", "example.com")
+    return any(hostname == host or hostname.endswith(f".{host}") for host in reserved)
 FRAMES = ("economic", "security", "humanitarian", "legal", "political", "scientific", "other")
 FIELDS = (
     "item_id", "document_id", "source_type", "source_url", "text",
@@ -75,7 +83,7 @@ def export_assignments(db_path: Path, out: Path, size: int, seed: int) -> dict:
         doc_id = str(row.get("document_id") or "")
         # The repository seed corpus and test fixtures are not real evaluation
         # material. A human may still annotate private documents with no URL.
-        if "news.example" in url or "example.com" in url or doc_id.startswith("art-"):
+        if _is_example_url(url) or doc_id.startswith("art-"):
             continue
         source_type = row.get("source_type")
         if source_type not in candidates:

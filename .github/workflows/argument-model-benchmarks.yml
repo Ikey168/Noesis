@@ -13,6 +13,9 @@ on:
       - "models/pins.lock.json"
       - "data/argument_mining/**"
 
+permissions:
+  contents: read
+
 jobs:
   sample-benchmark:
     runs-on: ubuntu-latest

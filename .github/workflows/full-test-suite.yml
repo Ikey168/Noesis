@@ -5,6 +5,9 @@ on:
   schedule:
     - cron: "41 2 * * 0"
 
+permissions:
+  contents: read
+
 jobs:
   full:
     runs-on: ubuntu-latest
