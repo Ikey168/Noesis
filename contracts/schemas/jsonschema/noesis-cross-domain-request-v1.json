@@ -20,7 +20,7 @@
     "question": {"type": "string", "minLength": 1, "maxLength": 5000},
     "kind": {"enum": ["entity", "claim", null]},
     "relation": {
-      "enum": ["equivalent", "duplicate", "supports", "contradicts", "supersedes", null]
+      "enum": ["equivalent", "duplicate", "supports", "contradicts", "supersedes", "corrects", "retracts", null]
     },
     "limit": {"type": "integer", "minimum": 1, "maximum": 100},
     "per_domain_limit": {"type": "integer", "minimum": 1, "maximum": 100},

@@ -519,8 +519,14 @@ class NamespaceBacking(DomainBacking):
             ).fetchall()
             links = self.conn.execute(
                 "SELECT claim_a, claim_b, relation, confidence, prediction_mode"
-                " FROM claim_links WHERE relation IN ('supports', 'contradicts')"
+                " FROM claim_links WHERE relation IN "
+                "('supports', 'contradicts', 'supersedes', 'corrects', 'retracts')"
             ).fetchall() if self._link_table_exists() else []
+        superseded = {
+            claim_b
+            for _claim_a, claim_b, relation, _confidence, _mode in links
+            if relation in {"supersedes", "corrects", "retracts"}
+        }
         by_claim: Dict[str, List[Dict[str, Any]]] = {}
         for claim_a, claim_b, relation, confidence, mode in links:
             by_claim.setdefault(claim_a, []).append(
@@ -536,6 +542,7 @@ class NamespaceBacking(DomainBacking):
 
         for claim_id, text, verdict, document_id, source in rows:
             related = by_claim.get(claim_id, [])
+            is_superseded = claim_id in superseded
             independence = origin_summary(
                 self.conn,
                 [document_id],
@@ -549,13 +556,13 @@ class NamespaceBacking(DomainBacking):
                         "claim_text": text,
                         "document_id": document_id,
                         "verdict": verdict,
-                        "superseded": False,
+                        "superseded": is_superseded,
                     },
                     "citations": [
                         {"claim_id": claim_id, "claim_text": text,
                          "document_id": document_id, "source": source,
                          "verdict": verdict,
-                         "superseded": False}
+                         "superseded": is_superseded}
                     ],
                     "corroboration": independence["independent_source_count"],
                     "independence": independence,
@@ -564,6 +571,10 @@ class NamespaceBacking(DomainBacking):
                     ],
                     "supports": [
                         link for link in related if link["relation"] == "supports"
+                    ],
+                    "transitions": [
+                        link for link in related
+                        if link["relation"] in {"supersedes", "corrects", "retracts"}
                     ],
                     "size": 1,
                 }

@@ -146,6 +146,10 @@ class TestPresentationMerge:
                 ("new", DUP_B, "d2", BASE_MS + 5 * DAY_MS, "economics"),
             ],
         )
+        conn.execute(
+            "UPDATE documents SET source_id = 'same-wire' "
+            "WHERE document_id IN ('d1', 'd2')"
+        )
         _link_and_cluster(conn)
         clusters = cluster_claims(conn, domain="economics")
         cluster = clusters[0]

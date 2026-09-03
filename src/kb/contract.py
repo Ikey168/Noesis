@@ -217,6 +217,54 @@ def kb_cross_links(
     )
 
 
+def kb_temporal(
+    domain: str,
+    assertion_kind: Optional[str] = None,
+    assertion_id: Optional[str] = None,
+    as_of: Any = None,
+    valid_at: Any = None,
+    observed_before: Any = None,
+    history: bool = False,
+    include_retracted: bool = False,
+    limit: int = 50,
+    cursor: Optional[str] = None,
+    principal_id: Optional[str] = None,
+    include_private: bool = False,
+    conn=None,
+    config_path=None,
+) -> Dict[str, Any]:
+    """Query one authorized domain on independent valid and observation axes."""
+
+    from src.kb.cross_domain import CrossDomainError, resolve_scope
+    from src.kb.temporal import TemporalError, query_temporal
+
+    try:
+        resolved, _scope = resolve_scope(
+            _registry(config_path),
+            conn=conn,
+            domains=[domain],
+            principal_id=principal_id,
+            include_private=include_private,
+            limit=limit,
+            per_domain_limit=limit,
+        )
+        payload = query_temporal(
+            resolved[0][1],
+            assertion_kind=assertion_kind,
+            assertion_id=assertion_id,
+            as_of=as_of,
+            valid_at=valid_at,
+            observed_before=observed_before,
+            history=history,
+            include_retracted=include_retracted,
+            limit=limit,
+            cursor=cursor,
+        )
+        return _envelope(domain, payload)
+    except (CrossDomainError, TemporalError) as exc:
+        raise KBContractError(exc.code, str(exc)) from exc
+
+
 def kb_answer(
     domain: str,
     question: str,

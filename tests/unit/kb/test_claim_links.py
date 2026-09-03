@@ -123,6 +123,10 @@ class TestLinking:
                 ("new", DUP_B, "d2", BASE_MS + 5 * DAY_MS, None),
             ],
         )
+        conn.execute(
+            "UPDATE documents SET source_id = 'same-wire' "
+            "WHERE document_id IN ('d1', 'd2')"
+        )
         run_claim_linking_pass(conn, provider=FakeProvider(), nli=FakeNLI())
         row = conn.execute(
             "SELECT claim_a, claim_b, method FROM claim_links"
@@ -131,6 +135,21 @@ class TestLinking:
         assert row is not None
         assert (row[0], row[1]) == ("new", "old")  # newer supersedes older
         assert row[2].endswith("+temporal")
+
+    def test_cross_source_duplicate_is_corroboration_not_supersession(self, conn):
+        _seed_claims(
+            conn,
+            [
+                ("old", DUP_A, "d1", BASE_MS, None),
+                ("new", DUP_B, "d2", BASE_MS + 5 * DAY_MS, None),
+            ],
+        )
+        conn.execute("UPDATE documents SET source_id = 'wire-a' WHERE document_id = 'd1'")
+        conn.execute("UPDATE documents SET source_id = 'wire-b' WHERE document_id = 'd2'")
+        run_claim_linking_pass(conn, provider=FakeProvider(), nli=FakeNLI())
+        assert conn.execute(
+            "SELECT COUNT(*) FROM claim_links WHERE relation = 'supersedes'"
+        ).fetchone()[0] == 0
 
     def test_time_window_blocks_far_candidates(self, conn):
         _seed_claims(

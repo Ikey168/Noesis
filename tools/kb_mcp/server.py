@@ -19,6 +19,7 @@ Tools:
   kb_answer_domains(question, domains? | all_authorized,
                     limits?, principal?)      -> cross-domain Answer v1
   kb_cross_links(domains? | all_authorized)   -> entity/claim equivalence links
+  kb_temporal(domain, time axes?, history?)   -> bitemporal assertions/history
   kb_corroborate(domain, claim_id)             -> publication/origin counts
   kb_documents(domain, since?, limit=50)      -> member documents, newest arrival first
   kb_claims(domain, since?, limit=50)         -> clustered, cited claims
@@ -174,6 +175,43 @@ def kb_cross_links(
         kind,
         relation,
         limit,
+        principal_id,
+        include_private,
+    )
+
+
+@mcp.tool()
+def kb_temporal(
+    domain: str,
+    assertion_kind: Optional[str] = None,
+    assertion_id: Optional[str] = None,
+    as_of: Optional[str] = None,
+    valid_at: Optional[str] = None,
+    observed_before: Optional[str] = None,
+    history: bool = False,
+    include_retracted: bool = False,
+    limit: int = 50,
+    cursor: Optional[str] = None,
+    principal_id: Optional[str] = None,
+    include_private: bool = False,
+) -> Dict[str, Any]:
+    """Query documents, claims, entities, relations, or observations by valid
+    and observation time. ISO-8601 or epoch-millisecond strings are accepted;
+    private domains require an explicit principal grant."""
+    from src.kb import contract
+
+    return _run(
+        contract.kb_temporal,
+        domain,
+        assertion_kind,
+        assertion_id,
+        as_of,
+        valid_at,
+        observed_before,
+        history,
+        include_retracted,
+        limit,
+        cursor,
         principal_id,
         include_private,
     )

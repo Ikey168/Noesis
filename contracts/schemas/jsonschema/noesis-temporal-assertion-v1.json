@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/contracts/noesis-temporal-assertion-v1.json",
+  "title": "Noesis Bitemporal Assertion v1",
+  "description": "An immutable assertion with independent world-validity and Noesis-observation time.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "temporal_id", "assertion_kind", "assertion_id", "valid_from_ms",
+    "valid_to_ms", "observed_at_ms", "ingested_at_ms", "retracted_at_ms",
+    "valid_time_precision", "valid_time_approximate", "source_reported",
+    "inferred", "source_document_id", "visibility", "payload",
+    "temporal_provenance"
+  ],
+  "properties": {
+    "temporal_id": {"type": "string", "pattern": "^ta:[a-f0-9]{28}$"},
+    "assertion_kind": {"enum": ["document", "claim", "entity", "relation", "observation"]},
+    "assertion_id": {"type": "string", "minLength": 1},
+    "valid_from_ms": {"type": ["integer", "null"], "minimum": 0},
+    "valid_to_ms": {"type": ["integer", "null"], "minimum": 0},
+    "observed_at_ms": {"type": "integer", "minimum": 0},
+    "ingested_at_ms": {"type": "integer", "minimum": 0},
+    "retracted_at_ms": {"type": ["integer", "null"], "minimum": 0},
+    "valid_time_precision": {"enum": ["unknown", "year", "month", "day", "minute", "second", "millisecond"]},
+    "valid_time_approximate": {"type": "boolean"},
+    "source_reported": {"type": "boolean"},
+    "inferred": {"type": "boolean"},
+    "source_document_id": {"type": ["string", "null"]},
+    "visibility": {"enum": ["public", "private"]},
+    "payload": {"type": "object"},
+    "temporal_provenance": {"type": "object"}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"valid_time_precision": {"const": "unknown"}}},
+      "then": {
+        "properties": {
+          "valid_from_ms": {"const": null},
+          "valid_to_ms": {"const": null}
+        }
+      }
+    }
+  ]
+}
