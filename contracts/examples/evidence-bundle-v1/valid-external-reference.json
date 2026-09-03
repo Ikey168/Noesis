@@ -1,0 +1,32 @@
+{
+  "bundle_id": "sha256:015f6fbfabc9b60620f378a9911993ec3ed9f87405c217d26f215768b743722c",
+  "completeness": {"omissions": [], "status": "complete"},
+  "contract": "noesis-evidence-bundle-v1",
+  "created_at_ms": 0,
+  "external_references": [{
+    "id": "archive",
+    "locator": "https://example.test/archive",
+    "mode": "external",
+    "required": true,
+    "sha256": "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+  }],
+  "manifest": {
+    "canonicalization": "noesis-json-c14n-v1",
+    "entries": [{
+      "id": "receipt:root",
+      "sha256": "sha256:13a32a8d6034f6798b5acf48d7788088380ebc367a3436c1cfa591a6b94037e1",
+      "type": "receipt"
+    }],
+    "entry_count": 1,
+    "hash_algorithm": "sha256"
+  },
+  "objects": [{
+    "id": "receipt:root",
+    "payload": {"ok": true},
+    "references": [],
+    "sha256": "sha256:13a32a8d6034f6798b5acf48d7788088380ebc367a3436c1cfa591a6b94037e1",
+    "type": "receipt"
+  }],
+  "operation": {"inputs": {}, "type": "receipt"},
+  "roots": ["receipt:root"]
+}

@@ -139,6 +139,11 @@ def build_receipts(conn, config_path: Path) -> dict[str, Any]:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, help="also write the JSON receipt here")
+    parser.add_argument(
+        "--bundle-output",
+        type=Path,
+        help="also write a verified noesis-evidence-bundle-v1 package",
+    )
     args = parser.parse_args()
 
     import duckdb
@@ -149,12 +154,33 @@ def main() -> int:
             receipt = build_receipts(conn, REPO_ROOT / "config" / "domains.yml")
         finally:
             conn.close()
+    bundle_valid = True
+    if args.bundle_output:
+        from src.evidence_bundle import export_receipt, verify_bundle
+
+        created_at_ms = receipt["flow"]["kb_brief"]["data"]["meta"]["generated_at_ms"]
+        bundle = export_receipt(
+            receipt,
+            inputs={"showcase": "offline-evidence-flow"},
+            created_at_ms=created_at_ms,
+        )
+        verification = verify_bundle(bundle, bundle_path=args.bundle_output)
+        bundle_valid = verification.valid
+        args.bundle_output.parent.mkdir(parents=True, exist_ok=True)
+        args.bundle_output.write_text(
+            json.dumps(bundle, indent=2, default=str) + "\n", encoding="utf-8"
+        )
+        receipt["evidence_bundle"] = {
+            "path": str(args.bundle_output),
+            "bundle_id": bundle["bundle_id"],
+            "verification": verification.to_dict(),
+        }
     rendered = json.dumps(receipt, indent=2, default=str)
     print(rendered)
     if args.output:
         args.output.parent.mkdir(parents=True, exist_ok=True)
-        args.output.write_text(rendered + "\n")
-    return 0 if receipt["verification"]["all_passed"] else 1
+        args.output.write_text(rendered + "\n", encoding="utf-8")
+    return 0 if receipt["verification"]["all_passed"] and bundle_valid else 1
 
 
 if __name__ == "__main__":

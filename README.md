@@ -63,6 +63,9 @@ surface. The full design lives in the
 - **Integrity ledger.** Unifies cited snapshots, silent corrections, image
   reuse, C2PA content credentials, and prose-versus-figure checks behind one
   MCP/REST/KB surface.
+- **Portable evidence bundles.** Exports answers, claims, integrity records,
+  and receipts as content-addressed `noesis-evidence-bundle-v1` packages that
+  recipients can verify offline without a warehouse or network connection.
 - **OSINT investigation surface.** Entity dossiers, relationship paths,
   reconstructed timelines, and provenance traces over ingested open sources,
   all under a strict evidence discipline (every line is cited; uncited entries
