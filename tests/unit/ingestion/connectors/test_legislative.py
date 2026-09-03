@@ -11,8 +11,8 @@ from src.ingestion.connectors.legislative import (
     ABSTAIN,
     AGAINST,
     FOR,
-    VoteRecord,
     LegislativeConnector,
+    VoteRecord,
     check_position,
     check_position_claim,
     normalize_position,
@@ -109,6 +109,20 @@ def test_registered_connector_parses_fixture_and_feeds_position_check(tmp_path):
     result = check_position(database, "Alex Example", "Clean Energy", "for")
     assert result["verdict"] == "supported"
     assert validate_analytic_output(result) == []
+
+
+def test_legislative_document_id_does_not_depend_on_checkout_path(tmp_path):
+    fixture = Path(__file__).resolve().parents[3] / "fixtures/legislative/votes.json"
+    left = tmp_path / "left" / "votes.json"
+    right = tmp_path / "right" / "renamed.json"
+    left.parent.mkdir()
+    right.parent.mkdir()
+    left.write_bytes(fixture.read_bytes())
+    right.write_bytes(fixture.read_bytes())
+
+    left_ids = [item.document_id for item in LegislativeConnector([str(left)]).harvest()]
+    right_ids = [item.document_id for item in LegislativeConnector([str(right)]).harvest()]
+    assert left_ids == right_ids
 
 
 def test_legislative_connector_is_in_builtin_registry():

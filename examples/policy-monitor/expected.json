@@ -25,7 +25,7 @@
     "quantitative-observation": [
       "dataset:filing:northstar-ceramics:coveredenergyuse#2025"
     ],
-    "vote": ["legislative:9f33684ca6abd6e3d905"]
+    "vote": ["legislative:29ebd9eda04388c83b24"]
   },
   "prediction_statements": ["reporting-origins"],
   "source_record_statements": [

@@ -318,7 +318,7 @@ class LegislativeConnector(Connector):
                          or raw.ref.locator)
             external_id = str(_first(row, "id", "record_id", "vote_id") or index)
             digest = hashlib.sha256(
-                f"{raw.ref.locator}|{external_id}|{actor}|{topic}|{date}".encode()
+                f"{source}|{external_id}|{actor}|{topic}|{date}".encode()
             ).hexdigest()[:20]
             doc_id = f"legislative:{digest}"
             verb = "supported" if position == FOR else "opposed" if position == AGAINST else "abstained on"
