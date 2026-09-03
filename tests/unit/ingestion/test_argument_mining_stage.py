@@ -20,9 +20,12 @@ def _document(content: str):
 
 
 def test_stage_mines_once_and_reprocesses_a_revision(monkeypatch):
-    monkeypatch.setenv("NOESIS_CLAIMS_BACKEND", "heuristic")
-    monkeypatch.setenv("NOESIS_STANCE_BACKEND", "heuristic")
-    monkeypatch.setenv("NOESIS_FRAMES_BACKEND", "heuristic")
+    class Detector:
+        prediction_mode = "pretrained:test-claim-model"
+
+    monkeypatch.setattr("src.argument_mining.evidence.run_pipeline", lambda *_args: ([], []))
+    monkeypatch.setattr("src.argument_mining.frames.classify_and_store", lambda *_args: None)
+    monkeypatch.setattr("src.argument_mining.models.get_claim_detector", lambda: Detector())
     conn = duckdb.connect()
     store = DocumentStore(conn)
     store.upsert([_document("The central bank raised rates by 0.75 percent in June.")])

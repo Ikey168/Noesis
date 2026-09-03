@@ -6,13 +6,12 @@ seven frames: economic / security / humanitarian / legal / political /
 scientific / other.
 
 Loads a fine-tuned distilbert-base-uncased checkpoint from
-models/frame_classifier/ when available; falls back to a keyword-density
-heuristic otherwise so the rest of the pipeline works without a training step.
+models/frame_classifier/ when available, otherwise the pinned pretrained NLI
+checkpoint fetched by ``make models``.  It fails closed if neither is present.
 """
 from __future__ import annotations
 
 import logging
-import re
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
@@ -27,6 +26,7 @@ _FRAME_MODEL_DIR = _REPO_ROOT / "models" / "frame_classifier"
 
 # Imported here so callers can do: from src.argument_mining.frames import FRAME_LABELS
 from src.argument_mining.dataset import FRAME_LABELS  # noqa: E402
+from src.argument_mining.models import _reject_removed_backend  # noqa: E402
 
 # ---------------------------------------------------------------------------
 # Result type
@@ -42,100 +42,14 @@ class FramePrediction:
 
 
 # ---------------------------------------------------------------------------
-# Keyword sets for the heuristic fallback
-# ---------------------------------------------------------------------------
-
-_FRAME_KEYWORDS: Dict[str, frozenset] = {
-    "economic": frozenset({
-        "market", "markets", "revenue", "profit", "gdp", "trade", "budget", "tax", "tariff",
-        "investment", "inflation", "unemployment", "debt", "fiscal", "monetary",
-        "economic", "financial", "economy", "bank", "banking", "export", "import",
-        "spending", "recession", "growth", "price", "prices", "wage", "wages",
-        "cost", "costs", "stock", "bond", "treasury", "currency", "rate", "rates",
-        "subsidy", "earnings", "surplus", "deficit",
-    }),
-    "security": frozenset({
-        "military", "weapon", "army", "navy", "attack", "threat", "war", "soldier",
-        "combat", "defence", "defense", "intelligence", "terrorism", "nuclear",
-        "missile", "border", "crime", "violence", "troops", "force", "armed",
-        "police", "surveillance", "cybersecurity", "breach", "raid", "hostage",
-        "extremism", "espionage", "deterrence", "arsenal", "battalion",
-    }),
-    "humanitarian": frozenset({
-        "refugee", "poverty", "hunger", "humanitarian", "aid", "rights",
-        "displacement", "victim", "civilian", "relief", "shelter", "suffering",
-        "vulnerable", "child", "food", "water", "emergency", "evacuation",
-        "displaced", "dignity", "trauma", "famine", "charity", "orphan",
-        "sanitation", "malnutrition", "asylum", "stateless", "persecution",
-    }),
-    "legal": frozenset({
-        "court", "lawsuit", "law", "regulation", "legislation", "ruling", "judge",
-        "attorney", "compliance", "statute", "contract", "liability", "enforcement",
-        "prosecution", "verdict", "constitutional", "jurisdiction", "treaty",
-        "amendment", "plaintiff", "defendant", "penalty", "sentence", "litigation",
-        "appeal", "legal", "legislation", "injunction", "subpoena", "indictment",
-    }),
-    "political": frozenset({
-        "election", "government", "parliament", "senate", "party", "vote",
-        "president", "minister", "diplomacy", "coalition", "opposition",
-        "administration", "democracy", "congress", "governor", "cabinet",
-        "political", "campaign", "ballot", "reform", "diplomat", "ambassador",
-        "referendum", "sanctions", "geopolitical", "partisan", "constituency",
-    }),
-    "scientific": frozenset({
-        "research", "study", "data", "experiment", "findings", "analysis",
-        "evidence", "hypothesis", "methodology", "trial", "laboratory",
-        "publication", "statistics", "model", "theory", "discovery", "innovation",
-        "algorithm", "simulation", "sample", "cohort", "clinical", "measurement",
-        "peer", "journal", "dataset", "scientific", "correlation", "regression",
-        "genome", "protein", "neural", "quantum",
-    }),
-    "other": frozenset({
-        "community", "culture", "art", "music", "sport", "entertainment",
-        "religion", "education", "travel", "family", "lifestyle", "sports",
-        "festival", "celebrity", "fashion", "tourism", "recreational", "personal",
-    }),
-}
-
-FRAME_THRESHOLD = 0.40   # score above which a frame is considered active
-
-
-def _frame_heuristic(text: str, doc_id: str, source_type: str) -> FramePrediction:
-    """Keyword-density frame scorer used when no model is trained."""
-    t = text.lower()
-    words = set(re.findall(r"\b\w+\b", t))
-
-    scores: Dict[str, float] = {}
-    for frame, keywords in _FRAME_KEYWORDS.items():
-        if frame == "other":
-            continue
-        matches = len(words & keywords)
-        # Map match counts to 0–0.90 using a rough step function
-        scores[frame] = min(0.90, 0.15 + matches * 0.20)
-
-    # "other" scores high only when no specific frame exceeds the threshold
-    top_specific = max(scores.values()) if scores else 0.0
-    scores["other"] = 0.70 if top_specific < 0.25 else 0.12
-
-    dominant = max(scores, key=scores.__getitem__)
-    return FramePrediction(
-        document_id=doc_id,
-        source_type=source_type,
-        frames=scores,
-        dominant=dominant,
-    )
-
-
-# ---------------------------------------------------------------------------
 # Classifier
 # ---------------------------------------------------------------------------
 
 class FrameClassifier:
     """Multi-label narrative frame classifier.
 
-    Returns a score per frame for the full document text.  When a fine-tuned
-    checkpoint exists in models/frame_classifier/ it is used; otherwise the
-    keyword heuristic runs.
+    Returns a score per frame for the full document text.  A fine-tuned
+    checkpoint takes precedence over the pinned pretrained NLI backend.
     """
 
     #: entailment hypothesis per frame for the zero-shot NLI backend (#955)
@@ -148,8 +62,7 @@ class FrameClassifier:
         "scientific": "This text frames the issue as a scientific issue.",
         "other": "This text frames the issue outside economics, security, humanitarian, legal, political, or scientific terms.",
     }
-    #: per-label decision thresholds — deliberately permissive for the frames
-    #: the heuristic starved of recall (political 0.16, humanitarian 0.25)
+    #: Per-label decision thresholds calibrated by the benchmark corpus.
     NLI_THRESHOLDS = {
         "political": 0.35,
         "humanitarian": 0.35,
@@ -157,6 +70,7 @@ class FrameClassifier:
     NLI_DEFAULT_THRESHOLD = 0.45
 
     def __init__(self, model_dir: Optional[Path] = None, nli: Optional[Any] = None) -> None:
+        _reject_removed_backend("NOESIS_FRAMES_BACKEND", "frame classification")
         self._model_dir = model_dir or _FRAME_MODEL_DIR
         self._pipeline = None
         self._nli = nli
@@ -166,27 +80,16 @@ class FrameClassifier:
 
     def _try_load_nli(self) -> None:
         """Use pinned zero-shot NLI by default when its weights are cached."""
-        import os
+        from src.kb.nli import TransformersNLI
 
-        mode = os.environ.get("NOESIS_FRAMES_BACKEND", "auto").lower()
-        if mode in {"heuristic", "off", "disabled"}:
-            return
-        try:
-            from src.kb.nli import TransformersNLI
-
-            self._nli = TransformersNLI()
-            logger.info("FrameClassifier: zero-shot NLI backend active (%s)",
-                        self._nli.model_name)
-        except Exception:
-            logger.warning(
-                "FrameClassifier: NLI backend unavailable — using heuristic fallback",
-                exc_info=True,
-            )
+        self._nli = TransformersNLI()
+        logger.info("FrameClassifier: zero-shot NLI backend active (%s)",
+                    self._nli.model_name)
 
     def _try_load(self) -> None:
         if not (self._model_dir / "config.json").exists():
             logger.info(
-                "FrameClassifier: no trained model at %s — using heuristic fallback",
+                "FrameClassifier: no fine-tuned model at %s; trying pinned NLI weights",
                 self._model_dir,
             )
             return
@@ -201,16 +104,16 @@ class FrameClassifier:
             )
             logger.info("FrameClassifier: loaded model from %s", self._model_dir)
         except Exception:
-            logger.warning("FrameClassifier: load failed — using heuristic fallback", exc_info=True)
+            logger.warning("FrameClassifier: fine-tuned model load failed", exc_info=True)
 
     @property
     def prediction_mode(self) -> str:
-        """`model:<dir>` | `zero-shot:<model>` | `heuristic` (#958, #955)."""
+        """Return the active trained-model provenance."""
         if self._pipeline is not None:
             return f"model:{self._model_dir.name}"
         if self._nli is not None:
             return self._nli.prediction_mode
-        return "heuristic"
+        raise RuntimeError("frame classifier has no active model backend")
 
     # ------------------------------------------------------------------
     # Public API
@@ -230,7 +133,7 @@ class FrameClassifier:
             return self._predict_model(document, text)
         if self._nli is not None:
             return self._predict_nli(document, text)
-        return _frame_heuristic(text, document.document_id, document.source_type)
+        raise RuntimeError("frame classifier has no active model backend")
 
     def _predict_nli(self, document: Document, text: str) -> FramePrediction:
         """Multi-label frames via independent entailment per hypothesis.
@@ -238,8 +141,7 @@ class FrameClassifier:
         Each frame's score is its entailment confidence (0 when the model
         answers contradiction/neutral); a frame is *on* when its score
         clears its per-label threshold. Dominant = highest score, `other`
-        when nothing clears — the same shape the heuristic produces, so
-        downstream consumers are agnostic.
+        when nothing clears.
         """
         snippet = text[:1500]
         scores: Dict[str, float] = {}

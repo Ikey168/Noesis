@@ -4,13 +4,14 @@ Inference wrappers for argument mining models.
 ClaimDetector      — binary sentence-level claim detection
 StanceClassifier   — 4-class stance (supportive / critical / neutral / ambiguous)
 
-Both classes attempt to load fine-tuned weights from models/ on first use.
-When no trained model is present they fall back to a rule-based heuristic so
-the rest of the pipeline can run during development without a training step.
+Both classes attempt to load fine-tuned weights from models/ on first use,
+then use the pinned pretrained backend fetched by ``make models``.  They fail
+closed when neither model backend is available.
 """
 from __future__ import annotations
 
 import logging
+import os
 import re
 from dataclasses import dataclass
 from pathlib import Path
@@ -24,6 +25,13 @@ logger = logging.getLogger(__name__)
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 _CLAIM_MODEL_DIR = _REPO_ROOT / "models" / "claim_detector"
 _STANCE_MODEL_DIR = _REPO_ROOT / "models" / "stance_classifier"
+
+
+def _reject_removed_backend(env_name: str, surface: str) -> None:
+    if os.environ.get(env_name, "auto").lower() in {"heuristic", "off", "disabled"}:
+        raise ValueError(
+            f"heuristic {surface} has been removed; use the pinned pretrained backend"
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -55,8 +63,8 @@ class ClaimDetector:
     """Sentence-level binary classifier: factual claim vs. opinion/background.
 
     Loads a fine-tuned ``distilbert-base-uncased`` checkpoint from
-    ``models/claim_detector/`` when available.  Falls back to a lightweight
-    heuristic otherwise.
+    ``models/claim_detector/`` when available, otherwise uses the pinned
+    pretrained claim-detection checkpoint.
     """
 
     #: env-pinned pretrained claim/check-worthiness model (#956, fetched by #959)
@@ -64,6 +72,7 @@ class ClaimDetector:
     DEFAULT_PRETRAINED_MODEL = "Nithiwat/mdeberta-v3-base_claimbuster"
 
     def __init__(self, model_dir: Optional[Path] = None, pretrained: Optional[Any] = None) -> None:
+        _reject_removed_backend("NOESIS_CLAIMS_BACKEND", "claim detection")
         self._model_dir = model_dir or _CLAIM_MODEL_DIR
         self._pipeline = None
         self._pretrained = pretrained          # (pipeline, model_name) or None
@@ -72,40 +81,27 @@ class ClaimDetector:
             self._try_load_pretrained()
 
     def _try_load_pretrained(self) -> None:
-        """Use the pinned ClaimBuster backend by default when cached.
+        """Load the pinned ClaimBuster backend from the local model cache."""
+        from src.argument_mining.model_registry import cached_model_path, resolved_pins
+        from transformers import pipeline as hf_pipeline
 
-        ``NOESIS_CLAIMS_BACKEND=heuristic`` is an explicit opt-out. Inference
-        never downloads weights; ``make models`` is the network boundary.
-        """
-        import os
-
-        mode = os.environ.get("NOESIS_CLAIMS_BACKEND", "auto").lower()
-        if mode in {"heuristic", "off", "disabled"}:
-            return
-        try:
-            from src.argument_mining.model_registry import cached_model_path, resolved_pins
-            from transformers import pipeline as hf_pipeline
-
-            pin = resolved_pins()["claim"]
-            local_path = cached_model_path("claim")
-            if local_path is None:
-                raise RuntimeError("pinned claim weights are not in the local cache")
-            model_name = pin["model"]
-            self._pretrained = (
-                hf_pipeline(
-                    "text-classification",
-                    model=str(local_path),
-                    tokenizer=str(local_path),
-                    device=-1,
-                ),
-                model_name,
+        pin = resolved_pins()["claim"]
+        local_path = cached_model_path("claim")
+        if local_path is None:
+            raise RuntimeError(
+                "pinned claim weights are not in the local cache; run `make models`"
             )
-            logger.info("ClaimDetector: pretrained backend active (%s)", model_name)
-        except Exception:
-            logger.warning(
-                "ClaimDetector: pretrained backend unavailable — using heuristic",
-                exc_info=True,
-            )
+        model_name = pin["model"]
+        self._pretrained = (
+            hf_pipeline(
+                "text-classification",
+                model=str(local_path),
+                tokenizer=str(local_path),
+                device=-1,
+            ),
+            model_name,
+        )
+        logger.info("ClaimDetector: pretrained backend active (%s)", model_name)
 
     @staticmethod
     def _pretrained_is_claim(label: str) -> bool:
@@ -126,7 +122,7 @@ class ClaimDetector:
     def _try_load(self) -> None:
         if not (self._model_dir / "config.json").exists():
             logger.info(
-                "ClaimDetector: no trained model at %s — using heuristic fallback",
+                "ClaimDetector: no fine-tuned model at %s; trying pinned pretrained weights",
                 self._model_dir,
             )
             return
@@ -140,17 +136,17 @@ class ClaimDetector:
             )
             logger.info("ClaimDetector: loaded model from %s", self._model_dir)
         except Exception:
-            logger.warning("ClaimDetector: load failed — using heuristic fallback", exc_info=True)
+            logger.warning("ClaimDetector: fine-tuned model load failed", exc_info=True)
 
 
     @property
     def prediction_mode(self) -> str:
-        """`model:<dir>` | `pretrained:<model>` | `heuristic` (#958, #956)."""
+        """Return the active trained-model provenance."""
         if self._pipeline is not None:
             return f"model:{self._model_dir.name}"
         if self._pretrained is not None:
             return f"pretrained:{self._pretrained[1]}"
-        return "heuristic"
+        raise RuntimeError("claim detector has no active model backend")
 
     # ------------------------------------------------------------------
     # Public API
@@ -171,7 +167,7 @@ class ClaimDetector:
             return self._predict_model(sentences)
         if self._pretrained is not None:
             return self._predict_pretrained(sentences)
-        return [_claim_heuristic(s, i) for i, s in enumerate(sentences)]
+        raise RuntimeError("claim detector has no active model backend")
 
     def _predict_pretrained(self, sentences: List[str]) -> List[ClaimPrediction]:
         pipeline_fn, _model_name = self._pretrained
@@ -245,42 +241,6 @@ def normalize_transcript_text(text: str) -> str:
     return re.sub(r"[ \t]+", " ", text).strip()
 
 
-def _claim_heuristic(text: str, idx: int) -> ClaimPrediction:
-    """Lightweight rule-based claim detector used when no model is trained."""
-    t = text.lower()
-
-    score = 0.5
-
-    # Positive signals
-    if re.search(r"\b\d+(\.\d+)?\s*(%|bn|million|thousand|°c|km|mg|hz)\b", t):
-        score += 0.20  # specific measurement
-    if re.search(r"\b\d{4}\b", t) and re.search(r"\b(january|february|march|april|may|june|july|august|september|october|november|december|monday|tuesday|wednesday|thursday|friday)\b", t):
-        score += 0.10  # dated event
-    if re.search(r"\b(was|were|had|said|reported|found|showed|rose|fell|signed|passed|ruled|confirmed|announced|published|identified|collapsed|resigned|died|won)\b", t):
-        score += 0.15  # past-tense active verb
-    if re.search(r"\b(the (government|court|company|bank|university|study|report|institute|agency|committee))\b", t):
-        score += 0.10  # institutional subject
-
-    # Negative signals
-    if re.search(r"\b(may|might|could|would|perhaps|possibly|seem|appear|believe|think|feel|argue|suggest|worry|hope|fear|expect)\b", t):
-        score -= 0.20  # epistemic hedging
-    if text.strip().endswith("?"):
-        score -= 0.30  # question
-    if re.search(r"\b(i|we|our|my)\b", t):
-        score -= 0.15  # first person
-    if re.search(r"^(in my|in our|many (people|observers|analysts|experts) (believe|think|say|argue)|it remains|the question|critics|supporters)", t):
-        score -= 0.20  # opinion opener
-
-    score = max(0.05, min(0.95, score))
-    is_claim = score >= 0.5
-    return ClaimPrediction(
-        text=text,
-        sentence_idx=idx,
-        is_claim=is_claim,
-        confidence=score if is_claim else 1.0 - score,
-    )
-
-
 # ---------------------------------------------------------------------------
 # Stance Classifier
 # ---------------------------------------------------------------------------
@@ -289,8 +249,8 @@ class StanceClassifier:
     """4-class stance classifier: supportive / critical / neutral / ambiguous.
 
     Loads a fine-tuned ``distilbert-base-uncased`` checkpoint from
-    ``models/stance_classifier/`` when available.  Falls back to a
-    keyword-based heuristic otherwise.
+    ``models/stance_classifier/`` when available, otherwise uses the pinned
+    pretrained NLI checkpoint.
     """
 
     #: hypothesis templates per stance class for the zero-shot NLI backend
@@ -304,6 +264,7 @@ class StanceClassifier:
     NLI_FLOOR = 0.40
 
     def __init__(self, model_dir: Optional[Path] = None, nli: Optional[Any] = None) -> None:
+        _reject_removed_backend("NOESIS_STANCE_BACKEND", "stance classification")
         self._model_dir = model_dir or _STANCE_MODEL_DIR
         self._pipeline = None
         self._nli = nli
@@ -314,27 +275,16 @@ class StanceClassifier:
 
     def _try_load_nli(self) -> None:
         """Use pinned zero-shot NLI by default when its weights are cached."""
-        import os
+        from src.kb.nli import TransformersNLI
 
-        mode = os.environ.get("NOESIS_STANCE_BACKEND", "auto").lower()
-        if mode in {"heuristic", "off", "disabled"}:
-            return
-        try:
-            from src.kb.nli import TransformersNLI
-
-            self._nli = TransformersNLI()
-            logger.info("StanceClassifier: zero-shot NLI backend active (%s)",
-                        self._nli.model_name)
-        except Exception:
-            logger.warning(
-                "StanceClassifier: NLI backend unavailable — using heuristic fallback",
-                exc_info=True,
-            )
+        self._nli = TransformersNLI()
+        logger.info("StanceClassifier: zero-shot NLI backend active (%s)",
+                    self._nli.model_name)
 
     def _try_load(self) -> None:
         if not (self._model_dir / "config.json").exists():
             logger.info(
-                "StanceClassifier: no trained model at %s — using heuristic fallback",
+                "StanceClassifier: no fine-tuned model at %s; trying pinned NLI weights",
                 self._model_dir,
             )
             return
@@ -348,17 +298,17 @@ class StanceClassifier:
             )
             logger.info("StanceClassifier: loaded model from %s", self._model_dir)
         except Exception:
-            logger.warning("StanceClassifier: load failed — using heuristic fallback", exc_info=True)
+            logger.warning("StanceClassifier: fine-tuned model load failed", exc_info=True)
 
 
     @property
     def prediction_mode(self) -> str:
-        """`model:<dir>` | `zero-shot:<model>` | `heuristic` (#958, #954)."""
+        """Return the active trained-model provenance."""
         if self._pipeline is not None:
             return f"model:{self._model_dir.name}"
         if self._nli is not None:
             return self._nli.prediction_mode
-        return "heuristic"
+        raise RuntimeError("stance classifier has no active model backend")
 
     # ------------------------------------------------------------------
     # Public API
@@ -373,7 +323,7 @@ class StanceClassifier:
             return self._predict_model(sentences, topic)
         if self._nli is not None:
             return self._predict_nli(sentences, topic)
-        return [_stance_heuristic(s, i, topic) for i, s in enumerate(sentences)]
+        raise RuntimeError("stance classifier has no active model backend")
 
     def _predict_nli(self, sentences: List[str], topic: str) -> List[StancePrediction]:
         """Stance via entailment: one hypothesis per class, argmax wins.
@@ -458,71 +408,6 @@ class StanceClassifier:
                 confidence=pred["score"],
             ))
         return results
-
-
-_POSITIVE_WORDS = {
-    "benefit", "improve", "growth", "success", "effective", "landmark",
-    "significant", "remarkable", "protect", "advance", "support", "welcome",
-    "achievement", "opportunity", "innovative", "strengthen", "deliver",
-    "transform", "vital", "essential", "empower", "robust", "thriving",
-}
-_NEGATIVE_WORDS = {
-    "fail", "failed", "failure", "inadequate", "reckless", "devastating", "crisis",
-    "burden", "sacrifice", "unsustainable", "worsen", "damage", "harm", "threaten",
-    "corrupt", "waste", "ineffective", "undermine", "collapse", "neglect", "betrayal",
-    "disastrous", "catastrophic", "unacceptable", "shameful", "poverty", "inequality",
-    "nothing", "lacking", "absent", "refused", "neglected", "exploit", "oppress",
-    "mismanage", "broken", "flawed", "disregard", "ignore",
-}
-_NEUTRAL_WORDS = {
-    "reported", "announced", "said", "according", "data", "figure",
-    "scheduled", "voted", "signed", "published", "released", "stated",
-    "confirmed", "outlined", "presented", "introduced", "noted",
-}
-_HEDGE_PHRASES = [
-    "while", "although", "however", "mixed", "some areas", "uncertain",
-    "remains to be", "difficult to", "on the other hand", "both",
-    "some promise", "long-term viability", "but critics", "supporters point",
-    "it is unclear", "remains unclear",
-]
-
-
-def _stance_heuristic(text: str, idx: int, topic: str) -> StancePrediction:
-    t = text.lower()
-    words = set(re.findall(r"\b\w+\b", t))
-
-    topic_tokens = set(re.findall(r"\b\w+\b", topic.lower())) - _NEUTRAL_WORDS
-    overlap = len(words & topic_tokens)
-    pos = len(words & _POSITIVE_WORDS)
-    neg = len(words & _NEGATIVE_WORDS)
-    neu = len(words & _NEUTRAL_WORDS)
-    hedge = sum(1 for ph in _HEDGE_PHRASES if ph in t)
-
-    # The lexical fallback can still preserve a coarse polarity label when the
-    # topic is absent, but must never present it as confident topic-relative
-    # stance.  Cached NLI is the default high-quality path.
-    off_topic = bool(topic_tokens and overlap == 0)
-
-    def result(stance: str, confidence: float) -> StancePrediction:
-        if off_topic:
-            confidence = min(confidence, 0.35)
-        return StancePrediction(
-            text=text, sentence_idx=idx, topic=topic,
-            stance=stance, confidence=confidence,
-        )
-
-    # Ambiguous: explicit hedging, or balanced pos/neg signals
-    if hedge >= 1 and pos == 0 and neg == 0:
-        return result("ambiguous", 0.55)
-    if (pos > 0 and neg > 0) or hedge >= 2:
-        return result("ambiguous", 0.55)
-    if neu >= 2 and pos == 0 and neg == 0:
-        return result("neutral", 0.65)
-    if pos > neg:
-        return result("supportive", min(0.90, 0.55 + pos * 0.10))
-    if neg > pos:
-        return result("critical", min(0.90, 0.55 + neg * 0.10))
-    return result("neutral", 0.50)
 
 
 # ---------------------------------------------------------------------------

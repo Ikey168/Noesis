@@ -203,7 +203,7 @@ def kb_coverage(domain: str, conn=None, config_path=None) -> Dict[str, Any]:
     backing = _backing(domain, conn, config_path)
     payload = backing.coverage()
     # Honesty rider (#958): every coverage answer states what fraction of
-    # the underlying analysis is model-grade vs heuristic.
+    # the underlying analysis is model-grade or has unknown legacy provenance.
     from src.kb.evidence import evidence_quality_summary
 
     try:

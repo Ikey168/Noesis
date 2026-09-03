@@ -1,10 +1,8 @@
 """
 Coverage-focused unit tests for src/argument_mining/frames.py.
 
-Targets the model-backed prediction path (_try_load + _predict_model), the
-load-failure fallback, the DuckDB persistence helpers, and the module-level
-singleton / convenience functions — none of which the heuristic-only suite
-exercises.
+Targets the model-backed prediction path (_try_load + _predict_model),
+fail-closed loading, DuckDB persistence helpers, and module-level helpers.
 
 The transformers pipeline is a heavy dependency; the module resolves it via
 ``from transformers import pipeline`` inside _try_load, so we inject a stub
@@ -60,6 +58,18 @@ def _model_dir_with_config() -> Path:
     d = Path(tempfile.mkdtemp())
     (d / "config.json").write_text("{}")
     return d
+
+
+def _frame_double() -> FrameClassifier:
+    class NLI:
+        prediction_mode = "zero-shot:test-nli-model"
+
+        @staticmethod
+        def entailment_scores(pairs):
+            return [0.9 if "economic" in hypothesis else 0.1
+                    for _premise, hypothesis in pairs]
+
+    return FrameClassifier(nli=NLI())
 
 
 # ---------------------------------------------------------------------------
@@ -135,11 +145,11 @@ class TestModelPredictionPath:
 
 
 # ---------------------------------------------------------------------------
-# _try_load failure fallback
+# _try_load failure handling
 # ---------------------------------------------------------------------------
 
 class TestTryLoadFailure:
-    def test_pipeline_construction_error_falls_back_to_heuristic(self):
+    def test_pipeline_construction_error_fails_closed(self):
         model_dir = _model_dir_with_config()
 
         def boom_pipeline(*args, **kwargs):
@@ -147,20 +157,13 @@ class TestTryLoadFailure:
 
         mod = types.ModuleType("transformers")
         mod.pipeline = boom_pipeline
-        with mock.patch.dict(sys.modules, {"transformers": mod}):
-            fc = FrameClassifier(model_dir=model_dir)
-            # load failed -> pipeline stays None -> heuristic used
-            assert fc._pipeline is None
-            pred = fc.predict(
-                _doc("Markets fell as inflation rose and the central bank raised rates.")
-            )
-        assert pred.dominant == "economic"
+        with mock.patch.dict(sys.modules, {"transformers": mod}), pytest.raises(RuntimeError):
+            FrameClassifier(model_dir=model_dir)
 
-    def test_no_config_uses_heuristic_without_touching_transformers(self):
-        fc = FrameClassifier(model_dir=Path("/tmp/_nonexistent_frame_model_dir"))
-        assert fc._pipeline is None
-        pred = fc.predict(_doc("The court issued a ruling and the plaintiff filed an appeal."))
-        assert pred.frames["legal"] > 0.0
+    def test_removed_backend_setting_is_rejected(self, monkeypatch):
+        monkeypatch.setenv("NOESIS_FRAMES_BACKEND", "heuristic")
+        with pytest.raises(ValueError, match="has been removed"):
+            FrameClassifier(model_dir=Path("/tmp/_nonexistent_frame_model_dir"))
 
 
 # ---------------------------------------------------------------------------
@@ -222,7 +225,7 @@ class TestPersistence:
 
     def test_classify_and_store_persists_all_frame_labels(self):
         conn = _frames_conn()
-        frames_mod._frame_classifier = None  # force heuristic singleton (no model dir)
+        frames_mod._frame_classifier = _frame_double()
         try:
             doc = _doc(
                 "Markets fell as inflation rose and the central bank raised rates sharply."
@@ -244,7 +247,7 @@ class TestPersistence:
 
 class TestModuleHelpers:
     def test_get_frame_classifier_is_singleton(self):
-        frames_mod._frame_classifier = None
+        frames_mod._frame_classifier = _frame_double()
         try:
             first = get_frame_classifier()
             second = get_frame_classifier()
@@ -254,12 +257,12 @@ class TestModuleHelpers:
             frames_mod._frame_classifier = None
 
     def test_predict_frames_convenience(self):
-        frames_mod._frame_classifier = None
+        frames_mod._frame_classifier = _frame_double()
         try:
             pred = predict_frames(
                 _doc("Researchers published peer-reviewed findings from a clinical study.")
             )
             assert isinstance(pred, FramePrediction)
-            assert pred.frames["scientific"] > 0.0
+            assert pred.frames["economic"] > 0.0
         finally:
             frames_mod._frame_classifier = None

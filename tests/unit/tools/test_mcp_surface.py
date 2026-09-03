@@ -164,9 +164,6 @@ def seeded_warehouse(tmp_path, monkeypatch):
     monkeypatch.setenv("NOESIS_DOMAINS_CONFIG", str(REPO_ROOT / "config" / "domains.yml"))
     monkeypatch.setenv("NOESIS_SUBSCRIPTIONS_PATH", str(tmp_path / "subscriptions.json"))
     monkeypatch.delenv("NOESIS_OSINT_GATED_TOOLS", raising=False)
-    monkeypatch.setenv("NOESIS_CLAIMS_BACKEND", "heuristic")
-    monkeypatch.setenv("NOESIS_STANCE_BACKEND", "heuristic")
-    monkeypatch.setenv("NOESIS_FRAMES_BACKEND", "heuristic")
     return path
 
 

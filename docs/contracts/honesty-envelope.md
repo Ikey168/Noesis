@@ -40,7 +40,7 @@ must not invent an empty success. Examples include:
 
 - quantitative claim with no matching series: `unverifiable`;
 - person dossier below the minimum evidence threshold: `refused`;
-- absent optional model: a valid heuristic result whose mode says `heuristic`;
+- absent required model: an explicit unavailable error naming the missing model precondition;
 - missing table or offline source: explicit unavailable/empty-state metadata.
 
 Error responses are exempt from numerical interval fields because they make no

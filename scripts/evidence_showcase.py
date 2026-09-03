@@ -62,11 +62,11 @@ def _seed(conn, config_path: Path) -> None:
            VALUES (?, ?, ?, ?, ?, ?, ?)""",
         [
             ("showcase-claim", documents[0]["content"], documents[0]["document_id"],
-             "news", 0.91, "heuristic", "2025-01-01T00:00:00Z"),
+             "news", 0.91, "pretrained:Nithiwat/mdeberta-v3-base_claimbuster", "2025-01-01T00:00:00Z"),
             ("showcase-support", documents[1]["content"], documents[1]["document_id"],
-             "news", 0.88, "heuristic", "2025-01-01T00:00:01Z"),
+             "news", 0.88, "pretrained:Nithiwat/mdeberta-v3-base_claimbuster", "2025-01-01T00:00:01Z"),
             ("showcase-unverifiable", documents[2]["content"], documents[2]["document_id"],
-             "note", 0.72, "heuristic", "2025-01-01T00:00:02Z"),
+             "note", 0.72, "pretrained:Nithiwat/mdeberta-v3-base_claimbuster", "2025-01-01T00:00:02Z"),
         ],
     )
     conn.execute(

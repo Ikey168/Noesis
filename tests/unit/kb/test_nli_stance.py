@@ -1,5 +1,7 @@
 """Unit tests for the zero-shot NLI stance backend (#954)."""
 
+import pytest
+
 from src.argument_mining.models import StanceClassifier
 from src.kb.nli import ENTAILMENT, NEUTRAL, NLIResult
 
@@ -58,17 +60,13 @@ class TestNLIStance:
         classifier.predict_text("Lawmakers praised the framework.", topic="t")
         assert nli.calls == first_calls  # cache hit, no new NLI calls
 
-    def test_explicit_opt_out_stays_heuristic(self, monkeypatch):
+    def test_removed_backend_setting_is_rejected(self, monkeypatch):
         monkeypatch.setenv("NOESIS_STANCE_BACKEND", "heuristic")
-        classifier = StanceClassifier()
-        assert classifier.prediction_mode == "heuristic"
-        prediction = classifier.predict_text("Anything at all.", topic="t")
-        assert prediction.stance in {"supportive", "critical", "neutral", "ambiguous"}
+        with pytest.raises(ValueError, match="has been removed"):
+            StanceClassifier()
 
-    def test_env_opt_in_survives_missing_stack(self, monkeypatch):
-        # With the env set but no transformers/model available, the wrapper
-        # must fall back to heuristic instead of raising.
+    def test_missing_nli_weights_fail_closed(self, monkeypatch):
         monkeypatch.setenv("NOESIS_STANCE_BACKEND", "nli")
         monkeypatch.setenv("NOESIS_NLI_MODEL", "definitely/not-a-real-model")
-        classifier = StanceClassifier()
-        assert classifier.prediction_mode in ("heuristic",) or classifier._nli is None
+        with pytest.raises(RuntimeError, match="make models"):
+            StanceClassifier()

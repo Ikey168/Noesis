@@ -11,8 +11,8 @@ Two-stage pipeline:
 run_pipeline(document, conn) wires both stages and persists results to
 the DuckDB tables argument_claims / claim_evidence.
 
-No trained model is required — ClaimDetector falls back to its heuristic
-and the evidence search is sklearn TF-IDF + cosine.
+Claim detection requires either a fine-tuned checkpoint or the pinned
+pretrained weights. Evidence retrieval uses sklearn TF-IDF + cosine.
 """
 from __future__ import annotations
 
@@ -70,7 +70,7 @@ class ClaimRecord:
     document_id: str
     source_type: str
     confidence: float
-    prediction_mode: str = "heuristic"
+    prediction_mode: str = "unknown"
     extracted_at: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
     attributed: Optional[bool] = None
     attribution_text: Optional[str] = None

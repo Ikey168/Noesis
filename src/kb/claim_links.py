@@ -21,8 +21,8 @@ Mechanics:
   lexical-overlap fallback ranks the same window.
 - **Classification** uses the shared NLI backend (:mod:`src.kb.nli`):
   entailment → supports, contradiction → contradicts, high similarity plus
-  bidirectional entailment → duplicate. The heuristic NLI floor keeps the
-  pass fully offline-capable.
+  bidirectional entailment → duplicate. Model weights must be fetched before
+  the pass runs.
 - **Provenance**: every link row carries method, model version,
   ``prediction_mode``/confidence (#958), and a ``run_id`` — a bad model
   release is reverted by :func:`delete_run`, which restores the prior state
@@ -43,7 +43,7 @@ import time
 import uuid
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
-from src.kb.nli import CONTRADICTION, ENTAILMENT, HeuristicNLI
+from src.kb.nli import CONTRADICTION, ENTAILMENT, get_nli_backend
 
 _LINKS_SCHEMA = """
 CREATE TABLE IF NOT EXISTS claim_links (
@@ -226,10 +226,10 @@ def run_claim_linking_pass(
 
     ``provider`` embeds claim texts for candidate ranking (``None`` → lexical
     fallback). ``nli`` classifies pair relations (``None`` → the shared
-    backend's heuristic floor). Both are injectable for offline tests.
+    pretrained backend). Both are injectable for tests.
     """
     ensure_claim_link_schema(conn)
-    nli = nli or HeuristicNLI()
+    nli = nli or get_nli_backend()
     run_id = run_id or f"kb-claim-links-{uuid.uuid4().hex[:12]}"
     window_ms = time_window_days * 86_400_000
 
@@ -249,7 +249,7 @@ def run_claim_linking_pass(
         "run_id": run_id,
         "scanned": len(new_claims),
         "links": {relation: 0 for relation in RELATIONS},
-        "mode": getattr(nli, "prediction_mode", "heuristic"),
+        "mode": getattr(nli, "prediction_mode", "unknown"),
     }
     if not new_claims:
         return summary
@@ -375,8 +375,8 @@ def _link_pair(
 ) -> None:
     domain_a, claim_a, text_a, ingested_a = side_a
     domain_b, claim_b, text_b, ingested_b = side_b
-    method = getattr(nli, "name", "heuristic")
-    mode = getattr(nli, "prediction_mode", "heuristic")
+    method = getattr(nli, "name", "unknown")
+    mode = getattr(nli, "prediction_mode", "unknown")
     model_version = getattr(nli, "model_version", "unknown")
 
     forward = nli.classify(text_a, text_b)
@@ -467,7 +467,7 @@ def run_cross_backing_link_pass(
     )
 
     ensure_claim_link_schema(conn)
-    nli = nli or HeuristicNLI()
+    nli = nli or get_nli_backend()
     run_id = run_id or f"kb-cross-links-{uuid.uuid4().hex[:12]}"
     window_ms = time_window_days * 86_400_000
 
@@ -475,7 +475,7 @@ def run_cross_backing_link_pass(
     summary: Dict[str, Any] = {
         "run_id": run_id,
         "domains": {},
-        "mode": getattr(nli, "prediction_mode", "heuristic"),
+        "mode": getattr(nli, "prediction_mode", "unknown"),
     }
 
     for definition in registry.domains():

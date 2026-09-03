@@ -149,7 +149,7 @@ def run_sentiment(articles: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
 # ---------------------------------------------------------------------------
 
 def run_claim_extraction(articles: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """Extract claims from each article using the heuristic ClaimDetector."""
+    """Extract claims from each article using the trained ClaimDetector."""
     all_claims: List[Dict[str, Any]] = []
     try:
         from src.argument_mining.models import ClaimDetector

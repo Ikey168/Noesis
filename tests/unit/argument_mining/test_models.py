@@ -1,9 +1,8 @@
 """
 Unit tests for argument mining inference wrappers.
 
-All tests run WITHOUT trained models — the heuristic fallback is exercised
-by pointing the detectors at a non-existent directory.  This keeps the suite
-fast and CI-friendly.
+Tests inject lightweight model doubles so the suite stays fast and never
+depends on downloaded weights.
 """
 from __future__ import annotations
 
@@ -34,15 +33,43 @@ def _doc(content: str, source_type: str = "news") -> Document:
 
 
 @pytest.fixture()
-def cd(monkeypatch) -> ClaimDetector:
-    monkeypatch.setenv("NOESIS_CLAIMS_BACKEND", "heuristic")
-    return ClaimDetector(model_dir=_NO_MODEL)
+def cd() -> ClaimDetector:
+    def pipeline(sentences, **_kwargs):
+        results = []
+        for sentence in sentences:
+            lowered = sentence.lower()
+            negative = sentence.endswith("?") or "believe" in lowered or "might" in lowered
+            results.append({
+                "label": "LABEL_0" if negative else "LABEL_1",
+                "score": 0.9 if negative else 0.88,
+            })
+        return results
+
+    return ClaimDetector(model_dir=_NO_MODEL, pretrained=(pipeline, "test-claim-model"))
 
 
 @pytest.fixture()
-def sc(monkeypatch) -> StanceClassifier:
-    monkeypatch.setenv("NOESIS_STANCE_BACKEND", "heuristic")
-    return StanceClassifier(model_dir=_NO_MODEL)
+def sc() -> StanceClassifier:
+    class FakeNLI:
+        prediction_mode = "zero-shot:test-nli-model"
+
+        @staticmethod
+        def entailment_scores(pairs):
+            scores = []
+            for premise, hypothesis in pairs:
+                text = premise.lower()
+                if "supportive" in hypothesis:
+                    score = 0.92 if any(word in text for word in ("growth", "vital", "improve", "opens")) else 0.1
+                elif "critical" in hypothesis:
+                    score = 0.92 if any(word in text for word in ("nothing", "catastrophic", "reckless", "costs")) else 0.1
+                elif "ambiguous" in hypothesis:
+                    score = 0.92 if any(word in text for word in ("uncertain", "mixed", "unclear")) else 0.1
+                else:
+                    score = 0.92 if any(word in text for word in ("introduced", "passed", "meets")) else 0.1
+                scores.append(score)
+            return scores
+
+    return StanceClassifier(model_dir=_NO_MODEL, nli=FakeNLI())
 
 
 # ---------------------------------------------------------------------------

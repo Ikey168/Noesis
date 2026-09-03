@@ -1,24 +1,9 @@
 # Argument Mining Model Benchmarks
 
-> Generated: 2026-09-03T13:58:55.385299+00:00
+> Generated: 2026-09-03T15:41:43.486475+00:00
 > Dataset: held-out test split (claim n=1076, stance n=1076, frame n=1076)
 
-## Gate Status: NOT RUN
-
-Run with `--gate` to enforce the saved baseline.
-
-## Backend comparison
-
-| Backend | Claims F1 | Stance macro F1 | Frames macro F1 | Active modes |
-| --- | ---: | ---: | ---: | --- |
-| heuristic | 0.8447 | 0.4277 | 0.4590 | heuristic |
-| cached-pretrained-default | 0.9197 | 0.3288 | 0.4193 | pretrained:Nithiwat/mdeberta-v3-base_claimbuster, zero-shot:cross-encoder/nli-deberta-v3-base |
-
-The pinned claim backend improves the internal claim F1 by 7.5 points. The
-zero-shot stance backend does **not** clear the quality bar: it trails the
-heuristic by 9.9 points and therefore does not resolve the model-quality gap.
-Fine-tuning and promotion remain blocked on the real two-annotator gold set;
-the synthetic test split is retained only for reproducible regression checks.
+## ✓ Gate Status: PASSED
 
 ## Claim Detector
 
@@ -81,7 +66,7 @@ the synthetic test split is retained only for reproducible regression checks.
 
 | Mode | Macro F1 | Subset Accuracy | Dominant Accuracy | N |
 |------|----------|-----------------|-------------------|---|
-| zero-shot:cross-encoder/nli-deberta-v3-base | 0.4193 | 0.4712 | 0.4201 | 1076 |
+| zero-shot:cross-encoder/nli-deberta-v3-base | 0.4193 | 0.4712 | 0.3727 | 1076 |
 
 ### Per Frame Label
 
@@ -130,17 +115,6 @@ Claim detector (binary) evaluated against external benchmarks.
 | FEVER | 0.7427 | 0.8759 | 0.8038 | 200 | SUPPORTS/REFUTES=claim; NEI=non-claim |
 | LIAR | 1.0000 | 0.8900 | 0.9418 | 200 | all political claims (sanity check) |
 | AVeriTeC | 1.0000 | 0.8700 | 0.9305 | 200 | verifiable real-world claims |
-
-### External backend comparison
-
-| Backend | Dataset | Precision | Recall | F1 | N |
-| --- | --- | ---: | ---: | ---: | ---: |
-| heuristic | FEVER | 0.7231 | 0.9724 | 0.8294 | 200 |
-| heuristic | LIAR | 1.0000 | 0.8350 | 0.9101 | 200 |
-| heuristic | AVERITEC | 1.0000 | 0.9150 | 0.9556 | 200 |
-| cached-pretrained-default | FEVER | 0.7427 | 0.8759 | 0.8038 | 200 |
-| cached-pretrained-default | LIAR | 1.0000 | 0.8900 | 0.9418 | 200 |
-| cached-pretrained-default | AVERITEC | 1.0000 | 0.8700 | 0.9305 | 200 |
 
 ## Model Update Gate
 

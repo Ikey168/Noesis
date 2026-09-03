@@ -97,9 +97,15 @@ class TestDriftEnforcement:
 
 class TestBackendStatus:
     def test_status_reports_all_three_wrappers(self, monkeypatch):
-        for env in ("NOESIS_STANCE_BACKEND", "NOESIS_FRAMES_BACKEND",
-                    "NOESIS_CLAIMS_BACKEND"):
-            monkeypatch.setenv(env, "heuristic")
+        import src.argument_mining.frames as frames
+        import src.argument_mining.models as models
+
+        class Wrapper:
+            prediction_mode = "pretrained:test-model"
+
+        monkeypatch.setattr(models, "ClaimDetector", Wrapper)
+        monkeypatch.setattr(models, "StanceClassifier", Wrapper)
+        monkeypatch.setattr(frames, "FrameClassifier", Wrapper)
         status = model_registry.backend_status()
         assert set(status) == {"claims", "stance", "frames"}
-        assert all(mode == "heuristic" for mode in status.values())
+        assert all(mode == "pretrained:test-model" for mode in status.values())

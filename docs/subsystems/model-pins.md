@@ -11,16 +11,15 @@ python -m src.argument_mining.fetch_models --check --require-cache
 ```
 
 Runtime inference is network-free. With a valid cached snapshot, claim
-detection and NLI-backed stance/frames activate by default. Explicitly set the
-corresponding `NOESIS_*_BACKEND=heuristic` variable to opt out. If dependencies
-or weights are missing, the result remains valid but records
-`prediction_mode=heuristic`.
+detection and NLI-backed stance/frames activate by default. If dependencies or
+weights are missing, inference fails closed and directs the operator to run
+`make models`.
 
 To update a model, change its name/commit in the registry, run `make models`,
-then run the internal and external evaluation in both modes:
+then run the internal and external evaluation:
 
 ```bash
-python scripts/benchmark_models.py --compare-backends --candidate-gate
+python scripts/benchmark_models.py --candidate-gate
 ```
 
 Commit the registry, lock, JSON, and Markdown benchmark receipts together.

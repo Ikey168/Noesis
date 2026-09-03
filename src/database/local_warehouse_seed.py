@@ -292,7 +292,7 @@ def _migrate_attribution_columns(conn: duckdb.DuckDBPyConnection) -> None:
             pass  # column already exists
 
 
-#: prediction tables that carry model-vs-heuristic provenance (#958)
+#: prediction tables that carry model provenance (#958)
 _PREDICTION_TABLES = (
     "argument_claims",
     "source_stances",
@@ -306,9 +306,8 @@ _PREDICTION_TABLES = (
 def _migrate_prediction_mode_columns(conn: duckdb.DuckDBPyConnection) -> None:
     """Add prediction_mode (+ confidence where absent) to prediction tables.
 
-    Pre-existing rows are backfilled as ``heuristic`` — everything written
-    before #958 came from the heuristic fallbacks, and marking them keeps
-    the evidence-quality summary honest instead of unknown.
+    Pre-existing rows are backfilled as ``legacy-unknown`` because their
+    inference backend was not recorded.
     """
     for table in _PREDICTION_TABLES:
         try:
@@ -321,7 +320,7 @@ def _migrate_prediction_mode_columns(conn: duckdb.DuckDBPyConnection) -> None:
             pass  # column already exists (several tables ship with it)
         try:
             conn.execute(
-                f"UPDATE {table} SET prediction_mode = 'heuristic'"
+                f"UPDATE {table} SET prediction_mode = 'legacy-unknown'"
                 " WHERE prediction_mode IS NULL"
             )
         except Exception:

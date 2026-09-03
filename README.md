@@ -96,7 +96,7 @@ surface. The full design lives in the
 |---|---|
 | Backend | FastAPI, uvicorn |
 | Analytics warehouse | DuckDB (local file, single-writer) |
-| Argument mining | distilbert with heuristic fallback, scikit-learn, spaCy |
+| Argument mining | Pinned ClaimBuster and DeBERTa NLI models, distilbert, scikit-learn, spaCy |
 | Scraping | Scrapy, Playwright, Selenium |
 | Orchestration | Apache Airflow |
 | MLOps | MLflow |
@@ -168,11 +168,9 @@ make models
 
 Downloads the pinned zero-shot NLI and claim-detection models into the local
 cache. The immutable revisions are committed in `models/pins.lock.json` and
-verified in CI. Cached pretrained backends are selected automatically; when
-weights or optional dependencies are absent, Noesis immediately falls back to
-the offline heuristics. Force that lean tier with
-`NOESIS_CLAIMS_BACKEND=heuristic NOESIS_STANCE_BACKEND=heuristic
-NOESIS_FRAMES_BACKEND=heuristic`. Every prediction row records the actual mode.
+verified in CI. Cached pretrained backends are selected automatically. Missing
+weights or model dependencies are explicit errors; inference never substitutes
+a rule-based prediction. Every prediction row records the active model.
 
 ### 4. Run the API
 
@@ -209,7 +207,7 @@ python scripts/benchmark_models.py --gate
 # Offline evidence flow; exits non-zero if receipts fail validation
 make evidence-showcase
 
-# Train models (falls back to heuristics when a checkpoint is absent)
+# Train a fine-tuned claim model (the pinned pretrained model remains available)
 python -m src.argument_mining.train_claim  --data data/argument_mining
 
 # Scraper
@@ -276,14 +274,14 @@ corpus.
 | Model | F1 | Notes |
 |---|---|---|
 | ClaimDetector | 0.9197 | Pinned ClaimBuster backend; external F1: FEVER 0.8038, LIAR 0.9418, AVeriTeC 0.9305 |
-| StanceClassifier | 0.3288 macro | Zero-shot NLI is below the 0.4277 heuristic baseline; promotion is blocked on the real human gold set |
+| StanceClassifier | 0.3288 macro | Pinned zero-shot NLI; promotion remains blocked on the real human gold set |
 | FrameClassifier | 0.4193 macro | Zero-shot NLI; political and humanitarian recall remain weak |
 
 See [docs/subsystems/argument-mining-benchmarks.md](docs/subsystems/argument-mining-benchmarks.md) for the full breakdown
-by source type, length, backend, external dataset, and per-class metrics. The
+by source type, length, external dataset, and per-class metrics. The
 internal six-source test set is synthetic and is labelled as such; it is not a
-substitute for the pending human evaluation. When weights are absent the
-pipeline falls back to keyword heuristics and still returns valid predictions.
+substitute for the pending human evaluation. Run `make models` before inference;
+when weights are absent the pipeline fails closed with an actionable error.
 
 ---
 

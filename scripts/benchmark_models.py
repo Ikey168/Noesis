@@ -507,13 +507,13 @@ def _check_candidate_gate(current: dict, previous: dict) -> List[str]:
 
 
 @contextlib.contextmanager
-def _backend(mode: str):
-    """Select all argument-model families consistently for one evaluation."""
+def _model_backend():
+    """Ensure removed backend overrides cannot affect an evaluation."""
     keys = ("NOESIS_CLAIMS_BACKEND", "NOESIS_STANCE_BACKEND", "NOESIS_FRAMES_BACKEND")
     previous = {key: os.environ.get(key) for key in keys}
     try:
         for key in keys:
-            os.environ[key] = "heuristic" if mode == "heuristic" else "auto"
+            os.environ.pop(key, None)
         yield
     finally:
         for key, value in previous.items():
@@ -523,8 +523,8 @@ def _backend(mode: str):
                 os.environ[key] = value
 
 
-def _evaluate_backend(mode: str, claim_rows, stance_rows, frame_rows) -> dict:
-    with _backend(mode):
+def _evaluate_backend(claim_rows, stance_rows, frame_rows) -> dict:
+    with _model_backend():
         return {
             "claim_detector": eval_claim_detector(claim_rows),
             "stance_classifier": eval_stance_classifier(stance_rows),
@@ -532,9 +532,9 @@ def _evaluate_backend(mode: str, claim_rows, stance_rows, frame_rows) -> dict:
         }
 
 
-def _evaluate_external(mode: str, paths: dict) -> dict:
+def _evaluate_external(paths: dict) -> dict:
     output = {}
-    with _backend(mode):
+    with _model_backend():
         from src.argument_mining.models import ClaimDetector
         detector = ClaimDetector()
         for name, fn in (
@@ -810,10 +810,6 @@ def main() -> int:
                     help="Fail (exit 1) if any model F1 regressed ≥2 pp vs. previous checkpoint")
     ap.add_argument("--candidate-gate", action="store_true",
                     help="Fail unless every candidate task metric improves by at least 2 pp")
-    ap.add_argument("--backend", choices=("auto", "heuristic"), default="auto",
-                    help="Primary backend (auto uses cached pretrained weights when available)")
-    ap.add_argument("--compare-backends", action="store_true",
-                    help="Report explicit heuristic and cached-pretrained/default modes side by side")
     ap.add_argument("--fever", type=Path, default=None, help="Path to FEVER dataset directory")
     ap.add_argument("--liar", type=Path, default=None, help="Path to LIAR dataset directory")
     ap.add_argument("--averitec", type=Path, default=None, help="Path to AVeriTeC dataset directory")
@@ -861,8 +857,8 @@ def main() -> int:
         log.error("Failed to load dataset: %s", e)
         return 2
 
-    log.info("Evaluating argument models with backend=%s …", args.backend)
-    primary = _evaluate_backend(args.backend, claim_rows, stance_rows, frame_rows)
+    log.info("Evaluating trained argument models …")
+    primary = _evaluate_backend(claim_rows, stance_rows, frame_rows)
     claim_metrics = primary["claim_detector"]
     stance_metrics = primary["stance_classifier"]
     frame_metrics = primary["frame_classifier"]
@@ -871,7 +867,7 @@ def main() -> int:
 
     # Cross-dataset (skip gracefully if not available)
     external_paths = {name: getattr(args, name) for name in ("fever", "liar", "averitec")}
-    cross = _evaluate_external(args.backend, external_paths)
+    cross = _evaluate_external(external_paths)
     for name in external_paths:
         if name not in cross:
             log.info("Cross-dataset %s: not available", name.upper())
@@ -885,38 +881,14 @@ def main() -> int:
         "annotation": annotation,
         "cross_dataset": cross,
     }
-    if args.compare_backends:
-        auto_metrics = primary if args.backend == "auto" else _evaluate_backend(
-            "auto", claim_rows, stance_rows, frame_rows
-        )
-        heuristic_metrics = primary if args.backend == "heuristic" else _evaluate_backend(
-            "heuristic", claim_rows, stance_rows, frame_rows
-        )
-        auto_external = cross if args.backend == "auto" else _evaluate_external(
-            "auto", external_paths
-        )
-        heuristic_external = cross if args.backend == "heuristic" else _evaluate_external(
-            "heuristic", external_paths
-        )
-        results["backend_comparison"] = {
-            "heuristic": heuristic_metrics,
-            "cached-pretrained-default": auto_metrics,
-        }
-        results["cross_dataset_comparison"] = {
-            "heuristic": heuristic_external,
-            "cached-pretrained-default": auto_external,
-        }
-
     # ── Gate check ────────────────────────────────────────────────────────────
     gate_failures: List[str] = []
     baseline = previous
     if previous:
+        # Read the last model-only entry from checkpoints written before the
+        # removed comparison mode, then write the new single-backend schema.
         comparison = previous.get("backend_comparison", {})
-        baseline_key = (
-            "heuristic" if args.backend == "heuristic"
-            else "cached-pretrained-default"
-        )
-        baseline = comparison.get(baseline_key, previous)
+        baseline = comparison.get("cached-pretrained-default", previous)
     if args.gate and previous:
         gate_failures = _check_gate(results, baseline)
     if args.candidate_gate:

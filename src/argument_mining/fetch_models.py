@@ -5,13 +5,13 @@ Fetch the pinned pretrained backends (``make models``, #959).
 Downloads every model in :mod:`src.argument_mining.model_registry` into the
 local Hugging Face cache (idempotent, resumable), writes
 ``models/pins.lock.json`` with the resolved immutable revisions, then
-reports the active prediction mode per wrapper. A fresh clone goes from
-heuristic to model-grade analytics in this one command:
+reports the active prediction mode per wrapper. A fresh clone enables
+model-backed analytics with this one command:
 
     make models
     python3 ...
 
-No weights land in git; the heuristic fallback keeps working fully offline.
+No weights land in git; runtime inference reads only the local cache.
 """
 from __future__ import annotations
 
