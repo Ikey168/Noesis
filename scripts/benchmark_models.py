@@ -167,12 +167,17 @@ def _load_test_frames(data_dir: Path):
 
 def _load_annotation_status(data_dir: Path) -> dict:
     stats_path = data_dir / "stats.json"
-    if not stats_path.exists():
-        return {}
-    with open(stats_path) as f:
-        stats = json.load(f)
+    stats = {}
+    if stats_path.exists():
+        with open(stats_path) as f:
+            stats = json.load(f)
+    human_status_path = data_dir / "human_eval" / "status.json"
+    human_evaluation = stats.get("human_evaluation", {"status": "not_collected"})
+    if human_status_path.exists():
+        with open(human_status_path) as f:
+            human_evaluation = json.load(f)
     return {
-        "human_evaluation": stats.get("human_evaluation", {"status": "not_collected"}),
+        "human_evaluation": human_evaluation,
         "simulated_noise_robustness": stats.get("simulated_noise_robustness", {}),
     }
 

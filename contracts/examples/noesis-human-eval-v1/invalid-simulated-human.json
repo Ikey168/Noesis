@@ -1,0 +1,5 @@
+{
+  "status": "not_collected",
+  "synthetic_data": true,
+  "required_next_step": "Treat perturbed fixture labels as if they were human annotations."
+}

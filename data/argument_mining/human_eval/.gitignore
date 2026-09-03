@@ -1,0 +1,13 @@
+annotator_*.csv
+adjudication.csv
+manifest.json
+agreement.json
+agreement.md
+results.json
+human_gold.jsonl
+human_gold.parquet
+predictions.csv
+reports/
+!status.json
+!README.md
+!.gitignore

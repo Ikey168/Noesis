@@ -1,0 +1,34 @@
+name: Human evaluation protocol
+
+on:
+  pull_request:
+    paths:
+      - "src/argument_mining/human_eval*.py"
+      - "scripts/human_annotation.py"
+      - "tests/unit/argument_mining/test_human_eval.py"
+      - "contracts/noesis-human-eval-v1.md"
+      - "contracts/schemas/jsonschema/noesis-human-eval-v1.json"
+      - "data/argument_mining/human_eval/**"
+      - ".github/workflows/human-eval.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  protocol:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e . pytest ruff
+      - run: ruff check scripts/human_annotation.py src/argument_mining/human_eval.py src/argument_mining/human_eval_metrics.py tests/unit/argument_mining/test_human_eval.py
+      - run: pytest -q tests/unit/argument_mining/test_human_eval.py
+      - name: Verify model pins without downloading model weights
+        run: python -c "from src.argument_mining.model_registry import verify_pins; assert not verify_pins(require_cache=False)"
+      - name: Ensure collection status never treats fixtures as human data
+        run: python -c "import json; s=json.load(open('data/argument_mining/human_eval/status.json')); assert s.get('synthetic_data') is False; assert s.get('status') != 'complete' or s.get('n_examples', 0) >= 500"
