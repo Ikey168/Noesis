@@ -21,7 +21,7 @@ apache-airflow-providers-http==6.0.4
 # Data processing and analysis libraries (for DAGs)
 pandas==2.1.4
 numpy==1.26.4
-requests==2.32.4
+requests==2.33.0
 sqlalchemy==2.0.25
 
 # News scraping and processing dependencies
@@ -64,7 +64,7 @@ pytest==9.1.1
 pytest-asyncio==0.21.1
 
 # Security and encryption
-cryptography==49.0.0
+cryptography==50.0.0
 bcrypt==5.0.0
 
 # Task queue and messaging
