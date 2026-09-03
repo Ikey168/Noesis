@@ -20,30 +20,62 @@ from __future__ import annotations
 
 import json
 import os
-import time
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 LOCK_PATH = _REPO_ROOT / "models" / "pins.lock.json"
 
-#: the single source of truth for which pretrained models the backends use.
-#: revision "main" means "not yet frozen"; the first fetch resolves it to an
-#: immutable commit in the lock file, which then acts as the operative pin.
+#: The single source of truth for which pretrained models the backends use.
+#: Revisions are immutable Hugging Face commit ids. Updating a model is a
+#: deliberate registry + lock-file change; mutable branches are never pins.
 PINS: Dict[str, Dict[str, Any]] = {
     "nli": {
         "env": "NOESIS_NLI_MODEL",
         "default": "cross-encoder/nli-deberta-v3-base",
-        "revision": "main",
+        "revision": "6c749ce3425cd33b46d187e45b92bbf96ee12ec7",
         "serves": ["stance (#954)", "frames (#955)", "claim links (#964)"],
     },
     "claim": {
         "env": "NOESIS_CLAIM_MODEL",
         "default": "Nithiwat/mdeberta-v3-base_claimbuster",
-        "revision": "main",
+        "revision": "f0d23ebd02e98325f19419eee10637f9167f8a47",
         "serves": ["claim detection (#956)"],
     },
 }
+
+_TOKENIZER_FILES = [
+    "config.json",
+    "tokenizer.json",
+    "tokenizer_config.json",
+    "special_tokens_map.json",
+    "added_tokens.json",
+    "spm.model",
+    "sentencepiece.bpe.model",
+    "vocab.*",
+    "merges.txt",
+]
+
+
+def inference_files(kind: str) -> List[str]:
+    """Repository files needed for the pinned PyTorch inference backend.
+
+    Some upstream model repositories also publish several multi-hundred-MB
+    ONNX exports and duplicate framework checkpoints. Fetching the complete
+    snapshot makes ``make models`` download gigabytes that Noesis never opens.
+    The pin identifies which single weight format the selected backend ships.
+    """
+    if kind == "nli":
+        return [*_TOKENIZER_FILES, "model.safetensors"]
+    if kind == "claim":
+        return [*_TOKENIZER_FILES, "pytorch_model.bin"]
+    raise KeyError(f"unknown model backend {kind!r}")
+
+
+def _has_inference_weights(kind: str, snapshot: Path) -> bool:
+    expected = "model.safetensors" if kind == "nli" else "pytorch_model.bin"
+    weight = snapshot / expected
+    return weight.is_file() and weight.stat().st_size > 0
 
 
 def resolved_pins() -> Dict[str, Dict[str, Any]]:
@@ -53,6 +85,7 @@ def resolved_pins() -> Dict[str, Dict[str, Any]]:
         resolved[key] = {
             **pin,
             "model": os.environ.get(pin["env"], pin["default"]),
+            "revision": os.environ.get(f"{pin['env']}_REVISION", pin["revision"]),
         }
     return resolved
 
@@ -74,7 +107,7 @@ def write_lock(entries: Dict[str, Any], path: Optional[Path] = None) -> Path:
     return lock_path
 
 
-def verify_pins(path: Optional[Path] = None) -> List[str]:
+def verify_pins(path: Optional[Path] = None, *, require_cache: bool = False) -> List[str]:
     """Divergences between the operative pins and the lock file.
 
     Returns human-readable warnings: a pinned model that was never fetched,
@@ -96,7 +129,44 @@ def verify_pins(path: Optional[Path] = None) -> List[str]:
                 f"{key}: lock has {entry.get('model')!r} but the operative pin"
                 f" is {pin['model']!r} — refetch to update the lock"
             )
+            continue
+        if entry.get("requested_revision") != pin["revision"]:
+            warnings.append(
+                f"{key}: lock revision {entry.get('requested_revision')!r} does not"
+                f" match registry revision {pin['revision']!r} — refetch"
+            )
+            continue
+        resolved = str(entry.get("resolved_revision", ""))
+        if len(resolved) != 40 or any(c not in "0123456789abcdef" for c in resolved):
+            warnings.append(f"{key}: lock does not contain an immutable commit revision")
+            continue
+        if require_cache and cached_model_path(key, path=path) is None:
+            warnings.append(f"{key}: lock is valid but weights are absent from the local cache")
     return warnings
+
+
+def cached_model_path(kind: str, *, path: Optional[Path] = None) -> Optional[Path]:
+    """Return a verified local model snapshot without performing network I/O."""
+    pin = resolved_pins().get(kind)
+    entry = read_lock(path).get(kind)
+    if not pin or not entry or entry.get("model") != pin["model"]:
+        return None
+    if entry.get("requested_revision") != pin["revision"]:
+        return None
+    revision = entry.get("resolved_revision")
+    if not revision:
+        return None
+    try:
+        from huggingface_hub import snapshot_download
+
+        snapshot = snapshot_download(
+            repo_id=pin["model"], revision=revision, local_files_only=True,
+            allow_patterns=inference_files(kind),
+        )
+    except Exception:
+        return None
+    snapshot_path = Path(snapshot)
+    return snapshot_path if _has_inference_weights(kind, snapshot_path) else None
 
 
 def backend_status() -> Dict[str, str]:
@@ -127,19 +197,31 @@ def fetch_models(
     ``snapshot_download`` (idempotent and resumable — an interrupted fetch
     re-run completes the missing files).
     """
-    if downloader is None:
-        def downloader(model: str, revision: str) -> Dict[str, str]:
-            from huggingface_hub import snapshot_download
-
-            path = snapshot_download(repo_id=model, revision=revision)
-            resolved = Path(path).name  # snapshots/<commit-sha>
-            return {"revision": resolved, "path": str(path)}
+    default_downloader = downloader is None
 
     lock = read_lock(lock_path)
     summary: Dict[str, Any] = {"fetched": [], "failed": []}
     for key, pin in resolved_pins().items():
         try:
-            result = downloader(pin["model"], pin["revision"])
+            if default_downloader:
+                from huggingface_hub import snapshot_download
+
+                downloaded = snapshot_download(
+                    repo_id=pin["model"], revision=pin["revision"],
+                    allow_patterns=inference_files(key),
+                )
+                downloaded_path = Path(downloaded)
+                if not _has_inference_weights(key, downloaded_path):
+                    raise OSError(
+                        f"{key}: download completed without its required weight file"
+                    )
+                result = {
+                    "revision": downloaded_path.name,
+                    "path": str(downloaded_path),
+                }
+            else:
+                assert downloader is not None
+                result = downloader(pin["model"], pin["revision"])
         except Exception as exc:  # noqa: BLE001 - CLI boundary, keep going
             summary["failed"].append({"backend": key, "model": pin["model"],
                                       "error": str(exc)})
@@ -148,9 +230,7 @@ def fetch_models(
             "model": pin["model"],
             "requested_revision": pin["revision"],
             "resolved_revision": result["revision"],
-            "path": result.get("path"),
             "serves": pin["serves"],
-            "fetched_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         }
         summary["fetched"].append({"backend": key, "model": pin["model"],
                                    "revision": result["revision"]})

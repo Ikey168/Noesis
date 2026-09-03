@@ -7,13 +7,10 @@ from fastapi.middleware.cors import CORSMiddleware
 
 # Initialize feature flags - will be set by check_imports()
 ERROR_HANDLERS_AVAILABLE = False
-ENHANCED_KG_AVAILABLE = False
 EVENT_TIMELINE_AVAILABLE = False
 QUICKSIGHT_AVAILABLE = False
 TOPIC_ROUTES_AVAILABLE = False
 KB_ROUTES_AVAILABLE = False
-GRAPH_SEARCH_AVAILABLE = False
-INFLUENCE_ANALYSIS_AVAILABLE = False
 RATE_LIMITING_AVAILABLE = False
 RBAC_AVAILABLE = False
 API_KEY_MANAGEMENT_AVAILABLE = False
@@ -47,19 +44,6 @@ def try_import_error_handlers():
         return True
     except ImportError:
         ERROR_HANDLERS_AVAILABLE = False
-        return False
-
-
-def try_import_enhanced_kg_routes():
-    """Try to import enhanced knowledge graph routes (Issue #37)."""
-    global ENHANCED_KG_AVAILABLE
-    try:
-        from src.api.routes import enhanced_kg_routes
-        _imported_modules['enhanced_kg_routes'] = enhanced_kg_routes
-        ENHANCED_KG_AVAILABLE = True
-        return True
-    except ImportError:
-        ENHANCED_KG_AVAILABLE = False
         return False
 
 
@@ -109,35 +93,15 @@ def try_import_kb_routes():
         from src.api.routes import kb_routes
         _imported_modules['kb_routes'] = kb_routes
         KB_ROUTES_AVAILABLE = True
+        try:
+            from src.kb.brief_scheduler import start_scheduler
+            start_scheduler()
+        except Exception:
+            import logging
+            logging.getLogger(__name__).warning("Daily brief scheduler could not be started", exc_info=True)
         return True
     except ImportError:
         KB_ROUTES_AVAILABLE = False
-        return False
-
-
-def try_import_graph_search_routes():
-    """Try to import graph search routes (Issue #39)."""
-    global GRAPH_SEARCH_AVAILABLE
-    try:
-        from src.api.routes import graph_search_routes
-        _imported_modules['graph_search_routes'] = graph_search_routes
-        GRAPH_SEARCH_AVAILABLE = True
-        return True
-    except ImportError:
-        GRAPH_SEARCH_AVAILABLE = False
-        return False
-
-
-def try_import_influence_routes():
-    """Try to import influence analysis routes (Issue #40)."""
-    global INFLUENCE_ANALYSIS_AVAILABLE
-    try:
-        from src.api.routes import influence_routes
-        _imported_modules['influence_routes'] = influence_routes
-        INFLUENCE_ANALYSIS_AVAILABLE = True
-        return True
-    except ImportError:
-        INFLUENCE_ANALYSIS_AVAILABLE = False
         return False
 
 
@@ -441,13 +405,10 @@ def _load_domain_packs():
 def check_all_imports():
     """Check all optional imports and set feature flags."""
     try_import_error_handlers()
-    try_import_enhanced_kg_routes()
     try_import_event_timeline_routes()
     try_import_quicksight_routes()
     try_import_topic_routes()
     try_import_kb_routes()
-    try_import_graph_search_routes()
-    try_import_influence_routes()
     try_import_rate_limiting()
     try_import_rbac()
     try_import_api_key_management()
@@ -473,12 +434,10 @@ def try_import_core_routes():
     """Try to import core routes that are always needed."""
     global _imported_modules
     try:
-        from src.api.routes import event_routes, graph_routes, news_routes, veracity_routes, knowledge_graph_routes, sentiment_routes
+        from src.api.routes import event_routes, news_routes, veracity_routes, sentiment_routes
         _imported_modules['event_routes'] = event_routes
-        _imported_modules['graph_routes'] = graph_routes
         _imported_modules['news_routes'] = news_routes
         _imported_modules['veracity_routes'] = veracity_routes
-        _imported_modules['knowledge_graph_routes'] = knowledge_graph_routes
         _imported_modules['sentiment_routes'] = sentiment_routes
         return True
     except ImportError:
@@ -605,8 +564,6 @@ def include_core_routers(app):
     """Include core routers that are always available."""
     from src.domains.registry import is_pack_enabled
 
-    graph_routes = _imported_modules.get('graph_routes')
-    knowledge_graph_routes = _imported_modules.get('knowledge_graph_routes')
     document_routes = _imported_modules.get('document_routes')
     news_routes = _imported_modules.get('news_routes')
     event_routes = _imported_modules.get('event_routes')
@@ -614,10 +571,6 @@ def include_core_routers(app):
     sentiment_routes = _imported_modules.get('sentiment_routes')
 
     # Generic routes — always on regardless of domain packs.
-    if graph_routes:
-        app.include_router(graph_routes.router)
-    if knowledge_graph_routes:
-        app.include_router(knowledge_graph_routes.router)
     if document_routes:
         app.include_router(document_routes.router)
 
@@ -669,13 +622,6 @@ def include_optional_routers(app):
             app.include_router(waf_security_routes.router)
             routers_included += 1
 
-    # Include enhanced knowledge graph routes if available (Issue #37)
-    if ENHANCED_KG_AVAILABLE:
-        enhanced_kg_routes = _imported_modules.get('enhanced_kg_routes')
-        if enhanced_kg_routes:
-            app.include_router(enhanced_kg_routes.router)
-            routers_included += 1
-
     # Include event timeline routes if available — news pack only (Issue #38, #520).
     if EVENT_TIMELINE_AVAILABLE and is_pack_enabled("news"):
         event_timeline_routes = _imported_modules.get('event_timeline_routes')
@@ -702,20 +648,6 @@ def include_optional_routers(app):
         kb_routes = _imported_modules.get('kb_routes')
         if kb_routes:
             app.include_router(kb_routes.router)
-            routers_included += 1
-
-    # Include graph search routes if available (Issue #39)
-    if GRAPH_SEARCH_AVAILABLE:
-        graph_search_routes = _imported_modules.get('graph_search_routes')
-        if graph_search_routes:
-            app.include_router(graph_search_routes.router)
-            routers_included += 1
-
-    # Include influence analysis routes if available — news pack only (Issue #40, #520).
-    if INFLUENCE_ANALYSIS_AVAILABLE and is_pack_enabled("news"):
-        influence_routes = _imported_modules.get('influence_routes')
-        if influence_routes:
-            app.include_router(influence_routes.router)
             routers_included += 1
 
     # Include auth router if available
@@ -817,18 +749,12 @@ def include_versioned_routers(app):
     """Include versioned routers."""
     from src.domains.registry import is_pack_enabled
 
-    graph_routes = _imported_modules.get('graph_routes')
-    knowledge_graph_routes = _imported_modules.get('knowledge_graph_routes')
     document_routes = _imported_modules.get('document_routes')
     news_routes = _imported_modules.get('news_routes')
     event_routes = _imported_modules.get('event_routes')
     veracity_routes = _imported_modules.get('veracity_routes')
 
     # Generic — always on.
-    if graph_routes:
-        app.include_router(graph_routes.router, prefix="/api/v1")
-    if knowledge_graph_routes:
-        app.include_router(knowledge_graph_routes.router, prefix="/api/v1")
     if document_routes:
         app.include_router(document_routes.router, prefix="/api/v1")
 
@@ -914,12 +840,9 @@ async def root():
             "rbac": RBAC_AVAILABLE,
             "api_key_management": API_KEY_MANAGEMENT_AVAILABLE,
             "waf_security": WAF_SECURITY_AVAILABLE,
-            "enhanced_kg": ENHANCED_KG_AVAILABLE,
             "event_timeline": EVENT_TIMELINE_AVAILABLE,
             "quicksight": QUICKSIGHT_AVAILABLE,
             "topic_routes": TOPIC_ROUTES_AVAILABLE,
-            "graph_search": GRAPH_SEARCH_AVAILABLE,
-            "influence_analysis": INFLUENCE_ANALYSIS_AVAILABLE,
             "document_routes": DOCUMENT_ROUTES_AVAILABLE,
             "kg_stream": KG_STREAM_ROUTES_AVAILABLE,
             "entity_corrections": ENTITY_CORRECTION_ROUTES_AVAILABLE,
@@ -948,8 +871,6 @@ async def health_check():
             ),
             "waf_security": "operational" if WAF_SECURITY_AVAILABLE else "disabled",
             "topic_routes": "operational" if TOPIC_ROUTES_AVAILABLE else "disabled",
-            "graph_search": "operational" if GRAPH_SEARCH_AVAILABLE else "disabled",
-            "influence_analysis": "operational" if INFLUENCE_ANALYSIS_AVAILABLE else "disabled",
             "database": "unknown",  # Would check actual DB connection
             "cache": "unknown",  # Would check Redis connection
         },

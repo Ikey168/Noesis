@@ -54,8 +54,8 @@ class TestNLIFrames:
         prediction = classifier.predict_text("A quiet afternoon by the lake.")
         assert prediction.dominant == "other"
 
-    def test_without_nli_or_checkpoint_stays_heuristic(self, monkeypatch):
-        monkeypatch.delenv("NOESIS_FRAMES_BACKEND", raising=False)
+    def test_explicit_opt_out_stays_heuristic(self, monkeypatch):
+        monkeypatch.setenv("NOESIS_FRAMES_BACKEND", "heuristic")
         classifier = FrameClassifier()
         assert classifier.prediction_mode == "heuristic"
 

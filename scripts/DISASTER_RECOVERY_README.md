@@ -262,8 +262,6 @@ NEPTUNE_CLUSTER_IDENTIFIER="neuronews-dev"
 
 REDSHIFT_PASSWORD="your-password"  # For connection testing
 
-NEPTUNE_ENDPOINT="ws://your-endpoint:8182/gremlin"
-
 ```text
 
 ### Terraform Configuration
@@ -407,4 +405,3 @@ For issues with disaster recovery testing:
 3. Review security group and network configurations
 
 4. Consult the individual script documentation
-

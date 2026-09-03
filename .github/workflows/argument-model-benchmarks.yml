@@ -1,0 +1,62 @@
+name: Argument model benchmarks
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 3 * * 1"
+  pull_request:
+    paths:
+      - "src/argument_mining/**"
+      - "src/kb/nli.py"
+      - "scripts/benchmark_models.py"
+      - "scripts/prepare_external_benchmarks.py"
+      - "models/pins.lock.json"
+      - "data/argument_mining/**"
+
+jobs:
+  sample-benchmark:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install pyarrow pandas numpy scikit-learn huggingface_hub
+      - run: python -m src.argument_mining.fetch_models --check
+      - name: Prepare licensed deterministic external samples
+        run: python scripts/prepare_external_benchmarks.py --sample 200
+      - name: Gate heuristic baseline and publish JSON/Markdown receipts
+        run: python scripts/benchmark_models.py --backend heuristic --gate
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: argument-model-benchmark-receipts
+          path: |
+            docs/benchmark_results.json
+            docs/subsystems/argument-mining-benchmarks.md
+            data/external_benchmarks/manifest.json
+
+  pretrained-benchmark:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install pyarrow pandas numpy scikit-learn huggingface_hub transformers torch sentencepiece
+      - run: python scripts/prepare_external_benchmarks.py --sample 500
+      - run: make models
+      - run: python scripts/benchmark_models.py --compare-backends --gate
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: argument-model-pretrained-receipts
+          path: |
+            docs/benchmark_results.json
+            docs/subsystems/argument-mining-benchmarks.md
+            data/external_benchmarks/manifest.json

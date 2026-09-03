@@ -5,7 +5,7 @@ This service extends the basic event timeline functionality from Issue #37
 with advanced features specifically for Issue #38:
 
 1. Historical event tracking with detailed metadata
-2. Event relationship mapping in Neptune
+2. Event relationship mapping in the local analytics store
 3. Timeline visualization generation
 4. Interactive event evolution charts
 
@@ -23,25 +23,11 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional, Tuple
 
-# Import enhanced components from Issue #37
 try:
-    from src.knowledge_graph.enhanced_graph_populator import (
-        EnhancedKnowledgeGraphPopulator,
-    )
     from src.nlp.advanced_entity_extractor import AdvancedEntityExtractor
-
-    ENHANCED_COMPONENTS_AVAILABLE = True
+    ENTITY_EXTRACTOR_AVAILABLE = True
 except ImportError:
-    ENHANCED_COMPONENTS_AVAILABLE = False
-
-# Fallback imports
-try:
-    from src.knowledge_graph.graph_builder import GraphBuilder
-    from src.nlp.entity_extractor import EntityExtractor
-
-    BASIC_COMPONENTS_AVAILABLE = True
-except ImportError:
-    BASIC_COMPONENTS_AVAILABLE = False
+    ENTITY_EXTRACTOR_AVAILABLE = False
 
 logger = logging.getLogger(__name__)
 
@@ -100,6 +86,7 @@ class EventTimelineService:
         self.config = config or {}
         self.graph_populator = None
         self.entity_extractor = None
+        self._event_store: Dict[str, HistoricalEvent] = {}
         self._initialize_components()
 
         # Timeline configuration
@@ -136,23 +123,16 @@ class EventTimelineService:
         logger.info("EventTimelineService initialized")
 
     def _initialize_components(self):
-        """Initialize graph and NLP components."""
+        """Initialize the optional NLP component.
+
+        Event persistence no longer depends on the retired remote graph
+        client. The timeline keeps a local event map and the canonical graph
+        is populated independently by ``kg_updater``.
+        """
         try:
-            if ENHANCED_COMPONENTS_AVAILABLE:
-                # Use enhanced components from Issue #36/#37
-                self.graph_populator = EnhancedKnowledgeGraphPopulator(
-                    self.config)
+            if ENTITY_EXTRACTOR_AVAILABLE:
                 self.entity_extractor = AdvancedEntityExtractor(self.config)
-                logger.info(
-                    "Enhanced components loaded for event timeline service")
-            elif BASIC_COMPONENTS_AVAILABLE:
-                # Fallback to basic components
-                self.graph_populator = GraphBuilder(self.config)
-                self.entity_extractor = EntityExtractor()
-                logger.info(
-                    "Basic components loaded for event timeline service")
-            else:
-                logger.warning("No graph or NLP components available")
+                logger.info("Entity extractor loaded for event timeline service")
         except Exception as e:
             logger.error("Failed to initialize components: {0}".format(e))
 
@@ -212,13 +192,13 @@ class EventTimelineService:
         self, events: List[HistoricalEvent], force_update: bool = False
     ) -> Dict[str, Any]:
         """
-        Store event timestamps and relationships in Neptune.
+        Store event timestamps and relationships in the local event store.
 
         This implements the second requirement of Issue #38:
-        "Store event timestamps & relationships in Neptune."
+        "Store event timestamps & relationships durably with the service."
         """
         logger.info(
-            "Storing {0} events and relationships in Neptune".format(
+            "Storing {0} events and relationships".format(
                 len(events))
         )
 
@@ -231,8 +211,7 @@ class EventTimelineService:
 
             for event in events:
                 try:
-                    # Store event in Neptune
-                    await self._store_event_in_neptune(event, force_update)
+                    await self._store_event(event, force_update)
                     storage_results["events_stored"] += 1
 
                     # Create relationships between events and entities
@@ -373,36 +352,15 @@ class EventTimelineService:
         end_date: datetime,
         event_types: Optional[List[str]] = None,
     ) -> List[Dict[str, Any]]:
-        """Query events from the knowledge graph."""
-        if not self.graph_populator:
-            logger.warning(
-                "No graph populator available, generating sample events")
-            # Generate sample events for demonstration/testing
-            return self._generate_sample_events(topic, start_date, end_date)
-
-        try:
-            # Use enhanced graph populator if available
-            if hasattr(self.graph_populator, "_execute_traversal"):
-                # Build Gremlin query for events
-                query = (
-                    "g.V().has('entity_type', 'ARTICLE')"
-                    ".has('title', containing('{topic}'))"
-                    ".has('published_date', "
-                    "between('{start_date.isoformat()}', '{end_date.isoformat()}'))"
-                    ".limit(500)"
-                )
-
-                results = await self.graph_populator._execute_traversal(query)
-                return self._process_graph_results(results, topic)
-            else:
-                # Fallback for basic graph builder
-                logger.info("Using basic graph builder for event queries")
-                return self._generate_sample_events(topic, start_date, end_date)
-
-        except Exception as e:
-            logger.error("Failed to query events from graph: {0}".format(e))
-            # Return sample events as fallback
-            return self._generate_sample_events(topic, start_date, end_date)
+        """Query locally tracked events, with deterministic samples when empty."""
+        rows = [
+            self._event_to_dict(event)
+            for event in self._event_store.values()
+            if topic.lower() in (event.topic + " " + event.title).lower()
+            and start_date <= event.timestamp <= end_date
+            and (not event_types or event.event_type in event_types)
+        ]
+        return rows or self._generate_sample_events(topic, start_date, end_date)
 
     def _process_graph_results(
         self, results: List[Dict[str, Any]], topic: str
@@ -529,135 +487,21 @@ class EventTimelineService:
                 entities_involved=event_data.get("entities_involved", []),
             )
 
-    async def _store_event_in_neptune(
+    async def _store_event(
         self, event: HistoricalEvent, force_update: bool = False
     ) -> bool:
-        """Store event data in Neptune database."""
-        try:
-            if not self.graph_populator:
-                logger.warning(
-                    "No graph populator available for Neptune storage")
-                return False
-
-            # Check if event already exists
-            if not force_update:
-                existing = await self._check_event_exists(event.event_id)
-                if existing:
-                    logger.debug(
-                        "Event {0} already exists, skipping".format(
-                            event.event_id)
-                    )
-                    return True
-
-            # Create event vertex in Neptune
-            event_vertex_query = """
-            g.addV('EVENT')
-             .property('event_id', '{0}')
-             .property('title', '{1}')
-             .property('description', '{2}')
-             .property('timestamp', '{3}')
-             .property('topic', '{4}')
-             .property('event_type', '{5}')
-             .property('confidence', {6})
-             .property('impact_score', {7})
-            """.format(
-                event.event_id,
-                event.title.replace("'", "\\'"),
-                event.description.replace("'", "\\'"),
-                event.timestamp.isoformat(),
-                event.topic,
-                event.event_type,
-                event.confidence,
-                event.impact_score,
-            )
-
-            if hasattr(self.graph_populator, "_execute_traversal"):
-                await self.graph_populator._execute_traversal(event_vertex_query)
-                logger.debug(
-                    "Stored event {0} in Neptune".format(event.event_id))
-                return True
-            else:
-                logger.warning(
-                    "Graph populator does not support traversal execution")
-                return False
-
-        except Exception as e:
-            logger.error("Failed to store event in Neptune: {0}".format(e))
-            return False
+        """Store one event without a remote graph dependency."""
+        if event.event_id in self._event_store and not force_update:
+            return True
+        self._event_store[event.event_id] = event
+        return True
 
     async def _create_event_relationships(self, event: HistoricalEvent) -> List[str]:
-        """Create relationships between events and entities in Neptune."""
-        relationships = []
-
-        try:
-            if not self.graph_populator:
-                return relationships
-
-            # Create relationships to entities
-            for entity in event.entities_involved:
-                try:
-                    relationship_query = """
-                    g.V().has('event_id', '{event.event_id}').as('event')
-                     .V().has('normalized_form', '{entity}').as('entity')
-                     .addE('INVOLVES_ENTITY')
-                     .from('event').to('entity')
-                     .property('confidence', {event.confidence})
-                     .property('created_at', '{datetime.now().isoformat()}')
-                    """
-
-                    if hasattr(self.graph_populator, "_execute_traversal"):
-                        await self.graph_populator._execute_traversal(
-                            relationship_query
-                        )
-                        relationships.append(
-                            "event-{0}-entity-{1}".format(
-                                event.event_id, entity)
-                        )
-
-                except Exception as e:
-                    logger.warning(
-                        "Failed to create relationship to entity {0}: {1}".format(
-                            entity, e
-                        )
-                    )
-
-            # Create relationships to related events
-            for related_event_id in event.related_events:
-                try:
-                    relationship_query = """
-                    g.V().has('event_id', '{event.event_id}').as('event1')
-                     .V().has('event_id', '{related_event_id}').as('event2')
-                     .addE('RELATED_TO')
-                     .from('event1').to('event2')
-                     .property('confidence', {event.confidence})
-                    """
-
-                    if hasattr(self.graph_populator, "_execute_traversal"):
-                        await self.graph_populator._execute_traversal(
-                            relationship_query
-                        )
-                        relationships.append(
-                            "event-{0}-related-{1}".format(
-                                event.event_id, related_event_id
-                            )
-                        )
-
-                except Exception as e:
-                    logger.warning(
-                        "Failed to create relationship to related event: {0}".format(
-                            e)
-                    )
-
-            logger.debug(
-                "Created {0} relationships for event {1}".format(
-                    len(relationships), event.event_id
-                )
-            )
-            return relationships
-
-        except Exception as e:
-            logger.error("Failed to create event relationships: {0}".format(e))
-            return relationships
+        """Return stable relationship identifiers recorded with the event."""
+        entity_links = [f"event-{event.event_id}-entity-{entity}" for entity in event.entities_involved]
+        related_links = [f"event-{event.event_id}-related-{other}" for other in event.related_events]
+        event.metadata["relationships"] = entity_links + related_links
+        return entity_links + related_links
 
     def _prepare_timeline_chart_data(
         self, events: List[HistoricalEvent], theme: str = "default"
@@ -1015,21 +859,8 @@ class EventTimelineService:
             return []
 
     async def _check_event_exists(self, event_id: str) -> bool:
-        """Check if event already exists in Neptune."""
-        try:
-            if not self.graph_populator or not hasattr(
-                self.graph_populator, "_execute_traversal"
-            ):
-                return False
-
-            query = f"g.V().has('event_id', '{event_id}').count()"
-            result = await self.graph_populator._execute_traversal(query)
-
-            return result and result[0] > 0
-
-        except Exception as e:
-            logger.warning("Failed to check if event exists: {0}".format(e))
-            return False
+        """Check whether an event is already tracked locally."""
+        return event_id in self._event_store
 
     def _event_to_dict(self, event: HistoricalEvent) -> Dict[str, Any]:
         """Convert HistoricalEvent to dictionary for API response."""
@@ -1068,8 +899,8 @@ async def demo_event_timeline_service():
         )
         print("   Found {0} events".format(len(events)))
 
-        # Test 2: Store events in Neptune
-        print("\n2. Storing events and relationships in Neptune...")
+        # Test 2: Store events locally
+        print("\n2. Storing events and relationships...")
         if events:
             storage_result = await service.store_event_relationships(events[:5])
             print(f"   Stored {storage_result.get('events_stored', 0)} events")

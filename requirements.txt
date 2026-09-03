@@ -6,16 +6,15 @@ httpx>=0.24.0
 moto>=4.2.0
 pytest-mock>=3.15.1 # Added for mocking
 
-# Graph Database
-gremlinpython>=3.8.1
-
 # Storage
 boto3>=1.26.0
 botocore>=1.29.0
 
 # Web Framework
-fastapi>=0.109.1
-starlette>=0.40.0
+fastapi>=0.109.1,<1.0.0
+# Starlette 1.x uses the new httpx2 transport.  The test and MCP stacks in
+# this repository use httpx 0.x, so keep the compatible transport generation.
+starlette>=0.40.0,<1.0.0
 uvicorn>=0.23.0
 
 # Data Processing
@@ -69,7 +68,6 @@ python-dotenv>=0.19.0
 bcrypt>=5.0.0
 PyJWT>=2.13.0
 pyotp>=2.10.0  # TOTP/MFA (src/api/auth/totp_mfa.py)
-websockets>=16.0 # Added for Neptune testing/mocking
 email-validator>=2.1.0
 tenacity>=8.2.3
 psycopg2-binary>=2.9.12
@@ -84,6 +82,7 @@ duckdb>=1.0.0,<2.0.0
 # tools/*_mcp stdio servers from the API process. Optional at runtime: the
 # host reports itself unavailable when this is missing.
 mcp>=1.28.1
+fastmcp>=2.0,<3.0
 
 # Article-extraction cascade (#877) — both optional; src/ingestion/extract.py
 # degrades trafilatura -> readability-lxml -> bs4 heuristic without them

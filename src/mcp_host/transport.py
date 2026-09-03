@@ -5,7 +5,7 @@ Noesis is consumed through its MCP servers, so they need to be reachable from
 other projects — not just spawnable over stdio. Every ``tools/*_mcp/server.py``
 ends by calling :func:`run_server`, which keeps **stdio as the default** and
 adds an opt-in Streamable HTTP transport behind env vars (the pattern the
-retired ``noesis_mcp`` server established):
+the first HTTP-capable server established):
 
 * ``NOESIS_MCP_TRANSPORT`` — ``stdio`` (default) or ``http``.
 * ``NOESIS_MCP_HTTP_HOST`` — bind host, default ``127.0.0.1`` (localhost-only

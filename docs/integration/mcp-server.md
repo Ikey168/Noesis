@@ -1,50 +1,32 @@
-# Noesis as an MCP server (R13 / Stage 4)
+# Noesis MCP servers
 
-The R0-R12 milestones made MCP servers *feed* the Noesis canvas. R13 turns the
-pattern inside out: Noesis itself is exposed as an MCP server so an external
-host (Claude Desktop, another agent) can ask Noesis to plan a view.
+There is no monolithic or phantom `noesis_mcp` server. The public knowledge
+contract is `tools/kb_mcp/server.py`; specialist capabilities are separate
+least-privilege servers listed in [mcp-and-api.md](mcp-and-api.md) and declared
+in the repository's `.mcp.json`.
 
-`tools/noesis_mcp/server.py` serves two tools:
-
-- `noesis_generate_view(intent, source_type?, auth_token?)` returns a validated
-  `ui-spec-v1` document, the same contract the canvas renders. It is a thin
-  transport over the `/api/v1/ui/generate` semantics: it reuses the heuristic
-  planner (`src.genui.plan`) and the domain-pack `ui_flags`, and validates the
-  spec before returning, so an external host never receives an invalid document.
-- `noesis_panels()` returns the panel catalog, so a host can see what a
-  generated view may contain.
-
-## Transport
-
-Stdio by default (for local testing). Streamable HTTP when
-`NOESIS_MCP_TRANSPORT=http`:
+Run the KB server over local stdio:
 
 ```bash
-NOESIS_MCP_TRANSPORT=http NOESIS_MCP_HTTP_PORT=8100 python tools/noesis_mcp/server.py
+python tools/kb_mcp/server.py
 ```
 
-An external host connects to `http://<host>:8100/mcp`. Host and port default to
-`127.0.0.1:8100` (`NOESIS_MCP_HTTP_HOST` / `NOESIS_MCP_HTTP_PORT`). Both env vars
-follow the R13 alias rule (`NEURONEWS_*` fallbacks resolve identically).
+It exposes domain discovery, scoped search/documents/claims/entities, diffs,
+coverage, integrity envelopes, and the daily brief through `noesis-kb-v1`.
+All successful responses carry the versioned contract envelope. Query-only KB
+and KG servers open the configured DuckDB file read-only when they run as a
+standalone process.
 
-## Auth story
+For Streamable HTTP, opt in explicitly:
 
-Minimal to start, and explicit:
+```bash
+NOESIS_MCP_TRANSPORT=http \
+NOESIS_MCP_HTTP_HOST=127.0.0.1 \
+NOESIS_MCP_HTTP_PORT=8100 \
+NOESIS_MCP_AUTH_TOKEN='replace-me' \
+python tools/kb_mcp/server.py
+```
 
-- **Unset `NOESIS_MCP_AUTH_TOKEN` (default): open.** Intended for the localhost
-  default bind, where the transport is not reachable off-box.
-- **Set `NOESIS_MCP_AUTH_TOKEN=<token>`: required.** Every
-  `noesis_generate_view` call must pass a matching `auth_token`; a missing or
-  wrong token returns `{"error": "unauthorized: ..."}` and no spec.
-
-For a network deployment, bind to a non-loopback host only behind a reverse
-proxy that terminates TLS and enforces the bearer token (or FastMCP's own auth
-providers), and set `NOESIS_MCP_AUTH_TOKEN` as a defense-in-depth check at the
-tool layer. The token gate here is deliberately simple; it is the floor, not the
-whole story.
-
-## Note on server naming
-
-This outward server is named `noesis` (not `neuronews-*`). The internal
-`tools/*_mcp` servers that feed the canvas keep their `neuronews-*` names as
-documented aliases (see `docs/development/naming.md`); they are not user-facing.
+stdio remains the default. Do not bind outside loopback without authentication,
+TLS termination, and network access controls. Each specialist server has its
+own process and port; there is no implicit all-powerful gateway.

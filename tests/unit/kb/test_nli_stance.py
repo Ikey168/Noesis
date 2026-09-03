@@ -58,8 +58,8 @@ class TestNLIStance:
         classifier.predict_text("Lawmakers praised the framework.", topic="t")
         assert nli.calls == first_calls  # cache hit, no new NLI calls
 
-    def test_without_nli_or_checkpoint_stays_heuristic(self, monkeypatch):
-        monkeypatch.delenv("NOESIS_STANCE_BACKEND", raising=False)
+    def test_explicit_opt_out_stays_heuristic(self, monkeypatch):
+        monkeypatch.setenv("NOESIS_STANCE_BACKEND", "heuristic")
         classifier = StanceClassifier()
         assert classifier.prediction_mode == "heuristic"
         prediction = classifier.predict_text("Anything at all.", topic="t")

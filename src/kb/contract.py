@@ -148,6 +148,28 @@ def kb_diff(
         raise KBContractError("bad_since", str(exc)) from exc
 
 
+def kb_integrity(
+    domain: str,
+    document_id: Optional[str] = None,
+    limit: int = 100,
+    conn=None,
+    config_path=None,
+) -> Dict[str, Any]:
+    """Integrity ledger for one document or the domain's recent documents."""
+    backing = _backing(domain, conn, config_path)
+    documents = backing.documents(limit=100_000)
+    ids = [row["document_id"] for row in documents]
+    if document_id is not None:
+        if document_id not in set(ids):
+            raise KBContractError(
+                "not_found", f"document {document_id!r} is not a member of domain {domain!r}"
+            )
+        ids = [document_id]
+    from src.integrity.ledger import integrity_ledger
+
+    return _envelope(domain, integrity_ledger(backing.conn, ids[: int(limit)], limit=int(limit)))
+
+
 def kb_brief(
     domains: Optional[List[str]] = None,
     since: Optional[str] = None,

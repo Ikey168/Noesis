@@ -23,12 +23,17 @@
     "supportive": 585,
     "ambiguous": 497
   },
-  "iaa": {
+  "simulated_noise_robustness": {
+    "method": "generated labels compared with random perturbations; not human IAA",
     "n_examples": 500,
-    "kappa_claim": 0.701,
-    "kappa_stance": 0.7287,
-    "new_slices_kappa_claim": 0.7834,
-    "new_slices_kappa_stance": 0.7845
+    "similarity_kappa_claim": 0.701,
+    "similarity_kappa_stance": 0.7287,
+    "new_slices_similarity_kappa_claim": 0.7834,
+    "new_slices_similarity_kappa_stance": 0.7845
+  },
+  "human_evaluation": {
+    "status": "not_collected",
+    "note": "Noesis does not report synthetic perturbations as annotator agreement. Run scripts/human_annotation.py with two independent annotators."
   },
   "test_support": {
     "per_stance_class": {
@@ -55,8 +60,6 @@
   },
   "acceptance_criteria": {
     "total_ge_5000": true,
-    "all_types_ge_500": true,
-    "iaa_claim_kappa_ge_070": true,
-    "iaa_stance_kappa_ge_070": true
+    "all_types_ge_500": true
   }
 }

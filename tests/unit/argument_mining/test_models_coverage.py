@@ -232,10 +232,19 @@ class TestPredictTextEmptyFallback:
 # ---------------------------------------------------------------------------
 
 class TestStanceHeuristicBranches:
+    def test_off_topic_sentiment_is_not_projected(self):
+        r = _stance_heuristic(
+            "The proposal is a disastrous failure that will harm millions.",
+            0,
+            "renewable energy",
+        )
+        assert r.stance == "critical"
+        assert r.confidence == pytest.approx(0.35)
+
     def test_multi_neutral_words_yield_neutral_high_confidence(self):
         # >=2 neutral words, no pos/neg -> neutral @ 0.65
         r = _stance_heuristic(
-            "The bill was signed and published according to the released data.",
+            "The topic bill was signed and published according to the released data.",
             0,
             "topic",
         )
@@ -244,20 +253,20 @@ class TestStanceHeuristicBranches:
 
     def test_balanced_zero_signals_fall_through_to_neutral(self):
         # no pos/neg/neutral/hedge signals at all -> final neutral @ 0.50
-        r = _stance_heuristic("The cat sat on the mat quietly today.", 3, "topic")
+        r = _stance_heuristic("The topic cat sat on the mat quietly today.", 3, "topic")
         assert r.stance == "neutral"
         assert r.confidence == pytest.approx(0.50)
         assert r.sentence_idx == 3
 
     def test_hedge_only_yields_ambiguous(self):
         r = _stance_heuristic(
-            "The outcome remains unclear and difficult to predict.", 0, "topic"
+            "The topic outcome remains unclear and difficult to predict.", 0, "topic"
         )
         assert r.stance == "ambiguous"
 
     def test_balanced_pos_neg_yields_ambiguous(self):
         r = _stance_heuristic(
-            "The reform delivers benefit but the failure of oversight is damaging.",
+            "The topic reform delivers benefit but the failure of oversight is damaging.",
             0,
             "topic",
         )
@@ -265,7 +274,7 @@ class TestStanceHeuristicBranches:
 
     def test_critical_scaling_confidence(self):
         r = _stance_heuristic(
-            "The reckless plan is a disastrous failure that will harm millions.",
+            "The topic plan is a disastrous failure that will harm millions.",
             0,
             "topic",
         )

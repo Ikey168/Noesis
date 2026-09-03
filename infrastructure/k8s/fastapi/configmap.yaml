@@ -24,8 +24,6 @@ data:
   # AWS Configuration
   aws.region: "us-east-1"
   aws.s3.bucket: "neuronews-data"
-  aws.neptune.endpoint: "neuronews-neptune.cluster-xxx.us-east-1.neptune.amazonaws.com"
-  aws.neptune.port: "8182"
   
   # API Configuration
   api.cors_origins: "*"

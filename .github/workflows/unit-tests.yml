@@ -1,11 +1,9 @@
 name: Unit Tests
 
 # Gates the capability plane (src/ + tools/) with the unit suites that were
-# previously never run in CI (issue #818). Scope note: the heavy-dependency
-# test areas (nlp, scraper, api routes, rag/vector, database, knowledge_graph,
-# middleware — ~130 files needing scrapy/mlflow/torch/snowflake and friends)
-# are NOT yet gated here; widening the scope is follow-up work. Every
-# directory below collects and passes with the curated dependency set.
+# previously never run in CI (issue #818). Cheap KB, foundation-graph and MCP
+# contract suites are part of the required lane; dependency-heavy end-to-end
+# suites run on the scheduled full lane.
 
 on:
   push:
@@ -54,7 +52,10 @@ jobs:
             fastapi httpx uvicorn \
             aiofiles psutil requests \
             fastavro beautifulsoup4 lxml \
-            fastmcp
+            'fastmcp>=2.0,<3.0' pyyaml pyarrow huggingface_hub apscheduler
+
+      - name: Verify immutable model pins
+        run: python -m src.argument_mining.fetch_models --check
 
       - name: Run unit tests (capability plane)
         run: |
@@ -68,6 +69,7 @@ jobs:
             tests/unit/domains \
             tests/unit/handlers \
             tests/unit/ingestion \
+            tests/unit/kb \
             tests/unit/logging \
             tests/unit/mcp_host \
             tests/unit/ml \
@@ -78,9 +80,11 @@ jobs:
             tests/unit/scraper_adaptive \
             tests/unit/services_api \
             tests/unit/tools \
-            --ignore=tests/unit/argument_mining/test_frames_by_source.py \
+            tests/unit/knowledge_graph \
+            tests/knowledge_graph/test_claim_extraction.py \
+            tests/knowledge_graph/test_entity_corrections.py \
+            tests/knowledge_graph/test_entity_resolution.py \
+            tests/knowledge_graph/test_kg_foundation.py \
+            tests/knowledge_graph/test_kg_persistence.py \
+            tests/knowledge_graph/test_kg_updater.py \
             -q
-        # test_frames_by_source.py is excluded: it imports
-        # src.api.routes.argument_routes, whose package __init__ pulls the
-        # entire API route surface (bcrypt, and the rest of the API stack).
-        # It moves into scope with the api-routes widening follow-up.

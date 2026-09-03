@@ -41,6 +41,7 @@ new domain content today.
 | `kb_entities(domain, name?)` | `[{canonical_id, name, mentions, aliases[]}]`, alias mentions folded |
 | `kb_contradictions(domain, since?)` | contradiction ledger entries, both sides cited, `prediction_mode` + confidence |
 | `kb_diff(domain, since)` | six sections: `documents {new, total, sources_delivered}`, `new_clusters`, `gained_corroboration` (new sources named), `new_contradictions`, `superseded`, `entity_surges` (`null` where a backing has no mention timeline — an honest gap, never a silent `[]`), plus `meta {as_of_ms, since_ms, consolidation watermarks}` |
+| `kb_integrity(domain, document_id?, limit?)` | honesty-enveloped per-document snapshots, revisions, media provenance/C2PA, image reuse and cross-modal findings; every finding has evidence locators and a silent edit cites both versions |
 | `kb_coverage(domain)` | corpus stats, freshness, sources, backing, `embedding_model`, mismatch counts — so a consumer can honestly say when coverage is thin |
 
 ## Guarantees

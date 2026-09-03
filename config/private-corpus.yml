@@ -1,0 +1,11 @@
+version: 1
+domains:
+  - name: private
+    backing: corpus-view
+    description: Local-only personal documents and media; no remote feeds.
+    embedding_model: all-MiniLM-L6-v2
+    tags: [private]
+    keywords: [meeting, decision, project, memo, research, transcript]
+    embedding_anchors:
+      - personal notes, private documents, project decisions, and correspondence
+    feeds: []

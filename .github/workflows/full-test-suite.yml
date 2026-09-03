@@ -1,0 +1,29 @@
+name: Full dependency test suite
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "41 2 * * 0"
+
+jobs:
+  full:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: python -m pip install --upgrade pip
+      - run: pip install -r requirements.txt
+      - run: python -m pytest tests -q --junitxml=test-results.xml
+      - name: Upload test report on failure
+        if: failure()
+        uses: actions/upload-artifact@v6
+        with:
+          name: full-suite-triage
+          path: |
+            .pytest_cache
+            test-results.xml
+          if-no-files-found: ignore

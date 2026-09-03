@@ -15,6 +15,7 @@ FastAPI background task and:
 from __future__ import annotations
 
 import logging
+import os
 import re
 import threading
 from collections import defaultdict
@@ -25,6 +26,7 @@ from typing import Any, Dict, List, Optional
 from src.knowledge_graph.foundation import (
     EntityResolver,
     EntityType,
+    DuckDBKnowledgeGraphStore,
     KnowledgeGraphStore,
     Node,
     Provenance,
@@ -48,8 +50,15 @@ def _shared_store() -> KnowledgeGraphStore:
     global _store, _resolver
     with _store_lock:
         if _store is None:
-            _store = KnowledgeGraphStore()
+            from src.config.env import warehouse_path
+
+            path = warehouse_path()
+            assert path is not None
+            from pathlib import Path
+            Path(path).parent.mkdir(parents=True, exist_ok=True)
+            _store = DuckDBKnowledgeGraphStore(path)
             _resolver = EntityResolver()
+            _resolver.seed(list(_store._nodes.values()))
     return _store
 
 
@@ -77,8 +86,12 @@ _events_lock = threading.Lock()
 
 
 def _record(kind: str, entity_id: str, label: str, doc_id: str) -> None:
+    event = _MutationEvent(kind, entity_id, label, doc_id)
     with _events_lock:
-        _events.append(_MutationEvent(kind, entity_id, label, doc_id))
+        _events.append(event)
+    store = _shared_store()
+    if isinstance(store, DuckDBKnowledgeGraphStore):
+        store.record_event(kind, entity_id, label, doc_id, event.ts)
 
 
 # ---------------------------------------------------------------------------
@@ -195,6 +208,25 @@ def update_from_document(doc: Dict[str, Any]) -> None:
             stored = store.add_node(canonical)
             entity_node_ids.append(stored.node_id)
             _record("node", stored.node_id, stored.name, doc_id)
+
+            # Feed the warehouse's canonical-entity layer from this same write
+            # path. Downstream dossiers and graph tools now share surfaces.
+            if isinstance(store, DuckDBKnowledgeGraphStore):
+                from src.kb.entities import ensure_entity_schema
+
+                ensure_entity_schema(store.connection)
+                store.connection.execute(
+                    """INSERT INTO document_actors
+                       (document_id, source_type, actor_name, entity_id, role,
+                        confidence, extracted_at)
+                       VALUES (?, ?, ?, ?, 'mention', 0.8, ?)
+                       ON CONFLICT (document_id, actor_name, role) DO UPDATE SET
+                         entity_id=excluded.entity_id,
+                         confidence=excluded.confidence,
+                         extracted_at=excluded.extracted_at""",
+                    [doc_id, doc.get("source_type") or "note", stored.name,
+                     stored.node_id, datetime.now(timezone.utc).isoformat()],
+                )
         except Exception as exc:
             logger.debug("KG node upsert skipped for %r: %s", name, exc)
 
@@ -224,6 +256,12 @@ def update_from_document(doc: Dict[str, Any]) -> None:
         "KG background update complete: doc=%r entities=%d triples=%d",
         doc_id, len(entity_node_ids), new_triples,
     )
+    if isinstance(store, DuckDBKnowledgeGraphStore):
+        try:
+            from src.kb.entities import run_entity_canonicalization_pass
+            run_entity_canonicalization_pass(store.connection)
+        except Exception as exc:
+            logger.debug("canonical entity pass skipped for %s: %s", doc_id, exc)
 
 
 # ---------------------------------------------------------------------------
@@ -237,13 +275,16 @@ def get_emerging_connections(since: datetime, limit: int = 50) -> List[Dict[str,
     Each result describes one new edge: subject entity, predicate, object
     entity, which source document triggered it, and when it was added.
     """
-    with _events_lock:
-        recent = [
-            e for e in _events
-            if e.kind == "triple" and e.ts >= since
-        ][-limit:]
-
     store = _shared_store()
+    if isinstance(store, DuckDBKnowledgeGraphStore):
+        recent = [
+            _MutationEvent(row["kind"], row["entity_id"], row["label"],
+                           row["doc_id"], row["ts"])
+            for row in store.recent_events(since, kind="triple", limit=limit)
+        ]
+    else:
+        with _events_lock:
+            recent = [e for e in _events if e.kind == "triple" and e.ts >= since][-limit:]
     results = []
     for ev in recent:
         parts = ev.entity_id.split("|", 2)
@@ -283,8 +324,17 @@ def get_evolving_topics(window_seconds: int = 3600, top_n: int = 20) -> List[Dic
     now = datetime.now(timezone.utc).timestamp()
     cutoff = now - window_seconds
 
-    with _events_lock:
-        recent = [e for e in _events if e.ts.timestamp() >= cutoff]
+    store = _shared_store()
+    since = datetime.fromtimestamp(cutoff, tz=timezone.utc)
+    if isinstance(store, DuckDBKnowledgeGraphStore):
+        recent = [
+            _MutationEvent(row["kind"], row["entity_id"], row["label"],
+                           row["doc_id"], row["ts"])
+            for row in store.recent_events(since, limit=10000)
+        ]
+    else:
+        with _events_lock:
+            recent = [e for e in _events if e.ts.timestamp() >= cutoff]
 
     counts: Dict[str, int] = defaultdict(int)
     docs_per_entity: Dict[str, set] = defaultdict(set)
@@ -299,7 +349,6 @@ def get_evolving_topics(window_seconds: int = 3600, top_n: int = 20) -> List[Dic
             counts[obj_id] += 1
             docs_per_entity[obj_id].add(ev.doc_id)
 
-    store = _shared_store()
     results = []
     for node_id, count in sorted(counts.items(), key=lambda x: -x[1])[:top_n]:
         node = store.get_node(node_id)
@@ -319,10 +368,16 @@ def get_evolving_topics(window_seconds: int = 3600, top_n: int = 20) -> List[Dic
 def get_store_stats() -> Dict[str, Any]:
     """Return current statistics for the shared KnowledgeGraphStore."""
     store = _shared_store()
-    with _events_lock:
-        total_events = len(_events)
-        triple_events = sum(1 for e in _events if e.kind == "triple")
-        node_events = sum(1 for e in _events if e.kind == "node")
+    if isinstance(store, DuckDBKnowledgeGraphStore):
+        counts = store.event_counts()
+        total_events = counts["total"]
+        triple_events = counts["triple"]
+        node_events = counts["node"]
+    else:
+        with _events_lock:
+            total_events = len(_events)
+            triple_events = sum(1 for e in _events if e.kind == "triple")
+            node_events = sum(1 for e in _events if e.kind == "node")
 
     return {
         "node_count": store.node_count,
@@ -330,5 +385,7 @@ def get_store_stats() -> Dict[str, Any]:
         "total_update_events": total_events,
         "triple_events": triple_events,
         "node_events": node_events,
-        "status": "live",
+        "status": "persisted" if isinstance(store, DuckDBKnowledgeGraphStore) else "memory",
+        "read_only": getattr(store, "read_only", False),
+        "database": getattr(store, "path", None),
     }

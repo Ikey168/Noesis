@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import pytest
 
 from src.analytics.honesty import validate_analytic_output
@@ -10,6 +12,7 @@ from src.ingestion.connectors.legislative import (
     AGAINST,
     FOR,
     VoteRecord,
+    LegislativeConnector,
     check_position,
     check_position_claim,
     normalize_position,
@@ -17,6 +20,7 @@ from src.ingestion.connectors.legislative import (
     record_vote,
     voting_record,
 )
+from src.ingestion.connectors.registry import get_connector, is_registered
 
 
 def test_normalize_position():
@@ -81,3 +85,33 @@ def test_uses_most_recent_vote(conn):
     env = check_position(conn, "Senator Smith", "climate bill", "against")
     assert env["verdict"] == "supported"
     assert env["recorded_position"] == AGAINST
+
+
+def test_registered_connector_parses_fixture_and_feeds_position_check(tmp_path):
+    fixture = Path(__file__).resolve().parents[3] / "fixtures/legislative/votes.json"
+    connector = LegislativeConnector(sources=[str(fixture)])
+    documents = list(connector.harvest())
+    assert len(documents) == 2
+    assert documents[0].source_type == "note"
+    assert documents[0].metadata["record_type"] == "legislative_vote"
+    assert documents[0].url.startswith("https://")
+
+    duckdb = pytest.importorskip("duckdb")
+    database = duckdb.connect(":memory:")
+    for document in documents:
+        metadata = document.metadata
+        record_vote(database, VoteRecord(
+            actor=metadata["actor"], topic=metadata["topic"],
+            bill=metadata["bill"], position=metadata["position"],
+            date=metadata["date"], source=metadata["source"],
+            document_id=document.document_id,
+        ))
+    result = check_position(database, "Alex Example", "Clean Energy", "for")
+    assert result["verdict"] == "supported"
+    assert validate_analytic_output(result) == []
+
+
+def test_legislative_connector_is_in_builtin_registry():
+    import src.ingestion.connectors  # noqa: F401
+    assert is_registered("legislative")
+    assert isinstance(get_connector("legislative"), LegislativeConnector)

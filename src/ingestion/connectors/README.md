@@ -53,9 +53,18 @@ class MyConnector(Connector):
 | source_type | Module | Notes |
 | --- | --- | --- |
 | `news` | `news.py` | Wraps the existing RSS/Atom ingest (`scrapy_integration`). Sentiment, which the legacy ingester computes inline, is exposed as an enrichment via `NewsConnector.enrichments_for`, not baked into the core `Document`. |
+| `blog` | `blog/` | Atom/RSS subscriptions with readable-body extraction and per-source health. |
+| `paper` | `paper/` | arXiv metadata/PDFs and citation references. |
+| `book` | `book/` | EPUB/PDF chapter documents with structural locators. |
+| `transcript` | `media/` | Audio/video transcription with timestamp evidence locators. |
+| `note` | `upload/` | Local PDF, DOCX, mail, HTML, Markdown, text, and pasted notes. |
+| `filings` (`note`) | `filings_connector.py` | Regulatory filing documents. |
+| `legislative` | `legislative.py` | JSON, JSONL, or CSV roll-call records; configured with `NOESIS_LEGISLATIVE_SOURCES`. |
 
-Planned connectors (tracked as issues): papers (#517), books (#521), blogs/RSS
-(#522), media/transcripts (#523), generic upload (#524).
+The legislative connector maps each vote to a cited `note` document whose
+metadata retains actor, bill, topic, date, normalized position, external id,
+and record URL. Argument mining records it like any other source; the
+position-vs-record checker can then return supported/contradicted/unverifiable.
 
 ## Dataset connectors (statistical evidence)
 

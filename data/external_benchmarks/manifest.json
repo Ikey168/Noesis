@@ -1,0 +1,26 @@
+{
+  "fever": {
+    "url": "https://fever.ai/download/fever/paper_dev.jsonl",
+    "license": "CC BY-SA 3.0 (Wikipedia-derived); https://fever.ai/dataset/fever.html",
+    "sha256": "5323b30a9c37c8c6a0e5840dc548af65170adc10ca399d03513ebc177e7c29b4",
+    "bytes": 41771,
+    "sampled_to": 200,
+    "fetched_at": "2026-09-03T13:16:22Z"
+  },
+  "liar": {
+    "url": "https://www.cs.ucsb.edu/~william/data/liar_dataset.zip",
+    "license": "Research use; Wang (2017), Politifact-derived",
+    "sha256": "ed9fd0e2505105e2d0d0d53648e24a435dd101cf1b2a93b9945dc3293d9f3a2c",
+    "bytes": 46713,
+    "sampled_to": 200,
+    "fetched_at": "2026-09-03T13:16:26Z"
+  },
+  "averitec": {
+    "url": "https://huggingface.co/chenxwh/AVeriTeC/resolve/main/data/dev.json",
+    "license": "CC BY-NC 4.0; Schlichtkrull et al. (2023)",
+    "sha256": "bcf4b8fd3f6e17f5e5c6ec58eb5bcaa8b3db7fb72912b134efaf437c5667f973",
+    "bytes": 512628,
+    "sampled_to": 200,
+    "fetched_at": "2026-09-03T13:16:48Z"
+  }
+}

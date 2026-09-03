@@ -58,8 +58,6 @@ redis:
 aws:
   region: "us-east-1"
   s3_bucket: "neuronews-data"
-  neptune_endpoint: "neuronews-cluster.cluster-xxx.us-east-1.neptune.amazonaws.com"
-  neptune_port: 8182
 
 # Monitoring Configuration
 monitoring:

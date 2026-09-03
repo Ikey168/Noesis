@@ -35,7 +35,7 @@ These components are already domain-agnostic and form the core of the new engine
 | Vector search | Qdrant + pgvector, `services/vector_service.py` | Core semantic retrieval |
 | Embeddings | `src/nlp/article_embedder.py`, `services/embeddings/` | Core indexing |
 | Entity **and relation** extraction | `src/knowledge_graph/enhanced_entity_extractor.py` (`extract_entities_from_article`, `extract_relationships`) | Core KG construction |
-| Knowledge graph build/query/search | `src/knowledge_graph/{graph_builder,graph_query_engine,graph_search_service,semantic_analyzer}.py` | Core knowledge base |
+| Knowledge graph build/query/search | `src/knowledge_graph/foundation/`, `src/kb/entities.py`, `tools/kg_mcp/` | Core local-first knowledge base |
 | NER / keywords / topics / summarization / multilingual | `src/nlp/` | Generic enrichers |
 | Orchestration / MLOps / contracts / FinOps | `airflow/`, `src/ml/mlops/`, `contracts/`, `deploy/kubernetes/finops/` | Reusable as-is |
 
@@ -211,7 +211,10 @@ This satisfies "keep news as an optional pack" with minimal disruption.
 
 ---
 
-## 10. Web app reframing (`apps/web/`)
+## 10. Client reframing (historical)
+
+The repository no longer ships a web application. These are client-facing
+product ideas for an external consumer of the MCP/API capability plane:
 
 - `NewsFeed.tsx` → generic **Library / Sources** view with a `source_type` filter.
 - `EntityGraphView.tsx` extended to render the **citation graph** for papers.

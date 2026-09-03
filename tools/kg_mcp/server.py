@@ -2,7 +2,7 @@
 NeuroNews Knowledge-Graph inspector — MCP server.
 
 Token-efficient read-only access to:
-  • The live in-process KnowledgeGraphStore (nodes + triples)
+  • The persisted DuckDB knowledge graph (nodes + triples)
   • The entity-correction queue (pending / approved / rejected)
   • The KG ontology (entity types, relation types, allowed pairs)
   • Emerging-connections and evolving-topics summaries
@@ -52,14 +52,38 @@ MAX_LIST = 50
 # Helpers
 # ---------------------------------------------------------------------------
 
+_ro_store = None
+_ro_signature = None
+
+
 def _get_kg_store():
-    from src.knowledge_graph.kg_updater import _shared_store
-    return _shared_store()
+    """Open the canonical warehouse graph read-only (safe in another process)."""
+    global _ro_store, _ro_signature
+    from src.config.env import warehouse_path
+    from src.knowledge_graph.foundation import DuckDBKnowledgeGraphStore, KnowledgeGraphStore
+
+    path = Path(warehouse_path() or "")
+    if not path.is_file():
+        return KnowledgeGraphStore()
+    signature = (str(path.resolve()), path.stat().st_mtime_ns, path.stat().st_size)
+    if _ro_store is None or signature != _ro_signature:
+        if _ro_store is not None:
+            try:
+                _ro_store.close()
+            except Exception:
+                pass
+        _ro_store = DuckDBKnowledgeGraphStore(path, read_only=True)
+        _ro_signature = signature
+    return _ro_store
 
 
 def _get_correction_store():
-    from src.knowledge_graph.entity_corrections import get_correction_store
-    return get_correction_store()
+    from src.knowledge_graph.entity_corrections import EntityCorrectionStore
+
+    graph = _get_kg_store()
+    return EntityCorrectionStore(
+        connection=getattr(graph, "connection", None), read_only=True
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -74,8 +98,19 @@ def kg_stats() -> dict:
     Fields: node_count, triple_count, total_update_events, triple_events,
     node_events, status.
     """
-    from src.knowledge_graph.kg_updater import get_store_stats
-    return get_store_stats()
+    store = _get_kg_store()
+    counts = store.event_counts() if hasattr(store, "event_counts") else {
+        "total": 0, "node": 0, "triple": 0,
+    }
+    return {
+        "node_count": store.node_count,
+        "triple_count": store.triple_count,
+        "total_update_events": counts["total"],
+        "triple_events": counts["triple"],
+        "node_events": counts["node"],
+        "status": "persisted-read-only" if getattr(store, "persistent", False) else "empty",
+        "read_only": True,
+    }
 
 
 @mcp.tool()
@@ -252,10 +287,22 @@ def emerging_connections(
         limit:          Max results (default 20).
     """
     from datetime import datetime, timezone, timedelta
-    from src.knowledge_graph.kg_updater import get_emerging_connections
-
     since = datetime.now(timezone.utc) - timedelta(minutes=since_minutes)
-    return get_emerging_connections(since=since, limit=limit)
+    store = _get_kg_store()
+    if not hasattr(store, "recent_events"):
+        return []
+    results = []
+    for event in store.recent_events(since, kind="triple", limit=min(limit, MAX_LIST)):
+        subject, predicate, obj = (event["entity_id"].split("|", 2) + ["", ""])[:3]
+        subject_node, object_node = store.get_node(subject), store.get_node(obj)
+        results.append({
+            "subject_id": subject, "subject_name": getattr(subject_node, "name", None),
+            "predicate": predicate, "object_id": obj,
+            "object_name": getattr(object_node, "name", None),
+            "source_doc": event["doc_id"],
+            "added_at": event["ts"].isoformat() if hasattr(event["ts"], "isoformat") else str(event["ts"]),
+        })
+    return results
 
 
 @mcp.tool(
@@ -275,8 +322,28 @@ def evolving_topics(
         window_minutes:  Look-back window in minutes (default 60).
         top_n:           Maximum number of results (default 15).
     """
-    from src.knowledge_graph.kg_updater import get_evolving_topics
-    return get_evolving_topics(window_seconds=window_minutes * 60, top_n=top_n)
+    from collections import defaultdict
+    from datetime import datetime, timedelta, timezone
+
+    store = _get_kg_store()
+    if not hasattr(store, "recent_events"):
+        return []
+    since = datetime.now(timezone.utc) - timedelta(minutes=window_minutes)
+    counts, docs = defaultdict(int), defaultdict(set)
+    for event in store.recent_events(since, kind="triple", limit=10000):
+        parts = event["entity_id"].split("|", 2)
+        if len(parts) == 3:
+            counts[parts[2]] += 1
+            docs[parts[2]].add(event["doc_id"])
+    result = []
+    for node_id, count in sorted(counts.items(), key=lambda item: (-item[1], item[0]))[:top_n]:
+        node = store.get_node(node_id)
+        if node:
+            result.append({"entity_id": node_id, "name": node.name,
+                           "type": node.type.value, "new_connections": count,
+                           "source_docs": sorted(docs[node_id]),
+                           "window_seconds": window_minutes * 60})
+    return result
 
 
 # ---------------------------------------------------------------------------

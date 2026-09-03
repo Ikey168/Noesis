@@ -69,7 +69,10 @@ DATASETS = {
         "member": "test.tsv",
     },
     "averitec": {
-        "url": "https://huggingface.co/datasets/chenxwh/AVeriTeC/resolve/main/data/dev.json",
+        # The upstream is a model/code repository rather than a Hub dataset
+        # repository, so the canonical raw path intentionally has no
+        # ``/datasets`` segment.
+        "url": "https://huggingface.co/chenxwh/AVeriTeC/resolve/main/data/dev.json",
         "target": "averitec/dev.json",
         "license": "CC BY-NC 4.0; Schlichtkrull et al. (2023)",
         "kind": "file",

@@ -5,7 +5,7 @@ This module provides specialized API endpoints for Issue #38 that extend
 the basic event timeline functionality from Issue #37 with:
 
 1. Historical event tracking with detailed metadata
-2. Event storage and relationship management in Neptune
+2. Event storage and relationship management in the local service
 3. Advanced visualization generation for event evolution
 4. Export capabilities for timeline data
 
@@ -78,8 +78,8 @@ class EventTrackingRequest(BaseModel):
     include_related: bool = Field(
         default=True, description="Include related event relationships"
     )
-    store_in_neptune: bool = Field(
-        default=True, description="Store events in Neptune database"
+    persist: bool = Field(
+        default=True, description="Persist events in the local timeline service"
     )
 
     @validator("end_date")
@@ -406,11 +406,11 @@ async def get_enhanced_event_timeline(
 
     This endpoint implements Issue #38 requirements:
     - Track historical events related to a topic
-    - Store event timestamps & relationships in Neptune
+    - Store event timestamps and relationships
 
     Features:
     - Configurable date ranges and event types
-    - Automatic Neptune storage with relationship mapping
+    - Local storage with relationship mapping
     - Event impact scoring and metadata enrichment
     - Batch processing for large event sets
     """,
@@ -420,7 +420,7 @@ async def track_historical_events(
     service: EventTimelineService = Depends(get_event_timeline_service),
     user=Depends(get_optional_auth),
 ):
-    """Track historical events and optionally store them in Neptune."""
+    """Track historical events and optionally store them locally."""
     try:
         logger.info(
             "API request for tracking historical events: {0}".format(request.topic)
@@ -440,9 +440,9 @@ async def track_historical_events(
         if len(events) > request.max_events:
             events = events[: request.max_events]
 
-        # Store in Neptune if requested
+        # Persist locally if requested
         storage_result = {"events_stored": 0, "relationships_created": 0, "errors": []}
-        if request.store_in_neptune and events:
+        if request.persist and events:
             storage_result = await service.store_event_relationships(events)
 
         # Calculate processing time
@@ -752,9 +752,7 @@ async def health_check():
             "issue": "#38",
             "components": {
                 "service_initialized": service is not None,
-                "graph_populator": (
-                    service.graph_populator is not None if service else False
-                ),
+                "event_store": service is not None,
                 "entity_extractor": (
                     service.entity_extractor is not None if service else False
                 ),

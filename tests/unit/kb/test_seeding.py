@@ -27,10 +27,12 @@ class TestShippedConfig:
         assert papers.backing == "corpus-view"
         assert any("rss.arxiv.org" in feed.url for feed in papers.feeds)
 
-    def test_local_is_a_documented_stub(self):
+    def test_local_is_the_private_corpus_domain(self):
         local = load_registry().get("local")
         assert local.feeds == []
-        assert local.tags == ["local"]
+        assert {"local", "private"} <= set(local.tags)
+        assert local.keywords
+        assert "private" in local.description.lower()
 
     def test_every_feed_carries_its_domain_tags(self):
         registry = load_registry()

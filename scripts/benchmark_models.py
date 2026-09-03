@@ -22,8 +22,10 @@ Exit codes:
 from __future__ import annotations
 
 import argparse
+import contextlib
 import json
 import logging
+import os
 import sys
 from collections import defaultdict
 from datetime import datetime, timezone
@@ -163,13 +165,16 @@ def _load_test_frames(data_dir: Path):
     return rows
 
 
-def _load_iaa_kappa(data_dir: Path) -> dict:
+def _load_annotation_status(data_dir: Path) -> dict:
     stats_path = data_dir / "stats.json"
     if not stats_path.exists():
         return {}
     with open(stats_path) as f:
         stats = json.load(f)
-    return stats.get("iaa", {})
+    return {
+        "human_evaluation": stats.get("human_evaluation", {"status": "not_collected"}),
+        "simulated_noise_robustness": stats.get("simulated_noise_robustness", {}),
+    }
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -179,17 +184,17 @@ def _load_iaa_kappa(data_dir: Path) -> dict:
 def eval_claim_detector(rows) -> dict:
     from src.argument_mining.models import ClaimDetector
     detector = ClaimDetector()
-    mode = "model" if detector._pipeline is not None else "heuristic"
+    mode = detector.prediction_mode
     log.info("ClaimDetector mode: %s", mode)
 
     texts = [r[0] for r in rows]
     y_true = [r[1] for r in rows]
     source_types = [r[2] for r in rows]
 
-    y_pred = []
-    for text in texts:
-        pred = detector.predict_text(text)
-        y_pred.append(1 if pred.is_claim else 0)
+    # Benchmark rows are already single sentences. Use the wrappers' batched
+    # model path directly; calling ``predict_text`` would create 1,076 separate
+    # DeBERTa forwards and make the scheduled comparison take hours on CPU.
+    y_pred = _predict_claim_labels(detector, texts)
 
     overall = _binary_prf1(y_true, y_pred)
     overall["mode"] = mode
@@ -215,7 +220,7 @@ def eval_claim_detector(rows) -> dict:
 def eval_stance_classifier(rows) -> dict:
     from src.argument_mining.models import StanceClassifier
     clf = StanceClassifier()
-    mode = "model" if clf._pipeline is not None else "heuristic"
+    mode = clf.prediction_mode
     log.info("StanceClassifier mode: %s", mode)
 
     texts = [r[0] for r in rows]
@@ -223,10 +228,39 @@ def eval_stance_classifier(rows) -> dict:
     topics = [r[2] for r in rows]
     source_types = [r[3] for r in rows]
 
-    y_pred = []
-    for text, topic in zip(texts, topics):
-        pred = clf.predict_text(text, topic)
-        y_pred.append(pred.stance)
+    if clf._nli is not None and hasattr(clf._nli, "entailment_scores"):
+        labels = list(clf.NLI_TEMPLATES)
+        pairs = [
+            (text, clf.NLI_TEMPLATES[label].format(topic=topic))
+            for text, topic in zip(texts, topics) for label in labels
+        ]
+        scores = clf._nli.entailment_scores(pairs, batch_size=32)
+        y_pred = []
+        for index in range(len(texts)):
+            row_scores = scores[index * len(labels):(index + 1) * len(labels)]
+            best_index = max(range(len(labels)), key=row_scores.__getitem__)
+            total = sum(row_scores)
+            best_share = row_scores[best_index] / total if total else 0.0
+            y_pred.append(
+                labels[best_index]
+                if row_scores[best_index] >= clf.NLI_FLOOR and best_share >= 0.30
+                else "neutral"
+            )
+    elif clf._pipeline is not None:
+        predictions = clf._pipeline(
+            [f"{topic} [SEP] {text}" for text, topic in zip(texts, topics)],
+            truncation=True, max_length=128, batch_size=32,
+        )
+        from src.argument_mining.dataset import ID2STANCE
+        y_pred = [
+            ID2STANCE.get(int(prediction["label"].split("_")[1]), "neutral")
+            for prediction in predictions
+        ]
+    else:
+        y_pred = [
+            clf.predict_text(text, topic).stance
+            for text, topic in zip(texts, topics)
+        ]
 
     overall = _multiclass_prf1(y_true, y_pred, STANCE_LABELS)
     overall["mode"] = mode
@@ -254,7 +288,7 @@ def eval_stance_classifier(rows) -> dict:
 def eval_frame_classifier(rows) -> dict:
     from src.argument_mining.frames import FrameClassifier
     clf = FrameClassifier()
-    mode = "model" if clf._pipeline is not None else "heuristic"
+    mode = clf.prediction_mode
     log.info("FrameClassifier mode: %s", mode)
 
     texts = [r[0] for r in rows]
@@ -262,10 +296,29 @@ def eval_frame_classifier(rows) -> dict:
     y_true_dom = [r[2] for r in rows]
     source_types = [r[3] for r in rows]
 
-    y_pred = []
-    for text, stype in zip(texts, source_types):
-        pred = clf.predict_text(text, source_type=stype)
-        y_pred.append(pred.dominant)
+    if clf._nli is not None and hasattr(clf._nli, "entailment_scores"):
+        labels = list(clf.NLI_TEMPLATES)
+        pairs = [
+            (text[:1500], clf.NLI_TEMPLATES[label])
+            for text in texts for label in labels
+        ]
+        raw_scores = clf._nli.entailment_scores(pairs, batch_size=32)
+        y_pred = []
+        for index in range(len(texts)):
+            values = raw_scores[index * len(labels):(index + 1) * len(labels)]
+            thresholded = [
+                score if score >= clf.NLI_THRESHOLDS.get(
+                    label, clf.NLI_DEFAULT_THRESHOLD
+                ) else 0.0
+                for label, score in zip(labels, values)
+            ]
+            best = max(range(len(labels)), key=thresholded.__getitem__)
+            y_pred.append(labels[best] if thresholded[best] > 0 else "other")
+    else:
+        y_pred = [
+            clf.predict_text(text, source_type=source_type).dominant
+            for text, source_type in zip(texts, source_types)
+        ]
 
     overall = _multilabel_prf1(y_true_sets, y_pred, FRAME_LABELS)
     overall["mode"] = mode
@@ -298,7 +351,17 @@ def eval_frame_classifier(rows) -> dict:
 # Cross-dataset generalisation
 # ─────────────────────────────────────────────────────────────────────────────
 
-def _try_fever(fever_dir: Optional[Path]) -> Optional[dict]:
+def _predict_claim_labels(detector, texts: List[str]) -> List[int]:
+    if detector._pipeline is not None:
+        predictions = detector._predict_model(texts)
+    elif detector._pretrained is not None:
+        predictions = detector._predict_pretrained(texts)
+    else:
+        predictions = [detector.predict_text(text) for text in texts]
+    return [1 if prediction.is_claim else 0 for prediction in predictions]
+
+
+def _try_fever(fever_dir: Optional[Path], detector=None) -> Optional[dict]:
     """Evaluate ClaimDetector on FEVER dev set (claim vs. non-claim binary proxy)."""
     if fever_dir is None or not fever_dir.exists():
         return None
@@ -313,8 +376,8 @@ def _try_fever(fever_dir: Optional[Path]) -> Optional[dict]:
         return None
 
     from src.argument_mining.models import ClaimDetector
-    detector = ClaimDetector()
-    y_true, y_pred = [], []
+    detector = detector or ClaimDetector()
+    y_true, texts = [], []
     for line in lines[:2000]:
         try:
             obj = json.loads(line)
@@ -324,18 +387,18 @@ def _try_fever(fever_dir: Optional[Path]) -> Optional[dict]:
         label = obj.get("label", "")
         # SUPPORTS/REFUTES are verifiable claims; NOT ENOUGH INFO is not
         true_claim = 1 if label in ("SUPPORTS", "REFUTES") else 0
-        pred = detector.predict_text(claim_text)
         y_true.append(true_claim)
-        y_pred.append(1 if pred.is_claim else 0)
+        texts.append(claim_text)
 
     if not y_true:
         return None
+    y_pred = _predict_claim_labels(detector, texts)
     m = _binary_prf1(y_true, y_pred)
     log.info("FEVER cross-dataset claim F1=%.4f  (n=%d)", m["f1"], m["n"])
     return m
 
 
-def _try_liar(liar_dir: Optional[Path]) -> Optional[dict]:
+def _try_liar(liar_dir: Optional[Path], detector=None) -> Optional[dict]:
     """Evaluate ClaimDetector on LIAR dataset (all are claims, so a trivial sanity check
     for precision/recall balance rather than classification accuracy)."""
     if liar_dir is None or not liar_dir.exists():
@@ -346,8 +409,8 @@ def _try_liar(liar_dir: Optional[Path]) -> Optional[dict]:
         return None
 
     from src.argument_mining.models import ClaimDetector
-    detector = ClaimDetector()
-    y_true, y_pred = [], []
+    detector = detector or ClaimDetector()
+    y_true, texts = [], []
     for line in test_tsv.read_text().splitlines()[:2000]:
         parts = line.split("\t")
         if len(parts) < 3:
@@ -356,18 +419,18 @@ def _try_liar(liar_dir: Optional[Path]) -> Optional[dict]:
         if not text:
             continue
         # All LIAR items are political claims — true label is always 1
-        pred = detector.predict_text(text)
         y_true.append(1)
-        y_pred.append(1 if pred.is_claim else 0)
+        texts.append(text)
 
     if not y_true:
         return None
+    y_pred = _predict_claim_labels(detector, texts)
     m = _binary_prf1(y_true, y_pred)
     log.info("LIAR cross-dataset claim F1=%.4f  (n=%d)", m["f1"], m["n"])
     return m
 
 
-def _try_averitec(averitec_dir: Optional[Path]) -> Optional[dict]:
+def _try_averitec(averitec_dir: Optional[Path], detector=None) -> Optional[dict]:
     """Evaluate ClaimDetector on AVeriTeC (claim detection proxy)."""
     if averitec_dir is None or not averitec_dir.exists():
         return None
@@ -376,22 +439,22 @@ def _try_averitec(averitec_dir: Optional[Path]) -> Optional[dict]:
         return None
 
     from src.argument_mining.models import ClaimDetector
-    detector = ClaimDetector()
+    detector = detector or ClaimDetector()
     data = json.loads(dev_json.read_text())
     if isinstance(data, dict):
         data = list(data.values())
 
-    y_true, y_pred = [], []
+    y_true, texts = [], []
     for item in data[:2000]:
         claim_text = item.get("claim", "")
         if not claim_text:
             continue
         y_true.append(1)  # AVeriTeC items are all verifiable claims
-        pred = detector.predict_text(claim_text)
-        y_pred.append(1 if pred.is_claim else 0)
+        texts.append(claim_text)
 
     if not y_true:
         return None
+    y_pred = _predict_claim_labels(detector, texts)
     m = _binary_prf1(y_true, y_pred)
     log.info("AVeriTeC cross-dataset claim F1=%.4f  (n=%d)", m["f1"], m["n"])
     return m
@@ -424,6 +487,67 @@ def _check_gate(current: dict, previous: dict) -> List[str]:
     return failures
 
 
+def _check_candidate_gate(current: dict, previous: dict) -> List[str]:
+    """Reject a promoted model unless each task metric improves by two points."""
+    failures = []
+    for model_name, metric in (
+        ("claim_detector", "f1"),
+        ("stance_classifier", "macro_f1"),
+        ("frame_classifier", "macro_f1"),
+    ):
+        current_f1 = current[model_name]["overall"][metric]
+        previous_f1 = previous[model_name]["overall"][metric]
+        delta = current_f1 - previous_f1
+        if delta < GATE_THRESHOLD:
+            failures.append(
+                f"{model_name}: candidate improved {delta:+.4f}; at least "
+                f"+{GATE_THRESHOLD:.2f} is required ({previous_f1:.4f} → {current_f1:.4f})"
+            )
+    return failures
+
+
+@contextlib.contextmanager
+def _backend(mode: str):
+    """Select all argument-model families consistently for one evaluation."""
+    keys = ("NOESIS_CLAIMS_BACKEND", "NOESIS_STANCE_BACKEND", "NOESIS_FRAMES_BACKEND")
+    previous = {key: os.environ.get(key) for key in keys}
+    try:
+        for key in keys:
+            os.environ[key] = "heuristic" if mode == "heuristic" else "auto"
+        yield
+    finally:
+        for key, value in previous.items():
+            if value is None:
+                os.environ.pop(key, None)
+            else:
+                os.environ[key] = value
+
+
+def _evaluate_backend(mode: str, claim_rows, stance_rows, frame_rows) -> dict:
+    with _backend(mode):
+        return {
+            "claim_detector": eval_claim_detector(claim_rows),
+            "stance_classifier": eval_stance_classifier(stance_rows),
+            "frame_classifier": eval_frame_classifier(frame_rows),
+        }
+
+
+def _evaluate_external(mode: str, paths: dict) -> dict:
+    output = {}
+    with _backend(mode):
+        from src.argument_mining.models import ClaimDetector
+        detector = ClaimDetector()
+        for name, fn in (
+            ("fever", _try_fever),
+            ("liar", _try_liar),
+            ("averitec", _try_averitec),
+        ):
+            result = fn(paths.get(name), detector=detector)
+            if result:
+                output[name] = result
+    return output
+
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Markdown report
 # ─────────────────────────────────────────────────────────────────────────────
@@ -433,19 +557,22 @@ def _bar(value: float, width: int = 20) -> str:
     return "█" * filled + "░" * (width - filled)
 
 
-def _render_markdown(results: dict, gate_ok: bool, gate_failures: List[str]) -> str:
+def _render_markdown(
+    results: dict, gate_requested: bool, gate_failures: List[str]
+) -> str:
     ts = results["evaluated_at"]
     claim = results["claim_detector"]
     stance = results["stance_classifier"]
     frame = results["frame_classifier"]
-    iaa = results.get("iaa", {})
+    annotation = results.get("annotation", {})
     cross = results.get("cross_dataset", {})
 
     lines = [
         "# Argument Mining Model Benchmarks",
         "",
-        f"> Generated: {ts}  ",
-        f"> Dataset: held-out test split (n=750 per model)",
+        f"> Generated: {ts}",
+        f"> Dataset: held-out test split (claim n={claim['overall']['n']}, "
+        f"stance n={stance['overall']['n']}, frame n={frame['overall']['n']})",
         "",
     ]
 
@@ -455,8 +582,31 @@ def _render_markdown(results: dict, gate_ok: bool, gate_failures: List[str]) -> 
         for f in gate_failures:
             lines.append(f"- {f}")
         lines.append("")
-    elif gate_ok:
+    elif gate_requested:
         lines += ["## ✓ Gate Status: PASSED", ""]
+    else:
+        lines += ["## Gate Status: NOT RUN", "", "Run with `--gate` to enforce the saved baseline.", ""]
+
+    comparison = results.get("backend_comparison") or {}
+    if comparison:
+        lines += [
+            "## Backend comparison",
+            "",
+            "| Backend | Claims F1 | Stance macro F1 | Frames macro F1 | Active modes |",
+            "| --- | ---: | ---: | ---: | --- |",
+        ]
+        for backend, row in comparison.items():
+            modes = ", ".join(sorted({
+                row["claim_detector"]["overall"]["mode"],
+                row["stance_classifier"]["overall"]["mode"],
+                row["frame_classifier"]["overall"]["mode"],
+            }))
+            lines.append(
+                f"| {backend} | {row['claim_detector']['overall']['f1']:.4f} | "
+                f"{row['stance_classifier']['overall']['macro_f1']:.4f} | "
+                f"{row['frame_classifier']['overall']['macro_f1']:.4f} | {modes} |"
+            )
+        lines.append("")
 
     # ── Claim Detector ──────────────────────────────────────────────────────
     co = claim["overall"]
@@ -557,20 +707,29 @@ def _render_markdown(results: dict, gate_ok: bool, gate_failures: List[str]) -> 
         lines.append(f"| {bucket} | {m['macro_f1']:.4f} | {m['subset_accuracy']:.4f} | {m['n']} |")
     lines.append("")
 
-    # ── IAA ──────────────────────────────────────────────────────────────────
-    if iaa:
+    # ── Annotation provenance ────────────────────────────────────────────────
+    if annotation:
+        human = annotation.get("human_evaluation", {})
+        noise = annotation.get("simulated_noise_robustness", {})
         lines += [
-            "## Inter-Annotator Agreement (IAA)",
+            "## Annotation provenance",
             "",
-            "| Metric | κ (Cohen's Kappa) |",
-            "|--------|-------------------|",
+            f"Human evaluation status: **{human.get('status', 'not_collected')}**.",
+            "",
         ]
-        if "kappa_claim" in iaa:
-            lines.append(f"| Claim detection | {iaa['kappa_claim']:.4f} |")
-        if "kappa_stance" in iaa:
-            lines.append(f"| Stance classification | {iaa['kappa_stance']:.4f} |")
-        if "n_examples" in iaa:
-            lines.append(f"\n> IAA computed over {iaa['n_examples']} doubly-annotated examples.")
+        if human.get("status") == "complete":
+            lines += [
+                "| Human metric | Cohen's κ |",
+                "|--------------|-----------|",
+                f"| Claim detection | {human.get('kappa_claim', 0):.4f} |",
+                f"| Stance classification | {human.get('kappa_stance', 0):.4f} |",
+            ]
+        if noise:
+            lines += [
+                "",
+                "> Synthetic labels are used only for pipeline smoke tests. The",
+                "> random-perturbation similarity numbers are not IAA or a quality gate.",
+            ]
         lines.append("")
 
     # ── Cross-dataset ─────────────────────────────────────────────────────────
@@ -598,6 +757,23 @@ def _render_markdown(results: dict, gate_ok: bool, gate_failures: List[str]) -> 
     else:
         lines.append("| AVeriTeC | — | — | — | — | not available; set --averitec to path |")
     lines.append("")
+
+    external_comparison = results.get("cross_dataset_comparison") or {}
+    if external_comparison:
+        lines += [
+            "### External backend comparison",
+            "",
+            "| Backend | Dataset | Precision | Recall | F1 | N |",
+            "| --- | --- | ---: | ---: | ---: | ---: |",
+        ]
+        for backend, datasets in external_comparison.items():
+            for dataset, metrics in datasets.items():
+                lines.append(
+                    f"| {backend} | {dataset.upper()} | "
+                    f"{metrics['precision']:.4f} | {metrics['recall']:.4f} | "
+                    f"{metrics['f1']:.4f} | {metrics['n']} |"
+                )
+        lines.append("")
 
     # ── Model update gate ────────────────────────────────────────────────────
     lines += [
@@ -632,6 +808,12 @@ def main() -> int:
     ap.add_argument("--out", type=Path, default=REPO / "docs")
     ap.add_argument("--gate", action="store_true",
                     help="Fail (exit 1) if any model F1 regressed ≥2 pp vs. previous checkpoint")
+    ap.add_argument("--candidate-gate", action="store_true",
+                    help="Fail unless every candidate task metric improves by at least 2 pp")
+    ap.add_argument("--backend", choices=("auto", "heuristic"), default="auto",
+                    help="Primary backend (auto uses cached pretrained weights when available)")
+    ap.add_argument("--compare-backends", action="store_true",
+                    help="Report explicit heuristic and cached-pretrained/default modes side by side")
     ap.add_argument("--fever", type=Path, default=None, help="Path to FEVER dataset directory")
     ap.add_argument("--liar", type=Path, default=None, help="Path to LIAR dataset directory")
     ap.add_argument("--averitec", type=Path, default=None, help="Path to AVeriTeC dataset directory")
@@ -679,29 +861,19 @@ def main() -> int:
         log.error("Failed to load dataset: %s", e)
         return 2
 
-    log.info("Evaluating ClaimDetector …")
-    claim_metrics = eval_claim_detector(claim_rows)
+    log.info("Evaluating argument models with backend=%s …", args.backend)
+    primary = _evaluate_backend(args.backend, claim_rows, stance_rows, frame_rows)
+    claim_metrics = primary["claim_detector"]
+    stance_metrics = primary["stance_classifier"]
+    frame_metrics = primary["frame_classifier"]
 
-    log.info("Evaluating StanceClassifier …")
-    stance_metrics = eval_stance_classifier(stance_rows)
-
-    log.info("Evaluating FrameClassifier …")
-    frame_metrics = eval_frame_classifier(frame_rows)
-
-    # IAA from stats.json
-    iaa = _load_iaa_kappa(args.data)
+    annotation = _load_annotation_status(args.data)
 
     # Cross-dataset (skip gracefully if not available)
-    cross: dict = {}
-    for name, path, fn in [
-        ("fever", args.fever, _try_fever),
-        ("liar", args.liar, _try_liar),
-        ("averitec", args.averitec, _try_averitec),
-    ]:
-        result = fn(path)  # type: ignore[arg-type]
-        if result:
-            cross[name] = result
-        else:
+    external_paths = {name: getattr(args, name) for name in ("fever", "liar", "averitec")}
+    cross = _evaluate_external(args.backend, external_paths)
+    for name in external_paths:
+        if name not in cross:
             log.info("Cross-dataset %s: not available", name.upper())
 
     # ── Assemble results ──────────────────────────────────────────────────────
@@ -710,20 +882,56 @@ def main() -> int:
         "claim_detector": claim_metrics,
         "stance_classifier": stance_metrics,
         "frame_classifier": frame_metrics,
-        "iaa": iaa,
+        "annotation": annotation,
         "cross_dataset": cross,
     }
+    if args.compare_backends:
+        auto_metrics = primary if args.backend == "auto" else _evaluate_backend(
+            "auto", claim_rows, stance_rows, frame_rows
+        )
+        heuristic_metrics = primary if args.backend == "heuristic" else _evaluate_backend(
+            "heuristic", claim_rows, stance_rows, frame_rows
+        )
+        auto_external = cross if args.backend == "auto" else _evaluate_external(
+            "auto", external_paths
+        )
+        heuristic_external = cross if args.backend == "heuristic" else _evaluate_external(
+            "heuristic", external_paths
+        )
+        results["backend_comparison"] = {
+            "heuristic": heuristic_metrics,
+            "cached-pretrained-default": auto_metrics,
+        }
+        results["cross_dataset_comparison"] = {
+            "heuristic": heuristic_external,
+            "cached-pretrained-default": auto_external,
+        }
 
     # ── Gate check ────────────────────────────────────────────────────────────
     gate_failures: List[str] = []
+    baseline = previous
+    if previous:
+        comparison = previous.get("backend_comparison", {})
+        baseline_key = (
+            "heuristic" if args.backend == "heuristic"
+            else "cached-pretrained-default"
+        )
+        baseline = comparison.get(baseline_key, previous)
     if args.gate and previous:
-        gate_failures = _check_gate(results, previous)
+        gate_failures = _check_gate(results, baseline)
+    if args.candidate_gate:
+        if previous:
+            gate_failures.extend(_check_candidate_gate(results, baseline))
+        else:
+            gate_failures.append("candidate gate requires a previous benchmark checkpoint")
 
     # ── Write outputs ─────────────────────────────────────────────────────────
     json_path.write_text(json.dumps(results, indent=2))
     log.info("Results written to %s", json_path)
 
-    md_path.write_text(_render_markdown(results, not gate_failures, gate_failures))
+    md_path.write_text(_render_markdown(
+        results, args.gate or args.candidate_gate, gate_failures
+    ))
     log.info("Benchmark report written to %s", md_path)
 
     # ── Summary ───────────────────────────────────────────────────────────────
@@ -740,8 +948,8 @@ def main() -> int:
     print(f"  ClaimDetector    [{c_mode:>10}]  F1 = {c_f1:.4f}   {_bar(c_f1)}")
     print(f"  StanceClassifier [{s_mode:>10}]  F1 = {s_f1:.4f}   {_bar(s_f1)}")
     print(f"  FrameClassifier  [{fm_mode:>10}]  F1 = {fm_f1:.4f}   {_bar(fm_f1)}")
-    if iaa:
-        print(f"\n  IAA  kappa_claim={iaa.get('kappa_claim','?')}  kappa_stance={iaa.get('kappa_stance','?')}")
+    human = annotation.get("human_evaluation", {})
+    print(f"\n  Human evaluation: {human.get('status', 'not_collected')}")
     if cross:
         print(f"\n  Cross-dataset: {', '.join(cross.keys())}")
     print(f"{'─' * 72}")

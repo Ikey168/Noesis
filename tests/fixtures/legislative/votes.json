@@ -1,0 +1,22 @@
+{
+  "records": [
+    {
+      "vote_id": "bundestag-2026-42-a",
+      "actor": "Alex Example",
+      "topic": "Clean Energy Act",
+      "bill": "BT-42",
+      "position": "yea",
+      "date": "2026-06-12T14:30:00Z",
+      "source_url": "https://parliament.example/roll-calls/BT-42"
+    },
+    {
+      "vote_id": "bundestag-2026-42-b",
+      "actor": "Sam Example",
+      "topic": "Clean Energy Act",
+      "bill": "BT-42",
+      "position": "nay",
+      "date": "2026-06-12T14:30:00Z",
+      "source_url": "https://parliament.example/roll-calls/BT-42"
+    }
+  ]
+}

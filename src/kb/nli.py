@@ -120,9 +120,15 @@ class TransformersNLI:
     """
 
     def __init__(self, model_name: Optional[str] = None) -> None:
-        self.model_name = model_name or os.environ.get(
-            NLI_MODEL_ENV, DEFAULT_NLI_MODEL
-        )
+        from src.argument_mining.model_registry import cached_model_path, resolved_pins
+
+        pin = resolved_pins()["nli"]
+        self.model_name = model_name or pin["model"]
+        local_path = cached_model_path("nli")
+        if local_path is None or self.model_name != pin["model"]:
+            raise RuntimeError(
+                "pinned NLI weights are not in the local cache; run `make models`"
+            )
         try:
             from transformers import (  # noqa: F401
                 AutoModelForSequenceClassification,
@@ -134,9 +140,11 @@ class TransformersNLI:
 
         from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
-        self._tokenizer = AutoTokenizer.from_pretrained(self.model_name)
+        self._tokenizer = AutoTokenizer.from_pretrained(
+            str(local_path), local_files_only=True
+        )
         self._model = AutoModelForSequenceClassification.from_pretrained(
-            self.model_name
+            str(local_path), local_files_only=True
         )
         self._model.eval()
         # id2label varies across NLI checkpoints; normalize to our labels.
@@ -144,6 +152,24 @@ class TransformersNLI:
             index: label.lower()
             for index, label in self._model.config.id2label.items()
         }
+        self._entailment_index = next(
+            (index for index, label in self._id2label.items()
+             if label == ENTAILMENT),
+            None,
+        )
+        if self._entailment_index is None:
+            raise RuntimeError(
+                f"NLI model {self.model_name!r} has no entailment output label"
+            )
+        self._contradiction_index = next(
+            (index for index, label in self._id2label.items()
+             if label == CONTRADICTION),
+            None,
+        )
+        if self._contradiction_index is None:
+            raise RuntimeError(
+                f"NLI model {self.model_name!r} has no contradiction output label"
+            )
         self.name = f"nli:{self.model_name}"
         self.prediction_mode = f"zero-shot:{self.model_name}"
         self.model_version = self.model_name
@@ -162,6 +188,41 @@ class TransformersNLI:
         if label not in (ENTAILMENT, CONTRADICTION, NEUTRAL):
             label = NEUTRAL
         return NLIResult(label, round(float(probs[best]), 4), self.prediction_mode)
+
+    def entailment_scores(
+        self, pairs: list[tuple[str, str]], *, batch_size: int = 32
+    ) -> list[float]:  # pragma: no cover - needs model
+        """Return entailment probabilities for premise/hypothesis pairs.
+
+        Zero-shot classification must compare the entailment logit for every
+        candidate label, even when neutral is the argmax for each individual
+        pair. Batching also keeps full benchmark runs practical on CPU.
+        """
+        import torch
+
+        scores: list[float] = []
+        for start in range(0, len(pairs), max(1, batch_size)):
+            batch = pairs[start:start + max(1, batch_size)]
+            inputs = self._tokenizer(
+                [premise for premise, _ in batch],
+                [hypothesis for _, hypothesis in batch],
+                return_tensors="pt", padding=True, truncation=True,
+                max_length=512,
+            )
+            with torch.no_grad():
+                logits = self._model(**inputs).logits
+            # Match transformers' multi-label zero-shot semantics: neutral is
+            # excluded and entailment competes directly with contradiction.
+            binary = logits[:, [self._contradiction_index, self._entailment_index]]
+            probabilities = torch.softmax(binary, dim=-1)
+            scores.extend(
+                round(float(row[1]), 6)
+                for row in probabilities
+            )
+        return scores
+
+    def entailment_score(self, premise: str, hypothesis: str) -> float:
+        return self.entailment_scores([(premise, hypothesis)], batch_size=1)[0]
 
 
 def get_nli_backend(model_name: Optional[str] = None):

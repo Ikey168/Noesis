@@ -165,14 +165,11 @@ class FrameClassifier:
             self._try_load_nli()
 
     def _try_load_nli(self) -> None:
-        """Zero-shot NLI backend, opt-in via NOESIS_FRAMES_BACKEND=nli.
-
-        Opt-in because loading the pinned cross-encoder can trigger a model
-        download; the fetch flow (#959) prepares the cache first.
-        """
+        """Use pinned zero-shot NLI by default when its weights are cached."""
         import os
 
-        if os.environ.get("NOESIS_FRAMES_BACKEND", "").lower() != "nli":
+        mode = os.environ.get("NOESIS_FRAMES_BACKEND", "auto").lower()
+        if mode in {"heuristic", "off", "disabled"}:
             return
         try:
             from src.kb.nli import TransformersNLI
@@ -246,9 +243,18 @@ class FrameClassifier:
         """
         snippet = text[:1500]
         scores: Dict[str, float] = {}
-        for frame, hypothesis in self.NLI_TEMPLATES.items():
-            outcome = self._nli.classify(snippet, hypothesis)
-            score = outcome.confidence if outcome.label == "entailment" else 0.0
+        labels = list(self.NLI_TEMPLATES)
+        pairs = [(snippet, self.NLI_TEMPLATES[frame]) for frame in labels]
+        batch_scores = (
+            self._nli.entailment_scores(pairs)
+            if hasattr(self._nli, "entailment_scores") else None
+        )
+        for index, frame in enumerate(labels):
+            if batch_scores is not None:
+                score = batch_scores[index]
+            else:
+                outcome = self._nli.classify(snippet, self.NLI_TEMPLATES[frame])
+                score = outcome.confidence if outcome.label == "entailment" else 0.0
             threshold = self.NLI_THRESHOLDS.get(frame, self.NLI_DEFAULT_THRESHOLD)
             scores[frame] = round(score, 4) if score >= threshold else 0.0
         dominant = max(scores, key=scores.get)

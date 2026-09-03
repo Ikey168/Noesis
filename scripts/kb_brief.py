@@ -34,6 +34,8 @@ def main() -> int:
                         help="Write markdown to a file instead of stdout")
     parser.add_argument("--harvest", action="store_true",
                         help="Harvest feeds + run membership/consolidation first")
+    parser.add_argument("--email", action="store_true",
+                        help="Email the result to NOESIS_DAILY_BRIEF_TO")
     args = parser.parse_args()
 
     from src.database.local_analytics_connector import get_shared_connection
@@ -72,6 +74,19 @@ def main() -> int:
               f" {brief['meta']['dropped']} dropped)", file=sys.stderr)
     else:
         print(brief["markdown"])
+    if args.email:
+        import os
+        from datetime import datetime, timezone
+        from src.reports.email_sender import send_markdown_email
+
+        recipient = os.getenv("NOESIS_DAILY_BRIEF_TO", "").strip()
+        if not recipient:
+            parser.error("--email requires NOESIS_DAILY_BRIEF_TO")
+        send_markdown_email(
+            to=recipient,
+            subject=f"[Noesis] Daily cross-domain brief — {datetime.now(timezone.utc):%Y-%m-%d}",
+            markdown=brief["markdown"],
+        )
     return 0
 
 

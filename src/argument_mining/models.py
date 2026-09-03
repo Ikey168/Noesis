@@ -72,22 +72,32 @@ class ClaimDetector:
             self._try_load_pretrained()
 
     def _try_load_pretrained(self) -> None:
-        """Pretrained ClaimBuster-style backend, opt-in via
-        NOESIS_CLAIMS_BACKEND=pretrained (a fresh install must never stall
-        on a surprise model download — the #959 fetch flow prepares the
-        cache first)."""
+        """Use the pinned ClaimBuster backend by default when cached.
+
+        ``NOESIS_CLAIMS_BACKEND=heuristic`` is an explicit opt-out. Inference
+        never downloads weights; ``make models`` is the network boundary.
+        """
         import os
 
-        if os.environ.get("NOESIS_CLAIMS_BACKEND", "").lower() != "pretrained":
+        mode = os.environ.get("NOESIS_CLAIMS_BACKEND", "auto").lower()
+        if mode in {"heuristic", "off", "disabled"}:
             return
-        model_name = os.environ.get(
-            self.PRETRAINED_MODEL_ENV, self.DEFAULT_PRETRAINED_MODEL
-        )
         try:
+            from src.argument_mining.model_registry import cached_model_path, resolved_pins
             from transformers import pipeline as hf_pipeline
 
+            pin = resolved_pins()["claim"]
+            local_path = cached_model_path("claim")
+            if local_path is None:
+                raise RuntimeError("pinned claim weights are not in the local cache")
+            model_name = pin["model"]
             self._pretrained = (
-                hf_pipeline("text-classification", model=model_name, device=-1),
+                hf_pipeline(
+                    "text-classification",
+                    model=str(local_path),
+                    tokenizer=str(local_path),
+                    device=-1,
+                ),
                 model_name,
             )
             logger.info("ClaimDetector: pretrained backend active (%s)", model_name)
@@ -108,7 +118,10 @@ class ClaimDetector:
             return False
         if text in ("label_1", "1", "cfs"):
             return True
-        return "claim" in text or "check" in text
+        # The pinned ClaimBuster checkpoint is three-way: both "Unimportant
+        # Factual" and "Check-worthy Factual" are claims for Noesis' binary
+        # extraction task; only "Non-factual" is negative.
+        return "factual" in text or "claim" in text or "check" in text
 
     def _try_load(self) -> None:
         if not (self._model_dir / "config.json").exists():
@@ -300,15 +313,11 @@ class StanceClassifier:
             self._try_load_nli()
 
     def _try_load_nli(self) -> None:
-        """Zero-shot NLI backend (#954), opt-in via NOESIS_STANCE_BACKEND=nli.
-
-        Opt-in because loading the pinned cross-encoder can trigger a model
-        download; the fetch flow (#959) prepares the cache, after which this
-        activates on every fresh install.
-        """
+        """Use pinned zero-shot NLI by default when its weights are cached."""
         import os
 
-        if os.environ.get("NOESIS_STANCE_BACKEND", "").lower() != "nli":
+        mode = os.environ.get("NOESIS_STANCE_BACKEND", "auto").lower()
+        if mode in {"heuristic", "off", "disabled"}:
             return
         try:
             from src.kb.nli import TransformersNLI
@@ -373,25 +382,38 @@ class StanceClassifier:
         confidence reflects the margin between stances rather than a raw
         entailment probability; results are cached per (sentence, topic).
         """
+        labels = list(self.NLI_TEMPLATES)
+        pairs = [
+            (sentence, self.NLI_TEMPLATES[stance].format(topic=topic))
+            for sentence in sentences for stance in labels
+        ]
+        batch_scores = (
+            self._nli.entailment_scores(pairs)
+            if hasattr(self._nli, "entailment_scores") else None
+        )
         results = []
         for i, sentence in enumerate(sentences):
             key = (sentence, topic)
             if key not in self._nli_cache:
                 scores = {}
-                for stance, template in self.NLI_TEMPLATES.items():
-                    outcome = self._nli.classify(
-                        sentence, template.format(topic=topic)
-                    )
-                    scores[stance] = (
-                        outcome.confidence if outcome.label == "entailment" else 0.0
-                    )
+                for offset, stance in enumerate(labels):
+                    if batch_scores is not None:
+                        scores[stance] = batch_scores[i * len(labels) + offset]
+                    else:
+                        hypothesis = self.NLI_TEMPLATES[stance].format(topic=topic)
+                        outcome = self._nli.classify(sentence, hypothesis)
+                        scores[stance] = (
+                            outcome.confidence if outcome.label == "entailment" else 0.0
+                        )
                 best = max(scores, key=scores.get)
                 total = sum(scores.values())
-                if scores[best] < self.NLI_FLOOR or total <= 0:
+                best_share = scores[best] / total if total else 0.0
+                if (scores[best] < self.NLI_FLOOR or total <= 0
+                        or best_share < 0.30):
                     self._nli_cache[key] = ("neutral", 0.5)
                 else:
                     self._nli_cache[key] = (
-                        best, round(scores[best] / total, 4)
+                        best, round(best_share, 4)
                     )
             stance, confidence = self._nli_cache[key]
             results.append(
@@ -469,31 +491,38 @@ def _stance_heuristic(text: str, idx: int, topic: str) -> StancePrediction:
     t = text.lower()
     words = set(re.findall(r"\b\w+\b", t))
 
+    topic_tokens = set(re.findall(r"\b\w+\b", topic.lower())) - _NEUTRAL_WORDS
+    overlap = len(words & topic_tokens)
     pos = len(words & _POSITIVE_WORDS)
     neg = len(words & _NEGATIVE_WORDS)
     neu = len(words & _NEUTRAL_WORDS)
     hedge = sum(1 for ph in _HEDGE_PHRASES if ph in t)
 
+    # The lexical fallback can still preserve a coarse polarity label when the
+    # topic is absent, but must never present it as confident topic-relative
+    # stance.  Cached NLI is the default high-quality path.
+    off_topic = bool(topic_tokens and overlap == 0)
+
+    def result(stance: str, confidence: float) -> StancePrediction:
+        if off_topic:
+            confidence = min(confidence, 0.35)
+        return StancePrediction(
+            text=text, sentence_idx=idx, topic=topic,
+            stance=stance, confidence=confidence,
+        )
+
     # Ambiguous: explicit hedging, or balanced pos/neg signals
     if hedge >= 1 and pos == 0 and neg == 0:
-        return StancePrediction(text=text, sentence_idx=idx, topic=topic,
-                                stance="ambiguous", confidence=0.55)
+        return result("ambiguous", 0.55)
     if (pos > 0 and neg > 0) or hedge >= 2:
-        return StancePrediction(text=text, sentence_idx=idx, topic=topic,
-                                stance="ambiguous", confidence=0.55)
+        return result("ambiguous", 0.55)
     if neu >= 2 and pos == 0 and neg == 0:
-        return StancePrediction(text=text, sentence_idx=idx, topic=topic,
-                                stance="neutral", confidence=0.65)
+        return result("neutral", 0.65)
     if pos > neg:
-        return StancePrediction(text=text, sentence_idx=idx, topic=topic,
-                                stance="supportive",
-                                confidence=min(0.90, 0.55 + pos * 0.10))
+        return result("supportive", min(0.90, 0.55 + pos * 0.10))
     if neg > pos:
-        return StancePrediction(text=text, sentence_idx=idx, topic=topic,
-                                stance="critical",
-                                confidence=min(0.90, 0.55 + neg * 0.10))
-    return StancePrediction(text=text, sentence_idx=idx, topic=topic,
-                            stance="neutral", confidence=0.50)
+        return result("critical", min(0.90, 0.55 + neg * 0.10))
+    return result("neutral", 0.50)
 
 
 # ---------------------------------------------------------------------------

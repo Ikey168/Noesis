@@ -162,9 +162,11 @@ def cluster_claims(
     rows = conn.execute(
         f"""
         SELECT c.claim_id, c.claim_text, c.document_id, c.confidence,
+               COALESCE(c.prediction_mode, 'unknown') AS prediction_mode,
                COALESCE(cl.cluster_id, 'cl-' || c.claim_id) AS cluster_id,
                COALESCE(d.source_id, '') AS source_id,
-               d.url, d.title, COALESCE(d.ingested_at, 0) AS ingested_at
+               d.url, d.title, COALESCE(d.ingested_at, 0) AS ingested_at,
+               d.source_type
         FROM argument_claims c
         LEFT JOIN claim_clusters cl ON cl.claim_id = c.claim_id
         LEFT JOIN documents d ON d.document_id = c.document_id
@@ -180,10 +182,10 @@ def cluster_claims(
 
     grouped: Dict[str, List[Tuple]] = {}
     for row in rows:
-        grouped.setdefault(row[4], []).append(row)
+        grouped.setdefault(row[5], []).append(row)
 
     newest = {
-        cluster_id: max(member[8] for member in members)
+        cluster_id: max(member[9] for member in members)
         for cluster_id, members in grouped.items()
     }
     if since is not None:
@@ -207,9 +209,9 @@ def cluster_claims(
     clusters: List[Dict[str, Any]] = []
     for cluster_id, members in grouped.items():
         citations = []
-        for (claim_id, text, document_id, confidence, _cl, source_id,
-             url, title, ingested_at) in sorted(
-                members, key=lambda member: member[8], reverse=True):
+        for (claim_id, text, document_id, confidence, prediction_mode, _cl, source_id,
+             url, title, ingested_at, source_type) in sorted(
+                members, key=lambda member: member[9], reverse=True):
             citations.append(
                 {
                     "claim_id": claim_id,
@@ -220,6 +222,8 @@ def cluster_claims(
                     "title": title,
                     "ingested_at": ingested_at,
                     "confidence": confidence,
+                    "prediction_mode": prediction_mode,
+                    "source_type": source_type,
                     "superseded": claim_id in superseded,
                 }
             )

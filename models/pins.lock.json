@@ -1,0 +1,20 @@
+{
+  "claim": {
+    "model": "Nithiwat/mdeberta-v3-base_claimbuster",
+    "requested_revision": "f0d23ebd02e98325f19419eee10637f9167f8a47",
+    "resolved_revision": "f0d23ebd02e98325f19419eee10637f9167f8a47",
+    "serves": [
+      "claim detection (#956)"
+    ]
+  },
+  "nli": {
+    "model": "cross-encoder/nli-deberta-v3-base",
+    "requested_revision": "6c749ce3425cd33b46d187e45b92bbf96ee12ec7",
+    "resolved_revision": "6c749ce3425cd33b46d187e45b92bbf96ee12ec7",
+    "serves": [
+      "stance (#954)",
+      "frames (#955)",
+      "claim links (#964)"
+    ]
+  }
+}

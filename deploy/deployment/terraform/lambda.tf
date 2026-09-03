@@ -85,35 +85,6 @@ resource "aws_lambda_function" "article_processor" {
   )
 }
 
-resource "aws_lambda_function" "knowledge_graph_generator" {
-  function_name = "${var.lambda_function_prefix}-knowledge-graph-generator-${var.environment}"
-  description   = "Generates knowledge graphs from processed articles and stores them in Neptune"
-  handler       = "knowledge_graph_generator.lambda_handler"
-  runtime       = var.lambda_runtime
-  timeout       = var.lambda_timeout
-  memory_size   = var.lambda_memory_size
-  s3_bucket     = module.s3.lambda_code_bucket_name
-  s3_key        = "lambda-functions/knowledge_graph_generator.zip"
-  role          = aws_iam_role.lambda_execution_role.arn
-
-  environment {
-    variables = {
-      S3_BUCKET = module.s3.raw_articles_bucket_name
-      #NEPTUNE_ENDPOINT = aws_neptune_cluster.knowledge_graphs.endpoint
-      #NEPTUNE_PORT     = aws_neptune_cluster.knowledge_graphs.port
-      #NEPTUNE_LOAD_BUCKET = aws_s3_bucket.neptune_load.bucket
-    }
-  }
-
-  tags = merge(
-    var.tags,
-    {
-      Name        = "Knowledge Graph Generator Lambda Function"
-      Environment = var.environment
-    }
-  )
-}
-
 resource "aws_lambda_function" "article_notifier" {
   function_name = "${var.lambda_function_prefix}-article-notifier-${var.environment}"
   description   = "Sends notifications when new articles are available"

@@ -188,8 +188,7 @@ class TestRESTMirror:
         import importlib.util
         from pathlib import Path
 
-        from fastapi import FastAPI
-        from fastapi.testclient import TestClient
+        from fastapi import HTTPException
 
         conn = duckdb.connect(str(tmp_path / "wh.duckdb"))
         config_path = tmp_path / "domains.yml"
@@ -211,14 +210,11 @@ class TestRESTMirror:
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
 
-        app = FastAPI()
-        app.include_router(module.router)
-        client = TestClient(app)
-
-        payload = client.get("/api/v1/kb/web3/documents").json()
+        payload = module.documents("web3")
         assert payload["contract"] == "noesis-kb-v1"
         assert [row["document_id"] for row in payload["data"]] == ["d1"]
 
-        missing = client.get("/api/v1/kb/finance/coverage")
-        assert missing.status_code == 404
-        assert missing.json()["detail"]["code"] == "unknown_domain"
+        with pytest.raises(HTTPException) as excinfo:
+            module.coverage("finance")
+        assert excinfo.value.status_code == 404
+        assert excinfo.value.detail["code"] == "unknown_domain"

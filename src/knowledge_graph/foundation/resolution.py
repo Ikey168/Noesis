@@ -152,6 +152,14 @@ class EntityResolver:
     def canonical_nodes(self) -> List[Node]:
         return list(self._canonical.values())
 
+    def seed(self, nodes: Sequence[Node]) -> None:
+        """Register already-persisted canonical nodes without changing ids."""
+        for node in nodes:
+            self._canonical[node.node_id] = node
+            if node.node_id not in self._by_type.setdefault(node.type, []):
+                self._by_type[node.type].append(node.node_id)
+            self._register(node, node.type, [node.name, *node.aliases])
+
     def canonical_count(self, entity_type: Optional[EntityType] = None) -> int:
         if entity_type is None:
             return len(self._canonical)

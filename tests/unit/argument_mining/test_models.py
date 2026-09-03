@@ -33,13 +33,15 @@ def _doc(content: str, source_type: str = "news") -> Document:
     )
 
 
-@pytest.fixture(scope="module")
-def cd() -> ClaimDetector:
+@pytest.fixture()
+def cd(monkeypatch) -> ClaimDetector:
+    monkeypatch.setenv("NOESIS_CLAIMS_BACKEND", "heuristic")
     return ClaimDetector(model_dir=_NO_MODEL)
 
 
-@pytest.fixture(scope="module")
-def sc() -> StanceClassifier:
+@pytest.fixture()
+def sc(monkeypatch) -> StanceClassifier:
+    monkeypatch.setenv("NOESIS_STANCE_BACKEND", "heuristic")
     return StanceClassifier(model_dir=_NO_MODEL)
 
 

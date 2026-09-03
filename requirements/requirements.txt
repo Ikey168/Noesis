@@ -5,14 +5,11 @@ pytest-asyncio>=0.21.0,<1.0.0
 httpx>=0.24.0
 pytest-mock>=3.15.1 # Added for mocking
 
-# Graph Database
-gremlinpython>=3.8.1
-
 # Storage (local filesystem + SQLite via stdlib; no cloud SDK required)
 
 # Web Framework
-fastapi>=0.68.0
-starlette>=0.27.0
+fastapi>=0.109.1,<1.0.0
+starlette>=0.40.0,<1.0.0
 uvicorn>=0.15.0
 
 # Data Processing
@@ -64,7 +61,6 @@ requests>=2.28.0
 python-dotenv>=0.19.0
 bcrypt>=5.0.0
 PyJWT>=2.13.0
-websockets>=16.0 # Added for Neptune testing/mocking
 email-validator>=2.1.0
 tenacity>=8.2.3
 psycopg2-binary>=2.9.12

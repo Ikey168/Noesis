@@ -17,7 +17,7 @@ from src.kb.contract import KBContractError
 
 router = APIRouter(prefix="/api/v1/kb", tags=["knowledge-base"])
 
-_STATUS = {"unknown_domain": 404, "bad_request": 400, "bad_since": 400}
+_STATUS = {"unknown_domain": 404, "not_found": 404, "bad_request": 400, "bad_since": 400}
 
 
 def _run(fn, *args, **kwargs):
@@ -36,7 +36,7 @@ def list_domains():
 
 
 @router.get("/brief")
-def brief(
+async def brief(
     domains: Optional[str] = None,
     since: Optional[str] = None,
     budget: int = 15,
@@ -86,3 +86,8 @@ def diff(domain: str, since: str):
 @router.get("/{domain}/coverage")
 def coverage(domain: str):
     return _run(contract.kb_coverage, domain)
+
+
+@router.get("/{domain}/integrity")
+def integrity(domain: str, document_id: Optional[str] = None, limit: int = 100):
+    return _run(contract.kb_integrity, domain, document_id, limit)

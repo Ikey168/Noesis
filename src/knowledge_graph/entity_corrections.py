@@ -14,13 +14,14 @@ Correction types:
   remove_property  delete a property key
   merge            absorb another entity's triples into this one
 
-The store is an in-memory singleton (thread-safe).  Applied corrections mutate
-the live KnowledgeGraphStore from kg_updater.py.
+The review queue is process-local, while every approved graph mutation is
+synchronously committed by the durable store from ``kg_updater.py``.
 """
 from __future__ import annotations
 
 import threading
 import uuid
+import json
 from collections import defaultdict
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -94,15 +95,84 @@ class EntityCorrection:
 # Singleton correction store
 # ---------------------------------------------------------------------------
 
-class EntityCorrectionStore:
-    """Thread-safe in-memory store for entity correction requests."""
+_CORRECTION_DDL = """
+CREATE TABLE IF NOT EXISTS kg_entity_corrections (
+    correction_id   VARCHAR PRIMARY KEY,
+    entity_id       VARCHAR NOT NULL,
+    correction_type VARCHAR NOT NULL,
+    payload         VARCHAR NOT NULL,
+    reason          VARCHAR NOT NULL,
+    submitted_by    VARCHAR NOT NULL,
+    submitted_at    TIMESTAMP NOT NULL,
+    version         INTEGER NOT NULL,
+    status          VARCHAR NOT NULL,
+    reviewed_by     VARCHAR,
+    reviewed_at     TIMESTAMP,
+    review_note     VARCHAR
+)
+"""
 
-    def __init__(self) -> None:
+
+class EntityCorrectionStore:
+    """Thread-safe correction queue, durable when backed by the KG warehouse."""
+
+    def __init__(self, connection=None, *, read_only: bool = False) -> None:
         self._lock = threading.Lock()
+        self._connection = connection
+        self._read_only = read_only
         # correction_id -> EntityCorrection
         self._corrections: Dict[str, EntityCorrection] = {}
         # entity_id -> monotonic version counter
         self._entity_version: Dict[str, int] = defaultdict(int)
+        if connection is not None:
+            if not read_only:
+                connection.execute(_CORRECTION_DDL)
+            self._load()
+
+    def _load(self) -> None:
+        try:
+            rows = self._connection.execute(
+                """SELECT correction_id, entity_id, correction_type, payload,
+                          reason, submitted_by, submitted_at, version, status,
+                          reviewed_by, reviewed_at, review_note
+                   FROM kg_entity_corrections"""
+            ).fetchall()
+        except Exception:
+            return
+        for row in rows:
+            correction = EntityCorrection(
+                correction_id=row[0], entity_id=row[1],
+                correction_type=CorrectionType(row[2]), payload=json.loads(row[3]),
+                reason=row[4], submitted_by=row[5], submitted_at=row[6],
+                version=int(row[7]), status=CorrectionStatus(row[8]),
+                reviewed_by=row[9], reviewed_at=row[10], review_note=row[11],
+            )
+            self._corrections[correction.correction_id] = correction
+            self._entity_version[correction.entity_id] = max(
+                self._entity_version[correction.entity_id], correction.version
+            )
+
+    def _persist(self, correction: EntityCorrection) -> None:
+        if self._connection is None:
+            return
+        if self._read_only:
+            raise PermissionError("entity correction store is read-only")
+        self._connection.execute(
+            """INSERT INTO kg_entity_corrections
+               (correction_id, entity_id, correction_type, payload, reason,
+                submitted_by, submitted_at, version, status, reviewed_by,
+                reviewed_at, review_note)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+               ON CONFLICT (correction_id) DO UPDATE SET
+                 status=excluded.status, reviewed_by=excluded.reviewed_by,
+                 reviewed_at=excluded.reviewed_at, review_note=excluded.review_note,
+                 payload=excluded.payload""",
+            [correction.correction_id, correction.entity_id,
+             correction.correction_type.value, json.dumps(correction.payload, sort_keys=True),
+             correction.reason, correction.submitted_by, correction.submitted_at,
+             correction.version, correction.status.value, correction.reviewed_by,
+             correction.reviewed_at, correction.review_note],
+        )
 
     # ---- submission --------------------------------------------------------
 
@@ -131,6 +201,7 @@ class EntityCorrectionStore:
                 version=version,
             )
             self._corrections[correction.correction_id] = correction
+            self._persist(correction)
         return correction
 
     # ---- review ------------------------------------------------------------
@@ -153,6 +224,7 @@ class EntityCorrectionStore:
             c.reviewed_by = reviewed_by
             c.reviewed_at = datetime.now(timezone.utc)
             c.review_note = review_note
+            self._persist(c)
         return c
 
     def reject(
@@ -172,6 +244,7 @@ class EntityCorrectionStore:
             c.reviewed_by = reviewed_by
             c.reviewed_at = datetime.now(timezone.utc)
             c.review_note = review_note
+            self._persist(c)
         return c
 
     # ---- queries -----------------------------------------------------------
@@ -216,7 +289,12 @@ def get_correction_store() -> EntityCorrectionStore:
     global _correction_store
     with _store_lock:
         if _correction_store is None:
-            _correction_store = EntityCorrectionStore()
+            from src.knowledge_graph.kg_updater import _shared_store
+
+            graph = _shared_store()
+            _correction_store = EntityCorrectionStore(
+                connection=getattr(graph, "connection", None)
+            )
     return _correction_store
 
 
@@ -293,6 +371,12 @@ def _apply_correction(correction: EntityCorrection) -> None:
     elif ct == CorrectionType.MERGE:
         merge_from_id = payload["merge_from"]
         _apply_merge(store, target_id=entity_id, source_id=merge_from_id)
+
+    # Corrections often mutate Node objects directly. Flush those mutations so
+    # rename/alias/property/merge decisions survive process restarts.
+    sync = getattr(store, "sync", None)
+    if callable(sync):
+        sync()
 
 
 def _apply_merge(store: Any, target_id: str, source_id: str) -> None:

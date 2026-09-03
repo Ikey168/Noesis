@@ -1,0 +1,9 @@
+{
+  "paths": [
+    "/absolute/path/to/notes",
+    "/absolute/path/to/mail/export.eml",
+    "/absolute/path/to/reference-book.epub",
+    "/absolute/path/to/interview.mp3"
+  ],
+  "recursive": true
+}

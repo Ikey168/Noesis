@@ -35,6 +35,7 @@ CREATE TABLE IF NOT EXISTS argument_claims (
     document_id           VARCHAR NOT NULL,
     source_type           VARCHAR NOT NULL,
     confidence            DOUBLE,
+    prediction_mode       VARCHAR,
     extracted_at          VARCHAR,
     factcheck_verdict     VARCHAR,
     factcheck_url         VARCHAR,

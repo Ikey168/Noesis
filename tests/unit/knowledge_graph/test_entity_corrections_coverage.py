@@ -25,16 +25,19 @@ from src.knowledge_graph.foundation.model import Provenance, RelationType, Tripl
 
 
 @pytest.fixture(autouse=True)
-def reset_state():
+def reset_state(tmp_path, monkeypatch):
     """Isolate the correction store and KG store per test."""
     import src.knowledge_graph.entity_corrections as ec
     import src.knowledge_graph.kg_updater as ku
+    monkeypatch.setenv("NOESIS_DB_PATH", str(tmp_path / "kg.duckdb"))
 
     ec._correction_store = None
     ku._store = None
     ku._resolver = None
     ku._events.clear()
     yield
+    if ku._store is not None and hasattr(ku._store, "close"):
+        ku._store.close()
     ec._correction_store = None
     ku._store = None
     ku._resolver = None

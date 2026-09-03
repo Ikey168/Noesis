@@ -98,36 +98,6 @@ def event_clusterer_enricher(document: Any) -> Optional[Dict[str, Any]]:
 
 
 # --------------------------------------------------------------------------- #
-# Influence-network analysis
-# --------------------------------------------------------------------------- #
-
-def influence_enricher(document: Any) -> Optional[Dict[str, Any]]:
-    """Compute influence-network metadata for the document's source.
-
-    Returns the influence score of the document's source node (if the node
-    exists in the graph), or ``None`` if the analyzer is unavailable.
-    """
-    try:
-        from src.knowledge_graph.influence_network_analyzer import (  # type: ignore
-            InfluenceNetworkAnalyzer,
-        )
-    except ImportError:
-        return None
-
-    source_id = _get_field(document, "source_id")
-    if not source_id:
-        return None
-
-    analyzer = InfluenceNetworkAnalyzer()
-    score = analyzer.influence_scores.get(source_id, 0.0)
-    return {
-        "influence_score": score,
-        "source_id": source_id,
-        "enricher": "influence_network_analyzer",
-    }
-
-
-# --------------------------------------------------------------------------- #
 # Helpers
 # --------------------------------------------------------------------------- #
 

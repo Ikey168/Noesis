@@ -70,6 +70,7 @@ class ClaimRecord:
     document_id: str
     source_type: str
     confidence: float
+    prediction_mode: str = "heuristic"
     extracted_at: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
     attributed: Optional[bool] = None
     attribution_text: Optional[str] = None
@@ -159,6 +160,7 @@ def extract_claims(document: Document) -> List[ClaimRecord]:
             document_id=document.document_id,
             source_type=document.source_type,
             confidence=pred.confidence,
+            prediction_mode=detector.prediction_mode,
             attributed=attributed,
             attribution_text=attribution_text,
         ))
@@ -223,15 +225,22 @@ def find_evidence(
 # ---------------------------------------------------------------------------
 
 def store_claim(record: ClaimRecord, conn) -> None:
+    # Callers may hand us a warehouse created before prediction provenance was
+    # added.  Keep the write path backward-compatible instead of requiring an
+    # operator to discover and run a separate migration first.
+    conn.execute(
+        "ALTER TABLE argument_claims "
+        "ADD COLUMN IF NOT EXISTS prediction_mode VARCHAR"
+    )
     conn.execute(
         """
         INSERT OR REPLACE INTO argument_claims
             (claim_id, claim_text, document_id, source_type, confidence,
-             extracted_at, attributed, attribution_text)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+             prediction_mode, extracted_at, attributed, attribution_text)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         """,
         [record.claim_id, record.claim_text, record.document_id,
-         record.source_type, record.confidence, record.extracted_at,
+         record.source_type, record.confidence, record.prediction_mode, record.extracted_at,
          record.attributed, record.attribution_text],
     )
 
@@ -301,8 +310,10 @@ def _default_corpus(conn, exclude_document_id: str) -> List[CorpusEntry]:
     except (TypeError, ValueError):
         limit = _DEFAULT_CORPUS_LIMIT
     try:
+        table = corpus_table(conn)
+        has_source_type = table == "corpus_documents"
         rows = conn.execute(
-            f"SELECT id, content FROM {corpus_table(conn)} "
+            f"SELECT id, content{', source_type' if has_source_type else ''} FROM {table} "
             "WHERE id != ? AND content IS NOT NULL LIMIT ?",
             [exclude_document_id, limit],
         ).fetchall()
@@ -312,11 +323,13 @@ def _default_corpus(conn, exclude_document_id: str) -> List[CorpusEntry]:
 
     corpus: List[CorpusEntry] = []
     sent_re = re.compile(r"(?<=[.!?])\s+")
-    for doc_id, content in rows:
+    for row in rows:
+        doc_id, content = row[0], row[1]
+        source_type = row[2] if len(row) > 2 else "news"
         if not content:
             continue
         for sentence in sent_re.split(content.strip()):
             sentence = sentence.strip()
             if len(sentence) >= 20:
-                corpus.append((sentence, doc_id, "news"))
+                corpus.append((sentence, doc_id, source_type))
     return corpus
