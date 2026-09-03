@@ -66,6 +66,9 @@ For the project overview and local setup, start with the
 - [Verifiable Answer v1](../contracts/noesis-answer-v1.md) — deterministic,
   statement-level answers with separate evidence, uncertainty, and refusal
   semantics
+- [Claim Watch v1](../contracts/noesis-claim-watch-v1.md) — durable,
+  principal-scoped evidence-change subscriptions with committed watermarks,
+  replay, and opaque cursors
 
 ## Security & safety
 

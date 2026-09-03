@@ -1,0 +1,50 @@
+{
+  "contract": "noesis-kb-v1",
+  "domain": "economics",
+  "as_of_ms": 2000,
+  "data": {
+    "watch_contract": "noesis-claim-watch-v1",
+    "watch_id": "watch:0123456789abcdef01234567",
+    "domain": "economics",
+    "events": [
+      {
+        "event_contract": "noesis-claim-watch-v1",
+        "sequence": 1,
+        "event_id": "event:0123456789abcdef01234567",
+        "watch_id": "watch:0123456789abcdef01234567",
+        "domain": "economics",
+        "visibility": "public",
+        "event_type": "support_gained",
+        "reason_code": "independent_support_added",
+        "watermark": 2,
+        "consolidation": {"membership": "run-2"},
+        "observed_at_ms": 2000,
+        "before": {
+          "selector": {"type": "topic", "value": "inflation"},
+          "watermark_observed_at_ms": 1000,
+          "claims": [],
+          "integrity_findings": [],
+          "coverage": {},
+          "n": 0,
+          "method": "fixture",
+          "assumptions": []
+        },
+        "after": {
+          "selector": {"type": "topic", "value": "inflation"},
+          "watermark_observed_at_ms": 2000,
+          "claims": [{}],
+          "integrity_findings": [],
+          "coverage": {},
+          "n": 1,
+          "method": "fixture",
+          "assumptions": []
+        },
+        "evidence": [],
+        "explanation": "Unsupported event."
+      }
+    ],
+    "cursor": "cw1.invalid.0123456789ab",
+    "has_more": false,
+    "n": 1
+  }
+}

@@ -1,0 +1,300 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/contracts/noesis-claim-watch-v1.json",
+  "title": "Noesis Claim Watch v1",
+  "description": "Principal-bound durable watches and append-only cursor-polled evidence events in a noesis-kb-v1 envelope.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["contract", "domain", "as_of_ms", "data"],
+  "properties": {
+    "contract": {"const": "noesis-kb-v1"},
+    "domain": {"type": ["string", "null"]},
+    "as_of_ms": {"type": "integer", "minimum": 0},
+    "data": {
+      "anyOf": [
+        {"$ref": "#/definitions/watch"},
+        {
+          "type": "array",
+          "items": {"$ref": "#/definitions/watch"}
+        },
+        {"$ref": "#/definitions/poll"},
+        {"$ref": "#/definitions/deletion"},
+        {"$ref": "#/definitions/matcher"},
+        {"$ref": "#/definitions/replay"},
+        {"$ref": "#/definitions/metrics"}
+      ]
+    }
+  },
+  "definitions": {
+    "selector": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "value"],
+      "properties": {
+        "type": {"enum": ["query", "claim", "entity", "topic"]},
+        "value": {"type": "string", "minLength": 1, "maxLength": 2000}
+      }
+    },
+    "event_type": {
+      "enum": [
+        "support_gained",
+        "support_lost",
+        "contradiction_added",
+        "contradiction_removed",
+        "independence_changed",
+        "integrity_changed",
+        "quantitative_verdict_changed",
+        "coverage_stale",
+        "source_delivery_failed"
+      ]
+    },
+    "watch": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "watch_contract",
+        "watch_id",
+        "principal_id",
+        "domain",
+        "visibility",
+        "selector",
+        "event_types",
+        "stale_after_ms",
+        "status",
+        "created_at_ms",
+        "updated_at_ms",
+        "deleted_at_ms",
+        "last_watermark"
+      ],
+      "properties": {
+        "watch_contract": {"const": "noesis-claim-watch-v1"},
+        "watch_id": {"type": "string", "pattern": "^watch:[a-f0-9]{24}$"},
+        "principal_id": {"type": "string", "minLength": 1},
+        "domain": {"type": "string", "minLength": 1},
+        "visibility": {"enum": ["public", "private"]},
+        "selector": {"$ref": "#/definitions/selector"},
+        "event_types": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"$ref": "#/definitions/event_type"}
+        },
+        "stale_after_ms": {"type": "integer", "minimum": 1},
+        "status": {"enum": ["active", "paused"]},
+        "created_at_ms": {"type": "integer", "minimum": 0},
+        "updated_at_ms": {"type": "integer", "minimum": 0},
+        "deleted_at_ms": {"type": ["integer", "null"], "minimum": 0},
+        "last_watermark": {"type": ["integer", "null"], "minimum": 1}
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "document_id",
+        "claim_id",
+        "source",
+        "url",
+        "path",
+        "cited",
+        "visibility"
+      ],
+      "properties": {
+        "document_id": {"type": ["string", "null"]},
+        "claim_id": {"type": ["string", "null"]},
+        "source": {"type": "string"},
+        "url": {"type": ["string", "null"]},
+        "path": {"type": ["string", "null"]},
+        "cited": {"type": "boolean"},
+        "visibility": {"enum": ["public", "private"]}
+      }
+    },
+    "snapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "selector",
+        "watermark_observed_at_ms",
+        "claims",
+        "integrity_findings",
+        "coverage",
+        "n",
+        "method",
+        "assumptions"
+      ],
+      "properties": {
+        "selector": {"$ref": "#/definitions/selector"},
+        "watermark_observed_at_ms": {"type": "integer", "minimum": 0},
+        "claims": {"type": "array", "items": {"type": "object"}},
+        "integrity_findings": {"type": "array", "items": {"type": "object"}},
+        "coverage": {"type": "object"},
+        "n": {"type": "integer", "minimum": 0},
+        "method": {"type": "string", "minLength": 1},
+        "assumptions": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "event": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "event_contract",
+        "sequence",
+        "event_id",
+        "watch_id",
+        "domain",
+        "visibility",
+        "event_type",
+        "reason_code",
+        "watermark",
+        "consolidation",
+        "observed_at_ms",
+        "before",
+        "after",
+        "evidence",
+        "explanation"
+      ],
+      "properties": {
+        "event_contract": {"const": "noesis-claim-watch-v1"},
+        "sequence": {"type": "integer", "minimum": 1},
+        "event_id": {"type": "string", "pattern": "^event:[a-f0-9]{24}$"},
+        "watch_id": {"type": "string", "pattern": "^watch:[a-f0-9]{24}$"},
+        "domain": {"type": "string", "minLength": 1},
+        "visibility": {"enum": ["public", "private"]},
+        "event_type": {"$ref": "#/definitions/event_type"},
+        "reason_code": {"type": "string", "minLength": 1},
+        "watermark": {"type": "integer", "minimum": 1},
+        "consolidation": {"type": "object"},
+        "observed_at_ms": {"type": "integer", "minimum": 0},
+        "before": {"$ref": "#/definitions/snapshot"},
+        "after": {"$ref": "#/definitions/snapshot"},
+        "evidence": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/definitions/evidence"}
+        },
+        "explanation": {"type": "string", "minLength": 1}
+      }
+    },
+    "poll": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "watch_contract",
+        "watch_id",
+        "domain",
+        "events",
+        "cursor",
+        "has_more",
+        "n"
+      ],
+      "properties": {
+        "watch_contract": {"const": "noesis-claim-watch-v1"},
+        "watch_id": {"type": "string", "pattern": "^watch:[a-f0-9]{24}$"},
+        "domain": {"type": "string", "minLength": 1},
+        "events": {"type": "array", "items": {"$ref": "#/definitions/event"}},
+        "cursor": {"type": "string", "pattern": "^cw1\\.[A-Za-z0-9_-]+\\.[a-f0-9]{12}$"},
+        "has_more": {"type": "boolean"},
+        "n": {"type": "integer", "minimum": 0}
+      }
+    },
+    "deletion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["watch_contract", "watch_id", "domain", "status", "events_retained"],
+      "properties": {
+        "watch_contract": {"const": "noesis-claim-watch-v1"},
+        "watch_id": {"type": "string", "pattern": "^watch:[a-f0-9]{24}$"},
+        "domain": {"type": "string", "minLength": 1},
+        "status": {"const": "deleted"},
+        "events_retained": {"const": true}
+      }
+    },
+    "matcher": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "watch_contract",
+        "watermark",
+        "processed_watches",
+        "emitted_events",
+        "failed_watches",
+        "events_by_type",
+        "n",
+        "method",
+        "assumptions"
+      ],
+      "properties": {
+        "watch_contract": {"const": "noesis-claim-watch-v1"},
+        "watermark": {"type": "integer", "minimum": 1},
+        "processed_watches": {"type": "integer", "minimum": 0},
+        "emitted_events": {"type": "integer", "minimum": 0},
+        "failed_watches": {"type": "integer", "minimum": 0},
+        "events_by_type": {
+          "type": "object",
+          "additionalProperties": {"type": "integer", "minimum": 0}
+        },
+        "n": {"type": "integer", "minimum": 0},
+        "method": {"type": "string", "minLength": 1},
+        "assumptions": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "replay": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "watch_contract",
+        "watch_id",
+        "domain",
+        "from_watermark",
+        "to_watermark",
+        "matches",
+        "reconstructed",
+        "stored",
+        "n",
+        "method",
+        "assumptions"
+      ],
+      "properties": {
+        "watch_contract": {"const": "noesis-claim-watch-v1"},
+        "watch_id": {"type": "string", "pattern": "^watch:[a-f0-9]{24}$"},
+        "domain": {"type": "string", "minLength": 1},
+        "from_watermark": {"type": "integer", "minimum": 1},
+        "to_watermark": {"type": "integer", "minimum": 1},
+        "matches": {"type": "boolean"},
+        "reconstructed": {"type": "array", "items": {"type": "object"}},
+        "stored": {"type": "array", "items": {"type": "object"}},
+        "n": {"type": "integer", "minimum": 0},
+        "method": {"type": "string", "minLength": 1},
+        "assumptions": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "metrics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "watch_contract",
+        "active_watches",
+        "paused_watches",
+        "deleted_watches",
+        "event_count",
+        "unresolved_failures",
+        "dead_letter_count",
+        "latest_committed_watermark",
+        "oldest_active_progress",
+        "matcher_lag"
+      ],
+      "properties": {
+        "watch_contract": {"const": "noesis-claim-watch-v1"},
+        "active_watches": {"type": "integer", "minimum": 0},
+        "paused_watches": {"type": "integer", "minimum": 0},
+        "deleted_watches": {"type": "integer", "minimum": 0},
+        "event_count": {"type": "integer", "minimum": 0},
+        "unresolved_failures": {"type": "integer", "minimum": 0},
+        "dead_letter_count": {"type": "integer", "minimum": 0},
+        "latest_committed_watermark": {"type": "integer", "minimum": 0},
+        "oldest_active_progress": {"type": "integer", "minimum": 0},
+        "matcher_lag": {"type": "integer", "minimum": 0}
+      }
+    }
+  }
+}

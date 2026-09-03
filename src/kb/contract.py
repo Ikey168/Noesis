@@ -132,6 +132,186 @@ def kb_answer(
     )
 
 
+def _watch_connection(conn=None):
+    if conn is not None:
+        return conn
+    from src.database.local_analytics_connector import get_shared_connection
+
+    return get_shared_connection()
+
+
+def _watch_call(fn, *args, **kwargs):
+    from src.kb.watches import WatchError
+
+    try:
+        return fn(*args, **kwargs)
+    except WatchError as exc:
+        raise KBContractError(exc.code, str(exc)) from exc
+
+
+def watch_create(
+    domain: str,
+    principal_id: str,
+    selector: Dict[str, Any],
+    event_types: Optional[List[str]] = None,
+    stale_after_ms: int = 86_400_000,
+    conn=None,
+    config_path=None,
+) -> Dict[str, Any]:
+    """Create one durable, principal-bound watch in a resolved domain."""
+    from src.kb.watches import create_watch
+
+    backing = _backing(domain, conn, config_path)
+    payload = _watch_call(
+        create_watch,
+        backing,
+        principal_id,
+        selector,
+        event_types,
+        stale_after_ms=stale_after_ms,
+    )
+    return _envelope(domain, payload)
+
+
+def watch_list(
+    principal_id: str,
+    domain: Optional[str] = None,
+    conn=None,
+    config_path=None,
+) -> Dict[str, Any]:
+    """List watches owned by the principal, optionally within one domain."""
+    from src.kb.watches import list_watches
+
+    connection = _watch_connection(conn)
+    if domain is not None:
+        backing = _backing(domain, connection, config_path)
+        from src.kb.watches import _authorize_domain
+
+        _watch_call(_authorize_domain, connection, backing, str(principal_id))
+    payload = _watch_call(
+        list_watches, connection, principal_id, domain=domain
+    )
+    return _envelope(domain, payload)
+
+
+def watch_poll(
+    watch_id: str,
+    principal_id: str,
+    cursor: Optional[str] = None,
+    limit: int = 50,
+    event_types: Optional[List[str]] = None,
+    conn=None,
+) -> Dict[str, Any]:
+    """Poll immutable events after an opaque cursor."""
+    from src.kb.watches import poll_watch
+
+    payload = _watch_call(
+        poll_watch,
+        _watch_connection(conn),
+        principal_id,
+        watch_id,
+        cursor=cursor,
+        limit=limit,
+        event_types=event_types,
+    )
+    return _envelope(payload["domain"], payload)
+
+
+def watch_pause(
+    watch_id: str, principal_id: str, conn=None
+) -> Dict[str, Any]:
+    from src.kb.watches import set_watch_status
+
+    payload = _watch_call(
+        set_watch_status,
+        _watch_connection(conn),
+        principal_id,
+        watch_id,
+        "paused",
+    )
+    return _envelope(payload["domain"], payload)
+
+
+def watch_resume(
+    watch_id: str, principal_id: str, conn=None
+) -> Dict[str, Any]:
+    from src.kb.watches import set_watch_status
+
+    payload = _watch_call(
+        set_watch_status,
+        _watch_connection(conn),
+        principal_id,
+        watch_id,
+        "active",
+    )
+    return _envelope(payload["domain"], payload)
+
+
+def watch_delete(
+    watch_id: str, principal_id: str, confirm: bool = False, conn=None
+) -> Dict[str, Any]:
+    from src.kb.watches import delete_watch
+
+    payload = _watch_call(
+        delete_watch,
+        _watch_connection(conn),
+        principal_id,
+        watch_id,
+        confirm=confirm,
+    )
+    return _envelope(payload["domain"], payload)
+
+
+def watch_scan(
+    principal_id: str,
+    watermark: int,
+    observed_at_ms: Optional[int] = None,
+    conn=None,
+    config_path=None,
+) -> Dict[str, Any]:
+    """Run the deterministic matcher for one principal at a committed watermark."""
+    from src.kb.watches import run_watch_matcher
+
+    connection = _watch_connection(conn)
+    payload = _watch_call(
+        run_watch_matcher,
+        connection,
+        _registry(config_path),
+        watermark,
+        principal_id=principal_id,
+        observed_at_ms=observed_at_ms,
+    )
+    return _envelope(None, payload)
+
+
+def watch_replay(
+    watch_id: str,
+    principal_id: str,
+    from_watermark: int,
+    to_watermark: int,
+    conn=None,
+) -> Dict[str, Any]:
+    """Audit deterministic logical events over retained watermark snapshots."""
+    from src.kb.watches import replay_watch
+
+    payload = _watch_call(
+        replay_watch,
+        _watch_connection(conn),
+        principal_id,
+        watch_id,
+        from_watermark=from_watermark,
+        to_watermark=to_watermark,
+    )
+    return _envelope(payload["domain"], payload)
+
+
+def watch_observability(conn=None) -> Dict[str, Any]:
+    """Text-free watch volume, lag, retry, and dead-letter metrics."""
+    from src.kb.watches import watch_metrics
+
+    return _envelope(None, watch_metrics(_watch_connection(conn)))
+
+
 def kb_documents(
     domain: str,
     since: Optional[str] = None,
