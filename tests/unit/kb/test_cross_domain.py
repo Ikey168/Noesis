@@ -203,7 +203,7 @@ def test_search_deduplicates_documents_and_uses_rank_fusion(corpus):
         config_path=config_path,
     )
     _validate(RESPONSE_SCHEMA, payload)
-    assert payload["domain"] is None
+    assert payload["domain"] == "cross-domain"
     assert payload["data"]["scope"]["selected_domains"] == ["economics", "papers"]
     assert payload["data"]["scope"]["embedding_models_compatible"] is False
     shared = next(row for row in payload["data"]["results"] if row["document_id"] == "shared")
@@ -517,7 +517,7 @@ def test_manual_claim_equivalence_can_be_unlinked_and_recomputed(corpus):
 def test_mcp_and_rest_use_the_same_cross_domain_contract(monkeypatch):
     sentinel = {
         "contract": "noesis-kb-v1",
-        "domain": None,
+        "domain": "cross-domain",
         "as_of_ms": 0,
         "data": {"cross_domain_contract": "noesis-cross-domain-v1"},
     }

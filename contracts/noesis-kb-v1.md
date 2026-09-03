@@ -91,7 +91,7 @@ once with every domain/backing retrieval path attached.
 
 The governed schemas are `noesis-cross-domain-request-v1` and
 `noesis-cross-domain-response-v1`. Cross-domain answers also validate as
-`noesis-answer-v1`; their outer `domain` is `null`, and the complete domain
+`noesis-answer-v1`; their outer `domain` is the reserved string `cross-domain`, and the complete domain
 scope lives in the evidence plan.
 
 `kb_answer` is additive, so it does not require `noesis-kb-v2`. Its nested

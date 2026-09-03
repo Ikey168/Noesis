@@ -114,7 +114,7 @@ def _cross_domain_call(
             limit=limit,
             per_domain_limit=per_domain_limit,
         )
-        return _envelope(None, operation(resolved, scope, **kwargs))
+        return _envelope("cross-domain", operation(resolved, scope, **kwargs))
     except CrossDomainError as exc:
         raise KBContractError(exc.code, str(exc)) from exc
 
