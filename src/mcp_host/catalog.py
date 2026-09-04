@@ -117,6 +117,9 @@ MUTATION_NAMES = frozenset(
         "review_evidence_freshness_override",
         "assess_evidence_freshness",
         "propagate_evidence_freshness",
+        "record_research_coverage",
+        "discover_research_gaps",
+        "prioritize_research_gaps",
     }
 )
 
@@ -289,6 +292,24 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
             return ["knowledge:memory:admin"]
         return ["knowledge:memory:read"]
     if server_stem == "knowledge_engine_mcp":
+        if tool_name == "update_research_gap_status":
+            return ["knowledge:gaps:review"]
+        if tool_name in {
+            "register_research_gap_policy",
+            "record_research_coverage",
+            "discover_research_gaps",
+            "prioritize_research_gaps",
+        }:
+            return ["knowledge:gaps:write"]
+        if tool_name in {
+            "get_research_gap",
+            "explain_research_gap",
+            "list_research_gaps",
+            "list_research_gap_tasks",
+            "compare_research_gap_coverage",
+            "replay_research_gap",
+        }:
+            return ["knowledge:gaps:read"]
         if tool_name == "review_evidence_freshness_override":
             return ["knowledge:freshness:review"]
         if tool_name in {
