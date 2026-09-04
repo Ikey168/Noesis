@@ -799,13 +799,17 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 54,
+      "tool_count": 59,
       "tools": [
         "noesis-knowledge-engine.accept_source_pack_license",
         "noesis-knowledge-engine.artifact_lineage",
         "noesis-knowledge-engine.cancel_knowledge_query",
         "noesis-knowledge-engine.cancel_maintenance_job",
         "noesis-knowledge-engine.cancel_source_pack_run",
+        "noesis-knowledge-engine.document_generation_delta",
+        "noesis-knowledge-engine.document_revision",
+        "noesis-knowledge-engine.document_revision_health",
+        "noesis-knowledge-engine.document_revision_history",
         "noesis-knowledge-engine.evaluate_knowledge_query",
         "noesis-knowledge-engine.execute_artifact_rebuild",
         "noesis-knowledge-engine.explain_knowledge_query",
@@ -834,6 +838,7 @@
         "noesis-knowledge-engine.recover_stale_maintenance_jobs",
         "noesis-knowledge-engine.register_derived_artifact",
         "noesis-knowledge-engine.register_extractor",
+        "noesis-knowledge-engine.replay_document_generation_delta",
         "noesis-knowledge-engine.replay_knowledge_query",
         "noesis-knowledge-engine.replay_maintenance_generation",
         "noesis-knowledge-engine.replay_source_pack_run",
@@ -861,7 +866,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 54
+      "visible_tool_count": 59
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -872,12 +877,12 @@
     },
     "servers": 29,
     "states": {
-      "available": 68,
+      "available": 73,
       "degraded": 155,
       "disabled": 3,
       "unauthorized": 59
     },
-    "tools": 285
+    "tools": 290
   },
   "tools": [
     {
@@ -12321,6 +12326,220 @@
       "version": "1"
     },
     {
+      "cost_class": "low",
+      "description": "Page deterministic changes across a committed source-pack watermark range.",
+      "id": "noesis-knowledge-engine.document_generation_delta",
+      "input_schema": {
+        "properties": {
+          "cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "from_watermark": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "limit": {
+            "default": 100,
+            "type": "integer"
+          },
+          "pack_id": {
+            "type": "string"
+          },
+          "to_watermark": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "pack_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "document_generation_delta",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Read one exact committed document revision using one temporal selector.",
+      "id": "noesis-knowledge-engine.document_revision",
+      "input_schema": {
+        "properties": {
+          "document_id": {
+            "type": "string"
+          },
+          "generation": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "include_retracted": {
+            "default": false,
+            "type": "boolean"
+          },
+          "observed_before_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "revision": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "valid_at_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "document_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "document_revision",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Return text-free revision, uncommitted, and change-set health metrics.",
+      "id": "noesis-knowledge-engine.document_revision_health",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "document_revision_health",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "List immutable committed revisions for a document in lineage order.",
+      "id": "noesis-knowledge-engine.document_revision_history",
+      "input_schema": {
+        "properties": {
+          "document_id": {
+            "type": "string"
+          },
+          "include_retracted": {
+            "default": true,
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "document_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "document_revision_history",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
       "cost_class": "medium",
       "description": "Measure recall, citation coverage, provenance, failures, and memory separation.",
       "id": "noesis-knowledge-engine.evaluate_knowledge_query",
@@ -13320,6 +13539,47 @@
       ],
       "required_scopes": [
         "operator"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Verify a committed delta deterministically against immutable revisions.",
+      "id": "noesis-knowledge-engine.replay_document_generation_delta",
+      "input_schema": {
+        "properties": {
+          "from_watermark": {
+            "type": "integer"
+          },
+          "pack_id": {
+            "type": "string"
+          },
+          "to_watermark": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "pack_id",
+          "from_watermark",
+          "to_watermark"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "replay_document_generation_delta",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "available",

@@ -30,11 +30,27 @@ def test_maintenance_surface_and_catalog_scope_separation(monkeypatch):
         "replay_maintenance_generation",
         "maintenance_generation_lineage",
         "maintenance_health",
+        "document_revision",
+        "document_revision_history",
+        "document_generation_delta",
+        "replay_document_generation_delta",
+        "document_revision_health",
     }
     assert expected <= set(tools)
     assert _required_scopes(
         "knowledge_engine_mcp", "write", "run_maintenance_once"
     ) == ["operator"]
+    for name in (
+        "document_revision",
+        "document_revision_history",
+        "document_generation_delta",
+        "replay_document_generation_delta",
+        "document_revision_health",
+    ):
+        assert _mutability(name) == "read"
+        assert _required_scopes("knowledge_engine_mcp", "read", name) == [
+            "knowledge:read"
+        ]
     for name in (
         "pause_maintenance_schedule",
         "resume_maintenance_schedule",
@@ -63,4 +79,6 @@ def test_capabilities_advertise_generation_contracts():
     capabilities = call(tools["knowledge_engine_capabilities"])
     assert "noesis-maintenance-job-receipt-v1" in capabilities["contracts"]
     assert "noesis-knowledge-generation-v1" in capabilities["contracts"]
+    assert "noesis-document-generation-delta-v1" in capabilities["contracts"]
     assert "knowledge-maintenance" in capabilities["features"]
+    assert "immutable-document-revisions" in capabilities["features"]

@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/schemas/noesis-document-revision-v1.json",
+  "title": "Noesis immutable document revision",
+  "type": "object",
+  "required": ["contract", "document_id", "revision", "revision_id", "change_kind", "lifecycle", "content_hash", "payload_hash"],
+  "properties": {
+    "contract": {"const": "noesis-document-revision-v1"},
+    "document_id": {"type": "string", "minLength": 1},
+    "revision": {"type": "integer", "minimum": 0},
+    "revision_id": {"type": "string", "pattern": "^document-revision:"},
+    "predecessor_revision_id": {"type": ["string", "null"]},
+    "change_kind": {"enum": ["added", "updated", "metadata_updated", "corrected", "unchanged", "retracted", "deleted"]},
+    "change_class": {"type": "string"},
+    "lifecycle": {"enum": ["active", "retracted", "deleted"]},
+    "content_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "payload_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "metadata_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "generation": {"type": ["integer", "null"], "minimum": 0},
+    "payload": {"type": "object"},
+    "appended": {"type": "boolean"}
+  },
+  "additionalProperties": true
+}

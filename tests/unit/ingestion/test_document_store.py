@@ -13,7 +13,6 @@ import pytest
 from services.ingest.common.document_model import Document
 from src.ingestion.document_store import DocumentStore, UpsertSummary
 
-
 # --------------------------------------------------------------------------- #
 # Fixtures / helpers
 # --------------------------------------------------------------------------- #
@@ -25,8 +24,14 @@ def store() -> DocumentStore:
     return DocumentStore(duckdb.connect(":memory:"))
 
 
-def _doc(doc_id: str, *, content: str = "Body text.", url: str | None = None,
-         source_type: str = "news", language: str = "en") -> Document:
+def _doc(
+    doc_id: str,
+    *,
+    content: str = "Body text.",
+    url: str | None = None,
+    source_type: str = "news",
+    language: str = "en",
+) -> Document:
     return Document(
         document_id=doc_id,
         source_type=source_type,
@@ -52,7 +57,10 @@ def test_ensure_schema_is_idempotent():
 def test_empty_batch_returns_zeroed_summary(store: DocumentStore):
     summary = store.upsert([])
     assert summary.as_dict() == {
-        "received": 0, "inserted": 0, "duplicate": 0, "invalid": 0
+        "received": 0,
+        "inserted": 0,
+        "duplicate": 0,
+        "invalid": 0,
     }
     assert store.count() == 0
 
@@ -63,10 +71,12 @@ def test_empty_batch_returns_zeroed_summary(store: DocumentStore):
 
 
 def test_inserts_distinct_documents(store: DocumentStore):
-    summary = store.upsert([
-        _doc("d1", content="First story.", url="https://ex.com/1"),
-        _doc("d2", content="Second story.", url="https://ex.com/2"),
-    ])
+    summary = store.upsert(
+        [
+            _doc("d1", content="First story.", url="https://ex.com/1"),
+            _doc("d2", content="Second story.", url="https://ex.com/2"),
+        ]
+    )
     assert summary.inserted == 2
     assert summary.duplicate == 0
     assert store.count() == 2
@@ -85,13 +95,18 @@ def test_rerunning_same_batch_inserts_nothing(store: DocumentStore):
     assert store.count() == 2
 
 
-def test_same_document_id_is_not_reinserted(store: DocumentStore):
+def test_same_document_id_appends_revision_and_updates_projection(store: DocumentStore):
     store.upsert([_doc("d1", content="Original.", url="https://ex.com/1")])
-    # Same id, *different* body — the id guard still collapses it.
+    # Same identity and changed body becomes revision 1, never a second row.
     summary = store.upsert([_doc("d1", content="Rewritten.", url="https://ex.com/1")])
     assert summary.inserted == 0
-    assert summary.duplicate == 1
+    assert summary.updated == 1
+    assert summary.duplicate == 0
     assert store.count() == 1
+    assert store.get("d1")["content"] == "Rewritten."
+    assert store.conn.execute(
+        "SELECT COUNT(*) FROM document_revision_records WHERE document_id='d1'"
+    ).fetchone() == (2,)
 
 
 # --------------------------------------------------------------------------- #
@@ -101,10 +116,12 @@ def test_same_document_id_is_not_reinserted(store: DocumentStore):
 
 def test_syndicated_content_collapses_across_urls(store: DocumentStore):
     body = "Parliament approved the budget after a marathon debate."
-    summary = store.upsert([
-        _doc("bbc-1", content=body, url="https://bbc.com/news/budget"),
-        _doc("guardian-1", content=body, url="https://guardian.com/uk/budget"),
-    ])
+    summary = store.upsert(
+        [
+            _doc("bbc-1", content=body, url="https://bbc.com/news/budget"),
+            _doc("guardian-1", content=body, url="https://guardian.com/uk/budget"),
+        ]
+    )
     # Same content, different ids/URLs -> second is a content duplicate.
     assert summary.inserted == 1
     assert summary.duplicate == 1
@@ -113,17 +130,21 @@ def test_syndicated_content_collapses_across_urls(store: DocumentStore):
 
 def test_content_dedup_ignores_whitespace_and_case(store: DocumentStore):
     store.upsert([_doc("d1", content="The Budget Passed.", url="https://ex.com/1")])
-    summary = store.upsert([_doc("d2", content="the   budget\npassed.", url="https://ex.com/2")])
+    summary = store.upsert(
+        [_doc("d2", content="the   budget\npassed.", url="https://ex.com/2")]
+    )
     assert summary.inserted == 0
     assert summary.duplicate == 1
 
 
 def test_same_body_different_source_type_are_both_kept(store: DocumentStore):
     body = "Identical body across a news article and a blog post."
-    summary = store.upsert([
-        _doc("news-1", content=body, url="https://ex.com/n", source_type="news"),
-        _doc("blog-1", content=body, url="https://ex.com/b", source_type="blog"),
-    ])
+    summary = store.upsert(
+        [
+            _doc("news-1", content=body, url="https://ex.com/n", source_type="news"),
+            _doc("blog-1", content=body, url="https://ex.com/b", source_type="blog"),
+        ]
+    )
     # Content hash keyed by (hash, source_type), so these do not collide.
     assert summary.inserted == 2
     assert store.count() == 2
@@ -131,11 +152,13 @@ def test_same_body_different_source_type_are_both_kept(store: DocumentStore):
 
 def test_within_batch_content_duplicates_collapse(store: DocumentStore):
     body = "One story submitted twice in a single batch."
-    summary = store.upsert([
-        _doc("a", content=body, url="https://ex.com/a"),
-        _doc("b", content=body, url="https://ex.com/b"),
-        _doc("c", content=body, url="https://ex.com/c"),
-    ])
+    summary = store.upsert(
+        [
+            _doc("a", content=body, url="https://ex.com/a"),
+            _doc("b", content=body, url="https://ex.com/b"),
+            _doc("c", content=body, url="https://ex.com/c"),
+        ]
+    )
     assert summary.received == 3
     assert summary.inserted == 1
     assert summary.duplicate == 2
@@ -272,28 +295,38 @@ def test_upsert_summary_dataclass_defaults():
 
 
 def test_list_documents_returns_all(store: DocumentStore):
-    store.upsert([
-        _doc("d1", content="One", url="https://ex.com/1"),
-        _doc("d2", content="Two", url="https://ex.com/2"),
-    ])
+    store.upsert(
+        [
+            _doc("d1", content="One", url="https://ex.com/1"),
+            _doc("d2", content="Two", url="https://ex.com/2"),
+        ]
+    )
     docs = store.list_documents()
     assert {d["document_id"] for d in docs} == {"d1", "d2"}
     # Rows are fully hydrated (authors/metadata decoded).
-    assert all(isinstance(d["authors"], list) and isinstance(d["metadata"], dict) for d in docs)
+    assert all(
+        isinstance(d["authors"], list) and isinstance(d["metadata"], dict) for d in docs
+    )
 
 
 def test_list_documents_filters_by_source_type(store: DocumentStore):
-    store.upsert([
-        _doc("n1", content="News", url="https://ex.com/n", source_type="news"),
-        _doc("b1", content="Blog", url="https://ex.com/b", source_type="blog"),
-    ])
+    store.upsert(
+        [
+            _doc("n1", content="News", url="https://ex.com/n", source_type="news"),
+            _doc("b1", content="Blog", url="https://ex.com/b", source_type="blog"),
+        ]
+    )
     blogs = store.list_documents(source_type="blog")
     assert [d["document_id"] for d in blogs] == ["b1"]
 
 
 def test_list_documents_pages(store: DocumentStore):
-    store.upsert([_doc(f"d{i}", content=f"body {i}", url=f"https://ex.com/{i}")
-                  for i in range(5)])
+    store.upsert(
+        [
+            _doc(f"d{i}", content=f"body {i}", url=f"https://ex.com/{i}")
+            for i in range(5)
+        ]
+    )
     page = store.list_documents(limit=2, offset=0)
     assert len(page) == 2
     assert len(store.list_documents(limit=2, offset=4)) == 1

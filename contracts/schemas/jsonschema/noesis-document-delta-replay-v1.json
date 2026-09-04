@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/schemas/noesis-document-delta-replay-v1.json",
+  "title": "Noesis document delta replay verification",
+  "type": "object",
+  "required": ["contract", "pack_id", "from_watermark", "to_watermark", "verified", "missing_or_mismatched", "item_count", "delta_hash"],
+  "properties": {
+    "contract": {"const": "noesis-document-delta-replay-v1"},
+    "pack_id": {"type": "string"},
+    "from_watermark": {"type": "integer", "minimum": 1},
+    "to_watermark": {"type": "integer", "minimum": 1},
+    "verified": {"type": "boolean"},
+    "missing_or_mismatched": {"type": "array", "items": {"type": "string"}},
+    "item_count": {"type": "integer", "minimum": 0},
+    "delta_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  },
+  "additionalProperties": false
+}

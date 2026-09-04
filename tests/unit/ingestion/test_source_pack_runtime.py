@@ -377,9 +377,12 @@ def test_changed_source_record_is_a_new_revision_while_retries_deduplicate(setup
                 dns_resolver=lambda _: ["8.8.8.8"],
             )
         )
-    assert conn.execute("SELECT COUNT(*) FROM documents").fetchone() == (2,)
+    assert conn.execute("SELECT COUNT(*) FROM documents").fetchone() == (1,)
     assert conn.execute(
         "SELECT COUNT(DISTINCT document_id) FROM documents"
+    ).fetchone() == (1,)
+    assert conn.execute(
+        "SELECT COUNT(*) FROM document_revision_records"
     ).fetchone() == (2,)
     assert runtime.replay(receipts[0]["run_id"])["watermark_hash_match"]
 

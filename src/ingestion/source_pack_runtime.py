@@ -865,9 +865,21 @@ class SourcePackRuntime:
             )
         )
         content = record.get("content") or record.get("text") or _canonical(record)
+        native_status = str(record.get("status") or "").strip().lower()
+        lifecycle = (
+            "deleted"
+            if record.get("deleted") is True
+            or record.get("_deleted") is True
+            or native_status in {"deleted", "removed", "tombstone"}
+            else "retracted"
+            if record.get("retracted") is True
+            or native_status in {"retracted", "withdrawn"}
+            else "active"
+        )
         return {
-            "document_id": "spdoc:"
-            + _digest([source["source_id"], raw_id, _digest(record)])[:28],
+            # Source identity must remain stable when the record changes; the
+            # immutable revision layer owns content identity.
+            "document_id": "spdoc:" + _digest([source["source_id"], str(raw_id)])[:28],
             "source_type": source_type,
             "language": str(record.get("language") or "en"),
             "ingested_at": observed_at_ms,
@@ -909,6 +921,13 @@ class SourcePackRuntime:
                     }
                 ),
                 "source_pack_native_json": _canonical(record),
+                "lifecycle": lifecycle,
+                "tombstone": lifecycle == "deleted",
+                **(
+                    {"valid_to_ms": _time_ms(record["valid_to"], observed_at_ms)}
+                    if record.get("valid_to") is not None
+                    else {}
+                ),
             },
         }
 
@@ -1420,7 +1439,9 @@ class SourcePackRuntime:
                 "sources": source_receipts,
                 "failures": failures,
             }
-            receipt_hash = _digest(stable)
+            receipt_hash = ""
+            change_set = None
+            transaction_open = False
             if not required_failed:
                 prior_mark = self.conn.execute(
                     "SELECT watermark FROM source_pack_watermarks WHERE pack_id=? ORDER BY watermark DESC LIMIT 1",
@@ -1428,6 +1449,22 @@ class SourcePackRuntime:
                 ).fetchone()
                 watermark = int(prior_mark[0] if prior_mark else 0) + 1
                 committed = self.now()
+                # The watermark, change set, and final run receipt form one
+                # visibility boundary.  Maintenance never sees a partial one.
+                self.conn.execute("BEGIN")
+                transaction_open = True
+                from src.ingestion.revisions import DocumentRevisionStore
+
+                change_set = DocumentRevisionStore(
+                    self.conn, initialize=False
+                ).commit_change_set(
+                    manifest["pack_id"],
+                    watermark,
+                    run_id,
+                    committed_at_ms=committed,
+                )
+                stable["change_set"] = change_set
+                receipt_hash = _digest(stable)
                 self.conn.execute(
                     "INSERT INTO source_pack_watermarks VALUES (?,?,?,?,?)",
                     [manifest["pack_id"], watermark, run_id, receipt_hash, committed],
@@ -1437,6 +1474,8 @@ class SourcePackRuntime:
                         "UPDATE source_pack_checkpoints SET committed_watermark=? WHERE pack_id=?",
                         [watermark, manifest["pack_id"]],
                     )
+            else:
+                receipt_hash = _digest(stable)
             receipt = {
                 "contract": RECEIPT_CONTRACT,
                 **stable,
@@ -1474,6 +1513,9 @@ class SourcePackRuntime:
                 "UPDATE source_pack_runs SET status=?,receipt_json=?,updated_at_ms=?,completed_at_ms=? WHERE run_id=?",
                 [status, _canonical(receipt), self.now(), self.now(), run_id],
             )
+            if transaction_open:
+                self.conn.execute("COMMIT")
+                transaction_open = False
             from src.ingestion.source_packs import SourcePackStore
 
             health_store = SourcePackStore(self.conn, initialize=False)
@@ -1532,6 +1574,8 @@ class SourcePackRuntime:
             )
             return receipt
         except Exception as exc:
+            if locals().get("transaction_open", False):
+                self.conn.execute("ROLLBACK")
             status = (
                 "cancelled"
                 if getattr(exc, "code", "") == "cancelled"
@@ -1618,6 +1662,8 @@ class SourcePackRuntime:
                 "failures",
             )
         }
+        if receipt.get("change_set") is not None:
+            stable["change_set"] = receipt["change_set"]
         computed = _digest(stable)
         request_matches = (
             inspected["request"].get("request_hash") == receipt["request_hash"]

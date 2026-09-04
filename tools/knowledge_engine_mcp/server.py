@@ -87,6 +87,10 @@ def knowledge_engine_capabilities() -> dict:
             "noesis-source-pack-v1",
             "noesis-source-pack-run-request-v1",
             "noesis-source-pack-run-receipt-v1",
+            "noesis-document-revision-v1",
+            "noesis-document-change-set-v1",
+            "noesis-document-generation-delta-v1",
+            "noesis-document-delta-replay-v1",
             "noesis-maintenance-job-request-v1",
             "noesis-maintenance-job-receipt-v1",
             "noesis-knowledge-generation-v1",
@@ -105,6 +109,9 @@ def knowledge_engine_capabilities() -> dict:
             "source-pack-runtime",
             "source-pack-schedules",
             "source-pack-replay",
+            "immutable-document-revisions",
+            "generation-deltas",
+            "point-in-time-documents",
             "knowledge-maintenance",
             "lease-safe-workers",
             "committed-generations",
@@ -114,6 +121,99 @@ def knowledge_engine_capabilities() -> dict:
             "federated-query",
         ],
     }
+
+
+@mcp.tool()
+def document_revision(
+    document_id: str,
+    revision: int | None = None,
+    generation: int | None = None,
+    valid_at_ms: int | None = None,
+    observed_before_ms: int | None = None,
+    include_retracted: bool = False,
+) -> dict:
+    """Read one exact committed document revision using one temporal selector."""
+    from src.ingestion.revisions import DocumentRevisionStore
+
+    return _safe(
+        lambda conn: {
+            "ok": True,
+            "revision": DocumentRevisionStore(conn, initialize=False).revision(
+                document_id,
+                revision=revision,
+                generation=generation,
+                valid_at=valid_at_ms,
+                observed_before=observed_before_ms,
+                include_retracted=include_retracted,
+            ),
+        },
+        required_scope="knowledge:read",
+    )
+
+
+@mcp.tool()
+def document_revision_history(document_id: str, include_retracted: bool = True) -> dict:
+    """List immutable committed revisions for a document in lineage order."""
+    from src.ingestion.revisions import DocumentRevisionStore
+
+    return _safe(
+        lambda conn: {
+            "ok": True,
+            "revisions": DocumentRevisionStore(conn, initialize=False).history(
+                document_id, include_retracted=include_retracted
+            ),
+        },
+        required_scope="knowledge:read",
+    )
+
+
+@mcp.tool()
+def document_generation_delta(
+    pack_id: str,
+    from_watermark: int | None = None,
+    to_watermark: int | None = None,
+    cursor: str | None = None,
+    limit: int = 100,
+) -> dict:
+    """Page deterministic changes across a committed source-pack watermark range."""
+    from src.ingestion.revisions import DocumentRevisionStore
+
+    return _safe(
+        lambda conn: DocumentRevisionStore(conn, initialize=False).delta(
+            pack_id,
+            from_watermark=from_watermark,
+            to_watermark=to_watermark,
+            cursor=cursor,
+            limit=limit,
+        ),
+        required_scope="knowledge:read",
+    )
+
+
+@mcp.tool()
+def replay_document_generation_delta(
+    pack_id: str, from_watermark: int, to_watermark: int
+) -> dict:
+    """Verify a committed delta deterministically against immutable revisions."""
+    from src.ingestion.revisions import DocumentRevisionStore
+
+    return _safe(
+        lambda conn: DocumentRevisionStore(conn, initialize=False).replay(
+            pack_id, from_watermark, to_watermark
+        ),
+        required_scope="knowledge:read",
+    )
+
+
+@mcp.tool()
+def document_revision_health() -> dict:
+    """Return text-free revision, uncommitted, and change-set health metrics."""
+    from src.ingestion.revisions import DocumentRevisionStore
+
+    return _safe(
+        lambda conn: DocumentRevisionStore(conn, initialize=False).health(),
+        required_scope="knowledge:read",
+    )
 
 
 def _query_engine(conn, request: dict[str, Any]):

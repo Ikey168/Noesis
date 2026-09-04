@@ -737,7 +737,31 @@ class MaintenanceOrchestrator:
                 "maintenance_failed", "injected maintenance interruption"
             )
 
-        documents = self._documents_for_runs(run_ids, int(request["max_documents"]))
+        from src.ingestion.revisions import DocumentRevisionStore
+
+        prior_offset = self.conn.execute(
+            "SELECT source_watermark FROM knowledge_maintenance_offsets WHERE pack_id=?",
+            [pack_id],
+        ).fetchone()
+        delta_from = int(prior_offset[0] if prior_offset else 0) + 1
+        delta = DocumentRevisionStore(self.conn, initialize=False).delta(
+            pack_id,
+            from_watermark=delta_from,
+            to_watermark=source_watermark,
+            limit=int(request["max_documents"]),
+        )
+        if delta.get("next_cursor"):
+            raise MaintenanceError(
+                "budget_exhausted", "committed delta exceeds max_documents"
+            )
+        changes = list(delta["changes"])
+        actionable_changes = [
+            item for item in changes if item["change_kind"] != "unchanged"
+        ]
+        documents = self._documents_for_runs(
+            [item["run_id"] for item in actionable_changes],
+            int(request["max_documents"]),
+        )
         namespace = "maintenance:" + pack_id
         workflow_manifest = reference_manifest(namespace)
         workflow_manifest["domains"] = list(manifest["domains"])
@@ -763,6 +787,14 @@ class MaintenanceOrchestrator:
                     ),
                     "sources": len(source_receipts),
                     "documents": len(documents),
+                    "changes": len(changes),
+                },
+                "delta": {
+                    "contract": delta["contract"],
+                    "from_watermark": delta["from_watermark"],
+                    "to_watermark": delta["to_watermark"],
+                    "delta_hash": delta["delta_hash"],
+                    "counts": delta["counts"],
                 },
             },
             run_key=f"maintenance:{pack_id}:{source_watermark}",
@@ -781,6 +813,7 @@ class MaintenanceOrchestrator:
             source_watermark,
             documents,
             workflow,
+            changes=actionable_changes,
             cancelled=cancelled,
         )
         self.renew(job["job_id"], owner_id, fencing_token)
@@ -800,7 +833,17 @@ class MaintenanceOrchestrator:
         self._advance_schedule(pack_id, int(job["scheduled_at_ms"]))
         return {
             "source_runs": source_receipts,
-            "documents": {"selected": len(documents), "run_ids": sorted(run_ids)},
+            "documents": {
+                "selected": len(documents),
+                "run_ids": sorted(run_ids),
+                "delta": {
+                    "from_watermark": delta["from_watermark"],
+                    "to_watermark": delta["to_watermark"],
+                    "item_count": delta["item_count"],
+                    "counts": delta["counts"],
+                    "delta_hash": delta["delta_hash"],
+                },
+            },
             "workflow": {
                 "run_id": workflow["run_id"],
                 "watermark": workflow_watermark,
@@ -815,16 +858,24 @@ class MaintenanceOrchestrator:
     ) -> list[dict[str, Any]]:
         if not run_ids:
             return []
-        placeholders = ",".join("?" for _ in run_ids)
+        unique_runs = sorted(set(run_ids))
+        placeholders = ",".join("?" for _ in unique_runs)
         rows = self.conn.execute(
-            "SELECT document_id FROM documents WHERE json_extract_string(metadata,'$.source_pack_run_id') "
-            f"IN ({placeholders}) ORDER BY document_id LIMIT ?",
-            [*run_ids, min(max(1, limit), 100_000)],
+            "SELECT r.payload_json,r.revision_id,r.change_kind,r.committed_watermark "
+            "FROM document_revision_records r WHERE r.run_id "
+            f"IN ({placeholders}) AND r.committed_watermark IS NOT NULL "
+            "AND r.lifecycle='active' AND r.change_kind!='unchanged' "
+            "ORDER BY r.document_id,r.revision LIMIT ?",
+            [*unique_runs, min(max(1, limit), 100_000)],
         ).fetchall()
-        from src.ingestion.document_store import DocumentStore
-
-        store = DocumentStore(self.conn)
-        return [document for row in rows if (document := store.get(row[0])) is not None]
+        values = []
+        for payload_json, revision_id, change_kind, generation in rows:
+            payload = _load(payload_json, {})
+            payload["_revision_id"] = revision_id
+            payload["_change_kind"] = change_kind
+            payload["_generation"] = int(generation)
+            values.append(payload)
+        return values
 
     def _refresh_projections(
         self,
@@ -834,12 +885,13 @@ class MaintenanceOrchestrator:
         documents: Sequence[Mapping[str, Any]],
         workflow: Mapping[str, Any],
         *,
+        changes: Sequence[Mapping[str, Any]],
         cancelled: Callable[[], bool],
     ) -> dict[str, Any]:
         graph = ArtifactGraph(self.conn)
         started = self.now()
-        document_hashes = sorted(_digest(dict(item)) for item in documents)
-        if not documents:
+        document_hashes = sorted(str(item["payload_hash"]) for item in changes)
+        if not changes:
             prior_rows = self.conn.execute(
                 "SELECT kind,artifact_id,content_hash FROM knowledge_artifacts "
                 "WHERE namespace=? AND status='active' AND kind IN "
@@ -882,10 +934,21 @@ class MaintenanceOrchestrator:
                 }
         extraction = dict(workflow.get("state", {}).get("extraction") or {})
         resolution = dict(workflow.get("state", {}).get("resolution") or {})
+        active_rows = self.conn.execute(
+            "SELECT revision_id,payload_hash FROM ("
+            "SELECT revision_id,payload_hash,lifecycle,ROW_NUMBER() OVER "
+            "(PARTITION BY document_id ORDER BY revision DESC) AS ordinal "
+            "FROM document_revision_records WHERE pack_id=? "
+            "AND committed_watermark IS NOT NULL) committed "
+            "WHERE ordinal=1 AND lifecycle='active' ORDER BY revision_id",
+            [pack_id],
+        ).fetchall()
+        active_revisions = [row[0] for row in active_rows]
         common = {
             "pack_id": pack_id,
             "source_watermark": source_watermark,
-            "documents": document_hashes,
+            "document_revisions": active_revisions,
+            "delta_hash": _digest([dict(item) for item in changes]),
             "extraction_hash": _digest(extraction),
             "resolution_hash": _digest(resolution),
         }
@@ -913,16 +976,18 @@ class MaintenanceOrchestrator:
         receipts: list[dict[str, Any]] = []
         unchanged = []
         now = self.now()
-        changes = [
+        invalidations = [
             {
-                "dependency_id": str(item["document_id"]),
-                "reason": "source-generation-advanced",
+                "dependency_id": str(
+                    item.get("predecessor_revision_id") or item["revision_id"]
+                ),
+                "reason": "document-" + str(item["change_kind"]),
             }
-            for item in documents
+            for item in changes
         ]
         impacted = (
-            graph.preview_invalidation(namespace, changes)
-            if changes
+            graph.preview_invalidation(namespace, invalidations)
+            if invalidations
             else {"affected": [], "order": []}
         )
         for kind in PROJECTION_KINDS:
@@ -948,18 +1013,18 @@ class MaintenanceOrchestrator:
                         "status": "unchanged",
                         "artifact_id": prior[0],
                         "content_hash": content_hash,
-                        "input_count": len(documents),
+                        "input_count": len(changes),
                         "omissions": [],
                     }
                 )
                 continue
             dependencies = [
                 {
-                    "dependency_id": str(item["document_id"]),
+                    "dependency_id": str(revision_id),
                     "kind": "source",
-                    "content_hash": _digest(dict(item)),
+                    "content_hash": str(payload_hash),
                 }
-                for item in documents
+                for revision_id, payload_hash in active_rows
             ] or [
                 {
                     "dependency_id": f"source-pack:{pack_id}:{source_watermark}",
@@ -987,7 +1052,7 @@ class MaintenanceOrchestrator:
                     "artifact_id": registered["artifact_id"],
                     "replaces": prior[0] if prior else None,
                     "content_hash": registered["content_hash"],
-                    "input_count": len(documents),
+                    "input_count": len(changes),
                     "omissions": [],
                 }
             )
@@ -1025,6 +1090,7 @@ class MaintenanceOrchestrator:
             "unchanged": sorted(unchanged),
             "document_hashes": document_hashes,
             "impacted_artifacts": impacted.get("artifacts", []),
+            "invalidation_reasons": invalidations,
             "rebuild_receipts": receipts,
             "compatibility": {
                 "schema": "compatible",
