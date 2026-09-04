@@ -48,6 +48,8 @@ For the project overview and local setup, start with the
   places and boundaries, ambiguous geocoding, spatial receipts, and event maps
 - **[Ontology alignment](guides/ontology-alignment.md)** — immutable concepts,
   sourced crosswalks, pinned validation, and bounded explainable expansion
+- **[Claim evolution timelines](guides/claim-evolution-timelines.md)** — stable
+  claim states, sourced lineage, successor matching, semantic diffs, and replay
 - **[Unified knowledge query](guides/unified-knowledge-query.md)** — one bounded,
   evidence-preserving plane over local, temporal, memory, and federated data.
 - [Project structure](development/project-structure.md) — where things live in

@@ -110,6 +110,8 @@ MUTATION_NAMES = frozenset(
         "review_geospatial_resolution",
         "calculate_spatial_relation",
         "validate_knowledge_object_ontology",
+        "capture_claim_timeline_state",
+        "link_claim_evolution",
     }
 )
 
@@ -282,6 +284,17 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
             return ["knowledge:memory:admin"]
         return ["knowledge:memory:read"]
     if server_stem == "knowledge_engine_mcp":
+        if tool_name in {"capture_claim_timeline_state", "link_claim_evolution"}:
+            return ["knowledge:claim-timeline:write"]
+        if tool_name in {
+            "get_claim_timeline_state",
+            "detect_claim_successors",
+            "diff_claim_timeline_states",
+            "get_claim_evolution_timeline",
+            "compare_claim_sources",
+            "replay_claim_evolution",
+        }:
+            return ["knowledge:claim-timeline:read"]
         if tool_name == "review_geospatial_resolution":
             return ["knowledge:geospatial:review"]
         if tool_name == "calculate_spatial_relation":

@@ -124,6 +124,14 @@ def test_maintenance_surface_and_catalog_scope_separation(monkeypatch):
         "replay_spatial_relation",
         "search_geospatial_knowledge",
         "query_geospatial_event_map",
+        "capture_claim_timeline_state",
+        "link_claim_evolution",
+        "get_claim_timeline_state",
+        "detect_claim_successors",
+        "diff_claim_timeline_states",
+        "get_claim_evolution_timeline",
+        "compare_claim_sources",
+        "replay_claim_evolution",
     }
     assert expected <= set(tools)
     assert _required_scopes(
@@ -337,6 +345,23 @@ def test_maintenance_surface_and_catalog_scope_separation(monkeypatch):
         assert _required_scopes("knowledge_engine_mcp", "read", name) == [
             "knowledge:geospatial:read"
         ]
+    for name in ("capture_claim_timeline_state", "link_claim_evolution"):
+        assert _mutability(name) == "write"
+        assert _required_scopes("knowledge_engine_mcp", "write", name) == [
+            "knowledge:claim-timeline:write"
+        ]
+    for name in (
+        "get_claim_timeline_state",
+        "detect_claim_successors",
+        "diff_claim_timeline_states",
+        "get_claim_evolution_timeline",
+        "compare_claim_sources",
+        "replay_claim_evolution",
+    ):
+        assert _mutability(name) == "read"
+        assert _required_scopes("knowledge_engine_mcp", "read", name) == [
+            "knowledge:claim-timeline:read"
+        ]
     for name in (
         "pause_maintenance_schedule",
         "resume_maintenance_schedule",
@@ -419,3 +444,12 @@ def test_capabilities_advertise_generation_contracts():
     assert "ambiguity-preserving-geocoding" in capabilities["features"]
     assert "reproducible-spatial-relations" in capabilities["features"]
     assert "bounded-event-map-queries" in capabilities["features"]
+    assert "noesis-claim-state-v1" in capabilities["contracts"]
+    assert "noesis-claim-lineage-v1" in capabilities["contracts"]
+    assert "noesis-claim-successor-match-v1" in capabilities["contracts"]
+    assert "noesis-claim-timeline-v1" in capabilities["contracts"]
+    assert "noesis-claim-semantic-diff-v1" in capabilities["contracts"]
+    assert "claim-evolution-lineage" in capabilities["features"]
+    assert "explainable-claim-successor-matching" in capabilities["features"]
+    assert "semantic-claim-state-diffs" in capabilities["features"]
+    assert "snapshot-consistent-claim-timelines" in capabilities["features"]

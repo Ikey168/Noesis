@@ -1,0 +1,10 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema", "$id": "https://noesis.local/schemas/noesis-claim-successor-match-v1.json",
+  "title": "Noesis explainable claim successor matches", "type": "object",
+  "required": ["contract", "claim_id", "status", "matches"],
+  "properties": {
+    "contract": {"const": "noesis-claim-successor-match-v1"}, "claim_id": {"type": "string"}, "status": {"enum": ["completed", "cancelled"]},
+    "method": {"type": "object"}, "threshold": {"type": "number"}, "matches": {"type": "array", "items": {"type": "object", "required": ["candidate_claim_id", "relation", "score", "explanation"]}},
+    "truncated": {"type": "boolean"}, "match_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }, "additionalProperties": false
+}
