@@ -56,6 +56,9 @@ For the project overview and local setup, start with the
 - **[Research-gap discovery](guides/research-gaps.md)** — multidimensional
   coverage gaps, weak-support and citation-chain detection, lifecycle tracking,
   and deterministic budgeted research tasks
+- **[Source acquisition planner](guides/source-acquisition-planner.md)** —
+  credential-safe capabilities, constrained source selection, source-pack
+  execution, checkpoints, fallbacks, and reproducible receipts
 - **[Unified knowledge query](guides/unified-knowledge-query.md)** — one bounded,
   evidence-preserving plane over local, temporal, memory, and federated data.
 - [Project structure](development/project-structure.md) — where things live in

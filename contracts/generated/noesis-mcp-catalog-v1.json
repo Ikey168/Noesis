@@ -808,7 +808,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 180,
+      "tool_count": 191,
       "tools": [
         "noesis-knowledge-engine.accept_source_pack_license",
         "noesis-knowledge-engine.add_source_relationship",
@@ -824,6 +824,7 @@
         "noesis-knowledge-engine.calculate_spatial_relation",
         "noesis-knowledge-engine.cancel_knowledge_query",
         "noesis-knowledge-engine.cancel_maintenance_job",
+        "noesis-knowledge-engine.cancel_source_acquisition_plan",
         "noesis-knowledge-engine.cancel_source_pack_run",
         "noesis-knowledge-engine.capture_claim_timeline_state",
         "noesis-knowledge-engine.classify_epistemic_statement",
@@ -836,6 +837,8 @@
         "noesis-knowledge-engine.create_event_record",
         "noesis-knowledge-engine.create_hypothesis_research_plan",
         "noesis-knowledge-engine.create_hypothesis_workspace",
+        "noesis-knowledge-engine.create_source_acquisition_plan",
+        "noesis-knowledge-engine.create_source_research_objective",
         "noesis-knowledge-engine.decide_source_alias",
         "noesis-knowledge-engine.delete_source_identity",
         "noesis-knowledge-engine.derived_object_generation_delta",
@@ -859,10 +862,12 @@
         "noesis-knowledge-engine.event_timeline",
         "noesis-knowledge-engine.execute_artifact_rebuild",
         "noesis-knowledge-engine.execute_hypothesis_research_plan",
+        "noesis-knowledge-engine.execute_source_acquisition_plan",
         "noesis-knowledge-engine.explain_derived_object_invalidation",
         "noesis-knowledge-engine.explain_epistemic_assessment",
         "noesis-knowledge-engine.explain_knowledge_query",
         "noesis-knowledge-engine.explain_research_gap",
+        "noesis-knowledge-engine.explain_source_acquisition_plan",
         "noesis-knowledge-engine.explain_source_independence",
         "noesis-knowledge-engine.export_hypothesis_workspace",
         "noesis-knowledge-engine.fetch_declarative_api",
@@ -878,11 +883,14 @@
         "noesis-knowledge-engine.get_hypothesis_workspace",
         "noesis-knowledge-engine.get_quantitative_metric",
         "noesis-knowledge-engine.get_research_gap",
+        "noesis-knowledge-engine.get_source_acquisition_plan",
+        "noesis-knowledge-engine.get_source_capability",
         "noesis-knowledge-engine.ingest_event_mentions",
         "noesis-knowledge-engine.inspect_maintenance_generation",
         "noesis-knowledge-engine.inspect_maintenance_job",
         "noesis-knowledge-engine.inspect_reference_workflow",
         "noesis-knowledge-engine.inspect_research_snapshot",
+        "noesis-knowledge-engine.inspect_source_acquisition_run",
         "noesis-knowledge-engine.inspect_source_pack_run",
         "noesis-knowledge-engine.install_source_pack",
         "noesis-knowledge-engine.knowledge_engine_capabilities",
@@ -908,6 +916,7 @@
         "noesis-knowledge-engine.plan_extractor_reprocessing",
         "noesis-knowledge-engine.preflight_source_pack_run",
         "noesis-knowledge-engine.preview_artifact_invalidation",
+        "noesis-knowledge-engine.preview_source_acquisition_plan",
         "noesis-knowledge-engine.prioritize_research_gaps",
         "noesis-knowledge-engine.propagate_evidence_freshness",
         "noesis-knowledge-engine.query_geospatial_event_map",
@@ -928,6 +937,7 @@
         "noesis-knowledge-engine.register_quantitative_metric",
         "noesis-knowledge-engine.register_quantitative_unit",
         "noesis-knowledge-engine.register_research_gap_policy",
+        "noesis-knowledge-engine.register_source_capability",
         "noesis-knowledge-engine.register_source_identity",
         "noesis-knowledge-engine.relate_events",
         "noesis-knowledge-engine.relate_evidence_applicability",
@@ -942,6 +952,7 @@
         "noesis-knowledge-engine.replay_maintenance_generation",
         "noesis-knowledge-engine.replay_quantitative_calculation",
         "noesis-knowledge-engine.replay_research_gap",
+        "noesis-knowledge-engine.replay_source_acquisition_run",
         "noesis-knowledge-engine.replay_source_pack_run",
         "noesis-knowledge-engine.replay_spatial_relation",
         "noesis-knowledge-engine.research_snapshot_health",
@@ -996,7 +1007,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 180
+      "visible_tool_count": 191
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -1010,9 +1021,9 @@
       "available": 81,
       "degraded": 155,
       "disabled": 3,
-      "unauthorized": 181
+      "unauthorized": 192
     },
-    "tools": 420
+    "tools": 431
   },
   "tools": [
     {
@@ -13780,6 +13791,47 @@
     },
     {
       "cost_class": "medium",
+      "description": "Cooperatively cancel an active source acquisition plan.",
+      "id": "noesis-knowledge-engine.cancel_source_acquisition_plan",
+      "input_schema": {
+        "properties": {
+          "execution_key": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "plan_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "plan_id",
+          "execution_key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "cancel_source_acquisition_plan",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:source-planner:execute"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Cooperatively cancel an in-process source-pack run.",
       "id": "noesis-knowledge-engine.cancel_source_pack_run",
       "input_schema": {
@@ -14594,6 +14646,198 @@
       ],
       "required_scopes": [
         "knowledge:hypothesis:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Persist an explainable plan pinned to exact source capability versions.",
+      "id": "noesis-knowledge-engine.create_source_acquisition_plan",
+      "input_schema": {
+        "properties": {
+          "at_ms": {
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "objective_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "objective_id",
+          "at_ms"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "create_source_acquisition_plan",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:source-planner:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Create a canonical decomposed objective with evidence, access, and budget constraints.",
+      "id": "noesis-knowledge-engine.create_source_research_objective",
+      "input_schema": {
+        "properties": {
+          "constraints": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "decomposition": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "evidence_classes": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "generation": {
+            "default": 0,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "observed_at_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "policy": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "producer": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "provenance": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "question": {
+            "type": "string"
+          },
+          "valid_from_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "valid_to_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "question"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "create_source_research_objective",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:source-planner:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -15770,6 +16014,51 @@
       "version": "1"
     },
     {
+      "cost_class": "medium",
+      "description": "Run or resume a source plan through pinned source-pack connectors and checkpoints.",
+      "id": "noesis-knowledge-engine.execute_source_acquisition_plan",
+      "input_schema": {
+        "properties": {
+          "execution_key": {
+            "type": "string"
+          },
+          "live_network": {
+            "default": false,
+            "type": "boolean"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "plan_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "plan_id",
+          "execution_key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "execute_source_acquisition_plan",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:source-planner:execute"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "low",
       "description": "Explain the document and support changes affecting a derived object.",
       "id": "noesis-knowledge-engine.explain_derived_object_invalidation",
@@ -15924,6 +16213,43 @@
       ],
       "required_scopes": [
         "knowledge:gaps:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Explain selected sources, score components, exclusions, coverage, and feasibility.",
+      "id": "noesis-knowledge-engine.explain_source_acquisition_plan",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "plan_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "plan_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "explain_source_acquisition_plan",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:source-planner:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -16632,6 +16958,80 @@
       "version": "1"
     },
     {
+      "cost_class": "low",
+      "description": "Read an exact persisted source plan.",
+      "id": "noesis-knowledge-engine.get_source_acquisition_plan",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "plan_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "plan_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "get_source_acquisition_plan",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:source-planner:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Inspect one source capability without resolving or exposing credentials.",
+      "id": "noesis-knowledge-engine.get_source_capability",
+      "input_schema": {
+        "properties": {
+          "capability_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "capability_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "get_source_capability",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:source-planner:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "high",
       "description": "Cluster a bounded multilingual mention batch using deterministic offline features.",
       "id": "noesis-knowledge-engine.ingest_event_mentions",
@@ -16815,6 +17215,43 @@
       ],
       "required_scopes": [
         "knowledge:snapshot:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Inspect durable status, checkpoints, failures, and budget accounting.",
+      "id": "noesis-knowledge-engine.inspect_source_acquisition_run",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "run_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "run_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "inspect_source_acquisition_run",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:source-planner:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -17959,6 +18396,47 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Preview deterministic source selection without persisting a plan or resolving secrets.",
+      "id": "noesis-knowledge-engine.preview_source_acquisition_plan",
+      "input_schema": {
+        "properties": {
+          "at_ms": {
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "objective_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "objective_id",
+          "at_ms"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "preview_source_acquisition_plan",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:source-planner:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
       "version": "1"
     },
     {
@@ -19621,6 +20099,177 @@
     },
     {
       "cost_class": "medium",
+      "description": "Register a credential-safe, immutable source capability version.",
+      "id": "noesis-knowledge-engine.register_source_capability",
+      "input_schema": {
+        "properties": {
+          "access": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "authority": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "connector": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "cost": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "coverage": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "dependency_group": {
+            "type": "string"
+          },
+          "generation": {
+            "default": 0,
+            "type": "integer"
+          },
+          "latency": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "observed_at_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "policy": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "producer": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "provenance": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "query_forms": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "rate_limits": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "semantic_version": {
+            "type": "string"
+          },
+          "source_id": {
+            "type": "string"
+          },
+          "supersedes_capability_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "valid_from_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "valid_to_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "source_id",
+          "semantic_version",
+          "coverage",
+          "authority",
+          "access",
+          "latency",
+          "cost",
+          "rate_limits",
+          "query_forms",
+          "connector",
+          "dependency_group"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "register_source_capability",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:source-planner:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Register a canonical publication, organization, author, channel, or account.",
       "id": "noesis-knowledge-engine.register_source_identity",
       "input_schema": {
@@ -20352,6 +21001,43 @@
       ],
       "required_scopes": [
         "knowledge:gaps:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Verify a completed source-plan receipt against its canonical hash.",
+      "id": "noesis-knowledge-engine.replay_source_acquisition_run",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "run_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "run_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "replay_source_acquisition_run",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:source-planner:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
