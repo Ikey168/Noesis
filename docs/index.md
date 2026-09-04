@@ -40,6 +40,8 @@ For the project overview and local setup, start with the
   explanations, evidence links, honest comparisons, bounded plans, and replay
 - **[Source identity and ownership graph](guides/source-identity.md)** — stable
   sources, reversible aliases, time-bounded control, dossiers, and independence
+- **[Event-centric knowledge model](guides/event-model.md)** — immutable events,
+  multilingual mentions, competing accounts, timelines, neighborhoods, and diffs
 - **[Unified knowledge query](guides/unified-knowledge-query.md)** — one bounded,
   evidence-preserving plane over local, temporal, memory, and federated data.
 - [Project structure](development/project-structure.md) — where things live in

@@ -799,12 +799,13 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 107,
+      "tool_count": 121,
       "tools": [
         "noesis-knowledge-engine.accept_source_pack_license",
         "noesis-knowledge-engine.add_source_relationship",
         "noesis-knowledge-engine.artifact_lineage",
         "noesis-knowledge-engine.assess_epistemic_statement",
+        "noesis-knowledge-engine.attach_event_account",
         "noesis-knowledge-engine.begin_research_snapshot",
         "noesis-knowledge-engine.branch_hypothesis_workspace",
         "noesis-knowledge-engine.cancel_knowledge_query",
@@ -813,6 +814,7 @@
         "noesis-knowledge-engine.classify_epistemic_statement",
         "noesis-knowledge-engine.close_research_snapshot",
         "noesis-knowledge-engine.compare_hypotheses",
+        "noesis-knowledge-engine.create_event_record",
         "noesis-knowledge-engine.create_hypothesis_research_plan",
         "noesis-knowledge-engine.create_hypothesis_workspace",
         "noesis-knowledge-engine.decide_source_alias",
@@ -823,11 +825,14 @@
         "noesis-knowledge-engine.derived_object_lineage",
         "noesis-knowledge-engine.derived_object_revision",
         "noesis-knowledge-engine.derived_projection",
+        "noesis-knowledge-engine.diff_event_revisions",
         "noesis-knowledge-engine.document_generation_delta",
         "noesis-knowledge-engine.document_revision",
         "noesis-knowledge-engine.document_revision_health",
         "noesis-knowledge-engine.document_revision_history",
         "noesis-knowledge-engine.evaluate_knowledge_query",
+        "noesis-knowledge-engine.event_neighborhood",
+        "noesis-knowledge-engine.event_timeline",
         "noesis-knowledge-engine.execute_artifact_rebuild",
         "noesis-knowledge-engine.execute_hypothesis_research_plan",
         "noesis-knowledge-engine.explain_derived_object_invalidation",
@@ -837,8 +842,11 @@
         "noesis-knowledge-engine.export_hypothesis_workspace",
         "noesis-knowledge-engine.fetch_declarative_api",
         "noesis-knowledge-engine.get_epistemic_assessment",
+        "noesis-knowledge-engine.get_event_record",
+        "noesis-knowledge-engine.get_event_record_as_of",
         "noesis-knowledge-engine.get_hypothesis_research_plan",
         "noesis-knowledge-engine.get_hypothesis_workspace",
+        "noesis-knowledge-engine.ingest_event_mentions",
         "noesis-knowledge-engine.inspect_maintenance_generation",
         "noesis-knowledge-engine.inspect_maintenance_job",
         "noesis-knowledge-engine.inspect_reference_workflow",
@@ -848,6 +856,7 @@
         "noesis-knowledge-engine.knowledge_engine_capabilities",
         "noesis-knowledge-engine.link_hypothesis_evidence",
         "noesis-knowledge-engine.list_epistemic_taxonomies",
+        "noesis-knowledge-engine.list_event_accounts",
         "noesis-knowledge-engine.list_extractors",
         "noesis-knowledge-engine.list_maintenance_due_work",
         "noesis-knowledge-engine.list_maintenance_jobs",
@@ -869,9 +878,11 @@
         "noesis-knowledge-engine.register_epistemic_taxonomy",
         "noesis-knowledge-engine.register_extractor",
         "noesis-knowledge-engine.register_source_identity",
+        "noesis-knowledge-engine.relate_events",
         "noesis-knowledge-engine.renew_research_snapshot",
         "noesis-knowledge-engine.replay_derived_object_generations",
         "noesis-knowledge-engine.replay_document_generation_delta",
+        "noesis-knowledge-engine.replay_event_record",
         "noesis-knowledge-engine.replay_hypothesis_workspace",
         "noesis-knowledge-engine.replay_knowledge_query",
         "noesis-knowledge-engine.replay_maintenance_generation",
@@ -882,12 +893,14 @@
         "noesis-knowledge-engine.resolve_source_alias",
         "noesis-knowledge-engine.resume_maintenance_schedule",
         "noesis-knowledge-engine.retire_hypothesis_workspace",
+        "noesis-knowledge-engine.retract_event_account",
         "noesis-knowledge-engine.retract_hypothesis_evidence",
         "noesis-knowledge-engine.retract_source_relationship",
         "noesis-knowledge-engine.retry_maintenance_job",
         "noesis-knowledge-engine.retry_source_pack_quarantine",
         "noesis-knowledge-engine.reverse_event_merge",
         "noesis-knowledge-engine.review_epistemic_status",
+        "noesis-knowledge-engine.revise_event_record",
         "noesis-knowledge-engine.revise_hypothesis_workspace",
         "noesis-knowledge-engine.revise_source_identity",
         "noesis-knowledge-engine.run_maintenance_drain",
@@ -895,6 +908,7 @@
         "noesis-knowledge-engine.run_reference_workflow",
         "noesis-knowledge-engine.run_source_pack_execution",
         "noesis-knowledge-engine.search_epistemic_assessments",
+        "noesis-knowledge-engine.search_event_records",
         "noesis-knowledge-engine.set_maintenance_schedule_paused",
         "noesis-knowledge-engine.set_source_pack_enabled",
         "noesis-knowledge-engine.set_source_pack_schedule",
@@ -914,7 +928,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 107
+      "visible_tool_count": 121
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -928,9 +942,9 @@
       "available": 81,
       "degraded": 155,
       "disabled": 3,
-      "unauthorized": 99
+      "unauthorized": 113
     },
-    "tools": 338
+    "tools": 352
   },
   "tools": [
     {
@@ -12522,6 +12536,118 @@
     },
     {
       "cost_class": "medium",
+      "description": "Attach a sourced participant, place, time, quantity, cause, or consequence account.",
+      "id": "noesis-knowledge-engine.attach_event_account",
+      "input_schema": {
+        "properties": {
+          "attribute_type": {
+            "type": "string"
+          },
+          "confidence": {
+            "default": 1.0,
+            "type": "number"
+          },
+          "event_id": {
+            "type": "string"
+          },
+          "evidence": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "observed_at_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "role": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "uncertainty": {
+            "default": 0.0,
+            "type": "number"
+          },
+          "valid_from_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "valid_to_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "value": {
+            "title": "Value"
+          }
+        },
+        "required": [
+          "namespace",
+          "event_id",
+          "attribute_type",
+          "value"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "attach_event_account",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:event:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Begin a durable session pinned to one consistent knowledge vector.",
       "id": "noesis-knowledge-engine.begin_research_snapshot",
       "input_schema": {
@@ -12833,6 +12959,114 @@
       ],
       "required_scopes": [
         "knowledge:hypothesis:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Create a stable, immutable event identity and first lifecycle revision.",
+      "id": "noesis-knowledge-engine.create_event_record",
+      "input_schema": {
+        "properties": {
+          "event": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "event_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "generation": {
+            "default": 0,
+            "type": "integer"
+          },
+          "granularity": {
+            "default": "interval",
+            "type": "string"
+          },
+          "lifecycle": {
+            "default": "ongoing",
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "observed_at_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "policy": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "producer": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "provenance": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "event"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "create_event_record",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:event:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -13364,6 +13598,51 @@
     },
     {
       "cost_class": "low",
+      "description": "Return a stable semantic diff between two event revisions.",
+      "id": "noesis-knowledge-engine.diff_event_revisions",
+      "input_schema": {
+        "properties": {
+          "event_id": {
+            "type": "string"
+          },
+          "from_revision": {
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "to_revision": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "namespace",
+          "event_id",
+          "from_revision",
+          "to_revision"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "diff_event_revisions",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:event:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Page deterministic changes across a committed source-pack watermark range.",
       "id": "noesis-knowledge-engine.document_generation_delta",
       "input_schema": {
@@ -13622,6 +13901,102 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Traverse a bounded cross-domain event-relation neighborhood.",
+      "id": "noesis-knowledge-engine.event_neighborhood",
+      "input_schema": {
+        "properties": {
+          "event_id": {
+            "type": "string"
+          },
+          "max_depth": {
+            "default": 2,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "event_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "event_neighborhood",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:event:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Return a bounded chronological event timeline.",
+      "id": "noesis-knowledge-engine.event_timeline",
+      "input_schema": {
+        "properties": {
+          "end_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "limit": {
+            "default": 100,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "start_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "event_timeline",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:event:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
       "version": "1"
     },
     {
@@ -14023,6 +14398,99 @@
       "version": "1"
     },
     {
+      "cost_class": "low",
+      "description": "Get a current event, exact revision, or immutable history.",
+      "id": "noesis-knowledge-engine.get_event_record",
+      "input_schema": {
+        "properties": {
+          "event_id": {
+            "type": "string"
+          },
+          "include_history": {
+            "default": false,
+            "type": "boolean"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "revision": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "event_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "get_event_record",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:event:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Read the latest event revision observed by a requested time.",
+      "id": "noesis-knowledge-engine.get_event_record_as_of",
+      "input_schema": {
+        "properties": {
+          "as_of_ms": {
+            "type": "integer"
+          },
+          "event_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "event_id",
+          "as_of_ms"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "get_event_record_as_of",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:event:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "medium",
       "description": "Inspect resumable plan progress and unresolved information gaps.",
       "id": "noesis-knowledge-engine.get_hypothesis_research_plan",
@@ -14095,6 +14563,63 @@
       ],
       "required_scopes": [
         "knowledge:hypothesis:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "high",
+      "description": "Cluster a bounded multilingual mention batch using deterministic offline features.",
+      "id": "noesis-knowledge-engine.ingest_event_mentions",
+      "input_schema": {
+        "properties": {
+          "cancel_requested": {
+            "default": false,
+            "type": "boolean"
+          },
+          "document_revision_id": {
+            "type": "string"
+          },
+          "language": {
+            "default": "und",
+            "type": "string"
+          },
+          "max_mentions": {
+            "default": 100,
+            "type": "integer"
+          },
+          "mentions": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "document_revision_id",
+          "mentions"
+        ],
+        "type": "object"
+      },
+      "latency_class": "batch",
+      "mutability": "write",
+      "name": "ingest_event_mentions",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:event:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -14472,6 +14997,51 @@
       ],
       "required_scopes": [
         "knowledge:epistemic:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "List current competing event accounts with confidence and evidence.",
+      "id": "noesis-knowledge-engine.list_event_accounts",
+      "input_schema": {
+        "properties": {
+          "event_id": {
+            "type": "string"
+          },
+          "include_history": {
+            "default": false,
+            "type": "boolean"
+          },
+          "include_retracted": {
+            "default": false,
+            "type": "boolean"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "event_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_event_accounts",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:event:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -15354,6 +15924,92 @@
     },
     {
       "cost_class": "medium",
+      "description": "Create a sourced predecessor, successor, recurrence, cause, or consequence edge.",
+      "id": "noesis-knowledge-engine.relate_events",
+      "input_schema": {
+        "properties": {
+          "confidence": {
+            "default": 1.0,
+            "type": "number"
+          },
+          "evidence": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "from_event_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "relation_type": {
+            "type": "string"
+          },
+          "to_event_id": {
+            "type": "string"
+          },
+          "valid_from_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "valid_to_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "from_event_id",
+          "to_event_id",
+          "relation_type"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "relate_events",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:event:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Renew a snapshot without exceeding its maximum lifetime.",
       "id": "noesis-knowledge-engine.renew_research_snapshot",
       "input_schema": {
@@ -15469,6 +16125,43 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Replay and verify an event's immutable predecessor chain.",
+      "id": "noesis-knowledge-engine.replay_event_record",
+      "input_schema": {
+        "properties": {
+          "event_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "event_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "replay_event_record",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:event:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
       "version": "1"
     },
     {
@@ -15841,6 +16534,47 @@
     },
     {
       "cost_class": "medium",
+      "description": "Retract a disputed event account without erasing its earlier revision.",
+      "id": "noesis-knowledge-engine.retract_event_account",
+      "input_schema": {
+        "properties": {
+          "account_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "account_id",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "retract_event_account",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:event:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Append a retraction revision to a hypothesis evidence link.",
       "id": "noesis-knowledge-engine.retract_hypothesis_evidence",
       "input_schema": {
@@ -16082,6 +16816,67 @@
       ],
       "required_scopes": [
         "knowledge:epistemic:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Append a correction or lifecycle revision with optimistic concurrency.",
+      "id": "noesis-knowledge-engine.revise_event_record",
+      "input_schema": {
+        "properties": {
+          "event_id": {
+            "type": "string"
+          },
+          "expected_revision": {
+            "type": "integer"
+          },
+          "lifecycle": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "patch": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "event_id",
+          "expected_revision",
+          "patch",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "revise_event_record",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:event:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -16462,6 +17257,104 @@
       ],
       "required_scopes": [
         "knowledge:epistemic:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Search event records with a snapshot-bound opaque pagination cursor.",
+      "id": "noesis-knowledge-engine.search_event_records",
+      "input_schema": {
+        "properties": {
+          "cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "event_types": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "lifecycles": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "limit": {
+            "default": 50,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "query": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "snapshot_generation": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "search_event_records",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:event:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
