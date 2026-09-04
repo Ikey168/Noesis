@@ -808,7 +808,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 248,
+      "tool_count": 257,
       "tools": [
         "noesis-knowledge-engine.accept_citation_repair",
         "noesis-knowledge-engine.accept_dataset_join",
@@ -829,6 +829,7 @@
         "noesis-knowledge-engine.calculate_spatial_relation",
         "noesis-knowledge-engine.cancel_knowledge_query",
         "noesis-knowledge-engine.cancel_maintenance_job",
+        "noesis-knowledge-engine.cancel_research_recipe_run",
         "noesis-knowledge-engine.cancel_source_acquisition_plan",
         "noesis-knowledge-engine.cancel_source_pack_run",
         "noesis-knowledge-engine.capture_citation_snapshot",
@@ -884,6 +885,7 @@
         "noesis-knowledge-engine.export_change_briefs",
         "noesis-knowledge-engine.export_hypothesis_workspace",
         "noesis-knowledge-engine.export_preserved_citations",
+        "noesis-knowledge-engine.export_research_recipe_run",
         "noesis-knowledge-engine.extract_methodology_statements",
         "noesis-knowledge-engine.extract_multimodal_observations",
         "noesis-knowledge-engine.fetch_declarative_api",
@@ -910,6 +912,7 @@
         "noesis-knowledge-engine.get_multimodal_segment",
         "noesis-knowledge-engine.get_quantitative_metric",
         "noesis-knowledge-engine.get_research_gap",
+        "noesis-knowledge-engine.get_research_recipe_run",
         "noesis-knowledge-engine.get_source_acquisition_plan",
         "noesis-knowledge-engine.get_source_capability",
         "noesis-knowledge-engine.get_study_replication_graph",
@@ -939,6 +942,7 @@
         "noesis-knowledge-engine.list_methodology_limitations",
         "noesis-knowledge-engine.list_research_gap_tasks",
         "noesis-knowledge-engine.list_research_gaps",
+        "noesis-knowledge-engine.list_research_recipes",
         "noesis-knowledge-engine.list_source_pack_quarantine",
         "noesis-knowledge-engine.list_source_pack_schedules",
         "noesis-knowledge-engine.list_source_packs",
@@ -952,6 +956,7 @@
         "noesis-knowledge-engine.preview_artifact_invalidation",
         "noesis-knowledge-engine.preview_citation_repair",
         "noesis-knowledge-engine.preview_dataset_join",
+        "noesis-knowledge-engine.preview_research_recipe",
         "noesis-knowledge-engine.preview_semantic_change",
         "noesis-knowledge-engine.preview_source_acquisition_plan",
         "noesis-knowledge-engine.prioritize_research_gaps",
@@ -982,6 +987,7 @@
         "noesis-knowledge-engine.register_quantitative_metric",
         "noesis-knowledge-engine.register_quantitative_unit",
         "noesis-knowledge-engine.register_research_gap_policy",
+        "noesis-knowledge-engine.register_research_recipe",
         "noesis-knowledge-engine.register_source_capability",
         "noesis-knowledge-engine.register_source_identity",
         "noesis-knowledge-engine.relate_events",
@@ -1001,6 +1007,7 @@
         "noesis-knowledge-engine.replay_multimodal_extraction",
         "noesis-knowledge-engine.replay_quantitative_calculation",
         "noesis-knowledge-engine.replay_research_gap",
+        "noesis-knowledge-engine.replay_research_recipe_run",
         "noesis-knowledge-engine.replay_source_acquisition_run",
         "noesis-knowledge-engine.replay_source_pack_run",
         "noesis-knowledge-engine.replay_spatial_relation",
@@ -1030,6 +1037,7 @@
         "noesis-knowledge-engine.run_maintenance_drain",
         "noesis-knowledge-engine.run_maintenance_once",
         "noesis-knowledge-engine.run_reference_workflow",
+        "noesis-knowledge-engine.run_research_recipe",
         "noesis-knowledge-engine.run_source_pack_execution",
         "noesis-knowledge-engine.search_datasets",
         "noesis-knowledge-engine.search_epistemic_assessments",
@@ -1056,6 +1064,7 @@
         "noesis-knowledge-engine.update_research_gap_status",
         "noesis-knowledge-engine.validate_api_connector_manifest",
         "noesis-knowledge-engine.validate_knowledge_workflow",
+        "noesis-knowledge-engine.validate_research_recipe",
         "noesis-knowledge-engine.validate_source_pack",
         "noesis-knowledge-engine.verify_preserved_citation"
       ],
@@ -1064,7 +1073,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 248
+      "visible_tool_count": 257
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -1078,9 +1087,9 @@
       "available": 81,
       "degraded": 155,
       "disabled": 3,
-      "unauthorized": 249
+      "unauthorized": 258
     },
-    "tools": 488
+    "tools": 497
   },
   "tools": [
     {
@@ -14201,6 +14210,43 @@
     },
     {
       "cost_class": "medium",
+      "description": "Request cooperative cancellation at the next durable checkpoint.",
+      "id": "noesis-knowledge-engine.cancel_research_recipe_run",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "run_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "run_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "cancel_research_recipe_run",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:recipes:execute"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Cooperatively cancel an active source acquisition plan.",
       "id": "noesis-knowledge-engine.cancel_source_acquisition_plan",
       "input_schema": {
@@ -17325,6 +17371,43 @@
     },
     {
       "cost_class": "medium",
+      "description": "Export an exact recipe revision, run state, checkpoints, and receipt.",
+      "id": "noesis-knowledge-engine.export_research_recipe_run",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "run_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "run_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "export_research_recipe_run",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:recipes:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Persist bounded method statements with page, section, table, or passage locators.",
       "id": "noesis-knowledge-engine.extract_methodology_statements",
       "input_schema": {
@@ -18545,6 +18628,43 @@
       ],
       "required_scopes": [
         "knowledge:gaps:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Inspect recipe state, checkpoints, errors, and completed receipt.",
+      "id": "noesis-knowledge-engine.get_research_recipe_run",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "run_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "run_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "get_research_recipe_run",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:recipes:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -20037,6 +20157,47 @@
       "version": "1"
     },
     {
+      "cost_class": "medium",
+      "description": "List registered recipe revisions with bounded pagination.",
+      "id": "noesis-knowledge-engine.list_research_recipes",
+      "input_schema": {
+        "properties": {
+          "limit": {
+            "default": 50,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "offset": {
+            "default": 0,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_research_recipes",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:recipes:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "low",
       "description": "List credential-safe quarantined record identities and mapping failures.",
       "id": "noesis-knowledge-engine.list_source_pack_quarantine",
@@ -20557,6 +20718,94 @@
       ],
       "required_scopes": [
         "knowledge:dataset:calculate"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Preview safe parameters, secret references, compatibility, and policy gates.",
+      "id": "noesis-knowledge-engine.preview_research_recipe",
+      "input_schema": {
+        "properties": {
+          "allowed_sources": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "available_tool_versions": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "granted_scopes": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "network_allowed": {
+            "default": false,
+            "type": "boolean"
+          },
+          "parameters": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "recipe_revision_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "recipe_revision_id",
+          "parameters"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "preview_research_recipe",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:recipes:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -23515,6 +23764,40 @@
     },
     {
       "cost_class": "medium",
+      "description": "Register an immutable research recipe revision.",
+      "id": "noesis-knowledge-engine.register_research_recipe",
+      "input_schema": {
+        "properties": {
+          "recipe": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "recipe"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "register_research_recipe",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:recipes:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Register a credential-safe, immutable source capability version.",
       "id": "noesis-knowledge-engine.register_source_capability",
       "input_schema": {
@@ -24565,6 +24848,57 @@
       ],
       "required_scopes": [
         "knowledge:gaps:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Verify outputs, receipt hashing, and pinned tool versions.",
+      "id": "noesis-knowledge-engine.replay_research_recipe_run",
+      "input_schema": {
+        "properties": {
+          "current_tool_versions": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "run_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "run_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "replay_research_recipe_run",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:recipes:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -25910,6 +26244,146 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Run or resume a recipe with bounded local step adapters and durable checkpoints.",
+      "id": "noesis-knowledge-engine.run_research_recipe",
+      "input_schema": {
+        "properties": {
+          "allowed_sources": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "fail_after": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "granted_scopes": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "network_allowed": {
+            "default": false,
+            "type": "boolean"
+          },
+          "parameters": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "recipe_revision_id": {
+            "type": "string"
+          },
+          "run_key": {
+            "type": "string"
+          },
+          "secrets": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "snapshot_tokens": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "step_outputs": {
+            "additionalProperties": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "object"
+          },
+          "tool_versions": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "recipe_revision_id",
+          "parameters",
+          "run_key",
+          "step_outputs"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "run_research_recipe",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:recipes:execute"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
       "version": "1"
     },
     {
@@ -27339,6 +27813,40 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Validate a typed recipe DAG, compatibility declarations, and canonical hash.",
+      "id": "noesis-knowledge-engine.validate_research_recipe",
+      "input_schema": {
+        "properties": {
+          "recipe": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "recipe"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "validate_research_recipe",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:recipes:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
       "version": "1"
     },
     {

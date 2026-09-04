@@ -137,6 +137,7 @@ MUTATION_NAMES = frozenset(
         "deliver_change_briefs",
         "acknowledge_change_brief_delivery",
         "review_change_brief",
+        "cancel_research_recipe_run",
     }
 )
 
@@ -309,6 +310,19 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
             return ["knowledge:memory:admin"]
         return ["knowledge:memory:read"]
     if server_stem == "knowledge_engine_mcp":
+        if tool_name in {"run_research_recipe", "cancel_research_recipe_run"}:
+            return ["knowledge:recipes:execute"]
+        if tool_name == "register_research_recipe":
+            return ["knowledge:recipes:write"]
+        if tool_name in {
+            "validate_research_recipe",
+            "list_research_recipes",
+            "preview_research_recipe",
+            "get_research_recipe_run",
+            "replay_research_recipe_run",
+            "export_research_recipe_run",
+        }:
+            return ["knowledge:recipes:read"]
         if tool_name in {"deliver_change_briefs", "acknowledge_change_brief_delivery"}:
             return ["knowledge:briefs:deliver"]
         if tool_name == "review_change_brief":

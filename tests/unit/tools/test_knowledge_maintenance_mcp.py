@@ -224,6 +224,15 @@ def test_maintenance_surface_and_catalog_scope_separation(monkeypatch):
         "acknowledge_change_brief_delivery",
         "review_change_brief",
         "export_change_briefs",
+        "validate_research_recipe",
+        "register_research_recipe",
+        "list_research_recipes",
+        "preview_research_recipe",
+        "run_research_recipe",
+        "get_research_recipe_run",
+        "cancel_research_recipe_run",
+        "replay_research_recipe_run",
+        "export_research_recipe_run",
     }
     assert expected <= set(tools)
     assert _required_scopes(
@@ -731,3 +740,8 @@ def test_capabilities_advertise_generation_contracts():
     assert "noesis-change-brief-v1" in capabilities["contracts"]
     assert "noesis-change-brief-delivery-v1" in capabilities["contracts"]
     assert "noesis-change-brief-export-v1" in capabilities["contracts"]
+    assert "noesis-research-recipe-v1" in capabilities["contracts"]
+    assert "noesis-research-recipe-preview-v1" in capabilities["contracts"]
+    assert "noesis-research-recipe-run-v1" in capabilities["contracts"]
+    assert "noesis-research-recipe-receipt-v1" in capabilities["contracts"]
+    assert "noesis-research-recipe-export-v1" in capabilities["contracts"]

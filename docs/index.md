@@ -69,6 +69,8 @@ For the project overview and local setup, start with the
   snapshots, support revalidation, link-rot monitoring, and exact archive repair
 - **[Semantic change briefs](guides/change-briefs.md)** — ranked before/after
   changes, evidence-linked explanations, and deduplicated subscriber delivery
+- **[Research recipes](guides/research-recipes.md)** — typed declarative DAGs,
+  safe parameters, checkpointed execution, and deterministic replay receipts
 - **[Unified knowledge query](guides/unified-knowledge-query.md)** — one bounded,
   evidence-preserving plane over local, temporal, memory, and federated data.
 - [Project structure](development/project-structure.md) — where things live in

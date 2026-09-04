@@ -167,6 +167,11 @@ def knowledge_engine_capabilities() -> dict:
             "noesis-change-brief-v1",
             "noesis-change-brief-delivery-v1",
             "noesis-change-brief-export-v1",
+            "noesis-research-recipe-v1",
+            "noesis-research-recipe-preview-v1",
+            "noesis-research-recipe-run-v1",
+            "noesis-research-recipe-receipt-v1",
+            "noesis-research-recipe-export-v1",
             "noesis-maintenance-job-request-v1",
             "noesis-maintenance-job-receipt-v1",
             "noesis-knowledge-generation-v1",
@@ -252,6 +257,10 @@ def knowledge_engine_capabilities() -> dict:
             "evidence-linked-change-explanations",
             "deduplicated-windowed-brief-delivery",
             "deterministic-change-brief-export",
+            "versioned-declarative-research-recipes",
+            "checkpointed-resumable-recipe-runs",
+            "secret-safe-per-step-policy-gates",
+            "snapshot-and-tool-version-pinned-replay",
             "knowledge-maintenance",
             "lease-safe-workers",
             "committed-generations",
@@ -5918,6 +5927,193 @@ def export_change_briefs(
             namespace, brief_ids, limit=limit, scopes={"knowledge:briefs:read"}
         ),
         required_scope="knowledge:briefs:read",
+    )
+
+
+def _recipe_known_tools() -> set[str]:
+    import json
+
+    from src.mcp_host.catalog import CATALOG_ARTIFACT
+
+    try:
+        return {
+            str(v["name"]) for v in json.loads(CATALOG_ARTIFACT.read_text())["tools"]
+        }
+    except (OSError, KeyError, ValueError, TypeError):
+        return set()
+
+
+@mcp.tool()
+def validate_research_recipe(recipe: dict[str, Any]) -> dict:
+    """Validate a typed recipe DAG, compatibility declarations, and canonical hash."""
+    from src.kb.research_recipes import validate_recipe
+
+    return _safe(
+        lambda _: validate_recipe(recipe, known_tools=_recipe_known_tools()),
+        required_scope="knowledge:recipes:read",
+    )
+
+
+@mcp.tool()
+def register_research_recipe(recipe: dict[str, Any]) -> dict:
+    """Register an immutable research recipe revision."""
+    from src.kb.research_recipes import ResearchRecipeStore
+
+    return _safe(
+        lambda c: ResearchRecipeStore(c).register(
+            recipe,
+            principal_id=_context()[0],
+            scopes={"knowledge:recipes:write"},
+            known_tools=_recipe_known_tools(),
+        ),
+        write=True,
+        required_scope="knowledge:recipes:write",
+    )
+
+
+@mcp.tool()
+def list_research_recipes(namespace: str, limit: int = 50, offset: int = 0) -> dict:
+    """List registered recipe revisions with bounded pagination."""
+    from src.kb.research_recipes import ResearchRecipeStore
+
+    return _safe(
+        lambda c: ResearchRecipeStore(c, initialize=False).list(
+            namespace, limit=limit, offset=offset, scopes={"knowledge:recipes:read"}
+        ),
+        required_scope="knowledge:recipes:read",
+    )
+
+
+@mcp.tool()
+def preview_research_recipe(
+    namespace: str,
+    recipe_revision_id: str,
+    parameters: dict[str, Any],
+    granted_scopes: list[str] | None = None,
+    allowed_sources: list[str] | None = None,
+    network_allowed: bool = False,
+    available_tool_versions: dict[str, str] | None = None,
+) -> dict:
+    """Preview safe parameters, secret references, compatibility, and policy gates."""
+    from src.kb.research_recipes import ResearchRecipeStore
+
+    return _safe(
+        lambda c: ResearchRecipeStore(c, initialize=False).preview(
+            namespace,
+            recipe_revision_id,
+            parameters,
+            granted_scopes=granted_scopes or [],
+            allowed_sources=allowed_sources or [],
+            network_allowed=network_allowed,
+            available_tool_versions=available_tool_versions,
+            scopes={"knowledge:recipes:read"},
+        ),
+        required_scope="knowledge:recipes:read",
+    )
+
+
+@mcp.tool()
+def run_research_recipe(
+    namespace: str,
+    recipe_revision_id: str,
+    parameters: dict[str, Any],
+    run_key: str,
+    step_outputs: dict[str, dict[str, Any]],
+    granted_scopes: list[str] | None = None,
+    allowed_sources: list[str] | None = None,
+    network_allowed: bool = False,
+    tool_versions: dict[str, str] | None = None,
+    snapshot_tokens: list[dict[str, Any]] | None = None,
+    secrets: dict[str, str] | None = None,
+    fail_after: int | None = None,
+) -> dict:
+    """Run or resume a recipe with bounded local step adapters and durable checkpoints."""
+    from src.kb.research_recipes import ResearchRecipeStore
+
+    adapters = {
+        name: (lambda step, state, value=value: dict(value))
+        for name, value in step_outputs.items()
+    }
+    return _safe(
+        lambda c: ResearchRecipeStore(c).run(
+            namespace,
+            recipe_revision_id,
+            parameters,
+            run_key=run_key,
+            adapters=adapters,
+            principal_id=_context()[0],
+            scopes={"knowledge:recipes:execute"},
+            secret_resolver=lambda ref: (secrets or {}).get(ref),
+            granted_scopes=granted_scopes or [],
+            allowed_sources=allowed_sources or [],
+            network_allowed=network_allowed,
+            tool_versions=tool_versions,
+            snapshot_tokens=snapshot_tokens,
+            fail_after=fail_after,
+        ),
+        write=True,
+        required_scope="knowledge:recipes:execute",
+    )
+
+
+@mcp.tool()
+def get_research_recipe_run(namespace: str, run_id: str) -> dict:
+    """Inspect recipe state, checkpoints, errors, and completed receipt."""
+    from src.kb.research_recipes import ResearchRecipeStore
+
+    return _safe(
+        lambda c: ResearchRecipeStore(c, initialize=False).status(
+            namespace, run_id, scopes={"knowledge:recipes:read"}
+        ),
+        required_scope="knowledge:recipes:read",
+    )
+
+
+@mcp.tool()
+def cancel_research_recipe_run(namespace: str, run_id: str) -> dict:
+    """Request cooperative cancellation at the next durable checkpoint."""
+    from src.kb.research_recipes import ResearchRecipeStore
+
+    return _safe(
+        lambda c: ResearchRecipeStore(c).cancel(
+            namespace,
+            run_id,
+            principal_id=_context()[0],
+            scopes={"knowledge:recipes:execute"},
+        ),
+        write=True,
+        required_scope="knowledge:recipes:execute",
+    )
+
+
+@mcp.tool()
+def replay_research_recipe_run(
+    namespace: str, run_id: str, current_tool_versions: dict[str, str] | None = None
+) -> dict:
+    """Verify outputs, receipt hashing, and pinned tool versions."""
+    from src.kb.research_recipes import ResearchRecipeStore
+
+    return _safe(
+        lambda c: ResearchRecipeStore(c, initialize=False).replay(
+            namespace,
+            run_id,
+            current_tool_versions=current_tool_versions,
+            scopes={"knowledge:recipes:read"},
+        ),
+        required_scope="knowledge:recipes:read",
+    )
+
+
+@mcp.tool()
+def export_research_recipe_run(namespace: str, run_id: str) -> dict:
+    """Export an exact recipe revision, run state, checkpoints, and receipt."""
+    from src.kb.research_recipes import ResearchRecipeStore
+
+    return _safe(
+        lambda c: ResearchRecipeStore(c, initialize=False).export(
+            namespace, run_id, scopes={"knowledge:recipes:read"}
+        ),
+        required_scope="knowledge:recipes:read",
     )
 
 
