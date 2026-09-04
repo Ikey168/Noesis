@@ -28,10 +28,21 @@ SUPPORTED_CONNECTORS = frozenset(
     }
 )
 AUTH_KINDS = frozenset({"none", "optional-secret", "required-secret"})
-_SEMVER = re.compile(r"^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:[-+][0-9A-Za-z.-]+)?$")
+_SEMVER = re.compile(
+    r"^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:[-+][0-9A-Za-z.-]+)?$"
+)
 _SHA256 = re.compile(r"^[0-9a-f]{64}$")
 _SECRET_FIELDS = frozenset(
-    {"api_key", "apikey", "authorization", "credential", "password", "secret", "token", "value"}
+    {
+        "api_key",
+        "apikey",
+        "authorization",
+        "credential",
+        "password",
+        "secret",
+        "token",
+        "value",
+    }
 )
 _BUDGET_CEILINGS = {
     "timeout_ms": 120_000,
@@ -87,10 +98,18 @@ def _now() -> int:
 
 
 def _load(value: Any, default: Any) -> Any:
-    return default if value is None else json.loads(value) if isinstance(value, str) else value
+    return (
+        default
+        if value is None
+        else json.loads(value)
+        if isinstance(value, str)
+        else value
+    )
 
 
-def _deep_merge(defaults: Mapping[str, Any], override: Mapping[str, Any]) -> dict[str, Any]:
+def _deep_merge(
+    defaults: Mapping[str, Any], override: Mapping[str, Any]
+) -> dict[str, Any]:
     result = json.loads(json.dumps(defaults))
     for key, value in override.items():
         if isinstance(value, Mapping) and isinstance(result.get(key), Mapping):
@@ -103,23 +122,37 @@ def _deep_merge(defaults: Mapping[str, Any], override: Mapping[str, Any]) -> dic
 def _version(value: str) -> tuple[int, int, int, str]:
     match = _SEMVER.fullmatch(value)
     if not match:
-        raise SourcePackError("invalid_version", "source-pack version must be semantic versioning")
+        raise SourcePackError(
+            "invalid_version", "source-pack version must be semantic versioning"
+        )
     return int(match[1]), int(match[2]), int(match[3]), value
 
 
 def _validate_endpoint(endpoint: str, source_id: str) -> None:
     parsed = urlparse(endpoint)
-    if parsed.scheme != "https" or not parsed.hostname or parsed.username or parsed.password:
-        raise SourcePackError("unsafe_endpoint", f"source {source_id!r} requires a credential-free HTTPS endpoint")
+    if (
+        parsed.scheme != "https"
+        or not parsed.hostname
+        or parsed.username
+        or parsed.password
+    ):
+        raise SourcePackError(
+            "unsafe_endpoint",
+            f"source {source_id!r} requires a credential-free HTTPS endpoint",
+        )
     hostname = parsed.hostname.lower().rstrip(".")
     if hostname == "localhost" or hostname.endswith(".localhost"):
-        raise SourcePackError("unsafe_endpoint", f"source {source_id!r} targets localhost")
+        raise SourcePackError(
+            "unsafe_endpoint", f"source {source_id!r} targets localhost"
+        )
     try:
         address = ipaddress.ip_address(hostname)
     except ValueError:
         return
     if not address.is_global:
-        raise SourcePackError("unsafe_endpoint", f"source {source_id!r} targets a non-public address")
+        raise SourcePackError(
+            "unsafe_endpoint", f"source {source_id!r} targets a non-public address"
+        )
 
 
 def _contains_secret(value: Any, *, parent: str = "") -> bool:
@@ -143,67 +176,126 @@ def validate_source_pack(
     """Validate, expand defaults, and content-address a source pack."""
 
     value = json.loads(json.dumps(manifest))
+    # Validation is deliberately idempotent: installed manifests and API
+    # clients may pass an already-normalized contract back through this gate.
+    value.pop("contract", None)
+    value.pop("manifest_hash", None)
     required = {"pack_id", "version", "description", "domains", "sources"}
     if required - set(value):
         raise SourcePackError("invalid_manifest", "source-pack manifest is incomplete")
     if not str(value["pack_id"]).strip() or not str(value["description"]).strip():
-        raise SourcePackError("invalid_manifest", "source-pack identity and description are required")
+        raise SourcePackError(
+            "invalid_manifest", "source-pack identity and description are required"
+        )
     _version(str(value["version"]))
     domains = value["domains"]
-    if not isinstance(domains, list) or not domains or len(set(domains)) != len(domains):
-        raise SourcePackError("invalid_domain", "source-pack domains must be a non-empty unique list")
+    if (
+        not isinstance(domains, list)
+        or not domains
+        or len(set(domains)) != len(domains)
+    ):
+        raise SourcePackError(
+            "invalid_domain", "source-pack domains must be a non-empty unique list"
+        )
     sources = value["sources"]
     if not isinstance(sources, list) or not sources:
-        raise SourcePackError("invalid_source", "source pack requires at least one source")
+        raise SourcePackError(
+            "invalid_source", "source pack requires at least one source"
+        )
     defaults = dict(value.get("defaults") or {})
     expanded = [_deep_merge(defaults, source) for source in sources]
     source_ids = [str(source.get("source_id", "")) for source in expanded]
-    if any(not source_id for source_id in source_ids) or len(source_ids) != len(set(source_ids)):
-        raise SourcePackError("duplicate_source", "source identifiers must be unique and non-empty")
+    if any(not source_id for source_id in source_ids) or len(source_ids) != len(
+        set(source_ids)
+    ):
+        raise SourcePackError(
+            "duplicate_source", "source identifiers must be unique and non-empty"
+        )
     normalized = []
     for source in expanded:
+        source.pop("source_hash", None)
         source_id = str(source["source_id"])
         connector = str(source.get("connector", ""))
         if connector not in supported_connectors:
-            raise SourcePackError("unknown_connector", f"source {source_id!r} uses unknown connector {connector!r}")
+            raise SourcePackError(
+                "unknown_connector",
+                f"source {source_id!r} uses unknown connector {connector!r}",
+            )
         _validate_endpoint(str(source.get("endpoint", "")), source_id)
         for field in ("publisher", "scope", "update_cadence", "temporal_semantics"):
             if not str(source.get(field, "")).strip():
-                raise SourcePackError("invalid_source", f"source {source_id!r} is missing {field}")
+                raise SourcePackError(
+                    "invalid_source", f"source {source_id!r} is missing {field}"
+                )
         license_policy = dict(source.get("license") or {})
-        if not all(license_policy.get(field) for field in ("id", "terms_url", "redistribution")):
-            raise SourcePackError("missing_terms", f"source {source_id!r} needs license and redistribution policy")
+        if not all(
+            license_policy.get(field) for field in ("id", "terms_url", "redistribution")
+        ):
+            raise SourcePackError(
+                "missing_terms",
+                f"source {source_id!r} needs license and redistribution policy",
+            )
         _validate_endpoint(str(license_policy["terms_url"]), source_id + ":terms")
         mapping = dict(source.get("mapping") or {})
         if not mapping.get("target_schema") or not mapping.get("version"):
-            raise SourcePackError("invalid_mapping", f"source {source_id!r} needs a versioned mapping")
+            raise SourcePackError(
+                "invalid_mapping", f"source {source_id!r} needs a versioned mapping"
+            )
         if not source.get("extractor_versions"):
-            raise SourcePackError("invalid_mapping", f"source {source_id!r} needs pinned extractor versions")
+            raise SourcePackError(
+                "invalid_mapping",
+                f"source {source_id!r} needs pinned extractor versions",
+            )
         auth = dict(source.get("auth") or {})
         if auth.get("kind") not in AUTH_KINDS:
-            raise SourcePackError("invalid_auth", f"source {source_id!r} has invalid auth policy")
-        if auth["kind"] != "none" and not str(auth.get("secret_ref", "")).startswith("NOESIS_"):
-            raise SourcePackError("invalid_auth", f"source {source_id!r} requires a NOESIS_ secret reference")
+            raise SourcePackError(
+                "invalid_auth", f"source {source_id!r} has invalid auth policy"
+            )
+        if auth["kind"] != "none" and not str(auth.get("secret_ref", "")).startswith(
+            "NOESIS_"
+        ):
+            raise SourcePackError(
+                "invalid_auth",
+                f"source {source_id!r} requires a NOESIS_ secret reference",
+            )
         if auth["kind"] == "none" and set(auth) - {"kind"}:
-            raise SourcePackError("invalid_auth", f"source {source_id!r} declares secret data for unauthenticated access")
+            raise SourcePackError(
+                "invalid_auth",
+                f"source {source_id!r} declares secret data for unauthenticated access",
+            )
         budgets = dict(source.get("budgets") or {})
         for field, ceiling in _BUDGET_CEILINGS.items():
             try:
                 amount = int(budgets[field])
             except (KeyError, TypeError, ValueError) as exc:
-                raise SourcePackError("unbounded_source", f"source {source_id!r} needs {field}") from exc
+                raise SourcePackError(
+                    "unbounded_source", f"source {source_id!r} needs {field}"
+                ) from exc
             if amount < 1 or amount > ceiling:
-                raise SourcePackError("unbounded_source", f"source {source_id!r} has unsafe {field}")
+                raise SourcePackError(
+                    "unbounded_source", f"source {source_id!r} has unsafe {field}"
+                )
             budgets[field] = amount
         fixture = dict(source.get("fixture") or {})
-        if not fixture.get("path") or not _SHA256.fullmatch(str(fixture.get("sha256", ""))):
-            raise SourcePackError("unpinned_fixture", f"source {source_id!r} needs a pinned fixture")
+        if not fixture.get("path") or not _SHA256.fullmatch(
+            str(fixture.get("sha256", ""))
+        ):
+            raise SourcePackError(
+                "unpinned_fixture", f"source {source_id!r} needs a pinned fixture"
+            )
         if not _SHA256.fullmatch(str(fixture.get("expected_output_hash", ""))):
-            raise SourcePackError("unpinned_fixture", f"source {source_id!r} needs expected normalized output")
+            raise SourcePackError(
+                "unpinned_fixture",
+                f"source {source_id!r} needs expected normalized output",
+            )
         if not source.get("operations"):
-            raise SourcePackError("invalid_source", f"source {source_id!r} needs declared operations")
+            raise SourcePackError(
+                "invalid_source", f"source {source_id!r} needs declared operations"
+            )
         if _contains_secret(source):
-            raise SourcePackError("embedded_secret", f"source {source_id!r} embeds credential material")
+            raise SourcePackError(
+                "embedded_secret", f"source {source_id!r} embeds credential material"
+            )
         source["budgets"] = budgets
         source["operations"] = sorted(set(source["operations"]))
         source["extractor_versions"] = sorted(set(source["extractor_versions"]))
@@ -236,11 +328,25 @@ class SourcePackStore:
         if initialize:
             conn.execute(_DDL)
 
-    def _audit(self, pack_id: str, principal_id: str, action: str, detail: Mapping[str, Any], now_ms: int) -> None:
+    def _audit(
+        self,
+        pack_id: str,
+        principal_id: str,
+        action: str,
+        detail: Mapping[str, Any],
+        now_ms: int,
+    ) -> None:
         identity = [pack_id, principal_id, action, detail, now_ms]
         self.conn.execute(
             "INSERT INTO source_pack_audit VALUES (?,?,?,?,?,?)",
-            ["source-pack-audit:" + _digest(identity)[:24], pack_id, principal_id, action, _canonical(detail), now_ms],
+            [
+                "source-pack-audit:" + _digest(identity)[:24],
+                pack_id,
+                principal_id,
+                action,
+                _canonical(detail),
+                now_ms,
+            ],
         )
 
     def install(
@@ -252,6 +358,11 @@ class SourcePackStore:
         now_ms: int | None = None,
     ) -> dict[str, Any]:
         value = validate_source_pack(manifest)
+        # Source-pack installation is the schema migration boundary for both
+        # the declarative registry and its durable execution state.
+        from src.ingestion.source_pack_runtime import ensure_runtime_schema
+
+        ensure_runtime_schema(self.conn)
         now = now_ms or _now()
         prior = self.conn.execute(
             "SELECT manifest_hash FROM source_pack_versions WHERE pack_id=? AND version=?",
@@ -259,20 +370,32 @@ class SourcePackStore:
         ).fetchone()
         if prior:
             if prior[0] != value["manifest_hash"]:
-                raise SourcePackError("immutable_version", "installed pack version has different content")
+                raise SourcePackError(
+                    "immutable_version", "installed pack version has different content"
+                )
             result = self.status(value["pack_id"])
             result["idempotent"] = True
             return result
         current = self.conn.execute(
-            "SELECT version,enabled FROM source_pack_current WHERE pack_id=?", [value["pack_id"]]
+            "SELECT version,enabled FROM source_pack_current WHERE pack_id=?",
+            [value["pack_id"]],
         ).fetchone()
         if current and _version(value["version"]) < _version(str(current[0])):
-            raise SourcePackError("version_downgrade", "source packs cannot be downgraded in place")
+            raise SourcePackError(
+                "version_downgrade", "source packs cannot be downgraded in place"
+            )
         self.conn.execute("BEGIN")
         try:
             self.conn.execute(
                 "INSERT INTO source_pack_versions VALUES (?,?,?,?,?,?)",
-                [value["pack_id"], value["version"], value["manifest_hash"], _canonical(value), principal_id, now],
+                [
+                    value["pack_id"],
+                    value["version"],
+                    value["manifest_hash"],
+                    _canonical(value),
+                    principal_id,
+                    now,
+                ],
             )
             enabled = bool(enable or current and current[1])
             if current:
@@ -285,7 +408,13 @@ class SourcePackStore:
                     "INSERT INTO source_pack_current VALUES (?,?,?,?)",
                     [value["pack_id"], value["version"], enabled, now],
                 )
-            self._audit(value["pack_id"], principal_id, "install", {"version": value["version"], "enabled": enabled}, now)
+            self._audit(
+                value["pack_id"],
+                principal_id,
+                "install",
+                {"version": value["version"], "enabled": enabled},
+                now,
+            )
             self.conn.execute("COMMIT")
         except Exception:
             self.conn.execute("ROLLBACK")
@@ -293,9 +422,16 @@ class SourcePackStore:
         return self.status(value["pack_id"])
 
     def set_enabled(
-        self, pack_id: str, enabled: bool, *, principal_id: str, now_ms: int | None = None
+        self,
+        pack_id: str,
+        enabled: bool,
+        *,
+        principal_id: str,
+        now_ms: int | None = None,
     ) -> dict[str, Any]:
-        if not self.conn.execute("SELECT 1 FROM source_pack_current WHERE pack_id=?", [pack_id]).fetchone():
+        if not self.conn.execute(
+            "SELECT 1 FROM source_pack_current WHERE pack_id=?", [pack_id]
+        ).fetchone():
             raise SourcePackError("not_found", "source pack is not installed")
         now = now_ms or _now()
         self.conn.execute(
@@ -335,7 +471,11 @@ class SourcePackStore:
                 {
                     "source_id": source["source_id"],
                     "connector": source["connector"],
-                    "authentication": {"kind": auth["kind"], "secret_ref": auth.get("secret_ref"), "ready": ready},
+                    "authentication": {
+                        "kind": auth["kind"],
+                        "secret_ref": auth.get("secret_ref"),
+                        "ready": ready,
+                    },
                     "health": None
                     if health is None
                     else {
@@ -358,7 +498,9 @@ class SourcePackStore:
         }
 
     def list(self) -> list[dict[str, Any]]:
-        rows = self.conn.execute("SELECT pack_id FROM source_pack_current ORDER BY pack_id").fetchall()
+        rows = self.conn.execute(
+            "SELECT pack_id FROM source_pack_current ORDER BY pack_id"
+        ).fetchall()
         return [self.status(row[0]) for row in rows]
 
     def record_health(
@@ -375,7 +517,9 @@ class SourcePackStore:
             raise SourcePackError("invalid_health", "unsupported source health status")
         pack = self.status(pack_id)
         if source_id not in {source["source_id"] for source in pack["sources"]}:
-            raise SourcePackError("not_found", "source does not belong to the installed pack")
+            raise SourcePackError(
+                "not_found", "source does not belong to the installed pack"
+            )
         safe_detail = {
             key: value
             for key, value in dict(detail or {}).items()
@@ -387,32 +531,54 @@ class SourcePackStore:
                 "quota_remaining",
                 "schema_hash",
                 "last_receipt",
+                "last_watermark",
                 "message",
             }
         }
         if _contains_secret(safe_detail):
-            raise SourcePackError("embedded_secret", "health output contains credential material")
+            raise SourcePackError(
+                "embedded_secret", "health output contains credential material"
+            )
         now = checked_at_ms or _now()
         self.conn.execute(
-            "DELETE FROM source_pack_health WHERE pack_id=? AND source_id=?", [pack_id, source_id]
+            "DELETE FROM source_pack_health WHERE pack_id=? AND source_id=?",
+            [pack_id, source_id],
         )
         self.conn.execute(
             "INSERT INTO source_pack_health VALUES (?,?,?,?,?,?)",
             [pack_id, source_id, now, status, classification, _canonical(safe_detail)],
         )
-        return {"pack_id": pack_id, "source_id": source_id, "status": status, "classification": classification, "checked_at_ms": now, "detail": safe_detail}
+        return {
+            "pack_id": pack_id,
+            "source_id": source_id,
+            "status": status,
+            "classification": classification,
+            "checked_at_ms": now,
+            "detail": safe_detail,
+        }
 
     def coverage(self) -> dict[str, Any]:
         packs = self.list()
         by_domain: dict[str, dict[str, int]] = {}
         for pack in packs:
             for domain in pack["domains"]:
-                summary = by_domain.setdefault(domain, {"packs": 0, "sources": 0, "ready": 0, "healthy": 0})
+                summary = by_domain.setdefault(
+                    domain, {"packs": 0, "sources": 0, "ready": 0, "healthy": 0}
+                )
                 summary["packs"] += 1
                 summary["sources"] += len(pack["sources"])
-                summary["ready"] += sum(source["authentication"]["ready"] for source in pack["sources"])
-                summary["healthy"] += sum((source["health"] or {}).get("status") == "healthy" for source in pack["sources"])
-        return {"contract": "noesis-source-pack-coverage-v1", "domains": by_domain, "packs": len(packs)}
+                summary["ready"] += sum(
+                    source["authentication"]["ready"] for source in pack["sources"]
+                )
+                summary["healthy"] += sum(
+                    (source["health"] or {}).get("status") == "healthy"
+                    for source in pack["sources"]
+                )
+        return {
+            "contract": "noesis-source-pack-coverage-v1",
+            "domains": by_domain,
+            "packs": len(packs),
+        }
 
 
 class SourcePackConformance:
@@ -426,26 +592,40 @@ class SourcePackConformance:
         try:
             path.relative_to(self.root)
         except ValueError as exc:
-            raise SourcePackError("unsafe_fixture", "fixture escapes the repository root") from exc
+            raise SourcePackError(
+                "unsafe_fixture", "fixture escapes the repository root"
+            ) from exc
         if not path.is_file():
-            raise SourcePackError("fixture_missing", f"fixture does not exist: {path.name}")
+            raise SourcePackError(
+                "fixture_missing", f"fixture does not exist: {path.name}"
+            )
         raw = path.read_bytes()
         if hashlib.sha256(raw).hexdigest() != source["fixture"]["sha256"]:
-            raise SourcePackError("fixture_drift", f"fixture hash changed for {source['source_id']}")
+            raise SourcePackError(
+                "fixture_drift", f"fixture hash changed for {source['source_id']}"
+            )
         return json.loads(raw)
 
     def offline(
         self,
         manifest: Mapping[str, Any],
         *,
-        runners: Mapping[str, Callable[[Mapping[str, Any], Mapping[str, Any]], Sequence[Mapping[str, Any]]]] | None = None,
+        runners: Mapping[
+            str,
+            Callable[
+                [Mapping[str, Any], Mapping[str, Any]], Sequence[Mapping[str, Any]]
+            ],
+        ]
+        | None = None,
     ) -> dict[str, Any]:
         pack = validate_source_pack(manifest)
         results = []
         for source in pack["sources"]:
             fixture = self._fixture(source)
             runner = (runners or {}).get(source["connector"])
-            normalized = list(runner(source, fixture) if runner else fixture.get("normalized") or [])
+            normalized = list(
+                runner(source, fixture) if runner else fixture.get("normalized") or []
+            )
             output_hash = _digest(normalized)
             valid = output_hash == source["fixture"]["expected_output_hash"]
             results.append(
@@ -466,23 +646,37 @@ class SourcePackConformance:
             "offline": True,
             "valid": all(item["valid"] for item in results),
             "sources": results,
-            "coverage": {"configured": len(results), "verified": sum(item["valid"] for item in results)},
+            "coverage": {
+                "configured": len(results),
+                "verified": sum(item["valid"] for item in results),
+            },
         }
 
     @staticmethod
     def classify(error: BaseException) -> str:
         code = str(getattr(error, "code", "")).lower()
         message = str(error).lower()
-        if "auth" in code or "credential" in message or "401" in message or "403" in message:
+        if "license" in code or "license" in message or "terms" in code:
+            return "licensing"
+        if (
+            "auth" in code
+            or "credential" in message
+            or "401" in message
+            or "403" in message
+        ):
             return "authentication"
         if "rate" in code or "429" in message:
             return "rate-limiting"
+        if "quota" in code or "quota" in message:
+            return "quota"
         if "schema" in code or "mapping" in code:
             return "provider-drift"
         if "config" in code:
             return "configuration"
         if "timeout" in code or "unavailable" in code or "timeout" in message:
             return "transient-availability"
+        if "permanent" in code or "bad_request" in code or "400" in message:
+            return "permanent-source-failure"
         return "noesis-regression"
 
     def live(
@@ -495,14 +689,52 @@ class SourcePackConformance:
     ) -> dict[str, Any]:
         pack = validate_source_pack(manifest)
         if not enabled:
-            return {"contract": CONFORMANCE_CONTRACT, "pack_id": pack["pack_id"], "live": False, "status": "disabled", "requests": 0, "sources": []}
+            return {
+                "contract": CONFORMANCE_CONTRACT,
+                "pack_id": pack["pack_id"],
+                "live": False,
+                "status": "disabled",
+                "requests": 0,
+                "sources": [],
+            }
         limit = min(max(1, int(max_requests)), 25)
         results = []
         for source in pack["sources"][:limit]:
             try:
                 detail = dict(probe(source))
-                safe = {key: detail[key] for key in ("schema_hash", "freshness_lag_s", "quota_remaining", "cursor", "last_receipt") if key in detail}
-                results.append({"source_id": source["source_id"], "status": "healthy", "classification": "ok", "detail": safe})
+                safe = {
+                    key: detail[key]
+                    for key in (
+                        "schema_hash",
+                        "freshness_lag_s",
+                        "quota_remaining",
+                        "cursor",
+                        "last_receipt",
+                    )
+                    if key in detail
+                }
+                results.append(
+                    {
+                        "source_id": source["source_id"],
+                        "status": "healthy",
+                        "classification": "ok",
+                        "detail": safe,
+                    }
+                )
             except Exception as exc:  # noqa: BLE001 - one source cannot hide the others
-                results.append({"source_id": source["source_id"], "status": "unavailable", "classification": self.classify(exc), "detail": {"message": str(exc)[:200]}})
-        return {"contract": CONFORMANCE_CONTRACT, "pack_id": pack["pack_id"], "live": True, "status": "complete", "requests": len(results), "sources": results}
+                results.append(
+                    {
+                        "source_id": source["source_id"],
+                        "status": "unavailable",
+                        "classification": self.classify(exc),
+                        "detail": {"message": str(exc)[:200]},
+                    }
+                )
+        return {
+            "contract": CONFORMANCE_CONTRACT,
+            "pack_id": pack["pack_id"],
+            "live": True,
+            "status": "complete",
+            "requests": len(results),
+            "sources": results,
+        }

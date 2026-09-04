@@ -67,6 +67,10 @@ MUTATION_NAMES = frozenset(
         "watch_resume",
         "watch_scan",
         "resolve_event_report",
+        "accept_source_pack_license",
+        "cancel_source_pack_run",
+        "install_source_pack",
+        "retry_source_pack_quarantine",
     }
 )
 

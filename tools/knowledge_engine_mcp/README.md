@@ -16,6 +16,12 @@ inspect the built-in research, political, economic, OSINT, technical, and
 scientific connector configurations. Default conformance is fixture-backed and
 network-free; live probes remain an explicit operator action.
 
+The source-pack execution surface adds license and network preflight, durable
+incremental and backfill runs, page checkpoints, quarantine retry, circuit
+breakers, schedules, cancellation, receipts, replay, and domain coverage.
+Execution uses pinned fixtures unless a caller explicitly enables live network
+access.
+
 Unified query tools expose authorized capability discovery, deterministic plan
 explanation, bounded execution, cooperative cancellation, replay, and
 evaluation. They compose local domain and temporal stores with optional memory

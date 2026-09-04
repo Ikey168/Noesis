@@ -373,6 +373,10 @@ source-pack-check:
 	@echo "Validating production source packs and replaying pinned fixtures..."
 	python3 scripts/source_pack_conformance.py
 
+source-pack-runtime-check:
+	@echo "Executing all production source packs against pinned fixtures..."
+	python3 scripts/source_pack_runtime_reference.py
+
 unified-query-check:
 	@echo "Running the unified Knowledge Engine query conformance suite..."
 	python3 scripts/unified_query_conformance.py
