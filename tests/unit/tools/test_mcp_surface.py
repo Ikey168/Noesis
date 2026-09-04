@@ -37,6 +37,7 @@ READ_SMOKES = {
     "federation_mcp": ("federation_contract", {}),
     "kb_mcp": ("kb_domains", {}),
     "kg_mcp": ("kg_stats", {}),
+    "knowledge_engine_mcp": ("knowledge_engine_capabilities", {}),
     "lineage_mcp": ("list_namespaces", {}),
     "memory_mcp": ("memory_capabilities", {}),
     "monitoring_mcp": ("current_metrics", {}),
@@ -105,6 +106,12 @@ DOCUMENTED_WRITES = {
     ("memory_mcp", "import_standard_mcp_memory"),
     ("memory_mcp", "remember_memory"),
     ("memory_mcp", "set_memory_policy"),
+    ("knowledge_engine_mcp", "execute_artifact_rebuild"),
+    ("knowledge_engine_mcp", "merge_canonical_events"),
+    ("knowledge_engine_mcp", "register_derived_artifact"),
+    ("knowledge_engine_mcp", "register_extractor"),
+    ("knowledge_engine_mcp", "resolve_event_report"),
+    ("knowledge_engine_mcp", "reverse_event_merge"),
 }
 
 # Analytics whose advertised output contract must be machine-checkable before

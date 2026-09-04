@@ -67,8 +67,27 @@ def test_sql_adapter_typed_queries_injection_and_partial_schema(tmp_path: Path) 
     )
     assert result["items"][0]["value"] == {"id": "b", "value": 4}
     assert adapter.query({"table": "facts", "operation": "aggregate", "columns": ["value"], "aggregate": "avg"}, scopes=SCOPES)["items"][0]["value"]["value"] == 3
+    first_page=adapter.query({"table":"facts","columns":["id"],"limit":1},scopes=SCOPES)
+    assert adapter.query({"table":"facts","columns":["id"],"limit":1,"cursor":first_page["cursor"]},scopes=SCOPES)["items"][0]["value"]["id"]=="b"
     for bad in ({"sql": "DROP TABLE facts"}, {"table": "facts; DROP TABLE facts"}, {"table": "facts", "columns": ["private"]}):
         with pytest.raises(FederationError): adapter.query(bad, scopes=SCOPES)
+
+
+def test_postgresql_parameter_style_fixture() -> None:
+    class Connection:
+        def __init__(self): self.description=[("id",)];self.statements=[];self.rows=[]
+        def execute(self,sql,params):
+            self.statements.append((sql,params));self.rows=[("id","text")] if "information_schema" in sql else [("a",)];self.description=[("column_name",),("data_type",)] if "information_schema" in sql else [("id",)];return self
+        def fetchall(self): return self.rows
+        def close(self): pass
+    connections=[]
+    def connect():
+        value=Connection();connections.append(value);return value
+    adapter=SQLKnowledgeAdapter("postgres-fixture",connect,{"facts":["id"]},dialect="postgresql")
+    assert adapter.discover_schema(scopes=SCOPES)["tables"]["facts"]==[{"name":"id","type":"text"}]
+    assert adapter.query({"table":"facts","columns":["id"],"filters":[{"column":"id","operator":"eq","value":"a"}]},scopes=SCOPES)["items"]
+    statement,params=connections[-1].statements[-1]
+    assert "%s" in statement and "'a'" not in statement and params[0]=="a"
 
 
 class _MCP:
@@ -121,3 +140,16 @@ def test_federated_plan_merge_partial_failure_contradictions_and_replay() -> Non
     evaluation = engine.evaluate(complete, expected_ids=["same", "missing"])
     assert evaluation["recall"] == .5
     assert evaluation["provenance_completeness"] == 1
+
+
+def test_federated_retry_budget_and_cancellation() -> None:
+    class Flaky(FakeKnowledgeAdapter):
+        def query(self, request, *, scopes):
+            if len(self.calls)==0:
+                self.calls.append(dict(request))
+                raise FederationError("source_unavailable","retry")
+            return super().query(request,scopes=scopes)
+    adapter=Flaky("flaky",[{"id":"a"},{"id":"b"}]);engine=FederatedQueryEngine(FederationRegistry([adapter]))
+    result=engine.execute({"capability":"search","max_retries":1,"source_budgets":{"flaky":{"max_results":1}}},scopes=SCOPES)
+    assert len(result["results"])==1 and result["results"][0]["evidence"][0]["provenance"]["attempts"]==2
+    assert engine.execute({"capability":"search"},scopes=SCOPES,cancelled=lambda:True)["cancelled"]

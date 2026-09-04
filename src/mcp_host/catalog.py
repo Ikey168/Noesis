@@ -45,6 +45,7 @@ MUTATION_PREFIXES = (
     "harvest_",
     "ingest_",
     "register_",
+    "reverse_",
     "rollback_",
     "run_",
     "set_",
@@ -65,6 +66,7 @@ MUTATION_NAMES = frozenset(
         "watch_pause",
         "watch_resume",
         "watch_scan",
+        "resolve_event_report",
     }
 )
 
@@ -172,6 +174,8 @@ def _required_data(server_stem: str, tool_name: str) -> list[str]:
         return ["portable-namespace-store"]
     if server_stem == "memory_mcp":
         return ["knowledge-memory-store"]
+    if server_stem == "knowledge_engine_mcp":
+        return ["knowledge-engine-runtime"]
     if server_stem == "contract_mcp":
         return ["contract-schemas"]
     if server_stem == "schema_mcp":
@@ -232,6 +236,8 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
         if tool_name.startswith(("set_","apply_")):
             return ["knowledge:memory:admin"]
         return ["knowledge:memory:read"]
+    if server_stem == "knowledge_engine_mcp":
+        return ["operator"] if mutability == "write" else ["knowledge:read"]
     if mutability == "write" or server_stem in SENSITIVE_SERVERS:
         return ["operator"]
     if server_stem in {"catalog_mcp", "contract_mcp", "schema_mcp"}:

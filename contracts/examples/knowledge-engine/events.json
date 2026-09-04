@@ -1,0 +1,7 @@
+[
+  {"domain":"political","event_type":"election","participants":["candidate-a"],"location":{"country":"DE"},"time":{"start_ms":1000,"end_ms":2000},"evidence":[{"source":"official"}]},
+  {"domain":"economic","event_type":"rate-decision","participants":["central-bank"],"location":{"country":"EU"},"time":{"start_ms":3000,"end_ms":3000},"evidence":[{"source":"release"}]},
+  {"domain":"osint","event_type":"infrastructure-incident","participants":["facility-x"],"location":{"geohash":"u33"},"time":{"start_ms":4000,"end_ms":5000},"evidence":[{"source":"imagery"}]},
+  {"domain":"technical","event_type":"software-release","participants":["project-y"],"location":null,"time":{"start_ms":6000,"end_ms":6000},"evidence":[{"source":"repository"}]},
+  {"domain":"scientific","event_type":"study-publication","participants":["team-z"],"location":null,"time":{"start_ms":7000,"end_ms":7000},"evidence":[{"source":"doi"}]}
+]

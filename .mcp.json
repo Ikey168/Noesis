@@ -222,6 +222,12 @@
       "command": "python3",
       "args": ["tools/memory_mcp/server.py"],
       "env": {}
+    },
+    "noesis-knowledge-engine": {
+      "type": "stdio",
+      "command": "python3",
+      "args": ["tools/knowledge_engine_mcp/server.py"],
+      "env": {}
     }
   },
   "compatibilityAliases": {

@@ -1,0 +1,1 @@
+{"name":"fixture-claims","semantic_version":"1.0.0","capabilities":["claim"],"accepted_object_types":["Document"],"output_schemas":{"claim":"noesis-claim-v1"},"implementation":{"rule_version":"rules-1"},"configuration":{"minimum_length":10},"resources":{"cpu":1,"memory_mb":128}}

@@ -165,6 +165,7 @@ stand up new knowledge graphs at runtime.
 | `noesis-subscriptions` | Durable saved queries, committed-watermark change events, opaque polling, and neutral delivery hooks |
 | `noesis-namespaces` | Deterministic content-addressed namespace export/import, redaction, signatures, and encryption |
 | `noesis-memory` | Provenance-native scoped memory, lifecycle and contradiction policy, and standard MCP interoperability |
+| `noesis-knowledge-engine` | Declarative API ingestion, pluggable extraction, canonical events, and selective artifact rebuilds |
 
 ---
 
