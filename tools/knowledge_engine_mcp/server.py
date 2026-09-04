@@ -172,6 +172,11 @@ def knowledge_engine_capabilities() -> dict:
             "noesis-research-recipe-run-v1",
             "noesis-research-recipe-receipt-v1",
             "noesis-research-recipe-export-v1",
+            "noesis-quality-policy-v1",
+            "noesis-quality-assessment-v1",
+            "noesis-quality-collection-v1",
+            "noesis-quality-ranking-v1",
+            "noesis-quality-health-v1",
             "noesis-maintenance-job-request-v1",
             "noesis-maintenance-job-receipt-v1",
             "noesis-knowledge-generation-v1",
@@ -261,6 +266,10 @@ def knowledge_engine_capabilities() -> dict:
             "checkpointed-resumable-recipe-runs",
             "secret-safe-per-step-policy-gates",
             "snapshot-and-tool-version-pinned-replay",
+            "multidimensional-auditable-quality",
+            "correlation-aware-calibrated-aggregation",
+            "non-erasing-quality-aware-ranking",
+            "side-effect-free-quality-policy-simulation",
             "knowledge-maintenance",
             "lease-safe-workers",
             "committed-generations",
@@ -6114,6 +6123,262 @@ def export_research_recipe_run(namespace: str, run_id: str) -> dict:
             namespace, run_id, scopes={"knowledge:recipes:read"}
         ),
         required_scope="knowledge:recipes:read",
+    )
+
+
+@mcp.tool()
+def register_quality_policy(
+    namespace: str,
+    policy_id: str,
+    version: str,
+    dimensions: dict[str, dict[str, Any]],
+    domain_overrides: dict[str, Any] | None = None,
+    calibration: dict[str, Any] | None = None,
+    threshold: float = 0.5,
+    generation: int = 0,
+    valid_from_ms: int | None = None,
+    valid_to_ms: int | None = None,
+    observed_at_ms: int | None = None,
+    producer: dict[str, Any] | None = None,
+    policy_context: dict[str, Any] | None = None,
+    provenance: dict[str, Any] | None = None,
+) -> dict:
+    """Register versioned quality dimensions, defaults, overrides, and calibration."""
+    from src.kb.knowledge_quality import QualityStore
+
+    return _safe(
+        lambda c: QualityStore(c).register_policy(
+            namespace,
+            policy_id,
+            version,
+            dimensions,
+            domain_overrides=domain_overrides,
+            calibration=calibration,
+            threshold=threshold,
+            generation=generation,
+            valid_from_ms=valid_from_ms,
+            valid_to_ms=valid_to_ms,
+            observed_at_ms=observed_at_ms,
+            producer=producer,
+            policy_context=policy_context,
+            provenance=provenance,
+            principal_id=_context()[0],
+            scopes={"knowledge:quality:write"},
+        ),
+        write=True,
+        required_scope="knowledge:quality:write",
+    )
+
+
+@mcp.tool()
+def get_quality_policy(namespace: str, policy_revision_id: str) -> dict:
+    """Read an exact multidimensional quality policy."""
+    from src.kb.knowledge_quality import QualityStore
+
+    return _safe(
+        lambda c: QualityStore(c, initialize=False).policy(
+            namespace, policy_revision_id, scopes={"knowledge:quality:read"}
+        ),
+        required_scope="knowledge:quality:read",
+    )
+
+
+@mcp.tool()
+def assess_knowledge_quality(
+    namespace: str,
+    object_type: str,
+    object_id: str,
+    generation: int,
+    policy_revision_id: str,
+    features: dict[str, Any],
+    input_lineage: list[dict[str, Any]],
+    domain: str | None = None,
+    valid_from_ms: int | None = None,
+    valid_to_ms: int | None = None,
+    observed_at_ms: int | None = None,
+    producer: dict[str, Any] | None = None,
+    policy_context: dict[str, Any] | None = None,
+    provenance: dict[str, Any] | None = None,
+    cancel_requested: bool = False,
+) -> dict:
+    """Compute auditable per-dimension features with exact input lineage."""
+    from src.kb.knowledge_quality import QualityStore
+
+    return _safe(
+        lambda c: QualityStore(c).assess(
+            namespace,
+            object_type,
+            object_id,
+            generation,
+            policy_revision_id,
+            features,
+            input_lineage=input_lineage,
+            domain=domain,
+            valid_from_ms=valid_from_ms,
+            valid_to_ms=valid_to_ms,
+            observed_at_ms=observed_at_ms,
+            producer=producer,
+            policy_context=policy_context,
+            provenance=provenance,
+            cancel_requested=cancel_requested,
+            principal_id=_context()[0],
+            scopes={"knowledge:quality:calculate"},
+        ),
+        write=True,
+        required_scope="knowledge:quality:calculate",
+    )
+
+
+@mcp.tool()
+def get_quality_assessment(namespace: str, assessment_id: str) -> dict:
+    """Inspect dimensions, uncertainty, defaults, flags, and lineage."""
+    from src.kb.knowledge_quality import QualityStore
+
+    return _safe(
+        lambda c: QualityStore(c, initialize=False).get(
+            namespace, assessment_id, scopes={"knowledge:quality:read"}
+        ),
+        required_scope="knowledge:quality:read",
+    )
+
+
+@mcp.tool()
+def replay_quality_assessment(namespace: str, assessment_id: str) -> dict:
+    """Verify a quality assessment against its deterministic hash."""
+    from src.kb.knowledge_quality import QualityStore
+
+    return _safe(
+        lambda c: QualityStore(c, initialize=False).replay(
+            namespace, assessment_id, scopes={"knowledge:quality:read"}
+        ),
+        required_scope="knowledge:quality:read",
+    )
+
+
+@mcp.tool()
+def aggregate_quality_assessments(
+    namespace: str,
+    assessment_ids: list[str],
+    limit: int = 500,
+    calibration_samples: list[float] | None = None,
+    reference_distribution: dict[str, Any] | None = None,
+) -> dict:
+    """Aggregate bounded assessments with correlation and calibration warnings."""
+    from src.kb.knowledge_quality import QualityStore
+
+    return _safe(
+        lambda c: QualityStore(c, initialize=False).collection(
+            namespace,
+            assessment_ids,
+            limit=limit,
+            calibration_samples=calibration_samples,
+            reference_distribution=reference_distribution,
+            scopes={"knowledge:quality:calculate"},
+        ),
+        required_scope="knowledge:quality:calculate",
+    )
+
+
+@mcp.tool()
+def rank_by_quality(
+    namespace: str,
+    assessment_ids: list[str],
+    threshold: float | None = None,
+    descending: bool = True,
+    user_overrides: dict[str, float] | None = None,
+) -> dict:
+    """Rank while retaining low-scored evidence and exposing every dimension."""
+    from src.kb.knowledge_quality import QualityStore
+
+    return _safe(
+        lambda c: QualityStore(c, initialize=False).rank(
+            namespace,
+            assessment_ids,
+            threshold=threshold,
+            descending=descending,
+            user_overrides=user_overrides,
+            scopes={"knowledge:quality:read"},
+        ),
+        required_scope="knowledge:quality:read",
+    )
+
+
+@mcp.tool()
+def simulate_quality_policy(
+    namespace: str, assessment_ids: list[str], policy_revision_id: str
+) -> dict:
+    """Simulate a policy without modifying stored assessments."""
+    from src.kb.knowledge_quality import QualityStore
+
+    return _safe(
+        lambda c: QualityStore(c, initialize=False).simulate(
+            namespace,
+            assessment_ids,
+            policy_revision_id,
+            scopes={"knowledge:quality:read"},
+        ),
+        required_scope="knowledge:quality:read",
+    )
+
+
+@mcp.tool()
+def compare_quality_policies(
+    namespace: str, left_policy_revision_id: str, right_policy_revision_id: str
+) -> dict:
+    """Compare dimension definitions, weights, defaults, and thresholds."""
+    from src.kb.knowledge_quality import QualityStore
+
+    return _safe(
+        lambda c: QualityStore(c, initialize=False).compare_policies(
+            namespace,
+            left_policy_revision_id,
+            right_policy_revision_id,
+            scopes={"knowledge:quality:read"},
+        ),
+        required_scope="knowledge:quality:read",
+    )
+
+
+@mcp.tool()
+def review_quality_override(
+    namespace: str,
+    object_id: str,
+    dimension: str,
+    value: float,
+    reason: str,
+    reviewer_id: str,
+) -> dict:
+    """Record an explicit human quality override without rewriting evidence."""
+    from src.kb.knowledge_quality import QualityStore
+
+    return _safe(
+        lambda c: QualityStore(c).override(
+            namespace,
+            object_id,
+            dimension,
+            value,
+            reason,
+            reviewer_id=reviewer_id,
+            principal_id=_context()[0],
+            scopes={"knowledge:quality:review"},
+        ),
+        write=True,
+        required_scope="knowledge:quality:review",
+    )
+
+
+@mcp.tool()
+def inspect_quality_health(
+    namespace: str, assessment_ids: list[str], limit: int = 500
+) -> dict:
+    """Report coverage gaps and degraded inputs without deleting assessments."""
+    from src.kb.knowledge_quality import QualityStore
+
+    return _safe(
+        lambda c: QualityStore(c, initialize=False).health(
+            namespace, assessment_ids, limit=limit, scopes={"knowledge:quality:read"}
+        ),
+        required_scope="knowledge:quality:read",
     )
 
 
