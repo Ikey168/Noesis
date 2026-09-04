@@ -187,6 +187,11 @@ def knowledge_engine_capabilities() -> dict:
             "noesis-cross-language-claim-alignment-v1",
             "noesis-translation-record-v1",
             "noesis-multilingual-search-v1",
+            "noesis-access-view-policy-v1",
+            "noesis-access-decision-v1",
+            "noesis-redacted-projection-v1",
+            "noesis-share-grant-v1",
+            "noesis-access-view-health-v1",
             "noesis-maintenance-job-request-v1",
             "noesis-maintenance-job-receipt-v1",
             "noesis-knowledge-generation-v1",
@@ -289,6 +294,11 @@ def knowledge_engine_capabilities() -> dict:
             "ambiguity-preserving-cross-language-claim-alignment",
             "versioned-translation-provenance",
             "language-fair-multilingual-search",
+            "versioned-default-deny-knowledge-views",
+            "pre-ranking-access-enforcement",
+            "lineage-safe-redacted-projections",
+            "recipient-bound-watermarked-exports",
+            "non-disclosing-access-decisions",
             "knowledge-maintenance",
             "lease-safe-workers",
             "committed-generations",
@@ -6947,6 +6957,290 @@ def multilingual_search(
             scopes={"knowledge:cross-language:read"},
         ),
         required_scope="knowledge:cross-language:read",
+    )
+
+
+@mcp.tool()
+def register_access_view_policy(
+    namespace: str,
+    policy_id: str,
+    version: int,
+    rules: dict[str, Any],
+    status: str = "active",
+) -> dict:
+    """Register an immutable, versioned default-deny knowledge-view policy."""
+    from src.kb.access_views import AccessViewStore
+
+    return _safe(
+        lambda c: AccessViewStore(c).register_policy(
+            namespace,
+            policy_id,
+            version,
+            rules,
+            status=status,
+            principal_id=_context()[0],
+            scopes={"knowledge:views:admin"},
+        ),
+        write=True,
+        required_scope="knowledge:views:admin",
+    )
+
+
+@mcp.tool()
+def register_access_bound_object(
+    namespace: str,
+    object_type: str,
+    object_id: str,
+    classification: str,
+    policy_id: str,
+    policy_version: int,
+    payload: dict[str, Any],
+    source_license: str | None = None,
+    jurisdiction: str | None = None,
+    lineage: list[dict[str, Any]] | None = None,
+    generation: int = 0,
+    valid_time: dict[str, Any] | None = None,
+    observed_at_ms: int | None = None,
+) -> dict:
+    """Bind an existing knowledge object to classification and view policy."""
+    from src.kb.access_views import AccessViewStore
+
+    return _safe(
+        lambda c: AccessViewStore(c).register_object(
+            namespace,
+            object_type,
+            object_id,
+            classification,
+            policy_id,
+            policy_version,
+            payload,
+            source_license=source_license,
+            jurisdiction=jurisdiction,
+            lineage=lineage or [],
+            generation=generation,
+            valid_time=valid_time,
+            observed_at_ms=observed_at_ms,
+            principal_id=_context()[0],
+            scopes={"knowledge:views:write"},
+        ),
+        write=True,
+        required_scope="knowledge:views:write",
+    )
+
+
+@mcp.tool()
+def inspect_effective_access_view(
+    namespace: str,
+    object_type: str,
+    object_id: str,
+    subject_principal_id: str,
+    purpose: str,
+    transformation: str = "read",
+) -> dict:
+    """Inspect an effective decision with administrator-only reason disclosure."""
+    from src.kb.access_views import AccessViewStore
+
+    return _safe(
+        lambda c: AccessViewStore(c, initialize=False).decide(
+            namespace,
+            object_type,
+            object_id,
+            principal_id=subject_principal_id,
+            purpose=purpose,
+            transformation=transformation,
+            scopes={"knowledge:views:admin"},
+            disclose=True,
+        ),
+        required_scope="knowledge:views:admin",
+    )
+
+
+@mcp.tool()
+def simulate_access_view(
+    namespace: str,
+    object_type: str,
+    object_id: str,
+    subject_principal_id: str,
+    purpose: str,
+    transformation: str = "read",
+) -> dict:
+    """Evaluate a hypothetical access request without changing state."""
+    from src.kb.access_views import AccessViewStore
+
+    return _safe(
+        lambda c: AccessViewStore(c, initialize=False).simulate(
+            namespace,
+            object_type,
+            object_id,
+            principal_id=subject_principal_id,
+            purpose=purpose,
+            transformation=transformation,
+            scopes={"knowledge:views:admin"},
+        ),
+        required_scope="knowledge:views:admin",
+    )
+
+
+@mcp.tool()
+def filter_access_bound_query(
+    namespace: str,
+    candidates: list[dict[str, Any]],
+    purpose: str,
+    limit: int = 100,
+    offset: int = 0,
+) -> dict:
+    """Filter candidates before ranking, aggregation, counts, or pagination."""
+    from src.kb.access_views import AccessViewStore
+
+    return _safe(
+        lambda c: AccessViewStore(c, initialize=False).filter_query(
+            namespace,
+            candidates,
+            principal_id=_context()[0],
+            purpose=purpose,
+            scopes={"knowledge:views:read"},
+            limit=limit,
+            offset=offset,
+        ),
+        write=True,
+        required_scope="knowledge:views:read",
+    )
+
+
+@mcp.tool()
+def derive_redacted_projection(
+    namespace: str,
+    object_type: str,
+    object_id: str,
+    transformation: str,
+    redacted_payload: dict[str, Any],
+    purpose: str,
+    generation: int = 0,
+) -> dict:
+    """Create a policy-versioned projection with opaque safe lineage."""
+    from src.kb.access_views import AccessViewStore
+
+    return _safe(
+        lambda c: AccessViewStore(c).derive_redacted(
+            namespace,
+            object_type,
+            object_id,
+            transformation,
+            redacted_payload,
+            principal_id=_context()[0],
+            purpose=purpose,
+            generation=generation,
+            scopes={"knowledge:views:write"},
+        ),
+        write=True,
+        required_scope="knowledge:views:write",
+    )
+
+
+@mcp.tool()
+def create_access_share_grant(
+    namespace: str,
+    recipient_id: str,
+    purpose: str,
+    expires_at_ms: int,
+    policy_id: str,
+    policy_version: int,
+    object_ids: list[str],
+    redistribution: bool = False,
+    watermark_required: bool = True,
+) -> dict:
+    """Create a recipient-, purpose-, and expiry-bound export grant."""
+    from src.kb.access_views import AccessViewStore
+
+    return _safe(
+        lambda c: AccessViewStore(c).create_grant(
+            namespace,
+            recipient_id,
+            purpose,
+            expires_at_ms,
+            policy_id,
+            policy_version,
+            object_ids,
+            redistribution=redistribution,
+            watermark_required=watermark_required,
+            principal_id=_context()[0],
+            scopes={"knowledge:views:export"},
+        ),
+        write=True,
+        required_scope="knowledge:views:export",
+    )
+
+
+@mcp.tool()
+def authorize_access_export(
+    namespace: str,
+    grant_id: str,
+    recipient_id: str,
+    purpose: str,
+    object_ids: list[str],
+    watermark: str | None = None,
+    redistribution: bool = False,
+) -> dict:
+    """Authorize an export without revealing ungranted object details."""
+    from src.kb.access_views import AccessViewStore
+
+    return _safe(
+        lambda c: AccessViewStore(c).authorize_export(
+            namespace,
+            grant_id,
+            recipient_id,
+            purpose,
+            object_ids,
+            watermark=watermark,
+            redistribution=redistribution,
+            principal_id=_context()[0],
+            scopes={"knowledge:views:export"},
+        ),
+        write=True,
+        required_scope="knowledge:views:export",
+    )
+
+
+@mcp.tool()
+def revoke_access_share_grant(namespace: str, grant_id: str) -> dict:
+    """Revoke a grant so downstream export authorization immediately fails."""
+    from src.kb.access_views import AccessViewStore
+
+    return _safe(
+        lambda c: AccessViewStore(c).revoke_grant(
+            namespace,
+            grant_id,
+            principal_id=_context()[0],
+            scopes={"knowledge:views:export"},
+        ),
+        write=True,
+        required_scope="knowledge:views:export",
+    )
+
+
+@mcp.tool()
+def get_access_view_audit(namespace: str, limit: int = 100) -> dict:
+    """Read bounded access decisions under separate administrator authority."""
+    from src.kb.access_views import AccessViewStore
+
+    return _safe(
+        lambda c: AccessViewStore(c, initialize=False).audit(
+            namespace, limit=limit, scopes={"knowledge:views:admin"}
+        ),
+        required_scope="knowledge:views:admin",
+    )
+
+
+@mcp.tool()
+def inspect_access_view_health(namespace: str) -> dict:
+    """Report invalidated projections and expired active grants."""
+    from src.kb.access_views import AccessViewStore
+
+    return _safe(
+        lambda c: AccessViewStore(c, initialize=False).health(
+            namespace, scopes={"knowledge:views:admin"}
+        ),
+        required_scope="knowledge:views:admin",
     )
 
 
