@@ -35,6 +35,14 @@ def test_maintenance_surface_and_catalog_scope_separation(monkeypatch):
         "document_generation_delta",
         "replay_document_generation_delta",
         "document_revision_health",
+        "derived_object_revision",
+        "derived_object_history",
+        "derived_object_generation_delta",
+        "replay_derived_object_generations",
+        "derived_object_lineage",
+        "explain_derived_object_invalidation",
+        "derived_projection",
+        "derived_object_health",
     }
     assert expected <= set(tools)
     assert _required_scopes(
@@ -46,6 +54,14 @@ def test_maintenance_surface_and_catalog_scope_separation(monkeypatch):
         "document_generation_delta",
         "replay_document_generation_delta",
         "document_revision_health",
+        "derived_object_revision",
+        "derived_object_history",
+        "derived_object_generation_delta",
+        "replay_derived_object_generations",
+        "derived_object_lineage",
+        "explain_derived_object_invalidation",
+        "derived_projection",
+        "derived_object_health",
     ):
         assert _mutability(name) == "read"
         assert _required_scopes("knowledge_engine_mcp", "read", name) == [
@@ -82,3 +98,5 @@ def test_capabilities_advertise_generation_contracts():
     assert "noesis-document-generation-delta-v1" in capabilities["contracts"]
     assert "knowledge-maintenance" in capabilities["features"]
     assert "immutable-document-revisions" in capabilities["features"]
+    assert "immutable-derived-object-revisions" in capabilities["features"]
+    assert "support-aware-truth-maintenance" in capabilities["features"]

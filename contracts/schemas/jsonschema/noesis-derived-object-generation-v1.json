@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/schemas/noesis-derived-object-generation-v1.json",
+  "title": "Noesis committed derived-object generation",
+  "type": "object",
+  "required": ["contract", "namespace", "generation", "input_hash", "change_hash", "item_count", "counts", "committed_at_ms"],
+  "properties": {
+    "contract": {"const": "noesis-derived-object-generation-v1"},
+    "namespace": {"type": "string", "minLength": 1},
+    "generation": {"type": "integer", "minimum": 1},
+    "input_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "change_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "item_count": {"type": "integer", "minimum": 0},
+    "counts": {"type": "object", "additionalProperties": {"type": "integer", "minimum": 0}},
+    "committed_at_ms": {"type": "integer", "minimum": 0},
+    "changed": {"type": "array", "items": {"type": "object"}},
+    "mixed_generations_visible": {"type": "boolean"},
+    "idempotent": {"type": "boolean"}
+  },
+  "additionalProperties": false
+}

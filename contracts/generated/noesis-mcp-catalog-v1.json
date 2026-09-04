@@ -799,19 +799,26 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 59,
+      "tool_count": 67,
       "tools": [
         "noesis-knowledge-engine.accept_source_pack_license",
         "noesis-knowledge-engine.artifact_lineage",
         "noesis-knowledge-engine.cancel_knowledge_query",
         "noesis-knowledge-engine.cancel_maintenance_job",
         "noesis-knowledge-engine.cancel_source_pack_run",
+        "noesis-knowledge-engine.derived_object_generation_delta",
+        "noesis-knowledge-engine.derived_object_health",
+        "noesis-knowledge-engine.derived_object_history",
+        "noesis-knowledge-engine.derived_object_lineage",
+        "noesis-knowledge-engine.derived_object_revision",
+        "noesis-knowledge-engine.derived_projection",
         "noesis-knowledge-engine.document_generation_delta",
         "noesis-knowledge-engine.document_revision",
         "noesis-knowledge-engine.document_revision_health",
         "noesis-knowledge-engine.document_revision_history",
         "noesis-knowledge-engine.evaluate_knowledge_query",
         "noesis-knowledge-engine.execute_artifact_rebuild",
+        "noesis-knowledge-engine.explain_derived_object_invalidation",
         "noesis-knowledge-engine.explain_knowledge_query",
         "noesis-knowledge-engine.fetch_declarative_api",
         "noesis-knowledge-engine.inspect_maintenance_generation",
@@ -838,6 +845,7 @@
         "noesis-knowledge-engine.recover_stale_maintenance_jobs",
         "noesis-knowledge-engine.register_derived_artifact",
         "noesis-knowledge-engine.register_extractor",
+        "noesis-knowledge-engine.replay_derived_object_generations",
         "noesis-knowledge-engine.replay_document_generation_delta",
         "noesis-knowledge-engine.replay_knowledge_query",
         "noesis-knowledge-engine.replay_maintenance_generation",
@@ -866,7 +874,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 59
+      "visible_tool_count": 67
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -877,12 +885,12 @@
     },
     "servers": 29,
     "states": {
-      "available": 73,
+      "available": 81,
       "degraded": 155,
       "disabled": 3,
       "unauthorized": 59
     },
-    "tools": 290
+    "tools": 298
   },
   "tools": [
     {
@@ -12327,6 +12335,262 @@
     },
     {
       "cost_class": "low",
+      "description": "Page object-level additions, updates, support changes, and retractions.",
+      "id": "noesis-knowledge-engine.derived_object_generation_delta",
+      "input_schema": {
+        "properties": {
+          "cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "from_generation": {
+            "type": "integer"
+          },
+          "limit": {
+            "default": 100,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "to_generation": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "namespace",
+          "from_generation",
+          "to_generation"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "derived_object_generation_delta",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Return text-free derived revision, support, projection, and generation counts.",
+      "id": "noesis-knowledge-engine.derived_object_health",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "derived_object_health",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "List immutable revisions and support transitions for one derived object.",
+      "id": "noesis-knowledge-engine.derived_object_history",
+      "input_schema": {
+        "properties": {
+          "include_retracted": {
+            "default": true,
+            "type": "boolean"
+          },
+          "logical_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "logical_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "derived_object_history",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Trace a derived revision to exact sources and current projections.",
+      "id": "noesis-knowledge-engine.derived_object_lineage",
+      "input_schema": {
+        "properties": {
+          "revision_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "revision_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "derived_object_lineage",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Read one immutable derived-object revision at an optional generation.",
+      "id": "noesis-knowledge-engine.derived_object_revision",
+      "input_schema": {
+        "properties": {
+          "generation": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "include_retracted": {
+            "default": false,
+            "type": "boolean"
+          },
+          "logical_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "revision": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "logical_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "derived_object_revision",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Read an atomically published lexical, vector, graph, or summary projection.",
+      "id": "noesis-knowledge-engine.derived_projection",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "projection_kind": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "projection_kind"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "derived_projection",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Page deterministic changes across a committed source-pack watermark range.",
       "id": "noesis-knowledge-engine.document_generation_delta",
       "input_schema": {
@@ -12625,6 +12889,54 @@
       ],
       "required_scopes": [
         "operator"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Explain the document and support changes affecting a derived object.",
+      "id": "noesis-knowledge-engine.explain_derived_object_invalidation",
+      "input_schema": {
+        "properties": {
+          "generation": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "logical_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "logical_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "explain_derived_object_invalidation",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "available",
@@ -13539,6 +13851,47 @@
       ],
       "required_scopes": [
         "operator"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Verify derived-object deltas against immutable revisions and receipts.",
+      "id": "noesis-knowledge-engine.replay_derived_object_generations",
+      "input_schema": {
+        "properties": {
+          "from_generation": {
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "to_generation": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "namespace",
+          "from_generation",
+          "to_generation"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "replay_derived_object_generations",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "available",

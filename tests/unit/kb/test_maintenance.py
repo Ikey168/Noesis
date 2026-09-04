@@ -8,6 +8,7 @@ import jsonschema
 
 from src.ingestion.source_pack_runtime import SourcePackRuntime
 from src.ingestion.source_packs import SourcePackStore, load_source_packs
+from src.kb.derived_revisions import DerivedRevisionStore
 from src.kb.maintenance import MaintenanceOrchestrator, fixture_adapter_provider
 from src.kb.unified_query import UnifiedQueryEngine, build_local_catalog
 
@@ -110,14 +111,18 @@ def test_crash_resume_atomic_query_visibility_receipts_and_replay():
     assert all(
         item["status"] == "rebuilt" for item in receipt["artifacts"]["rebuild_receipts"]
     )
+    assert receipt["artifacts"]["derived"]["item_count"] > 0
+    assert receipt["generation"]["derived"]["change_hash"]
     generation = receipt["generation"]
-    assert orchestrator.replay_generation(generation["generation_id"])["matched"]
+    replay = orchestrator.replay_generation(generation["generation_id"])
+    assert replay["matched"] and replay["derived_generation_match"]
     lineage = orchestrator.generation_lineage(generation["generation_id"])
     assert lineage["complete"] and lineage["artifact_edges"]
     assert any(
         str(edge.get("dependency_id", "")).startswith("document-revision:")
         for edge in lineage["artifact_edges"]
     )
+    assert lineage["derived_lineage"]
     assert engine.execute(request, scopes={"knowledge:read"})["items"]
     assert (
         conn.execute("SELECT COUNT(*) FROM knowledge_maintenance_events").fetchone()[0]
@@ -178,4 +183,31 @@ def test_cancel_retry_attempt_history_and_health_are_credential_safe():
         "processing_lag_ms",
         "mean_recovery_time_ms",
     } <= set(health)
+    conn.close()
+
+
+def test_derived_projection_stays_hidden_until_outer_generation_commit():
+    clock = Clock()
+    conn, manifest, _, orchestrator = setup_pack(clock)
+    orchestrator.enqueue_due()
+    interrupted = orchestrator.run_once(
+        "worker",
+        fail_after_phase="artifacts",
+        **execution_kwargs(orchestrator),
+    )
+    assert interrupted["status"] == "retry"
+    derived = DerivedRevisionStore(conn, initialize=False)
+    assert derived.health()["generations"] == 0
+    namespace = f"maintenance:{manifest['pack_id']}"
+    assert derived.projection(namespace, "lexical") == []
+    assert (
+        conn.execute("SELECT status FROM derived_object_generations").fetchone()[0]
+        == "staged"
+    )
+
+    clock.value = int(interrupted["retry_at_ms"])
+    completed = orchestrator.run_once("worker-2", **execution_kwargs(orchestrator))
+    assert completed["status"] == "complete"
+    assert derived.health()["generations"] == 1
+    assert derived.projection(namespace, "lexical")
     conn.close()
