@@ -38,6 +38,7 @@ READ_SMOKES = {
     "kb_mcp": ("kb_domains", {}),
     "kg_mcp": ("kg_stats", {}),
     "lineage_mcp": ("list_namespaces", {}),
+    "memory_mcp": ("memory_capabilities", {}),
     "monitoring_mcp": ("current_metrics", {}),
     "namespaces_mcp": ("namespace_package_context", {}),
     "osint_mcp": ("contradiction_scan", {}),
@@ -97,6 +98,13 @@ DOCUMENTED_WRITES = {
     ("subscriptions_mcp", "update_subscription"),
     ("namespaces_mcp", "import_namespace_package"),
     ("namespaces_mcp", "preview_namespace_import"),
+    ("memory_mcp", "apply_memory_lifecycle"),
+    ("memory_mcp", "consolidate_memories"),
+    ("memory_mcp", "correct_memory"),
+    ("memory_mcp", "forget_memory"),
+    ("memory_mcp", "import_standard_mcp_memory"),
+    ("memory_mcp", "remember_memory"),
+    ("memory_mcp", "set_memory_policy"),
 }
 
 # Analytics whose advertised output contract must be machine-checkable before

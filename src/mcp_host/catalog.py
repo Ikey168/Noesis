@@ -170,6 +170,8 @@ def _required_data(server_stem: str, tool_name: str) -> list[str]:
         return ["knowledge-subscription-store"]
     if server_stem == "namespaces_mcp":
         return ["portable-namespace-store"]
+    if server_stem == "memory_mcp":
+        return ["knowledge-memory-store"]
     if server_stem == "contract_mcp":
         return ["contract-schemas"]
     if server_stem == "schema_mcp":
@@ -224,6 +226,12 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
         if tool_name.startswith(("import_", "preview_")):
             return ["knowledge:namespace:import"]
         return ["knowledge:namespace:export"]
+    if server_stem == "memory_mcp":
+        if tool_name.startswith(("remember_","correct_","forget_","consolidate_","import_")):
+            return ["knowledge:memory:write"]
+        if tool_name.startswith(("set_","apply_")):
+            return ["knowledge:memory:admin"]
+        return ["knowledge:memory:read"]
     if mutability == "write" or server_stem in SENSITIVE_SERVERS:
         return ["operator"]
     if server_stem in {"catalog_mcp", "contract_mcp", "schema_mcp"}:

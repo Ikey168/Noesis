@@ -1,0 +1,13 @@
+{
+  "kind": "preference",
+  "scope": {"namespace": "research", "tenant_id": "tenant-a", "task_id": null},
+  "subject": {"type": "person", "id": "user-1"},
+  "content": {"citation_style": "author-year"},
+  "content_type": "value",
+  "epistemic_status": "user-confirmed",
+  "author": "user-1",
+  "evidence": [{"kind": "confirmation", "at_ms": 1000}],
+  "confidence": 1.0,
+  "sensitivity": "private",
+  "lifecycle": {"retention": "until-revoked"}
+}
