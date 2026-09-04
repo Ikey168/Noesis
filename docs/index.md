@@ -38,6 +38,8 @@ For the project overview and local setup, start with the
   evidence-calibrated assessments, reviewed overrides, filters, and explanations
 - **[Hypothesis Workbench](guides/hypothesis-workbench.md)** — competing
   explanations, evidence links, honest comparisons, bounded plans, and replay
+- **[Source identity and ownership graph](guides/source-identity.md)** — stable
+  sources, reversible aliases, time-bounded control, dossiers, and independence
 - **[Unified knowledge query](guides/unified-knowledge-query.md)** — one bounded,
   evidence-preserving plane over local, temporal, memory, and federated data.
 - [Project structure](development/project-structure.md) — where things live in

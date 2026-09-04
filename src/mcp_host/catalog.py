@@ -87,6 +87,12 @@ MUTATION_NAMES = frozenset(
         "retire_hypothesis_workspace",
         "link_hypothesis_evidence",
         "retract_hypothesis_evidence",
+        "revise_source_identity",
+        "delete_source_identity",
+        "decide_source_alias",
+        "split_source_alias",
+        "retract_source_relationship",
+        "add_source_relationship",
     }
 )
 
@@ -259,6 +265,25 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
             return ["knowledge:memory:admin"]
         return ["knowledge:memory:read"]
     if server_stem == "knowledge_engine_mcp":
+        if tool_name in {"decide_source_alias", "split_source_alias"}:
+            return ["knowledge:source-identity:review"]
+        if tool_name in {
+            "register_source_identity",
+            "revise_source_identity",
+            "delete_source_identity",
+            "add_source_relationship",
+            "retract_source_relationship",
+        }:
+            return ["knowledge:source-identity:write"]
+        if tool_name in {
+            "lookup_source_identity",
+            "source_identity_history",
+            "resolve_source_alias",
+            "source_identity_dossier",
+            "source_relationship_path",
+            "explain_source_independence",
+        }:
+            return ["knowledge:source-identity:read"]
         if tool_name == "execute_hypothesis_research_plan":
             return ["knowledge:hypothesis:execute"]
         if tool_name in {

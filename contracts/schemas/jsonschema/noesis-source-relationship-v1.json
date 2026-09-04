@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/schemas/noesis-source-relationship-v1.json",
+  "title": "Noesis time-bounded sourced relationship revision",
+  "type": "object",
+  "required": ["contract", "relationship_id", "relationship_revision_id", "namespace", "revision", "from_source_id", "to_source_id", "relationship_type", "lifecycle", "valid_from_ms", "valid_to_ms", "observed_at_ms", "confidence", "uncertainty", "evidence", "producer", "policy", "principal_id", "input_hash", "created_at_ms"],
+  "properties": {
+    "contract": {"const": "noesis-source-relationship-v1"},
+    "relationship_id": {"type": "string", "pattern": "^source-relationship:"},
+    "relationship_revision_id": {"type": "string", "pattern": "^source-relationship-revision:"},
+    "namespace": {"type": "string"},
+    "revision": {"type": "integer", "minimum": 1},
+    "from_source_id": {"type": "string", "pattern": "^source-identity:"},
+    "to_source_id": {"type": "string", "pattern": "^source-identity:"},
+    "relationship_type": {"enum": ["ownership", "funding", "editorial-control", "state-affiliation", "syndication", "authorship", "reporting-origin"]},
+    "lifecycle": {"enum": ["active", "retracted"]},
+    "valid_from_ms": {"type": ["integer", "null"]},
+    "valid_to_ms": {"type": ["integer", "null"]},
+    "observed_at_ms": {"type": "integer", "minimum": 0},
+    "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+    "uncertainty": {"type": "number", "minimum": 0, "maximum": 1},
+    "evidence": {"type": "array", "items": {"type": "object"}},
+    "producer": {"type": "object", "required": ["name", "version"]},
+    "policy": {"type": "object"},
+    "principal_id": {"type": "string"},
+    "input_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "created_at_ms": {"type": "integer", "minimum": 0},
+    "idempotent": {"type": "boolean"}
+  },
+  "additionalProperties": false
+}
