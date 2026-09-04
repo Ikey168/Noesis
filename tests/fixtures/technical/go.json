@@ -1,0 +1,9 @@
+{
+  "module": "example.test/acme/demo",
+  "repository": "https://example.test/acme/demo",
+  "versions": [{
+    "Version": "v1.2.0",
+    "Time": "2025-05-01T00:00:00Z",
+    "Sum": "h1:abc"
+  }]
+}

@@ -396,6 +396,7 @@ def _load_domain_packs():
         from src.domains.registry import load_config
         import src.domains.news  # noqa: F401 — triggers register_pack(NewsDomainPack)
         import src.domains.research  # noqa: F401 — triggers register_pack(ResearchDomainPack)
+        import src.domains.technical  # noqa: F401 — registers TechnicalDomainPack
         load_config()
     except Exception:
         import logging

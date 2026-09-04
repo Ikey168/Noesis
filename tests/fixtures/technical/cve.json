@@ -1,0 +1,43 @@
+{
+  "dataType": "CVE_RECORD",
+  "dataVersion": "5.1",
+  "cveMetadata": {
+    "cveId": "CVE-2025-0002",
+    "state": "PUBLISHED",
+    "datePublished": "2025-01-01T00:00:00Z",
+    "dateUpdated": "2025-02-01T00:00:00Z"
+  },
+  "containers": {
+    "cna": {
+      "descriptions": [{"lang": "en", "value": "Mapped product issue."}],
+      "affected": [{
+        "vendor": "Acme",
+        "product": "Demo",
+        "versions": [{
+          "version": "1.0.0",
+          "lessThan": "1.1.0",
+          "versionType": "semver",
+          "status": "affected"
+        }]
+      }],
+      "metrics": [{
+        "cvssV3_1": {
+          "baseScore": 7.5,
+          "baseSeverity": "HIGH",
+          "vectorString": "CVSS:3.1/AV:N"
+        }
+      }],
+      "references": [{"url": "https://cve.example.test/CVE-2025-0002"}]
+    },
+    "adp": [{
+      "providerMetadata": {"shortName": "Enricher"},
+      "metrics": [{
+        "cvssV3_1": {
+          "baseScore": 5.0,
+          "baseSeverity": "MEDIUM",
+          "vectorString": "CVSS:3.1/AV:L"
+        }
+      }]
+    }]
+  }
+}

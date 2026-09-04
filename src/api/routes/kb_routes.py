@@ -121,6 +121,18 @@ class EconomicQueryRequest(BaseModel):
     limit: int = Field(default=100, ge=1, le=1000)
 
 
+class TechnicalQueryRequest(BaseModel):
+    domain: str = Field(min_length=1)
+    query_type: str = Field(min_length=1)
+    coordinate: Optional[str] = None
+    version: Optional[str] = None
+    target_id: Optional[str] = None
+    include_optional: bool = False
+    max_depth: int = Field(default=8, ge=1, le=32)
+    observed_before: Optional[int | str] = None
+    limit: int = Field(default=100, ge=1, le=1000)
+
+
 def _watch_principal(current_user: dict) -> str:
     principal = current_user.get("sub") or current_user.get("user_id")
     if not principal:
@@ -394,6 +406,45 @@ def private_economic_query(
         request.observed_before,
         request.comparison_mode,
         request.include_bundle,
+        request.limit,
+        _watch_principal(current_user),
+        True,
+    )
+
+
+@router.post("/technical")
+def technical_query(request: TechnicalQueryRequest):
+    """Run a public cited technical-knowledge graph query."""
+    return _run(
+        contract.kb_technical,
+        request.domain,
+        request.query_type,
+        request.coordinate,
+        request.version,
+        request.target_id,
+        request.include_optional,
+        request.max_depth,
+        request.observed_before,
+        request.limit,
+    )
+
+
+@router.post("/technical/private")
+def private_technical_query(
+    request: TechnicalQueryRequest,
+    current_user: dict = Depends(require_auth),
+):
+    """Run the same query against a grant-authorized private domain."""
+    return _run(
+        contract.kb_technical,
+        request.domain,
+        request.query_type,
+        request.coordinate,
+        request.version,
+        request.target_id,
+        request.include_optional,
+        request.max_depth,
+        request.observed_before,
         request.limit,
         _watch_principal(current_user),
         True,
