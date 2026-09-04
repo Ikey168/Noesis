@@ -97,6 +97,20 @@ def test_maintenance_surface_and_catalog_scope_separation(monkeypatch):
         "event_neighborhood",
         "diff_event_revisions",
         "replay_event_record",
+        "register_quantitative_unit",
+        "register_quantitative_metric",
+        "revise_quantitative_metric",
+        "record_quantitative_observation",
+        "record_quantitative_series_break",
+        "discover_quantitative_metrics",
+        "get_quantitative_metric",
+        "read_quantitative_series",
+        "assess_quantitative_comparability",
+        "convert_quantitative_value",
+        "evaluate_quantitative_formula",
+        "transform_quantitative_frequency",
+        "adjust_quantitative_inflation",
+        "replay_quantitative_calculation",
     }
     assert expected <= set(tools)
     assert _required_scopes(
@@ -248,6 +262,38 @@ def test_maintenance_surface_and_catalog_scope_separation(monkeypatch):
             "knowledge:event:read"
         ]
     for name in (
+        "register_quantitative_unit",
+        "register_quantitative_metric",
+        "revise_quantitative_metric",
+        "record_quantitative_observation",
+        "record_quantitative_series_break",
+    ):
+        assert _mutability(name) == "write"
+        assert _required_scopes("knowledge_engine_mcp", "write", name) == [
+            "knowledge:quantitative:write"
+        ]
+    for name in (
+        "convert_quantitative_value",
+        "evaluate_quantitative_formula",
+        "transform_quantitative_frequency",
+        "adjust_quantitative_inflation",
+    ):
+        assert _mutability(name) == "write"
+        assert _required_scopes("knowledge_engine_mcp", "write", name) == [
+            "knowledge:quantitative:calculate"
+        ]
+    for name in (
+        "discover_quantitative_metrics",
+        "get_quantitative_metric",
+        "read_quantitative_series",
+        "assess_quantitative_comparability",
+        "replay_quantitative_calculation",
+    ):
+        assert _mutability(name) == "read"
+        assert _required_scopes("knowledge_engine_mcp", "read", name) == [
+            "knowledge:quantitative:read"
+        ]
+    for name in (
         "pause_maintenance_schedule",
         "resume_maintenance_schedule",
         "cancel_maintenance_job",
@@ -312,3 +358,11 @@ def test_capabilities_advertise_generation_contracts():
     assert "multilingual-event-mention-clustering" in capabilities["features"]
     assert "competing-event-accounts" in capabilities["features"]
     assert "snapshot-bound-event-search" in capabilities["features"]
+    assert "noesis-quantitative-metric-v1" in capabilities["contracts"]
+    assert "noesis-quantitative-observation-v1" in capabilities["contracts"]
+    assert "noesis-quantitative-calculation-v1" in capabilities["contracts"]
+    assert "noesis-quantitative-comparability-v1" in capabilities["contracts"]
+    assert "versioned-quantitative-semantics" in capabilities["features"]
+    assert "vintage-aware-observations" in capabilities["features"]
+    assert "reproducible-quantitative-transformations" in capabilities["features"]
+    assert "series-break-comparability" in capabilities["features"]

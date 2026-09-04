@@ -96,6 +96,13 @@ MUTATION_NAMES = frozenset(
         "revise_event_record",
         "retract_event_account",
         "relate_events",
+        "revise_quantitative_metric",
+        "record_quantitative_observation",
+        "record_quantitative_series_break",
+        "convert_quantitative_value",
+        "evaluate_quantitative_formula",
+        "transform_quantitative_frequency",
+        "adjust_quantitative_inflation",
     }
 )
 
@@ -268,6 +275,29 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
             return ["knowledge:memory:admin"]
         return ["knowledge:memory:read"]
     if server_stem == "knowledge_engine_mcp":
+        if tool_name in {
+            "convert_quantitative_value",
+            "evaluate_quantitative_formula",
+            "transform_quantitative_frequency",
+            "adjust_quantitative_inflation",
+        }:
+            return ["knowledge:quantitative:calculate"]
+        if tool_name in {
+            "register_quantitative_unit",
+            "register_quantitative_metric",
+            "revise_quantitative_metric",
+            "record_quantitative_observation",
+            "record_quantitative_series_break",
+        }:
+            return ["knowledge:quantitative:write"]
+        if tool_name in {
+            "discover_quantitative_metrics",
+            "get_quantitative_metric",
+            "read_quantitative_series",
+            "assess_quantitative_comparability",
+            "replay_quantitative_calculation",
+        }:
+            return ["knowledge:quantitative:read"]
         if tool_name == "retract_event_account":
             return ["knowledge:event:review"]
         if tool_name in {

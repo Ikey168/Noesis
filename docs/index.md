@@ -42,6 +42,8 @@ For the project overview and local setup, start with the
   sources, reversible aliases, time-bounded control, dossiers, and independence
 - **[Event-centric knowledge model](guides/event-model.md)** — immutable events,
   multilingual mentions, competing accounts, timelines, neighborhoods, and diffs
+- **[Quantitative semantic layer](guides/quantitative-semantic-layer.md)** —
+  versioned metrics and units, vintages, exact transformations, and comparability
 - **[Unified knowledge query](guides/unified-knowledge-query.md)** — one bounded,
   evidence-preserving plane over local, temporal, memory, and federated data.
 - [Project structure](development/project-structure.md) — where things live in

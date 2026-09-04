@@ -115,6 +115,10 @@ def knowledge_engine_capabilities() -> dict:
             "noesis-event-account-v1",
             "noesis-event-relation-v1",
             "noesis-event-search-v1",
+            "noesis-quantitative-metric-v1",
+            "noesis-quantitative-observation-v1",
+            "noesis-quantitative-calculation-v1",
+            "noesis-quantitative-comparability-v1",
             "noesis-maintenance-job-request-v1",
             "noesis-maintenance-job-receipt-v1",
             "noesis-knowledge-generation-v1",
@@ -155,6 +159,10 @@ def knowledge_engine_capabilities() -> dict:
             "multilingual-event-mention-clustering",
             "competing-event-accounts",
             "snapshot-bound-event-search",
+            "versioned-quantitative-semantics",
+            "vintage-aware-observations",
+            "reproducible-quantitative-transformations",
+            "series-break-comparability",
             "knowledge-maintenance",
             "lease-safe-workers",
             "committed-generations",
@@ -1730,6 +1738,413 @@ def replay_event_record(namespace: str, event_id: str) -> dict:
             namespace, event_id, scopes=_context()[1]
         ),
         required_scope="knowledge:event:read",
+    )
+
+
+@mcp.tool()
+def register_quantitative_unit(
+    namespace: str,
+    symbol: str,
+    dimension: dict[str, int],
+    factor: str = "1",
+    offset: str = "0",
+    aliases: list[str] | None = None,
+    currency_code: str | None = None,
+    successor_unit_id: str | None = None,
+    redenomination_factor: str | None = None,
+    semantic_version: str = "1.0.0",
+) -> dict:
+    """Register an immutable unit, compound dimension, or currency version."""
+    from src.kb.quantitative import QuantitativeStore
+
+    principal, scopes = _context()
+    return _safe(
+        lambda conn: QuantitativeStore(conn).register_unit(
+            namespace,
+            symbol,
+            dimension,
+            factor=factor,
+            offset=offset,
+            aliases=aliases or [],
+            currency_code=currency_code,
+            successor_unit_id=successor_unit_id,
+            redenomination_factor=redenomination_factor,
+            semantic_version=semantic_version,
+            principal_id=principal,
+            scopes=scopes,
+        ),
+        write=True,
+        required_scope="knowledge:quantitative:write",
+    )
+
+
+@mcp.tool()
+def register_quantitative_metric(
+    namespace: str,
+    canonical_name: str,
+    definition: str,
+    unit: str,
+    frequency: str = "irregular",
+    population: dict[str, Any] | None = None,
+    synonyms: list[str] | None = None,
+    mappings: dict[str, str] | None = None,
+    formula: dict[str, Any] | None = None,
+    idempotency_key: str | None = None,
+    generation: int = 0,
+    valid_from_ms: int | None = None,
+    valid_to_ms: int | None = None,
+    observed_at_ms: int | None = None,
+    producer: dict[str, Any] | None = None,
+    policy: dict[str, Any] | None = None,
+) -> dict:
+    """Register a versioned metric with aliases and source-native mappings."""
+    from src.kb.quantitative import QuantitativeStore
+
+    principal, scopes = _context()
+    return _safe(
+        lambda conn: QuantitativeStore(conn).register_metric(
+            namespace,
+            canonical_name,
+            definition,
+            unit,
+            frequency=frequency,
+            population=population,
+            synonyms=synonyms or [],
+            mappings=mappings,
+            formula=formula,
+            idempotency_key=idempotency_key,
+            generation=generation,
+            valid_from_ms=valid_from_ms,
+            valid_to_ms=valid_to_ms,
+            observed_at_ms=observed_at_ms,
+            producer=producer,
+            policy=policy,
+            principal_id=principal,
+            scopes=scopes,
+        ),
+        write=True,
+        required_scope="knowledge:quantitative:write",
+    )
+
+
+@mcp.tool()
+def revise_quantitative_metric(
+    namespace: str,
+    metric_id: str,
+    expected_revision: int,
+    patch: dict[str, Any],
+) -> dict:
+    """Append an immutable metric schema or methodology revision."""
+    from src.kb.quantitative import QuantitativeStore
+
+    principal, scopes = _context()
+    return _safe(
+        lambda conn: QuantitativeStore(conn, initialize=False).revise_metric(
+            namespace,
+            metric_id,
+            expected_revision,
+            patch,
+            principal_id=principal,
+            scopes=scopes,
+        ),
+        write=True,
+        required_scope="knowledge:quantitative:write",
+    )
+
+
+@mcp.tool()
+def record_quantitative_observation(
+    namespace: str,
+    metric_id: str,
+    period: str,
+    value: Any | None,
+    provider: str,
+    provider_series_id: str,
+    vintage_id: str,
+    release_at_ms: int,
+    retrieved_at_ms: int,
+    unit: str | None = None,
+    currency_code: str | None = None,
+    valid_from_ms: int | None = None,
+    valid_to_ms: int | None = None,
+    adjustment: str = "unknown",
+    preliminary: bool = False,
+    revision_of: str | None = None,
+    provenance: dict[str, Any] | None = None,
+    generation: int = 0,
+) -> dict:
+    """Record a provenance-rich observation without replacing earlier vintages."""
+    from src.kb.quantitative import QuantitativeStore
+
+    principal, scopes = _context()
+    return _safe(
+        lambda conn: QuantitativeStore(conn, initialize=False).observe(
+            namespace,
+            metric_id,
+            period,
+            value,
+            provider=provider,
+            provider_series_id=provider_series_id,
+            vintage_id=vintage_id,
+            release_at_ms=release_at_ms,
+            retrieved_at_ms=retrieved_at_ms,
+            unit=unit,
+            currency_code=currency_code,
+            valid_from_ms=valid_from_ms,
+            valid_to_ms=valid_to_ms,
+            adjustment=adjustment,
+            preliminary=preliminary,
+            revision_of=revision_of,
+            provenance=provenance,
+            generation=generation,
+            principal_id=principal,
+            scopes=scopes,
+        ),
+        write=True,
+        required_scope="knowledge:quantitative:write",
+    )
+
+
+@mcp.tool()
+def record_quantitative_series_break(
+    namespace: str,
+    metric_id: str,
+    break_type: str,
+    boundary_ms: int,
+    before: dict[str, Any],
+    after: dict[str, Any],
+    evidence: list[dict[str, Any]],
+    confidence: float,
+) -> dict:
+    """Record a sourced definition, method, geography, rebase, basket, or provider break."""
+    from src.kb.quantitative import QuantitativeStore
+
+    principal, scopes = _context()
+    return _safe(
+        lambda conn: QuantitativeStore(conn, initialize=False).add_break(
+            namespace,
+            metric_id,
+            break_type,
+            boundary_ms,
+            before=before,
+            after=after,
+            evidence=evidence,
+            confidence=confidence,
+            principal_id=principal,
+            scopes=scopes,
+        ),
+        write=True,
+        required_scope="knowledge:quantitative:write",
+    )
+
+
+@mcp.tool()
+def discover_quantitative_metrics(
+    namespace: str, query: str = "", limit: int = 50
+) -> dict:
+    """Discover metrics by canonical name, synonym, or provider mapping."""
+    from src.kb.quantitative import QuantitativeStore
+
+    return _safe(
+        lambda conn: {
+            "items": QuantitativeStore(conn, initialize=False).discover(
+                namespace, scopes=_context()[1], query=query, limit=limit
+            )
+        },
+        required_scope="knowledge:quantitative:read",
+    )
+
+
+@mcp.tool()
+def get_quantitative_metric(
+    namespace: str,
+    metric_id: str,
+    revision: int | None = None,
+    include_history: bool = False,
+) -> dict:
+    """Read the current, exact, or complete immutable history of a metric."""
+    from src.kb.quantitative import QuantitativeStore
+
+    return _safe(
+        lambda conn: QuantitativeStore(conn, initialize=False).metric(
+            namespace,
+            metric_id,
+            scopes=_context()[1],
+            revision=revision,
+            include_history=include_history,
+        ),
+        required_scope="knowledge:quantitative:read",
+    )
+
+
+@mcp.tool()
+def read_quantitative_series(
+    namespace: str,
+    metric_id: str,
+    as_of_ms: int | None = None,
+    provider: str | None = None,
+    include_vintages: bool = False,
+    limit: int = 1000,
+) -> dict:
+    """Read coherent latest vintages, or all vintages, as known at a requested time."""
+    from src.kb.quantitative import QuantitativeStore
+
+    return _safe(
+        lambda conn: {
+            "items": QuantitativeStore(conn, initialize=False).series(
+                namespace,
+                metric_id,
+                scopes=_context()[1],
+                as_of_ms=as_of_ms,
+                provider=provider,
+                include_vintages=include_vintages,
+                limit=limit,
+            ),
+            "as_of_ms": as_of_ms,
+            "include_vintages": include_vintages,
+        },
+        required_scope="knowledge:quantitative:read",
+    )
+
+
+@mcp.tool()
+def assess_quantitative_comparability(
+    namespace: str, left_observation_id: str, right_observation_id: str
+) -> dict:
+    """Explain whether observations are comparable across adjustments and series breaks."""
+    from src.kb.quantitative import QuantitativeStore
+
+    return _safe(
+        lambda conn: QuantitativeStore(conn, initialize=False).comparability(
+            namespace,
+            left_observation_id,
+            right_observation_id,
+            scopes=_context()[1],
+        ),
+        required_scope="knowledge:quantitative:read",
+    )
+
+
+@mcp.tool()
+def convert_quantitative_value(
+    namespace: str,
+    value: Any,
+    from_unit: str,
+    to_unit: str,
+    precision: int = 6,
+    rate: dict[str, Any] | None = None,
+) -> dict:
+    """Convert a value using exact units, explicit FX evidence, and a durable receipt."""
+    from src.kb.quantitative import QuantitativeStore
+
+    principal, scopes = _context()
+    return _safe(
+        lambda conn: QuantitativeStore(conn, initialize=False).convert(
+            namespace,
+            value,
+            from_unit,
+            to_unit,
+            precision=precision,
+            rate=rate,
+            principal_id=principal,
+            scopes=scopes,
+        ),
+        write=True,
+        required_scope="knowledge:quantitative:calculate",
+    )
+
+
+@mcp.tool()
+def evaluate_quantitative_formula(
+    namespace: str,
+    metric_id: str,
+    inputs: dict[str, dict[str, Any]],
+    precision: int = 6,
+) -> dict:
+    """Evaluate a safe versioned metric formula with exact input lineage."""
+    from src.kb.quantitative import QuantitativeStore
+
+    principal, scopes = _context()
+    return _safe(
+        lambda conn: QuantitativeStore(conn, initialize=False).evaluate_formula(
+            namespace,
+            metric_id,
+            inputs,
+            precision=precision,
+            principal_id=principal,
+            scopes=scopes,
+        ),
+        write=True,
+        required_scope="knowledge:quantitative:calculate",
+    )
+
+
+@mcp.tool()
+def transform_quantitative_frequency(
+    namespace: str,
+    values: list[dict[str, Any]],
+    from_frequency: str,
+    to_frequency: str,
+    aggregation: str,
+    precision: int = 6,
+) -> dict:
+    """Aggregate a complete input window to another frequency with a receipt."""
+    from src.kb.quantitative import QuantitativeStore
+
+    principal, scopes = _context()
+    return _safe(
+        lambda conn: QuantitativeStore(conn, initialize=False).transform_frequency(
+            namespace,
+            values,
+            from_frequency=from_frequency,
+            to_frequency=to_frequency,
+            aggregation=aggregation,
+            precision=precision,
+            principal_id=principal,
+            scopes=scopes,
+        ),
+        write=True,
+        required_scope="knowledge:quantitative:calculate",
+    )
+
+
+@mcp.tool()
+def adjust_quantitative_inflation(
+    namespace: str,
+    value: Any,
+    observed_index: dict[str, Any],
+    target_index: dict[str, Any],
+    precision: int = 6,
+) -> dict:
+    """Adjust a value between explicit price-index observations with lineage."""
+    from src.kb.quantitative import QuantitativeStore
+
+    principal, scopes = _context()
+    return _safe(
+        lambda conn: QuantitativeStore(conn, initialize=False).adjust_inflation(
+            namespace,
+            value,
+            observed_index,
+            target_index,
+            precision=precision,
+            principal_id=principal,
+            scopes=scopes,
+        ),
+        write=True,
+        required_scope="knowledge:quantitative:calculate",
+    )
+
+
+@mcp.tool()
+def replay_quantitative_calculation(namespace: str, calculation_id: str) -> dict:
+    """Recompute a stored calculation hash to verify deterministic replay."""
+    from src.kb.quantitative import QuantitativeStore
+
+    return _safe(
+        lambda conn: QuantitativeStore(conn, initialize=False).replay_calculation(
+            namespace, calculation_id, scopes=_context()[1]
+        ),
+        required_scope="knowledge:quantitative:read",
     )
 
 

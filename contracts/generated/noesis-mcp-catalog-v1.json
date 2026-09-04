@@ -799,12 +799,14 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 121,
+      "tool_count": 135,
       "tools": [
         "noesis-knowledge-engine.accept_source_pack_license",
         "noesis-knowledge-engine.add_source_relationship",
+        "noesis-knowledge-engine.adjust_quantitative_inflation",
         "noesis-knowledge-engine.artifact_lineage",
         "noesis-knowledge-engine.assess_epistemic_statement",
+        "noesis-knowledge-engine.assess_quantitative_comparability",
         "noesis-knowledge-engine.attach_event_account",
         "noesis-knowledge-engine.begin_research_snapshot",
         "noesis-knowledge-engine.branch_hypothesis_workspace",
@@ -814,6 +816,7 @@
         "noesis-knowledge-engine.classify_epistemic_statement",
         "noesis-knowledge-engine.close_research_snapshot",
         "noesis-knowledge-engine.compare_hypotheses",
+        "noesis-knowledge-engine.convert_quantitative_value",
         "noesis-knowledge-engine.create_event_record",
         "noesis-knowledge-engine.create_hypothesis_research_plan",
         "noesis-knowledge-engine.create_hypothesis_workspace",
@@ -826,11 +829,13 @@
         "noesis-knowledge-engine.derived_object_revision",
         "noesis-knowledge-engine.derived_projection",
         "noesis-knowledge-engine.diff_event_revisions",
+        "noesis-knowledge-engine.discover_quantitative_metrics",
         "noesis-knowledge-engine.document_generation_delta",
         "noesis-knowledge-engine.document_revision",
         "noesis-knowledge-engine.document_revision_health",
         "noesis-knowledge-engine.document_revision_history",
         "noesis-knowledge-engine.evaluate_knowledge_query",
+        "noesis-knowledge-engine.evaluate_quantitative_formula",
         "noesis-knowledge-engine.event_neighborhood",
         "noesis-knowledge-engine.event_timeline",
         "noesis-knowledge-engine.execute_artifact_rebuild",
@@ -846,6 +851,7 @@
         "noesis-knowledge-engine.get_event_record_as_of",
         "noesis-knowledge-engine.get_hypothesis_research_plan",
         "noesis-knowledge-engine.get_hypothesis_workspace",
+        "noesis-knowledge-engine.get_quantitative_metric",
         "noesis-knowledge-engine.ingest_event_mentions",
         "noesis-knowledge-engine.inspect_maintenance_generation",
         "noesis-knowledge-engine.inspect_maintenance_job",
@@ -872,11 +878,16 @@
         "noesis-knowledge-engine.preflight_source_pack_run",
         "noesis-knowledge-engine.preview_artifact_invalidation",
         "noesis-knowledge-engine.query_knowledge",
+        "noesis-knowledge-engine.read_quantitative_series",
         "noesis-knowledge-engine.read_workflow_stage",
+        "noesis-knowledge-engine.record_quantitative_observation",
+        "noesis-knowledge-engine.record_quantitative_series_break",
         "noesis-knowledge-engine.recover_stale_maintenance_jobs",
         "noesis-knowledge-engine.register_derived_artifact",
         "noesis-knowledge-engine.register_epistemic_taxonomy",
         "noesis-knowledge-engine.register_extractor",
+        "noesis-knowledge-engine.register_quantitative_metric",
+        "noesis-knowledge-engine.register_quantitative_unit",
         "noesis-knowledge-engine.register_source_identity",
         "noesis-knowledge-engine.relate_events",
         "noesis-knowledge-engine.renew_research_snapshot",
@@ -886,6 +897,7 @@
         "noesis-knowledge-engine.replay_hypothesis_workspace",
         "noesis-knowledge-engine.replay_knowledge_query",
         "noesis-knowledge-engine.replay_maintenance_generation",
+        "noesis-knowledge-engine.replay_quantitative_calculation",
         "noesis-knowledge-engine.replay_source_pack_run",
         "noesis-knowledge-engine.research_snapshot_health",
         "noesis-knowledge-engine.research_snapshot_pins",
@@ -902,6 +914,7 @@
         "noesis-knowledge-engine.review_epistemic_status",
         "noesis-knowledge-engine.revise_event_record",
         "noesis-knowledge-engine.revise_hypothesis_workspace",
+        "noesis-knowledge-engine.revise_quantitative_metric",
         "noesis-knowledge-engine.revise_source_identity",
         "noesis-knowledge-engine.run_maintenance_drain",
         "noesis-knowledge-engine.run_maintenance_once",
@@ -918,6 +931,7 @@
         "noesis-knowledge-engine.source_pack_runtime_coverage",
         "noesis-knowledge-engine.source_relationship_path",
         "noesis-knowledge-engine.split_source_alias",
+        "noesis-knowledge-engine.transform_quantitative_frequency",
         "noesis-knowledge-engine.unified_query_capabilities",
         "noesis-knowledge-engine.validate_api_connector_manifest",
         "noesis-knowledge-engine.validate_knowledge_workflow",
@@ -928,7 +942,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 121
+      "visible_tool_count": 135
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -942,9 +956,9 @@
       "available": 81,
       "degraded": 155,
       "disabled": 3,
-      "unauthorized": 113
+      "unauthorized": 127
     },
-    "tools": 352
+    "tools": 366
   },
   "tools": [
     {
@@ -12377,6 +12391,57 @@
       "version": "1"
     },
     {
+      "cost_class": "medium",
+      "description": "Adjust a value between explicit price-index observations with lineage.",
+      "id": "noesis-knowledge-engine.adjust_quantitative_inflation",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "observed_index": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "precision": {
+            "default": 6,
+            "type": "integer"
+          },
+          "target_index": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "value": {
+            "title": "Value"
+          }
+        },
+        "required": [
+          "namespace",
+          "value",
+          "observed_index",
+          "target_index"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "adjust_quantitative_inflation",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:quantitative:calculate"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "low",
       "description": "Traverse exact source, parser, extractor, schema, model, and config dependencies.",
       "id": "noesis-knowledge-engine.artifact_lineage",
@@ -12529,6 +12594,47 @@
       ],
       "required_scopes": [
         "knowledge:epistemic:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Explain whether observations are comparable across adjustments and series breaks.",
+      "id": "noesis-knowledge-engine.assess_quantitative_comparability",
+      "input_schema": {
+        "properties": {
+          "left_observation_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "right_observation_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "left_observation_id",
+          "right_observation_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "assess_quantitative_comparability",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:quantitative:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -12959,6 +13065,67 @@
       ],
       "required_scopes": [
         "knowledge:hypothesis:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Convert a value using exact units, explicit FX evidence, and a durable receipt.",
+      "id": "noesis-knowledge-engine.convert_quantitative_value",
+      "input_schema": {
+        "properties": {
+          "from_unit": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "precision": {
+            "default": 6,
+            "type": "integer"
+          },
+          "rate": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "to_unit": {
+            "type": "string"
+          },
+          "value": {
+            "title": "Value"
+          }
+        },
+        "required": [
+          "namespace",
+          "value",
+          "from_unit",
+          "to_unit"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "convert_quantitative_value",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:quantitative:calculate"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -13643,6 +13810,47 @@
     },
     {
       "cost_class": "low",
+      "description": "Discover metrics by canonical name, synonym, or provider mapping.",
+      "id": "noesis-knowledge-engine.discover_quantitative_metrics",
+      "input_schema": {
+        "properties": {
+          "limit": {
+            "default": 50,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "query": {
+            "default": "",
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "discover_quantitative_metrics",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:quantitative:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Page deterministic changes across a committed source-pack watermark range.",
       "id": "noesis-knowledge-engine.document_generation_delta",
       "input_schema": {
@@ -13901,6 +14109,55 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Evaluate a safe versioned metric formula with exact input lineage.",
+      "id": "noesis-knowledge-engine.evaluate_quantitative_formula",
+      "input_schema": {
+        "properties": {
+          "inputs": {
+            "additionalProperties": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "object"
+          },
+          "metric_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "precision": {
+            "default": 6,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "namespace",
+          "metric_id",
+          "inputs"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "evaluate_quantitative_formula",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:quantitative:calculate"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
       "version": "1"
     },
     {
@@ -14563,6 +14820,58 @@
       ],
       "required_scopes": [
         "knowledge:hypothesis:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Read the current, exact, or complete immutable history of a metric.",
+      "id": "noesis-knowledge-engine.get_quantitative_metric",
+      "input_schema": {
+        "properties": {
+          "include_history": {
+            "default": false,
+            "type": "boolean"
+          },
+          "metric_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "revision": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "metric_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "get_quantitative_metric",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:quantitative:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -15585,6 +15894,73 @@
     },
     {
       "cost_class": "low",
+      "description": "Read coherent latest vintages, or all vintages, as known at a requested time.",
+      "id": "noesis-knowledge-engine.read_quantitative_series",
+      "input_schema": {
+        "properties": {
+          "as_of_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "include_vintages": {
+            "default": false,
+            "type": "boolean"
+          },
+          "limit": {
+            "default": 1000,
+            "type": "integer"
+          },
+          "metric_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "provider": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "metric_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "read_quantitative_series",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:quantitative:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Read a stage output from exactly one committed workflow generation.",
       "id": "noesis-knowledge-engine.read_workflow_stage",
       "input_schema": {
@@ -15626,6 +16002,222 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Record a provenance-rich observation without replacing earlier vintages.",
+      "id": "noesis-knowledge-engine.record_quantitative_observation",
+      "input_schema": {
+        "properties": {
+          "adjustment": {
+            "default": "unknown",
+            "type": "string"
+          },
+          "currency_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "generation": {
+            "default": 0,
+            "type": "integer"
+          },
+          "metric_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "period": {
+            "type": "string"
+          },
+          "preliminary": {
+            "default": false,
+            "type": "boolean"
+          },
+          "provenance": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "provider": {
+            "type": "string"
+          },
+          "provider_series_id": {
+            "type": "string"
+          },
+          "release_at_ms": {
+            "type": "integer"
+          },
+          "retrieved_at_ms": {
+            "type": "integer"
+          },
+          "revision_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "unit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "valid_from_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "valid_to_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "value": {
+            "anyOf": [
+              {},
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "vintage_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "metric_id",
+          "period",
+          "value",
+          "provider",
+          "provider_series_id",
+          "vintage_id",
+          "release_at_ms",
+          "retrieved_at_ms"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "record_quantitative_observation",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:quantitative:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Record a sourced definition, method, geography, rebase, basket, or provider break.",
+      "id": "noesis-knowledge-engine.record_quantitative_series_break",
+      "input_schema": {
+        "properties": {
+          "after": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "before": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "boundary_ms": {
+            "type": "integer"
+          },
+          "break_type": {
+            "type": "string"
+          },
+          "confidence": {
+            "type": "number"
+          },
+          "evidence": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "metric_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "metric_id",
+          "break_type",
+          "boundary_ms",
+          "before",
+          "after",
+          "evidence",
+          "confidence"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "record_quantitative_series_break",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:quantitative:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
       "version": "1"
     },
     {
@@ -15779,6 +16371,282 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Register a versioned metric with aliases and source-native mappings.",
+      "id": "noesis-knowledge-engine.register_quantitative_metric",
+      "input_schema": {
+        "properties": {
+          "canonical_name": {
+            "type": "string"
+          },
+          "definition": {
+            "type": "string"
+          },
+          "formula": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "frequency": {
+            "default": "irregular",
+            "type": "string"
+          },
+          "generation": {
+            "default": 0,
+            "type": "integer"
+          },
+          "idempotency_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "mappings": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "observed_at_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "policy": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "population": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "producer": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "synonyms": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "unit": {
+            "type": "string"
+          },
+          "valid_from_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "valid_to_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "canonical_name",
+          "definition",
+          "unit"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "register_quantitative_metric",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:quantitative:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Register an immutable unit, compound dimension, or currency version.",
+      "id": "noesis-knowledge-engine.register_quantitative_unit",
+      "input_schema": {
+        "properties": {
+          "aliases": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "currency_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "dimension": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object"
+          },
+          "factor": {
+            "default": "1",
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "offset": {
+            "default": "0",
+            "type": "string"
+          },
+          "redenomination_factor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "semantic_version": {
+            "default": "1.0.0",
+            "type": "string"
+          },
+          "successor_unit_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "symbol": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "symbol",
+          "dimension"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "register_quantitative_unit",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:quantitative:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
       "version": "1"
     },
     {
@@ -16265,6 +17133,43 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Recompute a stored calculation hash to verify deterministic replay.",
+      "id": "noesis-knowledge-engine.replay_quantitative_calculation",
+      "input_schema": {
+        "properties": {
+          "calculation_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "calculation_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "replay_quantitative_calculation",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:quantitative:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
       "version": "1"
     },
     {
@@ -16955,6 +17860,52 @@
       ],
       "required_scopes": [
         "knowledge:hypothesis:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Append an immutable metric schema or methodology revision.",
+      "id": "noesis-knowledge-engine.revise_quantitative_metric",
+      "input_schema": {
+        "properties": {
+          "expected_revision": {
+            "type": "integer"
+          },
+          "metric_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "patch": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "namespace",
+          "metric_id",
+          "expected_revision",
+          "patch"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "revise_quantitative_metric",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:quantitative:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -17736,6 +18687,63 @@
       ],
       "required_scopes": [
         "knowledge:source-identity:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Aggregate a complete input window to another frequency with a receipt.",
+      "id": "noesis-knowledge-engine.transform_quantitative_frequency",
+      "input_schema": {
+        "properties": {
+          "aggregation": {
+            "type": "string"
+          },
+          "from_frequency": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "precision": {
+            "default": 6,
+            "type": "integer"
+          },
+          "to_frequency": {
+            "type": "string"
+          },
+          "values": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "namespace",
+          "values",
+          "from_frequency",
+          "to_frequency",
+          "aggregation"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "transform_quantitative_frequency",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:quantitative:calculate"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
