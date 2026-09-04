@@ -288,6 +288,20 @@ def test_maintenance_surface_and_catalog_scope_separation(monkeypatch):
         "transition_anomaly_alert",
         "anomaly_alert_history",
         "inspect_anomaly_health",
+        "register_retention_policy",
+        "register_retention_object",
+        "place_retention_legal_hold",
+        "release_retention_legal_hold",
+        "simulate_retention_eligibility",
+        "create_retention_checkpoint",
+        "verify_retention_checkpoint",
+        "archive_knowledge_checkpoint",
+        "restore_knowledge_archive",
+        "plan_retention_gc",
+        "execute_retention_gc",
+        "get_retention_job",
+        "cancel_retention_job",
+        "inspect_retention_health",
     }
     assert expected <= set(tools)
     assert _required_scopes(
@@ -825,3 +839,8 @@ def test_capabilities_advertise_generation_contracts():
     assert "noesis-knowledge-anomaly-v1" in capabilities["contracts"]
     assert "noesis-anomaly-alert-v1" in capabilities["contracts"]
     assert "noesis-anomaly-health-v1" in capabilities["contracts"]
+    assert "noesis-retention-policy-v1" in capabilities["contracts"]
+    assert "noesis-retention-checkpoint-v1" in capabilities["contracts"]
+    assert "noesis-archive-manifest-v1" in capabilities["contracts"]
+    assert "noesis-retention-gc-plan-v1" in capabilities["contracts"]
+    assert "noesis-retention-job-v1" in capabilities["contracts"]

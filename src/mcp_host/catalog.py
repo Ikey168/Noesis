@@ -153,6 +153,11 @@ MUTATION_NAMES = frozenset(
         "revoke_access_share_grant",
         "correlate_knowledge_anomaly",
         "transition_anomaly_alert",
+        "place_retention_legal_hold",
+        "release_retention_legal_hold",
+        "archive_knowledge_checkpoint",
+        "restore_knowledge_archive",
+        "plan_retention_gc",
     }
 )
 
@@ -325,6 +330,29 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
             return ["knowledge:memory:admin"]
         return ["knowledge:memory:read"]
     if server_stem == "knowledge_engine_mcp":
+        if tool_name in {
+            "register_retention_policy",
+            "register_retention_object",
+            "place_retention_legal_hold",
+            "release_retention_legal_hold",
+            "plan_retention_gc",
+        }:
+            return ["knowledge:retention:admin"]
+        if tool_name in {
+            "create_retention_checkpoint",
+            "archive_knowledge_checkpoint",
+            "restore_knowledge_archive",
+            "execute_retention_gc",
+            "cancel_retention_job",
+        }:
+            return ["knowledge:retention:execute"]
+        if tool_name in {
+            "simulate_retention_eligibility",
+            "verify_retention_checkpoint",
+            "get_retention_job",
+            "inspect_retention_health",
+        }:
+            return ["knowledge:retention:read"]
         if tool_name == "run_anomaly_detector":
             return ["knowledge:anomalies:execute"]
         if tool_name in {"deliver_anomaly_alert", "transition_anomaly_alert"}:

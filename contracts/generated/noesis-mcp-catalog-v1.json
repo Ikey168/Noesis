@@ -808,7 +808,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 312,
+      "tool_count": 326,
       "tools": [
         "noesis-knowledge-engine.accept_citation_repair",
         "noesis-knowledge-engine.accept_dataset_join",
@@ -820,6 +820,7 @@
         "noesis-knowledge-engine.align_cross_language_claims",
         "noesis-knowledge-engine.annotate_evidence_freshness",
         "noesis-knowledge-engine.anomaly_alert_history",
+        "noesis-knowledge-engine.archive_knowledge_checkpoint",
         "noesis-knowledge-engine.artifact_lineage",
         "noesis-knowledge-engine.assess_epistemic_statement",
         "noesis-knowledge-engine.assess_evidence_freshness",
@@ -835,6 +836,7 @@
         "noesis-knowledge-engine.cancel_knowledge_query",
         "noesis-knowledge-engine.cancel_maintenance_job",
         "noesis-knowledge-engine.cancel_research_recipe_run",
+        "noesis-knowledge-engine.cancel_retention_job",
         "noesis-knowledge-engine.cancel_source_acquisition_plan",
         "noesis-knowledge-engine.cancel_source_pack_run",
         "noesis-knowledge-engine.capture_citation_snapshot",
@@ -857,6 +859,7 @@
         "noesis-knowledge-engine.create_event_record",
         "noesis-knowledge-engine.create_hypothesis_research_plan",
         "noesis-knowledge-engine.create_hypothesis_workspace",
+        "noesis-knowledge-engine.create_retention_checkpoint",
         "noesis-knowledge-engine.create_source_acquisition_plan",
         "noesis-knowledge-engine.create_source_research_objective",
         "noesis-knowledge-engine.decide_source_alias",
@@ -887,6 +890,7 @@
         "noesis-knowledge-engine.execute_entity_merge",
         "noesis-knowledge-engine.execute_entity_split",
         "noesis-knowledge-engine.execute_hypothesis_research_plan",
+        "noesis-knowledge-engine.execute_retention_gc",
         "noesis-knowledge-engine.execute_source_acquisition_plan",
         "noesis-knowledge-engine.explain_derived_object_invalidation",
         "noesis-knowledge-engine.explain_epistemic_assessment",
@@ -934,6 +938,7 @@
         "noesis-knowledge-engine.get_quantitative_metric",
         "noesis-knowledge-engine.get_research_gap",
         "noesis-knowledge-engine.get_research_recipe_run",
+        "noesis-knowledge-engine.get_retention_job",
         "noesis-knowledge-engine.get_source_acquisition_plan",
         "noesis-knowledge-engine.get_source_capability",
         "noesis-knowledge-engine.get_study_replication_graph",
@@ -949,6 +954,7 @@
         "noesis-knowledge-engine.inspect_quality_health",
         "noesis-knowledge-engine.inspect_reference_workflow",
         "noesis-knowledge-engine.inspect_research_snapshot",
+        "noesis-knowledge-engine.inspect_retention_health",
         "noesis-knowledge-engine.inspect_source_acquisition_run",
         "noesis-knowledge-engine.inspect_source_pack_run",
         "noesis-knowledge-engine.install_source_pack",
@@ -978,7 +984,9 @@
         "noesis-knowledge-engine.merge_canonical_events",
         "noesis-knowledge-engine.multilingual_search",
         "noesis-knowledge-engine.pause_maintenance_schedule",
+        "noesis-knowledge-engine.place_retention_legal_hold",
         "noesis-knowledge-engine.plan_extractor_reprocessing",
+        "noesis-knowledge-engine.plan_retention_gc",
         "noesis-knowledge-engine.preflight_source_pack_run",
         "noesis-knowledge-engine.preview_anomaly_baseline",
         "noesis-knowledge-engine.preview_artifact_invalidation",
@@ -1030,10 +1038,13 @@
         "noesis-knowledge-engine.register_quantitative_unit",
         "noesis-knowledge-engine.register_research_gap_policy",
         "noesis-knowledge-engine.register_research_recipe",
+        "noesis-knowledge-engine.register_retention_object",
+        "noesis-knowledge-engine.register_retention_policy",
         "noesis-knowledge-engine.register_source_capability",
         "noesis-knowledge-engine.register_source_identity",
         "noesis-knowledge-engine.relate_events",
         "noesis-knowledge-engine.relate_evidence_applicability",
+        "noesis-knowledge-engine.release_retention_legal_hold",
         "noesis-knowledge-engine.renew_research_snapshot",
         "noesis-knowledge-engine.replay_change_brief",
         "noesis-knowledge-engine.replay_citation_snapshot",
@@ -1061,6 +1072,7 @@
         "noesis-knowledge-engine.resolve_event_report",
         "noesis-knowledge-engine.resolve_geospatial_candidates",
         "noesis-knowledge-engine.resolve_source_alias",
+        "noesis-knowledge-engine.restore_knowledge_archive",
         "noesis-knowledge-engine.resume_maintenance_schedule",
         "noesis-knowledge-engine.retire_hypothesis_workspace",
         "noesis-knowledge-engine.retract_event_account",
@@ -1103,6 +1115,7 @@
         "noesis-knowledge-engine.simulate_anomaly_detector",
         "noesis-knowledge-engine.simulate_evidence_freshness_policy",
         "noesis-knowledge-engine.simulate_quality_policy",
+        "noesis-knowledge-engine.simulate_retention_eligibility",
         "noesis-knowledge-engine.slice_dataset_table",
         "noesis-knowledge-engine.source_identity_dossier",
         "noesis-knowledge-engine.source_identity_history",
@@ -1121,14 +1134,15 @@
         "noesis-knowledge-engine.validate_knowledge_workflow",
         "noesis-knowledge-engine.validate_research_recipe",
         "noesis-knowledge-engine.validate_source_pack",
-        "noesis-knowledge-engine.verify_preserved_citation"
+        "noesis-knowledge-engine.verify_preserved_citation",
+        "noesis-knowledge-engine.verify_retention_checkpoint"
       ],
       "transports": [
         "stdio",
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 312
+      "visible_tool_count": 326
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -1142,9 +1156,9 @@
       "available": 81,
       "degraded": 155,
       "disabled": 3,
-      "unauthorized": 313
+      "unauthorized": 327
     },
-    "tools": 552
+    "tools": 566
   },
   "tools": [
     {
@@ -13643,6 +13657,72 @@
       "version": "1"
     },
     {
+      "cost_class": "medium",
+      "description": "Archive a checkpoint through a pluggable storage manifest.",
+      "id": "noesis-knowledge-engine.archive_knowledge_checkpoint",
+      "input_schema": {
+        "properties": {
+          "cancel_requested": {
+            "default": false,
+            "type": "boolean"
+          },
+          "checkpoint_id": {
+            "type": "string"
+          },
+          "encryption": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "partial": {
+            "default": false,
+            "type": "boolean"
+          },
+          "storage": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "storage_available": {
+            "default": true,
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "namespace",
+          "checkpoint_id",
+          "storage"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "archive_knowledge_checkpoint",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:retention:execute"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "low",
       "description": "Traverse exact source, parser, extractor, schema, model, and config dependencies.",
       "id": "noesis-knowledge-engine.artifact_lineage",
@@ -14707,6 +14787,43 @@
       ],
       "required_scopes": [
         "knowledge:recipes:execute"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Cancel a non-terminal retention job.",
+      "id": "noesis-knowledge-engine.cancel_retention_job",
+      "input_schema": {
+        "properties": {
+          "job_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "job_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "cancel_retention_job",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:retention:execute"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -16160,6 +16277,81 @@
       ],
       "required_scopes": [
         "knowledge:hypothesis:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Compact immutable history into a bounded content-addressed checkpoint.",
+      "id": "noesis-knowledge-engine.create_retention_checkpoint",
+      "input_schema": {
+        "properties": {
+          "cancel_requested": {
+            "default": false,
+            "type": "boolean"
+          },
+          "generation_end": {
+            "type": "integer"
+          },
+          "generation_start": {
+            "type": "integer"
+          },
+          "limit": {
+            "default": 1000,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "records": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "schema_version": {
+            "type": "string"
+          },
+          "tombstones": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "generation_start",
+          "generation_end",
+          "records",
+          "schema_version"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "create_retention_checkpoint",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:retention:execute"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -17762,6 +17954,52 @@
       ],
       "required_scopes": [
         "knowledge:hypothesis:execute"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Recheck plan guards and atomically tombstone dependency-unreachable objects.",
+      "id": "noesis-knowledge-engine.execute_retention_gc",
+      "input_schema": {
+        "properties": {
+          "cancel_requested": {
+            "default": false,
+            "type": "boolean"
+          },
+          "deletion_outcome": {
+            "default": "success",
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "plan": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "namespace",
+          "plan"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "execute_retention_gc",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:retention:execute"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -19848,6 +20086,43 @@
     },
     {
       "cost_class": "low",
+      "description": "Inspect a retention job receipt and terminal status.",
+      "id": "noesis-knowledge-engine.get_retention_job",
+      "input_schema": {
+        "properties": {
+          "job_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "job_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "get_retention_job",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:retention:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Read an exact persisted source plan.",
       "id": "noesis-knowledge-engine.get_source_acquisition_plan",
       "input_schema": {
@@ -20470,6 +20745,39 @@
       ],
       "required_scopes": [
         "knowledge:snapshot:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Report capacity-facing retention, archive, hold, and failure counts.",
+      "id": "noesis-knowledge-engine.inspect_retention_health",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "inspect_retention_health",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:retention:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -21916,6 +22224,58 @@
       "version": "1"
     },
     {
+      "cost_class": "medium",
+      "description": "Place a finite or indefinite legal hold on a knowledge object.",
+      "id": "noesis-knowledge-engine.place_retention_legal_hold",
+      "input_schema": {
+        "properties": {
+          "expires_at_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "object_id": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "object_id",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "place_retention_legal_hold",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:retention:admin"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "low",
       "description": "Preview selective side-by-side reprocessing without overwriting prior output.",
       "id": "noesis-knowledge-engine.plan_extractor_reprocessing",
@@ -21968,6 +22328,50 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Dry-run dependency, snapshot, bundle, export, session, and hold checks.",
+      "id": "noesis-knowledge-engine.plan_retention_gc",
+      "input_schema": {
+        "properties": {
+          "limit": {
+            "default": 1000,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "object_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "namespace",
+          "object_ids"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "plan_retention_gc",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:retention:admin"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
       "version": "1"
     },
     {
@@ -26387,6 +26791,176 @@
     },
     {
       "cost_class": "medium",
+      "description": "Attach retention metadata to an existing knowledge object identity.",
+      "id": "noesis-knowledge-engine.register_retention_object",
+      "input_schema": {
+        "properties": {
+          "access_class": {
+            "default": "public",
+            "type": "string"
+          },
+          "created_at_ms": {
+            "type": "integer"
+          },
+          "dependencies": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "generation": {
+            "default": 0,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "object_class": {
+            "type": "string"
+          },
+          "object_id": {
+            "type": "string"
+          },
+          "payload": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "pins": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "policy_id": {
+            "type": "string"
+          },
+          "policy_version": {
+            "type": "integer"
+          },
+          "source_license": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "value_score": {
+            "default": 0.0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "namespace",
+          "object_id",
+          "object_class",
+          "policy_id",
+          "policy_version",
+          "payload",
+          "created_at_ms"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "register_retention_object",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:retention:admin"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Register an immutable retention policy with optional inheritance.",
+      "id": "noesis-knowledge-engine.register_retention_policy",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "parent_policy_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "policy_id": {
+            "type": "string"
+          },
+          "rules": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "status": {
+            "default": "active",
+            "type": "string"
+          },
+          "version": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "namespace",
+          "policy_id",
+          "version",
+          "rules"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "register_retention_policy",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:retention:admin"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Register a credential-safe, immutable source capability version.",
       "id": "noesis-knowledge-engine.register_source_capability",
       "input_schema": {
@@ -26882,6 +27456,43 @@
       ],
       "required_scopes": [
         "knowledge:freshness:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Release a legal hold while preserving its audit record.",
+      "id": "noesis-knowledge-engine.release_retention_legal_hold",
+      "input_schema": {
+        "properties": {
+          "hold_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "hold_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "release_retention_legal_hold",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:retention:admin"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -27949,6 +28560,47 @@
       ],
       "required_scopes": [
         "knowledge:source-identity:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Verify and atomically restore a cold archive.",
+      "id": "noesis-knowledge-engine.restore_knowledge_archive",
+      "input_schema": {
+        "properties": {
+          "archive_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "storage_available": {
+            "default": true,
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "namespace",
+          "archive_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "restore_knowledge_archive",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:retention:execute"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -30213,6 +30865,43 @@
     },
     {
       "cost_class": "low",
+      "description": "Explain a side-effect-free retention or deletion decision.",
+      "id": "noesis-knowledge-engine.simulate_retention_eligibility",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "object_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "object_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "simulate_retention_eligibility",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:retention:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Read a bounded, vintage-pinned table slice with explicit null semantics.",
       "id": "noesis-knowledge-engine.slice_dataset_table",
       "input_schema": {
@@ -31161,6 +31850,72 @@
       ],
       "required_scopes": [
         "knowledge:citation:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Verify checkpoint identity and optionally compare supplied content.",
+      "id": "noesis-knowledge-engine.verify_retention_checkpoint",
+      "input_schema": {
+        "properties": {
+          "checkpoint_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "records": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "tombstones": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "checkpoint_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "verify_retention_checkpoint",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:retention:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
