@@ -1,0 +1,14 @@
+{
+  "contract": "noesis-schema-crosswalk-v1",
+  "name": "economic-to-canonical",
+  "semantic_version": "1.0.0",
+  "source": {"kind": "ontology", "name": "economic", "version": "^1.0.0"},
+  "target": {"kind": "ontology", "name": "canonical-entity-relation", "version": "1.0.0"},
+  "direction": "forward",
+  "confidence": 0.99,
+  "conditions": [{"measurement_dimensions_required": true}],
+  "mappings": [{"kind": "type", "source": "economic-indicator", "target": "Dataset", "lossy": true}],
+  "owner": "economic-pack",
+  "provenance": {"kind": "builtin", "source": "economic domain pack"},
+  "actor": {"principal_id": "registry-admin", "kind": "user"}
+}

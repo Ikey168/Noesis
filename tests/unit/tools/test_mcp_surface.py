@@ -43,6 +43,7 @@ READ_SMOKES = {
     "provisioning_mcp": ("kg_list", {}),
     "research_mcp": ("venues", {}),
     "schema_mcp": ("list_routes", {}),
+    "schema_registry_mcp": ("schema_registry_context", {}),
     "security_mcp": ("security_posture", {}),
     "sources_mcp": ("list_sources", {}),
     "statistics_mcp": ("stats", {}),
@@ -79,6 +80,13 @@ DOCUMENTED_WRITES = {
     ("provisioning_mcp", "kg_teardown"),
     ("transactions_mcp", "commit_mutation_batch"),
     ("transactions_mcp", "rollback_mutation_batch"),
+    ("schema_registry_mcp", "declare_schema_dependency"),
+    ("schema_registry_mcp", "define_schema_migration"),
+    ("schema_registry_mcp", "deprecate_schema_module"),
+    ("schema_registry_mcp", "execute_schema_migration"),
+    ("schema_registry_mcp", "register_schema_crosswalk"),
+    ("schema_registry_mcp", "register_schema_module"),
+    ("schema_registry_mcp", "rollback_schema_migration"),
 }
 
 # Analytics whose advertised output contract must be machine-checkable before

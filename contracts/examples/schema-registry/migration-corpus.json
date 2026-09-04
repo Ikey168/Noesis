@@ -1,0 +1,21 @@
+{
+  "contract": "noesis-schema-migration-v1",
+  "migration_id": "article-record-1-to-2-corpus",
+  "from": {"kind": "schema", "name": "article-record", "version": "1.0.0"},
+  "to": {"kind": "schema", "name": "article-record", "version": "2.0.0"},
+  "affected_types": ["article-record"],
+  "preconditions": {"required_fields": ["headline"], "minimum_revision": 1},
+  "transforms": [
+    {"op": "rename_field", "from": "headline", "to": "title"},
+    {"op": "set_default", "field": "schema_version", "value": 2}
+  ],
+  "postconditions": {"validate_target": true},
+  "reverse_transforms": [
+    {"op": "remove_field", "field": "schema_version"},
+    {"op": "rename_field", "from": "title", "to": "headline"}
+  ],
+  "owner": "research-platform",
+  "provenance": {"kind": "user", "source": "approved migration plan"},
+  "actor": {"principal_id": "registry-admin", "kind": "user"},
+  "fixture_namespace": "corpus"
+}

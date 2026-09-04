@@ -1,0 +1,18 @@
+{
+  "contract": "noesis-schema-module-v1",
+  "name": "article-record",
+  "kind": "schema",
+  "semantic_version": "1.0.0",
+  "content": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "required": ["headline"],
+    "properties": {"headline": {"type": "string"}},
+    "additionalProperties": true
+  },
+  "owner": "research-platform",
+  "dependencies": [],
+  "compatibility_policy": "none",
+  "provenance": {"kind": "user", "source": "schema working group"},
+  "actor": {"principal_id": "registry-admin", "kind": "user"}
+}
