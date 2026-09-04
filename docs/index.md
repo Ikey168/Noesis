@@ -61,6 +61,8 @@ For the project overview and local setup, start with the
   execution, checkpoints, fallbacks, and reproducible receipts
 - **[Dataset intelligence](guides/dataset-intelligence.md)** — stable catalogs,
   release vintages, bounded tabular ingestion, safe joins, and exact lineage
+- **[Methodology provenance](guides/methodology-provenance.md)** — versioned
+  study designs, exact-locator extraction, bias reviews, and replication graphs
 - **[Unified knowledge query](guides/unified-knowledge-query.md)** — one bounded,
   evidence-preserving plane over local, temporal, memory, and federated data.
 - [Project structure](development/project-structure.md) — where things live in

@@ -147,6 +147,11 @@ def knowledge_engine_capabilities() -> dict:
             "noesis-tabular-ingestion-receipt-v1",
             "noesis-dataset-slice-v1",
             "noesis-dataset-join-v1",
+            "noesis-methodology-study-v1",
+            "noesis-methodology-extraction-v1",
+            "noesis-methodology-assessment-v1",
+            "noesis-study-artifact-link-v1",
+            "noesis-methodology-comparison-v1",
             "noesis-maintenance-job-request-v1",
             "noesis-maintenance-job-receipt-v1",
             "noesis-knowledge-generation-v1",
@@ -216,6 +221,10 @@ def knowledge_engine_capabilities() -> dict:
             "vintage-and-partition-aware-tabular-observations",
             "bounded-multiformat-tabular-ingestion",
             "dataset-join-discovery-and-lineage",
+            "versioned-study-methodology-objects",
+            "exact-locator-method-extraction",
+            "reviewed-bias-and-applicability-assessments",
+            "study-artifact-and-replication-graphs",
             "knowledge-maintenance",
             "lease-safe-workers",
             "committed-generations",
@@ -4779,6 +4788,289 @@ def get_dataset_lineage(namespace: str, transformation_id: str) -> dict:
             namespace, transformation_id, scopes={"knowledge:dataset:read"}
         ),
         required_scope="knowledge:dataset:read",
+    )
+
+
+@mcp.tool()
+def register_methodology_study(
+    namespace: str,
+    external_id: str,
+    version: str,
+    title: str,
+    design: dict[str, Any],
+    population: dict[str, Any],
+    interventions: list[dict[str, Any]],
+    comparators: list[dict[str, Any]],
+    outcomes: list[dict[str, Any]],
+    datasets: list[dict[str, Any]] | None = None,
+    samples: list[dict[str, Any]] | None = None,
+    instruments: list[dict[str, Any]] | None = None,
+    analysis_plans: list[dict[str, Any]] | None = None,
+    predecessor_revision_id: str | None = None,
+    generation: int = 0,
+    valid_from_ms: int | None = None,
+    valid_to_ms: int | None = None,
+    observed_at_ms: int | None = None,
+    producer: dict[str, Any] | None = None,
+    policy: dict[str, Any] | None = None,
+    provenance: dict[str, Any] | None = None,
+) -> dict:
+    """Register a versioned study and its design, population, and analysis objects."""
+    from src.kb.methodology_provenance import MethodologyStore
+
+    return _safe(
+        lambda conn: MethodologyStore(conn).register_study(
+            namespace,
+            external_id,
+            version,
+            title,
+            design,
+            population,
+            interventions,
+            comparators,
+            outcomes,
+            datasets=datasets or [],
+            samples=samples or [],
+            instruments=instruments or [],
+            analysis_plans=analysis_plans or [],
+            predecessor_revision_id=predecessor_revision_id,
+            generation=generation,
+            valid_from_ms=valid_from_ms,
+            valid_to_ms=valid_to_ms,
+            observed_at_ms=observed_at_ms,
+            producer=producer,
+            policy=policy,
+            provenance=provenance,
+            principal_id=_context()[0],
+            scopes={"knowledge:methodology:write"},
+        ),
+        write=True,
+        required_scope="knowledge:methodology:write",
+    )
+
+
+@mcp.tool()
+def get_methodology_study(
+    namespace: str, study_id: str, revision_id: str | None = None
+) -> dict:
+    """Read the current or an exact study-method revision."""
+    from src.kb.methodology_provenance import MethodologyStore
+
+    return _safe(
+        lambda conn: MethodologyStore(conn, initialize=False).study(
+            namespace,
+            study_id,
+            revision_id=revision_id,
+            scopes={"knowledge:methodology:read"},
+        ),
+        required_scope="knowledge:methodology:read",
+    )
+
+
+@mcp.tool()
+def search_methodology_studies(
+    namespace: str, query: str, limit: int = 50, offset: int = 0
+) -> dict:
+    """Search current study-method records with bounded pagination."""
+    from src.kb.methodology_provenance import MethodologyStore
+
+    return _safe(
+        lambda conn: MethodologyStore(conn, initialize=False).search(
+            namespace,
+            query,
+            limit=limit,
+            offset=offset,
+            scopes={"knowledge:methodology:read"},
+        ),
+        required_scope="knowledge:methodology:read",
+    )
+
+
+@mcp.tool()
+def extract_methodology_statements(
+    namespace: str,
+    study_id: str,
+    document_id: str,
+    statements: list[dict[str, Any]],
+    limit: int = 500,
+    cancel_requested: bool = False,
+    provenance: dict[str, Any] | None = None,
+) -> dict:
+    """Persist bounded method statements with page, section, table, or passage locators."""
+    from src.kb.methodology_provenance import MethodologyStore
+
+    return _safe(
+        lambda conn: MethodologyStore(conn).extract(
+            namespace,
+            study_id,
+            document_id,
+            statements,
+            limit=limit,
+            cancel_requested=cancel_requested,
+            provenance=provenance,
+            principal_id=_context()[0],
+            scopes={"knowledge:methodology:extract"},
+        ),
+        write=True,
+        required_scope="knowledge:methodology:extract",
+    )
+
+
+@mcp.tool()
+def replay_methodology_extraction(namespace: str, extraction_id: str) -> dict:
+    """Verify the deterministic output hash of an exact-locator extraction."""
+    from src.kb.methodology_provenance import MethodologyStore
+
+    return _safe(
+        lambda conn: MethodologyStore(conn, initialize=False).replay_extraction(
+            namespace, extraction_id, scopes={"knowledge:methodology:read"}
+        ),
+        required_scope="knowledge:methodology:read",
+    )
+
+
+@mcp.tool()
+def assess_methodology_limitation(
+    namespace: str,
+    study_id: str,
+    framework: str,
+    dimension: str,
+    rationale: str,
+    rating: str | None = None,
+    evidence_statement_ids: list[str] | None = None,
+    applicability: dict[str, Any] | None = None,
+    reviewer_id: str | None = None,
+    source_locator: dict[str, Any] | None = None,
+    observed_at_ms: int | None = None,
+    provenance: dict[str, Any] | None = None,
+) -> dict:
+    """Record a sourced or reviewed, versioned bias or applicability assessment."""
+    from src.kb.methodology_provenance import MethodologyStore
+
+    return _safe(
+        lambda conn: MethodologyStore(conn).assess(
+            namespace,
+            study_id,
+            framework,
+            dimension,
+            rating,
+            rationale,
+            evidence_statement_ids=evidence_statement_ids or [],
+            applicability=applicability,
+            reviewer_id=reviewer_id,
+            source_locator=source_locator,
+            observed_at_ms=observed_at_ms,
+            provenance=provenance,
+            principal_id=_context()[0],
+            scopes={"knowledge:methodology:review"},
+        ),
+        write=True,
+        required_scope="knowledge:methodology:review",
+    )
+
+
+@mcp.tool()
+def list_methodology_limitations(
+    namespace: str,
+    study_id: str,
+    framework: str | None = None,
+    rating: str | None = None,
+    limit: int = 100,
+) -> dict:
+    """Filter current bias, confounding, power, measurement, and applicability records."""
+    from src.kb.methodology_provenance import MethodologyStore
+
+    return _safe(
+        lambda conn: MethodologyStore(conn, initialize=False).limitations(
+            namespace,
+            study_id,
+            framework=framework,
+            rating=rating,
+            limit=limit,
+            scopes={"knowledge:methodology:read"},
+        ),
+        required_scope="knowledge:methodology:read",
+    )
+
+
+@mcp.tool()
+def link_study_artifact(
+    namespace: str,
+    study_id: str,
+    artifact_type: str,
+    artifact_id: str,
+    relation: str,
+    status: str = "available",
+    version: str | None = None,
+    locator: str | None = None,
+    indirect_via: str | None = None,
+    study_external_id: str | None = None,
+    provenance: dict[str, Any] | None = None,
+) -> dict:
+    """Link a study to registrations, protocols, data, code, replications, or corrections."""
+    from src.kb.methodology_provenance import MethodologyStore
+
+    return _safe(
+        lambda conn: MethodologyStore(conn).link_artifact(
+            namespace,
+            study_id,
+            artifact_type,
+            artifact_id,
+            relation,
+            status=status,
+            version=version,
+            locator=locator,
+            indirect_via=indirect_via,
+            study_external_id=study_external_id,
+            provenance=provenance,
+            principal_id=_context()[0],
+            scopes={"knowledge:methodology:write"},
+        ),
+        write=True,
+        required_scope="knowledge:methodology:write",
+    )
+
+
+@mcp.tool()
+def get_study_replication_graph(
+    namespace: str, study_id: str, limit: int = 100
+) -> dict:
+    """Read bounded registration, replication, data, code, and correction links."""
+    from src.kb.methodology_provenance import MethodologyStore
+
+    return _safe(
+        lambda conn: MethodologyStore(conn, initialize=False).replication_graph(
+            namespace, study_id, limit=limit, scopes={"knowledge:methodology:read"}
+        ),
+        required_scope="knowledge:methodology:read",
+    )
+
+
+@mcp.tool()
+def compare_study_methodologies(
+    namespace: str, study_ids: list[str], limit: int = 20
+) -> dict:
+    """Compare exact study designs, populations, interventions, outcomes, and plans."""
+    from src.kb.methodology_provenance import MethodologyStore
+
+    return _safe(
+        lambda conn: MethodologyStore(conn, initialize=False).compare(
+            namespace, study_ids, limit=limit, scopes={"knowledge:methodology:read"}
+        ),
+        required_scope="knowledge:methodology:read",
+    )
+
+
+@mcp.tool()
+def explain_study_evidence_strength(namespace: str, study_id: str) -> dict:
+    """Explain evidence strength without converting unknown assessments into ratings."""
+    from src.kb.methodology_provenance import MethodologyStore
+
+    return _safe(
+        lambda conn: MethodologyStore(conn, initialize=False).explain_strength(
+            namespace, study_id, scopes={"knowledge:methodology:read"}
+        ),
+        required_scope="knowledge:methodology:read",
     )
 
 
