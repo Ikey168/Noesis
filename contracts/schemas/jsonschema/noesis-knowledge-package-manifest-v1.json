@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/contracts/noesis-knowledge-package-manifest-v1.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["contract", "format_version", "namespace", "mode", "filters", "dependency_closure", "components", "component_counts", "dependencies", "omissions", "compatibility", "content_hash"],
+  "properties": {
+    "contract": {"const": "noesis-knowledge-package-manifest-v1"},
+    "format_version": {"const": "1.0.0"},
+    "namespace": {"type": "string", "minLength": 1},
+    "mode": {"enum": ["full", "filtered", "metadata-only"]},
+    "filters": {"type": "object"},
+    "dependency_closure": {"type": "boolean"},
+    "components": {"type": "array", "items": {"type": "object", "required": ["kind", "component_id", "content_hash", "dependencies", "sensitivity"]}},
+    "component_counts": {"type": "object", "additionalProperties": {"type": "integer", "minimum": 0}},
+    "dependencies": {"type": "array", "items": {"type": "string"}},
+    "omissions": {"type": "array", "items": {"type": "object"}},
+    "compatibility": {"type": "object", "required": ["minimum_reader", "schema_policy"]},
+    "content_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+  }
+}

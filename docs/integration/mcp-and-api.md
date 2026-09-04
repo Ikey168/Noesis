@@ -39,6 +39,7 @@ python tools/statistics_mcp/server.py     # one server, stdio transport
 | `noesis-schema-registry` | `tools/schema_registry_mcp` | Versioned definitions, validation, crosswalks, compatibility, impact, and reversible migrations |
 | `noesis-federation` | `tools/federation_mcp` | Read-only external-source discovery, typed queries, merging, and coverage evaluation |
 | `noesis-subscriptions` | `tools/subscriptions_mcp` | Saved-query lifecycle, replayable change polling, quotas, and delivery outbox |
+| `noesis-namespaces` | `tools/namespaces_mcp` | Deterministic namespace packages, verification, conflict previews, and atomic import |
 
 ### Connecting an external host
 

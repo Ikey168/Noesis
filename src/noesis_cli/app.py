@@ -158,6 +158,26 @@ def build_parser() -> argparse.ArgumentParser:
     integrity.add_argument("--force", action="store_true")
     _json_flag(integrity)
 
+    namespace = sub.add_parser("namespace", help="export or import a portable knowledge namespace")
+    namespace_sub = namespace.add_subparsers(dest="namespace_command", required=True)
+    namespace_export = namespace_sub.add_parser("export", help="export a deterministic namespace package")
+    namespace_export.add_argument("namespace")
+    namespace_export.add_argument("--output", type=Path, required=True)
+    namespace_export.add_argument("--mode", choices=("full", "filtered", "metadata-only"), default="full")
+    namespace_export.add_argument("--kind", action="append", dest="kinds")
+    namespace_export.add_argument("--sensitivity", action="append", dest="sensitivities")
+    namespace_export.add_argument("--force", action="store_true")
+    _json_flag(namespace_export)
+    namespace_verify = namespace_sub.add_parser("verify", help="verify package hashes offline")
+    namespace_verify.add_argument("package", type=Path)
+    _json_flag(namespace_verify)
+    namespace_import = namespace_sub.add_parser("import", help="atomically import a verified package")
+    namespace_import.add_argument("package", type=Path)
+    namespace_import.add_argument("--target", required=True)
+    namespace_import.add_argument("--policy", choices=("new-namespace", "reject", "keep-both", "remap"), default="reject")
+    namespace_import.add_argument("--yes", action="store_true")
+    _json_flag(namespace_import)
+
     verify = sub.add_parser("verify", help="verify an Evidence Bundle offline")
     verify.add_argument("bundle", type=Path)
     verify.add_argument("--schema", type=Path)
@@ -670,6 +690,30 @@ def _command_verify(args: argparse.Namespace) -> int:
     return 2 if result.status == INCOMPLETE else 1
 
 
+def _command_namespace(args: argparse.Namespace) -> int:
+    from src.kb.portable_namespaces import PortableNamespaceStore
+
+    config=_runtime(args); conn=open_warehouse(config)
+    try:
+        store=PortableNamespaceStore(conn,initialize=args.namespace_command=="import")
+        if args.namespace_command=="export":
+            filters={key:value for key,value in {"kinds":args.kinds,"sensitivities":args.sensitivities}.items() if value}
+            result=store.export(args.namespace,mode=args.mode,filters=filters,scopes={"operator"})
+            _write_json(args.output,result,force=args.force)
+            output={"package_hash":result["manifest"]["content_hash"],"components":len(result["manifest"]["components"]),"output":str(args.output)}
+        else:
+            package=json.loads(args.package.read_text(encoding="utf-8"))
+            if args.namespace_command=="verify": output=store.verify(package)
+            else:
+                if not args.yes: raise CLIError("confirmation_required","namespace import requires --yes",exit_code=EXIT_CONFIRMATION)
+                preview=store.preview_import(package,args.target,conflict_policy=args.policy,scopes={"operator"})
+                output=store.import_package(package,args.target,"cli:"+preview["preview_hash"],conflict_policy=args.policy,scopes={"operator"},principal_id=config.principal,expected_preview_hash=preview["preview_hash"])
+    finally: conn.close()
+    if args.as_json: _print_json(_envelope(f"namespace.{args.namespace_command}",output))
+    else: _print_json(output)
+    return 0
+
+
 def _serve_report(config, args: argparse.Namespace) -> dict[str, Any]:
     host = args.host or (config.api_host if args.surface == "api" else config.mcp_host)
     port = args.port or (config.api_port if args.surface == "api" else config.mcp_port)
@@ -778,6 +822,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             return _command_export(args)
         if args.command == "verify":
             return _command_verify(args)
+        if args.command == "namespace":
+            return _command_namespace(args)
         if args.command == "serve":
             return _command_serve(args)
         parser.error(f"unknown command {args.command}")
