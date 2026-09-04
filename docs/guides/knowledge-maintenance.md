@@ -27,6 +27,27 @@ The reference covers all 6 packs and 22 sources, commits both successful and
 degraded generations, verifies every receipt, and proves the committed
 documents are queryable.
 
+## Revisions and deltas
+
+Every normalized source identity has an immutable revision chain. Repeated
+observations are recorded as `unchanged` delta entries without creating a new
+revision; metadata edits, corrections, retractions, and explicit tombstones
+append distinct revisions with predecessor links. Existing warehouses are
+seeded deterministically at revision zero when the document store opens.
+
+A successful source run commits its `noesis-document-change-set-v1` in the
+same transaction as its source watermark and receipt. Consumers can use
+`document_generation_delta` for bounded, opaque-cursor paging,
+`replay_document_generation_delta` to verify it against stored revisions, and
+`document_revision` / `document_revision_history` for exact-generation or
+point-in-time reads. These MCP reads require `knowledge:read`; no revision API
+can expose staged rows.
+
+Maintenance consumes consecutive committed deltas rather than looking for a
+mutable run marker in current document metadata. Projection dependencies name
+exact revision IDs, so edits and removals invalidate their downstream closure
+while unaffected revision dependencies remain stable.
+
 ## Operation and scaling
 
 Run `scripts/knowledge_maintenance_worker.py` without `--once` for a foreground

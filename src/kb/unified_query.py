@@ -9,7 +9,7 @@ import json
 import threading
 import time
 from collections.abc import Callable, Mapping, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from typing import Any, Protocol, runtime_checkable
 
@@ -159,6 +159,17 @@ def validate_query_request(value: Mapping[str, Any]) -> dict[str, Any]:
         for key in ("as_of", "valid_at", "observed_before")
         if temporal.get(key) is not None
     }
+    if temporal.get("generation") is not None:
+        try:
+            temporal_normalized["generation"] = int(temporal["generation"])
+        except (TypeError, ValueError) as exc:
+            raise UnifiedQueryError(
+                "bad_request", "temporal.generation must be an integer"
+            ) from exc
+        if temporal_normalized["generation"] < 0:
+            raise UnifiedQueryError(
+                "bad_request", "temporal.generation must be non-negative"
+            )
     if "history" in temporal:
         temporal_normalized["history"] = bool(temporal["history"])
     if "include_retracted" in temporal:
@@ -811,44 +822,130 @@ class MaintainedDocumentQueryAdapter:
     def query(self, request: Mapping[str, Any], *, scopes: set[str]) -> dict[str, Any]:
         if "operator" not in scopes and "knowledge:read" not in scopes:
             raise UnifiedQueryError("unauthorized", "knowledge:read scope is required")
-        receipts = self.conn.execute(
-            "SELECT receipt_json FROM knowledge_maintenance_generations "
-            "WHERE status IN ('complete','partial') ORDER BY pack_id,generation"
+        temporal = dict(request.get("temporal") or {})
+        generation = temporal.get("generation")
+        generation_rows = self.conn.execute(
+            "SELECT pack_id,source_watermark,receipt_json FROM knowledge_maintenance_generations "
+            "WHERE status IN ('complete','partial') "
+            + ("AND source_watermark<=? " if generation is not None else "")
+            + "ORDER BY pack_id,source_watermark",
+            [] if generation is None else [int(generation)],
         ).fetchall()
-        committed_runs = {
-            item["run_id"]
-            for row in receipts
-            for item in json.loads(row[0]).get("source_runs", [])
-        }
+        pack_limits: dict[str, int] = {}
+        for row in generation_rows:
+            pack_limits[str(row[0])] = max(int(row[1]), pack_limits.get(str(row[0]), 0))
+        if generation is not None:
+            exact_packs = {
+                str(row[0]) for row in generation_rows if int(row[1]) == int(generation)
+            }
+            if not exact_packs:
+                raise UnifiedQueryError(
+                    "generation_unavailable", "requested generation is not committed"
+                )
+            if len(pack_limits) > 1:
+                raise UnifiedQueryError(
+                    "mixed_generation",
+                    "an exact document generation query must resolve to one source pack",
+                )
         needle = f"%{str(request['query']).casefold()}%"
+        conditions = [
+            "r.committed_watermark IS NOT NULL",
+            (
+                "(lower(COALESCE(json_extract_string(r.payload_json,'$.title'),'')) LIKE ? "
+                "OR lower(COALESCE(json_extract_string(r.payload_json,'$.content'),'')) LIKE ? "
+                "OR lower(r.payload_json) LIKE ?)"
+            ),
+        ]
+        params: list[Any] = [needle, needle, needle]
+        if generation is not None:
+            conditions.append("r.committed_watermark<=?")
+            params.append(int(generation))
+        if temporal.get("valid_at") is not None:
+            conditions.extend(
+                [
+                    "(r.valid_from_ms IS NULL OR r.valid_from_ms<=?)",
+                    "(r.valid_to_ms IS NULL OR r.valid_to_ms>?)",
+                ]
+            )
+            params.extend([int(temporal["valid_at"]), int(temporal["valid_at"])])
+        observed = temporal.get("observed_before", temporal.get("as_of"))
+        if observed is not None:
+            conditions.append("r.observed_at_ms<=?")
+            params.append(int(observed))
+        if pack_limits:
+            conditions.append(
+                "("
+                + " OR ".join(
+                    "(r.pack_id=? AND r.committed_watermark<=?)" for _ in pack_limits
+                )
+                + ")"
+            )
+            for pack_id, limit in sorted(pack_limits.items()):
+                params.extend([pack_id, limit])
+        else:
+            return {
+                "source": self.definition["source_id"],
+                "items": [],
+                "score_semantics": "committed-document-order",
+                "watermark": generation,
+                "provenance": {
+                    "source_id": self.definition["source_id"],
+                    "capability_hash": self.definition["capability_hash"],
+                    "query_hash": _digest(request),
+                },
+            }
+        history_clause = (
+            ""
+            if temporal.get("history", False)
+            else (
+                "QUALIFY ROW_NUMBER() OVER (PARTITION BY r.document_id ORDER BY r.revision DESC)=1 "
+            )
+        )
         rows = self.conn.execute(
-            "SELECT document_id,source_id,url,title,content,metadata,created_at,content_hash "
-            "FROM documents WHERE lower(COALESCE(title,'')) LIKE ? OR "
-            "lower(COALESCE(content,'')) LIKE ? OR lower(COALESCE(metadata,'')) LIKE ? "
-            "ORDER BY ingested_at DESC,document_id LIMIT ?",
-            [needle, needle, needle, min(1000, int(request.get("limit", 20)) * 10)],
+            "SELECT r.document_id,r.source_id,r.payload_json,r.valid_from_ms,r.content_hash,"
+            "r.revision_id,r.revision,r.committed_watermark,r.lifecycle,r.observed_at_ms "
+            "FROM document_revision_records r WHERE "
+            + " AND ".join(conditions)
+            + " "
+            + history_clause
+            + "ORDER BY r.observed_at_ms DESC,r.document_id,r.revision DESC LIMIT ?",
+            [*params, min(1000, int(request.get("limit", 20)) * 10)],
         ).fetchall()
-        requested_domains = set(request.get("domains") or ())
         values = []
         for row in rows:
-            metadata = json.loads(row[5] or "{}")
-            if metadata.get("source_pack_run_id") not in committed_runs:
+            if not temporal.get("include_retracted", False) and row[8] != "active":
                 continue
-            if requested_domains and metadata.get("domain") not in requested_domains:
-                continue
+            payload = json.loads(row[2])
+            metadata = dict(payload.get("metadata") or {})
             values.append(
                 {
                     "id": row[0],
                     "origin_id": row[1] or row[0],
                     "object_type": "document",
                     "text": " ".join(
-                        value for value in (row[3], row[4], row[5]) if value
+                        str(value)
+                        for value in (
+                            payload.get("title"),
+                            payload.get("content"),
+                            _canonical(metadata),
+                        )
+                        if value
                     ),
                     "citations": [
-                        {"document_id": row[0], "source": row[1], "url": row[2]}
+                        {
+                            "document_id": row[0],
+                            "source": row[1],
+                            "url": payload.get("url"),
+                            "revision_id": row[5],
+                        }
                     ],
-                    "timestamp_ms": row[6],
-                    "content_hash": row[7],
+                    "timestamp_ms": row[9],
+                    "content_hash": row[4],
+                    "revision_id": row[5],
+                    "revision": int(row[6]),
+                    "generation": int(row[7]),
+                    "lifecycle": row[8],
+                    "temporal": {"valid_from_ms": row[3], "observed_at_ms": row[9]},
                 }
             )
             if len(values) >= int(request.get("limit", 20)):
@@ -1028,7 +1125,11 @@ def build_local_catalog(
             adapters.append(StoredObjectQueryAdapter(conn, namespace, "event"))
         if "knowledge_artifacts" in installed_tables:
             adapters.append(StoredObjectQueryAdapter(conn, namespace, "artifact"))
-    if {"documents", "knowledge_maintenance_generations"}.issubset(installed_tables):
+    if {
+        "documents",
+        "document_revision_records",
+        "knowledge_maintenance_generations",
+    }.issubset(installed_tables):
         adapters.append(MaintainedDocumentQueryAdapter(conn, selected))
     if include_memory and tenant_id:
         from src.kb.memory import MemoryStore
@@ -1063,6 +1164,9 @@ def _decode_cursor(cursor: str | None) -> dict[str, Any]:
 class UnifiedQueryEngine:
     catalog: QueryCatalog
     max_workers: int = 8
+    _local_query_lock: Any = field(
+        default_factory=threading.RLock, init=False, repr=False
+    )
 
     def plan(self, request: Mapping[str, Any], *, scopes: set[str]) -> dict[str, Any]:
         normalized = validate_query_request(request)
@@ -1269,11 +1373,19 @@ class UnifiedQueryEngine:
             }
             begin = time.monotonic()
             last = None
+            adapter = self.catalog.adapters[node["source"]]
+            local_connection = any(
+                hasattr(adapter, attribute)
+                for attribute in ("conn", "backing", "store")
+            )
             for attempt in range(node["budget"]["max_retries"] + 1):
                 try:
-                    return self.catalog.adapters[node["source"]].query(
-                        child, scopes=scopes
-                    ), round((time.monotonic() - begin) * 1000, 3)
+                    if local_connection:
+                        with self._local_query_lock:
+                            result = adapter.query(child, scopes=scopes)
+                    else:
+                        result = adapter.query(child, scopes=scopes)
+                    return result, round((time.monotonic() - begin) * 1000, 3)
                 except Exception as exc:  # noqa: BLE001 - adapters are failure boundaries
                     last = exc
                     if getattr(exc, "code", "") not in {

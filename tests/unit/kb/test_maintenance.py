@@ -114,6 +114,10 @@ def test_crash_resume_atomic_query_visibility_receipts_and_replay():
     assert orchestrator.replay_generation(generation["generation_id"])["matched"]
     lineage = orchestrator.generation_lineage(generation["generation_id"])
     assert lineage["complete"] and lineage["artifact_edges"]
+    assert any(
+        str(edge.get("dependency_id", "")).startswith("document-revision:")
+        for edge in lineage["artifact_edges"]
+    )
     assert engine.execute(request, scopes={"knowledge:read"})["items"]
     assert (
         conn.execute("SELECT COUNT(*) FROM knowledge_maintenance_events").fetchone()[0]

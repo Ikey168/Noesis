@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/schemas/noesis-document-generation-delta-v1.json",
+  "title": "Noesis document generation delta",
+  "type": "object",
+  "required": ["contract", "pack_id", "from_watermark", "to_watermark", "changes", "counts", "item_count", "page_count", "delta_hash", "next_cursor"],
+  "properties": {
+    "contract": {"const": "noesis-document-generation-delta-v1"},
+    "pack_id": {"type": "string"},
+    "from_watermark": {"type": "integer", "minimum": 1},
+    "to_watermark": {"type": "integer", "minimum": 1},
+    "changes": {"type": "array", "items": {"type": "object", "required": ["watermark", "run_id", "change_id", "document_id", "revision_id", "change_kind", "content_hash", "payload_hash"]}},
+    "counts": {"type": "object", "additionalProperties": {"type": "integer", "minimum": 0}},
+    "item_count": {"type": "integer", "minimum": 0},
+    "page_count": {"type": "integer", "minimum": 0},
+    "delta_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "next_cursor": {"type": ["string", "null"]}
+  },
+  "additionalProperties": false
+}

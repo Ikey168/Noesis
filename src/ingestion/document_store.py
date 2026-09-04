@@ -10,10 +10,10 @@ validates against the contract, dedups, or makes ingestion idempotent.
 
 - validates each document against ``document-ingest-v1`` (#893) — invalid ones
   are dead-lettered (returned + logged), never written;
-- canonicalizes the URL and computes a content hash (#895) — skipping exact
-  re-inserts (``document_id``) and content duplicates (``content_hash`` +
-  ``source_type``, so the same story syndicated under two URLs collapses);
-- inserts the survivors idempotently;
+- canonicalizes the URL and computes a content hash (#895) — unchanged
+  identities are idempotent and syndicated content still collapses;
+- appends immutable revisions for changed identities, then advances the
+  compatibility ``documents`` projection;
 
 and returns an :class:`UpsertSummary` (#897). The DuckDB connection is injected,
 so the store is offline-testable against an in-memory database.
@@ -23,21 +23,33 @@ from __future__ import annotations
 
 import json
 import logging
+from collections.abc import Callable, Iterable
 from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple, Union
+from typing import Any
 
 from services.ingest.common.document_model import Document
 
 logger = logging.getLogger(__name__)
 
 # A validator raises on an invalid payload; the default uses document-ingest-v1.
-Validator = Callable[[Dict[str, Any]], None]
+Validator = Callable[[dict[str, Any]], None]
 
 # Columns of the documents table, in schema order.
 _COLUMNS = (
-    "document_id", "source_type", "language", "ingested_at", "created_at",
-    "source_id", "url", "canonical_url", "content_hash", "title", "content",
-    "content_ref", "authors", "metadata",
+    "document_id",
+    "source_type",
+    "language",
+    "ingested_at",
+    "created_at",
+    "source_id",
+    "url",
+    "canonical_url",
+    "content_hash",
+    "title",
+    "content",
+    "content_ref",
+    "authors",
+    "metadata",
 )
 
 _SCHEMA = """
@@ -66,11 +78,15 @@ class UpsertSummary:
 
     received: int = 0
     inserted: int = 0
+    updated: int = 0
+    retracted: int = 0
+    deleted: int = 0
     duplicate: int = 0
     invalid: int = 0
-    dead_letter: List[Dict[str, Any]] = field(default_factory=list)
+    dead_letter: list[dict[str, Any]] = field(default_factory=list)
+    changes: list[dict[str, Any]] = field(default_factory=list)
 
-    def as_dict(self) -> Dict[str, Any]:
+    def as_dict(self) -> dict[str, Any]:
         return {
             "received": self.received,
             "inserted": self.inserted,
@@ -79,7 +95,7 @@ class UpsertSummary:
         }
 
 
-def _default_validator(payload: Dict[str, Any]) -> None:
+def _default_validator(payload: dict[str, Any]) -> None:
     # Imported lazily so the module stays import-safe when validation is off.
     from services.ingest.common.document_contracts import validate_document
 
@@ -89,7 +105,7 @@ def _default_validator(payload: Dict[str, Any]) -> None:
 class DocumentStore:
     """Idempotent, contract-validated, deduped sink for ``Document`` records."""
 
-    def __init__(self, conn, validator: Optional[Validator] = None):
+    def __init__(self, conn, validator: Validator | None = None):
         self.conn = conn
         self._validator = validator or _default_validator
         self.ensure_schema()
@@ -100,25 +116,26 @@ class DocumentStore:
             "CREATE INDEX IF NOT EXISTS idx_documents_content_hash "
             "ON documents (content_hash, source_type)"
         )
+        from src.ingestion.revisions import DocumentRevisionStore
+
+        self.revisions = DocumentRevisionStore(self.conn)
 
     def upsert(
         self,
-        documents: Iterable[Union[Document, Dict[str, Any]]],
+        documents: Iterable[Document | dict[str, Any]],
         validate: bool = True,
     ) -> UpsertSummary:
         """Validate, dedup, and insert ``documents``; return a summary.
 
-        A validation failure dead-letters that one document (the rest of the
-        batch still stores). Duplicates — same ``document_id``, or same
-        ``(content_hash, source_type)`` — are skipped. Re-running an
-        already-ingested batch inserts nothing.
+        A validation failure dead-letters that one document. New identities
+        still deduplicate by ``(content_hash, source_type)``; an existing
+        identity is instead compared with its current immutable revision and
+        appended only when content, stable metadata, or lifecycle changed.
         """
         from src.ingestion.canonical import canonicalize_url, content_hash
 
         summary = UpsertSummary()
-        seen_ids, seen_hashes = self._load_existing()
-        rows: List[Tuple] = []
-        temporal_payloads: List[Dict[str, Any]] = []
+        _seen_ids, seen_hashes = self._load_existing()
 
         for item in documents:
             summary.received += 1
@@ -134,14 +151,18 @@ class DocumentStore:
                     self._validator(payload)
                 except Exception as exc:  # noqa: BLE001 - one bad doc never aborts
                     summary.invalid += 1
-                    summary.dead_letter.append({"document_id": doc_id, "error": str(exc)})
+                    summary.dead_letter.append(
+                        {"document_id": doc_id, "error": str(exc)}
+                    )
                     logger.warning("document-store: dead-letter %s (%s)", doc_id, exc)
                     continue
 
             # Safe now: a validated payload has a contract-valid source_type. With
             # validation off, a malformed payload still dead-letters here.
             try:
-                doc = item if isinstance(item, Document) else Document.from_dict(payload)
+                doc = (
+                    item if isinstance(item, Document) else Document.from_dict(payload)
+                )
             except Exception as exc:  # noqa: BLE001
                 summary.invalid += 1
                 summary.dead_letter.append({"document_id": doc_id, "error": str(exc)})
@@ -150,37 +171,58 @@ class DocumentStore:
 
             chash = content_hash(doc.content or "")
             hkey = (chash, doc.source_type)
-            if doc.document_id in seen_ids or hkey in seen_hashes:
+            current = self.get(doc.document_id)
+            source_observation = bool(
+                dict(doc.metadata or {}).get("source_pack_run_id")
+            )
+            if current is None and hkey in seen_hashes and not source_observation:
                 summary.duplicate += 1
                 continue
-
-            seen_ids.add(doc.document_id)
-            seen_hashes.add(hkey)
-            rows.append(self._to_row(doc, canonicalize_url(doc.url) if doc.url else None, chash))
-            temporal_payloads.append(doc.to_dict())
-
-        if rows:
-            self.conn.executemany(
-                """
-                INSERT INTO documents
-                    (document_id, source_type, language, ingested_at, created_at,
-                     source_id, url, canonical_url, content_hash, title, content,
-                     content_ref, authors, metadata)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """,
-                rows,
+            payload = doc.to_dict()
+            change = self.revisions.observe(payload)
+            summary.changes.append(change)
+            if not change["appended"]:
+                summary.duplicate += 1
+                continue
+            row = self._to_row(
+                doc, canonicalize_url(doc.url) if doc.url else None, chash
             )
-            summary.inserted = len(rows)
+            if current is None:
+                self.conn.execute(
+                    """
+                    INSERT INTO documents
+                        (document_id, source_type, language, ingested_at, created_at,
+                         source_id, url, canonical_url, content_hash, title, content,
+                         content_ref, authors, metadata)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    row,
+                )
+                summary.inserted += 1
+            else:
+                self.conn.execute(
+                    """
+                    UPDATE documents SET source_type=?,language=?,ingested_at=?,created_at=?,
+                      source_id=?,url=?,canonical_url=?,content_hash=?,title=?,content=?,
+                      content_ref=?,authors=?,metadata=? WHERE document_id=?
+                    """,
+                    [*row[1:], row[0]],
+                )
+                summary.updated += 1
+                if change["change_kind"] == "retracted":
+                    summary.retracted += 1
+                elif change["change_kind"] == "deleted":
+                    summary.deleted += 1
+            seen_hashes.add(hkey)
             from src.kb.temporal import store_document_times
 
-            for payload in temporal_payloads:
-                store_document_times(self.conn, payload)
+            store_document_times(self.conn, payload)
         return summary
 
     def count(self) -> int:
         return self.conn.execute("SELECT COUNT(*) FROM documents").fetchone()[0]
 
-    def get(self, document_id: str) -> Optional[Dict[str, Any]]:
+    def get(self, document_id: str) -> dict[str, Any] | None:
         row = self.conn.execute(
             f"SELECT {', '.join(_COLUMNS)} FROM documents WHERE document_id = ?",
             [document_id],
@@ -189,16 +231,16 @@ class DocumentStore:
 
     def list_documents(
         self,
-        source_type: Optional[str] = None,
+        source_type: str | None = None,
         limit: int = 50,
         offset: int = 0,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Return stored documents, most-recently-ingested first.
 
         Optionally filtered by ``source_type`` and paged by ``limit``/``offset``.
         """
         query = f"SELECT {', '.join(_COLUMNS)} FROM documents"
-        params: List[Any] = []
+        params: list[Any] = []
         if source_type:
             query += " WHERE source_type = ?"
             params.append(source_type)
@@ -208,9 +250,17 @@ class DocumentStore:
         return [self._row_to_dict(r) for r in rows]
 
     def delete(self, document_id: str) -> bool:
-        """Delete a document; return whether it existed."""
-        existed = self.get(document_id) is not None
-        if existed:
+        """Tombstone then remove a document from the compatibility projection."""
+        current = self.get(document_id)
+        existed = current is not None
+        if current is not None:
+            current["ingested_at"] = current.get("ingested_at") or 0
+            current["metadata"] = {
+                **dict(current.get("metadata") or {}),
+                "tombstone": True,
+                "lifecycle": "deleted",
+            }
+            self.revisions.observe(current, committed_watermark=0, stage_change=False)
             self.conn.execute(
                 "DELETE FROM documents WHERE document_id = ?", [document_id]
             )
@@ -220,7 +270,8 @@ class DocumentStore:
 
     def _load_existing(self):
         ids = {
-            r[0] for r in self.conn.execute("SELECT document_id FROM documents").fetchall()
+            r[0]
+            for r in self.conn.execute("SELECT document_id FROM documents").fetchall()
         }
         hashes = {
             (r[0], r[1])
@@ -232,14 +283,14 @@ class DocumentStore:
         return ids, hashes
 
     @staticmethod
-    def _row_to_dict(row) -> Dict[str, Any]:
+    def _row_to_dict(row) -> dict[str, Any]:
         rec = dict(zip(_COLUMNS, row))
         rec["authors"] = json.loads(rec["authors"]) if rec["authors"] else []
         rec["metadata"] = json.loads(rec["metadata"]) if rec["metadata"] else {}
         return rec
 
     @staticmethod
-    def _to_row(doc: Document, canonical_url: Optional[str], chash: str) -> Tuple:
+    def _to_row(doc: Document, canonical_url: str | None, chash: str) -> tuple:
         return (
             doc.document_id,
             doc.source_type,
