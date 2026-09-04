@@ -132,6 +132,19 @@ def test_maintenance_surface_and_catalog_scope_separation(monkeypatch):
         "get_claim_evolution_timeline",
         "compare_claim_sources",
         "replay_claim_evolution",
+        "register_evidence_freshness_policy",
+        "get_evidence_freshness_policy",
+        "annotate_evidence_freshness",
+        "relate_evidence_applicability",
+        "review_evidence_freshness_override",
+        "assess_evidence_freshness",
+        "get_evidence_freshness_assessment",
+        "list_expiring_evidence",
+        "simulate_evidence_freshness_policy",
+        "compare_evidence_freshness_policies",
+        "register_evidence_freshness_dependency",
+        "propagate_evidence_freshness",
+        "replay_evidence_freshness_assessment",
     }
     assert expected <= set(tools)
     assert _required_scopes(
@@ -363,6 +376,34 @@ def test_maintenance_surface_and_catalog_scope_separation(monkeypatch):
             "knowledge:claim-timeline:read"
         ]
     for name in (
+        "register_evidence_freshness_policy",
+        "annotate_evidence_freshness",
+        "relate_evidence_applicability",
+        "assess_evidence_freshness",
+        "register_evidence_freshness_dependency",
+        "propagate_evidence_freshness",
+    ):
+        assert _mutability(name) == "write"
+        assert _required_scopes("knowledge_engine_mcp", "write", name) == [
+            "knowledge:freshness:write"
+        ]
+    assert _mutability("review_evidence_freshness_override") == "write"
+    assert _required_scopes(
+        "knowledge_engine_mcp", "write", "review_evidence_freshness_override"
+    ) == ["knowledge:freshness:review"]
+    for name in (
+        "get_evidence_freshness_policy",
+        "get_evidence_freshness_assessment",
+        "list_expiring_evidence",
+        "simulate_evidence_freshness_policy",
+        "compare_evidence_freshness_policies",
+        "replay_evidence_freshness_assessment",
+    ):
+        assert _mutability(name) == "read"
+        assert _required_scopes("knowledge_engine_mcp", "read", name) == [
+            "knowledge:freshness:read"
+        ]
+    for name in (
         "pause_maintenance_schedule",
         "resume_maintenance_schedule",
         "cancel_maintenance_job",
@@ -453,3 +494,9 @@ def test_capabilities_advertise_generation_contracts():
     assert "explainable-claim-successor-matching" in capabilities["features"]
     assert "semantic-claim-state-diffs" in capabilities["features"]
     assert "snapshot-consistent-claim-timelines" in capabilities["features"]
+    assert "noesis-evidence-freshness-policy-v1" in capabilities["contracts"]
+    assert "noesis-evidence-freshness-assessment-v1" in capabilities["contracts"]
+    assert "noesis-evidence-applicability-relation-v1" in capabilities["contracts"]
+    assert "noesis-evidence-freshness-impact-v1" in capabilities["contracts"]
+    assert "versioned-evidence-freshness-policies" in capabilities["features"]
+    assert "side-effect-free-freshness-simulation" in capabilities["features"]

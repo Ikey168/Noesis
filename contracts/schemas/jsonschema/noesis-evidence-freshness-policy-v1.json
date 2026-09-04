@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/schemas/noesis-evidence-freshness-policy-v1.json",
+  "title": "Noesis evidence freshness policy",
+  "type": "object",
+  "required": ["contract", "policy_id", "namespace", "domain", "source_type", "object_type", "semantic_version", "rules", "content_hash", "status", "generation", "observed_at_ms", "producer", "policy", "provenance"],
+  "properties": {
+    "contract": {"const": "noesis-evidence-freshness-policy-v1"},
+    "policy_id": {"type": "string"}, "namespace": {"type": "string"},
+    "domain": {"type": "string"}, "source_type": {"type": "string"}, "object_type": {"type": "string"},
+    "semantic_version": {"type": "string"}, "rules": {"type": "object"},
+    "content_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "status": {"enum": ["active", "superseded"]}, "supersedes_policy_id": {"type": ["string", "null"]},
+    "generation": {"type": "integer"}, "valid_from_ms": {"type": ["integer", "null"]}, "valid_to_ms": {"type": ["integer", "null"]},
+    "observed_at_ms": {"type": "integer"}, "producer": {"type": "object"}, "policy": {"type": "object"}, "provenance": {"type": "object"},
+    "principal_id": {"type": "string"}, "created_at_ms": {"type": "integer"}, "idempotent": {"type": "boolean"}
+  },
+  "additionalProperties": false
+}

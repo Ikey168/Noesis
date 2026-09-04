@@ -112,6 +112,11 @@ MUTATION_NAMES = frozenset(
         "validate_knowledge_object_ontology",
         "capture_claim_timeline_state",
         "link_claim_evolution",
+        "annotate_evidence_freshness",
+        "relate_evidence_applicability",
+        "review_evidence_freshness_override",
+        "assess_evidence_freshness",
+        "propagate_evidence_freshness",
     }
 )
 
@@ -284,6 +289,26 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
             return ["knowledge:memory:admin"]
         return ["knowledge:memory:read"]
     if server_stem == "knowledge_engine_mcp":
+        if tool_name == "review_evidence_freshness_override":
+            return ["knowledge:freshness:review"]
+        if tool_name in {
+            "register_evidence_freshness_policy",
+            "annotate_evidence_freshness",
+            "relate_evidence_applicability",
+            "assess_evidence_freshness",
+            "register_evidence_freshness_dependency",
+            "propagate_evidence_freshness",
+        }:
+            return ["knowledge:freshness:write"]
+        if tool_name in {
+            "get_evidence_freshness_policy",
+            "get_evidence_freshness_assessment",
+            "list_expiring_evidence",
+            "simulate_evidence_freshness_policy",
+            "compare_evidence_freshness_policies",
+            "replay_evidence_freshness_assessment",
+        }:
+            return ["knowledge:freshness:read"]
         if tool_name in {"capture_claim_timeline_state", "link_claim_evolution"}:
             return ["knowledge:claim-timeline:write"]
         if tool_name in {

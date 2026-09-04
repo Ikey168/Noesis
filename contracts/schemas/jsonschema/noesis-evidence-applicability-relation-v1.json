@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/schemas/noesis-evidence-applicability-relation-v1.json",
+  "title": "Noesis evidence applicability relation",
+  "type": "object",
+  "required": ["contract", "relation_id", "namespace", "earlier_evidence_id", "later_evidence_id", "relation", "applicability", "confidence", "evidence", "provenance", "generation", "observed_at_ms", "input_hash"],
+  "properties": {
+    "contract": {"const": "noesis-evidence-applicability-relation-v1"}, "relation_id": {"type": "string"}, "namespace": {"type": "string"},
+    "earlier_evidence_id": {"type": "string"}, "later_evidence_id": {"type": "string"},
+    "relation": {"enum": ["supersedes", "narrows", "invalidates", "no-longer-applies"]}, "applicability": {"type": "object"},
+    "confidence": {"type": "number", "minimum": 0, "maximum": 1}, "evidence": {"type": "array", "minItems": 1, "items": {"type": "object"}},
+    "provenance": {"type": "object"}, "generation": {"type": "integer"}, "valid_from_ms": {"type": ["integer", "null"]}, "valid_to_ms": {"type": ["integer", "null"]},
+    "observed_at_ms": {"type": "integer"}, "principal_id": {"type": "string"}, "input_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "created_at_ms": {"type": "integer"}, "idempotent": {"type": "boolean"}
+  },
+  "additionalProperties": false
+}

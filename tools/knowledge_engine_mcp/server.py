@@ -128,6 +128,10 @@ def knowledge_engine_capabilities() -> dict:
             "noesis-claim-successor-match-v1",
             "noesis-claim-timeline-v1",
             "noesis-claim-semantic-diff-v1",
+            "noesis-evidence-freshness-policy-v1",
+            "noesis-evidence-freshness-assessment-v1",
+            "noesis-evidence-applicability-relation-v1",
+            "noesis-evidence-freshness-impact-v1",
             "noesis-maintenance-job-request-v1",
             "noesis-maintenance-job-receipt-v1",
             "noesis-knowledge-generation-v1",
@@ -181,6 +185,10 @@ def knowledge_engine_capabilities() -> dict:
             "explainable-claim-successor-matching",
             "semantic-claim-state-diffs",
             "snapshot-consistent-claim-timelines",
+            "versioned-evidence-freshness-policies",
+            "provenance-preserving-evidence-supersession",
+            "side-effect-free-freshness-simulation",
+            "freshness-impact-propagation",
             "knowledge-maintenance",
             "lease-safe-workers",
             "committed-generations",
@@ -3457,6 +3465,365 @@ def execute_artifact_rebuild(
         return graph.rebuild(plan, builders, max_concurrency=max_concurrency)
 
     return _safe(operation, write=True)
+
+
+@mcp.tool()
+def register_evidence_freshness_policy(
+    namespace: str,
+    domain: str,
+    source_type: str,
+    object_type: str,
+    semantic_version: str,
+    rules: dict[str, Any],
+    supersedes_policy_id: str | None = None,
+    generation: int = 0,
+    valid_from_ms: int | None = None,
+    valid_to_ms: int | None = None,
+    observed_at_ms: int | None = None,
+    producer: dict[str, Any] | None = None,
+    policy_context: dict[str, Any] | None = None,
+    provenance: dict[str, Any] | None = None,
+) -> dict:
+    """Register an immutable, versioned freshness policy and optionally activate an upgrade."""
+    from src.kb.freshness import EvidenceFreshnessStore
+
+    return _safe(
+        lambda conn: EvidenceFreshnessStore(conn).register_policy(
+            namespace,
+            domain,
+            source_type,
+            object_type,
+            semantic_version,
+            rules,
+            supersedes_policy_id=supersedes_policy_id,
+            generation=generation,
+            valid_from_ms=valid_from_ms,
+            valid_to_ms=valid_to_ms,
+            observed_at_ms=observed_at_ms,
+            producer=producer,
+            policy_context=policy_context,
+            provenance=provenance,
+            principal_id=_context()[0],
+            scopes={"knowledge:freshness:write"},
+        ),
+        write=True,
+        required_scope="knowledge:freshness:write",
+    )
+
+
+@mcp.tool()
+def get_evidence_freshness_policy(namespace: str, policy_id: str) -> dict:
+    """Read a freshness policy, including supersession and provenance metadata."""
+    from src.kb.freshness import EvidenceFreshnessStore
+
+    return _safe(
+        lambda conn: EvidenceFreshnessStore(conn, initialize=False).policy(
+            policy_id, namespace=namespace, scopes={"knowledge:freshness:read"}
+        ),
+        required_scope="knowledge:freshness:read",
+    )
+
+
+@mcp.tool()
+def annotate_evidence_freshness(
+    namespace: str,
+    evidence_id: str,
+    domain: str,
+    source_type: str,
+    object_type: str,
+    retrieved_at_ms: int,
+    published_at_ms: int | None = None,
+    observed_at_ms: int | None = None,
+    valid_from_ms: int | None = None,
+    valid_to_ms: int | None = None,
+    event_closed_at_ms: int | None = None,
+    methodology_revision: str | None = None,
+    source_health: dict[str, Any] | None = None,
+    provenance: dict[str, Any] | None = None,
+    generation: int = 0,
+    producer: dict[str, Any] | None = None,
+    policy: dict[str, Any] | None = None,
+) -> dict:
+    """Attach immutable lifecycle metadata to an existing evidence identity."""
+    from src.kb.freshness import EvidenceFreshnessStore
+
+    return _safe(
+        lambda conn: EvidenceFreshnessStore(conn).annotate(
+            namespace,
+            evidence_id,
+            domain,
+            source_type,
+            object_type,
+            retrieved_at_ms=retrieved_at_ms,
+            published_at_ms=published_at_ms,
+            observed_at_ms=observed_at_ms,
+            valid_from_ms=valid_from_ms,
+            valid_to_ms=valid_to_ms,
+            event_closed_at_ms=event_closed_at_ms,
+            methodology_revision=methodology_revision,
+            source_health=source_health,
+            provenance=provenance,
+            generation=generation,
+            producer=producer,
+            policy=policy,
+            principal_id=_context()[0],
+            scopes={"knowledge:freshness:write"},
+        ),
+        write=True,
+        required_scope="knowledge:freshness:write",
+    )
+
+
+@mcp.tool()
+def relate_evidence_applicability(
+    namespace: str,
+    earlier_evidence_id: str,
+    later_evidence_id: str,
+    relation: str,
+    applicability: dict[str, Any],
+    confidence: float,
+    evidence: list[dict[str, Any]],
+    provenance: dict[str, Any],
+    generation: int = 0,
+    valid_from_ms: int | None = None,
+    valid_to_ms: int | None = None,
+    observed_at_ms: int | None = None,
+) -> dict:
+    """Record exactly why later evidence supersedes, narrows, or invalidates earlier evidence."""
+    from src.kb.freshness import EvidenceFreshnessStore
+
+    return _safe(
+        lambda conn: EvidenceFreshnessStore(conn).relate(
+            namespace,
+            earlier_evidence_id,
+            later_evidence_id,
+            relation,
+            applicability=applicability,
+            confidence=confidence,
+            evidence=evidence,
+            provenance=provenance,
+            generation=generation,
+            valid_from_ms=valid_from_ms,
+            valid_to_ms=valid_to_ms,
+            observed_at_ms=observed_at_ms,
+            principal_id=_context()[0],
+            scopes={"knowledge:freshness:write"},
+        ),
+        write=True,
+        required_scope="knowledge:freshness:write",
+    )
+
+
+@mcp.tool()
+def review_evidence_freshness_override(
+    namespace: str,
+    evidence_id: str,
+    state: str,
+    reason: str,
+    evidence: list[dict[str, Any]],
+    valid_until_ms: int | None = None,
+) -> dict:
+    """Apply an auditable, optionally expiring human freshness decision."""
+    from src.kb.freshness import EvidenceFreshnessStore
+
+    return _safe(
+        lambda conn: EvidenceFreshnessStore(conn).override(
+            namespace,
+            evidence_id,
+            state,
+            valid_until_ms=valid_until_ms,
+            reason=reason,
+            evidence=evidence,
+            principal_id=_context()[0],
+            scopes={"knowledge:freshness:review"},
+        ),
+        write=True,
+        required_scope="knowledge:freshness:review",
+    )
+
+
+@mcp.tool()
+def assess_evidence_freshness(
+    namespace: str,
+    evidence_id: str,
+    at_ms: int,
+    policy_version: str | None = None,
+    context: dict[str, Any] | None = None,
+) -> dict:
+    """Persist a deterministic freshness assessment and full explanation trace."""
+    from src.kb.freshness import EvidenceFreshnessStore
+
+    return _safe(
+        lambda conn: EvidenceFreshnessStore(conn).assess(
+            namespace,
+            evidence_id,
+            at_ms=at_ms,
+            policy_version=policy_version,
+            context=context,
+            principal_id=_context()[0],
+            scopes={"knowledge:freshness:write"},
+        ),
+        write=True,
+        required_scope="knowledge:freshness:write",
+    )
+
+
+@mcp.tool()
+def get_evidence_freshness_assessment(namespace: str, assessment_id: str) -> dict:
+    """Read a stored freshness decision and the reasons behind it."""
+    from src.kb.freshness import EvidenceFreshnessStore
+
+    return _safe(
+        lambda conn: EvidenceFreshnessStore(conn, initialize=False).assessment(
+            namespace, assessment_id, scopes={"knowledge:freshness:read"}
+        ),
+        required_scope="knowledge:freshness:read",
+    )
+
+
+@mcp.tool()
+def list_expiring_evidence(
+    namespace: str,
+    at_ms: int,
+    horizon_ms: int,
+    limit: int = 100,
+    cancel_requested: bool = False,
+) -> dict:
+    """Scan a bounded evidence set for items that expire or become stale soon."""
+    from src.kb.freshness import EvidenceFreshnessStore
+
+    return _safe(
+        lambda conn: EvidenceFreshnessStore(conn, initialize=False).expiring(
+            namespace,
+            at_ms=at_ms,
+            horizon_ms=horizon_ms,
+            limit=limit,
+            cancel_requested=cancel_requested,
+            scopes={"knowledge:freshness:read"},
+        ),
+        required_scope="knowledge:freshness:read",
+    )
+
+
+@mcp.tool()
+def simulate_evidence_freshness_policy(
+    namespace: str,
+    evidence_ids: list[str],
+    at_ms: int,
+    policy_version: str | None = None,
+    policy_override: dict[str, Any] | None = None,
+    context: dict[str, Any] | None = None,
+    limit: int = 100,
+    cancel_requested: bool = False,
+) -> dict:
+    """Simulate freshness policy changes without creating assessments or audit rows."""
+    from src.kb.freshness import EvidenceFreshnessStore
+
+    return _safe(
+        lambda conn: EvidenceFreshnessStore(conn, initialize=False).simulate(
+            namespace,
+            evidence_ids,
+            at_ms=at_ms,
+            policy_version=policy_version,
+            policy_override=policy_override,
+            context=context,
+            limit=limit,
+            cancel_requested=cancel_requested,
+            scopes={"knowledge:freshness:read"},
+        ),
+        required_scope="knowledge:freshness:read",
+    )
+
+
+@mcp.tool()
+def compare_evidence_freshness_policies(
+    namespace: str,
+    evidence_ids: list[str],
+    at_ms: int,
+    old_version: str,
+    new_version: str,
+    context: dict[str, Any] | None = None,
+    limit: int = 100,
+) -> dict:
+    """Compare immutable policy versions over a bounded evidence set without side effects."""
+    from src.kb.freshness import EvidenceFreshnessStore
+
+    return _safe(
+        lambda conn: EvidenceFreshnessStore(conn, initialize=False).compare_policies(
+            namespace,
+            evidence_ids,
+            at_ms=at_ms,
+            old_version=old_version,
+            new_version=new_version,
+            context=context,
+            limit=limit,
+            scopes={"knowledge:freshness:read"},
+        ),
+        required_scope="knowledge:freshness:read",
+    )
+
+
+@mcp.tool()
+def register_evidence_freshness_dependency(
+    namespace: str,
+    evidence_id: str,
+    consumer_kind: str,
+    consumer_id: str,
+    detail: dict[str, Any] | None = None,
+) -> dict:
+    """Link evidence to a claim, answer, brief, watch, search result, or assessment."""
+    from src.kb.freshness import EvidenceFreshnessStore
+
+    return _safe(
+        lambda conn: EvidenceFreshnessStore(conn).dependency(
+            namespace,
+            evidence_id,
+            consumer_kind,
+            consumer_id,
+            detail or {},
+            principal_id=_context()[0],
+            scopes={"knowledge:freshness:write"},
+        ),
+        write=True,
+        required_scope="knowledge:freshness:write",
+    )
+
+
+@mcp.tool()
+def propagate_evidence_freshness(
+    namespace: str,
+    at_ms: int,
+    limit: int = 100,
+    cancel_requested: bool = False,
+) -> dict:
+    """Propagate freshness into dependent knowledge products with alert deduplication."""
+    from src.kb.freshness import EvidenceFreshnessStore
+
+    return _safe(
+        lambda conn: EvidenceFreshnessStore(conn).propagate(
+            namespace,
+            at_ms=at_ms,
+            principal_id=_context()[0],
+            scopes={"knowledge:freshness:write"},
+            limit=limit,
+            cancel_requested=cancel_requested,
+        ),
+        write=True,
+        required_scope="knowledge:freshness:write",
+    )
+
+
+@mcp.tool()
+def replay_evidence_freshness_assessment(namespace: str, assessment_id: str) -> dict:
+    """Verify a stored freshness calculation against its canonical hash."""
+    from src.kb.freshness import EvidenceFreshnessStore
+
+    return _safe(
+        lambda conn: EvidenceFreshnessStore(conn, initialize=False).replay(
+            namespace, assessment_id, scopes={"knowledge:freshness:read"}
+        ),
+        required_scope="knowledge:freshness:read",
+    )
 
 
 if __name__ == "__main__":

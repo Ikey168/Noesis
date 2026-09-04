@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/schemas/noesis-evidence-freshness-assessment-v1.json",
+  "title": "Noesis evidence freshness assessment",
+  "type": "object",
+  "required": ["contract", "assessment_id", "namespace", "evidence_id", "policy_id", "policy_version", "assessed_at_ms", "state", "valid", "decay_score", "reasons", "relations", "source_health", "context", "input_hash", "calculation_hash"],
+  "properties": {
+    "contract": {"const": "noesis-evidence-freshness-assessment-v1"},
+    "assessment_id": {"type": "string"}, "namespace": {"type": "string"}, "evidence_id": {"type": "string"},
+    "policy_id": {"type": "string"}, "policy_version": {"type": "string"}, "assessed_at_ms": {"type": "integer"},
+    "state": {"enum": ["fresh", "expiring-soon", "stale", "expired", "unknown", "timeless", "invalid"]},
+    "valid": {"type": "boolean"}, "age_ms": {"type": ["integer", "null"]}, "decay_score": {"type": "number", "minimum": 0, "maximum": 1},
+    "reasons": {"type": "array", "items": {"type": "string"}}, "relations": {"type": "array", "items": {"type": "object"}},
+    "override": {"type": ["object", "null"]}, "source_health": {"type": "object"}, "context": {"type": "object"},
+    "input_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"}, "calculation_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "principal_id": {"type": "string"}, "created_at_ms": {"type": "integer"}, "idempotent": {"type": "boolean"}
+  },
+  "additionalProperties": false
+}
