@@ -27,6 +27,8 @@ For the project overview and local setup, start with the
   from another project: server table, stdio/HTTP transport, auth, REST examples
 - **[Knowledge Engine 1.0 workflow](guides/knowledge-engine-reference.md)** —
   deterministic ingest-to-export composition, receipts, recovery, and watermarks
+- **[Production source packs](guides/source-packs.md)** — deployable connector
+  configuration, offline conformance, secrets, licensing, and live health gates
 - [Project structure](development/project-structure.md) — where things live in
   the codebase
 

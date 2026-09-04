@@ -1,0 +1,25 @@
+{
+  "pack_id": "official-political-records",
+  "version": "1.0.0",
+  "description": "Official executive, regulatory, electoral, and parliamentary records.",
+  "domains": ["political"],
+  "defaults": {
+    "connector": "declarative-rest",
+    "scope": "official institutional records",
+    "update_cadence": "daily",
+    "temporal_semantics": "publication-effective-revision-observation",
+    "mapping": {"target_schema": "political-record-v1", "version": "1.0.0"},
+    "extractor_versions": ["political-records:1.0.0"],
+    "schedule": {"kind": "interval", "interval_s": 86400},
+    "budgets": {"timeout_ms": 15000, "max_results": 100, "max_bytes": 10000000, "max_pages": 5},
+    "auth": {"kind": "none"},
+    "fixture": {"path": "tests/fixtures/source_packs/political.json", "sha256": "36977f503c219fb964b5924ee2c317159f67f2aedcb38e50fadbafda2a416810", "expected_output_hash": "8cab139dc31c89d4c25ff1eda4ffd83f73ba050b2c51d47e0d44cb34f1e02f1e"},
+    "health": {"required": true, "max_staleness_s": 172800}
+  },
+  "sources": [
+    {"source_id": "us-federal-register-executive", "endpoint": "https://www.federalregister.gov/api/v1/documents.json", "publisher": "Office of the Federal Register", "scope": "US executive records", "license": {"id": "us-government-public-domain", "terms_url": "https://www.federalregister.gov/policy/legal-status", "redistribution": "public-domain"}, "operations": ["incremental", "document-number", "effective-date"]},
+    {"source_id": "eu-eurlex-regulatory", "endpoint": "https://eur-lex.europa.eu/content/help/data-reuse/webservice.html", "publisher": "Publications Office of the European Union", "scope": "EU law", "license": {"id": "eu-reuse-notice", "terms_url": "https://eur-lex.europa.eu/content/legal-notice/legal-notice.html", "redistribution": "attribution-required"}, "auth": {"kind": "required-secret", "secret_ref": "NOESIS_EURLEX_API_KEY"}, "operations": ["incremental", "celex", "eli", "version"]},
+    {"source_id": "ca-elections-results", "endpoint": "https://www.elections.ca/content.aspx", "publisher": "Elections Canada", "scope": "Canadian federal election results", "license": {"id": "elections-canada-terms", "terms_url": "https://www.elections.ca/content.aspx?section=res&dir=rep/off&document=index&lang=e", "redistribution": "terms-governed"}, "update_cadence": "per-event", "operations": ["event", "district", "candidate"]},
+    {"source_id": "de-bundestag-dip", "endpoint": "https://search.dip.bundestag.de/api/v1", "publisher": "Deutscher Bundestag", "scope": "German federal parliamentary records", "license": {"id": "bundestag-open-data", "terms_url": "https://www.bundestag.de/services/opendata", "redistribution": "attribution-required"}, "auth": {"kind": "required-secret", "secret_ref": "NOESIS_BUNDESTAG_API_KEY"}, "operations": ["incremental", "proposal", "roll-call", "plenary"]}
+  ]
+}
