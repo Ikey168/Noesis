@@ -50,6 +50,9 @@ For the project overview and local setup, start with the
   sourced crosswalks, pinned validation, and bounded explainable expansion
 - **[Claim evolution timelines](guides/claim-evolution-timelines.md)** — stable
   claim states, sourced lineage, successor matching, semantic diffs, and replay
+- **[Evidence freshness and decay](guides/evidence-freshness.md)** — versioned
+  domain policies, supersession provenance, explainable decay, safe simulation,
+  and freshness propagation into knowledge products
 - **[Unified knowledge query](guides/unified-knowledge-query.md)** — one bounded,
   evidence-preserving plane over local, temporal, memory, and federated data.
 - [Project structure](development/project-structure.md) — where things live in

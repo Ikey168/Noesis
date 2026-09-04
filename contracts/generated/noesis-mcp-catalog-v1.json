@@ -808,13 +808,15 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 156,
+      "tool_count": 169,
       "tools": [
         "noesis-knowledge-engine.accept_source_pack_license",
         "noesis-knowledge-engine.add_source_relationship",
         "noesis-knowledge-engine.adjust_quantitative_inflation",
+        "noesis-knowledge-engine.annotate_evidence_freshness",
         "noesis-knowledge-engine.artifact_lineage",
         "noesis-knowledge-engine.assess_epistemic_statement",
+        "noesis-knowledge-engine.assess_evidence_freshness",
         "noesis-knowledge-engine.assess_quantitative_comparability",
         "noesis-knowledge-engine.attach_event_account",
         "noesis-knowledge-engine.begin_research_snapshot",
@@ -827,6 +829,7 @@
         "noesis-knowledge-engine.classify_epistemic_statement",
         "noesis-knowledge-engine.close_research_snapshot",
         "noesis-knowledge-engine.compare_claim_sources",
+        "noesis-knowledge-engine.compare_evidence_freshness_policies",
         "noesis-knowledge-engine.compare_hypotheses",
         "noesis-knowledge-engine.convert_quantitative_value",
         "noesis-knowledge-engine.create_event_record",
@@ -865,6 +868,8 @@
         "noesis-knowledge-engine.get_epistemic_assessment",
         "noesis-knowledge-engine.get_event_record",
         "noesis-knowledge-engine.get_event_record_as_of",
+        "noesis-knowledge-engine.get_evidence_freshness_assessment",
+        "noesis-knowledge-engine.get_evidence_freshness_policy",
         "noesis-knowledge-engine.get_geospatial_place",
         "noesis-knowledge-engine.get_hypothesis_research_plan",
         "noesis-knowledge-engine.get_hypothesis_workspace",
@@ -881,6 +886,7 @@
         "noesis-knowledge-engine.link_hypothesis_evidence",
         "noesis-knowledge-engine.list_epistemic_taxonomies",
         "noesis-knowledge-engine.list_event_accounts",
+        "noesis-knowledge-engine.list_expiring_evidence",
         "noesis-knowledge-engine.list_extractors",
         "noesis-knowledge-engine.list_geospatial_geometries",
         "noesis-knowledge-engine.list_maintenance_due_work",
@@ -896,6 +902,7 @@
         "noesis-knowledge-engine.plan_extractor_reprocessing",
         "noesis-knowledge-engine.preflight_source_pack_run",
         "noesis-knowledge-engine.preview_artifact_invalidation",
+        "noesis-knowledge-engine.propagate_evidence_freshness",
         "noesis-knowledge-engine.query_geospatial_event_map",
         "noesis-knowledge-engine.query_knowledge",
         "noesis-knowledge-engine.read_quantitative_series",
@@ -906,17 +913,21 @@
         "noesis-knowledge-engine.recover_stale_maintenance_jobs",
         "noesis-knowledge-engine.register_derived_artifact",
         "noesis-knowledge-engine.register_epistemic_taxonomy",
+        "noesis-knowledge-engine.register_evidence_freshness_dependency",
+        "noesis-knowledge-engine.register_evidence_freshness_policy",
         "noesis-knowledge-engine.register_extractor",
         "noesis-knowledge-engine.register_geospatial_place",
         "noesis-knowledge-engine.register_quantitative_metric",
         "noesis-knowledge-engine.register_quantitative_unit",
         "noesis-knowledge-engine.register_source_identity",
         "noesis-knowledge-engine.relate_events",
+        "noesis-knowledge-engine.relate_evidence_applicability",
         "noesis-knowledge-engine.renew_research_snapshot",
         "noesis-knowledge-engine.replay_claim_evolution",
         "noesis-knowledge-engine.replay_derived_object_generations",
         "noesis-knowledge-engine.replay_document_generation_delta",
         "noesis-knowledge-engine.replay_event_record",
+        "noesis-knowledge-engine.replay_evidence_freshness_assessment",
         "noesis-knowledge-engine.replay_hypothesis_workspace",
         "noesis-knowledge-engine.replay_knowledge_query",
         "noesis-knowledge-engine.replay_maintenance_generation",
@@ -937,6 +948,7 @@
         "noesis-knowledge-engine.retry_source_pack_quarantine",
         "noesis-knowledge-engine.reverse_event_merge",
         "noesis-knowledge-engine.review_epistemic_status",
+        "noesis-knowledge-engine.review_evidence_freshness_override",
         "noesis-knowledge-engine.review_geospatial_resolution",
         "noesis-knowledge-engine.revise_event_record",
         "noesis-knowledge-engine.revise_geospatial_place",
@@ -954,6 +966,7 @@
         "noesis-knowledge-engine.set_source_pack_enabled",
         "noesis-knowledge-engine.set_source_pack_schedule",
         "noesis-knowledge-engine.simplify_geospatial_geometry",
+        "noesis-knowledge-engine.simulate_evidence_freshness_policy",
         "noesis-knowledge-engine.source_identity_dossier",
         "noesis-knowledge-engine.source_identity_history",
         "noesis-knowledge-engine.source_pack_coverage",
@@ -972,7 +985,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 156
+      "visible_tool_count": 169
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -986,9 +999,9 @@
       "available": 81,
       "degraded": 155,
       "disabled": 3,
-      "unauthorized": 157
+      "unauthorized": 170
     },
-    "tools": 396
+    "tools": 409
   },
   "tools": [
     {
@@ -13000,6 +13013,177 @@
       "version": "1"
     },
     {
+      "cost_class": "medium",
+      "description": "Attach immutable lifecycle metadata to an existing evidence identity.",
+      "id": "noesis-knowledge-engine.annotate_evidence_freshness",
+      "input_schema": {
+        "properties": {
+          "domain": {
+            "type": "string"
+          },
+          "event_closed_at_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "evidence_id": {
+            "type": "string"
+          },
+          "generation": {
+            "default": 0,
+            "type": "integer"
+          },
+          "methodology_revision": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "object_type": {
+            "type": "string"
+          },
+          "observed_at_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "policy": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "producer": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "provenance": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "published_at_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "retrieved_at_ms": {
+            "type": "integer"
+          },
+          "source_health": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "source_type": {
+            "type": "string"
+          },
+          "valid_from_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "valid_to_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "evidence_id",
+          "domain",
+          "source_type",
+          "object_type",
+          "retrieved_at_ms"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "annotate_evidence_freshness",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:freshness:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "low",
       "description": "Traverse exact source, parser, extractor, schema, model, and config dependencies.",
       "id": "noesis-knowledge-engine.artifact_lineage",
@@ -13152,6 +13336,70 @@
       ],
       "required_scopes": [
         "knowledge:epistemic:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Persist a deterministic freshness assessment and full explanation trace.",
+      "id": "noesis-knowledge-engine.assess_evidence_freshness",
+      "input_schema": {
+        "properties": {
+          "at_ms": {
+            "type": "integer"
+          },
+          "context": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "evidence_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "policy_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "evidence_id",
+          "at_ms"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "assess_evidence_freshness",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:freshness:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -13840,6 +14088,74 @@
       ],
       "required_scopes": [
         "knowledge:claim-timeline:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Compare immutable policy versions over a bounded evidence set without side effects.",
+      "id": "noesis-knowledge-engine.compare_evidence_freshness_policies",
+      "input_schema": {
+        "properties": {
+          "at_ms": {
+            "type": "integer"
+          },
+          "context": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "evidence_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "limit": {
+            "default": 100,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "new_version": {
+            "type": "string"
+          },
+          "old_version": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "evidence_ids",
+          "at_ms",
+          "old_version",
+          "new_version"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "compare_evidence_freshness_policies",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:freshness:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -15872,6 +16188,80 @@
     },
     {
       "cost_class": "low",
+      "description": "Read a stored freshness decision and the reasons behind it.",
+      "id": "noesis-knowledge-engine.get_evidence_freshness_assessment",
+      "input_schema": {
+        "properties": {
+          "assessment_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "assessment_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "get_evidence_freshness_assessment",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:freshness:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Read a freshness policy, including supersession and provenance metadata.",
+      "id": "noesis-knowledge-engine.get_evidence_freshness_policy",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "policy_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "policy_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "get_evidence_freshness_policy",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:freshness:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Read the current, exact, or complete history of a place.",
       "id": "noesis-knowledge-engine.get_geospatial_place",
       "input_schema": {
@@ -16649,6 +17039,55 @@
     },
     {
       "cost_class": "low",
+      "description": "Scan a bounded evidence set for items that expire or become stale soon.",
+      "id": "noesis-knowledge-engine.list_expiring_evidence",
+      "input_schema": {
+        "properties": {
+          "at_ms": {
+            "type": "integer"
+          },
+          "cancel_requested": {
+            "default": false,
+            "type": "boolean"
+          },
+          "horizon_ms": {
+            "type": "integer"
+          },
+          "limit": {
+            "default": 100,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "at_ms",
+          "horizon_ms"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_expiring_evidence",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:freshness:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "List immutable extractor versions and their declared capabilities.",
       "id": "noesis-knowledge-engine.list_extractors",
       "input_schema": {
@@ -17191,6 +17630,51 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Propagate freshness into dependent knowledge products with alert deduplication.",
+      "id": "noesis-knowledge-engine.propagate_evidence_freshness",
+      "input_schema": {
+        "properties": {
+          "at_ms": {
+            "type": "integer"
+          },
+          "cancel_requested": {
+            "default": false,
+            "type": "boolean"
+          },
+          "limit": {
+            "default": 100,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "at_ms"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propagate_evidence_freshness",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:freshness:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
       "version": "1"
     },
     {
@@ -17814,6 +18298,201 @@
       ],
       "required_scopes": [
         "knowledge:epistemic:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Link evidence to a claim, answer, brief, watch, search result, or assessment.",
+      "id": "noesis-knowledge-engine.register_evidence_freshness_dependency",
+      "input_schema": {
+        "properties": {
+          "consumer_id": {
+            "type": "string"
+          },
+          "consumer_kind": {
+            "type": "string"
+          },
+          "detail": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "evidence_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "evidence_id",
+          "consumer_kind",
+          "consumer_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "register_evidence_freshness_dependency",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:freshness:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Register an immutable, versioned freshness policy and optionally activate an upgrade.",
+      "id": "noesis-knowledge-engine.register_evidence_freshness_policy",
+      "input_schema": {
+        "properties": {
+          "domain": {
+            "type": "string"
+          },
+          "generation": {
+            "default": 0,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "object_type": {
+            "type": "string"
+          },
+          "observed_at_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "policy_context": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "producer": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "provenance": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "rules": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "semantic_version": {
+            "type": "string"
+          },
+          "source_type": {
+            "type": "string"
+          },
+          "supersedes_policy_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "valid_from_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "valid_to_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "domain",
+          "source_type",
+          "object_type",
+          "semantic_version",
+          "rules"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "register_evidence_freshness_policy",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:freshness:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -18500,6 +19179,110 @@
     },
     {
       "cost_class": "medium",
+      "description": "Record exactly why later evidence supersedes, narrows, or invalidates earlier evidence.",
+      "id": "noesis-knowledge-engine.relate_evidence_applicability",
+      "input_schema": {
+        "properties": {
+          "applicability": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "confidence": {
+            "type": "number"
+          },
+          "earlier_evidence_id": {
+            "type": "string"
+          },
+          "evidence": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "generation": {
+            "default": 0,
+            "type": "integer"
+          },
+          "later_evidence_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "observed_at_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "provenance": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "relation": {
+            "type": "string"
+          },
+          "valid_from_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "valid_to_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "earlier_evidence_id",
+          "later_evidence_id",
+          "relation",
+          "applicability",
+          "confidence",
+          "evidence",
+          "provenance"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "relate_evidence_applicability",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:freshness:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Renew a snapshot without exceeding its maximum lifetime.",
       "id": "noesis-knowledge-engine.renew_research_snapshot",
       "input_schema": {
@@ -18686,6 +19469,43 @@
       ],
       "required_scopes": [
         "knowledge:event:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Verify a stored freshness calculation against its canonical hash.",
+      "id": "noesis-knowledge-engine.replay_evidence_freshness_assessment",
+      "input_schema": {
+        "properties": {
+          "assessment_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "assessment_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "replay_evidence_freshness_assessment",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:freshness:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -19495,6 +20315,70 @@
       ],
       "required_scopes": [
         "knowledge:epistemic:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Apply an auditable, optionally expiring human freshness decision.",
+      "id": "noesis-knowledge-engine.review_evidence_freshness_override",
+      "input_schema": {
+        "properties": {
+          "evidence": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "evidence_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          },
+          "valid_until_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "evidence_id",
+          "state",
+          "reason",
+          "evidence"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_evidence_freshness_override",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:freshness:review"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -20463,6 +21347,93 @@
       ],
       "required_scopes": [
         "knowledge:geospatial:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Simulate freshness policy changes without creating assessments or audit rows.",
+      "id": "noesis-knowledge-engine.simulate_evidence_freshness_policy",
+      "input_schema": {
+        "properties": {
+          "at_ms": {
+            "type": "integer"
+          },
+          "cancel_requested": {
+            "default": false,
+            "type": "boolean"
+          },
+          "context": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "evidence_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "limit": {
+            "default": 100,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "policy_override": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "policy_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "evidence_ids",
+          "at_ms"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "simulate_evidence_freshness_policy",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:freshness:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
