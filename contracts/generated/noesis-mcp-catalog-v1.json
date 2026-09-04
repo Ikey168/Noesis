@@ -808,7 +808,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 204,
+      "tool_count": 215,
       "tools": [
         "noesis-knowledge-engine.accept_dataset_join",
         "noesis-knowledge-engine.accept_source_pack_license",
@@ -818,6 +818,7 @@
         "noesis-knowledge-engine.artifact_lineage",
         "noesis-knowledge-engine.assess_epistemic_statement",
         "noesis-knowledge-engine.assess_evidence_freshness",
+        "noesis-knowledge-engine.assess_methodology_limitation",
         "noesis-knowledge-engine.assess_quantitative_comparability",
         "noesis-knowledge-engine.attach_event_account",
         "noesis-knowledge-engine.begin_research_snapshot",
@@ -835,6 +836,7 @@
         "noesis-knowledge-engine.compare_evidence_freshness_policies",
         "noesis-knowledge-engine.compare_hypotheses",
         "noesis-knowledge-engine.compare_research_gap_coverage",
+        "noesis-knowledge-engine.compare_study_methodologies",
         "noesis-knowledge-engine.convert_quantitative_value",
         "noesis-knowledge-engine.create_event_record",
         "noesis-knowledge-engine.create_hypothesis_research_plan",
@@ -871,7 +873,9 @@
         "noesis-knowledge-engine.explain_research_gap",
         "noesis-knowledge-engine.explain_source_acquisition_plan",
         "noesis-knowledge-engine.explain_source_independence",
+        "noesis-knowledge-engine.explain_study_evidence_strength",
         "noesis-knowledge-engine.export_hypothesis_workspace",
+        "noesis-knowledge-engine.extract_methodology_statements",
         "noesis-knowledge-engine.fetch_declarative_api",
         "noesis-knowledge-engine.get_claim_evolution_timeline",
         "noesis-knowledge-engine.get_claim_timeline_state",
@@ -886,10 +890,12 @@
         "noesis-knowledge-engine.get_geospatial_place",
         "noesis-knowledge-engine.get_hypothesis_research_plan",
         "noesis-knowledge-engine.get_hypothesis_workspace",
+        "noesis-knowledge-engine.get_methodology_study",
         "noesis-knowledge-engine.get_quantitative_metric",
         "noesis-knowledge-engine.get_research_gap",
         "noesis-knowledge-engine.get_source_acquisition_plan",
         "noesis-knowledge-engine.get_source_capability",
+        "noesis-knowledge-engine.get_study_replication_graph",
         "noesis-knowledge-engine.ingest_event_mentions",
         "noesis-knowledge-engine.ingest_tabular_dataset",
         "noesis-knowledge-engine.inspect_maintenance_generation",
@@ -902,6 +908,7 @@
         "noesis-knowledge-engine.knowledge_engine_capabilities",
         "noesis-knowledge-engine.link_claim_evolution",
         "noesis-knowledge-engine.link_hypothesis_evidence",
+        "noesis-knowledge-engine.link_study_artifact",
         "noesis-knowledge-engine.list_epistemic_taxonomies",
         "noesis-knowledge-engine.list_event_accounts",
         "noesis-knowledge-engine.list_expiring_evidence",
@@ -909,6 +916,7 @@
         "noesis-knowledge-engine.list_geospatial_geometries",
         "noesis-knowledge-engine.list_maintenance_due_work",
         "noesis-knowledge-engine.list_maintenance_jobs",
+        "noesis-knowledge-engine.list_methodology_limitations",
         "noesis-knowledge-engine.list_research_gap_tasks",
         "noesis-knowledge-engine.list_research_gaps",
         "noesis-knowledge-engine.list_source_pack_quarantine",
@@ -943,6 +951,7 @@
         "noesis-knowledge-engine.register_evidence_freshness_policy",
         "noesis-knowledge-engine.register_extractor",
         "noesis-knowledge-engine.register_geospatial_place",
+        "noesis-knowledge-engine.register_methodology_study",
         "noesis-knowledge-engine.register_quantitative_metric",
         "noesis-knowledge-engine.register_quantitative_unit",
         "noesis-knowledge-engine.register_research_gap_policy",
@@ -959,6 +968,7 @@
         "noesis-knowledge-engine.replay_hypothesis_workspace",
         "noesis-knowledge-engine.replay_knowledge_query",
         "noesis-knowledge-engine.replay_maintenance_generation",
+        "noesis-knowledge-engine.replay_methodology_extraction",
         "noesis-knowledge-engine.replay_quantitative_calculation",
         "noesis-knowledge-engine.replay_research_gap",
         "noesis-knowledge-engine.replay_source_acquisition_run",
@@ -994,6 +1004,7 @@
         "noesis-knowledge-engine.search_epistemic_assessments",
         "noesis-knowledge-engine.search_event_records",
         "noesis-knowledge-engine.search_geospatial_knowledge",
+        "noesis-knowledge-engine.search_methodology_studies",
         "noesis-knowledge-engine.set_maintenance_schedule_paused",
         "noesis-knowledge-engine.set_source_pack_enabled",
         "noesis-knowledge-engine.set_source_pack_schedule",
@@ -1020,7 +1031,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 204
+      "visible_tool_count": 215
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -1034,9 +1045,9 @@
       "available": 81,
       "degraded": 155,
       "disabled": 3,
-      "unauthorized": 205
+      "unauthorized": 216
     },
-    "tools": 444
+    "tools": 455
   },
   "tools": [
     {
@@ -13479,6 +13490,138 @@
       "version": "1"
     },
     {
+      "cost_class": "medium",
+      "description": "Record a sourced or reviewed, versioned bias or applicability assessment.",
+      "id": "noesis-knowledge-engine.assess_methodology_limitation",
+      "input_schema": {
+        "properties": {
+          "applicability": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "dimension": {
+            "type": "string"
+          },
+          "evidence_statement_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "framework": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "observed_at_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "provenance": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "rating": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "rationale": {
+            "type": "string"
+          },
+          "reviewer_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "source_locator": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "study_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "study_id",
+          "framework",
+          "dimension",
+          "rationale"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "assess_methodology_limitation",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:methodology:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "low",
       "description": "Explain whether observations are comparable across adjustments and series breaks.",
       "id": "noesis-knowledge-engine.assess_quantitative_comparability",
@@ -14419,6 +14562,50 @@
       ],
       "required_scopes": [
         "knowledge:gaps:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Compare exact study designs, populations, interventions, outcomes, and plans.",
+      "id": "noesis-knowledge-engine.compare_study_methodologies",
+      "input_schema": {
+        "properties": {
+          "limit": {
+            "default": 20,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "study_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "namespace",
+          "study_ids"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "compare_study_methodologies",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:methodology:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -16408,6 +16595,43 @@
     },
     {
       "cost_class": "low",
+      "description": "Explain evidence strength without converting unknown assessments into ratings.",
+      "id": "noesis-knowledge-engine.explain_study_evidence_strength",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "study_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "study_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "explain_study_evidence_strength",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:methodology:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Export complete accessible workspace lineage with a deterministic hash.",
       "id": "noesis-knowledge-engine.export_hypothesis_workspace",
       "input_schema": {
@@ -16438,6 +16662,75 @@
       ],
       "required_scopes": [
         "knowledge:hypothesis:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Persist bounded method statements with page, section, table, or passage locators.",
+      "id": "noesis-knowledge-engine.extract_methodology_statements",
+      "input_schema": {
+        "properties": {
+          "cancel_requested": {
+            "default": false,
+            "type": "boolean"
+          },
+          "document_id": {
+            "type": "string"
+          },
+          "limit": {
+            "default": 500,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "provenance": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "statements": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "study_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "study_id",
+          "document_id",
+          "statements"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "extract_methodology_statements",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:methodology:extract"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -17092,6 +17385,54 @@
     },
     {
       "cost_class": "low",
+      "description": "Read the current or an exact study-method revision.",
+      "id": "noesis-knowledge-engine.get_methodology_study",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "revision_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "study_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "study_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "get_methodology_study",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:methodology:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Read the current, exact, or complete immutable history of a metric.",
       "id": "noesis-knowledge-engine.get_quantitative_metric",
       "input_schema": {
@@ -17248,6 +17589,47 @@
       ],
       "required_scopes": [
         "knowledge:source-planner:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Read bounded registration, replication, data, code, and correction links.",
+      "id": "noesis-knowledge-engine.get_study_replication_graph",
+      "input_schema": {
+        "properties": {
+          "limit": {
+            "default": 100,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "study_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "study_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "get_study_replication_graph",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:methodology:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -17880,6 +18262,115 @@
       "version": "1"
     },
     {
+      "cost_class": "medium",
+      "description": "Link a study to registrations, protocols, data, code, replications, or corrections.",
+      "id": "noesis-knowledge-engine.link_study_artifact",
+      "input_schema": {
+        "properties": {
+          "artifact_id": {
+            "type": "string"
+          },
+          "artifact_type": {
+            "type": "string"
+          },
+          "indirect_via": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "locator": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "provenance": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "relation": {
+            "type": "string"
+          },
+          "status": {
+            "default": "available",
+            "type": "string"
+          },
+          "study_external_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "study_id": {
+            "type": "string"
+          },
+          "version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "study_id",
+          "artifact_type",
+          "artifact_id",
+          "relation"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "link_study_artifact",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:methodology:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "low",
       "description": "List versioned epistemic taxonomies visible to the caller.",
       "id": "noesis-knowledge-engine.list_epistemic_taxonomies",
@@ -18149,6 +18640,69 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Filter current bias, confounding, power, measurement, and applicability records.",
+      "id": "noesis-knowledge-engine.list_methodology_limitations",
+      "input_schema": {
+        "properties": {
+          "framework": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "limit": {
+            "default": 100,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "rating": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "study_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "study_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_methodology_limitations",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:methodology:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
       "version": "1"
     },
     {
@@ -20343,6 +20897,229 @@
     },
     {
       "cost_class": "medium",
+      "description": "Register a versioned study and its design, population, and analysis objects.",
+      "id": "noesis-knowledge-engine.register_methodology_study",
+      "input_schema": {
+        "properties": {
+          "analysis_plans": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "comparators": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "datasets": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "design": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "external_id": {
+            "type": "string"
+          },
+          "generation": {
+            "default": 0,
+            "type": "integer"
+          },
+          "instruments": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "interventions": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "observed_at_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "outcomes": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "policy": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "population": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "predecessor_revision_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "producer": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "provenance": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "samples": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "title": {
+            "type": "string"
+          },
+          "valid_from_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "valid_to_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "version": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "external_id",
+          "version",
+          "title",
+          "design",
+          "population",
+          "interventions",
+          "comparators",
+          "outcomes"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "register_methodology_study",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:methodology:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Register a versioned metric with aliases and source-native mappings.",
       "id": "noesis-knowledge-engine.register_quantitative_metric",
       "input_schema": {
@@ -21581,6 +22358,43 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Verify the deterministic output hash of an exact-locator extraction.",
+      "id": "noesis-knowledge-engine.replay_methodology_extraction",
+      "input_schema": {
+        "properties": {
+          "extraction_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "extraction_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "replay_methodology_extraction",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:methodology:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
       "version": "1"
     },
     {
@@ -23311,6 +24125,51 @@
       ],
       "required_scopes": [
         "knowledge:geospatial:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Search current study-method records with bounded pagination.",
+      "id": "noesis-knowledge-engine.search_methodology_studies",
+      "input_schema": {
+        "properties": {
+          "limit": {
+            "default": 50,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "offset": {
+            "default": 0,
+            "type": "integer"
+          },
+          "query": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "query"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "search_methodology_studies",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:methodology:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",

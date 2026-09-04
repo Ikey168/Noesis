@@ -122,6 +122,9 @@ MUTATION_NAMES = frozenset(
         "prioritize_research_gaps",
         "cancel_source_acquisition_plan",
         "accept_dataset_join",
+        "extract_methodology_statements",
+        "assess_methodology_limitation",
+        "link_study_artifact",
     }
 )
 
@@ -294,6 +297,22 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
             return ["knowledge:memory:admin"]
         return ["knowledge:memory:read"]
     if server_stem == "knowledge_engine_mcp":
+        if tool_name == "extract_methodology_statements":
+            return ["knowledge:methodology:extract"]
+        if tool_name == "assess_methodology_limitation":
+            return ["knowledge:methodology:review"]
+        if tool_name in {"register_methodology_study", "link_study_artifact"}:
+            return ["knowledge:methodology:write"]
+        if tool_name in {
+            "get_methodology_study",
+            "search_methodology_studies",
+            "replay_methodology_extraction",
+            "list_methodology_limitations",
+            "get_study_replication_graph",
+            "compare_study_methodologies",
+            "explain_study_evidence_strength",
+        }:
+            return ["knowledge:methodology:read"]
         if tool_name == "ingest_tabular_dataset":
             return ["knowledge:dataset:ingest"]
         if tool_name == "preview_dataset_join":

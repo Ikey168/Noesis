@@ -1,0 +1,5 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema", "$id": "https://noesis.local/schemas/noesis-study-artifact-link-v1.json", "title": "Noesis study artifact link", "type": "object",
+  "required": ["contract", "namespace", "study_id", "artifact_type", "artifact_id", "relation", "status", "identifier_mismatch", "provenance"],
+  "properties": {"contract": {"const": "noesis-study-artifact-link-v1"}, "namespace": {"type": "string"}, "study_id": {"type": "string"}, "link_id": {"type": "string"}, "artifact_type": {"enum": ["preregistration", "protocol", "dataset", "code", "replication", "comment", "erratum", "retraction"]}, "artifact_id": {"type": "string"}, "relation": {"type": "string"}, "status": {"type": "string"}, "version": {"type": ["string", "null"]}, "locator": {"type": ["string", "null"]}, "indirect_via": {"type": ["string", "null"]}, "identifier_mismatch": {"type": "boolean"}, "provenance": {"type": "object"}, "created_at_ms": {"type": "integer"}, "idempotent": {"type": "boolean"}, "links": {"type": "array"}, "replications": {"type": "array"}, "citation_closure": {"type": "boolean"}}, "additionalProperties": false
+}

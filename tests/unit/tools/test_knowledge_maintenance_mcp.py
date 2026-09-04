@@ -180,6 +180,17 @@ def test_maintenance_surface_and_catalog_scope_separation(monkeypatch):
         "preview_dataset_join",
         "accept_dataset_join",
         "get_dataset_lineage",
+        "register_methodology_study",
+        "get_methodology_study",
+        "search_methodology_studies",
+        "extract_methodology_statements",
+        "replay_methodology_extraction",
+        "assess_methodology_limitation",
+        "list_methodology_limitations",
+        "link_study_artifact",
+        "get_study_replication_graph",
+        "compare_study_methodologies",
+        "explain_study_evidence_strength",
     }
     assert expected <= set(tools)
     assert _required_scopes(
@@ -524,6 +535,30 @@ def test_maintenance_surface_and_catalog_scope_separation(monkeypatch):
         assert _required_scopes("knowledge_engine_mcp", "read", name) == [
             "knowledge:dataset:read"
         ]
+    for name in ("register_methodology_study", "link_study_artifact"):
+        assert _mutability(name) == "write"
+        assert _required_scopes("knowledge_engine_mcp", "write", name) == [
+            "knowledge:methodology:write"
+        ]
+    assert _required_scopes(
+        "knowledge_engine_mcp", "write", "extract_methodology_statements"
+    ) == ["knowledge:methodology:extract"]
+    assert _required_scopes(
+        "knowledge_engine_mcp", "write", "assess_methodology_limitation"
+    ) == ["knowledge:methodology:review"]
+    for name in (
+        "get_methodology_study",
+        "search_methodology_studies",
+        "replay_methodology_extraction",
+        "list_methodology_limitations",
+        "get_study_replication_graph",
+        "compare_study_methodologies",
+        "explain_study_evidence_strength",
+    ):
+        assert _mutability(name) == "read"
+        assert _required_scopes("knowledge_engine_mcp", "read", name) == [
+            "knowledge:methodology:read"
+        ]
     for name in (
         "pause_maintenance_schedule",
         "resume_maintenance_schedule",
@@ -641,3 +676,10 @@ def test_capabilities_advertise_generation_contracts():
     assert "noesis-dataset-join-v1" in capabilities["contracts"]
     assert "versioned-dataset-table-column-identities" in capabilities["features"]
     assert "bounded-multiformat-tabular-ingestion" in capabilities["features"]
+    assert "noesis-methodology-study-v1" in capabilities["contracts"]
+    assert "noesis-methodology-extraction-v1" in capabilities["contracts"]
+    assert "noesis-methodology-assessment-v1" in capabilities["contracts"]
+    assert "noesis-study-artifact-link-v1" in capabilities["contracts"]
+    assert "noesis-methodology-comparison-v1" in capabilities["contracts"]
+    assert "exact-locator-method-extraction" in capabilities["features"]
+    assert "study-artifact-and-replication-graphs" in capabilities["features"]
