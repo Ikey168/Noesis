@@ -28,7 +28,7 @@ For the project overview and local setup, start with the
 - **[Knowledge Engine 1.0 workflow](guides/knowledge-engine-reference.md)** —
   deterministic ingest-to-export composition, receipts, recovery, and watermarks
 - **[Production source packs](guides/source-packs.md)** — deployable connector
-  configuration, offline conformance, secrets, licensing, and live health gates
+  execution, durable cursors, backfills, quarantine, schedules, and live gates
 - **[Unified knowledge query](guides/unified-knowledge-query.md)** — one bounded,
   evidence-preserving plane over local, temporal, memory, and federated data.
 - [Project structure](development/project-structure.md) — where things live in

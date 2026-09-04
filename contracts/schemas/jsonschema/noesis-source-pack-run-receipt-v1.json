@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/schemas/noesis-source-pack-run-receipt-v1.json",
+  "title": "Noesis source-pack run receipt",
+  "type": "object",
+  "required": ["contract", "run_id", "request_hash", "pack_id", "pack_version", "manifest_hash", "mode", "status", "sources", "failures", "receipt_hash", "watermark", "coverage", "budgets", "timing", "replay"],
+  "properties": {
+    "contract": {"const": "noesis-source-pack-run-receipt-v1"},
+    "run_id": {"type": "string", "pattern": "^source-run:"},
+    "request_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "pack_id": {"type": "string"},
+    "pack_version": {"type": "string"},
+    "manifest_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "mode": {"enum": ["incremental", "backfill"]},
+    "status": {"enum": ["complete", "partial", "failed", "cancelled", "interrupted"]},
+    "sources": {"type": "array", "items": {"type": "object", "required": ["source_id", "status", "required", "counts", "cursor", "output_hash", "failure", "circuit", "adapter"]}},
+    "failures": {"type": "array", "items": {"type": "object"}},
+    "receipt_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "watermark": {"type": ["integer", "null"], "minimum": 1},
+    "coverage": {"type": "object"},
+    "budgets": {"type": "object"},
+    "timing": {"type": "object"},
+    "replay": {"type": "object"},
+    "idempotent": {"type": "boolean"}
+  },
+  "additionalProperties": false
+}

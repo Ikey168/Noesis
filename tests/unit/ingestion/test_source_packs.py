@@ -49,8 +49,11 @@ def test_all_six_production_packs_validate_against_contract() -> None:
     Draft7Validator.check_schema(schema)
     for pack in packs:
         assert not list(Draft7Validator(schema).iter_errors(pack))
-        assert all(source["endpoint"].startswith("https://") for source in pack["sources"])
+        assert all(
+            source["endpoint"].startswith("https://") for source in pack["sources"]
+        )
         assert all(source["license"]["terms_url"] for source in pack["sources"])
+        assert validate_source_pack(pack) == pack
 
 
 def test_offline_fixtures_are_pinned_and_replay_deterministically() -> None:
@@ -58,12 +61,13 @@ def test_offline_fixtures_are_pinned_and_replay_deterministically() -> None:
     for manifest in (raw(path.stem) for path in sorted(PACK_DIR.glob("*.json"))):
         seen = []
 
-        def runner(source, fixture):
+        def runner(source, fixture, seen=seen):
             seen.append(source["source_id"])
             return fixture["normalized"]
 
         connectors = {
-            source["connector"]: runner for source in validate_source_pack(manifest)["sources"]
+            source["connector"]: runner
+            for source in validate_source_pack(manifest)["sources"]
         }
         result = gate.offline(manifest, runners=connectors)
         assert result["offline"] and result["valid"]
@@ -75,14 +79,35 @@ def test_offline_fixtures_are_pinned_and_replay_deterministically() -> None:
 @pytest.mark.parametrize(
     ("mutation", "code"),
     [
-        (lambda pack: pack["sources"][0].update(connector="shell"), "unknown_connector"),
-        (lambda pack: pack["sources"][0].update(endpoint="http://localhost/private"), "unsafe_endpoint"),
-        (lambda pack: pack["defaults"]["budgets"].update(max_pages=1000), "unbounded_source"),
-        (lambda pack: pack["defaults"].update(auth={"kind": "required-secret", "token": "leak"}), "invalid_auth"),
-        (lambda pack: pack["defaults"].update(fixture={"path": "x", "sha256": "bad"}), "unpinned_fixture"),
+        (
+            lambda pack: pack["sources"][0].update(connector="shell"),
+            "unknown_connector",
+        ),
+        (
+            lambda pack: pack["sources"][0].update(endpoint="http://localhost/private"),
+            "unsafe_endpoint",
+        ),
+        (
+            lambda pack: pack["defaults"]["budgets"].update(max_pages=1000),
+            "unbounded_source",
+        ),
+        (
+            lambda pack: pack["defaults"].update(
+                auth={"kind": "required-secret", "token": "leak"}
+            ),
+            "invalid_auth",
+        ),
+        (
+            lambda pack: pack["defaults"].update(
+                fixture={"path": "x", "sha256": "bad"}
+            ),
+            "unpinned_fixture",
+        ),
     ],
 )
-def test_validation_rejects_unsafe_unbounded_or_unpinned_sources(mutation, code: str) -> None:
+def test_validation_rejects_unsafe_unbounded_or_unpinned_sources(
+    mutation, code: str
+) -> None:
     pack = raw("research")
     mutation(pack)
     with pytest.raises(SourcePackError) as caught:
@@ -112,7 +137,9 @@ def test_install_enable_upgrade_and_idempotency_are_pack_scoped(conn) -> None:
     installed = store.install(research, principal_id="operator", now_ms=10)
     assert not installed["enabled"]
     store.install(political, principal_id="operator", enable=True, now_ms=11)
-    enabled = store.set_enabled("research-discovery", True, principal_id="operator", now_ms=12)
+    enabled = store.set_enabled(
+        "research-discovery", True, principal_id="operator", now_ms=12
+    )
     assert enabled["enabled"] and store.status("official-political-records")["enabled"]
     assert store.install(research, principal_id="operator")["idempotent"]
 
@@ -144,7 +171,10 @@ def test_secret_readiness_health_redaction_and_domain_coverage(conn) -> None:
         "official-political-records",
         secret_available=lambda name: name == "NOESIS_BUNDESTAG_API_KEY",
     )
-    readiness = {item["source_id"]: item["authentication"]["ready"] for item in political["sources"]}
+    readiness = {
+        item["source_id"]: item["authentication"]["ready"]
+        for item in political["sources"]
+    }
     assert readiness["de-bundestag-dip"]
     assert not readiness["eu-eurlex-regulatory"]
     health = store.record_health(

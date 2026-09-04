@@ -51,6 +51,18 @@ def test_catalog_is_generated_from_every_registered_fastmcp_server():
         tool["input_schema"].get("type") == "object" for tool in catalog["tools"]
     )
     assert all(tool["output_schema"] for tool in catalog["tools"])
+    by_id = {tool["id"]: tool for tool in catalog["tools"]}
+    for name in (
+        "accept_source_pack_license",
+        "cancel_source_pack_run",
+        "install_source_pack",
+        "retry_source_pack_quarantine",
+        "run_source_pack_execution",
+        "set_source_pack_schedule",
+    ):
+        tool = by_id[f"noesis-knowledge-engine.{name}"]
+        assert tool["mutability"] == "write"
+        assert tool["required_scopes"] == ["operator"]
 
 
 def test_generated_artifact_conforms_to_versioned_schema():
