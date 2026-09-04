@@ -808,7 +808,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 268,
+      "tool_count": 281,
       "tools": [
         "noesis-knowledge-engine.accept_citation_repair",
         "noesis-knowledge-engine.accept_dataset_join",
@@ -876,6 +876,8 @@
         "noesis-knowledge-engine.event_neighborhood",
         "noesis-knowledge-engine.event_timeline",
         "noesis-knowledge-engine.execute_artifact_rebuild",
+        "noesis-knowledge-engine.execute_entity_merge",
+        "noesis-knowledge-engine.execute_entity_split",
         "noesis-knowledge-engine.execute_hypothesis_research_plan",
         "noesis-knowledge-engine.execute_source_acquisition_plan",
         "noesis-knowledge-engine.explain_derived_object_invalidation",
@@ -886,6 +888,7 @@
         "noesis-knowledge-engine.explain_source_independence",
         "noesis-knowledge-engine.explain_study_evidence_strength",
         "noesis-knowledge-engine.export_change_briefs",
+        "noesis-knowledge-engine.export_entity_identity_history",
         "noesis-knowledge-engine.export_hypothesis_workspace",
         "noesis-knowledge-engine.export_preserved_citations",
         "noesis-knowledge-engine.export_research_recipe_run",
@@ -902,6 +905,7 @@
         "noesis-knowledge-engine.get_dataset_catalog",
         "noesis-knowledge-engine.get_dataset_lineage",
         "noesis-knowledge-engine.get_dataset_release",
+        "noesis-knowledge-engine.get_entity_identity_history",
         "noesis-knowledge-engine.get_epistemic_assessment",
         "noesis-knowledge-engine.get_event_record",
         "noesis-knowledge-engine.get_event_record_as_of",
@@ -923,6 +927,7 @@
         "noesis-knowledge-engine.get_study_replication_graph",
         "noesis-knowledge-engine.ingest_event_mentions",
         "noesis-knowledge-engine.ingest_tabular_dataset",
+        "noesis-knowledge-engine.inspect_entity_change_impact",
         "noesis-knowledge-engine.inspect_maintenance_generation",
         "noesis-knowledge-engine.inspect_maintenance_job",
         "noesis-knowledge-engine.inspect_media_provenance",
@@ -962,17 +967,21 @@
         "noesis-knowledge-engine.preview_artifact_invalidation",
         "noesis-knowledge-engine.preview_citation_repair",
         "noesis-knowledge-engine.preview_dataset_join",
+        "noesis-knowledge-engine.preview_entity_merge",
+        "noesis-knowledge-engine.preview_entity_split",
         "noesis-knowledge-engine.preview_research_recipe",
         "noesis-knowledge-engine.preview_semantic_change",
         "noesis-knowledge-engine.preview_source_acquisition_plan",
         "noesis-knowledge-engine.prioritize_research_gaps",
         "noesis-knowledge-engine.propagate_evidence_freshness",
+        "noesis-knowledge-engine.publish_entity_change_rebuild",
         "noesis-knowledge-engine.query_geospatial_event_map",
         "noesis-knowledge-engine.query_knowledge",
         "noesis-knowledge-engine.rank_by_quality",
         "noesis-knowledge-engine.read_quantitative_series",
         "noesis-knowledge-engine.read_workflow_stage",
         "noesis-knowledge-engine.record_citation_health",
+        "noesis-knowledge-engine.record_entity_identity_decision",
         "noesis-knowledge-engine.record_geospatial_resolution",
         "noesis-knowledge-engine.record_media_transformation",
         "noesis-knowledge-engine.record_quantitative_observation",
@@ -984,6 +993,8 @@
         "noesis-knowledge-engine.register_dataset_catalog",
         "noesis-knowledge-engine.register_dataset_release",
         "noesis-knowledge-engine.register_derived_artifact",
+        "noesis-knowledge-engine.register_entity_dependency",
+        "noesis-knowledge-engine.register_entity_history_identity",
         "noesis-knowledge-engine.register_epistemic_taxonomy",
         "noesis-knowledge-engine.register_evidence_freshness_dependency",
         "noesis-knowledge-engine.register_evidence_freshness_policy",
@@ -1023,6 +1034,7 @@
         "noesis-knowledge-engine.replay_tabular_ingestion",
         "noesis-knowledge-engine.research_snapshot_health",
         "noesis-knowledge-engine.research_snapshot_pins",
+        "noesis-knowledge-engine.resolve_entity_history",
         "noesis-knowledge-engine.resolve_event_report",
         "noesis-knowledge-engine.resolve_geospatial_candidates",
         "noesis-knowledge-engine.resolve_source_alias",
@@ -1071,6 +1083,7 @@
         "noesis-knowledge-engine.store_geospatial_geometry",
         "noesis-knowledge-engine.suggest_dataset_joins",
         "noesis-knowledge-engine.transform_quantitative_frequency",
+        "noesis-knowledge-engine.undo_entity_identity_change",
         "noesis-knowledge-engine.unified_query_capabilities",
         "noesis-knowledge-engine.update_research_gap_status",
         "noesis-knowledge-engine.validate_api_connector_manifest",
@@ -1084,7 +1097,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 268
+      "visible_tool_count": 281
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -1098,9 +1111,9 @@
       "available": 81,
       "degraded": 155,
       "disabled": 3,
-      "unauthorized": 269
+      "unauthorized": 282
     },
-    "tools": 508
+    "tools": 521
   },
   "tools": [
     {
@@ -17131,6 +17144,90 @@
     },
     {
       "cost_class": "medium",
+      "description": "Atomically merge identities while preserving originals and undo history.",
+      "id": "noesis-knowledge-engine.execute_entity_merge",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "preview": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "reviewer_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "preview",
+          "reviewer_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "execute_entity_merge",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:entity-history:execute"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Atomically create split identities and reviewed object assignments.",
+      "id": "noesis-knowledge-engine.execute_entity_split",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "preview": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "reviewer_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "preview",
+          "reviewer_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "execute_entity_split",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:entity-history:execute"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Apply bounded observations to a plan, retaining a resumable cursor.",
       "id": "noesis-knowledge-engine.execute_hypothesis_research_plan",
       "input_schema": {
@@ -17551,6 +17648,46 @@
       ],
       "required_scopes": [
         "knowledge:briefs:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Export entities and a dependency-complete immutable decision audit.",
+      "id": "noesis-knowledge-engine.export_entity_identity_history",
+      "input_schema": {
+        "properties": {
+          "entity_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "entity_ids"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "export_entity_identity_history",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:entity-history:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -18332,6 +18469,51 @@
       ],
       "required_scopes": [
         "knowledge:dataset:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "List immutable, paginated identity decisions for an entity.",
+      "id": "noesis-knowledge-engine.get_entity_identity_history",
+      "input_schema": {
+        "properties": {
+          "entity_id": {
+            "type": "string"
+          },
+          "limit": {
+            "default": 100,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "offset": {
+            "default": 0,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "namespace",
+          "entity_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "get_entity_identity_history",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:entity-history:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -19256,6 +19438,50 @@
       ],
       "required_scopes": [
         "knowledge:dataset:ingest"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Inspect bounded affected and independent downstream objects.",
+      "id": "noesis-knowledge-engine.inspect_entity_change_impact",
+      "input_schema": {
+        "properties": {
+          "entity_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "limit": {
+            "default": 500,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "entity_ids"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "inspect_entity_change_impact",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:entity-history:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -21110,6 +21336,135 @@
       "version": "1"
     },
     {
+      "cost_class": "low",
+      "description": "Preview redirects, cycles, dual control, and downstream impact.",
+      "id": "noesis-knowledge-engine.preview_entity_merge",
+      "input_schema": {
+        "properties": {
+          "approvals": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "dual_control": {
+            "default": false,
+            "type": "boolean"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "source_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "target_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "source_ids",
+          "target_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "preview_entity_merge",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:entity-history:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Preview reviewed evidence reassignment and unresolved ambiguity.",
+      "id": "noesis-knowledge-engine.preview_entity_split",
+      "input_schema": {
+        "properties": {
+          "ambiguous_object_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "new_entities": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "reassignments": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "source_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "source_id",
+          "new_entities",
+          "reassignments"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "preview_entity_split",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:entity-history:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "medium",
       "description": "Preview safe parameters, secret references, compatibility, and policy gates.",
       "id": "noesis-knowledge-engine.preview_research_recipe",
@@ -21472,6 +21827,59 @@
     },
     {
       "cost_class": "medium",
+      "description": "Atomically publish a successful selective downstream rebuild.",
+      "id": "noesis-knowledge-engine.publish_entity_change_rebuild",
+      "input_schema": {
+        "properties": {
+          "cancel_requested": {
+            "default": false,
+            "type": "boolean"
+          },
+          "decision_id": {
+            "type": "string"
+          },
+          "generation": {
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "results": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "namespace",
+          "decision_id",
+          "generation",
+          "results"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "publish_entity_change_rebuild",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:entity-history:execute"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Return bounded current event locations for political and OSINT maps.",
       "id": "noesis-knowledge-engine.query_geospatial_event_map",
       "input_schema": {
@@ -21815,6 +22223,70 @@
       ],
       "required_scopes": [
         "knowledge:citation:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Append an alias, match, non-match, redirect, or review decision.",
+      "id": "noesis-knowledge-engine.record_entity_identity_decision",
+      "input_schema": {
+        "properties": {
+          "decision_type": {
+            "type": "string"
+          },
+          "event_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "payload": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "reviewer_id": {
+            "type": "string"
+          },
+          "subject_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "namespace",
+          "decision_type",
+          "subject_ids",
+          "payload",
+          "reviewer_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "record_entity_identity_decision",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:entity-history:review"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -22969,6 +23441,118 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Register graph, search, summary, watch, bundle, or metric dependency.",
+      "id": "noesis-knowledge-engine.register_entity_dependency",
+      "input_schema": {
+        "properties": {
+          "dependent_id": {
+            "type": "string"
+          },
+          "dependent_type": {
+            "type": "string"
+          },
+          "entity_id": {
+            "type": "string"
+          },
+          "independent": {
+            "default": false,
+            "type": "boolean"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "payload": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "entity_id",
+          "dependent_type",
+          "dependent_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "register_entity_dependency",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:entity-history:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Register an entity identity for reviewed merge and split history.",
+      "id": "noesis-knowledge-engine.register_entity_history_identity",
+      "input_schema": {
+        "properties": {
+          "aliases": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "entity_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "entity_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "register_entity_history_identity",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:entity-history:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
       "version": "1"
     },
     {
@@ -25750,6 +26334,54 @@
       "version": "1"
     },
     {
+      "cost_class": "low",
+      "description": "Resolve an entity through current or snapshot-bounded redirects.",
+      "id": "noesis-knowledge-engine.resolve_entity_history",
+      "input_schema": {
+        "properties": {
+          "at_revision": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "entity_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "entity_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "resolve_entity_history",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:entity-history:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "medium",
       "description": "Resolve a report to a canonical event with confidence and alternatives.",
       "id": "noesis-knowledge-engine.resolve_event_report",
@@ -28394,6 +29026,47 @@
       ],
       "required_scopes": [
         "knowledge:quantitative:calculate"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Append an undo event and deactivate a merge or split projection.",
+      "id": "noesis-knowledge-engine.undo_entity_identity_change",
+      "input_schema": {
+        "properties": {
+          "decision_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reviewer_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "decision_id",
+          "reviewer_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "undo_entity_identity_change",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:entity-history:execute"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",

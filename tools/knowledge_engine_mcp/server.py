@@ -177,6 +177,11 @@ def knowledge_engine_capabilities() -> dict:
             "noesis-quality-collection-v1",
             "noesis-quality-ranking-v1",
             "noesis-quality-health-v1",
+            "noesis-entity-identity-decision-v1",
+            "noesis-entity-merge-v1",
+            "noesis-entity-split-v1",
+            "noesis-entity-impact-v1",
+            "noesis-entity-history-export-v1",
             "noesis-maintenance-job-request-v1",
             "noesis-maintenance-job-receipt-v1",
             "noesis-knowledge-generation-v1",
@@ -270,6 +275,10 @@ def knowledge_engine_capabilities() -> dict:
             "correlation-aware-calibrated-aggregation",
             "non-erasing-quality-aware-ranking",
             "side-effect-free-quality-policy-simulation",
+            "immutable-entity-identity-decision-ledger",
+            "atomic-reversible-entity-merges-and-splits",
+            "selective-entity-dependency-rebuilds",
+            "snapshot-aware-entity-resolution-history",
             "knowledge-maintenance",
             "lease-safe-workers",
             "committed-generations",
@@ -6379,6 +6388,281 @@ def inspect_quality_health(
             namespace, assessment_ids, limit=limit, scopes={"knowledge:quality:read"}
         ),
         required_scope="knowledge:quality:read",
+    )
+
+
+@mcp.tool()
+def register_entity_history_identity(
+    namespace: str, entity_id: str, aliases: list[str] | None = None
+) -> dict:
+    """Register an entity identity for reviewed merge and split history."""
+    from src.kb.entity_history import EntityHistoryStore
+
+    return _safe(
+        lambda c: EntityHistoryStore(c).register_entity(
+            namespace,
+            entity_id,
+            aliases or [],
+            principal_id=_context()[0],
+            scopes={"knowledge:entity-history:write"},
+        ),
+        write=True,
+        required_scope="knowledge:entity-history:write",
+    )
+
+
+@mcp.tool()
+def record_entity_identity_decision(
+    namespace: str,
+    decision_type: str,
+    subject_ids: list[str],
+    payload: dict[str, Any],
+    reviewer_id: str,
+    event_key: str | None = None,
+) -> dict:
+    """Append an alias, match, non-match, redirect, or review decision."""
+    from src.kb.entity_history import EntityHistoryStore
+
+    return _safe(
+        lambda c: EntityHistoryStore(c).decide(
+            namespace,
+            decision_type,
+            subject_ids,
+            payload,
+            reviewer_id=reviewer_id,
+            event_key=event_key,
+            principal_id=_context()[0],
+            scopes={"knowledge:entity-history:review"},
+        ),
+        write=True,
+        required_scope="knowledge:entity-history:review",
+    )
+
+
+@mcp.tool()
+def resolve_entity_history(
+    namespace: str, entity_id: str, at_revision: int | None = None
+) -> dict:
+    """Resolve an entity through current or snapshot-bounded redirects."""
+    from src.kb.entity_history import EntityHistoryStore
+
+    return _safe(
+        lambda c: EntityHistoryStore(c, initialize=False).resolve(
+            namespace,
+            entity_id,
+            at_revision=at_revision,
+            scopes={"knowledge:entity-history:read"},
+        ),
+        required_scope="knowledge:entity-history:read",
+    )
+
+
+@mcp.tool()
+def preview_entity_merge(
+    namespace: str,
+    source_ids: list[str],
+    target_id: str,
+    dual_control: bool = False,
+    approvals: list[str] | None = None,
+) -> dict:
+    """Preview redirects, cycles, dual control, and downstream impact."""
+    from src.kb.entity_history import EntityHistoryStore
+
+    return _safe(
+        lambda c: EntityHistoryStore(c, initialize=False).merge_preview(
+            namespace,
+            source_ids,
+            target_id,
+            dual_control=dual_control,
+            approvals=approvals or [],
+            scopes={"knowledge:entity-history:read"},
+        ),
+        required_scope="knowledge:entity-history:read",
+    )
+
+
+@mcp.tool()
+def execute_entity_merge(
+    namespace: str, preview: dict[str, Any], reviewer_id: str
+) -> dict:
+    """Atomically merge identities while preserving originals and undo history."""
+    from src.kb.entity_history import EntityHistoryStore
+
+    return _safe(
+        lambda c: EntityHistoryStore(c).execute_merge(
+            namespace,
+            preview,
+            reviewer_id=reviewer_id,
+            principal_id=_context()[0],
+            scopes={"knowledge:entity-history:execute"},
+        ),
+        write=True,
+        required_scope="knowledge:entity-history:execute",
+    )
+
+
+@mcp.tool()
+def preview_entity_split(
+    namespace: str,
+    source_id: str,
+    new_entities: list[dict[str, Any]],
+    reassignments: list[dict[str, Any]],
+    ambiguous_object_ids: list[str] | None = None,
+) -> dict:
+    """Preview reviewed evidence reassignment and unresolved ambiguity."""
+    from src.kb.entity_history import EntityHistoryStore
+
+    return _safe(
+        lambda c: EntityHistoryStore(c, initialize=False).split_preview(
+            namespace,
+            source_id,
+            new_entities,
+            reassignments,
+            ambiguous_object_ids=ambiguous_object_ids or [],
+            scopes={"knowledge:entity-history:read"},
+        ),
+        required_scope="knowledge:entity-history:read",
+    )
+
+
+@mcp.tool()
+def execute_entity_split(
+    namespace: str, preview: dict[str, Any], reviewer_id: str
+) -> dict:
+    """Atomically create split identities and reviewed object assignments."""
+    from src.kb.entity_history import EntityHistoryStore
+
+    return _safe(
+        lambda c: EntityHistoryStore(c).execute_split(
+            namespace,
+            preview,
+            reviewer_id=reviewer_id,
+            principal_id=_context()[0],
+            scopes={"knowledge:entity-history:execute"},
+        ),
+        write=True,
+        required_scope="knowledge:entity-history:execute",
+    )
+
+
+@mcp.tool()
+def undo_entity_identity_change(
+    namespace: str, decision_id: str, reviewer_id: str
+) -> dict:
+    """Append an undo event and deactivate a merge or split projection."""
+    from src.kb.entity_history import EntityHistoryStore
+
+    return _safe(
+        lambda c: EntityHistoryStore(c).undo(
+            namespace,
+            decision_id,
+            reviewer_id=reviewer_id,
+            principal_id=_context()[0],
+            scopes={"knowledge:entity-history:execute"},
+        ),
+        write=True,
+        required_scope="knowledge:entity-history:execute",
+    )
+
+
+@mcp.tool()
+def register_entity_dependency(
+    namespace: str,
+    entity_id: str,
+    dependent_type: str,
+    dependent_id: str,
+    independent: bool = False,
+    payload: dict[str, Any] | None = None,
+) -> dict:
+    """Register graph, search, summary, watch, bundle, or metric dependency."""
+    from src.kb.entity_history import EntityHistoryStore
+
+    return _safe(
+        lambda c: EntityHistoryStore(c).add_dependency(
+            namespace,
+            entity_id,
+            dependent_type,
+            dependent_id,
+            independent=independent,
+            payload=payload,
+            principal_id=_context()[0],
+            scopes={"knowledge:entity-history:write"},
+        ),
+        write=True,
+        required_scope="knowledge:entity-history:write",
+    )
+
+
+@mcp.tool()
+def inspect_entity_change_impact(
+    namespace: str, entity_ids: list[str], limit: int = 500
+) -> dict:
+    """Inspect bounded affected and independent downstream objects."""
+    from src.kb.entity_history import EntityHistoryStore
+
+    return _safe(
+        lambda c: EntityHistoryStore(c, initialize=False).impact(
+            namespace, entity_ids, limit=limit, scopes={"knowledge:entity-history:read"}
+        ),
+        required_scope="knowledge:entity-history:read",
+    )
+
+
+@mcp.tool()
+def publish_entity_change_rebuild(
+    namespace: str,
+    decision_id: str,
+    generation: int,
+    results: list[dict[str, Any]],
+    cancel_requested: bool = False,
+) -> dict:
+    """Atomically publish a successful selective downstream rebuild."""
+    from src.kb.entity_history import EntityHistoryStore
+
+    return _safe(
+        lambda c: EntityHistoryStore(c).publish_rebuild(
+            namespace,
+            decision_id,
+            generation,
+            results,
+            cancel_requested=cancel_requested,
+            principal_id=_context()[0],
+            scopes={"knowledge:entity-history:execute"},
+        ),
+        write=True,
+        required_scope="knowledge:entity-history:execute",
+    )
+
+
+@mcp.tool()
+def get_entity_identity_history(
+    namespace: str, entity_id: str, limit: int = 100, offset: int = 0
+) -> dict:
+    """List immutable, paginated identity decisions for an entity."""
+    from src.kb.entity_history import EntityHistoryStore
+
+    return _safe(
+        lambda c: EntityHistoryStore(c, initialize=False).history(
+            namespace,
+            entity_id,
+            limit=limit,
+            offset=offset,
+            scopes={"knowledge:entity-history:read"},
+        ),
+        required_scope="knowledge:entity-history:read",
+    )
+
+
+@mcp.tool()
+def export_entity_identity_history(namespace: str, entity_ids: list[str]) -> dict:
+    """Export entities and a dependency-complete immutable decision audit."""
+    from src.kb.entity_history import EntityHistoryStore
+
+    return _safe(
+        lambda c: EntityHistoryStore(c, initialize=False).export(
+            namespace, entity_ids, scopes={"knowledge:entity-history:read"}
+        ),
+        required_scope="knowledge:entity-history:read",
     )
 
 
