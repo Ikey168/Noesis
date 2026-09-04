@@ -799,13 +799,15 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 67,
+      "tool_count": 73,
       "tools": [
         "noesis-knowledge-engine.accept_source_pack_license",
         "noesis-knowledge-engine.artifact_lineage",
+        "noesis-knowledge-engine.begin_research_snapshot",
         "noesis-knowledge-engine.cancel_knowledge_query",
         "noesis-knowledge-engine.cancel_maintenance_job",
         "noesis-knowledge-engine.cancel_source_pack_run",
+        "noesis-knowledge-engine.close_research_snapshot",
         "noesis-knowledge-engine.derived_object_generation_delta",
         "noesis-knowledge-engine.derived_object_health",
         "noesis-knowledge-engine.derived_object_history",
@@ -824,6 +826,7 @@
         "noesis-knowledge-engine.inspect_maintenance_generation",
         "noesis-knowledge-engine.inspect_maintenance_job",
         "noesis-knowledge-engine.inspect_reference_workflow",
+        "noesis-knowledge-engine.inspect_research_snapshot",
         "noesis-knowledge-engine.inspect_source_pack_run",
         "noesis-knowledge-engine.install_source_pack",
         "noesis-knowledge-engine.knowledge_engine_capabilities",
@@ -845,11 +848,14 @@
         "noesis-knowledge-engine.recover_stale_maintenance_jobs",
         "noesis-knowledge-engine.register_derived_artifact",
         "noesis-knowledge-engine.register_extractor",
+        "noesis-knowledge-engine.renew_research_snapshot",
         "noesis-knowledge-engine.replay_derived_object_generations",
         "noesis-knowledge-engine.replay_document_generation_delta",
         "noesis-knowledge-engine.replay_knowledge_query",
         "noesis-knowledge-engine.replay_maintenance_generation",
         "noesis-knowledge-engine.replay_source_pack_run",
+        "noesis-knowledge-engine.research_snapshot_health",
+        "noesis-knowledge-engine.research_snapshot_pins",
         "noesis-knowledge-engine.resolve_event_report",
         "noesis-knowledge-engine.resume_maintenance_schedule",
         "noesis-knowledge-engine.retry_maintenance_job",
@@ -874,7 +880,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 67
+      "visible_tool_count": 73
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -888,9 +894,9 @@
       "available": 81,
       "degraded": 155,
       "disabled": 3,
-      "unauthorized": 59
+      "unauthorized": 65
     },
-    "tools": 298
+    "tools": 304
   },
   "tools": [
     {
@@ -12236,6 +12242,48 @@
     },
     {
       "cost_class": "medium",
+      "description": "Begin a durable session pinned to one consistent knowledge vector.",
+      "id": "noesis-knowledge-engine.begin_research_snapshot",
+      "input_schema": {
+        "properties": {
+          "maximum_lifetime_ms": {
+            "default": 86400000,
+            "type": "integer"
+          },
+          "selection": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "ttl_ms": {
+            "default": 3600000,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "selection"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "begin_research_snapshot",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:snapshot:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Signal cancellation for an in-process unified query.",
       "id": "noesis-knowledge-engine.cancel_knowledge_query",
       "input_schema": {
@@ -12331,6 +12379,39 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Close a snapshot and release its retention pins.",
+      "id": "noesis-knowledge-engine.close_research_snapshot",
+      "input_schema": {
+        "properties": {
+          "token": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "token"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "close_research_snapshot",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:snapshot:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
       "version": "1"
     },
     {
@@ -12951,6 +13032,10 @@
           "request": {
             "additionalProperties": true,
             "type": "object"
+          },
+          "snapshot_token": {
+            "default": "",
+            "type": "string"
           }
         },
         "required": [
@@ -13123,6 +13208,39 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Inspect a research snapshot without returning its bearer token.",
+      "id": "noesis-knowledge-engine.inspect_research_snapshot",
+      "input_schema": {
+        "properties": {
+          "token": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "token"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "inspect_research_snapshot",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:snapshot:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
       "version": "1"
     },
     {
@@ -13692,6 +13810,10 @@
           "request": {
             "additionalProperties": true,
             "type": "object"
+          },
+          "snapshot_token": {
+            "default": "",
+            "type": "string"
           }
         },
         "required": [
@@ -13854,6 +13976,43 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Renew a snapshot without exceeding its maximum lifetime.",
+      "id": "noesis-knowledge-engine.renew_research_snapshot",
+      "input_schema": {
+        "properties": {
+          "token": {
+            "type": "string"
+          },
+          "ttl_ms": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "token",
+          "ttl_ms"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "renew_research_snapshot",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:snapshot:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
       "version": "1"
     },
     {
@@ -14035,6 +14194,65 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Return session and active retention-pin counts.",
+      "id": "noesis-knowledge-engine.research_snapshot_health",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "research_snapshot_health",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:snapshot:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "List the generations protected by an active or historical snapshot.",
+      "id": "noesis-knowledge-engine.research_snapshot_pins",
+      "input_schema": {
+        "properties": {
+          "token": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "token"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "research_snapshot_pins",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:snapshot:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
       "version": "1"
     },
     {

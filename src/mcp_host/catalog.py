@@ -76,6 +76,9 @@ MUTATION_NAMES = frozenset(
         "pause_maintenance_schedule",
         "resume_maintenance_schedule",
         "recover_stale_maintenance_jobs",
+        "begin_research_snapshot",
+        "renew_research_snapshot",
+        "close_research_snapshot",
     }
 )
 
@@ -248,6 +251,18 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
             return ["knowledge:memory:admin"]
         return ["knowledge:memory:read"]
     if server_stem == "knowledge_engine_mcp":
+        if tool_name in {
+            "begin_research_snapshot",
+            "renew_research_snapshot",
+            "close_research_snapshot",
+        }:
+            return ["knowledge:snapshot:write"]
+        if tool_name in {
+            "inspect_research_snapshot",
+            "research_snapshot_pins",
+            "research_snapshot_health",
+        }:
+            return ["knowledge:snapshot:read"]
         if tool_name in {
             "set_maintenance_schedule_paused",
             "cancel_maintenance_job",

@@ -43,6 +43,12 @@ def test_maintenance_surface_and_catalog_scope_separation(monkeypatch):
         "explain_derived_object_invalidation",
         "derived_projection",
         "derived_object_health",
+        "begin_research_snapshot",
+        "inspect_research_snapshot",
+        "renew_research_snapshot",
+        "close_research_snapshot",
+        "research_snapshot_pins",
+        "research_snapshot_health",
     }
     assert expected <= set(tools)
     assert _required_scopes(
@@ -66,6 +72,24 @@ def test_maintenance_surface_and_catalog_scope_separation(monkeypatch):
         assert _mutability(name) == "read"
         assert _required_scopes("knowledge_engine_mcp", "read", name) == [
             "knowledge:read"
+        ]
+    for name in (
+        "begin_research_snapshot",
+        "renew_research_snapshot",
+        "close_research_snapshot",
+    ):
+        assert _mutability(name) == "write"
+        assert _required_scopes("knowledge_engine_mcp", "write", name) == [
+            "knowledge:snapshot:write"
+        ]
+    for name in (
+        "inspect_research_snapshot",
+        "research_snapshot_pins",
+        "research_snapshot_health",
+    ):
+        assert _mutability(name) == "read"
+        assert _required_scopes("knowledge_engine_mcp", "read", name) == [
+            "knowledge:snapshot:read"
         ]
     for name in (
         "pause_maintenance_schedule",
@@ -100,3 +124,4 @@ def test_capabilities_advertise_generation_contracts():
     assert "immutable-document-revisions" in capabilities["features"]
     assert "immutable-derived-object-revisions" in capabilities["features"]
     assert "support-aware-truth-maintenance" in capabilities["features"]
+    assert "snapshot-pinned-research-sessions" in capabilities["features"]
