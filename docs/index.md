@@ -34,6 +34,8 @@ For the project overview and local setup, start with the
   recovery, MCP operation, and the six-domain offline conformance run
 - **[Snapshot-pinned research sessions](guides/research-snapshots.md)** —
   consistent multi-tool reads, generation vectors, retention pins, and expiry
+- **[Epistemic status engine](guides/epistemic-status.md)** — statement kinds,
+  evidence-calibrated assessments, reviewed overrides, filters, and explanations
 - **[Unified knowledge query](guides/unified-knowledge-query.md)** — one bounded,
   evidence-preserving plane over local, temporal, memory, and federated data.
 - [Project structure](development/project-structure.md) — where things live in

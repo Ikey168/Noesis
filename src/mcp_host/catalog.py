@@ -79,6 +79,9 @@ MUTATION_NAMES = frozenset(
         "begin_research_snapshot",
         "renew_research_snapshot",
         "close_research_snapshot",
+        "assess_epistemic_statement",
+        "review_epistemic_status",
+        "register_epistemic_taxonomy",
     }
 )
 
@@ -251,6 +254,21 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
             return ["knowledge:memory:admin"]
         return ["knowledge:memory:read"]
     if server_stem == "knowledge_engine_mcp":
+        if tool_name in {
+            "assess_epistemic_statement",
+            "register_epistemic_taxonomy",
+        }:
+            return ["knowledge:epistemic:write"]
+        if tool_name == "review_epistemic_status":
+            return ["knowledge:epistemic:review"]
+        if tool_name in {
+            "classify_epistemic_statement",
+            "get_epistemic_assessment",
+            "search_epistemic_assessments",
+            "explain_epistemic_assessment",
+            "list_epistemic_taxonomies",
+        }:
+            return ["knowledge:epistemic:read"]
         if tool_name in {
             "begin_research_snapshot",
             "renew_research_snapshot",
