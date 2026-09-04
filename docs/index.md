@@ -78,6 +78,8 @@ For the project overview and local setup, start with the
 - **[Cross-language knowledge](guides/cross-language-knowledge.md)** — immutable
   original text, reviewed aliases, claim alignment, translation provenance, and
   language-fair search.
+- **[Access-bound knowledge views](guides/access-bound-views.md)** — default-deny
+  retrieval, safe redacted lineage, and recipient-bound portable exports.
 - **[Unified knowledge query](guides/unified-knowledge-query.md)** — one bounded,
   evidence-preserving plane over local, temporal, memory, and federated data.
 - [Project structure](development/project-structure.md) — where things live in

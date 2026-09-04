@@ -147,6 +147,10 @@ MUTATION_NAMES = frozenset(
         "review_multilingual_alias",
         "review_cross_language_alignment",
         "review_translation",
+        "filter_access_bound_query",
+        "derive_redacted_projection",
+        "authorize_access_export",
+        "revoke_access_share_grant",
     }
 )
 
@@ -319,6 +323,24 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
             return ["knowledge:memory:admin"]
         return ["knowledge:memory:read"]
     if server_stem == "knowledge_engine_mcp":
+        if tool_name in {
+            "register_access_view_policy",
+            "inspect_effective_access_view",
+            "simulate_access_view",
+            "get_access_view_audit",
+            "inspect_access_view_health",
+        }:
+            return ["knowledge:views:admin"]
+        if tool_name in {"register_access_bound_object", "derive_redacted_projection"}:
+            return ["knowledge:views:write"]
+        if tool_name in {
+            "create_access_share_grant",
+            "authorize_access_export",
+            "revoke_access_share_grant",
+        }:
+            return ["knowledge:views:export"]
+        if tool_name == "filter_access_bound_query":
+            return ["knowledge:views:read"]
         if tool_name in {
             "review_multilingual_alias",
             "review_cross_language_alignment",

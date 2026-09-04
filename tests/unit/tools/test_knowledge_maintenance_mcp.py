@@ -267,6 +267,17 @@ def test_maintenance_surface_and_catalog_scope_separation(monkeypatch):
         "record_translation",
         "review_translation",
         "multilingual_search",
+        "register_access_view_policy",
+        "register_access_bound_object",
+        "inspect_effective_access_view",
+        "simulate_access_view",
+        "filter_access_bound_query",
+        "derive_redacted_projection",
+        "create_access_share_grant",
+        "authorize_access_export",
+        "revoke_access_share_grant",
+        "get_access_view_audit",
+        "inspect_access_view_health",
     }
     assert expected <= set(tools)
     assert _required_scopes(
@@ -794,3 +805,8 @@ def test_capabilities_advertise_generation_contracts():
     assert "noesis-cross-language-claim-alignment-v1" in capabilities["contracts"]
     assert "noesis-translation-record-v1" in capabilities["contracts"]
     assert "noesis-multilingual-search-v1" in capabilities["contracts"]
+    assert "noesis-access-view-policy-v1" in capabilities["contracts"]
+    assert "noesis-access-decision-v1" in capabilities["contracts"]
+    assert "noesis-redacted-projection-v1" in capabilities["contracts"]
+    assert "noesis-share-grant-v1" in capabilities["contracts"]
+    assert "noesis-access-view-health-v1" in capabilities["contracts"]
