@@ -54,8 +54,9 @@ def test_parser_exposes_the_supported_command_surface(capsys):
         "watch",
         "watches",
         "export",
-        "verify",
-        "serve",
+            "verify",
+            "namespace",
+            "serve",
     }
     with pytest.raises(SystemExit) as exc:
         parser.parse_args(["--version"])

@@ -168,6 +168,8 @@ def _required_data(server_stem: str, tool_name: str) -> list[str]:
         return ["federated-knowledge-sources"]
     if server_stem == "subscriptions_mcp":
         return ["knowledge-subscription-store"]
+    if server_stem == "namespaces_mcp":
+        return ["portable-namespace-store"]
     if server_stem == "contract_mcp":
         return ["contract-schemas"]
     if server_stem == "schema_mcp":
@@ -218,6 +220,10 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
         if tool_name.startswith("pending_"):
             return ["knowledge:subscriptions:deliver"]
         return ["knowledge:subscriptions:read"]
+    if server_stem == "namespaces_mcp":
+        if tool_name.startswith(("import_", "preview_")):
+            return ["knowledge:namespace:import"]
+        return ["knowledge:namespace:export"]
     if mutability == "write" or server_stem in SENSITIVE_SERVERS:
         return ["operator"]
     if server_stem in {"catalog_mcp", "contract_mcp", "schema_mcp"}:

@@ -39,6 +39,7 @@ READ_SMOKES = {
     "kg_mcp": ("kg_stats", {}),
     "lineage_mcp": ("list_namespaces", {}),
     "monitoring_mcp": ("current_metrics", {}),
+    "namespaces_mcp": ("namespace_package_context", {}),
     "osint_mcp": ("contradiction_scan", {}),
     "pipeline_mcp": ("list_connector_types", {}),
     "provisioning_mcp": ("kg_list", {}),
@@ -94,6 +95,8 @@ DOCUMENTED_WRITES = {
     ("subscriptions_mcp", "pause_subscription"),
     ("subscriptions_mcp", "resume_subscription"),
     ("subscriptions_mcp", "update_subscription"),
+    ("namespaces_mcp", "import_namespace_package"),
+    ("namespaces_mcp", "preview_namespace_import"),
 }
 
 # Analytics whose advertised output contract must be machine-checkable before

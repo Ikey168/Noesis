@@ -739,6 +739,28 @@
       ],
       "version": "1",
       "visible_tool_count": 10
+    },
+    {
+      "aliases": [],
+      "kind": "noesis",
+      "name": "noesis-namespaces",
+      "pack": null,
+      "reason": null,
+      "state": "unauthorized",
+      "tool_count": 5,
+      "tools": [
+        "noesis-namespaces.export_namespace_package",
+        "noesis-namespaces.import_namespace_package",
+        "noesis-namespaces.namespace_package_context",
+        "noesis-namespaces.preview_namespace_import",
+        "noesis-namespaces.verify_namespace_package"
+      ],
+      "transports": [
+        "stdio",
+        "streamable-http"
+      ],
+      "version": "1",
+      "visible_tool_count": 5
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -747,14 +769,14 @@
     "omitted": {
       "unauthorized": 1
     },
-    "servers": 26,
+    "servers": 27,
     "states": {
       "available": 20,
       "degraded": 153,
       "disabled": 3,
-      "unauthorized": 37
+      "unauthorized": 42
     },
-    "tools": 213
+    "tools": 218
   },
   "tools": [
     {
@@ -11235,6 +11257,258 @@
         "knowledge:subscriptions:write"
       ],
       "server": "noesis-subscriptions",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Export a deterministic package without mutating the source namespace.",
+      "id": "noesis-namespaces.export_namespace_package",
+      "input_schema": {
+        "properties": {
+          "dependency_closure": {
+            "default": true,
+            "type": "boolean"
+          },
+          "filters": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "mode": {
+            "default": "full",
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "redaction": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "export_namespace_package",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "portable-namespace-store"
+      ],
+      "required_scopes": [
+        "knowledge:namespace:export"
+      ],
+      "server": "noesis-namespaces",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Atomically import a verified package under an explicit conflict policy.",
+      "id": "noesis-namespaces.import_namespace_package",
+      "input_schema": {
+        "properties": {
+          "conflict_policy": {
+            "default": "reject",
+            "type": "string"
+          },
+          "expected_preview_hash": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "idempotency_key": {
+            "type": "string"
+          },
+          "package": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "remap": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "target_namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "package",
+          "target_namespace",
+          "idempotency_key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "import_namespace_package",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "portable-namespace-store"
+      ],
+      "required_scopes": [
+        "knowledge:namespace:import"
+      ],
+      "server": "noesis-namespaces",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Return the principal and effective portable-namespace scopes.",
+      "id": "noesis-namespaces.namespace_package_context",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "namespace_package_context",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "portable-namespace-store"
+      ],
+      "required_scopes": [
+        "knowledge:namespace:export"
+      ],
+      "server": "noesis-namespaces",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Preview additions and conflicts without writing any package component.",
+      "id": "noesis-namespaces.preview_namespace_import",
+      "input_schema": {
+        "properties": {
+          "conflict_policy": {
+            "default": "reject",
+            "type": "string"
+          },
+          "package": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "remap": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "target_namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "package",
+          "target_namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "preview_namespace_import",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "portable-namespace-store"
+      ],
+      "required_scopes": [
+        "knowledge:namespace:import"
+      ],
+      "server": "noesis-namespaces",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Verify package hashes, component declarations, dependencies, and limits.",
+      "id": "noesis-namespaces.verify_namespace_package",
+      "input_schema": {
+        "properties": {
+          "package": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "package"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "verify_namespace_package",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "portable-namespace-store"
+      ],
+      "required_scopes": [
+        "knowledge:namespace:export"
+      ],
+      "server": "noesis-namespaces",
       "state": "unauthorized",
       "version": "1"
     }
