@@ -98,6 +98,9 @@ def knowledge_engine_capabilities() -> dict:
             "noesis-derived-object-lineage-v1",
             "noesis-research-snapshot-v1",
             "noesis-research-snapshot-token-v1",
+            "noesis-epistemic-taxonomy-v1",
+            "noesis-epistemic-assessment-v1",
+            "noesis-epistemic-explanation-v1",
             "noesis-maintenance-job-request-v1",
             "noesis-maintenance-job-receipt-v1",
             "noesis-knowledge-generation-v1",
@@ -124,6 +127,9 @@ def knowledge_engine_capabilities() -> dict:
             "incremental-derived-projections",
             "snapshot-pinned-research-sessions",
             "snapshot-bound-query-cursors",
+            "versioned-epistemic-status",
+            "evidence-calibrated-assessments",
+            "reviewed-epistemic-overrides",
             "knowledge-maintenance",
             "lease-safe-workers",
             "committed-generations",
@@ -547,6 +553,183 @@ def research_snapshot_health() -> dict:
     return _safe(
         lambda conn: ResearchSnapshotStore(conn, initialize=False).health(),
         required_scope="knowledge:snapshot:read",
+    )
+
+
+@mcp.tool()
+def classify_epistemic_statement(text: str) -> dict:
+    """Classify a statement kind using deterministic, inspectable rules."""
+    from src.kb.epistemic import classify_statement
+
+    return _safe(
+        lambda conn: {"ok": True, "classification": classify_statement(text)},
+        required_scope="knowledge:epistemic:read",
+    )
+
+
+@mcp.tool()
+def register_epistemic_taxonomy(
+    name: str,
+    semantic_version: str,
+    definitions: dict[str, str],
+    domain: str = "core",
+    supersedes_taxonomy_id: str | None = None,
+) -> dict:
+    """Register an immutable core-compatible taxonomy or domain extension."""
+    from src.kb.epistemic import EpistemicStore
+
+    scopes = _context()[1]
+    return _safe(
+        lambda conn: EpistemicStore(conn).register_taxonomy(
+            name,
+            semantic_version,
+            definitions,
+            scopes=scopes,
+            domain=domain,
+            supersedes_taxonomy_id=supersedes_taxonomy_id,
+        ),
+        write=True,
+        required_scope="knowledge:epistemic:write",
+    )
+
+
+@mcp.tool()
+def list_epistemic_taxonomies(domain: str | None = None) -> dict:
+    """List versioned epistemic taxonomies visible to the caller."""
+    from src.kb.epistemic import EpistemicStore
+
+    return _safe(
+        lambda conn: {
+            "ok": True,
+            "items": EpistemicStore(conn, initialize=False).list_taxonomies(
+                scopes=_context()[1], domain=domain
+            ),
+        },
+        required_scope="knowledge:epistemic:read",
+    )
+
+
+@mcp.tool()
+def assess_epistemic_statement(
+    namespace: str,
+    statement_id: str,
+    text: str,
+    evidence: list[dict[str, Any]],
+    source_revision_id: str | None = None,
+    generation: int = 0,
+    valid_from_ms: int | None = None,
+    valid_to_ms: int | None = None,
+    observed_at_ms: int | None = None,
+    producer: dict[str, Any] | None = None,
+    policy: dict[str, Any] | None = None,
+) -> dict:
+    """Persist a versioned statement-kind and independent-evidence assessment."""
+    from src.kb.epistemic import EpistemicStore
+
+    principal, scopes = _context()
+    return _safe(
+        lambda conn: EpistemicStore(conn).assess(
+            namespace,
+            statement_id,
+            text,
+            evidence,
+            principal_id=principal,
+            scopes=scopes,
+            source_revision_id=source_revision_id,
+            generation=generation,
+            valid_from_ms=valid_from_ms,
+            valid_to_ms=valid_to_ms,
+            observed_at_ms=observed_at_ms,
+            producer=producer,
+            policy=policy,
+        ),
+        write=True,
+        required_scope="knowledge:epistemic:write",
+    )
+
+
+@mcp.tool()
+def review_epistemic_status(
+    namespace: str,
+    statement_id: str,
+    status: str,
+    reason: str,
+    expected_assessment_id: str | None = None,
+) -> dict:
+    """Record an authorized override without erasing machine assessment history."""
+    from src.kb.epistemic import EpistemicStore
+
+    principal, scopes = _context()
+    return _safe(
+        lambda conn: EpistemicStore(conn, initialize=False).override(
+            namespace,
+            statement_id,
+            status,
+            reason,
+            reviewer_id=principal,
+            scopes=scopes,
+            expected_assessment_id=expected_assessment_id,
+        ),
+        write=True,
+        required_scope="knowledge:epistemic:review",
+    )
+
+
+@mcp.tool()
+def get_epistemic_assessment(
+    namespace: str, statement_id: str, include_history: bool = False
+) -> dict:
+    """Read the current assessment or its immutable revision history."""
+    from src.kb.epistemic import EpistemicStore
+
+    return _safe(
+        lambda conn: EpistemicStore(conn, initialize=False).get(
+            namespace,
+            statement_id,
+            scopes=_context()[1],
+            include_history=include_history,
+        ),
+        required_scope="knowledge:epistemic:read",
+    )
+
+
+@mcp.tool()
+def search_epistemic_assessments(
+    namespace: str,
+    statuses: list[str] | None = None,
+    assessment_states: list[str] | None = None,
+    limit: int = 100,
+) -> dict:
+    """Filter current assessments by statement kind and evidence state."""
+    from src.kb.epistemic import EpistemicStore
+
+    def operation(conn):
+        store = EpistemicStore(conn, initialize=False)
+        items = store.search(
+            namespace,
+            scopes=_context()[1],
+            statuses=statuses or [],
+            states=assessment_states or [],
+            limit=limit,
+        )
+        return {"ok": True, "items": items, "facets": store.aggregate(items)}
+
+    return _safe(
+        operation,
+        required_scope="knowledge:epistemic:read",
+    )
+
+
+@mcp.tool()
+def explain_epistemic_assessment(namespace: str, statement_id: str) -> dict:
+    """Explain classification, evidence aggregation, uncertainty, and overrides."""
+    from src.kb.epistemic import EpistemicStore
+
+    return _safe(
+        lambda conn: EpistemicStore(conn, initialize=False).explain(
+            namespace, statement_id, scopes=_context()[1]
+        ),
+        required_scope="knowledge:epistemic:read",
     )
 
 

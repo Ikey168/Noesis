@@ -799,14 +799,16 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 73,
+      "tool_count": 81,
       "tools": [
         "noesis-knowledge-engine.accept_source_pack_license",
         "noesis-knowledge-engine.artifact_lineage",
+        "noesis-knowledge-engine.assess_epistemic_statement",
         "noesis-knowledge-engine.begin_research_snapshot",
         "noesis-knowledge-engine.cancel_knowledge_query",
         "noesis-knowledge-engine.cancel_maintenance_job",
         "noesis-knowledge-engine.cancel_source_pack_run",
+        "noesis-knowledge-engine.classify_epistemic_statement",
         "noesis-knowledge-engine.close_research_snapshot",
         "noesis-knowledge-engine.derived_object_generation_delta",
         "noesis-knowledge-engine.derived_object_health",
@@ -821,8 +823,10 @@
         "noesis-knowledge-engine.evaluate_knowledge_query",
         "noesis-knowledge-engine.execute_artifact_rebuild",
         "noesis-knowledge-engine.explain_derived_object_invalidation",
+        "noesis-knowledge-engine.explain_epistemic_assessment",
         "noesis-knowledge-engine.explain_knowledge_query",
         "noesis-knowledge-engine.fetch_declarative_api",
+        "noesis-knowledge-engine.get_epistemic_assessment",
         "noesis-knowledge-engine.inspect_maintenance_generation",
         "noesis-knowledge-engine.inspect_maintenance_job",
         "noesis-knowledge-engine.inspect_reference_workflow",
@@ -830,6 +834,7 @@
         "noesis-knowledge-engine.inspect_source_pack_run",
         "noesis-knowledge-engine.install_source_pack",
         "noesis-knowledge-engine.knowledge_engine_capabilities",
+        "noesis-knowledge-engine.list_epistemic_taxonomies",
         "noesis-knowledge-engine.list_extractors",
         "noesis-knowledge-engine.list_maintenance_due_work",
         "noesis-knowledge-engine.list_maintenance_jobs",
@@ -847,6 +852,7 @@
         "noesis-knowledge-engine.read_workflow_stage",
         "noesis-knowledge-engine.recover_stale_maintenance_jobs",
         "noesis-knowledge-engine.register_derived_artifact",
+        "noesis-knowledge-engine.register_epistemic_taxonomy",
         "noesis-knowledge-engine.register_extractor",
         "noesis-knowledge-engine.renew_research_snapshot",
         "noesis-knowledge-engine.replay_derived_object_generations",
@@ -861,10 +867,12 @@
         "noesis-knowledge-engine.retry_maintenance_job",
         "noesis-knowledge-engine.retry_source_pack_quarantine",
         "noesis-knowledge-engine.reverse_event_merge",
+        "noesis-knowledge-engine.review_epistemic_status",
         "noesis-knowledge-engine.run_maintenance_drain",
         "noesis-knowledge-engine.run_maintenance_once",
         "noesis-knowledge-engine.run_reference_workflow",
         "noesis-knowledge-engine.run_source_pack_execution",
+        "noesis-knowledge-engine.search_epistemic_assessments",
         "noesis-knowledge-engine.set_maintenance_schedule_paused",
         "noesis-knowledge-engine.set_source_pack_enabled",
         "noesis-knowledge-engine.set_source_pack_schedule",
@@ -880,7 +888,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 73
+      "visible_tool_count": 81
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -894,9 +902,9 @@
       "available": 81,
       "degraded": 155,
       "disabled": 3,
-      "unauthorized": 65
+      "unauthorized": 73
     },
-    "tools": 304
+    "tools": 312
   },
   "tools": [
     {
@@ -12242,6 +12250,127 @@
     },
     {
       "cost_class": "medium",
+      "description": "Persist a versioned statement-kind and independent-evidence assessment.",
+      "id": "noesis-knowledge-engine.assess_epistemic_statement",
+      "input_schema": {
+        "properties": {
+          "evidence": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "generation": {
+            "default": 0,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "observed_at_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "policy": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "producer": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "source_revision_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "statement_id": {
+            "type": "string"
+          },
+          "text": {
+            "type": "string"
+          },
+          "valid_from_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "valid_to_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "statement_id",
+          "text",
+          "evidence"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "assess_epistemic_statement",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:epistemic:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Begin a durable session pinned to one consistent knowledge vector.",
       "id": "noesis-knowledge-engine.begin_research_snapshot",
       "input_schema": {
@@ -12379,6 +12508,39 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Classify a statement kind using deterministic, inspectable rules.",
+      "id": "noesis-knowledge-engine.classify_epistemic_statement",
+      "input_schema": {
+        "properties": {
+          "text": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "text"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "classify_epistemic_statement",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:epistemic:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
       "version": "1"
     },
     {
@@ -13024,6 +13186,43 @@
       "version": "1"
     },
     {
+      "cost_class": "low",
+      "description": "Explain classification, evidence aggregation, uncertainty, and overrides.",
+      "id": "noesis-knowledge-engine.explain_epistemic_assessment",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "statement_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "statement_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "explain_epistemic_assessment",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:epistemic:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "medium",
       "description": "Return the deterministic source, dependency, omission, and budget plan.",
       "id": "noesis-knowledge-engine.explain_knowledge_query",
@@ -13109,6 +13308,47 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Read the current assessment or its immutable revision history.",
+      "id": "noesis-knowledge-engine.get_epistemic_assessment",
+      "input_schema": {
+        "properties": {
+          "include_history": {
+            "default": false,
+            "type": "boolean"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "statement_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "statement_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "get_epistemic_assessment",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:epistemic:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
       "version": "1"
     },
     {
@@ -13338,6 +13578,44 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "List versioned epistemic taxonomies visible to the caller.",
+      "id": "noesis-knowledge-engine.list_epistemic_taxonomies",
+      "input_schema": {
+        "properties": {
+          "domain": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_epistemic_taxonomies",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:epistemic:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
       "version": "1"
     },
     {
@@ -13946,6 +14224,65 @@
     },
     {
       "cost_class": "medium",
+      "description": "Register an immutable core-compatible taxonomy or domain extension.",
+      "id": "noesis-knowledge-engine.register_epistemic_taxonomy",
+      "input_schema": {
+        "properties": {
+          "definitions": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "domain": {
+            "default": "core",
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "semantic_version": {
+            "type": "string"
+          },
+          "supersedes_taxonomy_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "name",
+          "semantic_version",
+          "definitions"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "register_epistemic_taxonomy",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:epistemic:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Register extractor metadata; executable implementations remain operator-installed.",
       "id": "noesis-knowledge-engine.register_extractor",
       "input_schema": {
@@ -14446,6 +14783,62 @@
     },
     {
       "cost_class": "medium",
+      "description": "Record an authorized override without erasing machine assessment history.",
+      "id": "noesis-knowledge-engine.review_epistemic_status",
+      "input_schema": {
+        "properties": {
+          "expected_assessment_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "statement_id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "statement_id",
+          "status",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_epistemic_status",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:epistemic:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Drain a bounded number of due knowledge-maintenance jobs.",
       "id": "noesis-knowledge-engine.run_maintenance_drain",
       "input_schema": {
@@ -14599,6 +14992,71 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Filter current assessments by statement kind and evidence state.",
+      "id": "noesis-knowledge-engine.search_epistemic_assessments",
+      "input_schema": {
+        "properties": {
+          "assessment_states": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "limit": {
+            "default": 100,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "statuses": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "search_epistemic_assessments",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:epistemic:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
       "version": "1"
     },
     {

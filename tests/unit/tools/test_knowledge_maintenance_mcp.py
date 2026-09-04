@@ -49,6 +49,14 @@ def test_maintenance_surface_and_catalog_scope_separation(monkeypatch):
         "close_research_snapshot",
         "research_snapshot_pins",
         "research_snapshot_health",
+        "classify_epistemic_statement",
+        "register_epistemic_taxonomy",
+        "list_epistemic_taxonomies",
+        "assess_epistemic_statement",
+        "review_epistemic_status",
+        "get_epistemic_assessment",
+        "search_epistemic_assessments",
+        "explain_epistemic_assessment",
     }
     assert expected <= set(tools)
     assert _required_scopes(
@@ -91,6 +99,29 @@ def test_maintenance_surface_and_catalog_scope_separation(monkeypatch):
         assert _required_scopes("knowledge_engine_mcp", "read", name) == [
             "knowledge:snapshot:read"
         ]
+    assert _mutability("assess_epistemic_statement") == "write"
+    assert _required_scopes(
+        "knowledge_engine_mcp", "write", "assess_epistemic_statement"
+    ) == ["knowledge:epistemic:write"]
+    assert _mutability("register_epistemic_taxonomy") == "write"
+    assert _required_scopes(
+        "knowledge_engine_mcp", "write", "register_epistemic_taxonomy"
+    ) == ["knowledge:epistemic:write"]
+    assert _mutability("review_epistemic_status") == "write"
+    assert _required_scopes(
+        "knowledge_engine_mcp", "write", "review_epistemic_status"
+    ) == ["knowledge:epistemic:review"]
+    for name in (
+        "classify_epistemic_statement",
+        "get_epistemic_assessment",
+        "search_epistemic_assessments",
+        "explain_epistemic_assessment",
+        "list_epistemic_taxonomies",
+    ):
+        assert _mutability(name) == "read"
+        assert _required_scopes("knowledge_engine_mcp", "read", name) == [
+            "knowledge:epistemic:read"
+        ]
     for name in (
         "pause_maintenance_schedule",
         "resume_maintenance_schedule",
@@ -125,3 +156,9 @@ def test_capabilities_advertise_generation_contracts():
     assert "immutable-derived-object-revisions" in capabilities["features"]
     assert "support-aware-truth-maintenance" in capabilities["features"]
     assert "snapshot-pinned-research-sessions" in capabilities["features"]
+    assert "noesis-epistemic-taxonomy-v1" in capabilities["contracts"]
+    assert "noesis-epistemic-assessment-v1" in capabilities["contracts"]
+    assert "noesis-epistemic-explanation-v1" in capabilities["contracts"]
+    assert "versioned-epistemic-status" in capabilities["features"]
+    assert "evidence-calibrated-assessments" in capabilities["features"]
+    assert "reviewed-epistemic-overrides" in capabilities["features"]
