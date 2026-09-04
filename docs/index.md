@@ -36,6 +36,8 @@ For the project overview and local setup, start with the
   consistent multi-tool reads, generation vectors, retention pins, and expiry
 - **[Epistemic status engine](guides/epistemic-status.md)** — statement kinds,
   evidence-calibrated assessments, reviewed overrides, filters, and explanations
+- **[Hypothesis Workbench](guides/hypothesis-workbench.md)** — competing
+  explanations, evidence links, honest comparisons, bounded plans, and replay
 - **[Unified knowledge query](guides/unified-knowledge-query.md)** — one bounded,
   evidence-preserving plane over local, temporal, memory, and federated data.
 - [Project structure](development/project-structure.md) — where things live in
