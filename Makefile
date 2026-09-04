@@ -369,6 +369,10 @@ knowledge-engine-reference:
 	@echo "Running the Knowledge Engine 1.0 reference workflow..."
 	python3 scripts/knowledge_engine_reference.py --exercise-recovery
 
+source-pack-check:
+	@echo "Validating production source packs and replaying pinned fixtures..."
+	python3 scripts/source_pack_conformance.py
+
 demo:
 	@echo "Running NeuroNews offline demo pipeline..."
 	python3 scripts/demo.py

@@ -10,3 +10,8 @@ It also exposes the Knowledge Engine 1.0 reference-workflow controls. Operators
 can validate a seven-stage manifest, run or resume the canonical offline path,
 inspect immutable receipts and committed watermarks, and read a stage from one
 exact committed generation.
+
+Production source-pack tools validate, install, upgrade, enable, disable, and
+inspect the built-in research, political, economic, OSINT, technical, and
+scientific connector configurations. Default conformance is fixture-backed and
+network-free; live probes remain an explicit operator action.

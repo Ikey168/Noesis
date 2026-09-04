@@ -1,0 +1,25 @@
+{
+  "pack_id": "economic-statistics-and-filings",
+  "version": "1.0.0",
+  "description": "Official time series, release vintages, revisions, and company filings.",
+  "domains": ["economic"],
+  "defaults": {
+    "connector": "dataset",
+    "scope": "official economic observations and releases",
+    "update_cadence": "daily",
+    "temporal_semantics": "period-release-vintage-observation",
+    "mapping": {"target_schema": "dataset-series-v1", "version": "1.0.0"},
+    "extractor_versions": ["economic-normalizer:1.0.0"],
+    "schedule": {"kind": "interval", "interval_s": 86400},
+    "budgets": {"timeout_ms": 20000, "max_results": 1000, "max_bytes": 20000000, "max_pages": 10},
+    "auth": {"kind": "none"},
+    "fixture": {"path": "tests/fixtures/source_packs/economic.json", "sha256": "3ff6e160be9cc8afc1b4f7225a62025024300b9c01be83c2522cd7671e0febb1", "expected_output_hash": "9a01920920bd14deb6e45b999daa084dc03050f94ad984fd1a0132ea75e575c4"},
+    "health": {"required": true, "max_staleness_s": 172800}
+  },
+  "sources": [
+    {"source_id": "world-bank-indicators", "endpoint": "https://api.worldbank.org/v2", "publisher": "World Bank", "license": {"id": "world-bank-terms", "terms_url": "https://www.worldbank.org/en/about/legal/terms-of-use-for-datasets", "redistribution": "attribution-required"}, "operations": ["series", "geography", "period", "backfill"]},
+    {"source_id": "eurostat-dissemination", "endpoint": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data", "publisher": "Eurostat", "license": {"id": "eurostat-reuse", "terms_url": "https://ec.europa.eu/eurostat/about-us/policies/copyright", "redistribution": "attribution-required"}, "operations": ["series", "geography", "period", "backfill"]},
+    {"source_id": "fred-series", "endpoint": "https://api.stlouisfed.org/fred", "publisher": "Federal Reserve Bank of St. Louis", "license": {"id": "fred-terms", "terms_url": "https://fred.stlouisfed.org/legal/", "redistribution": "series-specific"}, "auth": {"kind": "required-secret", "secret_ref": "NOESIS_FRED_API_KEY"}, "operations": ["series", "release", "vintage", "revision"]},
+    {"source_id": "sec-edgar", "connector": "filings", "endpoint": "https://data.sec.gov/submissions", "publisher": "U.S. Securities and Exchange Commission", "scope": "US public-company filings", "license": {"id": "us-government-public-data", "terms_url": "https://www.sec.gov/about/privacy-information", "redistribution": "public-data"}, "mapping": {"target_schema": "filing-record-v1", "version": "1.0.0"}, "extractor_versions": ["xbrl-filings:1.0.0"], "auth": {"kind": "optional-secret", "secret_ref": "NOESIS_SEC_CONTACT"}, "operations": ["company", "filing", "amendment", "incremental"]}
+  ]
+}

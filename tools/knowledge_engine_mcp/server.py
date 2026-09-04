@@ -41,7 +41,7 @@ def _safe(operation,*,write: bool=False):
 @mcp.tool()
 def knowledge_engine_capabilities() -> dict:
     """Describe declarative ingestion, extraction, events, and artifact rebuild contracts."""
-    return {"contracts":["noesis-declarative-api-source-v1","noesis-extractor-definition-v1","noesis-canonical-event-v1","noesis-derived-artifact-v1","noesis-knowledge-workflow-v1","noesis-workflow-stage-receipt-v1","noesis-workflow-watermark-v1"],"features":["declarative-rest","versioned-extractors","canonical-events","selective-rebuild","reference-workflow","committed-watermarks"]}
+    return {"contracts":["noesis-declarative-api-source-v1","noesis-extractor-definition-v1","noesis-canonical-event-v1","noesis-derived-artifact-v1","noesis-knowledge-workflow-v1","noesis-workflow-stage-receipt-v1","noesis-workflow-watermark-v1","noesis-source-pack-v1"],"features":["declarative-rest","versioned-extractors","canonical-events","selective-rebuild","reference-workflow","committed-watermarks","production-source-packs"]}
 
 
 @mcp.tool()
@@ -73,6 +73,42 @@ def read_workflow_stage(namespace: str,workflow_id: str,watermark: int,stage: st
     """Read a stage output from exactly one committed workflow generation."""
     from src.kb.workflows import WorkflowStore
     return _safe(lambda conn:WorkflowStore(conn,initialize=False).read_stage(namespace,workflow_id,watermark,stage))
+
+
+@mcp.tool()
+def validate_source_pack(manifest: dict[str,Any]) -> dict:
+    """Validate and content-address a deployable source-pack manifest."""
+    from src.ingestion.source_packs import SourcePackError,validate_source_pack as validate
+    try:return {"ok":True,"pack":validate(manifest)}
+    except SourcePackError as exc:return {"ok":False,"error":exc.as_dict()}
+
+
+@mcp.tool()
+def install_source_pack(manifest: dict[str,Any],enable: bool=False) -> dict:
+    """Install or upgrade an immutable source-pack version."""
+    from src.ingestion.source_packs import SourcePackStore
+    return _safe(lambda conn:SourcePackStore(conn).install(manifest,principal_id=_context()[0],enable=enable),write=True)
+
+
+@mcp.tool()
+def set_source_pack_enabled(pack_id: str,enabled: bool) -> dict:
+    """Enable or disable one installed source pack without affecting others."""
+    from src.ingestion.source_packs import SourcePackStore
+    return _safe(lambda conn:SourcePackStore(conn,initialize=False).set_enabled(pack_id,enabled,principal_id=_context()[0]),write=True)
+
+
+@mcp.tool()
+def list_source_packs() -> dict:
+    """List installed source-pack versions, readiness, and health."""
+    from src.ingestion.source_packs import SourcePackStore
+    return _safe(lambda conn:{"packs":SourcePackStore(conn,initialize=False).list()})
+
+
+@mcp.tool()
+def source_pack_coverage() -> dict:
+    """Summarize configured, ready, and healthy sources by domain."""
+    from src.ingestion.source_packs import SourcePackStore
+    return _safe(lambda conn:SourcePackStore(conn,initialize=False).coverage())
 
 
 @mcp.tool()

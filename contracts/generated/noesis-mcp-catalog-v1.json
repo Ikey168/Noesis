@@ -799,14 +799,16 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 17,
+      "tool_count": 22,
       "tools": [
         "noesis-knowledge-engine.artifact_lineage",
         "noesis-knowledge-engine.execute_artifact_rebuild",
         "noesis-knowledge-engine.fetch_declarative_api",
         "noesis-knowledge-engine.inspect_reference_workflow",
+        "noesis-knowledge-engine.install_source_pack",
         "noesis-knowledge-engine.knowledge_engine_capabilities",
         "noesis-knowledge-engine.list_extractors",
+        "noesis-knowledge-engine.list_source_packs",
         "noesis-knowledge-engine.merge_canonical_events",
         "noesis-knowledge-engine.plan_extractor_reprocessing",
         "noesis-knowledge-engine.preview_artifact_invalidation",
@@ -816,15 +818,18 @@
         "noesis-knowledge-engine.resolve_event_report",
         "noesis-knowledge-engine.reverse_event_merge",
         "noesis-knowledge-engine.run_reference_workflow",
+        "noesis-knowledge-engine.set_source_pack_enabled",
+        "noesis-knowledge-engine.source_pack_coverage",
         "noesis-knowledge-engine.validate_api_connector_manifest",
-        "noesis-knowledge-engine.validate_knowledge_workflow"
+        "noesis-knowledge-engine.validate_knowledge_workflow",
+        "noesis-knowledge-engine.validate_source_pack"
       ],
       "transports": [
         "stdio",
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 17
+      "visible_tool_count": 22
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -835,12 +840,12 @@
     },
     "servers": 29,
     "states": {
-      "available": 37,
+      "available": 42,
       "degraded": 155,
       "disabled": 3,
       "unauthorized": 53
     },
-    "tools": 248
+    "tools": 253
   },
   "tools": [
     {
@@ -12271,6 +12276,44 @@
     },
     {
       "cost_class": "low",
+      "description": "Install or upgrade an immutable source-pack version.",
+      "id": "noesis-knowledge-engine.install_source_pack",
+      "input_schema": {
+        "properties": {
+          "enable": {
+            "default": false,
+            "type": "boolean"
+          },
+          "manifest": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "manifest"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "install_source_pack",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Describe declarative ingestion, extraction, events, and artifact rebuild contracts.",
       "id": "noesis-knowledge-engine.knowledge_engine_capabilities",
       "input_schema": {
@@ -12306,6 +12349,32 @@
       "latency_class": "interactive",
       "mutability": "read",
       "name": "list_extractors",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "List installed source-pack versions, readiness, and health.",
+      "id": "noesis-knowledge-engine.list_source_packs",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_source_packs",
       "output_schema": {
         "additionalProperties": true,
         "type": "object"
@@ -12699,6 +12768,69 @@
       "version": "1"
     },
     {
+      "cost_class": "medium",
+      "description": "Enable or disable one installed source pack without affecting others.",
+      "id": "noesis-knowledge-engine.set_source_pack_enabled",
+      "input_schema": {
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "pack_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "pack_id",
+          "enabled"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "set_source_pack_enabled",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "operator"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Summarize configured, ready, and healthy sources by domain.",
+      "id": "noesis-knowledge-engine.source_pack_coverage",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "source_pack_coverage",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
       "cost_class": "low",
       "description": "Validate an API manifest without making a network request.",
       "id": "noesis-knowledge-engine.validate_api_connector_manifest",
@@ -12751,6 +12883,40 @@
       "latency_class": "interactive",
       "mutability": "read",
       "name": "validate_knowledge_workflow",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Validate and content-address a deployable source-pack manifest.",
+      "id": "noesis-knowledge-engine.validate_source_pack",
+      "input_schema": {
+        "properties": {
+          "manifest": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "manifest"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "validate_source_pack",
       "output_schema": {
         "additionalProperties": true,
         "type": "object"

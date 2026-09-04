@@ -1,0 +1,1 @@
+{"normalized":[{"id":"indicator:example:gdp:DE","type":"observation","geography":"DE","unit":"percent","frequency":"quarterly","seasonal_adjustment":"adjusted","period":"2025-Q1","value":0.4,"vintage":"2025-05-01","observed_at":"2025-05-01"}],"scenarios":["revised-value","missing-observation","unit-change","discontinued-series","amended-filing","pagination","rate-limited"]}
