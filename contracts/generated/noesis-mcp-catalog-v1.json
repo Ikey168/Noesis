@@ -808,7 +808,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 326,
+      "tool_count": 339,
       "tools": [
         "noesis-knowledge-engine.accept_citation_repair",
         "noesis-knowledge-engine.accept_dataset_join",
@@ -832,6 +832,7 @@
         "noesis-knowledge-engine.authorize_access_export",
         "noesis-knowledge-engine.begin_research_snapshot",
         "noesis-knowledge-engine.branch_hypothesis_workspace",
+        "noesis-knowledge-engine.build_research_package",
         "noesis-knowledge-engine.calculate_spatial_relation",
         "noesis-knowledge-engine.cancel_knowledge_query",
         "noesis-knowledge-engine.cancel_maintenance_job",
@@ -859,10 +860,12 @@
         "noesis-knowledge-engine.create_event_record",
         "noesis-knowledge-engine.create_hypothesis_research_plan",
         "noesis-knowledge-engine.create_hypothesis_workspace",
+        "noesis-knowledge-engine.create_research_package_manifest",
         "noesis-knowledge-engine.create_retention_checkpoint",
         "noesis-knowledge-engine.create_source_acquisition_plan",
         "noesis-knowledge-engine.create_source_research_objective",
         "noesis-knowledge-engine.decide_source_alias",
+        "noesis-knowledge-engine.decrypt_research_package",
         "noesis-knowledge-engine.delete_source_identity",
         "noesis-knowledge-engine.deliver_anomaly_alert",
         "noesis-knowledge-engine.deliver_change_briefs",
@@ -882,6 +885,7 @@
         "noesis-knowledge-engine.document_revision",
         "noesis-knowledge-engine.document_revision_health",
         "noesis-knowledge-engine.document_revision_history",
+        "noesis-knowledge-engine.encrypt_research_package",
         "noesis-knowledge-engine.evaluate_knowledge_query",
         "noesis-knowledge-engine.evaluate_quantitative_formula",
         "noesis-knowledge-engine.event_neighborhood",
@@ -942,6 +946,7 @@
         "noesis-knowledge-engine.get_source_acquisition_plan",
         "noesis-knowledge-engine.get_source_capability",
         "noesis-knowledge-engine.get_study_replication_graph",
+        "noesis-knowledge-engine.import_research_package",
         "noesis-knowledge-engine.ingest_event_mentions",
         "noesis-knowledge-engine.ingest_tabular_dataset",
         "noesis-knowledge-engine.inspect_access_view_health",
@@ -953,6 +958,7 @@
         "noesis-knowledge-engine.inspect_media_provenance",
         "noesis-knowledge-engine.inspect_quality_health",
         "noesis-knowledge-engine.inspect_reference_workflow",
+        "noesis-knowledge-engine.inspect_research_package",
         "noesis-knowledge-engine.inspect_research_snapshot",
         "noesis-knowledge-engine.inspect_retention_health",
         "noesis-knowledge-engine.inspect_source_acquisition_run",
@@ -1037,6 +1043,7 @@
         "noesis-knowledge-engine.register_quantitative_metric",
         "noesis-knowledge-engine.register_quantitative_unit",
         "noesis-knowledge-engine.register_research_gap_policy",
+        "noesis-knowledge-engine.register_research_package_component",
         "noesis-knowledge-engine.register_research_recipe",
         "noesis-knowledge-engine.register_retention_object",
         "noesis-knowledge-engine.register_retention_policy",
@@ -1061,6 +1068,7 @@
         "noesis-knowledge-engine.replay_quality_assessment",
         "noesis-knowledge-engine.replay_quantitative_calculation",
         "noesis-knowledge-engine.replay_research_gap",
+        "noesis-knowledge-engine.replay_research_package",
         "noesis-knowledge-engine.replay_research_recipe_run",
         "noesis-knowledge-engine.replay_source_acquisition_run",
         "noesis-knowledge-engine.replay_source_pack_run",
@@ -1071,6 +1079,7 @@
         "noesis-knowledge-engine.resolve_entity_history",
         "noesis-knowledge-engine.resolve_event_report",
         "noesis-knowledge-engine.resolve_geospatial_candidates",
+        "noesis-knowledge-engine.resolve_research_package_closure",
         "noesis-knowledge-engine.resolve_source_alias",
         "noesis-knowledge-engine.restore_knowledge_archive",
         "noesis-knowledge-engine.resume_maintenance_schedule",
@@ -1095,6 +1104,7 @@
         "noesis-knowledge-engine.revise_quantitative_metric",
         "noesis-knowledge-engine.revise_source_identity",
         "noesis-knowledge-engine.revoke_access_share_grant",
+        "noesis-knowledge-engine.rollback_research_package_import",
         "noesis-knowledge-engine.run_anomaly_detector",
         "noesis-knowledge-engine.run_maintenance_drain",
         "noesis-knowledge-engine.run_maintenance_once",
@@ -1110,6 +1120,7 @@
         "noesis-knowledge-engine.set_maintenance_schedule_paused",
         "noesis-knowledge-engine.set_source_pack_enabled",
         "noesis-knowledge-engine.set_source_pack_schedule",
+        "noesis-knowledge-engine.sign_research_package",
         "noesis-knowledge-engine.simplify_geospatial_geometry",
         "noesis-knowledge-engine.simulate_access_view",
         "noesis-knowledge-engine.simulate_anomaly_detector",
@@ -1132,9 +1143,11 @@
         "noesis-knowledge-engine.update_research_gap_status",
         "noesis-knowledge-engine.validate_api_connector_manifest",
         "noesis-knowledge-engine.validate_knowledge_workflow",
+        "noesis-knowledge-engine.validate_research_package_manifest",
         "noesis-knowledge-engine.validate_research_recipe",
         "noesis-knowledge-engine.validate_source_pack",
         "noesis-knowledge-engine.verify_preserved_citation",
+        "noesis-knowledge-engine.verify_research_package",
         "noesis-knowledge-engine.verify_retention_checkpoint"
       ],
       "transports": [
@@ -1142,7 +1155,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 326
+      "visible_tool_count": 339
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -1156,9 +1169,9 @@
       "available": 81,
       "degraded": 155,
       "disabled": 3,
-      "unauthorized": 327
+      "unauthorized": 340
     },
-    "tools": 566
+    "tools": 579
   },
   "tools": [
     {
@@ -14642,6 +14655,62 @@
     },
     {
       "cost_class": "medium",
+      "description": "Build deterministic content-addressed bytes for a research package.",
+      "id": "noesis-knowledge-engine.build_research_package",
+      "input_schema": {
+        "properties": {
+          "allow_partial": {
+            "default": false,
+            "type": "boolean"
+          },
+          "cancel_requested": {
+            "default": false,
+            "type": "boolean"
+          },
+          "limit": {
+            "default": 10000,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "package_id": {
+            "type": "string"
+          },
+          "root_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "namespace",
+          "package_id",
+          "root_ids"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "build_research_package",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:packages:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Calculate containment, proximity, intersection, or route length with a receipt.",
       "id": "noesis-knowledge-engine.calculate_spatial_relation",
       "input_schema": {
@@ -16284,6 +16353,58 @@
     },
     {
       "cost_class": "medium",
+      "description": "Create a canonical, immutable portable research-package manifest.",
+      "id": "noesis-knowledge-engine.create_research_package_manifest",
+      "input_schema": {
+        "properties": {
+          "manifest": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "supported_versions": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "manifest"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "create_research_package_manifest",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:packages:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Compact immutable history into a bounded content-addressed checkpoint.",
       "id": "noesis-knowledge-engine.create_retention_checkpoint",
       "input_schema": {
@@ -16613,6 +16734,52 @@
       ],
       "required_scopes": [
         "knowledge:source-identity:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Decrypt and authenticate a bounded research package envelope.",
+      "id": "noesis-knowledge-engine.decrypt_research_package",
+      "input_schema": {
+        "properties": {
+          "envelope": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "max_bytes": {
+            "default": 50000000,
+            "type": "integer"
+          },
+          "recipient_id": {
+            "type": "string"
+          },
+          "recipient_key_b64": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "envelope",
+          "recipient_key_b64",
+          "recipient_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "decrypt_research_package",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:packages:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -17584,6 +17751,52 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Create an AES-256-GCM offline package envelope without persisting keys.",
+      "id": "noesis-knowledge-engine.encrypt_research_package",
+      "input_schema": {
+        "properties": {
+          "key_version": {
+            "type": "string"
+          },
+          "package": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "recipient_id": {
+            "type": "string"
+          },
+          "recipient_key_b64": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "package",
+          "recipient_key_b64",
+          "recipient_id",
+          "key_version"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "encrypt_research_package",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:packages:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
       "version": "1"
     },
     {
@@ -20237,6 +20450,62 @@
       "version": "1"
     },
     {
+      "cost_class": "medium",
+      "description": "Import verified members atomically into an isolated import namespace.",
+      "id": "noesis-knowledge-engine.import_research_package",
+      "input_schema": {
+        "properties": {
+          "cancel_requested": {
+            "default": false,
+            "type": "boolean"
+          },
+          "package": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "target_namespace": {
+            "type": "string"
+          },
+          "trusted_recipe_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "package",
+          "target_namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "import_research_package",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:packages:import"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "high",
       "description": "Cluster a bounded multilingual mention batch using deterministic offline features.",
       "id": "noesis-knowledge-engine.ingest_event_mentions",
@@ -20715,6 +20984,40 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Inspect package compatibility, member types, and disclosed omissions.",
+      "id": "noesis-knowledge-engine.inspect_research_package",
+      "input_schema": {
+        "properties": {
+          "package": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "package"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "inspect_research_package",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:packages:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
       "version": "1"
     },
     {
@@ -26757,6 +27060,94 @@
     },
     {
       "cost_class": "medium",
+      "description": "Register a content-addressed package member and dependency edges.",
+      "id": "noesis-knowledge-engine.register_research_package_component",
+      "input_schema": {
+        "properties": {
+          "access_status": {
+            "default": "accessible",
+            "type": "string"
+          },
+          "component_id": {
+            "type": "string"
+          },
+          "component_type": {
+            "type": "string"
+          },
+          "content": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "dependencies": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "metadata": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "redacted_content": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "component_type",
+          "component_id",
+          "content"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "register_research_package_component",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:packages:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Register an immutable research recipe revision.",
       "id": "noesis-knowledge-engine.register_research_recipe",
       "input_schema": {
@@ -28092,6 +28483,47 @@
     },
     {
       "cost_class": "medium",
+      "description": "Replay imported content deterministically without trusting recipes by default.",
+      "id": "noesis-knowledge-engine.replay_research_package",
+      "input_schema": {
+        "properties": {
+          "allow_executable": {
+            "default": false,
+            "type": "boolean"
+          },
+          "import_id": {
+            "type": "string"
+          },
+          "target_namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "target_namespace",
+          "import_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "replay_research_package",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:packages:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Verify outputs, receipt hashing, and pinned tool versions.",
       "id": "noesis-knowledge-engine.replay_research_recipe_run",
       "input_schema": {
@@ -28511,6 +28943,50 @@
       ],
       "required_scopes": [
         "knowledge:geospatial:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Resolve deterministic dependency closure with redactions and omissions.",
+      "id": "noesis-knowledge-engine.resolve_research_package_closure",
+      "input_schema": {
+        "properties": {
+          "limit": {
+            "default": 10000,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "root_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "namespace",
+          "root_ids"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "resolve_research_package_closure",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:packages:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -29692,6 +30168,43 @@
     },
     {
       "cost_class": "medium",
+      "description": "Atomically remove an isolated import while retaining its receipt.",
+      "id": "noesis-knowledge-engine.rollback_research_package_import",
+      "input_schema": {
+        "properties": {
+          "import_id": {
+            "type": "string"
+          },
+          "target_namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "target_namespace",
+          "import_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "rollback_research_package_import",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:packages:import"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Run a bounded, cancellable, deterministic anomaly detector.",
       "id": "noesis-knowledge-engine.run_anomaly_detector",
       "input_schema": {
@@ -30587,6 +31100,52 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Attach a detached Ed25519 signature; key material is never persisted.",
+      "id": "noesis-knowledge-engine.sign_research_package",
+      "input_schema": {
+        "properties": {
+          "key_id": {
+            "type": "string"
+          },
+          "key_version": {
+            "type": "string"
+          },
+          "package": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "private_key_b64": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "package",
+          "private_key_b64",
+          "key_id",
+          "key_version"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "sign_research_package",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:packages:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
       "version": "1"
     },
     {
@@ -31706,6 +32265,54 @@
     },
     {
       "cost_class": "medium",
+      "description": "Validate extensions, required fields, and format-version compatibility.",
+      "id": "noesis-knowledge-engine.validate_research_package_manifest",
+      "input_schema": {
+        "properties": {
+          "manifest": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "supported_versions": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "manifest"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "validate_research_package_manifest",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:packages:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Validate a typed recipe DAG, compatibility declarations, and canonical hash.",
       "id": "noesis-knowledge-engine.validate_research_recipe",
       "input_schema": {
@@ -31850,6 +32457,58 @@
       ],
       "required_scopes": [
         "knowledge:citation:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Verify checksums and optional Ed25519 signature fully offline.",
+      "id": "noesis-knowledge-engine.verify_research_package",
+      "input_schema": {
+        "properties": {
+          "package": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "public_keys": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "require_signature": {
+            "default": false,
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "package"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "verify_research_package",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:packages:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",

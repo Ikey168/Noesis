@@ -158,6 +158,7 @@ MUTATION_NAMES = frozenset(
         "archive_knowledge_checkpoint",
         "restore_knowledge_archive",
         "plan_retention_gc",
+        "build_research_package",
     }
 )
 
@@ -330,6 +331,28 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
             return ["knowledge:memory:admin"]
         return ["knowledge:memory:read"]
     if server_stem == "knowledge_engine_mcp":
+        if tool_name in {
+            "create_research_package_manifest",
+            "register_research_package_component",
+            "build_research_package",
+        }:
+            return ["knowledge:packages:write"]
+        if tool_name in {
+            "import_research_package",
+            "rollback_research_package_import",
+        }:
+            return ["knowledge:packages:import"]
+        if tool_name in {
+            "validate_research_package_manifest",
+            "resolve_research_package_closure",
+            "sign_research_package",
+            "encrypt_research_package",
+            "decrypt_research_package",
+            "inspect_research_package",
+            "verify_research_package",
+            "replay_research_package",
+        }:
+            return ["knowledge:packages:read"]
         if tool_name in {
             "register_retention_policy",
             "register_retention_object",

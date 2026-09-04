@@ -202,6 +202,11 @@ def knowledge_engine_capabilities() -> dict:
             "noesis-archive-manifest-v1",
             "noesis-retention-gc-plan-v1",
             "noesis-retention-job-v1",
+            "noesis-research-package-manifest-v1",
+            "noesis-research-package-closure-v1",
+            "noesis-research-package-v1",
+            "noesis-research-package-verification-v1",
+            "noesis-research-package-import-v1",
             "noesis-maintenance-job-request-v1",
             "noesis-maintenance-job-receipt-v1",
             "noesis-knowledge-generation-v1",
@@ -317,6 +322,10 @@ def knowledge_engine_capabilities() -> dict:
             "content-addressed-replayable-checkpoints",
             "verified-atomic-cold-storage-restore",
             "dependency-and-pin-safe-garbage-collection",
+            "versioned-portable-research-manifests",
+            "dependency-complete-policy-aware-package-closure",
+            "deterministic-signed-encrypted-package-export",
+            "isolated-non-executable-package-import-and-replay",
             "knowledge-maintenance",
             "lease-safe-workers",
             "committed-generations",
@@ -7772,6 +7781,258 @@ def inspect_retention_health(namespace: str) -> dict:
             namespace, scopes={"knowledge:retention:read"}
         ),
         required_scope="knowledge:retention:read",
+    )
+
+
+@mcp.tool()
+def validate_research_package_manifest(
+    manifest: dict[str, Any], supported_versions: list[str] | None = None
+) -> dict:
+    """Validate extensions, required fields, and format-version compatibility."""
+    from src.kb.research_packages import ResearchPackageStore
+
+    return _safe(
+        lambda c: ResearchPackageStore(c, initialize=False).validate_manifest(
+            manifest, supported_versions=tuple(supported_versions or ["1.0"])
+        ),
+        required_scope="knowledge:packages:read",
+    )
+
+
+@mcp.tool()
+def create_research_package_manifest(
+    namespace: str,
+    manifest: dict[str, Any],
+    supported_versions: list[str] | None = None,
+) -> dict:
+    """Create a canonical, immutable portable research-package manifest."""
+    from src.kb.research_packages import ResearchPackageStore
+
+    return _safe(
+        lambda c: ResearchPackageStore(c).create_manifest(
+            namespace,
+            manifest,
+            supported_versions=tuple(supported_versions or ["1.0"]),
+            principal_id=_context()[0],
+            scopes={"knowledge:packages:write"},
+        ),
+        write=True,
+        required_scope="knowledge:packages:write",
+    )
+
+
+@mcp.tool()
+def register_research_package_component(
+    namespace: str,
+    component_type: str,
+    component_id: str,
+    content: dict[str, Any],
+    dependencies: list[str] | None = None,
+    access_status: str = "accessible",
+    redacted_content: dict[str, Any] | None = None,
+    metadata: dict[str, Any] | None = None,
+) -> dict:
+    """Register a content-addressed package member and dependency edges."""
+    from src.kb.research_packages import ResearchPackageStore
+
+    return _safe(
+        lambda c: ResearchPackageStore(c).register_component(
+            namespace,
+            component_type,
+            component_id,
+            content,
+            dependencies=dependencies or [],
+            access_status=access_status,
+            redacted_content=redacted_content,
+            metadata=metadata,
+            principal_id=_context()[0],
+            scopes={"knowledge:packages:write"},
+        ),
+        write=True,
+        required_scope="knowledge:packages:write",
+    )
+
+
+@mcp.tool()
+def resolve_research_package_closure(
+    namespace: str, root_ids: list[str], limit: int = 10000
+) -> dict:
+    """Resolve deterministic dependency closure with redactions and omissions."""
+    from src.kb.research_packages import ResearchPackageStore
+
+    return _safe(
+        lambda c: ResearchPackageStore(c, initialize=False).closure(
+            namespace, root_ids, limit=limit, scopes={"knowledge:packages:read"}
+        ),
+        required_scope="knowledge:packages:read",
+    )
+
+
+@mcp.tool()
+def build_research_package(
+    namespace: str,
+    package_id: str,
+    root_ids: list[str],
+    allow_partial: bool = False,
+    cancel_requested: bool = False,
+    limit: int = 10000,
+) -> dict:
+    """Build deterministic content-addressed bytes for a research package."""
+    from src.kb.research_packages import ResearchPackageStore
+
+    return _safe(
+        lambda c: ResearchPackageStore(c).build(
+            namespace,
+            package_id,
+            root_ids,
+            allow_partial=allow_partial,
+            cancel_requested=cancel_requested,
+            limit=limit,
+            principal_id=_context()[0],
+            scopes={"knowledge:packages:write"},
+        ),
+        write=True,
+        required_scope="knowledge:packages:write",
+    )
+
+
+@mcp.tool()
+def sign_research_package(
+    package: dict[str, Any], private_key_b64: str, key_id: str, key_version: str
+) -> dict:
+    """Attach a detached Ed25519 signature; key material is never persisted."""
+    from src.kb.research_packages import ResearchPackageStore
+
+    return _safe(
+        lambda c: ResearchPackageStore(c, initialize=False).sign(
+            package, private_key_b64, key_id=key_id, key_version=key_version
+        ),
+        required_scope="knowledge:packages:read",
+    )
+
+
+@mcp.tool()
+def encrypt_research_package(
+    package: dict[str, Any], recipient_key_b64: str, recipient_id: str, key_version: str
+) -> dict:
+    """Create an AES-256-GCM offline package envelope without persisting keys."""
+    from src.kb.research_packages import ResearchPackageStore
+
+    return _safe(
+        lambda c: ResearchPackageStore(c, initialize=False).encrypt(
+            package,
+            recipient_key_b64,
+            recipient_id=recipient_id,
+            key_version=key_version,
+        ),
+        required_scope="knowledge:packages:read",
+    )
+
+
+@mcp.tool()
+def decrypt_research_package(
+    envelope: dict[str, Any],
+    recipient_key_b64: str,
+    recipient_id: str,
+    max_bytes: int = 50000000,
+) -> dict:
+    """Decrypt and authenticate a bounded research package envelope."""
+    from src.kb.research_packages import ResearchPackageStore
+
+    return _safe(
+        lambda c: ResearchPackageStore(c, initialize=False).decrypt(
+            envelope, recipient_key_b64, recipient_id=recipient_id, max_bytes=max_bytes
+        ),
+        required_scope="knowledge:packages:read",
+    )
+
+
+@mcp.tool()
+def inspect_research_package(package: dict[str, Any]) -> dict:
+    """Inspect package compatibility, member types, and disclosed omissions."""
+    from src.kb.research_packages import ResearchPackageStore
+
+    return _safe(
+        lambda c: ResearchPackageStore(c, initialize=False).inspect(
+            package, scopes={"knowledge:packages:read"}
+        ),
+        required_scope="knowledge:packages:read",
+    )
+
+
+@mcp.tool()
+def verify_research_package(
+    package: dict[str, Any],
+    public_keys: dict[str, str] | None = None,
+    require_signature: bool = False,
+) -> dict:
+    """Verify checksums and optional Ed25519 signature fully offline."""
+    from src.kb.research_packages import ResearchPackageStore
+
+    return _safe(
+        lambda c: ResearchPackageStore(c, initialize=False).verify(
+            package, public_keys=public_keys, require_signature=require_signature
+        ),
+        required_scope="knowledge:packages:read",
+    )
+
+
+@mcp.tool()
+def import_research_package(
+    package: dict[str, Any],
+    target_namespace: str,
+    trusted_recipe_ids: list[str] | None = None,
+    cancel_requested: bool = False,
+) -> dict:
+    """Import verified members atomically into an isolated import namespace."""
+    from src.kb.research_packages import ResearchPackageStore
+
+    return _safe(
+        lambda c: ResearchPackageStore(c).import_package(
+            package,
+            target_namespace,
+            trusted_recipe_ids=trusted_recipe_ids or [],
+            cancel_requested=cancel_requested,
+            principal_id=_context()[0],
+            scopes={"knowledge:packages:import"},
+        ),
+        write=True,
+        required_scope="knowledge:packages:import",
+    )
+
+
+@mcp.tool()
+def replay_research_package(
+    target_namespace: str, import_id: str, allow_executable: bool = False
+) -> dict:
+    """Replay imported content deterministically without trusting recipes by default."""
+    from src.kb.research_packages import ResearchPackageStore
+
+    return _safe(
+        lambda c: ResearchPackageStore(c, initialize=False).replay(
+            target_namespace,
+            import_id,
+            allow_executable=allow_executable,
+            scopes={"knowledge:packages:read"},
+        ),
+        required_scope="knowledge:packages:read",
+    )
+
+
+@mcp.tool()
+def rollback_research_package_import(target_namespace: str, import_id: str) -> dict:
+    """Atomically remove an isolated import while retaining its receipt."""
+    from src.kb.research_packages import ResearchPackageStore
+
+    return _safe(
+        lambda c: ResearchPackageStore(c).rollback(
+            target_namespace,
+            import_id,
+            principal_id=_context()[0],
+            scopes={"knowledge:packages:import"},
+        ),
+        write=True,
+        required_scope="knowledge:packages:import",
     )
 
 

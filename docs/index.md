@@ -84,6 +84,8 @@ For the project overview and local setup, start with the
   detectors, uncertain attribution, and deduplicated recoverable delivery.
 - **[Knowledge retention and archival](guides/knowledge-retention.md)** — legal
   holds, verifiable checkpoints, atomic restore, and dependency-safe GC.
+- **[Portable research packages](guides/research-packages.md)** — reproducible
+  closure, signed/encrypted exchange, isolated import, replay, and rollback.
 - **[Unified knowledge query](guides/unified-knowledge-query.md)** — one bounded,
   evidence-preserving plane over local, temporal, memory, and federated data.
 - [Project structure](development/project-structure.md) — where things live in

@@ -302,6 +302,19 @@ def test_maintenance_surface_and_catalog_scope_separation(monkeypatch):
         "get_retention_job",
         "cancel_retention_job",
         "inspect_retention_health",
+        "validate_research_package_manifest",
+        "create_research_package_manifest",
+        "register_research_package_component",
+        "resolve_research_package_closure",
+        "build_research_package",
+        "sign_research_package",
+        "encrypt_research_package",
+        "decrypt_research_package",
+        "inspect_research_package",
+        "verify_research_package",
+        "import_research_package",
+        "replay_research_package",
+        "rollback_research_package_import",
     }
     assert expected <= set(tools)
     assert _required_scopes(
@@ -844,3 +857,8 @@ def test_capabilities_advertise_generation_contracts():
     assert "noesis-archive-manifest-v1" in capabilities["contracts"]
     assert "noesis-retention-gc-plan-v1" in capabilities["contracts"]
     assert "noesis-retention-job-v1" in capabilities["contracts"]
+    assert "noesis-research-package-manifest-v1" in capabilities["contracts"]
+    assert "noesis-research-package-closure-v1" in capabilities["contracts"]
+    assert "noesis-research-package-v1" in capabilities["contracts"]
+    assert "noesis-research-package-verification-v1" in capabilities["contracts"]
+    assert "noesis-research-package-import-v1" in capabilities["contracts"]
