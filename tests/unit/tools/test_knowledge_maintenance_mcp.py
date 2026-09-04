@@ -167,6 +167,19 @@ def test_maintenance_surface_and_catalog_scope_separation(monkeypatch):
         "cancel_source_acquisition_plan",
         "inspect_source_acquisition_run",
         "replay_source_acquisition_run",
+        "register_dataset_catalog",
+        "get_dataset_catalog",
+        "search_datasets",
+        "register_dataset_release",
+        "get_dataset_release",
+        "ingest_tabular_dataset",
+        "replay_tabular_ingestion",
+        "slice_dataset_table",
+        "compare_dataset_releases",
+        "suggest_dataset_joins",
+        "preview_dataset_join",
+        "accept_dataset_join",
+        "get_dataset_lineage",
     }
     assert expected <= set(tools)
     assert _required_scopes(
@@ -481,6 +494,37 @@ def test_maintenance_surface_and_catalog_scope_separation(monkeypatch):
             "knowledge:source-planner:read"
         ]
     for name in (
+        "register_dataset_catalog",
+        "register_dataset_release",
+        "accept_dataset_join",
+    ):
+        assert _mutability(name) == "write"
+        assert _required_scopes("knowledge_engine_mcp", "write", name) == [
+            "knowledge:dataset:write"
+        ]
+    assert _mutability("ingest_tabular_dataset") == "write"
+    assert _required_scopes(
+        "knowledge_engine_mcp", "write", "ingest_tabular_dataset"
+    ) == ["knowledge:dataset:ingest"]
+    assert _mutability("preview_dataset_join") == "read"
+    assert _required_scopes("knowledge_engine_mcp", "read", "preview_dataset_join") == [
+        "knowledge:dataset:calculate"
+    ]
+    for name in (
+        "get_dataset_catalog",
+        "search_datasets",
+        "get_dataset_release",
+        "replay_tabular_ingestion",
+        "slice_dataset_table",
+        "compare_dataset_releases",
+        "suggest_dataset_joins",
+        "get_dataset_lineage",
+    ):
+        assert _mutability(name) == "read"
+        assert _required_scopes("knowledge_engine_mcp", "read", name) == [
+            "knowledge:dataset:read"
+        ]
+    for name in (
         "pause_maintenance_schedule",
         "resume_maintenance_schedule",
         "cancel_maintenance_job",
@@ -590,3 +634,10 @@ def test_capabilities_advertise_generation_contracts():
     assert "noesis-source-plan-receipt-v1" in capabilities["contracts"]
     assert "credential-safe-source-capability-registry" in capabilities["features"]
     assert "checkpointed-source-plan-execution" in capabilities["features"]
+    assert "noesis-dataset-catalog-v1" in capabilities["contracts"]
+    assert "noesis-dataset-release-v1" in capabilities["contracts"]
+    assert "noesis-tabular-ingestion-receipt-v1" in capabilities["contracts"]
+    assert "noesis-dataset-slice-v1" in capabilities["contracts"]
+    assert "noesis-dataset-join-v1" in capabilities["contracts"]
+    assert "versioned-dataset-table-column-identities" in capabilities["features"]
+    assert "bounded-multiformat-tabular-ingestion" in capabilities["features"]

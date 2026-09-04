@@ -121,6 +121,7 @@ MUTATION_NAMES = frozenset(
         "discover_research_gaps",
         "prioritize_research_gaps",
         "cancel_source_acquisition_plan",
+        "accept_dataset_join",
     }
 )
 
@@ -293,6 +294,27 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
             return ["knowledge:memory:admin"]
         return ["knowledge:memory:read"]
     if server_stem == "knowledge_engine_mcp":
+        if tool_name == "ingest_tabular_dataset":
+            return ["knowledge:dataset:ingest"]
+        if tool_name == "preview_dataset_join":
+            return ["knowledge:dataset:calculate"]
+        if tool_name in {
+            "register_dataset_catalog",
+            "register_dataset_release",
+            "accept_dataset_join",
+        }:
+            return ["knowledge:dataset:write"]
+        if tool_name in {
+            "get_dataset_catalog",
+            "search_datasets",
+            "get_dataset_release",
+            "replay_tabular_ingestion",
+            "slice_dataset_table",
+            "compare_dataset_releases",
+            "suggest_dataset_joins",
+            "get_dataset_lineage",
+        }:
+            return ["knowledge:dataset:read"]
         if tool_name in {
             "execute_source_acquisition_plan",
             "cancel_source_acquisition_plan",
