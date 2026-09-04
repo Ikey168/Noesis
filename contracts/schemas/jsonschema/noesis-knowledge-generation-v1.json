@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/schemas/noesis-knowledge-generation-v1.json",
+  "title": "Noesis committed knowledge generation",
+  "type": "object",
+  "required": ["contract", "generation_id", "pack_id", "pack_version", "manifest_hash", "generation", "source_watermark", "source_runs", "workflow_run_id", "workflow_watermark", "workflow_state_hash", "artifact_watermark", "artifacts", "identities", "status", "receipt_hash", "committed_at_ms"],
+  "properties": {
+    "contract": {"const": "noesis-knowledge-generation-v1"},
+    "generation_id": {"type": "string", "pattern": "^knowledge-generation:"},
+    "pack_id": {"type": "string", "minLength": 1},
+    "pack_version": {"type": "string", "minLength": 1},
+    "manifest_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "generation": {"type": "integer", "minimum": 1},
+    "source_watermark": {"type": "integer", "minimum": 1},
+    "source_runs": {"type": "array", "minItems": 1, "items": {"type": "object", "required": ["run_id", "receipt_hash", "status"]}},
+    "workflow_run_id": {"type": "string", "pattern": "^workflow-run:"},
+    "workflow_watermark": {"type": "integer", "minimum": 1},
+    "workflow_state_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "artifact_watermark": {"type": "integer", "minimum": 0},
+    "artifacts": {"type": "object", "required": ["index", "embedding", "entity", "claim", "relation", "summary"], "additionalProperties": {"type": "string", "pattern": "^artifact:"}},
+    "identities": {"type": "object", "required": ["document_hashes", "artifact_hashes", "schemas", "models", "policies"]},
+    "status": {"enum": ["complete", "partial"]},
+    "receipt_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "committed_at_ms": {"type": "integer", "minimum": 0},
+    "idempotent": {"type": "boolean"}
+  },
+  "additionalProperties": false
+}

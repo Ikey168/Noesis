@@ -16,6 +16,7 @@ mcp = FastMCP("noesis-knowledge-engine")
 _QUERY_CANCELLATIONS: dict[str, threading.Event] = {}
 _QUERY_REPLAYS: dict[str, dict[str, Any]] = {}
 _SOURCE_PACK_CANCELLATIONS: dict[str, threading.Event] = {}
+_MAINTENANCE_CANCELLATIONS: dict[str, threading.Event] = {}
 
 
 def _context() -> tuple[str, set[str]]:
@@ -36,10 +37,19 @@ def _connection(*, read_only: bool):
     )
 
 
-def _safe(operation, *, write: bool = False):
+def _safe(operation, *, write: bool = False, required_scope: str | None = None):
     conn = None
     try:
-        if write and "operator" not in _context()[1]:
+        scopes = _context()[1]
+        if required_scope and required_scope not in scopes and "operator" not in scopes:
+            return {
+                "ok": False,
+                "error": {
+                    "code": "unauthorized",
+                    "message": f"{required_scope} scope is required",
+                },
+            }
+        if write and "operator" not in scopes and required_scope not in scopes:
             return {
                 "ok": False,
                 "error": {
@@ -77,6 +87,9 @@ def knowledge_engine_capabilities() -> dict:
             "noesis-source-pack-v1",
             "noesis-source-pack-run-request-v1",
             "noesis-source-pack-run-receipt-v1",
+            "noesis-maintenance-job-request-v1",
+            "noesis-maintenance-job-receipt-v1",
+            "noesis-knowledge-generation-v1",
             "noesis-knowledge-query-request-v1",
             "noesis-knowledge-query-plan-v1",
             "noesis-knowledge-query-result-v1",
@@ -92,6 +105,9 @@ def knowledge_engine_capabilities() -> dict:
             "source-pack-runtime",
             "source-pack-schedules",
             "source-pack-replay",
+            "knowledge-maintenance",
+            "lease-safe-workers",
+            "committed-generations",
             "unified-query",
             "temporal-query",
             "memory-context",
@@ -472,6 +488,190 @@ def list_source_pack_schedules(due_at_ms: int | None = None) -> dict:
 def source_pack_runtime_coverage() -> dict:
     """Report execution, quarantine, degradation, and watermark coverage by domain."""
     return _safe(lambda conn: _source_pack_runtime(conn).runtime_coverage())
+
+
+def _maintenance(conn, initialize: bool = False):
+    from src.kb.maintenance import MaintenanceOrchestrator
+
+    return MaintenanceOrchestrator(conn, root=ROOT, initialize=initialize)
+
+
+def _run_maintenance(conn, owner_id: str, live_network: bool, max_jobs: int) -> dict:
+    from src.kb.maintenance import fixture_adapter_provider
+
+    orchestrator = _maintenance(conn, initialize=True)
+    orchestrator.enqueue_due(
+        principal_id=_context()[0], network="live" if live_network else "disabled"
+    )
+    due = orchestrator.due_work(limit=max_jobs)["jobs"]
+    receipts = []
+    for item in due:
+        event = _MAINTENANCE_CANCELLATIONS.setdefault(item["job_id"], threading.Event())
+        try:
+            receipt = orchestrator.run_once(
+                owner_id,
+                principal_id=_context()[0],
+                adapter_provider=None
+                if live_network
+                else fixture_adapter_provider(orchestrator),
+                secret_resolver=_secret_resolver,
+                dns_resolver=None if live_network else lambda _: ["8.8.8.8"],
+                cancelled=event.is_set,
+            )
+            if receipt["status"] == "idle":
+                break
+            receipts.append(receipt)
+        finally:
+            _MAINTENANCE_CANCELLATIONS.pop(item["job_id"], None)
+    return {
+        "contract": "noesis-maintenance-drain-v1",
+        "owner_id": owner_id,
+        "jobs": receipts,
+        "processed": len(receipts),
+        "bounded": True,
+    }
+
+
+@mcp.tool()
+def run_maintenance_once(
+    owner_id: str = "mcp-maintenance-worker", live_network: bool = False
+) -> dict:
+    """Run at most one due source-pack maintenance job; fixtures are the safe default."""
+    return _safe(
+        lambda conn: _run_maintenance(conn, owner_id, live_network, 1), write=True
+    )
+
+
+@mcp.tool()
+def run_maintenance_drain(
+    owner_id: str = "mcp-maintenance-worker",
+    max_jobs: int = 10,
+    live_network: bool = False,
+) -> dict:
+    """Drain a bounded number of due knowledge-maintenance jobs."""
+    return _safe(
+        lambda conn: _run_maintenance(conn, owner_id, live_network, max_jobs),
+        write=True,
+    )
+
+
+@mcp.tool()
+def list_maintenance_jobs(limit: int = 100) -> dict:
+    """List durable jobs, attempts, terminal states, and worker health."""
+    return _safe(lambda conn: _maintenance(conn).status(limit=limit))
+
+
+@mcp.tool()
+def list_maintenance_due_work(limit: int = 100) -> dict:
+    """List bounded runnable maintenance work without claiming it."""
+    return _safe(lambda conn: _maintenance(conn).due_work(limit=limit))
+
+
+@mcp.tool()
+def inspect_maintenance_job(job_id: str) -> dict:
+    """Inspect a maintenance job, fenced lease, and immutable attempt history."""
+    return _safe(lambda conn: _maintenance(conn).inspect_job(job_id))
+
+
+@mcp.tool()
+def set_maintenance_schedule_paused(
+    pack_id: str, paused: bool, reason: str = "operator"
+) -> dict:
+    """Pause or resume dispatch for one source pack without deleting its schedule."""
+    return _safe(
+        lambda conn: _maintenance(conn, initialize=True).set_schedule_paused(
+            pack_id, paused, principal_id=_context()[0], reason=reason
+        ),
+        write=True,
+        required_scope="knowledge:maintenance:admin",
+    )
+
+
+@mcp.tool()
+def pause_maintenance_schedule(pack_id: str, reason: str = "operator") -> dict:
+    """Pause dispatch for one source pack while preserving its durable schedule."""
+    return _safe(
+        lambda conn: _maintenance(conn, initialize=True).set_schedule_paused(
+            pack_id, True, principal_id=_context()[0], reason=reason
+        ),
+        write=True,
+        required_scope="knowledge:maintenance:admin",
+    )
+
+
+@mcp.tool()
+def resume_maintenance_schedule(pack_id: str, reason: str = "operator") -> dict:
+    """Resume dispatch for one source pack from its persisted next due window."""
+    return _safe(
+        lambda conn: _maintenance(conn, initialize=True).set_schedule_paused(
+            pack_id, False, principal_id=_context()[0], reason=reason
+        ),
+        write=True,
+        required_scope="knowledge:maintenance:admin",
+    )
+
+
+@mcp.tool()
+def cancel_maintenance_job(job_id: str) -> dict:
+    """Persist cancellation and signal an active in-process maintenance job."""
+    event = _MAINTENANCE_CANCELLATIONS.get(job_id)
+    if event is not None:
+        event.set()
+    return _safe(
+        lambda conn: _maintenance(conn, initialize=True).cancel(
+            job_id, principal_id=_context()[0]
+        ),
+        write=True,
+        required_scope="knowledge:maintenance:admin",
+    )
+
+
+@mcp.tool()
+def retry_maintenance_job(job_id: str) -> dict:
+    """Requeue a failed, cancelled, or dead-letter maintenance job."""
+    return _safe(
+        lambda conn: _maintenance(conn, initialize=True).retry(
+            job_id, principal_id=_context()[0]
+        ),
+        write=True,
+        required_scope="knowledge:maintenance:admin",
+    )
+
+
+@mcp.tool()
+def recover_stale_maintenance_jobs() -> dict:
+    """Recover expired leases and abandon their unfinished attempt records."""
+    return _safe(
+        lambda conn: _maintenance(conn, initialize=True).recover_stale(
+            principal_id=_context()[0]
+        ),
+        write=True,
+        required_scope="knowledge:maintenance:admin",
+    )
+
+
+@mcp.tool()
+def inspect_maintenance_generation(generation_id: str) -> dict:
+    """Inspect one append-only committed knowledge generation."""
+    return _safe(lambda conn: _maintenance(conn).inspect_generation(generation_id))
+
+
+@mcp.tool()
+def replay_maintenance_generation(generation_id: str) -> dict:
+    """Verify a generation against source receipts, workflow state, and event log."""
+    return _safe(lambda conn: _maintenance(conn).replay_generation(generation_id))
+
+
+@mcp.tool()
+def maintenance_generation_lineage(generation_id: str) -> dict:
+    """Trace a committed generation to pack, source runs, workflow, and artifacts."""
+    return _safe(lambda conn: _maintenance(conn).generation_lineage(generation_id))
+
+
+@mcp.tool()
+def maintenance_health() -> dict:
+    """Report stale leases, failures, schedule lag, and last committed generation."""
+    return _safe(lambda conn: _maintenance(conn).health())
 
 
 @mcp.tool()

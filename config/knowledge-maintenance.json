@@ -1,0 +1,7 @@
+{
+  "poll_interval_s": 30,
+  "lease_ms": 60000,
+  "max_jobs_per_tick": 10,
+  "max_catchup_windows": 10,
+  "network": "disabled"
+}

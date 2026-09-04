@@ -791,6 +791,84 @@ class StoredObjectQueryAdapter:
         }
 
 
+class MaintainedDocumentQueryAdapter:
+    """Query normalized documents only after their end-to-end generation commits."""
+
+    def __init__(self, conn: Any, domains: Sequence[str]) -> None:
+        self.conn = conn
+        self.definition = capability_definition(
+            "maintained-documents",
+            "committed-document-store",
+            domains=domains,
+            surfaces=["lexical", "document"],
+            object_types=["document"],
+            required_scopes=["knowledge:read"],
+        )
+
+    def describe(self) -> dict[str, Any]:
+        return dict(self.definition)
+
+    def query(self, request: Mapping[str, Any], *, scopes: set[str]) -> dict[str, Any]:
+        if "operator" not in scopes and "knowledge:read" not in scopes:
+            raise UnifiedQueryError("unauthorized", "knowledge:read scope is required")
+        receipts = self.conn.execute(
+            "SELECT receipt_json FROM knowledge_maintenance_generations "
+            "WHERE status IN ('complete','partial') ORDER BY pack_id,generation"
+        ).fetchall()
+        committed_runs = {
+            item["run_id"]
+            for row in receipts
+            for item in json.loads(row[0]).get("source_runs", [])
+        }
+        needle = f"%{str(request['query']).casefold()}%"
+        rows = self.conn.execute(
+            "SELECT document_id,source_id,url,title,content,metadata,created_at,content_hash "
+            "FROM documents WHERE lower(COALESCE(title,'')) LIKE ? OR "
+            "lower(COALESCE(content,'')) LIKE ? OR lower(COALESCE(metadata,'')) LIKE ? "
+            "ORDER BY ingested_at DESC,document_id LIMIT ?",
+            [needle, needle, needle, min(1000, int(request.get("limit", 20)) * 10)],
+        ).fetchall()
+        requested_domains = set(request.get("domains") or ())
+        values = []
+        for row in rows:
+            metadata = json.loads(row[5] or "{}")
+            if metadata.get("source_pack_run_id") not in committed_runs:
+                continue
+            if requested_domains and metadata.get("domain") not in requested_domains:
+                continue
+            values.append(
+                {
+                    "id": row[0],
+                    "origin_id": row[1] or row[0],
+                    "object_type": "document",
+                    "text": " ".join(
+                        value for value in (row[3], row[4], row[5]) if value
+                    ),
+                    "citations": [
+                        {"document_id": row[0], "source": row[1], "url": row[2]}
+                    ],
+                    "timestamp_ms": row[6],
+                    "content_hash": row[7],
+                }
+            )
+            if len(values) >= int(request.get("limit", 20)):
+                break
+        watermark = self.conn.execute(
+            "SELECT MAX(generation) FROM knowledge_maintenance_generations"
+        ).fetchone()[0]
+        return {
+            "source": self.definition["source_id"],
+            "items": values,
+            "score_semantics": "committed-document-order",
+            "watermark": None if watermark is None else int(watermark),
+            "provenance": {
+                "source_id": self.definition["source_id"],
+                "capability_hash": self.definition["capability_hash"],
+                "query_hash": _digest(request),
+            },
+        }
+
+
 class StoredGraphQueryAdapter:
     """Expose relation tables only when their concrete schema is installed."""
 
@@ -934,7 +1012,7 @@ def build_local_catalog(
             "SELECT table_name FROM information_schema.tables WHERE table_schema='main'"
         ).fetchall()
     }
-    for domain in selected:
+    for domain in (domain for domain in selected if domain in registry.names()):
         backing = registry.resolve(domain, conn)
         adapters.extend(
             [
@@ -950,6 +1028,8 @@ def build_local_catalog(
             adapters.append(StoredObjectQueryAdapter(conn, namespace, "event"))
         if "knowledge_artifacts" in installed_tables:
             adapters.append(StoredObjectQueryAdapter(conn, namespace, "artifact"))
+    if {"documents", "knowledge_maintenance_generations"}.issubset(installed_tables):
+        adapters.append(MaintainedDocumentQueryAdapter(conn, selected))
     if include_memory and tenant_id:
         from src.kb.memory import MemoryStore
 

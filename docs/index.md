@@ -29,6 +29,9 @@ For the project overview and local setup, start with the
   deterministic ingest-to-export composition, receipts, recovery, and watermarks
 - **[Production source packs](guides/source-packs.md)** — deployable connector
   execution, durable cursors, backfills, quarantine, schedules, and live gates
+- **[Continuous knowledge maintenance](guides/knowledge-maintenance.md)** —
+  lease-safe scheduled ingestion, incremental artifacts, committed generations,
+  recovery, MCP operation, and the six-domain offline conformance run
 - **[Unified knowledge query](guides/unified-knowledge-query.md)** — one bounded,
   evidence-preserving plane over local, temporal, memory, and federated data.
 - [Project structure](development/project-structure.md) — where things live in
