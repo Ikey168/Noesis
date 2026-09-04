@@ -808,7 +808,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 148,
+      "tool_count": 156,
       "tools": [
         "noesis-knowledge-engine.accept_source_pack_license",
         "noesis-knowledge-engine.add_source_relationship",
@@ -823,8 +823,10 @@
         "noesis-knowledge-engine.cancel_knowledge_query",
         "noesis-knowledge-engine.cancel_maintenance_job",
         "noesis-knowledge-engine.cancel_source_pack_run",
+        "noesis-knowledge-engine.capture_claim_timeline_state",
         "noesis-knowledge-engine.classify_epistemic_statement",
         "noesis-knowledge-engine.close_research_snapshot",
+        "noesis-knowledge-engine.compare_claim_sources",
         "noesis-knowledge-engine.compare_hypotheses",
         "noesis-knowledge-engine.convert_quantitative_value",
         "noesis-knowledge-engine.create_event_record",
@@ -838,6 +840,8 @@
         "noesis-knowledge-engine.derived_object_lineage",
         "noesis-knowledge-engine.derived_object_revision",
         "noesis-knowledge-engine.derived_projection",
+        "noesis-knowledge-engine.detect_claim_successors",
+        "noesis-knowledge-engine.diff_claim_timeline_states",
         "noesis-knowledge-engine.diff_event_revisions",
         "noesis-knowledge-engine.discover_quantitative_metrics",
         "noesis-knowledge-engine.document_generation_delta",
@@ -856,6 +860,8 @@
         "noesis-knowledge-engine.explain_source_independence",
         "noesis-knowledge-engine.export_hypothesis_workspace",
         "noesis-knowledge-engine.fetch_declarative_api",
+        "noesis-knowledge-engine.get_claim_evolution_timeline",
+        "noesis-knowledge-engine.get_claim_timeline_state",
         "noesis-knowledge-engine.get_epistemic_assessment",
         "noesis-knowledge-engine.get_event_record",
         "noesis-knowledge-engine.get_event_record_as_of",
@@ -871,6 +877,7 @@
         "noesis-knowledge-engine.inspect_source_pack_run",
         "noesis-knowledge-engine.install_source_pack",
         "noesis-knowledge-engine.knowledge_engine_capabilities",
+        "noesis-knowledge-engine.link_claim_evolution",
         "noesis-knowledge-engine.link_hypothesis_evidence",
         "noesis-knowledge-engine.list_epistemic_taxonomies",
         "noesis-knowledge-engine.list_event_accounts",
@@ -906,6 +913,7 @@
         "noesis-knowledge-engine.register_source_identity",
         "noesis-knowledge-engine.relate_events",
         "noesis-knowledge-engine.renew_research_snapshot",
+        "noesis-knowledge-engine.replay_claim_evolution",
         "noesis-knowledge-engine.replay_derived_object_generations",
         "noesis-knowledge-engine.replay_document_generation_delta",
         "noesis-knowledge-engine.replay_event_record",
@@ -964,7 +972,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 148
+      "visible_tool_count": 156
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -978,9 +986,9 @@
       "available": 81,
       "degraded": 155,
       "disabled": 3,
-      "unauthorized": 149
+      "unauthorized": 157
     },
-    "tools": 388
+    "tools": 396
   },
   "tools": [
     {
@@ -13545,6 +13553,189 @@
       "version": "1"
     },
     {
+      "cost_class": "medium",
+      "description": "Capture an immutable semantic state for an existing canonical claim.",
+      "id": "noesis-knowledge-engine.capture_claim_timeline_state",
+      "input_schema": {
+        "properties": {
+          "attribution": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "certainty": {
+            "default": 0.5,
+            "type": "number"
+          },
+          "claim_id": {
+            "type": "string"
+          },
+          "epistemic_status": {
+            "default": "unassessed",
+            "type": "string"
+          },
+          "evidence": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "generation": {
+            "default": 0,
+            "type": "integer"
+          },
+          "interpretations": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "observed_at_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "provenance": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "quantities": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "scope": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "source_id": {
+            "type": "string"
+          },
+          "source_retracted": {
+            "default": false,
+            "type": "boolean"
+          },
+          "source_revision_id": {
+            "type": "string"
+          },
+          "stance": {
+            "default": "unknown",
+            "type": "string"
+          },
+          "valid_from_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "valid_to_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "wording": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "claim_id",
+          "source_id",
+          "source_revision_id",
+          "evidence"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "capture_claim_timeline_state",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:claim-timeline:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "low",
       "description": "Classify a statement kind using deterministic, inspectable rules.",
       "id": "noesis-knowledge-engine.classify_epistemic_statement",
@@ -13605,6 +13796,50 @@
       ],
       "required_scopes": [
         "knowledge:snapshot:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Compare current cited claim states across selected sources.",
+      "id": "noesis-knowledge-engine.compare_claim_sources",
+      "input_schema": {
+        "properties": {
+          "limit": {
+            "default": 50,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "source_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "namespace",
+          "source_ids"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "compare_claim_sources",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:claim-timeline:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -14360,6 +14595,158 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Rank related claim versions with deterministic signals and an optional pinned embedding.",
+      "id": "noesis-knowledge-engine.detect_claim_successors",
+      "input_schema": {
+        "properties": {
+          "cancel_requested": {
+            "default": false,
+            "type": "boolean"
+          },
+          "candidate_claim_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "claim_id": {
+            "type": "string"
+          },
+          "embedding_pin": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "embedding_scores": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "number"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "limit": {
+            "default": 20,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "threshold": {
+            "default": 0.45,
+            "type": "number"
+          }
+        },
+        "required": [
+          "namespace",
+          "claim_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "detect_claim_successors",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:claim-timeline:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Explain wording, stance, certainty, attribution, scope, and quantitative changes.",
+      "id": "noesis-knowledge-engine.diff_claim_timeline_states",
+      "input_schema": {
+        "properties": {
+          "left_claim_id": {
+            "type": "string"
+          },
+          "left_revision": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "right_claim_id": {
+            "type": "string"
+          },
+          "right_revision": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "left_claim_id",
+          "right_claim_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "diff_claim_timeline_states",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:claim-timeline:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
       "version": "1"
     },
     {
@@ -15214,6 +15601,143 @@
     },
     {
       "cost_class": "low",
+      "description": "Build a snapshot-consistent, branching, paginated claim timeline.",
+      "id": "noesis-knowledge-engine.get_claim_evolution_timeline",
+      "input_schema": {
+        "properties": {
+          "as_of_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "claim_id": {
+            "type": "string"
+          },
+          "cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "generation": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "limit": {
+            "default": 50,
+            "type": "integer"
+          },
+          "max_depth": {
+            "default": 6,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "claim_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "get_claim_evolution_timeline",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:claim-timeline:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Read the latest claim state at an observation time and generation.",
+      "id": "noesis-knowledge-engine.get_claim_timeline_state",
+      "input_schema": {
+        "properties": {
+          "as_of_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "claim_id": {
+            "type": "string"
+          },
+          "generation": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "claim_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "get_claim_timeline_state",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:claim-timeline:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Read the current assessment or its immutable revision history.",
       "id": "noesis-knowledge-engine.get_epistemic_assessment",
       "input_schema": {
@@ -15812,6 +16336,122 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Link existing claims with a sourced successor, refinement, reversal, withdrawal, or branch.",
+      "id": "noesis-knowledge-engine.link_claim_evolution",
+      "input_schema": {
+        "properties": {
+          "confidence": {
+            "type": "number"
+          },
+          "evidence": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "explanation": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "generation": {
+            "default": 0,
+            "type": "integer"
+          },
+          "method": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "observed_at_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "predecessor_claim_id": {
+            "type": "string"
+          },
+          "provenance": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "relation": {
+            "type": "string"
+          },
+          "successor_claim_id": {
+            "type": "string"
+          },
+          "valid_from_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "valid_to_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "predecessor_claim_id",
+          "successor_claim_id",
+          "relation",
+          "confidence",
+          "evidence",
+          "explanation",
+          "method"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "link_claim_evolution",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:claim-timeline:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
       "version": "1"
     },
     {
@@ -17890,6 +18530,43 @@
       ],
       "required_scopes": [
         "knowledge:snapshot:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Replay a claim evolution component and verify its citation closure.",
+      "id": "noesis-knowledge-engine.replay_claim_evolution",
+      "input_schema": {
+        "properties": {
+          "claim_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "claim_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "replay_claim_evolution",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:claim-timeline:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",

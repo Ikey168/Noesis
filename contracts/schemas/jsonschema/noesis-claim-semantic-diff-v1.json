@@ -1,0 +1,8 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema", "$id": "https://noesis.local/schemas/noesis-claim-semantic-diff-v1.json",
+  "title": "Noesis semantic claim-state diff", "type": "object",
+  "required": ["contract", "left_state_id", "right_state_id", "changes", "material", "citation_closure", "diff_hash"],
+  "properties": {
+    "contract": {"const": "noesis-claim-semantic-diff-v1"}, "left_state_id": {"type": "string"}, "right_state_id": {"type": "string"}, "changes": {"type": "object"}, "material": {"type": "boolean"}, "citation_closure": {"type": "object"}, "diff_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }, "additionalProperties": false
+}

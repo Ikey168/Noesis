@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema", "$id": "https://noesis.local/schemas/noesis-claim-lineage-v1.json",
+  "title": "Noesis sourced claim evolution edge", "type": "object",
+  "required": ["contract", "edge_id", "namespace", "predecessor_claim_id", "successor_claim_id", "relation", "confidence", "evidence", "evidence_status", "explanation", "method", "generation", "valid_from_ms", "valid_to_ms", "observed_at_ms", "producer", "policy", "provenance", "principal_id", "input_hash", "created_at_ms"],
+  "properties": {
+    "contract": {"const": "noesis-claim-lineage-v1"}, "edge_id": {"type": "string", "pattern": "^claim-lineage:"}, "namespace": {"type": "string"},
+    "predecessor_claim_id": {"type": "string"}, "successor_claim_id": {"type": "string"}, "relation": {"enum": ["successor", "refinement", "reversal", "withdrawal", "branch"]},
+    "confidence": {"type": "number", "minimum": 0, "maximum": 1}, "evidence": {"type": "array", "items": {"type": "object"}, "minItems": 1}, "evidence_status": {"enum": ["active", "retracted-only"]},
+    "explanation": {"type": "object"}, "method": {"type": "object"}, "generation": {"type": "integer"}, "valid_from_ms": {"type": ["integer", "null"]}, "valid_to_ms": {"type": ["integer", "null"]}, "observed_at_ms": {"type": "integer"},
+    "producer": {"type": "object"}, "policy": {"type": "object"}, "provenance": {"type": "object"}, "principal_id": {"type": "string"}, "input_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"}, "created_at_ms": {"type": "integer"}, "idempotent": {"type": "boolean"}
+  }, "additionalProperties": false
+}

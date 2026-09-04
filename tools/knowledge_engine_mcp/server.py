@@ -123,6 +123,11 @@ def knowledge_engine_capabilities() -> dict:
             "noesis-geospatial-geometry-v1",
             "noesis-geocode-resolution-v1",
             "noesis-spatial-result-v1",
+            "noesis-claim-state-v1",
+            "noesis-claim-lineage-v1",
+            "noesis-claim-successor-match-v1",
+            "noesis-claim-timeline-v1",
+            "noesis-claim-semantic-diff-v1",
             "noesis-maintenance-job-request-v1",
             "noesis-maintenance-job-receipt-v1",
             "noesis-knowledge-generation-v1",
@@ -172,6 +177,10 @@ def knowledge_engine_capabilities() -> dict:
             "ambiguity-preserving-geocoding",
             "reproducible-spatial-relations",
             "bounded-event-map-queries",
+            "claim-evolution-lineage",
+            "explainable-claim-successor-matching",
+            "semantic-claim-state-diffs",
+            "snapshot-consistent-claim-timelines",
             "knowledge-maintenance",
             "lease-safe-workers",
             "committed-generations",
@@ -2515,6 +2524,238 @@ def query_geospatial_event_map(
             scopes=_context()[1],
         ),
         required_scope="knowledge:geospatial:read",
+    )
+
+
+@mcp.tool()
+def capture_claim_timeline_state(
+    namespace: str,
+    claim_id: str,
+    source_id: str,
+    source_revision_id: str,
+    evidence: list[dict[str, Any]],
+    wording: str | None = None,
+    stance: str = "unknown",
+    certainty: float = 0.5,
+    epistemic_status: str = "unassessed",
+    attribution: dict[str, Any] | None = None,
+    quantities: list[dict[str, Any]] | None = None,
+    scope: dict[str, Any] | None = None,
+    interpretations: list[dict[str, Any]] | None = None,
+    source_retracted: bool = False,
+    generation: int = 0,
+    valid_from_ms: int | None = None,
+    valid_to_ms: int | None = None,
+    observed_at_ms: int | None = None,
+    provenance: dict[str, Any] | None = None,
+) -> dict:
+    """Capture an immutable semantic state for an existing canonical claim."""
+    from src.kb.claim_timelines import ClaimTimelineStore
+
+    principal, scopes = _context()
+    return _safe(
+        lambda conn: ClaimTimelineStore(conn).capture_state(
+            namespace,
+            claim_id,
+            wording=wording,
+            stance=stance,
+            certainty=certainty,
+            epistemic_status=epistemic_status,
+            attribution=attribution,
+            quantities=quantities or [],
+            scope=scope,
+            interpretations=interpretations or [],
+            evidence=evidence,
+            source_id=source_id,
+            source_revision_id=source_revision_id,
+            source_retracted=source_retracted,
+            generation=generation,
+            valid_from_ms=valid_from_ms,
+            valid_to_ms=valid_to_ms,
+            observed_at_ms=observed_at_ms,
+            provenance=provenance,
+            principal_id=principal,
+            scopes=scopes,
+        ),
+        write=True,
+        required_scope="knowledge:claim-timeline:write",
+    )
+
+
+@mcp.tool()
+def link_claim_evolution(
+    namespace: str,
+    predecessor_claim_id: str,
+    successor_claim_id: str,
+    relation: str,
+    confidence: float,
+    evidence: list[dict[str, Any]],
+    explanation: dict[str, Any],
+    method: dict[str, Any],
+    generation: int = 0,
+    valid_from_ms: int | None = None,
+    valid_to_ms: int | None = None,
+    observed_at_ms: int | None = None,
+    provenance: dict[str, Any] | None = None,
+) -> dict:
+    """Link existing claims with a sourced successor, refinement, reversal, withdrawal, or branch."""
+    from src.kb.claim_timelines import ClaimTimelineStore
+
+    principal, scopes = _context()
+    return _safe(
+        lambda conn: ClaimTimelineStore(conn, initialize=False).link(
+            namespace,
+            predecessor_claim_id,
+            successor_claim_id,
+            relation,
+            confidence=confidence,
+            evidence=evidence,
+            explanation=explanation,
+            method=method,
+            generation=generation,
+            valid_from_ms=valid_from_ms,
+            valid_to_ms=valid_to_ms,
+            observed_at_ms=observed_at_ms,
+            provenance=provenance,
+            principal_id=principal,
+            scopes=scopes,
+        ),
+        write=True,
+        required_scope="knowledge:claim-timeline:write",
+    )
+
+
+@mcp.tool()
+def get_claim_timeline_state(
+    namespace: str,
+    claim_id: str,
+    as_of_ms: int | None = None,
+    generation: int | None = None,
+) -> dict:
+    """Read the latest claim state at an observation time and generation."""
+    from src.kb.claim_timelines import ClaimTimelineStore
+
+    return _safe(
+        lambda conn: ClaimTimelineStore(conn, initialize=False).latest(
+            namespace,
+            claim_id,
+            as_of_ms=as_of_ms,
+            generation=generation,
+            scopes=_context()[1],
+        ),
+        required_scope="knowledge:claim-timeline:read",
+    )
+
+
+@mcp.tool()
+def detect_claim_successors(
+    namespace: str,
+    claim_id: str,
+    candidate_claim_ids: list[str] | None = None,
+    threshold: float = 0.45,
+    limit: int = 20,
+    embedding_scores: dict[str, float] | None = None,
+    embedding_pin: dict[str, Any] | None = None,
+    cancel_requested: bool = False,
+) -> dict:
+    """Rank related claim versions with deterministic signals and an optional pinned embedding."""
+    from src.kb.claim_timelines import ClaimTimelineStore
+
+    return _safe(
+        lambda conn: ClaimTimelineStore(conn, initialize=False).match_successors(
+            namespace,
+            claim_id,
+            candidate_claim_ids=candidate_claim_ids or [],
+            threshold=threshold,
+            limit=limit,
+            embedding_scores=embedding_scores,
+            embedding_pin=embedding_pin,
+            persist=False,
+            cancel_requested=cancel_requested,
+            principal_id=_context()[0],
+            scopes=_context()[1],
+        ),
+        required_scope="knowledge:claim-timeline:read",
+    )
+
+
+@mcp.tool()
+def diff_claim_timeline_states(
+    namespace: str,
+    left_claim_id: str,
+    right_claim_id: str,
+    left_revision: int | None = None,
+    right_revision: int | None = None,
+) -> dict:
+    """Explain wording, stance, certainty, attribution, scope, and quantitative changes."""
+    from src.kb.claim_timelines import ClaimTimelineStore
+
+    return _safe(
+        lambda conn: ClaimTimelineStore(conn, initialize=False).diff(
+            namespace,
+            left_claim_id,
+            right_claim_id,
+            left_revision=left_revision,
+            right_revision=right_revision,
+            scopes=_context()[1],
+        ),
+        required_scope="knowledge:claim-timeline:read",
+    )
+
+
+@mcp.tool()
+def get_claim_evolution_timeline(
+    namespace: str,
+    claim_id: str,
+    as_of_ms: int | None = None,
+    generation: int | None = None,
+    max_depth: int = 6,
+    limit: int = 50,
+    cursor: str | None = None,
+) -> dict:
+    """Build a snapshot-consistent, branching, paginated claim timeline."""
+    from src.kb.claim_timelines import ClaimTimelineStore
+
+    return _safe(
+        lambda conn: ClaimTimelineStore(conn, initialize=False).timeline(
+            namespace,
+            claim_id,
+            as_of_ms=as_of_ms,
+            generation=generation,
+            max_depth=max_depth,
+            limit=limit,
+            cursor=cursor,
+            scopes=_context()[1],
+        ),
+        required_scope="knowledge:claim-timeline:read",
+    )
+
+
+@mcp.tool()
+def compare_claim_sources(
+    namespace: str, source_ids: list[str], limit: int = 50
+) -> dict:
+    """Compare current cited claim states across selected sources."""
+    from src.kb.claim_timelines import ClaimTimelineStore
+
+    return _safe(
+        lambda conn: ClaimTimelineStore(conn, initialize=False).compare_sources(
+            namespace, source_ids, limit=limit, scopes=_context()[1]
+        ),
+        required_scope="knowledge:claim-timeline:read",
+    )
+
+
+@mcp.tool()
+def replay_claim_evolution(namespace: str, claim_id: str) -> dict:
+    """Replay a claim evolution component and verify its citation closure."""
+    from src.kb.claim_timelines import ClaimTimelineStore
+
+    return _safe(
+        lambda conn: ClaimTimelineStore(conn, initialize=False).replay(
+            namespace, claim_id, scopes=_context()[1]
+        ),
+        required_scope="knowledge:claim-timeline:read",
     )
 
 
