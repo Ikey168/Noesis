@@ -808,7 +808,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 302,
+      "tool_count": 312,
       "tools": [
         "noesis-knowledge-engine.accept_citation_repair",
         "noesis-knowledge-engine.accept_dataset_join",
@@ -819,6 +819,7 @@
         "noesis-knowledge-engine.aggregate_quality_assessments",
         "noesis-knowledge-engine.align_cross_language_claims",
         "noesis-knowledge-engine.annotate_evidence_freshness",
+        "noesis-knowledge-engine.anomaly_alert_history",
         "noesis-knowledge-engine.artifact_lineage",
         "noesis-knowledge-engine.assess_epistemic_statement",
         "noesis-knowledge-engine.assess_evidence_freshness",
@@ -850,6 +851,7 @@
         "noesis-knowledge-engine.compare_research_gap_coverage",
         "noesis-knowledge-engine.compare_study_methodologies",
         "noesis-knowledge-engine.convert_quantitative_value",
+        "noesis-knowledge-engine.correlate_knowledge_anomaly",
         "noesis-knowledge-engine.create_access_share_grant",
         "noesis-knowledge-engine.create_change_brief_subscription",
         "noesis-knowledge-engine.create_event_record",
@@ -859,6 +861,7 @@
         "noesis-knowledge-engine.create_source_research_objective",
         "noesis-knowledge-engine.decide_source_alias",
         "noesis-knowledge-engine.delete_source_identity",
+        "noesis-knowledge-engine.deliver_anomaly_alert",
         "noesis-knowledge-engine.deliver_change_briefs",
         "noesis-knowledge-engine.derive_redacted_projection",
         "noesis-knowledge-engine.derived_object_generation_delta",
@@ -921,6 +924,7 @@
         "noesis-knowledge-engine.get_geospatial_place",
         "noesis-knowledge-engine.get_hypothesis_research_plan",
         "noesis-knowledge-engine.get_hypothesis_workspace",
+        "noesis-knowledge-engine.get_knowledge_anomaly",
         "noesis-knowledge-engine.get_methodology_study",
         "noesis-knowledge-engine.get_multimodal_asset",
         "noesis-knowledge-engine.get_multimodal_segment",
@@ -936,6 +940,7 @@
         "noesis-knowledge-engine.ingest_event_mentions",
         "noesis-knowledge-engine.ingest_tabular_dataset",
         "noesis-knowledge-engine.inspect_access_view_health",
+        "noesis-knowledge-engine.inspect_anomaly_health",
         "noesis-knowledge-engine.inspect_effective_access_view",
         "noesis-knowledge-engine.inspect_entity_change_impact",
         "noesis-knowledge-engine.inspect_maintenance_generation",
@@ -975,6 +980,7 @@
         "noesis-knowledge-engine.pause_maintenance_schedule",
         "noesis-knowledge-engine.plan_extractor_reprocessing",
         "noesis-knowledge-engine.preflight_source_pack_run",
+        "noesis-knowledge-engine.preview_anomaly_baseline",
         "noesis-knowledge-engine.preview_artifact_invalidation",
         "noesis-knowledge-engine.preview_citation_repair",
         "noesis-knowledge-engine.preview_dataset_join",
@@ -1004,6 +1010,7 @@
         "noesis-knowledge-engine.recover_stale_maintenance_jobs",
         "noesis-knowledge-engine.register_access_bound_object",
         "noesis-knowledge-engine.register_access_view_policy",
+        "noesis-knowledge-engine.register_anomaly_watch",
         "noesis-knowledge-engine.register_change_brief_policy",
         "noesis-knowledge-engine.register_citation_archive_policy",
         "noesis-knowledge-engine.register_dataset_catalog",
@@ -1076,6 +1083,7 @@
         "noesis-knowledge-engine.revise_quantitative_metric",
         "noesis-knowledge-engine.revise_source_identity",
         "noesis-knowledge-engine.revoke_access_share_grant",
+        "noesis-knowledge-engine.run_anomaly_detector",
         "noesis-knowledge-engine.run_maintenance_drain",
         "noesis-knowledge-engine.run_maintenance_once",
         "noesis-knowledge-engine.run_reference_workflow",
@@ -1092,6 +1100,7 @@
         "noesis-knowledge-engine.set_source_pack_schedule",
         "noesis-knowledge-engine.simplify_geospatial_geometry",
         "noesis-knowledge-engine.simulate_access_view",
+        "noesis-knowledge-engine.simulate_anomaly_detector",
         "noesis-knowledge-engine.simulate_evidence_freshness_policy",
         "noesis-knowledge-engine.simulate_quality_policy",
         "noesis-knowledge-engine.slice_dataset_table",
@@ -1104,6 +1113,7 @@
         "noesis-knowledge-engine.store_geospatial_geometry",
         "noesis-knowledge-engine.suggest_dataset_joins",
         "noesis-knowledge-engine.transform_quantitative_frequency",
+        "noesis-knowledge-engine.transition_anomaly_alert",
         "noesis-knowledge-engine.undo_entity_identity_change",
         "noesis-knowledge-engine.unified_query_capabilities",
         "noesis-knowledge-engine.update_research_gap_status",
@@ -1118,7 +1128,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 302
+      "visible_tool_count": 312
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -1132,9 +1142,9 @@
       "available": 81,
       "degraded": 155,
       "disabled": 3,
-      "unauthorized": 303
+      "unauthorized": 313
     },
-    "tools": 542
+    "tools": 552
   },
   "tools": [
     {
@@ -13593,6 +13603,47 @@
     },
     {
       "cost_class": "low",
+      "description": "List bounded, paginated alert delivery and recovery history.",
+      "id": "noesis-knowledge-engine.anomaly_alert_history",
+      "input_schema": {
+        "properties": {
+          "limit": {
+            "default": 100,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "offset": {
+            "default": 0,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "anomaly_alert_history",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:anomalies:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Traverse exact source, parser, extractor, schema, model, and config dependencies.",
       "id": "noesis-knowledge-engine.artifact_lineage",
       "input_schema": {
@@ -15687,6 +15738,55 @@
     },
     {
       "cost_class": "medium",
+      "description": "Attach ranked plausible\u2014not proven\u2014knowledge and source changes.",
+      "id": "noesis-knowledge-engine.correlate_knowledge_anomaly",
+      "input_schema": {
+        "properties": {
+          "anomaly_id": {
+            "type": "string"
+          },
+          "candidates": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "limit": {
+            "default": 100,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "anomaly_id",
+          "candidates"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "correlate_knowledge_anomaly",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:anomalies:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Create a recipient-, purpose-, and expiry-bound export grant.",
       "id": "noesis-knowledge-engine.create_access_share_grant",
       "input_schema": {
@@ -16362,6 +16462,55 @@
       ],
       "required_scopes": [
         "knowledge:source-identity:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Deliver, suppress, deduplicate, retry, or cancel an anomaly alert.",
+      "id": "noesis-knowledge-engine.deliver_anomaly_alert",
+      "input_schema": {
+        "properties": {
+          "anomaly_id": {
+            "type": "string"
+          },
+          "cancel_requested": {
+            "default": false,
+            "type": "boolean"
+          },
+          "delivery_outcome": {
+            "default": "delivered",
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "subscriber_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "anomaly_id",
+          "subscriber_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "deliver_anomaly_alert",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:anomalies:deliver"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -19288,6 +19437,43 @@
     },
     {
       "cost_class": "low",
+      "description": "Inspect an anomaly score, baseline, evidence context, and explanations.",
+      "id": "noesis-knowledge-engine.get_knowledge_anomaly",
+      "input_schema": {
+        "properties": {
+          "anomaly_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "anomaly_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "get_knowledge_anomaly",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:anomalies:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Read the current or an exact study-method revision.",
       "id": "noesis-knowledge-engine.get_methodology_study",
       "input_schema": {
@@ -19937,6 +20123,39 @@
       ],
       "required_scopes": [
         "knowledge:views:admin"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Report active watches, open anomalies, and retrying alerts.",
+      "id": "noesis-knowledge-engine.inspect_anomaly_health",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "inspect_anomaly_health",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:anomalies:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -21783,6 +22002,51 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Preview a bounded baseline, missingness, sparsity, and seasonality.",
+      "id": "noesis-knowledge-engine.preview_anomaly_baseline",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "observations": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "watch_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "watch_id",
+          "observations"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "preview_anomaly_baseline",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:anomalies:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
       "version": "1"
     },
     {
@@ -23867,6 +24131,75 @@
       ],
       "required_scopes": [
         "knowledge:views:admin"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Register a versioned metric, event, graph, source, coverage, or narrative watch.",
+      "id": "noesis-knowledge-engine.register_anomaly_watch",
+      "input_schema": {
+        "properties": {
+          "baseline": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "detector": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "notification": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "scope": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "signal_type": {
+            "type": "string"
+          },
+          "status": {
+            "default": "active",
+            "type": "string"
+          },
+          "version": {
+            "type": "integer"
+          },
+          "watch_key": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "watch_key",
+          "version",
+          "signal_type",
+          "scope",
+          "baseline",
+          "detector",
+          "notification"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "register_anomaly_watch",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:anomalies:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -28707,6 +29040,63 @@
     },
     {
       "cost_class": "medium",
+      "description": "Run a bounded, cancellable, deterministic anomaly detector.",
+      "id": "noesis-knowledge-engine.run_anomaly_detector",
+      "input_schema": {
+        "properties": {
+          "cancel_requested": {
+            "default": false,
+            "type": "boolean"
+          },
+          "generation": {
+            "type": "integer"
+          },
+          "limit": {
+            "default": 1000,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "observations": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "watch_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "watch_id",
+          "observations",
+          "generation"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "run_anomaly_detector",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:anomalies:execute"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Drain a bounded number of due knowledge-maintenance jobs.",
       "id": "noesis-knowledge-engine.run_maintenance_drain",
       "input_schema": {
@@ -29643,6 +30033,55 @@
     },
     {
       "cost_class": "low",
+      "description": "Simulate a detector without persisting a run or anomaly.",
+      "id": "noesis-knowledge-engine.simulate_anomaly_detector",
+      "input_schema": {
+        "properties": {
+          "limit": {
+            "default": 1000,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "observations": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "watch_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "watch_id",
+          "observations"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "simulate_anomaly_detector",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:anomalies:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Simulate freshness policy changes without creating assessments or audit rows.",
       "id": "noesis-knowledge-engine.simulate_evidence_freshness_policy",
       "input_schema": {
@@ -30330,6 +30769,51 @@
       ],
       "required_scopes": [
         "knowledge:quantitative:calculate"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Acknowledge, resolve, or reopen an alert with append-only history.",
+      "id": "noesis-knowledge-engine.transition_anomaly_alert",
+      "input_schema": {
+        "properties": {
+          "action": {
+            "type": "string"
+          },
+          "actor_id": {
+            "type": "string"
+          },
+          "alert_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "alert_id",
+          "action",
+          "actor_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "transition_anomaly_alert",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:anomalies:deliver"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",

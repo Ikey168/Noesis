@@ -151,6 +151,8 @@ MUTATION_NAMES = frozenset(
         "derive_redacted_projection",
         "authorize_access_export",
         "revoke_access_share_grant",
+        "correlate_knowledge_anomaly",
+        "transition_anomaly_alert",
     }
 )
 
@@ -323,6 +325,20 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
             return ["knowledge:memory:admin"]
         return ["knowledge:memory:read"]
     if server_stem == "knowledge_engine_mcp":
+        if tool_name == "run_anomaly_detector":
+            return ["knowledge:anomalies:execute"]
+        if tool_name in {"deliver_anomaly_alert", "transition_anomaly_alert"}:
+            return ["knowledge:anomalies:deliver"]
+        if tool_name in {"register_anomaly_watch", "correlate_knowledge_anomaly"}:
+            return ["knowledge:anomalies:write"]
+        if tool_name in {
+            "preview_anomaly_baseline",
+            "simulate_anomaly_detector",
+            "get_knowledge_anomaly",
+            "anomaly_alert_history",
+            "inspect_anomaly_health",
+        }:
+            return ["knowledge:anomalies:read"]
         if tool_name in {
             "register_access_view_policy",
             "inspect_effective_access_view",

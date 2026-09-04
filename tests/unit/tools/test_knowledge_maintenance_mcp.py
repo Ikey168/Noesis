@@ -278,6 +278,16 @@ def test_maintenance_surface_and_catalog_scope_separation(monkeypatch):
         "revoke_access_share_grant",
         "get_access_view_audit",
         "inspect_access_view_health",
+        "register_anomaly_watch",
+        "preview_anomaly_baseline",
+        "simulate_anomaly_detector",
+        "run_anomaly_detector",
+        "get_knowledge_anomaly",
+        "correlate_knowledge_anomaly",
+        "deliver_anomaly_alert",
+        "transition_anomaly_alert",
+        "anomaly_alert_history",
+        "inspect_anomaly_health",
     }
     assert expected <= set(tools)
     assert _required_scopes(
@@ -810,3 +820,8 @@ def test_capabilities_advertise_generation_contracts():
     assert "noesis-redacted-projection-v1" in capabilities["contracts"]
     assert "noesis-share-grant-v1" in capabilities["contracts"]
     assert "noesis-access-view-health-v1" in capabilities["contracts"]
+    assert "noesis-anomaly-watch-v1" in capabilities["contracts"]
+    assert "noesis-anomaly-run-v1" in capabilities["contracts"]
+    assert "noesis-knowledge-anomaly-v1" in capabilities["contracts"]
+    assert "noesis-anomaly-alert-v1" in capabilities["contracts"]
+    assert "noesis-anomaly-health-v1" in capabilities["contracts"]

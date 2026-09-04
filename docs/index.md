@@ -80,6 +80,8 @@ For the project overview and local setup, start with the
   language-fair search.
 - **[Access-bound knowledge views](guides/access-bound-views.md)** — default-deny
   retrieval, safe redacted lineage, and recipient-bound portable exports.
+- **[Knowledge anomalies and alerts](guides/knowledge-anomalies.md)** — replayable
+  detectors, uncertain attribution, and deduplicated recoverable delivery.
 - **[Unified knowledge query](guides/unified-knowledge-query.md)** — one bounded,
   evidence-preserving plane over local, temporal, memory, and federated data.
 - [Project structure](development/project-structure.md) — where things live in
