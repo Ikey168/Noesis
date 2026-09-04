@@ -712,6 +712,33 @@
       ],
       "version": "1",
       "visible_tool_count": 6
+    },
+    {
+      "aliases": [],
+      "kind": "noesis",
+      "name": "noesis-subscriptions",
+      "pack": null,
+      "reason": null,
+      "state": "unauthorized",
+      "tool_count": 10,
+      "tools": [
+        "noesis-subscriptions.create_subscription",
+        "noesis-subscriptions.delete_subscription",
+        "noesis-subscriptions.inspect_subscription",
+        "noesis-subscriptions.list_subscriptions",
+        "noesis-subscriptions.pause_subscription",
+        "noesis-subscriptions.pending_subscription_deliveries",
+        "noesis-subscriptions.poll_subscription",
+        "noesis-subscriptions.resume_subscription",
+        "noesis-subscriptions.subscription_context",
+        "noesis-subscriptions.update_subscription"
+      ],
+      "transports": [
+        "stdio",
+        "streamable-http"
+      ],
+      "version": "1",
+      "visible_tool_count": 10
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -720,14 +747,14 @@
     "omitted": {
       "unauthorized": 1
     },
-    "servers": 25,
+    "servers": 26,
     "states": {
       "available": 20,
       "degraded": 153,
       "disabled": 3,
-      "unauthorized": 27
+      "unauthorized": 37
     },
-    "tools": 203
+    "tools": 213
   },
   "tools": [
     {
@@ -10864,6 +10891,350 @@
         "knowledge:federation:read"
       ],
       "server": "noesis-federation",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Create one deterministic, namespace-scoped saved knowledge query.",
+      "id": "noesis-subscriptions.create_subscription",
+      "input_schema": {
+        "properties": {
+          "definition": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "idempotency_key": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "definition",
+          "idempotency_key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "create_subscription",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-subscription-store"
+      ],
+      "required_scopes": [
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-subscriptions",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Soft-delete a subscription while preserving audit and replay history.",
+      "id": "noesis-subscriptions.delete_subscription",
+      "input_schema": {
+        "properties": {
+          "subscription_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "delete_subscription",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-subscription-store"
+      ],
+      "required_scopes": [
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-subscriptions",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Inspect an owned subscription and its committed-watermark progress.",
+      "id": "noesis-subscriptions.inspect_subscription",
+      "input_schema": {
+        "properties": {
+          "subscription_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "inspect_subscription",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-subscription-store"
+      ],
+      "required_scopes": [
+        "knowledge:subscriptions:read"
+      ],
+      "server": "noesis-subscriptions",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "List only subscriptions owned by the authenticated principal.",
+      "id": "noesis-subscriptions.list_subscriptions",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_subscriptions",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-subscription-store"
+      ],
+      "required_scopes": [
+        "knowledge:subscriptions:read"
+      ],
+      "server": "noesis-subscriptions",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Pause evaluation while retaining snapshots and cursor history.",
+      "id": "noesis-subscriptions.pause_subscription",
+      "input_schema": {
+        "properties": {
+          "subscription_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "pause_subscription",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-subscription-store"
+      ],
+      "required_scopes": [
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-subscriptions",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Read channel-neutral webhook, email, or queue outbox payloads.",
+      "id": "noesis-subscriptions.pending_subscription_deliveries",
+      "input_schema": {
+        "properties": {
+          "limit": {
+            "default": 100,
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "pending_subscription_deliveries",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-subscription-store"
+      ],
+      "required_scopes": [
+        "knowledge:subscriptions:deliver"
+      ],
+      "server": "noesis-subscriptions",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Poll replayable events using an opaque subscription-bound cursor.",
+      "id": "noesis-subscriptions.poll_subscription",
+      "input_schema": {
+        "properties": {
+          "cursor": {
+            "default": "",
+            "type": "string"
+          },
+          "limit": {
+            "default": 100,
+            "type": "integer"
+          },
+          "subscription_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "poll_subscription",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-subscription-store"
+      ],
+      "required_scopes": [
+        "knowledge:subscriptions:read"
+      ],
+      "server": "noesis-subscriptions",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Resume evaluation from the last committed watermark.",
+      "id": "noesis-subscriptions.resume_subscription",
+      "input_schema": {
+        "properties": {
+          "subscription_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "resume_subscription",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-subscription-store"
+      ],
+      "required_scopes": [
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-subscriptions",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Return the authenticated owner and effective subscription scopes.",
+      "id": "noesis-subscriptions.subscription_context",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "subscription_context",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-subscription-store"
+      ],
+      "required_scopes": [
+        "knowledge:subscriptions:read"
+      ],
+      "server": "noesis-subscriptions",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Version delivery, cadence, filters, or expiration without replacing identity.",
+      "id": "noesis-subscriptions.update_subscription",
+      "input_schema": {
+        "properties": {
+          "patch": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "subscription_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "subscription_id",
+          "patch"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "update_subscription",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-subscription-store"
+      ],
+      "required_scopes": [
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-subscriptions",
       "state": "unauthorized",
       "version": "1"
     }

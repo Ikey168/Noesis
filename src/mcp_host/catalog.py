@@ -166,6 +166,8 @@ def _required_data(server_stem: str, tool_name: str) -> list[str]:
         return ["knowledge-schema-registry"]
     if server_stem == "federation_mcp":
         return ["federated-knowledge-sources"]
+    if server_stem == "subscriptions_mcp":
+        return ["knowledge-subscription-store"]
     if server_stem == "contract_mcp":
         return ["contract-schemas"]
     if server_stem == "schema_mcp":
@@ -210,6 +212,12 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
         return ["knowledge:schema:read"]
     if server_stem == "federation_mcp":
         return ["knowledge:federation:read"]
+    if server_stem == "subscriptions_mcp":
+        if tool_name.startswith(("create_", "update_", "pause_", "resume_", "delete_")):
+            return ["knowledge:subscriptions:write"]
+        if tool_name.startswith("pending_"):
+            return ["knowledge:subscriptions:deliver"]
+        return ["knowledge:subscriptions:read"]
     if mutability == "write" or server_stem in SENSITIVE_SERVERS:
         return ["operator"]
     if server_stem in {"catalog_mcp", "contract_mcp", "schema_mcp"}:

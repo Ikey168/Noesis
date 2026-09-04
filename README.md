@@ -162,6 +162,7 @@ stand up new knowledge graphs at runtime.
 | `noesis-transactions` | Deterministic preview, atomic knowledge commits, audit replay, and compensating rollback |
 | `noesis-schema-registry` | Immutable runtime schemas, compatibility, crosswalks, dependency impact, and reversible migrations |
 | `noesis-federation` | Bounded read-only SQL, vector, graph, and remote MCP federation with honest partial coverage |
+| `noesis-subscriptions` | Durable saved queries, committed-watermark change events, opaque polling, and neutral delivery hooks |
 
 ---
 
