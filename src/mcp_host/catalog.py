@@ -125,6 +125,10 @@ MUTATION_NAMES = frozenset(
         "extract_methodology_statements",
         "assess_methodology_limitation",
         "link_study_artifact",
+        "extract_multimodal_observations",
+        "link_cross_modal_evidence",
+        "record_media_transformation",
+        "assess_media_authenticity",
     }
 )
 
@@ -297,6 +301,24 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
             return ["knowledge:memory:admin"]
         return ["knowledge:memory:read"]
     if server_stem == "knowledge_engine_mcp":
+        if tool_name == "extract_multimodal_observations":
+            return ["knowledge:multimodal:extract"]
+        if tool_name == "assess_media_authenticity":
+            return ["knowledge:multimodal:review"]
+        if tool_name in {
+            "register_multimodal_asset",
+            "link_cross_modal_evidence",
+            "record_media_transformation",
+        }:
+            return ["knowledge:multimodal:write"]
+        if tool_name in {
+            "get_multimodal_asset",
+            "search_multimodal_assets",
+            "get_multimodal_segment",
+            "replay_multimodal_extraction",
+            "inspect_media_provenance",
+        }:
+            return ["knowledge:multimodal:read"]
         if tool_name == "extract_methodology_statements":
             return ["knowledge:methodology:extract"]
         if tool_name == "assess_methodology_limitation":

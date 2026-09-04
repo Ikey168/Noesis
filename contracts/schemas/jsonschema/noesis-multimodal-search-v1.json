@@ -1,0 +1,4 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema","$id":"https://noesis.local/schemas/noesis-multimodal-search-v1.json","title":"Noesis multimodal bounded search or segment result","type":"object","required":["contract","namespace"],
+  "properties":{"contract":{"const":"noesis-multimodal-search-v1"},"namespace":{"type":"string"},"items":{"type":"array"},"total":{"type":"integer"},"next_offset":{"type":["integer","null"]},"asset_id":{"type":"string"},"segment":{"type":"object"},"evidence_locator":{"type":"object"}},"additionalProperties":false,"oneOf":[{"required":["items","total","next_offset"]},{"required":["asset_id","segment","evidence_locator"]}]
+}

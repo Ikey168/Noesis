@@ -191,6 +191,16 @@ def test_maintenance_surface_and_catalog_scope_separation(monkeypatch):
         "get_study_replication_graph",
         "compare_study_methodologies",
         "explain_study_evidence_strength",
+        "register_multimodal_asset",
+        "get_multimodal_asset",
+        "search_multimodal_assets",
+        "get_multimodal_segment",
+        "extract_multimodal_observations",
+        "replay_multimodal_extraction",
+        "link_cross_modal_evidence",
+        "record_media_transformation",
+        "assess_media_authenticity",
+        "inspect_media_provenance",
     }
     assert expected <= set(tools)
     assert _required_scopes(
@@ -683,3 +693,8 @@ def test_capabilities_advertise_generation_contracts():
     assert "noesis-methodology-comparison-v1" in capabilities["contracts"]
     assert "exact-locator-method-extraction" in capabilities["features"]
     assert "study-artifact-and-replication-graphs" in capabilities["features"]
+    assert "noesis-multimodal-asset-v1" in capabilities["contracts"]
+    assert "noesis-multimodal-extraction-v1" in capabilities["contracts"]
+    assert "noesis-cross-modal-evidence-v1" in capabilities["contracts"]
+    assert "noesis-media-authenticity-v1" in capabilities["contracts"]
+    assert "noesis-multimodal-search-v1" in capabilities["contracts"]

@@ -152,6 +152,11 @@ def knowledge_engine_capabilities() -> dict:
             "noesis-methodology-assessment-v1",
             "noesis-study-artifact-link-v1",
             "noesis-methodology-comparison-v1",
+            "noesis-multimodal-asset-v1",
+            "noesis-multimodal-extraction-v1",
+            "noesis-cross-modal-evidence-v1",
+            "noesis-media-authenticity-v1",
+            "noesis-multimodal-search-v1",
             "noesis-maintenance-job-request-v1",
             "noesis-maintenance-job-receipt-v1",
             "noesis-knowledge-generation-v1",
@@ -225,6 +230,10 @@ def knowledge_engine_capabilities() -> dict:
             "exact-locator-method-extraction",
             "reviewed-bias-and-applicability-assessments",
             "study-artifact-and-replication-graphs",
+            "versioned-multimodal-assets-and-locators",
+            "bounded-local-multimodal-extraction",
+            "unverified-cross-modal-evidence-links",
+            "media-transformation-and-authenticity-provenance",
             "knowledge-maintenance",
             "lease-safe-workers",
             "committed-generations",
@@ -5071,6 +5080,263 @@ def explain_study_evidence_strength(namespace: str, study_id: str) -> dict:
             namespace, study_id, scopes={"knowledge:methodology:read"}
         ),
         required_scope="knowledge:methodology:read",
+    )
+
+
+@mcp.tool()
+def register_multimodal_asset(
+    namespace: str,
+    source_id: str,
+    native_id: str,
+    version: str,
+    asset_type: str,
+    media_type: str,
+    bytes_base64: str | None = None,
+    perceptual_hash: str | None = None,
+    metadata: dict[str, Any] | None = None,
+    segments: list[dict[str, Any]] | None = None,
+    predecessor_revision_id: str | None = None,
+    generation: int = 0,
+    valid_from_ms: int | None = None,
+    valid_to_ms: int | None = None,
+    observed_at_ms: int | None = None,
+    producer: dict[str, Any] | None = None,
+    policy: dict[str, Any] | None = None,
+    provenance: dict[str, Any] | None = None,
+) -> dict:
+    """Register a bounded, versioned image, chart, map, audio, video, or page."""
+    from src.kb.multimodal_evidence import MultimodalStore
+
+    return _safe(
+        lambda conn: MultimodalStore(conn).register_asset(
+            namespace,
+            source_id,
+            native_id,
+            version,
+            asset_type,
+            media_type,
+            bytes_base64=bytes_base64,
+            perceptual_hash=perceptual_hash,
+            metadata=metadata,
+            segments=segments or [],
+            predecessor_revision_id=predecessor_revision_id,
+            generation=generation,
+            valid_from_ms=valid_from_ms,
+            valid_to_ms=valid_to_ms,
+            observed_at_ms=observed_at_ms,
+            producer=producer,
+            policy=policy,
+            provenance=provenance,
+            principal_id=_context()[0],
+            scopes={"knowledge:multimodal:write"},
+        ),
+        write=True,
+        required_scope="knowledge:multimodal:write",
+    )
+
+
+@mcp.tool()
+def get_multimodal_asset(
+    namespace: str, asset_id: str, revision_id: str | None = None
+) -> dict:
+    """Read asset metadata and resolvable segment locators without returning bytes."""
+    from src.kb.multimodal_evidence import MultimodalStore
+
+    return _safe(
+        lambda conn: MultimodalStore(conn, initialize=False).asset(
+            namespace,
+            asset_id,
+            revision_id=revision_id,
+            scopes={"knowledge:multimodal:read"},
+        ),
+        required_scope="knowledge:multimodal:read",
+    )
+
+
+@mcp.tool()
+def search_multimodal_assets(
+    namespace: str,
+    query: str,
+    asset_type: str | None = None,
+    limit: int = 50,
+    offset: int = 0,
+) -> dict:
+    """Search bounded multimodal metadata within one namespace."""
+    from src.kb.multimodal_evidence import MultimodalStore
+
+    return _safe(
+        lambda conn: MultimodalStore(conn, initialize=False).search(
+            namespace,
+            query,
+            asset_type=asset_type,
+            limit=limit,
+            offset=offset,
+            scopes={"knowledge:multimodal:read"},
+        ),
+        required_scope="knowledge:multimodal:read",
+    )
+
+
+@mcp.tool()
+def get_multimodal_segment(namespace: str, asset_id: str, segment_id: str) -> dict:
+    """Resolve an exact page, region, time segment, or frame evidence locator."""
+    from src.kb.multimodal_evidence import MultimodalStore
+
+    return _safe(
+        lambda conn: MultimodalStore(conn, initialize=False).segment(
+            namespace, asset_id, segment_id, scopes={"knowledge:multimodal:read"}
+        ),
+        required_scope="knowledge:multimodal:read",
+    )
+
+
+@mcp.tool()
+def extract_multimodal_observations(
+    namespace: str,
+    asset_id: str,
+    extractor: str,
+    observations: list[dict[str, Any]],
+    codec: str | None = None,
+    limit: int = 500,
+    duration_limit_ms: int = 3_600_000,
+    cancel_requested: bool = False,
+    adapter: str = "local-fixture-v1",
+) -> dict:
+    """Persist a bounded local OCR, speech, frame, caption, or chart adapter result."""
+    from src.kb.multimodal_evidence import MultimodalStore
+
+    return _safe(
+        lambda conn: MultimodalStore(conn).extract(
+            namespace,
+            asset_id,
+            extractor,
+            observations,
+            codec=codec,
+            limit=limit,
+            duration_limit_ms=duration_limit_ms,
+            cancel_requested=cancel_requested,
+            adapter=adapter,
+            principal_id=_context()[0],
+            scopes={"knowledge:multimodal:extract"},
+        ),
+        write=True,
+        required_scope="knowledge:multimodal:extract",
+    )
+
+
+@mcp.tool()
+def replay_multimodal_extraction(namespace: str, extraction_id: str) -> dict:
+    """Verify a multimodal extraction receipt against its observation hash."""
+    from src.kb.multimodal_evidence import MultimodalStore
+
+    return _safe(
+        lambda conn: MultimodalStore(conn, initialize=False).replay(
+            namespace, extraction_id, scopes={"knowledge:multimodal:read"}
+        ),
+        required_scope="knowledge:multimodal:read",
+    )
+
+
+@mcp.tool()
+def link_cross_modal_evidence(
+    namespace: str,
+    observation_id: str,
+    target_type: str,
+    target_id: str,
+    relation: str,
+    stance: str,
+    confidence: float,
+) -> dict:
+    """Link an unverified media observation to a claim, entity, event, or source."""
+    from src.kb.multimodal_evidence import MultimodalStore
+
+    return _safe(
+        lambda conn: MultimodalStore(conn).link_observation(
+            namespace,
+            observation_id,
+            target_type,
+            target_id,
+            relation,
+            stance,
+            confidence,
+            principal_id=_context()[0],
+            scopes={"knowledge:multimodal:write"},
+        ),
+        write=True,
+        required_scope="knowledge:multimodal:write",
+    )
+
+
+@mcp.tool()
+def record_media_transformation(
+    namespace: str,
+    parent_asset_id: str,
+    child_asset_id: str,
+    operation: str,
+    parameters: dict[str, Any],
+) -> dict:
+    """Record crops, edits, mirrors, and recompression as provenance edges."""
+    from src.kb.multimodal_evidence import MultimodalStore
+
+    return _safe(
+        lambda conn: MultimodalStore(conn).transform(
+            namespace,
+            parent_asset_id,
+            child_asset_id,
+            operation,
+            parameters,
+            principal_id=_context()[0],
+            scopes={"knowledge:multimodal:write"},
+        ),
+        write=True,
+        required_scope="knowledge:multimodal:write",
+    )
+
+
+@mcp.tool()
+def assess_media_authenticity(
+    namespace: str,
+    asset_id: str,
+    finding: str,
+    confidence: float,
+    c2pa: dict[str, Any] | None = None,
+    metadata_findings: list[Any] | None = None,
+    synthetic_indicators: list[Any] | None = None,
+    uncertainty: str | None = None,
+    evidence: list[Any] | None = None,
+) -> dict:
+    """Record a reviewed authenticity finding with calibrated uncertainty."""
+    from src.kb.multimodal_evidence import MultimodalStore
+
+    return _safe(
+        lambda conn: MultimodalStore(conn).assess_authenticity(
+            namespace,
+            asset_id,
+            finding,
+            confidence,
+            c2pa=c2pa,
+            metadata_findings=metadata_findings or [],
+            synthetic_indicators=synthetic_indicators or [],
+            uncertainty=uncertainty,
+            evidence=evidence or [],
+            principal_id=_context()[0],
+            scopes={"knowledge:multimodal:review"},
+        ),
+        write=True,
+        required_scope="knowledge:multimodal:review",
+    )
+
+
+@mcp.tool()
+def inspect_media_provenance(namespace: str, asset_id: str, limit: int = 100) -> dict:
+    """Inspect acquisition hashes, perceptual matches, transformations, and findings."""
+    from src.kb.multimodal_evidence import MultimodalStore
+
+    return _safe(
+        lambda conn: MultimodalStore(conn, initialize=False).provenance(
+            namespace, asset_id, limit=limit, scopes={"knowledge:multimodal:read"}
+        ),
+        required_scope="knowledge:multimodal:read",
     )
 
 

@@ -63,6 +63,8 @@ For the project overview and local setup, start with the
   release vintages, bounded tabular ingestion, safe joins, and exact lineage
 - **[Methodology provenance](guides/methodology-provenance.md)** — versioned
   study designs, exact-locator extraction, bias reviews, and replication graphs
+- **[Multimodal evidence](guides/multimodal-evidence.md)** — versioned media,
+  bounded local extraction, cross-modal links, and authenticity provenance
 - **[Unified knowledge query](guides/unified-knowledge-query.md)** — one bounded,
   evidence-preserving plane over local, temporal, memory, and federated data.
 - [Project structure](development/project-structure.md) — where things live in

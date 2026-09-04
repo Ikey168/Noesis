@@ -808,7 +808,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 215,
+      "tool_count": 225,
       "tools": [
         "noesis-knowledge-engine.accept_dataset_join",
         "noesis-knowledge-engine.accept_source_pack_license",
@@ -818,6 +818,7 @@
         "noesis-knowledge-engine.artifact_lineage",
         "noesis-knowledge-engine.assess_epistemic_statement",
         "noesis-knowledge-engine.assess_evidence_freshness",
+        "noesis-knowledge-engine.assess_media_authenticity",
         "noesis-knowledge-engine.assess_methodology_limitation",
         "noesis-knowledge-engine.assess_quantitative_comparability",
         "noesis-knowledge-engine.attach_event_account",
@@ -876,6 +877,7 @@
         "noesis-knowledge-engine.explain_study_evidence_strength",
         "noesis-knowledge-engine.export_hypothesis_workspace",
         "noesis-knowledge-engine.extract_methodology_statements",
+        "noesis-knowledge-engine.extract_multimodal_observations",
         "noesis-knowledge-engine.fetch_declarative_api",
         "noesis-knowledge-engine.get_claim_evolution_timeline",
         "noesis-knowledge-engine.get_claim_timeline_state",
@@ -891,6 +893,8 @@
         "noesis-knowledge-engine.get_hypothesis_research_plan",
         "noesis-knowledge-engine.get_hypothesis_workspace",
         "noesis-knowledge-engine.get_methodology_study",
+        "noesis-knowledge-engine.get_multimodal_asset",
+        "noesis-knowledge-engine.get_multimodal_segment",
         "noesis-knowledge-engine.get_quantitative_metric",
         "noesis-knowledge-engine.get_research_gap",
         "noesis-knowledge-engine.get_source_acquisition_plan",
@@ -900,6 +904,7 @@
         "noesis-knowledge-engine.ingest_tabular_dataset",
         "noesis-knowledge-engine.inspect_maintenance_generation",
         "noesis-knowledge-engine.inspect_maintenance_job",
+        "noesis-knowledge-engine.inspect_media_provenance",
         "noesis-knowledge-engine.inspect_reference_workflow",
         "noesis-knowledge-engine.inspect_research_snapshot",
         "noesis-knowledge-engine.inspect_source_acquisition_run",
@@ -907,6 +912,7 @@
         "noesis-knowledge-engine.install_source_pack",
         "noesis-knowledge-engine.knowledge_engine_capabilities",
         "noesis-knowledge-engine.link_claim_evolution",
+        "noesis-knowledge-engine.link_cross_modal_evidence",
         "noesis-knowledge-engine.link_hypothesis_evidence",
         "noesis-knowledge-engine.link_study_artifact",
         "noesis-knowledge-engine.list_epistemic_taxonomies",
@@ -939,6 +945,7 @@
         "noesis-knowledge-engine.read_quantitative_series",
         "noesis-knowledge-engine.read_workflow_stage",
         "noesis-knowledge-engine.record_geospatial_resolution",
+        "noesis-knowledge-engine.record_media_transformation",
         "noesis-knowledge-engine.record_quantitative_observation",
         "noesis-knowledge-engine.record_quantitative_series_break",
         "noesis-knowledge-engine.record_research_coverage",
@@ -952,6 +959,7 @@
         "noesis-knowledge-engine.register_extractor",
         "noesis-knowledge-engine.register_geospatial_place",
         "noesis-knowledge-engine.register_methodology_study",
+        "noesis-knowledge-engine.register_multimodal_asset",
         "noesis-knowledge-engine.register_quantitative_metric",
         "noesis-knowledge-engine.register_quantitative_unit",
         "noesis-knowledge-engine.register_research_gap_policy",
@@ -969,6 +977,7 @@
         "noesis-knowledge-engine.replay_knowledge_query",
         "noesis-knowledge-engine.replay_maintenance_generation",
         "noesis-knowledge-engine.replay_methodology_extraction",
+        "noesis-knowledge-engine.replay_multimodal_extraction",
         "noesis-knowledge-engine.replay_quantitative_calculation",
         "noesis-knowledge-engine.replay_research_gap",
         "noesis-knowledge-engine.replay_source_acquisition_run",
@@ -1005,6 +1014,7 @@
         "noesis-knowledge-engine.search_event_records",
         "noesis-knowledge-engine.search_geospatial_knowledge",
         "noesis-knowledge-engine.search_methodology_studies",
+        "noesis-knowledge-engine.search_multimodal_assets",
         "noesis-knowledge-engine.set_maintenance_schedule_paused",
         "noesis-knowledge-engine.set_source_pack_enabled",
         "noesis-knowledge-engine.set_source_pack_schedule",
@@ -1031,7 +1041,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 215
+      "visible_tool_count": 225
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -1045,9 +1055,9 @@
       "available": 81,
       "degraded": 155,
       "disabled": 3,
-      "unauthorized": 216
+      "unauthorized": 226
     },
-    "tools": 455
+    "tools": 465
   },
   "tools": [
     {
@@ -13491,6 +13501,110 @@
     },
     {
       "cost_class": "medium",
+      "description": "Record a reviewed authenticity finding with calibrated uncertainty.",
+      "id": "noesis-knowledge-engine.assess_media_authenticity",
+      "input_schema": {
+        "properties": {
+          "asset_id": {
+            "type": "string"
+          },
+          "c2pa": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "confidence": {
+            "type": "number"
+          },
+          "evidence": {
+            "anyOf": [
+              {
+                "items": {},
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "finding": {
+            "type": "string"
+          },
+          "metadata_findings": {
+            "anyOf": [
+              {
+                "items": {},
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "synthetic_indicators": {
+            "anyOf": [
+              {
+                "items": {},
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "uncertainty": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "asset_id",
+          "finding",
+          "confidence"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "assess_media_authenticity",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:multimodal:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Record a sourced or reviewed, versioned bias or applicability assessment.",
       "id": "noesis-knowledge-engine.assess_methodology_limitation",
       "input_schema": {
@@ -16737,6 +16851,82 @@
       "version": "1"
     },
     {
+      "cost_class": "medium",
+      "description": "Persist a bounded local OCR, speech, frame, caption, or chart adapter result.",
+      "id": "noesis-knowledge-engine.extract_multimodal_observations",
+      "input_schema": {
+        "properties": {
+          "adapter": {
+            "default": "local-fixture-v1",
+            "type": "string"
+          },
+          "asset_id": {
+            "type": "string"
+          },
+          "cancel_requested": {
+            "default": false,
+            "type": "boolean"
+          },
+          "codec": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "duration_limit_ms": {
+            "default": 3600000,
+            "type": "integer"
+          },
+          "extractor": {
+            "type": "string"
+          },
+          "limit": {
+            "default": 500,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "observations": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "namespace",
+          "asset_id",
+          "extractor",
+          "observations"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "extract_multimodal_observations",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:multimodal:extract"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "low",
       "description": "Fetch and map one approved bounded GET operation without persisting it.",
       "id": "noesis-knowledge-engine.fetch_declarative_api",
@@ -17433,6 +17623,95 @@
     },
     {
       "cost_class": "low",
+      "description": "Read asset metadata and resolvable segment locators without returning bytes.",
+      "id": "noesis-knowledge-engine.get_multimodal_asset",
+      "input_schema": {
+        "properties": {
+          "asset_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "revision_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "asset_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "get_multimodal_asset",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:multimodal:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Resolve an exact page, region, time segment, or frame evidence locator.",
+      "id": "noesis-knowledge-engine.get_multimodal_segment",
+      "input_schema": {
+        "properties": {
+          "asset_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "segment_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "asset_id",
+          "segment_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "get_multimodal_segment",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:multimodal:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Read the current, exact, or complete immutable history of a metric.",
       "id": "noesis-knowledge-engine.get_quantitative_metric",
       "input_schema": {
@@ -17837,6 +18116,47 @@
     },
     {
       "cost_class": "low",
+      "description": "Inspect acquisition hashes, perceptual matches, transformations, and findings.",
+      "id": "noesis-knowledge-engine.inspect_media_provenance",
+      "input_schema": {
+        "properties": {
+          "asset_id": {
+            "type": "string"
+          },
+          "limit": {
+            "default": 100,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "asset_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "inspect_media_provenance",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:multimodal:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Inspect workflow state, immutable receipts, and its committed watermark.",
       "id": "noesis-knowledge-engine.inspect_reference_workflow",
       "input_schema": {
@@ -18146,6 +18466,63 @@
       ],
       "required_scopes": [
         "knowledge:claim-timeline:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Link an unverified media observation to a claim, entity, event, or source.",
+      "id": "noesis-knowledge-engine.link_cross_modal_evidence",
+      "input_schema": {
+        "properties": {
+          "confidence": {
+            "type": "number"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "observation_id": {
+            "type": "string"
+          },
+          "relation": {
+            "type": "string"
+          },
+          "stance": {
+            "type": "string"
+          },
+          "target_id": {
+            "type": "string"
+          },
+          "target_type": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "observation_id",
+          "target_type",
+          "target_id",
+          "relation",
+          "stance",
+          "confidence"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "link_cross_modal_evidence",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:multimodal:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -19759,6 +20136,56 @@
     },
     {
       "cost_class": "medium",
+      "description": "Record crops, edits, mirrors, and recompression as provenance edges.",
+      "id": "noesis-knowledge-engine.record_media_transformation",
+      "input_schema": {
+        "properties": {
+          "child_asset_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "operation": {
+            "type": "string"
+          },
+          "parameters": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "parent_asset_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "parent_asset_id",
+          "child_asset_id",
+          "operation",
+          "parameters"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "record_media_transformation",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:multimodal:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Record a provenance-rich observation without replacing earlier vintages.",
       "id": "noesis-knowledge-engine.record_quantitative_observation",
       "input_schema": {
@@ -21120,6 +21547,192 @@
     },
     {
       "cost_class": "medium",
+      "description": "Register a bounded, versioned image, chart, map, audio, video, or page.",
+      "id": "noesis-knowledge-engine.register_multimodal_asset",
+      "input_schema": {
+        "properties": {
+          "asset_type": {
+            "type": "string"
+          },
+          "bytes_base64": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "generation": {
+            "default": 0,
+            "type": "integer"
+          },
+          "media_type": {
+            "type": "string"
+          },
+          "metadata": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "native_id": {
+            "type": "string"
+          },
+          "observed_at_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "perceptual_hash": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "policy": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "predecessor_revision_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "producer": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "provenance": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "segments": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "source_id": {
+            "type": "string"
+          },
+          "valid_from_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "valid_to_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "version": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "source_id",
+          "native_id",
+          "version",
+          "asset_type",
+          "media_type"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "register_multimodal_asset",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:multimodal:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Register a versioned metric with aliases and source-native mappings.",
       "id": "noesis-knowledge-engine.register_quantitative_metric",
       "input_schema": {
@@ -22392,6 +23005,43 @@
       ],
       "required_scopes": [
         "knowledge:methodology:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Verify a multimodal extraction receipt against its observation hash.",
+      "id": "noesis-knowledge-engine.replay_multimodal_extraction",
+      "input_schema": {
+        "properties": {
+          "extraction_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "extraction_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "replay_multimodal_extraction",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:multimodal:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -24170,6 +24820,62 @@
       ],
       "required_scopes": [
         "knowledge:methodology:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Search bounded multimodal metadata within one namespace.",
+      "id": "noesis-knowledge-engine.search_multimodal_assets",
+      "input_schema": {
+        "properties": {
+          "asset_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "limit": {
+            "default": 50,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "offset": {
+            "default": 0,
+            "type": "integer"
+          },
+          "query": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "query"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "search_multimodal_assets",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:multimodal:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
