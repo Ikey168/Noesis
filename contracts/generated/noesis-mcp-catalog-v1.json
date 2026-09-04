@@ -761,6 +761,34 @@
       ],
       "version": "1",
       "visible_tool_count": 5
+    },
+    {
+      "aliases": [],
+      "kind": "noesis",
+      "name": "noesis-memory",
+      "pack": null,
+      "reason": null,
+      "state": "unauthorized",
+      "tool_count": 11,
+      "tools": [
+        "noesis-memory.apply_memory_lifecycle",
+        "noesis-memory.consolidate_memories",
+        "noesis-memory.correct_memory",
+        "noesis-memory.export_standard_mcp_memory",
+        "noesis-memory.forget_memory",
+        "noesis-memory.import_standard_mcp_memory",
+        "noesis-memory.memory_capabilities",
+        "noesis-memory.memory_contradictions",
+        "noesis-memory.remember_memory",
+        "noesis-memory.retrieve_memory",
+        "noesis-memory.set_memory_policy"
+      ],
+      "transports": [
+        "stdio",
+        "streamable-http"
+      ],
+      "version": "1",
+      "visible_tool_count": 11
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -769,14 +797,14 @@
     "omitted": {
       "unauthorized": 1
     },
-    "servers": 27,
+    "servers": 28,
     "states": {
       "available": 20,
       "degraded": 153,
       "disabled": 3,
-      "unauthorized": 42
+      "unauthorized": 53
     },
-    "tools": 218
+    "tools": 229
   },
   "tools": [
     {
@@ -11509,6 +11537,459 @@
         "knowledge:namespace:export"
       ],
       "server": "noesis-namespaces",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Apply archival and expiration policy without rewriting confidence history.",
+      "id": "noesis-memory.apply_memory_lifecycle",
+      "input_schema": {
+        "properties": {
+          "at_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "scope": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "scope"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "apply_memory_lifecycle",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-memory-store"
+      ],
+      "required_scopes": [
+        "knowledge:memory:admin"
+      ],
+      "server": "noesis-memory",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Create an inferred summary while preserving every source memory.",
+      "id": "noesis-memory.consolidate_memories",
+      "input_schema": {
+        "properties": {
+          "idempotency_key": {
+            "type": "string"
+          },
+          "memory_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "summary": {
+            "title": "Summary"
+          }
+        },
+        "required": [
+          "memory_ids",
+          "summary",
+          "idempotency_key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "consolidate_memories",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-memory-store"
+      ],
+      "required_scopes": [
+        "knowledge:memory:write"
+      ],
+      "server": "noesis-memory",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Create a correction and supersede the prior memory without erasing it.",
+      "id": "noesis-memory.correct_memory",
+      "input_schema": {
+        "properties": {
+          "idempotency_key": {
+            "type": "string"
+          },
+          "memory_id": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "replacement": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "memory_id",
+          "replacement",
+          "idempotency_key",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "correct_memory",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-memory-store"
+      ],
+      "required_scopes": [
+        "knowledge:memory:write"
+      ],
+      "server": "noesis-memory",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Export supported standard MCP entities/relations with a semantic-loss report.",
+      "id": "noesis-memory.export_standard_mcp_memory",
+      "input_schema": {
+        "properties": {
+          "limit": {
+            "default": 100,
+            "type": "integer"
+          },
+          "scope": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "scope"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "export_standard_mcp_memory",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-memory-store"
+      ],
+      "required_scopes": [
+        "knowledge:memory:read"
+      ],
+      "server": "noesis-memory",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Apply the explicit forget policy while respecting legal hold.",
+      "id": "noesis-memory.forget_memory",
+      "input_schema": {
+        "properties": {
+          "memory_id": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "memory_id",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "forget_memory",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-memory-store"
+      ],
+      "required_scopes": [
+        "knowledge:memory:write"
+      ],
+      "server": "noesis-memory",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Import standard MCP memory under explicit scope and token bounds.",
+      "id": "noesis-memory.import_standard_mcp_memory",
+      "input_schema": {
+        "properties": {
+          "idempotency_prefix": {
+            "type": "string"
+          },
+          "payload": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "scope": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "token_budget": {
+            "default": 10000,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "payload",
+          "scope",
+          "idempotency_prefix"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "import_standard_mcp_memory",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-memory-store"
+      ],
+      "required_scopes": [
+        "knowledge:memory:write"
+      ],
+      "server": "noesis-memory",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Describe typed memory kinds, lifecycle, mappings, identity, and scopes.",
+      "id": "noesis-memory.memory_capabilities",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "memory_capabilities",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-memory-store"
+      ],
+      "required_scopes": [
+        "knowledge:memory:read"
+      ],
+      "server": "noesis-memory",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Find conflicting memories and require explicit resolution.",
+      "id": "noesis-memory.memory_contradictions",
+      "input_schema": {
+        "properties": {
+          "memory_id": {
+            "type": "string"
+          },
+          "record": {
+            "default": false,
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "memory_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "memory_contradictions",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-memory-store"
+      ],
+      "required_scopes": [
+        "knowledge:memory:read"
+      ],
+      "server": "noesis-memory",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Idempotently store one provenance-bearing, explicitly scoped memory.",
+      "id": "noesis-memory.remember_memory",
+      "input_schema": {
+        "properties": {
+          "idempotency_key": {
+            "type": "string"
+          },
+          "memory": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "memory",
+          "idempotency_key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "remember_memory",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-memory-store"
+      ],
+      "required_scopes": [
+        "knowledge:memory:write"
+      ],
+      "server": "noesis-memory",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Rank scoped memories with relevance, recency, evidence, and score explanations.",
+      "id": "noesis-memory.retrieve_memory",
+      "input_schema": {
+        "properties": {
+          "kinds": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "limit": {
+            "default": 20,
+            "type": "integer"
+          },
+          "query": {
+            "title": "Query"
+          },
+          "scope": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "query",
+          "scope"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "retrieve_memory",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-memory-store"
+      ],
+      "required_scopes": [
+        "knowledge:memory:read"
+      ],
+      "server": "noesis-memory",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Set retention, archive, expiration, decay, sensitivity, or legal-hold policy.",
+      "id": "noesis-memory.set_memory_policy",
+      "input_schema": {
+        "properties": {
+          "policy": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "scope": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "scope",
+          "policy"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "set_memory_policy",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-memory-store"
+      ],
+      "required_scopes": [
+        "knowledge:memory:admin"
+      ],
+      "server": "noesis-memory",
       "state": "unauthorized",
       "version": "1"
     }

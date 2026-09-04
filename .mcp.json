@@ -216,6 +216,12 @@
       "command": "python3",
       "args": ["tools/namespaces_mcp/server.py"],
       "env": {}
+    },
+    "noesis-memory": {
+      "type": "stdio",
+      "command": "python3",
+      "args": ["tools/memory_mcp/server.py"],
+      "env": {}
     }
   },
   "compatibilityAliases": {
