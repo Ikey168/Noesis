@@ -162,6 +162,11 @@ def knowledge_engine_capabilities() -> dict:
             "noesis-citation-verification-v1",
             "noesis-citation-health-v1",
             "noesis-citation-export-v1",
+            "noesis-semantic-change-event-v1",
+            "noesis-change-brief-policy-v1",
+            "noesis-change-brief-v1",
+            "noesis-change-brief-delivery-v1",
+            "noesis-change-brief-export-v1",
             "noesis-maintenance-job-request-v1",
             "noesis-maintenance-job-receipt-v1",
             "noesis-knowledge-generation-v1",
@@ -243,6 +248,10 @@ def knowledge_engine_capabilities() -> dict:
             "deterministic-citation-support-verification",
             "approved-archive-link-rot-repair",
             "dependency-complete-citation-export",
+            "ranked-semantic-change-events",
+            "evidence-linked-change-explanations",
+            "deduplicated-windowed-brief-delivery",
+            "deterministic-change-brief-export",
             "knowledge-maintenance",
             "lease-safe-workers",
             "committed-generations",
@@ -5640,6 +5649,275 @@ def export_preserved_citations(
             namespace, citation_ids, limit=limit, scopes={"knowledge:citation:read"}
         ),
         required_scope="knowledge:citation:read",
+    )
+
+
+@mcp.tool()
+def register_change_brief_policy(
+    namespace: str,
+    policy_id: str,
+    version: str,
+    weights: dict[str, Any] | None = None,
+    minimum_score: float = 0.25,
+    user_priorities: dict[str, Any] | None = None,
+    generation: int = 0,
+    valid_from_ms: int | None = None,
+    valid_to_ms: int | None = None,
+    observed_at_ms: int | None = None,
+    producer: dict[str, Any] | None = None,
+    policy_context: dict[str, Any] | None = None,
+    provenance: dict[str, Any] | None = None,
+) -> dict:
+    """Register an immutable material-change ranking policy."""
+    from src.kb.change_briefs import ChangeBriefStore
+
+    return _safe(
+        lambda c: ChangeBriefStore(c).register_policy(
+            namespace,
+            policy_id,
+            version,
+            weights=weights,
+            minimum_score=minimum_score,
+            user_priorities=user_priorities,
+            generation=generation,
+            valid_from_ms=valid_from_ms,
+            valid_to_ms=valid_to_ms,
+            observed_at_ms=observed_at_ms,
+            producer=producer,
+            policy_context=policy_context,
+            provenance=provenance,
+            principal_id=_context()[0],
+            scopes={"knowledge:briefs:write"},
+        ),
+        write=True,
+        required_scope="knowledge:briefs:write",
+    )
+
+
+@mcp.tool()
+def preview_semantic_change(
+    namespace: str,
+    object_type: str,
+    object_id: str,
+    before: Any,
+    after: Any,
+    from_generation: int | None,
+    to_generation: int | None,
+    evidence_before: list[dict[str, Any]] | None = None,
+    evidence_after: list[dict[str, Any]] | None = None,
+    factors: dict[str, Any] | None = None,
+    coverage_before: bool = True,
+    coverage_after: bool = True,
+) -> dict:
+    """Classify and preview a bounded before/after semantic change."""
+    from src.kb.change_briefs import ChangeBriefStore
+
+    return _safe(
+        lambda c: ChangeBriefStore(c, initialize=False).preview(
+            namespace,
+            object_type,
+            object_id,
+            before,
+            after,
+            from_generation,
+            to_generation,
+            evidence_before=evidence_before or [],
+            evidence_after=evidence_after or [],
+            factors=factors,
+            coverage_before=coverage_before,
+            coverage_after=coverage_after,
+            scopes={"knowledge:briefs:read"},
+        ),
+        required_scope="knowledge:briefs:read",
+    )
+
+
+@mcp.tool()
+def generate_change_brief(
+    namespace: str,
+    policy_revision_id: str,
+    preview: dict[str, Any],
+    cancel_requested: bool = False,
+) -> dict:
+    """Generate an evidence-linked, policy-ranked semantic change brief."""
+    from src.kb.change_briefs import ChangeBriefStore
+
+    return _safe(
+        lambda c: ChangeBriefStore(c).generate(
+            namespace,
+            policy_revision_id,
+            preview,
+            cancel_requested=cancel_requested,
+            principal_id=_context()[0],
+            scopes={"knowledge:briefs:write"},
+        ),
+        write=True,
+        required_scope="knowledge:briefs:write",
+    )
+
+
+@mcp.tool()
+def get_change_brief(namespace: str, brief_id: str) -> dict:
+    """Read one exact generated change brief."""
+    from src.kb.change_briefs import ChangeBriefStore
+
+    return _safe(
+        lambda c: ChangeBriefStore(c, initialize=False).get(
+            namespace, brief_id, scopes={"knowledge:briefs:read"}
+        ),
+        required_scope="knowledge:briefs:read",
+    )
+
+
+@mcp.tool()
+def list_change_briefs(
+    namespace: str,
+    object_type: str | None = None,
+    object_id: str | None = None,
+    limit: int = 50,
+    offset: int = 0,
+) -> dict:
+    """List deterministic, paginated change brief history."""
+    from src.kb.change_briefs import ChangeBriefStore
+
+    return _safe(
+        lambda c: ChangeBriefStore(c, initialize=False).history(
+            namespace,
+            object_type,
+            object_id,
+            limit=limit,
+            offset=offset,
+            scopes={"knowledge:briefs:read"},
+        ),
+        required_scope="knowledge:briefs:read",
+    )
+
+
+@mcp.tool()
+def compare_change_briefs(
+    namespace: str, left_brief_id: str, right_brief_id: str
+) -> dict:
+    """Compare classifications, materiality, scores, and uncertainty."""
+    from src.kb.change_briefs import ChangeBriefStore
+
+    return _safe(
+        lambda c: ChangeBriefStore(c, initialize=False).compare(
+            namespace, left_brief_id, right_brief_id, scopes={"knowledge:briefs:read"}
+        ),
+        required_scope="knowledge:briefs:read",
+    )
+
+
+@mcp.tool()
+def replay_change_brief(namespace: str, brief_id: str) -> dict:
+    """Verify a generated change brief against its deterministic hash."""
+    from src.kb.change_briefs import ChangeBriefStore
+
+    return _safe(
+        lambda c: ChangeBriefStore(c, initialize=False).replay(
+            namespace, brief_id, scopes={"knowledge:briefs:read"}
+        ),
+        required_scope="knowledge:briefs:read",
+    )
+
+
+@mcp.tool()
+def create_change_brief_subscription(
+    namespace: str, subscriber_id: str, window_ms: int, filters: dict[str, Any]
+) -> dict:
+    """Create a subscriber-scoped aggregation window."""
+    from src.kb.change_briefs import ChangeBriefStore
+
+    return _safe(
+        lambda c: ChangeBriefStore(c).subscribe(
+            namespace,
+            subscriber_id,
+            window_ms,
+            filters,
+            principal_id=_context()[0],
+            scopes={"knowledge:briefs:write"},
+        ),
+        write=True,
+        required_scope="knowledge:briefs:write",
+    )
+
+
+@mcp.tool()
+def deliver_change_briefs(
+    namespace: str,
+    subscription_id: str,
+    window_start_ms: int,
+    window_end_ms: int,
+    cancel_requested: bool = False,
+) -> dict:
+    """Build a deduplicated, retry-safe delivery or explicit quiet period."""
+    from src.kb.change_briefs import ChangeBriefStore
+
+    return _safe(
+        lambda c: ChangeBriefStore(c).deliver(
+            namespace,
+            subscription_id,
+            window_start_ms,
+            window_end_ms,
+            cancel_requested=cancel_requested,
+            principal_id=_context()[0],
+            scopes={"knowledge:briefs:deliver"},
+        ),
+        write=True,
+        required_scope="knowledge:briefs:deliver",
+    )
+
+
+@mcp.tool()
+def acknowledge_change_brief_delivery(namespace: str, delivery_id: str) -> dict:
+    """Acknowledge a subscriber-scoped brief delivery."""
+    from src.kb.change_briefs import ChangeBriefStore
+
+    return _safe(
+        lambda c: ChangeBriefStore(c).acknowledge(
+            namespace,
+            delivery_id,
+            principal_id=_context()[0],
+            scopes={"knowledge:briefs:deliver"},
+        ),
+        write=True,
+        required_scope="knowledge:briefs:deliver",
+    )
+
+
+@mcp.tool()
+def review_change_brief(
+    namespace: str, brief_id: str, rating: str, reason: str
+) -> dict:
+    """Record principal-scoped feedback on a generated brief."""
+    from src.kb.change_briefs import ChangeBriefStore
+
+    return _safe(
+        lambda c: ChangeBriefStore(c).feedback(
+            namespace,
+            brief_id,
+            rating,
+            reason,
+            principal_id=_context()[0],
+            scopes={"knowledge:briefs:review"},
+        ),
+        write=True,
+        required_scope="knowledge:briefs:review",
+    )
+
+
+@mcp.tool()
+def export_change_briefs(
+    namespace: str, brief_ids: list[str], limit: int = 100
+) -> dict:
+    """Export briefs with exact policy dependencies and deterministic hashing."""
+    from src.kb.change_briefs import ChangeBriefStore
+
+    return _safe(
+        lambda c: ChangeBriefStore(c, initialize=False).export(
+            namespace, brief_ids, limit=limit, scopes={"knowledge:briefs:read"}
+        ),
+        required_scope="knowledge:briefs:read",
     )
 
 

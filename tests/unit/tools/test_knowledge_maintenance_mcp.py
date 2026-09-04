@@ -212,6 +212,18 @@ def test_maintenance_surface_and_catalog_scope_separation(monkeypatch):
         "preview_citation_repair",
         "accept_citation_repair",
         "export_preserved_citations",
+        "register_change_brief_policy",
+        "preview_semantic_change",
+        "generate_change_brief",
+        "get_change_brief",
+        "list_change_briefs",
+        "compare_change_briefs",
+        "replay_change_brief",
+        "create_change_brief_subscription",
+        "deliver_change_briefs",
+        "acknowledge_change_brief_delivery",
+        "review_change_brief",
+        "export_change_briefs",
     }
     assert expected <= set(tools)
     assert _required_scopes(
@@ -714,3 +726,8 @@ def test_capabilities_advertise_generation_contracts():
     assert "noesis-citation-verification-v1" in capabilities["contracts"]
     assert "noesis-citation-health-v1" in capabilities["contracts"]
     assert "noesis-citation-export-v1" in capabilities["contracts"]
+    assert "noesis-semantic-change-event-v1" in capabilities["contracts"]
+    assert "noesis-change-brief-policy-v1" in capabilities["contracts"]
+    assert "noesis-change-brief-v1" in capabilities["contracts"]
+    assert "noesis-change-brief-delivery-v1" in capabilities["contracts"]
+    assert "noesis-change-brief-export-v1" in capabilities["contracts"]
