@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/schemas/noesis-research-snapshot-token-v1.json",
+  "title": "Noesis research snapshot token",
+  "type": "object",
+  "required": ["contract", "session_id", "token", "vector", "vector_hash", "omissions", "created_at_ms", "expires_at_ms"],
+  "properties": {
+    "contract": {"const": "noesis-research-snapshot-token-v1"},
+    "session_id": {"type": "string", "pattern": "^research-snapshot:"},
+    "token": {"type": "string", "minLength": 32},
+    "vector": {"type": "object"},
+    "vector_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "omissions": {"type": "array", "items": {"type": "object"}},
+    "created_at_ms": {"type": "integer"},
+    "expires_at_ms": {"type": "integer"}
+  },
+  "additionalProperties": false
+}

@@ -32,6 +32,8 @@ For the project overview and local setup, start with the
 - **[Continuous knowledge maintenance](guides/knowledge-maintenance.md)** —
   lease-safe scheduled ingestion, incremental artifacts, committed generations,
   recovery, MCP operation, and the six-domain offline conformance run
+- **[Snapshot-pinned research sessions](guides/research-snapshots.md)** —
+  consistent multi-tool reads, generation vectors, retention pins, and expiry
 - **[Unified knowledge query](guides/unified-knowledge-query.md)** — one bounded,
   evidence-preserving plane over local, temporal, memory, and federated data.
 - [Project structure](development/project-structure.md) — where things live in

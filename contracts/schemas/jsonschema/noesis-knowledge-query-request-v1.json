@@ -30,6 +30,7 @@
     "budgets": {"type": "object"},
     "cursor": {"type": ["string", "null"]},
     "authorization_context": {"type": "object"},
+    "snapshot": {"type": "object"},
     "request_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
   },
   "additionalProperties": false

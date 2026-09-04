@@ -204,6 +204,14 @@ def validate_query_request(value: Mapping[str, Any]) -> dict[str, Any]:
             "bad_request", "one or more query budgets are outside supported bounds"
         )
     authorization = dict(raw.get("authorization_context") or {})
+    snapshot = dict(raw.get("snapshot") or {})
+    if snapshot and (
+        snapshot.get("contract") != "noesis-research-snapshot-v1"
+        or not snapshot.get("session_id")
+        or not snapshot.get("vector_hash")
+        or not isinstance(snapshot.get("vector"), Mapping)
+    ):
+        raise UnifiedQueryError("bad_snapshot", "snapshot binding is incomplete")
     normalized = {
         "contract": REQUEST_CONTRACT,
         "query": query,
@@ -265,6 +273,7 @@ def validate_query_request(value: Mapping[str, Any]) -> dict[str, Any]:
                 "authorization_context.required_scopes",
             ),
         },
+        "snapshot": snapshot,
     }
     normalized["request_hash"] = _digest(
         {
@@ -1645,6 +1654,7 @@ class UnifiedQueryEngine:
                 "capability_hashes": {
                     node["source"]: node["capability_hash"] for node in nodes
                 },
+                "snapshot": normalized["snapshot"],
             },
             "context": context,
             "failures": sorted(

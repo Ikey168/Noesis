@@ -96,6 +96,8 @@ def knowledge_engine_capabilities() -> dict:
             "noesis-derived-object-generation-delta-v1",
             "noesis-derived-object-replay-v1",
             "noesis-derived-object-lineage-v1",
+            "noesis-research-snapshot-v1",
+            "noesis-research-snapshot-token-v1",
             "noesis-maintenance-job-request-v1",
             "noesis-maintenance-job-receipt-v1",
             "noesis-knowledge-generation-v1",
@@ -120,6 +122,8 @@ def knowledge_engine_capabilities() -> dict:
             "immutable-derived-object-revisions",
             "support-aware-truth-maintenance",
             "incremental-derived-projections",
+            "snapshot-pinned-research-sessions",
+            "snapshot-bound-query-cursors",
             "knowledge-maintenance",
             "lease-safe-workers",
             "committed-generations",
@@ -391,36 +395,159 @@ def unified_query_capabilities(request: dict[str, Any]) -> dict:
 
 
 @mcp.tool()
-def explain_knowledge_query(request: dict[str, Any]) -> dict:
+def explain_knowledge_query(request: dict[str, Any], snapshot_token: str = "") -> dict:
     """Return the deterministic source, dependency, omission, and budget plan."""
     return _safe(
-        lambda conn: _query_engine(conn, request).plan(request, scopes=_context()[1])
+        lambda conn: _query_engine(conn, request).plan(
+            _bind_snapshot(conn, request, snapshot_token), scopes=_context()[1]
+        )
     )
 
 
 @mcp.tool()
-def query_knowledge(request: dict[str, Any], query_id: str = "") -> dict:
+def query_knowledge(
+    request: dict[str, Any], query_id: str = "", snapshot_token: str = ""
+) -> dict:
     """Query authorized local knowledge with evidence-preserving unified results."""
     token = (
         query_id
         or "query:"
         + __import__("hashlib")
-        .sha256(__import__("json").dumps(request, sort_keys=True, default=str).encode())
+        .sha256(
+            __import__("json")
+            .dumps(
+                {
+                    "request": request,
+                    "snapshot_token_hash": __import__("hashlib")
+                    .sha256(snapshot_token.encode())
+                    .hexdigest()
+                    if snapshot_token
+                    else None,
+                },
+                sort_keys=True,
+                default=str,
+            )
+            .encode()
+        )
         .hexdigest()[:24]
     )
     event = _QUERY_CANCELLATIONS.setdefault(token, threading.Event())
 
     def operation(conn):
-        result = _query_engine(conn, request).execute(
-            request, scopes=_context()[1], cancelled=event.is_set
+        bound = _bind_snapshot(conn, request, snapshot_token)
+        result = _query_engine(conn, bound).execute(
+            bound, scopes=_context()[1], cancelled=event.is_set
         )
-        _QUERY_REPLAYS[token] = {"request": request, "result": result}
+        _QUERY_REPLAYS[token] = {"request": bound, "result": result}
         return result
 
     try:
         return _safe(operation)
     finally:
         _QUERY_CANCELLATIONS.pop(token, None)
+
+
+def _bind_snapshot(conn, request: dict[str, Any], token: str) -> dict[str, Any]:
+    if not token:
+        return request
+    from src.kb.research_snapshots import ResearchSnapshotStore
+
+    principal, scopes = _context()
+    return ResearchSnapshotStore(conn, initialize=False).bind_query(
+        token, request, principal_id=principal, scopes=scopes
+    )
+
+
+@mcp.tool()
+def begin_research_snapshot(
+    selection: dict[str, Any],
+    ttl_ms: int = 3_600_000,
+    maximum_lifetime_ms: int = 86_400_000,
+) -> dict:
+    """Begin a durable session pinned to one consistent knowledge vector."""
+    from src.kb.research_snapshots import ResearchSnapshotStore
+
+    principal, scopes = _context()
+    return _safe(
+        lambda conn: ResearchSnapshotStore(conn).begin(
+            selection,
+            principal_id=principal,
+            scopes=scopes,
+            ttl_ms=ttl_ms,
+            maximum_lifetime_ms=maximum_lifetime_ms,
+        ),
+        write=True,
+        required_scope="knowledge:snapshot:write",
+    )
+
+
+@mcp.tool()
+def inspect_research_snapshot(token: str) -> dict:
+    """Inspect a research snapshot without returning its bearer token."""
+    from src.kb.research_snapshots import ResearchSnapshotStore
+
+    principal, scopes = _context()
+    return _safe(
+        lambda conn: ResearchSnapshotStore(conn, initialize=False).inspect(
+            token, principal_id=principal, scopes=scopes
+        ),
+        required_scope="knowledge:snapshot:read",
+    )
+
+
+@mcp.tool()
+def renew_research_snapshot(token: str, ttl_ms: int) -> dict:
+    """Renew a snapshot without exceeding its maximum lifetime."""
+    from src.kb.research_snapshots import ResearchSnapshotStore
+
+    principal, scopes = _context()
+    return _safe(
+        lambda conn: ResearchSnapshotStore(conn, initialize=False).renew(
+            token, principal_id=principal, scopes=scopes, ttl_ms=ttl_ms
+        ),
+        write=True,
+        required_scope="knowledge:snapshot:write",
+    )
+
+
+@mcp.tool()
+def close_research_snapshot(token: str) -> dict:
+    """Close a snapshot and release its retention pins."""
+    from src.kb.research_snapshots import ResearchSnapshotStore
+
+    principal, scopes = _context()
+    return _safe(
+        lambda conn: ResearchSnapshotStore(conn, initialize=False).close(
+            token, principal_id=principal, scopes=scopes
+        ),
+        write=True,
+        required_scope="knowledge:snapshot:write",
+    )
+
+
+@mcp.tool()
+def research_snapshot_pins(token: str) -> dict:
+    """List the generations protected by an active or historical snapshot."""
+    from src.kb.research_snapshots import ResearchSnapshotStore
+
+    principal, scopes = _context()
+    return _safe(
+        lambda conn: ResearchSnapshotStore(conn, initialize=False).pins(
+            token, principal_id=principal, scopes=scopes
+        ),
+        required_scope="knowledge:snapshot:read",
+    )
+
+
+@mcp.tool()
+def research_snapshot_health() -> dict:
+    """Return session and active retention-pin counts."""
+    from src.kb.research_snapshots import ResearchSnapshotStore
+
+    return _safe(
+        lambda conn: ResearchSnapshotStore(conn, initialize=False).health(),
+        required_scope="knowledge:snapshot:read",
+    )
 
 
 @mcp.tool()
