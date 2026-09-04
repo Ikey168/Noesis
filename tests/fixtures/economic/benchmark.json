@@ -1,0 +1,153 @@
+{
+  "contract": "economic-benchmark-v1",
+  "series": [
+    {
+      "record": {
+        "series_id": "fred:GDPC1:US", "provider": "fred", "title": "Real Gross Domestic Product",
+        "frequency": "quarterly", "unit": "usd", "geography": "US", "as_of": 1754006400000,
+        "source_url": "https://fred.stlouisfed.org/series/GDPC1",
+        "observations": [{"period": "2025-Q1", "value": 23548.2}, {"period": "2025-Q2", "value": 23770.1}],
+        "metadata": {"indicator": "GDPC1", "release_at": "2025-08-01", "retrieved_at": "2025-08-01"}
+      },
+      "semantics": {
+        "indicator_id": "indicator:gdp-real-us-quarterly", "canonical_name": "US real GDP",
+        "concept": "real gross domestic product", "definition": "Inflation-adjusted US gross domestic product",
+        "scaling": 1000000, "currency_basis": "USD", "price_basis": "chain_linked", "seasonal_adjustment": "adjusted"
+      }
+    },
+    {
+      "record": {
+        "series_id": "fred:GDPC1:US", "provider": "fred", "title": "Real Gross Domestic Product",
+        "frequency": "quarterly", "unit": "usd", "geography": "US", "as_of": 1756684800000,
+        "source_url": "https://fred.stlouisfed.org/series/GDPC1",
+        "observations": [{"period": "2025-Q1", "value": 23548.2}, {"period": "2025-Q2", "value": 23800.4}],
+        "metadata": {"indicator": "GDPC1", "release_at": "2025-09-01", "retrieved_at": "2025-09-01", "revision_of": 1754006400000}
+      },
+      "semantics": {
+        "indicator_id": "indicator:gdp-real-us-quarterly", "canonical_name": "US real GDP",
+        "concept": "real gross domestic product", "definition": "Inflation-adjusted US gross domestic product",
+        "scaling": 1000000, "currency_basis": "USD", "price_basis": "chain_linked", "seasonal_adjustment": "adjusted"
+      }
+    },
+    {
+      "record": {
+        "series_id": "eurostat:prc_hicp_midx:DE", "provider": "eurostat", "title": "HICP all-items index Germany",
+        "frequency": "monthly", "unit": "index", "geography": "DE", "as_of": 1755216000000,
+        "source_url": "https://ec.europa.eu/eurostat/databrowser/view/prc_hicp_midx/default/table",
+        "observations": [{"period": "2025-06", "value": 129.8}, {"period": "2025-07", "value": 130.1}],
+        "metadata": {"code": "prc_hicp_midx", "release_at": "2025-08-15", "retrieved_at": "2025-08-15"}
+      },
+      "semantics": {
+        "indicator_id": "indicator:hicp-de-monthly", "canonical_name": "German HICP",
+        "concept": "harmonised consumer price index", "definition": "All-items harmonised consumer price index",
+        "price_basis": "index", "seasonal_adjustment": "not_adjusted"
+      }
+    },
+    {
+      "record": {
+        "series_id": "eurostat:prc_hicp_midx:DE", "provider": "eurostat", "title": "HICP all-items index Germany",
+        "frequency": "monthly", "unit": "index", "geography": "DE", "as_of": 1757894400000,
+        "source_url": "https://ec.europa.eu/eurostat/databrowser/view/prc_hicp_midx/default/table",
+        "observations": [{"period": "2025-06", "value": 129.7}, {"period": "2025-07", "value": 130.1}],
+        "metadata": {"code": "prc_hicp_midx", "release_at": "2025-09-15", "retrieved_at": "2025-09-15", "revision_of": 1755216000000}
+      },
+      "semantics": {
+        "indicator_id": "indicator:hicp-de-monthly", "canonical_name": "German HICP",
+        "concept": "harmonised consumer price index", "definition": "All-items harmonised consumer price index",
+        "price_basis": "index", "seasonal_adjustment": "not_adjusted"
+      }
+    },
+    {
+      "record": {
+        "series_id": "fred:PAYEMS:US", "provider": "fred", "title": "All Employees, Total Nonfarm",
+        "frequency": "monthly", "unit": "count", "geography": "US", "as_of": 1754640000000,
+        "source_url": "https://fred.stlouisfed.org/series/PAYEMS",
+        "observations": [{"period": "2025-06", "value": 159540.0}, {"period": "2025-07", "value": 159610.0}],
+        "metadata": {"indicator": "PAYEMS", "release_at": "2025-08-08", "retrieved_at": "2025-08-08"}
+      },
+      "semantics": {
+        "indicator_id": "indicator:nonfarm-employment-us", "canonical_name": "US nonfarm payroll employment",
+        "concept": "nonfarm payroll employment", "definition": "Employees on nonfarm payrolls",
+        "scaling": 1000, "price_basis": "not_applicable", "seasonal_adjustment": "adjusted"
+      }
+    },
+    {
+      "record": {
+        "series_id": "fred:PAYEMS:US", "provider": "fred", "title": "All Employees, Total Nonfarm",
+        "frequency": "monthly", "unit": "count", "geography": "US", "as_of": 1757318400000,
+        "source_url": "https://fred.stlouisfed.org/series/PAYEMS",
+        "observations": [{"period": "2025-06", "value": 159525.0}, {"period": "2025-07", "value": 159590.0}],
+        "metadata": {"indicator": "PAYEMS", "release_at": "2025-09-08", "retrieved_at": "2025-09-08", "revision_of": 1754640000000}
+      },
+      "semantics": {
+        "indicator_id": "indicator:nonfarm-employment-us", "canonical_name": "US nonfarm payroll employment",
+        "concept": "nonfarm payroll employment", "definition": "Employees on nonfarm payrolls",
+        "scaling": 1000, "price_basis": "not_applicable", "seasonal_adjustment": "adjusted"
+      }
+    },
+    {
+      "record": {
+        "series_id": "filing:ACME:revenue", "provider": "filing", "title": "ACME reported revenue",
+        "frequency": "quarterly", "unit": "usd", "geography": null, "as_of": 1754784000000,
+        "source_url": "https://example.invalid/filings/acme/2025-q2",
+        "observations": [{"period": "2025-Q1", "value": 125.0}, {"period": "2025-Q2", "value": 132.0}],
+        "metadata": {"code": "Revenue", "release_at": "2025-08-10", "retrieved_at": "2025-08-10"}
+      },
+      "semantics": {
+        "indicator_id": "indicator:acme-revenue", "canonical_name": "ACME revenue", "concept": "company revenue",
+        "definition": "Revenue reported by ACME", "scaling": 1000000, "currency_basis": "USD",
+        "price_basis": "current", "seasonal_adjustment": "not_applicable", "attributes": {"company_id": "company:acme"}
+      }
+    },
+    {
+      "record": {
+        "series_id": "filing:ACME:revenue", "provider": "filing", "title": "ACME reported revenue",
+        "frequency": "quarterly", "unit": "usd", "geography": null, "as_of": 1757462400000,
+        "source_url": "https://example.invalid/filings/acme/2025-q2-amended",
+        "observations": [{"period": "2025-Q1", "value": 125.0}, {"period": "2025-Q2", "value": 130.0}],
+        "metadata": {"code": "Revenue", "release_at": "2025-09-10", "retrieved_at": "2025-09-10", "revision_of": 1754784000000}
+      },
+      "semantics": {
+        "indicator_id": "indicator:acme-revenue", "canonical_name": "ACME revenue", "concept": "company revenue",
+        "definition": "Revenue reported by ACME", "scaling": 1000000, "currency_basis": "USD",
+        "price_basis": "current", "seasonal_adjustment": "not_applicable", "attributes": {"company_id": "company:acme"}
+      }
+    },
+    {
+      "record": {
+        "series_id": "worldbank:NY.GDP.MKTP.CD:DE", "provider": "worldbank", "title": "GDP current US dollars Germany",
+        "frequency": "annual", "unit": "usd", "geography": "DE", "as_of": 1756684800000,
+        "source_url": "https://api.worldbank.org/v2/country/DE/indicator/NY.GDP.MKTP.CD",
+        "observations": [{"period": "2023", "value": 4525700000000.0}, {"period": "2024", "value": 4659000000000.0}],
+        "metadata": {"indicator": "NY.GDP.MKTP.CD", "release_at": "2025-09-01", "retrieved_at": "2025-09-01"}
+      },
+      "semantics": {
+        "indicator_id": "indicator:gdp-current-de-annual", "canonical_name": "German nominal GDP",
+        "concept": "gross domestic product", "definition": "German GDP at current prices",
+        "currency_basis": "USD", "price_basis": "current", "seasonal_adjustment": "not_applicable"
+      }
+    },
+    {
+      "record": {
+        "series_id": "poll:DE:economic-confidence", "provider": "poll", "title": "German economic confidence poll",
+        "frequency": "monthly", "unit": "percent", "geography": "DE", "as_of": 1756684800000,
+        "source_url": "https://example.invalid/polls/de-economic-confidence",
+        "observations": [{"period": "2025-07", "value": 41.0}, {"period": "2025-08", "value": 43.0}],
+        "metadata": {"code": "ECON_CONF", "release_at": "2025-09-01", "retrieved_at": "2025-09-01"}
+      },
+      "semantics": {
+        "indicator_id": "indicator:economic-confidence-de", "canonical_name": "German economic confidence",
+        "concept": "economic confidence", "definition": "Share of poll respondents expressing confidence",
+        "price_basis": "not_applicable", "seasonal_adjustment": "not_applicable", "attributes": {"population": "adults", "method": "poll"}
+      }
+    }
+  ],
+  "links": [
+    {"claim_id": "claim:gdp-growth", "target_kind": "series", "target_id": "fred:GDPC1:US", "relation": "supports", "match_method": "indicator_and_period", "confidence": 0.96, "time_window": ["2025-01-01", "2025-10-01"], "unit": "usd", "geography": "US"},
+    {"claim_id": "claim:inflation", "target_kind": "observation", "target_id": "eurostat:prc_hicp_midx:DE:2025-07", "relation": "contextualizes", "match_method": "temporal_proximity", "confidence": 0.72, "time_window": ["2025-07-01", "2025-08-01"], "unit": "index", "geography": "DE", "ambiguity": {"note": "index level is not an inflation rate"}},
+    {"claim_id": "claim:acme-revenue", "target_kind": "filing", "target_id": "filing:ACME:2025-Q2-amended", "relation": "challenges", "match_method": "issuer_period_metric", "confidence": 0.99, "unit": "usd"},
+    {"claim_id": "claim:acme-revenue", "target_kind": "organization", "target_id": "company:acme", "relation": "associated_with", "match_method": "canonical_company_id", "confidence": 1.0},
+    {"claim_id": "claim:rate-effect", "target_kind": "policy", "target_id": "policy:federal-funds-2025-07", "relation": "associated_with", "match_method": "temporal_proximity", "confidence": 0.65, "causal_basis": "none", "ambiguity": {"causality": "not established"}},
+    {"claim_id": "claim:employment", "target_kind": "release", "target_id": "release:bls-employment-2025-09", "relation": "supports", "match_method": "release_reference", "confidence": 0.93, "geography": "US"}
+  ]
+}

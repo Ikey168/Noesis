@@ -314,6 +314,57 @@ def kb_political(
         raise KBContractError(exc.code, str(exc)) from exc
 
 
+def kb_economic(
+    domain: str,
+    query_type: str,
+    series_ids: Optional[list[str]] = None,
+    indicator_id: Optional[str] = None,
+    claim_id: Optional[str] = None,
+    period_from: Optional[str] = None,
+    period_to: Optional[str] = None,
+    observed_before: Any = None,
+    comparison_mode: str = "same_scope",
+    include_bundle: bool = False,
+    limit: int = 100,
+    principal_id: Optional[str] = None,
+    include_private: bool = False,
+    conn=None,
+    config_path=None,
+) -> Dict[str, Any]:
+    """Run a cited economic query inside one authorized KB domain."""
+
+    from src.domains.economic.queries import EconomicQueryError, economic_research
+    from src.kb.cross_domain import CrossDomainError, resolve_scope
+    from src.kb.temporal import TemporalError
+
+    try:
+        resolved, _scope = resolve_scope(
+            _registry(config_path),
+            conn=conn,
+            domains=[domain],
+            principal_id=principal_id,
+            include_private=include_private,
+            limit=limit,
+            per_domain_limit=limit,
+        )
+        payload = economic_research(
+            resolved[0][1],
+            query_type=query_type,
+            series_ids=series_ids,
+            indicator_id=indicator_id,
+            claim_id=claim_id,
+            period_from=period_from,
+            period_to=period_to,
+            observed_before=observed_before,
+            comparison_mode=comparison_mode,
+            include_bundle=include_bundle,
+            limit=limit,
+        )
+        return _envelope(domain, payload)
+    except (CrossDomainError, EconomicQueryError, TemporalError) as exc:
+        raise KBContractError(exc.code, str(exc)) from exc
+
+
 def kb_answer(
     domain: str,
     question: str,
