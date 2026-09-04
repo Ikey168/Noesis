@@ -132,12 +132,12 @@ def test_bad_port_rejected(clean_env):
 
 
 def test_every_tool_server_uses_run_server():
-    """All 21 servers route their main guard through the shared runner."""
+    """All 22 servers route their main guard through the shared runner."""
     from pathlib import Path
 
     repo_root = Path(__file__).resolve().parents[3]
     servers = sorted((repo_root / "tools").glob("*_mcp/server.py"))
-    assert len(servers) == 21
+    assert len(servers) == 22
     for server in servers:
         text = server.read_text()
         assert "from src.mcp_host.transport import run_server" in text, server

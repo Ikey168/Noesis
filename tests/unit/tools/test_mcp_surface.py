@@ -48,6 +48,7 @@ READ_SMOKES = {
     "security_mcp": ("security_posture", {}),
     "sources_mcp": ("list_sources", {}),
     "statistics_mcp": ("stats", {}),
+    "subscriptions_mcp": ("subscription_context", {}),
     "transactions_mcp": ("transaction_context", {}),
 }
 
@@ -88,6 +89,11 @@ DOCUMENTED_WRITES = {
     ("schema_registry_mcp", "register_schema_crosswalk"),
     ("schema_registry_mcp", "register_schema_module"),
     ("schema_registry_mcp", "rollback_schema_migration"),
+    ("subscriptions_mcp", "create_subscription"),
+    ("subscriptions_mcp", "delete_subscription"),
+    ("subscriptions_mcp", "pause_subscription"),
+    ("subscriptions_mcp", "resume_subscription"),
+    ("subscriptions_mcp", "update_subscription"),
 }
 
 # Analytics whose advertised output contract must be machine-checkable before

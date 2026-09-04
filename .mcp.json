@@ -204,6 +204,12 @@
         "tools/federation_mcp/server.py"
       ],
       "env": {}
+    },
+    "noesis-subscriptions": {
+      "type": "stdio",
+      "command": "python3",
+      "args": ["tools/subscriptions_mcp/server.py"],
+      "env": {}
     }
   },
   "compatibilityAliases": {
