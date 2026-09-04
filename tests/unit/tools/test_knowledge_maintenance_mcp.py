@@ -111,6 +111,19 @@ def test_maintenance_surface_and_catalog_scope_separation(monkeypatch):
         "transform_quantitative_frequency",
         "adjust_quantitative_inflation",
         "replay_quantitative_calculation",
+        "register_geospatial_place",
+        "revise_geospatial_place",
+        "get_geospatial_place",
+        "store_geospatial_geometry",
+        "list_geospatial_geometries",
+        "simplify_geospatial_geometry",
+        "resolve_geospatial_candidates",
+        "record_geospatial_resolution",
+        "review_geospatial_resolution",
+        "calculate_spatial_relation",
+        "replay_spatial_relation",
+        "search_geospatial_knowledge",
+        "query_geospatial_event_map",
     }
     assert expected <= set(tools)
     assert _required_scopes(
@@ -294,6 +307,37 @@ def test_maintenance_surface_and_catalog_scope_separation(monkeypatch):
             "knowledge:quantitative:read"
         ]
     for name in (
+        "register_geospatial_place",
+        "revise_geospatial_place",
+        "store_geospatial_geometry",
+        "simplify_geospatial_geometry",
+        "record_geospatial_resolution",
+    ):
+        assert _mutability(name) == "write"
+        assert _required_scopes("knowledge_engine_mcp", "write", name) == [
+            "knowledge:geospatial:write"
+        ]
+    assert _mutability("review_geospatial_resolution") == "write"
+    assert _required_scopes(
+        "knowledge_engine_mcp", "write", "review_geospatial_resolution"
+    ) == ["knowledge:geospatial:review"]
+    assert _mutability("calculate_spatial_relation") == "write"
+    assert _required_scopes(
+        "knowledge_engine_mcp", "write", "calculate_spatial_relation"
+    ) == ["knowledge:geospatial:calculate"]
+    for name in (
+        "get_geospatial_place",
+        "list_geospatial_geometries",
+        "resolve_geospatial_candidates",
+        "replay_spatial_relation",
+        "search_geospatial_knowledge",
+        "query_geospatial_event_map",
+    ):
+        assert _mutability(name) == "read"
+        assert _required_scopes("knowledge_engine_mcp", "read", name) == [
+            "knowledge:geospatial:read"
+        ]
+    for name in (
         "pause_maintenance_schedule",
         "resume_maintenance_schedule",
         "cancel_maintenance_job",
@@ -366,3 +410,12 @@ def test_capabilities_advertise_generation_contracts():
     assert "vintage-aware-observations" in capabilities["features"]
     assert "reproducible-quantitative-transformations" in capabilities["features"]
     assert "series-break-comparability" in capabilities["features"]
+    assert "noesis-geospatial-place-v1" in capabilities["contracts"]
+    assert "noesis-geospatial-geometry-v1" in capabilities["contracts"]
+    assert "noesis-geocode-resolution-v1" in capabilities["contracts"]
+    assert "noesis-spatial-result-v1" in capabilities["contracts"]
+    assert "versioned-place-gazetteer" in capabilities["features"]
+    assert "time-bounded-wgs84-geometry" in capabilities["features"]
+    assert "ambiguity-preserving-geocoding" in capabilities["features"]
+    assert "reproducible-spatial-relations" in capabilities["features"]
+    assert "bounded-event-map-queries" in capabilities["features"]

@@ -103,6 +103,12 @@ MUTATION_NAMES = frozenset(
         "evaluate_quantitative_formula",
         "transform_quantitative_frequency",
         "adjust_quantitative_inflation",
+        "revise_geospatial_place",
+        "store_geospatial_geometry",
+        "simplify_geospatial_geometry",
+        "record_geospatial_resolution",
+        "review_geospatial_resolution",
+        "calculate_spatial_relation",
     }
 )
 
@@ -275,6 +281,27 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
             return ["knowledge:memory:admin"]
         return ["knowledge:memory:read"]
     if server_stem == "knowledge_engine_mcp":
+        if tool_name == "review_geospatial_resolution":
+            return ["knowledge:geospatial:review"]
+        if tool_name == "calculate_spatial_relation":
+            return ["knowledge:geospatial:calculate"]
+        if tool_name in {
+            "register_geospatial_place",
+            "revise_geospatial_place",
+            "store_geospatial_geometry",
+            "simplify_geospatial_geometry",
+            "record_geospatial_resolution",
+        }:
+            return ["knowledge:geospatial:write"]
+        if tool_name in {
+            "get_geospatial_place",
+            "list_geospatial_geometries",
+            "resolve_geospatial_candidates",
+            "replay_spatial_relation",
+            "search_geospatial_knowledge",
+            "query_geospatial_event_map",
+        }:
+            return ["knowledge:geospatial:read"]
         if tool_name in {
             "convert_quantitative_value",
             "evaluate_quantitative_formula",
