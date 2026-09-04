@@ -1,0 +1,83 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/schemas/noesis-context-request-v1.json",
+  "title": "Noesis Context Request v1",
+  "type": "object",
+  "required": ["task", "token_budget"],
+  "properties": {
+    "task": {"type": "string", "minLength": 1, "maxLength": 5000},
+    "query": {"type": ["string", "null"], "maxLength": 5000},
+    "domains": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1},
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "namespace_scope": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1},
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "all_authorized": {"type": "boolean", "default": false},
+    "token_budget": {"type": "integer", "minimum": 1, "maximum": 1000000},
+    "evidence_policy": {
+      "type": "object",
+      "properties": {
+        "mandatory_citations": {"type": "boolean"},
+        "include_contradictions": {"type": "boolean"},
+        "allow_unresolved_lineage": {"type": "boolean"}
+      },
+      "additionalProperties": false
+    },
+    "recency_after_ms": {"type": ["integer", "null"], "minimum": 0},
+    "diversity": {
+      "type": "object",
+      "properties": {
+        "max_per_source": {"type": "integer", "minimum": 1},
+        "max_per_domain": {"type": "integer", "minimum": 1},
+        "max_per_object_type": {"type": "integer", "minimum": 1},
+        "max_per_origin": {"type": "integer", "minimum": 1}
+      },
+      "additionalProperties": false
+    },
+    "required_object_types": {
+      "type": "array",
+      "items": {
+        "enum": ["document", "passage", "claim", "entity", "relation", "observation"]
+      },
+      "uniqueItems": true
+    },
+    "allowed_surfaces": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "lexical", "semantic", "document", "passage", "claim", "entity",
+          "graph", "quantitative"
+        ]
+      },
+      "uniqueItems": true
+    },
+    "max_candidates": {"type": "integer", "minimum": 1, "maximum": 5000}
+  },
+  "oneOf": [
+    {
+      "anyOf": [
+        {"required": ["domains"]},
+        {"required": ["namespace_scope"]}
+      ],
+      "properties": {"all_authorized": {"const": false}}
+    },
+    {
+      "required": ["all_authorized"],
+      "properties": {"all_authorized": {"const": true}},
+      "not": {
+        "anyOf": [
+          {"required": ["domains"]},
+          {"required": ["namespace_scope"]}
+        ]
+      }
+    }
+  ],
+  "additionalProperties": false
+}

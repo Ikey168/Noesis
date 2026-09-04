@@ -1,0 +1,81 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/schemas/noesis-context-response-v1.json",
+  "title": "Noesis Context Response v1",
+  "type": "object",
+  "required": [
+    "context_contract", "status", "request", "scope", "items", "citations",
+    "token_accounting", "exclusions", "coverage_gaps", "assembly_trace",
+    "fusion", "refusal"
+  ],
+  "properties": {
+    "context_contract": {"const": "noesis-context-v1"},
+    "status": {"enum": ["assembled", "partial", "refused"]},
+    "request": {"type": "object"},
+    "scope": {"type": "object"},
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "candidate_id", "object_type", "domain", "text", "citation_anchors",
+          "citations", "provenance", "retrieval_methods", "score_provenance", "lineage",
+          "compression", "estimated_tokens"
+        ],
+        "properties": {
+          "candidate_id": {"type": "string"},
+          "object_type": {
+            "enum": ["document", "passage", "claim", "entity", "relation", "observation"]
+          },
+          "domain": {"type": "string"},
+          "source": {"type": ["string", "null"]},
+          "provenance": {
+            "type": "object",
+            "required": ["domains", "sources", "raw_object_id"],
+            "properties": {
+              "domains": {"type": "array", "items": {"type": "string"}},
+              "sources": {"type": "array", "items": {"type": "string"}},
+              "raw_object_id": {"type": "string"}
+            },
+            "additionalProperties": false
+          },
+          "title": {"type": ["string", "null"]},
+          "text": {"type": "string"},
+          "source_text_sha256": {"type": "string"},
+          "citation_anchors": {"type": "array", "items": {"type": "string"}},
+          "citations": {"type": "array", "items": {"type": "object"}},
+          "timestamp_ms": {"type": ["integer", "null"]},
+          "retrieval_methods": {"type": "array", "items": {"type": "string"}},
+          "score_provenance": {"type": "array", "items": {"type": "object"}},
+          "normalized_rank_score": {"type": "number"},
+          "lineage": {
+            "type": "object",
+            "required": ["state", "origin_id", "unresolved"]
+          },
+          "compression": {
+            "type": "object",
+            "required": [
+              "method", "lossy", "truncation_marker", "unsupported_facts_added"
+            ]
+          },
+          "estimated_tokens": {"type": "integer", "minimum": 1}
+        },
+        "additionalProperties": false
+      }
+    },
+    "citations": {"type": "object"},
+    "token_accounting": {
+      "type": "object",
+      "required": ["budget", "used", "remaining", "estimator", "compliant"]
+    },
+    "exclusions": {"type": "array", "items": {"type": "object"}},
+    "coverage_gaps": {"type": "array", "items": {"type": "string"}},
+    "assembly_trace": {"type": "array", "items": {"type": "object"}},
+    "fusion": {
+      "type": "object",
+      "required": ["embedding_models", "mixed_embedding_spaces", "score_interpretation"]
+    },
+    "refusal": {"type": ["object", "null"]}
+  },
+  "additionalProperties": false
+}

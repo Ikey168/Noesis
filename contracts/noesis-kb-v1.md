@@ -44,6 +44,7 @@ new domain content today.
 | `kb_political(domain, query_type, jurisdiction, at?, observed_before?, office_id?, proposal_id?, actor_id?, institution_id?, limit?, principal_id?, include_private?)` | officeholder, proposal lifecycle, vote, institutional-position, and policy-change research composed with temporal, citation, source-coverage, and evidence-independence receipts |
 | `kb_economic(domain, query_type, series_ids?, indicator_id?, claim_id?, period_from?, period_to?, observed_before?, comparison_mode?, include_bundle?, limit?, principal_id?, include_private?)` | cited trends, dimension-checked series comparisons, initial-versus-latest vintage revisions, and provenance-rich claim links over `dataset-series-v1`; correlation and temporal proximity remain explicitly non-causal |
 | `kb_technical(domain, query_type, coordinate?, version?, target_id?, include_optional?, max_depth?, observed_before?, limit?, principal_id?, include_private?)` | cycle-safe direct/transitive dependency paths, affected/fixed versions, supersession, implementations, and breaking changes with exact ecosystem coordinates, constraints, temporal cutoffs, assumptions, and source citations |
+| `kb_context(task, token_budget, query?, domains? / namespace_scope? / all_authorized, evidence_policy?, recency_after_ms?, diversity?, required_object_types?, allowed_surfaces?, max_candidates?, principal_id?, include_private?)` | `noesis-context-v1` multi-surface context: cited items under a hard token budget, explicit accounting/exclusions/gaps, origin-aware diversity, score provenance, compression markers, partial-failure traces, and typed refusal |
 | `kb_corroborate(domain, claim_id)` | origin-aware publication, probable-origin, unresolved, and dependency-evidence counts; distinct-source compatibility fallback |
 | `watch_create/list/poll/pause/resume/delete(...)` | additive `noesis-claim-watch-v1` lifecycle and opaque-cursor event polling, principal/domain scoped |
 | `policy_monitor_status(principal_id?, include_private?)` | additive `noesis-policy-monitor-v1` cited receipt; public by default, grant-gated when private is explicit |
@@ -122,3 +123,16 @@ cycle-safe, optional dependencies are opt-in, incomplete records and
 conflicting lockfiles remain visible, and every edge carries its observation
 time and source locator. The governed schemas are
 `noesis-technical-object-v1` and `noesis-technical-query-v1`.
+
+`kb_context` is additive and shared by the Python, REST, and MCP surfaces. It
+fuses lexical, semantic, document, claim, entity, graph, and quantitative
+candidates using reciprocal rank rather than comparing backend scores. Exact
+duplicates retain every locator and retrieval receipt. Selection applies
+configurable source/domain/object/origin caps and prioritizes contradictory
+evidence when requested. Compression is extractive-first: lossy items carry an
+explicit truncation marker, stable citation anchors, and a source-text digest;
+the assembler never invents replacement facts. Missing backends survive as
+typed trace entries. Impossible mandatory-evidence budgets return a deterministic
+`refused` response rather than uncited text. The governed schemas are
+`noesis-context-request-v1` and `noesis-context-response-v1`; offline regression
+reports are available through `scripts/evaluate_context_assembly.py`.

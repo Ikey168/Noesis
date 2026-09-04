@@ -133,6 +133,21 @@ class TechnicalQueryRequest(BaseModel):
     limit: int = Field(default=100, ge=1, le=1000)
 
 
+class ContextAssemblyRequest(BaseModel):
+    task: str = Field(min_length=1, max_length=5000)
+    token_budget: int = Field(ge=1, le=1_000_000)
+    query: Optional[str] = Field(default=None, max_length=5000)
+    domains: Optional[list[str]] = None
+    namespace_scope: Optional[list[str]] = None
+    all_authorized: bool = False
+    evidence_policy: Optional[dict] = None
+    recency_after_ms: Optional[int] = Field(default=None, ge=0)
+    diversity: Optional[dict] = None
+    required_object_types: Optional[list[str]] = None
+    allowed_surfaces: Optional[list[str]] = None
+    max_candidates: int = Field(default=200, ge=1, le=5000)
+
+
 def _watch_principal(current_user: dict) -> str:
     principal = current_user.get("sub") or current_user.get("user_id")
     if not principal:
@@ -446,6 +461,51 @@ def private_technical_query(
         request.max_depth,
         request.observed_before,
         request.limit,
+        _watch_principal(current_user),
+        True,
+    )
+
+
+@router.post("/context")
+def assemble_public_context(request: ContextAssemblyRequest):
+    """Assemble cited context from public domains and namespaces."""
+    return _run(
+        contract.kb_context,
+        request.task,
+        request.token_budget,
+        request.query,
+        request.domains,
+        request.namespace_scope,
+        request.all_authorized,
+        request.evidence_policy,
+        request.recency_after_ms,
+        request.diversity,
+        request.required_object_types,
+        request.allowed_surfaces,
+        request.max_candidates,
+    )
+
+
+@router.post("/context/private")
+def assemble_private_context(
+    request: ContextAssemblyRequest,
+    current_user: dict = Depends(require_auth),
+):
+    """Assemble context with explicit grant-authorized private scope."""
+    return _run(
+        contract.kb_context,
+        request.task,
+        request.token_budget,
+        request.query,
+        request.domains,
+        request.namespace_scope,
+        request.all_authorized,
+        request.evidence_policy,
+        request.recency_after_ms,
+        request.diversity,
+        request.required_object_types,
+        request.allowed_surfaces,
+        request.max_candidates,
         _watch_principal(current_user),
         True,
     )

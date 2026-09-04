@@ -1,0 +1,101 @@
+{
+  "cases": [
+    {
+      "id": "citation-preserving-compression",
+      "request": {
+        "task": "Summarize the finding",
+        "query": "finding",
+        "domains": ["fixture"],
+        "token_budget": 45,
+        "allowed_surfaces": ["lexical"]
+      },
+      "surfaces": {
+        "lexical": [
+          {
+            "document_id": "fixture-long",
+            "source": "laboratory",
+            "url": "https://example.test/finding",
+            "content": "The first experiment found a measurable effect. The second experiment reproduced that effect under stricter controls. The investigators published the complete protocol and uncertainty interval."
+          }
+        ]
+      },
+      "expected_status": "partial"
+    },
+    {
+      "id": "impossible-citation-budget",
+      "request": {
+        "task": "Return cited evidence",
+        "domains": ["fixture"],
+        "token_budget": 1,
+        "required_object_types": ["passage"],
+        "allowed_surfaces": ["lexical"]
+      },
+      "surfaces": {
+        "lexical": [
+          {
+            "document_id": "fixture-tiny-budget",
+            "source": "archive",
+            "content": "This evidence cannot fit together with its stable citation anchor."
+          }
+        ]
+      },
+      "expected_status": "refused"
+    },
+    {
+      "id": "syndicated-copies-preserve-independent-evidence",
+      "request": {
+        "task": "Compare the reported estimate",
+        "query": "estimate",
+        "domains": ["fixture"],
+        "token_budget": 100,
+        "allowed_surfaces": ["lexical"],
+        "diversity": {
+          "max_per_source": 2,
+          "max_per_domain": 5,
+          "max_per_object_type": 5,
+          "max_per_origin": 1
+        }
+      },
+      "surfaces": {
+        "lexical": [
+          {
+            "document_id": "wire-a",
+            "source": "wire",
+            "content": "The wire estimate reports four percent growth."
+          },
+          {
+            "document_id": "wire-b",
+            "source": "affiliate",
+            "content": "The wire estimate reports four percent growth."
+          },
+          {
+            "document_id": "wire-echo",
+            "source": "syndicator",
+            "content": "An affiliate repeats the same four percent wire estimate."
+          },
+          {
+            "document_id": "audit",
+            "source": "auditor",
+            "content": "An independent audit estimates growth near three percent."
+          },
+          {
+            "document_id": "revision",
+            "source": "regulator",
+            "content": "A revised bulletin contradicts the original estimate.",
+            "contradicting": true
+          }
+        ]
+      },
+      "lineage": {
+        "wire-a": {"origin_id": "wire-origin", "state": "likely_dependent"},
+        "wire-b": {"origin_id": "wire-origin", "state": "likely_dependent"},
+        "wire-echo": {"origin_id": "wire-origin", "state": "likely_dependent"},
+        "audit": {"origin_id": "audit-origin", "state": "known_independent"},
+        "revision": {"origin_id": "revision-origin", "state": "known_independent"}
+      },
+      "required_raw_object_ids": ["wire-a", "audit", "revision"],
+      "forbidden_raw_object_ids": ["wire-echo"],
+      "expected_status": "assembled"
+    }
+  ]
+}
