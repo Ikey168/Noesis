@@ -25,7 +25,6 @@ servers' stdlib-only-at-import discipline.
 
 from __future__ import annotations
 
-import os
 from typing import Any, Optional
 
 DEFAULT_HTTP_HOST = "127.0.0.1"
@@ -43,20 +42,24 @@ class TransportConfigError(RuntimeError):
 
 def resolve_transport() -> dict:
     """Read the transport configuration from the environment."""
-    transport = (os.getenv(TRANSPORT_ENV, "stdio") or "stdio").strip().lower()
+    from src.config.env import resolve_env
+
+    transport = (resolve_env("MCP_TRANSPORT", "stdio") or "stdio").strip().lower()
     if transport not in ("stdio", "http"):
         raise TransportConfigError(
             f"{TRANSPORT_ENV}={transport!r} is not supported (use 'stdio' or 'http')"
         )
     cfg: dict = {"transport": transport}
     if transport == "http":
-        cfg["host"] = os.getenv(HOST_ENV, DEFAULT_HTTP_HOST).strip() or DEFAULT_HTTP_HOST
-        raw_port = os.getenv(PORT_ENV, str(DEFAULT_HTTP_PORT)).strip()
+        cfg["host"] = (
+            resolve_env("MCP_HTTP_HOST", DEFAULT_HTTP_HOST) or DEFAULT_HTTP_HOST
+        ).strip()
+        raw_port = (resolve_env("MCP_HTTP_PORT", str(DEFAULT_HTTP_PORT)) or "").strip()
         try:
             cfg["port"] = int(raw_port)
         except ValueError:
             raise TransportConfigError(f"{PORT_ENV}={raw_port!r} is not a valid port")
-        cfg["token"] = os.getenv(TOKEN_ENV, "").strip() or None
+        cfg["token"] = (resolve_env("MCP_AUTH_TOKEN", "") or "").strip() or None
     return cfg
 
 

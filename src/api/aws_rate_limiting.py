@@ -6,7 +6,7 @@ tiers, and rate-limiting metrics LOCALLY -- without any AWS account or boto3.
 
 This replaces the deprecated AWS API Gateway / CloudWatch integration:
 - Usage plans and per-user API key/tier assignments are kept in-process and
-  persisted as JSON under NEURONEWS_LOG_DIR (default ./logs).
+  persisted as JSON under NOESIS_LOG_DIR (default ./logs).
 - Rate-limiting metrics are appended as JSON lines to a local metrics file.
 
 Uses the Python standard library only.
@@ -19,12 +19,14 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
+from src.config.env import resolve_env
+
 logger = logging.getLogger(__name__)
 
 
 def _get_log_dir() -> str:
-    """Return the local log/state directory (env NEURONEWS_LOG_DIR, default ./logs)."""
-    log_dir = os.environ.get("NEURONEWS_LOG_DIR", "./logs")
+    """Return the local log/state directory (env NOESIS_LOG_DIR, default ./logs)."""
+    log_dir = resolve_env("LOG_DIR", "./logs") or "./logs"
     os.makedirs(log_dir, exist_ok=True)
     return log_dir
 
@@ -82,7 +84,7 @@ class LocalUsagePlanManager:
     """Manager for local rate-limiting usage plans and per-user assignments.
 
     State (usage plans, API keys, plan-key associations) is kept in memory and
-    persisted to a JSON file under NEURONEWS_LOG_DIR so it survives restarts and
+    persisted to a JSON file under NOESIS_LOG_DIR so it survives restarts and
     can be inspected. No AWS resources are touched.
     """
 
@@ -398,7 +400,7 @@ class LocalMetricsRecorder:
 
     Replaces the deprecated AWS CloudWatch integration: metrics are appended as
     JSON lines to a local metrics file and alarm definitions are persisted to a
-    local JSON file under NEURONEWS_LOG_DIR.
+    local JSON file under NOESIS_LOG_DIR.
     """
 
     def __init__(self, region: str = None):

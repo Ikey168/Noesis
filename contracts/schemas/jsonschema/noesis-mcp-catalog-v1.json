@@ -1,0 +1,120 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/schemas/noesis-mcp-catalog-v1.json",
+  "title": "Noesis MCP Capability Catalog v1",
+  "type": "object",
+  "required": [
+    "catalog_contract", "catalog_version", "source", "servers", "tools",
+    "domains", "domain_packs", "namespaces", "transports", "summary",
+    "conformance"
+  ],
+  "properties": {
+    "catalog_contract": {"const": "noesis-mcp-catalog-v1"},
+    "catalog_version": {"const": 1},
+    "source": {"type": "string"},
+    "servers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "kind", "version", "transports", "state", "tool_count", "tools"],
+        "properties": {
+          "name": {"type": "string"},
+          "kind": {"enum": ["noesis", "external"]},
+          "version": {"type": "string"},
+          "aliases": {"type": "array", "items": {"type": "string"}},
+          "transports": {"type": "array", "items": {"type": "string"}},
+          "pack": {"type": ["string", "null"]},
+          "state": {"$ref": "#/definitions/state"},
+          "reason": {"type": ["string", "null"]},
+          "tool_count": {"type": "integer", "minimum": 0},
+          "visible_tool_count": {"type": "integer", "minimum": 0},
+          "tools": {"type": "array", "items": {"type": "string"}}
+        },
+        "additionalProperties": false
+      }
+    },
+    "tools": {"type": "array", "items": {"$ref": "#/definitions/tool"}},
+    "domains": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "backing", "visibility", "state", "document_count"],
+        "properties": {
+          "name": {"type": "string"},
+          "backing": {"enum": ["corpus-view", "namespace"]},
+          "visibility": {"enum": ["public", "private"]},
+          "state": {"$ref": "#/definitions/state"},
+          "document_count": {"type": ["integer", "null"], "minimum": 0}
+        },
+        "additionalProperties": false
+      }
+    },
+    "domain_packs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "state"],
+        "properties": {
+          "name": {"type": "string"},
+          "state": {"enum": ["available", "disabled"]}
+        },
+        "additionalProperties": false
+      }
+    },
+    "namespaces": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "domain", "backend", "visibility", "state"],
+        "properties": {
+          "name": {"type": "string"},
+          "domain": {"type": "string"},
+          "backend": {"enum": ["table-prefix", "attached"]},
+          "visibility": {"enum": ["public", "private"]},
+          "state": {"$ref": "#/definitions/state"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "transports": {"type": "array", "items": {"type": "object"}},
+    "summary": {
+      "type": "object",
+      "required": ["servers", "tools", "states", "omitted", "hidden_private_domains"]
+    },
+    "conformance": {
+      "type": "object",
+      "required": ["passed", "errors", "missing_registrations", "stale_registrations"]
+    }
+  },
+  "definitions": {
+    "state": {
+      "enum": ["available", "degraded", "empty", "disabled", "unauthorized", "unavailable"]
+    },
+    "tool": {
+      "type": "object",
+      "required": [
+        "id", "server", "name", "version", "description", "mutability",
+        "input_schema", "output_schema", "required_scopes", "cost_class",
+        "latency_class", "required_data", "state", "reason"
+      ],
+      "properties": {
+        "id": {"type": "string"},
+        "server": {"type": "string"},
+        "name": {"type": "string"},
+        "version": {"type": "string"},
+        "description": {"type": "string"},
+        "mutability": {"enum": ["read", "write"]},
+        "input_schema": {"type": "object"},
+        "output_schema": {"type": "object"},
+        "required_scopes": {"type": "array", "items": {"type": "string"}},
+        "cost_class": {"enum": ["low", "medium", "high"]},
+        "latency_class": {"enum": ["interactive", "batch"]},
+        "required_data": {"type": "array", "items": {"type": "string"}},
+        "state": {"$ref": "#/definitions/state"},
+        "reason": {"type": ["string", "null"]}
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

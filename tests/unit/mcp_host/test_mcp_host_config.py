@@ -3,7 +3,14 @@
 import json
 from pathlib import Path
 
-from src.mcp_host.config import DEFAULT_MCP_JSON, ServerSpec, load_server_specs
+import pytest
+
+from src.mcp_host.config import (
+    DEFAULT_MCP_JSON,
+    ServerSpec,
+    load_server_specs,
+    resolve_server_name,
+)
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 
@@ -12,12 +19,13 @@ def test_real_mcp_json_yields_only_project_servers():
     specs = load_server_specs()
     assert DEFAULT_MCP_JSON.exists()
     names = {s.name for s in specs}
-    # All 17 tools/*_mcp servers, and nothing npx-launched.
-    assert len(specs) == 17
-    assert "neuronews-statistics" in names
-    assert "neuronews-kg" in names
+    # All 18 tools/*_mcp servers, and nothing npx-launched.
+    assert len(specs) == 18
+    assert "noesis-statistics" in names
+    assert "noesis-kg" in names
     assert "noesis-kb" in names
-    assert "neuronews-pipeline" in names
+    assert "noesis-pipeline" in names
+    assert "noesis-catalog" in names
     assert "memory" not in names
     assert "playwright" not in names
     assert "postgres" not in names
@@ -28,6 +36,16 @@ def test_real_mcp_json_yields_only_project_servers():
         assert Path(spec.cwd) == REPO_ROOT
         # The server entry point actually exists.
         assert (REPO_ROOT / spec.args[0]).exists()
+
+
+def test_legacy_server_alias_warns_and_resolves():
+    with pytest.warns(DeprecationWarning, match="noesis-statistics"):
+        assert resolve_server_name("neuronews-statistics") == "noesis-statistics"
+
+
+def test_aliases_are_attached_to_canonical_specs():
+    specs = {spec.name: spec for spec in load_server_specs()}
+    assert "neuronews-statistics" in specs["noesis-statistics"].aliases
 
 
 def _write(tmp_path, payload) -> Path:

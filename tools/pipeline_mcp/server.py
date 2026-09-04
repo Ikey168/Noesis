@@ -58,7 +58,7 @@ if str(REPO_ROOT) not in sys.path:
 # Stdlib-only helper for the analytics honesty contract (R5); safe at import.
 from src.analytics.honesty import INTERVAL_SCHEMA, honesty_output_schema  # noqa: E402
 
-mcp = FastMCP("neuronews-pipeline")
+mcp = FastMCP("noesis-pipeline")
 
 # Caps so we always return summaries, not payloads.
 MAX_LIST = 25
@@ -89,7 +89,7 @@ def _warehouse_ro():
     if not os.path.exists(path):
         raise FileNotFoundError(
             f"warehouse not found at {path} — start the API once to seed it, "
-            f"or set NEURONEWS_DB_PATH"
+            f"or set NOESIS_DB_PATH"
         )
     try:
         return duckdb.connect(path, read_only=True)
@@ -108,7 +108,7 @@ def _warehouse_rw():
     if not os.path.exists(path):
         raise FileNotFoundError(
             f"warehouse not found at {path} — start the API once to seed it, "
-            f"or set NEURONEWS_DB_PATH"
+            f"or set NOESIS_DB_PATH"
         )
     try:
         return duckdb.connect(path, read_only=False)
@@ -456,7 +456,7 @@ def run_stage(
             except Exception as exc:
                 result["apply_error"] = (
                     f"{exc} (warehouse likely locked by a running API/ingester; "
-                    f"stop it or set NEURONEWS_DB_PATH to a free file)"
+                    f"stop it or set NOESIS_DB_PATH to a free file)"
                 )
         return result
 

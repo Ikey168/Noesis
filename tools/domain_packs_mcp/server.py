@@ -58,7 +58,7 @@ if str(REPO_ROOT) not in sys.path:
 
 CONFIG_PATH = REPO_ROOT / "config" / "domain_packs.json"
 
-mcp = FastMCP("neuronews-domain-packs")
+mcp = FastMCP("noesis-domain-packs")
 
 CONTENT_PREVIEW = 300
 

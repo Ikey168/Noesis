@@ -8,9 +8,9 @@ import pytest
 
 @pytest.fixture(autouse=True)
 def clean_env(monkeypatch):
-    """Remove any NEURONEWS_* vars that could bleed between tests."""
+    """Remove any Noesis vars that could bleed between tests."""
     for key in list(os.environ):
-        if key.startswith("NEURONEWS_"):
+        if key.startswith(("NOESIS_", "NEURONEWS_")):
             monkeypatch.delenv(key, raising=False)
     yield
 
@@ -41,6 +41,16 @@ class TestEnvFallback:
         monkeypatch.setenv("NEURONEWS_MY_KEY", "hello-world")
         from src.security.keyring_store import get_secret
         assert get_secret("neuronews", "MY_KEY") == "hello-world"
+
+    def test_noesis_secret_prefers_canonical_env_and_warns_on_legacy(self, monkeypatch):
+        self._disable_keyring()
+        from src.security.keyring_store import get_secret
+
+        monkeypatch.setenv("NEURONEWS_BACKUP_KEY", "legacy")
+        with pytest.warns(DeprecationWarning, match="NOESIS_BACKUP_KEY"):
+            assert get_secret("noesis", "BACKUP_KEY") == "legacy"
+        monkeypatch.setenv("NOESIS_BACKUP_KEY", "canonical")
+        assert get_secret("noesis", "BACKUP_KEY") == "canonical"
 
     def test_set_secret_writes_env_var_when_no_keyring(self, monkeypatch):
         self._disable_keyring()

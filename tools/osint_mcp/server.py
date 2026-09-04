@@ -35,7 +35,7 @@ if str(REPO_ROOT) not in sys.path:
 
 from src.analytics.honesty import INTERVAL_SCHEMA, honesty_output_schema  # noqa: E402
 
-mcp = FastMCP("neuronews-osint")
+mcp = FastMCP("noesis-osint")
 
 
 def _warehouse_ro():

@@ -42,8 +42,8 @@ def test_agent_calls_across_planes():
     # Both planes were exercised and recorded, on the right servers.
     transcript = rt.transcript()
     assert [c.plane for c in transcript] == [PLANE_PROVISIONING, PLANE_OSINT]
-    assert transcript[0].server == "neuronews-provisioning"
-    assert transcript[1].server == "neuronews-osint"
+    assert transcript[0].server == "noesis-provisioning"
+    assert transcript[1].server == "noesis-osint"
     assert all(c.ok for c in transcript)
 
 
@@ -93,7 +93,7 @@ def test_gated_osint_tools_are_admitted_when_the_gate_is_open(monkeypatch):
 
 
 def test_tool_error_is_recorded_not_raised():
-    caller = _fake_caller({("neuronews-osint", "corroborate"): RuntimeError("boom")})
+    caller = _fake_caller({("noesis-osint", "corroborate"): RuntimeError("boom")})
     rt = AgentRuntime(caller)
     out = rt.call(PLANE_OSINT, "corroborate", {"claim_id": "k1"})
     assert out["error"] == "boom"
@@ -127,7 +127,8 @@ def test_gated_tools_enabled_honors_the_legacy_alias(monkeypatch):
     # The gate honors both env prefixes (alias-first, per src.config.env).
     monkeypatch.delenv("NOESIS_OSINT_GATED_TOOLS", raising=False)
     monkeypatch.setenv("NEURONEWS_OSINT_GATED_TOOLS", "on")
-    assert runtime.gated_tools_enabled() is True
+    with pytest.warns(DeprecationWarning, match="NOESIS_OSINT_GATED_TOOLS"):
+        assert runtime.gated_tools_enabled() is True
 
 
 def test_runtime_gated_set_matches_the_canonical_list(monkeypatch):

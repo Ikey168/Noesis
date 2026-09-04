@@ -14,8 +14,8 @@ Usage::
 
 Passphrase resolution (same as backup_db.py):
   1. --passphrase CLI argument
-  2. OS keyring: service=neuronews, key=KG_EXPORT_KEY
-  3. Env var: NEURONEWS_KG_EXPORT_KEY
+  2. OS keyring: service=noesis, key=KG_EXPORT_KEY
+  3. Env var: NOESIS_KG_EXPORT_KEY (legacy NEURONEWS_KG_EXPORT_KEY also works)
 
 The ``--decrypt`` flag decrypts a previously exported file to stdout (JSON).
 """
@@ -35,13 +35,13 @@ def _resolve_passphrase(cli_value: str | None, key_name: str = "KG_EXPORT_KEY") 
     if cli_value:
         return cli_value
     from src.security.keyring_store import get_secret
-    value = get_secret("neuronews", key_name)
+    value = get_secret("noesis", key_name)
     if value:
         return value
     print(
         f"ERROR: No passphrase found.\n"
         f"Supply --passphrase, OS keyring key={key_name}, "
-        f"or env var NEURONEWS_{key_name}.",
+        f"or env var NOESIS_{key_name}.",
         file=sys.stderr,
     )
     sys.exit(1)

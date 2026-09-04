@@ -137,7 +137,7 @@ The statistics plane shows how the disciplines compose end to end:
 ```mermaid
 sequenceDiagram
     participant C as Consumer (agent)
-    participant M as neuronews-statistics (MCP)
+    participant M as noesis-statistics (MCP)
     participant X as QuantityExtractor
     participant W as DuckDB (read-only)
 

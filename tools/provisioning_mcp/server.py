@@ -41,7 +41,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-mcp = FastMCP("neuronews-provisioning")
+mcp = FastMCP("noesis-provisioning")
 
 # Serialises every provisioning write in this process (the warehouse is a
 # single-writer store; provisioning never runs two writes at once).
@@ -69,7 +69,7 @@ def _warehouse_rw():
     if not os.path.exists(path):
         raise FileNotFoundError(
             f"warehouse not found at {path} - start the API once to seed it, "
-            f"or set NEURONEWS_DB_PATH"
+            f"or set NOESIS_DB_PATH"
         )
     return duckdb.connect(path, read_only=False)
 

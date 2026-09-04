@@ -58,7 +58,7 @@ if str(REPO_ROOT) not in sys.path:
 
 SUBS_PATH = REPO_ROOT / "config" / "blog_subscriptions.json"
 
-mcp = FastMCP("neuronews-blog-feeds")
+mcp = FastMCP("noesis-blog-feeds")
 
 CONTENT_PREVIEW = 300
 

@@ -30,6 +30,7 @@ SERVER_PATHS = sorted((REPO_ROOT / "tools").glob("*_mcp/server.py"))
 READ_SMOKES = {
     "argument_mcp": ("am_stats", {}),
     "blog_mcp": ("list_subscriptions", {}),
+    "catalog_mcp": ("capability_catalog", {}),
     "contract_mcp": ("list_contracts", {}),
     "dataset_mcp": ("get_stats", {}),
     "domain_packs_mcp": ("list_packs", {}),
@@ -51,6 +52,11 @@ READ_SMOKES = {
 # invoked against an isolated warehouse below, but are excluded from the
 # read-only checksum assertion.
 DOCUMENTED_WRITES = {
+    ("argument_mcp", "trigger_actor_batch"),
+    ("argument_mcp", "trigger_attribution_batch"),
+    ("argument_mcp", "trigger_outlet_clustering"),
+    ("argument_mcp", "trigger_outlet_scoring"),
+    ("argument_mcp", "trigger_relation_extraction"),
     ("blog_mcp", "subscribe_feed"),
     ("blog_mcp", "unsubscribe_feed"),
     ("blog_mcp", "harvest_feed"),

@@ -92,10 +92,13 @@ def build_local_caller(conn, clock: Optional[Callable[[], Any]] = None):
         raise RuntimeError(f"no local backend for osint tool {tool!r}")
 
     def caller(server: str, tool: str, arguments: Dict[str, Any]) -> Any:
+        from src.mcp_host.config import resolve_server_name
+
         args = arguments or {}
-        if server == "neuronews-provisioning":
+        server = resolve_server_name(server)
+        if server == "noesis-provisioning":
             return _provisioning(tool, args)
-        if server == "neuronews-osint":
+        if server == "noesis-osint":
             return _osint(tool, args)
         raise RuntimeError(f"no local backend for server {server!r}")
 

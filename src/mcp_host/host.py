@@ -44,7 +44,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Any, Callable, Dict, List, Optional
 
-from src.mcp_host.config import ServerSpec, load_server_specs
+from src.mcp_host.config import ServerSpec, load_server_specs, resolve_server_name
 
 logger = logging.getLogger(__name__)
 
@@ -176,6 +176,9 @@ class MCPHost:
         self._lock = threading.Lock()
         self._statuses: Dict[str, _ServerStatus] = {
             spec.name: _ServerStatus() for spec in self.specs
+        }
+        self._aliases: Dict[str, List[str]] = {
+            spec.name: list(spec.aliases) for spec in self.specs
         }
         # Live session objects for call_tool, keyed by server name; entries
         # exist only while the supervise loop holds an open session.
@@ -333,6 +336,7 @@ class MCPHost:
         available, on tool errors, and on timeout. Callers (R3 adaptivity)
         treat any exception as "fall back to the warehouse probe".
         """
+        server = resolve_server_name(server)
         loop = self._loop
         if loop is None or not loop.is_running():
             raise RuntimeError("MCP host loop is not running")
@@ -370,6 +374,7 @@ class MCPHost:
         Errors are never cached."""
         import json as _json
 
+        server = resolve_server_name(server)
         key = (server, tool, _json.dumps(arguments or {}, sort_keys=True, default=str))
         now = time.time()
         with self._lock:
@@ -385,11 +390,14 @@ class MCPHost:
         """True when ``server`` holds a live supervised session — a warm
         connection the data proxy can reuse without paying connect cost (M2.2).
         Thread-safe: reads the session map under the lock."""
+        server = resolve_server_name(server)
         with self._lock:
             return self._sessions.get(server) is not None
 
     def invalidate_cached_calls(self, server: Optional[str] = None) -> None:
         """Drop cached tool results, for one server or all of them."""
+        if server is not None:
+            server = resolve_server_name(server)
         with self._lock:
             if server is None:
                 self._call_cache.clear()
@@ -410,6 +418,7 @@ class MCPHost:
                     "last_seen": _utc_iso(s.last_seen),
                     "last_error": s.last_error,
                     "restarts": s.restarts,
+                    "aliases": list(self._aliases.get(name, ())),
                     "cache_age_seconds": (
                         round(now - s.tools_refreshed, 1)
                         if s.tools_refreshed is not None
@@ -430,6 +439,8 @@ class MCPHost:
     def tools(self, server: Optional[str] = None) -> Dict[str, List[Dict[str, Any]]]:
         """Cached discovery results per server (name, description, meta,
         has_output_schema). Snapshot read; never triggers a round-trip."""
+        if server is not None:
+            server = resolve_server_name(server)
         with self._lock:
             if server is not None:
                 status = self._statuses.get(server)

@@ -54,7 +54,7 @@ if str(REPO_ROOT) not in sys.path:
 # Stdlib-only helper for the analytics honesty contract (R5); safe at import.
 from src.analytics.honesty import INTERVAL_SCHEMA, honesty_output_schema  # noqa: E402
 
-mcp = FastMCP("neuronews-arguments")
+mcp = FastMCP("noesis-arguments")
 
 MAX_LIST = 30
 CLAIM_PREVIEW = 120
@@ -65,16 +65,15 @@ CLAIM_PREVIEW = 120
 # --------------------------------------------------------------------------- #
 
 def _warehouse_ro():
-    """Open the DuckDB warehouse read-only, honouring NEURONEWS_DB_PATH."""
+    """Open the DuckDB warehouse read-only, honouring NOESIS_DB_PATH."""
     import os
     import duckdb
     import tempfile
     import shutil
 
-    db_path = os.environ.get(
-        "NEURONEWS_DB_PATH",
-        str(REPO_ROOT / "data" / "local_warehouse.duckdb"),
-    )
+    from src.config.env import warehouse_path
+
+    db_path = warehouse_path(str(REPO_ROOT / "data" / "local_warehouse.duckdb"))
     try:
         conn = duckdb.connect(db_path, read_only=True)
         return conn, None
@@ -618,11 +617,10 @@ def trigger_attribution_batch(limit: int = 500) -> dict:
 
     lock = threading.Lock()
     # attribution batch needs write access; try to open rw
-    import os, duckdb
-    db_path = os.environ.get(
-        "NEURONEWS_DB_PATH",
-        str(REPO_ROOT / "data" / "local_warehouse.duckdb"),
-    )
+    import duckdb
+    from src.config.env import warehouse_path
+
+    db_path = warehouse_path(str(REPO_ROOT / "data" / "local_warehouse.duckdb"))
     try:
         rw_conn = duckdb.connect(db_path, read_only=False)
         result = run_attribution_batch(rw_conn, lock, limit=limit)
@@ -795,17 +793,16 @@ def trigger_actor_batch(limit: int = 200) -> dict:
 
     Returns {"processed": int, "actors": int, "skipped": int}.
     """
-    import os, threading, duckdb
+    import threading, duckdb
 
     try:
         from src.argument_mining.metadata import run_actor_batch  # type: ignore[import]
     except ImportError as e:
         return {"error": f"metadata module unavailable: {e}"}
 
-    db_path = os.environ.get(
-        "NEURONEWS_DB_PATH",
-        str(REPO_ROOT / "data" / "local_warehouse.duckdb"),
-    )
+    from src.config.env import warehouse_path
+
+    db_path = warehouse_path(str(REPO_ROOT / "data" / "local_warehouse.duckdb"))
     try:
         rw_conn = duckdb.connect(db_path, read_only=False)
         lock = threading.Lock()
@@ -912,17 +909,16 @@ def trigger_outlet_clustering(
 
     Returns {"n_outlets", "k", "method", "silhouette", "computed_at"}.
     """
-    import os, threading, duckdb
+    import threading, duckdb
 
     try:
         from src.argument_mining.outlet_clustering import run_cluster_pipeline  # type: ignore[import]
     except ImportError as e:
         return {"error": f"outlet_clustering module unavailable: {e}"}
 
-    db_path = os.environ.get(
-        "NEURONEWS_DB_PATH",
-        str(REPO_ROOT / "data" / "local_warehouse.duckdb"),
-    )
+    from src.config.env import warehouse_path
+
+    db_path = warehouse_path(str(REPO_ROOT / "data" / "local_warehouse.duckdb"))
     try:
         rw_conn = duckdb.connect(db_path, read_only=False)
         lock = threading.Lock()
@@ -1033,17 +1029,16 @@ def trigger_outlet_scoring(date_range: str = "90d") -> dict:
 
     Returns {"outlets_scored", "score_date", "top_outlet", "top_composite"}.
     """
-    import os, threading, duckdb
+    import threading, duckdb
 
     try:
         from src.argument_mining.outlet_scorer import run_scorer_batch  # type: ignore[import]
     except ImportError as e:
         return {"error": f"outlet_scorer module unavailable: {e}"}
 
-    db_path = os.environ.get(
-        "NEURONEWS_DB_PATH",
-        str(REPO_ROOT / "data" / "local_warehouse.duckdb"),
-    )
+    from src.config.env import warehouse_path
+
+    db_path = warehouse_path(str(REPO_ROOT / "data" / "local_warehouse.duckdb"))
     try:
         rw_conn = duckdb.connect(db_path, read_only=False)
         lock = threading.Lock()
@@ -1244,7 +1239,6 @@ def trigger_relation_extraction(limit: int = 200) -> dict:
 
     Returns {"documents_processed": int, "relations_found": int}.
     """
-    import os
     import duckdb
 
     try:
@@ -1252,9 +1246,9 @@ def trigger_relation_extraction(limit: int = 200) -> dict:
     except ImportError as e:
         return {"error": f"relations module unavailable: {e}"}
 
-    db_path = os.environ.get(
-        "NEURONEWS_DB_PATH", str(REPO_ROOT / "data" / "local_warehouse.duckdb")
-    )
+    from src.config.env import warehouse_path
+
+    db_path = warehouse_path(str(REPO_ROOT / "data" / "local_warehouse.duckdb"))
     try:
         rw_conn = duckdb.connect(db_path, read_only=False)
         result = extract_document_relations(rw_conn, limit=limit)

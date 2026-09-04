@@ -20,7 +20,6 @@ Design constraints:
 """
 from __future__ import annotations
 
-import os
 import sys
 from pathlib import Path
 from typing import Optional
@@ -31,7 +30,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-mcp = FastMCP("neuronews-security")
+mcp = FastMCP("noesis-security")
 
 
 # ---------------------------------------------------------------------------
@@ -47,7 +46,7 @@ def security_posture() -> dict:
     - DB file permissions (should be 0600)
     - TLS certificate presence and expiry
     - Encrypted backup presence and age
-    - Whether NEURONEWS_DB_KEY / NEURONEWS_BACKUP_KEY are set
+    - Whether NOESIS_DB_KEY / NOESIS_BACKUP_KEY are set
 
     Returns a dict with ``status`` (ok / warning / error), a ``checks`` list,
     and a ``recommendations`` list.
@@ -56,7 +55,9 @@ def security_posture() -> dict:
     recommendations = []
 
     # DB permissions
-    db_path = os.getenv("NEURONEWS_DB_PATH", str(REPO_ROOT / "data" / "neuronews.duckdb"))
+    from src.config.env import warehouse_path
+
+    db_path = warehouse_path(str(REPO_ROOT / "data" / "neuronews.duckdb"))
     if Path(db_path).exists():
         mode = Path(db_path).stat().st_mode & 0o777
         ok = mode == 0o600
@@ -110,8 +111,11 @@ def security_posture() -> dict:
         recommendations.append("Run: python3 scripts/backup_db.py")
 
     # Secret availability
-    for env_var in ["NEURONEWS_DB_KEY", "NEURONEWS_BACKUP_KEY", "NEURONEWS_KG_EXPORT_KEY"]:
-        present = env_var in os.environ
+    from src.config.env import resolve_env
+
+    for suffix in ["DB_KEY", "BACKUP_KEY", "KG_EXPORT_KEY"]:
+        env_var = f"NOESIS_{suffix}"
+        present = resolve_env(suffix) is not None
         checks.append({
             "check": f"secret_{env_var.lower()}",
             "status": "ok" if present else "info",
@@ -133,7 +137,9 @@ def check_db_permissions() -> dict:
     Return the DuckDB file path, its current Unix permissions, and whether
     they match the recommended 0600.
     """
-    db_path = os.getenv("NEURONEWS_DB_PATH", str(REPO_ROOT / "data" / "neuronews.duckdb"))
+    from src.config.env import warehouse_path
+
+    db_path = warehouse_path(str(REPO_ROOT / "data" / "neuronews.duckdb"))
     p = Path(db_path)
     if not p.exists():
         return {"path": db_path, "exists": False}
@@ -224,11 +230,13 @@ def check_secret(service: str, key: str) -> dict:
     Check whether a secret is resolvable — never returns the value itself.
 
     Args:
-        service:  Keyring service name (e.g. ``"neuronews"``).
+        service:  Keyring service name (e.g. ``"noesis"``).
         key:      Secret key (e.g. ``"BACKUP_KEY"``).
 
     Returns: ``{resolvable: bool, source: "keyring" | "env_var" | "not_found"}``.
     """
+    import os
+
     from src.security.keyring_store import _env_key, _try_keyring
 
     # Try keyring first (without exposing value)
@@ -241,9 +249,16 @@ def check_secret(service: str, key: str) -> dict:
         except Exception:
             pass
 
-    # Try env var
+    # Try env var. Noesis secrets share the canonical-prefix resolver so the
+    # deprecated NEURONEWS_* fallback behaves like the rest of the runtime.
     env_name = _env_key(service, key)
-    if env_name in os.environ:
+    if service.casefold() == "noesis":
+        from src.config.env import resolve_env
+
+        present = resolve_env(key) is not None
+    else:
+        present = env_name in os.environ
+    if present:
         return {"resolvable": True, "source": "env_var", "env_var": env_name}
 
     return {"resolvable": False, "source": "not_found", "env_var": env_name}

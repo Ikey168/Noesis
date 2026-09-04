@@ -28,11 +28,11 @@ if str(REPO_ROOT) not in sys.path:
 
 from src.analytics.honesty import INTERVAL_SCHEMA, honesty_output_schema  # noqa: E402
 
-mcp = FastMCP("neuronews-research")
+mcp = FastMCP("noesis-research")
 
 
 def _warehouse_ro():
-    """Open the DuckDB warehouse read-only, honouring NEURONEWS_DB_PATH."""
+    """Open the DuckDB warehouse read-only, honouring NOESIS_DB_PATH."""
     import duckdb
 
     from src.config.env import warehouse_path
