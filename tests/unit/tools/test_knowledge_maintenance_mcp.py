@@ -145,6 +145,17 @@ def test_maintenance_surface_and_catalog_scope_separation(monkeypatch):
         "register_evidence_freshness_dependency",
         "propagate_evidence_freshness",
         "replay_evidence_freshness_assessment",
+        "register_research_gap_policy",
+        "record_research_coverage",
+        "discover_research_gaps",
+        "get_research_gap",
+        "explain_research_gap",
+        "list_research_gaps",
+        "update_research_gap_status",
+        "prioritize_research_gaps",
+        "list_research_gap_tasks",
+        "compare_research_gap_coverage",
+        "replay_research_gap",
     }
     assert expected <= set(tools)
     assert _required_scopes(
@@ -404,6 +415,32 @@ def test_maintenance_surface_and_catalog_scope_separation(monkeypatch):
             "knowledge:freshness:read"
         ]
     for name in (
+        "register_research_gap_policy",
+        "record_research_coverage",
+        "discover_research_gaps",
+        "prioritize_research_gaps",
+    ):
+        assert _mutability(name) == "write"
+        assert _required_scopes("knowledge_engine_mcp", "write", name) == [
+            "knowledge:gaps:write"
+        ]
+    assert _mutability("update_research_gap_status") == "write"
+    assert _required_scopes(
+        "knowledge_engine_mcp", "write", "update_research_gap_status"
+    ) == ["knowledge:gaps:review"]
+    for name in (
+        "get_research_gap",
+        "explain_research_gap",
+        "list_research_gaps",
+        "list_research_gap_tasks",
+        "compare_research_gap_coverage",
+        "replay_research_gap",
+    ):
+        assert _mutability(name) == "read"
+        assert _required_scopes("knowledge_engine_mcp", "read", name) == [
+            "knowledge:gaps:read"
+        ]
+    for name in (
         "pause_maintenance_schedule",
         "resume_maintenance_schedule",
         "cancel_maintenance_job",
@@ -500,3 +537,10 @@ def test_capabilities_advertise_generation_contracts():
     assert "noesis-evidence-freshness-impact-v1" in capabilities["contracts"]
     assert "versioned-evidence-freshness-policies" in capabilities["features"]
     assert "side-effect-free-freshness-simulation" in capabilities["features"]
+    assert "noesis-research-gap-policy-v1" in capabilities["contracts"]
+    assert "noesis-research-coverage-v1" in capabilities["contracts"]
+    assert "noesis-research-gap-v1" in capabilities["contracts"]
+    assert "noesis-research-gap-task-v1" in capabilities["contracts"]
+    assert "noesis-research-gap-report-v1" in capabilities["contracts"]
+    assert "multidimensional-research-gap-records" in capabilities["features"]
+    assert "deterministic-budgeted-research-planning" in capabilities["features"]

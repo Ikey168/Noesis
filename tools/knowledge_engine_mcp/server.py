@@ -132,6 +132,11 @@ def knowledge_engine_capabilities() -> dict:
             "noesis-evidence-freshness-assessment-v1",
             "noesis-evidence-applicability-relation-v1",
             "noesis-evidence-freshness-impact-v1",
+            "noesis-research-gap-policy-v1",
+            "noesis-research-coverage-v1",
+            "noesis-research-gap-v1",
+            "noesis-research-gap-task-v1",
+            "noesis-research-gap-report-v1",
             "noesis-maintenance-job-request-v1",
             "noesis-maintenance-job-receipt-v1",
             "noesis-knowledge-generation-v1",
@@ -189,6 +194,10 @@ def knowledge_engine_capabilities() -> dict:
             "provenance-preserving-evidence-supersession",
             "side-effect-free-freshness-simulation",
             "freshness-impact-propagation",
+            "multidimensional-research-gap-records",
+            "weak-support-and-citation-chain-detection",
+            "deterministic-budgeted-research-planning",
+            "research-gap-lifecycle-tracking",
             "knowledge-maintenance",
             "lease-safe-workers",
             "committed-generations",
@@ -3823,6 +3832,285 @@ def replay_evidence_freshness_assessment(namespace: str, assessment_id: str) -> 
             namespace, assessment_id, scopes={"knowledge:freshness:read"}
         ),
         required_scope="knowledge:freshness:read",
+    )
+
+
+@mcp.tool()
+def register_research_gap_policy(
+    namespace: str,
+    semantic_version: str,
+    thresholds: dict[str, Any],
+    weights: dict[str, Any],
+    supersedes_policy_id: str | None = None,
+    generation: int = 0,
+    valid_from_ms: int | None = None,
+    valid_to_ms: int | None = None,
+    observed_at_ms: int | None = None,
+    producer: dict[str, Any] | None = None,
+    policy_context: dict[str, Any] | None = None,
+    provenance: dict[str, Any] | None = None,
+) -> dict:
+    """Register immutable support thresholds and research-task ranking weights."""
+    from src.kb.research_gaps import ResearchGapStore
+
+    return _safe(
+        lambda conn: ResearchGapStore(conn).register_policy(
+            namespace,
+            semantic_version,
+            thresholds,
+            weights,
+            supersedes_policy_id=supersedes_policy_id,
+            generation=generation,
+            valid_from_ms=valid_from_ms,
+            valid_to_ms=valid_to_ms,
+            observed_at_ms=observed_at_ms,
+            producer=producer,
+            policy_context=policy_context,
+            provenance=provenance,
+            principal_id=_context()[0],
+            scopes={"knowledge:gaps:write"},
+        ),
+        write=True,
+        required_scope="knowledge:gaps:write",
+    )
+
+
+@mcp.tool()
+def record_research_coverage(
+    namespace: str,
+    object_kind: str,
+    object_id: str,
+    dimension: dict[str, Any],
+    coverage_known: bool,
+    supports: list[dict[str, Any]],
+    signals: dict[str, Any] | None = None,
+    generation: int = 0,
+    valid_from_ms: int | None = None,
+    valid_to_ms: int | None = None,
+    observed_at_ms: int | None = None,
+    producer: dict[str, Any] | None = None,
+    policy: dict[str, Any] | None = None,
+    provenance: dict[str, Any] | None = None,
+) -> dict:
+    """Record a versioned coverage observation against an existing knowledge identity."""
+    from src.kb.research_gaps import ResearchGapStore
+
+    return _safe(
+        lambda conn: ResearchGapStore(conn).observe(
+            namespace,
+            object_kind,
+            object_id,
+            dimension,
+            coverage_known=coverage_known,
+            supports=supports,
+            signals=signals or {},
+            generation=generation,
+            valid_from_ms=valid_from_ms,
+            valid_to_ms=valid_to_ms,
+            observed_at_ms=observed_at_ms,
+            producer=producer,
+            policy=policy,
+            provenance=provenance,
+            principal_id=_context()[0],
+            scopes={"knowledge:gaps:write"},
+        ),
+        write=True,
+        required_scope="knowledge:gaps:write",
+    )
+
+
+@mcp.tool()
+def discover_research_gaps(
+    namespace: str,
+    policy_version: str | None = None,
+    object_kind: str | None = None,
+    limit: int = 100,
+    cancel_requested: bool = False,
+) -> dict:
+    """Detect bounded weak-support, contradiction, citation-chain, and coverage gaps."""
+    from src.kb.research_gaps import ResearchGapStore
+
+    return _safe(
+        lambda conn: ResearchGapStore(conn).discover(
+            namespace,
+            policy_version=policy_version,
+            object_kind=object_kind,
+            limit=limit,
+            cancel_requested=cancel_requested,
+            principal_id=_context()[0],
+            scopes={"knowledge:gaps:write"},
+        ),
+        write=True,
+        required_scope="knowledge:gaps:write",
+    )
+
+
+@mcp.tool()
+def get_research_gap(namespace: str, gap_id: str) -> dict:
+    """Read the current immutable revision of one research gap."""
+    from src.kb.research_gaps import ResearchGapStore
+
+    return _safe(
+        lambda conn: ResearchGapStore(conn, initialize=False).get(
+            namespace, gap_id, scopes={"knowledge:gaps:read"}
+        ),
+        required_scope="knowledge:gaps:read",
+    )
+
+
+@mcp.tool()
+def explain_research_gap(namespace: str, gap_id: str) -> dict:
+    """Drill into thresholds, evidence identities, provenance, and ranking signals."""
+    from src.kb.research_gaps import ResearchGapStore
+
+    def operation(conn):
+        gap = ResearchGapStore(conn, initialize=False).get(
+            namespace, gap_id, scopes={"knowledge:gaps:read"}
+        )
+        if gap is None:
+            return None
+        return {
+            "gap_id": gap_id,
+            "gap_type": gap["gap_type"],
+            "status": gap["status"],
+            "dimension": gap["dimension"],
+            "detail": gap["detail"],
+            "explanation": gap["explanation"],
+            "provenance": gap["provenance"],
+            "content_hash": gap["content_hash"],
+        }
+
+    return _safe(operation, required_scope="knowledge:gaps:read")
+
+
+@mcp.tool()
+def list_research_gaps(
+    namespace: str,
+    status: str | None = None,
+    gap_type: str | None = None,
+    object_kind: str | None = None,
+    limit: int = 100,
+    cursor: str | None = None,
+) -> dict:
+    """Page deterministically through research gaps within one namespace."""
+    from src.kb.research_gaps import ResearchGapStore
+
+    return _safe(
+        lambda conn: ResearchGapStore(conn, initialize=False).list(
+            namespace,
+            status=status,
+            gap_type=gap_type,
+            object_kind=object_kind,
+            limit=limit,
+            cursor=cursor,
+            scopes={"knowledge:gaps:read"},
+        ),
+        required_scope="knowledge:gaps:read",
+    )
+
+
+@mcp.tool()
+def update_research_gap_status(
+    namespace: str,
+    gap_id: str,
+    status: str,
+    reason: str,
+    evidence: list[dict[str, Any]],
+) -> dict:
+    """Review, progress, resolve, or dismiss a gap with explicit evidence."""
+    from src.kb.research_gaps import ResearchGapStore
+
+    return _safe(
+        lambda conn: ResearchGapStore(conn).set_status(
+            namespace,
+            gap_id,
+            status,
+            reason=reason,
+            evidence=evidence,
+            principal_id=_context()[0],
+            scopes={"knowledge:gaps:review"},
+        ),
+        write=True,
+        required_scope="knowledge:gaps:review",
+    )
+
+
+@mcp.tool()
+def prioritize_research_gaps(
+    namespace: str,
+    budget: float,
+    max_tasks: int = 25,
+    blocked_source_classes: list[str] | None = None,
+    policy_version: str | None = None,
+) -> dict:
+    """Rank open gaps and persist executable suggestions within a hard budget."""
+    from src.kb.research_gaps import ResearchGapStore
+
+    return _safe(
+        lambda conn: ResearchGapStore(conn).prioritize(
+            namespace,
+            budget=budget,
+            max_tasks=max_tasks,
+            blocked_source_classes=blocked_source_classes or [],
+            policy_version=policy_version,
+            principal_id=_context()[0],
+            scopes={"knowledge:gaps:write"},
+        ),
+        write=True,
+        required_scope="knowledge:gaps:write",
+    )
+
+
+@mcp.tool()
+def list_research_gap_tasks(
+    namespace: str,
+    status: str | None = None,
+    limit: int = 100,
+    cursor: str | None = None,
+) -> dict:
+    """List generated research tasks and their current execution status."""
+    from src.kb.research_gaps import ResearchGapStore
+
+    return _safe(
+        lambda conn: ResearchGapStore(conn, initialize=False).tasks(
+            namespace,
+            status=status,
+            limit=limit,
+            cursor=cursor,
+            scopes={"knowledge:gaps:read"},
+        ),
+        required_scope="knowledge:gaps:read",
+    )
+
+
+@mcp.tool()
+def compare_research_gap_coverage(
+    namespace: str, before_observed_ms: int, after_observed_ms: int
+) -> dict:
+    """Compare gap counts and coverage score before and after research work."""
+    from src.kb.research_gaps import ResearchGapStore
+
+    return _safe(
+        lambda conn: ResearchGapStore(conn, initialize=False).compare_coverage(
+            namespace,
+            before_observed_ms,
+            after_observed_ms,
+            scopes={"knowledge:gaps:read"},
+        ),
+        required_scope="knowledge:gaps:read",
+    )
+
+
+@mcp.tool()
+def replay_research_gap(namespace: str, gap_id: str) -> dict:
+    """Verify the current gap revision against its canonical calculation hash."""
+    from src.kb.research_gaps import ResearchGapStore
+
+    return _safe(
+        lambda conn: ResearchGapStore(conn, initialize=False).replay(
+            namespace, gap_id, scopes={"knowledge:gaps:read"}
+        ),
+        required_scope="knowledge:gaps:read",
     )
 
 

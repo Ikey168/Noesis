@@ -53,6 +53,9 @@ For the project overview and local setup, start with the
 - **[Evidence freshness and decay](guides/evidence-freshness.md)** — versioned
   domain policies, supersession provenance, explainable decay, safe simulation,
   and freshness propagation into knowledge products
+- **[Research-gap discovery](guides/research-gaps.md)** — multidimensional
+  coverage gaps, weak-support and citation-chain detection, lifecycle tracking,
+  and deterministic budgeted research tasks
 - **[Unified knowledge query](guides/unified-knowledge-query.md)** — one bounded,
   evidence-preserving plane over local, temporal, memory, and federated data.
 - [Project structure](development/project-structure.md) — where things live in

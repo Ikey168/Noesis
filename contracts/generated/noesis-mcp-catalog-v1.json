@@ -808,7 +808,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 169,
+      "tool_count": 180,
       "tools": [
         "noesis-knowledge-engine.accept_source_pack_license",
         "noesis-knowledge-engine.add_source_relationship",
@@ -831,6 +831,7 @@
         "noesis-knowledge-engine.compare_claim_sources",
         "noesis-knowledge-engine.compare_evidence_freshness_policies",
         "noesis-knowledge-engine.compare_hypotheses",
+        "noesis-knowledge-engine.compare_research_gap_coverage",
         "noesis-knowledge-engine.convert_quantitative_value",
         "noesis-knowledge-engine.create_event_record",
         "noesis-knowledge-engine.create_hypothesis_research_plan",
@@ -847,6 +848,7 @@
         "noesis-knowledge-engine.diff_claim_timeline_states",
         "noesis-knowledge-engine.diff_event_revisions",
         "noesis-knowledge-engine.discover_quantitative_metrics",
+        "noesis-knowledge-engine.discover_research_gaps",
         "noesis-knowledge-engine.document_generation_delta",
         "noesis-knowledge-engine.document_revision",
         "noesis-knowledge-engine.document_revision_health",
@@ -860,6 +862,7 @@
         "noesis-knowledge-engine.explain_derived_object_invalidation",
         "noesis-knowledge-engine.explain_epistemic_assessment",
         "noesis-knowledge-engine.explain_knowledge_query",
+        "noesis-knowledge-engine.explain_research_gap",
         "noesis-knowledge-engine.explain_source_independence",
         "noesis-knowledge-engine.export_hypothesis_workspace",
         "noesis-knowledge-engine.fetch_declarative_api",
@@ -874,6 +877,7 @@
         "noesis-knowledge-engine.get_hypothesis_research_plan",
         "noesis-knowledge-engine.get_hypothesis_workspace",
         "noesis-knowledge-engine.get_quantitative_metric",
+        "noesis-knowledge-engine.get_research_gap",
         "noesis-knowledge-engine.ingest_event_mentions",
         "noesis-knowledge-engine.inspect_maintenance_generation",
         "noesis-knowledge-engine.inspect_maintenance_job",
@@ -891,6 +895,8 @@
         "noesis-knowledge-engine.list_geospatial_geometries",
         "noesis-knowledge-engine.list_maintenance_due_work",
         "noesis-knowledge-engine.list_maintenance_jobs",
+        "noesis-knowledge-engine.list_research_gap_tasks",
+        "noesis-knowledge-engine.list_research_gaps",
         "noesis-knowledge-engine.list_source_pack_quarantine",
         "noesis-knowledge-engine.list_source_pack_schedules",
         "noesis-knowledge-engine.list_source_packs",
@@ -902,6 +908,7 @@
         "noesis-knowledge-engine.plan_extractor_reprocessing",
         "noesis-knowledge-engine.preflight_source_pack_run",
         "noesis-knowledge-engine.preview_artifact_invalidation",
+        "noesis-knowledge-engine.prioritize_research_gaps",
         "noesis-knowledge-engine.propagate_evidence_freshness",
         "noesis-knowledge-engine.query_geospatial_event_map",
         "noesis-knowledge-engine.query_knowledge",
@@ -910,6 +917,7 @@
         "noesis-knowledge-engine.record_geospatial_resolution",
         "noesis-knowledge-engine.record_quantitative_observation",
         "noesis-knowledge-engine.record_quantitative_series_break",
+        "noesis-knowledge-engine.record_research_coverage",
         "noesis-knowledge-engine.recover_stale_maintenance_jobs",
         "noesis-knowledge-engine.register_derived_artifact",
         "noesis-knowledge-engine.register_epistemic_taxonomy",
@@ -919,6 +927,7 @@
         "noesis-knowledge-engine.register_geospatial_place",
         "noesis-knowledge-engine.register_quantitative_metric",
         "noesis-knowledge-engine.register_quantitative_unit",
+        "noesis-knowledge-engine.register_research_gap_policy",
         "noesis-knowledge-engine.register_source_identity",
         "noesis-knowledge-engine.relate_events",
         "noesis-knowledge-engine.relate_evidence_applicability",
@@ -932,6 +941,7 @@
         "noesis-knowledge-engine.replay_knowledge_query",
         "noesis-knowledge-engine.replay_maintenance_generation",
         "noesis-knowledge-engine.replay_quantitative_calculation",
+        "noesis-knowledge-engine.replay_research_gap",
         "noesis-knowledge-engine.replay_source_pack_run",
         "noesis-knowledge-engine.replay_spatial_relation",
         "noesis-knowledge-engine.research_snapshot_health",
@@ -976,6 +986,7 @@
         "noesis-knowledge-engine.store_geospatial_geometry",
         "noesis-knowledge-engine.transform_quantitative_frequency",
         "noesis-knowledge-engine.unified_query_capabilities",
+        "noesis-knowledge-engine.update_research_gap_status",
         "noesis-knowledge-engine.validate_api_connector_manifest",
         "noesis-knowledge-engine.validate_knowledge_workflow",
         "noesis-knowledge-engine.validate_source_pack"
@@ -985,7 +996,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 169
+      "visible_tool_count": 180
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -999,9 +1010,9 @@
       "available": 81,
       "degraded": 155,
       "disabled": 3,
-      "unauthorized": 170
+      "unauthorized": 181
     },
-    "tools": 409
+    "tools": 420
   },
   "tools": [
     {
@@ -14222,6 +14233,47 @@
     },
     {
       "cost_class": "medium",
+      "description": "Compare gap counts and coverage score before and after research work.",
+      "id": "noesis-knowledge-engine.compare_research_gap_coverage",
+      "input_schema": {
+        "properties": {
+          "after_observed_ms": {
+            "type": "integer"
+          },
+          "before_observed_ms": {
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "before_observed_ms",
+          "after_observed_ms"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "compare_research_gap_coverage",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:gaps:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Convert a value using exact units, explicit FX evidence, and a durable receipt.",
       "id": "noesis-knowledge-engine.convert_quantitative_value",
       "input_schema": {
@@ -15152,6 +15204,69 @@
       "version": "1"
     },
     {
+      "cost_class": "medium",
+      "description": "Detect bounded weak-support, contradiction, citation-chain, and coverage gaps.",
+      "id": "noesis-knowledge-engine.discover_research_gaps",
+      "input_schema": {
+        "properties": {
+          "cancel_requested": {
+            "default": false,
+            "type": "boolean"
+          },
+          "limit": {
+            "default": 100,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "object_kind": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "policy_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "discover_research_gaps",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:gaps:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "low",
       "description": "Page deterministic changes across a committed source-pack watermark range.",
       "id": "noesis-knowledge-engine.document_generation_delta",
@@ -15775,6 +15890,43 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Drill into thresholds, evidence identities, provenance, and ranking signals.",
+      "id": "noesis-knowledge-engine.explain_research_gap",
+      "input_schema": {
+        "properties": {
+          "gap_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "gap_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "explain_research_gap",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:gaps:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
       "version": "1"
     },
     {
@@ -16437,6 +16589,43 @@
       ],
       "required_scopes": [
         "knowledge:quantitative:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Read the current immutable revision of one research gap.",
+      "id": "noesis-knowledge-engine.get_research_gap",
+      "input_schema": {
+        "properties": {
+          "gap_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "gap_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "get_research_gap",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:gaps:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -17227,6 +17416,146 @@
       "version": "1"
     },
     {
+      "cost_class": "medium",
+      "description": "List generated research tasks and their current execution status.",
+      "id": "noesis-knowledge-engine.list_research_gap_tasks",
+      "input_schema": {
+        "properties": {
+          "cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "limit": {
+            "default": 100,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_research_gap_tasks",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:gaps:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Page deterministically through research gaps within one namespace.",
+      "id": "noesis-knowledge-engine.list_research_gaps",
+      "input_schema": {
+        "properties": {
+          "cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "gap_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "limit": {
+            "default": 100,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "object_kind": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_research_gaps",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:gaps:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "low",
       "description": "List credential-safe quarantined record identities and mapping failures.",
       "id": "noesis-knowledge-engine.list_source_pack_quarantine",
@@ -17630,6 +17959,72 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Rank open gaps and persist executable suggestions within a hard budget.",
+      "id": "noesis-knowledge-engine.prioritize_research_gaps",
+      "input_schema": {
+        "properties": {
+          "blocked_source_classes": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "budget": {
+            "type": "number"
+          },
+          "max_tasks": {
+            "default": 25,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "policy_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "budget"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "prioritize_research_gaps",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:gaps:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
       "version": "1"
     },
     {
@@ -18179,6 +18574,149 @@
       ],
       "required_scopes": [
         "knowledge:quantitative:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Record a versioned coverage observation against an existing knowledge identity.",
+      "id": "noesis-knowledge-engine.record_research_coverage",
+      "input_schema": {
+        "properties": {
+          "coverage_known": {
+            "type": "boolean"
+          },
+          "dimension": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "generation": {
+            "default": 0,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "object_id": {
+            "type": "string"
+          },
+          "object_kind": {
+            "type": "string"
+          },
+          "observed_at_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "policy": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "producer": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "provenance": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "signals": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "supports": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "valid_from_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "valid_to_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "object_kind",
+          "object_id",
+          "dimension",
+          "coverage_known",
+          "supports"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "record_research_coverage",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:gaps:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -18952,6 +19490,137 @@
     },
     {
       "cost_class": "medium",
+      "description": "Register immutable support thresholds and research-task ranking weights.",
+      "id": "noesis-knowledge-engine.register_research_gap_policy",
+      "input_schema": {
+        "properties": {
+          "generation": {
+            "default": 0,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "observed_at_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "policy_context": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "producer": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "provenance": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "semantic_version": {
+            "type": "string"
+          },
+          "supersedes_policy_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "thresholds": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "valid_from_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "valid_to_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "weights": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "namespace",
+          "semantic_version",
+          "thresholds",
+          "weights"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "register_research_gap_policy",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:gaps:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Register a canonical publication, organization, author, channel, or account.",
       "id": "noesis-knowledge-engine.register_source_identity",
       "input_schema": {
@@ -19646,6 +20315,43 @@
       ],
       "required_scopes": [
         "knowledge:quantitative:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Verify the current gap revision against its canonical calculation hash.",
+      "id": "noesis-knowledge-engine.replay_research_gap",
+      "input_schema": {
+        "properties": {
+          "gap_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "gap_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "replay_research_gap",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:gaps:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -21914,6 +22620,59 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Review, progress, resolve, or dismiss a gap with explicit evidence.",
+      "id": "noesis-knowledge-engine.update_research_gap_status",
+      "input_schema": {
+        "properties": {
+          "evidence": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "gap_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "gap_id",
+          "status",
+          "reason",
+          "evidence"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "update_research_gap_status",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:gaps:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
       "version": "1"
     },
     {
