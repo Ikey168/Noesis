@@ -808,7 +808,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 281,
+      "tool_count": 291,
       "tools": [
         "noesis-knowledge-engine.accept_citation_repair",
         "noesis-knowledge-engine.accept_dataset_join",
@@ -817,6 +817,7 @@
         "noesis-knowledge-engine.add_source_relationship",
         "noesis-knowledge-engine.adjust_quantitative_inflation",
         "noesis-knowledge-engine.aggregate_quality_assessments",
+        "noesis-knowledge-engine.align_cross_language_claims",
         "noesis-knowledge-engine.annotate_evidence_freshness",
         "noesis-knowledge-engine.artifact_lineage",
         "noesis-knowledge-engine.assess_epistemic_statement",
@@ -840,6 +841,7 @@
         "noesis-knowledge-engine.close_research_snapshot",
         "noesis-knowledge-engine.compare_change_briefs",
         "noesis-knowledge-engine.compare_claim_sources",
+        "noesis-knowledge-engine.compare_cross_language_claims",
         "noesis-knowledge-engine.compare_dataset_releases",
         "noesis-knowledge-engine.compare_evidence_freshness_policies",
         "noesis-knowledge-engine.compare_hypotheses",
@@ -917,6 +919,7 @@
         "noesis-knowledge-engine.get_methodology_study",
         "noesis-knowledge-engine.get_multimodal_asset",
         "noesis-knowledge-engine.get_multimodal_segment",
+        "noesis-knowledge-engine.get_original_language_text",
         "noesis-knowledge-engine.get_quality_assessment",
         "noesis-knowledge-engine.get_quality_policy",
         "noesis-knowledge-engine.get_quantitative_metric",
@@ -961,6 +964,7 @@
         "noesis-knowledge-engine.maintenance_generation_lineage",
         "noesis-knowledge-engine.maintenance_health",
         "noesis-knowledge-engine.merge_canonical_events",
+        "noesis-knowledge-engine.multilingual_search",
         "noesis-knowledge-engine.pause_maintenance_schedule",
         "noesis-knowledge-engine.plan_extractor_reprocessing",
         "noesis-knowledge-engine.preflight_source_pack_run",
@@ -983,10 +987,13 @@
         "noesis-knowledge-engine.record_citation_health",
         "noesis-knowledge-engine.record_entity_identity_decision",
         "noesis-knowledge-engine.record_geospatial_resolution",
+        "noesis-knowledge-engine.record_language_text",
         "noesis-knowledge-engine.record_media_transformation",
+        "noesis-knowledge-engine.record_multilingual_alias",
         "noesis-knowledge-engine.record_quantitative_observation",
         "noesis-knowledge-engine.record_quantitative_series_break",
         "noesis-knowledge-engine.record_research_coverage",
+        "noesis-knowledge-engine.record_translation",
         "noesis-knowledge-engine.recover_stale_maintenance_jobs",
         "noesis-knowledge-engine.register_change_brief_policy",
         "noesis-knowledge-engine.register_citation_archive_policy",
@@ -1047,10 +1054,13 @@
         "noesis-knowledge-engine.retry_source_pack_quarantine",
         "noesis-knowledge-engine.reverse_event_merge",
         "noesis-knowledge-engine.review_change_brief",
+        "noesis-knowledge-engine.review_cross_language_alignment",
         "noesis-knowledge-engine.review_epistemic_status",
         "noesis-knowledge-engine.review_evidence_freshness_override",
         "noesis-knowledge-engine.review_geospatial_resolution",
+        "noesis-knowledge-engine.review_multilingual_alias",
         "noesis-knowledge-engine.review_quality_override",
+        "noesis-knowledge-engine.review_translation",
         "noesis-knowledge-engine.revise_event_record",
         "noesis-knowledge-engine.revise_geospatial_place",
         "noesis-knowledge-engine.revise_hypothesis_workspace",
@@ -1097,7 +1107,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 281
+      "visible_tool_count": 291
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -1111,9 +1121,9 @@
       "available": 81,
       "degraded": 155,
       "disabled": 3,
-      "unauthorized": 282
+      "unauthorized": 292
     },
-    "tools": 521
+    "tools": 531
   },
   "tools": [
     {
@@ -13313,6 +13323,94 @@
     },
     {
       "cost_class": "medium",
+      "description": "Link translated, equivalent, narrower, broader, or divergent claims.",
+      "id": "noesis-knowledge-engine.align_cross_language_claims",
+      "input_schema": {
+        "properties": {
+          "analysis": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "confidence": {
+            "default": 0.0,
+            "type": "number"
+          },
+          "evidence": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "relation": {
+            "type": "string"
+          },
+          "source_claim_id": {
+            "type": "string"
+          },
+          "source_text_id": {
+            "type": "string"
+          },
+          "status": {
+            "default": "candidate",
+            "type": "string"
+          },
+          "target_claim_id": {
+            "type": "string"
+          },
+          "target_text_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "source_claim_id",
+          "target_claim_id",
+          "relation",
+          "source_text_id",
+          "target_text_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "align_cross_language_claims",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:cross-language:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Attach immutable lifecycle metadata to an existing evidence identity.",
       "id": "noesis-knowledge-engine.annotate_evidence_freshness",
       "input_schema": {
@@ -15104,6 +15202,43 @@
       ],
       "required_scopes": [
         "knowledge:claim-timeline:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Inspect aligned source wording, relation, evidence, and divergence analysis.",
+      "id": "noesis-knowledge-engine.compare_cross_language_claims",
+      "input_schema": {
+        "properties": {
+          "alignment_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "alignment_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "compare_cross_language_claims",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:cross-language:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -18996,6 +19131,43 @@
     },
     {
       "cost_class": "low",
+      "description": "Retrieve source wording without substituting a translation.",
+      "id": "noesis-knowledge-engine.get_original_language_text",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "text_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "text_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "get_original_language_text",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:cross-language:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Inspect dimensions, uncertainty, defaults, flags, and lineage.",
       "id": "noesis-knowledge-engine.get_quality_assessment",
       "input_schema": {
@@ -21050,6 +21222,65 @@
     },
     {
       "cost_class": "medium",
+      "description": "Search originals, aliases, and translations with language-fair ranking.",
+      "id": "noesis-knowledge-engine.multilingual_search",
+      "input_schema": {
+        "properties": {
+          "include_translations": {
+            "default": true,
+            "type": "boolean"
+          },
+          "languages": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "limit": {
+            "default": 20,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "query": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "query"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "multilingual_search",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:cross-language:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Pause dispatch for one source pack while preserving its durable schedule.",
       "id": "noesis-knowledge-engine.pause_maintenance_schedule",
       "input_schema": {
@@ -22371,6 +22602,105 @@
       "version": "1"
     },
     {
+      "cost_class": "low",
+      "description": "Record immutable original text plus declared/detected language metadata.",
+      "id": "noesis-knowledge-engine.record_language_text",
+      "input_schema": {
+        "properties": {
+          "code_switches": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "direction": {
+            "default": "auto",
+            "type": "string"
+          },
+          "language": {
+            "default": "und",
+            "type": "string"
+          },
+          "locale": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "metadata": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "object_id": {
+            "type": "string"
+          },
+          "object_type": {
+            "type": "string"
+          },
+          "original_text": {
+            "type": "string"
+          },
+          "revision": {
+            "default": 1,
+            "type": "integer"
+          },
+          "script": {
+            "default": "Zyyy",
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "object_type",
+          "object_id",
+          "original_text"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "record_language_text",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:cross-language:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "medium",
       "description": "Record crops, edits, mirrors, and recompression as provenance edges.",
       "id": "noesis-knowledge-engine.record_media_transformation",
@@ -22415,6 +22745,103 @@
       ],
       "required_scopes": [
         "knowledge:multimodal:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Record a sourced multilingual alias or transliteration candidate.",
+      "id": "noesis-knowledge-engine.record_multilingual_alias",
+      "input_schema": {
+        "properties": {
+          "alias_text": {
+            "type": "string"
+          },
+          "alternatives": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "confidence": {
+            "default": 0.0,
+            "type": "number"
+          },
+          "entity_id": {
+            "type": "string"
+          },
+          "evidence": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "language": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "script": {
+            "type": "string"
+          },
+          "status": {
+            "default": "candidate",
+            "type": "string"
+          },
+          "transliteration_system": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "entity_id",
+          "alias_text",
+          "language",
+          "script"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "record_multilingual_alias",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:cross-language:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -22774,6 +23201,94 @@
       ],
       "required_scopes": [
         "knowledge:gaps:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Record a versioned human, source-provided, or model translation.",
+      "id": "noesis-knowledge-engine.record_translation",
+      "input_schema": {
+        "properties": {
+          "alternatives": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "confidence": {
+            "default": 0.0,
+            "type": "number"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "passage": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "producer": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "source_text_id": {
+            "type": "string"
+          },
+          "status": {
+            "default": "unreviewed",
+            "type": "string"
+          },
+          "target_language": {
+            "type": "string"
+          },
+          "translated_text": {
+            "type": "string"
+          },
+          "version": {
+            "default": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "namespace",
+          "source_text_id",
+          "target_language",
+          "translated_text",
+          "producer"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "record_translation",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:cross-language:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -26912,6 +27427,55 @@
     },
     {
       "cost_class": "medium",
+      "description": "Review a cross-language claim relation without erasing either claim.",
+      "id": "noesis-knowledge-engine.review_cross_language_alignment",
+      "input_schema": {
+        "properties": {
+          "alignment_id": {
+            "type": "string"
+          },
+          "decision": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "rationale": {
+            "default": "",
+            "type": "string"
+          },
+          "reviewer_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "alignment_id",
+          "decision",
+          "reviewer_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_cross_language_alignment",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:cross-language:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Record an authorized override without erasing machine assessment history.",
       "id": "noesis-knowledge-engine.review_epistemic_status",
       "input_schema": {
@@ -27088,6 +27652,55 @@
     },
     {
       "cost_class": "medium",
+      "description": "Accept, reject, or preserve ambiguity for an alias decision.",
+      "id": "noesis-knowledge-engine.review_multilingual_alias",
+      "input_schema": {
+        "properties": {
+          "alias_id": {
+            "type": "string"
+          },
+          "decision": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "rationale": {
+            "default": "",
+            "type": "string"
+          },
+          "reviewer_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "alias_id",
+          "decision",
+          "reviewer_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_multilingual_alias",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:cross-language:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Record an explicit human quality override without rewriting evidence.",
       "id": "noesis-knowledge-engine.review_quality_override",
       "input_schema": {
@@ -27134,6 +27747,55 @@
       ],
       "required_scopes": [
         "knowledge:quality:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Append a human review or disagreement to translation history.",
+      "id": "noesis-knowledge-engine.review_translation",
+      "input_schema": {
+        "properties": {
+          "decision": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "rationale": {
+            "default": "",
+            "type": "string"
+          },
+          "reviewer_id": {
+            "type": "string"
+          },
+          "translation_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "translation_id",
+          "decision",
+          "reviewer_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_translation",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:cross-language:review"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",

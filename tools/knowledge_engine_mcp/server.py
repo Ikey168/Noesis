@@ -182,6 +182,11 @@ def knowledge_engine_capabilities() -> dict:
             "noesis-entity-split-v1",
             "noesis-entity-impact-v1",
             "noesis-entity-history-export-v1",
+            "noesis-language-text-v1",
+            "noesis-multilingual-alias-v1",
+            "noesis-cross-language-claim-alignment-v1",
+            "noesis-translation-record-v1",
+            "noesis-multilingual-search-v1",
             "noesis-maintenance-job-request-v1",
             "noesis-maintenance-job-receipt-v1",
             "noesis-knowledge-generation-v1",
@@ -279,6 +284,11 @@ def knowledge_engine_capabilities() -> dict:
             "atomic-reversible-entity-merges-and-splits",
             "selective-entity-dependency-rebuilds",
             "snapshot-aware-entity-resolution-history",
+            "immutable-original-language-text",
+            "reviewed-multilingual-aliases-and-transliterations",
+            "ambiguity-preserving-cross-language-claim-alignment",
+            "versioned-translation-provenance",
+            "language-fair-multilingual-search",
             "knowledge-maintenance",
             "lease-safe-workers",
             "committed-generations",
@@ -6663,6 +6673,280 @@ def export_entity_identity_history(namespace: str, entity_ids: list[str]) -> dic
             namespace, entity_ids, scopes={"knowledge:entity-history:read"}
         ),
         required_scope="knowledge:entity-history:read",
+    )
+
+
+@mcp.tool()
+def record_language_text(
+    namespace: str,
+    object_type: str,
+    object_id: str,
+    original_text: str,
+    language: str = "und",
+    script: str = "Zyyy",
+    locale: str | None = None,
+    direction: str = "auto",
+    code_switches: list[dict[str, Any]] | None = None,
+    metadata: dict[str, Any] | None = None,
+    revision: int = 1,
+) -> dict:
+    """Record immutable original text plus declared/detected language metadata."""
+    from src.kb.cross_language import CrossLanguageStore
+
+    return _safe(
+        lambda c: CrossLanguageStore(c).record_text(
+            namespace,
+            object_type,
+            object_id,
+            original_text,
+            language=language,
+            script=script,
+            locale=locale,
+            direction=direction,
+            code_switches=code_switches or [],
+            metadata=metadata,
+            revision=revision,
+            principal_id=_context()[0],
+            scopes={"knowledge:cross-language:write"},
+        ),
+        write=True,
+        required_scope="knowledge:cross-language:write",
+    )
+
+
+@mcp.tool()
+def get_original_language_text(namespace: str, text_id: str) -> dict:
+    """Retrieve source wording without substituting a translation."""
+    from src.kb.cross_language import CrossLanguageStore
+
+    return _safe(
+        lambda c: CrossLanguageStore(c, initialize=False).get_text(
+            namespace, text_id, scopes={"knowledge:cross-language:read"}
+        ),
+        required_scope="knowledge:cross-language:read",
+    )
+
+
+@mcp.tool()
+def record_multilingual_alias(
+    namespace: str,
+    entity_id: str,
+    alias_text: str,
+    language: str,
+    script: str,
+    transliteration_system: str | None = None,
+    confidence: float = 0.0,
+    evidence: list[dict[str, Any]] | None = None,
+    alternatives: list[str] | None = None,
+    status: str = "candidate",
+) -> dict:
+    """Record a sourced multilingual alias or transliteration candidate."""
+    from src.kb.cross_language import CrossLanguageStore
+
+    return _safe(
+        lambda c: CrossLanguageStore(c).record_alias(
+            namespace,
+            entity_id,
+            alias_text,
+            language,
+            script,
+            transliteration_system=transliteration_system,
+            confidence=confidence,
+            evidence=evidence or [],
+            alternatives=alternatives or [],
+            status=status,
+            principal_id=_context()[0],
+            scopes={"knowledge:cross-language:write"},
+        ),
+        write=True,
+        required_scope="knowledge:cross-language:write",
+    )
+
+
+@mcp.tool()
+def review_multilingual_alias(
+    namespace: str,
+    alias_id: str,
+    decision: str,
+    reviewer_id: str,
+    rationale: str = "",
+) -> dict:
+    """Accept, reject, or preserve ambiguity for an alias decision."""
+    from src.kb.cross_language import CrossLanguageStore
+
+    return _safe(
+        lambda c: CrossLanguageStore(c).review_alias(
+            namespace,
+            alias_id,
+            decision,
+            reviewer_id,
+            rationale=rationale,
+            principal_id=_context()[0],
+            scopes={"knowledge:cross-language:review"},
+        ),
+        write=True,
+        required_scope="knowledge:cross-language:review",
+    )
+
+
+@mcp.tool()
+def align_cross_language_claims(
+    namespace: str,
+    source_claim_id: str,
+    target_claim_id: str,
+    relation: str,
+    source_text_id: str,
+    target_text_id: str,
+    confidence: float = 0.0,
+    evidence: list[dict[str, Any]] | None = None,
+    analysis: dict[str, Any] | None = None,
+    status: str = "candidate",
+) -> dict:
+    """Link translated, equivalent, narrower, broader, or divergent claims."""
+    from src.kb.cross_language import CrossLanguageStore
+
+    return _safe(
+        lambda c: CrossLanguageStore(c).align_claims(
+            namespace,
+            source_claim_id,
+            target_claim_id,
+            relation,
+            source_text_id,
+            target_text_id,
+            confidence=confidence,
+            evidence=evidence or [],
+            analysis=analysis,
+            status=status,
+            principal_id=_context()[0],
+            scopes={"knowledge:cross-language:write"},
+        ),
+        write=True,
+        required_scope="knowledge:cross-language:write",
+    )
+
+
+@mcp.tool()
+def review_cross_language_alignment(
+    namespace: str,
+    alignment_id: str,
+    decision: str,
+    reviewer_id: str,
+    rationale: str = "",
+) -> dict:
+    """Review a cross-language claim relation without erasing either claim."""
+    from src.kb.cross_language import CrossLanguageStore
+
+    return _safe(
+        lambda c: CrossLanguageStore(c).review_alignment(
+            namespace,
+            alignment_id,
+            decision,
+            reviewer_id,
+            rationale=rationale,
+            principal_id=_context()[0],
+            scopes={"knowledge:cross-language:review"},
+        ),
+        write=True,
+        required_scope="knowledge:cross-language:review",
+    )
+
+
+@mcp.tool()
+def compare_cross_language_claims(namespace: str, alignment_id: str) -> dict:
+    """Inspect aligned source wording, relation, evidence, and divergence analysis."""
+    from src.kb.cross_language import CrossLanguageStore
+
+    return _safe(
+        lambda c: CrossLanguageStore(c, initialize=False).compare_claims(
+            namespace, alignment_id, scopes={"knowledge:cross-language:read"}
+        ),
+        required_scope="knowledge:cross-language:read",
+    )
+
+
+@mcp.tool()
+def record_translation(
+    namespace: str,
+    source_text_id: str,
+    target_language: str,
+    translated_text: str,
+    producer: dict[str, Any],
+    version: int = 1,
+    passage: dict[str, Any] | None = None,
+    confidence: float = 0.0,
+    alternatives: list[str] | None = None,
+    status: str = "unreviewed",
+) -> dict:
+    """Record a versioned human, source-provided, or model translation."""
+    from src.kb.cross_language import CrossLanguageStore
+
+    return _safe(
+        lambda c: CrossLanguageStore(c).record_translation(
+            namespace,
+            source_text_id,
+            target_language,
+            translated_text,
+            producer,
+            version=version,
+            passage=passage,
+            confidence=confidence,
+            alternatives=alternatives or [],
+            status=status,
+            principal_id=_context()[0],
+            scopes={"knowledge:cross-language:write"},
+        ),
+        write=True,
+        required_scope="knowledge:cross-language:write",
+    )
+
+
+@mcp.tool()
+def review_translation(
+    namespace: str,
+    translation_id: str,
+    decision: str,
+    reviewer_id: str,
+    rationale: str = "",
+) -> dict:
+    """Append a human review or disagreement to translation history."""
+    from src.kb.cross_language import CrossLanguageStore
+
+    return _safe(
+        lambda c: CrossLanguageStore(c).review_translation(
+            namespace,
+            translation_id,
+            decision,
+            reviewer_id,
+            rationale=rationale,
+            principal_id=_context()[0],
+            scopes={"knowledge:cross-language:review"},
+        ),
+        write=True,
+        required_scope="knowledge:cross-language:review",
+    )
+
+
+@mcp.tool()
+def multilingual_search(
+    namespace: str,
+    query: str,
+    languages: list[str] | None = None,
+    include_translations: bool = True,
+    limit: int = 20,
+) -> dict:
+    """Search originals, aliases, and translations with language-fair ranking."""
+    from src.kb.cross_language import CrossLanguageStore
+
+    return _safe(
+        lambda c: CrossLanguageStore(c, initialize=False).search(
+            namespace,
+            query,
+            languages=languages or [],
+            include_translations=include_translations,
+            limit=limit,
+            scopes={"knowledge:cross-language:read"},
+        ),
+        required_scope="knowledge:cross-language:read",
     )
 
 

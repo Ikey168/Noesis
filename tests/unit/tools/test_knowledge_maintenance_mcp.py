@@ -257,6 +257,16 @@ def test_maintenance_surface_and_catalog_scope_separation(monkeypatch):
         "publish_entity_change_rebuild",
         "get_entity_identity_history",
         "export_entity_identity_history",
+        "record_language_text",
+        "get_original_language_text",
+        "record_multilingual_alias",
+        "review_multilingual_alias",
+        "align_cross_language_claims",
+        "review_cross_language_alignment",
+        "compare_cross_language_claims",
+        "record_translation",
+        "review_translation",
+        "multilingual_search",
     }
     assert expected <= set(tools)
     assert _required_scopes(
@@ -779,3 +789,8 @@ def test_capabilities_advertise_generation_contracts():
     assert "noesis-entity-split-v1" in capabilities["contracts"]
     assert "noesis-entity-impact-v1" in capabilities["contracts"]
     assert "noesis-entity-history-export-v1" in capabilities["contracts"]
+    assert "noesis-language-text-v1" in capabilities["contracts"]
+    assert "noesis-multilingual-alias-v1" in capabilities["contracts"]
+    assert "noesis-cross-language-claim-alignment-v1" in capabilities["contracts"]
+    assert "noesis-translation-record-v1" in capabilities["contracts"]
+    assert "noesis-multilingual-search-v1" in capabilities["contracts"]

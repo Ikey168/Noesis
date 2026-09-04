@@ -143,6 +143,10 @@ MUTATION_NAMES = frozenset(
         "record_entity_identity_decision",
         "undo_entity_identity_change",
         "publish_entity_change_rebuild",
+        "align_cross_language_claims",
+        "review_multilingual_alias",
+        "review_cross_language_alignment",
+        "review_translation",
     }
 )
 
@@ -315,6 +319,25 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
             return ["knowledge:memory:admin"]
         return ["knowledge:memory:read"]
     if server_stem == "knowledge_engine_mcp":
+        if tool_name in {
+            "review_multilingual_alias",
+            "review_cross_language_alignment",
+            "review_translation",
+        }:
+            return ["knowledge:cross-language:review"]
+        if tool_name in {
+            "record_language_text",
+            "record_multilingual_alias",
+            "align_cross_language_claims",
+            "record_translation",
+        }:
+            return ["knowledge:cross-language:write"]
+        if tool_name in {
+            "get_original_language_text",
+            "compare_cross_language_claims",
+            "multilingual_search",
+        }:
+            return ["knowledge:cross-language:read"]
         if tool_name in {
             "execute_entity_merge",
             "execute_entity_split",
