@@ -192,6 +192,11 @@ def knowledge_engine_capabilities() -> dict:
             "noesis-redacted-projection-v1",
             "noesis-share-grant-v1",
             "noesis-access-view-health-v1",
+            "noesis-anomaly-watch-v1",
+            "noesis-anomaly-run-v1",
+            "noesis-knowledge-anomaly-v1",
+            "noesis-anomaly-alert-v1",
+            "noesis-anomaly-health-v1",
             "noesis-maintenance-job-request-v1",
             "noesis-maintenance-job-receipt-v1",
             "noesis-knowledge-generation-v1",
@@ -299,6 +304,10 @@ def knowledge_engine_capabilities() -> dict:
             "lineage-safe-redacted-projections",
             "recipient-bound-watermarked-exports",
             "non-disclosing-access-decisions",
+            "versioned-incremental-anomaly-watches",
+            "bounded-replayable-anomaly-detectors",
+            "uncertainty-preserving-anomaly-attribution",
+            "deduplicated-recoverable-alert-delivery",
             "knowledge-maintenance",
             "lease-safe-workers",
             "committed-generations",
@@ -7241,6 +7250,209 @@ def inspect_access_view_health(namespace: str) -> dict:
             namespace, scopes={"knowledge:views:admin"}
         ),
         required_scope="knowledge:views:admin",
+    )
+
+
+@mcp.tool()
+def register_anomaly_watch(
+    namespace: str,
+    watch_key: str,
+    version: int,
+    signal_type: str,
+    scope: dict[str, Any],
+    baseline: dict[str, Any],
+    detector: dict[str, Any],
+    notification: dict[str, Any],
+    status: str = "active",
+) -> dict:
+    """Register a versioned metric, event, graph, source, coverage, or narrative watch."""
+    from src.kb.knowledge_anomalies import KnowledgeAnomalyStore
+
+    return _safe(
+        lambda c: KnowledgeAnomalyStore(c).register_watch(
+            namespace,
+            watch_key,
+            version,
+            signal_type,
+            scope,
+            baseline,
+            detector,
+            notification,
+            status=status,
+            principal_id=_context()[0],
+            scopes={"knowledge:anomalies:write"},
+        ),
+        write=True,
+        required_scope="knowledge:anomalies:write",
+    )
+
+
+@mcp.tool()
+def preview_anomaly_baseline(
+    namespace: str, watch_id: str, observations: list[dict[str, Any]]
+) -> dict:
+    """Preview a bounded baseline, missingness, sparsity, and seasonality."""
+    from src.kb.knowledge_anomalies import KnowledgeAnomalyStore
+
+    return _safe(
+        lambda c: KnowledgeAnomalyStore(c, initialize=False).preview_baseline(
+            namespace, watch_id, observations, scopes={"knowledge:anomalies:read"}
+        ),
+        required_scope="knowledge:anomalies:read",
+    )
+
+
+@mcp.tool()
+def simulate_anomaly_detector(
+    namespace: str, watch_id: str, observations: list[dict[str, Any]], limit: int = 1000
+) -> dict:
+    """Simulate a detector without persisting a run or anomaly."""
+    from src.kb.knowledge_anomalies import KnowledgeAnomalyStore
+
+    return _safe(
+        lambda c: KnowledgeAnomalyStore(c, initialize=False).simulate(
+            namespace,
+            watch_id,
+            observations,
+            limit=limit,
+            scopes={"knowledge:anomalies:read"},
+        ),
+        required_scope="knowledge:anomalies:read",
+    )
+
+
+@mcp.tool()
+def run_anomaly_detector(
+    namespace: str,
+    watch_id: str,
+    observations: list[dict[str, Any]],
+    generation: int,
+    cancel_requested: bool = False,
+    limit: int = 1000,
+) -> dict:
+    """Run a bounded, cancellable, deterministic anomaly detector."""
+    from src.kb.knowledge_anomalies import KnowledgeAnomalyStore
+
+    return _safe(
+        lambda c: KnowledgeAnomalyStore(c).run(
+            namespace,
+            watch_id,
+            observations,
+            generation,
+            cancel_requested=cancel_requested,
+            limit=limit,
+            principal_id=_context()[0],
+            scopes={"knowledge:anomalies:execute"},
+        ),
+        write=True,
+        required_scope="knowledge:anomalies:execute",
+    )
+
+
+@mcp.tool()
+def get_knowledge_anomaly(namespace: str, anomaly_id: str) -> dict:
+    """Inspect an anomaly score, baseline, evidence context, and explanations."""
+    from src.kb.knowledge_anomalies import KnowledgeAnomalyStore
+
+    return _safe(
+        lambda c: KnowledgeAnomalyStore(c, initialize=False).anomaly(
+            namespace, anomaly_id, scopes={"knowledge:anomalies:read"}
+        ),
+        required_scope="knowledge:anomalies:read",
+    )
+
+
+@mcp.tool()
+def correlate_knowledge_anomaly(
+    namespace: str, anomaly_id: str, candidates: list[dict[str, Any]], limit: int = 100
+) -> dict:
+    """Attach ranked plausible—not proven—knowledge and source changes."""
+    from src.kb.knowledge_anomalies import KnowledgeAnomalyStore
+
+    return _safe(
+        lambda c: KnowledgeAnomalyStore(c).correlate(
+            namespace,
+            anomaly_id,
+            candidates,
+            limit=limit,
+            principal_id=_context()[0],
+            scopes={"knowledge:anomalies:write"},
+        ),
+        write=True,
+        required_scope="knowledge:anomalies:write",
+    )
+
+
+@mcp.tool()
+def deliver_anomaly_alert(
+    namespace: str,
+    anomaly_id: str,
+    subscriber_id: str,
+    delivery_outcome: str = "delivered",
+    cancel_requested: bool = False,
+) -> dict:
+    """Deliver, suppress, deduplicate, retry, or cancel an anomaly alert."""
+    from src.kb.knowledge_anomalies import KnowledgeAnomalyStore
+
+    return _safe(
+        lambda c: KnowledgeAnomalyStore(c).deliver(
+            namespace,
+            anomaly_id,
+            subscriber_id,
+            delivery_outcome=delivery_outcome,
+            cancel_requested=cancel_requested,
+            principal_id=_context()[0],
+            scopes={"knowledge:anomalies:deliver"},
+        ),
+        write=True,
+        required_scope="knowledge:anomalies:deliver",
+    )
+
+
+@mcp.tool()
+def transition_anomaly_alert(
+    namespace: str, alert_id: str, action: str, actor_id: str
+) -> dict:
+    """Acknowledge, resolve, or reopen an alert with append-only history."""
+    from src.kb.knowledge_anomalies import KnowledgeAnomalyStore
+
+    return _safe(
+        lambda c: KnowledgeAnomalyStore(c).transition_alert(
+            namespace,
+            alert_id,
+            action,
+            actor_id,
+            principal_id=_context()[0],
+            scopes={"knowledge:anomalies:deliver"},
+        ),
+        write=True,
+        required_scope="knowledge:anomalies:deliver",
+    )
+
+
+@mcp.tool()
+def anomaly_alert_history(namespace: str, limit: int = 100, offset: int = 0) -> dict:
+    """List bounded, paginated alert delivery and recovery history."""
+    from src.kb.knowledge_anomalies import KnowledgeAnomalyStore
+
+    return _safe(
+        lambda c: KnowledgeAnomalyStore(c, initialize=False).history(
+            namespace, limit=limit, offset=offset, scopes={"knowledge:anomalies:read"}
+        ),
+        required_scope="knowledge:anomalies:read",
+    )
+
+
+@mcp.tool()
+def inspect_anomaly_health(namespace: str) -> dict:
+    """Report active watches, open anomalies, and retrying alerts."""
+    from src.kb.knowledge_anomalies import KnowledgeAnomalyStore
+
+    return _safe(
+        lambda c: KnowledgeAnomalyStore(c, initialize=False).health(
+            namespace, scopes={"knowledge:anomalies:read"}
+        ),
+        required_scope="knowledge:anomalies:read",
     )
 
 
