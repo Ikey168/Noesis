@@ -109,6 +109,7 @@ MUTATION_NAMES = frozenset(
         "record_geospatial_resolution",
         "review_geospatial_resolution",
         "calculate_spatial_relation",
+        "validate_knowledge_object_ontology",
     }
 )
 

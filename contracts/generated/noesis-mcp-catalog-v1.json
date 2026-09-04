@@ -666,16 +666,24 @@
       "pack": null,
       "reason": null,
       "state": "unauthorized",
-      "tool_count": 16,
+      "tool_count": 25,
       "tools": [
         "noesis-schema-registry.compare_schema_modules",
         "noesis-schema-registry.declare_schema_dependency",
         "noesis-schema-registry.define_schema_migration",
+        "noesis-schema-registry.deprecate_ontology",
         "noesis-schema-registry.deprecate_schema_module",
+        "noesis-schema-registry.diff_ontology_versions",
         "noesis-schema-registry.execute_schema_migration",
+        "noesis-schema-registry.expand_ontology_query",
+        "noesis-schema-registry.export_ontology_alignment",
         "noesis-schema-registry.export_schema_registry",
+        "noesis-schema-registry.inspect_ontology",
         "noesis-schema-registry.inspect_schema_module",
+        "noesis-schema-registry.list_ontology_quarantine",
         "noesis-schema-registry.preview_schema_migration",
+        "noesis-schema-registry.register_ontology",
+        "noesis-schema-registry.register_ontology_crosswalk",
         "noesis-schema-registry.register_schema_crosswalk",
         "noesis-schema-registry.register_schema_module",
         "noesis-schema-registry.replay_schema_lineage",
@@ -683,6 +691,7 @@
         "noesis-schema-registry.rollback_schema_migration",
         "noesis-schema-registry.schema_dependency_impact",
         "noesis-schema-registry.schema_registry_context",
+        "noesis-schema-registry.validate_knowledge_object_ontology",
         "noesis-schema-registry.validate_schema_instance"
       ],
       "transports": [
@@ -690,7 +699,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 16
+      "visible_tool_count": 25
     },
     {
       "aliases": [],
@@ -969,9 +978,9 @@
       "available": 81,
       "degraded": 155,
       "disabled": 3,
-      "unauthorized": 140
+      "unauthorized": 149
     },
-    "tools": 379
+    "tools": 388
   },
   "tools": [
     {
@@ -10531,6 +10540,47 @@
     },
     {
       "cost_class": "medium",
+      "description": "Deprecate an ontology module without changing its published content.",
+      "id": "noesis-schema-registry.deprecate_ontology",
+      "input_schema": {
+        "properties": {
+          "idempotency_key": {
+            "type": "string"
+          },
+          "module_id": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "module_id",
+          "reason",
+          "idempotency_key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "deprecate_ontology",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-schema-registry"
+      ],
+      "required_scopes": [
+        "knowledge:schema:deprecate"
+      ],
+      "server": "noesis-schema-registry",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Deprecate a custom module version without deleting or replacing it.",
       "id": "noesis-schema-registry.deprecate_schema_module",
       "input_schema": {
@@ -10565,6 +10615,47 @@
       ],
       "required_scopes": [
         "knowledge:schema:deprecate"
+      ],
+      "server": "noesis-schema-registry",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Diff concepts, labels, definitions, hierarchies, constraints, and lifecycle.",
+      "id": "noesis-schema-registry.diff_ontology_versions",
+      "input_schema": {
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "new_version": {
+            "type": "string"
+          },
+          "old_version": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "old_version",
+          "new_version"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "diff_ontology_versions",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-schema-registry"
+      ],
+      "required_scopes": [
+        "knowledge:schema:read"
       ],
       "server": "noesis-schema-registry",
       "state": "unauthorized",
@@ -10616,6 +10707,92 @@
       "version": "1"
     },
     {
+      "cost_class": "medium",
+      "description": "Expand a pinned concept through explainable, ranked, bounded alignment paths.",
+      "id": "noesis-schema-registry.expand_ontology_query",
+      "input_schema": {
+        "properties": {
+          "concept_id": {
+            "type": "string"
+          },
+          "max_depth": {
+            "default": 2,
+            "type": "integer"
+          },
+          "max_terms": {
+            "default": 50,
+            "type": "integer"
+          },
+          "ontology": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "relationships": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "ontology",
+          "concept_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "expand_ontology_query",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-schema-registry"
+      ],
+      "required_scopes": [
+        "knowledge:schema:read"
+      ],
+      "server": "noesis-schema-registry",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Export ontology and semantic-crosswalk modules deterministically.",
+      "id": "noesis-schema-registry.export_ontology_alignment",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "export_ontology_alignment",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-schema-registry"
+      ],
+      "required_scopes": [
+        "knowledge:schema:read"
+      ],
+      "server": "noesis-schema-registry",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "low",
       "description": "Export all visible module versions in deterministic content-addressed order.",
       "id": "noesis-schema-registry.export_schema_registry",
@@ -10626,6 +10803,47 @@
       "latency_class": "interactive",
       "mutability": "read",
       "name": "export_schema_registry",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-schema-registry"
+      ],
+      "required_scopes": [
+        "knowledge:schema:read"
+      ],
+      "server": "noesis-schema-registry",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Resolve and inspect an exact or compatible ontology version.",
+      "id": "noesis-schema-registry.inspect_ontology",
+      "input_schema": {
+        "properties": {
+          "include_deprecated": {
+            "default": false,
+            "type": "boolean"
+          },
+          "name": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "version"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "inspect_ontology",
       "output_schema": {
         "additionalProperties": true,
         "type": "object"
@@ -10659,6 +10877,43 @@
       "latency_class": "interactive",
       "mutability": "read",
       "name": "inspect_schema_module",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-schema-registry"
+      ],
+      "required_scopes": [
+        "knowledge:schema:read"
+      ],
+      "server": "noesis-schema-registry",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "List bounded ontology validation failures in a namespace.",
+      "id": "noesis-schema-registry.list_ontology_quarantine",
+      "input_schema": {
+        "properties": {
+          "limit": {
+            "default": 100,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_ontology_quarantine",
       "output_schema": {
         "additionalProperties": true,
         "type": "object"
@@ -10710,6 +10965,224 @@
       ],
       "required_scopes": [
         "knowledge:schema:read"
+      ],
+      "server": "noesis-schema-registry",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Publish an immutable ontology version through the schema module registry.",
+      "id": "noesis-schema-registry.register_ontology",
+      "input_schema": {
+        "properties": {
+          "cancel_requested": {
+            "default": false,
+            "type": "boolean"
+          },
+          "compatibility_policy": {
+            "default": "backward",
+            "type": "string"
+          },
+          "concepts": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "dependencies": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "generation": {
+            "default": 0,
+            "type": "integer"
+          },
+          "idempotency_key": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "namespace_uri": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "observed_at_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "owner": {
+            "type": "string"
+          },
+          "provenance": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "semantic_version": {
+            "type": "string"
+          },
+          "valid_from_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "valid_to_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "name",
+          "semantic_version",
+          "concepts",
+          "owner",
+          "provenance",
+          "idempotency_key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "register_ontology",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-schema-registry"
+      ],
+      "required_scopes": [
+        "knowledge:schema:register"
+      ],
+      "server": "noesis-schema-registry",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Publish sourced equivalent, hierarchical, related, or incompatible mappings.",
+      "id": "noesis-schema-registry.register_ontology_crosswalk",
+      "input_schema": {
+        "properties": {
+          "cancel_requested": {
+            "default": false,
+            "type": "boolean"
+          },
+          "generation": {
+            "default": 0,
+            "type": "integer"
+          },
+          "idempotency_key": {
+            "type": "string"
+          },
+          "mappings": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "name": {
+            "type": "string"
+          },
+          "observed_at_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "owner": {
+            "type": "string"
+          },
+          "provenance": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "semantic_version": {
+            "type": "string"
+          },
+          "source": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "target": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "name",
+          "semantic_version",
+          "source",
+          "target",
+          "mappings",
+          "owner",
+          "provenance",
+          "idempotency_key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "register_ontology_crosswalk",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-schema-registry"
+      ],
+      "required_scopes": [
+        "knowledge:schema:register"
       ],
       "server": "noesis-schema-registry",
       "state": "unauthorized",
@@ -10962,6 +11435,70 @@
       ],
       "required_scopes": [
         "knowledge:schema:read"
+      ],
+      "server": "noesis-schema-registry",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Validate a knowledge object while retaining its source-native representation.",
+      "id": "noesis-schema-registry.validate_knowledge_object_ontology",
+      "input_schema": {
+        "properties": {
+          "concept_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "object_id": {
+            "type": "string"
+          },
+          "object_kind": {
+            "type": "string"
+          },
+          "ontology": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "quarantine": {
+            "default": false,
+            "type": "boolean"
+          },
+          "source_native": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "value": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "namespace",
+          "object_id",
+          "object_kind",
+          "ontology",
+          "concept_id",
+          "value",
+          "source_native"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "validate_knowledge_object_ontology",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-schema-registry"
+      ],
+      "required_scopes": [
+        "knowledge:schema:validate"
       ],
       "server": "noesis-schema-registry",
       "state": "unauthorized",
