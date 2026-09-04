@@ -411,6 +411,69 @@ def kb_technical(
         raise KBContractError(exc.code, str(exc)) from exc
 
 
+def kb_context(
+    task: str,
+    token_budget: int,
+    query: Optional[str] = None,
+    domains: Optional[list[str]] = None,
+    namespace_scope: Optional[list[str]] = None,
+    all_authorized: bool = False,
+    evidence_policy: Optional[dict[str, Any]] = None,
+    recency_after_ms: Optional[int] = None,
+    diversity: Optional[dict[str, Any]] = None,
+    required_object_types: Optional[list[str]] = None,
+    allowed_surfaces: Optional[list[str]] = None,
+    max_candidates: int = 200,
+    principal_id: Optional[str] = None,
+    include_private: bool = False,
+    conn=None,
+    config_path=None,
+) -> Dict[str, Any]:
+    """Assemble cited multi-surface context under an explicit token budget."""
+
+    from src.kb.context import ContextAssemblyError, ContextRequest, assemble_context
+    from src.kb.cross_domain import CrossDomainError, resolve_scope
+
+    explicit = [*(domains or []), *(namespace_scope or [])]
+    try:
+        request = ContextRequest.from_value(
+            {
+                "task": task,
+                "query": query or task,
+                "domains": domains or [],
+                "namespace_scope": namespace_scope or [],
+                "all_authorized": all_authorized,
+                "token_budget": token_budget,
+                "evidence_policy": evidence_policy,
+                "recency_after_ms": recency_after_ms,
+                "diversity": diversity,
+                "required_object_types": required_object_types or [],
+                "allowed_surfaces": allowed_surfaces,
+                "max_candidates": max_candidates,
+            }
+        )
+        if len(explicit) != len(set(explicit)):
+            raise ContextAssemblyError(
+                "bad_request", "domain and namespace scopes must not overlap"
+            )
+        resolved, scope = resolve_scope(
+            _registry(config_path),
+            conn=conn,
+            domains=explicit if explicit else None,
+            all_authorized=all_authorized,
+            principal_id=principal_id,
+            include_private=include_private,
+            limit=min(int(max_candidates), 100),
+            per_domain_limit=min(int(max_candidates), 100),
+        )
+        return _envelope(
+            "context",
+            assemble_context(resolved, request, scope_receipt=scope),
+        )
+    except (CrossDomainError, ContextAssemblyError) as exc:
+        raise KBContractError(exc.code, str(exc)) from exc
+
+
 def kb_answer(
     domain: str,
     question: str,

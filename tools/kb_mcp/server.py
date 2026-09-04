@@ -23,6 +23,7 @@ Tools:
   kb_political(domain, query, jurisdiction)   -> cited political research
   kb_economic(domain, query_type, series_ids) -> cited economic research
   kb_technical(domain, query_type, coordinate) -> cited technical graph research
+  kb_context(task, budget, domain/namespace scope) -> budgeted cited context
   kb_corroborate(domain, claim_id)             -> publication/origin counts
   kb_documents(domain, since?, limit=50)      -> member documents, newest arrival first
   kb_claims(domain, since?, limit=50)         -> clustered, cited claims
@@ -326,6 +327,47 @@ def kb_technical(
         max_depth,
         observed_before,
         limit,
+        principal_id,
+        include_private,
+    )
+
+
+@mcp.tool()
+def kb_context(
+    task: str,
+    token_budget: int,
+    query: Optional[str] = None,
+    domains: Optional[list[str]] = None,
+    namespace_scope: Optional[list[str]] = None,
+    all_authorized: bool = False,
+    evidence_policy: Optional[dict[str, Any]] = None,
+    recency_after_ms: Optional[int] = None,
+    diversity: Optional[dict[str, Any]] = None,
+    required_object_types: Optional[list[str]] = None,
+    allowed_surfaces: Optional[list[str]] = None,
+    max_candidates: int = 200,
+    principal_id: Optional[str] = None,
+    include_private: bool = False,
+) -> Dict[str, Any]:
+    """Assemble task-specific context from documents, passages, claims,
+    entities, graph relations, and quantitative observations under a hard
+    token budget with citation and diversity policies."""
+    from src.kb import contract
+
+    return _run(
+        contract.kb_context,
+        task,
+        token_budget,
+        query,
+        domains,
+        namespace_scope,
+        all_authorized,
+        evidence_policy,
+        recency_after_ms,
+        diversity,
+        required_object_types,
+        allowed_surfaces,
+        max_candidates,
         principal_id,
         include_private,
     )

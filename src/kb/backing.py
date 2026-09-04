@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import json
 from datetime import datetime, timezone
+from functools import lru_cache
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 if TYPE_CHECKING:  # pragma: no cover - import cycle guard, typing only
@@ -36,6 +37,21 @@ def _since_to_epoch_ms(since: str) -> int:
     if parsed.tzinfo is None:
         parsed = parsed.replace(tzinfo=timezone.utc)
     return int(parsed.timestamp() * 1000)
+
+
+@lru_cache(maxsize=16)
+def _provider_for_embedding_model(model: str):
+    """Resolve provider-prefixed ids; legacy bare model ids mean local."""
+
+    provider_name, separator, model_name = str(model or "").partition(":")
+    from services.embeddings.provider import get_embedding_provider
+
+    if provider_name not in {"hashing", "local", "openai"}:
+        return get_embedding_provider(provider="local", model_name=str(model))
+    return get_embedding_provider(
+        provider=provider_name,
+        model_name=model_name if separator else None,
+    )
 
 
 class DomainBacking:
@@ -102,6 +118,10 @@ class DomainBacking:
     def search(self, query: str, limit: int = 20) -> List[Dict[str, Any]]:
         """Semantic + lexical search scoped to this domain."""
         raise self._not_implemented("search")
+
+    def semantic_search(self, query: str, limit: int = 20) -> List[Dict[str, Any]]:
+        """Semantic search constrained to documents visible in this domain."""
+        raise self._not_implemented("semantic_search")
 
     def claims(
         self,
@@ -291,6 +311,33 @@ class CorpusViewBacking(DomainBacking):
             " ORDER BY COALESCE(ingested_at, 0) DESC LIMIT ?",
             [pattern, pattern, int(limit)],
         )
+
+    def semantic_search(self, query: str, limit: int = 20) -> List[Dict[str, Any]]:
+        """Embedding search constrained before ranking to domain members."""
+        from src.analytics.semantic_search import semantic_search
+
+        view = self._view()
+        with self._lock():
+            document_ids = [
+                str(row[0])
+                for row in self.conn.execute(
+                    f"SELECT document_id FROM {view} ORDER BY document_id"
+                ).fetchall()
+            ]
+            payload = semantic_search(
+                self.conn,
+                query,
+                top_k=int(limit),
+                provider=_provider_for_embedding_model(
+                    self.definition.embedding_model
+                ),
+                model=self.definition.embedding_model,
+                document_ids=document_ids,
+            )
+        return [
+            {**row, "retrieval_method": "semantic"}
+            for row in payload.get("results") or ()
+        ]
 
     def entities(self, name: Optional[str] = None) -> List[Dict[str, Any]]:
         """Canonical entities mentioned in this domain, aliases folded.
@@ -496,6 +543,33 @@ class NamespaceBacking(DomainBacking):
         return [
             {"document_id": row[0], "title": row[1], "source_id": row[2], "url": row[3]}
             for row in rows
+        ]
+
+    def semantic_search(self, query: str, limit: int = 20) -> List[Dict[str, Any]]:
+        """Embedding search constrained before ranking to namespace documents."""
+        from src.analytics.semantic_search import semantic_search
+
+        documents = self._tables()["documents"]
+        with self._lock():
+            document_ids = [
+                str(row[0])
+                for row in self.conn.execute(
+                    f"SELECT id FROM {documents} ORDER BY id"
+                ).fetchall()
+            ]
+            payload = semantic_search(
+                self.conn,
+                query,
+                top_k=int(limit),
+                provider=_provider_for_embedding_model(
+                    self.definition.embedding_model
+                ),
+                model=self.definition.embedding_model,
+                document_ids=document_ids,
+            )
+        return [
+            {**row, "retrieval_method": "semantic"}
+            for row in payload.get("results") or ()
         ]
 
     def claims(

@@ -44,15 +44,25 @@ def _normalise(mat: np.ndarray) -> np.ndarray:
     return mat / norms
 
 
-def _load_matrix(conn, model: Optional[str]):
+def _load_matrix(
+    conn, model: Optional[str], document_ids: Optional[List[str]] = None
+):
+    clauses = []
+    params: List[Any] = []
     if model is not None:
-        rows = conn.execute(
-            "SELECT document_id, vector FROM document_embeddings WHERE model = ?", [model]
-        ).fetchall()
-    else:
-        rows = conn.execute(
-            "SELECT document_id, vector FROM document_embeddings"
-        ).fetchall()
+        clauses.append("(model = ? OR ends_with(model, ':' || ?))")
+        params.extend([model, model])
+    if document_ids is not None:
+        if not document_ids:
+            return [], np.empty((0, 0))
+        placeholders = ", ".join("?" for _ in document_ids)
+        clauses.append(f"document_id IN ({placeholders})")
+        params.extend(document_ids)
+    where = " WHERE " + " AND ".join(clauses) if clauses else ""
+    rows = conn.execute(
+        "SELECT document_id, vector FROM document_embeddings" + where,
+        params,
+    ).fetchall()
     ids = [r[0] for r in rows]
     if not ids:
         return ids, np.empty((0, 0))
@@ -102,17 +112,19 @@ def _hits(conn, ids, sims, order, top_k, exclude=None):
 
 def semantic_search(
     conn, query: str, top_k: int = 10, provider: Optional[Any] = None,
-    model: Optional[str] = None,
+    model: Optional[str] = None, document_ids: Optional[List[str]] = None,
 ) -> Dict[str, Any]:
     """Documents most semantically similar to ``query``.
 
     Embeds ``query`` with ``provider`` (default: env-configured) and ranks the
     stored document vectors by cosine similarity. ``model`` filters the sink to
-    one embedding space (recommended when several were indexed)."""
+    one embedding space (recommended when several were indexed).
+    ``document_ids`` constrains the candidate set before ranking, which lets
+    domain and namespace backings preserve their authorization boundary."""
     if not _has_embeddings(conn):
         return {"results": [], "count": 0, "query": query,
                 "note": "no embeddings indexed; run embed_documents first"}
-    ids, mat = _load_matrix(conn, model)
+    ids, mat = _load_matrix(conn, model, document_ids)
     if not ids:
         return {"results": [], "count": 0, "query": query,
                 "note": "no embeddings indexed; run embed_documents first"}
