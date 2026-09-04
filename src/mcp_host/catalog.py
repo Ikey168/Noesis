@@ -138,6 +138,8 @@ MUTATION_NAMES = frozenset(
         "acknowledge_change_brief_delivery",
         "review_change_brief",
         "cancel_research_recipe_run",
+        "assess_knowledge_quality",
+        "review_quality_override",
     }
 )
 
@@ -310,6 +312,22 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
             return ["knowledge:memory:admin"]
         return ["knowledge:memory:read"]
     if server_stem == "knowledge_engine_mcp":
+        if tool_name in {"assess_knowledge_quality", "aggregate_quality_assessments"}:
+            return ["knowledge:quality:calculate"]
+        if tool_name == "review_quality_override":
+            return ["knowledge:quality:review"]
+        if tool_name == "register_quality_policy":
+            return ["knowledge:quality:write"]
+        if tool_name in {
+            "get_quality_policy",
+            "get_quality_assessment",
+            "replay_quality_assessment",
+            "rank_by_quality",
+            "simulate_quality_policy",
+            "compare_quality_policies",
+            "inspect_quality_health",
+        }:
+            return ["knowledge:quality:read"]
         if tool_name in {"run_research_recipe", "cancel_research_recipe_run"}:
             return ["knowledge:recipes:execute"]
         if tool_name == "register_research_recipe":

@@ -233,6 +233,17 @@ def test_maintenance_surface_and_catalog_scope_separation(monkeypatch):
         "cancel_research_recipe_run",
         "replay_research_recipe_run",
         "export_research_recipe_run",
+        "register_quality_policy",
+        "get_quality_policy",
+        "assess_knowledge_quality",
+        "get_quality_assessment",
+        "replay_quality_assessment",
+        "aggregate_quality_assessments",
+        "rank_by_quality",
+        "simulate_quality_policy",
+        "compare_quality_policies",
+        "review_quality_override",
+        "inspect_quality_health",
     }
     assert expected <= set(tools)
     assert _required_scopes(
@@ -745,3 +756,8 @@ def test_capabilities_advertise_generation_contracts():
     assert "noesis-research-recipe-run-v1" in capabilities["contracts"]
     assert "noesis-research-recipe-receipt-v1" in capabilities["contracts"]
     assert "noesis-research-recipe-export-v1" in capabilities["contracts"]
+    assert "noesis-quality-policy-v1" in capabilities["contracts"]
+    assert "noesis-quality-assessment-v1" in capabilities["contracts"]
+    assert "noesis-quality-collection-v1" in capabilities["contracts"]
+    assert "noesis-quality-ranking-v1" in capabilities["contracts"]
+    assert "noesis-quality-health-v1" in capabilities["contracts"]

@@ -808,7 +808,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 257,
+      "tool_count": 268,
       "tools": [
         "noesis-knowledge-engine.accept_citation_repair",
         "noesis-knowledge-engine.accept_dataset_join",
@@ -816,10 +816,12 @@
         "noesis-knowledge-engine.acknowledge_change_brief_delivery",
         "noesis-knowledge-engine.add_source_relationship",
         "noesis-knowledge-engine.adjust_quantitative_inflation",
+        "noesis-knowledge-engine.aggregate_quality_assessments",
         "noesis-knowledge-engine.annotate_evidence_freshness",
         "noesis-knowledge-engine.artifact_lineage",
         "noesis-knowledge-engine.assess_epistemic_statement",
         "noesis-knowledge-engine.assess_evidence_freshness",
+        "noesis-knowledge-engine.assess_knowledge_quality",
         "noesis-knowledge-engine.assess_media_authenticity",
         "noesis-knowledge-engine.assess_methodology_limitation",
         "noesis-knowledge-engine.assess_quantitative_comparability",
@@ -841,6 +843,7 @@
         "noesis-knowledge-engine.compare_dataset_releases",
         "noesis-knowledge-engine.compare_evidence_freshness_policies",
         "noesis-knowledge-engine.compare_hypotheses",
+        "noesis-knowledge-engine.compare_quality_policies",
         "noesis-knowledge-engine.compare_research_gap_coverage",
         "noesis-knowledge-engine.compare_study_methodologies",
         "noesis-knowledge-engine.convert_quantitative_value",
@@ -910,6 +913,8 @@
         "noesis-knowledge-engine.get_methodology_study",
         "noesis-knowledge-engine.get_multimodal_asset",
         "noesis-knowledge-engine.get_multimodal_segment",
+        "noesis-knowledge-engine.get_quality_assessment",
+        "noesis-knowledge-engine.get_quality_policy",
         "noesis-knowledge-engine.get_quantitative_metric",
         "noesis-knowledge-engine.get_research_gap",
         "noesis-knowledge-engine.get_research_recipe_run",
@@ -921,6 +926,7 @@
         "noesis-knowledge-engine.inspect_maintenance_generation",
         "noesis-knowledge-engine.inspect_maintenance_job",
         "noesis-knowledge-engine.inspect_media_provenance",
+        "noesis-knowledge-engine.inspect_quality_health",
         "noesis-knowledge-engine.inspect_reference_workflow",
         "noesis-knowledge-engine.inspect_research_snapshot",
         "noesis-knowledge-engine.inspect_source_acquisition_run",
@@ -963,6 +969,7 @@
         "noesis-knowledge-engine.propagate_evidence_freshness",
         "noesis-knowledge-engine.query_geospatial_event_map",
         "noesis-knowledge-engine.query_knowledge",
+        "noesis-knowledge-engine.rank_by_quality",
         "noesis-knowledge-engine.read_quantitative_series",
         "noesis-knowledge-engine.read_workflow_stage",
         "noesis-knowledge-engine.record_citation_health",
@@ -984,6 +991,7 @@
         "noesis-knowledge-engine.register_geospatial_place",
         "noesis-knowledge-engine.register_methodology_study",
         "noesis-knowledge-engine.register_multimodal_asset",
+        "noesis-knowledge-engine.register_quality_policy",
         "noesis-knowledge-engine.register_quantitative_metric",
         "noesis-knowledge-engine.register_quantitative_unit",
         "noesis-knowledge-engine.register_research_gap_policy",
@@ -1005,6 +1013,7 @@
         "noesis-knowledge-engine.replay_maintenance_generation",
         "noesis-knowledge-engine.replay_methodology_extraction",
         "noesis-knowledge-engine.replay_multimodal_extraction",
+        "noesis-knowledge-engine.replay_quality_assessment",
         "noesis-knowledge-engine.replay_quantitative_calculation",
         "noesis-knowledge-engine.replay_research_gap",
         "noesis-knowledge-engine.replay_research_recipe_run",
@@ -1029,6 +1038,7 @@
         "noesis-knowledge-engine.review_epistemic_status",
         "noesis-knowledge-engine.review_evidence_freshness_override",
         "noesis-knowledge-engine.review_geospatial_resolution",
+        "noesis-knowledge-engine.review_quality_override",
         "noesis-knowledge-engine.revise_event_record",
         "noesis-knowledge-engine.revise_geospatial_place",
         "noesis-knowledge-engine.revise_hypothesis_workspace",
@@ -1050,6 +1060,7 @@
         "noesis-knowledge-engine.set_source_pack_schedule",
         "noesis-knowledge-engine.simplify_geospatial_geometry",
         "noesis-knowledge-engine.simulate_evidence_freshness_policy",
+        "noesis-knowledge-engine.simulate_quality_policy",
         "noesis-knowledge-engine.slice_dataset_table",
         "noesis-knowledge-engine.source_identity_dossier",
         "noesis-knowledge-engine.source_identity_history",
@@ -1073,7 +1084,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 257
+      "visible_tool_count": 268
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -1087,9 +1098,9 @@
       "available": 81,
       "degraded": 155,
       "disabled": 3,
-      "unauthorized": 258
+      "unauthorized": 269
     },
-    "tools": 497
+    "tools": 508
   },
   "tools": [
     {
@@ -13218,6 +13229,76 @@
       "version": "1"
     },
     {
+      "cost_class": "low",
+      "description": "Aggregate bounded assessments with correlation and calibration warnings.",
+      "id": "noesis-knowledge-engine.aggregate_quality_assessments",
+      "input_schema": {
+        "properties": {
+          "assessment_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "calibration_samples": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "number"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "limit": {
+            "default": 500,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reference_distribution": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "assessment_ids"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "aggregate_quality_assessments",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:quality:calculate"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "medium",
       "description": "Attach immutable lifecycle metadata to an existing evidence identity.",
       "id": "noesis-knowledge-engine.annotate_evidence_freshness",
@@ -13605,6 +13686,152 @@
       ],
       "required_scopes": [
         "knowledge:freshness:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Compute auditable per-dimension features with exact input lineage.",
+      "id": "noesis-knowledge-engine.assess_knowledge_quality",
+      "input_schema": {
+        "properties": {
+          "cancel_requested": {
+            "default": false,
+            "type": "boolean"
+          },
+          "domain": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "features": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "generation": {
+            "type": "integer"
+          },
+          "input_lineage": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "object_id": {
+            "type": "string"
+          },
+          "object_type": {
+            "type": "string"
+          },
+          "observed_at_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "policy_context": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "policy_revision_id": {
+            "type": "string"
+          },
+          "producer": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "provenance": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "valid_from_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "valid_to_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "object_type",
+          "object_id",
+          "generation",
+          "policy_revision_id",
+          "features",
+          "input_lineage"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "assess_knowledge_quality",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:quality:calculate"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -15040,6 +15267,47 @@
       ],
       "required_scopes": [
         "knowledge:hypothesis:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Compare dimension definitions, weights, defaults, and thresholds.",
+      "id": "noesis-knowledge-engine.compare_quality_policies",
+      "input_schema": {
+        "properties": {
+          "left_policy_revision_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "right_policy_revision_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "left_policy_revision_id",
+          "right_policy_revision_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "compare_quality_policies",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:quality:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -18546,6 +18814,80 @@
     },
     {
       "cost_class": "low",
+      "description": "Inspect dimensions, uncertainty, defaults, flags, and lineage.",
+      "id": "noesis-knowledge-engine.get_quality_assessment",
+      "input_schema": {
+        "properties": {
+          "assessment_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "assessment_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "get_quality_assessment",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:quality:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Read an exact multidimensional quality policy.",
+      "id": "noesis-knowledge-engine.get_quality_policy",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "policy_revision_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "policy_revision_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "get_quality_policy",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:quality:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Read the current, exact, or complete immutable history of a metric.",
       "id": "noesis-knowledge-engine.get_quantitative_metric",
       "input_schema": {
@@ -19021,6 +19363,50 @@
       ],
       "required_scopes": [
         "knowledge:multimodal:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Report coverage gaps and degraded inputs without deleting assessments.",
+      "id": "noesis-knowledge-engine.inspect_quality_health",
+      "input_schema": {
+        "properties": {
+          "assessment_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "limit": {
+            "default": 500,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "assessment_ids"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "inspect_quality_health",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:quality:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -21183,6 +21569,75 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Rank while retaining low-scored evidence and exposing every dimension.",
+      "id": "noesis-knowledge-engine.rank_by_quality",
+      "input_schema": {
+        "properties": {
+          "assessment_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "descending": {
+            "default": true,
+            "type": "boolean"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "threshold": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "user_overrides": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "number"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "assessment_ids"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "rank_by_quality",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:quality:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
       "version": "1"
     },
     {
@@ -23357,6 +23812,156 @@
     },
     {
       "cost_class": "medium",
+      "description": "Register versioned quality dimensions, defaults, overrides, and calibration.",
+      "id": "noesis-knowledge-engine.register_quality_policy",
+      "input_schema": {
+        "properties": {
+          "calibration": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "dimensions": {
+            "additionalProperties": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "object"
+          },
+          "domain_overrides": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "generation": {
+            "default": 0,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "observed_at_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "policy_context": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "policy_id": {
+            "type": "string"
+          },
+          "producer": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "provenance": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "threshold": {
+            "default": 0.5,
+            "type": "number"
+          },
+          "valid_from_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "valid_to_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "version": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "policy_id",
+          "version",
+          "dimensions"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "register_quality_policy",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:quality:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Register a versioned metric with aliases and source-native mappings.",
       "id": "noesis-knowledge-engine.register_quantitative_metric",
       "input_schema": {
@@ -24781,6 +25386,43 @@
     },
     {
       "cost_class": "low",
+      "description": "Verify a quality assessment against its deterministic hash.",
+      "id": "noesis-knowledge-engine.replay_quality_assessment",
+      "input_schema": {
+        "properties": {
+          "assessment_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "assessment_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "replay_quality_assessment",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:quality:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Recompute a stored calculation hash to verify deterministic replay.",
       "id": "noesis-knowledge-engine.replay_quantitative_calculation",
       "input_schema": {
@@ -25807,6 +26449,59 @@
       ],
       "required_scopes": [
         "knowledge:geospatial:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Record an explicit human quality override without rewriting evidence.",
+      "id": "noesis-knowledge-engine.review_quality_override",
+      "input_schema": {
+        "properties": {
+          "dimension": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "object_id": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "reviewer_id": {
+            "type": "string"
+          },
+          "value": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "namespace",
+          "object_id",
+          "dimension",
+          "value",
+          "reason",
+          "reviewer_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_quality_override",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:quality:review"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -27092,6 +27787,50 @@
       ],
       "required_scopes": [
         "knowledge:freshness:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Simulate a policy without modifying stored assessments.",
+      "id": "noesis-knowledge-engine.simulate_quality_policy",
+      "input_schema": {
+        "properties": {
+          "assessment_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "policy_revision_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "assessment_ids",
+          "policy_revision_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "simulate_quality_policy",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:quality:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
