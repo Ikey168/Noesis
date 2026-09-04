@@ -1,0 +1,7 @@
+{
+  "query": "unscoped query",
+  "task": "must be rejected",
+  "scope": {},
+  "surfaces": ["arbitrary-sql"],
+  "budgets": {"max_results": 0}
+}

@@ -373,6 +373,10 @@ source-pack-check:
 	@echo "Validating production source packs and replaying pinned fixtures..."
 	python3 scripts/source_pack_conformance.py
 
+unified-query-check:
+	@echo "Running the unified Knowledge Engine query conformance suite..."
+	python3 scripts/unified_query_conformance.py
+
 demo:
 	@echo "Running NeuroNews offline demo pipeline..."
 	python3 scripts/demo.py

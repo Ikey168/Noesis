@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import sys
+import threading
 from pathlib import Path
 from typing import Any
 
@@ -11,6 +12,8 @@ from fastmcp import FastMCP
 ROOT=Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:sys.path.insert(0,str(ROOT))
 mcp=FastMCP("noesis-knowledge-engine")
+_QUERY_CANCELLATIONS:dict[str,threading.Event]={}
+_QUERY_REPLAYS:dict[str,dict[str,Any]]={}
 
 
 def _context() -> tuple[str,set[str]]:
@@ -41,7 +44,59 @@ def _safe(operation,*,write: bool=False):
 @mcp.tool()
 def knowledge_engine_capabilities() -> dict:
     """Describe declarative ingestion, extraction, events, and artifact rebuild contracts."""
-    return {"contracts":["noesis-declarative-api-source-v1","noesis-extractor-definition-v1","noesis-canonical-event-v1","noesis-derived-artifact-v1","noesis-knowledge-workflow-v1","noesis-workflow-stage-receipt-v1","noesis-workflow-watermark-v1","noesis-source-pack-v1"],"features":["declarative-rest","versioned-extractors","canonical-events","selective-rebuild","reference-workflow","committed-watermarks","production-source-packs"]}
+    return {"contracts":["noesis-declarative-api-source-v1","noesis-extractor-definition-v1","noesis-canonical-event-v1","noesis-derived-artifact-v1","noesis-knowledge-workflow-v1","noesis-workflow-stage-receipt-v1","noesis-workflow-watermark-v1","noesis-source-pack-v1","noesis-knowledge-query-request-v1","noesis-knowledge-query-plan-v1","noesis-knowledge-query-result-v1"],"features":["declarative-rest","versioned-extractors","canonical-events","selective-rebuild","reference-workflow","committed-watermarks","production-source-packs","unified-query","temporal-query","memory-context","federated-query"]}
+
+
+def _query_engine(conn,request:dict[str,Any]):
+    from src.kb.unified_query import UnifiedQueryEngine,build_local_catalog
+    scope=dict(request.get("scope") or {});principal,_=_context()
+    catalog=build_local_catalog(conn,domains=list(scope.get("domains") or ()),namespaces=list(scope.get("namespaces") or ()),tenant_id=scope.get("tenant_id"),task_id=scope.get("task_id"),principal_id=principal,include_memory=str(dict(request.get("memory") or {}).get("mode") or "off")!="off")
+    return UnifiedQueryEngine(catalog)
+
+
+@mcp.tool()
+def unified_query_capabilities(request:dict[str,Any]) -> dict:
+    """Discover authorized local query capabilities for an intended scope."""
+    return _safe(lambda conn:{"contract":"noesis-knowledge-query-capabilities-v1","sources":_query_engine(conn,request).catalog.capabilities(scopes=_context()[1])})
+
+
+@mcp.tool()
+def explain_knowledge_query(request:dict[str,Any]) -> dict:
+    """Return the deterministic source, dependency, omission, and budget plan."""
+    return _safe(lambda conn:_query_engine(conn,request).plan(request,scopes=_context()[1]))
+
+
+@mcp.tool()
+def query_knowledge(request:dict[str,Any],query_id:str="") -> dict:
+    """Query authorized local knowledge with evidence-preserving unified results."""
+    token=query_id or "query:"+__import__("hashlib").sha256(__import__("json").dumps(request,sort_keys=True,default=str).encode()).hexdigest()[:24];event=_QUERY_CANCELLATIONS.setdefault(token,threading.Event())
+    def operation(conn):
+        result=_query_engine(conn,request).execute(request,scopes=_context()[1],cancelled=event.is_set);_QUERY_REPLAYS[token]={"request":request,"result":result};return result
+    try:return _safe(operation)
+    finally:_QUERY_CANCELLATIONS.pop(token,None)
+
+
+@mcp.tool()
+def cancel_knowledge_query(query_id:str) -> dict:
+    """Signal cancellation for an in-process unified query."""
+    event=_QUERY_CANCELLATIONS.get(query_id)
+    if event is None:return {"ok":False,"error":{"code":"query_not_running","message":"query is not running in this process"}}
+    event.set();return {"ok":True,"query_id":query_id,"cancelled":True}
+
+
+@mcp.tool()
+def replay_knowledge_query(query_id:str) -> dict:
+    """Replay a completed in-process query and compare its deterministic hash."""
+    prior=_QUERY_REPLAYS.get(query_id)
+    if prior is None:return {"ok":False,"error":{"code":"replay_not_found","message":"query replay data is not available in this process"}}
+    return _safe(lambda conn:_query_engine(conn,prior["request"]).replay(prior["request"],prior["result"],scopes=_context()[1]))
+
+
+@mcp.tool()
+def evaluate_knowledge_query(result:dict[str,Any],expected_ids:list[str]|None=None) -> dict:
+    """Measure recall, citation coverage, provenance, failures, and memory separation."""
+    from src.kb.unified_query import UnifiedQueryEngine
+    return UnifiedQueryEngine.evaluate(result,expected_ids=expected_ids or [])
 
 
 @mcp.tool()

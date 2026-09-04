@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/schemas/noesis-knowledge-query-request-v1.json",
+  "title": "Noesis unified knowledge query request",
+  "type": "object",
+  "required": ["contract", "query", "task", "scope", "surfaces", "source_policy", "budgets", "request_hash"],
+  "properties": {
+    "contract": {"const": "noesis-knowledge-query-request-v1"},
+    "query": {"type": "string", "minLength": 1, "maxLength": 5000},
+    "task": {"type": "string", "minLength": 1, "maxLength": 5000},
+    "scope": {
+      "type": "object",
+      "required": ["domains", "namespaces", "all_authorized"],
+      "properties": {
+        "domains": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "namespaces": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "all_authorized": {"type": "boolean"},
+        "tenant_id": {"type": ["string", "null"]},
+        "task_id": {"type": ["string", "null"]}
+      },
+      "additionalProperties": false
+    },
+    "surfaces": {"type": "array", "items": {"enum": ["lexical", "semantic", "document", "claim", "entity", "graph", "quantitative", "temporal", "memory", "federated", "event", "artifact"]}, "uniqueItems": true},
+    "object_types": {"type": "array", "items": {"enum": ["document", "passage", "claim", "entity", "relation", "observation", "memory", "event", "artifact"]}, "uniqueItems": true},
+    "source_policy": {"type": "object"},
+    "temporal": {"type": "object"},
+    "memory": {"type": "object"},
+    "evidence_policy": {"type": "object"},
+    "diversity": {"type": "object"},
+    "budgets": {"type": "object"},
+    "cursor": {"type": ["string", "null"]},
+    "authorization_context": {"type": "object"},
+    "request_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  },
+  "additionalProperties": false
+}

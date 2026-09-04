@@ -799,10 +799,13 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 22,
+      "tool_count": 28,
       "tools": [
         "noesis-knowledge-engine.artifact_lineage",
+        "noesis-knowledge-engine.cancel_knowledge_query",
+        "noesis-knowledge-engine.evaluate_knowledge_query",
         "noesis-knowledge-engine.execute_artifact_rebuild",
+        "noesis-knowledge-engine.explain_knowledge_query",
         "noesis-knowledge-engine.fetch_declarative_api",
         "noesis-knowledge-engine.inspect_reference_workflow",
         "noesis-knowledge-engine.install_source_pack",
@@ -812,14 +815,17 @@
         "noesis-knowledge-engine.merge_canonical_events",
         "noesis-knowledge-engine.plan_extractor_reprocessing",
         "noesis-knowledge-engine.preview_artifact_invalidation",
+        "noesis-knowledge-engine.query_knowledge",
         "noesis-knowledge-engine.read_workflow_stage",
         "noesis-knowledge-engine.register_derived_artifact",
         "noesis-knowledge-engine.register_extractor",
+        "noesis-knowledge-engine.replay_knowledge_query",
         "noesis-knowledge-engine.resolve_event_report",
         "noesis-knowledge-engine.reverse_event_merge",
         "noesis-knowledge-engine.run_reference_workflow",
         "noesis-knowledge-engine.set_source_pack_enabled",
         "noesis-knowledge-engine.source_pack_coverage",
+        "noesis-knowledge-engine.unified_query_capabilities",
         "noesis-knowledge-engine.validate_api_connector_manifest",
         "noesis-knowledge-engine.validate_knowledge_workflow",
         "noesis-knowledge-engine.validate_source_pack"
@@ -829,7 +835,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 22
+      "visible_tool_count": 28
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -840,12 +846,12 @@
     },
     "servers": 29,
     "states": {
-      "available": 42,
+      "available": 48,
       "degraded": 155,
       "disabled": 3,
       "unauthorized": 53
     },
-    "tools": 253
+    "tools": 259
   },
   "tools": [
     {
@@ -12150,6 +12156,87 @@
     },
     {
       "cost_class": "medium",
+      "description": "Signal cancellation for an in-process unified query.",
+      "id": "noesis-knowledge-engine.cancel_knowledge_query",
+      "input_schema": {
+        "properties": {
+          "query_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "query_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "cancel_knowledge_query",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Measure recall, citation coverage, provenance, failures, and memory separation.",
+      "id": "noesis-knowledge-engine.evaluate_knowledge_query",
+      "input_schema": {
+        "properties": {
+          "expected_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "result": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "evaluate_knowledge_query",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Checkpoint rebuilds and atomically publish one consistent generation watermark.",
       "id": "noesis-knowledge-engine.execute_artifact_rebuild",
       "input_schema": {
@@ -12186,6 +12273,40 @@
       ],
       "required_scopes": [
         "operator"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Return the deterministic source, dependency, omission, and budget plan.",
+      "id": "noesis-knowledge-engine.explain_knowledge_query",
+      "input_schema": {
+        "properties": {
+          "request": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "request"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "explain_knowledge_query",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "available",
@@ -12527,6 +12648,44 @@
       "version": "1"
     },
     {
+      "cost_class": "medium",
+      "description": "Query authorized local knowledge with evidence-preserving unified results.",
+      "id": "noesis-knowledge-engine.query_knowledge",
+      "input_schema": {
+        "properties": {
+          "query_id": {
+            "default": "",
+            "type": "string"
+          },
+          "request": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "request"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "query_knowledge",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
       "cost_class": "low",
       "description": "Read a stage output from exactly one committed workflow generation.",
       "id": "noesis-knowledge-engine.read_workflow_stage",
@@ -12634,6 +12793,39 @@
       ],
       "required_scopes": [
         "operator"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Replay a completed in-process query and compare its deterministic hash.",
+      "id": "noesis-knowledge-engine.replay_knowledge_query",
+      "input_schema": {
+        "properties": {
+          "query_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "query_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "replay_knowledge_query",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "available",
@@ -12815,6 +13007,40 @@
       "latency_class": "interactive",
       "mutability": "read",
       "name": "source_pack_coverage",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Discover authorized local query capabilities for an intended scope.",
+      "id": "noesis-knowledge-engine.unified_query_capabilities",
+      "input_schema": {
+        "properties": {
+          "request": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "request"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "unified_query_capabilities",
       "output_schema": {
         "additionalProperties": true,
         "type": "object"

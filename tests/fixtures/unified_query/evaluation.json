@@ -1,0 +1,42 @@
+{
+  "request": {
+    "query": "energy prices",
+    "task": "compare reported energy-price changes",
+    "scope": {"domains": ["research", "political", "economic", "osint", "technical", "scientific"]},
+    "surfaces": ["lexical"],
+    "budgets": {"max_results": 10, "per_source_results": 10, "token_budget": 800}
+  },
+  "sources": [
+    {
+      "source_id": "economic",
+      "domains": ["economic"],
+      "items": [{"canonical_id": "energy:price:1", "id": "econ:1", "origin_id": "dataset:1", "text": "Energy prices rose by four percent.", "url": "https://example.test/economic/1", "score": 0.92}]
+    },
+    {
+      "source_id": "political",
+      "domains": ["political"],
+      "items": [{"canonical_id": "energy:price:1", "id": "policy:1", "origin_id": "record:1", "text": "The ministry reported a four percent energy-price increase.", "url": "https://example.test/political/1", "score": 7.4}]
+    },
+    {
+      "source_id": "research",
+      "domains": ["research"],
+      "items": [{"id": "research:1", "origin_id": "paper:1", "text": "A study estimates household exposure to energy prices.", "url": "https://example.test/research/1", "score": 0.81}]
+    },
+    {
+      "source_id": "osint",
+      "domains": ["osint"],
+      "items": [{"id": "osint:1", "origin_id": "archive:1", "text": "An archived bulletin reports regional energy prices.", "url": "https://example.test/osint/1", "score": 0.77}]
+    },
+    {
+      "source_id": "technical",
+      "domains": ["technical"],
+      "items": [{"id": "technical:1", "origin_id": "repo:1", "text": "The collection pipeline validates energy-price series.", "url": "https://example.test/technical/1", "score": 0.69}]
+    },
+    {
+      "source_id": "scientific",
+      "domains": ["scientific"],
+      "items": [{"id": "scientific:1", "origin_id": "dataset:2", "text": "A dataset records energy-price observations.", "url": "https://example.test/scientific/1", "score": 0.88}]
+    }
+  ],
+  "expected_ids": ["energy:price:1", "paper:1", "archive:1", "repo:1", "dataset:2"]
+}
