@@ -32,6 +32,7 @@ DEFAULT_SCOPES = frozenset({"public", "knowledge:read"})
 SENSITIVE_SERVERS = frozenset({"lineage_mcp", "provisioning_mcp", "security_mcp"})
 MUTATION_PREFIXES = (
     "attach_",
+    "commit_",
     "compute_",
     "create_",
     "delete_",
@@ -40,6 +41,7 @@ MUTATION_PREFIXES = (
     "harvest_",
     "ingest_",
     "register_",
+    "rollback_",
     "run_",
     "set_",
     "subscribe_",
@@ -154,6 +156,8 @@ def _cost(name: str, mutability: str) -> tuple[str, str]:
 def _required_data(server_stem: str, tool_name: str) -> list[str]:
     if server_stem == "catalog_mcp":
         return ["mcp-registration", "domain-registry"]
+    if server_stem == "transactions_mcp":
+        return ["knowledge-transaction-store"]
     if server_stem == "contract_mcp":
         return ["contract-schemas"]
     if server_stem == "schema_mcp":
@@ -177,7 +181,15 @@ def _required_data(server_stem: str, tool_name: str) -> list[str]:
     return ["warehouse"]
 
 
-def _required_scopes(server_stem: str, mutability: str) -> list[str]:
+def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[str]:
+    if server_stem == "transactions_mcp":
+        if tool_name.startswith("commit_"):
+            return ["knowledge:transaction:commit"]
+        if tool_name.startswith("rollback_"):
+            return ["knowledge:transaction:rollback"]
+        if tool_name.startswith("preview_"):
+            return ["knowledge:transaction:preview"]
+        return ["knowledge:transaction:read"]
     if mutability == "write" or server_stem in SENSITIVE_SERVERS:
         return ["operator"]
     if server_stem in {"catalog_mcp", "contract_mcp", "schema_mcp"}:
@@ -439,7 +451,7 @@ async def build_catalog(
         server_states = []
         for tool in discovered:
             mutability = _mutability(tool["name"])
-            required_scopes = _required_scopes(stem, mutability)
+            required_scopes = _required_scopes(stem, mutability, tool["name"])
             required_data = _required_data(stem, tool["name"])
             data_state, data_reason = _data_state(required_data, conn)
             state, reason = _state(

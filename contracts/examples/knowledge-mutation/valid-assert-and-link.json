@@ -1,0 +1,39 @@
+{
+  "contract": "noesis-knowledge-mutation-v1",
+  "batch_id": "batch:research-note-001",
+  "namespace": "corpus",
+  "actor": {"principal_id": "analyst@example", "kind": "user"},
+  "reason": "Record the reviewed assertion and its relationship.",
+  "provenance": {"kind": "user-assertion", "method": "human-review"},
+  "evidence": [{"document_id": "doc:source-1", "note": "Primary source"}],
+  "idempotency_key": "research-note-001",
+  "partial_batch": "atomic",
+  "mutations": [
+    {
+      "mutation_id": "m1",
+      "type": "assert",
+      "target": {"kind": "object", "id": "claim:one", "expected_revision": 0},
+      "object_type": "claim",
+      "value": {"text": "The reviewed measure increased."},
+      "metadata": {"confidence": 0.9}
+    },
+    {
+      "mutation_id": "m2",
+      "type": "assert",
+      "target": {"kind": "object", "id": "indicator:one", "expected_revision": 0},
+      "object_type": "indicator",
+      "value": {"name": "Reviewed measure"}
+    },
+    {
+      "mutation_id": "m3",
+      "type": "link",
+      "target": {"kind": "relation", "id": "relation:one", "expected_revision": 0},
+      "relation": {
+        "subject_id": "claim:one",
+        "predicate": "references",
+        "object_id": "indicator:one",
+        "metadata": {"reviewed": true}
+      }
+    }
+  ]
+}

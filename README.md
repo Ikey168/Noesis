@@ -135,10 +135,10 @@ DYNAMODB_ENDPOINT_URL  http://localhost:8000          # DynamoDB Local
 
 ### MCP capability plane
 
-Every subsystem is a FastMCP server. Read tools run against the warehouse and
-never conflict with the API writer, so they are safe for both development
-agents and external hosts. Domain packs arrive as connected servers, and
-provisioning tools stand up new knowledge graphs at runtime.
+Every subsystem is a FastMCP server. Read tools run safely against the
+warehouse; mutations use explicit authorization and subsystem transaction
+boundaries. Domain packs arrive as connected servers, and provisioning tools
+stand up new knowledge graphs at runtime.
 
 | Server | Focus |
 |---|---|
@@ -159,6 +159,7 @@ provisioning tools stand up new knowledge graphs at runtime.
 | `noesis-security` | Security posture, secret and TLS checks, backups, and DB permissions |
 | `noesis-schema` | Tables, schemas, and REST routes |
 | `noesis-kb` | Versioned KB search, answers, evidence, diffs, integrity, and briefs |
+| `noesis-transactions` | Deterministic preview, atomic knowledge commits, audit replay, and compensating rollback |
 
 ---
 
