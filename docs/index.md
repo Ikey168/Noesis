@@ -65,6 +65,8 @@ For the project overview and local setup, start with the
   study designs, exact-locator extraction, bias reviews, and replication graphs
 - **[Multimodal evidence](guides/multimodal-evidence.md)** — versioned media,
   bounded local extraction, cross-modal links, and authenticity provenance
+- **[Citation preservation](guides/citation-preservation.md)** — policy-gated
+  snapshots, support revalidation, link-rot monitoring, and exact archive repair
 - **[Unified knowledge query](guides/unified-knowledge-query.md)** — one bounded,
   evidence-preserving plane over local, temporal, memory, and federated data.
 - [Project structure](development/project-structure.md) — where things live in

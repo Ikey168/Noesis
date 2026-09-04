@@ -157,6 +157,11 @@ def knowledge_engine_capabilities() -> dict:
             "noesis-cross-modal-evidence-v1",
             "noesis-media-authenticity-v1",
             "noesis-multimodal-search-v1",
+            "noesis-citation-archive-policy-v1",
+            "noesis-citation-snapshot-v1",
+            "noesis-citation-verification-v1",
+            "noesis-citation-health-v1",
+            "noesis-citation-export-v1",
             "noesis-maintenance-job-request-v1",
             "noesis-maintenance-job-receipt-v1",
             "noesis-knowledge-generation-v1",
@@ -234,6 +239,10 @@ def knowledge_engine_capabilities() -> dict:
             "bounded-local-multimodal-extraction",
             "unverified-cross-modal-evidence-links",
             "media-transformation-and-authenticity-provenance",
+            "policy-gated-content-addressed-citation-snapshots",
+            "deterministic-citation-support-verification",
+            "approved-archive-link-rot-repair",
+            "dependency-complete-citation-export",
             "knowledge-maintenance",
             "lease-safe-workers",
             "committed-generations",
@@ -5337,6 +5346,300 @@ def inspect_media_provenance(namespace: str, asset_id: str, limit: int = 100) ->
             namespace, asset_id, limit=limit, scopes={"knowledge:multimodal:read"}
         ),
         required_scope="knowledge:multimodal:read",
+    )
+
+
+@mcp.tool()
+def register_citation_archive_policy(
+    namespace: str,
+    policy_id: str,
+    version: str,
+    allow_robots_denied: bool = False,
+    allowed_licenses: list[str] | None = None,
+    allow_private: bool = False,
+    preserve_excerpts: bool = True,
+    preserve_assets: bool = False,
+    approved_archives: list[str] | None = None,
+    max_bytes: int = 1_000_000,
+    generation: int = 0,
+    valid_from_ms: int | None = None,
+    valid_to_ms: int | None = None,
+    observed_at_ms: int | None = None,
+    producer: dict[str, Any] | None = None,
+    policy_context: dict[str, Any] | None = None,
+    provenance: dict[str, Any] | None = None,
+    predecessor_revision_id: str | None = None,
+) -> dict:
+    """Register an append-only legal, access, and citation archive policy."""
+    from src.kb.citation_preservation import CitationPreservationStore
+
+    return _safe(
+        lambda conn: CitationPreservationStore(conn).register_policy(
+            namespace,
+            policy_id,
+            version,
+            allow_robots_denied=allow_robots_denied,
+            allowed_licenses=allowed_licenses or [],
+            allow_private=allow_private,
+            preserve_excerpts=preserve_excerpts,
+            preserve_assets=preserve_assets,
+            approved_archives=approved_archives or [],
+            max_bytes=max_bytes,
+            generation=generation,
+            valid_from_ms=valid_from_ms,
+            valid_to_ms=valid_to_ms,
+            observed_at_ms=observed_at_ms,
+            producer=producer,
+            policy_context=policy_context,
+            provenance=provenance,
+            predecessor_revision_id=predecessor_revision_id,
+            principal_id=_context()[0],
+            scopes={"knowledge:citation:write"},
+        ),
+        write=True,
+        required_scope="knowledge:citation:write",
+    )
+
+
+@mcp.tool()
+def get_citation_archive_policy(
+    namespace: str, policy_id: str, revision_id: str | None = None
+) -> dict:
+    """Read a current or exact citation archive policy revision."""
+    from src.kb.citation_preservation import CitationPreservationStore
+
+    return _safe(
+        lambda conn: CitationPreservationStore(conn, initialize=False).policy(
+            namespace,
+            policy_id,
+            revision_id=revision_id,
+            scopes={"knowledge:citation:read"},
+        ),
+        required_scope="knowledge:citation:read",
+    )
+
+
+@mcp.tool()
+def capture_citation_snapshot(
+    namespace: str,
+    policy_id: str,
+    citation_id: str,
+    source_url: str,
+    content: str | None = None,
+    media_type: str = "text/html",
+    retrieved_at_ms: int | None = None,
+    redirects: list[str] | None = None,
+    response_metadata: dict[str, Any] | None = None,
+    locator: dict[str, Any] | None = None,
+    excerpts: list[dict[str, Any]] | None = None,
+    assets: list[dict[str, Any]] | None = None,
+    robots_allowed: bool = True,
+    license_id: str | None = None,
+    private_source: bool = False,
+    partial: bool = False,
+    cancel_requested: bool = False,
+    generation: int = 0,
+    valid_from_ms: int | None = None,
+    valid_to_ms: int | None = None,
+    producer: dict[str, Any] | None = None,
+    provenance: dict[str, Any] | None = None,
+) -> dict:
+    """Capture a bounded, policy-gated, content-addressed citation manifest."""
+    from src.kb.citation_preservation import CitationPreservationStore
+
+    return _safe(
+        lambda conn: CitationPreservationStore(conn).capture(
+            namespace,
+            policy_id,
+            citation_id,
+            source_url,
+            content=content,
+            media_type=media_type,
+            retrieved_at_ms=retrieved_at_ms,
+            redirects=redirects or [],
+            response_metadata=response_metadata,
+            locator=locator,
+            excerpts=excerpts or [],
+            assets=assets or [],
+            robots_allowed=robots_allowed,
+            license_id=license_id,
+            private_source=private_source,
+            partial=partial,
+            cancel_requested=cancel_requested,
+            generation=generation,
+            valid_from_ms=valid_from_ms,
+            valid_to_ms=valid_to_ms,
+            producer=producer,
+            provenance=provenance,
+            principal_id=_context()[0],
+            scopes={"knowledge:citation:capture"},
+        ),
+        write=True,
+        required_scope="knowledge:citation:capture",
+    )
+
+
+@mcp.tool()
+def get_citation_snapshot(namespace: str, snapshot_id: str) -> dict:
+    """Inspect a citation manifest without returning preserved content bytes."""
+    from src.kb.citation_preservation import CitationPreservationStore
+
+    return _safe(
+        lambda conn: CitationPreservationStore(conn, initialize=False).snapshot(
+            namespace, snapshot_id, scopes={"knowledge:citation:read"}
+        ),
+        required_scope="knowledge:citation:read",
+    )
+
+
+@mcp.tool()
+def replay_citation_snapshot(namespace: str, snapshot_id: str) -> dict:
+    """Verify a snapshot manifest against its deterministic hash."""
+    from src.kb.citation_preservation import CitationPreservationStore
+
+    return _safe(
+        lambda conn: CitationPreservationStore(conn, initialize=False).replay_capture(
+            namespace, snapshot_id, scopes={"knowledge:citation:read"}
+        ),
+        required_scope="knowledge:citation:read",
+    )
+
+
+@mcp.tool()
+def verify_preserved_citation(
+    namespace: str,
+    citation_id: str,
+    snapshot_id: str,
+    assertion: str,
+    expected_excerpt: str | None = None,
+    contradiction: str | None = None,
+    locator: dict[str, Any] | None = None,
+    ocr_tolerance: float = 0.85,
+) -> dict:
+    """Re-resolve a cited passage and report support, contradiction, ambiguity, or loss."""
+    from src.kb.citation_preservation import CitationPreservationStore
+
+    return _safe(
+        lambda conn: CitationPreservationStore(conn).verify(
+            namespace,
+            citation_id,
+            snapshot_id,
+            assertion,
+            expected_excerpt=expected_excerpt,
+            contradiction=contradiction,
+            locator=locator,
+            ocr_tolerance=ocr_tolerance,
+            principal_id=_context()[0],
+            scopes={"knowledge:citation:write"},
+        ),
+        write=True,
+        required_scope="knowledge:citation:write",
+    )
+
+
+@mcp.tool()
+def record_citation_health(
+    namespace: str,
+    citation_id: str,
+    url: str,
+    http_status: int,
+    response_title: str = "",
+    paywall: bool = False,
+    takedown: bool = False,
+    checked_at_ms: int | None = None,
+) -> dict:
+    """Record availability, soft-404, paywall, or takedown status."""
+    from src.kb.citation_preservation import CitationPreservationStore
+
+    return _safe(
+        lambda conn: CitationPreservationStore(conn).record_health(
+            namespace,
+            citation_id,
+            url,
+            http_status,
+            response_title=response_title,
+            paywall=paywall,
+            takedown=takedown,
+            checked_at_ms=checked_at_ms,
+            principal_id=_context()[0],
+            scopes={"knowledge:citation:write"},
+        ),
+        write=True,
+        required_scope="knowledge:citation:write",
+    )
+
+
+@mcp.tool()
+def get_citation_status(namespace: str, citation_id: str, limit: int = 100) -> dict:
+    """Inspect bounded snapshots, availability checks, and explicit repairs."""
+    from src.kb.citation_preservation import CitationPreservationStore
+
+    return _safe(
+        lambda conn: CitationPreservationStore(conn, initialize=False).status(
+            namespace, citation_id, limit=limit, scopes={"knowledge:citation:read"}
+        ),
+        required_scope="knowledge:citation:read",
+    )
+
+
+@mcp.tool()
+def preview_citation_repair(
+    namespace: str,
+    policy_id: str,
+    citation_id: str,
+    snapshot_id: str,
+    candidates: list[dict[str, Any]],
+    limit: int = 20,
+) -> dict:
+    """Preview approved archive candidates without changing original evidence."""
+    from src.kb.citation_preservation import CitationPreservationStore
+
+    return _safe(
+        lambda conn: CitationPreservationStore(conn, initialize=False).preview_repair(
+            namespace,
+            policy_id,
+            citation_id,
+            snapshot_id,
+            candidates,
+            limit=limit,
+            scopes={"knowledge:citation:read"},
+        ),
+        required_scope="knowledge:citation:read",
+    )
+
+
+@mcp.tool()
+def accept_citation_repair(
+    namespace: str, preview: dict[str, Any], candidate_index: int
+) -> dict:
+    """Record an approved exact-content archived copy while retaining the original."""
+    from src.kb.citation_preservation import CitationPreservationStore
+
+    return _safe(
+        lambda conn: CitationPreservationStore(conn).accept_repair(
+            namespace,
+            preview,
+            candidate_index,
+            principal_id=_context()[0],
+            scopes={"knowledge:citation:repair"},
+        ),
+        write=True,
+        required_scope="knowledge:citation:repair",
+    )
+
+
+@mcp.tool()
+def export_preserved_citations(
+    namespace: str, citation_ids: list[str], limit: int = 100
+) -> dict:
+    """Export citation manifests with policy, verification, health, and repair closure."""
+    from src.kb.citation_preservation import CitationPreservationStore
+
+    return _safe(
+        lambda conn: CitationPreservationStore(conn, initialize=False).export(
+            namespace, citation_ids, limit=limit, scopes={"knowledge:citation:read"}
+        ),
+        required_scope="knowledge:citation:read",
     )
 
 

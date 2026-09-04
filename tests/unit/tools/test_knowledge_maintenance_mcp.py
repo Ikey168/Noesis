@@ -201,6 +201,17 @@ def test_maintenance_surface_and_catalog_scope_separation(monkeypatch):
         "record_media_transformation",
         "assess_media_authenticity",
         "inspect_media_provenance",
+        "register_citation_archive_policy",
+        "get_citation_archive_policy",
+        "capture_citation_snapshot",
+        "get_citation_snapshot",
+        "replay_citation_snapshot",
+        "verify_preserved_citation",
+        "record_citation_health",
+        "get_citation_status",
+        "preview_citation_repair",
+        "accept_citation_repair",
+        "export_preserved_citations",
     }
     assert expected <= set(tools)
     assert _required_scopes(
@@ -698,3 +709,8 @@ def test_capabilities_advertise_generation_contracts():
     assert "noesis-cross-modal-evidence-v1" in capabilities["contracts"]
     assert "noesis-media-authenticity-v1" in capabilities["contracts"]
     assert "noesis-multimodal-search-v1" in capabilities["contracts"]
+    assert "noesis-citation-archive-policy-v1" in capabilities["contracts"]
+    assert "noesis-citation-snapshot-v1" in capabilities["contracts"]
+    assert "noesis-citation-verification-v1" in capabilities["contracts"]
+    assert "noesis-citation-health-v1" in capabilities["contracts"]
+    assert "noesis-citation-export-v1" in capabilities["contracts"]

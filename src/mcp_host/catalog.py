@@ -129,6 +129,10 @@ MUTATION_NAMES = frozenset(
         "link_cross_modal_evidence",
         "record_media_transformation",
         "assess_media_authenticity",
+        "capture_citation_snapshot",
+        "verify_preserved_citation",
+        "record_citation_health",
+        "accept_citation_repair",
     }
 )
 
@@ -301,6 +305,25 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
             return ["knowledge:memory:admin"]
         return ["knowledge:memory:read"]
     if server_stem == "knowledge_engine_mcp":
+        if tool_name == "capture_citation_snapshot":
+            return ["knowledge:citation:capture"]
+        if tool_name == "accept_citation_repair":
+            return ["knowledge:citation:repair"]
+        if tool_name in {
+            "register_citation_archive_policy",
+            "verify_preserved_citation",
+            "record_citation_health",
+        }:
+            return ["knowledge:citation:write"]
+        if tool_name in {
+            "get_citation_archive_policy",
+            "get_citation_snapshot",
+            "replay_citation_snapshot",
+            "get_citation_status",
+            "preview_citation_repair",
+            "export_preserved_citations",
+        }:
+            return ["knowledge:citation:read"]
         if tool_name == "extract_multimodal_observations":
             return ["knowledge:multimodal:extract"]
         if tool_name == "assess_media_authenticity":

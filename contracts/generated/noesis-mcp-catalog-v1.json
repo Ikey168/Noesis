@@ -808,8 +808,9 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 225,
+      "tool_count": 236,
       "tools": [
+        "noesis-knowledge-engine.accept_citation_repair",
         "noesis-knowledge-engine.accept_dataset_join",
         "noesis-knowledge-engine.accept_source_pack_license",
         "noesis-knowledge-engine.add_source_relationship",
@@ -829,6 +830,7 @@
         "noesis-knowledge-engine.cancel_maintenance_job",
         "noesis-knowledge-engine.cancel_source_acquisition_plan",
         "noesis-knowledge-engine.cancel_source_pack_run",
+        "noesis-knowledge-engine.capture_citation_snapshot",
         "noesis-knowledge-engine.capture_claim_timeline_state",
         "noesis-knowledge-engine.classify_epistemic_statement",
         "noesis-knowledge-engine.close_research_snapshot",
@@ -876,9 +878,13 @@
         "noesis-knowledge-engine.explain_source_independence",
         "noesis-knowledge-engine.explain_study_evidence_strength",
         "noesis-knowledge-engine.export_hypothesis_workspace",
+        "noesis-knowledge-engine.export_preserved_citations",
         "noesis-knowledge-engine.extract_methodology_statements",
         "noesis-knowledge-engine.extract_multimodal_observations",
         "noesis-knowledge-engine.fetch_declarative_api",
+        "noesis-knowledge-engine.get_citation_archive_policy",
+        "noesis-knowledge-engine.get_citation_snapshot",
+        "noesis-knowledge-engine.get_citation_status",
         "noesis-knowledge-engine.get_claim_evolution_timeline",
         "noesis-knowledge-engine.get_claim_timeline_state",
         "noesis-knowledge-engine.get_dataset_catalog",
@@ -936,6 +942,7 @@
         "noesis-knowledge-engine.plan_extractor_reprocessing",
         "noesis-knowledge-engine.preflight_source_pack_run",
         "noesis-knowledge-engine.preview_artifact_invalidation",
+        "noesis-knowledge-engine.preview_citation_repair",
         "noesis-knowledge-engine.preview_dataset_join",
         "noesis-knowledge-engine.preview_source_acquisition_plan",
         "noesis-knowledge-engine.prioritize_research_gaps",
@@ -944,12 +951,14 @@
         "noesis-knowledge-engine.query_knowledge",
         "noesis-knowledge-engine.read_quantitative_series",
         "noesis-knowledge-engine.read_workflow_stage",
+        "noesis-knowledge-engine.record_citation_health",
         "noesis-knowledge-engine.record_geospatial_resolution",
         "noesis-knowledge-engine.record_media_transformation",
         "noesis-knowledge-engine.record_quantitative_observation",
         "noesis-knowledge-engine.record_quantitative_series_break",
         "noesis-knowledge-engine.record_research_coverage",
         "noesis-knowledge-engine.recover_stale_maintenance_jobs",
+        "noesis-knowledge-engine.register_citation_archive_policy",
         "noesis-knowledge-engine.register_dataset_catalog",
         "noesis-knowledge-engine.register_dataset_release",
         "noesis-knowledge-engine.register_derived_artifact",
@@ -968,6 +977,7 @@
         "noesis-knowledge-engine.relate_events",
         "noesis-knowledge-engine.relate_evidence_applicability",
         "noesis-knowledge-engine.renew_research_snapshot",
+        "noesis-knowledge-engine.replay_citation_snapshot",
         "noesis-knowledge-engine.replay_claim_evolution",
         "noesis-knowledge-engine.replay_derived_object_generations",
         "noesis-knowledge-engine.replay_document_generation_delta",
@@ -1034,14 +1044,15 @@
         "noesis-knowledge-engine.update_research_gap_status",
         "noesis-knowledge-engine.validate_api_connector_manifest",
         "noesis-knowledge-engine.validate_knowledge_workflow",
-        "noesis-knowledge-engine.validate_source_pack"
+        "noesis-knowledge-engine.validate_source_pack",
+        "noesis-knowledge-engine.verify_preserved_citation"
       ],
       "transports": [
         "stdio",
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 225
+      "visible_tool_count": 236
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -1055,9 +1066,9 @@
       "available": 81,
       "degraded": 155,
       "disabled": 3,
-      "unauthorized": 226
+      "unauthorized": 237
     },
-    "tools": 465
+    "tools": 476
   },
   "tools": [
     {
@@ -12853,6 +12864,48 @@
     },
     {
       "cost_class": "medium",
+      "description": "Record an approved exact-content archived copy while retaining the original.",
+      "id": "noesis-knowledge-engine.accept_citation_repair",
+      "input_schema": {
+        "properties": {
+          "candidate_index": {
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "preview": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "namespace",
+          "preview",
+          "candidate_index"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "accept_citation_repair",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:citation:repair"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Accept an unchanged join preview and persist exact transformation lineage.",
       "id": "noesis-knowledge-engine.accept_dataset_join",
       "input_schema": {
@@ -14169,6 +14222,222 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Capture a bounded, policy-gated, content-addressed citation manifest.",
+      "id": "noesis-knowledge-engine.capture_citation_snapshot",
+      "input_schema": {
+        "properties": {
+          "assets": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "cancel_requested": {
+            "default": false,
+            "type": "boolean"
+          },
+          "citation_id": {
+            "type": "string"
+          },
+          "content": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "excerpts": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "generation": {
+            "default": 0,
+            "type": "integer"
+          },
+          "license_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "locator": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "media_type": {
+            "default": "text/html",
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "partial": {
+            "default": false,
+            "type": "boolean"
+          },
+          "policy_id": {
+            "type": "string"
+          },
+          "private_source": {
+            "default": false,
+            "type": "boolean"
+          },
+          "producer": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "provenance": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "redirects": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "response_metadata": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "retrieved_at_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "robots_allowed": {
+            "default": true,
+            "type": "boolean"
+          },
+          "source_url": {
+            "type": "string"
+          },
+          "valid_from_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "valid_to_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "policy_id",
+          "citation_id",
+          "source_url"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "capture_citation_snapshot",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:citation:capture"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
       "version": "1"
     },
     {
@@ -16782,6 +17051,50 @@
       "version": "1"
     },
     {
+      "cost_class": "low",
+      "description": "Export citation manifests with policy, verification, health, and repair closure.",
+      "id": "noesis-knowledge-engine.export_preserved_citations",
+      "input_schema": {
+        "properties": {
+          "citation_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "limit": {
+            "default": 100,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "citation_ids"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "export_preserved_citations",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:citation:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "medium",
       "description": "Persist bounded method statements with page, section, table, or passage locators.",
       "id": "noesis-knowledge-engine.extract_methodology_statements",
@@ -16974,6 +17287,132 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Read a current or exact citation archive policy revision.",
+      "id": "noesis-knowledge-engine.get_citation_archive_policy",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "policy_id": {
+            "type": "string"
+          },
+          "revision_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "policy_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "get_citation_archive_policy",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:citation:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Inspect a citation manifest without returning preserved content bytes.",
+      "id": "noesis-knowledge-engine.get_citation_snapshot",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "snapshot_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "snapshot_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "get_citation_snapshot",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:citation:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Inspect bounded snapshots, availability checks, and explicit repairs.",
+      "id": "noesis-knowledge-engine.get_citation_status",
+      "input_schema": {
+        "properties": {
+          "citation_id": {
+            "type": "string"
+          },
+          "limit": {
+            "default": 100,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "citation_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "get_citation_status",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:citation:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
       "version": "1"
     },
     {
@@ -19630,6 +20069,63 @@
     },
     {
       "cost_class": "low",
+      "description": "Preview approved archive candidates without changing original evidence.",
+      "id": "noesis-knowledge-engine.preview_citation_repair",
+      "input_schema": {
+        "properties": {
+          "candidates": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "citation_id": {
+            "type": "string"
+          },
+          "limit": {
+            "default": 20,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "policy_id": {
+            "type": "string"
+          },
+          "snapshot_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "policy_id",
+          "citation_id",
+          "snapshot_id",
+          "candidates"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "preview_citation_repair",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:citation:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Preview bounded join results, cardinality, and unit/time mismatch warnings.",
       "id": "noesis-knowledge-engine.preview_dataset_join",
       "input_schema": {
@@ -20054,6 +20550,74 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Record availability, soft-404, paywall, or takedown status.",
+      "id": "noesis-knowledge-engine.record_citation_health",
+      "input_schema": {
+        "properties": {
+          "checked_at_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "citation_id": {
+            "type": "string"
+          },
+          "http_status": {
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "paywall": {
+            "default": false,
+            "type": "boolean"
+          },
+          "response_title": {
+            "default": "",
+            "type": "string"
+          },
+          "takedown": {
+            "default": false,
+            "type": "boolean"
+          },
+          "url": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "citation_id",
+          "url",
+          "http_status"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "record_citation_health",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:citation:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
       "version": "1"
     },
     {
@@ -20564,6 +21128,179 @@
       ],
       "required_scopes": [
         "knowledge:maintenance:admin"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Register an append-only legal, access, and citation archive policy.",
+      "id": "noesis-knowledge-engine.register_citation_archive_policy",
+      "input_schema": {
+        "properties": {
+          "allow_private": {
+            "default": false,
+            "type": "boolean"
+          },
+          "allow_robots_denied": {
+            "default": false,
+            "type": "boolean"
+          },
+          "allowed_licenses": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "approved_archives": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "generation": {
+            "default": 0,
+            "type": "integer"
+          },
+          "max_bytes": {
+            "default": 1000000,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "observed_at_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "policy_context": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "policy_id": {
+            "type": "string"
+          },
+          "predecessor_revision_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "preserve_assets": {
+            "default": false,
+            "type": "boolean"
+          },
+          "preserve_excerpts": {
+            "default": true,
+            "type": "boolean"
+          },
+          "producer": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "provenance": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "valid_from_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "valid_to_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "version": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "policy_id",
+          "version"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "register_citation_archive_policy",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:citation:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -22672,6 +23409,43 @@
       ],
       "required_scopes": [
         "knowledge:snapshot:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Verify a snapshot manifest against its deterministic hash.",
+      "id": "noesis-knowledge-engine.replay_citation_snapshot",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "snapshot_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "snapshot_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "replay_citation_snapshot",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:citation:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -25879,6 +26653,89 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Re-resolve a cited passage and report support, contradiction, ambiguity, or loss.",
+      "id": "noesis-knowledge-engine.verify_preserved_citation",
+      "input_schema": {
+        "properties": {
+          "assertion": {
+            "type": "string"
+          },
+          "citation_id": {
+            "type": "string"
+          },
+          "contradiction": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "expected_excerpt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "locator": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "ocr_tolerance": {
+            "default": 0.85,
+            "type": "number"
+          },
+          "snapshot_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "citation_id",
+          "snapshot_id",
+          "assertion"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "verify_preserved_citation",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:citation:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
       "version": "1"
     }
   ],
