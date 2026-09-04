@@ -30,6 +30,8 @@ surface. The full design lives in the
 > To exercise the complete Knowledge Engine path, run
 > `make knowledge-engine-reference`; see the
 > [Knowledge Engine 1.0 reference workflow](docs/guides/knowledge-engine-reference.md).
+> Unified local, temporal, memory, and federated retrieval is documented in the
+> [unified knowledge query guide](docs/guides/unified-knowledge-query.md).
 
 ---
 

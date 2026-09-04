@@ -15,3 +15,8 @@ Production source-pack tools validate, install, upgrade, enable, disable, and
 inspect the built-in research, political, economic, OSINT, technical, and
 scientific connector configurations. Default conformance is fixture-backed and
 network-free; live probes remain an explicit operator action.
+
+Unified query tools expose authorized capability discovery, deterministic plan
+explanation, bounded execution, cooperative cancellation, replay, and
+evaluation. They compose local domain and temporal stores with optional memory
+and federation. Memory remains context-only and never counts as evidence.
