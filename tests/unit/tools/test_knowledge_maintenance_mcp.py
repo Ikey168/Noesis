@@ -156,6 +156,17 @@ def test_maintenance_surface_and_catalog_scope_separation(monkeypatch):
         "list_research_gap_tasks",
         "compare_research_gap_coverage",
         "replay_research_gap",
+        "register_source_capability",
+        "get_source_capability",
+        "create_source_research_objective",
+        "preview_source_acquisition_plan",
+        "create_source_acquisition_plan",
+        "get_source_acquisition_plan",
+        "explain_source_acquisition_plan",
+        "execute_source_acquisition_plan",
+        "cancel_source_acquisition_plan",
+        "inspect_source_acquisition_run",
+        "replay_source_acquisition_run",
     }
     assert expected <= set(tools)
     assert _required_scopes(
@@ -441,6 +452,35 @@ def test_maintenance_surface_and_catalog_scope_separation(monkeypatch):
             "knowledge:gaps:read"
         ]
     for name in (
+        "register_source_capability",
+        "create_source_research_objective",
+        "create_source_acquisition_plan",
+    ):
+        assert _mutability(name) == "write"
+        assert _required_scopes("knowledge_engine_mcp", "write", name) == [
+            "knowledge:source-planner:write"
+        ]
+    for name in (
+        "execute_source_acquisition_plan",
+        "cancel_source_acquisition_plan",
+    ):
+        assert _mutability(name) == "write"
+        assert _required_scopes("knowledge_engine_mcp", "write", name) == [
+            "knowledge:source-planner:execute"
+        ]
+    for name in (
+        "get_source_capability",
+        "preview_source_acquisition_plan",
+        "get_source_acquisition_plan",
+        "explain_source_acquisition_plan",
+        "inspect_source_acquisition_run",
+        "replay_source_acquisition_run",
+    ):
+        assert _mutability(name) == "read"
+        assert _required_scopes("knowledge_engine_mcp", "read", name) == [
+            "knowledge:source-planner:read"
+        ]
+    for name in (
         "pause_maintenance_schedule",
         "resume_maintenance_schedule",
         "cancel_maintenance_job",
@@ -544,3 +584,9 @@ def test_capabilities_advertise_generation_contracts():
     assert "noesis-research-gap-report-v1" in capabilities["contracts"]
     assert "multidimensional-research-gap-records" in capabilities["features"]
     assert "deterministic-budgeted-research-planning" in capabilities["features"]
+    assert "noesis-source-capability-v1" in capabilities["contracts"]
+    assert "noesis-source-research-objective-v1" in capabilities["contracts"]
+    assert "noesis-source-acquisition-plan-v1" in capabilities["contracts"]
+    assert "noesis-source-plan-receipt-v1" in capabilities["contracts"]
+    assert "credential-safe-source-capability-registry" in capabilities["features"]
+    assert "checkpointed-source-plan-execution" in capabilities["features"]

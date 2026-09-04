@@ -16,6 +16,7 @@ mcp = FastMCP("noesis-knowledge-engine")
 _QUERY_CANCELLATIONS: dict[str, threading.Event] = {}
 _QUERY_REPLAYS: dict[str, dict[str, Any]] = {}
 _SOURCE_PACK_CANCELLATIONS: dict[str, threading.Event] = {}
+_SOURCE_PLAN_CANCELLATIONS: dict[str, threading.Event] = {}
 _MAINTENANCE_CANCELLATIONS: dict[str, threading.Event] = {}
 
 
@@ -137,6 +138,10 @@ def knowledge_engine_capabilities() -> dict:
             "noesis-research-gap-v1",
             "noesis-research-gap-task-v1",
             "noesis-research-gap-report-v1",
+            "noesis-source-capability-v1",
+            "noesis-source-research-objective-v1",
+            "noesis-source-acquisition-plan-v1",
+            "noesis-source-plan-receipt-v1",
             "noesis-maintenance-job-request-v1",
             "noesis-maintenance-job-receipt-v1",
             "noesis-knowledge-generation-v1",
@@ -198,6 +203,10 @@ def knowledge_engine_capabilities() -> dict:
             "weak-support-and-citation-chain-detection",
             "deterministic-budgeted-research-planning",
             "research-gap-lifecycle-tracking",
+            "credential-safe-source-capability-registry",
+            "explainable-constrained-source-selection",
+            "checkpointed-source-plan-execution",
+            "adaptive-source-plan-fallbacks",
             "knowledge-maintenance",
             "lease-safe-workers",
             "committed-generations",
@@ -4111,6 +4120,335 @@ def replay_research_gap(namespace: str, gap_id: str) -> dict:
             namespace, gap_id, scopes={"knowledge:gaps:read"}
         ),
         required_scope="knowledge:gaps:read",
+    )
+
+
+@mcp.tool()
+def register_source_capability(
+    namespace: str,
+    source_id: str,
+    semantic_version: str,
+    coverage: dict[str, Any],
+    authority: dict[str, Any],
+    access: dict[str, Any],
+    latency: dict[str, Any],
+    cost: dict[str, Any],
+    rate_limits: dict[str, Any],
+    query_forms: list[str],
+    connector: dict[str, Any],
+    dependency_group: str,
+    supersedes_capability_id: str | None = None,
+    generation: int = 0,
+    valid_from_ms: int | None = None,
+    valid_to_ms: int | None = None,
+    observed_at_ms: int | None = None,
+    producer: dict[str, Any] | None = None,
+    policy: dict[str, Any] | None = None,
+    provenance: dict[str, Any] | None = None,
+) -> dict:
+    """Register a credential-safe, immutable source capability version."""
+    from src.kb.source_planner import SourcePlannerStore
+
+    return _safe(
+        lambda conn: SourcePlannerStore(conn).register_capability(
+            namespace,
+            source_id,
+            semantic_version,
+            coverage=coverage,
+            authority=authority,
+            access=access,
+            latency=latency,
+            cost=cost,
+            rate_limits=rate_limits,
+            query_forms=query_forms,
+            connector=connector,
+            dependency_group=dependency_group,
+            supersedes_capability_id=supersedes_capability_id,
+            generation=generation,
+            valid_from_ms=valid_from_ms,
+            valid_to_ms=valid_to_ms,
+            observed_at_ms=observed_at_ms,
+            producer=producer,
+            policy=policy,
+            provenance=provenance,
+            principal_id=_context()[0],
+            scopes={"knowledge:source-planner:write"},
+        ),
+        write=True,
+        required_scope="knowledge:source-planner:write",
+    )
+
+
+@mcp.tool()
+def get_source_capability(namespace: str, capability_id: str) -> dict:
+    """Inspect one source capability without resolving or exposing credentials."""
+    from src.kb.source_planner import SourcePlannerStore
+
+    return _safe(
+        lambda conn: SourcePlannerStore(conn, initialize=False).capability(
+            namespace, capability_id, scopes={"knowledge:source-planner:read"}
+        ),
+        required_scope="knowledge:source-planner:read",
+    )
+
+
+@mcp.tool()
+def create_source_research_objective(
+    namespace: str,
+    question: str,
+    decomposition: list[dict[str, Any]] | None = None,
+    evidence_classes: list[str] | None = None,
+    constraints: dict[str, Any] | None = None,
+    generation: int = 0,
+    valid_from_ms: int | None = None,
+    valid_to_ms: int | None = None,
+    observed_at_ms: int | None = None,
+    producer: dict[str, Any] | None = None,
+    policy: dict[str, Any] | None = None,
+    provenance: dict[str, Any] | None = None,
+) -> dict:
+    """Create a canonical decomposed objective with evidence, access, and budget constraints."""
+    from src.kb.source_planner import SourcePlannerStore
+
+    return _safe(
+        lambda conn: SourcePlannerStore(conn).create_objective(
+            namespace,
+            question,
+            decomposition or [],
+            evidence_classes or [],
+            constraints,
+            generation=generation,
+            valid_from_ms=valid_from_ms,
+            valid_to_ms=valid_to_ms,
+            observed_at_ms=observed_at_ms,
+            producer=producer,
+            policy=policy,
+            provenance=provenance,
+            principal_id=_context()[0],
+            scopes={"knowledge:source-planner:write"},
+        ),
+        write=True,
+        required_scope="knowledge:source-planner:write",
+    )
+
+
+@mcp.tool()
+def preview_source_acquisition_plan(
+    namespace: str, objective_id: str, at_ms: int
+) -> dict:
+    """Preview deterministic source selection without persisting a plan or resolving secrets."""
+    from src.kb.source_planner import SourcePlannerStore
+
+    return _safe(
+        lambda conn: SourcePlannerStore(conn, initialize=False).preview(
+            namespace,
+            objective_id,
+            at_ms=at_ms,
+            credential_available=lambda ref: bool(_secret_resolver(ref)),
+            scopes={"knowledge:source-planner:read"},
+        ),
+        required_scope="knowledge:source-planner:read",
+    )
+
+
+@mcp.tool()
+def create_source_acquisition_plan(
+    namespace: str, objective_id: str, at_ms: int
+) -> dict:
+    """Persist an explainable plan pinned to exact source capability versions."""
+    from src.kb.source_planner import SourcePlannerStore
+
+    return _safe(
+        lambda conn: SourcePlannerStore(conn).preview(
+            namespace,
+            objective_id,
+            at_ms=at_ms,
+            credential_available=lambda ref: bool(_secret_resolver(ref)),
+            persist=True,
+            principal_id=_context()[0],
+            scopes={"knowledge:source-planner:write"},
+        ),
+        write=True,
+        required_scope="knowledge:source-planner:write",
+    )
+
+
+@mcp.tool()
+def get_source_acquisition_plan(namespace: str, plan_id: str) -> dict:
+    """Read an exact persisted source plan."""
+    from src.kb.source_planner import SourcePlannerStore
+
+    return _safe(
+        lambda conn: SourcePlannerStore(conn, initialize=False).plan(
+            namespace, plan_id, scopes={"knowledge:source-planner:read"}
+        ),
+        required_scope="knowledge:source-planner:read",
+    )
+
+
+@mcp.tool()
+def explain_source_acquisition_plan(namespace: str, plan_id: str) -> dict:
+    """Explain selected sources, score components, exclusions, coverage, and feasibility."""
+    from src.kb.source_planner import SourcePlannerStore
+
+    def operation(conn):
+        plan = SourcePlannerStore(conn, initialize=False).plan(
+            namespace, plan_id, scopes={"knowledge:source-planner:read"}
+        )
+        return {
+            "plan_id": plan_id,
+            "feasible": plan["feasible"],
+            "infeasibility": plan["infeasibility"],
+            "coverage": plan["coverage"],
+            "budget": plan["budget"],
+            "steps": plan["steps"],
+            "fallback_steps": plan["fallback_steps"],
+            "exclusions": plan["exclusions"],
+            "plan_hash": plan["plan_hash"],
+        }
+
+    return _safe(operation, required_scope="knowledge:source-planner:read")
+
+
+@mcp.tool()
+def execute_source_acquisition_plan(
+    namespace: str,
+    plan_id: str,
+    execution_key: str,
+    live_network: bool = False,
+) -> dict:
+    """Run or resume a source plan through pinned source-pack connectors and checkpoints."""
+    from src.kb.source_planner import SourcePlannerStore, source_plan_run_id
+
+    run_id = source_plan_run_id(namespace, plan_id, execution_key)
+    event = _SOURCE_PLAN_CANCELLATIONS.setdefault(run_id, threading.Event())
+
+    def operation(conn):
+        runtime = _source_pack_runtime(conn, initialize=True)
+        plan = SourcePlannerStore(conn, initialize=False).plan(
+            namespace, plan_id, scopes={"knowledge:source-planner:read"}
+        )
+
+        def runner(capability, step, checkpoint):
+            connector = capability["connector"]
+            if connector.get("kind") != "source-pack":
+                from src.kb.source_planner import SourcePlannerError
+
+                raise SourcePlannerError(
+                    "connector_unsupported",
+                    "execution requires a source-pack connector",
+                )
+            query = step["queries"][0]
+            requested = {
+                "pack_id": connector["pack_id"],
+                "run_key": f"{execution_key}:{step['step_id']}",
+                "operation": query["query_form"],
+                "source_ids": [connector.get("source_id", capability["source_id"])],
+                "parameters": query.get("parameters") or {"query": query["question"]},
+                "redistribute": bool(plan["constraints"]["redistribute"]),
+                "network": "live" if live_network else "disabled",
+                "max_pages": min(int(plan["constraints"]["max_pages"]), 100),
+                "max_results": min(int(plan["constraints"]["max_results"]), 100_000),
+                "timeout_ms": min(int(plan["constraints"]["timeout_ms"]), 120_000),
+                "retries": min(int(plan["constraints"]["retries"]), 3),
+            }
+            result = runtime.run(
+                requested,
+                principal_id=_context()[0],
+                adapters=None
+                if live_network
+                else runtime.fixture_adapters(connector["pack_id"], ROOT),
+                secret_resolver=_secret_resolver,
+                dns_resolver=None if live_network else lambda _: ["8.8.8.8"],
+                cancelled=event.is_set,
+            )
+            sources = result.get("sources", [])
+            counts = sources[0].get("counts", {}) if sources else {}
+            cursor = sources[0].get("cursor", {}) if sources else {}
+            return {
+                "status": "completed"
+                if result.get("status") == "complete"
+                else "failed",
+                "counts": counts,
+                "cursor": cursor,
+                "cost": step["projected_cost"],
+                "error": None
+                if result.get("status") == "complete"
+                else {"code": "source-pack-partial", "message": result.get("status")},
+            }
+
+        return SourcePlannerStore(conn).execute(
+            namespace,
+            plan_id,
+            execution_key,
+            runner=runner,
+            cancelled=event.is_set,
+            principal_id=_context()[0],
+            scopes={"knowledge:source-planner:execute"},
+        )
+
+    try:
+        return _safe(
+            operation,
+            write=True,
+            required_scope="knowledge:source-planner:execute",
+        )
+    finally:
+        _SOURCE_PLAN_CANCELLATIONS.pop(run_id, None)
+
+
+@mcp.tool()
+def cancel_source_acquisition_plan(
+    namespace: str, plan_id: str, execution_key: str
+) -> dict:
+    """Cooperatively cancel an active source acquisition plan."""
+    from src.kb.source_planner import source_plan_run_id
+
+    if (
+        "knowledge:source-planner:execute" not in _context()[1]
+        and "operator" not in _context()[1]
+    ):
+        return {
+            "ok": False,
+            "error": {
+                "code": "unauthorized",
+                "message": "knowledge:source-planner:execute scope is required",
+            },
+        }
+    run_id = source_plan_run_id(namespace, plan_id, execution_key)
+    event = _SOURCE_PLAN_CANCELLATIONS.get(run_id)
+    if event is None:
+        return {
+            "ok": False,
+            "error": {"code": "run_not_active", "message": "source plan is not active"},
+        }
+    event.set()
+    return {"ok": True, "run_id": run_id, "cancelled": True}
+
+
+@mcp.tool()
+def inspect_source_acquisition_run(namespace: str, run_id: str) -> dict:
+    """Inspect durable status, checkpoints, failures, and budget accounting."""
+    from src.kb.source_planner import SourcePlannerStore
+
+    return _safe(
+        lambda conn: SourcePlannerStore(conn, initialize=False).inspect_run(
+            namespace, run_id, scopes={"knowledge:source-planner:read"}
+        ),
+        required_scope="knowledge:source-planner:read",
+    )
+
+
+@mcp.tool()
+def replay_source_acquisition_run(namespace: str, run_id: str) -> dict:
+    """Verify a completed source-plan receipt against its canonical hash."""
+    from src.kb.source_planner import SourcePlannerStore
+
+    return _safe(
+        lambda conn: SourcePlannerStore(conn, initialize=False).replay(
+            namespace, run_id, scopes={"knowledge:source-planner:read"}
+        ),
+        required_scope="knowledge:source-planner:read",
     )
 
 

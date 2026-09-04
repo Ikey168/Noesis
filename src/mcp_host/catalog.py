@@ -120,6 +120,7 @@ MUTATION_NAMES = frozenset(
         "record_research_coverage",
         "discover_research_gaps",
         "prioritize_research_gaps",
+        "cancel_source_acquisition_plan",
     }
 )
 
@@ -292,6 +293,26 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
             return ["knowledge:memory:admin"]
         return ["knowledge:memory:read"]
     if server_stem == "knowledge_engine_mcp":
+        if tool_name in {
+            "execute_source_acquisition_plan",
+            "cancel_source_acquisition_plan",
+        }:
+            return ["knowledge:source-planner:execute"]
+        if tool_name in {
+            "register_source_capability",
+            "create_source_research_objective",
+            "create_source_acquisition_plan",
+        }:
+            return ["knowledge:source-planner:write"]
+        if tool_name in {
+            "get_source_capability",
+            "preview_source_acquisition_plan",
+            "get_source_acquisition_plan",
+            "explain_source_acquisition_plan",
+            "inspect_source_acquisition_run",
+            "replay_source_acquisition_run",
+        }:
+            return ["knowledge:source-planner:read"]
         if tool_name == "update_research_gap_status":
             return ["knowledge:gaps:review"]
         if tool_name in {

@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema", "$id": "https://noesis.local/schemas/noesis-source-acquisition-plan-v1.json",
+  "title": "Noesis explainable source acquisition plan", "type": "object",
+  "required": ["contract", "plan_id", "plan_hash", "namespace", "objective_id", "at_ms", "steps", "fallback_steps", "exclusions", "coverage", "budget", "feasible", "infeasibility", "constraints"],
+  "properties": {
+    "contract": {"const": "noesis-source-acquisition-plan-v1"}, "plan_id": {"type": "string"}, "plan_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"}, "namespace": {"type": "string"}, "objective_id": {"type": "string"}, "at_ms": {"type": "integer"},
+    "steps": {"type": "array", "items": {"type": "object"}}, "fallback_steps": {"type": "array", "items": {"type": "object"}}, "exclusions": {"type": "array", "items": {"type": "object"}},
+    "coverage": {"type": "object"}, "budget": {"type": "object"}, "feasible": {"type": "boolean"}, "infeasibility": {"type": "array", "items": {"type": "string"}}, "constraints": {"type": "object"},
+    "created_at_ms": {"type": "integer"}, "idempotent": {"type": "boolean"}
+  }, "additionalProperties": false
+}
