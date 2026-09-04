@@ -365,6 +365,10 @@ kb-bootstrap-offline:
 	@echo "Bootstrapping knowledge domains (offline: seed + membership only)..."
 	python3 scripts/kb_bootstrap.py --no-harvest
 
+knowledge-engine-reference:
+	@echo "Running the Knowledge Engine 1.0 reference workflow..."
+	python3 scripts/knowledge_engine_reference.py --exercise-recovery
+
 demo:
 	@echo "Running NeuroNews offline demo pipeline..."
 	python3 scripts/demo.py

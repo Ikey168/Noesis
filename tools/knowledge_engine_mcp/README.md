@@ -5,3 +5,8 @@ manifests, immutable extractor versions, evidence-bearing canonical events, and
 dependency-complete derived artifacts with selective checkpointed rebuilds.
 Network secrets and executable extractor code are configured by operators and
 never accepted as agent-returned knowledge.
+
+It also exposes the Knowledge Engine 1.0 reference-workflow controls. Operators
+can validate a seven-stage manifest, run or resume the canonical offline path,
+inspect immutable receipts and committed watermarks, and read a stage from one
+exact committed generation.

@@ -1,0 +1,179 @@
+{
+  "clock_ms": 1770000000000,
+  "documents": [
+    {
+      "document_id": "ref-research-1",
+      "source_type": "paper",
+      "language": "en",
+      "ingested_at": 1760000001000,
+      "created_at": 1759000000000,
+      "source_id": "crossref:10.1000/reference",
+      "url": "https://example.org/research/reference",
+      "title": "Independent replication of the reference result",
+      "content": "An independently produced replication supports the reported effect.",
+      "authors": ["R. Researcher"],
+      "metadata": {
+        "domain": "research",
+        "origin_id": "origin:research-independent",
+        "sensitivity": "public",
+        "knowledge": [
+          {"output_type": "claim", "value": {"statement": "The effect was independently replicated", "stance": "support", "evidence": [{"document_id": "ref-research-1"}]}},
+          {"output_type": "entity", "value": {"name": "Reference Result", "kind": "study"}}
+        ]
+      }
+    },
+    {
+      "document_id": "ref-political-1",
+      "source_type": "web",
+      "language": "en",
+      "ingested_at": 1760000002000,
+      "created_at": 1759100000000,
+      "source_id": "official-register:measure-7",
+      "url": "https://example.gov/measures/7/v2",
+      "title": "Measure 7 amended text",
+      "content": "The amended measure takes effect on 1 January.",
+      "metadata": {
+        "domain": "political",
+        "origin_id": "origin:measure-7",
+        "revision": 2,
+        "supersedes": "ref-political-v1",
+        "sensitivity": "public",
+        "knowledge": [
+          {"output_type": "event", "value": {"event_type": "policy-effective", "participants": ["Institution A"], "time": {"start_ms": 1767225600000, "end_ms": 1767225600000}, "evidence": [{"document_id": "ref-political-1", "source": "official-register:measure-7"}]}},
+          {"output_type": "relation", "value": {"subject": "measure-7", "predicate": "supersedes", "object": "measure-7-v1"}}
+        ]
+      }
+    },
+    {
+      "document_id": "ref-economic-1",
+      "source_type": "web",
+      "language": "en",
+      "ingested_at": 1760000003000,
+      "created_at": 1759200000000,
+      "source_id": "statistics-office:series-x",
+      "url": "https://example.gov/statistics/series-x?vintage=2",
+      "title": "Series X revised release",
+      "content": "The second vintage revised the observation from 4.1 to 3.8.",
+      "metadata": {
+        "domain": "economic",
+        "origin_id": "origin:series-x",
+        "vintage": 2,
+        "previous_value": 4.1,
+        "value": 3.8,
+        "sensitivity": "public",
+        "knowledge": [
+          {"output_type": "claim", "value": {"statement": "Series X equals 3.8 in vintage 2", "stance": "support", "evidence": [{"document_id": "ref-economic-1"}]}}
+        ]
+      }
+    },
+    {
+      "document_id": "ref-osint-origin",
+      "source_type": "news",
+      "language": "en",
+      "ingested_at": 1760000004000,
+      "created_at": 1759300000000,
+      "source_id": "publisher:origin",
+      "url": "https://example.net/original-report",
+      "title": "Original public report",
+      "content": "The original report says the facility remained open.",
+      "metadata": {
+        "domain": "osint",
+        "origin_id": "origin:public-report-1",
+        "sensitivity": "public",
+        "knowledge": [
+          {"output_type": "claim", "value": {"statement": "The facility remained open", "stance": "support", "evidence": [{"document_id": "ref-osint-origin"}]}}
+        ]
+      }
+    },
+    {
+      "document_id": "ref-osint-syndicated",
+      "source_type": "news",
+      "language": "en",
+      "ingested_at": 1760000005000,
+      "created_at": 1759301000000,
+      "source_id": "publisher:syndicate",
+      "url": "https://example.com/syndicated-report",
+      "title": "Syndicated public report",
+      "content": "A syndicated copy repeats that the facility remained open.",
+      "metadata": {
+        "domain": "osint",
+        "origin_id": "origin:public-report-1",
+        "sensitivity": "public",
+        "knowledge": [
+          {"output_type": "claim", "value": {"statement": "The facility remained open", "stance": "support", "evidence": [{"document_id": "ref-osint-syndicated"}]}}
+        ]
+      }
+    },
+    {
+      "document_id": "ref-technical-1",
+      "source_type": "web",
+      "language": "en",
+      "ingested_at": 1760000006000,
+      "created_at": 1759400000000,
+      "source_id": "osv:ADV-1",
+      "url": "https://example.dev/advisories/ADV-1",
+      "title": "ADV-1 correction",
+      "content": "The affected range was corrected to versions before 2.4.",
+      "metadata": {
+        "domain": "technical",
+        "origin_id": "origin:advisory-1",
+        "corrected": true,
+        "sensitivity": "public",
+        "knowledge": [
+          {"output_type": "claim", "value": {"statement": "Versions before 2.4 are affected", "stance": "support", "corrected": true, "evidence": [{"document_id": "ref-technical-1"}]}}
+        ]
+      }
+    },
+    {
+      "document_id": "ref-scientific-1",
+      "source_type": "paper",
+      "language": "en",
+      "ingested_at": 1760000007000,
+      "created_at": 1759500000000,
+      "source_id": "pmc:retracted-1",
+      "url": "https://example.org/science/retracted-1",
+      "title": "Retracted primary result",
+      "content": "The publisher has retracted the original result.",
+      "metadata": {
+        "domain": "scientific",
+        "origin_id": "origin:study-1",
+        "retracted": true,
+        "sensitivity": "public",
+        "knowledge": [
+          {"output_type": "claim", "value": {"statement": "The original result remains valid", "stance": "contradict", "retracted": true, "evidence": [{"document_id": "ref-scientific-1"}]}}
+        ]
+      }
+    },
+    {
+      "document_id": "ref-private-memo",
+      "source_type": "note",
+      "language": "en",
+      "ingested_at": 1760000008000,
+      "created_at": 1758000000000,
+      "source_id": "private:memo-1",
+      "title": "Internal stale memo",
+      "content": "This private memo predates the amended public record.",
+      "metadata": {
+        "domain": "political",
+        "origin_id": "origin:private-memo-1",
+        "stale": true,
+        "sensitivity": "private",
+        "knowledge": [
+          {"output_type": "claim", "value": {"statement": "Measure 7 has not changed", "stance": "contradict", "evidence": [{"document_id": "ref-private-memo"}]}}
+        ]
+      }
+    }
+  ],
+  "failure_inputs": [
+    {"document_id": "ref-malformed", "source_type": "unsupported", "language": "en", "ingested_at": 1760000009000, "content": "invalid source type"},
+    {"document_id": "ref-duplicate", "source_type": "news", "language": "en", "ingested_at": 1760000010000, "content": "The original report says the facility remained open."},
+    {"kind": "oversized", "declared_bytes": 1000000001},
+    {"kind": "schema-drift", "unexpected_field": {"nested": true}},
+    {"kind": "transient-failure", "failures_before_success": 1}
+  ],
+  "expected": {
+    "domains": ["economic", "osint", "political", "research", "scientific", "technical"],
+    "shared_origin": ["ref-osint-origin", "ref-osint-syndicated"],
+    "private_omitted_from_export": ["ref-private-memo"]
+  }
+}
