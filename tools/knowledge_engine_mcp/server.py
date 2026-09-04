@@ -101,6 +101,10 @@ def knowledge_engine_capabilities() -> dict:
             "noesis-epistemic-taxonomy-v1",
             "noesis-epistemic-assessment-v1",
             "noesis-epistemic-explanation-v1",
+            "noesis-hypothesis-workspace-v1",
+            "noesis-hypothesis-comparison-v1",
+            "noesis-hypothesis-research-plan-v1",
+            "noesis-hypothesis-export-v1",
             "noesis-maintenance-job-request-v1",
             "noesis-maintenance-job-receipt-v1",
             "noesis-knowledge-generation-v1",
@@ -130,6 +134,9 @@ def knowledge_engine_capabilities() -> dict:
             "versioned-epistemic-status",
             "evidence-calibrated-assessments",
             "reviewed-epistemic-overrides",
+            "versioned-hypothesis-workspaces",
+            "independence-aware-hypothesis-comparison",
+            "resumable-hypothesis-research-plans",
             "knowledge-maintenance",
             "lease-safe-workers",
             "committed-generations",
@@ -730,6 +737,309 @@ def explain_epistemic_assessment(namespace: str, statement_id: str) -> dict:
             namespace, statement_id, scopes=_context()[1]
         ),
         required_scope="knowledge:epistemic:read",
+    )
+
+
+@mcp.tool()
+def create_hypothesis_workspace(
+    namespace: str,
+    title: str,
+    hypotheses: list[dict[str, Any]],
+    idempotency_key: str | None = None,
+    generation: int = 0,
+    valid_from_ms: int | None = None,
+    valid_to_ms: int | None = None,
+    observed_at_ms: int | None = None,
+    producer: dict[str, Any] | None = None,
+    policy: dict[str, Any] | None = None,
+) -> dict:
+    """Create an idempotent, versioned competing-hypothesis workspace."""
+    from src.kb.hypotheses import HypothesisStore
+
+    principal, scopes = _context()
+    return _safe(
+        lambda conn: HypothesisStore(conn).create(
+            namespace,
+            title,
+            hypotheses,
+            principal_id=principal,
+            scopes=scopes,
+            idempotency_key=idempotency_key,
+            generation=generation,
+            valid_from_ms=valid_from_ms,
+            valid_to_ms=valid_to_ms,
+            observed_at_ms=observed_at_ms,
+            producer=producer,
+            policy=policy,
+        ),
+        write=True,
+        required_scope="knowledge:hypothesis:write",
+    )
+
+
+@mcp.tool()
+def get_hypothesis_workspace(
+    namespace: str, workspace_id: str, include_history: bool = False
+) -> dict:
+    """Inspect the current workspace or its immutable revision history."""
+    from src.kb.hypotheses import HypothesisStore
+
+    return _safe(
+        lambda conn: HypothesisStore(conn, initialize=False).get(
+            namespace,
+            workspace_id,
+            scopes=_context()[1],
+            include_history=include_history,
+        ),
+        required_scope="knowledge:hypothesis:read",
+    )
+
+
+@mcp.tool()
+def revise_hypothesis_workspace(
+    namespace: str,
+    workspace_id: str,
+    expected_revision: int,
+    title: str | None = None,
+    hypotheses: list[dict[str, Any]] | None = None,
+    lifecycle: str | None = None,
+) -> dict:
+    """Write an optimistic-concurrency workspace revision."""
+    from src.kb.hypotheses import HypothesisStore
+
+    principal, scopes = _context()
+    return _safe(
+        lambda conn: HypothesisStore(conn, initialize=False).revise(
+            namespace,
+            workspace_id,
+            principal_id=principal,
+            scopes=scopes,
+            expected_revision=expected_revision,
+            title=title,
+            hypotheses=hypotheses,
+            lifecycle=lifecycle,
+        ),
+        write=True,
+        required_scope="knowledge:hypothesis:write",
+    )
+
+
+@mcp.tool()
+def branch_hypothesis_workspace(
+    namespace: str,
+    workspace_id: str,
+    title: str,
+    idempotency_key: str | None = None,
+) -> dict:
+    """Branch a workspace while retaining stable hypothesis identities."""
+    from src.kb.hypotheses import HypothesisStore
+
+    principal, scopes = _context()
+    return _safe(
+        lambda conn: HypothesisStore(conn, initialize=False).branch(
+            namespace,
+            workspace_id,
+            title,
+            principal_id=principal,
+            scopes=scopes,
+            idempotency_key=idempotency_key,
+        ),
+        write=True,
+        required_scope="knowledge:hypothesis:write",
+    )
+
+
+@mcp.tool()
+def retire_hypothesis_workspace(
+    namespace: str, workspace_id: str, expected_revision: int
+) -> dict:
+    """Retire a workspace through a retained lifecycle revision."""
+    from src.kb.hypotheses import HypothesisStore
+
+    principal, scopes = _context()
+    return _safe(
+        lambda conn: HypothesisStore(conn, initialize=False).revise(
+            namespace,
+            workspace_id,
+            principal_id=principal,
+            scopes=scopes,
+            expected_revision=expected_revision,
+            lifecycle="retired",
+        ),
+        write=True,
+        required_scope="knowledge:hypothesis:write",
+    )
+
+
+@mcp.tool()
+def link_hypothesis_evidence(
+    namespace: str,
+    workspace_id: str,
+    hypothesis_id: str,
+    evidence_id: str,
+    stance: str,
+    source_revision_id: str | None = None,
+    relevance: float = 1.0,
+    independence_group: str | None = None,
+    provenance: dict[str, Any] | None = None,
+    annotations: dict[str, Any] | None = None,
+    required_scope: str | None = None,
+) -> dict:
+    """Link provenance-rich evidence to a hypothesis with declared stance."""
+    from src.kb.hypotheses import HypothesisStore
+
+    principal, scopes = _context()
+    return _safe(
+        lambda conn: HypothesisStore(conn, initialize=False).link_evidence(
+            namespace,
+            workspace_id,
+            hypothesis_id,
+            evidence_id,
+            stance,
+            principal_id=principal,
+            scopes=scopes,
+            source_revision_id=source_revision_id,
+            relevance=relevance,
+            independence_group=independence_group,
+            provenance=provenance,
+            annotations=annotations,
+            required_scope=required_scope,
+        ),
+        write=True,
+        required_scope="knowledge:hypothesis:write",
+    )
+
+
+@mcp.tool()
+def retract_hypothesis_evidence(
+    namespace: str, workspace_id: str, link_id: str, reason: str
+) -> dict:
+    """Append a retraction revision to a hypothesis evidence link."""
+    from src.kb.hypotheses import HypothesisStore
+
+    principal, scopes = _context()
+    return _safe(
+        lambda conn: HypothesisStore(conn, initialize=False).retract_evidence(
+            namespace,
+            workspace_id,
+            link_id,
+            reason,
+            principal_id=principal,
+            scopes=scopes,
+        ),
+        write=True,
+        required_scope="knowledge:hypothesis:write",
+    )
+
+
+@mcp.tool()
+def compare_hypotheses(
+    namespace: str,
+    workspace_id: str,
+    method: str = "qualitative",
+    priors: dict[str, float] | None = None,
+    sensitivity: float = 0.15,
+) -> dict:
+    """Compare hypotheses without representing heuristic scores as truth probabilities."""
+    from src.kb.hypotheses import HypothesisStore
+
+    return _safe(
+        lambda conn: HypothesisStore(conn, initialize=False).compare(
+            namespace,
+            workspace_id,
+            scopes=_context()[1],
+            method=method,
+            priors=priors,
+            sensitivity=sensitivity,
+        ),
+        required_scope="knowledge:hypothesis:read",
+    )
+
+
+@mcp.tool()
+def create_hypothesis_research_plan(
+    namespace: str, workspace_id: str, max_steps: int = 25
+) -> dict:
+    """Create bounded checks for a workspace's discriminating predictions."""
+    from src.kb.hypotheses import HypothesisStore
+
+    principal, scopes = _context()
+    return _safe(
+        lambda conn: HypothesisStore(conn, initialize=False).create_plan(
+            namespace,
+            workspace_id,
+            principal_id=principal,
+            scopes=scopes,
+            max_steps=max_steps,
+        ),
+        write=True,
+        required_scope="knowledge:hypothesis:write",
+    )
+
+
+@mcp.tool()
+def get_hypothesis_research_plan(namespace: str, plan_id: str) -> dict:
+    """Inspect resumable plan progress and unresolved information gaps."""
+    from src.kb.hypotheses import HypothesisStore
+
+    return _safe(
+        lambda conn: HypothesisStore(conn, initialize=False).get_plan(
+            namespace, plan_id, scopes=_context()[1]
+        ),
+        required_scope="knowledge:hypothesis:read",
+    )
+
+
+@mcp.tool()
+def execute_hypothesis_research_plan(
+    namespace: str,
+    plan_id: str,
+    observations: list[dict[str, Any]],
+    budget: float,
+    cancel_requested: bool = False,
+) -> dict:
+    """Apply bounded observations to a plan, retaining a resumable cursor."""
+    from src.kb.hypotheses import HypothesisStore
+
+    principal, scopes = _context()
+    return _safe(
+        lambda conn: HypothesisStore(conn, initialize=False).execute_plan(
+            namespace,
+            plan_id,
+            observations,
+            principal_id=principal,
+            scopes=scopes,
+            budget=budget,
+            cancel_requested=cancel_requested,
+        ),
+        write=True,
+        required_scope="knowledge:hypothesis:execute",
+    )
+
+
+@mcp.tool()
+def export_hypothesis_workspace(namespace: str, workspace_id: str) -> dict:
+    """Export complete accessible workspace lineage with a deterministic hash."""
+    from src.kb.hypotheses import HypothesisStore
+
+    return _safe(
+        lambda conn: HypothesisStore(conn, initialize=False).export(
+            namespace, workspace_id, scopes=_context()[1]
+        ),
+        required_scope="knowledge:hypothesis:read",
+    )
+
+
+@mcp.tool()
+def replay_hypothesis_workspace(namespace: str, workspace_id: str) -> dict:
+    """Replay a hypothesis export and verify deterministic reconstruction."""
+    from src.kb.hypotheses import HypothesisStore
+
+    return _safe(
+        lambda conn: HypothesisStore(conn, initialize=False).replay(
+            namespace, workspace_id, scopes=_context()[1]
+        ),
+        required_scope="knowledge:hypothesis:read",
     )
 
 

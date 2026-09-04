@@ -82,6 +82,11 @@ MUTATION_NAMES = frozenset(
         "assess_epistemic_statement",
         "review_epistemic_status",
         "register_epistemic_taxonomy",
+        "revise_hypothesis_workspace",
+        "branch_hypothesis_workspace",
+        "retire_hypothesis_workspace",
+        "link_hypothesis_evidence",
+        "retract_hypothesis_evidence",
     }
 )
 
@@ -254,6 +259,26 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
             return ["knowledge:memory:admin"]
         return ["knowledge:memory:read"]
     if server_stem == "knowledge_engine_mcp":
+        if tool_name == "execute_hypothesis_research_plan":
+            return ["knowledge:hypothesis:execute"]
+        if tool_name in {
+            "create_hypothesis_workspace",
+            "revise_hypothesis_workspace",
+            "branch_hypothesis_workspace",
+            "retire_hypothesis_workspace",
+            "link_hypothesis_evidence",
+            "retract_hypothesis_evidence",
+            "create_hypothesis_research_plan",
+        }:
+            return ["knowledge:hypothesis:write"]
+        if tool_name in {
+            "get_hypothesis_workspace",
+            "compare_hypotheses",
+            "get_hypothesis_research_plan",
+            "export_hypothesis_workspace",
+            "replay_hypothesis_workspace",
+        }:
+            return ["knowledge:hypothesis:read"]
         if tool_name in {
             "assess_epistemic_statement",
             "register_epistemic_taxonomy",

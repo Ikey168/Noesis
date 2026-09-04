@@ -57,6 +57,19 @@ def test_maintenance_surface_and_catalog_scope_separation(monkeypatch):
         "get_epistemic_assessment",
         "search_epistemic_assessments",
         "explain_epistemic_assessment",
+        "create_hypothesis_workspace",
+        "get_hypothesis_workspace",
+        "revise_hypothesis_workspace",
+        "branch_hypothesis_workspace",
+        "retire_hypothesis_workspace",
+        "link_hypothesis_evidence",
+        "retract_hypothesis_evidence",
+        "compare_hypotheses",
+        "create_hypothesis_research_plan",
+        "get_hypothesis_research_plan",
+        "execute_hypothesis_research_plan",
+        "export_hypothesis_workspace",
+        "replay_hypothesis_workspace",
     }
     assert expected <= set(tools)
     assert _required_scopes(
@@ -123,6 +136,34 @@ def test_maintenance_surface_and_catalog_scope_separation(monkeypatch):
             "knowledge:epistemic:read"
         ]
     for name in (
+        "create_hypothesis_workspace",
+        "revise_hypothesis_workspace",
+        "branch_hypothesis_workspace",
+        "retire_hypothesis_workspace",
+        "link_hypothesis_evidence",
+        "retract_hypothesis_evidence",
+        "create_hypothesis_research_plan",
+    ):
+        assert _mutability(name) == "write"
+        assert _required_scopes("knowledge_engine_mcp", "write", name) == [
+            "knowledge:hypothesis:write"
+        ]
+    assert _mutability("execute_hypothesis_research_plan") == "write"
+    assert _required_scopes(
+        "knowledge_engine_mcp", "write", "execute_hypothesis_research_plan"
+    ) == ["knowledge:hypothesis:execute"]
+    for name in (
+        "get_hypothesis_workspace",
+        "compare_hypotheses",
+        "get_hypothesis_research_plan",
+        "export_hypothesis_workspace",
+        "replay_hypothesis_workspace",
+    ):
+        assert _mutability(name) == "read"
+        assert _required_scopes("knowledge_engine_mcp", "read", name) == [
+            "knowledge:hypothesis:read"
+        ]
+    for name in (
         "pause_maintenance_schedule",
         "resume_maintenance_schedule",
         "cancel_maintenance_job",
@@ -162,3 +203,10 @@ def test_capabilities_advertise_generation_contracts():
     assert "versioned-epistemic-status" in capabilities["features"]
     assert "evidence-calibrated-assessments" in capabilities["features"]
     assert "reviewed-epistemic-overrides" in capabilities["features"]
+    assert "noesis-hypothesis-workspace-v1" in capabilities["contracts"]
+    assert "noesis-hypothesis-comparison-v1" in capabilities["contracts"]
+    assert "noesis-hypothesis-research-plan-v1" in capabilities["contracts"]
+    assert "noesis-hypothesis-export-v1" in capabilities["contracts"]
+    assert "versioned-hypothesis-workspaces" in capabilities["features"]
+    assert "independence-aware-hypothesis-comparison" in capabilities["features"]
+    assert "resumable-hypothesis-research-plans" in capabilities["features"]
