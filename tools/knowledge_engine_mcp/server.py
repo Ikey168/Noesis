@@ -105,6 +105,11 @@ def knowledge_engine_capabilities() -> dict:
             "noesis-hypothesis-comparison-v1",
             "noesis-hypothesis-research-plan-v1",
             "noesis-hypothesis-export-v1",
+            "noesis-source-identity-v1",
+            "noesis-source-alias-decision-v1",
+            "noesis-source-relationship-v1",
+            "noesis-source-dossier-v1",
+            "noesis-source-independence-v1",
             "noesis-maintenance-job-request-v1",
             "noesis-maintenance-job-receipt-v1",
             "noesis-knowledge-generation-v1",
@@ -137,6 +142,10 @@ def knowledge_engine_capabilities() -> dict:
             "versioned-hypothesis-workspaces",
             "independence-aware-hypothesis-comparison",
             "resumable-hypothesis-research-plans",
+            "canonical-source-identities",
+            "reversible-source-alias-resolution",
+            "time-bounded-source-ownership-graph",
+            "source-aware-evidence-independence",
             "knowledge-maintenance",
             "lease-safe-workers",
             "committed-generations",
@@ -1040,6 +1049,336 @@ def replay_hypothesis_workspace(namespace: str, workspace_id: str) -> dict:
             namespace, workspace_id, scopes=_context()[1]
         ),
         required_scope="knowledge:hypothesis:read",
+    )
+
+
+@mcp.tool()
+def register_source_identity(
+    namespace: str,
+    kind: str,
+    display_name: str,
+    native_ids: dict[str, str] | None = None,
+    names: dict[str, str] | None = None,
+    idempotency_key: str | None = None,
+    generation: int = 0,
+    valid_from_ms: int | None = None,
+    valid_to_ms: int | None = None,
+    observed_at_ms: int | None = None,
+    producer: dict[str, Any] | None = None,
+    policy: dict[str, Any] | None = None,
+) -> dict:
+    """Register a canonical publication, organization, author, channel, or account."""
+    from src.kb.source_identity import SourceIdentityStore
+
+    principal, scopes = _context()
+    return _safe(
+        lambda conn: SourceIdentityStore(conn).register(
+            namespace,
+            kind,
+            display_name,
+            principal_id=principal,
+            scopes=scopes,
+            native_ids=native_ids,
+            names=names,
+            idempotency_key=idempotency_key,
+            generation=generation,
+            valid_from_ms=valid_from_ms,
+            valid_to_ms=valid_to_ms,
+            observed_at_ms=observed_at_ms,
+            producer=producer,
+            policy=policy,
+        ),
+        write=True,
+        required_scope="knowledge:source-identity:write",
+    )
+
+
+@mcp.tool()
+def lookup_source_identity(namespace: str, source_id: str) -> dict:
+    """Look up the current canonical source revision."""
+    from src.kb.source_identity import SourceIdentityStore
+
+    return _safe(
+        lambda conn: SourceIdentityStore(conn, initialize=False).get(
+            namespace, source_id, scopes=_context()[1]
+        ),
+        required_scope="knowledge:source-identity:read",
+    )
+
+
+@mcp.tool()
+def source_identity_history(namespace: str, source_id: str) -> dict:
+    """Return immutable source identity revisions, including rename and deletion."""
+    from src.kb.source_identity import SourceIdentityStore
+
+    return _safe(
+        lambda conn: SourceIdentityStore(conn, initialize=False).get(
+            namespace, source_id, scopes=_context()[1], include_history=True
+        ),
+        required_scope="knowledge:source-identity:read",
+    )
+
+
+@mcp.tool()
+def revise_source_identity(
+    namespace: str,
+    source_id: str,
+    expected_revision: int,
+    display_name: str | None = None,
+    native_ids: dict[str, str] | None = None,
+    names: dict[str, str] | None = None,
+) -> dict:
+    """Append an optimistic-concurrency source identity revision."""
+    from src.kb.source_identity import SourceIdentityStore
+
+    principal, scopes = _context()
+    return _safe(
+        lambda conn: SourceIdentityStore(conn, initialize=False).revise(
+            namespace,
+            source_id,
+            expected_revision,
+            principal_id=principal,
+            scopes=scopes,
+            display_name=display_name,
+            native_ids=native_ids,
+            names=names,
+        ),
+        write=True,
+        required_scope="knowledge:source-identity:write",
+    )
+
+
+@mcp.tool()
+def delete_source_identity(
+    namespace: str, source_id: str, expected_revision: int
+) -> dict:
+    """Record source/account deletion without erasing identity history."""
+    from src.kb.source_identity import SourceIdentityStore
+
+    principal, scopes = _context()
+    return _safe(
+        lambda conn: SourceIdentityStore(conn, initialize=False).revise(
+            namespace,
+            source_id,
+            expected_revision,
+            principal_id=principal,
+            scopes=scopes,
+            lifecycle="deleted",
+        ),
+        write=True,
+        required_scope="knowledge:source-identity:write",
+    )
+
+
+@mcp.tool()
+def decide_source_alias(
+    namespace: str,
+    source_id: str,
+    alias_type: str,
+    value: str,
+    reason: str,
+    language: str = "und",
+    confidence: float = 1.0,
+    provenance: dict[str, Any] | None = None,
+) -> dict:
+    """Record a reviewed URL, domain, handle, identifier, or multilingual alias."""
+    from src.kb.source_identity import SourceIdentityStore
+
+    principal, scopes = _context()
+    return _safe(
+        lambda conn: SourceIdentityStore(conn, initialize=False).decide_alias(
+            namespace,
+            source_id,
+            alias_type,
+            value,
+            language=language,
+            confidence=confidence,
+            reason=reason,
+            provenance=provenance,
+            reviewer_id=principal,
+            scopes=scopes,
+        ),
+        write=True,
+        required_scope="knowledge:source-identity:review",
+    )
+
+
+@mcp.tool()
+def split_source_alias(
+    namespace: str,
+    source_id: str,
+    alias_type: str,
+    value: str,
+    reason: str,
+    language: str = "und",
+) -> dict:
+    """Reverse a reviewed alias merge through an append-only split decision."""
+    from src.kb.source_identity import SourceIdentityStore
+
+    principal, scopes = _context()
+    return _safe(
+        lambda conn: SourceIdentityStore(conn, initialize=False).decide_alias(
+            namespace,
+            source_id,
+            alias_type,
+            value,
+            language=language,
+            reason=reason,
+            reviewer_id=principal,
+            scopes=scopes,
+            action="split",
+        ),
+        write=True,
+        required_scope="knowledge:source-identity:review",
+    )
+
+
+@mcp.tool()
+def resolve_source_alias(
+    namespace: str,
+    alias_type: str,
+    value: str,
+    language: str = "und",
+    limit: int = 25,
+) -> dict:
+    """Resolve an alias while preserving ambiguous reviewed candidates."""
+    from src.kb.source_identity import SourceIdentityStore
+
+    return _safe(
+        lambda conn: SourceIdentityStore(conn, initialize=False).resolve_alias(
+            namespace,
+            alias_type,
+            value,
+            scopes=_context()[1],
+            language=language,
+            limit=limit,
+        ),
+        required_scope="knowledge:source-identity:read",
+    )
+
+
+@mcp.tool()
+def add_source_relationship(
+    namespace: str,
+    from_source_id: str,
+    to_source_id: str,
+    relationship_type: str,
+    valid_from_ms: int | None = None,
+    valid_to_ms: int | None = None,
+    observed_at_ms: int | None = None,
+    confidence: float = 1.0,
+    uncertainty: float = 0.0,
+    evidence: list[dict[str, Any]] | None = None,
+    producer: dict[str, Any] | None = None,
+    policy: dict[str, Any] | None = None,
+) -> dict:
+    """Add a sourced, time-bounded ownership, funding, control, or origin edge."""
+    from src.kb.source_identity import SourceIdentityStore
+
+    principal, scopes = _context()
+    return _safe(
+        lambda conn: SourceIdentityStore(conn, initialize=False).relate(
+            namespace,
+            from_source_id,
+            to_source_id,
+            relationship_type,
+            principal_id=principal,
+            scopes=scopes,
+            valid_from_ms=valid_from_ms,
+            valid_to_ms=valid_to_ms,
+            observed_at_ms=observed_at_ms,
+            confidence=confidence,
+            uncertainty=uncertainty,
+            evidence=evidence or [],
+            producer=producer,
+            policy=policy,
+        ),
+        write=True,
+        required_scope="knowledge:source-identity:write",
+    )
+
+
+@mcp.tool()
+def retract_source_relationship(
+    namespace: str, relationship_id: str, reason: str
+) -> dict:
+    """Retract a source relationship without deleting its evidence history."""
+    from src.kb.source_identity import SourceIdentityStore
+
+    principal, scopes = _context()
+    return _safe(
+        lambda conn: SourceIdentityStore(conn, initialize=False).retract_relationship(
+            namespace,
+            relationship_id,
+            reason,
+            principal_id=principal,
+            scopes=scopes,
+        ),
+        write=True,
+        required_scope="knowledge:source-identity:write",
+    )
+
+
+@mcp.tool()
+def source_identity_dossier(
+    namespace: str,
+    source_id: str,
+    as_of_ms: int | None = None,
+    limit: int = 50,
+    cursor: str | None = None,
+) -> dict:
+    """Return a paginated, citation-aware source dossier at a valid time."""
+    from src.kb.source_identity import SourceIdentityStore
+
+    return _safe(
+        lambda conn: SourceIdentityStore(conn, initialize=False).dossier(
+            namespace,
+            source_id,
+            scopes=_context()[1],
+            as_of_ms=as_of_ms,
+            limit=limit,
+            cursor=cursor,
+        ),
+        required_scope="knowledge:source-identity:read",
+    )
+
+
+@mcp.tool()
+def source_relationship_path(
+    namespace: str,
+    from_source_id: str,
+    to_source_id: str,
+    as_of_ms: int | None = None,
+    max_depth: int = 6,
+) -> dict:
+    """Traverse a bounded ownership/control path at a requested valid time."""
+    from src.kb.source_identity import SourceIdentityStore
+
+    return _safe(
+        lambda conn: SourceIdentityStore(conn, initialize=False).path(
+            namespace,
+            from_source_id,
+            to_source_id,
+            scopes=_context()[1],
+            as_of_ms=as_of_ms,
+            max_depth=max_depth,
+        ),
+        required_scope="knowledge:source-identity:read",
+    )
+
+
+@mcp.tool()
+def explain_source_independence(
+    namespace: str, source_ids: list[str], as_of_ms: int | None = None
+) -> dict:
+    """Explain evidence-independence groups from ownership, origin, and syndication."""
+    from src.kb.source_identity import SourceIdentityStore
+
+    return _safe(
+        lambda conn: SourceIdentityStore(conn, initialize=False).explain_independence(
+            namespace, source_ids, scopes=_context()[1], as_of_ms=as_of_ms
+        ),
+        required_scope="knowledge:source-identity:read",
     )
 
 

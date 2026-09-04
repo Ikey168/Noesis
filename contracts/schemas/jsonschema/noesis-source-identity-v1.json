@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/schemas/noesis-source-identity-v1.json",
+  "title": "Noesis canonical source identity revision",
+  "type": "object",
+  "required": ["contract", "source_id", "namespace", "revision_id", "revision", "predecessor_revision_id", "display_name", "lifecycle", "native_ids", "names", "generation", "valid_from_ms", "valid_to_ms", "observed_at_ms", "producer", "policy", "principal_id", "input_hash", "created_at_ms", "kind"],
+  "properties": {
+    "contract": {"const": "noesis-source-identity-v1"},
+    "source_id": {"type": "string", "pattern": "^source-identity:"},
+    "namespace": {"type": "string", "minLength": 1},
+    "revision_id": {"type": "string", "pattern": "^source-identity-revision:"},
+    "revision": {"type": "integer", "minimum": 1},
+    "predecessor_revision_id": {"type": ["string", "null"]},
+    "display_name": {"type": "string", "minLength": 1},
+    "lifecycle": {"enum": ["active", "deleted"]},
+    "native_ids": {"type": "object", "additionalProperties": {"type": "string"}},
+    "names": {"type": "object", "additionalProperties": {"type": "string"}},
+    "generation": {"type": "integer", "minimum": 0},
+    "valid_from_ms": {"type": ["integer", "null"]},
+    "valid_to_ms": {"type": ["integer", "null"]},
+    "observed_at_ms": {"type": "integer", "minimum": 0},
+    "producer": {"type": "object", "required": ["name", "version"]},
+    "policy": {"type": "object"},
+    "principal_id": {"type": "string"},
+    "input_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "created_at_ms": {"type": "integer", "minimum": 0},
+    "kind": {"enum": ["publication", "organization", "agency", "author", "channel", "account", "unknown"]},
+    "idempotent": {"type": "boolean"}
+  },
+  "additionalProperties": false
+}

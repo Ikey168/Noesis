@@ -70,6 +70,19 @@ def test_maintenance_surface_and_catalog_scope_separation(monkeypatch):
         "execute_hypothesis_research_plan",
         "export_hypothesis_workspace",
         "replay_hypothesis_workspace",
+        "register_source_identity",
+        "lookup_source_identity",
+        "source_identity_history",
+        "revise_source_identity",
+        "delete_source_identity",
+        "decide_source_alias",
+        "split_source_alias",
+        "resolve_source_alias",
+        "add_source_relationship",
+        "retract_source_relationship",
+        "source_identity_dossier",
+        "source_relationship_path",
+        "explain_source_independence",
     }
     assert expected <= set(tools)
     assert _required_scopes(
@@ -163,6 +176,34 @@ def test_maintenance_surface_and_catalog_scope_separation(monkeypatch):
         assert _required_scopes("knowledge_engine_mcp", "read", name) == [
             "knowledge:hypothesis:read"
         ]
+    for name in ("decide_source_alias", "split_source_alias"):
+        assert _mutability(name) == "write"
+        assert _required_scopes("knowledge_engine_mcp", "write", name) == [
+            "knowledge:source-identity:review"
+        ]
+    for name in (
+        "register_source_identity",
+        "revise_source_identity",
+        "delete_source_identity",
+        "add_source_relationship",
+        "retract_source_relationship",
+    ):
+        assert _mutability(name) == "write"
+        assert _required_scopes("knowledge_engine_mcp", "write", name) == [
+            "knowledge:source-identity:write"
+        ]
+    for name in (
+        "lookup_source_identity",
+        "source_identity_history",
+        "resolve_source_alias",
+        "source_identity_dossier",
+        "source_relationship_path",
+        "explain_source_independence",
+    ):
+        assert _mutability(name) == "read"
+        assert _required_scopes("knowledge_engine_mcp", "read", name) == [
+            "knowledge:source-identity:read"
+        ]
     for name in (
         "pause_maintenance_schedule",
         "resume_maintenance_schedule",
@@ -210,3 +251,12 @@ def test_capabilities_advertise_generation_contracts():
     assert "versioned-hypothesis-workspaces" in capabilities["features"]
     assert "independence-aware-hypothesis-comparison" in capabilities["features"]
     assert "resumable-hypothesis-research-plans" in capabilities["features"]
+    assert "noesis-source-identity-v1" in capabilities["contracts"]
+    assert "noesis-source-alias-decision-v1" in capabilities["contracts"]
+    assert "noesis-source-relationship-v1" in capabilities["contracts"]
+    assert "noesis-source-dossier-v1" in capabilities["contracts"]
+    assert "noesis-source-independence-v1" in capabilities["contracts"]
+    assert "canonical-source-identities" in capabilities["features"]
+    assert "reversible-source-alias-resolution" in capabilities["features"]
+    assert "time-bounded-source-ownership-graph" in capabilities["features"]
+    assert "source-aware-evidence-independence" in capabilities["features"]

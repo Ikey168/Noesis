@@ -799,9 +799,10 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 94,
+      "tool_count": 107,
       "tools": [
         "noesis-knowledge-engine.accept_source_pack_license",
+        "noesis-knowledge-engine.add_source_relationship",
         "noesis-knowledge-engine.artifact_lineage",
         "noesis-knowledge-engine.assess_epistemic_statement",
         "noesis-knowledge-engine.begin_research_snapshot",
@@ -814,6 +815,8 @@
         "noesis-knowledge-engine.compare_hypotheses",
         "noesis-knowledge-engine.create_hypothesis_research_plan",
         "noesis-knowledge-engine.create_hypothesis_workspace",
+        "noesis-knowledge-engine.decide_source_alias",
+        "noesis-knowledge-engine.delete_source_identity",
         "noesis-knowledge-engine.derived_object_generation_delta",
         "noesis-knowledge-engine.derived_object_health",
         "noesis-knowledge-engine.derived_object_history",
@@ -830,6 +833,7 @@
         "noesis-knowledge-engine.explain_derived_object_invalidation",
         "noesis-knowledge-engine.explain_epistemic_assessment",
         "noesis-knowledge-engine.explain_knowledge_query",
+        "noesis-knowledge-engine.explain_source_independence",
         "noesis-knowledge-engine.export_hypothesis_workspace",
         "noesis-knowledge-engine.fetch_declarative_api",
         "noesis-knowledge-engine.get_epistemic_assessment",
@@ -850,6 +854,7 @@
         "noesis-knowledge-engine.list_source_pack_quarantine",
         "noesis-knowledge-engine.list_source_pack_schedules",
         "noesis-knowledge-engine.list_source_packs",
+        "noesis-knowledge-engine.lookup_source_identity",
         "noesis-knowledge-engine.maintenance_generation_lineage",
         "noesis-knowledge-engine.maintenance_health",
         "noesis-knowledge-engine.merge_canonical_events",
@@ -863,6 +868,7 @@
         "noesis-knowledge-engine.register_derived_artifact",
         "noesis-knowledge-engine.register_epistemic_taxonomy",
         "noesis-knowledge-engine.register_extractor",
+        "noesis-knowledge-engine.register_source_identity",
         "noesis-knowledge-engine.renew_research_snapshot",
         "noesis-knowledge-engine.replay_derived_object_generations",
         "noesis-knowledge-engine.replay_document_generation_delta",
@@ -873,14 +879,17 @@
         "noesis-knowledge-engine.research_snapshot_health",
         "noesis-knowledge-engine.research_snapshot_pins",
         "noesis-knowledge-engine.resolve_event_report",
+        "noesis-knowledge-engine.resolve_source_alias",
         "noesis-knowledge-engine.resume_maintenance_schedule",
         "noesis-knowledge-engine.retire_hypothesis_workspace",
         "noesis-knowledge-engine.retract_hypothesis_evidence",
+        "noesis-knowledge-engine.retract_source_relationship",
         "noesis-knowledge-engine.retry_maintenance_job",
         "noesis-knowledge-engine.retry_source_pack_quarantine",
         "noesis-knowledge-engine.reverse_event_merge",
         "noesis-knowledge-engine.review_epistemic_status",
         "noesis-knowledge-engine.revise_hypothesis_workspace",
+        "noesis-knowledge-engine.revise_source_identity",
         "noesis-knowledge-engine.run_maintenance_drain",
         "noesis-knowledge-engine.run_maintenance_once",
         "noesis-knowledge-engine.run_reference_workflow",
@@ -889,8 +898,12 @@
         "noesis-knowledge-engine.set_maintenance_schedule_paused",
         "noesis-knowledge-engine.set_source_pack_enabled",
         "noesis-knowledge-engine.set_source_pack_schedule",
+        "noesis-knowledge-engine.source_identity_dossier",
+        "noesis-knowledge-engine.source_identity_history",
         "noesis-knowledge-engine.source_pack_coverage",
         "noesis-knowledge-engine.source_pack_runtime_coverage",
+        "noesis-knowledge-engine.source_relationship_path",
+        "noesis-knowledge-engine.split_source_alias",
         "noesis-knowledge-engine.unified_query_capabilities",
         "noesis-knowledge-engine.validate_api_connector_manifest",
         "noesis-knowledge-engine.validate_knowledge_workflow",
@@ -901,7 +914,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 94
+      "visible_tool_count": 107
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -915,9 +928,9 @@
       "available": 81,
       "degraded": 155,
       "disabled": 3,
-      "unauthorized": 86
+      "unauthorized": 99
     },
-    "tools": 325
+    "tools": 338
   },
   "tools": [
     {
@@ -12225,6 +12238,131 @@
       "version": "1"
     },
     {
+      "cost_class": "medium",
+      "description": "Add a sourced, time-bounded ownership, funding, control, or origin edge.",
+      "id": "noesis-knowledge-engine.add_source_relationship",
+      "input_schema": {
+        "properties": {
+          "confidence": {
+            "default": 1.0,
+            "type": "number"
+          },
+          "evidence": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "from_source_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "observed_at_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "policy": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "producer": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "relationship_type": {
+            "type": "string"
+          },
+          "to_source_id": {
+            "type": "string"
+          },
+          "uncertainty": {
+            "default": 0.0,
+            "type": "number"
+          },
+          "valid_from_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "valid_to_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "from_source_id",
+          "to_source_id",
+          "relationship_type"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "add_source_relationship",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:source-identity:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "low",
       "description": "Traverse exact source, parser, extractor, schema, model, and config dependencies.",
       "id": "noesis-knowledge-engine.artifact_lineage",
@@ -12853,6 +12991,116 @@
       ],
       "required_scopes": [
         "knowledge:hypothesis:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Record a reviewed URL, domain, handle, identifier, or multilingual alias.",
+      "id": "noesis-knowledge-engine.decide_source_alias",
+      "input_schema": {
+        "properties": {
+          "alias_type": {
+            "type": "string"
+          },
+          "confidence": {
+            "default": 1.0,
+            "type": "number"
+          },
+          "language": {
+            "default": "und",
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "provenance": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "reason": {
+            "type": "string"
+          },
+          "source_id": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "source_id",
+          "alias_type",
+          "value",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "decide_source_alias",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:source-identity:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Record source/account deletion without erasing identity history.",
+      "id": "noesis-knowledge-engine.delete_source_identity",
+      "input_schema": {
+        "properties": {
+          "expected_revision": {
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "source_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "source_id",
+          "expected_revision"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "delete_source_identity",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:source-identity:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -13593,6 +13841,57 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Explain evidence-independence groups from ownership, origin, and syndication.",
+      "id": "noesis-knowledge-engine.explain_source_independence",
+      "input_schema": {
+        "properties": {
+          "as_of_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "source_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "namespace",
+          "source_ids"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "explain_source_independence",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:source-identity:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
       "version": "1"
     },
     {
@@ -14371,6 +14670,43 @@
     },
     {
       "cost_class": "low",
+      "description": "Look up the current canonical source revision.",
+      "id": "noesis-knowledge-engine.lookup_source_identity",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "source_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "source_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "lookup_source_identity",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:source-identity:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Trace a committed generation to pack, source runs, workflow, and artifacts.",
       "id": "noesis-knowledge-engine.maintenance_generation_lineage",
       "input_schema": {
@@ -14877,6 +15213,147 @@
     },
     {
       "cost_class": "medium",
+      "description": "Register a canonical publication, organization, author, channel, or account.",
+      "id": "noesis-knowledge-engine.register_source_identity",
+      "input_schema": {
+        "properties": {
+          "display_name": {
+            "type": "string"
+          },
+          "generation": {
+            "default": 0,
+            "type": "integer"
+          },
+          "idempotency_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "kind": {
+            "type": "string"
+          },
+          "names": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "native_ids": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "observed_at_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "policy": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "producer": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "valid_from_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "valid_to_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "kind",
+          "display_name"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "register_source_identity",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:source-identity:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Renew a snapshot without exceeding its maximum lifetime.",
       "id": "noesis-knowledge-engine.renew_research_snapshot",
       "input_schema": {
@@ -15236,6 +15713,55 @@
       "version": "1"
     },
     {
+      "cost_class": "low",
+      "description": "Resolve an alias while preserving ambiguous reviewed candidates.",
+      "id": "noesis-knowledge-engine.resolve_source_alias",
+      "input_schema": {
+        "properties": {
+          "alias_type": {
+            "type": "string"
+          },
+          "language": {
+            "default": "und",
+            "type": "string"
+          },
+          "limit": {
+            "default": 25,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "alias_type",
+          "value"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "resolve_source_alias",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:source-identity:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "medium",
       "description": "Resume dispatch for one source pack from its persisted next due window.",
       "id": "noesis-knowledge-engine.resume_maintenance_schedule",
@@ -15353,6 +15879,47 @@
       ],
       "required_scopes": [
         "knowledge:hypothesis:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Retract a source relationship without deleting its evidence history.",
+      "id": "noesis-knowledge-engine.retract_source_relationship",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "relationship_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "relationship_id",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "retract_source_relationship",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:source-identity:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -15593,6 +16160,86 @@
       ],
       "required_scopes": [
         "knowledge:hypothesis:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Append an optimistic-concurrency source identity revision.",
+      "id": "noesis-knowledge-engine.revise_source_identity",
+      "input_schema": {
+        "properties": {
+          "display_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "expected_revision": {
+            "type": "integer"
+          },
+          "names": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "native_ids": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "source_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "source_id",
+          "expected_revision"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "revise_source_identity",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:source-identity:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -15942,6 +16589,106 @@
     },
     {
       "cost_class": "low",
+      "description": "Return a paginated, citation-aware source dossier at a valid time.",
+      "id": "noesis-knowledge-engine.source_identity_dossier",
+      "input_schema": {
+        "properties": {
+          "as_of_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "limit": {
+            "default": 50,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "source_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "source_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "source_identity_dossier",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:source-identity:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Return immutable source identity revisions, including rename and deletion.",
+      "id": "noesis-knowledge-engine.source_identity_history",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "source_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "source_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "source_identity_history",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:source-identity:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Summarize configured, ready, and healthy sources by domain.",
       "id": "noesis-knowledge-engine.source_pack_coverage",
       "input_schema": {
@@ -15990,6 +16737,115 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Traverse a bounded ownership/control path at a requested valid time.",
+      "id": "noesis-knowledge-engine.source_relationship_path",
+      "input_schema": {
+        "properties": {
+          "as_of_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "from_source_id": {
+            "type": "string"
+          },
+          "max_depth": {
+            "default": 6,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "to_source_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "from_source_id",
+          "to_source_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "source_relationship_path",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:source-identity:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Reverse a reviewed alias merge through an append-only split decision.",
+      "id": "noesis-knowledge-engine.split_source_alias",
+      "input_schema": {
+        "properties": {
+          "alias_type": {
+            "type": "string"
+          },
+          "language": {
+            "default": "und",
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "source_id": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "source_id",
+          "alias_type",
+          "value",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "split_source_alias",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:source-identity:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
       "version": "1"
     },
     {

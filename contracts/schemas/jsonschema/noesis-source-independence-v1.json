@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/schemas/noesis-source-independence-v1.json",
+  "title": "Noesis source independence explanation",
+  "type": "object",
+  "required": ["contract", "namespace", "source_ids", "groups", "as_of_ms", "relationship_revision_ids", "anonymous_source_ids", "missing_source_ids", "complete", "limitations", "explanation_hash"],
+  "properties": {
+    "contract": {"const": "noesis-source-independence-v1"},
+    "namespace": {"type": "string"},
+    "source_ids": {"type": "array", "maxItems": 100, "items": {"type": "string"}},
+    "groups": {"type": "array", "items": {"type": "object", "required": ["group_id", "source_ids"]}},
+    "as_of_ms": {"type": ["integer", "null"]},
+    "relationship_revision_ids": {"type": "array", "items": {"type": "string"}},
+    "anonymous_source_ids": {"type": "array", "items": {"type": "string"}},
+    "missing_source_ids": {"type": "array", "items": {"type": "string"}},
+    "complete": {"type": "boolean"},
+    "limitations": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+    "explanation_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  },
+  "additionalProperties": false
+}

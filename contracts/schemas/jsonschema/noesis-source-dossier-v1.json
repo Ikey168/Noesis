@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/schemas/noesis-source-dossier-v1.json",
+  "title": "Noesis paginated source dossier",
+  "type": "object",
+  "required": ["contract", "identity", "aliases", "relationships", "next_cursor", "as_of_ms", "citation_count", "citation_complete"],
+  "properties": {
+    "contract": {"const": "noesis-source-dossier-v1"},
+    "identity": {"type": "object"},
+    "aliases": {"type": "array", "items": {"type": "object"}},
+    "relationships": {"type": "array", "items": {"type": "object"}},
+    "next_cursor": {"type": ["string", "null"]},
+    "as_of_ms": {"type": ["integer", "null"]},
+    "citation_count": {"type": "integer", "minimum": 0},
+    "citation_complete": {"type": "boolean"}
+  },
+  "additionalProperties": false
+}
