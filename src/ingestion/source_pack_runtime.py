@@ -1005,6 +1005,7 @@ class SourcePackRuntime:
         dns_resolver: Callable[[str], Sequence[str]] | None = None,
         fault: Callable[[str, int], None] | None = None,
         cancelled: Callable[[], bool] | None = None,
+        advance_schedule: bool = True,
     ) -> dict[str, Any]:
         if self.documents is None:
             raise SourcePackError(
@@ -1497,7 +1498,7 @@ class SourcePackRuntime:
                 "SELECT schedule_json FROM source_pack_schedules WHERE pack_id=? AND enabled=true",
                 [manifest["pack_id"]],
             ).fetchone()
-            if schedule:
+            if schedule and advance_schedule:
                 interval = int(_load(schedule[0], {})["interval_s"])
                 self.conn.execute(
                     "UPDATE source_pack_schedules SET next_run_at_ms=?,last_run_id=?,updated_at_ms=? WHERE pack_id=?",

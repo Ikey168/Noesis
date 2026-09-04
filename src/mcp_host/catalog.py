@@ -69,8 +69,13 @@ MUTATION_NAMES = frozenset(
         "resolve_event_report",
         "accept_source_pack_license",
         "cancel_source_pack_run",
+        "cancel_maintenance_job",
         "install_source_pack",
         "retry_source_pack_quarantine",
+        "retry_maintenance_job",
+        "pause_maintenance_schedule",
+        "resume_maintenance_schedule",
+        "recover_stale_maintenance_jobs",
     }
 )
 
@@ -235,12 +240,23 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
             return ["knowledge:namespace:import"]
         return ["knowledge:namespace:export"]
     if server_stem == "memory_mcp":
-        if tool_name.startswith(("remember_","correct_","forget_","consolidate_","import_")):
+        if tool_name.startswith(
+            ("remember_", "correct_", "forget_", "consolidate_", "import_")
+        ):
             return ["knowledge:memory:write"]
-        if tool_name.startswith(("set_","apply_")):
+        if tool_name.startswith(("set_", "apply_")):
             return ["knowledge:memory:admin"]
         return ["knowledge:memory:read"]
     if server_stem == "knowledge_engine_mcp":
+        if tool_name in {
+            "set_maintenance_schedule_paused",
+            "cancel_maintenance_job",
+            "retry_maintenance_job",
+            "pause_maintenance_schedule",
+            "resume_maintenance_schedule",
+            "recover_stale_maintenance_jobs",
+        }:
+            return ["knowledge:maintenance:admin"]
         return ["operator"] if mutability == "write" else ["knowledge:read"]
     if mutability == "write" or server_stem in SENSITIVE_SERVERS:
         return ["operator"]

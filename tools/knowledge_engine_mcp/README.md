@@ -26,3 +26,10 @@ Unified query tools expose authorized capability discovery, deterministic plan
 explanation, bounded execution, cooperative cancellation, replay, and
 evaluation. They compose local domain and temporal stores with optional memory
 and federation. Memory remains context-only and never counts as evidence.
+
+Continuous-maintenance tools turn due source-pack schedules into lease-safe,
+fenced jobs; run one or drain a bounded batch; pause, resume, cancel, and retry;
+and inspect status, health, generation receipts, deterministic replay, and full
+lineage. Fixture-backed execution remains the default. Operator scope is needed
+to execute work, while schedule and recovery controls require the dedicated
+`knowledge:maintenance:admin` scope (or an operator acting as deployment admin).

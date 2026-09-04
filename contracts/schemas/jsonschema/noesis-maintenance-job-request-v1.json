@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/schemas/noesis-maintenance-job-request-v1.json",
+  "title": "Noesis maintenance job request",
+  "type": "object",
+  "required": ["contract", "pack_id", "scheduled_at_ms", "network", "max_documents", "max_attempts"],
+  "properties": {
+    "contract": {"const": "noesis-maintenance-job-request-v1"},
+    "pack_id": {"type": "string", "minLength": 1},
+    "scheduled_at_ms": {"type": "integer", "minimum": 0},
+    "network": {"enum": ["disabled", "live"]},
+    "max_documents": {"type": "integer", "minimum": 1, "maximum": 100000},
+    "max_attempts": {"type": "integer", "minimum": 1, "maximum": 10}
+  },
+  "additionalProperties": false
+}

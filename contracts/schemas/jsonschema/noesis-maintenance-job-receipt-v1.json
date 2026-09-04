@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/schemas/noesis-maintenance-job-receipt-v1.json",
+  "title": "Noesis maintenance job receipt",
+  "type": "object",
+  "required": ["contract", "status", "owner_id"],
+  "properties": {
+    "contract": {"const": "noesis-maintenance-job-receipt-v1"},
+    "job_id": {"type": "string", "pattern": "^maintenance-job:"},
+    "attempt_id": {"type": "string", "pattern": "^maintenance-attempt:"},
+    "attempt": {"type": "integer", "minimum": 1},
+    "owner_id": {"type": "string", "minLength": 1},
+    "fencing_token": {"type": "integer", "minimum": 1},
+    "status": {"enum": ["idle", "complete", "partial", "retry", "failed", "cancelled", "dead-letter"]},
+    "source_runs": {"type": "array", "items": {"type": "object"}},
+    "documents": {"type": "object"},
+    "workflow": {"type": "object"},
+    "artifacts": {"type": "object"},
+    "generation": {"type": "object"},
+    "error": {"type": "object"},
+    "retry_at_ms": {"type": ["integer", "null"]},
+    "completed_at_ms": {"type": "integer", "minimum": 0}
+  },
+  "additionalProperties": false
+}

@@ -799,39 +799,54 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 39,
+      "tool_count": 54,
       "tools": [
         "noesis-knowledge-engine.accept_source_pack_license",
         "noesis-knowledge-engine.artifact_lineage",
         "noesis-knowledge-engine.cancel_knowledge_query",
+        "noesis-knowledge-engine.cancel_maintenance_job",
         "noesis-knowledge-engine.cancel_source_pack_run",
         "noesis-knowledge-engine.evaluate_knowledge_query",
         "noesis-knowledge-engine.execute_artifact_rebuild",
         "noesis-knowledge-engine.explain_knowledge_query",
         "noesis-knowledge-engine.fetch_declarative_api",
+        "noesis-knowledge-engine.inspect_maintenance_generation",
+        "noesis-knowledge-engine.inspect_maintenance_job",
         "noesis-knowledge-engine.inspect_reference_workflow",
         "noesis-knowledge-engine.inspect_source_pack_run",
         "noesis-knowledge-engine.install_source_pack",
         "noesis-knowledge-engine.knowledge_engine_capabilities",
         "noesis-knowledge-engine.list_extractors",
+        "noesis-knowledge-engine.list_maintenance_due_work",
+        "noesis-knowledge-engine.list_maintenance_jobs",
         "noesis-knowledge-engine.list_source_pack_quarantine",
         "noesis-knowledge-engine.list_source_pack_schedules",
         "noesis-knowledge-engine.list_source_packs",
+        "noesis-knowledge-engine.maintenance_generation_lineage",
+        "noesis-knowledge-engine.maintenance_health",
         "noesis-knowledge-engine.merge_canonical_events",
+        "noesis-knowledge-engine.pause_maintenance_schedule",
         "noesis-knowledge-engine.plan_extractor_reprocessing",
         "noesis-knowledge-engine.preflight_source_pack_run",
         "noesis-knowledge-engine.preview_artifact_invalidation",
         "noesis-knowledge-engine.query_knowledge",
         "noesis-knowledge-engine.read_workflow_stage",
+        "noesis-knowledge-engine.recover_stale_maintenance_jobs",
         "noesis-knowledge-engine.register_derived_artifact",
         "noesis-knowledge-engine.register_extractor",
         "noesis-knowledge-engine.replay_knowledge_query",
+        "noesis-knowledge-engine.replay_maintenance_generation",
         "noesis-knowledge-engine.replay_source_pack_run",
         "noesis-knowledge-engine.resolve_event_report",
+        "noesis-knowledge-engine.resume_maintenance_schedule",
+        "noesis-knowledge-engine.retry_maintenance_job",
         "noesis-knowledge-engine.retry_source_pack_quarantine",
         "noesis-knowledge-engine.reverse_event_merge",
+        "noesis-knowledge-engine.run_maintenance_drain",
+        "noesis-knowledge-engine.run_maintenance_once",
         "noesis-knowledge-engine.run_reference_workflow",
         "noesis-knowledge-engine.run_source_pack_execution",
+        "noesis-knowledge-engine.set_maintenance_schedule_paused",
         "noesis-knowledge-engine.set_source_pack_enabled",
         "noesis-knowledge-engine.set_source_pack_schedule",
         "noesis-knowledge-engine.source_pack_coverage",
@@ -846,7 +861,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 39
+      "visible_tool_count": 54
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -857,12 +872,12 @@
     },
     "servers": 29,
     "states": {
-      "available": 59,
+      "available": 68,
       "degraded": 155,
       "disabled": 3,
-      "unauthorized": 53
+      "unauthorized": 59
     },
-    "tools": 270
+    "tools": 285
   },
   "tools": [
     {
@@ -12241,6 +12256,39 @@
     },
     {
       "cost_class": "medium",
+      "description": "Persist cancellation and signal an active in-process maintenance job.",
+      "id": "noesis-knowledge-engine.cancel_maintenance_job",
+      "input_schema": {
+        "properties": {
+          "job_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "job_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "cancel_maintenance_job",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:maintenance:admin"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Cooperatively cancel an in-process source-pack run.",
       "id": "noesis-knowledge-engine.cancel_source_pack_run",
       "input_schema": {
@@ -12449,6 +12497,72 @@
     },
     {
       "cost_class": "low",
+      "description": "Inspect one append-only committed knowledge generation.",
+      "id": "noesis-knowledge-engine.inspect_maintenance_generation",
+      "input_schema": {
+        "properties": {
+          "generation_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "generation_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "inspect_maintenance_generation",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Inspect a maintenance job, fenced lease, and immutable attempt history.",
+      "id": "noesis-knowledge-engine.inspect_maintenance_job",
+      "input_schema": {
+        "properties": {
+          "job_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "job_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "inspect_maintenance_job",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Inspect workflow state, immutable receipts, and its committed watermark.",
       "id": "noesis-knowledge-engine.inspect_reference_workflow",
       "input_schema": {
@@ -12605,6 +12719,68 @@
     },
     {
       "cost_class": "low",
+      "description": "List bounded runnable maintenance work without claiming it.",
+      "id": "noesis-knowledge-engine.list_maintenance_due_work",
+      "input_schema": {
+        "properties": {
+          "limit": {
+            "default": 100,
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_maintenance_due_work",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "List durable jobs, attempts, terminal states, and worker health.",
+      "id": "noesis-knowledge-engine.list_maintenance_jobs",
+      "input_schema": {
+        "properties": {
+          "limit": {
+            "default": 100,
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_maintenance_jobs",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "List credential-safe quarantined record identities and mapping failures.",
       "id": "noesis-knowledge-engine.list_source_pack_quarantine",
       "input_schema": {
@@ -12708,6 +12884,65 @@
     },
     {
       "cost_class": "low",
+      "description": "Trace a committed generation to pack, source runs, workflow, and artifacts.",
+      "id": "noesis-knowledge-engine.maintenance_generation_lineage",
+      "input_schema": {
+        "properties": {
+          "generation_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "generation_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "maintenance_generation_lineage",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Report stale leases, failures, schedule lag, and last committed generation.",
+      "id": "noesis-knowledge-engine.maintenance_health",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "maintenance_health",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Merge explicitly selected events into one reversible canonical revision.",
       "id": "noesis-knowledge-engine.merge_canonical_events",
       "input_schema": {
@@ -12744,6 +12979,43 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Pause dispatch for one source pack while preserving its durable schedule.",
+      "id": "noesis-knowledge-engine.pause_maintenance_schedule",
+      "input_schema": {
+        "properties": {
+          "pack_id": {
+            "type": "string"
+          },
+          "reason": {
+            "default": "operator",
+            "type": "string"
+          }
+        },
+        "required": [
+          "pack_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "pause_maintenance_schedule",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:maintenance:admin"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
       "version": "1"
     },
     {
@@ -12961,6 +13233,32 @@
     },
     {
       "cost_class": "medium",
+      "description": "Recover expired leases and abandon their unfinished attempt records.",
+      "id": "noesis-knowledge-engine.recover_stale_maintenance_jobs",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "recover_stale_maintenance_jobs",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:maintenance:admin"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Register a stable derived-artifact generation and every known dependency edge.",
       "id": "noesis-knowledge-engine.register_derived_artifact",
       "input_schema": {
@@ -13062,6 +13360,39 @@
     },
     {
       "cost_class": "low",
+      "description": "Verify a generation against source receipts, workflow state, and event log.",
+      "id": "noesis-knowledge-engine.replay_maintenance_generation",
+      "input_schema": {
+        "properties": {
+          "generation_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "generation_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "replay_maintenance_generation",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Recompute stable receipt identity for a completed source-pack run.",
       "id": "noesis-knowledge-engine.replay_source_pack_run",
       "input_schema": {
@@ -13141,6 +13472,76 @@
     },
     {
       "cost_class": "medium",
+      "description": "Resume dispatch for one source pack from its persisted next due window.",
+      "id": "noesis-knowledge-engine.resume_maintenance_schedule",
+      "input_schema": {
+        "properties": {
+          "pack_id": {
+            "type": "string"
+          },
+          "reason": {
+            "default": "operator",
+            "type": "string"
+          }
+        },
+        "required": [
+          "pack_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "resume_maintenance_schedule",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:maintenance:admin"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Requeue a failed, cancelled, or dead-letter maintenance job.",
+      "id": "noesis-knowledge-engine.retry_maintenance_job",
+      "input_schema": {
+        "properties": {
+          "job_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "job_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "retry_maintenance_job",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:maintenance:admin"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Retry selected quarantined records against their exact installed mapping version.",
       "id": "noesis-knowledge-engine.retry_source_pack_quarantine",
       "input_schema": {
@@ -13197,6 +13598,80 @@
       "latency_class": "interactive",
       "mutability": "write",
       "name": "reverse_event_merge",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "operator"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Drain a bounded number of due knowledge-maintenance jobs.",
+      "id": "noesis-knowledge-engine.run_maintenance_drain",
+      "input_schema": {
+        "properties": {
+          "live_network": {
+            "default": false,
+            "type": "boolean"
+          },
+          "max_jobs": {
+            "default": 10,
+            "type": "integer"
+          },
+          "owner_id": {
+            "default": "mcp-maintenance-worker",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "run_maintenance_drain",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "operator"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Run at most one due source-pack maintenance job; fixtures are the safe default.",
+      "id": "noesis-knowledge-engine.run_maintenance_once",
+      "input_schema": {
+        "properties": {
+          "live_network": {
+            "default": false,
+            "type": "boolean"
+          },
+          "owner_id": {
+            "default": "mcp-maintenance-worker",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "run_maintenance_once",
       "output_schema": {
         "additionalProperties": true,
         "type": "object"
@@ -13293,6 +13768,47 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Pause or resume dispatch for one source pack without deleting its schedule.",
+      "id": "noesis-knowledge-engine.set_maintenance_schedule_paused",
+      "input_schema": {
+        "properties": {
+          "pack_id": {
+            "type": "string"
+          },
+          "paused": {
+            "type": "boolean"
+          },
+          "reason": {
+            "default": "operator",
+            "type": "string"
+          }
+        },
+        "required": [
+          "pack_id",
+          "paused"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "set_maintenance_schedule_paused",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:maintenance:admin"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
       "version": "1"
     },
     {
