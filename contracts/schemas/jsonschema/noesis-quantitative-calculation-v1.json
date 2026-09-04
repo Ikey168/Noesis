@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/schemas/noesis-quantitative-calculation-v1.json",
+  "title": "Noesis reproducible quantitative calculation receipt",
+  "type": "object",
+  "required": ["contract", "calculation_id", "namespace", "operation", "request", "result", "input_ids", "formula_revision_id", "rounding", "calculation_hash", "principal_id", "created_at_ms", "idempotent"],
+  "properties": {
+    "contract": {"const": "noesis-quantitative-calculation-v1"},
+    "calculation_id": {"type": "string", "pattern": "^quantitative-calculation:"},
+    "namespace": {"type": "string", "minLength": 1},
+    "operation": {"enum": ["conversion", "formula", "frequency-transform", "inflation-adjustment"]},
+    "request": {"type": "object"},
+    "result": {"type": "object"},
+    "input_ids": {"type": "array", "items": {"type": "string"}},
+    "formula_revision_id": {"type": ["string", "null"]},
+    "rounding": {"const": "half-even"},
+    "calculation_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "principal_id": {"type": "string"},
+    "created_at_ms": {"type": "integer", "minimum": 0},
+    "idempotent": {"type": "boolean"}
+  },
+  "additionalProperties": false
+}

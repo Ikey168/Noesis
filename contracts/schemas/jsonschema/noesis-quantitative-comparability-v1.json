@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/schemas/noesis-quantitative-comparability-v1.json",
+  "title": "Noesis quantitative comparability assessment",
+  "type": "object",
+  "required": ["contract", "left_observation_id", "right_observation_id", "comparable", "reasons", "breaks", "assessment_hash"],
+  "properties": {
+    "contract": {"const": "noesis-quantitative-comparability-v1"},
+    "left_observation_id": {"type": "string"},
+    "right_observation_id": {"type": "string"},
+    "comparable": {"type": "boolean"},
+    "reasons": {"type": "array", "items": {"type": "string"}},
+    "breaks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["break_id", "break_type", "boundary_ms", "evidence", "confidence"],
+        "properties": {
+          "break_id": {"type": "string"},
+          "break_type": {"enum": ["definition", "methodology", "geography", "rebase", "basket", "provider-switch"]},
+          "boundary_ms": {"type": "integer"},
+          "evidence": {"type": "array", "items": {"type": "object"}},
+          "confidence": {"type": "number", "minimum": 0, "maximum": 1}
+        },
+        "additionalProperties": false
+      }
+    },
+    "assessment_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  },
+  "additionalProperties": false
+}
