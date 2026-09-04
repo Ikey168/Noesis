@@ -19,6 +19,10 @@ from typing import Any
 from src.ingestion.source_pack_runtime import SourcePackRuntime
 from src.ingestion.source_packs import SourcePackConformance, _load
 from src.kb.artifacts import ArtifactGraph
+from src.kb.derived_revisions import (
+    DerivedRevisionStore,
+    maintenance_observations,
+)
 from src.kb.subscriptions import SubscriptionStore
 from src.kb.workflows import WorkflowStore, reference_handlers, reference_manifest
 
@@ -178,6 +182,7 @@ class MaintenanceOrchestrator:
             SourcePackRuntime(conn)
             WorkflowStore(conn)
             ArtifactGraph(conn)
+            DerivedRevisionStore(conn)
             SubscriptionStore(conn)
 
     def enqueue_due(
@@ -891,6 +896,15 @@ class MaintenanceOrchestrator:
         graph = ArtifactGraph(self.conn)
         started = self.now()
         document_hashes = sorted(str(item["payload_hash"]) for item in changes)
+        extraction = dict(workflow.get("state", {}).get("extraction") or {})
+        resolution = dict(workflow.get("state", {}).get("resolution") or {})
+        derived = DerivedRevisionStore(self.conn, initialize=False).apply_generation(
+            namespace,
+            source_watermark,
+            maintenance_observations(documents, extraction),
+            changes,
+            now_ms=started,
+        )
         if not changes:
             prior_rows = self.conn.execute(
                 "SELECT kind,artifact_id,content_hash FROM knowledge_artifacts "
@@ -931,9 +945,8 @@ class MaintenanceOrchestrator:
                         "completed_at_ms": self.now(),
                     },
                     "mixed_generations_visible": False,
+                    "derived": derived,
                 }
-        extraction = dict(workflow.get("state", {}).get("extraction") or {})
-        resolution = dict(workflow.get("state", {}).get("resolution") or {})
         active_rows = self.conn.execute(
             "SELECT revision_id,payload_hash FROM ("
             "SELECT revision_id,payload_hash,lifecycle,ROW_NUMBER() OVER "
@@ -1100,6 +1113,7 @@ class MaintenanceOrchestrator:
             },
             "timing": {"started_at_ms": started, "completed_at_ms": self.now()},
             "mixed_generations_visible": False,
+            "derived": derived,
         }
 
     def _commit_generation(
@@ -1135,12 +1149,19 @@ class MaintenanceOrchestrator:
             if all(item["status"] == "complete" for item in source_receipts)
             else "partial"
         )
+        derived = dict(artifacts.get("derived") or {})
         stable = {
             "contract": GENERATION_CONTRACT,
             "generation_id": "knowledge-generation:"
-            + _digest([pack_id, source_watermark, workflow["run_id"], artifact_mark])[
-                :24
-            ],
+            + _digest(
+                [
+                    pack_id,
+                    source_watermark,
+                    workflow["run_id"],
+                    artifact_mark,
+                    derived.get("change_hash"),
+                ]
+            )[:24],
             "pack_id": pack_id,
             "pack_version": manifest["version"],
             "manifest_hash": manifest["manifest_hash"],
@@ -1159,13 +1180,24 @@ class MaintenanceOrchestrator:
             "workflow_state_hash": workflow["watermark"]["state_hash"],
             "artifact_watermark": artifact_mark,
             "artifacts": dict(artifacts["published"]),
+            "derived": {
+                "namespace": derived.get("namespace"),
+                "generation": derived.get("generation"),
+                "change_hash": derived.get("change_hash"),
+                "item_count": derived.get("item_count", 0),
+                "counts": dict(derived.get("counts") or {}),
+            },
             "identities": {
                 "document_hashes": list(artifacts.get("document_hashes", [])),
                 "artifact_hashes": sorted(
                     item["content_hash"]
                     for item in artifacts.get("rebuild_receipts", [])
                 ),
-                "schemas": ["document-batch-v1", "noesis-resolution-batch-v1"],
+                "schemas": [
+                    "document-batch-v1",
+                    "noesis-resolution-batch-v1",
+                    "noesis-derived-object-revision-v1",
+                ],
                 "models": ["content-hash-vector-manifest-v1"],
                 "policies": ["source-pack-runtime-v1", "knowledge-maintenance-v1"],
             },
@@ -1190,6 +1222,9 @@ class MaintenanceOrchestrator:
         namespace = "knowledge-generation:" + pack_id
         self.conn.execute("BEGIN")
         try:
+            DerivedRevisionStore(self.conn, initialize=False).publish_generation(
+                str(derived["namespace"]), int(derived["generation"])
+            )
             self.conn.execute(
                 "INSERT INTO knowledge_maintenance_generations VALUES (?,?,?,?,?,?,?,?,?,?,?)",
                 [
@@ -1413,17 +1448,33 @@ class MaintenanceOrchestrator:
                 [generation_id],
             ).fetchone()
         )
+        derived = dict(receipt.get("derived") or {})
+        derived_matches = bool(
+            derived
+            and self.conn.execute(
+                "SELECT 1 FROM derived_object_generations WHERE namespace=? AND generation=? "
+                "AND change_hash=? AND item_count=?",
+                [
+                    derived.get("namespace"),
+                    derived.get("generation"),
+                    derived.get("change_hash"),
+                    derived.get("item_count"),
+                ],
+            ).fetchone()
+        )
         return {
             "contract": "noesis-knowledge-generation-replay-v1",
             "generation_id": generation_id,
             "matched": computed == receipt["receipt_hash"]
             and source_matches
             and workflow_matches
-            and event_matches,
+            and event_matches
+            and derived_matches,
             "receipt_hash_match": computed == receipt["receipt_hash"],
             "source_receipts_match": source_matches,
             "workflow_watermark_match": workflow_matches,
             "event_match": event_matches,
+            "derived_generation_match": derived_matches,
             "expected_hash": receipt["receipt_hash"],
             "computed_hash": computed,
         }
@@ -1434,6 +1485,16 @@ class MaintenanceOrchestrator:
         graph = ArtifactGraph(self.conn, initialize=False)
         for artifact_id in receipt["artifacts"].values():
             artifact_edges.extend(graph.upstream(artifact_id)["edges"])
+        derived = dict(receipt.get("derived") or {})
+        derived_rows = self.conn.execute(
+            "SELECT revision_id FROM derived_object_generation_changes "
+            "WHERE namespace=? AND generation=? ORDER BY ordinal",
+            [derived.get("namespace"), derived.get("generation")],
+        ).fetchall()
+        derived_lineage = [
+            DerivedRevisionStore(self.conn, initialize=False).lineage(row[0])
+            for row in derived_rows
+        ]
         return {
             "contract": "noesis-knowledge-generation-lineage-v1",
             "generation_id": generation_id,
@@ -1449,6 +1510,8 @@ class MaintenanceOrchestrator:
             },
             "artifacts": receipt["artifacts"],
             "artifact_edges": artifact_edges,
+            "derived": derived,
+            "derived_lineage": derived_lineage,
             "complete": True,
         }
 

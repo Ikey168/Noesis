@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/schemas/noesis-derived-object-revision-v1.json",
+  "title": "Noesis immutable derived-object revision",
+  "type": "object",
+  "required": ["contract", "namespace", "logical_id", "object_type", "revision", "revision_id", "content", "content_hash", "support", "support_hash", "lifecycle", "change_kind", "producer", "configuration_hash", "generation", "observed_at_ms", "created_at_ms"],
+  "properties": {
+    "contract": {"const": "noesis-derived-object-revision-v1"},
+    "namespace": {"type": "string", "minLength": 1},
+    "logical_id": {"type": "string", "minLength": 1},
+    "object_type": {"enum": ["claim", "entity", "relation", "summary", "index", "embedding"]},
+    "revision": {"type": "integer", "minimum": 1},
+    "revision_id": {"type": "string", "pattern": "^derived-revision:"},
+    "predecessor_revision_id": {"type": ["string", "null"]},
+    "content": {"type": "object"},
+    "content_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "support": {"type": "array", "items": {"type": "object", "required": ["source_revision_id", "document_id", "content_hash", "selected_content"]}},
+    "support_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "lifecycle": {"enum": ["active", "retracted"]},
+    "change_kind": {"enum": ["added", "updated", "support_updated", "retracted", "restored"]},
+    "producer": {"type": "object", "required": ["name", "version"]},
+    "configuration_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "generation": {"type": "integer", "minimum": 1},
+    "observed_at_ms": {"type": "integer", "minimum": 0},
+    "created_at_ms": {"type": "integer", "minimum": 0}
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/schemas/noesis-derived-object-replay-v1.json",
+  "title": "Noesis derived-object replay receipt",
+  "type": "object",
+  "required": ["contract", "namespace", "from_generation", "to_generation", "verified", "mismatched_generations", "missing_revisions", "delta_hash"],
+  "properties": {
+    "contract": {"const": "noesis-derived-object-replay-v1"},
+    "namespace": {"type": "string"},
+    "from_generation": {"type": "integer", "minimum": 1},
+    "to_generation": {"type": "integer", "minimum": 1},
+    "verified": {"type": "boolean"},
+    "mismatched_generations": {"type": "array", "items": {"type": "integer"}},
+    "missing_revisions": {"type": "array", "items": {"type": "string"}},
+    "delta_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  },
+  "additionalProperties": false
+}

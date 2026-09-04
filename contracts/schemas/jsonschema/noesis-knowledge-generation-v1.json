@@ -3,7 +3,7 @@
   "$id": "https://noesis.local/schemas/noesis-knowledge-generation-v1.json",
   "title": "Noesis committed knowledge generation",
   "type": "object",
-  "required": ["contract", "generation_id", "pack_id", "pack_version", "manifest_hash", "generation", "source_watermark", "source_runs", "workflow_run_id", "workflow_watermark", "workflow_state_hash", "artifact_watermark", "artifacts", "identities", "status", "receipt_hash", "committed_at_ms"],
+  "required": ["contract", "generation_id", "pack_id", "pack_version", "manifest_hash", "generation", "source_watermark", "source_runs", "workflow_run_id", "workflow_watermark", "workflow_state_hash", "artifact_watermark", "artifacts", "derived", "identities", "status", "receipt_hash", "committed_at_ms"],
   "properties": {
     "contract": {"const": "noesis-knowledge-generation-v1"},
     "generation_id": {"type": "string", "pattern": "^knowledge-generation:"},
@@ -18,6 +18,7 @@
     "workflow_state_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
     "artifact_watermark": {"type": "integer", "minimum": 0},
     "artifacts": {"type": "object", "required": ["index", "embedding", "entity", "claim", "relation", "summary"], "additionalProperties": {"type": "string", "pattern": "^artifact:"}},
+    "derived": {"type": "object", "required": ["namespace", "generation", "change_hash", "item_count", "counts"], "properties": {"namespace": {"type": "string"}, "generation": {"type": "integer", "minimum": 1}, "change_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"}, "item_count": {"type": "integer", "minimum": 0}, "counts": {"type": "object"}}, "additionalProperties": false},
     "identities": {"type": "object", "required": ["document_hashes", "artifact_hashes", "schemas", "models", "policies"]},
     "status": {"enum": ["complete", "partial"]},
     "receipt_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},

@@ -48,6 +48,32 @@ mutable run marker in current document metadata. Projection dependencies name
 exact revision IDs, so edits and removals invalidate their downstream closure
 while unaffected revision dependencies remain stable.
 
+## Derived knowledge truth maintenance
+
+Committed document deltas also feed an authoritative derived-object ledger.
+Claims, entities, relations, per-document summaries, lexical entries, and
+embedding inputs receive stable logical identities plus immutable revisions.
+Each revision records its exact source-document revisions, producer and
+configuration identity, observed time, publication generation, and lifecycle.
+
+Support is tracked independently from object content. If two documents support
+the same normalized claim and one is corrected or removed, Noesis appends a
+`support_updated` revision and keeps the claim active. It appends a retraction
+only after the final support disappears. Reappearance creates a `restored`
+revision rather than destroying the earlier history.
+
+Lexical, deterministic vector, graph, and summary projection items update in
+the same transaction as the derived revision and generation receipt. Readers
+therefore see either the previous projection generation or the complete next
+one, never a mixture. The existing aggregate artifacts remain compatibility
+manifests and carry the derived generation receipt in maintenance output.
+
+Read-only MCP tools expose exact or as-of revisions, revision history, bounded
+generation deltas, replay verification, source-to-projection lineage,
+invalidation explanations, current projections, and text-free health counts.
+All require `knowledge:read`, and queries cannot observe an uncommitted derived
+generation.
+
 ## Operation and scaling
 
 Run `scripts/knowledge_maintenance_worker.py` without `--once` for a foreground

@@ -91,6 +91,11 @@ def knowledge_engine_capabilities() -> dict:
             "noesis-document-change-set-v1",
             "noesis-document-generation-delta-v1",
             "noesis-document-delta-replay-v1",
+            "noesis-derived-object-revision-v1",
+            "noesis-derived-object-generation-v1",
+            "noesis-derived-object-generation-delta-v1",
+            "noesis-derived-object-replay-v1",
+            "noesis-derived-object-lineage-v1",
             "noesis-maintenance-job-request-v1",
             "noesis-maintenance-job-receipt-v1",
             "noesis-knowledge-generation-v1",
@@ -112,6 +117,9 @@ def knowledge_engine_capabilities() -> dict:
             "immutable-document-revisions",
             "generation-deltas",
             "point-in-time-documents",
+            "immutable-derived-object-revisions",
+            "support-aware-truth-maintenance",
+            "incremental-derived-projections",
             "knowledge-maintenance",
             "lease-safe-workers",
             "committed-generations",
@@ -212,6 +220,141 @@ def document_revision_health() -> dict:
 
     return _safe(
         lambda conn: DocumentRevisionStore(conn, initialize=False).health(),
+        required_scope="knowledge:read",
+    )
+
+
+@mcp.tool()
+def derived_object_revision(
+    namespace: str,
+    logical_id: str,
+    revision: int | None = None,
+    generation: int | None = None,
+    include_retracted: bool = False,
+) -> dict:
+    """Read one immutable derived-object revision at an optional generation."""
+    from src.kb.derived_revisions import DerivedRevisionStore
+
+    return _safe(
+        lambda conn: {
+            "ok": True,
+            "revision": DerivedRevisionStore(conn, initialize=False).revision(
+                namespace,
+                logical_id,
+                revision=revision,
+                generation=generation,
+                include_retracted=include_retracted,
+            ),
+        },
+        required_scope="knowledge:read",
+    )
+
+
+@mcp.tool()
+def derived_object_history(
+    namespace: str, logical_id: str, include_retracted: bool = True
+) -> dict:
+    """List immutable revisions and support transitions for one derived object."""
+    from src.kb.derived_revisions import DerivedRevisionStore
+
+    return _safe(
+        lambda conn: {
+            "ok": True,
+            "revisions": DerivedRevisionStore(conn, initialize=False).history(
+                namespace, logical_id, include_retracted=include_retracted
+            ),
+        },
+        required_scope="knowledge:read",
+    )
+
+
+@mcp.tool()
+def derived_object_generation_delta(
+    namespace: str,
+    from_generation: int,
+    to_generation: int,
+    cursor: str | None = None,
+    limit: int = 100,
+) -> dict:
+    """Page object-level additions, updates, support changes, and retractions."""
+    from src.kb.derived_revisions import DerivedRevisionStore
+
+    return _safe(
+        lambda conn: DerivedRevisionStore(conn, initialize=False).delta(
+            namespace,
+            from_generation=from_generation,
+            to_generation=to_generation,
+            cursor=cursor,
+            limit=limit,
+        ),
+        required_scope="knowledge:read",
+    )
+
+
+@mcp.tool()
+def replay_derived_object_generations(
+    namespace: str, from_generation: int, to_generation: int
+) -> dict:
+    """Verify derived-object deltas against immutable revisions and receipts."""
+    from src.kb.derived_revisions import DerivedRevisionStore
+
+    return _safe(
+        lambda conn: DerivedRevisionStore(conn, initialize=False).replay(
+            namespace, from_generation, to_generation
+        ),
+        required_scope="knowledge:read",
+    )
+
+
+@mcp.tool()
+def derived_object_lineage(revision_id: str) -> dict:
+    """Trace a derived revision to exact sources and current projections."""
+    from src.kb.derived_revisions import DerivedRevisionStore
+
+    return _safe(
+        lambda conn: DerivedRevisionStore(conn, initialize=False).lineage(revision_id),
+        required_scope="knowledge:read",
+    )
+
+
+@mcp.tool()
+def explain_derived_object_invalidation(
+    namespace: str, logical_id: str, generation: int | None = None
+) -> dict:
+    """Explain the document and support changes affecting a derived object."""
+    from src.kb.derived_revisions import DerivedRevisionStore
+
+    return _safe(
+        lambda conn: DerivedRevisionStore(conn, initialize=False).explain_invalidation(
+            namespace, logical_id, generation
+        ),
+        required_scope="knowledge:read",
+    )
+
+
+@mcp.tool()
+def derived_projection(namespace: str, projection_kind: str) -> dict:
+    """Read an atomically published lexical, vector, graph, or summary projection."""
+    from src.kb.derived_revisions import DerivedRevisionStore
+
+    return _safe(
+        lambda conn: {
+            "ok": True,
+            "items": DerivedRevisionStore(conn, initialize=False).projection(
+                namespace, projection_kind
+            ),
+        },
+        required_scope="knowledge:read",
+    )
+
+
+@mcp.tool()
+def derived_object_health() -> dict:
+    """Return text-free derived revision, support, projection, and generation counts."""
+    from src.kb.derived_revisions import DerivedRevisionStore
+
+    return _safe(
+        lambda conn: DerivedRevisionStore(conn, initialize=False).health(),
         required_scope="knowledge:read",
     )
 
