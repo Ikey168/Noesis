@@ -93,6 +93,9 @@ MUTATION_NAMES = frozenset(
         "split_source_alias",
         "retract_source_relationship",
         "add_source_relationship",
+        "revise_event_record",
+        "retract_event_account",
+        "relate_events",
     }
 )
 
@@ -265,6 +268,27 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
             return ["knowledge:memory:admin"]
         return ["knowledge:memory:read"]
     if server_stem == "knowledge_engine_mcp":
+        if tool_name == "retract_event_account":
+            return ["knowledge:event:review"]
+        if tool_name in {
+            "create_event_record",
+            "revise_event_record",
+            "ingest_event_mentions",
+            "attach_event_account",
+            "relate_events",
+        }:
+            return ["knowledge:event:write"]
+        if tool_name in {
+            "get_event_record",
+            "get_event_record_as_of",
+            "list_event_accounts",
+            "search_event_records",
+            "event_timeline",
+            "event_neighborhood",
+            "diff_event_revisions",
+            "replay_event_record",
+        }:
+            return ["knowledge:event:read"]
         if tool_name in {"decide_source_alias", "split_source_alias"}:
             return ["knowledge:source-identity:review"]
         if tool_name in {

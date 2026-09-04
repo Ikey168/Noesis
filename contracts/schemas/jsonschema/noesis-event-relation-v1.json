@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/schemas/noesis-event-relation-v1.json",
+  "title": "Noesis sourced event relation",
+  "type": "object",
+  "required": ["contract", "relation_id", "namespace", "from_event_id", "to_event_id", "relation_type", "evidence", "confidence", "valid_from_ms", "valid_to_ms", "principal_id", "created_at_ms"],
+  "properties": {
+    "contract": {"const": "noesis-event-relation-v1"},
+    "relation_id": {"type": "string", "pattern": "^event-relation:"},
+    "namespace": {"type": "string"},
+    "from_event_id": {"type": "string", "pattern": "^event:"},
+    "to_event_id": {"type": "string", "pattern": "^event:"},
+    "relation_type": {"enum": ["predecessor", "successor", "recurrence", "cause", "consequence"]},
+    "evidence": {"type": "array", "items": {"type": "object"}},
+    "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+    "valid_from_ms": {"type": ["integer", "null"]},
+    "valid_to_ms": {"type": ["integer", "null"]},
+    "principal_id": {"type": "string"},
+    "created_at_ms": {"type": "integer", "minimum": 0},
+    "idempotent": {"type": "boolean"}
+  },
+  "additionalProperties": false
+}

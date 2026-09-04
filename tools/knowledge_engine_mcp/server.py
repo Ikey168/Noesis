@@ -110,6 +110,11 @@ def knowledge_engine_capabilities() -> dict:
             "noesis-source-relationship-v1",
             "noesis-source-dossier-v1",
             "noesis-source-independence-v1",
+            "noesis-event-record-v2",
+            "noesis-event-mention-v1",
+            "noesis-event-account-v1",
+            "noesis-event-relation-v1",
+            "noesis-event-search-v1",
             "noesis-maintenance-job-request-v1",
             "noesis-maintenance-job-receipt-v1",
             "noesis-knowledge-generation-v1",
@@ -146,6 +151,10 @@ def knowledge_engine_capabilities() -> dict:
             "reversible-source-alias-resolution",
             "time-bounded-source-ownership-graph",
             "source-aware-evidence-independence",
+            "event-centric-knowledge-model",
+            "multilingual-event-mention-clustering",
+            "competing-event-accounts",
+            "snapshot-bound-event-search",
             "knowledge-maintenance",
             "lease-safe-workers",
             "committed-generations",
@@ -1379,6 +1388,348 @@ def explain_source_independence(
             namespace, source_ids, scopes=_context()[1], as_of_ms=as_of_ms
         ),
         required_scope="knowledge:source-identity:read",
+    )
+
+
+@mcp.tool()
+def create_event_record(
+    namespace: str,
+    event: dict[str, Any],
+    event_key: str | None = None,
+    lifecycle: str = "ongoing",
+    granularity: str = "interval",
+    generation: int = 0,
+    observed_at_ms: int | None = None,
+    producer: dict[str, Any] | None = None,
+    policy: dict[str, Any] | None = None,
+    provenance: dict[str, Any] | None = None,
+) -> dict:
+    """Create a stable, immutable event identity and first lifecycle revision."""
+    from src.kb.events import EventKnowledgeStore
+
+    principal, scopes = _context()
+    return _safe(
+        lambda conn: EventKnowledgeStore(conn).create(
+            namespace,
+            event,
+            principal_id=principal,
+            scopes=scopes,
+            event_key=event_key,
+            lifecycle=lifecycle,
+            granularity=granularity,
+            generation=generation,
+            observed_at_ms=observed_at_ms,
+            producer=producer,
+            policy=policy,
+            provenance=provenance,
+        ),
+        write=True,
+        required_scope="knowledge:event:write",
+    )
+
+
+@mcp.tool()
+def revise_event_record(
+    namespace: str,
+    event_id: str,
+    expected_revision: int,
+    patch: dict[str, Any],
+    reason: str,
+    lifecycle: str | None = None,
+) -> dict:
+    """Append a correction or lifecycle revision with optimistic concurrency."""
+    from src.kb.events import EventKnowledgeStore
+
+    principal, scopes = _context()
+    return _safe(
+        lambda conn: EventKnowledgeStore(conn, initialize=False).revise(
+            namespace,
+            event_id,
+            expected_revision,
+            patch,
+            reason=reason,
+            principal_id=principal,
+            scopes=scopes,
+            lifecycle=lifecycle,
+        ),
+        write=True,
+        required_scope="knowledge:event:write",
+    )
+
+
+@mcp.tool()
+def get_event_record(
+    namespace: str,
+    event_id: str,
+    revision: int | None = None,
+    include_history: bool = False,
+) -> dict:
+    """Get a current event, exact revision, or immutable history."""
+    from src.kb.events import EventKnowledgeStore
+
+    return _safe(
+        lambda conn: EventKnowledgeStore(conn, initialize=False).get(
+            namespace,
+            event_id,
+            scopes=_context()[1],
+            revision=revision,
+            include_history=include_history,
+        ),
+        required_scope="knowledge:event:read",
+    )
+
+
+@mcp.tool()
+def get_event_record_as_of(namespace: str, event_id: str, as_of_ms: int) -> dict:
+    """Read the latest event revision observed by a requested time."""
+    from src.kb.events import EventKnowledgeStore
+
+    return _safe(
+        lambda conn: EventKnowledgeStore(conn, initialize=False).as_of(
+            namespace, event_id, as_of_ms, scopes=_context()[1]
+        ),
+        required_scope="knowledge:event:read",
+    )
+
+
+@mcp.tool()
+def ingest_event_mentions(
+    namespace: str,
+    document_revision_id: str,
+    mentions: list[dict[str, Any]],
+    language: str = "und",
+    max_mentions: int = 100,
+    cancel_requested: bool = False,
+) -> dict:
+    """Cluster a bounded multilingual mention batch using deterministic offline features."""
+    from src.kb.events import EventKnowledgeStore
+
+    principal, scopes = _context()
+    return _safe(
+        lambda conn: EventKnowledgeStore(conn).ingest_mentions(
+            namespace,
+            document_revision_id,
+            mentions,
+            language=language,
+            principal_id=principal,
+            scopes=scopes,
+            max_mentions=max_mentions,
+            cancel_requested=cancel_requested,
+        ),
+        write=True,
+        required_scope="knowledge:event:write",
+    )
+
+
+@mcp.tool()
+def attach_event_account(
+    namespace: str,
+    event_id: str,
+    attribute_type: str,
+    value: Any,
+    role: str | None = None,
+    confidence: float = 1.0,
+    uncertainty: float = 0.0,
+    evidence: list[dict[str, Any]] | None = None,
+    valid_from_ms: int | None = None,
+    valid_to_ms: int | None = None,
+    observed_at_ms: int | None = None,
+) -> dict:
+    """Attach a sourced participant, place, time, quantity, cause, or consequence account."""
+    from src.kb.events import EventKnowledgeStore
+
+    principal, scopes = _context()
+    return _safe(
+        lambda conn: EventKnowledgeStore(conn, initialize=False).attach_account(
+            namespace,
+            event_id,
+            attribute_type,
+            value,
+            principal_id=principal,
+            scopes=scopes,
+            role=role,
+            confidence=confidence,
+            uncertainty=uncertainty,
+            evidence=evidence or [],
+            valid_from_ms=valid_from_ms,
+            valid_to_ms=valid_to_ms,
+            observed_at_ms=observed_at_ms,
+        ),
+        write=True,
+        required_scope="knowledge:event:write",
+    )
+
+
+@mcp.tool()
+def retract_event_account(namespace: str, account_id: str, reason: str) -> dict:
+    """Retract a disputed event account without erasing its earlier revision."""
+    from src.kb.events import EventKnowledgeStore
+
+    principal, scopes = _context()
+    return _safe(
+        lambda conn: EventKnowledgeStore(conn, initialize=False).retract_account(
+            namespace,
+            account_id,
+            reason,
+            principal_id=principal,
+            scopes=scopes,
+        ),
+        write=True,
+        required_scope="knowledge:event:review",
+    )
+
+
+@mcp.tool()
+def list_event_accounts(
+    namespace: str,
+    event_id: str,
+    include_retracted: bool = False,
+    include_history: bool = False,
+) -> dict:
+    """List current competing event accounts with confidence and evidence."""
+    from src.kb.events import EventKnowledgeStore
+
+    return _safe(
+        lambda conn: {
+            "items": EventKnowledgeStore(conn, initialize=False).accounts(
+                namespace,
+                event_id,
+                scopes=_context()[1],
+                include_retracted=include_retracted,
+                include_history=include_history,
+            )
+        },
+        required_scope="knowledge:event:read",
+    )
+
+
+@mcp.tool()
+def relate_events(
+    namespace: str,
+    from_event_id: str,
+    to_event_id: str,
+    relation_type: str,
+    evidence: list[dict[str, Any]] | None = None,
+    confidence: float = 1.0,
+    valid_from_ms: int | None = None,
+    valid_to_ms: int | None = None,
+) -> dict:
+    """Create a sourced predecessor, successor, recurrence, cause, or consequence edge."""
+    from src.kb.events import EventKnowledgeStore
+
+    principal, scopes = _context()
+    return _safe(
+        lambda conn: EventKnowledgeStore(conn, initialize=False).relate(
+            namespace,
+            from_event_id,
+            to_event_id,
+            relation_type,
+            principal_id=principal,
+            scopes=scopes,
+            evidence=evidence or [],
+            confidence=confidence,
+            valid_from_ms=valid_from_ms,
+            valid_to_ms=valid_to_ms,
+        ),
+        write=True,
+        required_scope="knowledge:event:write",
+    )
+
+
+@mcp.tool()
+def search_event_records(
+    namespace: str,
+    event_types: list[str] | None = None,
+    lifecycles: list[str] | None = None,
+    query: str | None = None,
+    snapshot_generation: int | None = None,
+    limit: int = 50,
+    cursor: str | None = None,
+) -> dict:
+    """Search event records with a snapshot-bound opaque pagination cursor."""
+    from src.kb.events import EventKnowledgeStore
+
+    return _safe(
+        lambda conn: EventKnowledgeStore(conn, initialize=False).search(
+            namespace,
+            scopes=_context()[1],
+            event_types=event_types or [],
+            lifecycles=lifecycles or [],
+            query=query,
+            snapshot_generation=snapshot_generation,
+            limit=limit,
+            cursor=cursor,
+        ),
+        required_scope="knowledge:event:read",
+    )
+
+
+@mcp.tool()
+def event_timeline(
+    namespace: str,
+    start_ms: int | None = None,
+    end_ms: int | None = None,
+    limit: int = 100,
+) -> dict:
+    """Return a bounded chronological event timeline."""
+    from src.kb.events import EventKnowledgeStore
+
+    return _safe(
+        lambda conn: {
+            "items": EventKnowledgeStore(conn, initialize=False).timeline(
+                namespace,
+                scopes=_context()[1],
+                start_ms=start_ms,
+                end_ms=end_ms,
+                limit=limit,
+            )
+        },
+        required_scope="knowledge:event:read",
+    )
+
+
+@mcp.tool()
+def event_neighborhood(event_id: str, max_depth: int = 2) -> dict:
+    """Traverse a bounded cross-domain event-relation neighborhood."""
+    from src.kb.events import EventKnowledgeStore
+
+    return _safe(
+        lambda conn: EventKnowledgeStore(conn, initialize=False).neighborhood(
+            event_id, scopes=_context()[1], max_depth=max_depth
+        ),
+        required_scope="knowledge:event:read",
+    )
+
+
+@mcp.tool()
+def diff_event_revisions(
+    namespace: str, event_id: str, from_revision: int, to_revision: int
+) -> dict:
+    """Return a stable semantic diff between two event revisions."""
+    from src.kb.events import EventKnowledgeStore
+
+    return _safe(
+        lambda conn: EventKnowledgeStore(conn, initialize=False).diff(
+            namespace,
+            event_id,
+            from_revision,
+            to_revision,
+            scopes=_context()[1],
+        ),
+        required_scope="knowledge:event:read",
+    )
+
+
+@mcp.tool()
+def replay_event_record(namespace: str, event_id: str) -> dict:
+    """Replay and verify an event's immutable predecessor chain."""
+    from src.kb.events import EventKnowledgeStore
+
+    return _safe(
+        lambda conn: EventKnowledgeStore(conn, initialize=False).replay(
+            namespace, event_id, scopes=_context()[1]
+        ),
+        required_scope="knowledge:event:read",
     )
 
 

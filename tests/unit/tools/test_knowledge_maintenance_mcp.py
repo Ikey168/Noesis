@@ -83,6 +83,20 @@ def test_maintenance_surface_and_catalog_scope_separation(monkeypatch):
         "source_identity_dossier",
         "source_relationship_path",
         "explain_source_independence",
+        "create_event_record",
+        "revise_event_record",
+        "get_event_record",
+        "get_event_record_as_of",
+        "ingest_event_mentions",
+        "attach_event_account",
+        "retract_event_account",
+        "list_event_accounts",
+        "relate_events",
+        "search_event_records",
+        "event_timeline",
+        "event_neighborhood",
+        "diff_event_revisions",
+        "replay_event_record",
     }
     assert expected <= set(tools)
     assert _required_scopes(
@@ -205,6 +219,35 @@ def test_maintenance_surface_and_catalog_scope_separation(monkeypatch):
             "knowledge:source-identity:read"
         ]
     for name in (
+        "create_event_record",
+        "revise_event_record",
+        "ingest_event_mentions",
+        "attach_event_account",
+        "relate_events",
+    ):
+        assert _mutability(name) == "write"
+        assert _required_scopes("knowledge_engine_mcp", "write", name) == [
+            "knowledge:event:write"
+        ]
+    assert _mutability("retract_event_account") == "write"
+    assert _required_scopes(
+        "knowledge_engine_mcp", "write", "retract_event_account"
+    ) == ["knowledge:event:review"]
+    for name in (
+        "get_event_record",
+        "get_event_record_as_of",
+        "list_event_accounts",
+        "search_event_records",
+        "event_timeline",
+        "event_neighborhood",
+        "diff_event_revisions",
+        "replay_event_record",
+    ):
+        assert _mutability(name) == "read"
+        assert _required_scopes("knowledge_engine_mcp", "read", name) == [
+            "knowledge:event:read"
+        ]
+    for name in (
         "pause_maintenance_schedule",
         "resume_maintenance_schedule",
         "cancel_maintenance_job",
@@ -260,3 +303,12 @@ def test_capabilities_advertise_generation_contracts():
     assert "reversible-source-alias-resolution" in capabilities["features"]
     assert "time-bounded-source-ownership-graph" in capabilities["features"]
     assert "source-aware-evidence-independence" in capabilities["features"]
+    assert "noesis-event-record-v2" in capabilities["contracts"]
+    assert "noesis-event-mention-v1" in capabilities["contracts"]
+    assert "noesis-event-account-v1" in capabilities["contracts"]
+    assert "noesis-event-relation-v1" in capabilities["contracts"]
+    assert "noesis-event-search-v1" in capabilities["contracts"]
+    assert "event-centric-knowledge-model" in capabilities["features"]
+    assert "multilingual-event-mention-clustering" in capabilities["features"]
+    assert "competing-event-accounts" in capabilities["features"]
+    assert "snapshot-bound-event-search" in capabilities["features"]

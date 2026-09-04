@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/schemas/noesis-event-search-v1.json",
+  "title": "Noesis snapshot-bound event search page",
+  "type": "object",
+  "required": ["contract", "items", "next_cursor", "snapshot_generation", "total"],
+  "properties": {
+    "contract": {"const": "noesis-event-search-v1"},
+    "items": {"type": "array", "items": {"type": "object"}},
+    "next_cursor": {"type": ["string", "null"]},
+    "snapshot_generation": {"type": ["integer", "null"]},
+    "total": {"type": "integer", "minimum": 0}
+  },
+  "additionalProperties": false
+}
