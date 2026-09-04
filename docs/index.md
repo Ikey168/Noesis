@@ -73,6 +73,8 @@ For the project overview and local setup, start with the
   safe parameters, checkpointed execution, and deterministic replay receipts
 - **[Knowledge quality](guides/knowledge-quality.md)** — auditable dimensions,
   calibrated aggregation, non-erasing ranking, and policy simulation
+- **[Entity merge-and-split history](guides/entity-history.md)** — immutable
+  identity decisions, reversible merges/splits, and selective rebuild impact
 - **[Unified knowledge query](guides/unified-knowledge-query.md)** — one bounded,
   evidence-preserving plane over local, temporal, memory, and federated data.
 - [Project structure](development/project-structure.md) — where things live in

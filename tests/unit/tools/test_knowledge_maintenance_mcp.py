@@ -244,6 +244,19 @@ def test_maintenance_surface_and_catalog_scope_separation(monkeypatch):
         "compare_quality_policies",
         "review_quality_override",
         "inspect_quality_health",
+        "register_entity_history_identity",
+        "record_entity_identity_decision",
+        "resolve_entity_history",
+        "preview_entity_merge",
+        "execute_entity_merge",
+        "preview_entity_split",
+        "execute_entity_split",
+        "undo_entity_identity_change",
+        "register_entity_dependency",
+        "inspect_entity_change_impact",
+        "publish_entity_change_rebuild",
+        "get_entity_identity_history",
+        "export_entity_identity_history",
     }
     assert expected <= set(tools)
     assert _required_scopes(
@@ -761,3 +774,8 @@ def test_capabilities_advertise_generation_contracts():
     assert "noesis-quality-collection-v1" in capabilities["contracts"]
     assert "noesis-quality-ranking-v1" in capabilities["contracts"]
     assert "noesis-quality-health-v1" in capabilities["contracts"]
+    assert "noesis-entity-identity-decision-v1" in capabilities["contracts"]
+    assert "noesis-entity-merge-v1" in capabilities["contracts"]
+    assert "noesis-entity-split-v1" in capabilities["contracts"]
+    assert "noesis-entity-impact-v1" in capabilities["contracts"]
+    assert "noesis-entity-history-export-v1" in capabilities["contracts"]

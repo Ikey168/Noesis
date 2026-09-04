@@ -140,6 +140,9 @@ MUTATION_NAMES = frozenset(
         "cancel_research_recipe_run",
         "assess_knowledge_quality",
         "review_quality_override",
+        "record_entity_identity_decision",
+        "undo_entity_identity_change",
+        "publish_entity_change_rebuild",
     }
 )
 
@@ -312,6 +315,29 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
             return ["knowledge:memory:admin"]
         return ["knowledge:memory:read"]
     if server_stem == "knowledge_engine_mcp":
+        if tool_name in {
+            "execute_entity_merge",
+            "execute_entity_split",
+            "undo_entity_identity_change",
+            "publish_entity_change_rebuild",
+        }:
+            return ["knowledge:entity-history:execute"]
+        if tool_name == "record_entity_identity_decision":
+            return ["knowledge:entity-history:review"]
+        if tool_name in {
+            "register_entity_history_identity",
+            "register_entity_dependency",
+        }:
+            return ["knowledge:entity-history:write"]
+        if tool_name in {
+            "resolve_entity_history",
+            "preview_entity_merge",
+            "preview_entity_split",
+            "inspect_entity_change_impact",
+            "get_entity_identity_history",
+            "export_entity_identity_history",
+        }:
+            return ["knowledge:entity-history:read"]
         if tool_name in {"assess_knowledge_quality", "aggregate_quality_assessments"}:
             return ["knowledge:quality:calculate"]
         if tool_name == "review_quality_override":
