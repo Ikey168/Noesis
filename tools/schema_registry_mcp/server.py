@@ -59,6 +59,29 @@ def _run(operation, *, write: bool = False):
             conn.close()
 
 
+def _run_ontology(operation, *, write: bool = False):
+    from src.kb.ontology import OntologyAlignmentStore
+    from src.kb.schema_registry import SchemaRegistryError
+
+    conn = None
+    try:
+        conn = _connection(read_only=not write)
+        return operation(OntologyAlignmentStore(conn, initialize=False))
+    except SchemaRegistryError as exc:
+        return {"ok": False, "error": exc.as_dict()}
+    except Exception as exc:  # noqa: BLE001 - stable availability response
+        return {
+            "ok": False,
+            "error": {
+                "code": "ontology_alignment_unavailable",
+                "message": str(exc)[:500],
+            },
+        }
+    finally:
+        if conn is not None:
+            conn.close()
+
+
 @mcp.tool()
 def schema_registry_context() -> dict:
     """Return the operator-controlled principal and granted registry scopes."""
@@ -154,6 +177,192 @@ def register_schema_crosswalk(crosswalk: dict[str, Any], idempotency_key: str) -
         ),
         write=True,
     )
+
+
+@mcp.tool()
+def register_ontology(
+    name: str,
+    semantic_version: str,
+    concepts: list[dict[str, Any]],
+    owner: str,
+    provenance: dict[str, Any],
+    idempotency_key: str,
+    namespace_uri: str | None = None,
+    dependencies: list[dict[str, str]] | None = None,
+    compatibility_policy: str = "backward",
+    generation: int = 0,
+    valid_from_ms: int | None = None,
+    valid_to_ms: int | None = None,
+    observed_at_ms: int | None = None,
+    cancel_requested: bool = False,
+) -> dict:
+    """Publish an immutable ontology version through the schema module registry."""
+    principal, scopes = _context()
+    return _run_ontology(
+        lambda store: store.publish(
+            name,
+            semantic_version,
+            concepts,
+            owner=owner,
+            provenance=provenance,
+            idempotency_key=idempotency_key,
+            principal_id=principal,
+            scopes=scopes,
+            namespace_uri=namespace_uri,
+            dependencies=dependencies or [],
+            compatibility_policy=compatibility_policy,
+            generation=generation,
+            valid_from_ms=valid_from_ms,
+            valid_to_ms=valid_to_ms,
+            observed_at_ms=observed_at_ms,
+            cancel_requested=cancel_requested,
+        ),
+        write=True,
+    )
+
+
+@mcp.tool()
+def inspect_ontology(
+    name: str,
+    version: str,
+    include_deprecated: bool = False,
+) -> dict:
+    """Resolve and inspect an exact or compatible ontology version."""
+    return _run_ontology(
+        lambda store: store.inspect(
+            name,
+            version,
+            scopes=_context()[1],
+            include_deprecated=include_deprecated,
+        )
+    )
+
+
+@mcp.tool()
+def deprecate_ontology(module_id: str, reason: str, idempotency_key: str) -> dict:
+    """Deprecate an ontology module without changing its published content."""
+    principal, scopes = _context()
+    return _run_ontology(
+        lambda store: store.deprecate(
+            module_id,
+            reason,
+            idempotency_key,
+            principal_id=principal,
+            scopes=scopes,
+        ),
+        write=True,
+    )
+
+
+@mcp.tool()
+def register_ontology_crosswalk(
+    name: str,
+    semantic_version: str,
+    source: dict[str, Any],
+    target: dict[str, Any],
+    mappings: list[dict[str, Any]],
+    owner: str,
+    provenance: dict[str, Any],
+    idempotency_key: str,
+    generation: int = 0,
+    observed_at_ms: int | None = None,
+    cancel_requested: bool = False,
+) -> dict:
+    """Publish sourced equivalent, hierarchical, related, or incompatible mappings."""
+    principal, scopes = _context()
+    return _run_ontology(
+        lambda store: store.register_crosswalk(
+            name,
+            semantic_version,
+            source,
+            target,
+            mappings,
+            owner=owner,
+            provenance=provenance,
+            idempotency_key=idempotency_key,
+            principal_id=principal,
+            scopes=scopes,
+            generation=generation,
+            observed_at_ms=observed_at_ms,
+            cancel_requested=cancel_requested,
+        ),
+        write=True,
+    )
+
+
+@mcp.tool()
+def validate_knowledge_object_ontology(
+    namespace: str,
+    object_id: str,
+    object_kind: str,
+    ontology: dict[str, Any],
+    concept_id: str,
+    value: dict[str, Any],
+    source_native: dict[str, Any],
+    quarantine: bool = False,
+) -> dict:
+    """Validate a knowledge object while retaining its source-native representation."""
+    principal, scopes = _context()
+    return _run_ontology(
+        lambda store: store.validate(
+            namespace,
+            object_id,
+            object_kind,
+            ontology,
+            concept_id,
+            value,
+            source_native=source_native,
+            quarantine=quarantine,
+            principal_id=principal,
+            scopes=scopes,
+        ),
+        write=True,
+    )
+
+
+@mcp.tool()
+def list_ontology_quarantine(namespace: str, limit: int = 100) -> dict:
+    """List bounded ontology validation failures in a namespace."""
+    return _run_ontology(
+        lambda store: {
+            "items": store.quarantine(namespace, scopes=_context()[1], limit=limit)
+        }
+    )
+
+
+@mcp.tool()
+def expand_ontology_query(
+    ontology: dict[str, Any],
+    concept_id: str,
+    relationships: list[str] | None = None,
+    max_depth: int = 2,
+    max_terms: int = 50,
+) -> dict:
+    """Expand a pinned concept through explainable, ranked, bounded alignment paths."""
+    return _run_ontology(
+        lambda store: store.expand(
+            ontology,
+            concept_id,
+            relationships=relationships or ["equivalent", "narrower"],
+            max_depth=max_depth,
+            max_terms=max_terms,
+            scopes=_context()[1],
+        )
+    )
+
+
+@mcp.tool()
+def diff_ontology_versions(name: str, old_version: str, new_version: str) -> dict:
+    """Diff concepts, labels, definitions, hierarchies, constraints, and lifecycle."""
+    return _run_ontology(
+        lambda store: store.diff(name, old_version, new_version, scopes=_context()[1])
+    )
+
+
+@mcp.tool()
+def export_ontology_alignment() -> dict:
+    """Export ontology and semantic-crosswalk modules deterministically."""
+    return _run_ontology(lambda store: store.export(scopes=_context()[1]))
 
 
 @mcp.tool()

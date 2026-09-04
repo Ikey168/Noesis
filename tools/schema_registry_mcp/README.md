@@ -6,14 +6,19 @@ semantic-version identities whose IDs include a SHA-256 content hash. Core
 definitions resolve locally from the checkout even before registry tables have
 been initialized.
 
+The ontology alignment tools publish concepts as ontology modules and sourced
+semantic mappings as dependent crosswalk modules. They add pinned object
+validation and quarantine, bounded explainable query expansion, ontology diff,
+and deterministic alignment export without introducing a second registry.
+
 Read and validation are enabled by default. Every mutation is separately
 operator-authorized through `NOESIS_MCP_SCOPES`:
 
 | Scope | Operations |
 |---|---|
 | `knowledge:schema:read` | inspect, resolve, compare, impact, export, lineage, migration preview |
-| `knowledge:schema:validate` | validate instances |
-| `knowledge:schema:register` | register modules/crosswalks and dependency edges |
+| `knowledge:schema:validate` | validate schema instances or ontology-typed knowledge objects; optionally quarantine failures |
+| `knowledge:schema:register` | register modules, ontology concepts/crosswalks, and dependency edges |
 | `knowledge:schema:deprecate` | deprecate a custom version |
 | `knowledge:schema:migrate` | define, execute/resume, and compensate migrations |
 
