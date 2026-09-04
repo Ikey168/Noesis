@@ -35,9 +35,13 @@ MUTATION_PREFIXES = (
     "commit_",
     "compute_",
     "create_",
+    "declare_",
     "delete_",
+    "deprecate_",
+    "define_",
     "disable_",
     "enable_",
+    "execute_",
     "harvest_",
     "ingest_",
     "register_",
@@ -158,6 +162,8 @@ def _required_data(server_stem: str, tool_name: str) -> list[str]:
         return ["mcp-registration", "domain-registry"]
     if server_stem == "transactions_mcp":
         return ["knowledge-transaction-store"]
+    if server_stem == "schema_registry_mcp":
+        return ["knowledge-schema-registry"]
     if server_stem == "contract_mcp":
         return ["contract-schemas"]
     if server_stem == "schema_mcp":
@@ -190,6 +196,16 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
         if tool_name.startswith("preview_"):
             return ["knowledge:transaction:preview"]
         return ["knowledge:transaction:read"]
+    if server_stem == "schema_registry_mcp":
+        if tool_name.startswith(("register_", "declare_")):
+            return ["knowledge:schema:register"]
+        if tool_name.startswith("deprecate_"):
+            return ["knowledge:schema:deprecate"]
+        if tool_name.startswith(("define_", "execute_", "rollback_")):
+            return ["knowledge:schema:migrate"]
+        if tool_name.startswith("validate_"):
+            return ["knowledge:schema:validate"]
+        return ["knowledge:schema:read"]
     if mutability == "write" or server_stem in SENSITIVE_SERVERS:
         return ["operator"]
     if server_stem in {"catalog_mcp", "contract_mcp", "schema_mcp"}:

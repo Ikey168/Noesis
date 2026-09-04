@@ -188,6 +188,14 @@
         "tools/transactions_mcp/server.py"
       ],
       "env": {}
+    },
+    "noesis-schema-registry": {
+      "type": "stdio",
+      "command": "python3",
+      "args": [
+        "tools/schema_registry_mcp/server.py"
+      ],
+      "env": {}
     }
   },
   "compatibilityAliases": {

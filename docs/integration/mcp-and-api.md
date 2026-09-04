@@ -36,6 +36,7 @@ python tools/statistics_mcp/server.py     # one server, stdio transport
 | `noesis-schema` | `tools/schema_mcp` | Warehouse schema introspection |
 | `noesis-catalog` | `tools/catalog_mcp` | Least-privilege capability, domain, pack, transport, and readiness discovery |
 | `noesis-transactions` | `tools/transactions_mcp` | Authorized dry-run, atomic mutation commit, audit replay, and compensating rollback |
+| `noesis-schema-registry` | `tools/schema_registry_mcp` | Versioned definitions, validation, crosswalks, compatibility, impact, and reversible migrations |
 
 ### Connecting an external host
 
@@ -125,6 +126,21 @@ invalidations, a consolidation watermark, and an append-only audit event.
 Retries are idempotent. Rollbacks are new compensating revisions, not history
 deletion. See the [operator guide](../../tools/transactions_mcp/README.md) for
 the permission scopes and workflow.
+
+### Runtime schema registry
+
+`noesis-schema-registry` resolves content-addressed schemas, ontologies,
+constraints, vocabularies, and crosswalks without a network dependency. Core
+definitions are built in; custom semantic versions are immutable. Registration
+checks compatibility policy before writing, and impact analysis follows
+declared lineage into connectors, extractors, indexes, tools, packs, dependent
+modules, and stored object groups.
+
+Migrations use a separate preview and write permission path. They execute in
+checkpointed batches, validate preconditions and target postconditions,
+preserve object identity and provenance, selectively invalidate derived
+artifacts, and support audited compensating rollback. See the
+[schema registry operator guide](../../tools/schema_registry_mcp/README.md).
 
 ### Discipline the servers follow
 

@@ -656,6 +656,39 @@
       ],
       "version": "1",
       "visible_tool_count": 5
+    },
+    {
+      "aliases": [],
+      "kind": "noesis",
+      "name": "noesis-schema-registry",
+      "pack": null,
+      "reason": null,
+      "state": "unauthorized",
+      "tool_count": 16,
+      "tools": [
+        "noesis-schema-registry.compare_schema_modules",
+        "noesis-schema-registry.declare_schema_dependency",
+        "noesis-schema-registry.define_schema_migration",
+        "noesis-schema-registry.deprecate_schema_module",
+        "noesis-schema-registry.execute_schema_migration",
+        "noesis-schema-registry.export_schema_registry",
+        "noesis-schema-registry.inspect_schema_module",
+        "noesis-schema-registry.preview_schema_migration",
+        "noesis-schema-registry.register_schema_crosswalk",
+        "noesis-schema-registry.register_schema_module",
+        "noesis-schema-registry.replay_schema_lineage",
+        "noesis-schema-registry.resolve_schema_module",
+        "noesis-schema-registry.rollback_schema_migration",
+        "noesis-schema-registry.schema_dependency_impact",
+        "noesis-schema-registry.schema_registry_context",
+        "noesis-schema-registry.validate_schema_instance"
+      ],
+      "transports": [
+        "stdio",
+        "streamable-http"
+      ],
+      "version": "1",
+      "visible_tool_count": 16
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -664,14 +697,14 @@
     "omitted": {
       "unauthorized": 1
     },
-    "servers": 23,
+    "servers": 24,
     "states": {
       "available": 20,
       "degraded": 153,
       "disabled": 3,
-      "unauthorized": 5
+      "unauthorized": 21
     },
-    "tools": 181
+    "tools": 197
   },
   "tools": [
     {
@@ -10022,6 +10055,611 @@
         "knowledge:transaction:read"
       ],
       "server": "noesis-transactions",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Classify changes as breaking, compatible, or ambiguous before use.",
+      "id": "noesis-schema-registry.compare_schema_modules",
+      "input_schema": {
+        "properties": {
+          "new_reference": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "old_reference": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          }
+        },
+        "required": [
+          "old_reference",
+          "new_reference"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "compare_schema_modules",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-schema-registry"
+      ],
+      "required_scopes": [
+        "knowledge:schema:read"
+      ],
+      "server": "noesis-schema-registry",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Declare a connector, extractor, index, tool, pack, or module dependency.",
+      "id": "noesis-schema-registry.declare_schema_dependency",
+      "input_schema": {
+        "properties": {
+          "consumer_id": {
+            "type": "string"
+          },
+          "consumer_kind": {
+            "type": "string"
+          },
+          "detail": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "module_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "module_id",
+          "consumer_kind",
+          "consumer_id",
+          "detail"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "declare_schema_dependency",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-schema-registry"
+      ],
+      "required_scopes": [
+        "knowledge:schema:register"
+      ],
+      "server": "noesis-schema-registry",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Persist an immutable reversible migration plan.",
+      "id": "noesis-schema-registry.define_schema_migration",
+      "input_schema": {
+        "properties": {
+          "definition": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "idempotency_key": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "definition",
+          "idempotency_key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "define_schema_migration",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-schema-registry"
+      ],
+      "required_scopes": [
+        "knowledge:schema:migrate"
+      ],
+      "server": "noesis-schema-registry",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Deprecate a custom module version without deleting or replacing it.",
+      "id": "noesis-schema-registry.deprecate_schema_module",
+      "input_schema": {
+        "properties": {
+          "idempotency_key": {
+            "type": "string"
+          },
+          "module_id": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "module_id",
+          "reason",
+          "idempotency_key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "deprecate_schema_module",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-schema-registry"
+      ],
+      "required_scopes": [
+        "knowledge:schema:deprecate"
+      ],
+      "server": "noesis-schema-registry",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Execute or resume one checkpointed migration batch after exact preview.",
+      "id": "noesis-schema-registry.execute_schema_migration",
+      "input_schema": {
+        "properties": {
+          "batch_size": {
+            "default": 500,
+            "type": "integer"
+          },
+          "migration_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "default": "corpus",
+            "type": "string"
+          },
+          "preview_hash": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "migration_id",
+          "preview_hash"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "execute_schema_migration",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-schema-registry"
+      ],
+      "required_scopes": [
+        "knowledge:schema:migrate"
+      ],
+      "server": "noesis-schema-registry",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Export all visible module versions in deterministic content-addressed order.",
+      "id": "noesis-schema-registry.export_schema_registry",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "export_schema_registry",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-schema-registry"
+      ],
+      "required_scopes": [
+        "knowledge:schema:read"
+      ],
+      "server": "noesis-schema-registry",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Inspect an exact immutable module identity, including provenance.",
+      "id": "noesis-schema-registry.inspect_schema_module",
+      "input_schema": {
+        "properties": {
+          "module_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "module_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "inspect_schema_module",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-schema-registry"
+      ],
+      "required_scopes": [
+        "knowledge:schema:read"
+      ],
+      "server": "noesis-schema-registry",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Return side-effect-free counts, conflicts, samples, and a preview hash.",
+      "id": "noesis-schema-registry.preview_schema_migration",
+      "input_schema": {
+        "properties": {
+          "migration_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "default": "corpus",
+            "type": "string"
+          },
+          "sample_size": {
+            "default": 10,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "migration_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "preview_schema_migration",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-schema-registry"
+      ],
+      "required_scopes": [
+        "knowledge:schema:read"
+      ],
+      "server": "noesis-schema-registry",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Register a provenance-bearing field, type, or relation crosswalk.",
+      "id": "noesis-schema-registry.register_schema_crosswalk",
+      "input_schema": {
+        "properties": {
+          "crosswalk": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "idempotency_key": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "crosswalk",
+          "idempotency_key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "register_schema_crosswalk",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-schema-registry"
+      ],
+      "required_scopes": [
+        "knowledge:schema:register"
+      ],
+      "server": "noesis-schema-registry",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Register one immutable schema, ontology, constraint, or vocabulary version.",
+      "id": "noesis-schema-registry.register_schema_module",
+      "input_schema": {
+        "properties": {
+          "definition": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "idempotency_key": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "definition",
+          "idempotency_key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "register_schema_module",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-schema-registry"
+      ],
+      "required_scopes": [
+        "knowledge:schema:register"
+      ],
+      "server": "noesis-schema-registry",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Replay append-only registry and migration lineage in sequence order.",
+      "id": "noesis-schema-registry.replay_schema_lineage",
+      "input_schema": {
+        "properties": {
+          "after_sequence": {
+            "default": 0,
+            "type": "integer"
+          },
+          "limit": {
+            "default": 100,
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "replay_schema_lineage",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-schema-registry"
+      ],
+      "required_scopes": [
+        "knowledge:schema:read"
+      ],
+      "server": "noesis-schema-registry",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Resolve an exact semantic version or explicit compatible range.",
+      "id": "noesis-schema-registry.resolve_schema_module",
+      "input_schema": {
+        "properties": {
+          "kind": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "version_spec": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "name",
+          "version_spec"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "resolve_schema_module",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-schema-registry"
+      ],
+      "required_scopes": [
+        "knowledge:schema:read"
+      ],
+      "server": "noesis-schema-registry",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Compensate applied migration revisions without erasing lineage.",
+      "id": "noesis-schema-registry.rollback_schema_migration",
+      "input_schema": {
+        "properties": {
+          "migration_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "default": "corpus",
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "migration_id",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "rollback_schema_migration",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-schema-registry"
+      ],
+      "required_scopes": [
+        "knowledge:schema:migrate"
+      ],
+      "server": "noesis-schema-registry",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Report affected runtime consumers and stored-object groups using lineage.",
+      "id": "noesis-schema-registry.schema_dependency_impact",
+      "input_schema": {
+        "properties": {
+          "module_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "module_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "schema_dependency_impact",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-schema-registry"
+      ],
+      "required_scopes": [
+        "knowledge:schema:read"
+      ],
+      "server": "noesis-schema-registry",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Return the operator-controlled principal and granted registry scopes.",
+      "id": "noesis-schema-registry.schema_registry_context",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "schema_registry_context",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-schema-registry"
+      ],
+      "required_scopes": [
+        "knowledge:schema:read"
+      ],
+      "server": "noesis-schema-registry",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Validate an instance with machine-readable errors and module provenance.",
+      "id": "noesis-schema-registry.validate_schema_instance",
+      "input_schema": {
+        "properties": {
+          "instance": {
+            "title": "Instance"
+          },
+          "reference": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          }
+        },
+        "required": [
+          "reference",
+          "instance"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "validate_schema_instance",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-schema-registry"
+      ],
+      "required_scopes": [
+        "knowledge:schema:validate"
+      ],
+      "server": "noesis-schema-registry",
       "state": "unauthorized",
       "version": "1"
     }
