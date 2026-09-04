@@ -196,6 +196,14 @@
         "tools/schema_registry_mcp/server.py"
       ],
       "env": {}
+    },
+    "noesis-federation": {
+      "type": "stdio",
+      "command": "python3",
+      "args": [
+        "tools/federation_mcp/server.py"
+      ],
+      "env": {}
     }
   },
   "compatibilityAliases": {

@@ -37,6 +37,7 @@ python tools/statistics_mcp/server.py     # one server, stdio transport
 | `noesis-catalog` | `tools/catalog_mcp` | Least-privilege capability, domain, pack, transport, and readiness discovery |
 | `noesis-transactions` | `tools/transactions_mcp` | Authorized dry-run, atomic mutation commit, audit replay, and compensating rollback |
 | `noesis-schema-registry` | `tools/schema_registry_mcp` | Versioned definitions, validation, crosswalks, compatibility, impact, and reversible migrations |
+| `noesis-federation` | `tools/federation_mcp` | Read-only external-source discovery, typed queries, merging, and coverage evaluation |
 
 ### Connecting an external host
 
