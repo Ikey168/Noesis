@@ -1,0 +1,23 @@
+{
+  "info": {
+    "name": "Demo_Package",
+    "license": "MIT",
+    "summary": "fixture package",
+    "maintainers": [{"name": "Ada"}],
+    "project_urls": {"Source": "https://example.test/demo"}
+  },
+  "releases": {
+    "1.0.0": [{
+      "upload_time_iso_8601": "2025-01-01T00:00:00Z",
+      "filename": "demo-1.0.0.whl",
+      "digests": {"sha256": "abc"},
+      "yanked": false
+    }],
+    "1.1.0": [{
+      "upload_time_iso_8601": "2025-02-01T00:00:00Z",
+      "filename": "demo-1.1.0.whl",
+      "digests": {"sha256": "def"},
+      "yanked": true
+    }]
+  }
+}

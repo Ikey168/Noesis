@@ -22,6 +22,7 @@ Tools:
   kb_temporal(domain, time axes?, history?)   -> bitemporal assertions/history
   kb_political(domain, query, jurisdiction)   -> cited political research
   kb_economic(domain, query_type, series_ids) -> cited economic research
+  kb_technical(domain, query_type, coordinate) -> cited technical graph research
   kb_corroborate(domain, claim_id)             -> publication/origin counts
   kb_documents(domain, since?, limit=50)      -> member documents, newest arrival first
   kb_claims(domain, since?, limit=50)         -> clustered, cited claims
@@ -289,6 +290,41 @@ def kb_economic(
         observed_before,
         comparison_mode,
         include_bundle,
+        limit,
+        principal_id,
+        include_private,
+    )
+
+
+@mcp.tool()
+def kb_technical(
+    domain: str,
+    query_type: str,
+    coordinate: Optional[str] = None,
+    version: Optional[str] = None,
+    target_id: Optional[str] = None,
+    include_optional: bool = False,
+    max_depth: int = 8,
+    observed_before: Optional[str] = None,
+    limit: int = 100,
+    principal_id: Optional[str] = None,
+    include_private: bool = False,
+) -> Dict[str, Any]:
+    """Query dependency paths, vulnerable versions, fixes, supersession,
+    implementations, and breaking changes with exact package coordinates,
+    temporal cutoffs, assumptions, and source citations."""
+    from src.kb import contract
+
+    return _run(
+        contract.kb_technical,
+        domain,
+        query_type,
+        coordinate,
+        version,
+        target_id,
+        include_optional,
+        max_depth,
+        observed_before,
         limit,
         principal_id,
         include_private,

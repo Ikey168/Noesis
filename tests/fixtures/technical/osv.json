@@ -1,0 +1,21 @@
+{
+  "schema_version": "1.6.0",
+  "id": "OSV-DEMO-1",
+  "aliases": ["CVE-2025-0001"],
+  "summary": "Demo vulnerability",
+  "details": "A fixture advisory.",
+  "published": "2025-01-10T00:00:00Z",
+  "modified": "2025-02-10T00:00:00Z",
+  "severity": [
+    {"type": "CVSS_V3", "score": "CVSS:3.1/AV:N/AC:L"},
+    {"type": "CVSS_V4", "score": "CVSS:4.0/AV:N/AC:H"}
+  ],
+  "affected": [{
+    "package": {"ecosystem": "PyPI", "name": "Demo_Package"},
+    "ranges": [{
+      "type": "ECOSYSTEM",
+      "events": [{"introduced": "0"}, {"fixed": "1.1.0"}]
+    }]
+  }],
+  "references": [{"type": "ADVISORY", "url": "https://advisories.example.test/1"}]
+}

@@ -1,0 +1,27 @@
+{
+  "specification_id": "RFC-DEMO",
+  "title": "Demonstration Protocol",
+  "version": "2",
+  "status": "amended",
+  "published_at": "2025-06-01T00:00:00Z",
+  "canonical_url": "https://standards.example.test/rfc-demo-2",
+  "editors": ["Leslie"],
+  "supersedes": ["specification:RFC-DEMO:1"],
+  "amendments": ["ERRATA-7"],
+  "normative_references": ["RFC-2119"],
+  "sections": [
+    {
+      "number": "1",
+      "anchor": "introduction",
+      "title": "Introduction",
+      "content": "This section introduces the protocol."
+    },
+    {
+      "number": "4.2",
+      "anchor": "wire-format",
+      "title": "Wire Format",
+      "content": "Implementations MUST use the defined frame.",
+      "normative": true
+    }
+  ]
+}

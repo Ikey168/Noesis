@@ -365,6 +365,52 @@ def kb_economic(
         raise KBContractError(exc.code, str(exc)) from exc
 
 
+def kb_technical(
+    domain: str,
+    query_type: str,
+    coordinate: Optional[str] = None,
+    version: Optional[str] = None,
+    target_id: Optional[str] = None,
+    include_optional: bool = False,
+    max_depth: int = 8,
+    observed_before: Any = None,
+    limit: int = 100,
+    principal_id: Optional[str] = None,
+    include_private: bool = False,
+    conn=None,
+    config_path=None,
+) -> Dict[str, Any]:
+    """Run a cited package, advisory, specification, or dependency query."""
+
+    from src.domains.technical.queries import TechnicalQueryError, technical_research
+    from src.kb.cross_domain import CrossDomainError, resolve_scope
+
+    try:
+        resolved, _scope = resolve_scope(
+            _registry(config_path),
+            conn=conn,
+            domains=[domain],
+            principal_id=principal_id,
+            include_private=include_private,
+            limit=limit,
+            per_domain_limit=limit,
+        )
+        payload = technical_research(
+            resolved[0][1],
+            query_type=query_type,
+            coordinate=coordinate,
+            version=version,
+            target_id=target_id,
+            include_optional=include_optional,
+            max_depth=max_depth,
+            observed_before=observed_before,
+            limit=limit,
+        )
+        return _envelope(domain, payload)
+    except (CrossDomainError, TechnicalQueryError) as exc:
+        raise KBContractError(exc.code, str(exc)) from exc
+
+
 def kb_answer(
     domain: str,
     question: str,

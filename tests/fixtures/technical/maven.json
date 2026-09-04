@@ -1,0 +1,13 @@
+{
+  "response": {
+    "docs": [{
+      "g": "org.example",
+      "a": "demo",
+      "v": "3.0.0",
+      "timestamp": 1735689600000,
+      "sha256": "123",
+      "licenses": ["Apache-2.0"],
+      "scm": "https://example.test/maven-demo"
+    }]
+  }
+}

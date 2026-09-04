@@ -61,6 +61,9 @@ class MyConnector(Connector):
 | `filings` (`note`) | `filings_connector.py` | Regulatory filing documents. |
 | `legislative` | `legislative.py` | JSON, JSONL, or CSV roll-call records; configured with `NOESIS_LEGISLATIVE_SOURCES`. |
 | `political-official` (`note`) | `political_official.py` | Fail-closed official executive, regulatory, electoral, and parliamentary manifests. Offline fixtures are the default; live reachability is doubly opt-in. |
+| `package-registry` (`web`) | `src/domains/technical/registries.py` | Fixture-first PyPI, npm, Maven Central, crates.io, and Go module records; live access requires `NOESIS_TECHNICAL_LIVE=1` and is rate-limited. |
+| `git-repository` (`note`) | `src/domains/technical/git_connector.py` | Incremental local/authenticated-remote Git snapshots with revision/path/author provenance and redacted credentials. |
+| `technical-specification` (`web`) | `src/domains/technical/specifications.py` | Versioned standards/specifications chunked at exact section anchors with status, normative references, amendments, and supersession. |
 
 The legislative connector maps each vote to a cited `note` document whose
 metadata retains actor, bill, topic, date, normalized position, external id,
