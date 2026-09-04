@@ -133,6 +133,10 @@ MUTATION_NAMES = frozenset(
         "verify_preserved_citation",
         "record_citation_health",
         "accept_citation_repair",
+        "generate_change_brief",
+        "deliver_change_briefs",
+        "acknowledge_change_brief_delivery",
+        "review_change_brief",
     }
 )
 
@@ -305,6 +309,25 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
             return ["knowledge:memory:admin"]
         return ["knowledge:memory:read"]
     if server_stem == "knowledge_engine_mcp":
+        if tool_name in {"deliver_change_briefs", "acknowledge_change_brief_delivery"}:
+            return ["knowledge:briefs:deliver"]
+        if tool_name == "review_change_brief":
+            return ["knowledge:briefs:review"]
+        if tool_name in {
+            "register_change_brief_policy",
+            "generate_change_brief",
+            "create_change_brief_subscription",
+        }:
+            return ["knowledge:briefs:write"]
+        if tool_name in {
+            "preview_semantic_change",
+            "get_change_brief",
+            "list_change_briefs",
+            "compare_change_briefs",
+            "replay_change_brief",
+            "export_change_briefs",
+        }:
+            return ["knowledge:briefs:read"]
         if tool_name == "capture_citation_snapshot":
             return ["knowledge:citation:capture"]
         if tool_name == "accept_citation_repair":

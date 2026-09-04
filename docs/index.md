@@ -67,6 +67,8 @@ For the project overview and local setup, start with the
   bounded local extraction, cross-modal links, and authenticity provenance
 - **[Citation preservation](guides/citation-preservation.md)** — policy-gated
   snapshots, support revalidation, link-rot monitoring, and exact archive repair
+- **[Semantic change briefs](guides/change-briefs.md)** — ranked before/after
+  changes, evidence-linked explanations, and deduplicated subscriber delivery
 - **[Unified knowledge query](guides/unified-knowledge-query.md)** — one bounded,
   evidence-preserving plane over local, temporal, memory, and federated data.
 - [Project structure](development/project-structure.md) — where things live in
