@@ -808,8 +808,9 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 191,
+      "tool_count": 204,
       "tools": [
+        "noesis-knowledge-engine.accept_dataset_join",
         "noesis-knowledge-engine.accept_source_pack_license",
         "noesis-knowledge-engine.add_source_relationship",
         "noesis-knowledge-engine.adjust_quantitative_inflation",
@@ -830,6 +831,7 @@
         "noesis-knowledge-engine.classify_epistemic_statement",
         "noesis-knowledge-engine.close_research_snapshot",
         "noesis-knowledge-engine.compare_claim_sources",
+        "noesis-knowledge-engine.compare_dataset_releases",
         "noesis-knowledge-engine.compare_evidence_freshness_policies",
         "noesis-knowledge-engine.compare_hypotheses",
         "noesis-knowledge-engine.compare_research_gap_coverage",
@@ -873,6 +875,9 @@
         "noesis-knowledge-engine.fetch_declarative_api",
         "noesis-knowledge-engine.get_claim_evolution_timeline",
         "noesis-knowledge-engine.get_claim_timeline_state",
+        "noesis-knowledge-engine.get_dataset_catalog",
+        "noesis-knowledge-engine.get_dataset_lineage",
+        "noesis-knowledge-engine.get_dataset_release",
         "noesis-knowledge-engine.get_epistemic_assessment",
         "noesis-knowledge-engine.get_event_record",
         "noesis-knowledge-engine.get_event_record_as_of",
@@ -886,6 +891,7 @@
         "noesis-knowledge-engine.get_source_acquisition_plan",
         "noesis-knowledge-engine.get_source_capability",
         "noesis-knowledge-engine.ingest_event_mentions",
+        "noesis-knowledge-engine.ingest_tabular_dataset",
         "noesis-knowledge-engine.inspect_maintenance_generation",
         "noesis-knowledge-engine.inspect_maintenance_job",
         "noesis-knowledge-engine.inspect_reference_workflow",
@@ -916,6 +922,7 @@
         "noesis-knowledge-engine.plan_extractor_reprocessing",
         "noesis-knowledge-engine.preflight_source_pack_run",
         "noesis-knowledge-engine.preview_artifact_invalidation",
+        "noesis-knowledge-engine.preview_dataset_join",
         "noesis-knowledge-engine.preview_source_acquisition_plan",
         "noesis-knowledge-engine.prioritize_research_gaps",
         "noesis-knowledge-engine.propagate_evidence_freshness",
@@ -928,6 +935,8 @@
         "noesis-knowledge-engine.record_quantitative_series_break",
         "noesis-knowledge-engine.record_research_coverage",
         "noesis-knowledge-engine.recover_stale_maintenance_jobs",
+        "noesis-knowledge-engine.register_dataset_catalog",
+        "noesis-knowledge-engine.register_dataset_release",
         "noesis-knowledge-engine.register_derived_artifact",
         "noesis-knowledge-engine.register_epistemic_taxonomy",
         "noesis-knowledge-engine.register_evidence_freshness_dependency",
@@ -955,6 +964,7 @@
         "noesis-knowledge-engine.replay_source_acquisition_run",
         "noesis-knowledge-engine.replay_source_pack_run",
         "noesis-knowledge-engine.replay_spatial_relation",
+        "noesis-knowledge-engine.replay_tabular_ingestion",
         "noesis-knowledge-engine.research_snapshot_health",
         "noesis-knowledge-engine.research_snapshot_pins",
         "noesis-knowledge-engine.resolve_event_report",
@@ -980,6 +990,7 @@
         "noesis-knowledge-engine.run_maintenance_once",
         "noesis-knowledge-engine.run_reference_workflow",
         "noesis-knowledge-engine.run_source_pack_execution",
+        "noesis-knowledge-engine.search_datasets",
         "noesis-knowledge-engine.search_epistemic_assessments",
         "noesis-knowledge-engine.search_event_records",
         "noesis-knowledge-engine.search_geospatial_knowledge",
@@ -988,6 +999,7 @@
         "noesis-knowledge-engine.set_source_pack_schedule",
         "noesis-knowledge-engine.simplify_geospatial_geometry",
         "noesis-knowledge-engine.simulate_evidence_freshness_policy",
+        "noesis-knowledge-engine.slice_dataset_table",
         "noesis-knowledge-engine.source_identity_dossier",
         "noesis-knowledge-engine.source_identity_history",
         "noesis-knowledge-engine.source_pack_coverage",
@@ -995,6 +1007,7 @@
         "noesis-knowledge-engine.source_relationship_path",
         "noesis-knowledge-engine.split_source_alias",
         "noesis-knowledge-engine.store_geospatial_geometry",
+        "noesis-knowledge-engine.suggest_dataset_joins",
         "noesis-knowledge-engine.transform_quantitative_frequency",
         "noesis-knowledge-engine.unified_query_capabilities",
         "noesis-knowledge-engine.update_research_gap_status",
@@ -1007,7 +1020,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 191
+      "visible_tool_count": 204
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -1021,9 +1034,9 @@
       "available": 81,
       "degraded": 155,
       "disabled": 3,
-      "unauthorized": 192
+      "unauthorized": 205
     },
-    "tools": 431
+    "tools": 444
   },
   "tools": [
     {
@@ -12819,6 +12832,44 @@
     },
     {
       "cost_class": "medium",
+      "description": "Accept an unchanged join preview and persist exact transformation lineage.",
+      "id": "noesis-knowledge-engine.accept_dataset_join",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "preview": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "namespace",
+          "preview"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "accept_dataset_join",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:dataset:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Record operator acceptance of the installed source terms and redistribution policy.",
       "id": "noesis-knowledge-engine.accept_source_pack_license",
       "input_schema": {
@@ -14151,6 +14202,55 @@
       ],
       "required_scopes": [
         "knowledge:claim-timeline:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Compare row/cell values and null semantics across exact vintages.",
+      "id": "noesis-knowledge-engine.compare_dataset_releases",
+      "input_schema": {
+        "properties": {
+          "earlier_release_id": {
+            "type": "string"
+          },
+          "later_release_id": {
+            "type": "string"
+          },
+          "limit": {
+            "default": 1000,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "table_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "earlier_release_id",
+          "later_release_id",
+          "table_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "compare_dataset_releases",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:dataset:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -16532,6 +16632,128 @@
     },
     {
       "cost_class": "low",
+      "description": "Inspect a current or exact versioned dataset schema.",
+      "id": "noesis-knowledge-engine.get_dataset_catalog",
+      "input_schema": {
+        "properties": {
+          "dataset_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "revision_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "dataset_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "get_dataset_catalog",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:dataset:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Trace a derived table to exact releases, tables, keys, and transformation.",
+      "id": "noesis-knowledge-engine.get_dataset_lineage",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "transformation_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "transformation_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "get_dataset_lineage",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:dataset:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Read a release with its pinned catalog revision and provenance.",
+      "id": "noesis-knowledge-engine.get_dataset_release",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "release_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "release_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "get_dataset_release",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:dataset:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Read the current assessment or its immutable revision history.",
       "id": "noesis-knowledge-engine.get_epistemic_assessment",
       "input_schema": {
@@ -17083,6 +17305,83 @@
       ],
       "required_scopes": [
         "knowledge:event:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "high",
+      "description": "Ingest bounded CSV, JSON, JSONL, Parquet, or tabular API rows.",
+      "id": "noesis-knowledge-engine.ingest_tabular_dataset",
+      "input_schema": {
+        "properties": {
+          "cancel_requested": {
+            "default": false,
+            "type": "boolean"
+          },
+          "content": {
+            "type": "string"
+          },
+          "encoding": {
+            "default": "utf-8",
+            "type": "string"
+          },
+          "format": {
+            "type": "string"
+          },
+          "inference_limit": {
+            "default": 1000,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "partition_key": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "release_id": {
+            "type": "string"
+          },
+          "row_limit": {
+            "default": 10000,
+            "type": "integer"
+          },
+          "table_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "release_id",
+          "table_id",
+          "format",
+          "content"
+        ],
+        "type": "object"
+      },
+      "latency_class": "batch",
+      "mutability": "write",
+      "name": "ingest_tabular_dataset",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:dataset:ingest"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -18400,6 +18699,69 @@
     },
     {
       "cost_class": "low",
+      "description": "Preview bounded join results, cardinality, and unit/time mismatch warnings.",
+      "id": "noesis-knowledge-engine.preview_dataset_join",
+      "input_schema": {
+        "properties": {
+          "keys": {
+            "items": {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "left_release_id": {
+            "type": "string"
+          },
+          "left_table_id": {
+            "type": "string"
+          },
+          "limit": {
+            "default": 100,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "right_release_id": {
+            "type": "string"
+          },
+          "right_table_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "left_release_id",
+          "right_release_id",
+          "left_table_id",
+          "right_table_id",
+          "keys"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "preview_dataset_join",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:dataset:calculate"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Preview deterministic source selection without persisting a plan or resolving secrets.",
       "id": "noesis-knowledge-engine.preview_source_acquisition_plan",
       "input_schema": {
@@ -19221,6 +19583,295 @@
       ],
       "required_scopes": [
         "knowledge:maintenance:admin"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Register stable dataset, table, column, dimension, and code-list identities.",
+      "id": "noesis-knowledge-engine.register_dataset_catalog",
+      "input_schema": {
+        "properties": {
+          "code_lists": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "description": {
+            "type": "string"
+          },
+          "generation": {
+            "default": 0,
+            "type": "integer"
+          },
+          "license": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "native_id": {
+            "type": "string"
+          },
+          "observed_at_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "partitions": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "policy": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "predecessor_revision_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "producer": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "provenance": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "publisher_id": {
+            "type": "string"
+          },
+          "semantic_version": {
+            "type": "string"
+          },
+          "tables": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "title": {
+            "type": "string"
+          },
+          "valid_from_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "valid_to_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "publisher_id",
+          "native_id",
+          "semantic_version",
+          "title",
+          "description",
+          "license",
+          "tables"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "register_dataset_catalog",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:dataset:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Register an immutable dataset release, correction, and vintage.",
+      "id": "noesis-knowledge-engine.register_dataset_release",
+      "input_schema": {
+        "properties": {
+          "dataset_id": {
+            "type": "string"
+          },
+          "generation": {
+            "default": 0,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "native_release_id": {
+            "type": "string"
+          },
+          "provenance": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "published_at_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "retrieved_at_ms": {
+            "type": "integer"
+          },
+          "revision_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "valid_from_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "valid_to_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "vintage_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "dataset_id",
+          "native_release_id",
+          "vintage_id",
+          "retrieved_at_ms"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "register_dataset_release",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:dataset:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -21114,6 +21765,43 @@
       "version": "1"
     },
     {
+      "cost_class": "high",
+      "description": "Replay the deterministic output chain of a tabular ingestion receipt.",
+      "id": "noesis-knowledge-engine.replay_tabular_ingestion",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "receipt_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "receipt_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "batch",
+      "mutability": "read",
+      "name": "replay_tabular_ingestion",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:dataset:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "medium",
       "description": "Return session and active retention-pin counts.",
       "id": "noesis-knowledge-engine.research_snapshot_health",
@@ -22306,6 +22994,51 @@
     },
     {
       "cost_class": "medium",
+      "description": "Search dataset, table, and column metadata with bounded pagination.",
+      "id": "noesis-knowledge-engine.search_datasets",
+      "input_schema": {
+        "properties": {
+          "limit": {
+            "default": 50,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "offset": {
+            "default": 0,
+            "type": "integer"
+          },
+          "query": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "query"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "search_datasets",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:dataset:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Filter current assessments by statement kind and evidence state.",
       "id": "noesis-knowledge-engine.search_epistemic_assessments",
       "input_schema": {
@@ -22833,6 +23566,81 @@
     },
     {
       "cost_class": "low",
+      "description": "Read a bounded, vintage-pinned table slice with explicit null semantics.",
+      "id": "noesis-knowledge-engine.slice_dataset_table",
+      "input_schema": {
+        "properties": {
+          "columns": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "limit": {
+            "default": 100,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "offset": {
+            "default": 0,
+            "type": "integer"
+          },
+          "partition_key": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "release_id": {
+            "type": "string"
+          },
+          "table_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "release_id",
+          "table_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "slice_dataset_table",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:dataset:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Return a paginated, citation-aware source dossier at a valid time.",
       "id": "noesis-knowledge-engine.source_identity_dossier",
       "input_schema": {
@@ -23212,6 +24020,51 @@
       ],
       "required_scopes": [
         "knowledge:geospatial:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Suggest join keys from names, semantic roles, and shared code lists.",
+      "id": "noesis-knowledge-engine.suggest_dataset_joins",
+      "input_schema": {
+        "properties": {
+          "left_dataset_id": {
+            "type": "string"
+          },
+          "limit": {
+            "default": 50,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "right_dataset_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "left_dataset_id",
+          "right_dataset_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "suggest_dataset_joins",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:dataset:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",

@@ -59,6 +59,8 @@ For the project overview and local setup, start with the
 - **[Source acquisition planner](guides/source-acquisition-planner.md)** —
   credential-safe capabilities, constrained source selection, source-pack
   execution, checkpoints, fallbacks, and reproducible receipts
+- **[Dataset intelligence](guides/dataset-intelligence.md)** — stable catalogs,
+  release vintages, bounded tabular ingestion, safe joins, and exact lineage
 - **[Unified knowledge query](guides/unified-knowledge-query.md)** — one bounded,
   evidence-preserving plane over local, temporal, memory, and federated data.
 - [Project structure](development/project-structure.md) — where things live in

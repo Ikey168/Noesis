@@ -142,6 +142,11 @@ def knowledge_engine_capabilities() -> dict:
             "noesis-source-research-objective-v1",
             "noesis-source-acquisition-plan-v1",
             "noesis-source-plan-receipt-v1",
+            "noesis-dataset-catalog-v1",
+            "noesis-dataset-release-v1",
+            "noesis-tabular-ingestion-receipt-v1",
+            "noesis-dataset-slice-v1",
+            "noesis-dataset-join-v1",
             "noesis-maintenance-job-request-v1",
             "noesis-maintenance-job-receipt-v1",
             "noesis-knowledge-generation-v1",
@@ -207,6 +212,10 @@ def knowledge_engine_capabilities() -> dict:
             "explainable-constrained-source-selection",
             "checkpointed-source-plan-execution",
             "adaptive-source-plan-fallbacks",
+            "versioned-dataset-table-column-identities",
+            "vintage-and-partition-aware-tabular-observations",
+            "bounded-multiformat-tabular-ingestion",
+            "dataset-join-discovery-and-lineage",
             "knowledge-maintenance",
             "lease-safe-workers",
             "committed-generations",
@@ -4449,6 +4458,327 @@ def replay_source_acquisition_run(namespace: str, run_id: str) -> dict:
             namespace, run_id, scopes={"knowledge:source-planner:read"}
         ),
         required_scope="knowledge:source-planner:read",
+    )
+
+
+@mcp.tool()
+def register_dataset_catalog(
+    namespace: str,
+    publisher_id: str,
+    native_id: str,
+    semantic_version: str,
+    title: str,
+    description: str,
+    license: dict[str, Any],
+    tables: list[dict[str, Any]],
+    code_lists: list[dict[str, Any]] | None = None,
+    partitions: list[dict[str, Any]] | None = None,
+    predecessor_revision_id: str | None = None,
+    generation: int = 0,
+    valid_from_ms: int | None = None,
+    valid_to_ms: int | None = None,
+    observed_at_ms: int | None = None,
+    producer: dict[str, Any] | None = None,
+    policy: dict[str, Any] | None = None,
+    provenance: dict[str, Any] | None = None,
+) -> dict:
+    """Register stable dataset, table, column, dimension, and code-list identities."""
+    from src.kb.dataset_intelligence import DatasetIntelligenceStore
+
+    return _safe(
+        lambda conn: DatasetIntelligenceStore(conn).register_dataset(
+            namespace,
+            publisher_id,
+            native_id,
+            semantic_version,
+            title,
+            description,
+            license,
+            tables,
+            code_lists or [],
+            partitions or [],
+            predecessor_revision_id=predecessor_revision_id,
+            generation=generation,
+            valid_from_ms=valid_from_ms,
+            valid_to_ms=valid_to_ms,
+            observed_at_ms=observed_at_ms,
+            producer=producer,
+            policy=policy,
+            provenance=provenance,
+            principal_id=_context()[0],
+            scopes={"knowledge:dataset:write"},
+        ),
+        write=True,
+        required_scope="knowledge:dataset:write",
+    )
+
+
+@mcp.tool()
+def get_dataset_catalog(
+    namespace: str, dataset_id: str, revision_id: str | None = None
+) -> dict:
+    """Inspect a current or exact versioned dataset schema."""
+    from src.kb.dataset_intelligence import DatasetIntelligenceStore
+
+    return _safe(
+        lambda conn: DatasetIntelligenceStore(conn, initialize=False).dataset(
+            namespace,
+            dataset_id,
+            revision_id=revision_id,
+            scopes={"knowledge:dataset:read"},
+        ),
+        required_scope="knowledge:dataset:read",
+    )
+
+
+@mcp.tool()
+def search_datasets(
+    namespace: str, query: str, limit: int = 50, offset: int = 0
+) -> dict:
+    """Search dataset, table, and column metadata with bounded pagination."""
+    from src.kb.dataset_intelligence import DatasetIntelligenceStore
+
+    return _safe(
+        lambda conn: DatasetIntelligenceStore(conn, initialize=False).search(
+            namespace,
+            query,
+            limit=limit,
+            offset=offset,
+            scopes={"knowledge:dataset:read"},
+        ),
+        required_scope="knowledge:dataset:read",
+    )
+
+
+@mcp.tool()
+def register_dataset_release(
+    namespace: str,
+    dataset_id: str,
+    native_release_id: str,
+    vintage_id: str,
+    retrieved_at_ms: int,
+    revision_of: str | None = None,
+    published_at_ms: int | None = None,
+    valid_from_ms: int | None = None,
+    valid_to_ms: int | None = None,
+    generation: int = 0,
+    provenance: dict[str, Any] | None = None,
+) -> dict:
+    """Register an immutable dataset release, correction, and vintage."""
+    from src.kb.dataset_intelligence import DatasetIntelligenceStore
+
+    return _safe(
+        lambda conn: DatasetIntelligenceStore(conn).register_release(
+            namespace,
+            dataset_id,
+            native_release_id,
+            vintage_id,
+            retrieved_at_ms=retrieved_at_ms,
+            revision_of=revision_of,
+            published_at_ms=published_at_ms,
+            valid_from_ms=valid_from_ms,
+            valid_to_ms=valid_to_ms,
+            generation=generation,
+            provenance=provenance,
+            principal_id=_context()[0],
+            scopes={"knowledge:dataset:write"},
+        ),
+        write=True,
+        required_scope="knowledge:dataset:write",
+    )
+
+
+@mcp.tool()
+def get_dataset_release(namespace: str, release_id: str) -> dict:
+    """Read a release with its pinned catalog revision and provenance."""
+    from src.kb.dataset_intelligence import DatasetIntelligenceStore
+
+    return _safe(
+        lambda conn: DatasetIntelligenceStore(conn, initialize=False).release(
+            namespace, release_id, scopes={"knowledge:dataset:read"}
+        ),
+        required_scope="knowledge:dataset:read",
+    )
+
+
+@mcp.tool()
+def ingest_tabular_dataset(
+    namespace: str,
+    release_id: str,
+    table_id: str,
+    format: str,
+    content: str,
+    partition_key: dict[str, Any] | None = None,
+    encoding: str = "utf-8",
+    row_limit: int = 10_000,
+    inference_limit: int = 1_000,
+    cancel_requested: bool = False,
+) -> dict:
+    """Ingest bounded CSV, JSON, JSONL, Parquet, or tabular API rows."""
+    from src.kb.dataset_intelligence import DatasetIntelligenceStore
+
+    return _safe(
+        lambda conn: DatasetIntelligenceStore(conn).ingest(
+            namespace,
+            release_id,
+            table_id,
+            format,
+            content,
+            partition_key or {},
+            encoding=encoding,
+            row_limit=row_limit,
+            inference_limit=inference_limit,
+            cancel_requested=cancel_requested,
+            principal_id=_context()[0],
+            scopes={"knowledge:dataset:ingest"},
+        ),
+        write=True,
+        required_scope="knowledge:dataset:ingest",
+    )
+
+
+@mcp.tool()
+def replay_tabular_ingestion(namespace: str, receipt_id: str) -> dict:
+    """Replay the deterministic output chain of a tabular ingestion receipt."""
+    from src.kb.dataset_intelligence import DatasetIntelligenceStore
+
+    return _safe(
+        lambda conn: DatasetIntelligenceStore(conn, initialize=False).replay_ingestion(
+            namespace, receipt_id, scopes={"knowledge:dataset:read"}
+        ),
+        required_scope="knowledge:dataset:read",
+    )
+
+
+@mcp.tool()
+def slice_dataset_table(
+    namespace: str,
+    release_id: str,
+    table_id: str,
+    partition_key: dict[str, Any] | None = None,
+    offset: int = 0,
+    limit: int = 100,
+    columns: list[str] | None = None,
+) -> dict:
+    """Read a bounded, vintage-pinned table slice with explicit null semantics."""
+    from src.kb.dataset_intelligence import DatasetIntelligenceStore
+
+    return _safe(
+        lambda conn: DatasetIntelligenceStore(conn, initialize=False).slice(
+            namespace,
+            release_id,
+            table_id,
+            partition_key=partition_key,
+            offset=offset,
+            limit=limit,
+            columns=columns,
+            scopes={"knowledge:dataset:read"},
+        ),
+        required_scope="knowledge:dataset:read",
+    )
+
+
+@mcp.tool()
+def compare_dataset_releases(
+    namespace: str,
+    earlier_release_id: str,
+    later_release_id: str,
+    table_id: str,
+    limit: int = 1_000,
+) -> dict:
+    """Compare row/cell values and null semantics across exact vintages."""
+    from src.kb.dataset_intelligence import DatasetIntelligenceStore
+
+    return _safe(
+        lambda conn: DatasetIntelligenceStore(conn, initialize=False).compare_releases(
+            namespace,
+            earlier_release_id,
+            later_release_id,
+            table_id,
+            limit=limit,
+            scopes={"knowledge:dataset:read"},
+        ),
+        required_scope="knowledge:dataset:read",
+    )
+
+
+@mcp.tool()
+def suggest_dataset_joins(
+    namespace: str,
+    left_dataset_id: str,
+    right_dataset_id: str,
+    limit: int = 50,
+) -> dict:
+    """Suggest join keys from names, semantic roles, and shared code lists."""
+    from src.kb.dataset_intelligence import DatasetIntelligenceStore
+
+    return _safe(
+        lambda conn: DatasetIntelligenceStore(conn, initialize=False).suggest_joins(
+            namespace,
+            left_dataset_id,
+            right_dataset_id,
+            limit=limit,
+            scopes={"knowledge:dataset:read"},
+        ),
+        required_scope="knowledge:dataset:read",
+    )
+
+
+@mcp.tool()
+def preview_dataset_join(
+    namespace: str,
+    left_release_id: str,
+    right_release_id: str,
+    left_table_id: str,
+    right_table_id: str,
+    keys: list[dict[str, str]],
+    limit: int = 100,
+) -> dict:
+    """Preview bounded join results, cardinality, and unit/time mismatch warnings."""
+    from src.kb.dataset_intelligence import DatasetIntelligenceStore
+
+    return _safe(
+        lambda conn: DatasetIntelligenceStore(conn, initialize=False).preview_join(
+            namespace,
+            left_release_id,
+            right_release_id,
+            left_table_id,
+            right_table_id,
+            keys,
+            limit=limit,
+            scopes={"knowledge:dataset:calculate"},
+        ),
+        required_scope="knowledge:dataset:calculate",
+    )
+
+
+@mcp.tool()
+def accept_dataset_join(namespace: str, preview: dict[str, Any]) -> dict:
+    """Accept an unchanged join preview and persist exact transformation lineage."""
+    from src.kb.dataset_intelligence import DatasetIntelligenceStore
+
+    return _safe(
+        lambda conn: DatasetIntelligenceStore(conn).accept_join(
+            namespace,
+            preview,
+            principal_id=_context()[0],
+            scopes={"knowledge:dataset:write"},
+        ),
+        write=True,
+        required_scope="knowledge:dataset:write",
+    )
+
+
+@mcp.tool()
+def get_dataset_lineage(namespace: str, transformation_id: str) -> dict:
+    """Trace a derived table to exact releases, tables, keys, and transformation."""
+    from src.kb.dataset_intelligence import DatasetIntelligenceStore
+
+    return _safe(
+        lambda conn: DatasetIntelligenceStore(conn, initialize=False).lineage(
+            namespace, transformation_id, scopes={"knowledge:dataset:read"}
+        ),
+        required_scope="knowledge:dataset:read",
     )
 
 

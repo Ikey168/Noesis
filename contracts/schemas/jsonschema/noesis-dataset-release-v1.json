@@ -1,0 +1,9 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema", "$id": "https://noesis.local/schemas/noesis-dataset-release-v1.json", "title": "Noesis dataset release and vintage", "type": "object",
+  "required": ["contract", "release_id", "namespace", "dataset_id", "dataset_revision_id", "native_release_id", "vintage_id", "retrieved_at_ms", "generation", "provenance", "release_hash", "created_at_ms"],
+  "properties": {
+    "contract": {"const": "noesis-dataset-release-v1"}, "release_id": {"type": "string"}, "namespace": {"type": "string"}, "dataset_id": {"type": "string"}, "dataset_revision_id": {"type": "string"}, "native_release_id": {"type": "string"}, "vintage_id": {"type": "string"}, "revision_of": {"type": ["string", "null"]},
+    "published_at_ms": {"type": ["integer", "null"]}, "retrieved_at_ms": {"type": "integer"}, "valid_from_ms": {"type": ["integer", "null"]}, "valid_to_ms": {"type": ["integer", "null"]}, "generation": {"type": "integer"}, "provenance": {"type": "object"}, "release_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "principal_id": {"type": "string"}, "created_at_ms": {"type": "integer"}, "idempotent": {"type": "boolean"}
+  }, "additionalProperties": false
+}
