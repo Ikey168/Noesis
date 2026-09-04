@@ -90,16 +90,15 @@ def news_pipeline():
         detection + adaptive scheduling) into the unified ``documents`` corpus.
         Replaces the former mock article generator.
         """
-        import os
-
+        from src.config.env import resolve_env
         from src.database.local_analytics_connector import get_shared_connection
         from src.ingestion.document_store import DocumentStore
         from src.ingestion.scheduler import HarvestScheduler
         from src.ingestion.source_health import SourceHealthTracker
 
         conn = get_shared_connection()
-        health_path = os.getenv(
-            "NEURONEWS_HEALTH_PATH", "/opt/airflow/data/source_health.json"
+        health_path = resolve_env(
+            "HEALTH_PATH", "/opt/airflow/data/source_health.json"
         )
         scheduler = HarvestScheduler(DocumentStore(conn), SourceHealthTracker(health_path))
         result = scheduler.run_once()

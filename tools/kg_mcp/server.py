@@ -43,7 +43,7 @@ if str(REPO_ROOT) not in sys.path:
 # Stdlib-only helper for the analytics honesty contract (R6); safe at import.
 from src.analytics.honesty import honesty_output_schema  # noqa: E402
 
-mcp = FastMCP("neuronews-kg")
+mcp = FastMCP("noesis-kg")
 
 MAX_LIST = 50
 

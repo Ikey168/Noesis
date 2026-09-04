@@ -34,7 +34,7 @@ from typing import Any, Optional
 
 from fastmcp import FastMCP
 
-mcp = FastMCP("neuronews-lineage")
+mcp = FastMCP("noesis-lineage")
 
 MARQUEZ_URL = os.getenv("MARQUEZ_URL", "http://localhost:5000").rstrip("/")
 DEFAULT_NS = os.getenv("MARQUEZ_NAMESPACE", "neuronews")

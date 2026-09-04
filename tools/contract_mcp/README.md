@@ -45,7 +45,7 @@ compatibility) — it does not do binary/logical-type encoding validation, so no
 
 ## Run / register
 
-Registered in `.mcp.json` as `neuronews-contracts`, launched from the repo root:
+Registered in `.mcp.json` as `noesis-contracts`, launched from the repo root:
 
 ```bash
 python3 tools/contract_mcp/server.py

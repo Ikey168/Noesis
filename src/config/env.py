@@ -15,12 +15,14 @@ module load, so it must never pull a heavy dependency.
 from __future__ import annotations
 
 import os
+import warnings
 from pathlib import Path
 from typing import Optional
 
 # The canonical prefix and its retained legacy alias.
 CANONICAL_PREFIX = "NOESIS_"
 LEGACY_PREFIX = "NEURONEWS_"
+LEGACY_REMOVAL_TARGET = "Noesis 2.0 (not before 2027-09-01)"
 
 
 def resolve_env(name: str, default: Optional[str] = None) -> Optional[str]:
@@ -41,6 +43,13 @@ def resolve_env(name: str, default: Optional[str] = None) -> Optional[str]:
         return value
     value = os.environ.get(LEGACY_PREFIX + suffix)
     if value is not None:
+        warnings.warn(
+            f"{LEGACY_PREFIX + suffix} is deprecated; use "
+            f"{CANONICAL_PREFIX + suffix}. Removal target: "
+            f"{LEGACY_REMOVAL_TARGET}.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         return value
     return default
 

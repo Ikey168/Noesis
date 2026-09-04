@@ -34,7 +34,7 @@ JSONSCHEMA_DIR = CONTRACTS / "schemas" / "jsonschema"
 AVRO_DIR = CONTRACTS / "schemas" / "avro"
 EXAMPLES_DIR = CONTRACTS / "examples"
 
-mcp = FastMCP("neuronews-contracts")
+mcp = FastMCP("noesis-contracts")
 
 MAX_ERRORS = 15
 
@@ -57,6 +57,8 @@ STAGE_ALIASES = {
     "context-request": "noesis-context-request-v1",
     "context-response": "noesis-context-response-v1",
     "context-assembly": "noesis-context-response-v1",
+    "mcp-catalog": "noesis-mcp-catalog-v1",
+    "capability-catalog": "noesis-mcp-catalog-v1",
     "temporal-assertion": "noesis-temporal-assertion-v1",
     "temporal-query": "noesis-temporal-query-v1",
     "temporal-response": "noesis-temporal-response-v1",

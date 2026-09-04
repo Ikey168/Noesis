@@ -4,7 +4,7 @@ Local metrics for NLP job monitoring.
 Records NLP processing metrics to a local newline-delimited JSON file
 (replaces the deprecated AWS CloudWatch integration). Metrics are appended
 to ``metrics.jsonl`` under a directory resolved from the environment:
-``NEURONEWS_METRICS_DIR`` if set, otherwise ``NEURONEWS_LOG_DIR`` (default
+``NOESIS_METRICS_DIR`` if set, otherwise ``NOESIS_LOG_DIR`` (default
 ``./logs``). Uses the Python standard library only -- no cloud SDK
 dependencies.
 """
@@ -15,18 +15,18 @@ import os
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
+from src.config.env import resolve_env
+
 
 def _get_metrics_dir() -> str:
     """Return the local metrics directory.
 
     Resolution order:
-        1. ``NEURONEWS_METRICS_DIR``
-        2. ``NEURONEWS_LOG_DIR``
+        1. ``NOESIS_METRICS_DIR``
+        2. ``NOESIS_LOG_DIR``
         3. ``./logs`` (default)
     """
-    metrics_dir = os.environ.get("NEURONEWS_METRICS_DIR") or os.environ.get(
-        "NEURONEWS_LOG_DIR", "./logs"
-    )
+    metrics_dir = resolve_env("METRICS_DIR") or resolve_env("LOG_DIR", "./logs")
     os.makedirs(metrics_dir, exist_ok=True)
     return metrics_dir
 

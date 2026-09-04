@@ -54,10 +54,10 @@ naming sweep.
                        ┌────────────────────────────────────────────┐
  external client       │ FastAPI backend = MCP HOST                 │   MCP servers (FastMCP)
  ───────────────────►  │                                            │  ┌──────────────────────┐
-  REST (unchanged):    │  genui planner ──── MCP client sessions ───┼─►│ neuronews-arguments  │
-  /api/v1/ui/generate  │   · catalog ⇐ tool discovery               │  │ neuronews-pipeline   │
-  /api/v1/ui/panels    │   · availability ⇐ stats tools             │  │ neuronews-kg         │
-  /api/v1/ui/data*     │   · LLM planning ⇐ bounded tool-use loop   │  │ neuronews-blog-feeds │
+  REST (unchanged):    │  genui planner ──── MCP client sessions ───┼─►│ noesis-arguments  │
+  /api/v1/ui/generate  │   · catalog ⇐ tool discovery               │  │ noesis-pipeline   │
+  /api/v1/ui/panels    │   · availability ⇐ stats tools             │  │ noesis-kg         │
+  /api/v1/ui/data*     │   · LLM planning ⇐ bounded tool-use loop   │  │ noesis-blog-feeds │
   (*stage 3)           │   · packs ⇐ server presence                │  │ … (12 servers)       │
                        └────────────────────────────────────────────┘  └──────────────────────┘
 ```

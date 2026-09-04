@@ -38,6 +38,7 @@ class _FakeVerifier:
 def clean_env(monkeypatch):
     for var in (TRANSPORT_ENV, HOST_ENV, PORT_ENV, TOKEN_ENV):
         monkeypatch.delenv(var, raising=False)
+        monkeypatch.delenv(var.replace("NOESIS_", "NEURONEWS_"), raising=False)
     return monkeypatch
 
 
@@ -78,6 +79,21 @@ def test_http_defaults_are_localhost_8100(clean_env):
     assert cfg["port"] == 8100
 
 
+def test_legacy_transport_env_warns_and_resolves(clean_env):
+    clean_env.setenv("NEURONEWS_MCP_TRANSPORT", "http")
+    clean_env.setenv("NEURONEWS_MCP_HTTP_PORT", "8124")
+    with pytest.warns(DeprecationWarning) as caught:
+        cfg = resolve_transport()
+    assert cfg["transport"] == "http"
+    assert cfg["port"] == 8124
+    assert {"NOESIS_MCP_TRANSPORT", "NOESIS_MCP_HTTP_PORT"} <= {
+        name
+        for warning in caught
+        for name in (TRANSPORT_ENV, PORT_ENV)
+        if name in str(warning.message)
+    }
+
+
 def test_http_with_token_attaches_verifier(clean_env):
     _install_fake_auth_module(clean_env)
     clean_env.setenv(TRANSPORT_ENV, "http")
@@ -116,12 +132,12 @@ def test_bad_port_rejected(clean_env):
 
 
 def test_every_tool_server_uses_run_server():
-    """All 17 servers route their main guard through the shared runner."""
+    """All 18 servers route their main guard through the shared runner."""
     from pathlib import Path
 
     repo_root = Path(__file__).resolve().parents[3]
     servers = sorted((repo_root / "tools").glob("*_mcp/server.py"))
-    assert len(servers) == 17
+    assert len(servers) == 18
     for server in servers:
         text = server.read_text()
         assert "from src.mcp_host.transport import run_server" in text, server

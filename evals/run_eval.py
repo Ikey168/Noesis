@@ -590,7 +590,9 @@ def _run_tiny_smoke_eval() -> None:
     """
     import mlflow
 
-    experiment = os.environ.get("NEURONEWS_PIPELINE", "rag_evaluation_ci")
+    from src.config.env import resolve_env
+
+    experiment = resolve_env("PIPELINE", "rag_evaluation_ci") or "rag_evaluation_ci"
 
     # Tiny canned QA set: (question, gold answer, predicted answer).
     examples = [

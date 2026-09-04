@@ -360,8 +360,15 @@ def capture_environment(output_dir: Optional[str] = None, log_to_mlflow: bool = 
         "gpu": get_gpu_info(),
         "git": get_git_info(),
         "environment_variables": {
-            key: value for key, value in os.environ.items()
-            if key.startswith(('CUDA_', 'PYTHONPATH', 'PATH', 'MLFLOW_', 'NEURONEWS_'))
+            key: (
+                "<redacted>"
+                if any(marker in key for marker in ("KEY", "TOKEN", "PASSWORD", "SECRET"))
+                else value
+            )
+            for key, value in os.environ.items()
+            if key.startswith(
+                ('CUDA_', 'PYTHONPATH', 'PATH', 'MLFLOW_', 'NOESIS_', 'NEURONEWS_')
+            )
         }
     }
     

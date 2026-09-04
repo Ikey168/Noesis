@@ -7,7 +7,7 @@ checking quantitative claims. Annotated for R2 discovery so the
 ``series_explorer`` panel surfaces automatically once a harvest has populated
 the store.
 
-Named ``neuronews-statistics`` to stay distinct from ``neuronews-dataset`` (the
+Named ``noesis-statistics`` to stay distinct from ``noesis-dataset`` (the
 argument-mining dataset inspector, a different thing entirely).
 
 Design constraints (same as the other tool servers):
@@ -33,7 +33,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-mcp = FastMCP("neuronews-statistics")
+mcp = FastMCP("noesis-statistics")
 
 _SERIES_ITEM_SCHEMA = {
     "type": "object",
@@ -52,7 +52,7 @@ _SERIES_ITEM_SCHEMA = {
 
 
 def _warehouse_ro():
-    """Open the DuckDB warehouse read-only, honouring NEURONEWS_DB_PATH."""
+    """Open the DuckDB warehouse read-only, honouring NOESIS_DB_PATH."""
     import duckdb
 
     from src.config.env import warehouse_path

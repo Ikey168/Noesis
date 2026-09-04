@@ -17,23 +17,24 @@ python tools/statistics_mcp/server.py     # one server, stdio transport
 
 | Server | Module | What it exposes |
 |---|---|---|
-| `neuronews-pipeline` | `tools/pipeline_mcp` | Documents, articles, trending, clusters, sentiment; figures, corrections, geo, speaker balance |
-| `neuronews-arguments` | `tools/argument_mcp` | Claims, stances, frames, positions, outlet scoring/clustering |
-| `neuronews-kg` | `tools/kg_mcp` | Knowledge-graph entities, relations, communities, centrality |
+| `noesis-pipeline` | `tools/pipeline_mcp` | Documents, articles, trending, clusters, sentiment; figures, corrections, geo, speaker balance |
+| `noesis-arguments` | `tools/argument_mcp` | Claims, stances, frames, positions, outlet scoring/clustering |
+| `noesis-kg` | `tools/kg_mcp` | Knowledge-graph entities, relations, communities, centrality |
 | `noesis-kb` | `tools/kb_mcp` | Unified KB contract, briefs, diffs, claims, evidence, and integrity verification |
-| `neuronews-osint` | `tools/osint_mcp` | Corroboration, reliability, contradiction ledger, dossiers, paths, timelines, image provenance/reuse |
-| `neuronews-statistics` | `tools/statistics_mcp` | Statistical series, claim-vs-data checks, the data-check ledger |
-| `neuronews-research` | `tools/research_mcp` | Venues, citation graph, literature claims |
-| `neuronews-provisioning` | `tools/provisioning_mcp` | Deploy/attach/ingest/teardown namespaced knowledge graphs |
-| `neuronews-sources` | `tools/sources_mcp` | Source comparison, trustworthiness, profiles |
-| `neuronews-domain-packs` | `tools/domain_packs_mcp` | Domain-pack status and install |
-| `neuronews-blog-feeds` | `tools/blog_mcp` | Blog/RSS watchlists and digests |
-| `neuronews-dataset` | `tools/dataset_mcp` | Argument-mining dataset inspector |
-| `neuronews-lineage` | `tools/lineage_mcp` | OpenLineage run/dataset lineage |
-| `neuronews-contracts` | `tools/contract_mcp` | Data-contract schemas and validation |
-| `neuronews-monitoring` | `tools/monitoring_mcp` | Pipeline health and metrics |
-| `neuronews-security` | `tools/security_mcp` | Security posture and checks |
+| `noesis-osint` | `tools/osint_mcp` | Corroboration, reliability, contradiction ledger, dossiers, paths, timelines, image provenance/reuse |
+| `noesis-statistics` | `tools/statistics_mcp` | Statistical series, claim-vs-data checks, the data-check ledger |
+| `noesis-research` | `tools/research_mcp` | Venues, citation graph, literature claims |
+| `noesis-provisioning` | `tools/provisioning_mcp` | Deploy/attach/ingest/teardown namespaced knowledge graphs |
+| `noesis-sources` | `tools/sources_mcp` | Source comparison, trustworthiness, profiles |
+| `noesis-domain-packs` | `tools/domain_packs_mcp` | Domain-pack status and install |
+| `noesis-blog-feeds` | `tools/blog_mcp` | Blog/RSS watchlists and digests |
+| `noesis-dataset` | `tools/dataset_mcp` | Argument-mining dataset inspector |
+| `noesis-lineage` | `tools/lineage_mcp` | OpenLineage run/dataset lineage |
+| `noesis-contracts` | `tools/contract_mcp` | Data-contract schemas and validation |
+| `noesis-monitoring` | `tools/monitoring_mcp` | Pipeline health and metrics |
+| `noesis-security` | `tools/security_mcp` | Security posture and checks |
 | `noesis-schema` | `tools/schema_mcp` | Warehouse schema introspection |
+| `noesis-catalog` | `tools/catalog_mcp` | Least-privilege capability, domain, pack, transport, and readiness discovery |
 
 ### Connecting an external host
 
@@ -46,13 +47,33 @@ config:
     "noesis-statistics": {
       "command": "python",
       "args": ["tools/statistics_mcp/server.py"],
-      "env": { "NEURONEWS_DB_PATH": "/path/to/noesis.duckdb" }
+      "env": { "NOESIS_DB_PATH": "/path/to/noesis.duckdb" }
     }
   }
 }
 ```
 
 The full set is in [`.mcp.json`](../../.mcp.json) — copy the entries you need.
+
+### Capability discovery
+
+Call `noesis-catalog.capability_catalog` before planning. It is generated from
+the registered FastMCP tools and includes their input/output schemas, scopes,
+mutability, cost/latency classes, required data, and readiness. Its public MCP
+surface omits operator mutations, disabled or empty capabilities, and private
+domain/namespace metadata. Operators can regenerate the complete diagnostic
+artifact with:
+
+```bash
+python scripts/generate_mcp_catalog.py
+python scripts/generate_mcp_catalog.py --check
+```
+
+The artifact is `contracts/generated/noesis-mcp-catalog-v1.json`; its contract
+is `contracts/schemas/jsonschema/noesis-mcp-catalog-v1.json`.
+
+Legacy `neuronews-*` server names and `NEURONEWS_*` environment variables are
+warning-emitting aliases. See [the deprecation policy](../reference/deprecations.md).
 
 ### Remote access (Streamable HTTP + auth)
 
@@ -112,7 +133,7 @@ The same subsystems are reachable over HTTP for clients that prefer REST
 (`src/api/`). Run it with:
 
 ```bash
-NEURONEWS_DEV_MODE=true NOESIS_DB_PATH=/tmp/noesis-dev.duckdb \
+NOESIS_DEV_MODE=true NOESIS_DB_PATH=/tmp/noesis-dev.duckdb \
   uvicorn src.api.app:app --port 8012
 ```
 
@@ -125,14 +146,14 @@ the live route list.
 
 ### Auth
 
-- `NEURONEWS_DEV_MODE=true` disables the WAF for local development.
+- `NOESIS_DEV_MODE=true` disables the WAF for local development.
 - In production, the API enforces WAF + rate limiting; API-key and RBAC routes
   are under `src/api/routes/` (`api_key_routes`, `rbac_routes`, `auth_routes`).
   See [security.md](../security/overview.md).
 
 ## Example: check a quantitative claim against data
 
-Over MCP (`neuronews-statistics`), or the equivalent Python:
+Over MCP (`noesis-statistics`), or the equivalent Python:
 
 ```python
 import duckdb

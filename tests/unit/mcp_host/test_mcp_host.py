@@ -265,6 +265,31 @@ def test_tools_accessor_shapes(make_host):
     assert h.tools("missing") == {}
 
 
+def test_legacy_alias_reuses_canonical_session_and_cache(make_host):
+    server = ScriptedServer(tools=("corroborate",))
+    spec = ServerSpec(
+        name="noesis-osint",
+        command="python3",
+        args=("tools/osint_mcp/server.py",),
+        aliases=("neuronews-osint",),
+    )
+    h = make_host(server, specs=[spec])
+    h.start()
+    assert wait_until(lambda: state_of(h, "noesis-osint") == STATE_CONNECTED)
+
+    with pytest.warns(DeprecationWarning, match="noesis-osint"):
+        first = h.call_tool_cached("neuronews-osint", "corroborate")
+    second = h.call_tool_cached("noesis-osint", "corroborate")
+    assert first == second == {"ok": True}
+    assert server.tool_calls == 1
+
+    with pytest.warns(DeprecationWarning, match="noesis-osint"):
+        assert h.tools("neuronews-osint") == h.tools("noesis-osint")
+    assert h.status()["servers"]["noesis-osint"]["aliases"] == [
+        "neuronews-osint"
+    ]
+
+
 def test_ttl_env_override(monkeypatch):
     monkeypatch.setenv("NOESIS_MCP_TTL", "7")
     assert MCPHost(specs=[]).ttl_seconds == 7.0

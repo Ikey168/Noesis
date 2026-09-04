@@ -15,6 +15,7 @@ the endpoints that report host health.
 from __future__ import annotations
 
 import json
+import warnings
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
@@ -23,6 +24,25 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_MCP_JSON = REPO_ROOT / ".mcp.json"
 
 _PYTHON_COMMANDS = ("python", "python3")
+
+LEGACY_SERVER_ALIASES = {
+    "neuronews-pipeline": "noesis-pipeline",
+    "neuronews-contracts": "noesis-contracts",
+    "neuronews-lineage": "noesis-lineage",
+    "neuronews-blog-feeds": "noesis-blog-feeds",
+    "neuronews-domain-packs": "noesis-domain-packs",
+    "neuronews-research": "noesis-research",
+    "neuronews-provisioning": "noesis-provisioning",
+    "neuronews-osint": "noesis-osint",
+    "neuronews-dataset": "noesis-dataset",
+    "neuronews-statistics": "noesis-statistics",
+    "neuronews-arguments": "noesis-arguments",
+    "neuronews-kg": "noesis-kg",
+    "neuronews-sources": "noesis-sources",
+    "neuronews-security": "noesis-security",
+    "neuronews-monitoring": "noesis-monitoring",
+}
+LEGACY_SERVER_REMOVAL_TARGET = "Noesis 2.0 (not before 2027-09-01)"
 
 
 @dataclass(frozen=True)
@@ -34,6 +54,21 @@ class ServerSpec:
     args: Tuple[str, ...]
     env: Dict[str, str] = field(default_factory=dict)
     cwd: str = str(REPO_ROOT)
+    aliases: Tuple[str, ...] = ()
+
+
+def resolve_server_name(name: str, *, warn: bool = True) -> str:
+    """Resolve a supported legacy public server name to its canonical name."""
+
+    canonical = LEGACY_SERVER_ALIASES.get(str(name), str(name))
+    if warn and canonical != name:
+        warnings.warn(
+            f"MCP server name {name!r} is deprecated; use {canonical!r}. "
+            f"Removal target: {LEGACY_SERVER_REMOVAL_TARGET}.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+    return canonical
 
 
 def _is_project_server(entry: dict) -> bool:
@@ -62,17 +97,38 @@ def load_server_specs(path: Optional[Path] = None) -> List[ServerSpec]:
         return []
 
     specs: List[ServerSpec] = []
+    seen: set[str] = set()
+    aliases = dict(LEGACY_SERVER_ALIASES)
+    configured_aliases = raw.get("compatibilityAliases") or {}
+    if isinstance(configured_aliases, dict):
+        aliases.update(
+            {str(alias): str(target) for alias, target in configured_aliases.items()}
+        )
     for name, entry in servers.items():
         if not isinstance(entry, dict) or not _is_project_server(entry):
             continue
+        canonical = aliases.get(str(name), str(name))
+        if canonical != name:
+            warnings.warn(
+                f"MCP server name {name!r} is deprecated; use {canonical!r}. "
+                f"Removal target: {LEGACY_SERVER_REMOVAL_TARGET}.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+        if canonical in seen:
+            continue
+        seen.add(canonical)
         env = entry.get("env") or {}
         specs.append(
             ServerSpec(
-                name=str(name),
+                name=canonical,
                 command=str(entry["command"]),
                 args=tuple(str(a) for a in entry.get("args", [])),
                 env={str(k): str(v) for k, v in env.items()},
                 cwd=str(mcp_json.parent),
+                aliases=tuple(
+                    sorted(alias for alias, target in aliases.items() if target == canonical)
+                ),
             )
         )
     return specs

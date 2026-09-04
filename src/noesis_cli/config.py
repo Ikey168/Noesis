@@ -9,6 +9,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from src.config.env import resolve_env
+
 CONFIG_VERSION = 1
 CONFIG_ENV = "NOESIS_CONFIG"
 LEGACY_CONFIG_ENV = "NEURONEWS_CONFIG"
@@ -60,9 +62,7 @@ class RuntimeConfig:
 
 
 def default_config_path() -> Path:
-    configured = os.environ.get(CONFIG_ENV)
-    if configured is None:
-        configured = os.environ.get(LEGACY_CONFIG_ENV)
+    configured = resolve_env("CONFIG")
     return (
         Path(configured).expanduser()
         if configured

@@ -37,7 +37,7 @@
       ],
       "env": {}
     },
-    "neuronews-pipeline": {
+    "noesis-pipeline": {
       "type": "stdio",
       "command": "python3",
       "args": [
@@ -45,7 +45,7 @@
       ],
       "env": {}
     },
-    "neuronews-contracts": {
+    "noesis-contracts": {
       "type": "stdio",
       "command": "python3",
       "args": [
@@ -53,7 +53,7 @@
       ],
       "env": {}
     },
-    "neuronews-lineage": {
+    "noesis-lineage": {
       "type": "stdio",
       "command": "python3",
       "args": [
@@ -69,7 +69,7 @@
       ],
       "env": {}
     },
-    "neuronews-blog-feeds": {
+    "noesis-blog-feeds": {
       "type": "stdio",
       "command": "python3",
       "args": [
@@ -77,7 +77,7 @@
       ],
       "env": {}
     },
-    "neuronews-domain-packs": {
+    "noesis-domain-packs": {
       "type": "stdio",
       "command": "python3",
       "args": [
@@ -85,7 +85,7 @@
       ],
       "env": {}
     },
-    "neuronews-research": {
+    "noesis-research": {
       "type": "stdio",
       "command": "python3",
       "args": [
@@ -93,7 +93,7 @@
       ],
       "env": {}
     },
-    "neuronews-provisioning": {
+    "noesis-provisioning": {
       "type": "stdio",
       "command": "python3",
       "args": [
@@ -101,7 +101,7 @@
       ],
       "env": {}
     },
-    "neuronews-osint": {
+    "noesis-osint": {
       "type": "stdio",
       "command": "python3",
       "args": [
@@ -109,7 +109,7 @@
       ],
       "env": {}
     },
-    "neuronews-dataset": {
+    "noesis-dataset": {
       "type": "stdio",
       "command": "python3",
       "args": [
@@ -117,7 +117,7 @@
       ],
       "env": {}
     },
-    "neuronews-statistics": {
+    "noesis-statistics": {
       "type": "stdio",
       "command": "python3",
       "args": [
@@ -125,7 +125,7 @@
       ],
       "env": {}
     },
-    "neuronews-arguments": {
+    "noesis-arguments": {
       "type": "stdio",
       "command": "python3",
       "args": [
@@ -133,7 +133,7 @@
       ],
       "env": {}
     },
-    "neuronews-kg": {
+    "noesis-kg": {
       "type": "stdio",
       "command": "python3",
       "args": [
@@ -141,7 +141,7 @@
       ],
       "env": {}
     },
-    "neuronews-sources": {
+    "noesis-sources": {
       "type": "stdio",
       "command": "python3",
       "args": [
@@ -149,7 +149,7 @@
       ],
       "env": {}
     },
-    "neuronews-security": {
+    "noesis-security": {
       "type": "stdio",
       "command": "python3",
       "args": [
@@ -157,7 +157,7 @@
       ],
       "env": {}
     },
-    "neuronews-monitoring": {
+    "noesis-monitoring": {
       "type": "stdio",
       "command": "python3",
       "args": [
@@ -172,6 +172,31 @@
         "tools/kb_mcp/server.py"
       ],
       "env": {}
+    },
+    "noesis-catalog": {
+      "type": "stdio",
+      "command": "python3",
+      "args": [
+        "tools/catalog_mcp/server.py"
+      ],
+      "env": {}
     }
+  },
+  "compatibilityAliases": {
+    "neuronews-pipeline": "noesis-pipeline",
+    "neuronews-contracts": "noesis-contracts",
+    "neuronews-lineage": "noesis-lineage",
+    "neuronews-blog-feeds": "noesis-blog-feeds",
+    "neuronews-domain-packs": "noesis-domain-packs",
+    "neuronews-research": "noesis-research",
+    "neuronews-provisioning": "noesis-provisioning",
+    "neuronews-osint": "noesis-osint",
+    "neuronews-dataset": "noesis-dataset",
+    "neuronews-statistics": "noesis-statistics",
+    "neuronews-arguments": "noesis-arguments",
+    "neuronews-kg": "noesis-kg",
+    "neuronews-sources": "noesis-sources",
+    "neuronews-security": "noesis-security",
+    "neuronews-monitoring": "noesis-monitoring"
   }
 }

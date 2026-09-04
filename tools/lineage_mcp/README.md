@@ -4,9 +4,9 @@ Wraps the **Marquez / OpenLineage** metadata service so *"if I change this
 stage, what's downstream?"* is a typed tool instead of clicking the Marquez UI
 or curling its API. The third question alongside the other two servers:
 
-- `neuronews-pipeline` — **run** a stage
-- `neuronews-contracts` — **is the boundary output valid**
-- `neuronews-lineage` — **what depends on it** (this one)
+- `noesis-pipeline` — **run** a stage
+- `noesis-contracts` — **is the boundary output valid**
+- `noesis-lineage` — **what depends on it** (this one)
 
 ## Tools
 
@@ -52,7 +52,7 @@ With an empty Marquez the tools work but return empty graphs.
 
 ## Register
 
-In `.mcp.json` as `neuronews-lineage`, launched from the repo root:
+In `.mcp.json` as `noesis-lineage`, launched from the repo root:
 
 ```bash
 python3 tools/lineage_mcp/server.py

@@ -480,13 +480,13 @@ def configure_error_handlers_if_available(app):
 def _dev_mode_enabled() -> bool:
     """Whether to skip heavy security middleware for local development.
 
-    Set NEURONEWS_DEV_MODE=true to disable the WAF, rate limiting, API-key and
+    Set NOESIS_DEV_MODE=true to disable the WAF, rate limiting, API-key and
     RBAC middlewares so the local frontend can talk to the API without
     authentication or throttling. Defaults to off (production-safe).
     """
-    import os
+    from src.config.env import resolve_env
 
-    return os.getenv("NEURONEWS_DEV_MODE", "false").strip().lower() in (
+    return (resolve_env("DEV_MODE", "false") or "false").strip().lower() in (
         "1",
         "true",
         "yes",

@@ -10,7 +10,7 @@ this module derives equivalent, data-driven results directly from the
 Articles are grouped into **event clusters** by content similarity: a TF-IDF
 cosine similarity matrix (scikit-learn) when available, otherwise an O(n)
 signature-term fallback. Only the most-recent slice of the corpus is clustered
-per request (see ``NEURONEWS_CLUSTER_MAX_ARTICLES``) so the matrix stays bounded.
+per request (see ``NOESIS_CLUSTER_MAX_ARTICLES``) so the matrix stays bounded.
 **Trending topics** come from keyword document-frequency across that slice, and
 **breaking news** is the most recent / active clusters. (The previous
 implementation grouped by the first word of each title, which produced
@@ -21,20 +21,20 @@ The returned dict shapes match what the API route response models expect.
 
 from __future__ import annotations
 
-import os
 import re
 from collections import Counter, defaultdict
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional, Sequence
 
 from src.database.local_analytics_connector import LocalAnalyticsConnector
+from src.config.env import resolve_env
 
 # Cap how many of the most-recent articles we cluster in one request, so cost
 # stays bounded no matter how large the corpus grows. Override with
-# NEURONEWS_CLUSTER_MAX_ARTICLES.
+# NOESIS_CLUSTER_MAX_ARTICLES.
 def _max_cluster_articles() -> int:
     try:
-        return max(100, int(os.getenv("NEURONEWS_CLUSTER_MAX_ARTICLES", "3000")))
+        return max(100, int(resolve_env("CLUSTER_MAX_ARTICLES", "3000") or "3000"))
     except ValueError:
         return 3000
 
@@ -172,7 +172,7 @@ def _cluster_sklearn(articles: Sequence[Dict[str, Any]], threshold: float) -> Op
 
     Builds the dense pairwise cosine similarity matrix (O(n^2) memory) and
     connects every pair above ``threshold`` into the same component. The recent
-    window is capped (see ``NEURONEWS_CLUSTER_MAX_ARTICLES``) so the matrix stays
+    window is capped (see ``NOESIS_CLUSTER_MAX_ARTICLES``) so the matrix stays
     bounded. Returns a label per article, or None if scikit-learn is missing.
     """
     try:

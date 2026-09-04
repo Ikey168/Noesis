@@ -17,7 +17,7 @@ diff** — never the full payload. It drives the project's own pipeline code
 
 ## Run / register
 
-Registered in the repo's `.mcp.json` as a stdio server (`neuronews-pipeline`),
+Registered in the repo's `.mcp.json` as a stdio server (`noesis-pipeline`),
 launched from the repo root:
 
 ```bash
@@ -37,7 +37,7 @@ used best-effort for the pgvector/S3 checks in `trace_article`.
   warehouse **read-only** for inspection so it doesn't fight a running
   API/ingester's writer lock, and reports the lock as a clean status string
   rather than crashing. Writes (`store`/`ingest` with `apply=true`) need the
-  warehouse free — point `NEURONEWS_DB_PATH` at a free file if the API is up.
+  warehouse free — point `NOESIS_DB_PATH` at a free file if the API is up.
 - **Summaries, not payloads.** Lists are capped (`MAX_LIST`) and article content
   is truncated (`CONTENT_PREVIEW`).
 - **Best-effort backends.** pgvector/S3 checks use short timeouts; an
@@ -47,7 +47,7 @@ used best-effort for the pgvector/S3 checks in `trace_article`.
 
 | Var | Default | Used by |
 |---|---|---|
-| `NEURONEWS_DB_PATH` | `<repo>/data/neuronews.duckdb` | warehouse reads/writes |
+| `NOESIS_DB_PATH` | `<repo>/data/neuronews.duckdb` | warehouse reads/writes |
 | `PGVECTOR_HOST` / `PGVECTOR_PORT` | `localhost` / `5433` | `trace_article` vector check |
 | `PGVECTOR_DSN` | `postgresql://neuronews:…@localhost:5433/neuronews_vector` | `trace_article` |
 | `S3_ENDPOINT_URL` / `AWS_ENDPOINT_URL` | unset | `trace_article` object-store check |

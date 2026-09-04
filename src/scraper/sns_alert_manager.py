@@ -3,8 +3,8 @@ Local alerting integration for sending alerts when scrapers fail multiple times.
 Provides intelligent alerting with rate limiting and escalation.
 
 Replaces the deprecated AWS SNS integration: alerts are appended as JSON
-lines to a local alerts file under NEURONEWS_LOG_DIR (default ./logs) and
-optionally POSTed to a webhook URL from NEURONEWS_ALERT_WEBHOOK_URL.
+lines to a local alerts file under NOESIS_LOG_DIR (default ./logs) and
+optionally POSTed to a webhook URL from NOESIS_ALERT_WEBHOOK_URL.
 """
 
 import json
@@ -17,10 +17,12 @@ from datetime import datetime, timezone
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
+from src.config.env import resolve_env
+
 
 def _get_log_dir() -> str:
-    """Return the local log directory (env NEURONEWS_LOG_DIR, default ./logs)."""
-    log_dir = os.environ.get("NEURONEWS_LOG_DIR", "./logs")
+    """Return the local log directory (env NOESIS_LOG_DIR, default ./logs)."""
+    log_dir = resolve_env("LOG_DIR", "./logs") or "./logs"
     os.makedirs(log_dir, exist_ok=True)
     return log_dir
 
@@ -105,7 +107,7 @@ class LocalAlertManager:
 
         # Local alert storage and optional webhook delivery
         self.alerts_file = os.path.join(_get_log_dir(), "alerts.jsonl")
-        self.webhook_url = os.environ.get("NEURONEWS_ALERT_WEBHOOK_URL")
+        self.webhook_url = resolve_env("ALERT_WEBHOOK_URL")
 
         # Setup logging
         self.logger = logging.getLogger(__name__)

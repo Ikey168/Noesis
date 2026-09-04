@@ -23,7 +23,8 @@ def test_canonical_prefix_wins(monkeypatch):
 def test_legacy_prefix_is_the_fallback(monkeypatch):
     monkeypatch.delenv("NOESIS_DB_PATH", raising=False)
     monkeypatch.setenv("NEURONEWS_DB_PATH", "/legacy.db")
-    assert resolve_env("DB_PATH") == "/legacy.db"
+    with pytest.warns(DeprecationWarning, match="NOESIS_DB_PATH"):
+        assert resolve_env("DB_PATH") == "/legacy.db"
 
 
 def test_both_prefixes_resolve_identically(monkeypatch):
@@ -34,7 +35,8 @@ def test_both_prefixes_resolve_identically(monkeypatch):
 
     monkeypatch.delenv("NOESIS_ENABLED_PACKS", raising=False)
     monkeypatch.setenv("NEURONEWS_ENABLED_PACKS", "research")
-    via_legacy = resolve_env("ENABLED_PACKS")
+    with pytest.warns(DeprecationWarning, match="NOESIS_ENABLED_PACKS"):
+        via_legacy = resolve_env("ENABLED_PACKS")
 
     assert via_noesis == via_legacy == "research"
 
@@ -63,7 +65,8 @@ def test_empty_string_is_a_real_value(monkeypatch):
 def test_warehouse_path_prefers_env_then_default(monkeypatch):
     monkeypatch.setenv("NEURONEWS_DB_PATH", "/data/wh.db")
     monkeypatch.delenv("NOESIS_DB_PATH", raising=False)
-    assert warehouse_path() == "/data/wh.db"
+    with pytest.warns(DeprecationWarning, match="NOESIS_DB_PATH"):
+        assert warehouse_path() == "/data/wh.db"
     monkeypatch.setenv("NOESIS_DB_PATH", "/data/noesis.db")
     assert warehouse_path() == "/data/noesis.db"
 
@@ -78,7 +81,8 @@ def test_warehouse_path_default_keeps_legacy_filename(monkeypatch):
 def test_imagery_queue_path_prefers_env_then_default(monkeypatch):
     monkeypatch.delenv("NOESIS_IMAGERY_QUEUE_PATH", raising=False)
     monkeypatch.setenv("NEURONEWS_IMAGERY_QUEUE_PATH", "/data/q.db")
-    assert imagery_queue_path() == "/data/q.db"
+    with pytest.warns(DeprecationWarning, match="NOESIS_IMAGERY_QUEUE_PATH"):
+        assert imagery_queue_path() == "/data/q.db"
     monkeypatch.setenv("NOESIS_IMAGERY_QUEUE_PATH", "/data/noesis-q.db")
     assert imagery_queue_path() == "/data/noesis-q.db"
 

@@ -123,8 +123,9 @@ surface. The full design lives in the
 ### Local-first
 
 Every external service has a localhost default. Environment variables use the
-`NOESIS_` prefix, with `NEURONEWS_` accepted as a fallback for continuity. Set
-them to point at managed equivalents in production:
+`NOESIS_` prefix. Deprecated `NEURONEWS_` aliases remain available with runtime
+warnings until Noesis 2.0 (not before 2027-09-01). Set them to point at managed
+equivalents in production:
 
 ```text
 NOESIS_DB_PATH         data/local_warehouse.duckdb   # DuckDB warehouse path
@@ -141,22 +142,23 @@ provisioning tools stand up new knowledge graphs at runtime.
 
 | Server | Focus |
 |---|---|
-| `pipeline_mcp` | Connectors, ingestion stages, article stats, and the analytics tools (anomaly, lead-lag, narratives, forecast, drift, sentiment, positions, conflicts) |
-| `argument_mcp` | Claims, stances, frames, actors, outlet clustering and scoring, stance drift, benchmarks |
-| `osint_mcp` | Corroboration, contradiction scan, source reliability, entity dossier, relationship path, timeline reconstruction, provenance trace, investigation audit |
-| `kg_mcp` | Knowledge-graph stats, entities, communities, centrality, corrections, evolving topics |
-| `provisioning_mcp` | Deploy, attach sources and pipelines, ingest, status, list, view, teardown, lineage for namespaced knowledge graphs |
-| `research_mcp` | Citation graph, venue credibility, literature claims |
-| `sources_mcp` | Source profiles, trustworthiness, comparison, outlet clusters |
-| `domain_packs_mcp` | Enable, disable, run enrichers, get UI flags |
-| `blog_mcp` | Subscribe, ingest, and harvest Atom and RSS watchlists |
-| `contract_mcp` | List, get, and validate data contracts |
-| `lineage_mcp` | Namespaces, nodes, lineage, impact, run history |
-| `dataset_mcp` | Training-dataset stats, schema, label distribution, sampling |
-| `monitoring_mcp` | Current and historical metrics and summaries |
-| `security_mcp` | Security posture, secret and TLS checks, backups, DB permissions |
-| `schema_mcp` | Tables, schemas, and REST routes |
-| `kb_mcp` | Versioned `noesis-kb-v1` single- and cross-domain search/answers, claims, entities, links, diffs, coverage, integrity, and daily brief |
+| `noesis-catalog` | Permission- and readiness-filtered discovery across every registered capability |
+| `noesis-pipeline` | Connectors, ingestion stages, article stats, and analytics |
+| `noesis-arguments` | Claims, stances, frames, actors, outlet clustering and scoring |
+| `noesis-osint` | Corroboration, reliability, dossiers, paths, timelines, and provenance |
+| `noesis-kg` | Knowledge-graph stats, entities, communities, centrality, and corrections |
+| `noesis-provisioning` | Lifecycle management for namespaced knowledge graphs |
+| `noesis-research` | Citation graph, venue credibility, and literature claims |
+| `noesis-sources` | Source profiles, trustworthiness, comparison, and outlet clusters |
+| `noesis-domain-packs` | Enable, disable, run enrichers, and get UI flags |
+| `noesis-blog-feeds` | Subscribe, ingest, and harvest Atom and RSS watchlists |
+| `noesis-contracts` | List, get, and validate data contracts |
+| `noesis-lineage` | Namespaces, nodes, lineage, impact, and run history |
+| `noesis-dataset` | Training-dataset stats, schema, label distribution, and sampling |
+| `noesis-monitoring` | Current and historical metrics and summaries |
+| `noesis-security` | Security posture, secret and TLS checks, backups, and DB permissions |
+| `noesis-schema` | Tables, schemas, and REST routes |
+| `noesis-kb` | Versioned KB search, answers, evidence, diffs, integrity, and briefs |
 
 ---
 

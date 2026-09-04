@@ -9,6 +9,8 @@ import logging
 from typing import Dict, Optional, Any
 from dataclasses import dataclass
 
+from src.config.env import warehouse_path
+
 logger = logging.getLogger(__name__)
 
 
@@ -37,7 +39,7 @@ def get_postgres_connection_params() -> Dict[str, Any]:
 
 def get_duckdb_path() -> str:
     """Return the path to the local DuckDB warehouse file."""
-    return os.getenv("NEURONEWS_DB_PATH", "data/neuronews.duckdb")
+    return warehouse_path("data/neuronews.duckdb") or "data/neuronews.duckdb"
 
 
 def format_connection_string(params: Dict[str, Any], db_type: str = "postgresql") -> str:
