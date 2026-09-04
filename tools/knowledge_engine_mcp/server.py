@@ -197,6 +197,11 @@ def knowledge_engine_capabilities() -> dict:
             "noesis-knowledge-anomaly-v1",
             "noesis-anomaly-alert-v1",
             "noesis-anomaly-health-v1",
+            "noesis-retention-policy-v1",
+            "noesis-retention-checkpoint-v1",
+            "noesis-archive-manifest-v1",
+            "noesis-retention-gc-plan-v1",
+            "noesis-retention-job-v1",
             "noesis-maintenance-job-request-v1",
             "noesis-maintenance-job-receipt-v1",
             "noesis-knowledge-generation-v1",
@@ -308,6 +313,10 @@ def knowledge_engine_capabilities() -> dict:
             "bounded-replayable-anomaly-detectors",
             "uncertainty-preserving-anomaly-attribution",
             "deduplicated-recoverable-alert-delivery",
+            "versioned-inherited-retention-and-legal-holds",
+            "content-addressed-replayable-checkpoints",
+            "verified-atomic-cold-storage-restore",
+            "dependency-and-pin-safe-garbage-collection",
             "knowledge-maintenance",
             "lease-safe-workers",
             "committed-generations",
@@ -7453,6 +7462,316 @@ def inspect_anomaly_health(namespace: str) -> dict:
             namespace, scopes={"knowledge:anomalies:read"}
         ),
         required_scope="knowledge:anomalies:read",
+    )
+
+
+@mcp.tool()
+def register_retention_policy(
+    namespace: str,
+    policy_id: str,
+    version: int,
+    rules: dict[str, Any],
+    parent_policy_id: str | None = None,
+    status: str = "active",
+) -> dict:
+    """Register an immutable retention policy with optional inheritance."""
+    from src.kb.knowledge_retention import KnowledgeRetentionStore
+
+    return _safe(
+        lambda c: KnowledgeRetentionStore(c).register_policy(
+            namespace,
+            policy_id,
+            version,
+            rules,
+            parent_policy_id=parent_policy_id,
+            status=status,
+            principal_id=_context()[0],
+            scopes={"knowledge:retention:admin"},
+        ),
+        write=True,
+        required_scope="knowledge:retention:admin",
+    )
+
+
+@mcp.tool()
+def register_retention_object(
+    namespace: str,
+    object_id: str,
+    object_class: str,
+    policy_id: str,
+    policy_version: int,
+    payload: dict[str, Any],
+    created_at_ms: int,
+    source_license: str | None = None,
+    access_class: str = "public",
+    value_score: float = 0.0,
+    generation: int = 0,
+    dependencies: list[str] | None = None,
+    pins: list[str] | None = None,
+) -> dict:
+    """Attach retention metadata to an existing knowledge object identity."""
+    from src.kb.knowledge_retention import KnowledgeRetentionStore
+
+    return _safe(
+        lambda c: KnowledgeRetentionStore(c).register_object(
+            namespace,
+            object_id,
+            object_class,
+            policy_id,
+            policy_version,
+            payload,
+            created_at_ms=created_at_ms,
+            source_license=source_license,
+            access_class=access_class,
+            value_score=value_score,
+            generation=generation,
+            dependencies=dependencies or [],
+            pins=pins or [],
+            principal_id=_context()[0],
+            scopes={"knowledge:retention:admin"},
+        ),
+        write=True,
+        required_scope="knowledge:retention:admin",
+    )
+
+
+@mcp.tool()
+def place_retention_legal_hold(
+    namespace: str, object_id: str, reason: str, expires_at_ms: int | None = None
+) -> dict:
+    """Place a finite or indefinite legal hold on a knowledge object."""
+    from src.kb.knowledge_retention import KnowledgeRetentionStore
+
+    return _safe(
+        lambda c: KnowledgeRetentionStore(c).place_hold(
+            namespace,
+            object_id,
+            reason,
+            expires_at_ms=expires_at_ms,
+            principal_id=_context()[0],
+            scopes={"knowledge:retention:admin"},
+        ),
+        write=True,
+        required_scope="knowledge:retention:admin",
+    )
+
+
+@mcp.tool()
+def release_retention_legal_hold(namespace: str, hold_id: str) -> dict:
+    """Release a legal hold while preserving its audit record."""
+    from src.kb.knowledge_retention import KnowledgeRetentionStore
+
+    return _safe(
+        lambda c: KnowledgeRetentionStore(c).release_hold(
+            namespace,
+            hold_id,
+            principal_id=_context()[0],
+            scopes={"knowledge:retention:admin"},
+        ),
+        write=True,
+        required_scope="knowledge:retention:admin",
+    )
+
+
+@mcp.tool()
+def simulate_retention_eligibility(namespace: str, object_id: str) -> dict:
+    """Explain a side-effect-free retention or deletion decision."""
+    from src.kb.knowledge_retention import KnowledgeRetentionStore
+
+    return _safe(
+        lambda c: KnowledgeRetentionStore(c, initialize=False).explain(
+            namespace, object_id, scopes={"knowledge:retention:read"}
+        ),
+        required_scope="knowledge:retention:read",
+    )
+
+
+@mcp.tool()
+def create_retention_checkpoint(
+    namespace: str,
+    generation_start: int,
+    generation_end: int,
+    records: list[dict[str, Any]],
+    schema_version: str,
+    tombstones: list[str] | None = None,
+    cancel_requested: bool = False,
+    limit: int = 1000,
+) -> dict:
+    """Compact immutable history into a bounded content-addressed checkpoint."""
+    from src.kb.knowledge_retention import KnowledgeRetentionStore
+
+    return _safe(
+        lambda c: KnowledgeRetentionStore(c).checkpoint(
+            namespace,
+            generation_start,
+            generation_end,
+            records,
+            schema_version=schema_version,
+            tombstones=tombstones or [],
+            cancel_requested=cancel_requested,
+            limit=limit,
+            principal_id=_context()[0],
+            scopes={"knowledge:retention:execute"},
+        ),
+        write=True,
+        required_scope="knowledge:retention:execute",
+    )
+
+
+@mcp.tool()
+def verify_retention_checkpoint(
+    namespace: str,
+    checkpoint_id: str,
+    records: list[dict[str, Any]] | None = None,
+    tombstones: list[str] | None = None,
+) -> dict:
+    """Verify checkpoint identity and optionally compare supplied content."""
+    from src.kb.knowledge_retention import KnowledgeRetentionStore
+
+    return _safe(
+        lambda c: KnowledgeRetentionStore(c, initialize=False).verify_checkpoint(
+            namespace,
+            checkpoint_id,
+            records=records,
+            tombstones=tombstones,
+            scopes={"knowledge:retention:read"},
+        ),
+        required_scope="knowledge:retention:read",
+    )
+
+
+@mcp.tool()
+def archive_knowledge_checkpoint(
+    namespace: str,
+    checkpoint_id: str,
+    storage: dict[str, Any],
+    encryption: dict[str, Any] | None = None,
+    storage_available: bool = True,
+    partial: bool = False,
+    cancel_requested: bool = False,
+) -> dict:
+    """Archive a checkpoint through a pluggable storage manifest."""
+    from src.kb.knowledge_retention import KnowledgeRetentionStore
+
+    return _safe(
+        lambda c: KnowledgeRetentionStore(c).archive(
+            namespace,
+            checkpoint_id,
+            storage,
+            encryption=encryption,
+            storage_available=storage_available,
+            partial=partial,
+            cancel_requested=cancel_requested,
+            principal_id=_context()[0],
+            scopes={"knowledge:retention:execute"},
+        ),
+        write=True,
+        required_scope="knowledge:retention:execute",
+    )
+
+
+@mcp.tool()
+def restore_knowledge_archive(
+    namespace: str, archive_id: str, storage_available: bool = True
+) -> dict:
+    """Verify and atomically restore a cold archive."""
+    from src.kb.knowledge_retention import KnowledgeRetentionStore
+
+    return _safe(
+        lambda c: KnowledgeRetentionStore(c).restore(
+            namespace,
+            archive_id,
+            storage_available=storage_available,
+            principal_id=_context()[0],
+            scopes={"knowledge:retention:execute"},
+        ),
+        write=True,
+        required_scope="knowledge:retention:execute",
+    )
+
+
+@mcp.tool()
+def plan_retention_gc(namespace: str, object_ids: list[str], limit: int = 1000) -> dict:
+    """Dry-run dependency, snapshot, bundle, export, session, and hold checks."""
+    from src.kb.knowledge_retention import KnowledgeRetentionStore
+
+    return _safe(
+        lambda c: KnowledgeRetentionStore(c).plan_gc(
+            namespace,
+            object_ids,
+            limit=limit,
+            principal_id=_context()[0],
+            scopes={"knowledge:retention:admin"},
+        ),
+        write=True,
+        required_scope="knowledge:retention:admin",
+    )
+
+
+@mcp.tool()
+def execute_retention_gc(
+    namespace: str,
+    plan: dict[str, Any],
+    cancel_requested: bool = False,
+    deletion_outcome: str = "success",
+) -> dict:
+    """Recheck plan guards and atomically tombstone dependency-unreachable objects."""
+    from src.kb.knowledge_retention import KnowledgeRetentionStore
+
+    return _safe(
+        lambda c: KnowledgeRetentionStore(c).execute_gc(
+            namespace,
+            plan,
+            cancel_requested=cancel_requested,
+            deletion_outcome=deletion_outcome,
+            principal_id=_context()[0],
+            scopes={"knowledge:retention:execute"},
+        ),
+        write=True,
+        required_scope="knowledge:retention:execute",
+    )
+
+
+@mcp.tool()
+def get_retention_job(namespace: str, job_id: str) -> dict:
+    """Inspect a retention job receipt and terminal status."""
+    from src.kb.knowledge_retention import KnowledgeRetentionStore
+
+    return _safe(
+        lambda c: KnowledgeRetentionStore(c, initialize=False).job(
+            namespace, job_id, scopes={"knowledge:retention:read"}
+        ),
+        required_scope="knowledge:retention:read",
+    )
+
+
+@mcp.tool()
+def cancel_retention_job(namespace: str, job_id: str) -> dict:
+    """Cancel a non-terminal retention job."""
+    from src.kb.knowledge_retention import KnowledgeRetentionStore
+
+    return _safe(
+        lambda c: KnowledgeRetentionStore(c).cancel_job(
+            namespace,
+            job_id,
+            principal_id=_context()[0],
+            scopes={"knowledge:retention:execute"},
+        ),
+        write=True,
+        required_scope="knowledge:retention:execute",
+    )
+
+
+@mcp.tool()
+def inspect_retention_health(namespace: str) -> dict:
+    """Report capacity-facing retention, archive, hold, and failure counts."""
+    from src.kb.knowledge_retention import KnowledgeRetentionStore
+
+    return _safe(
+        lambda c: KnowledgeRetentionStore(c, initialize=False).health(
+            namespace, scopes={"knowledge:retention:read"}
+        ),
+        required_scope="knowledge:retention:read",
     )
 
 

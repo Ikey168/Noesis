@@ -82,6 +82,8 @@ For the project overview and local setup, start with the
   retrieval, safe redacted lineage, and recipient-bound portable exports.
 - **[Knowledge anomalies and alerts](guides/knowledge-anomalies.md)** — replayable
   detectors, uncertain attribution, and deduplicated recoverable delivery.
+- **[Knowledge retention and archival](guides/knowledge-retention.md)** — legal
+  holds, verifiable checkpoints, atomic restore, and dependency-safe GC.
 - **[Unified knowledge query](guides/unified-knowledge-query.md)** — one bounded,
   evidence-preserving plane over local, temporal, memory, and federated data.
 - [Project structure](development/project-structure.md) — where things live in
