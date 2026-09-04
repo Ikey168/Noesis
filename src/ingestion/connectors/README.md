@@ -1,5 +1,11 @@
 # Ingestion connectors
 
+Declarative REST/OpenAPI sources use `rest.DeclarativeAPIConnector`. They accept
+only allowlisted HTTPS hosts and GET operations, enforce explicit pagination,
+rate, timeout, and byte limits, keep secret headers out of provenance, and map
+responses to `Document`, `DatasetSeries`, or a registered schema. The transport
+and DNS resolver are injectable for offline conformance tests.
+
 Connectors normalize arbitrary sources into `document-ingest-v1` `Document`
 records (see `services/ingest/common/document_model.py`) behind one interface, so
 the rest of the pipeline does not care whether a document came from a news feed,

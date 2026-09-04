@@ -41,6 +41,7 @@ python tools/statistics_mcp/server.py     # one server, stdio transport
 | `noesis-subscriptions` | `tools/subscriptions_mcp` | Saved-query lifecycle, replayable change polling, quotas, and delivery outbox |
 | `noesis-namespaces` | `tools/namespaces_mcp` | Deterministic namespace packages, verification, conflict previews, and atomic import |
 | `noesis-memory` | `tools/memory_mcp` | Typed scoped memory, explained retrieval, lifecycle, corrections, and standard MCP mapping |
+| `noesis-knowledge-engine` | `tools/knowledge_engine_mcp` | Declarative API manifests, extractor versions, event resolution, artifact lineage, and rebuilds |
 
 ### Connecting an external host
 

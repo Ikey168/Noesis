@@ -210,8 +210,10 @@
       "pack": null,
       "reason": null,
       "state": "degraded",
-      "tool_count": 5,
+      "tool_count": 7,
       "tools": [
+        "noesis-lineage.artifact_downstream",
+        "noesis-lineage.artifact_upstream",
         "noesis-lineage.impact",
         "noesis-lineage.lineage",
         "noesis-lineage.list_namespaces",
@@ -223,7 +225,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 5
+      "visible_tool_count": 7
     },
     {
       "aliases": [],
@@ -789,6 +791,36 @@
       ],
       "version": "1",
       "visible_tool_count": 11
+    },
+    {
+      "aliases": [],
+      "kind": "noesis",
+      "name": "noesis-knowledge-engine",
+      "pack": null,
+      "reason": null,
+      "state": "available",
+      "tool_count": 13,
+      "tools": [
+        "noesis-knowledge-engine.artifact_lineage",
+        "noesis-knowledge-engine.execute_artifact_rebuild",
+        "noesis-knowledge-engine.fetch_declarative_api",
+        "noesis-knowledge-engine.knowledge_engine_capabilities",
+        "noesis-knowledge-engine.list_extractors",
+        "noesis-knowledge-engine.merge_canonical_events",
+        "noesis-knowledge-engine.plan_extractor_reprocessing",
+        "noesis-knowledge-engine.preview_artifact_invalidation",
+        "noesis-knowledge-engine.register_derived_artifact",
+        "noesis-knowledge-engine.register_extractor",
+        "noesis-knowledge-engine.resolve_event_report",
+        "noesis-knowledge-engine.reverse_event_merge",
+        "noesis-knowledge-engine.validate_api_connector_manifest"
+      ],
+      "transports": [
+        "stdio",
+        "streamable-http"
+      ],
+      "version": "1",
+      "visible_tool_count": 13
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -797,14 +829,14 @@
     "omitted": {
       "unauthorized": 1
     },
-    "servers": 28,
+    "servers": 29,
     "states": {
-      "available": 20,
-      "degraded": 153,
+      "available": 33,
+      "degraded": 155,
       "disabled": 3,
       "unauthorized": 53
     },
-    "tools": 229
+    "tools": 244
   },
   "tools": [
     {
@@ -2849,6 +2881,83 @@
       ],
       "server": "noesis-contracts",
       "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Report all local artifacts affected by a source, model, schema, or artifact.",
+      "id": "noesis-lineage.artifact_downstream",
+      "input_schema": {
+        "properties": {
+          "dependency_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "dependency_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "artifact_downstream",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "backend or data readiness is incomplete",
+      "required_data": [
+        "lineage-backend"
+      ],
+      "required_scopes": [
+        "operator"
+      ],
+      "server": "noesis-lineage",
+      "state": "degraded",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Traverse exact local derived-artifact inputs, including historical gaps.",
+      "id": "noesis-lineage.artifact_upstream",
+      "input_schema": {
+        "properties": {
+          "artifact_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "artifact_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "artifact_upstream",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "backend or data readiness is incomplete",
+      "required_data": [
+        "lineage-backend"
+      ],
+      "required_scopes": [
+        "operator"
+      ],
+      "server": "noesis-lineage",
+      "state": "degraded",
       "version": "1"
     },
     {
@@ -11991,6 +12100,509 @@
       ],
       "server": "noesis-memory",
       "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Traverse exact source, parser, extractor, schema, model, and config dependencies.",
+      "id": "noesis-knowledge-engine.artifact_lineage",
+      "input_schema": {
+        "properties": {
+          "artifact_id": {
+            "type": "string"
+          },
+          "direction": {
+            "default": "upstream",
+            "type": "string"
+          }
+        },
+        "required": [
+          "artifact_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "artifact_lineage",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Checkpoint rebuilds and atomically publish one consistent generation watermark.",
+      "id": "noesis-knowledge-engine.execute_artifact_rebuild",
+      "input_schema": {
+        "properties": {
+          "max_concurrency": {
+            "default": 4,
+            "type": "integer"
+          },
+          "plan": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "replacement_content": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "plan",
+          "replacement_content"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "execute_artifact_rebuild",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "operator"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Fetch and map one approved bounded GET operation without persisting it.",
+      "id": "noesis-knowledge-engine.fetch_declarative_api",
+      "input_schema": {
+        "properties": {
+          "manifest": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "operation_id": {
+            "type": "string"
+          },
+          "parameters": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "manifest",
+          "operation_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "fetch_declarative_api",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Describe declarative ingestion, extraction, events, and artifact rebuild contracts.",
+      "id": "noesis-knowledge-engine.knowledge_engine_capabilities",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "knowledge_engine_capabilities",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "List immutable extractor versions and their declared capabilities.",
+      "id": "noesis-knowledge-engine.list_extractors",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_extractors",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Merge explicitly selected events into one reversible canonical revision.",
+      "id": "noesis-knowledge-engine.merge_canonical_events",
+      "input_schema": {
+        "properties": {
+          "event_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "event_ids",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "merge_canonical_events",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Preview selective side-by-side reprocessing without overwriting prior output.",
+      "id": "noesis-knowledge-engine.plan_extractor_reprocessing",
+      "input_schema": {
+        "properties": {
+          "input_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "name": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "target_extractor_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "target_extractor_id",
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "plan_extractor_reprocessing",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Preview dependency-ordered selective invalidation without side effects.",
+      "id": "noesis-knowledge-engine.preview_artifact_invalidation",
+      "input_schema": {
+        "properties": {
+          "changes": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "changes"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "preview_artifact_invalidation",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Register a stable derived-artifact generation and every known dependency edge.",
+      "id": "noesis-knowledge-engine.register_derived_artifact",
+      "input_schema": {
+        "properties": {
+          "artifact": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "artifact"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "register_derived_artifact",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "operator"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Register extractor metadata; executable implementations remain operator-installed.",
+      "id": "noesis-knowledge-engine.register_extractor",
+      "input_schema": {
+        "properties": {
+          "definition": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "definition"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "register_extractor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "operator"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Resolve a report to a canonical event with confidence and alternatives.",
+      "id": "noesis-knowledge-engine.resolve_event_report",
+      "input_schema": {
+        "properties": {
+          "auto_link": {
+            "default": true,
+            "type": "boolean"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "report": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "report_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "report",
+          "report_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "resolve_event_report",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "operator"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Reverse a prior event merge and restore report links.",
+      "id": "noesis-knowledge-engine.reverse_event_merge",
+      "input_schema": {
+        "properties": {
+          "operation_id": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "operation_id",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "reverse_event_merge",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "operator"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Validate an API manifest without making a network request.",
+      "id": "noesis-knowledge-engine.validate_api_connector_manifest",
+      "input_schema": {
+        "properties": {
+          "manifest": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "manifest"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "validate_api_connector_manifest",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
       "version": "1"
     }
   ],

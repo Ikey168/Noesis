@@ -234,9 +234,10 @@ class SQLKnowledgeAdapter:
         try:
             result: dict[str, list[dict[str, str]]] = {}
             for table, allow_columns in sorted(self.allowed_tables.items()):
+                placeholder = "%s" if self.dialect == "postgresql" else "?"
                 rows = conn.execute(
                     "SELECT column_name, data_type FROM information_schema.columns "
-                    "WHERE table_name = ? ORDER BY ordinal_position",
+                    f"WHERE table_name = {placeholder} ORDER BY ordinal_position",
                     [table],
                 ).fetchall()
                 result[table] = [
@@ -265,6 +266,7 @@ class SQLKnowledgeAdapter:
             raise FederationError("columns_required", "explicit columns are required for partial schemas")
         if allowed is not None and set(columns) - set(allowed):
             raise FederationError("column_forbidden", "a selected column is not allowlisted")
+        placeholder = "%s" if self.dialect == "postgresql" else "?"
         params: list[Any] = []
         clauses: list[str] = []
         for condition in request.get("filters", []):
@@ -275,7 +277,7 @@ class SQLKnowledgeAdapter:
             sql_operator = {"eq": "=", "ne": "<>", "lt": "<", "lte": "<=", "gt": ">", "gte": ">="}.get(operator)
             if sql_operator is None:
                 raise FederationError("operator_forbidden", "unsupported filter operator")
-            clauses.append(f'"{column}" {sql_operator} ?')
+            clauses.append(f'"{column}" {sql_operator} {placeholder}')
             params.append(condition.get("value"))
         if operation == "select":
             expression = ", ".join(f'"{column}"' for column in columns)
@@ -288,11 +290,15 @@ class SQLKnowledgeAdapter:
         else:
             raise FederationError("operation_forbidden", "operation must be select or aggregate")
         limit = min(max(int(request.get("limit", 50)), 1), self.definition["limits"]["max_results"])
+        offset = max(0, int(request.get("cursor", "0") or 0))
+        estimated_cost = (limit + 1) * max(1, len(columns)) * max(1, len(clauses) + 1)
+        if estimated_cost > self.definition["limits"].get("max_cost", estimated_cost):
+            raise FederationError("cost_exceeded", "SQL request exceeds its declared cost budget")
         sql = f'SELECT {expression} FROM "{table}"'  # identifiers validated above
         if clauses:
             sql += " WHERE " + " AND ".join(clauses)
-        sql += " LIMIT ?"
-        params.append(limit + 1)
+        sql += f" LIMIT {placeholder} OFFSET {placeholder}"
+        params.extend([limit + 1, offset])
         conn = self.connection_factory()
         try:
             before = time.monotonic()
@@ -311,7 +317,7 @@ class SQLKnowledgeAdapter:
                         "id": f"{self.definition['source_id']}:{table}:{_digest(value)[:20]}",
                         "type": "row",
                         "value": value,
-                        "backend": {"table": table, "row_offset": index},
+                        "backend": {"table": table, "row_offset": offset + index},
                     }
                 )
             if len(_canonical(items).encode()) > self.definition["limits"]["max_bytes"]:
@@ -321,7 +327,7 @@ class SQLKnowledgeAdapter:
                 request,
                 items,
                 started=started,
-                cursor=(str(limit) if more else None),
+                cursor=(str(offset + limit) if more else None),
             )
         finally:
             conn.close()
@@ -345,7 +351,20 @@ class RemoteMCPAdapter:
     def refresh(self, *, scopes: set[str]) -> dict[str, Any]:
         _authorize(self.definition, scopes)
         advertised = {"resources": self.client.list_resources(), "tools": self.client.list_tools()}
-        self._cache = {"advertised": _redact(advertised), "refreshed_at_ms": int(time.time() * 1000), "version": getattr(self.client, "version", "unknown")}
+        version = getattr(self.client, "version", "unknown")
+        previous = self._cache
+        self._cache = {
+            "advertised": _redact(advertised),
+            "refreshed_at_ms": int(time.time() * 1000),
+            "version": version,
+            "schema_drift": bool(
+                previous
+                and (
+                    previous["version"] != version
+                    or previous["advertised"] != _redact(advertised)
+                )
+            ),
+        }
         return dict(self._cache)
 
     def capabilities(self, *, scopes: set[str]) -> dict[str, Any]:
@@ -367,6 +386,8 @@ class RemoteMCPAdapter:
         if isinstance(raw, Mapping) and any(key in raw for key in ("prompts", "roots")):
             raise FederationError("untrusted_control_content", "remote control-plane content is not knowledge")
         clean = _redact(raw)
+        if (time.monotonic() - started) * 1000 > self.definition["limits"]["timeout_ms"]:
+            raise FederationError("source_timeout", "remote MCP source exceeded its time budget")
         if len(_canonical(clean).encode()) > self.definition["limits"]["max_bytes"]:
             raise FederationError("result_too_large", "remote MCP output exceeded its byte budget")
         item = {"id": f"mcp:{_digest([name, arguments, clean])[:20]}", "type": kind, "value": clean, "backend": {"operation": name, "arguments_hash": _digest(arguments)}}
@@ -388,6 +409,8 @@ class VectorStoreAdapter:
         limit=min(int(request.get("limit", 20)), self.definition["limits"]["max_results"])
         hits=self.backend.search(request.get("vector") or request.get("text"), namespace=namespace, limit=limit, filters=dict(request.get("filters") or {}))
         items=[{"id": str(hit["id"]), "type": "vector-hit", "value": _redact(hit.get("value", {})), "score": hit.get("score"), "backend": {"score": hit.get("score"), "metric": hit.get("metric", "backend-native"), "namespace": namespace}} for hit in hits[:limit]]
+        if (time.monotonic()-started)*1000>self.definition["limits"]["timeout_ms"]:raise FederationError("source_timeout","vector source exceeded its time budget")
+        if len(_canonical(items).encode())>self.definition["limits"]["max_bytes"]:raise FederationError("result_too_large","vector result exceeded its byte budget")
         return _envelope(self.definition, request, items, started=started)
 
 
@@ -407,6 +430,8 @@ class GraphStoreAdapter:
         limit=min(int(request.get("limit", 50)), self.definition["limits"]["max_results"])
         hits=self.backend.traverse(str(request.get("start_id", "")), namespace=namespace, depth=depth, predicates=list(request.get("predicates") or []), limit=limit)
         items=[{"id": str(hit.get("id") or _digest(hit)[:20]), "type": "graph-hit", "value": _redact(hit), "backend": {"depth": hit.get("depth"), "path": hit.get("path"), "namespace": namespace}} for hit in hits[:limit]]
+        if (time.monotonic()-started)*1000>self.definition["limits"]["timeout_ms"]:raise FederationError("source_timeout","graph source exceeded its time budget")
+        if len(_canonical(items).encode())>self.definition["limits"]["max_bytes"]:raise FederationError("result_too_large","graph result exceeded its byte budget")
         return _envelope(self.definition, request, items, started=started)
 
 
@@ -446,12 +471,30 @@ class FederatedQueryEngine:
         plan={"selected": selected, "omitted": omitted, "capability": capability, "request_hash": _digest(_redact(dict(request)))}
         plan["plan_hash"]=_digest(plan); return plan
 
-    def execute(self, request: Mapping[str, Any], *, scopes: set[str]) -> dict[str, Any]:
+    def execute(
+        self,
+        request: Mapping[str, Any],
+        *,
+        scopes: set[str],
+        cancelled: Callable[[], bool] | None = None,
+    ) -> dict[str, Any]:
         started=time.monotonic(); plan=self.plan(request, scopes=scopes); results=[]; failures=[]
-        per_source=dict(request.get("per_source") or {}); timeout_ms=max(1, int(request.get("timeout_ms", 5000)))
+        per_source=dict(request.get("per_source") or {}); budgets=dict(request.get("source_budgets") or {}); timeout_ms=max(1, int(request.get("timeout_ms", 5000)));max_retries=min(3,max(0,int(request.get("max_retries",1))))
         def run(source_id: str) -> tuple[str, dict[str, Any]]:
             child=dict(request.get("query") or {}); child.update(per_source.get(source_id) or {})
-            return source_id, self.registry.adapters[source_id].query(child, scopes=scopes)
+            definition=self.registry.adapters[source_id].describe();budget=dict(budgets.get(source_id) or {})
+            if "max_results" in budget:child["limit"]=min(int(child.get("limit",budget["max_results"])),int(budget["max_results"]),int(definition["limits"]["max_results"]))
+            last_error=None
+            for attempt in range(max_retries+1):
+                if cancelled and cancelled():raise FederationError("cancelled","federated query was cancelled")
+                try:
+                    result=self.registry.adapters[source_id].query(child,scopes=scopes);result["provenance"]["attempts"]=attempt+1;return source_id,result
+                except FederationError as exc:
+                    last_error=exc
+                    if exc.code not in {"source_unavailable","source_timeout"} or attempt>=max_retries:raise
+            raise last_error or FederationError("source_failed","source failed without an error")
+        if cancelled and cancelled():
+            return {"contract":RESULT_CONTRACT,"plan":plan,"results":[],"failures":[],"coverage":{"requested":len(plan["selected"]),"completed":0,"partial":True,"omitted":plan["omitted"]},"contradictions":[],"cancelled":True,"latency_ms":0,"replay_hash":_digest([plan,"cancelled"])}
         with concurrent.futures.ThreadPoolExecutor(max_workers=min(self.max_workers, max(1, len(plan["selected"])))) as executor:
             futures={executor.submit(run, source): source for source in plan["selected"]}
             try:

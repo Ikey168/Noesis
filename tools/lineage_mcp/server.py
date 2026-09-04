@@ -22,6 +22,8 @@ A `node` is "dataset:<name>", "job:<name>", a full Marquez nodeId
 ("dataset:<ns>:<name>"), or a bare name (tried as dataset then job).
 """
 
+# ruff: noqa: BLE001, UP045
+
 from __future__ import annotations
 
 import json
@@ -279,6 +281,44 @@ def run_history(job: str, namespace: Optional[str] = None, limit: int = 5) -> di
         states[r["state"]] = states.get(r["state"], 0) + 1
     return {"job": name, "namespace": ns, "run_count": len(runs),
             "state_summary": states, "runs": runs}
+
+
+@mcp.tool
+def artifact_upstream(artifact_id: str) -> dict:
+    """Traverse exact local derived-artifact inputs, including historical gaps."""
+    try:
+        import duckdb
+
+        from src.config.env import warehouse_path
+        from src.kb.artifacts import ArtifactGraph
+
+        conn = duckdb.connect(warehouse_path(), read_only=True)
+        try:
+            return ArtifactGraph(conn, initialize=False).upstream(artifact_id)
+        finally:
+            conn.close()
+    except Exception as exc:
+        return {"artifact_id": artifact_id, "edges": [], "error": str(exc)[:300]}
+
+
+@mcp.tool
+def artifact_downstream(dependency_id: str, namespace: Optional[str] = None) -> dict:
+    """Report all local artifacts affected by a source, model, schema, or artifact."""
+    try:
+        import duckdb
+
+        from src.config.env import warehouse_path
+        from src.kb.artifacts import ArtifactGraph
+
+        conn = duckdb.connect(warehouse_path(), read_only=True)
+        try:
+            return ArtifactGraph(conn, initialize=False).downstream(
+                dependency_id, namespace=namespace
+            )
+        finally:
+            conn.close()
+    except Exception as exc:
+        return {"dependency_id": dependency_id, "edges": [], "affected": [], "error": str(exc)[:300]}
 
 
 if __name__ == "__main__":
