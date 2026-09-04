@@ -634,6 +634,28 @@
       ],
       "version": "1",
       "visible_tool_count": 1
+    },
+    {
+      "aliases": [],
+      "kind": "noesis",
+      "name": "noesis-transactions",
+      "pack": null,
+      "reason": null,
+      "state": "unauthorized",
+      "tool_count": 5,
+      "tools": [
+        "noesis-transactions.commit_mutation_batch",
+        "noesis-transactions.preview_mutation_batch",
+        "noesis-transactions.replay_mutation_audit",
+        "noesis-transactions.rollback_mutation_batch",
+        "noesis-transactions.transaction_context"
+      ],
+      "transports": [
+        "stdio",
+        "streamable-http"
+      ],
+      "version": "1",
+      "visible_tool_count": 5
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -642,13 +664,14 @@
     "omitted": {
       "unauthorized": 1
     },
-    "servers": 22,
+    "servers": 23,
     "states": {
       "available": 20,
       "degraded": 153,
-      "disabled": 3
+      "disabled": 3,
+      "unauthorized": 5
     },
-    "tools": 176
+    "tools": 181
   },
   "tools": [
     {
@@ -9819,6 +9842,187 @@
       ],
       "server": "noesis-catalog",
       "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Atomically commit the batch only when its approved preview hash is current.",
+      "id": "noesis-transactions.commit_mutation_batch",
+      "input_schema": {
+        "properties": {
+          "approval_hash": {
+            "type": "string"
+          },
+          "envelope": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "envelope",
+          "approval_hash"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "commit_mutation_batch",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-transaction-store"
+      ],
+      "required_scopes": [
+        "knowledge:transaction:commit"
+      ],
+      "server": "noesis-transactions",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Validate and preview an exact, deterministic mutation diff without writes.",
+      "id": "noesis-transactions.preview_mutation_batch",
+      "input_schema": {
+        "properties": {
+          "envelope": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "envelope"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "preview_mutation_batch",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-transaction-store"
+      ],
+      "required_scopes": [
+        "knowledge:transaction:preview"
+      ],
+      "server": "noesis-transactions",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Replay append-only commit and rollback events in stable sequence order.",
+      "id": "noesis-transactions.replay_mutation_audit",
+      "input_schema": {
+        "properties": {
+          "after_sequence": {
+            "default": 0,
+            "type": "integer"
+          },
+          "batch_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "limit": {
+            "default": 100,
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "replay_mutation_audit",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-transaction-store"
+      ],
+      "required_scopes": [
+        "knowledge:transaction:read"
+      ],
+      "server": "noesis-transactions",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Compensate a committed batch, preserving both commit and rollback audit.",
+      "id": "noesis-transactions.rollback_mutation_batch",
+      "input_schema": {
+        "properties": {
+          "batch_id": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "batch_id",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "rollback_mutation_batch",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-transaction-store"
+      ],
+      "required_scopes": [
+        "knowledge:transaction:rollback"
+      ],
+      "server": "noesis-transactions",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Return the configured principal and granted transaction scopes.",
+      "id": "noesis-transactions.transaction_context",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "transaction_context",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-transaction-store"
+      ],
+      "required_scopes": [
+        "knowledge:transaction:read"
+      ],
+      "server": "noesis-transactions",
+      "state": "unauthorized",
       "version": "1"
     }
   ],

@@ -59,6 +59,7 @@ STAGE_ALIASES = {
     "context-assembly": "noesis-context-response-v1",
     "mcp-catalog": "noesis-mcp-catalog-v1",
     "capability-catalog": "noesis-mcp-catalog-v1",
+    "knowledge-mutation": "noesis-knowledge-mutation-v1",
     "temporal-assertion": "noesis-temporal-assertion-v1",
     "temporal-query": "noesis-temporal-query-v1",
     "temporal-response": "noesis-temporal-response-v1",

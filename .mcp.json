@@ -180,6 +180,14 @@
         "tools/catalog_mcp/server.py"
       ],
       "env": {}
+    },
+    "noesis-transactions": {
+      "type": "stdio",
+      "command": "python3",
+      "args": [
+        "tools/transactions_mcp/server.py"
+      ],
+      "env": {}
     }
   },
   "compatibilityAliases": {

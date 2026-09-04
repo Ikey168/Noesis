@@ -46,6 +46,7 @@ READ_SMOKES = {
     "security_mcp": ("security_posture", {}),
     "sources_mcp": ("list_sources", {}),
     "statistics_mcp": ("stats", {}),
+    "transactions_mcp": ("transaction_context", {}),
 }
 
 # Tools permitted to write by the capability-plane contract. They are still
@@ -76,6 +77,8 @@ DOCUMENTED_WRITES = {
     ("provisioning_mcp", "kg_attach_sources"),
     ("provisioning_mcp", "kg_ingest"),
     ("provisioning_mcp", "kg_teardown"),
+    ("transactions_mcp", "commit_mutation_batch"),
+    ("transactions_mcp", "rollback_mutation_batch"),
 }
 
 # Analytics whose advertised output contract must be machine-checkable before

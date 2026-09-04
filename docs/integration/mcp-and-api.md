@@ -35,6 +35,7 @@ python tools/statistics_mcp/server.py     # one server, stdio transport
 | `noesis-security` | `tools/security_mcp` | Security posture and checks |
 | `noesis-schema` | `tools/schema_mcp` | Warehouse schema introspection |
 | `noesis-catalog` | `tools/catalog_mcp` | Least-privilege capability, domain, pack, transport, and readiness discovery |
+| `noesis-transactions` | `tools/transactions_mcp` | Authorized dry-run, atomic mutation commit, audit replay, and compensating rollback |
 
 ### Connecting an external host
 
@@ -113,11 +114,24 @@ An HTTP client entry then looks like:
 }
 ```
 
+### Knowledge transactions
+
+Knowledge writes use `noesis-transactions` and a preview-bound approval flow.
+The server validates the mutation contract, provisioned namespace ontology,
+evidence, permissions, and expected revisions without changing knowledge
+state. A commit must provide the unchanged envelope and returned
+`approval_hash`; it then applies the batch atomically and records provenance,
+invalidations, a consolidation watermark, and an append-only audit event.
+Retries are idempotent. Rollbacks are new compensating revisions, not history
+deletion. See the [operator guide](../../tools/transactions_mcp/README.md) for
+the permission scopes and workflow.
+
 ### Discipline the servers follow
 
-- **Read-only against the warehouse.** Read tools open DuckDB read-only, so they
-  never conflict with a writer, and degrade to an empty (still valid) payload
-  when a table is missing.
+- **Read tools are isolated.** Read-only servers open DuckDB read-only and
+  degrade to an empty (still valid) payload when a table is missing. The
+  transaction server is the explicit exception: it uses atomic writes guarded
+  by operator-configured scopes.
 - **Statistical-honesty contract.** Analytic tools return `n` / `method` /
   `assumptions` and an interval on any headline figure (`src/analytics/honesty.py`).
 - **Evidence discipline.** OSINT tools cite every rendered line; uncited items
