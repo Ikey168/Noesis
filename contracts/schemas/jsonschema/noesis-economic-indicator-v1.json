@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/contracts/noesis-economic-indicator-v1.json",
+  "title": "Noesis Economic Indicator v1",
+  "type": "object",
+  "properties": {
+    "economic_contract": {"const": "noesis-economic-model-v1"},
+    "indicator_id": {"type": "string", "minLength": 1},
+    "canonical_name": {"type": "string", "minLength": 1},
+    "concept": {"type": "string", "minLength": 1},
+    "definition": {"type": "string", "minLength": 1},
+    "unit": {"type": ["string", "null"]},
+    "scaling": {"type": "number", "exclusiveMinimum": 0},
+    "currency_basis": {"type": ["string", "null"]},
+    "geography": {"type": ["string", "null"]},
+    "frequency": {"enum": ["annual", "quarterly", "monthly", "weekly", "daily", "irregular"]},
+    "price_basis": {"enum": ["current", "constant", "chain_linked", "index", "not_applicable", "unknown"]},
+    "seasonal_adjustment": {"enum": ["adjusted", "not_adjusted", "not_applicable", "unknown"]},
+    "attributes": {"type": "object"}
+  },
+  "required": [
+    "economic_contract", "indicator_id", "canonical_name", "concept", "definition",
+    "unit", "scaling", "currency_basis", "geography", "frequency", "price_basis",
+    "seasonal_adjustment", "attributes"
+  ],
+  "additionalProperties": false
+}

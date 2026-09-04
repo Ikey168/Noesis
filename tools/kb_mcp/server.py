@@ -21,6 +21,7 @@ Tools:
   kb_cross_links(domains? | all_authorized)   -> entity/claim equivalence links
   kb_temporal(domain, time axes?, history?)   -> bitemporal assertions/history
   kb_political(domain, query, jurisdiction)   -> cited political research
+  kb_economic(domain, query_type, series_ids) -> cited economic research
   kb_corroborate(domain, claim_id)             -> publication/origin counts
   kb_documents(domain, since?, limit=50)      -> member documents, newest arrival first
   kb_claims(domain, since?, limit=50)         -> clustered, cited claims
@@ -249,6 +250,45 @@ def kb_political(
         proposal_id,
         actor_id,
         institution_id,
+        limit,
+        principal_id,
+        include_private,
+    )
+
+
+@mcp.tool()
+def kb_economic(
+    domain: str,
+    query_type: str,
+    series_ids: Optional[list[str]] = None,
+    indicator_id: Optional[str] = None,
+    claim_id: Optional[str] = None,
+    period_from: Optional[str] = None,
+    period_to: Optional[str] = None,
+    observed_before: Optional[str] = None,
+    comparison_mode: str = "same_scope",
+    include_bundle: bool = False,
+    limit: int = 100,
+    principal_id: Optional[str] = None,
+    include_private: bool = False,
+) -> Dict[str, Any]:
+    """Query economic trends, compatible series comparisons, release
+    revisions, or claim-to-observation links. Measurement dimensions,
+    source locators, temporal cutoffs, and causal limitations are explicit."""
+    from src.kb import contract
+
+    return _run(
+        contract.kb_economic,
+        domain,
+        query_type,
+        series_ids,
+        indicator_id,
+        claim_id,
+        period_from,
+        period_to,
+        observed_before,
+        comparison_mode,
+        include_bundle,
         limit,
         principal_id,
         include_private,

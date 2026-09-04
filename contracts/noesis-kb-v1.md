@@ -42,6 +42,7 @@ new domain content today.
 | `kb_cross_links(domains? \| all_authorized, kind?, relation?, limit?)` | inspectable entity equivalences and claim links across domains, including confidence, method, model/run provenance, endpoint evidence, and reversibility |
 | `kb_temporal(domain, assertion_kind?, assertion_id?, as_of?, valid_at?, observed_before?, history?, include_retracted?, limit?, cursor?)` | additive `noesis-temporal-v1` snapshot/history query over independent valid and observation clocks; returns immutable documents, claims, entities, relations, or observations with precision, provenance, typed revision transitions, coverage limitations, and stable pagination |
 | `kb_political(domain, query_type, jurisdiction, at?, observed_before?, office_id?, proposal_id?, actor_id?, institution_id?, limit?, principal_id?, include_private?)` | officeholder, proposal lifecycle, vote, institutional-position, and policy-change research composed with temporal, citation, source-coverage, and evidence-independence receipts |
+| `kb_economic(domain, query_type, series_ids?, indicator_id?, claim_id?, period_from?, period_to?, observed_before?, comparison_mode?, include_bundle?, limit?, principal_id?, include_private?)` | cited trends, dimension-checked series comparisons, initial-versus-latest vintage revisions, and provenance-rich claim links over `dataset-series-v1`; correlation and temporal proximity remain explicitly non-causal |
 | `kb_corroborate(domain, claim_id)` | origin-aware publication, probable-origin, unresolved, and dependency-evidence counts; distinct-source compatibility fallback |
 | `watch_create/list/poll/pause/resume/delete(...)` | additive `noesis-claim-watch-v1` lifecycle and opaque-cursor event polling, principal/domain scoped |
 | `policy_monitor_status(principal_id?, include_private?)` | additive `noesis-policy-monitor-v1` cited receipt; public by default, grant-gated when private is explicit |
@@ -104,3 +105,10 @@ schema. Existing calls and response shapes are unchanged.
 `noesis-temporal-v1` discriminator. Exact clock precedence, interval boundaries,
 normalization, migration, and revision semantics are governed by
 [`noesis-temporal-v1.md`](noesis-temporal-v1.md).
+
+`kb_economic` is also additive. Its `noesis-economic-research-v1` payload pins
+the provider vintage and retrieval cutoff, exposes every measurement dimension
+used to decide comparability, and may include a `noesis-evidence-bundle-v1`
+receipt. Economic observations stay in `dataset-series-v1`; the economic pack
+adds semantic mappings, release/revision metadata, and temporal projections
+rather than duplicating numeric storage.

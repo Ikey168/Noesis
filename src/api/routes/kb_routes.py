@@ -107,6 +107,20 @@ class PoliticalQueryRequest(BaseModel):
     limit: int = Field(default=50, ge=1, le=100)
 
 
+class EconomicQueryRequest(BaseModel):
+    domain: str = Field(min_length=1)
+    query_type: str = Field(min_length=1)
+    series_ids: Optional[list[str]] = None
+    indicator_id: Optional[str] = None
+    claim_id: Optional[str] = None
+    period_from: Optional[str] = None
+    period_to: Optional[str] = None
+    observed_before: Optional[int | str] = None
+    comparison_mode: str = "same_scope"
+    include_bundle: bool = False
+    limit: int = Field(default=100, ge=1, le=1000)
+
+
 def _watch_principal(current_user: dict) -> str:
     principal = current_user.get("sub") or current_user.get("user_id")
     if not principal:
@@ -337,6 +351,49 @@ def private_political_query(
         request.proposal_id,
         request.actor_id,
         request.institution_id,
+        request.limit,
+        _watch_principal(current_user),
+        True,
+    )
+
+
+@router.post("/economic")
+def economic_query(request: EconomicQueryRequest):
+    """Run a public cited economic trend, comparison, vintage, or claim query."""
+    return _run(
+        contract.kb_economic,
+        request.domain,
+        request.query_type,
+        request.series_ids,
+        request.indicator_id,
+        request.claim_id,
+        request.period_from,
+        request.period_to,
+        request.observed_before,
+        request.comparison_mode,
+        request.include_bundle,
+        request.limit,
+    )
+
+
+@router.post("/economic/private")
+def private_economic_query(
+    request: EconomicQueryRequest,
+    current_user: dict = Depends(require_auth),
+):
+    """Run the same query against a grant-authorized private domain."""
+    return _run(
+        contract.kb_economic,
+        request.domain,
+        request.query_type,
+        request.series_ids,
+        request.indicator_id,
+        request.claim_id,
+        request.period_from,
+        request.period_to,
+        request.observed_before,
+        request.comparison_mode,
+        request.include_bundle,
         request.limit,
         _watch_principal(current_user),
         True,

@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/contracts/noesis-economic-research-v1.json",
+  "title": "Noesis Economic Research v1",
+  "type": "object",
+  "properties": {
+    "economic_contract": {"const": "noesis-economic-research-v1"},
+    "query": {"type": "object"},
+    "results": {"type": "array"},
+    "n": {"type": "integer", "minimum": 0},
+    "method": {"type": "string", "minLength": 1},
+    "assumptions": {"type": "array", "items": {"type": "string"}},
+    "comparison": {"type": ["object", "null"]},
+    "citations": {"type": "array"},
+    "coverage": {"type": "object"},
+    "uncertainty": {
+      "type": "object",
+      "properties": {
+        "status": {"enum": ["supported", "partial", "unsupported"]},
+        "reasons": {"type": "array", "items": {"type": "string"}}
+      },
+      "required": ["status", "reasons"]
+    },
+    "causal_safety": {
+      "type": "object",
+      "properties": {
+        "default": {"const": "association_only"},
+        "statement": {"type": "string"}
+      },
+      "required": ["default", "statement"]
+    },
+    "temporal": {"type": "object"},
+    "composed_contracts": {"type": "array", "items": {"type": "string"}},
+    "evidence_bundle": {"type": "object"}
+  },
+  "required": [
+    "economic_contract", "query", "results", "n", "method", "assumptions", "comparison", "citations",
+    "coverage", "uncertainty", "causal_safety", "temporal", "composed_contracts"
+  ],
+  "additionalProperties": false
+}
