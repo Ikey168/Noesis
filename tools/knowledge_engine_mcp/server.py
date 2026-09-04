@@ -119,6 +119,10 @@ def knowledge_engine_capabilities() -> dict:
             "noesis-quantitative-observation-v1",
             "noesis-quantitative-calculation-v1",
             "noesis-quantitative-comparability-v1",
+            "noesis-geospatial-place-v1",
+            "noesis-geospatial-geometry-v1",
+            "noesis-geocode-resolution-v1",
+            "noesis-spatial-result-v1",
             "noesis-maintenance-job-request-v1",
             "noesis-maintenance-job-receipt-v1",
             "noesis-knowledge-generation-v1",
@@ -163,6 +167,11 @@ def knowledge_engine_capabilities() -> dict:
             "vintage-aware-observations",
             "reproducible-quantitative-transformations",
             "series-break-comparability",
+            "versioned-place-gazetteer",
+            "time-bounded-wgs84-geometry",
+            "ambiguity-preserving-geocoding",
+            "reproducible-spatial-relations",
+            "bounded-event-map-queries",
             "knowledge-maintenance",
             "lease-safe-workers",
             "committed-generations",
@@ -2145,6 +2154,367 @@ def replay_quantitative_calculation(namespace: str, calculation_id: str) -> dict
             namespace, calculation_id, scopes=_context()[1]
         ),
         required_scope="knowledge:quantitative:read",
+    )
+
+
+@mcp.tool()
+def register_geospatial_place(
+    namespace: str,
+    canonical_name: str,
+    place_type: str,
+    names: list[dict[str, Any]],
+    source_ids: dict[str, str],
+    parent_ids: list[str] | None = None,
+    place_key: str | None = None,
+    geometry: dict[str, Any] | None = None,
+    generation: int = 0,
+    valid_from_ms: int | None = None,
+    valid_to_ms: int | None = None,
+    observed_at_ms: int | None = None,
+    provenance: dict[str, Any] | None = None,
+) -> dict:
+    """Register a stable versioned place identity and optional bootstrap geometry."""
+    from src.kb.geospatial import GeospatialStore
+
+    principal, scopes = _context()
+    return _safe(
+        lambda conn: GeospatialStore(conn).register_place(
+            namespace,
+            canonical_name,
+            place_type,
+            names=names,
+            source_ids=source_ids,
+            parent_ids=parent_ids or [],
+            place_key=place_key,
+            geometry=geometry,
+            generation=generation,
+            valid_from_ms=valid_from_ms,
+            valid_to_ms=valid_to_ms,
+            observed_at_ms=observed_at_ms,
+            provenance=provenance,
+            principal_id=principal,
+            scopes=scopes,
+        ),
+        write=True,
+        required_scope="knowledge:geospatial:write",
+    )
+
+
+@mcp.tool()
+def revise_geospatial_place(
+    namespace: str,
+    place_id: str,
+    expected_revision: int,
+    patch: dict[str, Any],
+    reason: str,
+) -> dict:
+    """Append an immutable correction, name history, or hierarchy revision."""
+    from src.kb.geospatial import GeospatialStore
+
+    principal, scopes = _context()
+    return _safe(
+        lambda conn: GeospatialStore(conn, initialize=False).revise_place(
+            namespace,
+            place_id,
+            expected_revision,
+            patch,
+            reason=reason,
+            principal_id=principal,
+            scopes=scopes,
+        ),
+        write=True,
+        required_scope="knowledge:geospatial:write",
+    )
+
+
+@mcp.tool()
+def get_geospatial_place(
+    namespace: str,
+    place_id: str,
+    revision: int | None = None,
+    include_history: bool = False,
+) -> dict:
+    """Read the current, exact, or complete history of a place."""
+    from src.kb.geospatial import GeospatialStore
+
+    return _safe(
+        lambda conn: GeospatialStore(conn, initialize=False).place(
+            namespace,
+            place_id,
+            scopes=_context()[1],
+            revision=revision,
+            include_history=include_history,
+        ),
+        required_scope="knowledge:geospatial:read",
+    )
+
+
+@mcp.tool()
+def store_geospatial_geometry(
+    namespace: str,
+    geometry: dict[str, Any],
+    place_id: str | None,
+    source: dict[str, Any],
+    evidence: list[dict[str, Any]],
+    crs: str = "EPSG:4326",
+    precision_m: float = 0,
+    simplified_from: str | None = None,
+    disputed: bool = False,
+    admin_hierarchy: list[str] | None = None,
+    generation: int = 0,
+    valid_from_ms: int | None = None,
+    valid_to_ms: int | None = None,
+) -> dict:
+    """Store an immutable point, line, or polygon with time and source context."""
+    from src.kb.geospatial import GeospatialStore
+
+    principal, scopes = _context()
+    return _safe(
+        lambda conn: GeospatialStore(conn, initialize=False).store_geometry(
+            namespace,
+            geometry,
+            place_id=place_id,
+            crs=crs,
+            precision_m=precision_m,
+            simplified_from=simplified_from,
+            disputed=disputed,
+            admin_hierarchy=admin_hierarchy or [],
+            source=source,
+            evidence=evidence,
+            generation=generation,
+            valid_from_ms=valid_from_ms,
+            valid_to_ms=valid_to_ms,
+            principal_id=principal,
+            scopes=scopes,
+        ),
+        write=True,
+        required_scope="knowledge:geospatial:write",
+    )
+
+
+@mcp.tool()
+def list_geospatial_geometries(
+    namespace: str,
+    place_id: str,
+    as_of_ms: int | None = None,
+    include_disputed: bool = True,
+) -> dict:
+    """List a place's geometries valid at a requested time."""
+    from src.kb.geospatial import GeospatialStore
+
+    return _safe(
+        lambda conn: {
+            "items": GeospatialStore(conn, initialize=False).geometries(
+                namespace,
+                place_id,
+                scopes=_context()[1],
+                as_of_ms=as_of_ms,
+                include_disputed=include_disputed,
+            )
+        },
+        required_scope="knowledge:geospatial:read",
+    )
+
+
+@mcp.tool()
+def simplify_geospatial_geometry(
+    namespace: str, geometry_id: str, tolerance_m: float
+) -> dict:
+    """Create a source-linked simplified geometry at an explicit tolerance."""
+    from src.kb.geospatial import GeospatialStore
+
+    principal, scopes = _context()
+    return _safe(
+        lambda conn: GeospatialStore(conn, initialize=False).simplify(
+            namespace,
+            geometry_id,
+            tolerance_m,
+            principal_id=principal,
+            scopes=scopes,
+        ),
+        write=True,
+        required_scope="knowledge:geospatial:write",
+    )
+
+
+@mcp.tool()
+def resolve_geospatial_candidates(
+    namespace: str,
+    mention: str,
+    context: dict[str, Any] | None = None,
+    coordinate_hint: list[float] | None = None,
+    as_of_ms: int | None = None,
+    limit: int = 10,
+) -> dict:
+    """Resolve text against offline place candidates without hiding ambiguity."""
+    from src.kb.geospatial import GeospatialStore
+
+    return _safe(
+        lambda conn: GeospatialStore(conn, initialize=False).resolve(
+            namespace,
+            mention,
+            context=context,
+            coordinate_hint=coordinate_hint,
+            as_of_ms=as_of_ms,
+            limit=limit,
+            scopes=_context()[1],
+        ),
+        required_scope="knowledge:geospatial:read",
+    )
+
+
+@mcp.tool()
+def record_geospatial_resolution(
+    namespace: str,
+    mention: str,
+    context: dict[str, Any] | None = None,
+    coordinate_hint: list[float] | None = None,
+    as_of_ms: int | None = None,
+    limit: int = 10,
+) -> dict:
+    """Persist an ambiguity-preserving offline geocoding result for review."""
+    from src.kb.geospatial import GeospatialStore
+
+    principal, scopes = _context()
+
+    def operation(conn):
+        store = GeospatialStore(conn, initialize=False)
+        result = store.resolve(
+            namespace,
+            mention,
+            context=context,
+            coordinate_hint=coordinate_hint,
+            as_of_ms=as_of_ms,
+            limit=limit,
+            scopes={"knowledge:geospatial:read"},
+        )
+        return store.save_resolution(result, principal_id=principal, scopes=scopes)
+
+    return _safe(
+        operation,
+        write=True,
+        required_scope="knowledge:geospatial:write",
+    )
+
+
+@mcp.tool()
+def review_geospatial_resolution(
+    namespace: str,
+    resolution_id: str,
+    decision: str,
+    reason: str,
+    selected_place_id: str | None = None,
+) -> dict:
+    """Append a reversible accept, reject, or defer review decision."""
+    from src.kb.geospatial import GeospatialStore
+
+    principal, scopes = _context()
+    return _safe(
+        lambda conn: GeospatialStore(conn, initialize=False).review(
+            namespace,
+            resolution_id,
+            decision,
+            selected_place_id=selected_place_id,
+            reason=reason,
+            principal_id=principal,
+            scopes=scopes,
+        ),
+        write=True,
+        required_scope="knowledge:geospatial:review",
+    )
+
+
+@mcp.tool()
+def calculate_spatial_relation(
+    namespace: str,
+    operation: str,
+    left_geometry_id: str,
+    right: Any = None,
+    tolerance_m: float = 0,
+) -> dict:
+    """Calculate containment, proximity, intersection, or route length with a receipt."""
+    from src.kb.geospatial import GeospatialStore
+
+    principal, scopes = _context()
+    return _safe(
+        lambda conn: GeospatialStore(conn, initialize=False).relation(
+            namespace,
+            operation,
+            left_geometry_id,
+            right,
+            tolerance_m=tolerance_m,
+            principal_id=principal,
+            scopes=scopes,
+        ),
+        write=True,
+        required_scope="knowledge:geospatial:calculate",
+    )
+
+
+@mcp.tool()
+def replay_spatial_relation(namespace: str, receipt_id: str) -> dict:
+    """Verify a spatial calculation receipt from its pinned inputs and algorithm."""
+    from src.kb.geospatial import GeospatialStore
+
+    return _safe(
+        lambda conn: GeospatialStore(conn, initialize=False).replay(
+            namespace, receipt_id, scopes=_context()[1]
+        ),
+        required_scope="knowledge:geospatial:read",
+    )
+
+
+@mcp.tool()
+def search_geospatial_knowledge(
+    namespace: str,
+    bbox: list[float] | None = None,
+    center: list[float] | None = None,
+    radius_m: float | None = None,
+    contains_point: list[float] | None = None,
+    as_of_ms: int | None = None,
+    include_disputed: bool = True,
+    limit: int = 50,
+    cursor: str | None = None,
+) -> dict:
+    """Search bounded boxes, radii, and containment with cursor-bound filters."""
+    from src.kb.geospatial import GeospatialStore
+
+    return _safe(
+        lambda conn: GeospatialStore(conn, initialize=False).search(
+            namespace,
+            bbox=bbox,
+            center=center,
+            radius_m=radius_m,
+            contains_point=contains_point,
+            as_of_ms=as_of_ms,
+            include_disputed=include_disputed,
+            limit=limit,
+            cursor=cursor,
+            scopes=_context()[1],
+        ),
+        required_scope="knowledge:geospatial:read",
+    )
+
+
+@mcp.tool()
+def query_geospatial_event_map(
+    namespace: str,
+    start_ms: int | None = None,
+    end_ms: int | None = None,
+    limit: int = 100,
+) -> dict:
+    """Return bounded current event locations for political and OSINT maps."""
+    from src.kb.geospatial import GeospatialStore
+
+    return _safe(
+        lambda conn: GeospatialStore(conn, initialize=False).event_map(
+            namespace,
+            start_ms=start_ms,
+            end_ms=end_ms,
+            limit=limit,
+            scopes=_context()[1],
+        ),
+        required_scope="knowledge:geospatial:read",
     )
 
 

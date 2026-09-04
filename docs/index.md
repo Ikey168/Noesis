@@ -44,6 +44,8 @@ For the project overview and local setup, start with the
   multilingual mentions, competing accounts, timelines, neighborhoods, and diffs
 - **[Quantitative semantic layer](guides/quantitative-semantic-layer.md)** —
   versioned metrics and units, vintages, exact transformations, and comparability
+- **[Geospatial knowledge engine](guides/geospatial-knowledge.md)** — versioned
+  places and boundaries, ambiguous geocoding, spatial receipts, and event maps
 - **[Unified knowledge query](guides/unified-knowledge-query.md)** — one bounded,
   evidence-preserving plane over local, temporal, memory, and federated data.
 - [Project structure](development/project-structure.md) — where things live in

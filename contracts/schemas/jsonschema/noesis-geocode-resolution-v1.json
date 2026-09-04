@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/schemas/noesis-geocode-resolution-v1.json",
+  "title": "Noesis ambiguity-preserving geocode resolution",
+  "type": "object",
+  "required": ["contract", "resolution_id", "namespace", "mention", "context", "candidates", "status", "selected_place_id", "confidence", "evidence", "method", "input_hash"],
+  "properties": {
+    "contract": {"const": "noesis-geocode-resolution-v1"},
+    "resolution_id": {"type": "string", "pattern": "^geocode-resolution:"},
+    "namespace": {"type": "string", "minLength": 1},
+    "mention": {"type": "string", "minLength": 1},
+    "context": {"type": "object"},
+    "candidates": {"type": "array", "items": {"type": "object", "required": ["place_id", "canonical_name", "confidence", "reasons"]}},
+    "status": {"enum": ["resolved", "ambiguous", "unresolved"]},
+    "selected_place_id": {"type": ["string", "null"]},
+    "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+    "evidence": {"type": "array", "items": {"type": "object"}},
+    "method": {"type": "object", "required": ["name", "version"]},
+    "input_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "principal_id": {"type": "string"},
+    "created_at_ms": {"type": "integer", "minimum": 0},
+    "idempotent": {"type": "boolean"}
+  },
+  "additionalProperties": false
+}
