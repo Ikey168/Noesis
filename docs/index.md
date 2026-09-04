@@ -25,6 +25,8 @@ For the project overview and local setup, start with the
   diagrams: ingestion pipeline, capability plane, worked claim-check flow
 - **[Integrate via MCP + API](integration/mcp-and-api.md)** — consuming Noesis
   from another project: server table, stdio/HTTP transport, auth, REST examples
+- **[Knowledge Engine 1.0 workflow](guides/knowledge-engine-reference.md)** —
+  deterministic ingest-to-export composition, receipts, recovery, and watermarks
 - [Project structure](development/project-structure.md) — where things live in
   the codebase
 

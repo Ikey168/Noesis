@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/contracts/noesis-workflow-stage-receipt-v1.json",
+  "type": "object",
+  "required": ["contract", "receipt_id", "run_id", "stage", "ordinal", "status", "input_hash", "contracts", "lineage", "warnings", "started_at_ms"],
+  "properties": {
+    "contract": {"const": "noesis-workflow-stage-receipt-v1"},
+    "receipt_id": {"type": "string"},
+    "run_id": {"type": "string"},
+    "stage": {"enum": ["ingest", "extract", "resolve", "index", "query", "subscribe", "export"]},
+    "ordinal": {"type": "integer", "minimum": 0},
+    "status": {"enum": ["completed", "failed", "cancelled"]},
+    "input_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "output_hash": {"type": ["string", "null"]},
+    "contracts": {"type": "object"},
+    "lineage": {"type": "array"},
+    "warnings": {"type": "array"},
+    "started_at_ms": {"type": "integer", "minimum": 0},
+    "completed_at_ms": {"type": ["integer", "null"], "minimum": 0}
+  },
+  "additionalProperties": false
+}

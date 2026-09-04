@@ -1,0 +1,16 @@
+{
+  "workflow_id": "knowledge-engine-reference",
+  "version": "1.0.0",
+  "namespace": "reference",
+  "domains": ["economic", "osint", "political", "research", "scientific", "technical"],
+  "capabilities": ["documents:ingest", "knowledge:extract", "knowledge:index", "knowledge:query", "knowledge:resolve", "knowledge:subscribe", "namespace:export"],
+  "stages": [
+    {"name": "ingest", "capability": "documents:ingest", "input_contract": "document-batch-v1", "output_contract": "document-store-summary-v1", "resources": {"timeout_ms": 30000, "max_items": 10000, "max_bytes": 20000000}, "policy": {"required": true}},
+    {"name": "extract", "capability": "knowledge:extract", "input_contract": "document-store-summary-v1", "output_contract": "noesis-extractor-run-v1", "resources": {"timeout_ms": 30000, "max_items": 10000, "max_bytes": 20000000}, "policy": {"required": true}},
+    {"name": "resolve", "capability": "knowledge:resolve", "input_contract": "noesis-extractor-run-v1", "output_contract": "noesis-resolution-batch-v1", "resources": {"timeout_ms": 30000, "max_items": 10000, "max_bytes": 20000000}, "policy": {"required": true}},
+    {"name": "index", "capability": "knowledge:index", "input_contract": "noesis-resolution-batch-v1", "output_contract": "noesis-derived-artifact-v1", "resources": {"timeout_ms": 30000, "max_items": 10000, "max_bytes": 20000000}, "policy": {"required": true}},
+    {"name": "query", "capability": "knowledge:query", "input_contract": "noesis-derived-artifact-v1", "output_contract": "noesis-query-result-v1", "resources": {"timeout_ms": 30000, "max_items": 10000, "max_bytes": 20000000}, "policy": {"required": true}},
+    {"name": "subscribe", "capability": "knowledge:subscribe", "input_contract": "noesis-query-result-v1", "output_contract": "noesis-knowledge-subscription-event-v1", "resources": {"timeout_ms": 30000, "max_items": 10000, "max_bytes": 20000000}, "policy": {"required": true}},
+    {"name": "export", "capability": "namespace:export", "input_contract": "noesis-knowledge-subscription-event-v1", "output_contract": "noesis-knowledge-package-v1", "resources": {"timeout_ms": 30000, "max_items": 10000, "max_bytes": 20000000}, "policy": {"required": true}}
+  ]
+}

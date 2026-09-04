@@ -41,7 +41,38 @@ def _safe(operation,*,write: bool=False):
 @mcp.tool()
 def knowledge_engine_capabilities() -> dict:
     """Describe declarative ingestion, extraction, events, and artifact rebuild contracts."""
-    return {"contracts":["noesis-declarative-api-source-v1","noesis-extractor-definition-v1","noesis-canonical-event-v1","noesis-derived-artifact-v1"],"features":["declarative-rest","versioned-extractors","canonical-events","selective-rebuild"]}
+    return {"contracts":["noesis-declarative-api-source-v1","noesis-extractor-definition-v1","noesis-canonical-event-v1","noesis-derived-artifact-v1","noesis-knowledge-workflow-v1","noesis-workflow-stage-receipt-v1","noesis-workflow-watermark-v1"],"features":["declarative-rest","versioned-extractors","canonical-events","selective-rebuild","reference-workflow","committed-watermarks"]}
+
+
+@mcp.tool()
+def validate_knowledge_workflow(manifest: dict[str,Any]) -> dict:
+    """Validate and hash a workflow manifest without executing it."""
+    from src.kb.workflows import WorkflowError,validate_manifest
+    try:return {"ok":True,"manifest":validate_manifest(manifest)}
+    except WorkflowError as exc:return {"ok":False,"error":exc.as_dict()}
+
+
+@mcp.tool()
+def run_reference_workflow(documents: list[dict[str,Any]],run_key: str,namespace: str="reference") -> dict:
+    """Run or resume the canonical seven-stage Knowledge Engine workflow."""
+    from src.kb.workflows import WorkflowStore,reference_handlers,reference_manifest
+    def operation(conn):
+        store=WorkflowStore(conn);return store.execute(reference_manifest(namespace),reference_handlers(conn,principal_id=_context()[0]),{"documents":documents},run_key=run_key)
+    return _safe(operation,write=True)
+
+
+@mcp.tool()
+def inspect_reference_workflow(run_id: str) -> dict:
+    """Inspect workflow state, immutable receipts, and its committed watermark."""
+    from src.kb.workflows import WorkflowStore
+    return _safe(lambda conn:WorkflowStore(conn,initialize=False).inspect(run_id))
+
+
+@mcp.tool()
+def read_workflow_stage(namespace: str,workflow_id: str,watermark: int,stage: str) -> dict:
+    """Read a stage output from exactly one committed workflow generation."""
+    from src.kb.workflows import WorkflowStore
+    return _safe(lambda conn:WorkflowStore(conn,initialize=False).read_stage(namespace,workflow_id,watermark,stage))
 
 
 @mcp.tool()

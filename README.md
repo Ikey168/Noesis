@@ -27,6 +27,9 @@ surface. The full design lives in the
 > list, the REST API surface, auth, and example tool calls.
 > To verify the receipts offline, run `make evidence-showcase`; see the
 > [evidence showcase](docs/guides/evidence-showcase.md).
+> To exercise the complete Knowledge Engine path, run
+> `make knowledge-engine-reference`; see the
+> [Knowledge Engine 1.0 reference workflow](docs/guides/knowledge-engine-reference.md).
 
 ---
 

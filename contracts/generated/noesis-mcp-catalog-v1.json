@@ -799,28 +799,32 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 13,
+      "tool_count": 17,
       "tools": [
         "noesis-knowledge-engine.artifact_lineage",
         "noesis-knowledge-engine.execute_artifact_rebuild",
         "noesis-knowledge-engine.fetch_declarative_api",
+        "noesis-knowledge-engine.inspect_reference_workflow",
         "noesis-knowledge-engine.knowledge_engine_capabilities",
         "noesis-knowledge-engine.list_extractors",
         "noesis-knowledge-engine.merge_canonical_events",
         "noesis-knowledge-engine.plan_extractor_reprocessing",
         "noesis-knowledge-engine.preview_artifact_invalidation",
+        "noesis-knowledge-engine.read_workflow_stage",
         "noesis-knowledge-engine.register_derived_artifact",
         "noesis-knowledge-engine.register_extractor",
         "noesis-knowledge-engine.resolve_event_report",
         "noesis-knowledge-engine.reverse_event_merge",
-        "noesis-knowledge-engine.validate_api_connector_manifest"
+        "noesis-knowledge-engine.run_reference_workflow",
+        "noesis-knowledge-engine.validate_api_connector_manifest",
+        "noesis-knowledge-engine.validate_knowledge_workflow"
       ],
       "transports": [
         "stdio",
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 13
+      "visible_tool_count": 17
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -831,12 +835,12 @@
     },
     "servers": 29,
     "states": {
-      "available": 33,
+      "available": 37,
       "degraded": 155,
       "disabled": 3,
       "unauthorized": 53
     },
-    "tools": 244
+    "tools": 248
   },
   "tools": [
     {
@@ -12234,6 +12238,39 @@
     },
     {
       "cost_class": "low",
+      "description": "Inspect workflow state, immutable receipts, and its committed watermark.",
+      "id": "noesis-knowledge-engine.inspect_reference_workflow",
+      "input_schema": {
+        "properties": {
+          "run_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "run_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "inspect_reference_workflow",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Describe declarative ingestion, extraction, events, and artifact rebuild contracts.",
       "id": "noesis-knowledge-engine.knowledge_engine_capabilities",
       "input_schema": {
@@ -12421,6 +12458,51 @@
       "version": "1"
     },
     {
+      "cost_class": "low",
+      "description": "Read a stage output from exactly one committed workflow generation.",
+      "id": "noesis-knowledge-engine.read_workflow_stage",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "stage": {
+            "type": "string"
+          },
+          "watermark": {
+            "type": "integer"
+          },
+          "workflow_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "workflow_id",
+          "watermark",
+          "stage"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "read_workflow_stage",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
       "cost_class": "medium",
       "description": "Register a stable derived-artifact generation and every known dependency edge.",
       "id": "noesis-knowledge-engine.register_derived_artifact",
@@ -12572,6 +12654,51 @@
       "version": "1"
     },
     {
+      "cost_class": "medium",
+      "description": "Run or resume the canonical seven-stage Knowledge Engine workflow.",
+      "id": "noesis-knowledge-engine.run_reference_workflow",
+      "input_schema": {
+        "properties": {
+          "documents": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "namespace": {
+            "default": "reference",
+            "type": "string"
+          },
+          "run_key": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "documents",
+          "run_key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "run_reference_workflow",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "operator"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
       "cost_class": "low",
       "description": "Validate an API manifest without making a network request.",
       "id": "noesis-knowledge-engine.validate_api_connector_manifest",
@@ -12590,6 +12717,40 @@
       "latency_class": "interactive",
       "mutability": "read",
       "name": "validate_api_connector_manifest",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Validate and hash a workflow manifest without executing it.",
+      "id": "noesis-knowledge-engine.validate_knowledge_workflow",
+      "input_schema": {
+        "properties": {
+          "manifest": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "manifest"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "validate_knowledge_workflow",
       "output_schema": {
         "additionalProperties": true,
         "type": "object"
