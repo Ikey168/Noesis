@@ -1,0 +1,17 @@
+{
+  "contract": "noesis-knowledge-source-v1",
+  "source_id": "fixture-research",
+  "kind": "fake",
+  "version": "1.0.0",
+  "capabilities": ["search", "temporal"],
+  "schemas": {"knowledge": {"type": "object"}},
+  "limits": {"max_bytes": 1000000, "max_results": 100, "timeout_ms": 1000},
+  "pagination": {"kind": "opaque-cursor", "stable": true},
+  "freshness": {"kind": "fixture"},
+  "authorization_scopes": ["knowledge:federation:read"],
+  "consistency": "snapshot",
+  "score_semantics": "higher-is-better",
+  "temporal_support": "current",
+  "failure_behavior": "partial",
+  "capability_hash": "2a19e44f2b83aceca5ca0cb7cd817864305375268afe24938d155eae70f587b7"
+}

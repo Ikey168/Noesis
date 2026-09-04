@@ -34,6 +34,7 @@ READ_SMOKES = {
     "contract_mcp": ("list_contracts", {}),
     "dataset_mcp": ("get_stats", {}),
     "domain_packs_mcp": ("list_packs", {}),
+    "federation_mcp": ("federation_contract", {}),
     "kb_mcp": ("kb_domains", {}),
     "kg_mcp": ("kg_stats", {}),
     "lineage_mcp": ("list_namespaces", {}),

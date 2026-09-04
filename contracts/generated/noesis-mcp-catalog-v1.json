@@ -689,6 +689,29 @@
       ],
       "version": "1",
       "visible_tool_count": 16
+    },
+    {
+      "aliases": [],
+      "kind": "noesis",
+      "name": "noesis-federation",
+      "pack": null,
+      "reason": null,
+      "state": "unauthorized",
+      "tool_count": 6,
+      "tools": [
+        "noesis-federation.federated_query",
+        "noesis-federation.federation_context",
+        "noesis-federation.federation_contract",
+        "noesis-federation.federation_schema",
+        "noesis-federation.federation_sources",
+        "noesis-federation.query_federated_source"
+      ],
+      "transports": [
+        "stdio",
+        "streamable-http"
+      ],
+      "version": "1",
+      "visible_tool_count": 6
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -697,14 +720,14 @@
     "omitted": {
       "unauthorized": 1
     },
-    "servers": 24,
+    "servers": 25,
     "states": {
       "available": 20,
       "degraded": 153,
       "disabled": 3,
-      "unauthorized": 21
+      "unauthorized": 27
     },
-    "tools": 197
+    "tools": 203
   },
   "tools": [
     {
@@ -10660,6 +10683,187 @@
         "knowledge:schema:validate"
       ],
       "server": "noesis-schema-registry",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Plan, execute, merge, and report partial coverage across sources.",
+      "id": "noesis-federation.federated_query",
+      "input_schema": {
+        "properties": {
+          "request": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "request"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "federated_query",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "federated-knowledge-sources"
+      ],
+      "required_scopes": [
+        "knowledge:federation:read"
+      ],
+      "server": "noesis-federation",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Return the effective principal and federation scopes.",
+      "id": "noesis-federation.federation_context",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "federation_context",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "federated-knowledge-sources"
+      ],
+      "required_scopes": [
+        "knowledge:federation:read"
+      ],
+      "server": "noesis-federation",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Describe source requirements and honest merge behavior.",
+      "id": "noesis-federation.federation_contract",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "federation_contract",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "federated-knowledge-sources"
+      ],
+      "required_scopes": [
+        "knowledge:federation:read"
+      ],
+      "server": "noesis-federation",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Discover the approved partial schema for a SQL source.",
+      "id": "noesis-federation.federation_schema",
+      "input_schema": {
+        "properties": {
+          "source_id": {
+            "default": "noesis-local",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "federation_schema",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "federated-knowledge-sources"
+      ],
+      "required_scopes": [
+        "knowledge:federation:read"
+      ],
+      "server": "noesis-federation",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "List authorized source identities, capabilities, limits, and freshness.",
+      "id": "noesis-federation.federation_sources",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "federation_sources",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "federated-knowledge-sources"
+      ],
+      "required_scopes": [
+        "knowledge:federation:read"
+      ],
+      "server": "noesis-federation",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Execute a typed bounded read against one approved source.",
+      "id": "noesis-federation.query_federated_source",
+      "input_schema": {
+        "properties": {
+          "request": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "source_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "source_id",
+          "request"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "query_federated_source",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "federated-knowledge-sources"
+      ],
+      "required_scopes": [
+        "knowledge:federation:read"
+      ],
+      "server": "noesis-federation",
       "state": "unauthorized",
       "version": "1"
     }
