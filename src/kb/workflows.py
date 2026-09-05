@@ -863,9 +863,11 @@ def reference_handlers(conn: Any, *, principal_id: str = "reference-runner") -> 
             "cadence": {"trigger": "watermark"},
             "delivery": {"kind": "poll"},
         }
-        subscription = store.create(
+        existing = next((item for item in store.list(principal_id=principal_id, scopes=scopes, namespace=context.namespace)
+                         if item["query"] == definition["query"] and item["filters"] == definition["filters"]), None)
+        subscription = existing or store.create(
             definition,
-            context.run_id + ":subscription",
+            "workflow-subscription:" + _digest([principal_id, definition]),
             principal_id=principal_id,
             scopes=scopes,
         )
