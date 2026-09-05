@@ -226,7 +226,7 @@ def test_store_integration_folds_upsert_outcome_into_summary():
     docs = [
         _doc("d1", content="Unique story."),
         _doc("d2", content="Shared body."),
-        _doc("d3", content="Shared body."),  # content duplicate of d2
+        _doc("d3", content="Shared body."),  # distinct source observation
     ]
     conn = FakeConnector([ref], {"feed": docs})
     store = DocumentStore(duckdb.connect(":memory:"))
@@ -234,12 +234,12 @@ def test_store_integration_folds_upsert_outcome_into_summary():
     summary = conn.harvest_run(store=store, sleep=_noop_sleep)
 
     assert summary.documents == 3
-    assert summary.inserted == 2
-    assert summary.duplicate == 1
+    assert summary.inserted == 3
+    assert summary.duplicate == 0
     assert summary.invalid == 0
     # Every produced document lands in exactly one store outcome.
     assert summary.inserted + summary.duplicate + summary.invalid == summary.documents
-    assert store.count() == 2
+    assert store.count() == 3
 
 
 def test_summary_source_stage_counts_reconcile():

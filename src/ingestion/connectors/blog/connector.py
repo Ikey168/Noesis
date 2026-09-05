@@ -107,11 +107,17 @@ class BlogConnector(Connector):
         limit_per_feed: int = 20,
         http_get: Optional[Callable[[str], bytes]] = None,
         full_text_getter: Optional[Callable[[str], str]] = None,
+        http_state_path=None,
+        response_transport=None,
     ) -> None:
         self._store = SubscriptionStore(subs_path)
         self._fetch_full_text = fetch_full_text
         self._limit = limit_per_feed
         self._http_get = http_get or _default_http_get
+        self._http_state = None
+        if http_get is None:
+            from src.ingestion.connectors.blog.http_cache import FeedHTTPStore
+            self._http_state = FeedHTTPStore(http_state_path or self._store._path.with_suffix('.http.sqlite'), transport=response_transport)
         if full_text_getter is not None:
             self._full_text_getter: Callable[[str], str] = full_text_getter
         else:
@@ -138,10 +144,15 @@ class BlogConnector(Connector):
             )
 
     def fetch(self, ref: SourceRef) -> RawDocument:
-        content = self._http_get(ref.locator)
-        return RawDocument(ref=ref, content=content, content_type="application/xml")
+        if self._http_state is not None:
+            content, metadata = self._http_state.fetch(ref.locator)
+        else:
+            content, metadata = self._http_get(ref.locator), {}
+        return RawDocument(ref=ref, content=content, content_type="application/xml", metadata=metadata)
 
     def parse(self, raw: RawDocument) -> List[Document]:
+        if raw.metadata.get('outcome') == 'unchanged':
+            return []
         import feedparser
 
         data = raw.content
@@ -264,11 +275,13 @@ class BlogConnector(Connector):
 
         # Full article body.
         content = summary
+        extraction_metadata = None
         if self._fetch_full_text and url:
             try:
                 full = self._full_text_getter(url)
                 if full and len(full) > len(summary):
-                    content = full
+                    content = str(full)
+                    extraction_metadata = getattr(full,'extraction_metadata',None)
             except Exception:
                 pass
 
@@ -294,5 +307,6 @@ class BlogConnector(Connector):
                 "feed_name": feed_name,
                 "tags": list(set(feed_tags + entry_tags)),
                 "has_full_text": content != summary and bool(content),
+                **({'extraction_provenance_json':__import__('json').dumps(extraction_metadata,sort_keys=True)} if extraction_metadata else {}),
             },
         )

@@ -37,6 +37,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 import re
 import time
 import uuid
@@ -94,6 +95,7 @@ def ensure_membership_schema(conn) -> None:
     EmbeddingStore(conn)
     conn.execute(_MEMBERSHIP_SCHEMA)
     conn.execute(_SCANS_SCHEMA)
+    conn.execute("ALTER TABLE kb_membership_scans ADD COLUMN IF NOT EXISTS input_hash TEXT")
     # kb_membership_state is derived metadata (fingerprints + run markers):
     # a legacy pre-ledger shape is dropped, not migrated — the scan ledger
     # and assignments survive, and the next pass repopulates the state rows.
@@ -147,19 +149,21 @@ def _upsert_assignment(
 
 
 def _upsert_scan(
-    conn, document_id: str, domain: str, embedding_pending: bool, run_id: str
+    conn, document_id: str, domain: str, embedding_pending: bool, run_id: str,
+    input_hash: str,
 ) -> None:
     conn.execute(
         """
         INSERT INTO kb_membership_scans
-            (document_id, domain, embedding_pending, run_id, scanned_at)
-        VALUES (?, ?, ?, ?, ?)
+            (document_id, domain, embedding_pending, run_id, scanned_at, input_hash)
+        VALUES (?, ?, ?, ?, ?, ?)
         ON CONFLICT (document_id, domain) DO UPDATE SET
             embedding_pending = excluded.embedding_pending,
             run_id = excluded.run_id,
-            scanned_at = excluded.scanned_at
+            scanned_at = excluded.scanned_at,
+            input_hash = excluded.input_hash
         """,
-        [document_id, domain, embedding_pending, run_id, int(time.time() * 1000)],
+        [document_id, domain, embedding_pending, run_id, int(time.time() * 1000), input_hash],
     )
 
 
@@ -185,6 +189,8 @@ def _keyword_hits(text: str, keywords: List[str]) -> int:
 
 
 def _cosine(a: List[float], b: List[float]) -> float:
+    if len(a) != len(b) or not all(math.isfinite(float(x)) for x in [*a, *b]):
+        raise ValueError("incompatible or non-finite membership vector")
     dot = sum(x * y for x, y in zip(a, b))
     norm_a = sum(x * x for x in a) ** 0.5
     norm_b = sum(y * y for y in b) ** 0.5
@@ -203,6 +209,10 @@ def _anchor_vector(
     if not rows:
         return None
     dim = len(rows[0])
+    if len(rows) != len(definition.embedding_anchors) or not dim or any(
+        len(row) != dim or not all(math.isfinite(value) for value in row) for row in rows
+    ):
+        raise ValueError("anchor provider returned malformed vectors")
     return [sum(row[i] for row in rows) / len(rows) for i in range(dim)]
 
 
@@ -252,6 +262,11 @@ def _run_domain(
     domain_tags = {tag.lower() for tag in definition.tags}
     keywords = [keyword for keyword in definition.keywords if keyword.strip()]
     has_anchors = bool(definition.embedding_anchors)
+    from src.ingestion.processing_versions import ProcessingVersions, document_input_hash
+
+    ProcessingVersions(conn)
+    source_hash = document_input_hash()
+    input_hash_sql = "sha256(to_json(struct_pack(title := d.title, content := d.content, metadata := d.metadata, vector := e.vector, model := e.model, dim := e.dim, vector_source := p.input_hash)))"
 
     counts = {"source": 0, "keyword": 0, "embedding": 0, "scanned": 0}
 
@@ -265,23 +280,34 @@ def _run_domain(
                 "DELETE FROM kb_membership_scans WHERE domain = ?", [definition.name]
             )
 
+        for table in ("document_domains", "kb_membership_scans"):
+            conn.execute(f"DELETE FROM {table} WHERE domain=? AND document_id NOT IN (SELECT document_id FROM documents)", [definition.name])
+
         # Set-based candidates: never-scanned documents, plus previously
         # scanned ones whose embedding assessment is still pending.
         rows = conn.execute(
-            """
+            f"""
             SELECT d.document_id, COALESCE(d.title, ''), COALESCE(d.content, ''),
-                   d.metadata, e.vector
+                   d.metadata,
+                   CASE WHEN p.document_id IS NULL OR p.input_hash={source_hash}
+                        THEN e.vector ELSE NULL END,
+                   {input_hash_sql}
             FROM documents d
             LEFT JOIN kb_membership_scans s
               ON s.document_id = d.document_id AND s.domain = ?
             LEFT JOIN document_embeddings e
               ON e.document_id = d.document_id AND e.model = ?
+            LEFT JOIN document_processing_versions p
+              ON p.document_id=d.document_id AND p.stage='embedding'
             WHERE s.document_id IS NULL OR s.embedding_pending
+               OR s.input_hash IS DISTINCT FROM {input_hash_sql}
             """,
             [definition.name, definition.embedding_model],
         ).fetchall()
 
-        for document_id, title, content, metadata_json, vector_json in rows:
+        for document_id, title, content, metadata_json, vector_json, input_hash in rows:
+            # Reassessment must be able to remove or lower an old assignment.
+            conn.execute("DELETE FROM document_domains WHERE document_id=? AND domain=?", [document_id, definition.name])
             assigned = False
 
             if domain_tags and domain_tags & set(_document_tags(metadata_json)):
@@ -304,7 +330,9 @@ def _run_domain(
             embedding_assessed = False
             if not assigned and anchor is not None and vector_json:
                 try:
-                    vector = json.loads(vector_json)
+                    vector = [float(value) for value in json.loads(vector_json)]
+                    if len(vector) != len(anchor) or not all(math.isfinite(value) for value in vector):
+                        raise ValueError("invalid membership vector")
                 except (TypeError, ValueError):
                     # One corrupt vector row must not wedge the whole pass;
                     # the document stays embedding_pending until repaired.
@@ -339,7 +367,7 @@ def _run_domain(
                 has_anchors and not assigned and not embedding_assessed
             )
             _upsert_scan(
-                conn, document_id, definition.name, embedding_pending, run_id
+                conn, document_id, definition.name, embedding_pending, run_id, input_hash
             )
 
         conn.execute(

@@ -1027,3 +1027,16 @@ class SourcePlannerStore:
             "replayed_hash": replayed,
             "deterministic": replayed == receipt["receipt_hash"],
         }
+
+
+def scholarly_decomposition(question, *, author=None, from_date=None, to_date=None):
+    """Build provider-neutral scholarly parts for create_objective's existing receipt."""
+    from datetime import date
+    if not isinstance(question,str) or not question.strip():
+        raise ValueError('scholarly question required')
+    parameters={'query':question.strip()}
+    if author:parameters['author']=author
+    for key,value in [('from_date',from_date),('to_date',to_date)]:
+        if value is not None:parameters[key]=date.fromisoformat(value).isoformat()
+    if from_date and to_date and from_date>to_date:raise ValueError('inverted scholarly date window')
+    return [{'question':question.strip(),'query_form':'search','parameters':parameters}]

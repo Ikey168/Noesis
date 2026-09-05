@@ -392,7 +392,10 @@ class HTTPSPageAdapter:
         secret: str | None = None,
     ) -> None:
         self.source = json.loads(json.dumps(source))
-        self.transport = transport or self._request
+        if transport is None:
+            from functools import partial
+            transport = partial(self._request, max_bytes=int(source['budgets']['max_bytes']))
+        self.transport = transport
         self.secret = secret
         self.definition = {
             "contract": ADAPTER_CONTRACT,
@@ -416,6 +419,7 @@ class HTTPSPageAdapter:
         params: Mapping[str, Any],
         headers: Mapping[str, str],
         timeout: float,
+        max_bytes: int = 20_000_000,
     ) -> Mapping[str, Any]:
         query = urllib.parse.urlencode(params)
         target = url + ("?" + query if query else "")
@@ -429,12 +433,24 @@ class HTTPSPageAdapter:
                 )
 
         opener = urllib.request.build_opener(PublicSameHostRedirect())
-        with opener.open(request, timeout=timeout) as response:
-            return {
-                "status": response.status,
-                "headers": dict(response.headers),
-                "content": response.read(),
-            }
+        try:
+            with opener.open(request, timeout=timeout) as response:
+                content = response.read(max_bytes + 1)
+                if len(content)>max_bytes:
+                    raise SourcePackError('response_too_large', 'source response exceeds its byte limit')
+                return {"status": response.status,"headers": dict(response.headers),"content": content, "final_url": response.geturl()}
+        except urllib.error.HTTPError as exc:
+            # Preserve status/retry headers without copying an unbounded or
+            # sensitive upstream error body into a durable failure receipt.
+            try:
+                return {'status':exc.code,'headers':dict(exc.headers or {}),'content':b''}
+            finally:
+                exc.close()
+        except TimeoutError as exc:
+            raise SourcePackError('source_timeout','source request exceeded its transport timeout') from exc
+        except urllib.error.URLError as exc:
+            code='source_timeout' if isinstance(exc.reason,TimeoutError) else 'source_unavailable'
+            raise SourcePackError(code,'source transport is unavailable') from exc
 
     def fetch_page(
         self, request: Mapping[str, Any], *, cursor: str | None
@@ -456,10 +472,31 @@ class HTTPSPageAdapter:
             int(request.get("limit", 100)),
             int(self.definition["limits"]["max_results"]),
         )
+        from src.ingestion.scholarly_api import parameters as scholarly_parameters
+        from src.ingestion.scholarly_api import provider
+        native_provider = provider(self.source)
+        if native_provider:
+            import os
+            try:
+                parameters = scholarly_parameters(native_provider, request, cursor=cursor, limit=parameters["limit"], contact=os.environ.get("NOESIS_RESEARCH_CONTACT"), secret=self.secret)
+            except (ValueError, TypeError, OverflowError) as exc:
+                raise SourcePackError("parameter_forbidden", str(exc)) from exc
+        from src.ingestion.europepmc_api import is_europepmc
+        if is_europepmc(self.source):
+            from src.ingestion.europepmc_api import parameters as europepmc_parameters
+            parameters = europepmc_parameters(parameters, cursor=cursor, limit=parameters['limit'])
+        from src.ingestion.guardian_api import is_guardian
+        from src.ingestion.guardian_api import parameters as guardian_parameters
+        guardian = is_guardian(self.source)
+        if guardian:
+            try:
+                parameters = guardian_parameters(parameters,cursor=cursor,limit=parameters['limit'],secret=self.secret,from_ms=request.get('from_ms'),to_ms=request.get('to_ms'))
+            except (ValueError, TypeError) as exc:
+                raise SourcePackError('parameter_forbidden','invalid Guardian parameters') from exc
         headers = {
             "Accept": "application/json, application/xml;q=0.8, text/plain;q=0.5"
         }
-        if self.secret:
+        if self.secret and not native_provider and not guardian:
             headers["Authorization"] = "Bearer " + self.secret
         response = self.transport(
             url=self.definition["endpoint"],
@@ -510,7 +547,25 @@ class HTTPSPageAdapter:
                     }
                 ]
             }
-        if isinstance(payload, list):
+        if is_europepmc(self.source):
+            from src.ingestion.europepmc_api import records as europepmc_records
+            try:
+                records, next_cursor = europepmc_records(payload, cursor=cursor, limit=int(parameters['pageSize']))
+            except (ValueError, TypeError) as exc:
+                raise SourcePackError('schema_drift', str(exc)) from exc
+        elif guardian:
+            from src.ingestion.guardian_api import records as guardian_records
+            try:
+                records, next_cursor = guardian_records(payload,limit=parameters['page-size'])
+            except (ValueError,TypeError,AttributeError) as exc:
+                raise SourcePackError('schema_drift','invalid Guardian native response') from exc
+        elif native_provider:
+            from src.ingestion.scholarly_api import records as scholarly_records
+            try:
+                records, next_cursor = scholarly_records(native_provider, payload, cursor=cursor, limit=int(parameters["rows" if native_provider == "crossref" else "per_page"]))
+            except (ValueError, TypeError, KeyError, IndexError, AttributeError) as exc:
+                raise SourcePackError("schema_drift", "invalid native scholarly response") from exc
+        elif isinstance(payload, list):
             records = payload
             next_cursor = None
         elif isinstance(payload, Mapping):
@@ -921,6 +976,7 @@ class SourcePackRuntime:
                     }
                 ),
                 "source_pack_native_json": _canonical(record),
+                **({"reporting_origin":record["reporting_origin"]} if record.get("reporting_origin") else {}),
                 "lifecycle": lifecycle,
                 "tombstone": lifecycle == "deleted",
                 **(

@@ -1,0 +1,86 @@
+{
+  "status": "passed",
+  "validation_kind": "real-model-integration-smoke-test",
+  "independent_human_judgments": false,
+  "domains": [
+    "economic",
+    "scientific"
+  ],
+  "source_urls": [
+    "https://www.federalreserve.gov/newsevents/pressreleases/monetary20220615a.htm",
+    "https://science.nasa.gov/missions/webb/nasas-webb-delivers-deepest-infrared-image-of-universe-yet/"
+  ],
+  "model_pins": {
+    "nli": {
+      "env": "NOESIS_NLI_MODEL",
+      "default": "cross-encoder/nli-deberta-v3-base",
+      "revision": "6c749ce3425cd33b46d187e45b92bbf96ee12ec7",
+      "serves": [
+        "stance (#954)",
+        "frames (#955)",
+        "claim links (#964)"
+      ],
+      "model": "cross-encoder/nli-deberta-v3-base"
+    },
+    "claim": {
+      "env": "NOESIS_CLAIM_MODEL",
+      "default": "Nithiwat/mdeberta-v3-base_claimbuster",
+      "revision": "f0d23ebd02e98325f19419eee10637f9167f8a47",
+      "serves": [
+        "claim detection (#956)"
+      ],
+      "model": "Nithiwat/mdeberta-v3-base_claimbuster"
+    }
+  },
+  "claim_prediction_modes": [
+    "pretrained:Nithiwat/mdeberta-v3-base_claimbuster"
+  ],
+  "embedding_model": "local:sentence-transformers:all-MiniLM-L6-v2",
+  "embedding_dimensions": 384,
+  "library_versions": {
+    "torch": "2.14.0+cpu",
+    "sentence-transformers": "6.0.1",
+    "transformers": "5.16.1"
+  },
+  "claims_produced": 4,
+  "semantic_checks": [
+    {
+      "query": "employment and inflation in the economy",
+      "expected_document": "fomc-20220615",
+      "matched": true,
+      "top_score": 0.5836839194416272
+    },
+    {
+      "query": "infrared telescope photograph of distant galaxies",
+      "expected_document": "webb-20220712",
+      "matched": true,
+      "top_score": 0.6688579629918625
+    }
+  ],
+  "synthetic_full_document_check": {
+    "matched_tail": true,
+    "start_offset": 8257,
+    "score": 0.17918963381493788,
+    "tokenizer": {
+      "name": "sentence-transformers/all-MiniLM-L6-v2",
+      "revision": "1110a243fdf4706b3f48f1d95db1a4f5529b4d41",
+      "class": "BertTokenizer",
+      "max_tokens": 256,
+      "special_tokens_included": true
+    }
+  },
+  "resumed_execution": true,
+  "replay_same_run": true,
+  "correction_generation": 2,
+  "test_copy_retraction_counts": {
+    "retracted": 4
+  },
+  "subscription_events": 2,
+  "export_verified": true,
+  "elapsed_seconds": 11.81,
+  "limitations": [
+    "Small handpicked corpus; no independent retrieval or claim-quality judgments",
+    "Lifecycle mutations are explicitly simulated on test copies",
+    "Model-unavailable and partial-coverage behavior are covered separately by unit tests"
+  ]
+}

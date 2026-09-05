@@ -1,0 +1,1165 @@
+{
+  "origin_commit": "0bf70327",
+  "origin_modules": {
+    "src/ingestion/document_store.py": "482eb51830a20820dd9c6259983c3bf04942cbd0a9acb75240f80bdd9ef08c62",
+    "src/kb/membership.py": "385790c9fb0bb8b18e82fb28c18988fd93aecd7ad0250e06b3037e397b1316f8",
+    "src/kb/research_packages.py": "b7fcd2ec5a1df2959dbb682c036e1f7ee7236bfe07006b3d6416a119ccbc5250",
+    "src/kb/research_snapshots.py": "4c14a0b8813d57aeeff73beabb8d462306e2acc5caef7713e5d33723c5e04645",
+    "src/kb/subscriptions.py": "d984aaf96b47a07ab05831a400bd25cf8bebcc983cb710f8406a9049588833f9",
+    "src/kb/workflows.py": "346faf09a540cab86bd551d75b5f9045a7cc9754ecca717812c2d1e43f828331"
+  },
+  "package": {
+    "byte_length": 1178,
+    "canonical_bytes_b64": "eyJjbG9zdXJlIjp7ImJvdW5kZWQiOmZhbHNlLCJjbG9zdXJlX2hhc2giOiI3MDFiYjNiYzMxNTM5Y2M2YmViMjJkMzdjYjlhNjI5M2IwZDA4YmJiNjViNTEyMzA5NmIwOWI1MTExMjUyZWU0IiwiY29tcGxldGUiOnRydWUsIm9taXNzaW9ucyI6W10sInJvb3RfaWRzIjpbImxlZ2FjeS1kb2N1bWVudCJdfSwiY29udGVudF9oYXNoIjoiOTg1MTkyNDZjYTQxY2M2Mjk1NDNkNzJkYTkzNzU0ZmE4ZDkzNzlmMmMwODliOTQ0ODU1MjgzZjY3MzMyYWVhMyIsImNvbnRyYWN0Ijoibm9lc2lzLXJlc2VhcmNoLXBhY2thZ2UtdjEiLCJtYW5pZmVzdCI6eyJjb21wYXRpYmlsaXR5Ijp7Im1pbmltdW1fbm9lc2lzIjoiMSJ9LCJjb250cmFjdCI6Im5vZXNpcy1yZXNlYXJjaC1wYWNrYWdlLW1hbmlmZXN0LXYxIiwiZXZpZGVuY2UiOlsiY2xhaW06MSJdLCJleHRlbnNpb25zIjp7IngtZXhhbXBsZSI6eyJ2YWx1ZSI6MX19LCJmaW5kaW5ncyI6W3sidGV4dCI6ImNoYW5nZWQifV0sImZvcm1hdF92ZXJzaW9uIjoiMS4wIiwibGltaXRhdGlvbnMiOlsicGFydGlhbCBjb3ZlcmFnZSJdLCJwYWNrYWdlX2lkIjoicmVzZWFyY2gtcGFja2FnZTplMTU3MDRlNzY1MjNhZTEyMWQyNjg5OTAiLCJwbGFuIjp7InJlY2lwZV9pZCI6InIxIn0sInBvbGljaWVzIjp7InZpZXciOiJwdWJsaWMifSwicXVlc3Rpb24iOiJXaGF0IGNoYW5nZWQ/Iiwic25hcHNob3QiOnsiZ2VuZXJhdGlvbiI6N30sInRyYW5zZm9ybWF0aW9ucyI6W3sidG9vbCI6ImNvbXBhcmUifV19LCJtZW1iZXJzIjpbeyJjb21wb25lbnRfaWQiOiJsZWdhY3ktZG9jdW1lbnQiLCJjb21wb25lbnRfdHlwZSI6ImRvY3VtZW50IiwiY29udGVudCI6eyJ0ZXh0IjoiRml4dHVyZSJ9LCJjb250ZW50X2hhc2giOiI5NTBkZDEzNzQzODA4MjAyZmI1MDYxODBhOGI5OTU1YmMyMmI4YmYzODI0YTMyNmNjNzIzOGQ5YTkxOTUwMTc2IiwiZGVwZW5kZW5jaWVzIjpbXSwibWV0YWRhdGEiOnt9LCJyZWRhY3RlZCI6ZmFsc2UsInNvdXJjZV9jb250ZW50X2hhc2giOiI5NTBkZDEzNzQzODA4MjAyZmI1MDYxODBhOGI5OTU1YmMyMmI4YmYzODI0YTMyNmNjNzIzOGQ5YTkxOTUwMTc2In1dLCJuYW1lc3BhY2UiOiJyZXNlYXJjaCIsInBhY2thZ2VfaWQiOiJyZXNlYXJjaC1wYWNrYWdlOmUxNTcwNGU3NjUyM2FlMTIxZDI2ODk5MCIsInN0YXR1cyI6ImNvbXBsZXRlIn0=",
+    "closure": {
+      "bounded": false,
+      "closure_hash": "701bb3bc31539cc6beb22d37cb9a6293b0d08bbb65b5123096b09b5111252ee4",
+      "complete": true,
+      "omissions": [],
+      "root_ids": [
+        "legacy-document"
+      ]
+    },
+    "content_hash": "98519246ca41cc629543d72da93754fa8d9379f2c089b944855283f67332aea3",
+    "contract": "noesis-research-package-v1",
+    "manifest": {
+      "compatibility": {
+        "minimum_noesis": "1"
+      },
+      "contract": "noesis-research-package-manifest-v1",
+      "evidence": [
+        "claim:1"
+      ],
+      "extensions": {
+        "x-example": {
+          "value": 1
+        }
+      },
+      "findings": [
+        {
+          "text": "changed"
+        }
+      ],
+      "format_version": "1.0",
+      "limitations": [
+        "partial coverage"
+      ],
+      "package_id": "research-package:e15704e76523ae121d268990",
+      "plan": {
+        "recipe_id": "r1"
+      },
+      "policies": {
+        "view": "public"
+      },
+      "question": "What changed?",
+      "snapshot": {
+        "generation": 7
+      },
+      "transformations": [
+        {
+          "tool": "compare"
+        }
+      ]
+    },
+    "members": [
+      {
+        "component_id": "legacy-document",
+        "component_type": "document",
+        "content": {
+          "text": "Fixture"
+        },
+        "content_hash": "950dd13743808202fb506180a8b9955bc22b8bf3824a326cc7238d9a91950176",
+        "dependencies": [],
+        "metadata": {},
+        "redacted": false,
+        "source_content_hash": "950dd13743808202fb506180a8b9955bc22b8bf3824a326cc7238d9a91950176"
+      }
+    ],
+    "namespace": "research",
+    "package_id": "research-package:e15704e76523ae121d268990",
+    "reproducible": true,
+    "status": "complete"
+  },
+  "sequence_sql": [
+    "CREATE SEQUENCE knowledge_subscription_event_sequence INCREMENT BY 1 MINVALUE 1 MAXVALUE 9223372036854775807 START 2 NO CYCLE;"
+  ],
+  "snapshot_token": "_qzbvwODfz8-gKih453BZ-kCviRAXRcT9RWl547VTP8",
+  "subscription_id": "subscription:ebe5a49d34b40ff7f9d18235",
+  "synthetic": true,
+  "tables": [
+    {
+      "columns": [
+        "namespace",
+        "logical_id",
+        "object_type",
+        "revision",
+        "revision_id",
+        "lifecycle",
+        "updated_at_ms"
+      ],
+      "ddl": "CREATE TABLE derived_object_current(namespace VARCHAR, logical_id VARCHAR, object_type VARCHAR NOT NULL, revision BIGINT NOT NULL, revision_id VARCHAR NOT NULL, lifecycle VARCHAR NOT NULL, updated_at_ms BIGINT NOT NULL, PRIMARY KEY(namespace, logical_id));",
+      "name": "derived_object_current",
+      "rows": []
+    },
+    {
+      "columns": [
+        "namespace",
+        "logical_id",
+        "object_type",
+        "source_revision_id",
+        "document_id",
+        "content_json",
+        "content_hash",
+        "producer_json",
+        "configuration_hash",
+        "observed_at_ms"
+      ],
+      "ddl": "CREATE TABLE derived_object_current_supports(namespace VARCHAR, logical_id VARCHAR, object_type VARCHAR NOT NULL, source_revision_id VARCHAR, document_id VARCHAR NOT NULL, content_json VARCHAR NOT NULL, content_hash VARCHAR NOT NULL, producer_json VARCHAR NOT NULL, configuration_hash VARCHAR NOT NULL, observed_at_ms BIGINT NOT NULL, PRIMARY KEY(namespace, logical_id, source_revision_id));",
+      "name": "derived_object_current_supports",
+      "rows": []
+    },
+    {
+      "columns": [
+        "namespace",
+        "generation",
+        "ordinal",
+        "change_id",
+        "logical_id",
+        "object_type",
+        "change_kind",
+        "predecessor_revision_id",
+        "revision_id",
+        "reason_json",
+        "committed_at_ms"
+      ],
+      "ddl": "CREATE TABLE derived_object_generation_changes(namespace VARCHAR, generation BIGINT, ordinal BIGINT, change_id VARCHAR NOT NULL UNIQUE, logical_id VARCHAR NOT NULL, object_type VARCHAR NOT NULL, change_kind VARCHAR NOT NULL, predecessor_revision_id VARCHAR, revision_id VARCHAR NOT NULL, reason_json VARCHAR NOT NULL, committed_at_ms BIGINT NOT NULL, PRIMARY KEY(namespace, generation, ordinal));",
+      "name": "derived_object_generation_changes",
+      "rows": []
+    },
+    {
+      "columns": [
+        "namespace",
+        "generation",
+        "input_hash",
+        "change_hash",
+        "item_count",
+        "counts_json",
+        "status",
+        "committed_at_ms"
+      ],
+      "ddl": "CREATE TABLE derived_object_generations(namespace VARCHAR, generation BIGINT, input_hash VARCHAR NOT NULL, change_hash VARCHAR NOT NULL, item_count BIGINT NOT NULL, counts_json VARCHAR NOT NULL, status VARCHAR NOT NULL, committed_at_ms BIGINT NOT NULL, PRIMARY KEY(namespace, generation));",
+      "name": "derived_object_generations",
+      "rows": [
+        [
+          "research",
+          1,
+          "10d4482100c773c1ed05870157041727762fd4b527eb3e07cae854661a6820a6",
+          "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          0,
+          "{}",
+          "committed",
+          1788584445327
+        ]
+      ]
+    },
+    {
+      "columns": [
+        "namespace",
+        "logical_id",
+        "object_type",
+        "revision",
+        "revision_id",
+        "predecessor_revision_id",
+        "content_json",
+        "content_hash",
+        "support_json",
+        "support_hash",
+        "lifecycle",
+        "change_kind",
+        "producer_json",
+        "configuration_hash",
+        "generation",
+        "observed_at_ms",
+        "created_at_ms"
+      ],
+      "ddl": "CREATE TABLE derived_object_revisions(namespace VARCHAR, logical_id VARCHAR, object_type VARCHAR NOT NULL, revision BIGINT, revision_id VARCHAR NOT NULL UNIQUE, predecessor_revision_id VARCHAR, content_json VARCHAR NOT NULL, content_hash VARCHAR NOT NULL, support_json VARCHAR NOT NULL, support_hash VARCHAR NOT NULL, lifecycle VARCHAR NOT NULL, change_kind VARCHAR NOT NULL, producer_json VARCHAR NOT NULL, configuration_hash VARCHAR NOT NULL, generation BIGINT NOT NULL, observed_at_ms BIGINT NOT NULL, created_at_ms BIGINT NOT NULL, PRIMARY KEY(namespace, logical_id, revision));",
+      "name": "derived_object_revisions",
+      "rows": []
+    },
+    {
+      "columns": [
+        "namespace",
+        "projection_kind",
+        "item_id",
+        "logical_id",
+        "object_type",
+        "object_revision_id",
+        "content_json",
+        "content_hash",
+        "generation",
+        "updated_at_ms"
+      ],
+      "ddl": "CREATE TABLE derived_projection_items(namespace VARCHAR, projection_kind VARCHAR, item_id VARCHAR, logical_id VARCHAR NOT NULL, object_type VARCHAR NOT NULL, object_revision_id VARCHAR, content_json VARCHAR NOT NULL, content_hash VARCHAR NOT NULL, generation BIGINT NOT NULL, updated_at_ms BIGINT NOT NULL, PRIMARY KEY(namespace, projection_kind, item_id, object_revision_id));",
+      "name": "derived_projection_items",
+      "rows": []
+    },
+    {
+      "columns": [
+        "change_id",
+        "run_id",
+        "pack_id",
+        "source_id",
+        "document_id",
+        "revision_id",
+        "predecessor_revision_id",
+        "change_kind",
+        "content_hash",
+        "payload_hash",
+        "observed_at_ms"
+      ],
+      "ddl": "CREATE TABLE document_change_records(change_id VARCHAR PRIMARY KEY, run_id VARCHAR NOT NULL, pack_id VARCHAR NOT NULL, source_id VARCHAR, document_id VARCHAR NOT NULL, revision_id VARCHAR NOT NULL, predecessor_revision_id VARCHAR, change_kind VARCHAR NOT NULL, content_hash VARCHAR NOT NULL, payload_hash VARCHAR NOT NULL, observed_at_ms BIGINT NOT NULL, UNIQUE(run_id, document_id, payload_hash, change_kind));",
+      "name": "document_change_records",
+      "rows": []
+    },
+    {
+      "columns": [
+        "pack_id",
+        "watermark",
+        "run_id",
+        "status",
+        "item_count",
+        "counts_json",
+        "change_hash",
+        "committed_at_ms"
+      ],
+      "ddl": "CREATE TABLE document_change_sets(pack_id VARCHAR, watermark BIGINT, run_id VARCHAR NOT NULL UNIQUE, status VARCHAR NOT NULL, item_count BIGINT NOT NULL, counts_json VARCHAR NOT NULL, change_hash VARCHAR NOT NULL, committed_at_ms BIGINT NOT NULL, PRIMARY KEY(pack_id, watermark));",
+      "name": "document_change_sets",
+      "rows": []
+    },
+    {
+      "columns": [
+        "blob_hash",
+        "content"
+      ],
+      "ddl": "CREATE TABLE document_content_blobs(blob_hash VARCHAR PRIMARY KEY, \"content\" VARCHAR NOT NULL);",
+      "name": "document_content_blobs",
+      "rows": []
+    },
+    {
+      "columns": [
+        "document_id",
+        "revision_id",
+        "revision",
+        "lifecycle",
+        "updated_at_ms"
+      ],
+      "ddl": "CREATE TABLE document_current_revisions(document_id VARCHAR PRIMARY KEY, revision_id VARCHAR NOT NULL UNIQUE, revision BIGINT NOT NULL, lifecycle VARCHAR NOT NULL, updated_at_ms BIGINT NOT NULL);",
+      "name": "document_current_revisions",
+      "rows": [
+        [
+          "legacy-document",
+          "document-revision:c51b1e1e6b7d4afe7469788ba5227cd0",
+          0,
+          "active",
+          100
+        ]
+      ]
+    },
+    {
+      "columns": [
+        "document_id",
+        "domain",
+        "score",
+        "method",
+        "run_id",
+        "assigned_at"
+      ],
+      "ddl": "CREATE TABLE document_domains(document_id VARCHAR, \"domain\" VARCHAR, score DOUBLE NOT NULL, \"method\" VARCHAR NOT NULL, run_id VARCHAR NOT NULL, assigned_at BIGINT NOT NULL, PRIMARY KEY(document_id, \"domain\"));",
+      "name": "document_domains",
+      "rows": [
+        [
+          "legacy-document",
+          "scientific",
+          1.0,
+          "source",
+          "legacy-run",
+          100
+        ]
+      ]
+    },
+    {
+      "columns": [
+        "document_id",
+        "model",
+        "dim",
+        "vector",
+        "updated_at"
+      ],
+      "ddl": "CREATE TABLE document_embeddings(document_id VARCHAR PRIMARY KEY, model VARCHAR, dim INTEGER, vector VARCHAR, updated_at BIGINT);",
+      "name": "document_embeddings",
+      "rows": []
+    },
+    {
+      "columns": [
+        "document_id",
+        "sentiment_score",
+        "sentiment_label",
+        "topics",
+        "updated_at"
+      ],
+      "ddl": "CREATE TABLE document_enrichments(document_id VARCHAR PRIMARY KEY, sentiment_score DOUBLE, sentiment_label VARCHAR, topics VARCHAR, updated_at BIGINT);",
+      "name": "document_enrichments",
+      "rows": []
+    },
+    {
+      "columns": [
+        "revision_id",
+        "blob_hash"
+      ],
+      "ddl": "CREATE TABLE document_revision_content(revision_id VARCHAR PRIMARY KEY, blob_hash VARCHAR NOT NULL);",
+      "name": "document_revision_content",
+      "rows": []
+    },
+    {
+      "columns": [
+        "document_id",
+        "revision",
+        "revision_id",
+        "predecessor_revision_id",
+        "source_id",
+        "pack_id",
+        "run_id",
+        "payload_json",
+        "payload_hash",
+        "content_hash",
+        "metadata_hash",
+        "change_kind",
+        "change_class",
+        "lifecycle",
+        "valid_from_ms",
+        "valid_to_ms",
+        "observed_at_ms",
+        "committed_watermark",
+        "created_at_ms"
+      ],
+      "ddl": "CREATE TABLE document_revision_records(document_id VARCHAR, revision BIGINT, revision_id VARCHAR NOT NULL UNIQUE, predecessor_revision_id VARCHAR, source_id VARCHAR, pack_id VARCHAR, run_id VARCHAR, payload_json VARCHAR NOT NULL, payload_hash VARCHAR NOT NULL, content_hash VARCHAR NOT NULL, metadata_hash VARCHAR NOT NULL, change_kind VARCHAR NOT NULL, change_class VARCHAR NOT NULL, lifecycle VARCHAR NOT NULL, valid_from_ms BIGINT, valid_to_ms BIGINT, observed_at_ms BIGINT NOT NULL, committed_watermark BIGINT, created_at_ms BIGINT NOT NULL, PRIMARY KEY(document_id, revision));",
+      "name": "document_revision_records",
+      "rows": [
+        [
+          "legacy-document",
+          0,
+          "document-revision:c51b1e1e6b7d4afe7469788ba5227cd0",
+          null,
+          "journal",
+          "direct",
+          "direct:legacy-document",
+          "{\"authors\":[],\"content\":\"Original migration behavior fixture.\",\"content_ref\":null,\"created_at\":null,\"document_id\":\"legacy-document\",\"ingested_at\":100,\"language\":\"en\",\"metadata\":{},\"source_id\":\"journal\",\"source_type\":\"paper\",\"title\":\"Legacy fixture\",\"url\":\"https://example.org/fixture\"}",
+          "2cc85c6b924ed94a733cd83c57e66aebdadc493d0b481613a6f556b17c8e462e",
+          "007e6121dba5f12f72d5003b3bc64f28da68b36a634c3bda29a82b698549a28e",
+          "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+          "added",
+          "unchanged",
+          "active",
+          null,
+          null,
+          100,
+          0,
+          100
+        ]
+      ]
+    },
+    {
+      "columns": [
+        "document_id",
+        "source_type",
+        "language",
+        "ingested_at",
+        "created_at",
+        "source_id",
+        "url",
+        "canonical_url",
+        "content_hash",
+        "title",
+        "content",
+        "content_ref",
+        "authors",
+        "metadata"
+      ],
+      "ddl": "CREATE TABLE documents(document_id VARCHAR PRIMARY KEY, source_type VARCHAR NOT NULL, \"language\" VARCHAR, ingested_at BIGINT, created_at BIGINT, source_id VARCHAR, url VARCHAR, canonical_url VARCHAR, content_hash VARCHAR, title VARCHAR, \"content\" VARCHAR, content_ref VARCHAR, authors VARCHAR, metadata VARCHAR);",
+      "name": "documents",
+      "rows": [
+        [
+          "legacy-document",
+          "paper",
+          "en",
+          100,
+          null,
+          "journal",
+          "https://example.org/fixture",
+          "https://example.org/fixture",
+          "7c4fe9417243bc312a79e80b366139c01625ce14bace1cc5a8ba37d1f94c35d2",
+          "Legacy fixture",
+          "Original migration behavior fixture.",
+          null,
+          "[]",
+          "{}"
+        ]
+      ]
+    },
+    {
+      "columns": [
+        "document_id",
+        "publication_at_ms",
+        "effective_from_ms",
+        "effective_to_ms",
+        "event_from_ms",
+        "event_to_ms",
+        "revision_at_ms",
+        "correction_at_ms",
+        "retracted_at_ms",
+        "ingested_at_ms",
+        "status",
+        "provenance_json",
+        "errors_json"
+      ],
+      "ddl": "CREATE TABLE kb_document_times(document_id VARCHAR PRIMARY KEY, publication_at_ms BIGINT, effective_from_ms BIGINT, effective_to_ms BIGINT, event_from_ms BIGINT, event_to_ms BIGINT, revision_at_ms BIGINT, correction_at_ms BIGINT, retracted_at_ms BIGINT, ingested_at_ms BIGINT, status VARCHAR NOT NULL, provenance_json VARCHAR NOT NULL, errors_json VARCHAR NOT NULL);",
+      "name": "kb_document_times",
+      "rows": [
+        [
+          "legacy-document",
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          100,
+          "normalized",
+          "{\"ingested_at_ms\": {\"approximate\": false, \"original\": \"100\", \"parser\": \"noesis-temporal-normalizer\", \"parser_version\": \"1.0.0\", \"precision\": \"millisecond\", \"source_field\": \"ingested_at\", \"timezone_assumption\": null}}",
+          "[]"
+        ]
+      ]
+    },
+    {
+      "columns": [
+        "document_id",
+        "domain",
+        "embedding_pending",
+        "run_id",
+        "scanned_at"
+      ],
+      "ddl": "CREATE TABLE kb_membership_scans(document_id VARCHAR, \"domain\" VARCHAR, embedding_pending BOOLEAN NOT NULL, run_id VARCHAR, scanned_at BIGINT NOT NULL, PRIMARY KEY(document_id, \"domain\"));",
+      "name": "kb_membership_scans",
+      "rows": [
+        [
+          "legacy-document",
+          "scientific",
+          false,
+          "legacy-run",
+          100
+        ]
+      ]
+    },
+    {
+      "columns": [
+        "domain",
+        "config_fingerprint",
+        "last_run_id",
+        "updated_at"
+      ],
+      "ddl": "CREATE TABLE kb_membership_state(\"domain\" VARCHAR PRIMARY KEY, config_fingerprint VARCHAR NOT NULL, last_run_id VARCHAR, updated_at BIGINT NOT NULL);",
+      "name": "kb_membership_state",
+      "rows": []
+    },
+    {
+      "columns": [
+        "temporal_id",
+        "domain",
+        "backing",
+        "assertion_kind",
+        "assertion_id",
+        "valid_from_ms",
+        "valid_to_ms",
+        "observed_at_ms",
+        "ingested_at_ms",
+        "retracted_at_ms",
+        "valid_time_precision",
+        "valid_time_approximate",
+        "source_reported",
+        "inferred",
+        "source_document_id",
+        "visibility",
+        "payload_json",
+        "temporal_provenance_json",
+        "recorded_at_ms"
+      ],
+      "ddl": "CREATE TABLE kb_temporal_assertions(temporal_id VARCHAR PRIMARY KEY, \"domain\" VARCHAR NOT NULL, backing VARCHAR NOT NULL, assertion_kind VARCHAR NOT NULL, assertion_id VARCHAR NOT NULL, valid_from_ms BIGINT, valid_to_ms BIGINT, observed_at_ms BIGINT NOT NULL, ingested_at_ms BIGINT NOT NULL, retracted_at_ms BIGINT, valid_time_precision VARCHAR NOT NULL, valid_time_approximate BOOLEAN NOT NULL, source_reported BOOLEAN NOT NULL, inferred BOOLEAN NOT NULL, source_document_id VARCHAR, visibility VARCHAR NOT NULL, payload_json VARCHAR NOT NULL, temporal_provenance_json VARCHAR NOT NULL, recorded_at_ms BIGINT NOT NULL);",
+      "name": "kb_temporal_assertions",
+      "rows": []
+    },
+    {
+      "columns": [
+        "quarantine_id",
+        "document_id",
+        "payload_json",
+        "errors_json",
+        "quarantined_at_ms"
+      ],
+      "ddl": "CREATE TABLE kb_temporal_quarantine(quarantine_id VARCHAR PRIMARY KEY, document_id VARCHAR NOT NULL, payload_json VARCHAR NOT NULL, errors_json VARCHAR NOT NULL, quarantined_at_ms BIGINT NOT NULL);",
+      "name": "kb_temporal_quarantine",
+      "rows": []
+    },
+    {
+      "columns": [
+        "event_id",
+        "subscription_id",
+        "principal_id",
+        "action",
+        "detail_json",
+        "created_at_ms"
+      ],
+      "ddl": "CREATE TABLE knowledge_subscription_audit(event_id VARCHAR PRIMARY KEY, subscription_id VARCHAR, principal_id VARCHAR NOT NULL, \"action\" VARCHAR NOT NULL, detail_json VARCHAR NOT NULL, created_at_ms BIGINT NOT NULL);",
+      "name": "knowledge_subscription_audit",
+      "rows": [
+        [
+          "audit:52832f4b74afda85d937554f",
+          "subscription:ebe5a49d34b40ff7f9d18235",
+          "alice",
+          "create",
+          "{\"version\":1}",
+          1788584445364
+        ]
+      ]
+    },
+    {
+      "columns": [
+        "sequence",
+        "event_id",
+        "idempotency_key",
+        "subscription_id",
+        "owner_principal",
+        "namespace",
+        "event_type",
+        "object_key",
+        "watermark",
+        "before_json",
+        "after_json",
+        "evidence_json",
+        "created_at_ms"
+      ],
+      "ddl": "CREATE TABLE knowledge_subscription_events(\"sequence\" BIGINT PRIMARY KEY, event_id VARCHAR NOT NULL UNIQUE, idempotency_key VARCHAR NOT NULL UNIQUE, subscription_id VARCHAR NOT NULL, owner_principal VARCHAR NOT NULL, namespace VARCHAR NOT NULL, event_type VARCHAR NOT NULL, object_key VARCHAR NOT NULL, watermark BIGINT NOT NULL, before_json VARCHAR, after_json VARCHAR, evidence_json VARCHAR NOT NULL, created_at_ms BIGINT NOT NULL);",
+      "name": "knowledge_subscription_events",
+      "rows": [
+        [
+          1,
+          "subscription-event:3f285c8950524aeccd8ea8ce",
+          "3f285c8950524aeccd8ea8ce06cda32d9fde1366288e68fbd4e773121d974821",
+          "subscription:ebe5a49d34b40ff7f9d18235",
+          "alice",
+          "research",
+          "added",
+          "legacy-document",
+          1,
+          null,
+          "{\"id\":\"legacy-document\",\"text\":\"Fixture\"}",
+          "{\"committed_watermark\":1,\"coverage\":{\"complete\":true},\"query_hash\":\"0ce9a1dde9b501b5d33782118df99f58c08d06e991c340aea891c722654aa2bc\",\"watermark_detail\":{}}",
+          1788584445367
+        ]
+      ]
+    },
+    {
+      "columns": [
+        "idempotency_key",
+        "request_hash",
+        "result_json",
+        "created_at_ms"
+      ],
+      "ddl": "CREATE TABLE knowledge_subscription_idempotency(idempotency_key VARCHAR PRIMARY KEY, request_hash VARCHAR NOT NULL, result_json VARCHAR NOT NULL, created_at_ms BIGINT NOT NULL);",
+      "name": "knowledge_subscription_idempotency",
+      "rows": [
+        [
+          "legacy-key",
+          "b37a12544511bbd0972c052f44f8785665d8e5cc0b5e070886b95aa929423f93",
+          "{\"cadence\":{\"trigger\":\"watermark\"},\"contract\":\"noesis-knowledge-subscription-v1\",\"created_at_ms\":1788584445362,\"delivery\":{\"kind\":\"poll\"},\"domain\":\"scientific\",\"expires_at_ms\":null,\"filters\":{},\"last_watermark\":null,\"namespace\":\"research\",\"owner_principal\":\"alice\",\"query\":{\"operation\":\"search\",\"text\":\"fixture\"},\"status\":\"active\",\"subscription_id\":\"subscription:ebe5a49d34b40ff7f9d18235\",\"updated_at_ms\":1788584445362,\"version\":1}",
+          1788584445362
+        ]
+      ]
+    },
+    {
+      "columns": [
+        "event_id",
+        "delivery_kind",
+        "destination_ref",
+        "payload_json",
+        "status",
+        "attempts",
+        "available_at_ms",
+        "delivered_at_ms"
+      ],
+      "ddl": "CREATE TABLE knowledge_subscription_outbox(event_id VARCHAR, delivery_kind VARCHAR, destination_ref VARCHAR, payload_json VARCHAR NOT NULL, status VARCHAR NOT NULL, attempts INTEGER NOT NULL, available_at_ms BIGINT NOT NULL, delivered_at_ms BIGINT, PRIMARY KEY(event_id, delivery_kind));",
+      "name": "knowledge_subscription_outbox",
+      "rows": []
+    },
+    {
+      "columns": [
+        "subscription_id",
+        "watermark",
+        "result_hash",
+        "result_json",
+        "coverage_json",
+        "captured_at_ms"
+      ],
+      "ddl": "CREATE TABLE knowledge_subscription_snapshots(subscription_id VARCHAR, watermark BIGINT, result_hash VARCHAR NOT NULL, result_json VARCHAR NOT NULL, coverage_json VARCHAR NOT NULL, captured_at_ms BIGINT NOT NULL, PRIMARY KEY(subscription_id, watermark));",
+      "name": "knowledge_subscription_snapshots",
+      "rows": [
+        [
+          "subscription:ebe5a49d34b40ff7f9d18235",
+          1,
+          "32436d21f96ac926f04783a5dfb26c05a9624a4d60c02cc5f7af57f0674ccb45",
+          "{\"legacy-document\":{\"id\":\"legacy-document\",\"text\":\"Fixture\"}}",
+          "{\"complete\":true}",
+          1788584445367
+        ]
+      ]
+    },
+    {
+      "columns": [
+        "namespace",
+        "watermark",
+        "kind",
+        "detail_json",
+        "committed_at_ms"
+      ],
+      "ddl": "CREATE TABLE knowledge_subscription_watermarks(namespace VARCHAR, watermark BIGINT, kind VARCHAR NOT NULL, detail_json VARCHAR NOT NULL, committed_at_ms BIGINT NOT NULL, PRIMARY KEY(namespace, watermark));",
+      "name": "knowledge_subscription_watermarks",
+      "rows": [
+        [
+          "research",
+          1,
+          "consolidation",
+          "{}",
+          1788584445365
+        ]
+      ]
+    },
+    {
+      "columns": [
+        "subscription_id",
+        "version",
+        "query_json",
+        "namespace",
+        "domain",
+        "filters_json",
+        "owner_principal",
+        "cadence_json",
+        "delivery_json",
+        "status",
+        "expires_at_ms",
+        "created_at_ms",
+        "updated_at_ms",
+        "last_watermark"
+      ],
+      "ddl": "CREATE TABLE knowledge_subscriptions(subscription_id VARCHAR PRIMARY KEY, \"version\" BIGINT NOT NULL, query_json VARCHAR NOT NULL, namespace VARCHAR NOT NULL, \"domain\" VARCHAR NOT NULL, filters_json VARCHAR NOT NULL, owner_principal VARCHAR NOT NULL, cadence_json VARCHAR NOT NULL, delivery_json VARCHAR NOT NULL, status VARCHAR NOT NULL, expires_at_ms BIGINT, created_at_ms BIGINT NOT NULL, updated_at_ms BIGINT NOT NULL, last_watermark BIGINT, UNIQUE(owner_principal, namespace, query_json, filters_json));",
+      "name": "knowledge_subscriptions",
+      "rows": [
+        [
+          "subscription:ebe5a49d34b40ff7f9d18235",
+          1,
+          "{\"operation\":\"search\",\"text\":\"fixture\"}",
+          "research",
+          "scientific",
+          "{}",
+          "alice",
+          "{\"trigger\":\"watermark\"}",
+          "{\"kind\":\"poll\"}",
+          "active",
+          null,
+          1788584445362,
+          1788584445367,
+          1
+        ]
+      ]
+    },
+    {
+      "columns": [
+        "manifest_hash",
+        "workflow_id",
+        "version",
+        "namespace",
+        "manifest_json",
+        "created_at_ms"
+      ],
+      "ddl": "CREATE TABLE knowledge_workflow_definitions(manifest_hash VARCHAR PRIMARY KEY, workflow_id VARCHAR NOT NULL, \"version\" VARCHAR NOT NULL, namespace VARCHAR NOT NULL, manifest_json VARCHAR NOT NULL, created_at_ms BIGINT NOT NULL);",
+      "name": "knowledge_workflow_definitions",
+      "rows": [
+        [
+          "b5cef8443efc801a7ff3fad07b1aa034327966ba61f9dd6b64993ec14fc20540",
+          "knowledge-engine-reference",
+          "1.0.0",
+          "legacy",
+          "{\"capabilities\":[\"documents:ingest\",\"knowledge:extract\",\"knowledge:index\",\"knowledge:query\",\"knowledge:resolve\",\"knowledge:subscribe\",\"namespace:export\"],\"contract\":\"noesis-knowledge-workflow-v1\",\"domains\":[\"economic\",\"osint\",\"political\",\"research\",\"scientific\",\"technical\"],\"manifest_hash\":\"b5cef8443efc801a7ff3fad07b1aa034327966ba61f9dd6b64993ec14fc20540\",\"namespace\":\"legacy\",\"stages\":[{\"capability\":\"documents:ingest\",\"input_contract\":\"document-batch-v1\",\"name\":\"ingest\",\"ordinal\":0,\"output_contract\":\"document-store-summary-v1\",\"policy\":{\"required\":true},\"resources\":{\"max_bytes\":20000000,\"max_items\":10000,\"timeout_ms\":30000}},{\"capability\":\"knowledge:extract\",\"input_contract\":\"document-store-summary-v1\",\"name\":\"extract\",\"ordinal\":1,\"output_contract\":\"noesis-extractor-run-v1\",\"policy\":{\"required\":true},\"resources\":{\"max_bytes\":20000000,\"max_items\":10000,\"timeout_ms\":30000}},{\"capability\":\"knowledge:resolve\",\"input_contract\":\"noesis-extractor-run-v1\",\"name\":\"resolve\",\"ordinal\":2,\"output_contract\":\"noesis-resolution-batch-v1\",\"policy\":{\"required\":true},\"resources\":{\"max_bytes\":20000000,\"max_items\":10000,\"timeout_ms\":30000}},{\"capability\":\"knowledge:index\",\"input_contract\":\"noesis-resolution-batch-v1\",\"name\":\"index\",\"ordinal\":3,\"output_contract\":\"noesis-derived-artifact-v1\",\"policy\":{\"required\":true},\"resources\":{\"max_bytes\":20000000,\"max_items\":10000,\"timeout_ms\":30000}},{\"capability\":\"knowledge:query\",\"input_contract\":\"noesis-derived-artifact-v1\",\"name\":\"query\",\"ordinal\":4,\"output_contract\":\"noesis-query-result-v1\",\"policy\":{\"required\":true},\"resources\":{\"max_bytes\":20000000,\"max_items\":10000,\"timeout_ms\":30000}},{\"capability\":\"knowledge:subscribe\",\"input_contract\":\"noesis-query-result-v1\",\"name\":\"subscribe\",\"ordinal\":5,\"output_contract\":\"noesis-knowledge-subscription-event-v1\",\"policy\":{\"required\":true},\"resources\":{\"max_bytes\":20000000,\"max_items\":10000,\"timeout_ms\":30000}},{\"capability\":\"namespace:export\",\"input_contract\":\"noesis-knowledge-subscription-event-v1\",\"name\":\"export\",\"ordinal\":6,\"output_contract\":\"noesis-knowledge-package-v1\",\"policy\":{\"required\":true},\"resources\":{\"max_bytes\":20000000,\"max_items\":10000,\"timeout_ms\":30000}}],\"version\":\"1.0.0\",\"workflow_id\":\"knowledge-engine-reference\"}",
+          100
+        ]
+      ]
+    },
+    {
+      "columns": [
+        "receipt_id",
+        "run_id",
+        "stage",
+        "ordinal",
+        "status",
+        "input_hash",
+        "output_hash",
+        "output_json",
+        "contracts_json",
+        "lineage_json",
+        "warnings_json",
+        "started_at_ms",
+        "completed_at_ms"
+      ],
+      "ddl": "CREATE TABLE knowledge_workflow_receipts(receipt_id VARCHAR PRIMARY KEY, run_id VARCHAR NOT NULL, stage VARCHAR NOT NULL, ordinal INTEGER NOT NULL, status VARCHAR NOT NULL, input_hash VARCHAR NOT NULL, output_hash VARCHAR, output_json VARCHAR, contracts_json VARCHAR NOT NULL, lineage_json VARCHAR NOT NULL, warnings_json VARCHAR NOT NULL, started_at_ms BIGINT NOT NULL, completed_at_ms BIGINT, UNIQUE(run_id, stage));",
+      "name": "knowledge_workflow_receipts",
+      "rows": [
+        [
+          "workflow-receipt:e08e6efa2c9e1645b05d5fd8",
+          "workflow-run:45c50fe807b8c63ab888cea0",
+          "ingest",
+          0,
+          "completed",
+          "fbe47f6d82b435a89f6e6fca65ad16138195de06c5fc3ffb66826a76e64e479f",
+          "619d9e99d41f3f84fde5ff6c2ece2020e4f4ef441f3473b4c4577ca91cb0d961",
+          "{\"coverage\":{\"complete\":true},\"ingest\":true,\"seed\":1}",
+          "{\"input\":\"document-batch-v1\",\"output\":\"document-store-summary-v1\",\"workflow\":\"noesis-knowledge-workflow-v1\"}",
+          "[]",
+          "[]",
+          100,
+          100
+        ],
+        [
+          "workflow-receipt:5d5823c085fc5078fb3f9f33",
+          "workflow-run:45c50fe807b8c63ab888cea0",
+          "extract",
+          1,
+          "completed",
+          "619d9e99d41f3f84fde5ff6c2ece2020e4f4ef441f3473b4c4577ca91cb0d961",
+          "40ffecca536b8865a6949c0a83dad34d1976fd0201d42feabde6191dd6cfd421",
+          "{\"coverage\":{\"complete\":true},\"extract\":true,\"ingest\":true,\"seed\":1}",
+          "{\"input\":\"document-store-summary-v1\",\"output\":\"noesis-extractor-run-v1\",\"workflow\":\"noesis-knowledge-workflow-v1\"}",
+          "[]",
+          "[]",
+          100,
+          100
+        ]
+      ]
+    },
+    {
+      "columns": [
+        "run_id",
+        "manifest_hash",
+        "workflow_id",
+        "namespace",
+        "run_key",
+        "input_hash",
+        "status",
+        "state_json",
+        "error_json",
+        "started_at_ms",
+        "updated_at_ms"
+      ],
+      "ddl": "CREATE TABLE knowledge_workflow_runs(run_id VARCHAR PRIMARY KEY, manifest_hash VARCHAR NOT NULL, workflow_id VARCHAR NOT NULL, namespace VARCHAR NOT NULL, run_key VARCHAR NOT NULL, input_hash VARCHAR NOT NULL, status VARCHAR NOT NULL, state_json VARCHAR NOT NULL, error_json VARCHAR, started_at_ms BIGINT NOT NULL, updated_at_ms BIGINT NOT NULL, UNIQUE(manifest_hash, run_key, input_hash));",
+      "name": "knowledge_workflow_runs",
+      "rows": [
+        [
+          "workflow-run:45c50fe807b8c63ab888cea0",
+          "b5cef8443efc801a7ff3fad07b1aa034327966ba61f9dd6b64993ec14fc20540",
+          "knowledge-engine-reference",
+          "legacy",
+          "legacy-run",
+          "fbe47f6d82b435a89f6e6fca65ad16138195de06c5fc3ffb66826a76e64e479f",
+          "failed",
+          "{\"coverage\":{\"complete\":true},\"extract\":true,\"ingest\":true,\"seed\":1}",
+          "{\"code\":\"injected_failure\",\"message\":\"deterministic workflow interruption\"}",
+          100,
+          100
+        ]
+      ]
+    },
+    {
+      "columns": [
+        "namespace",
+        "workflow_id",
+        "watermark",
+        "run_id",
+        "state_hash",
+        "coverage_json",
+        "committed_at_ms"
+      ],
+      "ddl": "CREATE TABLE knowledge_workflow_watermarks(namespace VARCHAR, workflow_id VARCHAR, watermark BIGINT, run_id VARCHAR NOT NULL UNIQUE, state_hash VARCHAR NOT NULL, coverage_json VARCHAR NOT NULL, committed_at_ms BIGINT NOT NULL, PRIMARY KEY(namespace, workflow_id, watermark));",
+      "name": "knowledge_workflow_watermarks",
+      "rows": []
+    },
+    {
+      "columns": [
+        "component",
+        "version",
+        "applied_at_ms"
+      ],
+      "ddl": "CREATE TABLE noesis_schema_migrations(component VARCHAR, \"version\" INTEGER, applied_at_ms BIGINT NOT NULL, PRIMARY KEY(component, \"version\"));",
+      "name": "noesis_schema_migrations",
+      "rows": [
+        [
+          "knowledge-subscriptions",
+          1,
+          1788584445360
+        ]
+      ]
+    },
+    {
+      "columns": [
+        "package_hash",
+        "package_id",
+        "namespace",
+        "package_json",
+        "signature_json",
+        "envelope_json",
+        "status",
+        "created_at_ms"
+      ],
+      "ddl": "CREATE TABLE research_package_artifacts(package_hash VARCHAR PRIMARY KEY, package_id VARCHAR NOT NULL, namespace VARCHAR NOT NULL, package_json VARCHAR NOT NULL, signature_json VARCHAR, envelope_json VARCHAR, status VARCHAR NOT NULL, created_at_ms BIGINT NOT NULL);",
+      "name": "research_package_artifacts",
+      "rows": [
+        [
+          "98519246ca41cc629543d72da93754fa8d9379f2c089b944855283f67332aea3",
+          "research-package:e15704e76523ae121d268990",
+          "research",
+          "{\"closure\":{\"bounded\":false,\"closure_hash\":\"701bb3bc31539cc6beb22d37cb9a6293b0d08bbb65b5123096b09b5111252ee4\",\"complete\":true,\"omissions\":[],\"root_ids\":[\"legacy-document\"]},\"content_hash\":\"98519246ca41cc629543d72da93754fa8d9379f2c089b944855283f67332aea3\",\"contract\":\"noesis-research-package-v1\",\"manifest\":{\"compatibility\":{\"minimum_noesis\":\"1\"},\"contract\":\"noesis-research-package-manifest-v1\",\"evidence\":[\"claim:1\"],\"extensions\":{\"x-example\":{\"value\":1}},\"findings\":[{\"text\":\"changed\"}],\"format_version\":\"1.0\",\"limitations\":[\"partial coverage\"],\"package_id\":\"research-package:e15704e76523ae121d268990\",\"plan\":{\"recipe_id\":\"r1\"},\"policies\":{\"view\":\"public\"},\"question\":\"What changed?\",\"snapshot\":{\"generation\":7},\"transformations\":[{\"tool\":\"compare\"}]},\"members\":[{\"component_id\":\"legacy-document\",\"component_type\":\"document\",\"content\":{\"text\":\"Fixture\"},\"content_hash\":\"950dd13743808202fb506180a8b9955bc22b8bf3824a326cc7238d9a91950176\",\"dependencies\":[],\"metadata\":{},\"redacted\":false,\"source_content_hash\":\"950dd13743808202fb506180a8b9955bc22b8bf3824a326cc7238d9a91950176\"}],\"namespace\":\"research\",\"package_id\":\"research-package:e15704e76523ae121d268990\",\"status\":\"complete\"}",
+          null,
+          null,
+          "complete",
+          100
+        ]
+      ]
+    },
+    {
+      "columns": [
+        "audit_id",
+        "namespace",
+        "operation",
+        "object_id",
+        "principal_id",
+        "detail_json",
+        "created_at_ms"
+      ],
+      "ddl": "CREATE TABLE research_package_audit(audit_id VARCHAR PRIMARY KEY, namespace VARCHAR NOT NULL, operation VARCHAR NOT NULL, object_id VARCHAR NOT NULL, principal_id VARCHAR NOT NULL, detail_json VARCHAR NOT NULL, created_at_ms BIGINT NOT NULL);",
+      "name": "research_package_audit",
+      "rows": [
+        [
+          "package-audit:012470920a27048b8e0b89ae",
+          "research",
+          "create_manifest",
+          "research-package:e15704e76523ae121d268990",
+          "alice",
+          "{}",
+          100
+        ],
+        [
+          "package-audit:84b704ad34d24d2b0784c510",
+          "research",
+          "register_component",
+          "legacy-document",
+          "alice",
+          "{}",
+          100
+        ],
+        [
+          "package-audit:c0f8cecc89b593de6c9270fd",
+          "research",
+          "build",
+          "98519246ca41cc629543d72da93754fa8d9379f2c089b944855283f67332aea3",
+          "alice",
+          "{\"bytes\":1178}",
+          100
+        ]
+      ]
+    },
+    {
+      "columns": [
+        "namespace",
+        "component_type",
+        "component_id",
+        "content_json",
+        "content_hash",
+        "dependencies_json",
+        "access_status",
+        "redacted_content_json",
+        "metadata_json"
+      ],
+      "ddl": "CREATE TABLE research_package_components(namespace VARCHAR, component_type VARCHAR, component_id VARCHAR, content_json VARCHAR NOT NULL, content_hash VARCHAR NOT NULL, dependencies_json VARCHAR NOT NULL, access_status VARCHAR NOT NULL, redacted_content_json VARCHAR, metadata_json VARCHAR NOT NULL, PRIMARY KEY(namespace, component_type, component_id));",
+      "name": "research_package_components",
+      "rows": [
+        [
+          "research",
+          "document",
+          "legacy-document",
+          "{\"text\":\"Fixture\"}",
+          "950dd13743808202fb506180a8b9955bc22b8bf3824a326cc7238d9a91950176",
+          "[]",
+          "accessible",
+          null,
+          "{}"
+        ]
+      ]
+    },
+    {
+      "columns": [
+        "target_namespace",
+        "package_hash",
+        "component_type",
+        "component_id",
+        "content_json",
+        "content_hash",
+        "executable"
+      ],
+      "ddl": "CREATE TABLE research_package_imported_components(target_namespace VARCHAR, package_hash VARCHAR NOT NULL, component_type VARCHAR, component_id VARCHAR, content_json VARCHAR NOT NULL, content_hash VARCHAR NOT NULL, executable BOOLEAN NOT NULL, PRIMARY KEY(target_namespace, component_type, component_id));",
+      "name": "research_package_imported_components",
+      "rows": []
+    },
+    {
+      "columns": [
+        "import_id",
+        "package_hash",
+        "target_namespace",
+        "status",
+        "receipt_json",
+        "created_at_ms"
+      ],
+      "ddl": "CREATE TABLE research_package_imports(import_id VARCHAR PRIMARY KEY, package_hash VARCHAR NOT NULL, target_namespace VARCHAR NOT NULL, status VARCHAR NOT NULL, receipt_json VARCHAR NOT NULL, created_at_ms BIGINT NOT NULL, UNIQUE(package_hash, target_namespace));",
+      "name": "research_package_imports",
+      "rows": []
+    },
+    {
+      "columns": [
+        "package_id",
+        "namespace",
+        "format_version",
+        "manifest_json",
+        "content_hash",
+        "status",
+        "created_at_ms"
+      ],
+      "ddl": "CREATE TABLE research_package_manifests(package_id VARCHAR PRIMARY KEY, namespace VARCHAR NOT NULL, format_version VARCHAR NOT NULL, manifest_json VARCHAR NOT NULL, content_hash VARCHAR NOT NULL, status VARCHAR NOT NULL, created_at_ms BIGINT NOT NULL);",
+      "name": "research_package_manifests",
+      "rows": [
+        [
+          "research-package:e15704e76523ae121d268990",
+          "research",
+          "1.0",
+          "{\"compatibility\":{\"minimum_noesis\":\"1\"},\"contract\":\"noesis-research-package-manifest-v1\",\"evidence\":[\"claim:1\"],\"extensions\":{\"x-example\":{\"value\":1}},\"findings\":[{\"text\":\"changed\"}],\"format_version\":\"1.0\",\"limitations\":[\"partial coverage\"],\"package_id\":\"research-package:e15704e76523ae121d268990\",\"plan\":{\"recipe_id\":\"r1\"},\"policies\":{\"view\":\"public\"},\"question\":\"What changed?\",\"snapshot\":{\"generation\":7},\"transformations\":[{\"tool\":\"compare\"}]}",
+          "c7945ccd07960c8579c20c5894c5ca063fdd290f247c4f7e0ab5a56da51ee754",
+          "draft",
+          100
+        ]
+      ]
+    },
+    {
+      "columns": [
+        "event_id",
+        "session_id",
+        "principal_id",
+        "action",
+        "detail_json",
+        "created_at_ms"
+      ],
+      "ddl": "CREATE TABLE research_snapshot_audit(event_id VARCHAR PRIMARY KEY, session_id VARCHAR NOT NULL, principal_id VARCHAR NOT NULL, \"action\" VARCHAR NOT NULL, detail_json VARCHAR NOT NULL, created_at_ms BIGINT NOT NULL);",
+      "name": "research_snapshot_audit",
+      "rows": [
+        [
+          "snapshot-event:665bddbd417ccad79dc8efa3",
+          "research-snapshot:00a65c2eb8e37cf7dfac8060",
+          "alice",
+          "begin",
+          "{\"vector_hash\":\"fd42059ee82dcee388236dfc49cbc9f100d716151e98308345600df0da37a423\"}",
+          100
+        ]
+      ]
+    },
+    {
+      "columns": [
+        "session_id",
+        "component_kind",
+        "component_id",
+        "generation"
+      ],
+      "ddl": "CREATE TABLE research_snapshot_pins(session_id VARCHAR, component_kind VARCHAR, component_id VARCHAR, generation VARCHAR NOT NULL, PRIMARY KEY(session_id, component_kind, component_id));",
+      "name": "research_snapshot_pins",
+      "rows": [
+        [
+          "research-snapshot:00a65c2eb8e37cf7dfac8060",
+          "namespace",
+          "research",
+          "1"
+        ]
+      ]
+    },
+    {
+      "columns": [
+        "session_id",
+        "token_hash",
+        "principal_id",
+        "scopes_json",
+        "selection_json",
+        "vector_json",
+        "vector_hash",
+        "status",
+        "created_at_ms",
+        "expires_at_ms",
+        "maximum_expires_at_ms",
+        "closed_at_ms"
+      ],
+      "ddl": "CREATE TABLE research_snapshot_sessions(session_id VARCHAR PRIMARY KEY, token_hash VARCHAR NOT NULL UNIQUE, principal_id VARCHAR NOT NULL, scopes_json VARCHAR NOT NULL, selection_json VARCHAR NOT NULL, vector_json VARCHAR NOT NULL, vector_hash VARCHAR NOT NULL, status VARCHAR NOT NULL, created_at_ms BIGINT NOT NULL, expires_at_ms BIGINT NOT NULL, maximum_expires_at_ms BIGINT NOT NULL, closed_at_ms BIGINT);",
+      "name": "research_snapshot_sessions",
+      "rows": [
+        [
+          "research-snapshot:00a65c2eb8e37cf7dfac8060",
+          "32e8eb39fb9d3b05ab1e4f1b86ff871f725617c3494d26e0dc00815c6d2217a9",
+          "alice",
+          "[\"knowledge:read\",\"knowledge:snapshot:read\",\"knowledge:snapshot:write\"]",
+          "{\"namespaces\":[\"research\"]}",
+          "{\"domains\":[],\"federated\":{},\"namespaces\":{\"research\":{\"artifact_watermark\":null,\"change_hash\":\"4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945\",\"derived_generation\":1}},\"omissions\":[],\"packs\":{},\"schemas\":{}}",
+          "fd42059ee82dcee388236dfc49cbc9f100d716151e98308345600df0da37a423",
+          "active",
+          100,
+          5100,
+          86400100,
+          null
+        ]
+      ]
+    }
+  ],
+  "workflow": {
+    "capabilities": [
+      "documents:ingest",
+      "knowledge:extract",
+      "knowledge:index",
+      "knowledge:query",
+      "knowledge:resolve",
+      "knowledge:subscribe",
+      "namespace:export"
+    ],
+    "domains": [
+      "economic",
+      "osint",
+      "political",
+      "research",
+      "scientific",
+      "technical"
+    ],
+    "namespace": "legacy",
+    "stages": [
+      {
+        "capability": "documents:ingest",
+        "input_contract": "document-batch-v1",
+        "name": "ingest",
+        "output_contract": "document-store-summary-v1",
+        "policy": {
+          "required": true
+        },
+        "resources": {
+          "max_bytes": 20000000,
+          "max_items": 10000,
+          "timeout_ms": 30000
+        }
+      },
+      {
+        "capability": "knowledge:extract",
+        "input_contract": "document-store-summary-v1",
+        "name": "extract",
+        "output_contract": "noesis-extractor-run-v1",
+        "policy": {
+          "required": true
+        },
+        "resources": {
+          "max_bytes": 20000000,
+          "max_items": 10000,
+          "timeout_ms": 30000
+        }
+      },
+      {
+        "capability": "knowledge:resolve",
+        "input_contract": "noesis-extractor-run-v1",
+        "name": "resolve",
+        "output_contract": "noesis-resolution-batch-v1",
+        "policy": {
+          "required": true
+        },
+        "resources": {
+          "max_bytes": 20000000,
+          "max_items": 10000,
+          "timeout_ms": 30000
+        }
+      },
+      {
+        "capability": "knowledge:index",
+        "input_contract": "noesis-resolution-batch-v1",
+        "name": "index",
+        "output_contract": "noesis-derived-artifact-v1",
+        "policy": {
+          "required": true
+        },
+        "resources": {
+          "max_bytes": 20000000,
+          "max_items": 10000,
+          "timeout_ms": 30000
+        }
+      },
+      {
+        "capability": "knowledge:query",
+        "input_contract": "noesis-derived-artifact-v1",
+        "name": "query",
+        "output_contract": "noesis-query-result-v1",
+        "policy": {
+          "required": true
+        },
+        "resources": {
+          "max_bytes": 20000000,
+          "max_items": 10000,
+          "timeout_ms": 30000
+        }
+      },
+      {
+        "capability": "knowledge:subscribe",
+        "input_contract": "noesis-query-result-v1",
+        "name": "subscribe",
+        "output_contract": "noesis-knowledge-subscription-event-v1",
+        "policy": {
+          "required": true
+        },
+        "resources": {
+          "max_bytes": 20000000,
+          "max_items": 10000,
+          "timeout_ms": 30000
+        }
+      },
+      {
+        "capability": "namespace:export",
+        "input_contract": "noesis-knowledge-subscription-event-v1",
+        "name": "export",
+        "output_contract": "noesis-knowledge-package-v1",
+        "policy": {
+          "required": true
+        },
+        "resources": {
+          "max_bytes": 20000000,
+          "max_items": 10000,
+          "timeout_ms": 30000
+        }
+      }
+    ],
+    "version": "1.0.0",
+    "workflow_id": "knowledge-engine-reference"
+  },
+  "workflow_run_id": "workflow-run:45c50fe807b8c63ab888cea0"
+}

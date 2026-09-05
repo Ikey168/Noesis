@@ -1,5 +1,27 @@
 # Portable research packages
 
+## Verification and import trust
+
+Verification checks member hashes and required roots/dependencies, the closure
+digest, and completeness declarations. An undeclared missing member fails even
+if the outer checksum has been recalculated. Bounded partial exports declare
+their unvisited frontier. `structural_errors` explains structural failures
+separately from `member_failures` and `signature_status`.
+
+`set_research_package_trust_policy` requires `knowledge:packages:trust` and appends
+an import-namespace policy using an expected revision (zero for creation). Each
+trusted key record contains `public_key` (base64 Ed25519 public bytes),
+`key_version`, and optional `revoked`. Use new key IDs during overlapping key
+rotation, or advance the explicitly accepted version.
+
+Importers may request `require_signature` and provide `public_keys` when there is
+no namespace policy. A configured namespace policy is authoritative: importers
+cannot bypass its signer requirements or substitute their own trusted keys.
+Policies are checked before idempotent import replay, so revocation also applies
+to repeated imports. Namespaces without a policy still permit unsigned exchange.
+
+## Package contents and execution
+
 A research package binds the question, plan, committed snapshot, evidence,
 transformations, findings, limitations, policies, and compatibility metadata
 needed to reproduce a result. Manifests are canonical and version-negotiated;

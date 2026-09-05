@@ -50,7 +50,7 @@ def publish(store: DerivedRevisionStore, receipt: dict) -> dict:
 
 def test_support_aware_revisions_retain_then_retract_shared_claim():
     conn = duckdb.connect(":memory:")
-    store = DerivedRevisionStore(conn)
+    store = DerivedRevisionStore(conn, fixture_mode=True)
     logical_id = logical_identity("claim", observation("a", "r1")["content"])
 
     first = publish(
@@ -106,7 +106,7 @@ def test_support_aware_revisions_retain_then_retract_shared_claim():
 
 def test_as_of_history_delta_pagination_lineage_and_replay():
     conn = duckdb.connect(":memory:")
-    store = DerivedRevisionStore(conn)
+    store = DerivedRevisionStore(conn, fixture_mode=True)
     item = observation("a", "r1")
     logical_id = logical_identity("claim", item["content"])
     first = publish(
@@ -157,7 +157,7 @@ def test_as_of_history_delta_pagination_lineage_and_replay():
 
 def test_generation_is_idempotent_conflict_safe_and_atomic():
     conn = duckdb.connect(":memory:")
-    store = DerivedRevisionStore(conn)
+    store = DerivedRevisionStore(conn, fixture_mode=True)
     inputs = [observation("a", "r1")]
     changes = [change("a", "r1")]
     committed = store.apply_generation(NAMESPACE, 1, inputs, changes, now_ms=10)
@@ -229,7 +229,7 @@ def test_incremental_materializers_and_workflow_observation_adapter():
         "summary",
     }
     conn = duckdb.connect(":memory:")
-    store = DerivedRevisionStore(conn)
+    store = DerivedRevisionStore(conn, fixture_mode=True)
     result = publish(
         store,
         store.apply_generation(
@@ -254,7 +254,7 @@ def test_incremental_materializers_and_workflow_observation_adapter():
 
 def test_public_contract_schemas_validate_store_receipts():
     conn = duckdb.connect(":memory:")
-    store = DerivedRevisionStore(conn)
+    store = DerivedRevisionStore(conn, fixture_mode=True)
     receipt = publish(
         store,
         store.apply_generation(

@@ -53,3 +53,12 @@ class HashingBackend(EmbeddingBackend):
 
     def name(self) -> str:
         return self._model_name
+
+    def count_tokens(self, text: str) -> int:
+        return len(_TOKEN_RE.findall(text.lower()))
+
+    def token_limit(self) -> int:
+        return 4096
+
+    def tokenizer_identity(self) -> dict:
+        return {"name": "hashing-regex-v1", "synthetic": True, "max_tokens": self.token_limit()}

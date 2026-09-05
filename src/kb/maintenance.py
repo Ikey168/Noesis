@@ -24,7 +24,12 @@ from src.kb.derived_revisions import (
     maintenance_observations,
 )
 from src.kb.subscriptions import SubscriptionStore
-from src.kb.workflows import WorkflowStore, reference_handlers, reference_manifest
+from src.kb.workflows import (
+    WorkflowStore,
+    production_handlers,
+    reference_handlers,
+    reference_manifest,
+)
 
 JOB_REQUEST_CONTRACT = "noesis-maintenance-job-request-v1"
 JOB_RECEIPT_CONTRACT = "noesis-maintenance-job-receipt-v1"
@@ -172,8 +177,18 @@ class MaintenanceOrchestrator:
         now: Callable[[], int] = _now,
         root: Path | None = None,
         initialize: bool = True,
+        execution_mode: str = "production",
+        extractor_definition=None,
+        extractor_implementation=None,
+        embedding_provider=None,
+        embedding_configuration=None,
     ) -> None:
         self.conn = conn
+        if execution_mode not in {"production", "fixture"}:
+            raise MaintenanceError("invalid_configuration", "execution_mode must be production or fixture")
+        self.execution_mode = execution_mode
+        self.extractor_definition, self.extractor_implementation = extractor_definition, extractor_implementation
+        self.embedding_provider, self.embedding_configuration = embedding_provider, embedding_configuration
         self.now = now
         self.root = (root or Path(__file__).resolve().parents[2]).resolve()
         self._local_cancel: dict[str, threading.Event] = {}
@@ -769,6 +784,7 @@ class MaintenanceOrchestrator:
         )
         namespace = "maintenance:" + pack_id
         workflow_manifest = reference_manifest(namespace)
+        workflow_manifest["workflow_id"] = "knowledge-maintenance-" + self.execution_mode
         workflow_manifest["domains"] = list(manifest["domains"])
         workflow_manifest["stages"] = workflow_manifest["stages"][:4]
         workflow_manifest["capabilities"] = [
@@ -776,9 +792,13 @@ class MaintenanceOrchestrator:
         ]
         workflow = WorkflowStore(self.conn).execute(
             workflow_manifest,
-            reference_handlers(self.conn, principal_id=principal_id),
+            reference_handlers(self.conn, principal_id=principal_id) if self.execution_mode == "fixture" else production_handlers(
+                self.conn, principal_id=principal_id, extractor_definition=self.extractor_definition,
+                extractor_implementation=self.extractor_implementation),
             {
                 "documents": documents,
+                "pipeline_configuration": {"execution_mode": self.execution_mode,
+                                           "extractor_definition": self.extractor_definition},
                 "source_pack": {
                     "pack_id": pack_id,
                     "version": manifest["version"],
@@ -898,13 +918,22 @@ class MaintenanceOrchestrator:
         document_hashes = sorted(str(item["payload_hash"]) for item in changes)
         extraction = dict(workflow.get("state", {}).get("extraction") or {})
         resolution = dict(workflow.get("state", {}).get("resolution") or {})
-        derived = DerivedRevisionStore(self.conn, initialize=False).apply_generation(
+        derived_store = DerivedRevisionStore(self.conn, initialize=False,
+            fixture_mode=self.execution_mode == "fixture", embedding_provider=self.embedding_provider,
+            embedding_configuration=self.embedding_configuration)
+        derived = derived_store.apply_generation(
             namespace,
             source_watermark,
             maintenance_observations(documents, extraction),
             changes,
             now_ms=started,
         )
+        embedding_space = derived_store._embedding_identity()
+        chunks = {"processed": 0, "receipts": []}
+        if self.execution_mode == "production":
+            from src.ingestion.chunk_embeddings import embed_document_chunks
+            chunks = embed_document_chunks(self.conn, derived_store.embedding_provider,
+                document_ids=[doc["document_id"] for doc in documents], limit=len(documents), publish=False)
         if not changes:
             prior_rows = self.conn.execute(
                 "SELECT kind,artifact_id,content_hash FROM knowledge_artifacts "
@@ -946,6 +975,8 @@ class MaintenanceOrchestrator:
                     },
                     "mixed_generations_visible": False,
                     "derived": derived,
+                    "chunk_embeddings": chunks,
+                    "embedding_space": embedding_space,
                 }
         active_rows = self.conn.execute(
             "SELECT revision_id,payload_hash FROM ("
@@ -967,7 +998,8 @@ class MaintenanceOrchestrator:
         }
         payloads = {
             "index": {**common, "method": "lexical-manifest-v1"},
-            "embedding": {**common, "method": "content-hash-vector-manifest-v1"},
+            "embedding": {**common, "method": "token-chunk-semantic" if self.execution_mode == "production" else "fixture-hash",
+                          "embedding_space": embedding_space},
             "entity": {
                 **common,
                 "outputs": extraction.get("outputs", []),
@@ -1114,6 +1146,8 @@ class MaintenanceOrchestrator:
             "timing": {"started_at_ms": started, "completed_at_ms": self.now()},
             "mixed_generations_visible": False,
             "derived": derived,
+            "chunk_embeddings": chunks,
+            "embedding_space": embedding_space,
         }
 
     def _commit_generation(
@@ -1198,7 +1232,7 @@ class MaintenanceOrchestrator:
                     "noesis-resolution-batch-v1",
                     "noesis-derived-object-revision-v1",
                 ],
-                "models": ["content-hash-vector-manifest-v1"],
+                "models": [artifacts.get("embedding_space", {}).get("model", "unknown")],
                 "policies": ["source-pack-runtime-v1", "knowledge-maintenance-v1"],
             },
             "status": status,
@@ -1222,6 +1256,9 @@ class MaintenanceOrchestrator:
         namespace = "knowledge-generation:" + pack_id
         self.conn.execute("BEGIN")
         try:
+            if artifacts.get("chunk_embeddings", {}).get("receipts"):
+                from src.ingestion.chunk_embeddings import publish_chunk_receipts
+                publish_chunk_receipts(self.conn, artifacts["chunk_embeddings"]["receipts"])
             DerivedRevisionStore(self.conn, initialize=False).publish_generation(
                 str(derived["namespace"]), int(derived["generation"])
             )

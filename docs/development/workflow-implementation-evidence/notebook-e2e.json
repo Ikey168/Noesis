@@ -1,0 +1,47 @@
+{
+  "analysis_id": "analysis:fb7fe6d3bf159b048eab277679017747",
+  "cancel_status": "cancelled",
+  "cell_timeout": {
+    "error_type": "CellTimeoutError",
+    "status": "failed"
+  },
+  "contract": "noesis-notebook-runtime-check-v1",
+  "deadline_status": "failed",
+  "environment": {
+    "image_id": "sha256:fbaa8bb76fedd16b8628debc67e1c2e8a40928496cd6a83d6312de4a69b22bfc",
+    "runner_sha256": "73647e8fd1b5c0b9e102af787cfaf7c2c547e822bcccc9f0ee61fd2735147113"
+  },
+  "input_hash": "5ad1e3381a99a791dc4910aabda8020d1858de8a72455f3215244eb883aa0c18",
+  "isolation": {
+    "application_credentials_inherited": false,
+    "budgets": {
+      "cell_timeout_seconds": 10,
+      "cpus": 1,
+      "max_output_bytes": 1048576,
+      "memory_mb": 256,
+      "run_timeout_seconds": 30
+    },
+    "image_id": "sha256:fbaa8bb76fedd16b8628debc67e1c2e8a40928496cd6a83d6312de4a69b22bfc",
+    "network": "none",
+    "runtime": "rootless-podman"
+  },
+  "notebook_hash": "2b07eb974aa7d1284638b8817a3f82a0d296ba4da176b1cff8aa7b81279301da",
+  "outputs": {
+    "network_blocked": true,
+    "rows": 2,
+    "sum": 5.0
+  },
+  "package_status": "complete",
+  "packages": "asttokens==3.0.2\nattrs==26.1.0\ncomm==0.2.3\ndebugpy==1.8.21\nexecuting==2.2.1\nfastjsonschema==2.22.2\nipykernel==6.30.1\nipython==9.17.1\nipython_pygments_lexers==1.1.1\njedi==0.20.0\njsonschema==4.26.0\njsonschema-specifications==2025.9.1\njupyter_client==8.10.0\njupyter_core==5.9.1\nmatplotlib-inline==0.2.2\nnbclient==0.10.4\nnbformat==5.10.4\nnest-asyncio==1.6.0\npackaging==26.3\nparso==0.8.7\npexpect==4.9.0\nplatformdirs==4.11.7\nprompt_toolkit==3.0.53\npsutil==7.2.2\nptyprocess==0.7.0\npure_eval==0.2.3\nPygments==2.21.0\npython-dateutil==2.9.0.post0\npyzmq==27.2.0\nreferencing==0.37.0\nrpds-py==2026.6.3\nsix==1.17.0\nstack-data==0.6.3\ntornado==6.5.8\ntraitlets==5.16.1\ntyping_extensions==4.16.0\nwcwidth==0.8.3\n",
+  "replay": {
+    "absolute_tolerance": 1e-12,
+    "changed_cells": [],
+    "equal": true,
+    "relative_tolerance": 0.0,
+    "same_code": true,
+    "same_environment": true,
+    "same_inputs": true,
+    "substantive_claim_verified": false
+  },
+  "validation_kind": "real container with generated two-row input; not human scientific validation"
+}

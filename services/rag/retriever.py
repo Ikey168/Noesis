@@ -58,6 +58,13 @@ class HybridSearchFilters:
     min_lexical_rank: float = 0.0
 
 
+class PartialRetrievalError(RuntimeError):
+    """A list-only call cannot represent incomplete source coverage safely."""
+    def __init__(self, response):
+        super().__init__('Retrieval is incomplete; inspect response diagnostics')
+        self.response = response
+
+
 class HybridRetriever:
     """
     Hybrid retrieval service combining vector and lexical search.
@@ -110,7 +117,13 @@ class HybridRetriever:
         if self.lexical_service:
             self.lexical_service.disconnect()
     
-    def search(
+    def search(self, *args, **kwargs) -> List[HybridSearchResult]:
+        response = self.search_detailed(*args, **kwargs)
+        if response['status'] != 'complete':
+            raise PartialRetrievalError(response)
+        return response['results']
+
+    def search_detailed(
         self,
         query: str,
         query_embedding: Optional[Union[List[float], 'np.ndarray']] = None,
@@ -140,18 +153,32 @@ class HybridRetriever:
         start_time = time.time()
         
         # Set default candidate counts
-        vector_k = vector_k or min(k * 2, 20)
-        lexical_k = lexical_k or min(k * 2, 20)
+        if type(k) is not int or not 1 <= k <= 1000:
+            raise ValueError('k must be an integer from 1 to 1000')
+        vector_k = min(k * 2, 1000) if vector_k is None else vector_k
+        lexical_k = min(k * 2, 1000) if lexical_k is None else lexical_k
+        if any(type(v) is not int or not 1 <= v <= 1000 for v in (vector_k, lexical_k)):
+            raise ValueError('candidate counts must be integers from 1 to 1000')
+        diagnostics = []
+        def fetch(name, service, operation):
+            if service is None:
+                diagnostics.append({'source': name, 'status': 'not_configured'})
+                return []
+            try:
+                values = operation()
+                diagnostics.append({'source': name, 'status': 'complete', 'count': len(values)})
+                return values
+            except Exception as exc:
+                # Provider exception strings can contain SQL or credentials.
+                diagnostics.append({'source': name, 'status': 'failed', 'error_type': type(exc).__name__})
+                return []
         filters = filters or HybridSearchFilters()
         
         # Fetch candidates from both search methods
-        vector_results = self._fetch_vector_candidates(
-            query_embedding, vector_k, filters
-        ) if self.vector_service else []
-        
-        lexical_results = self._fetch_lexical_candidates(
-            query, lexical_k, filters
-        ) if self.lexical_service else []
+        vector_results = fetch('vector', self.vector_service,
+            lambda: self._fetch_vector_candidates(query_embedding, vector_k, filters))
+        lexical_results = fetch('lexical', self.lexical_service,
+            lambda: self._fetch_lexical_candidates(query, lexical_k, filters))
         
         logger.info(f"Fetched {len(vector_results)} vector + {len(lexical_results)} lexical candidates")
         
@@ -163,8 +190,13 @@ class HybridRetriever:
         
         # Apply reranking if enabled
         if enable_reranking and self.reranker and self.reranker.is_enabled:
-            reranked_results = self._apply_reranking(query, fusion_results)
-            final_results = self._convert_reranked_results(reranked_results, fusion_results)
+            try:
+                reranked_results = self._apply_reranking(query, fusion_results)
+                final_results = self._convert_reranked_results(reranked_results, fusion_results)
+                diagnostics.append({'source': 'reranker', 'status': 'complete'})
+            except Exception as exc:
+                diagnostics.append({'source': 'reranker', 'status': 'failed', 'error_type': type(exc).__name__})
+                final_results = fusion_results
         else:
             final_results = fusion_results
         
@@ -175,8 +207,13 @@ class HybridRetriever:
         elapsed_time = time.time() - start_time
         logger.info(f"Hybrid search completed in {elapsed_time:.3f}s, returning {len(final_results)} results")
         
-        return final_results
-    
+        failed = any(v['status'] == 'failed' for v in diagnostics)
+        configured = any(v['status'] != 'not_configured' for v in diagnostics)
+        return {'results': final_results, 'status': 'partial' if failed else 'complete' if configured else 'unavailable',
+                'sources': diagnostics, 'elapsed_ms': elapsed_time * 1000,
+                'candidate_limits': {'vector': vector_k, 'lexical': lexical_k},
+                'cost': {'status': 'not_metered'}}
+
     def _fetch_vector_candidates(
         self,
         query_embedding: Optional[Union[List[float], 'np.ndarray']],
@@ -184,9 +221,8 @@ class HybridRetriever:
         filters: HybridSearchFilters
     ) -> List[VectorSearchResult]:
         """Fetch candidates from vector search."""
-        if not query_embedding:
-            logger.warning("No query embedding provided for vector search")
-            return []
+        if query_embedding is None or len(query_embedding) == 0:
+            raise ValueError('A configured vector search requires a query embedding')
         
         try:
             vector_filters = VectorSearchFilters(
@@ -199,8 +235,8 @@ class HybridRetriever:
             return self.vector_service.search(query_embedding, k, vector_filters)
             
         except Exception as e:
-            logger.error(f"Vector search failed: {e}")
-            return []
+            logger.error("Vector search failed (%s)", type(e).__name__)
+            raise
     
     def _fetch_lexical_candidates(
         self,
@@ -221,8 +257,8 @@ class HybridRetriever:
             return self.lexical_service.search(query, k, lexical_filters)
             
         except Exception as e:
-            logger.error(f"Lexical search failed: {e}")
-            return []
+            logger.error("Lexical search failed (%s)", type(e).__name__)
+            raise
     
     def _merge_candidates(
         self,
@@ -376,7 +412,7 @@ class HybridRetriever:
                 'score': candidate.fusion_score
             })
         
-        return self.reranker.rerank(query, rerank_candidates)
+        return self.reranker.rerank(query, rerank_candidates, require_model=True)
     
     def _convert_reranked_results(
         self,

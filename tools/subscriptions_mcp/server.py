@@ -95,6 +95,44 @@ def pending_subscription_deliveries(limit: int = 100) -> dict:
     principal,scopes=_context(); return _run(lambda store:{"deliveries":store.pending_deliveries(principal_id=principal,scopes=scopes,limit=limit)})
 
 
+@mcp.tool()
+def claim_subscription_deliveries(worker_id: str, limit: int = 100, lease_ms: int = 30000) -> dict:
+    """Lease due outbox events to one worker; expired leases are reclaimable."""
+    from src.kb.subscription_delivery import SubscriptionDeliveryStore
+    principal, scopes = _context()
+    return _run(lambda store: {"deliveries": SubscriptionDeliveryStore(store.conn).claim(
+        worker_id, principal_id=principal, scopes=scopes, limit=limit, lease_ms=lease_ms)}, write=True)
+
+
+@mcp.tool()
+def acknowledge_subscription_delivery(event_id: str, delivery_kind: str, lease_token: str) -> dict:
+    """Acknowledge a current lease after the receiver accepts its stable event ID."""
+    from src.kb.subscription_delivery import SubscriptionDeliveryStore
+    principal, scopes = _context()
+    return _run(lambda store: SubscriptionDeliveryStore(store.conn).finish(
+        event_id, delivery_kind, lease_token, principal_id=principal, scopes=scopes), write=True)
+
+
+@mcp.tool()
+def fail_subscription_delivery(event_id: str, delivery_kind: str, lease_token: str,
+                                error: str, max_attempts: int = 5, backoff_ms: int = 1000) -> dict:
+    """Record a receiver failure and schedule bounded backoff or terminal failure."""
+    from src.kb.subscription_delivery import SubscriptionDeliveryStore
+    principal, scopes = _context()
+    return _run(lambda store: SubscriptionDeliveryStore(store.conn).finish(
+        event_id, delivery_kind, lease_token, error=error, max_attempts=max_attempts,
+        backoff_ms=backoff_ms, principal_id=principal, scopes=scopes), write=True)
+
+
+@mcp.tool()
+def redrive_subscription_delivery(event_id: str, delivery_kind: str, request_key: str) -> dict:
+    """Idempotently return a terminal failure to the delivery queue."""
+    from src.kb.subscription_delivery import SubscriptionDeliveryStore
+    principal, scopes = _context()
+    return _run(lambda store: SubscriptionDeliveryStore(store.conn).redrive(
+        event_id, delivery_kind, request_key, principal_id=principal, scopes=scopes), write=True)
+
+
 if __name__ == "__main__":
     from src.mcp_host.transport import run_server
     run_server(mcp)

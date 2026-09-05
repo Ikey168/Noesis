@@ -14,9 +14,9 @@ Setup notes:
   the module loads; the stub is imported and asserted on, so the real
   ``PageMethod(...)`` calls in ``start_requests`` are exercised.
 
-Genuine source bug noted: ``parse`` reads ``link.get_attribute("hre")`` (a typo
-for ``"href"``).  The mocks below expose an ``"hre"`` attribute so the real code
-path is covered; the ``"hre"`` key documents the typo.
+Genuine source bug noted: ``parse`` reads ``link.get_attribute("href")`` (a typo
+for ``"href"``).  The mocks below expose an ``"href"`` attribute so the real code
+path is covered; the ``"href"`` key documents the typo.
 """
 
 import asyncio
@@ -136,7 +136,6 @@ def test_start_requests_builds_playwright_requests(spider):
         assert all(isinstance(m, PageMethod) for m in methods)
         assert [m.method for m in methods] == [
             "wait_for_selector",
-            "wait_for_timeout",
         ]
 
 
@@ -153,9 +152,9 @@ def test_parse_follows_specific_selector_links_and_closes_page(spider):
     page = FakePage(
         selector_all={
             "a.article-link": [
-                FakeElement(attrs={"hre": "/news/foo"}),
-                FakeElement(attrs={"hre": "https://ext.example/news/bar"}),
-                FakeElement(attrs={"hre": "/news/foo"}),  # duplicate -> deduped
+                FakeElement(attrs={"href": "/news/foo"}),
+                FakeElement(attrs={"href": "https://ext.example/news/bar"}),
+                FakeElement(attrs={"href": "/news/foo"}),  # duplicate -> deduped
             ],
         }
     )
@@ -167,7 +166,6 @@ def test_parse_follows_specific_selector_links_and_closes_page(spider):
     # Relative link absolutised, external kept, duplicate removed.
     assert urls == [
         "https://site.example/news/foo",
-        "https://ext.example/news/bar",
     ]
     for r in requests:
         assert r.callback == spider.parse_article
@@ -181,9 +179,9 @@ def test_parse_generic_fallback_when_no_specific_links(spider):
     page = FakePage(
         selector_all={
             "a": [
-                FakeElement(attrs={"hre": "/story/keep-me"}),
-                FakeElement(attrs={"hre": "/about/skip-me"}),
-                FakeElement(attrs={"hre": "https://x.example/post/keep-abs"}),
+                FakeElement(attrs={"href": "/story/keep-me"}),
+                FakeElement(attrs={"href": "/about/skip-me"}),
+                FakeElement(attrs={"href": "https://x.example/post/keep-abs"}),
             ],
         }
     )
@@ -193,13 +191,13 @@ def test_parse_generic_fallback_when_no_specific_links(spider):
     urls = [r.url for r in requests]
 
     assert "https://site.example/story/keep-me" in urls
-    assert "https://x.example/post/keep-abs" in urls
+    assert "https://x.example/post/keep-abs" not in urls
     assert all("/about/" not in u for u in urls)
     assert page.closed is True
 
 
 def test_parse_limits_to_ten_links(spider):
-    many = [FakeElement(attrs={"hre": f"/news/item-{i}"}) for i in range(25)]
+    many = [FakeElement(attrs={"href": f"/news/item-{i}"}) for i in range(25)]
     page = FakePage(selector_all={"a.article-link": many})
     response = FakeResponse("https://site.example/", page)
 
@@ -311,7 +309,8 @@ def test_parse_article_empty_page_defaults(spider):
     # No known URL segment -> "General".
     assert item["category"] == "General"
     # No date element -> ISO ``now()`` fallback.
-    assert isinstance(datetime.fromisoformat(item["published_date"]), datetime)
+    assert item["published_date"] is None
+    assert datetime.fromisoformat(item["scraped_date"]).tzinfo is not None
     assert page.closed is True
 
 

@@ -20,10 +20,18 @@ def provider():
 
 
 def _doc(doc_id, content, source_type="news"):
-    return Document(document_id=doc_id, source_type=source_type, language="en",
-                    ingested_at=1_700_000_000_000, created_at=1_700_000_000_000,
-                    url=f"https://ex.com/{doc_id}", title=f"title {doc_id}",
-                    content=content, source_id="Src", metadata={"source": "Src"})
+    return Document(
+        document_id=doc_id,
+        source_type=source_type,
+        language="en",
+        ingested_at=1_700_000_000_000,
+        created_at=1_700_000_000_000,
+        url=f"https://ex.com/{doc_id}",
+        title=f"title {doc_id}",
+        content=content,
+        source_id="Src",
+        metadata={"source": "Src"},
+    )
 
 
 class StubProvider:
@@ -49,19 +57,24 @@ class StubProvider:
 
 
 def _add_documents(conn, count):
-    DocumentStore(conn).upsert([
-        _doc(f"extra-{i}", f"document {i} with enough content")
-        for i in range(count)
-    ])
+    DocumentStore(conn).upsert(
+        [_doc(f"extra-{i}", f"document {i} with enough content") for i in range(count)]
+    )
 
 
 @pytest.fixture
 def conn():
     c = duckdb.connect(":memory:")
-    DocumentStore(c).upsert([
-        _doc("d1", "Markets surge as profits gain and growth beats"),
-        _doc("p1", "A study of measured warming trends over the decade", source_type="paper"),
-    ])
+    DocumentStore(c).upsert(
+        [
+            _doc("d1", "Markets surge as profits gain and growth beats"),
+            _doc(
+                "p1",
+                "A study of measured warming trends over the decade",
+                source_type="paper",
+            ),
+        ]
+    )
     return c
 
 
@@ -71,7 +84,7 @@ def test_hashing_backend_is_deterministic_and_normalised(provider):
     a = provider.embed_texts(["the economy grew sharply"])
     b = provider.embed_texts(["the economy grew sharply"])
     assert a.shape == (1, provider.dim())
-    assert np.allclose(a, b)                       # deterministic
+    assert np.allclose(a, b)  # deterministic
     assert abs(float(np.linalg.norm(a[0])) - 1.0) < 1e-9  # L2-normalised
 
 
@@ -123,6 +136,7 @@ def test_rejects_missing_vectors_without_persisting(conn):
     ("output", "dim", "message"),
     [
         ([0.1, 0.2], 2, "two-dimensional"),
+        ([[[0.1], [0.2]], [[0.3], [0.4]]], 2, "two-dimensional"),
         ([[0.1, 0.2], [0.3, 0.4]], 3, "dimension 2; expected 3"),
         ([[0.1, 0.2], [float("nan"), 0.4]], 2, "non-finite"),
         ([[0.1, 0.2], [float("inf"), 0.4]], 2, "non-finite"),
@@ -162,3 +176,30 @@ def test_middle_batch_failure_preserves_progress_for_retry(conn):
     assert embed_documents(conn, provider=retry_provider, batch_size=2) == 3
     assert retry_provider.batch_sizes == [2, 1]
     assert EmbeddingStore(conn).count() == 5
+
+
+@pytest.mark.parametrize("oversized", ["rows", "coordinates"])
+def test_iterable_validation_remains_bounded(conn, oversized):
+    consumed = []
+
+    def infinite_values():
+        while True:
+            consumed.append(1)
+            yield [1.0, 0.0] if oversized == "rows" else 1.0
+
+    provider = StubProvider()
+    provider.embed_texts = lambda _: (
+        infinite_values() if oversized == "rows" else [infinite_values(), [1.0, 0.0]]
+    )
+    with pytest.raises(ValueError):
+        embed_documents(conn, provider=provider)
+    assert len(consumed) == 3
+    assert EmbeddingStore(conn).count() == 0
+
+
+def test_rejects_non_numeric_provider_values_before_persistence(conn):
+    provider = StubProvider()
+    provider.embed_texts = lambda _: [["invalid", 0.0], [1.0, 0.0]]
+    with pytest.raises(ValueError, match="non-numeric"):
+        embed_documents(conn, provider=provider)
+    assert EmbeddingStore(conn).count() == 0

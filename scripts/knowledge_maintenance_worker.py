@@ -55,7 +55,10 @@ def main() -> int:
 
     database = args.database or warehouse_path(str(ROOT / "data/neuronews.duckdb"))
     conn = duckdb.connect(database)
-    orchestrator = MaintenanceOrchestrator(conn, root=ROOT)
+    orchestrator = MaintenanceOrchestrator(conn, root=ROOT,
+        execution_mode=settings.get("execution_mode", "production"),
+        extractor_definition=settings.get("extractor_definition"),
+        embedding_configuration=settings.get("embedding_configuration"))
     adapters = None if network == "live" else fixture_adapter_provider(orchestrator)
     dns = None if network == "live" else lambda _: ["8.8.8.8"]
     print(

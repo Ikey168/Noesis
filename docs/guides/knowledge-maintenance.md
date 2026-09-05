@@ -3,8 +3,10 @@
 Noesis can continuously move enabled source-pack schedules through normalized
 documents, the versioned Knowledge Engine workflow, selective derived-artifact
 refresh, an append-only generation commit, and the unified query plane. The
-worker is local-first: pinned fixtures are the default and live network access
-requires an explicit flag.
+worker uses a versioned plain-text extractor and the configured semantic embedding
+provider in production mode. Source access remains offline by default; live source
+network access requires an explicit flag. Missing model dependencies produce an
+explicit unavailable result instead of silently emitting fixture knowledge.
 
 ## Bootstrap
 
@@ -62,7 +64,7 @@ the same normalized claim and one is corrected or removed, Noesis appends a
 only after the final support disappears. Reappearance creates a `restored`
 revision rather than destroying the earlier history.
 
-Lexical, deterministic vector, graph, and summary projection items update in
+Lexical, provider-backed vector, graph, and summary projection items update in
 the same transaction as the derived revision and generation receipt. Readers
 therefore see either the previous projection generation or the complete next
 one, never a mixture. The existing aggregate artifacts remain compatibility
@@ -73,6 +75,41 @@ generation deltas, replay verification, source-to-projection lineage,
 invalidation explanations, current projections, and text-free health counts.
 All require `knowledge:read`, and queries cannot observe an uncommitted derived
 generation.
+
+## Extractors and vector spaces
+
+`config/knowledge-maintenance.json` selects `execution_mode` (`production` by
+default). An optional `extractor_definition` chooses a registered name, semantic
+version, model/rule version, output schemas, configuration, and resource declaration.
+The built-in `argument-mining-text` implementation uses the existing claim-mining
+API on ordinary `document.content`. Outputs retain source revision provenance and
+exact character locators where the claim has a unique exact source span. Custom
+implementations are injected into `MaintenanceOrchestrator`; an unbound registered
+definition fails explicitly.
+
+Embedding configuration uses the existing `EMBEDDING_PROVIDER` and
+`EMBEDDING_MODEL_NAME` settings. `embedding_configuration` records tokenizer
+revision and input policy. Vector receipts include model, dimension, tokenization,
+and configuration identity. A provider change cannot mix spaces within an active
+namespace; rebuild into a new namespace. Maintained semantic queries are registered
+for selected namespaces in the unified query catalog and retain source-revision
+citations. Derived object summary vectors retain an explicit character-prefix
+policy (4,000 by default). Production maintenance additionally indexes full source
+documents in tokenizer-bounded chunks. Domain and namespace document searches rank
+these chunks and return their original character offsets and source revision IDs.
+The local Sentence Transformers backend counts special tokens within its model
+limit. A backend without an explicit tokenizer contract fails instead of silently
+truncating input. Indexing bounds documents, chunks, and inference batches; an
+overflow is explicit. Completed batches survive retry, while publication receipts
+join the maintenance generation transaction. Missing or stale chunks produce
+partial coverage in unified queries.
+Historical snapshot queries currently return an explicit unsupported outcome on
+this semantic adapter instead of reading newer vectors.
+
+Set `execution_mode: fixture` only for deterministic offline conformance. That mode
+uses `metadata.knowledge` and explicitly synthetic hash vectors. The reference
+script selects it directly. Synthetic vectors are rejected by semantic search and
+are never a production fallback.
 
 ## Operation and scaling
 

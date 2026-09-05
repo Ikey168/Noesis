@@ -1,23 +1,84 @@
 {
   "pack_id": "research-discovery",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Scholarly discovery, authorship, venue, identifier, and citation metadata.",
-  "domains": ["research"],
+  "domains": [
+    "research"
+  ],
   "defaults": {
     "connector": "declarative-rest",
     "scope": "global scholarly metadata",
     "update_cadence": "daily",
     "temporal_semantics": "publication-and-provider-update",
-    "mapping": {"target_schema": "scholarly-work-v1", "version": "1.0.0"},
-    "extractor_versions": ["research-metadata:1.0.0"],
-    "schedule": {"kind": "interval", "interval_s": 86400},
-    "budgets": {"timeout_ms": 10000, "max_results": 100, "max_bytes": 5000000, "max_pages": 5},
-    "auth": {"kind": "optional-secret", "secret_ref": "NOESIS_RESEARCH_CONTACT"},
-    "fixture": {"path": "tests/fixtures/source_packs/research.json", "sha256": "a05bc61c155ddd13a4943323d5c51b059f98e0bb40f2bfde7b2dc16c055b5769", "expected_output_hash": "233caf4f5d5c62a4e2d445d0ab5c851e691409a0c3018a321217a246537e74d8"},
-    "health": {"required": true, "max_staleness_s": 172800}
+    "mapping": {
+      "target_schema": "scholarly-work-v1",
+      "version": "1.0.0"
+    },
+    "extractor_versions": [
+      "research-metadata:1.0.0"
+    ],
+    "schedule": {
+      "kind": "interval",
+      "interval_s": 86400
+    },
+    "budgets": {
+      "timeout_ms": 10000,
+      "max_results": 100,
+      "max_bytes": 5000000,
+      "max_pages": 5
+    },
+    "auth": {
+      "kind": "none"
+    },
+    "fixture": {
+      "path": "tests/fixtures/source_packs/research.json",
+      "sha256": "a05bc61c155ddd13a4943323d5c51b059f98e0bb40f2bfde7b2dc16c055b5769",
+      "expected_output_hash": "233caf4f5d5c62a4e2d445d0ab5c851e691409a0c3018a321217a246537e74d8"
+    },
+    "health": {
+      "required": true,
+      "max_staleness_s": 172800
+    }
   },
   "sources": [
-    {"source_id": "crossref-works", "endpoint": "https://api.crossref.org/works", "publisher": "Crossref", "license": {"id": "crossref-metadata", "terms_url": "https://www.crossref.org/documentation/retrieve-metadata/rest-api/rest-api-metadata-license-information/", "redistribution": "metadata-per-source-license"}, "operations": ["search", "doi", "author", "venue", "date-range"]},
-    {"source_id": "openalex-works", "endpoint": "https://api.openalex.org/works", "publisher": "OurResearch", "license": {"id": "cc0-metadata", "terms_url": "https://docs.openalex.org/additional-help/faq", "redistribution": "cc0"}, "operations": ["search", "doi", "author", "venue", "concept", "date-range"]}
+    {
+      "source_id": "crossref-works",
+      "endpoint": "https://api.crossref.org/works",
+      "publisher": "Crossref",
+      "license": {
+        "id": "crossref-metadata",
+        "terms_url": "https://www.crossref.org/documentation/retrieve-metadata/rest-api/rest-api-metadata-license-information/",
+        "redistribution": "metadata-per-source-license"
+      },
+      "operations": [
+        "search",
+        "doi",
+        "author",
+        "venue",
+        "date-range"
+      ]
+    },
+    {
+      "source_id": "openalex-works",
+      "endpoint": "https://api.openalex.org/works",
+      "publisher": "OurResearch",
+      "license": {
+        "id": "cc0-metadata",
+        "terms_url": "https://docs.openalex.org/additional-help/faq",
+        "redistribution": "cc0"
+      },
+      "operations": [
+        "search",
+        "doi",
+        "author",
+        "venue",
+        "concept",
+        "date-range"
+      ],
+      "auth": {
+        "kind": "optional-secret",
+        "secret_ref": "NOESIS_OPENALEX_API_KEY"
+      }
+    }
   ]
 }

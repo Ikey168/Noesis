@@ -54,6 +54,7 @@ jobs:
             aiofiles psutil requests \
             fastavro beautifulsoup4 lxml \
             'fastmcp>=2.0,<3.0' pyyaml pyarrow huggingface_hub apscheduler
+          pip install ".[ingestion,bibliography,evaluation]"
 
       - name: Verify immutable model pins
         run: python -m src.argument_mining.fetch_models --check

@@ -225,7 +225,10 @@ def _http_get(
         })
         try:
             with opener(req, timeout=HTTP_TIMEOUT) as resp:
-                return resp.read()
+                data=resp.read(5_000_001)
+                if len(data)>5_000_000:
+                    raise ValueError('source response exceeds byte budget')
+                return data
         except HTTPError as exc:
             if exc.code not in _RETRY_STATUSES:
                 raise  # permanent — do not hammer the server
@@ -234,7 +237,13 @@ def _http_get(
             last_exc = exc
         if attempt < retries - 1:
             delay = _RETRY_BASE_DELAY * (2 ** attempt)
-            _sleep(delay + random.uniform(0, delay / 4))
+            delay += random.uniform(0, delay / 4)
+            if isinstance(last_exc, HTTPError):
+                from src.ingestion.connectors.blog.http_cache import retry_after_seconds
+                delay = max(delay, retry_after_seconds((last_exc.headers or {}).get('Retry-After')) or 0)
+            if delay > 60:
+                raise last_exc
+            _sleep(delay)
     raise last_exc
 
 

@@ -121,9 +121,17 @@ def semantic_search(
     one embedding space (recommended when several were indexed).
     ``document_ids`` constrains the candidate set before ranking, which lets
     domain and namespace backings preserve their authorization boundary."""
+    if conn.execute("SELECT 1 FROM information_schema.tables WHERE table_name='document_chunk_embeddings'").fetchone():
+        from src.ingestion.chunk_embeddings import search_document_chunks
+        if provider is None:
+            from services.embeddings.provider import get_embedding_provider
+            provider = get_embedding_provider()
+        if model and provider.name() != model and not provider.name().endswith(":" + model):
+            return {"results": [], "count": 0, "error": "query provider differs from requested model", "code": "model_mismatch", "coverage": {"complete": False}}
+        return search_document_chunks(conn, query, provider, top_k=top_k, document_ids=document_ids)
     if not _has_embeddings(conn):
         return {"results": [], "count": 0, "query": query,
-                "note": "no embeddings indexed; run embed_documents first"}
+                "note": "no embeddings indexed; run embed_documents first", "coverage": {"complete": False}}
     ids, mat = _load_matrix(conn, model, document_ids)
     if not ids:
         return {"results": [], "count": 0, "query": query,
@@ -142,7 +150,8 @@ def semantic_search(
     sims = _normalise(mat) @ (qvec / (np.linalg.norm(qvec) or 1.0))
     order = np.argsort(-sims)
     return {"results": _hits(conn, ids, sims, order, top_k), "count": min(top_k, len(ids)),
-            "query": query, "model": model, "method": "cosine over document embeddings"}
+            "query": query, "model": model, "method": "cosine over document embeddings",
+            "coverage": {"complete": True, "full_document": False}}
 
 
 def similar_documents(

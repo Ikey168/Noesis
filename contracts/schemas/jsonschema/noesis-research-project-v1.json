@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "noesis-research-project-v1",
+  "title": "Persistent research project",
+  "type": "object",
+  "required": ["contract", "project_id", "namespace", "owner", "scope", "questions", "success_criteria", "budget", "spent", "links", "status", "revision", "question_revision", "retention_policy", "updated_at_ms"],
+  "properties": {
+    "contract": {"const": "noesis-research-project-v1"},
+    "project_id": {"type": "string", "pattern": "^project:"},
+    "namespace": {"type": "string", "minLength": 1},
+    "owner": {"type": "string", "minLength": 1},
+    "scope": {
+      "type": "object", "required": ["domains", "namespaces"], "additionalProperties": false,
+      "properties": {"domains": {"$ref": "#/$defs/strings"}, "namespaces": {"$ref": "#/$defs/strings"}}
+    },
+    "questions": {"allOf": [{"$ref": "#/$defs/strings"}], "minItems": 1},
+    "success_criteria": {"allOf": [{"$ref": "#/$defs/strings"}], "minItems": 1},
+    "budget": {"$ref": "#/$defs/costs"},
+    "spent": {"$ref": "#/$defs/costs"},
+    "links": {"type": "array", "maxItems": 1000, "items": {"$ref": "#/$defs/link"}},
+    "status": {"enum": ["active", "paused", "complete", "archived"]},
+    "revision": {"type": "integer", "minimum": 1},
+    "question_revision": {"type": "integer", "minimum": 1},
+    "retention_policy": {"const": "references-only"},
+    "updated_at_ms": {"type": "integer", "minimum": 0},
+    "idempotent": {"type": "boolean"},
+    "reference_availability": {"type": "array", "items": {"type": "object"}}
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "strings": {"type": "array", "maxItems": 1000, "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+    "costs": {"type": "object", "required": ["tokens", "requests", "usd_micros"], "additionalProperties": false,
+      "properties": {"tokens": {"type": "integer", "minimum": 0}, "requests": {"type": "integer", "minimum": 0}, "usd_micros": {"type": "integer", "minimum": 0}}},
+    "link": {"type": "object", "required": ["kind", "id"], "additionalProperties": false,
+      "properties": {
+        "kind": {"enum": ["plan", "run", "hypothesis", "evidence", "snapshot", "finding"]},
+        "id": {"type": "string", "minLength": 1}, "namespace": {"type": "string", "minLength": 1},
+        "generation": {"type": "integer", "minimum": 0}, "revision": {"type": "integer", "minimum": 0},
+        "question_revision": {"type": "integer", "minimum": 0},
+        "locator": {"type": "object", "additionalProperties": false, "properties": {
+          "document_id": {"type": "string"}, "revision_id": {"type": "string"},
+          "start": {"type": "integer", "minimum": 0}, "end": {"type": "integer", "minimum": 0},
+          "page": {"type": "integer", "minimum": 0}, "section": {"type": "string"}}}
+      },
+      "allOf": [{"if": {"properties": {"kind": {"enum": ["snapshot", "evidence"]}}}, "then": {"anyOf": [{"required": ["generation"]}, {"required": ["revision"]}]}}]
+    }
+  }
+}

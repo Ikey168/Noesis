@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import base64
+import copy
 import json
 from pathlib import Path
 
@@ -19,6 +20,72 @@ from src.kb.research_packages import (
 )
 
 SCHEMAS = Path(__file__).resolve().parents[3] / "contracts/schemas/jsonschema"
+
+
+@pytest.mark.parametrize("damage", ["missing_dependency", "missing_root", "duplicate", "closure_hash", "complete_flag"])
+def test_rehashed_package_must_have_consistent_dependency_structure(damage):
+    from src.kb.research_packages import _hash
+
+    store, created = setup_store()
+    store.register_component("research", "claim", "root", {"text": "Claim"}, dependencies=["source"], principal_id="p", scopes={WRITE_SCOPE})
+    store.register_component("research", "document", "source", {"text": "Evidence"}, principal_id="p", scopes={WRITE_SCOPE})
+    package = store.build("research", created["package_id"], ["root"], principal_id="p", scopes={WRITE_SCOPE})
+    if damage == "missing_dependency":
+        package["members"] = [m for m in package["members"] if m["component_id"] != "source"]
+    elif damage == "missing_root":
+        package["closure"]["root_ids"] = ["absent"]
+    elif damage == "duplicate":
+        package["members"].append(copy.deepcopy(package["members"][0]))
+    elif damage == "complete_flag":
+        package["closure"]["complete"] = False
+    package["closure"]["closure_hash"] = "wrong" if damage == "closure_hash" else _hash({"members": package["members"], "omissions": package["closure"]["omissions"]})
+    excluded = {"content_hash", "status", "canonical_bytes_b64", "byte_length", "reproducible", "signature", "envelope"}
+    package["content_hash"] = _hash({k: v for k, v in package.items() if k not in excluded})
+    result = store.verify(package)
+    assert result["actual_hash"] == result["content_hash"]
+    assert not result["valid"]
+    assert result["missing_members"] or result["structural_errors"]
+
+
+def test_bounded_partial_closure_declares_unvisited_dependencies():
+    store, created = setup_store()
+    store.register_component("research", "claim", "root", {"text": "A"}, dependencies=["source"], principal_id="p", scopes={WRITE_SCOPE})
+    store.register_component("research", "document", "source", {"text": "B"}, principal_id="p", scopes={WRITE_SCOPE})
+    package = store.build("research", created["package_id"], ["root"], allow_partial=True, limit=1, principal_id="p", scopes={WRITE_SCOPE})
+    assert package["closure"]["omissions"] == [{"component_id": "source", "reason": "bounded"}]
+    assert not package["closure"]["complete"]
+    assert store.verify(package)["valid"]
+
+
+def test_import_enforces_current_trust_policy_rotation_and_revocation():
+    from src.kb.research_packages import TRUST_SCOPE
+
+    store, created = setup_store()
+    store.register_component("research", "claim", "root", {"text": "A"}, principal_id="p", scopes={WRITE_SCOPE})
+    package = store.build("research", created["package_id"], ["root"], principal_id="p", scopes={WRITE_SCOPE})
+    private = Ed25519PrivateKey.generate()
+    private_bytes = private.private_bytes(serialization.Encoding.Raw, serialization.PrivateFormat.Raw, serialization.NoEncryption())
+    public = base64.b64encode(private.public_key().public_bytes(serialization.Encoding.Raw, serialization.PublicFormat.Raw)).decode()
+    signed = store.sign(package, base64.b64encode(private_bytes).decode(), key_id="publisher", key_version=1)
+    keys = {"publisher": {"public_key": public, "key_version": 1}}
+    with pytest.raises(ResearchPackageError, match="scope"):
+        store.set_trust_policy("import:peer", keys, principal_id="p", scopes={IMPORT_SCOPE})
+    store.set_trust_policy("import:peer", keys, principal_id="operator", scopes={TRUST_SCOPE})
+    with pytest.raises(ResearchPackageError, match="verification"):
+        store.import_package(package, "import:peer", principal_id="p", scopes={IMPORT_SCOPE})
+    assert store.import_package(signed, "import:peer", principal_id="p", scopes={IMPORT_SCOPE})["imported"] == 1
+    revoked = {"publisher": {**keys["publisher"], "revoked": True}}
+    store.set_trust_policy("import:peer", revoked, expected_revision=1, principal_id="operator", scopes={TRUST_SCOPE})
+    with pytest.raises(ResearchPackageError) as caught:
+        store.import_package(signed, "import:peer", public_keys={"publisher": public}, require_signature=False, principal_id="p", scopes={IMPORT_SCOPE})
+    assert caught.value.details["verification"]["signature_status"] == "revoked_key"
+    rotated = {"publisher": {"public_key": public, "key_version": 2}}
+    store.set_trust_policy("import:peer", rotated, expected_revision=2, principal_id="operator", scopes={TRUST_SCOPE})
+    with pytest.raises(ResearchPackageError):
+        store.import_package(signed, "import:peer", principal_id="p", scopes={IMPORT_SCOPE})
+    signed_v2 = store.sign(package, base64.b64encode(private_bytes).decode(), key_id="publisher", key_version=2)
+    assert store.import_package(signed_v2, "import:peer", principal_id="p", scopes={IMPORT_SCOPE})["idempotent"]
+    assert store.import_package(package, "import:local", principal_id="p", scopes={IMPORT_SCOPE})["imported"] == 1
 
 
 def validate(name, value):

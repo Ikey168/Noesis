@@ -11,7 +11,7 @@ import time
 from collections import defaultdict, deque
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import asdict, dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Set
 
@@ -33,7 +33,7 @@ class Article:
     url: str
     content: str
     author: str
-    published_date: str
+    published_date: Optional[str]
     source: str
     scraped_date: str
     language: str = "en"
@@ -258,6 +258,9 @@ class AsyncNewsScraperEngine:
 
         # Deduplication
         self.seen_urls: Set[str] = set()
+        self.url_states = {}
+        self.url_attempts = set()
+        self.discovery_failures = {}
 
         # Setup logging
         self.logger = logging.getLogger(__name__)
@@ -501,6 +504,25 @@ class AsyncNewsScraperEngine:
                 self.monitor.record_error(source.name)
                 return []
 
+    def extract_links_from_html(self, html, source):
+        from src.scraper.article_links import extract_links
+        return extract_links(html, source)
+
+    async def _attempt_article(self, backend, source, link, semaphore, context=None):
+        self.url_states[link] = 'in-flight'
+        self.url_attempts.add((backend, link))
+        try:
+            article = await (self.scrape_article_http(semaphore, source, link) if backend == 'http' else self.scrape_article_js(semaphore, context, source, link))
+            if isinstance(article, Article):
+                self.seen_urls.add(link)
+                self.url_states[link] = 'succeeded'
+            else:
+                self.url_states[link] = 'retryable-failed'
+            return article
+        finally:
+            if self.url_states.get(link) == 'in-flight':
+                self.url_states[link] = 'retryable-failed'
+
     async def scrape_http_source(self, source: NewsSource) -> List[Article]:
         """Scrape source using async HTTP requests."""
         start_time = time.time()
@@ -515,10 +537,10 @@ class AsyncNewsScraperEngine:
             tasks = []
 
             for link in links:
-                if link not in self.seen_urls:
-                    self.seen_urls.add(link)
+                if link not in self.seen_urls and ("http", link) not in self.url_attempts and self.url_states.get(link) != "in-flight":
+                    self.url_attempts.add(("http", link))
                     task = asyncio.create_task(
-                        self.scrape_article_http(semaphore, source, link)
+                        self._attempt_article("http", source, link, semaphore)
                     )
                     tasks.append(task)
 
@@ -589,6 +611,7 @@ class AsyncNewsScraperEngine:
             self.logger.error(
                 "Error getting links from {0}: {1}".format(source.base_url, e)
             )
+            self.discovery_failures[source.name] = "discovery_invalid_html" if isinstance(e, ValueError) else "discovery_failed"
             return []
 
     async def scrape_article_http(
@@ -682,7 +705,7 @@ class AsyncNewsScraperEngine:
                 url=url,
                 content=content.strip(),
                 author=author.strip() if author else "{0} Sta".format(source.name),
-                published_date=date if date else datetime.now().isoformat(),
+                published_date=date or None,
                 source=source.name,
                 scraped_date=datetime.now().isoformat(),
                 content_length=len(content),
@@ -744,10 +767,10 @@ class AsyncNewsScraperEngine:
 
             tasks = []
             for link in links[:20]:  # Limit for JS scraping
-                if link not in self.seen_urls:
-                    self.seen_urls.add(link)
+                if link not in self.seen_urls and ("browser", link) not in self.url_attempts and self.url_states.get(link) != "in-flight":
+                    self.url_attempts.add(("browser", link))
                     task = asyncio.create_task(
-                        self.scrape_article_js(semaphore, context, source, link)
+                        self._attempt_article("browser", source, link, semaphore, context)
                     )
                     tasks.append(task)
 
@@ -858,7 +881,7 @@ class AsyncNewsScraperEngine:
                     url=url,
                     content=article_data["content"],
                     author=article_data["author"] or "{0} Sta".format(source.name),
-                    published_date=article_data["date"] or datetime.now().isoformat(),
+                    published_date=article_data["date"] or None,
                     source=source.name,
                     scraped_date=datetime.now().isoformat(),
                     content_length=len(article_data["content"]),

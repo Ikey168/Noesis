@@ -132,7 +132,7 @@ def test_content_addressed_checkpoint_interrupt_checksum_and_schema_upgrade():
     validate("noesis-retention-checkpoint-v1.json", verified)
 
 
-def test_archive_partial_unavailable_encryption_cancel_restore_atomic():
+def test_archive_partial_unavailable_encryption_cancel_restore_atomic(tmp_path):
     store, _ = setup_store()
     checkpoint = store.checkpoint(
         "research",
@@ -143,16 +143,15 @@ def test_archive_partial_unavailable_encryption_cancel_restore_atomic():
         principal_id="a",
         scopes={EXECUTE_SCOPE},
     )
-    partial = store.archive(
-        "research",
-        checkpoint["checkpoint_id"],
-        {"driver": "filesystem", "uri": "cold/a"},
-        encryption={"algorithm": "age", "key_id": "k1"},
-        partial=True,
-        principal_id="a",
-        scopes={EXECUTE_SCOPE},
-    )
-    assert partial["status"] == "partial" and partial["encryption"]["key_id"] == "k1"
+    with pytest.raises(KnowledgeRetentionError, match="encrypted bytes"):
+        store.archive("research", checkpoint["checkpoint_id"],
+            {"driver": "filesystem", "uri": str(tmp_path / "encrypted")},
+            encryption={"algorithm": "age", "key_id": "k1"},
+            principal_id="a", scopes={EXECUTE_SCOPE})
+    with pytest.raises(KnowledgeRetentionError, match="determined by byte I/O"):
+        store.archive("research", checkpoint["checkpoint_id"],
+            {"driver": "filesystem", "uri": str(tmp_path / "partial")},
+            partial=True, principal_id="a", scopes={EXECUTE_SCOPE})
     unavailable = store.archive(
         "research",
         checkpoint["checkpoint_id"],
@@ -165,7 +164,7 @@ def test_archive_partial_unavailable_encryption_cancel_restore_atomic():
     archived = store.archive(
         "research",
         checkpoint["checkpoint_id"],
-        {"driver": "filesystem", "uri": "cold/final"},
+        {"driver": "filesystem", "uri": str(tmp_path / "final")},
         principal_id="a",
         scopes={EXECUTE_SCOPE},
     )

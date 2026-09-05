@@ -119,7 +119,7 @@ def test_http_get_reads_response(monkeypatch):
         def __exit__(self, *a):
             return False
 
-        def read(self):
+        def read(self, size=-1):
             return b"<rss>data</rss>"
 
     captured = {}

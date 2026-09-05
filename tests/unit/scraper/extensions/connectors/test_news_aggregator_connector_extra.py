@@ -297,7 +297,7 @@ async def test_fetch_newsapi_top_headlines_when_no_query():
 @pytest.mark.asyncio
 async def test_fetch_newsapi_auth_error():
     c = connected("newsapi", FakeResponse(status=401), auth={"api_key": "k"})
-    with pytest.raises(ConnectionError, match="Failed to fetch newsapi"):
+    with pytest.raises(AuthenticationError, match="authentication failed"):
         await c.fetch_data()
     assert isinstance(c.last_error, AuthenticationError)
 
@@ -329,6 +329,7 @@ async def test_fetch_guardian_parses_articles_with_contributor():
                 {
                     "webTitle": "WT",
                     "webUrl": "http://g/1",
+                    "id": "world/2026/sep/01/one",
                     "webPublicationDate": "2024-02-02",
                     "sectionName": "World",
                     "fields": {
@@ -364,6 +365,7 @@ async def test_fetch_guardian_byline_fallback_when_no_contributor():
                 {
                     "webTitle": "WT",
                     "webUrl": "http://g/2",
+                    "id": "world/2026/sep/01/two",
                     "fields": {"byline": "Fallback Author"},
                     "tags": [],
                 }
@@ -379,7 +381,7 @@ async def test_fetch_guardian_byline_fallback_when_no_contributor():
 @pytest.mark.asyncio
 async def test_fetch_guardian_auth_error():
     c = connected("guardian", FakeResponse(status=401), auth={"api_key": "k"})
-    with pytest.raises(ConnectionError):
+    with pytest.raises(AuthenticationError):
         await c.fetch_data()
     assert isinstance(c.last_error, AuthenticationError)
 
@@ -570,7 +572,7 @@ async def test_fetch_bing_parses_articles():
 @pytest.mark.asyncio
 async def test_fetch_bing_auth_error():
     c = connected("bing_news", FakeResponse(status=401), auth={"subscription_key": "s"})
-    with pytest.raises(ConnectionError):
+    with pytest.raises(AuthenticationError):
         await c.fetch_data()
     assert isinstance(c.last_error, AuthenticationError)
 

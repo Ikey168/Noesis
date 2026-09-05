@@ -55,7 +55,7 @@ def main() -> int:
             principal_id="reference",
         )
 
-    orchestrator = MaintenanceOrchestrator(conn, root=ROOT, now=lambda: 1_000)
+    orchestrator = MaintenanceOrchestrator(conn, root=ROOT, now=lambda: 1_000, execution_mode="fixture")
     degraded_pack = manifests[-1]["pack_id"]
 
     def adapters(pack_id: str) -> Mapping[str, Any]:
@@ -84,11 +84,7 @@ def main() -> int:
     ).execute(
         {
             "query": "noesis",
-            "scope": {
-                "domains": [
-                    domain for manifest in manifests for domain in manifest["domains"]
-                ]
-            },
+            "scope": {"domains": domains},
             "surfaces": ["lexical"],
             "budgets": {
                 "max_results": 100,
@@ -103,8 +99,8 @@ def main() -> int:
     ]
     statuses = {item["status"] for item in generations}
     passed = bool(
-        len(enqueue["created"]) == 6
-        and len(generations) == 6
+        len(enqueue["created"]) == len(manifests)
+        and len(generations) == len(manifests)
         and domains
         == ["economic", "osint", "political", "research", "scientific", "technical"]
         and statuses == {"complete", "partial"}

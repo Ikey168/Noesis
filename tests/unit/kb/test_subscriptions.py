@@ -31,7 +31,7 @@ def create(store, key="create-1", **overrides): return store.create(definition(*
 def test_schema_fixture_and_migration(store: SubscriptionStore) -> None:
     schema=json.loads((ROOT/"contracts/schemas/jsonschema/noesis-knowledge-subscription-v1.json").read_text()); fixture=json.loads((ROOT/"contracts/examples/knowledge-subscriptions/research-subscription.json").read_text())
     Draft7Validator.check_schema(schema); assert not list(Draft7Validator(schema).iter_errors(fixture))
-    assert store.conn.execute("SELECT version FROM noesis_schema_migrations WHERE component='knowledge-subscriptions'").fetchone()==(1,)
+    assert store.conn.execute("SELECT max(version) FROM noesis_schema_migrations WHERE component='knowledge-subscriptions'").fetchone()==(3,)
 
 
 def test_create_is_idempotent_versioned_and_owner_isolated(store: SubscriptionStore) -> None:

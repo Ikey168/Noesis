@@ -103,6 +103,17 @@ class SnapshotStore:
         )
         return {"url": url, "fetched_at": fetched_at, "content_hash": content_hash, "chars": len(text)}
 
+    def snapshot_bytes(self, url, data, fetched_at, *, content_type, final_url):
+        """Content-addressed binary snapshots with independent acquisition receipts."""
+        if len(data)>20_000_000:
+            raise ValueError('binary snapshot exceeds byte budget')
+        self._conn.execute('CREATE TABLE IF NOT EXISTS source_binary_blobs(digest TEXT PRIMARY KEY, payload BLOB NOT NULL)')
+        self._conn.execute('CREATE TABLE IF NOT EXISTS source_binary_observations(url TEXT, fetched_at BIGINT, digest TEXT, final_url TEXT, content_type TEXT, PRIMARY KEY(url,fetched_at,digest))')
+        digest=hashlib.sha256(data).hexdigest()
+        self._conn.execute('INSERT INTO source_binary_blobs VALUES(?,?) ON CONFLICT DO NOTHING',[digest,data])
+        self._conn.execute('INSERT INTO source_binary_observations VALUES(?,?,?,?,?) ON CONFLICT DO NOTHING',[url,fetched_at,digest,final_url,content_type])
+        return {'url':url,'final_url':final_url,'fetched_at':fetched_at,'digest':digest,'content_type':content_type,'bytes':len(data)}
+
     def latest(self, url: str) -> Optional[Snapshot]:
         """The most recent snapshot for a URL (the archive fallback)."""
         if not _table_exists(self._conn, "url_snapshots"):

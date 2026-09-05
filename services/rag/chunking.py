@@ -114,6 +114,8 @@ class TextChunker:
             config: Chunking configuration
         """
         self.config = config or ChunkConfig()
+        if self.config.max_chars <= 0 or self.config.overlap_chars < 0 or self.config.min_chunk_chars < 0:
+            raise ValueError("chunk bounds must be positive/nonnegative")
         
         # Initialize language model for sentence splitting
         self.nlp = None
@@ -195,6 +197,7 @@ class TextChunker:
                         **chunk.metadata,
                         'chunk_strategy': SplitStrategy.STRUCTURED.value,
                         'section_path': list(path),
+                        'coordinate_system': 'section-unicode-codepoints',
                     }
                     chunks.append(chunk)
             for child in node.children:
@@ -217,163 +220,91 @@ class TextChunker:
             return self._chunk_by_sentences(text, metadata)
     
     def _chunk_by_sentences(self, text: str, metadata: Dict[str, Any]) -> List[TextChunk]:
-        """Chunk text by sentences, respecting max_chars and overlap."""
-        sentences = self._split_into_sentences(text)
-        if not sentences:
-            return []
-        
-        chunks = []
-        current_chunk = ""
-        current_start = 0
-        chunk_id = 0
-        
-        i = 0
-        while i < len(sentences):
-            sentence = sentences[i]
-            
-            # Check if adding this sentence would exceed max_chars
-            if current_chunk and len(current_chunk + sentence) > self.config.max_chars:
-                # Create chunk from current content
-                if len(current_chunk.strip()) >= self.config.min_chunk_chars:
-                    chunk = self._create_chunk(
-                        current_chunk.strip(), 
-                        current_start, 
-                        chunk_id, 
-                        metadata
-                    )
-                    chunks.append(chunk)
-                    chunk_id += 1
-                
-                # Start new chunk with overlap
-                overlap_sentences = self._get_overlap_sentences(sentences, i, current_chunk)
-                current_chunk = overlap_sentences + sentence
-                current_start = self._find_text_position(text, overlap_sentences)
-            else:
-                current_chunk += sentence
-                if not current_chunk.strip():  # First sentence
-                    current_start = self._find_text_position(text, sentence)
-            
-            i += 1
-        
-        # Add final chunk
-        if current_chunk.strip() and len(current_chunk.strip()) >= self.config.min_chunk_chars:
-            chunk = self._create_chunk(current_chunk.strip(), current_start, chunk_id, metadata)
-            chunks.append(chunk)
-        
-        return chunks
+        return self._chunk_on_spans(text, self._sentence_spans(text), metadata)
     
     def _chunk_by_paragraphs(self, text: str, metadata: Dict[str, Any]) -> List[TextChunk]:
-        """Chunk text by paragraphs."""
-        paragraphs = self.paragraph_endings.split(text)
-        paragraphs = [p.strip() for p in paragraphs if p.strip()]
-        
-        chunks = []
-        current_chunk = ""
-        current_start = 0
-        chunk_id = 0
-        
-        for i, paragraph in enumerate(paragraphs):
-            if current_chunk and len(current_chunk + "\n\n" + paragraph) > self.config.max_chars:
-                # Create chunk from current content
-                if len(current_chunk.strip()) >= self.config.min_chunk_chars:
-                    chunk = self._create_chunk(current_chunk.strip(), current_start, chunk_id, metadata)
-                    chunks.append(chunk)
-                    chunk_id += 1
-                
-                # Start new chunk
-                current_chunk = paragraph
-                current_start = self._find_text_position(text, paragraph)
-            else:
-                if current_chunk:
-                    current_chunk += "\n\n" + paragraph
-                else:
-                    current_chunk = paragraph
-                    current_start = self._find_text_position(text, paragraph)
-        
-        # Add final chunk
-        if current_chunk.strip() and len(current_chunk.strip()) >= self.config.min_chunk_chars:
-            chunk = self._create_chunk(current_chunk.strip(), current_start, chunk_id, metadata)
-            chunks.append(chunk)
-        
-        return chunks
+        spans, start = [], 0
+        for separator in self.paragraph_endings.finditer(text):
+            spans.append((start, separator.start()))
+            start = separator.end()
+        spans.append((start, len(text)))
+        return self._chunk_on_spans(text, spans, metadata)
     
     def _chunk_by_words(self, text: str, metadata: Dict[str, Any]) -> List[TextChunk]:
-        """Chunk text by words."""
-        words = text.split()
-        if not words:
-            return []
-        
-        chunks = []
-        chunk_id = 0
-        
-        i = 0
-        while i < len(words):
-            current_words = []
-            current_length = 0
-            
-            # Build chunk up to max_chars
-            while i < len(words) and current_length < self.config.max_chars:
-                word = words[i]
-                if current_length + len(word) + 1 <= self.config.max_chars:  # +1 for space
-                    current_words.append(word)
-                    current_length += len(word) + (1 if current_words else 0)
-                    i += 1
-                else:
-                    break
-            
-            if current_words:
-                chunk_text = " ".join(current_words)
-                if len(chunk_text) >= self.config.min_chunk_chars:
-                    start_pos = self._find_text_position(text, chunk_text)
-                    chunk = self._create_chunk(chunk_text, start_pos, chunk_id, metadata)
-                    chunks.append(chunk)
-                    chunk_id += 1
-                
-                # Calculate overlap (must always advance at least one word to
-                # avoid an infinite loop when overlap_chars >= max_chars)
-                overlap_words = max(0, len(current_words) * self.config.overlap_chars // self.config.max_chars)
-                overlap_words = min(overlap_words, len(current_words) - 1)
-                i -= overlap_words
-        
-        return chunks
+        return self._chunk_on_spans(text, [match.span() for match in re.finditer(r"\S+", text)], metadata)
     
     def _chunk_by_characters(self, text: str, metadata: Dict[str, Any]) -> List[TextChunk]:
-        """Chunk text by character count."""
-        chunks = []
-        chunk_id = 0
-        
-        i = 0
-        while i < len(text):
-            chunk_end = min(i + self.config.max_chars, len(text))
-            chunk_text = text[i:chunk_end].strip()
-            
-            if len(chunk_text) >= self.config.min_chunk_chars:
-                chunk = self._create_chunk(chunk_text, i, chunk_id, metadata)
-                chunks.append(chunk)
-                chunk_id += 1
-            
-            # Move forward with overlap, always advancing by at least one full
-            # chunk when overlap_chars >= max_chars, to avoid an infinite loop.
-            step = self.config.max_chars - self.config.overlap_chars
-            if step <= 0:
-                step = self.config.max_chars
-            i += step
-
-        return chunks
+        return self._chunk_on_spans(text, [], metadata)
     
     def _split_into_sentences(self, text: str) -> List[str]:
-        """Split text into sentences using spacy or regex fallback."""
+        """Return original sentence slices without inventing punctuation."""
+        return [text[start:end] for start, end in self._sentence_spans(text)]
+
+    def _sentence_spans(self, text: str) -> List[Tuple[int, int]]:
         if self.nlp:
             try:
-                doc = self.nlp(text)
-                return [sent.text + " " for sent in doc.sents]
-            except Exception as e:
-                logger.warning(f"Spacy sentence splitting failed: {e}, using regex")
-        
-        # Regex fallback
-        sentences = self.sentence_endings.split(text)
-        sentences = [s.strip() + ". " for s in sentences if s.strip()]
-        return sentences
+                return [(sent.start_char, sent.end_char) for sent in self.nlp(text).sents]
+            except Exception as exc:
+                logger.warning("Sentence splitting failed: %s; using regex", exc)
+        spans, start = [], 0
+        for separator in re.finditer(r"(?<=[.!?])\s+", text):
+            spans.append((start, separator.start()))
+            start = separator.end()
+        if start < len(text):
+            spans.append((start, len(text)))
+        return spans
+
+    def _chunk_on_spans(self, text: str, spans: List[Tuple[int, int]], metadata: Dict[str, Any]) -> List[TextChunk]:
+        """Choose boundaries in original text; every chunk is an exact slice.
+
+        Oversized units split at the character bound, including a single long
+        word. Overlap prefers complete units and always advances. No normalized
+        string search is used to reconstruct a citation location.
+        """
+        from bisect import bisect_left, bisect_right
+
+        units = []
+        for start, end in spans:
+            while start < end and text[start].isspace():
+                start += 1
+            while end > start and text[end - 1].isspace():
+                end -= 1
+            if start < end:
+                units.append((start, end))
+        starts = [span[0] for span in units]
+        ends = [span[1] for span in units]
+        chunks, start = [], 0
+        while start < len(text):
+            while start < len(text) and text[start].isspace():
+                start += 1
+            if start == len(text):
+                break
+            hard_end = min(len(text), start + self.config.max_chars)
+            boundary = bisect_right(ends, hard_end) - 1
+            end = ends[boundary] if boundary >= 0 and ends[boundary] > start else hard_end
+            trimmed_end = end
+            while trimmed_end > start and text[trimmed_end - 1].isspace():
+                trimmed_end -= 1
+            if (chunks and end == len(text) and 0 < trimmed_end - start < self.config.min_chunk_chars
+                    and self.config.min_chunk_chars <= self.config.max_chars):
+                # Retain a short final tail by extending its source slice into
+                # the previous chunk, rather than dropping the last evidence.
+                target = max(chunks[-1].start_offset + 1, trimmed_end - self.config.min_chunk_chars)
+                unit = bisect_right(starts, target) - 1
+                candidate = starts[unit] if unit >= 0 else target
+                if candidate <= chunks[-1].start_offset or trimmed_end - candidate > self.config.max_chars:
+                    candidate = target
+                start = min(start, candidate)
+            if trimmed_end - start >= self.config.min_chunk_chars:
+                chunks.append(self._create_chunk(text[start:trimmed_end], start, len(chunks), metadata))
+            if end == len(text):
+                break
+            overlap_start = end - self.config.overlap_chars
+            if units:
+                index = bisect_left(starts, overlap_start)
+                overlap_start = starts[index] if index < len(starts) else end
+            start = overlap_start if start < overlap_start < end else end
+        return chunks
     
     def _get_overlap_sentences(self, sentences: List[str], current_index: int, current_chunk: str) -> str:
         """Get sentences for overlap based on overlap_chars."""
@@ -396,15 +327,11 @@ class TextChunker:
         return "".join(overlap_sentences)
     
     def _find_text_position(self, full_text: str, chunk_text: str) -> int:
-        """Find the start position of chunk_text in full_text."""
-        # Clean up the texts for matching
-        chunk_clean = chunk_text.strip()
-        if len(chunk_clean) < 10:  # Too short to reliably find
-            return 0
-            
-        # Try to find the chunk text in the full text
-        pos = full_text.find(chunk_clean[:50])  # Use first 50 chars for matching
-        return max(0, pos)
+        """Legacy exact lookup; chunk construction carries its own coordinates."""
+        position = full_text.find(chunk_text.strip())
+        if position < 0:
+            raise ValueError("chunk is not a slice of the source text")
+        return position
     
     def _create_chunk(self, text: str, start_offset: int, chunk_id: int, metadata: Dict[str, Any]) -> TextChunk:
         """Create a TextChunk object."""
@@ -415,6 +342,7 @@ class TextChunker:
         chunk_metadata = metadata.copy()
         chunk_metadata.update({
             'chunk_strategy': self.config.split_on.value,
+            'coordinate_system': 'input-unicode-codepoints',
             'max_chars': self.config.max_chars,
             'overlap_chars': self.config.overlap_chars,
         })

@@ -456,6 +456,7 @@ class SourcePackStore:
         if not row:
             raise SourcePackError("not_found", "source pack is not installed")
         manifest = _load(row[4], {})
+        from src.ingestion.provider_readiness import protocol_status
         sources = []
         for source in manifest["sources"]:
             auth = source["auth"]
@@ -471,6 +472,7 @@ class SourcePackStore:
                 {
                     "source_id": source["source_id"],
                     "connector": source["connector"],
+                    "protocol": protocol_status(source),
                     "authentication": {
                         "kind": auth["kind"],
                         "secret_ref": auth.get("secret_ref"),

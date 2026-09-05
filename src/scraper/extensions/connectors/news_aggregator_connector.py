@@ -142,6 +142,9 @@ class NewsAggregatorConnector(BaseConnector):
             else:
                 raise ConnectionError(f"Unsupported service: {self.service}")
                 
+        except AuthenticationError as e:
+            self._last_error = e
+            raise
         except Exception as e:
             self._last_error = e
             raise ConnectionError(f"Failed to fetch {self.service} data: {e}")
@@ -198,50 +201,22 @@ class NewsAggregatorConnector(BaseConnector):
 
     async def _fetch_guardian_data(self, query: str, category: str, limit: int, **kwargs) -> List[Dict[str, Any]]:
         """Fetch data from The Guardian API."""
+        from src.ingestion.guardian_api import parameters, records
         url = "https://content.guardianapis.com/search"
-        params = {
-            'api-key': self.auth_config['api_key'],
-            'page-size': min(limit, 50),
-            'show-fields': 'headline,byline,thumbnail,short-url,body',
-            'show-tags': 'contributor'
-        }
-        
-        if query:
-            params['q'] = query
-        if category:
-            params['section'] = category
-            
-        async with self._session.get(url, headers=self._headers, params=params) as response:
-            if response.status == 401:
-                raise AuthenticationError("Guardian API authentication failed")
-            elif response.status == 429:
-                raise ConnectionError("Guardian API rate limit exceeded")
-            elif response.status != 200:
-                raise ConnectionError(f"Guardian API error: {response.status}")
-                
-            data = await response.json()
-            
-            articles = []
-            for article_data in data.get('response', {}).get('results', []):
-                fields = article_data.get('fields', {})
-                tags = article_data.get('tags', [])
-                author = ', '.join([tag.get('webTitle', '') for tag in tags if tag.get('type') == 'contributor'])
-                
-                article = {
-                    'title': fields.get('headline', article_data.get('webTitle')),
-                    'description': fields.get('trailText', ''),
-                    'content': fields.get('body', ''),
-                    'url': article_data.get('webUrl'),
-                    'published_at': article_data.get('webPublicationDate'),
-                    'author': author or fields.get('byline', ''),
-                    'source': 'The Guardian',
-                    'url_to_image': fields.get('thumbnail'),
-                    'section': article_data.get('sectionName'),
-                    'service': 'guardian'
-                }
-                articles.append(article)
-            
-            return articles
+        cursor = str(kwargs.get('cursor') or '1')
+        result=[]
+        limit=max(1,min(1000,int(limit)))
+        for _ in range(max(1,min(20,int(kwargs.get('max_pages',5))))):
+            params=parameters({'query':query,'section':category,**{k:kwargs[k] for k in ('from_date','to_date') if k in kwargs}},cursor=cursor,limit=limit-len(result),secret=self.auth_config['api_key'])
+            async with self._session.get(url,headers=self._headers,params=params) as response:
+                if response.status in (401,403):raise AuthenticationError('Guardian API authentication failed')
+                if response.status!=200:raise ConnectionError(f'Guardian API HTTP {response.status}')
+                mapped,cursor=records(await response.json(),limit=params['page-size'])
+            existing={item['id'] for item in result}
+            result.extend(item for item in mapped if item['id'] not in existing)
+            self.guardian_checkpoint={'next_cursor':cursor,'from_date':kwargs.get('from_date'),'to_date':kwargs.get('to_date')}
+            if cursor is None or len(result)>=limit:break
+        return result
 
     async def _fetch_nytimes_data(self, query: str, limit: int, **kwargs) -> List[Dict[str, Any]]:
         """Fetch data from New York Times API."""
