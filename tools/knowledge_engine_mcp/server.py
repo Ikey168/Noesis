@@ -8670,6 +8670,30 @@ def acknowledge_decision_review_task(namespace: str, task_id: str, rationale: st
         principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope="knowledge:decisions:write")
 
 
+@mcp.tool()
+def reserve_research_project_budget(namespace: str, project_id: str, reservation_id: str, costs: dict[str, int]) -> dict:
+    """Reserve a bounded action's costs atomically against project spending and other in-flight work."""
+    from src.kb.research_projects import ResearchProjectStore, WRITE_SCOPE
+    return _safe(lambda c: ResearchProjectStore(c).reserve_budget(namespace, project_id, reservation_id, costs,
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope=WRITE_SCOPE)
+
+
+@mcp.tool()
+def settle_research_project_budget(namespace: str, project_id: str, reservation_id: str, costs: dict[str, int]) -> dict:
+    """Settle a reservation once from known usage; unknown usage must remain held or use its full ceiling."""
+    from src.kb.research_projects import ResearchProjectStore, WRITE_SCOPE
+    return _safe(lambda c: ResearchProjectStore(c).settle_budget(namespace, project_id, reservation_id, costs,
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope=WRITE_SCOPE)
+
+
+@mcp.tool()
+def inspect_research_project_budget(namespace: str, project_id: str) -> dict:
+    """Inspect spent, held, and available project budget under current access."""
+    from src.kb.research_projects import ResearchProjectStore, READ_SCOPE
+    return _safe(lambda c: ResearchProjectStore(c, initialize=False).inspect_budget(namespace, project_id,
+        principal_id=_context()[0], scopes=_context()[1]), required_scope=READ_SCOPE)
+
+
 if __name__ == "__main__":
     from src.mcp_host.transport import run_server
 

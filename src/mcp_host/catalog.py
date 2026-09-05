@@ -226,6 +226,8 @@ async def _inspect_server(
 
 
 def _mutability(name: str) -> str:
+    if name in {"reserve_research_project_budget", "settle_research_project_budget"}:
+        return "write"
     if name in {"poll_decision_condition_watch", "acknowledge_decision_review_task"}:
         return "write"
     if name in {"assign_review_inbox_task", "submit_review_inbox_annotation", "resolve_review_inbox_task", "build_review_annotation_dataset", "release_review_annotation_dataset"}:
@@ -289,6 +291,10 @@ def _required_data(server_stem: str, tool_name: str) -> list[str]:
     if server_stem == "memory_mcp":
         return ["knowledge-memory-store"]
     if server_stem == "knowledge_engine_mcp":
+        if tool_name in {"reserve_research_project_budget", "settle_research_project_budget"}:
+            return ["knowledge:projects:write"]
+        if tool_name == "inspect_research_project_budget":
+            return ["knowledge:projects:read"]
         if tool_name in {"create_decision_condition_watch", "poll_decision_condition_watch", "acknowledge_decision_review_task"}:
             return ["knowledge:decisions:read", "knowledge:decisions:write", "knowledge:projects:read"] + (["knowledge:briefs:read", "knowledge:briefs:write", "knowledge:briefs:deliver"] if tool_name == "poll_decision_condition_watch" else ["knowledge:briefs:deliver"] if tool_name == "acknowledge_decision_review_task" else [])
         if tool_name in {"inspect_decision_condition_watch", "list_decision_review_tasks"}:
@@ -377,6 +383,10 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
             return ["knowledge:memory:admin"]
         return ["knowledge:memory:read"]
     if server_stem == "knowledge_engine_mcp":
+        if tool_name in {"reserve_research_project_budget", "settle_research_project_budget"}:
+            return ["knowledge:projects:write"]
+        if tool_name == "inspect_research_project_budget":
+            return ["knowledge:projects:read"]
         if tool_name in {"create_decision_condition_watch", "poll_decision_condition_watch", "acknowledge_decision_review_task"}:
             return ["knowledge:decisions:read", "knowledge:decisions:write", "knowledge:projects:read"] + (["knowledge:briefs:read", "knowledge:briefs:write", "knowledge:briefs:deliver"] if tool_name == "poll_decision_condition_watch" else ["knowledge:briefs:deliver"] if tool_name == "acknowledge_decision_review_task" else [])
         if tool_name in {"inspect_decision_condition_watch", "list_decision_review_tasks"}:

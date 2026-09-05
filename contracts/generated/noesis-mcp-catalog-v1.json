@@ -812,7 +812,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 407,
+      "tool_count": 410,
       "tools": [
         "noesis-knowledge-engine.accept_citation_repair",
         "noesis-knowledge-engine.accept_dataset_join",
@@ -1001,6 +1001,7 @@
         "noesis-knowledge-engine.inspect_research_decision",
         "noesis-knowledge-engine.inspect_research_package",
         "noesis-knowledge-engine.inspect_research_project",
+        "noesis-knowledge-engine.inspect_research_project_budget",
         "noesis-knowledge-engine.inspect_research_snapshot",
         "noesis-knowledge-engine.inspect_retention_health",
         "noesis-knowledge-engine.inspect_review_candidate",
@@ -1136,6 +1137,7 @@
         "noesis-knowledge-engine.replay_tabular_ingestion",
         "noesis-knowledge-engine.research_snapshot_health",
         "noesis-knowledge-engine.research_snapshot_pins",
+        "noesis-knowledge-engine.reserve_research_project_budget",
         "noesis-knowledge-engine.resolve_binary_forecast",
         "noesis-knowledge-engine.resolve_entity_history",
         "noesis-knowledge-engine.resolve_event_report",
@@ -1190,6 +1192,7 @@
         "noesis-knowledge-engine.set_research_package_trust_policy",
         "noesis-knowledge-engine.set_source_pack_enabled",
         "noesis-knowledge-engine.set_source_pack_schedule",
+        "noesis-knowledge-engine.settle_research_project_budget",
         "noesis-knowledge-engine.sign_research_package",
         "noesis-knowledge-engine.simplify_geospatial_geometry",
         "noesis-knowledge-engine.simulate_access_view",
@@ -1227,7 +1230,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 407
+      "visible_tool_count": 410
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -1241,9 +1244,9 @@
       "available": 81,
       "degraded": 155,
       "disabled": 3,
-      "unauthorized": 412
+      "unauthorized": 415
     },
-    "tools": 651
+    "tools": 654
   },
   "tools": [
     {
@@ -23203,6 +23206,43 @@
     },
     {
       "cost_class": "medium",
+      "description": "Inspect spent, held, and available project budget under current access.",
+      "id": "noesis-knowledge-engine.inspect_research_project_budget",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "project_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "project_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "inspect_research_project_budget",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge:projects:read"
+      ],
+      "required_scopes": [
+        "knowledge:projects:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Inspect a research snapshot without returning its bearer token.",
       "id": "noesis-knowledge-engine.inspect_research_snapshot",
       "input_schema": {
@@ -31785,6 +31825,54 @@
       "version": "1"
     },
     {
+      "cost_class": "medium",
+      "description": "Reserve a bounded action's costs atomically against project spending and other in-flight work.",
+      "id": "noesis-knowledge-engine.reserve_research_project_budget",
+      "input_schema": {
+        "properties": {
+          "costs": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "project_id": {
+            "type": "string"
+          },
+          "reservation_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "project_id",
+          "reservation_id",
+          "costs"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "reserve_research_project_budget",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge:projects:write"
+      ],
+      "required_scopes": [
+        "knowledge:projects:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "high",
       "description": "Record a reviewed outcome, dispute, cancellation, or retrospective correction.",
       "id": "noesis-knowledge-engine.resolve_binary_forecast",
@@ -34749,6 +34837,54 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Settle a reservation once from known usage; unknown usage must remain held or use its full ceiling.",
+      "id": "noesis-knowledge-engine.settle_research_project_budget",
+      "input_schema": {
+        "properties": {
+          "costs": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "project_id": {
+            "type": "string"
+          },
+          "reservation_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "project_id",
+          "reservation_id",
+          "costs"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "settle_research_project_budget",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge:projects:write"
+      ],
+      "required_scopes": [
+        "knowledge:projects:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
       "version": "1"
     },
     {

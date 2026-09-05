@@ -72,3 +72,5 @@ generations. Evidence contents and independent coverage are not inferred from
 reference counts: coverage remains unverified and no winner is selected. Automatic
 coverage and interpretation comparison remains dependent on the research-loop
 evaluation work.
+
+Budget reservations use `reserve_research_project_budget`, `settle_research_project_budget`, and `inspect_research_project_budget`. Reservations share the project revision transaction, so concurrent actions cannot reserve the same balance. Direct expenditure also accounts for held amounts. Settlement is idempotent and cannot exceed the reserved ceiling. Already-incurred usage can settle after a project is paused; no new action is authorized by settlement. Unknown usage must stay reserved or be conservatively charged at the full ceiling. These accounting primitives do not themselves execute a research loop.

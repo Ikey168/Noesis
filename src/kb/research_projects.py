@@ -21,6 +21,10 @@ CREATE TABLE IF NOT EXISTS research_project_revisions(
 CREATE TABLE IF NOT EXISTS research_project_expenditures(
  project_id TEXT NOT NULL, receipt_id TEXT NOT NULL, content_json TEXT NOT NULL,
  PRIMARY KEY(project_id,receipt_id));
+CREATE TABLE IF NOT EXISTS research_project_reservations(
+ project_id TEXT NOT NULL,reservation_id TEXT NOT NULL,status TEXT NOT NULL,
+ reserved_json TEXT NOT NULL,settled_json TEXT,created_at_ms BIGINT NOT NULL,
+ PRIMARY KEY(project_id,reservation_id));
 """
 
 
@@ -247,9 +251,10 @@ class ResearchProjectStore:
                 return {**state, "idempotent": True}
             if state["status"] != "active":
                 raise ResearchProjectError("project_inactive", "new expenditure requires an active project")
+            reserved = self._reserved(project_id)
             for key, cost in costs.items():
                 state["spent"][key] += cost
-                if state["spent"][key] > state["budget"][key]:
+                if state["spent"][key] + reserved[key] > state["budget"][key]:
                     raise ResearchProjectError("budget_exceeded", f"{key} budget exceeded")
             self.conn.execute("INSERT INTO research_project_expenditures VALUES (?,?,?)", [project_id, receipt_id, _json(costs)])
             state = self._append(state, expected_revision)
@@ -257,3 +262,76 @@ class ResearchProjectStore:
             return {**state, "idempotent": False}
         except Exception as exc:
             self._abort(exc)
+
+    def _reserved(self, project_id):
+        total = _cost({})
+        rows = self.conn.execute("SELECT reserved_json FROM research_project_reservations WHERE project_id=? AND status='held'", [project_id]).fetchall()
+        for (encoded,) in rows:
+            for key, value in json.loads(encoded).items():
+                total[key] += value
+        return total
+
+    def reserve_budget(self, namespace, project_id, reservation_id, costs, *, principal_id, scopes):
+        costs = _cost(costs)
+        if not isinstance(reservation_id, str) or not reservation_id or len(reservation_id)>1000:
+            raise ResearchProjectError('invalid_reservation', 'bounded stable reservation id required')
+        self.conn.execute('BEGIN')
+        try:
+            state = self._state(namespace, project_id)
+            self._authorize(state, principal_id, scopes, write=True)
+            prior = self.conn.execute('SELECT status,reserved_json,settled_json FROM research_project_reservations WHERE project_id=? AND reservation_id=?', [project_id, reservation_id]).fetchone()
+            if prior:
+                if json.loads(prior[1]) != costs:
+                    raise ResearchProjectError('idempotency_conflict', 'reservation already has different limits')
+                self.conn.execute('COMMIT')
+                return {'reservation_id': reservation_id, 'status': prior[0], 'reserved': costs, 'idempotent': True}
+            if state['status'] != 'active':
+                raise ResearchProjectError('project_inactive', 'budget reservation requires an active project')
+            held = self._reserved(project_id)
+            if any(state['spent'][key]+held[key]+costs[key] > state['budget'][key] for key in costs):
+                raise ResearchProjectError('budget_exceeded', 'project spending plus in-flight reservations exceeds its budget')
+            # Touch the shared project revision so concurrent reservations for
+            # different keys conflict instead of both reading the same balance.
+            self._append(state, state['revision'])
+            self.conn.execute("INSERT INTO research_project_reservations VALUES (?,?,'held',?,NULL,?)", [project_id, reservation_id, _json(costs), self.now()])
+            self.conn.execute('COMMIT')
+            return {'reservation_id': reservation_id, 'status': 'held', 'reserved': costs, 'idempotent': False}
+        except Exception as exc:
+            self._abort(exc)
+
+    def settle_budget(self, namespace, project_id, reservation_id, costs, *, principal_id, scopes):
+        # Unknown provider usage must retain the reservation or conservatively
+        # settle its full ceiling. It must never silently release in-flight work.
+        costs = _cost(costs)
+        self.conn.execute('BEGIN')
+        try:
+            state = self._state(namespace, project_id)
+            self._authorize(state, principal_id, scopes, write=True)
+            row = self.conn.execute('SELECT status,reserved_json,settled_json FROM research_project_reservations WHERE project_id=? AND reservation_id=?', [project_id, reservation_id]).fetchone()
+            if not row:
+                raise ResearchProjectError('reservation_unavailable', 'budget reservation is unavailable')
+            if row[0] == 'settled':
+                if json.loads(row[2]) != costs:
+                    raise ResearchProjectError('idempotency_conflict', 'reservation already settled with different costs')
+                self.conn.execute('COMMIT')
+                return {'reservation_id': reservation_id, 'status': 'settled', 'costs': costs, 'idempotent': True}
+            reserved = json.loads(row[1])
+            if any(costs[key]>reserved[key] for key in costs):
+                raise ResearchProjectError('reservation_exceeded', 'actual usage exceeds its reserved ceiling')
+            for key, value in costs.items():
+                state['spent'][key] += value
+            # Settlement remains allowed after pause/archive: usage already
+            # incurred must be accounted for without authorizing new work.
+            self._append(state, state['revision'])
+            self.conn.execute('INSERT INTO research_project_expenditures VALUES (?,?,?)', [project_id, 'reservation:'+reservation_id, _json(costs)])
+            self.conn.execute("UPDATE research_project_reservations SET status='settled',settled_json=? WHERE project_id=? AND reservation_id=?", [_json(costs), project_id, reservation_id])
+            self.conn.execute('COMMIT')
+            return {'reservation_id': reservation_id, 'status': 'settled', 'costs': costs, 'idempotent': False}
+        except Exception as exc:
+            self._abort(exc)
+
+    def inspect_budget(self, namespace, project_id, *, principal_id, scopes):
+        state = self.inspect(namespace, project_id, principal_id=principal_id, scopes=scopes)
+        held = self._reserved(project_id)
+        return {'project_id': project_id, 'budget': state['budget'], 'spent': state['spent'], 'reserved': held,
+            'available': {key: state['budget'][key]-state['spent'][key]-held[key] for key in held}}
