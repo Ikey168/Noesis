@@ -47,6 +47,8 @@ class ArticleNormalizer:
         remove_extra_whitespace: bool = True,
         detect_language: bool = True,
         min_paragraph_length: int = 10,
+        language_backend: str = "langdetect",
+        language_candidates: tuple[str, ...] = ("de", "en"),
     ):
         """
         Initialize article normalizer.
@@ -61,6 +63,10 @@ class ArticleNormalizer:
         self.remove_extra_whitespace = remove_extra_whitespace
         self.detect_language = detect_language
         self.min_paragraph_length = min_paragraph_length
+        if language_backend not in {"langdetect", "lingua"}:
+            raise ValueError("unknown language backend")
+        self.language_backend = language_backend
+        self.language_candidates = language_candidates
         
         # Common patterns for cleaning
         self.url_pattern = re.compile(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+')
@@ -294,7 +300,12 @@ class ArticleNormalizer:
         result['char_count'] = len(content) if content else 0
         
         # Detect language if enabled
-        if self.detect_language and content and langdetect:
+        if self.detect_language and content and self.language_backend == "lingua":
+            from src.integrations.text import detect_language
+            detection = detect_language(content, languages=self.language_candidates)
+            result['language'] = detection['language']
+            result['language_detection'] = detection
+        elif self.detect_language and content and langdetect:
             try:
                 result['language'] = langdetect.detect(content)
             except Exception as e:

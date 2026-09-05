@@ -110,5 +110,11 @@ class EvidenceResolver:
                     if latest != metric:
                         changes.append({'input_id': input_id, 'before': metric, 'after': latest})
                 else:
-                    pending = True
+                    unit = self._one("SELECT to_json(u) FROM quantitative_units u WHERE unit_id=? AND (namespace=? OR namespace='global')", [input_id, ns])
+                    if unit:
+                        latest = self._one('SELECT to_json(u) FROM quantitative_units u WHERE namespace=? AND symbol=? ORDER BY semantic_version DESC LIMIT 1', [unit['namespace'], unit['symbol']])
+                        if latest != unit:
+                            changes.append({'input_id': input_id, 'before': unit, 'after': latest})
+                    else:
+                        pending = True
         return before, before, pending, changes

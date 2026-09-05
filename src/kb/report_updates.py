@@ -110,6 +110,20 @@ class ReportUpdateStore(AuthoredReportStore):
             [proposal_id, state['report_id'], namespace, assessment_id, assertion_id, _json(core)])
         return self.inspect_proposal(namespace, proposal_id, principal_id=principal_id, scopes=scopes)
 
+    def generate_proposal(self, namespace, assessment_id, assertion_id, *, generator, principal_id, scopes):
+        """Generate an edit through an explicit backend and retain existing review gates."""
+        assessment = self._assessment(namespace, assessment_id, principal_id=principal_id, scopes=scopes)
+        state = self.inspect(namespace, assessment['report_id'], revision=assessment['report_revision'],
+                             principal_id=principal_id, scopes=scopes)
+        self._authorize(state, principal_id, scopes, write=True)
+        original = _assertions(state['content'])[assertion_id][1]
+        found = [a for s in assessment['sections'] for a in s['assertions'] if a['assertion_id'] == assertion_id]
+        if not found or found[0]['status'] != 'affected':
+            raise ReportError('assertion_unaffected', 'Only affected assertions can be revised')
+        replacement = generator(copy.deepcopy(original), copy.deepcopy(found[0]['dependencies']))
+        return self.propose(namespace, assessment_id, assertion_id, principal_id=principal_id,
+                            scopes=scopes, replacement=replacement)
+
     def inspect_proposal(self, namespace, proposal_id, *, principal_id, scopes):
         row = self.conn.execute('SELECT assessment_id,status,proposal_json,decision_json FROM report_edit_proposals WHERE namespace=? AND proposal_id=?', [namespace, proposal_id]).fetchone()
         if not row:

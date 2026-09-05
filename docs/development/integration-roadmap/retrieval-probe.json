@@ -1,0 +1,107 @@
+{
+  "fixture_kind": "synthetic engineering probe; not independent human evaluation",
+  "hardware": "Linux-7.1.4-204.fc44.x86_64-x86_64-with-glibc2.43",
+  "threads": 2,
+  "documents": [
+    [
+      "berlin",
+      "Das Berliner F\u00f6rderprogramm unterst\u00fctzt die energetische Sanierung von Wohngeb\u00e4uden."
+    ],
+    [
+      "trial",
+      "The clinical trial compares two treatments for diabetes in adult patients."
+    ],
+    [
+      "climate",
+      "Die Studie untersucht den Zusammenhang zwischen CO2-Emissionen und globaler Erw\u00e4rmung."
+    ],
+    [
+      "rail",
+      "The railway timetable lists train departures from Berlin to Hamburg."
+    ]
+  ],
+  "queries": [
+    [
+      "Welche F\u00f6rderung gibt es f\u00fcr die Sanierung von Wohnungen?",
+      "berlin",
+      "de-de"
+    ],
+    [
+      "Welche Studie vergleicht Diabetesbehandlungen?",
+      "trial",
+      "de-en"
+    ],
+    [
+      "What does the study say about emissions and warming?",
+      "climate",
+      "en-de"
+    ],
+    [
+      "When do trains depart for Hamburg?",
+      "rail",
+      "en-en"
+    ]
+  ],
+  "runs": [
+    {
+      "model": "sentence-transformers/all-MiniLM-L6-v2",
+      "revision": "1110a243fdf4706b3f48f1d95db1a4f5529b4d41",
+      "dimensions": 384,
+      "input_policy": "symmetric",
+      "load_seconds": 0.14388422400224954,
+      "index_documents_per_second": 68.83538157941497,
+      "query_p50_ms": 9.263914500479586,
+      "query_p95_ms": 10.603818060189951,
+      "recall_at_1": 1.0,
+      "ranks": [
+        {
+          "language_pair": "de-de",
+          "expected_rank": 1
+        },
+        {
+          "language_pair": "de-en",
+          "expected_rank": 1
+        },
+        {
+          "language_pair": "en-de",
+          "expected_rank": 1
+        },
+        {
+          "language_pair": "en-en",
+          "expected_rank": 1
+        }
+      ]
+    },
+    {
+      "model": "intfloat/multilingual-e5-small",
+      "revision": "614241f622f53c4eeff9890bdc4f31cfecc418b3",
+      "dimensions": 384,
+      "input_policy": "e5",
+      "load_seconds": 1.5363644809986,
+      "index_documents_per_second": 41.177495185551216,
+      "query_p50_ms": 17.41027701064013,
+      "query_p95_ms": 19.757737472536974,
+      "recall_at_1": 1.0,
+      "ranks": [
+        {
+          "language_pair": "de-de",
+          "expected_rank": 1
+        },
+        {
+          "language_pair": "de-en",
+          "expected_rank": 1
+        },
+        {
+          "language_pair": "en-de",
+          "expected_rank": 1
+        },
+        {
+          "language_pair": "en-en",
+          "expected_rank": 1
+        }
+      ]
+    }
+  ],
+  "peak_process_rss_kib": 1001852,
+  "decision": "defer default change pending independent corpus, larger workload and migration evaluation"
+}

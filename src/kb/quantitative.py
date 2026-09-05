@@ -1107,6 +1107,15 @@ class QuantitativeStore:
         }
         return result
 
+    def convert_physical(self, namespace, value, from_unit, to_unit, *, scopes, principal_id, precision=6):
+        """Optional Pint physical conversion, separate from versioned economic units."""
+        _require(scopes, CALCULATE_SCOPE)
+        from src.integrations.units import convert_physical
+        evaluated = convert_physical(value, from_unit, to_unit, precision=precision)
+        return self._calculation(namespace, "physical-conversion", evaluated["request"],
+                                 {**evaluated["result"], "producer": evaluated["producer"]},
+                                 input_ids=[], principal_id=principal_id, formula_revision_id=None)
+
     def convert(
         self,
         namespace: str,
@@ -1118,12 +1127,26 @@ class QuantitativeStore:
         principal_id: str,
         precision: int = 6,
         rate: Mapping[str, Any] | None = None,
+        backend: str = "native",
     ) -> dict[str, Any]:
         _require(scopes, CALCULATE_SCOPE)
         source, target = (
             self._unit(from_unit, namespace),
             self._unit(to_unit, namespace),
         )
+        if backend not in {"native", "pint"}:
+            raise QuantitativeError("unsupported_backend", "Unknown unit conversion backend")
+        if backend == "pint":
+            from src.integrations.units import convert_registered
+            if rate is not None:
+                raise QuantitativeError("unsupported_rate", "Pint cannot interpret exchange-rate evidence")
+            evaluated = convert_registered(value, source, target, precision=precision)
+            return self._calculation(
+                namespace, "conversion", evaluated["request"],
+                {**evaluated["result"], "producer": evaluated["producer"]},
+                input_ids=[source["unit_id"], target["unit_id"]],
+                principal_id=principal_id, formula_revision_id=None,
+            )
         if source["dimension"] != target["dimension"]:
             raise QuantitativeError(
                 "dimensional_error", "units have incompatible dimensions"

@@ -664,6 +664,17 @@ class GeospatialStore:
             raise
         return self.place(namespace, place_id, scopes={READ_SCOPE})
 
+    def import_projected_geometry(self, namespace, geometry, *, source_crs, **kwargs):
+        """Transform an external geometry offline and retain its source coordinates."""
+        _require(kwargs.get("scopes", set()), WRITE_SCOPE)
+        from src.integrations.spatial import transform_geometry
+        transformed = transform_geometry(geometry, source_crs)
+        source = dict(kwargs.pop("source", {}))
+        source["coordinate_transform"] = transformed
+        kwargs.pop("crs", None)
+        return self.store_geometry(namespace, transformed["result"]["geometry"],
+                                   crs="EPSG:4326", source=source, **kwargs)
+
     def store_geometry(
         self,
         namespace: str,
@@ -1199,11 +1210,33 @@ class GeospatialStore:
         scopes: set[str],
         principal_id: str,
         tolerance_m: float = 0,
+        backend: str = "stdlib",
     ) -> dict[str, Any]:
         _require(scopes, CALCULATE_SCOPE)
         left = self.geometry(namespace, left_geometry_id, scopes={READ_SCOPE})
         if not left or left["crs"] != "EPSG:4326":
             raise GeospatialError("not_found", "left WGS84 geometry does not exist")
+        if backend not in {"stdlib", "shapely"}:
+            raise GeospatialError("invalid_backend", "unknown geometry backend")
+        if backend == "shapely":
+            if tolerance_m != 0 or operation not in {"contains", "intersects", "covers"}:
+                raise GeospatialError("unsupported_operation", "Shapely adapter supports exact topology only")
+            from src.integrations.spatial import topology
+            if operation in {"contains", "covers"}:
+                other_geometry = {"type": "Point", "coordinates": list(_point(right))}
+                input_ids = [left_geometry_id]
+            else:
+                other = self.geometry(namespace, str(right), scopes={READ_SCOPE})
+                if not other:
+                    raise GeospatialError("not_found", "right geometry does not exist")
+                other_geometry = other["geometry"]
+                input_ids = [left_geometry_id, str(right)]
+            evaluated = topology(operation, left["geometry"], other_geometry)
+            return self._receipt(namespace, operation,
+                {"operation": operation, "left_geometry_id": left_geometry_id, "right": right,
+                 "tolerance_m": 0, "crs": "EPSG:4326", "backend": evaluated["producer"]},
+                evaluated["result"], input_ids, principal_id,
+                algorithm="shapely-" + evaluated["producer"]["version"])
         if operation in {"contains", "proximity"}:
             point = list(_point(right))
             if operation == "contains":
@@ -1254,14 +1287,14 @@ class GeospatialStore:
             namespace, operation, request, result, input_ids, principal_id
         )
 
-    def _receipt(self, namespace, operation, request, result, input_ids, principal_id):
+    def _receipt(self, namespace, operation, request, result, input_ids, principal_id, algorithm="wgs84-stdlib-v1"):
         stable = [
             namespace,
             operation,
             request,
             result,
             sorted(input_ids),
-            "wgs84-stdlib-v1",
+            algorithm,
         ]
         calculation_hash = _digest(stable)
         receipt_id = "spatial-receipt:" + calculation_hash[:24]
@@ -1282,7 +1315,7 @@ class GeospatialStore:
                         _canonical(request),
                         _canonical(result),
                         _canonical(sorted(input_ids)),
-                        "wgs84-stdlib-v1",
+                        algorithm,
                         calculation_hash,
                         principal_id,
                         now,
@@ -1308,7 +1341,7 @@ class GeospatialStore:
             "request": request,
             "result": result,
             "input_ids": sorted(input_ids),
-            "algorithm": "wgs84-stdlib-v1",
+            "algorithm": algorithm,
             "calculation_hash": calculation_hash,
             "principal_id": existing[0] if existing else principal_id,
             "created_at_ms": now,

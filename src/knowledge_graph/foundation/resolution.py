@@ -98,8 +98,20 @@ class EntityResolver:
         embedder: Optional[Embedder] = None,
         embedding_threshold: float = 0.83,
         decision_sink: Optional[Callable[[dict], None]] = None,
+        fuzzy_backend: str = "difflib",
+        fuzzy_threshold: Optional[float] = None,
     ):
-        self.similarity_threshold = similarity_threshold
+        if fuzzy_backend not in {"difflib", "rapidfuzz"}:
+            raise ValueError("unknown fuzzy backend")
+        if fuzzy_backend == "rapidfuzz":
+            if fuzzy_threshold is None or not 0 <= fuzzy_threshold <= 1:
+                raise ValueError("RapidFuzz requires an explicitly calibrated fuzzy_threshold")
+            from rapidfuzz.fuzz import ratio
+            self._fuzzy_ratio = lambda a, b: ratio(a, b) / 100.0
+        else:
+            self._fuzzy_ratio = _ratio
+        self.fuzzy_backend = fuzzy_backend
+        self.similarity_threshold = fuzzy_threshold if fuzzy_threshold is not None else similarity_threshold
         self.embedder = embedder
         self.embedding_threshold = embedding_threshold
         self.decision_sink = decision_sink
@@ -209,6 +221,7 @@ class EntityResolver:
                 "status": node.properties.get("resolution_status", "resolved"),
                 "provenance": dict(provenance or {}),
                 "producer": "entity-resolver-v2", "review_status": "proposed",
+                "fuzzy_backend": self.fuzzy_backend, "fuzzy_threshold": self.similarity_threshold,
             })
 
     @property
@@ -254,7 +267,7 @@ class EntityResolver:
                     continue
                 if self._token_containment(norm, cn):
                     return cand
-                score = _ratio(norm, cn)
+                score = self._fuzzy_ratio(norm, cn)
                 if score > best_score:
                     best, best_score = cand, score
 

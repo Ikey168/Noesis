@@ -58,7 +58,8 @@ class CrossEncoderReranker:
         self,
         model_name: str = "cross-encoder/ms-marco-MiniLM-L-6-v2",
         device: Optional[str] = None,
-        max_length: int = 512
+        max_length: int = 512,
+        scorer=None,
     ):
         """
         Initialize the cross-encoder reranker.
@@ -71,9 +72,10 @@ class CrossEncoderReranker:
         self.model_name = model_name
         self.device = device
         self.max_length = max_length
-        self.model = None
-        self.is_enabled = self._check_reranking_enabled()
-        
+        self.model = scorer
+        self.is_enabled = scorer is not None or self._check_reranking_enabled()
+        if scorer is not None:
+            return
         if self.is_enabled and HAS_SENTENCE_TRANSFORMERS:
             self._load_model()
         elif self.is_enabled:
@@ -86,7 +88,11 @@ class CrossEncoderReranker:
     def _load_model(self):
         """Load the cross-encoder model."""
         try:
-            self.model = CrossEncoder(self.model_name, device=self.device, max_length=self.max_length)
+            if self.model_name == "Qwen/Qwen3-Reranker-0.6B":
+                from src.integrations.models import QwenReranker
+                self.model = QwenReranker(device=self.device or "cpu", max_tokens=self.max_length)
+            else:
+                self.model = CrossEncoder(self.model_name, device=self.device, max_length=self.max_length)
             logger.info(f"Loaded cross-encoder model: {self.model_name}")
         except Exception as e:
             logger.error(f"Failed to load cross-encoder model {self.model_name}: {e}")

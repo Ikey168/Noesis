@@ -141,6 +141,13 @@ class EmbeddingProvider:
         
         return np.vstack(all_embeddings) if all_embeddings else np.empty((0, self.dim()))
     
+    def embed_queries(self, texts: List[str]) -> np.ndarray:
+        """Use the backend query policy; documents retain embed_texts semantics."""
+        encode = getattr(self.backend, "embed_queries", self.backend.embed_texts)
+        if not texts:
+            return np.empty((0, self.dim()))
+        return np.vstack([encode(texts[i:i+self.batch_size]) for i in range(0, len(texts), self.batch_size)])
+
     def dim(self) -> int:
         """Return the embedding dimension."""
         return self.backend.dim()

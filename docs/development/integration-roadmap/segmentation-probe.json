@@ -1,0 +1,58 @@
+{
+  "fixture_kind": "synthetic engineering probe; not independent human evaluation",
+  "model": "segment-any-text/sat-3l-sm",
+  "model_revision": "137da054051ad9f1eac42025f758db4ac9f22535",
+  "tokenizer": "FacebookAI/xlm-roberta-base",
+  "tokenizer_revision": "e73636d4f797dec63c3081bb6ed5c7b0bb3f2089",
+  "backend": "wtpsplit ONNX CPU",
+  "results": [
+    {
+      "text": "Dr. Müller wohnt in Berlin. Er arbeitet z. B. an EU-Projekten.\n\nThis is English. It has two sentences.",
+      "latency_ms": 107.88494200096466,
+      "spans": [
+        {
+          "start": 0,
+          "end": 28,
+          "text": "Dr. Müller wohnt in Berlin. "
+        },
+        {
+          "start": 28,
+          "end": 62,
+          "text": "Er arbeitet z. B. an EU-Projekten."
+        },
+        {
+          "start": 64,
+          "end": 81,
+          "text": "This is English. "
+        },
+        {
+          "start": 81,
+          "end": 102,
+          "text": "It has two sentences."
+        }
+      ]
+    },
+    {
+      "text": "Die Kosten betragen 1,5 Mio. Euro.\n§ 3 gilt ab dem 1. Januar.\n\nThe report cites Art. 5 of the regulation.",
+      "latency_ms": 90.03245699568652,
+      "spans": [
+        {
+          "start": 0,
+          "end": 34,
+          "text": "Die Kosten betragen 1,5 Mio. Euro."
+        },
+        {
+          "start": 35,
+          "end": 61,
+          "text": "§ 3 gilt ab dem 1. Januar."
+        },
+        {
+          "start": 63,
+          "end": 105,
+          "text": "The report cites Art. 5 of the regulation."
+        }
+      ]
+    }
+  ],
+  "adoption": "defer; independent sentence-boundary benchmark outstanding"
+}
