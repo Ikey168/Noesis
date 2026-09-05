@@ -442,11 +442,11 @@ class ResearchPackageStore:
             "reproducible": True,
         }
 
-    def export_rocrate(self, namespace, package_id, root_ids, *, principal_id, scopes, allow_partial=False):
+    def export_rocrate(self, namespace, package_id, root_ids, *, principal_id, scopes, allow_partial=False, metadata=None):
         from src.integrations.export import export_rocrate
         package = self.build(namespace, package_id, root_ids, principal_id=principal_id,
                              scopes=scopes, allow_partial=allow_partial)
-        return export_rocrate(package)
+        return export_rocrate(package, metadata=metadata)
 
     def sign(self, package, private_key_b64, *, key_id, key_version):
         from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey

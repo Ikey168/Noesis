@@ -8258,12 +8258,18 @@ def build_research_package(
     allow_partial: bool = False,
     cancel_requested: bool = False,
     limit: int = 10000,
+    output_format: str = "native",
+    publication_metadata: dict[str, Any] | None = None,
 ) -> dict:
-    """Build deterministic content-addressed bytes for a research package."""
+    """Build native package bytes or an optional RO-Crate with declared publication metadata."""
     from src.kb.research_packages import ResearchPackageStore
 
-    return _safe(
-        lambda c: ResearchPackageStore(c).build(
+    def build(c):
+        if output_format not in {"native", "ro-crate"}:
+            from src.integrations.common import IntegrationError
+
+            raise IntegrationError("unsupported_format", "Use native or ro-crate")
+        package = ResearchPackageStore(c).build(
             namespace,
             package_id,
             root_ids,
@@ -8272,7 +8278,15 @@ def build_research_package(
             limit=limit,
             principal_id=_context()[0],
             scopes={"knowledge:packages:write"},
-        ),
+        )
+        if output_format == "native" or package["status"] == "cancelled":
+            return package
+        from src.integrations.export import export_rocrate
+
+        return export_rocrate(package, metadata=publication_metadata)
+
+    return _safe(
+        build,
         write=True,
         required_scope="knowledge:packages:write",
     )

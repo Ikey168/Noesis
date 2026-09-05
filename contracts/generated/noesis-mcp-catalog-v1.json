@@ -15335,7 +15335,7 @@
     },
     {
       "cost_class": "medium",
-      "description": "Build deterministic content-addressed bytes for a research package.",
+      "description": "Build native package bytes or an optional RO-Crate with declared publication metadata.",
       "id": "noesis-knowledge-engine.build_research_package",
       "input_schema": {
         "properties": {
@@ -15354,8 +15354,24 @@
           "namespace": {
             "type": "string"
           },
+          "output_format": {
+            "default": "native",
+            "type": "string"
+          },
           "package_id": {
             "type": "string"
+          },
+          "publication_metadata": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
           },
           "root_ids": {
             "items": {

@@ -4,9 +4,11 @@
     {
       "number": 1524,
       "title": "Evaluate RO-Crate export for interoperable research packages",
-      "status": "implementation_partial",
+      "status": "implemented_pending_review",
       "validation": [
-        "See README.md for tested scope and outstanding acceptance evidence."
+        "Versioned RO-Crate 1.1 mapping exposes authorized native datasets/reports/analysis/model versions, ORCID author identifiers and software lineage while retaining original native package bytes.",
+        "roc-validator 0.11.3 REQUIRED profile passed on complete/partial authored exports, including offline cached-context validation; byte-identical replay confirmed.",
+        "21 package/export/MCP tests passed, including restricted/missing content, path safety, native integrity and Ed25519 signature preservation. See rocrate-evaluation.json."
       ]
     },
     {

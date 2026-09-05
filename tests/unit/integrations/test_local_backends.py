@@ -209,14 +209,27 @@ def test_rocrate_roundtrip_native_manifest(tmp_path):
     import zipfile
 
     from src.integrations.export import export_rocrate
+    from src.kb.research_packages import _hash
 
     package = {
         "package_id": "p",
-        "status": "complete",
-        "content_hash": "abc",
         "members": [],
+        "closure": {
+            "root_ids": [],
+            "omissions": [],
+            "complete": True,
+            "bounded": False,
+            "closure_hash": _hash({"members": [], "omissions": []}),
+        },
     }
-    result = export_rocrate(package)
+    package = {**package, "content_hash": _hash(package), "status": "complete"}
+    result = export_rocrate(
+        package,
+        metadata={
+            "datePublished": "2026-09-05",
+            "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+        },
+    )
     with zipfile.ZipFile(io.BytesIO(base64.b64decode(result["bytes_b64"]))) as z:
         assert json.loads(z.read("native-package.json")) == package
         assert "ro-crate-metadata.json" in z.namelist()

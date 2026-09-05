@@ -32,7 +32,7 @@ provisioned model snapshots. Model revisions are in `src/integrations/model-pins
 | #1521 | Review inbox `export_label_studio` / `import_label_studio` | Pinned source/reviewer checks, exact Unicode spans, pending proposals; independent human annotation outstanding |
 | #1522 | Anomaly store `simulate_drift` | Ordered ADWIN replay with duplicate/late-event handling; watch-delivery integration and tuning outstanding |
 | #1523 | Authored report `render` / MCP export `output_format="docx"` | Pandoc citeproc DOCX/HTML; PDF engine and larger citation/rendering evaluation outstanding |
-| #1524 | Research package `export_rocrate` | Native package in RO-Crate envelope; detailed entity mapping and independent validator outstanding |
+| #1524 | Research package `export_rocrate` / MCP build `output_format="ro-crate"` | Versioned member/lineage mapping, byte-identical replay, native signature retention and independent offline profile validation passed |
 | #1495 | Upload parser `backend="markitdown"` | Explicit converted-text representation; actual HTML smoke test; document corpus outstanding |
 | #1497 | `src.integrations.warc` | Bounded capture read/write and document ingestion; archive corpus and full ingestion regression outstanding |
 | #1501, #1503 | `src.integrations.mcp.federation_adapter` | Explicit presets and tool allowlists; real Playwright session probe passed; GitHub and browser-domain evaluation outstanding |
@@ -80,6 +80,61 @@ and separate relation/structured-field adapters and evaluation, remain outstandi
 
 Primary references: https://huggingface.co/fastino/gliner2-multi-v1 and
 https://github.com/fastino-ai/GLiNER2 .
+
+## RO-Crate mapping and validation (#1524)
+
+`ResearchPackageStore.export_rocrate(..., metadata=...)` and MCP
+`build_research_package(output_format="ro-crate", publication_metadata=...)`
+export the already-authorized native closure through ro-crate-py 0.15.1.
+The default format stays native. Cancellation and package write scopes still
+apply. Publication metadata requires an explicit ISO `datePublished` and HTTPS
+`license` identifier, with optional `name`/`description`; these can also be set
+in the native manifest's `extensions.x-ro-crate`. A license is never inferred
+from access permission. Missing metadata produces an explicit error.
+
+`noesis-ro-crate-mapping-v1` targets RO-Crate 1.1. Each authorized member becomes
+a JSON file at a hashed relative path, with its native ID, content hash and
+optional revision/version. Datasets use `File`/`Dataset`; document metadata with
+`artifact_kind="report"` uses `File`/`Report`; analysis assets and model records
+use `File`/`CreativeWork`. These files serialize native records, not substitute
+CSV/PDF renderings. Explicit metadata `software=[{name, version}]` becomes
+SoftwareApplication/CreateAction lineage, and checksum-valid HTTPS ORCID values
+in `authors` become Person references. This projects submitted metadata; it does
+not independently establish authorship or software execution. Other identifiers
+and metadata remain in the original native record. Native dependencies become
+`isBasedOn` links without asserting claim support.
+
+The unmodified native package, including any signature and canonical bytes,
+remains in `native-package.json`. `noesis-mapping.json` lists mapped paths,
+omissions, native verification results and unmapped semantics. Restricted content
+is excluded; redacted content retains its native redacted form. Declared missing
+members can produce a valid partial RO-Crate while native verification still
+reports that the research package is incomplete. Signatures require separate
+trusted-key native verification. RO-Crate does not transfer Noesis trust, access,
+encryption, executable recipe permissions or replay/evidence guarantees.
+
+Install `.[workflow-integrations,workflow-export-validation]` and run:
+
+```sh
+python -m scripts.benchmark_integration_rocrate --out /tmp/crate-evaluation.json --validate
+python -m scripts.benchmark_integration_rocrate --out /tmp/crate-offline.json --validate --offline-validator
+```
+
+The first command populates the independent validator's context cache; offline
+validation needs that cache. roc-validator 0.11.3 (Apache-2.0) passed all REQUIRED
+RO-Crate 1.1 checks for complete and partial authored Berlin-themed fixtures.
+`rocrate-evaluation.json` records the offline run: 7.2/8.3 kB ZIPs, 70.7 ms first
+export including imports and 2.9 ms subsequent export; validation took 0.75/0.54 s.
+Both exports were byte-identical on replay. Twenty-one native/package/MCP tests
+cover mapping, offline opening, path safety, omissions, author identifiers,
+authorization, cancellation, tampering and signature preservation. Input limits
+are 32 MB native JSON, 10,000 members and 64 kB publication metadata.
+
+Decision: adopt this explicit optional interchange mapping at RO-Crate 1.1
+REQUIRED conformance. It is not a claim of higher-profile or RECOMMENDED-level
+conformance. Sources: https://github.com/ResearchObject/ro-crate-py,
+https://www.researchobject.org/ro-crate/specification/1.1/ and
+https://github.com/crs4/rocrate-validator .
 
 ## Evidence
 

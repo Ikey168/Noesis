@@ -123,6 +123,28 @@ def test_research_package_catalog():
     )
 
 
+def test_rocrate_build_option_preserves_authorization_and_cancellation(tmp_path, monkeypatch):
+    import pytest
+    pytest.importorskip("rocrate")
+    db = tmp_path / "crate.duckdb"
+    scopes = {"knowledge:packages:read"}
+    monkeypatch.setattr(server, "_context", lambda: ("researcher", scopes))
+    monkeypatch.setattr(server, "_connection", lambda *, read_only: duckdb.connect(str(db)))
+    tools = asyncio.run(server.mcp.get_tools())
+    kwargs = {"namespace": "research", "package_id": "missing", "root_ids": [], "output_format": "ro-crate"}
+    assert call(tools["build_research_package"], **kwargs)["error"]["code"] == "unauthorized"
+    scopes.add("knowledge:packages:write")
+    created = call(tools["create_research_package_manifest"], namespace="research", manifest=MANIFEST)
+    kwargs["package_id"] = created["package_id"]
+    assert call(tools["build_research_package"], **kwargs, cancel_requested=True)["status"] == "cancelled"
+    assert call(tools["build_research_package"], **kwargs)["error"]["code"] == "missing_metadata"
+    result = call(tools["build_research_package"], **kwargs, publication_metadata={
+        "datePublished": "2026-09-05", "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+    })
+    assert result["format"] == "ro-crate"
+    assert result["mapping_contract"] == "noesis-ro-crate-mapping-v1"
+
+
 def test_trust_policy_tool_requires_separate_scope(tmp_path, monkeypatch):
     db = tmp_path / "trust.duckdb"
     scopes = {"knowledge:packages:import"}

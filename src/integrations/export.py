@@ -2,7 +2,6 @@
 
 import base64
 import hashlib
-import io
 import json
 import re
 import shutil
@@ -10,7 +9,7 @@ import subprocess
 import tempfile
 from pathlib import Path
 
-from .common import IntegrationError, version
+from .common import IntegrationError
 
 
 def render_report(
@@ -170,45 +169,7 @@ def render_report(
     }
 
 
-def export_rocrate(package):
-    from rocrate.rocrate import ROCrate
+def export_rocrate(package, *, metadata=None):
+    from .research_crate import export_package
 
-    if package.get("status") not in {"complete", "partial"}:
-        raise IntegrationError(
-            "invalid_package", "Only built native packages can be exported"
-        )
-    raw = json.dumps(
-        package, sort_keys=True, ensure_ascii=False, allow_nan=False
-    ).encode()
-    if len(raw) > 32_000_000:
-        raise IntegrationError("input_limit", "Native package exceeds export limit")
-    crate = ROCrate()
-    crate.name = "Noesis research package " + package["package_id"]
-    crate.add_file(
-        io.BytesIO(raw),
-        dest_path="native-package.json",
-        properties={
-            "name": "Native Noesis package with original provenance and verification metadata",
-            "encodingFormat": "application/json",
-            "sha256": hashlib.sha256(raw).hexdigest(),
-        },
-    )
-    crate.root_dataset["description"] = (
-        "Interoperable envelope. Native access, signature and replay semantics remain in native-package.json."
-    )
-    with tempfile.TemporaryDirectory(prefix="noesis-rocrate-") as directory:
-        path = Path(directory) / "package.zip"
-        crate.write_zip(str(path))
-        data = path.read_bytes()
-    return {
-        "format": "ro-crate",
-        "bytes_b64": base64.b64encode(data).decode(),
-        "sha256": hashlib.sha256(data).hexdigest(),
-        "native_content_hash": package["content_hash"],
-        "producer": {"backend": "rocrate", "version": version("rocrate")},
-        "limitations": [
-            "Envelope export only; native components are retained in the native manifest.",
-            "ZIP timestamps may differ; native content hash remains the reproducibility identity.",
-            "RO-Crate metadata does not grant access or verify native signatures.",
-        ],
-    }
+    return export_package(package, metadata=metadata)
