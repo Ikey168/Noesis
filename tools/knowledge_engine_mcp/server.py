@@ -8251,6 +8251,25 @@ def resolve_research_package_closure(
 
 
 @mcp.tool()
+def acquire_opencitations(
+    identifier: str, direction: str = "references", snapshot_sha256: str | None = None,
+    cursor: dict[str, Any] | None = None, page_size: int = 100,
+) -> dict:
+    """Capture an OpenCitations response or resume its bounded, persistent graph import."""
+    import os
+
+    from src.ingestion.opencitations import CitationAcquisitionStore, OpenCitationsClient
+
+    return _safe(
+        lambda c: CitationAcquisitionStore(c).acquire(
+            identifier, direction=direction, snapshot_sha256=snapshot_sha256,
+            cursor=cursor, page_size=page_size,
+            client=OpenCitationsClient(token=os.environ.get("NOESIS_OPENCITATIONS_TOKEN")),
+        ), write=True, required_scope="knowledge:citation:capture",
+    )
+
+
+@mcp.tool()
 def build_research_package(
     namespace: str,
     package_id: str,

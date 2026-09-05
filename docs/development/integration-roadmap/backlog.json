@@ -80,12 +80,13 @@
     {
       "number": 1515,
       "title": "Evaluate sdmx1 for Eurostat, ECB and Bundesbank statistical acquisition",
-      "status": "implemented_pending_review",
+      "status": "implemented_merged",
       "validation": [
         "Actual native ECB, Eurostat and Bundesbank requests succeeded; Eurostat SDMX values matched existing JSON-stat connector on the same German GDP series.",
         "Structure/code-list mapping and projected labels, native attribute units/frequencies/status/original values, explicit HTTP diagnostics and source byte archival integrated.",
         "9 SDMX/observation-store tests passed; live/replay benchmarks and native fixtures document measured parsing cost, precise timestamps, failures and limited adoption scope."
-      ]
+      ],
+      "merged_pr": 1526
     },
     {
       "number": 1514,
@@ -393,9 +394,11 @@
     {
       "number": 1472,
       "title": "Add provenance-preserving OpenCitations citation acquisition",
-      "status": "implementation_partial",
+      "status": "implemented_pending_review",
       "validation": [
-        "Real public 72-edge response; graph resume/replay and error tests pass. Research API/MCP acquisition and non-DOI cross-provider identity reconciliation remain outstanding."
+        "Live OpenCitations v2.2.0 captured 72 outgoing and 217 incoming citations; durable restart/resume completed and replay imported zero duplicate observations.",
+        "Atomic captured-snapshot/graph persistence and bounded research MCP traversal integrated; existing Semantic Scholar DOI overlap retains one edge and separate provenance without independent evidence counts.",
+        "Native incoming/outgoing captures and opencitations-live-evaluation.json record provider IDs, timestamps, latency and limits; focused tests cover errors, rollback, aliases, restart and actual MCP authorization/traversal."
       ]
     },
     {
