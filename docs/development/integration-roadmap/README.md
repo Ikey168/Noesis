@@ -55,3 +55,34 @@ with locally cached models; use independently annotated data for adoption.
 Independent human annotation cannot be replaced with generated labels. Live paid
 service comparisons require operator-provided credentials and budgets. Neither
 missing evidence nor adapter presence is grounds for closing those issues.
+
+## Registry and artifact clients
+
+`src.ingestion.ror.RORClient().enrich(ror_id, graph_store)` reads the public ROR
+v2 endpoint and persists registry assertions in the existing knowledge graph.
+Supply either a short ROR ID or its `https://ror.org/` identifier. No API key is
+required for the tested endpoint. Calls use a 15-second timeout and 2 MB response
+limit; each search reads one page of at most 20 records. Callers schedule requests
+within the provider's published rate limits; there is no automatic bulk crawl.
+
+Search returns candidates and never automatically resolves an ambiguous name.
+Explicit IDs create distinct nodes, with typed parent/child/related/predecessor/
+successor relationships retained in `ror_record.relationships`. Historical names
+and distinct registry revisions remain in aliases and `ror_history`. This does
+not infer equivalence between related institutions. The initial graph display
+name remains stable; the latest authoritative name is `ror_record.name`.
+Native Berlin fixture, inactive-record, same-name/different-ID, replay and durable
+restart tests cover this path. A direct public fetch of `01hcx6992` succeeded.
+Primary API documentation: https://ror.readme.io/docs/rest-api .
+
+`src.ingestion.zenodo.ZenodoClient().acquire(record_id, selected_file_keys, document_store)`
+fetches a bounded public manifest, checks file sizes and MD5/SHA256 digests, and
+uses the existing upload parser and document store for selected textual artifacts.
+The default aggregate byte budget is 20 MB; at most 100 files may be listed.
+All selected downloads are checked before storage. Restricted and embargoed
+records fail explicitly. Metadata preserves DOI, concept/version links, licensing,
+and related identifiers as JSON in document metadata. Record-specific IDs keep
+versions separate. A native metadata fetch succeeded; document storage, replay,
+restricted access and corrupt-download tests use synthetic files. General binary
+software/data artifact storage remains outstanding for #1476.
+Primary API documentation: https://developers.zenodo.org/ .

@@ -19,6 +19,7 @@ Usage::
 from __future__ import annotations
 
 import urllib.request
+import json
 from pathlib import Path
 from typing import Any, Iterable, List, Optional
 
@@ -211,7 +212,7 @@ class MediaConnector(Connector):
             if len(alignments) != len(documents):
                 raise ValueError("alignment must preserve segment/document count")
             for document, alignment in zip(documents, alignments):
-                document.metadata["word_alignment"] = alignment
+                document.metadata["word_alignment_json"] = json.dumps(alignment, ensure_ascii=False, sort_keys=True)
         documents.extend(
             self._keyframe_documents(content, locator, title, file_ext, raw.fetched_at)
         )

@@ -93,3 +93,28 @@ def test_mcp_presets_are_opt_in_and_allowlist_only():
     adapter = federation_adapter("context7", secret_resolver=lambda _: None)
     assert adapter.allowed_tools == {"resolve-library-id", "query-docs"}
     assert not adapter.allowed_resources
+
+
+def test_warc_document_store_retains_capture_and_replays(tmp_path):
+    pytest.importorskip("warcio")
+    import duckdb
+    from src.ingestion.document_store import DocumentStore
+    from src.integrations.warc import write_warc, ingest_warc
+
+    path = tmp_path / "evidence.warc"
+    write_warc(
+        [
+            {
+                "url": "https://example.org/berlin",
+                "captured_at": "2025-01-01T00:00:00Z",
+                "payload": "Berliner Forschung".encode(),
+                "content_type": "text/plain",
+            }
+        ],
+        path,
+    )
+    conn = duckdb.connect()
+    store = DocumentStore(conn)
+    assert ingest_warc(path, store).invalid == 0
+    assert ingest_warc(path, store).invalid == 0
+    assert conn.execute("SELECT count(*) FROM documents").fetchone()[0] == 1

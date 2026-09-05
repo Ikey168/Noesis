@@ -342,14 +342,18 @@
     {
       "number": 1476,
       "title": "Ingest Zenodo research artifacts and versioned file manifests",
-      "status": "pending",
-      "validation": []
+      "status": "implementation_partial",
+      "validation": [
+        "Native public metadata fetch succeeded; document storage/replay, checksum failure and restricted-access tests pass; binary artifact integration remains outstanding."
+      ]
     },
     {
       "number": 1475,
       "title": "Enrich institution identities and relationships from the ROR API",
-      "status": "pending",
-      "validation": []
+      "status": "implemented_pending_review",
+      "validation": [
+        "Native public Berlin fetch succeeded; 3 tests cover names, inactive revisions, distinct IDs, candidate search, replay and durable restart."
+      ]
     },
     {
       "number": 1474,

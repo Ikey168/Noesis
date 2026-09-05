@@ -2,6 +2,7 @@
 
 import hashlib
 import io
+import json
 from datetime import datetime
 from pathlib import Path
 from .common import IntegrationError, version
@@ -159,7 +160,10 @@ def ingest_warc(path, store, *, max_records=1000, max_bytes=20_000_000):
                 ingested_at=captured,
                 language="unknown",
                 metadata={
-                    "archive": {k: v for k, v in capture.items() if k != "payload"},
+                    "archive_json": json.dumps(
+                        {k: v for k, v in capture.items() if k != "payload"},
+                        sort_keys=True,
+                    ),
                     "content_representation": "archived-extracted-text",
                 },
             )
