@@ -64,9 +64,11 @@
     {
       "number": 1517,
       "title": "Evaluate Pint for compound units and dimensional validation",
-      "status": "implementation_partial",
+      "status": "implemented_pending_review",
       "validation": [
-        "See README.md for tested scope and outstanding acceptance evidence."
+        "Isolated Pint registry maps resolved immutable Noesis definitions/aliases, Decimal half-even conversion and safe dimensional arithmetic; formula receipts pin unit/observation/formula revisions.",
+        "Nine authored exact-arithmetic cases compare actual native/Pint calculations over 20 repetitions; pint-benchmark.json records values, full receipts, latency and memory with explicit mixed-scale behavior differences.",
+        "Tests cover Celsius conversion, compound dimensions, ratios/percentages, mixed scales, exact decimal literals, immutable-version replay, unsafe expressions, deterministic failures and MCP authorization. Offset formulas and economic semantics remain explicit exclusions."
       ]
     },
     {

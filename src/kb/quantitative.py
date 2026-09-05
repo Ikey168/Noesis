@@ -1206,6 +1206,7 @@ class QuantitativeStore:
         scopes: set[str],
         principal_id: str,
         precision: int = 6,
+        backend: str = "native",
     ) -> dict[str, Any]:
         _require(scopes, CALCULATE_SCOPE)
         metric = self.metric(namespace, metric_id, scopes={READ_SCOPE})
@@ -1213,8 +1214,9 @@ class QuantitativeStore:
             raise QuantitativeError(
                 "missing_formula", "metric has no versioned formula"
             )
+        if backend not in {"native", "pint"}:
+            raise QuantitativeError("unsupported_backend", "Unknown formula backend")
         expression = str(metric["formula"].get("expression") or "")
-        tree = ast.parse(expression, mode="eval")
         expected_dimensions = dict(metric["formula"].get("input_dimensions") or {})
         for name, expected in expected_dimensions.items():
             if name not in inputs or _dimension(
@@ -1224,6 +1226,27 @@ class QuantitativeStore:
                     "dimensional_error",
                     f"formula input {name!r} has an incompatible dimension",
                 )
+        if backend == "pint":
+            from src.integrations.units import evaluate_registered_formula
+
+            resolved = {}
+            for name, item in inputs.items():
+                if not item.get("unit_id"):
+                    raise QuantitativeError("unknown_unit", "Pint formula inputs require explicit unit identities")
+                unit = self._unit(item["unit_id"], namespace)
+                if _dimension(item.get("dimension") or {}) != unit["dimension"]:
+                    raise QuantitativeError("dimensional_error", "Input dimension differs from registered unit")
+                resolved[name] = {**item, "unit_definition": unit}
+            target = self._unit(metric["unit_id"], namespace)
+            evaluated = evaluate_registered_formula(expression, resolved, target, precision=precision)
+            return self._calculation(
+                namespace, "formula", {**evaluated["request"], "metric_id": metric_id},
+                {**evaluated["result"], "producer": evaluated["producer"]},
+                input_ids=[str(item.get("observation_id") or _digest(item)) for item in inputs.values()]
+                    + [item["unit_definition"]["unit_id"] for item in resolved.values()] + [target["unit_id"]],
+                principal_id=principal_id, formula_revision_id=metric["revision_id"],
+            )
+        tree = ast.parse(expression, mode="eval")
         values = {name: _decimal(item["value"], name) for name, item in inputs.items()}
 
         def evaluate(node):

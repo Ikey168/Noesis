@@ -2224,6 +2224,7 @@ def evaluate_quantitative_formula(
     metric_id: str,
     inputs: dict[str, dict[str, Any]],
     precision: int = 6,
+    backend: str = "native",
 ) -> dict:
     """Evaluate a safe versioned metric formula with exact input lineage."""
     from src.kb.quantitative import QuantitativeStore
@@ -2235,6 +2236,7 @@ def evaluate_quantitative_formula(
             metric_id,
             inputs,
             precision=precision,
+            backend=backend,
             principal_id=principal,
             scopes=scopes,
         ),

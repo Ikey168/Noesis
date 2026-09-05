@@ -26,7 +26,7 @@ provisioned model snapshots. Model revisions are in `src/integrations/model-pins
 | #1514 | Media connector `aligner=WhisperXAligner(...)` | Optional word alignment adapter; dependency/model and actual audio evaluation outstanding |
 | #1515 | `SDMXConnector` | Native ECB/Eurostat/Bundesbank data, structure/code-list mapping, archived ingestion and overlapping baseline comparison verified |
 | #1516 | Dataset store `validate_batch` | Explicit Pandera preflight, preserves declared schema; quarantine integration and comparative evaluation outstanding |
-| #1517 | Quantitative store `convert_physical` | Pint physical conversions plus isolated versioned Noesis unit definitions/aliases; formula evaluation and comparative cost evidence outstanding |
+| #1517 | Quantitative `convert` / `evaluate_formula(backend="pint")` | Versioned isolated registry, dimensional arithmetic, Decimal rounding and native comparison/replay validated |
 | #1518 | Geospatial `relation(backend="shapely")` | Topology; wider geometry fixtures/evaluation outstanding |
 | #1519 | Geospatial `import_projected_geometry` | Published Berlin coordinate references, offline transform receipts and import replay validated |
 | #1520 | Report updates `generate_proposal` with `OutlinesEditor` | Schema-constrained pending text proposals; real generation and semantic revision evaluation outstanding |
@@ -315,7 +315,46 @@ existing economic conversion and comparability contracts remain authoritative.
 39 focused quantitative/document-store tests passed, including candidate/native
 agreement for length, Celsius, ratios, percentages, compound speed and half-even
 rounding, plus replay after a custom unit version changes. This completes registry
-mapping; formula-backend comparison and measured cost evidence remain for #1517.
+mapping; the formula comparison and adoption decision follow below.
+
+### Pint formula completion and comparison (#1517)
+
+`QuantitativeStore.evaluate_formula(..., backend="pint")` and MCP
+`evaluate_quantitative_formula(backend="pint")` carry explicit input `unit_id`
+values through a bounded arithmetic AST, validating both input and output
+dimensions. The registry is empty except for exact resolved Noesis definitions.
+Receipts pin input observations, unit definitions/versions, registry hash and
+metric formula revision. Aliases resolve through Noesis before evaluation.
+Decimal literals are read from original expression text, avoiding binary-float
+rounding; output retains Decimal half-even rounding at 0–12 decimal places.
+
+The backend permits addition, subtraction, multiplication, division, unary minus
+and numeric constants. Limits are 4,096 expression characters, 128 AST nodes,
+32 inputs/dimensions and dimension exponents of at most 32. Unknown units,
+dimension conflicts, unsafe expressions, division by zero and non-finite inputs
+fail explicitly. Offset-unit arithmetic is deliberately unsupported: convert
+Celsius to an explicit absolute unit first, then evaluate. Offset conversion
+itself is tested in both directions. Currency/rate dates, provider evidence,
+comparability, populations and vintages remain with native Noesis operations.
+
+`python -m scripts.benchmark_integration_units --out pint-benchmark.json`
+compares nine authored exact-arithmetic cases across 20 repeated calls per
+backend, including idempotent receipt replay. `pint-benchmark.json` retains full
+receipts, expected values and timings. Median case latency was 2.72 ms native
+and 4.37 ms Pint; whole-process peak RSS was 208 MiB. Conversions and formulas
+with common scales agree. Two intentional mixed-scale cases differ: native
+arithmetic assumes already-normalized magnitudes, whereas Pint converts
+`1 km + 500 m` to `1500 m` and `25% * 200 m` to `50 m`.
+
+Decision: adopt the explicit optional Pint 0.25.3 backend for physical conversion
+and non-offset dimensional formulas, preserving the native default. The added
+dimension checks and scale handling justify the modest measured overhead for
+these bounded operations. Tests cover immutable unit-version replay, precision,
+compound dimensions, ratios, offsets, deterministic failure and the actual MCP
+authorization boundary. Install via `.[workflow-integrations]`; Pint uses the
+BSD-3-Clause license. References:
+https://pint.readthedocs.io/en/stable/advanced/defining.html and
+https://pint.readthedocs.io/en/stable/user/nonmult.html .
 
 ## Planner evaluation and adoption (#1513)
 

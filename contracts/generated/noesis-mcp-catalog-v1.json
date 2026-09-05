@@ -19448,6 +19448,10 @@
       "id": "noesis-knowledge-engine.evaluate_quantitative_formula",
       "input_schema": {
         "properties": {
+          "backend": {
+            "default": "native",
+            "type": "string"
+          },
           "inputs": {
             "additionalProperties": {
               "additionalProperties": true,
