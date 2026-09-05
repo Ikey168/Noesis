@@ -40,6 +40,22 @@ def _validate_coordinates(geometry):
             pending.extend((item, depth - 1) for item in coords)
         if points > 100_000:
             raise IntegrationError("input_limit", "Geometry exceeds coordinate budget")
+    kind = geometry["type"]
+    if kind == "LineString" and len(geometry["coordinates"]) < 2:
+        raise IntegrationError("invalid_geometry", "Line needs at least two points")
+    polygons = (
+        [geometry["coordinates"]]
+        if kind == "Polygon"
+        else geometry["coordinates"]
+        if kind == "MultiPolygon"
+        else []
+    )
+    for polygon in polygons:
+        for ring in polygon:
+            if len(ring) < 4 or ring[0] != ring[-1]:
+                raise IntegrationError(
+                    "invalid_geometry", "Polygon rings must be explicitly closed"
+                )
 
 
 def transform_geometry(geometry, source_crs, target_crs="EPSG:4326"):
@@ -140,7 +156,7 @@ def transform_geometry(geometry, source_crs, target_crs="EPSG:4326"):
     )
 
 
-def topology(operation, left, right=None):
+def topology(operation, left, right=None, *, crs="EPSG:4326"):
     import shapely
     from shapely.geometry import shape
     from shapely.validation import explain_validity
@@ -153,6 +169,18 @@ def topology(operation, left, right=None):
         if g.is_empty or not g.is_valid:
             raise IntegrationError("invalid_geometry", explain_validity(g))
         # Geographic dateline wrapping needs a separate normalization policy.
+        if crs != "EPSG:4326":
+            raise IntegrationError(
+                "unsupported_crs",
+                "Topology adapter requires explicit WGS84 coordinates",
+            )
+        if not (
+            -180 <= g.bounds[0] <= g.bounds[2] <= 180
+            and -90 <= g.bounds[1] <= g.bounds[3] <= 90
+        ):
+            raise IntegrationError(
+                "invalid_geometry", "WGS84 coordinates are out of range"
+            )
         if g.bounds[2] - g.bounds[0] > 180:
             raise IntegrationError(
                 "unsupported_dateline",
@@ -171,6 +199,116 @@ def topology(operation, left, right=None):
     return receipt(
         "shapely",
         "shapely",
-        {"operation": operation, "left": left, "right": right},
+        {
+            "operation": operation,
+            "left": left,
+            "right": right,
+            "crs": crs,
+            "repair_policy": "reject",
+        },
         result,
+    )
+
+
+def simplify_geometry(geometry, tolerance_m, *, projected_crs):
+    """Topology-preserving planar simplification in an explicit local metric CRS."""
+    import json
+
+    import pyproj
+    import shapely
+    from shapely.geometry import mapping, shape
+
+    from .common import finite
+
+    tolerance = finite(tolerance_m, "tolerance_m", 0, 10000)
+    _validate_coordinates(geometry)
+    original = shape(geometry)
+    if shapely.get_num_coordinates(original) > 10000:
+        raise IntegrationError(
+            "input_limit", "Simplification supports at most 10000 coordinates"
+        )
+    if original.is_empty or not original.is_valid:
+        raise IntegrationError(
+            "invalid_geometry", "Invalid geometry; repair policy is reject"
+        )
+    if original.bounds[2] - original.bounds[0] > 180:
+        raise IntegrationError(
+            "unsupported_dateline", "Dateline normalization is not supported"
+        )
+    if not projected_crs:
+        raise IntegrationError(
+            "unsupported_crs", "Choose an explicit local projected metric CRS"
+        )
+    target = pyproj.CRS(projected_crs)
+    if target.to_epsg() not in {25832, 25833}:
+        raise IntegrationError(
+            "unsupported_crs", "Supported metric scope is ETRS89/UTM zones 32N and 33N"
+        )
+    if (
+        not target.is_projected
+        or len(target.axis_info) != 2
+        or any(axis.unit_conversion_factor != 1 for axis in target.axis_info)
+    ):
+        raise IntegrationError("unsupported_crs", "Projected metre axes are required")
+    area = target.area_of_use
+    xmin, ymin, xmax, ymax = original.bounds
+    if area is None or not (
+        area.west <= xmin <= xmax <= area.east
+        and area.south <= ymin <= ymax <= area.north
+    ):
+        raise IntegrationError(
+            "unsupported_crs", "Geometry lies outside declared projection area"
+        )
+    projected = transform_geometry(geometry, "EPSG:4326", target.to_string())
+    source_shape = shape(projected["result"]["geometry"])
+    effective_tolerance = tolerance
+    for _ in range(8):
+        reduced = shapely.simplify(
+            source_shape, tolerance=effective_tolerance, preserve_topology=True
+        )
+        displacement = float(
+            shapely.hausdorff_distance(source_shape, reduced, densify=0.25)
+        )
+        if displacement <= tolerance + 1e-9:
+            break
+        effective_tolerance /= 2
+    else:
+        raise IntegrationError(
+            "invalid_simplification",
+            "Simplification exceeds sampled displacement budget",
+        )
+    if reduced.is_empty or not reduced.is_valid:
+        raise IntegrationError(
+            "invalid_simplification", "Simplification lost valid topology"
+        )
+    reduced_geometry = json.loads(json.dumps(mapping(reduced)))
+    restored = transform_geometry(reduced_geometry, target.to_string(), "EPSG:4326")
+    accuracies = [run["result"]["accuracy_m"] for run in (projected, restored)]
+    if any(value is None for value in accuracies):
+        raise IntegrationError(
+            "unknown_accuracy",
+            "Transform accuracy is required for precision propagation",
+        )
+    return receipt(
+        "shapely",
+        "shapely",
+        {
+            "geometry": geometry,
+            "source_crs": "EPSG:4326",
+            "projected_crs": target.to_string(),
+            "tolerance_m": tolerance,
+            "repair_policy": "reject",
+            "preserve_topology": True,
+        },
+        {
+            "geometry": restored["result"]["geometry"],
+            "geos_version": shapely.geos_version_string,
+            "discrete_hausdorff_m": displacement,
+            "hausdorff_densify": 0.25,
+            "effective_tolerance_m": effective_tolerance,
+            "transformation_accuracy_m": sum(accuracies),
+            "forward_transform": projected,
+            "inverse_transform": restored,
+            "semantics": "Planar simplification tolerance in projected metres; not geodesic distance",
+        },
     )

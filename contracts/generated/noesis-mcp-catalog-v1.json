@@ -35321,11 +35321,26 @@
       "id": "noesis-knowledge-engine.simplify_geospatial_geometry",
       "input_schema": {
         "properties": {
+          "backend": {
+            "default": "stdlib",
+            "type": "string"
+          },
           "geometry_id": {
             "type": "string"
           },
           "namespace": {
             "type": "string"
+          },
+          "projected_crs": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
           },
           "tolerance_m": {
             "type": "number"

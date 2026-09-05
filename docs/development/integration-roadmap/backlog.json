@@ -4,12 +4,13 @@
     {
       "number": 1524,
       "title": "Evaluate RO-Crate export for interoperable research packages",
-      "status": "implemented_pending_review",
+      "status": "implemented_merged",
       "validation": [
         "Versioned RO-Crate 1.1 mapping exposes authorized native datasets/reports/analysis/model versions, ORCID author identifiers and software lineage while retaining original native package bytes.",
         "roc-validator 0.11.3 REQUIRED profile passed on complete/partial authored exports, including offline cached-context validation; byte-identical replay confirmed.",
         "21 package/export/MCP tests passed, including restricted/missing content, path safety, native integrity and Ed25519 signature preservation. See rocrate-evaluation.json."
-      ]
+      ],
+      "merged_pr": 1527
     },
     {
       "number": 1523,
@@ -56,9 +57,11 @@
     {
       "number": 1518,
       "title": "Evaluate Shapely for validated geometry operations",
-      "status": "implementation_partial",
+      "status": "implemented_pending_review",
       "validation": [
-        "See README.md for tested scope and outstanding acceptance evidence."
+        "Explicit Shapely topology and projected simplification integrated with immutable geometry receipts; MultiPolygon has a v2 contract, GeometryCollection/repairs/dateline operations remain explicitly unsupported.",
+        "Analytic reference shapes cover holes/boundaries/contained intersections; actual native ALKIS Berlin Mitte MultiPolygon compared against native simplification with measured validity, sampled Hausdorff distance, coordinate count and timings.",
+        "Twelve focused geometry/MCP tests passed including shared pyproj import receipts, original retention, replay, invalid-ring/CRS failures and authorization. See geometry-benchmark.json and compressed full receipt."
       ]
     },
     {
@@ -396,12 +399,13 @@
     {
       "number": 1472,
       "title": "Add provenance-preserving OpenCitations citation acquisition",
-      "status": "implemented_pending_review",
+      "status": "implemented_merged",
       "validation": [
         "Live OpenCitations v2.2.0 captured 72 outgoing and 217 incoming citations; durable restart/resume completed and replay imported zero duplicate observations.",
         "Atomic captured-snapshot/graph persistence and bounded research MCP traversal integrated; existing Semantic Scholar DOI overlap retains one edge and separate provenance without independent evidence counts.",
         "Native incoming/outgoing captures and opencitations-live-evaluation.json record provider IDs, timestamps, latency and limits; focused tests cover errors, rollback, aliases, restart and actual MCP authorization/traversal."
-      ]
+      ],
+      "merged_pr": 1527
     },
     {
       "number": 1471,
