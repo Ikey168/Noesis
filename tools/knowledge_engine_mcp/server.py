@@ -8511,6 +8511,39 @@ def compare_research_analysis_runs(namespace: str, left_run_id: str, right_run_i
     return _safe(operation, write=True, required_scope=READ_SCOPE)
 
 
+@mcp.tool()
+def assess_authored_report_changes(namespace: str, report_id: str) -> dict:
+    """Poll committed evidence dependencies and persist a focused report-change assessment."""
+    from src.kb.report_updates import ReportUpdateStore
+    return _safe(lambda c: ReportUpdateStore(c).assess(namespace, report_id,
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope="knowledge:reports:write")
+
+
+@mcp.tool()
+def propose_authored_report_edit(namespace: str, assessment_id: str, assertion_id: str,
+                                 replacement: dict[str, Any] | None = None) -> dict:
+    """Propose an evidence review notice or authored replacement for one affected assertion."""
+    from src.kb.report_updates import ReportUpdateStore
+    return _safe(lambda c: ReportUpdateStore(c).propose(namespace, assessment_id, assertion_id, replacement=replacement,
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope="knowledge:reports:write")
+
+
+@mcp.tool()
+def inspect_authored_report_edit(namespace: str, proposal_id: str) -> dict:
+    """Inspect an individual report proposal and its evidence under current access."""
+    from src.kb.report_updates import ReportUpdateStore
+    return _safe(lambda c: ReportUpdateStore(c, initialize=False).inspect_proposal(namespace, proposal_id,
+        principal_id=_context()[0], scopes=_context()[1]), required_scope="knowledge:reports:read")
+
+
+@mcp.tool()
+def decide_authored_report_edit(namespace: str, proposal_id: str, decision: str, rationale: str) -> dict:
+    """Accept or reject one edit; acceptance preserves report history and checks author/evidence conflicts."""
+    from src.kb.report_updates import ReportUpdateStore
+    return _safe(lambda c: ReportUpdateStore(c).decide_proposal(namespace, proposal_id, decision, rationale,
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope="knowledge:reports:write")
+
+
 if __name__ == "__main__":
     from src.mcp_host.transport import run_server
 

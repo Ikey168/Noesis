@@ -812,7 +812,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 388,
+      "tool_count": 392,
       "tools": [
         "noesis-knowledge-engine.accept_citation_repair",
         "noesis-knowledge-engine.accept_dataset_join",
@@ -830,6 +830,7 @@
         "noesis-knowledge-engine.archive_knowledge_checkpoint",
         "noesis-knowledge-engine.archive_research_project",
         "noesis-knowledge-engine.artifact_lineage",
+        "noesis-knowledge-engine.assess_authored_report_changes",
         "noesis-knowledge-engine.assess_epistemic_statement",
         "noesis-knowledge-engine.assess_evidence_freshness",
         "noesis-knowledge-engine.assess_knowledge_quality",
@@ -882,6 +883,7 @@
         "noesis-knowledge-engine.create_review_protocol",
         "noesis-knowledge-engine.create_source_acquisition_plan",
         "noesis-knowledge-engine.create_source_research_objective",
+        "noesis-knowledge-engine.decide_authored_report_edit",
         "noesis-knowledge-engine.decide_source_alias",
         "noesis-knowledge-engine.decrypt_research_package",
         "noesis-knowledge-engine.delete_source_identity",
@@ -977,6 +979,7 @@
         "noesis-knowledge-engine.inspect_access_view_health",
         "noesis-knowledge-engine.inspect_anomaly_health",
         "noesis-knowledge-engine.inspect_authored_report",
+        "noesis-knowledge-engine.inspect_authored_report_edit",
         "noesis-knowledge-engine.inspect_binary_forecast",
         "noesis-knowledge-engine.inspect_effective_access_view",
         "noesis-knowledge-engine.inspect_entity_change_impact",
@@ -1043,6 +1046,7 @@
         "noesis-knowledge-engine.preview_source_acquisition_plan",
         "noesis-knowledge-engine.prioritize_research_gaps",
         "noesis-knowledge-engine.propagate_evidence_freshness",
+        "noesis-knowledge-engine.propose_authored_report_edit",
         "noesis-knowledge-engine.propose_forecast_resolution",
         "noesis-knowledge-engine.publish_entity_change_rebuild",
         "noesis-knowledge-engine.query_geospatial_event_map",
@@ -1208,7 +1212,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 388
+      "visible_tool_count": 392
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -1222,9 +1226,9 @@
       "available": 81,
       "degraded": 155,
       "disabled": 3,
-      "unauthorized": 393
+      "unauthorized": 397
     },
-    "tools": 632
+    "tools": 636
   },
   "tools": [
     {
@@ -14220,6 +14224,45 @@
     },
     {
       "cost_class": "medium",
+      "description": "Poll committed evidence dependencies and persist a focused report-change assessment.",
+      "id": "noesis-knowledge-engine.assess_authored_report_changes",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "report_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "report_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "assess_authored_report_changes",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge:reports:read",
+        "knowledge:reports:write"
+      ],
+      "required_scopes": [
+        "knowledge:reports:read",
+        "knowledge:reports:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Persist a versioned statement-kind and independent-evidence assessment.",
       "id": "noesis-knowledge-engine.assess_epistemic_statement",
       "input_schema": {
@@ -17637,6 +17680,53 @@
       ],
       "required_scopes": [
         "knowledge:source-planner:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Accept or reject one edit; acceptance preserves report history and checks author/evidence conflicts.",
+      "id": "noesis-knowledge-engine.decide_authored_report_edit",
+      "input_schema": {
+        "properties": {
+          "decision": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "proposal_id": {
+            "type": "string"
+          },
+          "rationale": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "proposal_id",
+          "decision",
+          "rationale"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "decide_authored_report_edit",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge:reports:read",
+        "knowledge:reports:write"
+      ],
+      "required_scopes": [
+        "knowledge:reports:read",
+        "knowledge:reports:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -22089,6 +22179,43 @@
       "version": "1"
     },
     {
+      "cost_class": "low",
+      "description": "Inspect an individual report proposal and its evidence under current access.",
+      "id": "noesis-knowledge-engine.inspect_authored_report_edit",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "proposal_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "proposal_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "inspect_authored_report_edit",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge:reports:read"
+      ],
+      "required_scopes": [
+        "knowledge:reports:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "high",
       "description": "Inspect a forecast and reviewed outcome as recorded by explicit historical cutoffs.",
       "id": "noesis-knowledge-engine.inspect_binary_forecast",
@@ -25338,6 +25465,61 @@
       ],
       "required_scopes": [
         "knowledge:freshness:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Propose an evidence review notice or authored replacement for one affected assertion.",
+      "id": "noesis-knowledge-engine.propose_authored_report_edit",
+      "input_schema": {
+        "properties": {
+          "assertion_id": {
+            "type": "string"
+          },
+          "assessment_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "replacement": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "assessment_id",
+          "assertion_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_authored_report_edit",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge:reports:read",
+        "knowledge:reports:write"
+      ],
+      "required_scopes": [
+        "knowledge:reports:read",
+        "knowledge:reports:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",

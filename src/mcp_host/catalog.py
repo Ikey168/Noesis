@@ -226,6 +226,8 @@ async def _inspect_server(
 
 
 def _mutability(name: str) -> str:
+    if name in {"assess_authored_report_changes", "propose_authored_report_edit", "decide_authored_report_edit"}:
+        return "write"
     if name in {"register_research_analysis", "execute_research_analysis", "cancel_research_analysis_run", "recover_research_analysis_run"}:
         return "write"
     if name == "sync_zotero_library":
@@ -283,6 +285,10 @@ def _required_data(server_stem: str, tool_name: str) -> list[str]:
     if server_stem == "memory_mcp":
         return ["knowledge-memory-store"]
     if server_stem == "knowledge_engine_mcp":
+        if tool_name in {"assess_authored_report_changes", "propose_authored_report_edit", "decide_authored_report_edit"}:
+            return ["knowledge:reports:read", "knowledge:reports:write"]
+        if tool_name == "inspect_authored_report_edit":
+            return ["knowledge:reports:read"]
         if tool_name == "register_research_analysis":
             return ["knowledge:analysis:write", "knowledge:dataset:read"]
         if tool_name in {"execute_research_analysis", "cancel_research_analysis_run", "recover_research_analysis_run"}:
@@ -355,6 +361,10 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
             return ["knowledge:memory:admin"]
         return ["knowledge:memory:read"]
     if server_stem == "knowledge_engine_mcp":
+        if tool_name in {"assess_authored_report_changes", "propose_authored_report_edit", "decide_authored_report_edit"}:
+            return ["knowledge:reports:read", "knowledge:reports:write"]
+        if tool_name == "inspect_authored_report_edit":
+            return ["knowledge:reports:read"]
         if tool_name == "register_research_analysis":
             return ["knowledge:analysis:write", "knowledge:dataset:read"]
         if tool_name in {"execute_research_analysis", "cancel_research_analysis_run", "recover_research_analysis_run"}:

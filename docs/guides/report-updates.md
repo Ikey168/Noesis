@@ -1,0 +1,15 @@
+# Reviewing report updates
+
+`assess_authored_report_changes` polls a report's declared dependencies and persists a deterministic assessment. A subscription checkpoint records the last assessment; applications or their scheduler call the tool again after ingestion/maintenance. This implementation does not start a background worker or send external notifications.
+
+The resolver compares exact pinned revisions with committed document revisions, committed derived claims or captured claim states, active artifacts, published entity decisions, and immutable calculation inputs. A calculation remains the same historical computation when a newer observation or metric definition appears; the assessment identifies changed inputs without inventing a replacement result. Source dependencies use document IDs and require explicit `document:<id>:read` access because the corpus is shared. Entity and quantitative dependencies require their read scopes. Report ownership and all evidence namespaces are checked on every operation.
+
+Affected assertions include before/after records and a reason. Unrelated sections remain current. Missing revisions, stores, lineage, inaccessible sources, and pending publications produce an explicit uncertain/incomplete result. “Current” means no observed change in the declared dependencies; it does not certify source truth, source discovery completeness, or entailment. Scans are bounded to 1,000 dependencies and 16 MiB of evidence.
+
+Call `propose_authored_report_edit` with the assessment ID and an affected assertion ID. By default it proposes a deterministic review notice preserving the previously authored wording and citations. An author can instead supply a complete replacement assertion with the same ID. The current implementation does not generate unsupported substantive rewrites: automated semantic rewriting remains dependent on the independent entailment audit in QA-03.
+
+Use `inspect_authored_report_edit` and `decide_authored_report_edit` to review each proposal. Acceptance checks that its evidence has not changed again and that the affected assertion still matches its baseline. Concurrent edits to unrelated sections are preserved. A same-assertion conflict requires a fresh assessment/proposal. Accepted changes and the review decision commit together, creating a report revision. Rejection records a decision without changing the report. Repeated identical decisions are idempotent.
+
+Earlier report revisions remain exportable using `export_authored_report`; the current report and bibliography use the same export API. Nothing is published externally. Accepting a review notice does not resolve the underlying evidence problem or certify the assertion.
+
+Tests exercise source corrections/retractions, pending publication, artifact changes, claim states, published entity decisions, observation revisions, access revocation, unrelated and conflicting author edits, individual acceptance/rejection, and public MCP export. These are behavioral checks, not the independent human entailment evaluation.
