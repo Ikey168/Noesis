@@ -1,0 +1,14 @@
+{
+  "source_url": "https://www.berlin.de/umweltatlas/_assets/klima/klimaparameter/langjaehrig/de-texte/k413_2022.pdf?ts=1769763403",
+  "source_sha256": "42a903fb388f02c6bec1fbfeab39fee9cd3016dcc63cbd16b0b48debf902c4d2",
+  "source_page": 25,
+  "source_table": 7,
+  "captured_at": "2026-09-05",
+  "provenance": "Coordinate facts transcribed from Berlin Umweltatlas, Station Berlin-Dahlem; table visually checked. Original geographic coordinates rounded to 0.1 arcsecond. No PDF content redistributed.",
+  "tolerance_m": 3.0,
+  "tolerance_basis": "Rounded DMS input (~1.6 m half-step latitude), 0.1 m projected reporting, plus 1 m selected datum-operation accuracy; this is not a survey precision test.",
+  "points": [
+    {"name": "FU Berlin climate station", "longitude_dms": [13, 18, 6.2], "latitude_dms": [52, 27, 13.3], "epsg25833": [384598.7, 5812859.2]},
+    {"name": "FU Berlin wind measurement", "longitude_dms": [13, 18, 38.3], "latitude_dms": [52, 27, 27.7], "epsg25833": [385216.1, 5813287.8]}
+  ]
+}

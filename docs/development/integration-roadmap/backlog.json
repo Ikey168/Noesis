@@ -44,9 +44,10 @@
     {
       "number": 1519,
       "title": "Evaluate pyproj for provenance-preserving coordinate transformations",
-      "status": "implementation_partial",
+      "status": "implemented_pending_review",
       "validation": [
-        "See README.md for tested scope and outstanding acceptance evidence."
+        "Published Berlin Umweltatlas page 25/table 7 coordinate pairs validate EPSG:4326/25833 at documented 3 m source/operation tolerance.",
+        "coordinate-benchmark.json records 30 repetitions per point, errors/latency, full receipts and adoption scope; 9 coordinate/geospatial tests passed."
       ]
     },
     {

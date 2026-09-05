@@ -26,7 +26,8 @@ provisioned model snapshots. Model revisions are in `src/integrations/model-pins
 | #1515 | `SDMXConnector` | Native series parsing and bounded transport; ECB live capture tested; Eurostat/Bundesbank and code-list mapping outstanding |
 | #1516 | Dataset store `validate_batch` | Explicit Pandera preflight, preserves declared schema; quarantine integration and comparative evaluation outstanding |
 | #1517 | Quantitative store `convert_physical` | Pint physical conversions plus isolated versioned Noesis unit definitions/aliases; formula evaluation and comparative cost evidence outstanding |
-| #1518–1519 | Geospatial `relation(backend="shapely")`, `import_projected_geometry` | Topology and offline pyproj transforms; wider geometry fixtures/evaluation outstanding |
+| #1518 | Geospatial `relation(backend="shapely")` | Topology; wider geometry fixtures/evaluation outstanding |
+| #1519 | Geospatial `import_projected_geometry` | Published Berlin coordinate references, offline transform receipts and import replay validated |
 | #1520 | Report updates `generate_proposal` with `OutlinesEditor` | Schema-constrained pending text proposals; real generation and semantic revision evaluation outstanding |
 | #1521 | Review inbox `export_label_studio` / `import_label_studio` | Pinned source/reviewer checks, exact Unicode spans, pending proposals; independent human annotation outstanding |
 | #1522 | Anomaly store `simulate_drift` | Ordered ADWIN replay with duplicate/late-event handling; watch-delivery integration and tuning outstanding |
@@ -214,3 +215,26 @@ solver adds latency. OR-Tools 9.15.6755 is pinned in the optional installation;
 limits are 1000 candidates/parts, one worker and a 0.01–30 second solve deadline
 (default two seconds). No paid acquisition was invoked or actual provider cost
 inferred. Definition/receipt provenance continues through the existing planner.
+
+## Published Berlin coordinate reference (#1519)
+
+`python -m scripts.benchmark_integration_coordinates --out coordinate-benchmark.json`
+compares two FU Berlin-Dahlem points published by Berlin Umweltatlas (page 25,
+table 7) in geographic WGS84 and ETRS89/UTM33 coordinates. The source PDF was
+retrieved and the table visually checked; its hash and factual coordinate
+transcription are in `tests/fixtures/integrations/berlin-coordinate-reference.json`.
+The 3 m tolerance accounts for 0.1 arcsecond rounding and the selected operation's
+1 m stated accuracy; it does not claim survey precision.
+
+Observed errors were 1.68 m and 0.98 m. Thirty repetitions per point measured
+median transforms of 4.95 ms and 4.35 ms. pyproj 3.7.2 / PROJ 9.5.1 / EPSG
+v11.022 receipts retain pipeline, area, accuracy, database date, grid list and
+original coordinates/CRS. This transformation uses no grids. Network-enabled
+operation is rejected; an unavailable best grid cannot silently choose a fallback.
+Nine coordinate/geospatial tests cover published pairs, axis order, round trips,
+invalid latitude, missing-grid failure and original-receipt import replay.
+
+Decision: adopt as an explicit offline regional import option at declared source
+precision. Other CRS pairs require their own reference validation. Existing
+geographic/planar metric restrictions are preserved. Source:
+https://www.berlin.de/umweltatlas/_assets/klima/klimaparameter/langjaehrig/de-texte/k413_2022.pdf?ts=1769763403

@@ -1,6 +1,8 @@
 import duckdb
 import pytest
 
+pytest.importorskip("pint")
+
 from src.kb.quantitative import CALCULATE_SCOPE, WRITE_SCOPE, QuantitativeStore
 
 

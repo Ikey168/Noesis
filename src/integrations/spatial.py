@@ -78,7 +78,19 @@ def transform_geometry(geometry, source_crs, target_crs="EPSG:4326"):
                     "invalid_geometry",
                     "Only bounded finite 2D coordinates are supported",
                 )
-            x, y = transformer.transform(*coords, errcheck=True)
+            if source.is_geographic and not (
+                -180 <= coords[0] <= 180 and -90 <= coords[1] <= 90
+            ):
+                raise IntegrationError(
+                    "invalid_geometry",
+                    "Geographic coordinates require longitude/latitude bounds",
+                )
+            try:
+                x, y = transformer.transform(*coords, errcheck=True)
+            except pyproj.exceptions.ProjError as exc:
+                raise IntegrationError(
+                    "transform_failed", "Coordinate transformation failed"
+                ) from exc
             if not math.isfinite(x) or not math.isfinite(y):
                 raise IntegrationError(
                     "transform_failed", "Nonfinite transformed coordinates"
@@ -108,6 +120,17 @@ def transform_geometry(geometry, source_crs, target_crs="EPSG:4326"):
         "area_of_use": str(transformer.area_of_use),
         "proj_version": pyproj.proj_version_str,
         "proj_database": pyproj.database.get_database_metadata("EPSG.VERSION"),
+        "proj_database_date": pyproj.database.get_database_metadata("EPSG.DATE"),
+        "network_enabled": False,
+        "grids": [
+            {
+                "short_name": grid.short_name,
+                "available": grid.available,
+                "url": grid.url,
+            }
+            for operation in transformer.operations
+            for grid in operation.grids
+        ],
     }
     return receipt(
         "pyproj",
