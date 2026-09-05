@@ -366,9 +366,10 @@
     {
       "number": 1473,
       "title": "Complete native DataCite DOI acquisition and related-resource mapping",
-      "status": "implementation_partial",
+      "status": "implemented_pending_review",
       "validation": [
-        "See README.md for tested scope and outstanding acceptance evidence."
+        "Native DataCite query/author/DOI/version/update-range translation; directed typed relationships in immutable document revisions.",
+        "47 integration/runtime tests passed, including multipage ingestion, committed replay, missing targets and historical version/part links."
       ]
     },
     {

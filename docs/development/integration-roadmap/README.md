@@ -145,3 +145,26 @@ not been tested. Ambiguous-name integration with the review inbox also remains
 outstanding for #1474. Tests use an explicitly synthetic German name/affiliation
 change in addition to the public example.
 Documentation: https://info.orcid.org/documentation/api-tutorials/api-tutorial-read-data-on-a-record/ .
+
+## DataCite runtime completion (#1473)
+
+Both declared DataCite sources use the native public REST API. Queries support
+DOI lookup, author names, versions and native affiliation/client/resource filters;
+bounded backfills query metadata `updated` timestamps in UTC (not publication
+dates inferred from publication years). Cursor origins and page sizes remain
+adapter controlled. No API key or new dependency is required.
+
+Provider `relatedIdentifiers` become directed bibliographic links with source and
+target identifier types, the exact predicate, provider record URL and native
+assertion. Links are persisted in immutable document metadata and available via
+`DocumentStore.related_resources(document_id, revision=...)`. Uncollected targets
+remain explicit identifiers; the API neither downloads them nor interprets links
+as factual support. Existing revision reads/export retain the same links.
+
+`python -m pytest -q tests/unit/integrations tests/unit/ingestion/test_source_pack_runtime.py`
+passed 47 tests. The added native-shaped test exercises two HTTP pages through
+actual runtime commits, unchanged replay, changed resource version and historical
+links. A separate check preserves HasPart/IsPartOf direction and URL identifiers.
+Native captured Berlin metadata is reused; controlled version changes are
+synthetic test transitions. Documentation: https://support.datacite.org/docs/queries
+and https://support.datacite.org/docs/connecting-to-works .

@@ -125,6 +125,28 @@ class DocumentStore:
             CREATE TABLE IF NOT EXISTS document_revision_content (
             revision_id TEXT PRIMARY KEY, blob_hash TEXT NOT NULL)""")
 
+    def related_resources(
+        self, document_id: str, *, revision: int | None = None
+    ) -> dict | None:
+        """Read directed bibliographic links from a committed immutable revision.
+
+        Targets need not have been collected. No target is silently fetched or
+        treated as support for a claim. Historical reads retain removed links.
+        """
+        selected = self.revisions.revision(
+            document_id, revision=revision, include_retracted=True
+        )
+        if selected is None:
+            return None
+        metadata = selected["payload"].get("metadata") or {}
+        return {
+            "contract": "noesis-related-resources-v1",
+            "document_id": document_id,
+            "revision_id": selected["revision_id"],
+            "revision": selected["revision"],
+            "links": json.loads(metadata.get("related_resources_json", "[]")),
+        }
+
     def upsert(
         self,
         documents: Iterable[Document | dict[str, Any]],

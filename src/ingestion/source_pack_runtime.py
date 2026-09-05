@@ -976,6 +976,8 @@ class SourcePackRuntime:
                     }
                 ),
                 "source_pack_native_json": _canonical(record),
+                **({"related_resources_json": _canonical(record["related_resources"])}
+                   if record.get("related_resources") is not None else {}),
                 **({"reporting_origin":record["reporting_origin"]} if record.get("reporting_origin") else {}),
                 "lifecycle": lifecycle,
                 "tombstone": lifecycle == "deleted",
