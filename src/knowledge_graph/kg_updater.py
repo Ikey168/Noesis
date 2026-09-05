@@ -57,7 +57,7 @@ def _shared_store() -> KnowledgeGraphStore:
             from pathlib import Path
             Path(path).parent.mkdir(parents=True, exist_ok=True)
             _store = DuckDBKnowledgeGraphStore(path)
-            _resolver = EntityResolver()
+            _resolver = EntityResolver(decision_sink=_resolution_history_sink(_store.connection))
             _resolver.seed(list(_store._nodes.values()))
     return _store
 
@@ -66,6 +66,30 @@ def _shared_resolver() -> EntityResolver:
     _shared_store()  # ensures both are initialised
     assert _resolver is not None
     return _resolver
+
+
+def _resolution_history_sink(connection):
+    """Retain machine proposals and source mentions in the reversible history ledger."""
+    import hashlib
+    import json
+    from src.kb.entity_history import EntityHistoryStore, WRITE_SCOPE, REVIEW_SCOPE
+
+    history = EntityHistoryStore(connection)
+    scopes = [WRITE_SCOPE, REVIEW_SCOPE]
+
+    def record(event):
+        subjects = sorted(set([event["entity_id"], *event["candidate_ids"]]))
+        for entity_id in subjects:
+            history.register_entity("graph", entity_id, principal_id="entity-resolver", scopes=scopes)
+        key = hashlib.sha256(json.dumps(event, sort_keys=True).encode()).hexdigest()
+        history.decide(
+            "graph", "review", subjects,
+            {**event, "producer": {"name": event["producer"]}},
+            reviewer_id="machine:entity-resolver", principal_id="entity-resolver",
+            scopes=scopes, event_key="resolution:" + key,
+        )
+
+    return record
 
 
 # ---------------------------------------------------------------------------
@@ -203,7 +227,7 @@ def update_from_document(doc: Dict[str, Any]) -> None:
     for name, etype in _extract_mentions(text):
         try:
             # EntityResolver handles deduplication; returns the canonical Node
-            canonical = resolver.resolve(etype, name)
+            canonical = resolver.resolve(etype, name, provenance={"source_doc": doc_id})
             # Add to store (add_node merges if it already exists)
             stored = store.add_node(canonical)
             entity_node_ids.append(stored.node_id)
@@ -224,7 +248,7 @@ def update_from_document(doc: Dict[str, Any]) -> None:
                          entity_id=excluded.entity_id,
                          confidence=excluded.confidence,
                          extracted_at=excluded.extracted_at""",
-                    [doc_id, doc.get("source_type") or "note", stored.name,
+                    [doc_id, doc.get("source_type") or "note", name,
                      stored.node_id, datetime.now(timezone.utc).isoformat()],
                 )
         except Exception as exc:

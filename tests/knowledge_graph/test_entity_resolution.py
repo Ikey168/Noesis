@@ -54,6 +54,66 @@ def test_same_surname_incompatible_given_names_not_merged():
     assert a.node_id != b.node_id
 
 
+@pytest.mark.parametrize("names", [("John Smith", "Jane Smith"), ("Jane Smith", "John Smith")])
+def test_ambiguous_surname_is_not_assigned_by_insertion_order(names):
+    resolver = EntityResolver()
+    people = [resolver.resolve(EntityType.PERSON, n) for n in names]
+    mention = resolver.resolve(EntityType.PERSON, "Smith")
+    assert mention.properties["resolution_status"] == "ambiguous"
+    assert mention.properties["candidate_ids"] == sorted(p.node_id for p in people)
+    assert mention.node_id not in {p.node_id for p in people}
+    assert resolver.resolve(EntityType.PERSON, "Smith").node_id == mention.node_id
+    assert resolver.canonical_count() == 3
+
+
+def test_short_alias_cannot_merge_incompatible_full_names_later():
+    resolver = EntityResolver()
+    john = resolver.resolve(EntityType.PERSON, "John Smith")
+    assert resolver.resolve(EntityType.PERSON, "Smith").node_id == john.node_id
+    jane = resolver.resolve(EntityType.PERSON, "Jane Smith")
+    assert john.node_id != jane.node_id
+    assert resolver.resolve(EntityType.PERSON, "Smith").properties["resolution_status"] == "ambiguous"
+
+
+def test_authoritative_identifiers_separate_homonyms_and_resolve_mentions():
+    resolver = EntityResolver()
+    john = resolver.resolve(EntityType.PERSON, "John Smith", properties={"orcid": "one"})
+    other = resolver.resolve(EntityType.PERSON, "John Smith", properties={"orcid": "two"})
+    assert john.node_id != other.node_id
+    assert resolver.resolve(EntityType.PERSON, "Smith", properties={"orcid": "two"}).node_id == other.node_id
+    assert resolver.resolve(EntityType.PERSON, "John Smith").properties["resolution_status"] == "ambiguous"
+
+
+def test_context_separates_homonyms_without_overwriting_existing_node():
+    resolver = EntityResolver()
+    first = resolver.resolve(EntityType.PERSON, "John Smith", properties={"affiliation": "A"})
+    second = resolver.resolve(EntityType.PERSON, "John Smith", properties={"affiliation": "B"})
+    assert first.node_id != second.node_id
+    assert resolver.resolve(EntityType.PERSON, "Smith", properties={"affiliation": "A"}).node_id == first.node_id
+
+
+def test_machine_resolution_preserves_mentions_in_durable_review_history(tmp_path):
+    import duckdb
+    import json
+    from src.knowledge_graph.kg_updater import _resolution_history_sink
+
+    path = str(tmp_path / "history.duckdb")
+    conn = duckdb.connect(path)
+    resolver = EntityResolver(decision_sink=_resolution_history_sink(conn))
+    resolver.resolve(EntityType.PERSON, "John Smith")
+    resolver.resolve(EntityType.PERSON, "Jane Smith")
+    resolver.resolve(EntityType.PERSON, "Smith", provenance={"source_doc": "doc-1"})
+    conn.close()
+    conn = duckdb.connect(path)
+    events = [json.loads(row[0])["payload"] for row in conn.execute("SELECT payload_json FROM entity_identity_decisions").fetchall()]
+    ambiguous = next(e for e in events if e["status"] == "ambiguous")
+    assert ambiguous["surface"] == "Smith"
+    assert ambiguous["provenance"] == {"source_doc": "doc-1"}
+    assert ambiguous["review_status"] == "proposed"
+    assert len(ambiguous["candidate_ids"]) == 2
+    conn.close()
+
+
 # --------------------------------------------------------------------------- #
 # Organizations / concepts (fuzzy + containment + suffix)
 # --------------------------------------------------------------------------- #
