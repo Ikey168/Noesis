@@ -7828,6 +7828,98 @@ def create_research_decision(namespace: str, request_key: str, content: dict[str
 
 
 @mcp.tool()
+def create_review_protocol(namespace: str, request_key: str, content: dict[str, Any]) -> dict:
+    """Register eligibility criteria, search plan, independent reviewers, and study fields."""
+    from src.kb.systematic_reviews import SystematicReviewStore, WRITE_SCOPE
+    return _safe(lambda c: SystematicReviewStore(c).create(namespace, request_key, content,
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope=WRITE_SCOPE)
+
+
+@mcp.tool()
+def inspect_review_protocol(namespace: str, protocol_id: str, revision: int | None = None) -> dict:
+    """Inspect current or historical protocol criteria under current access."""
+    from src.kb.systematic_reviews import SystematicReviewStore, READ_SCOPE
+    return _safe(lambda c: SystematicReviewStore(c, initialize=False).inspect(namespace, protocol_id, revision=revision,
+        principal_id=_context()[0], scopes=_context()[1]), required_scope=READ_SCOPE)
+
+
+@mcp.tool()
+def amend_review_protocol(namespace: str, protocol_id: str, expected_revision: int, content: dict[str, Any], rationale: str) -> dict:
+    """Append a visible protocol amendment without rewriting candidates' original criteria."""
+    from src.kb.systematic_reviews import SystematicReviewStore, WRITE_SCOPE
+    return _safe(lambda c: SystematicReviewStore(c).amend(namespace, protocol_id, expected_revision, content, rationale,
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope=WRITE_SCOPE)
+
+
+@mcp.tool()
+def add_review_candidate(namespace: str, protocol_id: str, protocol_revision: int, publication_id: str,
+                          source_revision: str, source_namespace: str, search_run_id: str, study_id: str,
+                          title: str, abstract: str, full_text_available: bool) -> dict:
+    """Trace a publication to its search run, protocol version, source revision, and study group."""
+    from src.kb.systematic_reviews import SystematicReviewStore, WRITE_SCOPE
+    return _safe(lambda c: SystematicReviewStore(c).add_candidate(namespace, protocol_id, protocol_revision,
+        publication_id=publication_id, source_revision=source_revision, source_namespace=source_namespace,
+        search_run_id=search_run_id, study_id=study_id, title=title, abstract=abstract, full_text_available=full_text_available,
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope=WRITE_SCOPE)
+
+
+@mcp.tool()
+def screen_review_candidate(namespace: str, candidate_id: str, stage: str, expected_revision: int, decision: str, reason: str) -> dict:
+    """Record the current reviewer's independent eligibility decision and reason."""
+    from src.kb.systematic_reviews import SystematicReviewStore, WRITE_SCOPE
+    return _safe(lambda c: SystematicReviewStore(c).screen(namespace, candidate_id, stage, expected_revision, decision, reason,
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope=WRITE_SCOPE)
+
+
+@mcp.tool()
+def list_review_candidates(namespace: str, protocol_id: str, limit: int = 50, offset: int = 0) -> dict:
+    """List authorized screening candidates while hiding other reviewers' decisions."""
+    from src.kb.systematic_reviews import SystematicReviewStore, READ_SCOPE
+    return _safe(lambda c: SystematicReviewStore(c, initialize=False).list_candidates(namespace, protocol_id,
+        limit=limit, offset=offset, principal_id=_context()[0], scopes=_context()[1]), required_scope=READ_SCOPE)
+
+
+@mcp.tool()
+def inspect_review_candidate(namespace: str, candidate_id: str) -> dict:
+    """Inspect a candidate with independent reviewers blinded to one another's decisions."""
+    from src.kb.systematic_reviews import SystematicReviewStore, READ_SCOPE
+    return _safe(lambda c: SystematicReviewStore(c, initialize=False).inspect_candidate(namespace, candidate_id,
+        principal_id=_context()[0], scopes=_context()[1]), required_scope=READ_SCOPE)
+
+
+@mcp.tool()
+def adjudicate_review_candidate(namespace: str, candidate_id: str, stage: str, screening_hash: str, decision: str, reason: str) -> dict:
+    """Resolve a screening disagreement against its exact reviewed decision set."""
+    from src.kb.systematic_reviews import SystematicReviewStore, WRITE_SCOPE
+    return _safe(lambda c: SystematicReviewStore(c).adjudicate(namespace, candidate_id, stage, screening_hash, decision, reason,
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope=WRITE_SCOPE)
+
+
+@mcp.tool()
+def extract_review_field(namespace: str, candidate_id: str, field_name: str, value: str, start: int, end: int) -> dict:
+    """Propose a protocol-defined study value anchored to an exact committed source span."""
+    from src.kb.systematic_reviews import SystematicReviewStore, WRITE_SCOPE
+    return _safe(lambda c: SystematicReviewStore(c).extract_field(namespace, candidate_id, field_name, value, start, end,
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope=WRITE_SCOPE)
+
+
+@mcp.tool()
+def review_study_field(namespace: str, field_id: str, expected_revision: int, decision: str, reason: str) -> dict:
+    """Record a second reviewer's evaluation of a proposed study-field value."""
+    from src.kb.systematic_reviews import SystematicReviewStore, WRITE_SCOPE
+    return _safe(lambda c: SystematicReviewStore(c).review_field(namespace, field_id, expected_revision, decision, reason,
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope=WRITE_SCOPE)
+
+
+@mcp.tool()
+def export_systematic_review(namespace: str, protocol_id: str, limit: int = 10000) -> dict:
+    """Export screening counts, study fields, unresolved cases, amendments, and ASReview input."""
+    from src.kb.systematic_reviews import SystematicReviewStore, READ_SCOPE
+    return _safe(lambda c: SystematicReviewStore(c, initialize=False).export(namespace, protocol_id, limit=limit,
+        principal_id=_context()[0], scopes=_context()[1]), required_scope=READ_SCOPE)
+
+
+@mcp.tool()
 def inspect_research_decision(namespace: str, decision_id: str, revision: int | None = None) -> dict:
     """Inspect current or historical decision context under current project access."""
     from src.kb.decisions import DecisionStore, READ_SCOPE

@@ -226,6 +226,8 @@ async def _inspect_server(
 
 
 def _mutability(name: str) -> str:
+    if name in {"amend_review_protocol", "screen_review_candidate", "adjudicate_review_candidate", "extract_review_field", "review_study_field"}:
+        return "write"
     if name in {"revise_research_decision", "calculate_decision_sensitivity"}:
         return "write"
     if name in {"revise_binary_forecast", "resolve_binary_forecast"}:
@@ -355,6 +357,10 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
             return ["knowledge:decisions:write", "knowledge:projects:read"]
         if tool_name == "inspect_research_decision":
             return ["knowledge:decisions:read", "knowledge:projects:read"]
+        if tool_name in {"create_review_protocol", "amend_review_protocol", "add_review_candidate", "screen_review_candidate", "adjudicate_review_candidate", "extract_review_field", "review_study_field"}:
+            return ["knowledge:reviews:write"]
+        if tool_name in {"inspect_review_protocol", "export_systematic_review", "list_review_candidates", "inspect_review_candidate"}:
+            return ["knowledge:reviews:read"]
         if tool_name == "set_research_package_trust_policy":
             return ["knowledge:packages:trust"]
         if tool_name in {"branch_research_project", "create_research_project", "revise_research_project", "archive_research_project", "record_research_project_expenditure"}:
