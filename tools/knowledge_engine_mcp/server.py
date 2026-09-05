@@ -8258,7 +8258,10 @@ def acquire_opencitations(
     """Capture an OpenCitations response or resume its bounded, persistent graph import."""
     import os
 
-    from src.ingestion.opencitations import CitationAcquisitionStore, OpenCitationsClient
+    from src.ingestion.opencitations import (
+        CitationAcquisitionStore,
+        OpenCitationsClient,
+    )
 
     return _safe(
         lambda c: CitationAcquisitionStore(c).acquire(
