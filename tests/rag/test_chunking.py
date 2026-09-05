@@ -214,9 +214,11 @@ class TestTextChunker:
         
         # Should still create chunks even with very long words
         assert len(chunks) >= 1
-        # The long word should appear in one of the chunks
-        found_long_word = any(long_word in chunk.text for chunk in chunks)
-        assert found_long_word
+        # Oversized words must respect the configured bound while retaining
+        # every source character through exact, reconstructable slices.
+        assert all(len(chunk.text) <= self.config.max_chars for chunk in chunks)
+        covered = {offset for chunk in chunks for offset in range(chunk.start_offset, chunk.end_offset)}
+        assert all(i in covered for i, char in enumerate(text) if not char.isspace())
     
     def test_edge_case_only_punctuation(self):
         """Test text with only punctuation."""
