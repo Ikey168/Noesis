@@ -7820,6 +7820,40 @@ def create_binary_forecast(namespace: str, request_key: str, question: str, outc
 
 
 @mcp.tool()
+def create_research_decision(namespace: str, request_key: str, content: dict[str, Any]) -> dict:
+    """Record options, preferences, evidence, action, and review conditions against a project revision."""
+    from src.kb.decisions import DecisionStore, WRITE_SCOPE
+    return _safe(lambda c: DecisionStore(c).create(namespace, request_key, content,
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope=WRITE_SCOPE)
+
+
+@mcp.tool()
+def inspect_research_decision(namespace: str, decision_id: str, revision: int | None = None) -> dict:
+    """Inspect current or historical decision context under current project access."""
+    from src.kb.decisions import DecisionStore, READ_SCOPE
+    return _safe(lambda c: DecisionStore(c, initialize=False).inspect(namespace, decision_id, revision=revision,
+        principal_id=_context()[0], scopes=_context()[1]), required_scope=READ_SCOPE)
+
+
+@mcp.tool()
+def revise_research_decision(namespace: str, decision_id: str, expected_revision: int, content: dict[str, Any]) -> dict:
+    """Append a new decision while preserving earlier choices and their project baselines."""
+    from src.kb.decisions import DecisionStore, WRITE_SCOPE
+    return _safe(lambda c: DecisionStore(c).revise(namespace, decision_id, expected_revision, content,
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope=WRITE_SCOPE)
+
+
+@mcp.tool()
+def calculate_decision_sensitivity(namespace: str, decision_id: str, revision: int, weights: dict[str, Any],
+                                    inputs: dict[str, Any], scenarios: list[dict[str, Any]], provenance: str) -> dict:
+    """Record bounded weighted-utility comparisons with ties, missing data, and formula provenance."""
+    from src.kb.decisions import DecisionStore, WRITE_SCOPE
+    return _safe(lambda c: DecisionStore(c).sensitivity(namespace, decision_id, revision, weights=weights,
+        inputs=inputs, scenarios=scenarios, provenance=provenance, principal_id=_context()[0], scopes=_context()[1]),
+        write=True, required_scope=WRITE_SCOPE)
+
+
+@mcp.tool()
 def inspect_binary_forecast(namespace: str, forecast_id: str, cutoff_ms: int | None = None,
                             outcome_cutoff_ms: int | None = None) -> dict:
     """Inspect a forecast and reviewed outcome as recorded by explicit historical cutoffs."""

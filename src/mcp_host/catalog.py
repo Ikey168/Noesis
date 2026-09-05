@@ -226,6 +226,8 @@ async def _inspect_server(
 
 
 def _mutability(name: str) -> str:
+    if name in {"revise_research_decision", "calculate_decision_sensitivity"}:
+        return "write"
     if name in {"revise_binary_forecast", "resolve_binary_forecast"}:
         return "write"
     if name in {"revise_authored_report", "reopen_authored_report"}:
@@ -349,6 +351,10 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
             return ["knowledge:forecasts:write"]
         if tool_name in {"inspect_binary_forecast", "propose_forecast_resolution", "score_binary_forecasts"}:
             return ["knowledge:forecasts:read"]
+        if tool_name in {"create_research_decision", "revise_research_decision", "calculate_decision_sensitivity"}:
+            return ["knowledge:decisions:write", "knowledge:projects:read"]
+        if tool_name == "inspect_research_decision":
+            return ["knowledge:decisions:read", "knowledge:projects:read"]
         if tool_name == "set_research_package_trust_policy":
             return ["knowledge:packages:trust"]
         if tool_name in {"branch_research_project", "create_research_project", "revise_research_project", "archive_research_project", "record_research_project_expenditure"}:
