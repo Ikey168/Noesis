@@ -329,9 +329,9 @@ def test_stale_capability_crash_recovery_cancellation_and_scope():
 
 
 def test_scholarly_objective_discovers_native_ids_and_replays():
-    from src.kb.source_planner import scholarly_decomposition
     from src.ingestion.source_pack_runtime import HTTPSPageAdapter
     from src.ingestion.source_packs import validate_source_pack
+    from src.kb.source_planner import scholarly_decomposition
 
     conn = duckdb.connect()
     store = SourcePlannerStore(conn, now=lambda: 100)
@@ -403,3 +403,34 @@ def test_scholarly_objective_discovers_native_ids_and_replays():
         assert "10.1234/discovered" in json.dumps(result)
     finally:
         conn.close()
+
+
+def test_cp_sat_preserves_execution_fallbacks_and_plan_replay():
+    pytest.importorskip("ortools")
+    conn = duckdb.connect()
+    store = SourcePlannerStore(conn, now=lambda: 100)
+    _capability(store, "berlin-primary", cost=1)
+    _capability(store, "berlin-alternative", cost=1)
+    objective = _objective(store, constraints={"budget": 2, "retries": 0})
+    plan = store.preview("research", objective["objective_id"], at_ms=30,
+                         scopes=WRITE, persist=True, principal_id="analyst", optimizer="cp-sat")
+    assert plan["constraints"]["optimization"]["status"] == "OPTIMAL"
+    assert len(plan["steps"]) == 1 and len(plan["fallback_steps"]) == 1
+    assert plan["budget"]["projected"] == 1
+    repeated = store.preview("research", objective["objective_id"], at_ms=30,
+                             scopes=READ, optimizer="cp-sat")
+    assert repeated["plan_hash"] == plan["plan_hash"]
+    primary = plan["steps"][0]["source_id"]
+    calls = []
+    def runner(capability, step, checkpoint):
+        calls.append(capability["source_id"])
+        if capability["source_id"] == primary:
+            return {"status": "failed", "error": {"code": "unavailable"}}
+        return {"status": "completed", "cost": 1, "counts": {"items": 1}}
+    receipt = store.execute("research", plan["plan_id"], "optimized-run", runner=runner,
+                            principal_id="operator", scopes=EXECUTE)
+    assert calls == [primary, plan["fallback_steps"][0]["source_id"]]
+    assert receipt["adaptive_replanned"]
+    assert receipt["budget"]["spent"] <= 2
+    _validate("noesis-source-acquisition-plan-v1.json", plan)
+    conn.close()

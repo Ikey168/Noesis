@@ -614,6 +614,7 @@ class SourcePlannerStore:
         candidates.sort(
             key=lambda item: (-item["score"], item["capability"]["source_id"])
         )
+        fallback_candidates = list(candidates)
         if optimizer not in {"greedy", "cp-sat"}:
             raise SourcePlannerError("invalid_optimizer", "unknown source optimizer")
         if optimizer == "cp-sat":
@@ -699,7 +700,7 @@ class SourcePlannerStore:
             groups.add(capability["dependency_group"])
         selected_ids = {item["source_id"] for item in selected}
         fallback_steps = []
-        for item in candidates:
+        for item in fallback_candidates:
             capability = item["capability"]
             if (
                 capability["source_id"] in selected_ids

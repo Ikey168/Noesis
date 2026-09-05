@@ -15501,6 +15501,10 @@
       "id": "noesis-knowledge-engine.calculate_spatial_relation",
       "input_schema": {
         "properties": {
+          "backend": {
+            "default": "stdlib",
+            "type": "string"
+          },
           "left_geometry_id": {
             "type": "string"
           },
@@ -17928,6 +17932,10 @@
           },
           "objective_id": {
             "type": "string"
+          },
+          "optimizer": {
+            "default": "greedy",
+            "type": "string"
           }
         },
         "required": [
@@ -20127,12 +20135,35 @@
     },
     {
       "cost_class": "low",
-      "description": "Export report JSON, Markdown, and bibliography without external publication.",
+      "description": "Export native JSON/Markdown or opt-in Pandoc DOCX/HTML with citations.",
       "id": "noesis-knowledge-engine.export_authored_report",
       "input_schema": {
         "properties": {
+          "locale": {
+            "default": "de-DE",
+            "type": "string"
+          },
           "namespace": {
             "type": "string"
+          },
+          "output_format": {
+            "default": "native",
+            "type": "string"
+          },
+          "references": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
           },
           "report_id": {
             "type": "string"
@@ -26147,6 +26178,10 @@
             "type": "string"
           },
           "objective_id": {
+            "type": "string"
+          },
+          "optimizer": {
+            "default": "greedy",
             "type": "string"
           }
         },

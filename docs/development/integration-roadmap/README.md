@@ -8,7 +8,8 @@ activate it. No benchmark issue is satisfied by a unit test or synthetic probe.
 
 ## Available entry points
 
-Install the pinned local backends with `pip install '.[workflow-integrations]'`.
+Use Python 3.12 or later for the pinned local backends (Lingua 2.2.0 does not
+provide Python 3.11 wheels). Install with `pip install '.[workflow-integrations]'`.
 Install `.[workflow-models]` for the pinned SaT/Outlines/Transformers runtime.
 Model and MCP adapters require their runtime dependencies and locally
 provisioned model snapshots. Model revisions are in `src/integrations/model-pins.json`.
@@ -110,3 +111,10 @@ but sentence-boundary quality still needs independent annotations.
 
 A public OpenReview API v2 notes request returned HTTP 403 in this environment;
 no OpenReview integration or successful live validation is claimed.
+
+CP-SAT correctness was additionally checked against exhaustive enumeration on
+60 generated six-source instances, including infeasible combinations. The planner
+integration test verifies stable plan hashes and execution fallback after a
+selected source fails. Eight focused planner tests pass. This is an independent
+algorithmic oracle; the cases are synthetic and do not measure real acquisition
+utility or actual provider spending. The original greedy mode remains explicit.

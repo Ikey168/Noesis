@@ -94,7 +94,7 @@
       "title": "Evaluate OR-Tools CP-SAT for constrained source selection",
       "status": "implementation_partial",
       "validation": [
-        "See README.md for tested scope and outstanding acceptance evidence."
+        "60 generated small instances match an independent exhaustive optimum/infeasibility oracle; planner execution retains fallback sources and stable plan hashes. Eight focused planner tests pass; comparative utility/latency evaluation remains outstanding."
       ]
     },
     {
