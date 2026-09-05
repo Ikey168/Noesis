@@ -438,7 +438,7 @@ class HTTPSPageAdapter:
                 content = response.read(max_bytes + 1)
                 if len(content)>max_bytes:
                     raise SourcePackError('response_too_large', 'source response exceeds its byte limit')
-                return {"status": response.status,"headers": dict(response.headers),"content": content}
+                return {"status": response.status,"headers": dict(response.headers),"content": content, "final_url": response.geturl()}
         except urllib.error.HTTPError as exc:
             # Preserve status/retry headers without copying an unbounded or
             # sensitive upstream error body into a durable failure receipt.
@@ -484,10 +484,17 @@ class HTTPSPageAdapter:
         if is_europepmc(self.source):
             from src.ingestion.europepmc_api import parameters as europepmc_parameters
             parameters = europepmc_parameters(parameters, cursor=cursor, limit=parameters['limit'])
+        from src.ingestion.guardian_api import is_guardian, parameters as guardian_parameters
+        guardian = is_guardian(self.source)
+        if guardian:
+            try:
+                parameters = guardian_parameters(parameters,cursor=cursor,limit=parameters['limit'],secret=self.secret,from_ms=request.get('from_ms'),to_ms=request.get('to_ms'))
+            except (ValueError, TypeError) as exc:
+                raise SourcePackError('parameter_forbidden','invalid Guardian parameters') from exc
         headers = {
             "Accept": "application/json, application/xml;q=0.8, text/plain;q=0.5"
         }
-        if self.secret and not native_provider:
+        if self.secret and not native_provider and not guardian:
             headers["Authorization"] = "Bearer " + self.secret
         response = self.transport(
             url=self.definition["endpoint"],
@@ -544,6 +551,12 @@ class HTTPSPageAdapter:
                 records, next_cursor = europepmc_records(payload, cursor=cursor, limit=int(parameters['pageSize']))
             except (ValueError, TypeError) as exc:
                 raise SourcePackError('schema_drift', str(exc)) from exc
+        elif guardian:
+            from src.ingestion.guardian_api import records as guardian_records
+            try:
+                records, next_cursor = guardian_records(payload,limit=parameters['page-size'])
+            except (ValueError,TypeError,AttributeError) as exc:
+                raise SourcePackError('schema_drift','invalid Guardian native response') from exc
         elif native_provider:
             from src.ingestion.scholarly_api import records as scholarly_records
             try:
@@ -961,6 +974,7 @@ class SourcePackRuntime:
                     }
                 ),
                 "source_pack_native_json": _canonical(record),
+                **({"reporting_origin":record["reporting_origin"]} if record.get("reporting_origin") else {}),
                 "lifecycle": lifecycle,
                 "tombstone": lifecycle == "deleted",
                 **(

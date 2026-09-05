@@ -275,11 +275,13 @@ class BlogConnector(Connector):
 
         # Full article body.
         content = summary
+        extraction_metadata = None
         if self._fetch_full_text and url:
             try:
                 full = self._full_text_getter(url)
                 if full and len(full) > len(summary):
-                    content = full
+                    content = str(full)
+                    extraction_metadata = getattr(full,'extraction_metadata',None)
             except Exception:
                 pass
 
@@ -305,5 +307,6 @@ class BlogConnector(Connector):
                 "feed_name": feed_name,
                 "tags": list(set(feed_tags + entry_tags)),
                 "has_full_text": content != summary and bool(content),
+                **({'extraction_provenance_json':__import__('json').dumps(extraction_metadata,sort_keys=True)} if extraction_metadata else {}),
             },
         )

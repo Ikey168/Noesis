@@ -326,3 +326,80 @@ def test_stale_capability_crash_recovery_cancellation_and_scope():
             "research", objective["objective_id"], at_ms=50, scopes={"knowledge:read"}
         )
     conn.close()
+
+
+def test_scholarly_objective_discovers_native_ids_and_replays():
+    from src.kb.source_planner import scholarly_decomposition
+    from src.ingestion.source_pack_runtime import HTTPSPageAdapter
+    from src.ingestion.source_packs import validate_source_pack
+
+    conn = duckdb.connect()
+    store = SourcePlannerStore(conn, now=lambda: 100)
+    try:
+        _capability(store, "crossref-works")
+        parts = scholarly_decomposition(
+            "climate evidence", author="Jane Doe", from_date="2024-01-01"
+        )
+        objective = _objective(store, parts=parts, constraints={"budget": 2})
+        plan = store.preview(
+            "research",
+            objective["objective_id"],
+            at_ms=30,
+            scopes=WRITE,
+            persist=True,
+            principal_id="analyst",
+        )
+        source = validate_source_pack(
+            json.loads(Path("config/source_packs/research.json").read_text())
+        )["sources"][0]
+        calls = []
+
+        def transport(**kw):
+            calls.append(kw["params"])
+            return {
+                "content": json.dumps(
+                    {
+                        "message": {
+                            "items": [
+                                {"DOI": "10.1234/discovered", "title": ["Evidence"]}
+                            ]
+                        }
+                    }
+                )
+            }
+
+        def runner(capability, step, checkpoint):
+            page = HTTPSPageAdapter(source, transport=transport).fetch_page(
+                {"operation": "search", "parameters": step["queries"][0]["parameters"], "limit": 10},
+                cursor=None,
+            )
+            return {
+                "status": "completed",
+                "counts": {"items": len(page.records)},
+                "cost": 1,
+                "cursor": {"work_ids": [record["id"] for record in page.records]},
+            }
+
+        result = store.execute(
+            "research",
+            plan["plan_id"],
+            "native",
+            runner=runner,
+            principal_id="operator",
+            scopes=EXECUTE,
+        )
+        assert calls[0]["query.author"] == "Jane Doe"
+        assert "from-pub-date:2024-01-01" in calls[0]["filter"]
+        assert store.execute(
+            "research",
+            plan["plan_id"],
+            "native",
+            runner=runner,
+            principal_id="operator",
+            scopes=EXECUTE,
+        )["idempotent"]
+        assert len(calls) == 1
+        assert store.replay("research", result["run_id"], scopes=READ)["deterministic"]
+        assert "10.1234/discovered" in json.dumps(result)
+    finally:
+        conn.close()

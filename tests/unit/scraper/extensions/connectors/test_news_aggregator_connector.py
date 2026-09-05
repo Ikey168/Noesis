@@ -140,7 +140,7 @@ class TestNewsAggregatorConnector:
         auth_config = {"api_key": "test_key"}
         connector = NewsAggregatorConnector(config, auth_config)
         connector._connected = True
-        connector._session = AsyncMock()
+        connector._session = _real_http_session()
         
         newsapi_response = {
             "articles": [
@@ -158,7 +158,7 @@ class TestNewsAggregatorConnector:
         }
         
         with aioresponses() as m:
-            m.get("https://newsapi.org/v2/top-headlines",
+            _mock_get(m, _match_url("https://newsapi.org/v2/top-headlines"),
                   status=200, payload=newsapi_response)
             
             data = await connector.fetch_data()
@@ -174,7 +174,7 @@ class TestNewsAggregatorConnector:
         auth_config = {"api_key": "test_key"}
         connector = NewsAggregatorConnector(config, auth_config)
         connector._connected = True
-        connector._session = AsyncMock()
+        connector._session = _real_http_session()
         
         newsapi_response = {
             "articles": [
@@ -189,7 +189,7 @@ class TestNewsAggregatorConnector:
         }
         
         with aioresponses() as m:
-            m.get("https://newsapi.org/v2/everything",
+            _mock_get(m, _match_url("https://newsapi.org/v2/everything"),
                   status=200, payload=newsapi_response)
             
             data = await connector.fetch_data(query="test search")
@@ -204,7 +204,7 @@ class TestNewsAggregatorConnector:
         auth_config = {"api_key": "test_key"}
         connector = NewsAggregatorConnector(config, auth_config)
         connector._connected = True
-        connector._session = AsyncMock()
+        connector._session = _real_http_session()
         
         guardian_response = {
             "response": {
@@ -212,6 +212,7 @@ class TestNewsAggregatorConnector:
                     {
                         "webTitle": "Guardian Article",
                         "webUrl": "https://theguardian.com/article",
+                        "id": "world/2026/sep/01/article",
                         "webPublicationDate": "2024-01-01T00:00:00Z",
                         "sectionName": "World",
                         "fields": {
@@ -230,7 +231,7 @@ class TestNewsAggregatorConnector:
         }
         
         with aioresponses() as m:
-            m.get("https://content.guardianapis.com/search",
+            _mock_get(m, _match_url("https://content.guardianapis.com/search"),
                   status=200, payload=guardian_response)
             
             data = await connector.fetch_data()
@@ -246,7 +247,7 @@ class TestNewsAggregatorConnector:
         config = {"service": "reuters"}
         connector = NewsAggregatorConnector(config)
         connector._connected = True
-        connector._session = AsyncMock()
+        connector._session = _real_http_session()
         
         rss_content = """<?xml version="1.0"?>
         <rss version="2.0">
@@ -263,7 +264,7 @@ class TestNewsAggregatorConnector:
         </rss>"""
         
         with aioresponses() as m:
-            m.get("https://feeds.reuters.com/reuters/worldNews",
+            _mock_get(m, _match_url("https://feeds.reuters.com/reuters/worldNews"),
                   status=200, body=rss_content)
             
             data = await connector.fetch_data()
@@ -278,7 +279,7 @@ class TestNewsAggregatorConnector:
         config = {"service": "google_news"}
         connector = NewsAggregatorConnector(config)
         connector._connected = True
-        connector._session = AsyncMock()
+        connector._session = _real_http_session()
         
         google_rss_content = """<?xml version="1.0"?>
         <rss version="2.0">
@@ -295,7 +296,7 @@ class TestNewsAggregatorConnector:
         </rss>"""
         
         with aioresponses() as m:
-            m.get("https://news.google.com/rss?hl=en&gl=us&ceid=us:en",
+            _mock_get(m, _match_url("https://news.google.com/rss?hl=en&gl=us&ceid=us:en"),
                   status=200, body=google_rss_content)
             
             data = await connector.fetch_data()
@@ -320,10 +321,10 @@ class TestNewsAggregatorConnector:
         auth_config = {"api_key": "invalid_key"}
         connector = NewsAggregatorConnector(config, auth_config)
         connector._connected = True
-        connector._session = AsyncMock()
+        connector._session = _real_http_session()
         
         with aioresponses() as m:
-            m.get("https://newsapi.org/v2/top-headlines", status=401)
+            _mock_get(m, _match_url("https://newsapi.org/v2/top-headlines"), status=401)
             
             with pytest.raises(AuthenticationError, match="NewsAPI authentication failed"):
                 await connector.fetch_data()
@@ -335,10 +336,10 @@ class TestNewsAggregatorConnector:
         auth_config = {"api_key": "test_key"}
         connector = NewsAggregatorConnector(config, auth_config)
         connector._connected = True
-        connector._session = AsyncMock()
+        connector._session = _real_http_session()
         
         with aioresponses() as m:
-            m.get("https://newsapi.org/v2/top-headlines", status=429)
+            _mock_get(m, _match_url("https://newsapi.org/v2/top-headlines"), status=429)
             
             with pytest.raises(ConnectionError, match="NewsAPI rate limit exceeded"):
                 await connector.fetch_data()
@@ -473,12 +474,12 @@ class TestNewsAggregatorConnector:
         auth_config = {"api_key": "test_key"}
         connector = NewsAggregatorConnector(config, auth_config)
         connector._connected = True
-        connector._session = AsyncMock()
+        connector._session = _real_http_session()
         
         newsapi_response = {"articles": []}
         
         with aioresponses() as m:
-            m.get("https://newsapi.org/v2/everything",
+            _mock_get(m, _match_url("https://newsapi.org/v2/everything"),
                   status=200, payload=newsapi_response)
             
             data = await connector.fetch_data(
@@ -495,7 +496,7 @@ class TestNewsAggregatorConnector:
         config = {"service": "reuters"}
         connector = NewsAggregatorConnector(config)
         connector._connected = True
-        connector._session = AsyncMock()
+        connector._session = _real_http_session()
         
         rss_content = """<?xml version="1.0"?>
         <rss version="2.0">
@@ -510,10 +511,46 @@ class TestNewsAggregatorConnector:
         </rss>"""
         
         with aioresponses() as m:
-            m.get("https://feeds.reuters.com/reuters/businessNews",
+            _mock_get(m, _match_url("https://feeds.reuters.com/reuters/businessNews"),
                   status=200, body=rss_content)
             
             data = await connector.fetch_data(category="business")
             
             assert len(data) == 1
             assert data[0]["title"] == "Business Article"
+
+
+# Real aiohttp sessions are required for aioresponses to intercept requests.
+import aiohttp
+import re
+import pytest_asyncio
+_HTTP_SESSIONS = []
+
+def _real_http_session():
+    session = aiohttp.ClientSession()
+    _HTTP_SESSIONS.append(session)
+    return session
+
+def _match_url(url):
+    if '?' in url:
+        from aioresponses.core import normalize_url
+        return normalize_url(url)
+    return re.compile('^' + re.escape(url) + r'(?:\?.*)?$')
+
+@pytest_asyncio.fixture(autouse=True)
+async def _close_http_sessions():
+    yield
+    while _HTTP_SESSIONS:
+        await _HTTP_SESSIONS.pop().close()
+
+
+class _MockClientResponse(aiohttp.ClientResponse):
+    def __init__(self, *args, **kwargs):
+        import inspect
+        if 'stream_writer' in inspect.signature(aiohttp.ClientResponse).parameters:
+            from types import SimpleNamespace
+            kwargs.setdefault('stream_writer', SimpleNamespace(output_size=0))
+        super().__init__(*args, **kwargs)
+
+def _mock_get(mock, *args, **kwargs):
+    return mock.get(*args, response_class=_MockClientResponse, **kwargs)

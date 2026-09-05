@@ -1,0 +1,9 @@
+{
+  "status": "passed",
+  "included_pages_closed": 8,
+  "failed_requests": 6,
+  "successful_requests": 2,
+  "contexts_limit": 2,
+  "pages_per_context_limit": 1,
+  "browser_disconnected_after_handler_shutdown": true
+}

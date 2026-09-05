@@ -124,3 +124,11 @@ SCRAPING_INTERVAL = config["scraping"]["interval_minutes"]
 PLAYWRIGHT_MAX_CONTEXTS = max(1, min(8, int(os.environ.get("NOESIS_BROWSER_CONTEXTS", "2"))))
 PLAYWRIGHT_MAX_PAGES_PER_CONTEXT = max(1, min(16, int(os.environ.get("NOESIS_BROWSER_PAGES", "4"))))
 PLAYWRIGHT_CONTENT_TIMEOUT = 10000
+
+NOESIS_OFFLINE_REPLAY = os.environ.get('NOESIS_OFFLINE_REPLAY', '0') == '1'
+if NOESIS_OFFLINE_REPLAY:
+    HTTPCACHE_EXPIRATION_SECS = 0
+DOWNLOADER_MIDDLEWARES = {
+    'scrapy.downloadermiddlewares.httpcache.HttpCacheMiddleware': None,
+    'src.scraper.cache_provenance.ProvenanceCacheMiddleware': 900,
+}

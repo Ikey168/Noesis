@@ -94,10 +94,12 @@ class HarvestSummary:
             "discovered": 0, "skipped": 0, "fetched": 0, "fetch_errors": 0,
             "parsed": 0, "parse_errors": 0, "documents": 0,
             "inserted": 0, "duplicate": 0, "invalid": 0,
+            "unchanged": 0,
         })
 
     def as_dict(self) -> Dict[str, Any]:
         return {
+            "unchanged": self.unchanged,
             "discovered": self.discovered, "skipped": self.skipped,
             "fetched": self.fetched, "fetch_errors": self.fetch_errors,
             "parsed": self.parsed, "parse_errors": self.parse_errors,

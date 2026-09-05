@@ -3,6 +3,7 @@ The Guardian news spider for NeuroNews.
 """
 
 from datetime import datetime, timezone
+import json
 import re
 from urllib.parse import urlsplit
 from ..article_links import scoped_url
@@ -67,6 +68,7 @@ class GuardianSpider(scrapy.Spider):
             item["published_date"] = None
 
         item["scraped_date"] = datetime.now(timezone.utc).isoformat()
+        item["acquisition_provenance_json"] = json.dumps(getattr(response,"meta",{}).get("acquisition_provenance", {}), sort_keys=True)
 
         # Extract author
         author = (

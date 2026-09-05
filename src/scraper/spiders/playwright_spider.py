@@ -3,6 +3,7 @@ Playwright-based spider for JavaScript-heavy news sites.
 """
 
 from datetime import datetime, timezone
+import json
 import asyncio
 from ..article_links import scoped_url
 
@@ -228,6 +229,7 @@ class PlaywrightNewsSpider(scrapy.Spider):
             if "published_date" not in item:
                 item["published_date"] = None
             item["scraped_date"] = datetime.now(timezone.utc).isoformat()
+            item["acquisition_provenance_json"] = json.dumps(response.meta.get("acquisition_provenance", {}), sort_keys=True)
 
             # Extract source (domain name)
             item["source"] = response.url.split("/")[2]

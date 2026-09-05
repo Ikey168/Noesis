@@ -18,6 +18,7 @@ class NewsItem(scrapy.Item):
 
     # Additional metadata fields
     scraped_date = scrapy.Field()
+    acquisition_provenance_json = scrapy.Field()
     content_length = scrapy.Field()
     language = scrapy.Field()
     tags = scrapy.Field()

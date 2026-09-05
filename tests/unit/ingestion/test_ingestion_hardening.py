@@ -39,8 +39,8 @@ class _Resp:
     def __exit__(self, *a):
         return False
 
-    def read(self):
-        return self._body
+    def read(self, size=-1):
+        return self._body if size<0 else self._body[:size]
 
 
 # --------------------------------------------------------------------------- #

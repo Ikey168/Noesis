@@ -106,6 +106,16 @@ def diagnose(config_path: Path | None = None) -> dict[str, Any]:
                 )
             )
 
+    if _available('playwright'):
+        import subprocess
+        import sys
+        try:
+            probe = subprocess.run([sys.executable, '-c', 'from playwright.sync_api import sync_playwright; from pathlib import Path; p=sync_playwright().start(); exists=Path(p.chromium.executable_path).is_file(); p.stop(); raise SystemExit(0 if exists else 1)'], capture_output=True, timeout=10)
+            installed = probe.returncode == 0
+        except (OSError, subprocess.TimeoutExpired):
+            installed = False
+        checks.append(_check('browser.chromium', 'pass' if installed else 'warn', 'executable installed' if installed else 'Chromium executable unavailable', required=False, repair=None if installed else 'python -m playwright install chromium'))
+
     config: RuntimeConfig | None = None
     try:
         config = load_config(config_path)

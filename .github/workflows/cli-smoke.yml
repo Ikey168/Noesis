@@ -53,7 +53,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        extra: [minimal, server, models, vector, media, orchestration, cloud, full]
+        extra: [minimal, ingestion, browser, server, models, vector, media, orchestration, cloud, full]
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v6
@@ -61,3 +61,35 @@ jobs:
           python-version: "3.11"
       - run: python -m pip install --upgrade pip
       - run: python -m pip install --dry-run ".[${{ matrix.extra }}]"
+
+  ingestion-browser-wheel:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - run: python -m pip wheel --no-deps . -w dist
+      - run: python -m pip install "$(find dist -name '*.whl' -print -quit)[ingestion,browser]"
+      - run: python -m playwright install --with-deps chromium
+      - name: Parse a feed, extract HTML and close Chromium outside checkout
+        run: |
+          cd "$(mktemp -d)"
+          python - <<'PY'
+          import asyncio
+          import feedparser
+          from src.ingestion.extract import extract_article
+          from playwright.async_api import async_playwright
+          assert feedparser.parse('<rss><channel><item><title>Example</title></item></channel></rss>').entries
+          result = extract_article('<article><h1>Example</h1><p>' + 'A sentence of evidence. ' * 40 + '</p></article>')
+          assert result and result.metadata['snapshot_sha256']
+          async def check():
+              async with async_playwright() as p:
+                  browser = await p.chromium.launch()
+                  page = await browser.new_page()
+                  await page.set_content('<article>Ready</article>')
+                  await page.wait_for_selector('article')
+                  await page.close()
+                  await browser.close()
+          asyncio.run(check())
+          PY

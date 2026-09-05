@@ -173,6 +173,10 @@ class DocumentStore:
                 logger.warning("document-store: dead-letter %s (%s)", doc_id, exc)
                 continue
 
+            from src.ingestion.guardian_api import article_identity
+            origin = article_identity(doc.url or '')
+            if origin:
+                doc.metadata = {**doc.metadata, 'reporting_origin':origin, 'acquisition_identity':doc.document_id}
             chash = content_hash(doc.content or "")
             current = self.get(doc.document_id)
             payload = doc.to_dict()

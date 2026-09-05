@@ -103,6 +103,15 @@ def _stable_payload(payload: Mapping[str, Any]) -> dict[str, Any]:
     # Observation/run identity is lineage, not document metadata.  Excluding it
     # prevents an unchanged source poll from manufacturing a revision.
     metadata.pop("source_pack_run_id", None)
+    metadata.pop("acquisition_provenance_json", None)
+    if isinstance(metadata.get('full_text_provenance_json'),str):
+        try:
+            provenance=json.loads(metadata['full_text_provenance_json'])
+            if isinstance(provenance.get('snapshot'),dict):
+                provenance['snapshot'].pop('fetched_at',None)
+                metadata['full_text_provenance_json']=json.dumps(provenance,sort_keys=True,separators=(',',':'))
+        except (ValueError,TypeError,AttributeError):
+            pass
     value["metadata"] = metadata
     return value
 

@@ -221,3 +221,11 @@ class TestGuardianSpider:
         """
         empty = _response("https://www.theguardian.com/", "<html><body></body></html>")
         assert spider._extract_category("https://www.theguardian.com", empty) == "News"
+
+
+@pytest.mark.parametrize('year', [1999, 2026, 2035])
+def test_guardian_article_paths_have_no_fixed_year_window(year):
+    spider = GuardianSpider()
+    path = f'/world/{year}/sep/05/evidence'
+    requests = list(spider.parse(_response('https://www.theguardian.com/', f'<html><a href="{path}">Article</a></html>')))
+    assert [request.url for request in requests] == ['https://www.theguardian.com' + path]

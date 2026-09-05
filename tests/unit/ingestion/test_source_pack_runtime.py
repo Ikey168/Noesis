@@ -591,7 +591,7 @@ def test_schedules_reject_overlap_and_report_runtime_coverage(setup):
     )
     coverage = runtime.runtime_coverage()
     assert coverage["domains"]["research"] == {
-        "configured": 2,
+        "configured": 3,
         "ready": 1,
         "attempted": 1,
         "completed": 1,
@@ -629,6 +629,7 @@ def test_six_domain_offline_execution(setup):
                     selected, [fixture["normalized"]]
                 )
             },
+            secret_resolver=lambda _: "fixture-credential",
             dns_resolver=lambda _: ["8.8.8.8"],
         )
         assert result["watermark"] == 1
