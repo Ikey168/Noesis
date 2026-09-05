@@ -14,6 +14,23 @@ Airflow 3 removed task SLAs. The old clean-task SLA callback is replaced by a **
 
 Follow [Apache's upgrade guide](https://airflow.apache.org/docs/apache-airflow/3.3.1/installation/upgrading_to_airflow3.html). Stop the existing Airflow processes and back up the metadata database and configuration before migration. Keep the existing Fernet key so stored connections remain decryptable. A rollback requires restoring the pre-migration database backup alongside the old image; do not run Airflow 2 against the migrated schema.
 
+For an existing **SQLite** metadata database, export connections before the upgrade and re-import them afterwards. Our encrypted-credential test reproduced lost connection fields in the upstream 2.9.2 SQLite migration, which copies table columns by position. Export/import preserved both connection credentials and variables in the tested 2.8.1 → 3.3.1 upgrade. This is separate from the PostgreSQL backend used by Compose. The implicated code is in [Apache's migration](https://github.com/apache/airflow/blob/3.3.1/airflow-core/src/airflow/migrations/versions/0017_2_9_2_fix_inconsistency_between_ORM_and_migration_files.py).
+
+Run the export using Airflow 2, before changing environments:
+
+```sh
+umask 077
+airflow connections export /private/backup/airflow-connections.json
+```
+
+After the backed-up database has been migrated with Airflow 3:
+
+```sh
+airflow connections import --overwrite /private/backup/airflow-connections.json
+```
+
+The export contains plaintext secrets. Keep it outside the repository with restricted access and remove it after verifying the migration. Retain the encrypted database backup according to your backup policy. A successful `db migrate` alone is insufficient to verify SQLite connection preservation.
+
 Both Compose entry points now build from the repository root and run an API server, scheduler, DAG processor and triggerer with LocalExecutor. The UI/API service is renamed from `airflow-webserver` to `airflow-apiserver`. Its health endpoint is `/api/v2/monitor/health`. Initialization uses `airflow db migrate` through `_AIRFLOW_DB_MIGRATE` and retains FAB user management.
 
 Set these in a private Compose `.env` file before starting:
@@ -51,4 +68,4 @@ airflow db migrate
 python -m pytest tests/dags -q
 ```
 
-Verified for this change: constrained installation plus `pip check`; fresh metadata migration; ten DAG tests with no skips, including serialization and task-API execution; both Compose configurations; a custom-image build and isolated example-DAG execution; and the repository Trivy high/critical gate with the Airflow exceptions removed.
+Verified for this change: constrained installation plus `pip check`; fresh metadata migration; ten DAG tests with no skips, including serialization and task-API execution; both Compose configurations; a custom-image build and isolated example-DAG execution; and the repository Trivy high/critical gate with the Airflow exceptions removed. A direct PostgreSQL 2.8.1 → 3.3.1 upgrade and a SQLite upgrade with connection export/import both preserved encrypted connections and variables.
