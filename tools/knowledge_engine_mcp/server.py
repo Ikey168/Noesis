@@ -7836,6 +7836,59 @@ def create_review_protocol(namespace: str, request_key: str, content: dict[str, 
 
 
 @mcp.tool()
+def sync_zotero_library(namespace: str, library_id: str, library_type: str, mode: str = "web",
+                        credential_env: str | None = None, max_items: int = 10000, timeout_seconds: int = 60) -> dict:
+    """Read Zotero v3 into owner-scoped history with an atomic incremental checkpoint; no write-back."""
+    from src.ingestion.zotero_sync import ZoteroSyncStore, ZoteroReadClient, ZoteroSyncError, WRITE_SCOPE, _authorize
+    def sync(conn):
+        import os
+        import re
+        principal, scopes = _context()
+        _authorize(namespace, principal, scopes, write=True)
+        key = None
+        if credential_env:
+            if mode != "web" or not re.fullmatch(r"NOESIS_ZOTERO_[A-Z0-9_]+", credential_env):
+                raise ZoteroSyncError("invalid_credentials", "Web credentials require a configured NOESIS_ZOTERO_ environment reference")
+            if "operator" not in scopes and f"credential:{credential_env}:use" not in scopes:
+                raise ZoteroSyncError("unauthorized", "current permission to use this credential is required")
+            key = os.getenv(credential_env)
+            if not key:
+                raise ZoteroSyncError("credentials_unavailable", "configured Zotero credential is unavailable")
+        client = ZoteroReadClient(library_id, library_type, mode=mode, api_key=key, timeout_seconds=timeout_seconds)
+        try:
+            return ZoteroSyncStore(conn).sync(namespace, client, principal_id=principal, scopes=scopes, max_items=max_items)
+        finally:
+            client.close()
+    return _safe(sync, write=True, required_scope=WRITE_SCOPE)
+
+
+@mcp.tool()
+def list_zotero_items(namespace: str, library: str, include_deleted: bool = False, limit: int = 100, offset: int = 0) -> dict:
+    """List the current owner's imported items, including explicit attachment and deletion states."""
+    from src.ingestion.zotero_sync import ZoteroSyncStore, READ_SCOPE
+    return _safe(lambda c: ZoteroSyncStore(c, initialize=False).items(namespace, library, include_deleted=include_deleted,
+        limit=limit, offset=offset, principal_id=_context()[0], scopes=_context()[1]), required_scope=READ_SCOPE)
+
+
+@mcp.tool()
+def inspect_zotero_item(namespace: str, library: str, key: str, version: int | None = None) -> dict:
+    """Reopen an imported item revision while separately reporting its current external lifecycle."""
+    from src.ingestion.zotero_sync import ZoteroSyncStore, READ_SCOPE
+    return _safe(lambda c: ZoteroSyncStore(c, initialize=False).inspect_item(namespace, library, key, version=version,
+        principal_id=_context()[0], scopes=_context()[1]), required_scope=READ_SCOPE)
+
+
+@mcp.tool()
+def export_zotero_bibliography(namespace: str, library: str, item_keys: list[str], item_versions: dict[str, int] | None = None,
+                                report_id: str | None = None, report_namespace: str | None = None) -> dict:
+    """Export stable-key CSL JSON/BibTeX with pinned item versions and optional report citation closure."""
+    from src.ingestion.zotero_sync import ZoteroSyncStore, READ_SCOPE
+    return _safe(lambda c: ZoteroSyncStore(c, initialize=False).export_bibliography(namespace, library, item_keys,
+        item_versions=item_versions, report_id=report_id, report_namespace=report_namespace,
+        principal_id=_context()[0], scopes=_context()[1]), required_scope=READ_SCOPE)
+
+
+@mcp.tool()
 def inspect_review_protocol(namespace: str, protocol_id: str, revision: int | None = None) -> dict:
     """Inspect current or historical protocol criteria under current access."""
     from src.kb.systematic_reviews import SystematicReviewStore, READ_SCOPE

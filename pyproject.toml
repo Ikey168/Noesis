@@ -25,6 +25,10 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+bibliography = [
+  "pyzotero>=1.15.1,<1.16",
+  "bibtexparser>=1.4.4,<2.0",
+]
 minimal = []
 server = [
   "fastapi>=0.109.1,<1.0",

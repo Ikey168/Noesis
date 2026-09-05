@@ -812,7 +812,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 374,
+      "tool_count": 378,
       "tools": [
         "noesis-knowledge-engine.accept_citation_repair",
         "noesis-knowledge-engine.accept_dataset_join",
@@ -926,6 +926,7 @@
         "noesis-knowledge-engine.export_preserved_citations",
         "noesis-knowledge-engine.export_research_recipe_run",
         "noesis-knowledge-engine.export_systematic_review",
+        "noesis-knowledge-engine.export_zotero_bibliography",
         "noesis-knowledge-engine.extract_methodology_statements",
         "noesis-knowledge-engine.extract_multimodal_observations",
         "noesis-knowledge-engine.extract_review_field",
@@ -988,6 +989,7 @@
         "noesis-knowledge-engine.inspect_review_protocol",
         "noesis-knowledge-engine.inspect_source_acquisition_run",
         "noesis-knowledge-engine.inspect_source_pack_run",
+        "noesis-knowledge-engine.inspect_zotero_item",
         "noesis-knowledge-engine.install_source_pack",
         "noesis-knowledge-engine.knowledge_engine_capabilities",
         "noesis-knowledge-engine.link_claim_evolution",
@@ -1011,6 +1013,7 @@
         "noesis-knowledge-engine.list_source_pack_quarantine",
         "noesis-knowledge-engine.list_source_pack_schedules",
         "noesis-knowledge-engine.list_source_packs",
+        "noesis-knowledge-engine.list_zotero_items",
         "noesis-knowledge-engine.lookup_source_identity",
         "noesis-knowledge-engine.maintenance_generation_lineage",
         "noesis-knowledge-engine.maintenance_health",
@@ -1175,6 +1178,7 @@
         "noesis-knowledge-engine.split_source_alias",
         "noesis-knowledge-engine.store_geospatial_geometry",
         "noesis-knowledge-engine.suggest_dataset_joins",
+        "noesis-knowledge-engine.sync_zotero_library",
         "noesis-knowledge-engine.transform_quantitative_frequency",
         "noesis-knowledge-engine.transition_anomaly_alert",
         "noesis-knowledge-engine.undo_entity_identity_change",
@@ -1194,7 +1198,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 374
+      "visible_tool_count": 378
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -1208,9 +1212,9 @@
       "available": 81,
       "degraded": 155,
       "disabled": 3,
-      "unauthorized": 379
+      "unauthorized": 383
     },
-    "tools": 618
+    "tools": 622
   },
   "tools": [
     {
@@ -19707,6 +19711,86 @@
     },
     {
       "cost_class": "medium",
+      "description": "Export stable-key CSL JSON/BibTeX with pinned item versions and optional report citation closure.",
+      "id": "noesis-knowledge-engine.export_zotero_bibliography",
+      "input_schema": {
+        "properties": {
+          "item_keys": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "item_versions": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "integer"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "library": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "report_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "report_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "library",
+          "item_keys"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "export_zotero_bibliography",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:zotero:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Persist bounded method statements with page, section, table, or passage locators.",
       "id": "noesis-knowledge-engine.extract_methodology_statements",
       "input_schema": {
@@ -22470,6 +22554,58 @@
       "version": "1"
     },
     {
+      "cost_class": "low",
+      "description": "Reopen an imported item revision while separately reporting its current external lifecycle.",
+      "id": "noesis-knowledge-engine.inspect_zotero_item",
+      "input_schema": {
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "library": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "version": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "library",
+          "key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "inspect_zotero_item",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:zotero:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "medium",
       "description": "Install or upgrade an immutable source-pack version.",
       "id": "noesis-knowledge-engine.install_source_pack",
@@ -23691,6 +23827,55 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "List the current owner's imported items, including explicit attachment and deletion states.",
+      "id": "noesis-knowledge-engine.list_zotero_items",
+      "input_schema": {
+        "properties": {
+          "include_deleted": {
+            "default": false,
+            "type": "boolean"
+          },
+          "library": {
+            "type": "string"
+          },
+          "limit": {
+            "default": 100,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "offset": {
+            "default": 0,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "namespace",
+          "library"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_zotero_items",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:zotero:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
       "version": "1"
     },
     {
@@ -34076,6 +34261,70 @@
       ],
       "required_scopes": [
         "knowledge:dataset:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Read Zotero v3 into owner-scoped history with an atomic incremental checkpoint; no write-back.",
+      "id": "noesis-knowledge-engine.sync_zotero_library",
+      "input_schema": {
+        "properties": {
+          "credential_env": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "library_id": {
+            "type": "string"
+          },
+          "library_type": {
+            "type": "string"
+          },
+          "max_items": {
+            "default": 10000,
+            "type": "integer"
+          },
+          "mode": {
+            "default": "web",
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "timeout_seconds": {
+            "default": 60,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "namespace",
+          "library_id",
+          "library_type"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "sync_zotero_library",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:zotero:sync"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
