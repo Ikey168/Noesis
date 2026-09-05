@@ -93,8 +93,16 @@ revision and input policy. Vector receipts include model, dimension, tokenizatio
 and configuration identity. A provider change cannot mix spaces within an active
 namespace; rebuild into a new namespace. Maintained semantic queries are registered
 for selected namespaces in the unified query catalog and retain source-revision
-citations. This initial path uses an explicit character-prefix policy (4,000 by
-default); full-document token-aware chunk retrieval is tracked separately in IX-03.
+citations. Derived object summary vectors retain an explicit character-prefix
+policy (4,000 by default). Production maintenance additionally indexes full source
+documents in tokenizer-bounded chunks. Domain and namespace document searches rank
+these chunks and return their original character offsets and source revision IDs.
+The local Sentence Transformers backend counts special tokens within its model
+limit. A backend without an explicit tokenizer contract fails instead of silently
+truncating input. Indexing bounds documents, chunks, and inference batches; an
+overflow is explicit. Completed batches survive retry, while publication receipts
+join the maintenance generation transaction. Missing or stale chunks produce
+partial coverage in unified queries.
 Historical snapshot queries currently return an explicit unsupported outcome on
 this semantic adapter instead of reading newer vectors.
 

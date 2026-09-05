@@ -58,6 +58,18 @@ def check():
             checks.append({"query": query, "expected_document": expected, "matched": matched,
                            "top_score": hits[0]["score"] if hits else None})
         assert all(item["matched"] for item in checks), checks
+        from src.ingestion.document_store import DocumentStore
+        from src.ingestion.chunk_embeddings import embed_document_chunks, search_document_chunks
+        # Synthetic stress input is kept separate from the pinned source corpus.
+        tail = "Routine accounting records and quarterly inventory totals. " * 160
+        tail += "The zephyr observatory detected an infrared galaxy behind a gravitational lens."
+        DocumentStore(conn).upsert([{"document_id": "synthetic-tail", "source_type": "note",
+            "language": "en", "ingested_at": 1, "title": "Synthetic retrieval stress test", "content": tail}])
+        embed_document_chunks(conn, provider, document_ids=["synthetic-tail"])
+        tail_hit = search_document_chunks(conn, "infrared galaxy gravitational lens", provider,
+            document_ids=["synthetic-tail"])["results"][0]
+        assert tail_hit["start_offset"] > 4000 and "gravitational lens" in tail_hit["text"]
+        assert tail[tail_hit["start_offset"]:tail_hit["end_offset"]] == tail_hit["text"]
         # Lifecycle fault exercises operate on test copies. They do not assert
         # that either publisher corrected or retracted these original articles.
         corrected = json.loads(json.dumps(documents))
@@ -81,6 +93,9 @@ def check():
                 "embedding_model": provider.name(), "embedding_dimensions": provider.dim(),
                 "library_versions": {name: importlib.metadata.version(name) for name in ("torch", "sentence-transformers", "transformers")},
                 "claims_produced": len(outputs), "semantic_checks": checks,
+                "synthetic_full_document_check": {"matched_tail": True,
+                    "start_offset": tail_hit["start_offset"], "score": tail_hit["score"],
+                    "tokenizer": provider.tokenizer_identity()},
                 "resumed_execution": True, "replay_same_run": True,
                 "correction_generation": 2, "test_copy_retraction_counts": retraction["counts"],
                 "subscription_events": result["state"]["report"]["subscription_events"],

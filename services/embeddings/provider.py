@@ -149,6 +149,25 @@ class EmbeddingProvider:
         """Return the provider name."""
         return f"{self.provider_name}:{self.backend.name()}"
 
+    def count_tokens(self, text: str) -> int:
+        """Count the actual backend tokenizer input, including special tokens."""
+        counter = getattr(self.backend, "count_tokens", None)
+        if counter is None:
+            raise NotImplementedError("embedding backend must declare token counting for full-document indexing")
+        return counter(text)
+
+    def token_limit(self) -> int:
+        method = getattr(self.backend, "token_limit", None)
+        if method is None:
+            raise NotImplementedError("embedding backend must declare its input token limit")
+        return method()
+
+    def tokenizer_identity(self) -> dict:
+        method = getattr(self.backend, "tokenizer_identity", None)
+        if method is None:
+            raise NotImplementedError("embedding backend must declare tokenizer identity")
+        return method()
+
 
 def get_embedding_provider(
     provider: Optional[str] = None,

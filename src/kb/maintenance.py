@@ -913,15 +913,22 @@ class MaintenanceOrchestrator:
         document_hashes = sorted(str(item["payload_hash"]) for item in changes)
         extraction = dict(workflow.get("state", {}).get("extraction") or {})
         resolution = dict(workflow.get("state", {}).get("resolution") or {})
-        derived = DerivedRevisionStore(self.conn, initialize=False,
+        derived_store = DerivedRevisionStore(self.conn, initialize=False,
             fixture_mode=self.execution_mode == "fixture", embedding_provider=self.embedding_provider,
-            embedding_configuration=self.embedding_configuration).apply_generation(
+            embedding_configuration=self.embedding_configuration)
+        derived = derived_store.apply_generation(
             namespace,
             source_watermark,
             maintenance_observations(documents, extraction),
             changes,
             now_ms=started,
         )
+        embedding_space = derived_store._embedding_identity()
+        chunks = {"processed": 0, "receipts": []}
+        if self.execution_mode == "production":
+            from src.ingestion.chunk_embeddings import embed_document_chunks
+            chunks = embed_document_chunks(self.conn, derived_store.embedding_provider,
+                document_ids=[doc["document_id"] for doc in documents], limit=len(documents), publish=False)
         if not changes:
             prior_rows = self.conn.execute(
                 "SELECT kind,artifact_id,content_hash FROM knowledge_artifacts "
@@ -963,6 +970,8 @@ class MaintenanceOrchestrator:
                     },
                     "mixed_generations_visible": False,
                     "derived": derived,
+                    "chunk_embeddings": chunks,
+                    "embedding_space": embedding_space,
                 }
         active_rows = self.conn.execute(
             "SELECT revision_id,payload_hash FROM ("
@@ -984,7 +993,8 @@ class MaintenanceOrchestrator:
         }
         payloads = {
             "index": {**common, "method": "lexical-manifest-v1"},
-            "embedding": {**common, "method": "content-hash-vector-manifest-v1"},
+            "embedding": {**common, "method": "token-chunk-semantic" if self.execution_mode == "production" else "fixture-hash",
+                          "embedding_space": embedding_space},
             "entity": {
                 **common,
                 "outputs": extraction.get("outputs", []),
@@ -1131,6 +1141,8 @@ class MaintenanceOrchestrator:
             "timing": {"started_at_ms": started, "completed_at_ms": self.now()},
             "mixed_generations_visible": False,
             "derived": derived,
+            "chunk_embeddings": chunks,
+            "embedding_space": embedding_space,
         }
 
     def _commit_generation(
@@ -1215,7 +1227,7 @@ class MaintenanceOrchestrator:
                     "noesis-resolution-batch-v1",
                     "noesis-derived-object-revision-v1",
                 ],
-                "models": ["content-hash-vector-manifest-v1"],
+                "models": [artifacts.get("embedding_space", {}).get("model", "unknown")],
                 "policies": ["source-pack-runtime-v1", "knowledge-maintenance-v1"],
             },
             "status": status,
@@ -1239,6 +1251,9 @@ class MaintenanceOrchestrator:
         namespace = "knowledge-generation:" + pack_id
         self.conn.execute("BEGIN")
         try:
+            if artifacts.get("chunk_embeddings", {}).get("receipts"):
+                from src.ingestion.chunk_embeddings import publish_chunk_receipts
+                publish_chunk_receipts(self.conn, artifacts["chunk_embeddings"]["receipts"])
             DerivedRevisionStore(self.conn, initialize=False).publish_generation(
                 str(derived["namespace"]), int(derived["generation"])
             )

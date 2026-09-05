@@ -490,9 +490,17 @@ class BackingQueryAdapter:
                     "raw": row,
                 }
             )
+        coverage = getattr(self.backing, "_last_semantic_coverage", {}) if surface == "semantic" else {}
+        error = getattr(self.backing, "_last_semantic_error", None) if surface == "semantic" else None
+        failures = []
+        if error or coverage.get("complete") is False:
+            failures.append({"source": self.definition["source_id"], "error": {
+                "code": error or "partial_index", "message": "semantic index coverage is incomplete"}})
         return {
             "source": self.definition["source_id"],
             "items": items,
+            "coverage": coverage,
+            "failures": failures,
             "score_semantics": "native-preserved-rank-fused",
             "provenance": {
                 "source_id": self.definition["source_id"],

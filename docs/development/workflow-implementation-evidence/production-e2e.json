@@ -57,6 +57,18 @@
       "top_score": 0.6688579629918625
     }
   ],
+  "synthetic_full_document_check": {
+    "matched_tail": true,
+    "start_offset": 8257,
+    "score": 0.17918963381493788,
+    "tokenizer": {
+      "name": "sentence-transformers/all-MiniLM-L6-v2",
+      "revision": "1110a243fdf4706b3f48f1d95db1a4f5529b4d41",
+      "class": "BertTokenizer",
+      "max_tokens": 256,
+      "special_tokens_included": true
+    }
+  },
   "resumed_execution": true,
   "replay_same_run": true,
   "correction_generation": 2,
@@ -65,7 +77,7 @@
   },
   "subscription_events": 2,
   "export_verified": true,
-  "elapsed_seconds": 9.352,
+  "elapsed_seconds": 10.336,
   "limitations": [
     "Small handpicked corpus; no independent retrieval or claim-quality judgments",
     "Lifecycle mutations are explicitly simulated on test copies",
