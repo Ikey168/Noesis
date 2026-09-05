@@ -1,1 +1,68 @@
-{"$schema":"https://json-schema.org/draft/2020-12/schema","$id":"https://noesis.local/schemas/noesis-archive-manifest-v1.json","type":"object","required":["contract","archive_id","namespace","checkpoint_id","storage","encryption","content_hash","identity_verified","status"],"properties":{"contract":{"const":"noesis-archive-manifest-v1"},"archive_id":{"type":"string"},"namespace":{"type":"string"},"checkpoint_id":{"type":"string"},"storage":{"type":"object"},"encryption":{"type":"object"},"content_hash":{"type":"string"},"identity_verified":{"type":"boolean"},"status":{"type":"string"},"restored_atomically":{"type":"boolean"}},"additionalProperties":false}
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/schemas/noesis-archive-manifest-v1.json",
+  "type": "object",
+  "required": [
+    "contract",
+    "archive_id",
+    "namespace",
+    "checkpoint_id",
+    "storage",
+    "encryption",
+    "content_hash",
+    "identity_verified",
+    "status"
+  ],
+  "properties": {
+    "contract": {
+      "const": "noesis-archive-manifest-v1"
+    },
+    "archive_id": {
+      "type": "string"
+    },
+    "namespace": {
+      "type": "string"
+    },
+    "checkpoint_id": {
+      "type": "string"
+    },
+    "storage": {
+      "type": "object"
+    },
+    "encryption": {
+      "type": "object"
+    },
+    "content_hash": {
+      "type": "string"
+    },
+    "identity_verified": {
+      "type": "boolean"
+    },
+    "status": {
+      "type": "string"
+    },
+    "restored_atomically": {
+      "type": "boolean"
+    },
+    "archive_format": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "byte_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "record_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "tombstone_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "archive_hash": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false
+}

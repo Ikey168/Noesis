@@ -11,7 +11,7 @@ validates against the contract, dedups, or makes ingestion idempotent.
 - validates each document against ``document-ingest-v1`` (#893) — invalid ones
   are dead-lettered (returned + logged), never written;
 - canonicalizes the URL and computes a content hash (#895) — unchanged
-  identities are idempotent and syndicated content still collapses;
+  observation identities are idempotent; syndicated observations remain distinct;
 - appends immutable revisions for changed identities, then advances the
   compatibility ``documents`` projection;
 
@@ -22,6 +22,7 @@ so the store is offline-testable against an in-memory database.
 from __future__ import annotations
 
 import json
+import hashlib
 import logging
 from collections.abc import Callable, Iterable
 from dataclasses import dataclass, field
@@ -119,6 +120,10 @@ class DocumentStore:
         from src.ingestion.revisions import DocumentRevisionStore
 
         self.revisions = DocumentRevisionStore(self.conn)
+        self.conn.execute("""CREATE TABLE IF NOT EXISTS document_content_blobs (
+            blob_hash TEXT PRIMARY KEY, content TEXT NOT NULL);
+            CREATE TABLE IF NOT EXISTS document_revision_content (
+            revision_id TEXT PRIMARY KEY, blob_hash TEXT NOT NULL)""")
 
     def upsert(
         self,
@@ -127,15 +132,14 @@ class DocumentStore:
     ) -> UpsertSummary:
         """Validate, dedup, and insert ``documents``; return a summary.
 
-        A validation failure dead-letters that one document. New identities
-        still deduplicate by ``(content_hash, source_type)``; an existing
-        identity is instead compared with its current immutable revision and
+        A validation failure dead-letters that one document. Distinct source
+        observations retain their identities even when their bytes match. An
+        existing identity is compared with its current immutable revision and
         appended only when content, stable metadata, or lifecycle changed.
         """
         from src.ingestion.canonical import canonicalize_url, content_hash
 
         summary = UpsertSummary()
-        _seen_ids, seen_hashes = self._load_existing()
 
         for item in documents:
             summary.received += 1
@@ -169,17 +173,21 @@ class DocumentStore:
                 logger.warning("document-store: dead-letter %s (%s)", doc_id, exc)
                 continue
 
+            from src.ingestion.guardian_api import article_identity
+            origin = article_identity(doc.url or '')
+            if origin:
+                doc.metadata = {**doc.metadata, 'reporting_origin':origin, 'acquisition_identity':doc.document_id}
             chash = content_hash(doc.content or "")
-            hkey = (chash, doc.source_type)
             current = self.get(doc.document_id)
-            source_observation = bool(
-                dict(doc.metadata or {}).get("source_pack_run_id")
-            )
-            if current is None and hkey in seen_hashes and not source_observation:
-                summary.duplicate += 1
-                continue
             payload = doc.to_dict()
             change = self.revisions.observe(payload)
+            if doc.content is not None:
+                # Exact-byte storage identity is distinct from the normalized
+                # content similarity hash. Compatibility rows retain their text
+                # while revisions share this canonical content object.
+                blob_hash = hashlib.sha256(doc.content.encode("utf-8")).hexdigest()
+                self.conn.execute("INSERT OR IGNORE INTO document_content_blobs VALUES (?,?)", [blob_hash, doc.content])
+                self.conn.execute("INSERT OR IGNORE INTO document_revision_content VALUES (?,?)", [change["revision_id"], blob_hash])
             summary.changes.append(change)
             if not change["appended"]:
                 summary.duplicate += 1
@@ -213,7 +221,6 @@ class DocumentStore:
                     summary.retracted += 1
                 elif change["change_kind"] == "deleted":
                     summary.deleted += 1
-            seen_hashes.add(hkey)
             from src.kb.temporal import store_document_times
 
             store_document_times(self.conn, payload)
@@ -267,20 +274,6 @@ class DocumentStore:
         return existed
 
     # ------------------------------------------------------------------ #
-
-    def _load_existing(self):
-        ids = {
-            r[0]
-            for r in self.conn.execute("SELECT document_id FROM documents").fetchall()
-        }
-        hashes = {
-            (r[0], r[1])
-            for r in self.conn.execute(
-                "SELECT content_hash, source_type FROM documents "
-                "WHERE content_hash IS NOT NULL"
-            ).fetchall()
-        }
-        return ids, hashes
 
     @staticmethod
     def _row_to_dict(row) -> dict[str, Any]:

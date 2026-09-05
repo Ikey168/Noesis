@@ -39,14 +39,14 @@ def setup_pack(clock: Clock):
         {"kind": "interval", "interval_s": 60, "next_run_at_ms": 100},
         principal_id="operator",
     )
-    return conn, manifest, runtime, MaintenanceOrchestrator(conn, root=ROOT, now=clock)
+    return conn, manifest, runtime, MaintenanceOrchestrator(conn, root=ROOT, now=clock, execution_mode="fixture")
 
 
 def execution_kwargs(orchestrator):
     return {
         "principal_id": "operator",
         "adapter_provider": fixture_adapter_provider(orchestrator),
-        "secret_resolver": lambda _: "fixture",
+        "secret_resolver": lambda _: "test-credential-do-not-expose",
         "dns_resolver": lambda _: ["8.8.8.8"],
     }
 
@@ -175,7 +175,7 @@ def test_cancel_retry_attempt_history_and_health_are_credential_safe():
     job = orchestrator.inspect_job(job_id)
     assert [item["attempt"] for item in job["attempt_history"]] == [1, 2]
     encoded = json.dumps(job)
-    assert "fixture" not in encoded and "secret" not in encoded
+    assert "test-credential-do-not-expose" not in encoded and "secret" not in encoded
     health = orchestrator.health()
     assert {
         "freshness_ms",

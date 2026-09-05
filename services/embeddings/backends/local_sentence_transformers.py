@@ -78,7 +78,8 @@ class LocalSentenceTransformersBackend(EmbeddingBackend):
             torch.backends.cudnn.deterministic = True
             torch.backends.cudnn.benchmark = False
         
-        self._embedding_dimension = self.model.get_sentence_embedding_dimension()
+        dimension = getattr(self.model, "get_embedding_dimension", None) or self.model.get_sentence_embedding_dimension
+        self._embedding_dimension = dimension()
         
         logger.info(
             f"Loaded model '{model_name}' with {self._embedding_dimension} dimensions "
@@ -115,6 +116,19 @@ class LocalSentenceTransformersBackend(EmbeddingBackend):
     def dim(self) -> int:
         """Return the embedding dimension."""
         return self._embedding_dimension
+
+    def count_tokens(self, text: str) -> int:
+        return len(self.model.tokenizer.encode(text, add_special_tokens=True, truncation=False))
+
+    def token_limit(self) -> int:
+        return int(self.model.max_seq_length)
+
+    def tokenizer_identity(self) -> dict:
+        config = self.model[0].auto_model.config
+        return {"name": self.model.tokenizer.name_or_path,
+                "revision": getattr(config, "_commit_hash", None),
+                "class": type(self.model.tokenizer).__name__, "max_tokens": self.token_limit(),
+                "special_tokens_included": True}
     
     def name(self) -> str:
         """Return the backend name."""

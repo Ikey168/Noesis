@@ -490,15 +490,23 @@ class BackingQueryAdapter:
                     "raw": row,
                 }
             )
+        coverage = getattr(self.backing, "_last_semantic_coverage", {}) if surface == "semantic" else {}
+        error = getattr(self.backing, "_last_semantic_error", None) if surface == "semantic" else None
+        failures = []
+        if error or coverage.get("complete") is False:
+            failures.append({"source": self.definition["source_id"], "error": {
+                "code": error or "partial_index", "message": "semantic index coverage is incomplete"}})
         return {
             "source": self.definition["source_id"],
             "items": items,
+            "coverage": coverage,
+            "failures": failures,
             "score_semantics": "native-preserved-rank-fused",
             "provenance": {
                 "source_id": self.definition["source_id"],
                 "domain": self.domain,
                 "capability_hash": self.definition["capability_hash"],
-                "query_hash": _digest(request),
+                "query_hash": _query_hash(request),
             },
             "latency_ms": round((time.monotonic() - started) * 1000, 3),
         }
@@ -571,7 +579,7 @@ class TemporalQueryAdapter:
                 "source_id": self.definition["source_id"],
                 "domain": self.domain,
                 "capability_hash": self.definition["capability_hash"],
-                "query_hash": _digest(request),
+                "query_hash": _query_hash(request),
             },
             "basis": result.get("basis"),
             "cursor": dict(result.get("page") or {}).get("next_cursor"),
@@ -656,7 +664,7 @@ class MemoryQueryAdapter:
             "provenance": {
                 "source_id": self.definition["source_id"],
                 "capability_hash": self.definition["capability_hash"],
-                "query_hash": _digest(request),
+                "query_hash": _query_hash(request),
             },
             "token_accounting": {
                 "used": used_tokens,
@@ -713,7 +721,7 @@ class FederationQueryAdapter:
             "provenance": {
                 "source_id": self.definition["source_id"],
                 "capability_hash": self.definition["capability_hash"],
-                "query_hash": _digest(request),
+                "query_hash": _query_hash(request),
             },
             "failures": output.get("failures", []),
             "coverage": output.get("coverage", {}),
@@ -806,7 +814,7 @@ class StoredObjectQueryAdapter:
             "provenance": {
                 "source_id": self.definition["source_id"],
                 "capability_hash": self.definition["capability_hash"],
-                "query_hash": _digest(request),
+                "query_hash": _query_hash(request),
             },
         }
 
@@ -900,7 +908,7 @@ class MaintainedDocumentQueryAdapter:
                 "provenance": {
                     "source_id": self.definition["source_id"],
                     "capability_hash": self.definition["capability_hash"],
-                    "query_hash": _digest(request),
+                    "query_hash": _query_hash(request),
                 },
             }
         history_clause = (
@@ -970,7 +978,7 @@ class MaintainedDocumentQueryAdapter:
             "provenance": {
                 "source_id": self.definition["source_id"],
                 "capability_hash": self.definition["capability_hash"],
-                "query_hash": _digest(request),
+                "query_hash": _query_hash(request),
             },
         }
 
@@ -1033,7 +1041,7 @@ class StoredGraphQueryAdapter:
             "provenance": {
                 "source_id": self.definition["source_id"],
                 "capability_hash": self.definition["capability_hash"],
-                "query_hash": _digest(request),
+                "query_hash": _query_hash(request),
             },
         }
 
@@ -1092,9 +1100,37 @@ class StaticQueryAdapter:
             "provenance": {
                 "source_id": self.definition["source_id"],
                 "capability_hash": self.definition["capability_hash"],
-                "query_hash": _digest(request),
+                "query_hash": _query_hash(request),
             },
         }
+
+
+class MaintainedSemanticQueryAdapter:
+    """Search committed maintenance vectors in their declared semantic space."""
+
+    def __init__(self, conn, namespace, *, embedding_provider=None, embedding_configuration=None):
+        from src.kb.derived_revisions import DerivedRevisionStore
+        self.namespace = namespace
+        self.store = DerivedRevisionStore(conn, initialize=False, embedding_provider=embedding_provider,
+                                          embedding_configuration=embedding_configuration)
+        self.definition = capability_definition(
+            f"maintained-semantic:{namespace}", "maintained-semantic", namespaces=[namespace],
+            surfaces=["semantic"], object_types=["claim", "entity", "document"],
+            required_scopes=["knowledge:read", f"namespace:{namespace}:read"])
+
+    def describe(self):
+        return dict(self.definition)
+
+    def query(self, request, *, scopes):
+        if request.get("snapshot"):
+            raise UnifiedQueryError("snapshot_unavailable", "maintained semantic search currently serves the latest committed generation")
+        items = self.store.semantic_search(self.namespace, request["query"], scopes=scopes, limit=request.get("limit", 20))
+        for item in items:
+            if item["object_type"] in {"index", "embedding", "summary"}:
+                item["object_type"] = "document"
+        return {"source": self.definition["source_id"], "items": items, "score_semantics": "cosine-similarity",
+                "provenance": {"source_id": self.definition["source_id"], "capability_hash": self.definition["capability_hash"],
+                               "query_hash": _query_hash(request)}}
 
 
 def build_local_catalog(
@@ -1106,6 +1142,8 @@ def build_local_catalog(
     task_id: str | None = None,
     principal_id: str = "local-reader",
     include_memory: bool = True,
+    embedding_provider=None,
+    embedding_configuration=None,
 ) -> QueryCatalog:
     from src.kb.registry import KnowledgeDomainRegistry
 
@@ -1130,6 +1168,9 @@ def build_local_catalog(
             if table in installed_tables:
                 adapters.append(StoredGraphQueryAdapter(conn, domain, table))
     for namespace in sorted(namespaces):
+        if {"derived_projection_items", "derived_object_generations"} <= installed_tables:
+            adapters.append(MaintainedSemanticQueryAdapter(conn, namespace, embedding_provider=embedding_provider,
+                                                           embedding_configuration=embedding_configuration))
         if "canonical_events" in installed_tables:
             adapters.append(StoredObjectQueryAdapter(conn, namespace, "event"))
         if "knowledge_artifacts" in installed_tables:
@@ -1154,6 +1195,12 @@ def build_local_catalog(
                 )
             )
     return QueryCatalog(adapters)
+
+
+def _query_hash(request):
+    # Runtime deadlines and retry allocations do not change the semantic query.
+    return _digest({key: value for key, value in request.items()
+                    if key not in {"timeout_ms", "max_retries", "deadline_monotonic"}})
 
 
 def _encode_cursor(payload: Mapping[str, Any]) -> str:
@@ -1348,6 +1395,7 @@ class UnifiedQueryEngine:
                 "capability_drift", "query plan no longer matches the expected plan"
             )
         normalized = plan["request"]
+        deadline = started + normalized["budgets"]["timeout_ms"] / 1000
         cursor = _decode_cursor(normalized.get("cursor"))
         for key, actual in (
             ("request_hash", normalized["request_hash"]),
@@ -1367,7 +1415,7 @@ class UnifiedQueryEngine:
         memory_nodes = [node for node in nodes if node["surface"] == "memory"]
 
         def invoke(
-            node: Mapping[str, Any], effective_query: str
+            node: Mapping[str, Any], effective_query: str, adapter
         ) -> tuple[dict[str, Any], float]:
             if cancelled and cancelled():
                 raise UnifiedQueryError("cancelled", "query was cancelled")
@@ -1381,19 +1429,35 @@ class UnifiedQueryEngine:
                 "memory": normalized["memory"],
             }
             begin = time.monotonic()
+            node_deadline = min(deadline, begin + node["budget"]["timeout_ms"] / 1000)
             last = None
-            adapter = self.catalog.adapters[node["source"]]
             local_connection = any(
                 hasattr(adapter, attribute)
                 for attribute in ("conn", "backing", "store")
             )
             for attempt in range(node["budget"]["max_retries"] + 1):
                 try:
+                    remaining_seconds = node_deadline - time.monotonic()
+                    if remaining_seconds <= 0:
+                        raise UnifiedQueryError("source_timeout", "query deadline exhausted")
+                    if cancelled and cancelled():
+                        raise UnifiedQueryError("cancelled", "query was cancelled")
+                    child["timeout_ms"] = max(1, int(remaining_seconds * 1000))
+                    child["max_retries"] = 0  # one retry budget, owned by this coordinator
+                    child["deadline_monotonic"] = node_deadline
+                    if normalized.get("snapshot"):
+                        child["snapshot"] = normalized["snapshot"]
                     if local_connection:
-                        with self._local_query_lock:
+                        if not self._local_query_lock.acquire(timeout=max(0, node_deadline - time.monotonic())):
+                            raise UnifiedQueryError("source_timeout", "local query admission deadline exhausted")
+                        try:
                             result = adapter.query(child, scopes=scopes)
+                        finally:
+                            self._local_query_lock.release()
                     else:
                         result = adapter.query(child, scopes=scopes)
+                    if time.monotonic() > node_deadline:
+                        raise UnifiedQueryError("source_timeout", "source exceeded its query deadline")
                     return result, round((time.monotonic() - begin) * 1000, 3)
                 except Exception as exc:  # noqa: BLE001 - adapters are failure boundaries
                     last = exc
@@ -1404,67 +1468,59 @@ class UnifiedQueryEngine:
                         break
             raise last or UnifiedQueryError("source_failed", "source failed")
 
-        if normalized["memory"]["mode"] in {"query-expansion", "separate"}:
-            for node in memory_nodes:
-                try:
-                    response, elapsed = invoke(node, query_text)
-                    timings[node["node_id"]] = elapsed
-                    memory_context.extend(response.get("items") or ())
-                    responses.append((node, response))
-                except Exception as exc:  # noqa: BLE001 - isolate optional memory
-                    failures.append(
-                        {
-                            "source": node["source"],
-                            "error": {
-                                "code": getattr(exc, "code", "source_failed"),
-                                "message": str(exc)[:300],
-                            },
-                        }
-                    )
-            if normalized["memory"]["mode"] == "query-expansion" and memory_context:
-                additions = " ".join(item["text"] for item in memory_context[:3])
-                query_text = f"{query_text} {additions}"[:5000]
-        remaining = [node for node in nodes if node not in memory_nodes]
-        with concurrent.futures.ThreadPoolExecutor(
-            max_workers=max(1, min(self.max_workers, len(remaining)))
-        ) as pool:
-            futures = {
-                pool.submit(invoke, node, query_text): node for node in remaining
-            }
-            try:
-                for future in concurrent.futures.as_completed(
-                    futures, timeout=normalized["budgets"]["timeout_ms"] / 1000
-                ):
-                    node = futures[future]
+        def run_nodes(group, effective_query):
+            from src.kb.query_runtime import submit
+            waiting = list(group)
+            active = {}
+            completed = []
+
+            def failure(node, code, message):
+                failures.append({"source": node["source"], "error": {"code": code, "message": message}})
+
+            while waiting or active:
+                if time.monotonic() >= deadline or cancelled and cancelled():
+                    code = "cancelled" if cancelled and cancelled() else "source_timeout"
+                    for node in waiting:
+                        failure(node, code, "total query deadline or cancellation reached")
+                    for future, node in active.items():
+                        future.cancel()
+                        failure(node, code, "total query deadline or cancellation reached")
+                    break
+                while waiting and len(active) < max(1, min(self.max_workers, 8)):
+                    node = waiting.pop(0)
+                    try:
+                        future = submit(self.catalog.adapters[node["source"]],
+                                        lambda adapter, node=node: invoke(node, effective_query, adapter))
+                        if future is None:
+                            failure(node, "source_busy", "bounded query worker capacity is exhausted")
+                        else:
+                            active[future] = node
+                    except Exception as exc:  # noqa: BLE001 - isolate provider failures and retain partial results
+                        failure(node, getattr(exc, "code", "source_failed"), str(exc)[:300])
+                if not active:
+                    continue
+                done, _ = concurrent.futures.wait(active, timeout=max(0, min(.05, deadline - time.monotonic())),
+                                                 return_when=concurrent.futures.FIRST_COMPLETED)
+                for future in done:
+                    node = active.pop(future)
                     try:
                         response, elapsed = future.result()
                         timings[node["node_id"]] = elapsed
-                        responses.append((node, response))
+                        completed.append((node, response))
                         failures.extend(response.get("failures") or ())
-                    except Exception as exc:  # noqa: BLE001 - isolate optional source
-                        failures.append(
-                            {
-                                "source": node["source"],
-                                "error": {
-                                    "code": getattr(exc, "code", "source_failed"),
-                                    "message": str(exc)[:300],
-                                },
-                            }
-                        )
-            except TimeoutError:
-                pass
-            for future, node in futures.items():
-                if not future.done():
-                    future.cancel()
-                    failures.append(
-                        {
-                            "source": node["source"],
-                            "error": {
-                                "code": "source_timeout",
-                                "message": "total query deadline exhausted",
-                            },
-                        }
-                    )
+                    except Exception as exc:  # noqa: BLE001 - isolate provider failures and retain partial results
+                        failure(node, getattr(exc, "code", "source_failed"), str(exc)[:300])
+            return completed
+
+        if normalized["memory"]["mode"] in {"query-expansion", "separate"}:
+            memory_responses = run_nodes(memory_nodes, query_text)
+            responses.extend(memory_responses)
+            for node, response in sorted(memory_responses, key=lambda item: item[0]["node_id"]):
+                memory_context.extend(response.get("items") or ())
+            if normalized["memory"]["mode"] == "query-expansion" and memory_context:
+                additions = " ".join(item["text"] for item in memory_context[:3])
+                query_text = f"{query_text} {additions}"[:5000]
+        responses.extend(run_nodes([node for node in nodes if node not in memory_nodes], query_text))
         required = set(normalized["source_policy"]["required"])
         failed_sources = {item["source"] for item in failures}
         if required & failed_sources:

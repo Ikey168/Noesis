@@ -8,6 +8,8 @@ change set are committed together by :class:`SourcePackRuntime`.
 
 from __future__ import annotations
 
+from src.kb.retention_coordination import coordinated
+
 import base64
 import hashlib
 import json
@@ -101,6 +103,15 @@ def _stable_payload(payload: Mapping[str, Any]) -> dict[str, Any]:
     # Observation/run identity is lineage, not document metadata.  Excluding it
     # prevents an unchanged source poll from manufacturing a revision.
     metadata.pop("source_pack_run_id", None)
+    metadata.pop("acquisition_provenance_json", None)
+    if isinstance(metadata.get('full_text_provenance_json'),str):
+        try:
+            provenance=json.loads(metadata['full_text_provenance_json'])
+            if isinstance(provenance.get('snapshot'),dict):
+                provenance['snapshot'].pop('fetched_at',None)
+                metadata['full_text_provenance_json']=json.dumps(provenance,sort_keys=True,separators=(',',':'))
+        except (ValueError,TypeError,AttributeError):
+            pass
     value["metadata"] = metadata
     return value
 
@@ -173,6 +184,7 @@ class DocumentRevisionStore:
             migrated += 1
         return migrated
 
+    @coordinated
     def observe(
         self,
         payload: Mapping[str, Any],
@@ -665,6 +677,8 @@ class DocumentRevisionStore:
         )
         result = dict(zip(keys, row))
         result["payload"] = json.loads(result["payload"])
+        if result['payload'].get('_payload_reclaimed') is True:
+            raise RevisionError('payload_reclaimed','revision payload was reclaimed; identity, hashes and lineage remain retained')
         result.update({"contract": REVISION_CONTRACT, "document_id": document_id})
         if not include_retracted and result["lifecycle"] != "active":
             return None

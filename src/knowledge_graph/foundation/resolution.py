@@ -15,6 +15,7 @@ See ``docs/architecture/knowledge-engine-pivot.md``.
 from __future__ import annotations
 
 import math
+import json
 import re
 from difflib import SequenceMatcher
 from typing import Callable, Dict, List, Optional, Sequence, Tuple
@@ -96,10 +97,12 @@ class EntityResolver:
         similarity_threshold: float = 0.88,
         embedder: Optional[Embedder] = None,
         embedding_threshold: float = 0.83,
+        decision_sink: Optional[Callable[[dict], None]] = None,
     ):
         self.similarity_threshold = similarity_threshold
         self.embedder = embedder
         self.embedding_threshold = embedding_threshold
+        self.decision_sink = decision_sink
         # canonical node_id -> Node
         self._canonical: Dict[str, Node] = {}
         # (type, normalized surface form) -> canonical node_id
@@ -116,6 +119,8 @@ class EntityResolver:
         name: str,
         aliases: Optional[Sequence[str]] = None,
         properties: Optional[dict] = None,
+        *,
+        provenance: Optional[dict] = None,
     ) -> Node:
         """Return the canonical Node for ``name``, creating it if new.
 
@@ -127,7 +132,8 @@ class EntityResolver:
         norm = _normalize_name(entity_type, name)
         surfaces = [name] + list(aliases or [])
 
-        match = self._find_match(entity_type, name, norm)
+        candidates = self._person_candidates(norm, properties or {}) if entity_type == EntityType.PERSON else []
+        match = (candidates[0] if len(candidates) == 1 else None) if entity_type == EntityType.PERSON else self._find_match(entity_type, name, norm)
         if match is not None:
             self._register(match, entity_type, surfaces)
             # Prefer the most complete surface form as the display name.
@@ -135,18 +141,75 @@ class EntityResolver:
                 match.name = name
             if properties:
                 match.properties.update(properties)
+            self._record_resolution(match, name, candidates, provenance)
             return match
 
+        props = dict(properties or {})
+        node_id = ""
+        identifiers = self._identifiers(props)
+        if identifiers:
+            node_id = make_node_id(entity_type, "identifiers:" + json.dumps(identifiers, sort_keys=True))
+        elif entity_type == EntityType.PERSON and make_node_id(entity_type, name) in self._canonical:
+            context = {k: props[k] for k in ("affiliation", "birth_date") if props.get(k)}
+            if context:
+                node_id = make_node_id(entity_type, norm + json.dumps(context, sort_keys=True))
+        if len(candidates) > 1:
+            props.update(resolution_status="ambiguous", candidate_ids=sorted(c.node_id for c in candidates))
+            node_id = make_node_id(entity_type, "ambiguous:" + norm)
         canonical = Node(
             type=entity_type,
             name=name,
+            node_id=node_id,
             aliases=list(dict.fromkeys(surfaces)),
-            properties=dict(properties or {}),
+            properties=props,
         )
         self._canonical[canonical.node_id] = canonical
-        self._by_type.setdefault(entity_type, []).append(canonical.node_id)
+        if canonical.node_id not in self._by_type.setdefault(entity_type, []):
+            self._by_type[entity_type].append(canonical.node_id)
         self._register(canonical, entity_type, surfaces)
+        self._record_resolution(canonical, name, candidates, provenance)
         return canonical
+
+    @staticmethod
+    def _identifiers(properties: dict) -> dict:
+        result = dict(properties.get("identifiers") or {})
+        for key in ("orcid", "ror", "wikidata_id"):
+            if properties.get(key):
+                result[key] = properties[key]
+        return {str(k): str(v).strip() for k, v in result.items() if v}
+
+    def _person_candidates(self, norm: str, properties: dict) -> List[Node]:
+        identifiers = self._identifiers(properties)
+        candidates, identified = [], []
+        for node_id in self._by_type.get(EntityType.PERSON, []):
+            candidate = self._canonical[node_id]
+            if candidate.properties.get("resolution_status") == "ambiguous":
+                continue
+            existing = self._identifiers(candidate.properties)
+            shared = identifiers.keys() & existing.keys()
+            if any(identifiers[k] != existing[k] for k in shared):
+                continue
+            if shared:
+                identified.append(candidate)
+            elif _person_compatible(norm, _normalize_name(EntityType.PERSON, candidate.name)):
+                candidates.append(candidate)
+        if identified:
+            return sorted(identified, key=lambda n: n.node_id)
+        # Context may narrow candidates only when it is supplied on both sides.
+        for key in ("affiliation", "birth_date"):
+            if properties.get(key):
+                candidates = [c for c in candidates if not c.properties.get(key) or c.properties[key] == properties[key]]
+        return sorted(candidates, key=lambda n: n.node_id)
+
+    def _record_resolution(self, node, surface, candidates, provenance):
+        if self.decision_sink is not None:
+            self.decision_sink({
+                "entity_id": node.node_id, "surface": surface,
+                "candidate_ids": sorted(c.node_id for c in candidates),
+                "status": node.properties.get("resolution_status", "resolved"),
+                "provenance": dict(provenance or {}),
+                "producer": "entity-resolver-v2", "review_status": "proposed",
+            })
 
     @property
     def canonical_nodes(self) -> List[Node]:
@@ -251,7 +314,8 @@ def canonicalize_store(
 
     # Resolve every existing node to a canonical node.
     for entity_type in EntityType:
-        for node in store.nodes_by_type(entity_type):
+        # Establish the fullest names before resolving abbreviated mentions.
+        for node in sorted(store.nodes_by_type(entity_type), key=lambda n: (-len(n.name.split()), n.node_id)):
             canonical = resolver.resolve(node.type, node.name, node.aliases, node.properties)
             id_map[node.node_id] = canonical.node_id
 

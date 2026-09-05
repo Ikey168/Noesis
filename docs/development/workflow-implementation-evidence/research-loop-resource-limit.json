@@ -1,0 +1,72 @@
+{
+  "budget": {
+    "available": {
+      "requests": 18,
+      "tokens": 0,
+      "usd_micros": 0
+    },
+    "budget": {
+      "requests": 20,
+      "tokens": 0,
+      "usd_micros": 0
+    },
+    "project_id": "project:6a8fdaf1b3f07a11f857de6f87796bfd",
+    "reserved": {
+      "requests": 2,
+      "tokens": 0,
+      "usd_micros": 0
+    },
+    "spent": {
+      "requests": 0,
+      "tokens": 0,
+      "usd_micros": 0
+    }
+  },
+  "independent_human_quality_judgments": false,
+  "runtime": {
+    "embedding_model": "all-MiniLM-L6-v2",
+    "embedding_provider": "local",
+    "embedding_revision": "1110a243fdf4706b3f48f1d95db1a4f5529b4d41",
+    "implementation": "672105b4fb1c023edda521678fbff45026d41f05ef4c21a283fc4c055ad58be2",
+    "libraries": {
+      "sentence-transformers": "6.0.1",
+      "torch": "2.14.0+cpu",
+      "transformers": "5.16.1"
+    },
+    "models": {
+      "claim": {
+        "default": "Nithiwat/mdeberta-v3-base_claimbuster",
+        "env": "NOESIS_CLAIM_MODEL",
+        "model": "Nithiwat/mdeberta-v3-base_claimbuster",
+        "revision": "f0d23ebd02e98325f19419eee10637f9167f8a47",
+        "serves": [
+          "claim detection (#956)"
+        ]
+      },
+      "nli": {
+        "default": "cross-encoder/nli-deberta-v3-base",
+        "env": "NOESIS_NLI_MODEL",
+        "model": "cross-encoder/nli-deberta-v3-base",
+        "revision": "6c749ce3425cd33b46d187e45b92bbf96ee12ec7",
+        "serves": [
+          "stance (#954)",
+          "frames (#955)",
+          "claim links (#964)"
+        ]
+      }
+    }
+  },
+  "source_urls": [
+    "https://europepmc.org/article/MED/37409756",
+    "https://europepmc.org/article/MED/42605531"
+  ],
+  "state": {
+    "completed_iterations": 0,
+    "coverage": {},
+    "error": "stage 'extract' exceeded its time budget",
+    "results": 0,
+    "stop_reason": "deadline_exhausted"
+  },
+  "status": "stopped",
+  "validation_kind": "live public API and real local models; selected-publication integration check"
+}

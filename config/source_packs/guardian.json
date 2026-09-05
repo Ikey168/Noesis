@@ -1,0 +1,63 @@
+{
+  "pack_id": "guardian-news",
+  "version": "1.0.0",
+  "description": "Guardian Open Platform collection; explicit key and content access terms required.",
+  "domains": [
+    "political",
+    "economic",
+    "research"
+  ],
+  "defaults": {
+    "connector": "declarative-rest",
+    "scope": "official institutional records",
+    "update_cadence": "daily",
+    "temporal_semantics": "publication-effective-revision-observation",
+    "mapping": {
+      "target_schema": "political-record-v1",
+      "version": "1.0.0"
+    },
+    "extractor_versions": [
+      "political-records:1.0.0"
+    ],
+    "schedule": {
+      "kind": "interval",
+      "interval_s": 86400
+    },
+    "budgets": {
+      "timeout_ms": 15000,
+      "max_results": 100,
+      "max_bytes": 10000000,
+      "max_pages": 5
+    },
+    "auth": {
+      "kind": "required-secret",
+      "secret_ref": "NOESIS_GUARDIAN_API_KEY"
+    },
+    "fixture": {
+      "path": "tests/fixtures/source_packs/guardian.json",
+      "sha256": "c3af2e9b422be9d3ba8758a76fa44af59918fa078f74ba6004da2701cae51b9e",
+      "expected_output_hash": "42d0a4e8230eb675417bbc575e91e6a2a6e4998a42fcdd8cd2cbd1358a6dbe41"
+    },
+    "health": {
+      "required": true,
+      "max_staleness_s": 172800
+    }
+  },
+  "sources": [
+    {
+      "source_id": "guardian-content",
+      "endpoint": "https://content.guardianapis.com/search",
+      "publisher": "The Guardian",
+      "license": {
+        "id": "guardian-open-platform",
+        "terms_url": "https://open-platform.theguardian.com/access/",
+        "redistribution": "terms-governed"
+      },
+      "operations": [
+        "search",
+        "section",
+        "date-range"
+      ]
+    }
+  ]
+}

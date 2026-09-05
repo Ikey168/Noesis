@@ -510,9 +510,11 @@ class ChangeBriefStore:
             }
         filters = _load(r[1], {})
         rows = self.conn.execute(
-            "SELECT payload_json FROM change_briefs WHERE namespace=? AND created_at_ms>=? AND created_at_ms<? ORDER BY brief_id",
-            [namespace, window_start_ms, window_end_ms],
+            "SELECT payload_json FROM change_briefs WHERE namespace=? AND created_at_ms>=? AND created_at_ms<? AND (? IS NULL OR brief_id IN (SELECT unnest(?))) ORDER BY brief_id LIMIT 501",
+            [namespace, window_start_ms, window_end_ms, filters.get('brief_ids'), filters.get('brief_ids')],
         ).fetchall()
+        if len(rows) > 500:
+            raise ChangeBriefError('delivery_budget_exceeded', 'narrow the delivery window or explicit brief ids')
         items = [_load(v[0], {}) for v in rows]
         items = [
             v for v in items if (not filters.get("material_only") or v["material"])

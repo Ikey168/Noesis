@@ -60,7 +60,7 @@ class TestGuardianSpider:
         for r in requests:
             assert r.callback == spider.parse_article
 
-    def test_parse_2024_link_is_mangled(self, spider):
+    def test_parse_2024_link_is_clean(self, spider):
         """GENUINE BUG: a /2024/-only link is returned as an element string and
         gets urljoined into a mangled, percent-encoded URL rather than the clean
         article URL."""
@@ -71,8 +71,7 @@ class TestGuardianSpider:
         """
         requests = list(spider.parse(_response("https://www.theguardian.com/", html)))
         urls = [r.url for r in requests]
-        assert any("%3Ca" in u for u in urls)
-        assert "https://www.theguardian.com/world/2024/jul/01/story-a" not in urls
+        assert urls == ["https://www.theguardian.com/world/2024/jul/01/story-a"]
 
     def test_parse_article_full_fields(self, spider):
         html = """
@@ -150,7 +149,7 @@ class TestGuardianSpider:
         item = list(spider.parse_article(_response(url, html)))[0]
         assert item["author"] == "Byline Writer"
 
-    def test_parse_article_missing_date_uses_now(self, spider):
+    def test_parse_article_missing_date_stays_unknown(self, spider):
         html = """
         <html><body>
             <h1 data-gu-name="headline">No Date</h1>
@@ -159,7 +158,8 @@ class TestGuardianSpider:
         """
         url = "https://www.theguardian.com/world/2025/jul/01/story"
         item = list(spider.parse_article(_response(url, html)))[0]
-        assert "T" in item["published_date"]
+        assert item["published_date"] is None
+        assert "+00:00" in item["scraped_date"]
 
     def test_parse_article_meta_published_date_fallback(self, spider):
         """With no <time>, the meta article:published_time is used."""
@@ -221,3 +221,11 @@ class TestGuardianSpider:
         """
         empty = _response("https://www.theguardian.com/", "<html><body></body></html>")
         assert spider._extract_category("https://www.theguardian.com", empty) == "News"
+
+
+@pytest.mark.parametrize('year', [1999, 2026, 2035])
+def test_guardian_article_paths_have_no_fixed_year_window(year):
+    spider = GuardianSpider()
+    path = f'/world/{year}/sep/05/evidence'
+    requests = list(spider.parse(_response('https://www.theguardian.com/', f'<html><a href="{path}">Article</a></html>')))
+    assert [request.url for request in requests] == ['https://www.theguardian.com' + path]

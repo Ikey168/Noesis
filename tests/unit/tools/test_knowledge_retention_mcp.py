@@ -14,6 +14,22 @@ def call(tool, **kwargs):
     return asyncio.run(value) if inspect.isawaitable(value) else value
 
 
+def test_archive_mcp_restores_into_a_fresh_database(tmp_path, monkeypatch):
+    current = [tmp_path / "original.duckdb"]
+    monkeypatch.setattr(server, "_context", lambda: ("admin", {"knowledge:retention:read", "knowledge:retention:execute"}))
+    monkeypatch.setattr(server, "_connection", lambda *, read_only: duckdb.connect(str(current[0])))
+    tools = asyncio.run(server.mcp.get_tools())
+    checkpoint = call(tools["create_retention_checkpoint"], namespace="research", generation_start=1,
+                      generation_end=1, records=[{"id": "source-1"}], tombstones=["source-0"], schema_version="1")
+    archive = call(tools["archive_knowledge_checkpoint"], namespace="research", checkpoint_id=checkpoint["checkpoint_id"],
+                   storage={"driver": "filesystem", "uri": str(tmp_path / "archive.json")})
+    current[0].unlink()
+    current[0] = tmp_path / "fresh.duckdb"
+    restored = call(tools["restore_knowledge_archive"], namespace="research", archive_id=archive["archive_id"], manifest=archive)
+    assert restored["record_count"] == restored["tombstone_count"] == 1
+    assert call(tools["verify_retention_checkpoint"], namespace="research", checkpoint_id=checkpoint["checkpoint_id"])["verified"]
+
+
 def test_retention_mcp_flow_auth_checkpoint_archive_gc(tmp_path, monkeypatch):
     db = tmp_path / "retention.duckdb"
     scopes = {"knowledge:retention:read"}
@@ -87,7 +103,7 @@ def test_retention_mcp_flow_auth_checkpoint_archive_gc(tmp_path, monkeypatch):
         tools["archive_knowledge_checkpoint"],
         namespace="research",
         checkpoint_id=checkpoint["checkpoint_id"],
-        storage={"driver": "memory"},
+        storage={"driver": "filesystem", "uri": str(tmp_path / "archive.json")},
     )
     assert call(
         tools["restore_knowledge_archive"],

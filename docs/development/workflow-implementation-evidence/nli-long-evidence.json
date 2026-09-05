@@ -1,0 +1,40 @@
+{
+  "human_quality_validation": false,
+  "kind": "real-model behavior on generated stress text",
+  "premise_characters": 9779,
+  "premise_sha256": "222556f72056ca4a42e90f6016ddb5a59a7543c0f8b3b216901d4222381c9c53",
+  "result": {
+    "aggregation": "any decisive window; opposing decisive windows abstain",
+    "confidence": 0.9927,
+    "coverage_complete": true,
+    "label": "entailment",
+    "limitations": [
+      "Window aggregation does not establish cross-window compositional entailment or calibrated confidence."
+    ],
+    "prediction_mode": "zero-shot:cross-encoder/nli-deberta-v3-base",
+    "status": "assessed",
+    "windows": [
+      {
+        "confidence": 0.8268,
+        "end": 3887,
+        "label": "entailment",
+        "prediction_mode": "zero-shot:cross-encoder/nli-deberta-v3-base",
+        "start": 0
+      },
+      {
+        "confidence": 0.8936,
+        "end": 7528,
+        "label": "entailment",
+        "prediction_mode": "zero-shot:cross-encoder/nli-deberta-v3-base",
+        "start": 3640
+      },
+      {
+        "confidence": 0.9927,
+        "end": 9779,
+        "label": "entailment",
+        "prediction_mode": "zero-shot:cross-encoder/nli-deberta-v3-base",
+        "start": 7288
+      }
+    ]
+  }
+}

@@ -49,6 +49,23 @@ or summaries from being mistaken for factual corroboration.
 
 ## Offline conformance
 
+The total query deadline includes memory expansion, worker admission, local lock
+waits, and retries. Each retry receives only the remaining time; adapters must
+apply that timeout to their I/O. Slow optional sources return typed partial
+failures, while required-source failure remains an error.
+
+The process has eight shared query workers and no unbounded submission queue.
+Saturated providers return `source_busy`. The caller does not wait for executor
+shutdown after a timeout. An already-running, non-cooperative provider may finish
+later, occupying one bounded slot; its late result is discarded. Cancellation
+does not forcibly terminate Python threads. File-backed local adapters receive
+independent DuckDB connections so request cleanup cannot close an in-flight
+reader. In-memory integrations must keep their parent connection alive until
+their provider returns.
+
+Runtime timeout allocations are excluded from semantic query hashes, preserving
+cursor replay when the result set is unchanged.
+
 ```bash
 make unified-query-check
 ```

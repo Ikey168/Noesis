@@ -1,0 +1,32 @@
+[
+  {
+    "document_id": "fomc-20220615",
+    "source_type": "news",
+    "language": "en",
+    "ingested_at": 1655316000000,
+    "title": "Federal Reserve issues FOMC statement",
+    "content": "Overall economic activity appears to have picked up after edging down in the first quarter. Job gains have been robust in recent months, and the unemployment rate has remained low. Inflation remains elevated, reflecting supply and demand imbalances related to the pandemic, higher energy prices, and broader price pressures.",
+    "url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20220615a.htm",
+    "metadata": {
+      "domain": "economic",
+      "source_publication_date": "2022-06-15",
+      "pinned_text_sha256": "45a9411522925c539b3c230d2c57ea016a582c14c10a2cdd763576dd1c918fdd",
+      "retrieved_date": "2026-09-05"
+    }
+  },
+  {
+    "document_id": "webb-20220712",
+    "source_type": "news",
+    "language": "en",
+    "ingested_at": 1657584000000,
+    "title": "NASA’s Webb Delivers Deepest Infrared Image of Universe Yet",
+    "content": "NASA’s James Webb Space Telescope has produced the deepest and sharpest infrared image of the distant universe to date.",
+    "url": "https://science.nasa.gov/missions/webb/nasas-webb-delivers-deepest-infrared-image-of-universe-yet/",
+    "metadata": {
+      "domain": "scientific",
+      "source_publication_date": "2022-07-12",
+      "pinned_text_sha256": "521050aaf6a75639e71475c88cf27ee1c6bb4b17d7d6750f136a05ed08aaa368",
+      "retrieved_date": "2026-09-05"
+    }
+  }
+]

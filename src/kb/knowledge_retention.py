@@ -2,7 +2,10 @@
 
 from __future__ import annotations
 
+from src.kb.retention_coordination import coordinated
+
 import hashlib
+from itertools import islice
 import json
 import time
 
@@ -56,8 +59,9 @@ def _bound(v, maximum=1000):
 
 
 class KnowledgeRetentionStore:
-    def __init__(self, conn, *, initialize=True, now=None):
+    def __init__(self, conn, *, initialize=True, now=None, archive_backend=None):
         self.conn, self.now = conn, now or (lambda: int(time.time() * 1000))
+        self.archive_backend = archive_backend
         if initialize:
             conn.execute(_DDL)
 
@@ -163,6 +167,7 @@ class KnowledgeRetentionStore:
             "idempotent": idempotent,
         }
 
+    @coordinated
     def register_object(
         self,
         namespace,
@@ -221,6 +226,7 @@ class KnowledgeRetentionStore:
             "idempotent": False,
         }
 
+    @coordinated
     def place_hold(
         self, namespace, object_id, reason, *, principal_id, scopes, expires_at_ms=None
     ):
@@ -243,6 +249,7 @@ class KnowledgeRetentionStore:
             "status": "active",
         }
 
+    @coordinated
     def release_hold(self, namespace, hold_id, *, principal_id, scopes):
         _require(scopes, ADMIN_SCOPE)
         row = self.conn.execute(
@@ -297,6 +304,9 @@ class KnowledgeRetentionStore:
             reasons.append("legal_hold")
         if row[10] != "active":
             reasons.append("not_active")
+        from src.kb.managed_retention import guards
+        payload = self.conn.execute('SELECT payload_json FROM retention_objects WHERE namespace=? AND object_id=?',[namespace,object_id]).fetchone()[0]
+        reasons.extend(guards(self.conn,namespace,_load(payload,{}),self.now()))
         return {
             "namespace": namespace,
             "object_id": object_id,
@@ -326,7 +336,19 @@ class KnowledgeRetentionStore:
         limit=1000,
     ):
         _require(scopes, EXECUTE_SCOPE)
-        bounded = list(records)[: _bound(limit)]
+        cap = _bound(limit)
+        bounded = list(islice(iter(records), cap + 1))
+        if len(bounded) > cap:
+            raise KnowledgeRetentionError(
+                "checkpoint_too_large",
+                "checkpoint exceeds record limit; split the generation range explicitly",
+                limit=cap,
+            )
+        tombstones = list(islice(iter(tombstones), cap + 1))
+        if len(tombstones) > cap:
+            raise KnowledgeRetentionError(
+                "checkpoint_too_large", "checkpoint exceeds tombstone limit", limit=cap
+            )
         content = {
             "schema_version": schema_version,
             "generation_start": generation_start,
@@ -335,7 +357,7 @@ class KnowledgeRetentionStore:
             "tombstones": list(tombstones),
         }
         digest = _hash(content)
-        checkpoint_id = "retention-checkpoint:" + digest[:24]
+        checkpoint_id = "retention-checkpoint:" + _hash([namespace, digest])[:24]
         status = "cancelled" if cancel_requested else "complete"
         now = self.now()
         self.conn.execute(
@@ -419,80 +441,20 @@ class KnowledgeRetentionStore:
         scopes,
     ):
         _require(scopes, EXECUTE_SCOPE)
-        verified = self.verify_checkpoint(namespace, checkpoint_id, scopes={READ_SCOPE})
-        archive_id = "archive:" + _hash([namespace, checkpoint_id, storage])[:24]
-        status = (
-            "cancelled"
-            if cancel_requested
-            else "unavailable"
-            if not storage_available
-            else "partial"
-            if partial
-            else "archived"
-        )
-        manifest = {
-            "checkpoint_id": checkpoint_id,
-            "storage": dict(storage),
-            "encryption": dict(encryption or {}),
-            "content_hash": verified["content_hash"],
-            "identity_verified": verified["verified"],
-        }
-        now = self.now()
-        self.conn.execute(
-            "INSERT OR REPLACE INTO retention_archives VALUES (?,?,?,?,?,?,?,?,?)",
-            [
-                archive_id,
-                namespace,
-                checkpoint_id,
-                _canon(storage),
-                _canon(encryption or {}),
-                verified["content_hash"],
-                status,
-                _canon(manifest),
-                now,
-            ],
-        )
-        self._audit(namespace, "archive", archive_id, principal_id, {"status": status})
-        return {
-            "contract": ARCHIVE_CONTRACT,
-            "archive_id": archive_id,
-            "namespace": namespace,
-            **manifest,
-            "status": status,
-        }
+        from src.kb.archive_io import archive_checkpoint
+        return archive_checkpoint(self, namespace, checkpoint_id, storage,
+            encryption=encryption, storage_available=storage_available,
+            partial=partial, cancel_requested=cancel_requested, principal_id=principal_id)
 
     def restore(
-        self, namespace, archive_id, *, principal_id, scopes, storage_available=True
+        self, namespace, archive_id, *, principal_id, scopes, storage_available=True,
+        manifest=None, supported_schema_versions=("1", "2", "3")
     ):
         _require(scopes, EXECUTE_SCOPE)
-        row = self.conn.execute(
-            "SELECT checkpoint_id,storage_json,encryption_json,content_hash,status,manifest_json FROM retention_archives WHERE namespace=? AND archive_id=?",
-            [namespace, archive_id],
-        ).fetchone()
-        if not row:
-            raise KnowledgeRetentionError("archive_not_found", "archive not found")
-        if not storage_available:
-            raise KnowledgeRetentionError(
-                "archive_unavailable", "archive storage is unavailable"
-            )
-        verified = self.verify_checkpoint(namespace, row[0], scopes={READ_SCOPE})
-        if not verified["verified"] or verified["content_hash"] != row[3]:
-            raise KnowledgeRetentionError(
-                "checksum_mismatch", "archive identity verification failed"
-            )
-        self.conn.execute(
-            "UPDATE retention_archives SET status='restored' WHERE namespace=? AND archive_id=?",
-            [namespace, archive_id],
-        )
-        self._audit(namespace, "restore", archive_id, principal_id)
-        return {
-            "contract": ARCHIVE_CONTRACT,
-            "archive_id": archive_id,
-            "namespace": namespace,
-            **_load(row[5], {}),
-            "status": "restored",
-            "restored_atomically": True,
-        }
+        from src.kb.archive_io import restore_archive
+        return restore_archive(self, namespace, archive_id, principal_id=principal_id,
+            storage_available=storage_available, manifest=manifest,
+            supported_schema_versions=supported_schema_versions)
 
     def plan_gc(self, namespace, object_ids, *, principal_id, scopes, limit=1000):
         _require(scopes, ADMIN_SCOPE)
@@ -518,6 +480,16 @@ class KnowledgeRetentionStore:
                 blocked[object_id] = {"reason_codes": reasons, "dependents": external}
             else:
                 eligible.append(object_id)
+        # A candidate blocked by a hold/pin remains a live dependent. Do not
+        # reclaim its dependencies just because both appeared in the request.
+        while True:
+            newly_blocked = {oid: sorted(set(reverse.get(oid, [])) - set(eligible)) for oid in eligible}
+            newly_blocked = {oid: owners for oid, owners in newly_blocked.items() if owners}
+            if not newly_blocked:
+                break
+            for oid, owners in newly_blocked.items():
+                eligible.remove(oid)
+                blocked[oid] = {'reason_codes':['reachable_from_retained_object'],'dependents':owners}
         snapshot = {
             object_id: self._object_guard(namespace, object_id)
             for object_id in candidates
@@ -551,9 +523,25 @@ class KnowledgeRetentionStore:
             "SELECT hold_id,status,expires_at_ms FROM retention_holds WHERE namespace=? AND object_id=? ORDER BY hold_id",
             [namespace, object_id],
         ).fetchall()
-        return _hash([_load(row[0], []) if row else [], row[1] if row else None, holds])
+        payload=self.conn.execute('SELECT payload_json FROM retention_objects WHERE namespace=? AND object_id=?',[namespace,object_id]).fetchone()
+        from src.kb.managed_retention import guards
+        managed=guards(self.conn,namespace,_load(payload[0],{}) if payload else {},self.now())
+        return _hash([_load(row[0], []) if row else [], row[1] if row else None, holds,managed])
 
-    def execute_gc(
+    @coordinated
+    def execute_gc(self, namespace, plan, *, principal_id, scopes,
+                   cancel_requested=False, deletion_outcome="success"):
+        self.conn.execute('BEGIN TRANSACTION')
+        try:
+            result=self._execute_gc(namespace,plan,principal_id=principal_id,scopes=scopes,
+                cancel_requested=cancel_requested,deletion_outcome=deletion_outcome)
+            self.conn.execute('COMMIT')
+            return result
+        except Exception:
+            self.conn.execute('ROLLBACK')
+            raise
+
+    def _execute_gc(
         self,
         namespace,
         plan,
@@ -573,6 +561,11 @@ class KnowledgeRetentionStore:
         ).fetchone()
         if prior and _load(prior[0], {}).get("status") != "failed":
             return {**_load(prior[0], {}), "idempotent": True}
+        if plan.get('namespace') != namespace:
+            raise KnowledgeRetentionError('invalid_plan','plan belongs to another namespace')
+        fresh=self.plan_gc(namespace,plan['candidates'],principal_id=principal_id,scopes={ADMIN_SCOPE})
+        if any(plan.get(key)!=fresh[key] for key in ('plan_id','eligible','blocked','guard_hashes')):
+            raise KnowledgeRetentionError('stale_plan','retention policy, reachability, pins or holds changed after planning')
         stale = [
             object_id
             for object_id, guard in plan["guard_hashes"].items()
@@ -592,6 +585,9 @@ class KnowledgeRetentionStore:
         deleted = []
         if status == "completed":
             for object_id in plan["eligible"]:
+                from src.kb.managed_retention import reclaim
+                payload=self.conn.execute('SELECT payload_json FROM retention_objects WHERE namespace=? AND object_id=?',[namespace,object_id]).fetchone()[0]
+                reclaim(self.conn,namespace,object_id,_load(payload,{}),self.now())
                 self.conn.execute(
                     "UPDATE retention_objects SET status='tombstoned' WHERE namespace=? AND object_id=? AND status='active'",
                     [namespace, object_id],

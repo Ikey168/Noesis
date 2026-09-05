@@ -334,6 +334,8 @@ class CorpusViewBacking(DomainBacking):
                 model=self.definition.embedding_model,
                 document_ids=document_ids,
             )
+        self._last_semantic_coverage = payload.get("coverage", {})
+        self._last_semantic_error = payload.get("code") if payload.get("error") else None
         return [
             {**row, "retrieval_method": "semantic"}
             for row in payload.get("results") or ()
@@ -567,6 +569,8 @@ class NamespaceBacking(DomainBacking):
                 model=self.definition.embedding_model,
                 document_ids=document_ids,
             )
+        self._last_semantic_coverage = payload.get("coverage", {})
+        self._last_semantic_error = payload.get("code") if payload.get("error") else None
         return [
             {**row, "retrieval_method": "semantic"}
             for row in payload.get("results") or ()

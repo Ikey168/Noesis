@@ -226,6 +226,32 @@ async def _inspect_server(
 
 
 def _mutability(name: str) -> str:
+    if name in {"run_persistent_research_loop", "cancel_persistent_research_loop", "resume_persistent_research_loop"}:
+        return "write"
+    if name in {"reserve_research_project_budget", "settle_research_project_budget"}:
+        return "write"
+    if name in {"poll_decision_condition_watch", "acknowledge_decision_review_task"}:
+        return "write"
+    if name in {"assign_review_inbox_task", "submit_review_inbox_annotation", "resolve_review_inbox_task", "build_review_annotation_dataset", "release_review_annotation_dataset"}:
+        return "write"
+    if name in {"assess_authored_report_changes", "propose_authored_report_edit", "decide_authored_report_edit"}:
+        return "write"
+    if name in {"register_research_analysis", "execute_research_analysis", "cancel_research_analysis_run", "recover_research_analysis_run"}:
+        return "write"
+    if name == "sync_zotero_library":
+        return "write"
+    if name in {"amend_review_protocol", "screen_review_candidate", "adjudicate_review_candidate", "extract_review_field", "review_study_field"}:
+        return "write"
+    if name in {"revise_research_decision", "calculate_decision_sensitivity"}:
+        return "write"
+    if name in {"revise_binary_forecast", "resolve_binary_forecast"}:
+        return "write"
+    if name in {"revise_authored_report", "reopen_authored_report"}:
+        return "write"
+    if name in {"claim_subscription_deliveries", "acknowledge_subscription_delivery", "fail_subscription_delivery", "redrive_subscription_delivery"}:
+        return "write"
+    if name in {"branch_research_project", "revise_research_project", "archive_research_project", "record_research_project_expenditure"}:
+        return "write"
     if name in MUTATION_NAMES or name.startswith(MUTATION_PREFIXES):
         return "write"
     return "read"
@@ -267,6 +293,40 @@ def _required_data(server_stem: str, tool_name: str) -> list[str]:
     if server_stem == "memory_mcp":
         return ["knowledge-memory-store"]
     if server_stem == "knowledge_engine_mcp":
+        if tool_name == "create_persistent_research_loop":
+            return ["knowledge:projects:read", "knowledge:projects:write", "knowledge:recipes:write", "knowledge:gaps:read", "knowledge:source-planner:read"]
+        if tool_name == "inspect_persistent_research_loop":
+            return ["knowledge:projects:read"]
+        if tool_name == "run_persistent_research_loop":
+            return ["knowledge:projects:read", "knowledge:projects:write", "knowledge:projects:execute", "knowledge:recipes:execute", "knowledge:source-planner:read", "knowledge:source-planner:execute", "knowledge:gaps:write", "knowledge:read"]
+        if tool_name in {"cancel_persistent_research_loop", "resume_persistent_research_loop"}:
+            return ["knowledge:projects:read", "knowledge:projects:write"]
+        if tool_name in {"reserve_research_project_budget", "settle_research_project_budget"}:
+            return ["knowledge:projects:write"]
+        if tool_name == "inspect_research_project_budget":
+            return ["knowledge:projects:read"]
+        if tool_name in {"create_decision_condition_watch", "poll_decision_condition_watch", "acknowledge_decision_review_task"}:
+            return ["knowledge:decisions:read", "knowledge:decisions:write", "knowledge:projects:read"] + (["knowledge:briefs:read", "knowledge:briefs:write", "knowledge:briefs:deliver"] if tool_name == "poll_decision_condition_watch" else ["knowledge:briefs:deliver"] if tool_name == "acknowledge_decision_review_task" else [])
+        if tool_name in {"inspect_decision_condition_watch", "list_decision_review_tasks"}:
+            return ["knowledge:decisions:read", "knowledge:projects:read"]
+        if tool_name in {"create_review_inbox_task", "assign_review_inbox_task"}:
+            return ["knowledge:inbox:read", "knowledge:inbox:write"]
+        if tool_name in {"list_review_inbox_tasks", "inspect_review_inbox_task"}:
+            return ["knowledge:inbox:read"]
+        if tool_name in {"submit_review_inbox_annotation", "resolve_review_inbox_task"}:
+            return ["knowledge:inbox:read", "knowledge:inbox:review"]
+        if tool_name in {"build_review_annotation_dataset", "release_review_annotation_dataset", "export_review_annotation_dataset", "evaluate_review_annotation_predictions"}:
+            return ["knowledge:inbox:read", "knowledge:inbox:datasets"]
+        if tool_name in {"assess_authored_report_changes", "propose_authored_report_edit", "decide_authored_report_edit"}:
+            return ["knowledge:reports:read", "knowledge:reports:write"]
+        if tool_name == "inspect_authored_report_edit":
+            return ["knowledge:reports:read"]
+        if tool_name == "register_research_analysis":
+            return ["knowledge:analysis:write", "knowledge:dataset:read"]
+        if tool_name in {"execute_research_analysis", "cancel_research_analysis_run", "recover_research_analysis_run"}:
+            return ["knowledge:analysis:read", "knowledge:analysis:execute", "knowledge:dataset:read"]
+        if tool_name in {"inspect_research_analysis", "list_research_analysis_runs", "inspect_research_analysis_run", "export_research_analysis", "compare_research_analysis_runs", "export_research_analysis_package"}:
+            return ["knowledge:analysis:read", "knowledge:dataset:read"] + (["knowledge:packages:read"] if tool_name.endswith("_package") else [])
         return ["knowledge-engine-runtime"]
     if server_stem == "contract_mcp":
         return ["contract-schemas"]
@@ -315,6 +375,8 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
     if server_stem == "subscriptions_mcp":
         if tool_name.startswith(("create_", "update_", "pause_", "resume_", "delete_")):
             return ["knowledge:subscriptions:write"]
+        if tool_name in {"claim_subscription_deliveries", "acknowledge_subscription_delivery", "fail_subscription_delivery", "redrive_subscription_delivery"}:
+            return ["knowledge:subscriptions:deliver"]
         if tool_name.startswith("pending_"):
             return ["knowledge:subscriptions:deliver"]
         return ["knowledge:subscriptions:read"]
@@ -331,6 +393,66 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
             return ["knowledge:memory:admin"]
         return ["knowledge:memory:read"]
     if server_stem == "knowledge_engine_mcp":
+        if tool_name == "create_persistent_research_loop":
+            return ["knowledge:projects:read", "knowledge:projects:write", "knowledge:recipes:write", "knowledge:gaps:read", "knowledge:source-planner:read"]
+        if tool_name == "inspect_persistent_research_loop":
+            return ["knowledge:projects:read"]
+        if tool_name == "run_persistent_research_loop":
+            return ["knowledge:projects:read", "knowledge:projects:write", "knowledge:projects:execute", "knowledge:recipes:execute", "knowledge:source-planner:read", "knowledge:source-planner:execute", "knowledge:gaps:write", "knowledge:read"]
+        if tool_name in {"cancel_persistent_research_loop", "resume_persistent_research_loop"}:
+            return ["knowledge:projects:read", "knowledge:projects:write"]
+        if tool_name in {"reserve_research_project_budget", "settle_research_project_budget"}:
+            return ["knowledge:projects:write"]
+        if tool_name == "inspect_research_project_budget":
+            return ["knowledge:projects:read"]
+        if tool_name in {"create_decision_condition_watch", "poll_decision_condition_watch", "acknowledge_decision_review_task"}:
+            return ["knowledge:decisions:read", "knowledge:decisions:write", "knowledge:projects:read"] + (["knowledge:briefs:read", "knowledge:briefs:write", "knowledge:briefs:deliver"] if tool_name == "poll_decision_condition_watch" else ["knowledge:briefs:deliver"] if tool_name == "acknowledge_decision_review_task" else [])
+        if tool_name in {"inspect_decision_condition_watch", "list_decision_review_tasks"}:
+            return ["knowledge:decisions:read", "knowledge:projects:read"]
+        if tool_name in {"create_review_inbox_task", "assign_review_inbox_task"}:
+            return ["knowledge:inbox:read", "knowledge:inbox:write"]
+        if tool_name in {"list_review_inbox_tasks", "inspect_review_inbox_task"}:
+            return ["knowledge:inbox:read"]
+        if tool_name in {"submit_review_inbox_annotation", "resolve_review_inbox_task"}:
+            return ["knowledge:inbox:read", "knowledge:inbox:review"]
+        if tool_name in {"build_review_annotation_dataset", "release_review_annotation_dataset", "export_review_annotation_dataset", "evaluate_review_annotation_predictions"}:
+            return ["knowledge:inbox:read", "knowledge:inbox:datasets"]
+        if tool_name in {"assess_authored_report_changes", "propose_authored_report_edit", "decide_authored_report_edit"}:
+            return ["knowledge:reports:read", "knowledge:reports:write"]
+        if tool_name == "inspect_authored_report_edit":
+            return ["knowledge:reports:read"]
+        if tool_name == "register_research_analysis":
+            return ["knowledge:analysis:write", "knowledge:dataset:read"]
+        if tool_name in {"execute_research_analysis", "cancel_research_analysis_run", "recover_research_analysis_run"}:
+            return ["knowledge:analysis:read", "knowledge:analysis:execute", "knowledge:dataset:read"]
+        if tool_name in {"inspect_research_analysis", "list_research_analysis_runs", "inspect_research_analysis_run", "export_research_analysis", "compare_research_analysis_runs", "export_research_analysis_package"}:
+            return ["knowledge:analysis:read", "knowledge:dataset:read"] + (["knowledge:packages:read"] if tool_name.endswith("_package") else [])
+        if tool_name in {"create_authored_report", "revise_authored_report", "reopen_authored_report"}:
+            return ["knowledge:reports:write"]
+        if tool_name in {"inspect_authored_report", "export_authored_report"}:
+            return ["knowledge:reports:read"]
+        if tool_name in {"create_binary_forecast", "revise_binary_forecast", "resolve_binary_forecast"}:
+            return ["knowledge:forecasts:write"]
+        if tool_name in {"inspect_binary_forecast", "propose_forecast_resolution", "score_binary_forecasts"}:
+            return ["knowledge:forecasts:read"]
+        if tool_name in {"create_research_decision", "revise_research_decision", "calculate_decision_sensitivity"}:
+            return ["knowledge:decisions:write", "knowledge:projects:read"]
+        if tool_name == "inspect_research_decision":
+            return ["knowledge:decisions:read", "knowledge:projects:read"]
+        if tool_name in {"create_review_protocol", "amend_review_protocol", "add_review_candidate", "screen_review_candidate", "adjudicate_review_candidate", "extract_review_field", "review_study_field"}:
+            return ["knowledge:reviews:write"]
+        if tool_name in {"inspect_review_protocol", "export_systematic_review", "list_review_candidates", "inspect_review_candidate"}:
+            return ["knowledge:reviews:read"]
+        if tool_name == "sync_zotero_library":
+            return ["knowledge:zotero:sync"]
+        if tool_name in {"list_zotero_items", "inspect_zotero_item", "export_zotero_bibliography"}:
+            return ["knowledge:zotero:read"]
+        if tool_name == "set_research_package_trust_policy":
+            return ["knowledge:packages:trust"]
+        if tool_name in {"branch_research_project", "create_research_project", "revise_research_project", "archive_research_project", "record_research_project_expenditure"}:
+            return ["knowledge:projects:write"]
+        if tool_name in {"compare_research_projects", "inspect_research_project", "list_research_projects"}:
+            return ["knowledge:projects:read"]
         if tool_name in {
             "create_research_package_manifest",
             "register_research_package_component",

@@ -69,6 +69,7 @@ def canonicalize_url(url: str) -> str:
     kept = [
         (k, v) for k, v in parse_qsl(parts.query, keep_blank_values=True)
         if not _is_tracking(k)
+        and not (host in {"theguardian.com", "www.theguardian.com"} and k.casefold() == "cmp")
     ]
     query = urlencode(sorted(kept))
 

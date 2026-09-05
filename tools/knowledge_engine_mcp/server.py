@@ -98,6 +98,7 @@ def knowledge_engine_capabilities() -> dict:
             "noesis-derived-object-replay-v1",
             "noesis-derived-object-lineage-v1",
             "noesis-research-snapshot-v1",
+            "noesis-research-project-v1",
             "noesis-research-snapshot-token-v1",
             "noesis-epistemic-taxonomy-v1",
             "noesis-epistemic-assessment-v1",
@@ -7681,7 +7682,9 @@ def archive_knowledge_checkpoint(
 
 @mcp.tool()
 def restore_knowledge_archive(
-    namespace: str, archive_id: str, storage_available: bool = True
+    namespace: str, archive_id: str, storage_available: bool = True,
+    manifest: dict[str, Any] | None = None,
+    supported_schema_versions: list[str] | None = None,
 ) -> dict:
     """Verify and atomically restore a cold archive."""
     from src.kb.knowledge_retention import KnowledgeRetentionStore
@@ -7691,6 +7694,8 @@ def restore_knowledge_archive(
             namespace,
             archive_id,
             storage_available=storage_available,
+            manifest=manifest,
+            supported_schema_versions=tuple(supported_schema_versions or ["1", "2", "3"]),
             principal_id=_context()[0],
             scopes={"knowledge:retention:execute"},
         ),
@@ -7782,6 +7787,371 @@ def inspect_retention_health(namespace: str) -> dict:
         ),
         required_scope="knowledge:retention:read",
     )
+
+
+@mcp.tool()
+def create_research_project(namespace: str, request_key: str, questions: list[str],
+                            success_criteria: list[str], scope: dict[str, Any], budget: dict[str, int]) -> dict:
+    """Create an owner-scoped persistent investigation with explicit success criteria and budget."""
+    from src.kb.research_projects import WRITE_SCOPE, ResearchProjectStore
+    return _safe(lambda c: ResearchProjectStore(c).create(
+        namespace, request_key, questions=questions, success_criteria=success_criteria,
+        scope=scope, budget=budget, principal_id=_context()[0], scopes=_context()[1]),
+        write=True, required_scope=WRITE_SCOPE)
+
+
+@mcp.tool()
+def create_authored_report(namespace: str, request_key: str, content: dict[str, Any]) -> dict:
+    """Persist authored sections, assertions, source revisions, bibliography, and limitations."""
+    from src.kb.authored_reports import WRITE_SCOPE, AuthoredReportStore
+    return _safe(lambda c: AuthoredReportStore(c).create(namespace, request_key, content,
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope=WRITE_SCOPE)
+
+
+@mcp.tool()
+def create_binary_forecast(namespace: str, request_key: str, question: str, outcome_rule: str,
+                            resolution_at_ms: int, probability: float, evidence: list[dict[str, Any]],
+                            resolution_match: dict[str, str] | None = None) -> dict:
+    """Record an explicit probability, resolution rule, deadline, forecaster, and evidence references."""
+    from src.kb.forecasts import WRITE_SCOPE, ForecastStore
+    return _safe(lambda c: ForecastStore(c).create(namespace, request_key, question=question,
+        outcome_rule=outcome_rule, resolution_at_ms=resolution_at_ms, probability=probability, evidence=evidence,
+        resolution_match=resolution_match, principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope=WRITE_SCOPE)
+
+
+@mcp.tool()
+def create_research_decision(namespace: str, request_key: str, content: dict[str, Any]) -> dict:
+    """Record options, preferences, evidence, action, and review conditions against a project revision."""
+    from src.kb.decisions import WRITE_SCOPE, DecisionStore
+    return _safe(lambda c: DecisionStore(c).create(namespace, request_key, content,
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope=WRITE_SCOPE)
+
+
+@mcp.tool()
+def create_review_protocol(namespace: str, request_key: str, content: dict[str, Any]) -> dict:
+    """Register eligibility criteria, search plan, independent reviewers, and study fields."""
+    from src.kb.systematic_reviews import WRITE_SCOPE, SystematicReviewStore
+    return _safe(lambda c: SystematicReviewStore(c).create(namespace, request_key, content,
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope=WRITE_SCOPE)
+
+
+@mcp.tool()
+def sync_zotero_library(namespace: str, library_id: str, library_type: str, mode: str = "web",
+                        credential_env: str | None = None, max_items: int = 10000, timeout_seconds: int = 60) -> dict:
+    """Read Zotero v3 into owner-scoped history with an atomic incremental checkpoint; no write-back."""
+    from src.ingestion.zotero_sync import (
+        WRITE_SCOPE,
+        ZoteroReadClient,
+        ZoteroSyncError,
+        ZoteroSyncStore,
+        _authorize,
+    )
+    def sync(conn):
+        import os
+        import re
+        principal, scopes = _context()
+        _authorize(namespace, principal, scopes, write=True)
+        key = None
+        if credential_env:
+            if mode != "web" or not re.fullmatch(r"NOESIS_ZOTERO_[A-Z0-9_]+", credential_env):
+                raise ZoteroSyncError("invalid_credentials", "Web credentials require a configured NOESIS_ZOTERO_ environment reference")
+            if "operator" not in scopes and f"credential:{credential_env}:use" not in scopes:
+                raise ZoteroSyncError("unauthorized", "current permission to use this credential is required")
+            key = os.getenv(credential_env)
+            if not key:
+                raise ZoteroSyncError("credentials_unavailable", "configured Zotero credential is unavailable")
+        client = ZoteroReadClient(library_id, library_type, mode=mode, api_key=key, timeout_seconds=timeout_seconds)
+        try:
+            return ZoteroSyncStore(conn).sync(namespace, client, principal_id=principal, scopes=scopes, max_items=max_items)
+        finally:
+            client.close()
+    return _safe(sync, write=True, required_scope=WRITE_SCOPE)
+
+
+@mcp.tool()
+def list_zotero_items(namespace: str, library: str, include_deleted: bool = False, limit: int = 100, offset: int = 0) -> dict:
+    """List the current owner's imported items, including explicit attachment and deletion states."""
+    from src.ingestion.zotero_sync import READ_SCOPE, ZoteroSyncStore
+    return _safe(lambda c: ZoteroSyncStore(c, initialize=False).items(namespace, library, include_deleted=include_deleted,
+        limit=limit, offset=offset, principal_id=_context()[0], scopes=_context()[1]), required_scope=READ_SCOPE)
+
+
+@mcp.tool()
+def inspect_zotero_item(namespace: str, library: str, key: str, version: int | None = None) -> dict:
+    """Reopen an imported item revision while separately reporting its current external lifecycle."""
+    from src.ingestion.zotero_sync import READ_SCOPE, ZoteroSyncStore
+    return _safe(lambda c: ZoteroSyncStore(c, initialize=False).inspect_item(namespace, library, key, version=version,
+        principal_id=_context()[0], scopes=_context()[1]), required_scope=READ_SCOPE)
+
+
+@mcp.tool()
+def export_zotero_bibliography(namespace: str, library: str, item_keys: list[str], item_versions: dict[str, int] | None = None,
+                                report_id: str | None = None, report_namespace: str | None = None) -> dict:
+    """Export stable-key CSL JSON/BibTeX with pinned item versions and optional report citation closure."""
+    from src.ingestion.zotero_sync import READ_SCOPE, ZoteroSyncStore
+    return _safe(lambda c: ZoteroSyncStore(c, initialize=False).export_bibliography(namespace, library, item_keys,
+        item_versions=item_versions, report_id=report_id, report_namespace=report_namespace,
+        principal_id=_context()[0], scopes=_context()[1]), required_scope=READ_SCOPE)
+
+
+@mcp.tool()
+def inspect_review_protocol(namespace: str, protocol_id: str, revision: int | None = None) -> dict:
+    """Inspect current or historical protocol criteria under current access."""
+    from src.kb.systematic_reviews import READ_SCOPE, SystematicReviewStore
+    return _safe(lambda c: SystematicReviewStore(c, initialize=False).inspect(namespace, protocol_id, revision=revision,
+        principal_id=_context()[0], scopes=_context()[1]), required_scope=READ_SCOPE)
+
+
+@mcp.tool()
+def amend_review_protocol(namespace: str, protocol_id: str, expected_revision: int, content: dict[str, Any], rationale: str) -> dict:
+    """Append a visible protocol amendment without rewriting candidates' original criteria."""
+    from src.kb.systematic_reviews import WRITE_SCOPE, SystematicReviewStore
+    return _safe(lambda c: SystematicReviewStore(c).amend(namespace, protocol_id, expected_revision, content, rationale,
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope=WRITE_SCOPE)
+
+
+@mcp.tool()
+def add_review_candidate(namespace: str, protocol_id: str, protocol_revision: int, publication_id: str,
+                          source_revision: str, source_namespace: str, search_run_id: str, study_id: str,
+                          title: str, abstract: str, full_text_available: bool) -> dict:
+    """Trace a publication to its search run, protocol version, source revision, and study group."""
+    from src.kb.systematic_reviews import WRITE_SCOPE, SystematicReviewStore
+    return _safe(lambda c: SystematicReviewStore(c).add_candidate(namespace, protocol_id, protocol_revision,
+        publication_id=publication_id, source_revision=source_revision, source_namespace=source_namespace,
+        search_run_id=search_run_id, study_id=study_id, title=title, abstract=abstract, full_text_available=full_text_available,
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope=WRITE_SCOPE)
+
+
+@mcp.tool()
+def screen_review_candidate(namespace: str, candidate_id: str, stage: str, expected_revision: int, decision: str, reason: str) -> dict:
+    """Record the current reviewer's independent eligibility decision and reason."""
+    from src.kb.systematic_reviews import WRITE_SCOPE, SystematicReviewStore
+    return _safe(lambda c: SystematicReviewStore(c).screen(namespace, candidate_id, stage, expected_revision, decision, reason,
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope=WRITE_SCOPE)
+
+
+@mcp.tool()
+def list_review_candidates(namespace: str, protocol_id: str, limit: int = 50, offset: int = 0) -> dict:
+    """List authorized screening candidates while hiding other reviewers' decisions."""
+    from src.kb.systematic_reviews import READ_SCOPE, SystematicReviewStore
+    return _safe(lambda c: SystematicReviewStore(c, initialize=False).list_candidates(namespace, protocol_id,
+        limit=limit, offset=offset, principal_id=_context()[0], scopes=_context()[1]), required_scope=READ_SCOPE)
+
+
+@mcp.tool()
+def inspect_review_candidate(namespace: str, candidate_id: str) -> dict:
+    """Inspect a candidate with independent reviewers blinded to one another's decisions."""
+    from src.kb.systematic_reviews import READ_SCOPE, SystematicReviewStore
+    return _safe(lambda c: SystematicReviewStore(c, initialize=False).inspect_candidate(namespace, candidate_id,
+        principal_id=_context()[0], scopes=_context()[1]), required_scope=READ_SCOPE)
+
+
+@mcp.tool()
+def adjudicate_review_candidate(namespace: str, candidate_id: str, stage: str, screening_hash: str, decision: str, reason: str) -> dict:
+    """Resolve a screening disagreement against its exact reviewed decision set."""
+    from src.kb.systematic_reviews import WRITE_SCOPE, SystematicReviewStore
+    return _safe(lambda c: SystematicReviewStore(c).adjudicate(namespace, candidate_id, stage, screening_hash, decision, reason,
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope=WRITE_SCOPE)
+
+
+@mcp.tool()
+def extract_review_field(namespace: str, candidate_id: str, field_name: str, value: str, start: int, end: int) -> dict:
+    """Propose a protocol-defined study value anchored to an exact committed source span."""
+    from src.kb.systematic_reviews import WRITE_SCOPE, SystematicReviewStore
+    return _safe(lambda c: SystematicReviewStore(c).extract_field(namespace, candidate_id, field_name, value, start, end,
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope=WRITE_SCOPE)
+
+
+@mcp.tool()
+def review_study_field(namespace: str, field_id: str, expected_revision: int, decision: str, reason: str) -> dict:
+    """Record a second reviewer's evaluation of a proposed study-field value."""
+    from src.kb.systematic_reviews import WRITE_SCOPE, SystematicReviewStore
+    return _safe(lambda c: SystematicReviewStore(c).review_field(namespace, field_id, expected_revision, decision, reason,
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope=WRITE_SCOPE)
+
+
+@mcp.tool()
+def export_systematic_review(namespace: str, protocol_id: str, limit: int = 10000) -> dict:
+    """Export screening counts, study fields, unresolved cases, amendments, and ASReview input."""
+    from src.kb.systematic_reviews import READ_SCOPE, SystematicReviewStore
+    return _safe(lambda c: SystematicReviewStore(c, initialize=False).export(namespace, protocol_id, limit=limit,
+        principal_id=_context()[0], scopes=_context()[1]), required_scope=READ_SCOPE)
+
+
+@mcp.tool()
+def inspect_research_decision(namespace: str, decision_id: str, revision: int | None = None) -> dict:
+    """Inspect current or historical decision context under current project access."""
+    from src.kb.decisions import READ_SCOPE, DecisionStore
+    return _safe(lambda c: DecisionStore(c, initialize=False).inspect(namespace, decision_id, revision=revision,
+        principal_id=_context()[0], scopes=_context()[1]), required_scope=READ_SCOPE)
+
+
+@mcp.tool()
+def revise_research_decision(namespace: str, decision_id: str, expected_revision: int, content: dict[str, Any]) -> dict:
+    """Append a new decision while preserving earlier choices and their project baselines."""
+    from src.kb.decisions import WRITE_SCOPE, DecisionStore
+    return _safe(lambda c: DecisionStore(c).revise(namespace, decision_id, expected_revision, content,
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope=WRITE_SCOPE)
+
+
+@mcp.tool()
+def calculate_decision_sensitivity(namespace: str, decision_id: str, revision: int, weights: dict[str, Any],
+                                    inputs: dict[str, Any], scenarios: list[dict[str, Any]], provenance: str) -> dict:
+    """Record bounded weighted-utility comparisons with ties, missing data, and formula provenance."""
+    from src.kb.decisions import WRITE_SCOPE, DecisionStore
+    return _safe(lambda c: DecisionStore(c).sensitivity(namespace, decision_id, revision, weights=weights,
+        inputs=inputs, scenarios=scenarios, provenance=provenance, principal_id=_context()[0], scopes=_context()[1]),
+        write=True, required_scope=WRITE_SCOPE)
+
+
+@mcp.tool()
+def inspect_binary_forecast(namespace: str, forecast_id: str, cutoff_ms: int | None = None,
+                            outcome_cutoff_ms: int | None = None) -> dict:
+    """Inspect a forecast and reviewed outcome as recorded by explicit historical cutoffs."""
+    from src.kb.forecasts import READ_SCOPE, ForecastStore
+    return _safe(lambda c: ForecastStore(c, initialize=False).inspect(namespace, forecast_id,
+        cutoff_ms=cutoff_ms, outcome_cutoff_ms=outcome_cutoff_ms, principal_id=_context()[0], scopes=_context()[1]), required_scope=READ_SCOPE)
+
+
+@mcp.tool()
+def revise_binary_forecast(namespace: str, forecast_id: str, expected_revision: int, probability: float,
+                            evidence: list[dict[str, Any]], rationale: str, outcome_rule: str | None = None,
+                            resolution_match: dict[str, str] | None = None) -> dict:
+    """Revise a forecast before its deadline, preserving prior probabilities and rule versions."""
+    from src.kb.forecasts import WRITE_SCOPE, ForecastStore
+    return _safe(lambda c: ForecastStore(c).revise(namespace, forecast_id, expected_revision,
+        probability=probability, evidence=evidence, rationale=rationale, outcome_rule=outcome_rule,
+        resolution_match=resolution_match, principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope=WRITE_SCOPE)
+
+
+@mcp.tool()
+def propose_forecast_resolution(namespace: str, forecast_id: str) -> dict:
+    """Match registered quantitative rules to sourced observations without settling the forecast."""
+    from src.kb.forecasts import READ_SCOPE, ForecastStore
+    return _safe(lambda c: ForecastStore(c, initialize=False).propose_resolution(namespace, forecast_id,
+        principal_id=_context()[0], scopes=_context()[1]), required_scope=READ_SCOPE)
+
+
+@mcp.tool()
+def resolve_binary_forecast(namespace: str, forecast_id: str, expected_outcome_revision: int, status: str,
+                            outcome: int | None, evidence: list[dict[str, Any]], rationale: str,
+                            forecast_revision: int) -> dict:
+    """Record a reviewed outcome, dispute, cancellation, or retrospective correction."""
+    from src.kb.forecasts import WRITE_SCOPE, ForecastStore
+    return _safe(lambda c: ForecastStore(c).resolve(namespace, forecast_id, expected_outcome_revision,
+        status=status, outcome=outcome, evidence=evidence, rationale=rationale, forecast_revision=forecast_revision,
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope=WRITE_SCOPE)
+
+
+@mcp.tool()
+def score_binary_forecasts(namespace: str, forecast_ids: list[str], cutoff_ms: int,
+                            outcome_cutoff_ms: int | None = None) -> dict:
+    """Score a specified cohort with Brier scores, reliability intervals, baseline, and exclusions."""
+    from src.kb.forecasts import READ_SCOPE, ForecastStore
+    return _safe(lambda c: ForecastStore(c, initialize=False).score(namespace, forecast_ids, cutoff_ms=cutoff_ms,
+        outcome_cutoff_ms=outcome_cutoff_ms, principal_id=_context()[0], scopes=_context()[1]), required_scope=READ_SCOPE)
+
+
+@mcp.tool()
+def inspect_authored_report(namespace: str, report_id: str, revision: int | None = None) -> dict:
+    """Reopen the current or historical report without regenerating authored wording."""
+    from src.kb.authored_reports import READ_SCOPE, AuthoredReportStore
+    return _safe(lambda c: AuthoredReportStore(c, initialize=False).inspect(namespace, report_id,
+        revision=revision, principal_id=_context()[0], scopes=_context()[1]), required_scope=READ_SCOPE)
+
+
+@mcp.tool()
+def revise_authored_report(namespace: str, report_id: str, expected_revision: int, content: dict[str, Any]) -> dict:
+    """Append an authored revision with conflict checks and preserved historical versions."""
+    from src.kb.authored_reports import WRITE_SCOPE, AuthoredReportStore
+    return _safe(lambda c: AuthoredReportStore(c).revise(namespace, report_id, expected_revision, content,
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope=WRITE_SCOPE)
+
+
+@mcp.tool()
+def export_authored_report(namespace: str, report_id: str, revision: int | None = None) -> dict:
+    """Export report JSON, Markdown, and bibliography without external publication."""
+    from src.kb.authored_reports import READ_SCOPE, AuthoredReportStore
+    return _safe(lambda c: AuthoredReportStore(c, initialize=False).export(namespace, report_id,
+        revision=revision, principal_id=_context()[0], scopes=_context()[1]), required_scope=READ_SCOPE)
+
+
+@mcp.tool()
+def reopen_authored_report(namespace: str, request_key: str, package: dict[str, Any]) -> dict:
+    """Verify an exported report's content hash and preserve its authored contents in a new ledger."""
+    from src.kb.authored_reports import WRITE_SCOPE, AuthoredReportStore
+    return _safe(lambda c: AuthoredReportStore(c).reopen(namespace, request_key, package,
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope=WRITE_SCOPE)
+
+
+@mcp.tool()
+def inspect_research_project(namespace: str, project_id: str, revision: int | None = None) -> dict:
+    """Reopen a project or historical revision without rerunning its completed work."""
+    from src.kb.research_projects import READ_SCOPE, ResearchProjectStore
+    return _safe(lambda c: ResearchProjectStore(c, initialize=False).inspect(
+        namespace, project_id, revision=revision, principal_id=_context()[0], scopes=_context()[1]),
+        required_scope=READ_SCOPE)
+
+
+@mcp.tool()
+def list_research_projects(namespace: str, limit: int = 50, offset: int = 0) -> dict:
+    """List currently authorized projects in a namespace."""
+    from src.kb.research_projects import READ_SCOPE, ResearchProjectStore
+    return _safe(lambda c: ResearchProjectStore(c, initialize=False).list(
+        namespace, limit=limit, offset=offset, principal_id=_context()[0], scopes=_context()[1]),
+        required_scope=READ_SCOPE)
+
+
+@mcp.tool()
+def revise_research_project(namespace: str, project_id: str, expected_revision: int,
+                            questions: list[str] | None = None, success_criteria: list[str] | None = None,
+                            add_links: list[dict[str, Any]] | None = None, status: str | None = None,
+                            replace_links: list[dict[str, Any]] | None = None) -> dict:
+    """Append question, evidence, or lifecycle changes with optimistic revision checks."""
+    from src.kb.research_projects import WRITE_SCOPE, ResearchProjectStore
+    return _safe(lambda c: ResearchProjectStore(c).revise(
+        namespace, project_id, expected_revision, questions=questions, success_criteria=success_criteria,
+        add_links=add_links, replace_links=replace_links, status=status, principal_id=_context()[0], scopes=_context()[1]),
+        write=True, required_scope=WRITE_SCOPE)
+
+
+@mcp.tool()
+def branch_research_project(namespace: str, project_id: str, revision: int, request_key: str,
+                            baseline: dict[str, int], changes: dict[str, Any], budget: dict[str, int]) -> dict:
+    """Branch an explicit project revision against retained committed namespace generations."""
+    from src.kb.project_branches import ProjectBranchStore
+    from src.kb.research_projects import WRITE_SCOPE
+    return _safe(lambda c: ProjectBranchStore(c).branch(namespace, project_id, revision, request_key,
+        baseline=baseline, changes=changes, budget=budget, principal_id=_context()[0], scopes=_context()[1]),
+        write=True, required_scope=WRITE_SCOPE)
+
+
+@mcp.tool()
+def compare_research_projects(namespace: str, left_id: str, right_id: str) -> dict:
+    """Compare shared-baseline references and costs, disclosing unavailable evidence and coverage."""
+    from src.kb.project_branches import ProjectBranchStore
+    from src.kb.research_projects import READ_SCOPE
+    return _safe(lambda c: ProjectBranchStore(c, initialize=False).compare(namespace, left_id, right_id,
+        principal_id=_context()[0], scopes=_context()[1]), required_scope=READ_SCOPE)
+
+
+@mcp.tool()
+def archive_research_project(namespace: str, project_id: str, expected_revision: int) -> dict:
+    """Archive a project while retaining its question and evidence history."""
+    from src.kb.research_projects import WRITE_SCOPE, ResearchProjectStore
+    return _safe(lambda c: ResearchProjectStore(c).revise(
+        namespace, project_id, expected_revision, status="archived", principal_id=_context()[0], scopes=_context()[1]),
+        write=True, required_scope=WRITE_SCOPE)
+
+
+@mcp.tool()
+def record_research_project_expenditure(namespace: str, project_id: str, receipt_id: str,
+                                        costs: dict[str, int], expected_revision: int) -> dict:
+    """Account for a committed execution receipt once against a project's cumulative budget."""
+    from src.kb.research_projects import WRITE_SCOPE, ResearchProjectStore
+    return _safe(lambda c: ResearchProjectStore(c).record_expenditure(
+        namespace, project_id, receipt_id, costs, expected_revision, principal_id=_context()[0], scopes=_context()[1]),
+        write=True, required_scope=WRITE_SCOPE)
 
 
 @mcp.tool()
@@ -7978,11 +8348,33 @@ def verify_research_package(
 
 
 @mcp.tool()
+def set_research_package_trust_policy(
+    namespace: str,
+    public_keys: dict[str, Any],
+    require_signature: bool = True,
+    expected_revision: int = 0,
+) -> dict:
+    """Version the trusted signer policy for an isolated import namespace."""
+    from src.kb.research_packages import TRUST_SCOPE, ResearchPackageStore
+
+    return _safe(
+        lambda c: ResearchPackageStore(c).set_trust_policy(
+            namespace, public_keys, require_signature=require_signature,
+            expected_revision=expected_revision, principal_id=_context()[0], scopes={TRUST_SCOPE},
+        ),
+        write=True,
+        required_scope=TRUST_SCOPE,
+    )
+
+
+@mcp.tool()
 def import_research_package(
     package: dict[str, Any],
     target_namespace: str,
     trusted_recipe_ids: list[str] | None = None,
     cancel_requested: bool = False,
+    public_keys: dict[str, Any] | None = None,
+    require_signature: bool = False,
 ) -> dict:
     """Import verified members atomically into an isolated import namespace."""
     from src.kb.research_packages import ResearchPackageStore
@@ -7993,6 +8385,8 @@ def import_research_package(
             target_namespace,
             trusted_recipe_ids=trusted_recipe_ids or [],
             cancel_requested=cancel_requested,
+            public_keys=public_keys,
+            require_signature=require_signature,
             principal_id=_context()[0],
             scopes={"knowledge:packages:import"},
         ),
@@ -8034,6 +8428,321 @@ def rollback_research_package_import(target_namespace: str, import_id: str) -> d
         write=True,
         required_scope="knowledge:packages:import",
     )
+
+
+@mcp.tool()
+def register_research_analysis(namespace: str, request_key: str, manifest: dict[str, Any]) -> dict:
+    """Freeze exact dataset slices, notebook code, parameters, environment identity, and execution limits."""
+    from src.kb.research_analysis import WRITE_SCOPE, ResearchAnalysisStore
+    return _safe(lambda c: ResearchAnalysisStore(c).register(namespace, request_key, manifest,
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope=WRITE_SCOPE)
+
+
+@mcp.tool()
+def execute_research_analysis(namespace: str, analysis_id: str, request_key: str) -> dict:
+    """Execute pinned code in a bounded rootless container with no network or inherited credentials."""
+    from src.kb.research_analysis import EXECUTE_SCOPE, ResearchAnalysisStore
+    return _safe(lambda c: ResearchAnalysisStore(c).execute(namespace, analysis_id, request_key,
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope=EXECUTE_SCOPE)
+
+
+@mcp.tool()
+def inspect_research_analysis(namespace: str, analysis_id: str) -> dict:
+    """Inspect a registered manifest under current owner and input access."""
+    from src.kb.research_analysis import READ_SCOPE, ResearchAnalysisStore
+    return _safe(lambda c: ResearchAnalysisStore(c, initialize=False).inspect(namespace, analysis_id,
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope=READ_SCOPE)
+
+
+@mcp.tool()
+def list_research_analysis_runs(namespace: str, analysis_id: str, offset: int = 0, limit: int = 100) -> dict:
+    """Page through persisted runs for a registered analysis."""
+    from src.kb.research_analysis import READ_SCOPE, ResearchAnalysisStore
+    return _safe(lambda c: ResearchAnalysisStore(c, initialize=False).list_runs(namespace, analysis_id, offset=offset, limit=limit,
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope=READ_SCOPE)
+
+
+@mcp.tool()
+def inspect_research_analysis_run(namespace: str, run_id: str) -> dict:
+    """Inspect execution status, outputs, isolation receipt, and cell provenance."""
+    from src.kb.research_analysis import READ_SCOPE, ResearchAnalysisStore
+    return _safe(lambda c: ResearchAnalysisStore(c, initialize=False).inspect_run(namespace, run_id,
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope=READ_SCOPE)
+
+
+@mcp.tool()
+def cancel_research_analysis_run(namespace: str, run_id: str) -> dict:
+    """Request durable cancellation of a running notebook."""
+    from src.kb.research_analysis import EXECUTE_SCOPE, ResearchAnalysisStore
+    return _safe(lambda c: ResearchAnalysisStore(c, initialize=False).cancel(namespace, run_id,
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope=EXECUTE_SCOPE)
+
+
+@mcp.tool()
+def recover_research_analysis_run(namespace: str, run_id: str) -> dict:
+    """Publish staged results or mark an interrupted run after its hard deadline."""
+    from src.kb.research_analysis import EXECUTE_SCOPE, ResearchAnalysisStore
+    return _safe(lambda c: ResearchAnalysisStore(c, initialize=False).recover(namespace, run_id,
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope=EXECUTE_SCOPE)
+
+
+@mcp.tool()
+def export_research_analysis(namespace: str, run_id: str) -> dict:
+    """Export pinned code, outputs, permitted inputs, and explicit omissions."""
+    from src.kb.research_analysis import READ_SCOPE, ResearchAnalysisStore
+    return _safe(lambda c: ResearchAnalysisStore(c, initialize=False).export(namespace, run_id,
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope=READ_SCOPE)
+
+
+@mcp.tool()
+def export_research_analysis_package(namespace: str, run_id: str) -> dict:
+    """Build an offline research package without persisting private input copies."""
+    from src.kb.research_analysis import READ_SCOPE, ResearchAnalysisStore
+    return _safe(lambda c: ResearchAnalysisStore(c, initialize=False).export_package(namespace, run_id,
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope=READ_SCOPE)
+
+
+@mcp.tool()
+def compare_research_analysis_runs(namespace: str, left_run_id: str, right_run_id: str,
+                                   absolute_tolerance: float = 0.0, relative_tolerance: float = 0.0) -> dict:
+    """Compare completed outputs and provenance using explicit numeric tolerances."""
+    from src.kb.research_analysis import (
+        READ_SCOPE,
+        ResearchAnalysisStore,
+        compare_analysis_outputs,
+    )
+    def operation(c):
+        store = ResearchAnalysisStore(c, initialize=False)
+        auth = {"principal_id": _context()[0], "scopes": _context()[1]}
+        left = store.inspect_run(namespace, left_run_id, **auth)
+        right = store.inspect_run(namespace, right_run_id, **auth)
+        return compare_analysis_outputs(left["result"], right["result"],
+            absolute_tolerance=absolute_tolerance, relative_tolerance=relative_tolerance)
+    return _safe(operation, write=True, required_scope=READ_SCOPE)
+
+
+@mcp.tool()
+def assess_authored_report_changes(namespace: str, report_id: str) -> dict:
+    """Poll committed evidence dependencies and persist a focused report-change assessment."""
+    from src.kb.report_updates import ReportUpdateStore
+    return _safe(lambda c: ReportUpdateStore(c).assess(namespace, report_id,
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope="knowledge:reports:write")
+
+
+@mcp.tool()
+def propose_authored_report_edit(namespace: str, assessment_id: str, assertion_id: str,
+                                 replacement: dict[str, Any] | None = None) -> dict:
+    """Propose an evidence review notice or authored replacement for one affected assertion."""
+    from src.kb.report_updates import ReportUpdateStore
+    return _safe(lambda c: ReportUpdateStore(c).propose(namespace, assessment_id, assertion_id, replacement=replacement,
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope="knowledge:reports:write")
+
+
+@mcp.tool()
+def inspect_authored_report_edit(namespace: str, proposal_id: str) -> dict:
+    """Inspect an individual report proposal and its evidence under current access."""
+    from src.kb.report_updates import ReportUpdateStore
+    return _safe(lambda c: ReportUpdateStore(c, initialize=False).inspect_proposal(namespace, proposal_id,
+        principal_id=_context()[0], scopes=_context()[1]), required_scope="knowledge:reports:read")
+
+
+@mcp.tool()
+def decide_authored_report_edit(namespace: str, proposal_id: str, decision: str, rationale: str) -> dict:
+    """Accept or reject one edit; acceptance preserves report history and checks author/evidence conflicts."""
+    from src.kb.report_updates import ReportUpdateStore
+    return _safe(lambda c: ReportUpdateStore(c).decide_proposal(namespace, proposal_id, decision, rationale,
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope="knowledge:reports:write")
+
+
+@mcp.tool()
+def create_review_inbox_task(namespace: str, target: dict[str, str], sources: list[dict[str, str]], domain: str,
+                             impact: float, uncertainty: float, rationale: str, project: dict[str, str] | None = None,
+                             related_groups: list[str] | None = None) -> dict:
+    """Queue a current evidence reference with declared priority and related-document groups."""
+    from src.kb.review_inbox import WRITE_SCOPE, ReviewInboxStore
+    return _safe(lambda c: ReviewInboxStore(c).create(namespace, target, sources=sources, domain=domain, impact=impact,
+        uncertainty=uncertainty, rationale=rationale, project=project, related_groups=related_groups or [],
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope=WRITE_SCOPE)
+
+
+@mcp.tool()
+def list_review_inbox_tasks(namespace: str, domain: str | None = None, project_id: str | None = None,
+                            limit: int = 10, per_source: int = 2) -> dict:
+    """Rank accessible reviews by impact, uncertainty, recency, and source diversity."""
+    from src.kb.review_inbox import READ_SCOPE, ReviewInboxStore
+    return _safe(lambda c: ReviewInboxStore(c, initialize=False).list(namespace, domain=domain, project_id=project_id, limit=limit, per_source=per_source,
+        principal_id=_context()[0], scopes=_context()[1]), required_scope=READ_SCOPE)
+
+
+@mcp.tool()
+def inspect_review_inbox_task(namespace: str, task_id: str) -> dict:
+    """Inspect a task while preserving independent reviewer blindness before resolution."""
+    from src.kb.review_inbox import READ_SCOPE, ReviewInboxStore
+    return _safe(lambda c: ReviewInboxStore(c, initialize=False).inspect(namespace, task_id,
+        principal_id=_context()[0], scopes=_context()[1]), required_scope=READ_SCOPE)
+
+
+@mcp.tool()
+def assign_review_inbox_task(namespace: str, task_id: str, reviewers: list[str]) -> dict:
+    """Assign two to ten independent reviewers before submissions begin."""
+    from src.kb.review_inbox import WRITE_SCOPE, ReviewInboxStore
+    return _safe(lambda c: ReviewInboxStore(c).assign(namespace, task_id, reviewers,
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope=WRITE_SCOPE)
+
+
+@mcp.tool()
+def submit_review_inbox_annotation(namespace: str, task_id: str, expected_target_hash: str, label: dict[str, Any],
+                                    rationale: str, effort_ms: int, annotation_origin: str) -> dict:
+    """Submit an immutable revision-checked label with declared human/machine origin and effort."""
+    from src.kb.review_inbox import REVIEW_SCOPE, ReviewInboxStore
+    return _safe(lambda c: ReviewInboxStore(c).submit(namespace, task_id, expected_target_hash, label, rationale, effort_ms, annotation_origin,
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope=REVIEW_SCOPE)
+
+
+@mcp.tool()
+def resolve_review_inbox_task(namespace: str, task_id: str, rationale: str,
+                               adjudicated_label: dict[str, Any] | None = None) -> dict:
+    """Route consensus or independent adjudication through the existing domain review API atomically."""
+    from src.kb.review_inbox import REVIEW_SCOPE, ReviewInboxStore
+    return _safe(lambda c: ReviewInboxStore(c).resolve(namespace, task_id, rationale, adjudicated_label=adjudicated_label,
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope=REVIEW_SCOPE)
+
+
+@mcp.tool()
+def build_review_annotation_dataset(namespace: str, task_ids: list[str]) -> dict:
+    """Draft a grouped annotation dataset; disputed and machine labels remain excluded."""
+    from src.kb.review_datasets import DATASET_SCOPE, ReviewDatasetStore
+    return _safe(lambda c: ReviewDatasetStore(c).build_dataset(namespace, task_ids,
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope=DATASET_SCOPE)
+
+
+@mcp.tool()
+def release_review_annotation_dataset(namespace: str, release_id: str, rationale: str) -> dict:
+    """Explicitly release reviewed labels with immutable split guards; never starts training."""
+    from src.kb.review_datasets import DATASET_SCOPE, ReviewDatasetStore
+    return _safe(lambda c: ReviewDatasetStore(c).release_dataset(namespace, release_id, rationale,
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope=DATASET_SCOPE)
+
+
+@mcp.tool()
+def export_review_annotation_dataset(namespace: str, release_id: str) -> dict:
+    """Export a released annotation snapshot under current task and source access."""
+    from src.kb.review_datasets import DATASET_SCOPE, ReviewDatasetStore
+    return _safe(lambda c: ReviewDatasetStore(c, initialize=False).export_dataset(namespace, release_id,
+        principal_id=_context()[0], scopes=_context()[1]), required_scope=DATASET_SCOPE)
+
+
+@mcp.tool()
+def evaluate_review_annotation_predictions(namespace: str, release_id: str, before: dict[str, Any], after: dict[str, Any]) -> dict:
+    """Compare supplied paired predictions against the released held-out consensus labels."""
+    from src.kb.review_datasets import DATASET_SCOPE, ReviewDatasetStore
+    return _safe(lambda c: ReviewDatasetStore(c, initialize=False).evaluate_predictions(namespace, release_id, before, after,
+        principal_id=_context()[0], scopes=_context()[1]), required_scope=DATASET_SCOPE)
+
+
+@mcp.tool()
+def create_decision_condition_watch(namespace: str, decision_id: str, expected_revision: int, conditions: list[dict[str, Any]]) -> dict:
+    """Pin source, assumption-evidence, or exact metric-threshold conditions to a decision revision."""
+    from src.kb.decision_alerts import DecisionAlertStore
+    return _safe(lambda c: DecisionAlertStore(c).create_watch(namespace, decision_id, expected_revision, conditions,
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope="knowledge:decisions:write")
+
+
+@mcp.tool()
+def poll_decision_condition_watch(namespace: str, watch_id: str) -> dict:
+    """Create deduplicated evidence-linked review tasks and retry existing change-brief delivery."""
+    from src.kb.decision_alerts import DecisionAlertStore
+    return _safe(lambda c: DecisionAlertStore(c).poll_watch(namespace, watch_id,
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope="knowledge:decisions:write")
+
+
+@mcp.tool()
+def inspect_decision_condition_watch(namespace: str, watch_id: str) -> dict:
+    """Inspect a decision watch and its last assessment under current evidence access."""
+    from src.kb.decision_alerts import DecisionAlertStore
+    return _safe(lambda c: DecisionAlertStore(c, initialize=False).inspect_watch(namespace, watch_id,
+        principal_id=_context()[0], scopes=_context()[1]), required_scope="knowledge:decisions:read")
+
+
+@mcp.tool()
+def list_decision_review_tasks(namespace: str, watch_id: str, offset: int = 0, limit: int = 100) -> dict:
+    """Page through decision alerts, delivery references, acknowledgements, and later decision links."""
+    from src.kb.decision_alerts import DecisionAlertStore
+    return _safe(lambda c: DecisionAlertStore(c, initialize=False).list_tasks(namespace, watch_id, offset=offset, limit=limit,
+        principal_id=_context()[0], scopes=_context()[1]), required_scope="knowledge:decisions:read")
+
+
+@mcp.tool()
+def acknowledge_decision_review_task(namespace: str, task_id: str, rationale: str, subsequent_revision: int | None = None) -> dict:
+    """Acknowledge a review task separately from an optional later decision revision; never changes the action."""
+    from src.kb.decision_alerts import DecisionAlertStore
+    return _safe(lambda c: DecisionAlertStore(c).acknowledge(namespace, task_id, rationale, subsequent_revision=subsequent_revision,
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope="knowledge:decisions:write")
+
+
+@mcp.tool()
+def reserve_research_project_budget(namespace: str, project_id: str, reservation_id: str, costs: dict[str, int]) -> dict:
+    """Reserve a bounded action's costs atomically against project spending and other in-flight work."""
+    from src.kb.research_projects import WRITE_SCOPE, ResearchProjectStore
+    return _safe(lambda c: ResearchProjectStore(c).reserve_budget(namespace, project_id, reservation_id, costs,
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope=WRITE_SCOPE)
+
+
+@mcp.tool()
+def settle_research_project_budget(namespace: str, project_id: str, reservation_id: str, costs: dict[str, int]) -> dict:
+    """Settle a reservation once from known usage; unknown usage must remain held or use its full ceiling."""
+    from src.kb.research_projects import WRITE_SCOPE, ResearchProjectStore
+    return _safe(lambda c: ResearchProjectStore(c).settle_budget(namespace, project_id, reservation_id, costs,
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope=WRITE_SCOPE)
+
+
+@mcp.tool()
+def inspect_research_project_budget(namespace: str, project_id: str) -> dict:
+    """Inspect spent, held, and available project budget under current access."""
+    from src.kb.research_projects import READ_SCOPE, ResearchProjectStore
+    return _safe(lambda c: ResearchProjectStore(c, initialize=False).inspect_budget(namespace, project_id,
+        principal_id=_context()[0], scopes=_context()[1]), required_scope=READ_SCOPE)
+
+
+@mcp.tool()
+def create_persistent_research_loop(namespace: str, project_id: str, request_key: str,
+                                    bindings: list[dict[str, Any]], limits: dict[str, int]) -> dict:
+    """Compile selected gap tasks and acquisition plans into version-pinned project recipes."""
+    from src.kb.research_loops import ResearchLoopStore
+    return _safe(lambda c: ResearchLoopStore(c).create_loop(namespace, project_id, request_key, bindings, limits,
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope="knowledge:projects:write")
+
+
+@mcp.tool()
+def inspect_persistent_research_loop(namespace: str, loop_id: str) -> dict:
+    """Inspect durable project-loop limits, coverage, provenance and stop reasons."""
+    from src.kb.research_loops import ResearchLoopStore
+    return _safe(lambda c: ResearchLoopStore(c, initialize=False).inspect_loop(namespace, loop_id,
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope="knowledge:projects:read")
+
+
+@mcp.tool()
+def run_persistent_research_loop(namespace: str, loop_id: str, wait_ms: int = 1000) -> dict:
+    """Run live source acquisition and local model recipes in a bounded worker; return by the requested wait/deadline."""
+    from src.kb.research_loops import EXECUTE_SCOPE, ResearchLoopStore
+    return _safe(lambda c: ResearchLoopStore(c).run_bounded(namespace, loop_id, wait_ms=wait_ms,
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope=EXECUTE_SCOPE)
+
+
+@mcp.tool()
+def cancel_persistent_research_loop(namespace: str, loop_id: str) -> dict:
+    """Persist cancellation; in-flight provider work retains its slot and reservation until it returns."""
+    from src.kb.research_loops import ResearchLoopStore
+    return _safe(lambda c: ResearchLoopStore(c).cancel_loop(namespace, loop_id,
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope="knowledge:projects:write")
+
+
+@mcp.tool()
+def resume_persistent_research_loop(namespace: str, loop_id: str) -> dict:
+    """Resume a blocked/cancelled cycle without resetting its deadline, usage or retry history."""
+    from src.kb.research_loops import ResearchLoopStore
+    return _safe(lambda c: ResearchLoopStore(c).resume_loop(namespace, loop_id,
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope="knowledge:projects:write")
 
 
 if __name__ == "__main__":

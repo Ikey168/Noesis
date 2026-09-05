@@ -1,1 +1,2 @@
 data/external_benchmarks/liar/*.tsv whitespace=-blank-at-eol
+tests/fixtures/pdf_benchmark/*.pdf binary

@@ -89,6 +89,9 @@ def main() -> int:
 
         embedded = embed_documents(conn, provider=provider)
         print(f"Embeddings: {embedded} documents embedded")
+        from src.ingestion.chunk_embeddings import embed_document_chunks
+        chunks = embed_document_chunks(conn, provider, limit=10000)
+        print(f"Full-document chunks: {chunks['processed']} documents indexed")
 
     membership = run_membership_pass(conn, registry, provider=provider)
     ensure_domain_views(conn, registry)

@@ -107,6 +107,8 @@ def test_research_package_mcp_exchange_auth_and_isolation(tmp_path, monkeypatch)
 
 
 def test_research_package_catalog():
+    assert _mutability("set_research_package_trust_policy") == "write"
+    assert _required_scopes("knowledge_engine_mcp", "write", "set_research_package_trust_policy") == ["knowledge:packages:trust"]
     assert _mutability("build_research_package") == "write"
     assert _mutability("verify_research_package") == "read"
     assert _required_scopes(
@@ -119,3 +121,20 @@ def test_research_package_catalog():
         "noesis-research-package-v1"
         in server.knowledge_engine_capabilities.fn()["contracts"]
     )
+
+
+def test_trust_policy_tool_requires_separate_scope(tmp_path, monkeypatch):
+    db = tmp_path / "trust.duckdb"
+    scopes = {"knowledge:packages:import"}
+    monkeypatch.setattr(server, "_context", lambda: ("reviewer", scopes))
+    monkeypatch.setattr(server, "_connection", lambda *, read_only: duckdb.connect(str(db)))
+    tools = asyncio.run(server.mcp.get_tools())
+    tool = tools["set_research_package_trust_policy"]
+    assert call(tool, namespace="import:peer", public_keys={})["error"]["code"] == "unauthorized"
+    scopes.add("knowledge:packages:trust")
+    first = call(tool, namespace="import:peer", public_keys={})
+    assert first["revision"] == 1 and first["require_signature"]
+    conflict = call(tool, namespace="import:peer", public_keys={})
+    assert conflict["error"]["code"] == "revision_conflict"
+    second = call(tool, namespace="import:peer", public_keys={}, expected_revision=1, require_signature=False)
+    assert second["revision"] == 2 and not second["require_signature"]

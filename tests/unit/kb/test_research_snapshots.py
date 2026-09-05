@@ -35,7 +35,7 @@ def setup_store():
         "INSERT INTO knowledge_maintenance_generations VALUES "
         "('g1','pack-a',2,7,'w1',3,4,'complete','hash','{}',100)"
     )
-    derived = DerivedRevisionStore(conn)
+    derived = DerivedRevisionStore(conn, fixture_mode=True)
     receipt = derived.apply_generation(
         "ns-a",
         7,

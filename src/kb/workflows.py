@@ -352,6 +352,7 @@ class WorkflowStore:
             "SELECT status,state_json FROM knowledge_workflow_runs WHERE run_id=?", [run_id]
         ).fetchone()
         if prior and prior[0] == "completed":
+            self._reconcile_index_publication(definition, run_id)
             result = self.inspect(run_id)
             result["idempotent"] = True
             return result
@@ -392,6 +393,8 @@ class WorkflowStore:
                 name = stage["name"]
                 if name in completed:
                     state = completed[name]
+                    if name == "index":
+                        watermark = self._reconcile_index_publication(definition, run_id)
                     completed_count += 1
                     continue
                 if cancelled and cancelled():
@@ -490,6 +493,28 @@ class WorkflowStore:
             )
             raise
         return self.inspect(run_id)
+
+    def _reconcile_index_publication(
+        self, definition: Mapping[str, Any], run_id: str
+    ) -> dict[str, Any] | None:
+        """Finish publication from the durable index receipt after interruption.
+
+        Both publication operations are idempotent. The receipt is the durable
+        intent, including the exact indexed state and its original commit time.
+        Never publish a later query/export state as the index generation.
+        """
+        receipt = self.conn.execute(
+            "SELECT output_json,completed_at_ms FROM knowledge_workflow_receipts "
+            "WHERE run_id=? AND stage='index' AND status='completed'",
+            [run_id],
+        ).fetchone()
+        if receipt is None:
+            return None
+        watermark = self._commit_watermark(
+            definition, run_id, _load(receipt[0], {}), int(receipt[1])
+        )
+        self._publish_subscription_watermark(watermark)
+        return watermark
 
     def _watermark_for_run(self, run_id: str) -> dict[str, Any] | None:
         row = self.conn.execute(
@@ -608,6 +633,77 @@ class _FixtureExtractor:
         return list(dict(value.get("metadata") or {}).get("knowledge") or [])
 
 
+class _ArgumentMiningExtractor:
+    def extract(self, value: Mapping[str, Any]) -> Sequence[Mapping[str, Any]]:
+        from services.ingest.common.document_model import Document
+        from src.argument_mining.evidence import extract_claims
+
+        document = Document.from_dict(dict(value["document"]))
+        text = document.content or ""
+        outputs = []
+        for claim in extract_claims(document):
+            locator = {"document_id": document.document_id, "revision_id": value["revision"]}
+            # A unique exact span is safe; ambiguous or normalized text retains
+            # its document revision locator without invented character offsets.
+            if claim.claim_text and text.count(claim.claim_text) == 1:
+                locator["start"] = text.index(claim.claim_text)
+                locator["end"] = locator["start"] + len(claim.claim_text)
+            outputs.append({"output_type": "claim", "value": {
+                "statement": claim.claim_text, "confidence": claim.confidence,
+                "document_id": document.document_id, "prediction_mode": claim.prediction_mode,
+                "source_locator": locator}})
+        return outputs
+
+
+def production_handlers(conn: Any, *, principal_id="maintenance-runner", extractor_definition=None,
+                        extractor_implementation=None) -> dict[str, StageHandler]:
+    """Use a versioned plain-text extractor with explicit unavailable outcomes."""
+    from src.argument_mining.model_registry import resolved_pins
+    from src.kb.extractors import ExtractorRegistry
+
+    definition = extractor_definition or {
+        "name": "argument-mining-text", "semantic_version": "1.0.0",
+        "capabilities": ["claim"], "accepted_object_types": ["document"],
+        "output_schemas": {"claim": "argument-claim-v1"},
+        "implementation": {"model_version": resolved_pins()["claim"]["revision"], "rule_version": "1.0.0"},
+        "configuration": {"model": resolved_pins()["claim"]["model"], "source": "document.content"},
+        "resources": {"network": False},
+    }
+    registry = ExtractorRegistry(conn)
+    implementation = extractor_implementation
+    if implementation is None and definition["name"] == "argument-mining-text":
+        implementation = _ArgumentMiningExtractor()
+    registered = registry.register(definition, implementation)
+
+    def extract(context, state):
+        inputs = [{"id": item["document_id"], "object_type": "document",
+                   "revision": item.get("_revision_id") or _digest(item), "document": item}
+                  for item in state.get("documents") or []]
+        result = registry.run(registered["extractor_id"], context.namespace, inputs, now_ms=context.now_ms)
+        if result["failures"]:
+            raise WorkflowError("handler_unavailable", "configured text extractor could not process the document inputs")
+        return {**state, "extraction": result,
+                "contract_versions": {"extractor": registered["extractor_id"]}, "execution_mode": "production"}
+
+    handlers = reference_handlers(conn, principal_id=principal_id)
+    canonical_ingest = handlers['ingest']
+    def ingest(context, state):
+        from src.ingestion.revisions import DocumentRevisionStore
+        result = canonical_ingest(context, state)
+        revisions = DocumentRevisionStore(conn)
+        for item in result['documents']:
+            revision = revisions.revision(item['document_id'])
+            if revision is None:
+                raise WorkflowError('source_unavailable','production extraction requires a committed active source revision')
+            if item.get('_revision_id') and item['_revision_id'] != revision['revision_id']:
+                raise WorkflowError('source_revision_mismatch','supplied production source revision does not match the committed canonical input')
+            item['_revision_id'] = revision['revision_id']
+        return result
+    handlers['ingest'] = ingest
+    handlers["extract"] = extract
+    return handlers
+
+
 def reference_handlers(conn: Any, *, principal_id: str = "reference-runner") -> dict[str, StageHandler]:
     """Compose real subsystem APIs into deterministic offline stage handlers."""
 
@@ -628,6 +724,8 @@ def reference_handlers(conn: Any, *, principal_id: str = "reference-runner") -> 
         for item in documents:
             document = store.get(str(item.get("document_id", "")))
             if document is not None:
+                if item.get("_revision_id"):
+                    document["_revision_id"] = item["_revision_id"]
                 stored.append(document)
         return {
             **state,
@@ -779,9 +877,11 @@ def reference_handlers(conn: Any, *, principal_id: str = "reference-runner") -> 
             "cadence": {"trigger": "watermark"},
             "delivery": {"kind": "poll"},
         }
-        subscription = store.create(
+        existing = next((item for item in store.list(principal_id=principal_id, scopes=scopes, namespace=context.namespace)
+                         if item["query"] == definition["query"] and item["filters"] == definition["filters"]), None)
+        subscription = existing or store.create(
             definition,
-            context.run_id + ":subscription",
+            "workflow-subscription:" + _digest([principal_id, definition]),
             principal_id=principal_id,
             scopes=scopes,
         )

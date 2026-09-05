@@ -76,6 +76,9 @@ def _seed_world(conn, config_path):
             "INSERT INTO document_domains VALUES (?, 'papers', 1.0, 'source', 'r0', 0)",
             [f"paper-{index}"],
         )
+    # Membership refresh derives source assignments from persisted source tags.
+    conn.execute("""UPDATE documents SET metadata=to_json(struct_pack(tags := [dd.domain]))
+        FROM document_domains dd WHERE documents.document_id=dd.document_id""")
     run_membership_pass(conn, load_registry(config_path))
     run_claim_linking_pass(conn, provider=FakeProvider(), nli=FakeNLI())
     run_clustering_pass(conn)

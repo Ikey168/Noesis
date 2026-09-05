@@ -98,7 +98,8 @@ class CrossEncoderReranker:
         candidates: List[Dict[str, Any]],
         top_k: Optional[int] = None,
         score_fusion: str = "weighted",
-        fusion_weight: float = 0.7
+        fusion_weight: float = 0.7,
+        require_model: bool = False,
     ) -> List[RerankResult]:
         """
         Rerank retrieval candidates using cross-encoder scoring.
@@ -113,6 +114,8 @@ class CrossEncoderReranker:
         Returns:
             List of reranked results with updated scores
         """
+        if require_model and (not self.is_enabled or self.model is None):
+            raise RuntimeError('Configured cross-encoder model is unavailable')
         if not self.is_enabled:
             logger.info("Reranking disabled. Returning original candidates.")
             return self._fallback_rerank(candidates, top_k)
@@ -169,6 +172,8 @@ class CrossEncoderReranker:
             return rerank_results
             
         except Exception as e:
+            if require_model:
+                raise
             logger.error(f"Reranking failed: {e}. Using fallback.")
             return self._fallback_rerank(candidates, top_k)
     

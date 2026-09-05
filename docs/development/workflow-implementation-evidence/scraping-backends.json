@@ -1,0 +1,377 @@
+{
+  "corpus": "authored local static/delayed/missing-article fixtures; not production anti-bot or independent fidelity evaluation",
+  "versions": {
+    "scrapy": "2.18.0",
+    "playwright": "1.62.0",
+    "crawl4ai": "0.9.3",
+    "crawlee": "1.10.0",
+    "trafilatura": "2.2.0"
+  },
+  "runs": [
+    {
+      "backend": "scrapy",
+      "fixture": "/static",
+      "fixture_sha256": "160997301734ffad4f86644b44068918f60da6998cb49a55ad60bde899bcb60a",
+      "status": "completed",
+      "snapshot_sha256": "160997301734ffad4f86644b44068918f60da6998cb49a55ad60bde899bcb60a",
+      "extraction_metadata": {
+        "extractor": "extruct+html-metadata",
+        "version": "0.18.0",
+        "snapshot_sha256": "160997301734ffad4f86644b44068918f60da6998cb49a55ad60bde899bcb60a",
+        "selected": {
+          "title": {
+            "field": "title",
+            "value": "Fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4,
+            "selection_reason": "matching article URL, then article entity, metadata, canonical link, visible heading; locator breaks ties"
+          }
+        },
+        "candidates": [
+          {
+            "field": "title",
+            "value": "Fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4
+          }
+        ],
+        "diagnostics": [],
+        "canonical_identity_authoritative": false,
+        "body_extractor": {
+          "name": "trafilatura",
+          "version": "2.2.0",
+          "locator": "extracted-body; exact source spans unavailable"
+        }
+      },
+      "elapsed_seconds": 0.735802243987564,
+      "peak_parent_rss_kib": 97264,
+      "expected_body_recall": 1.0,
+      "false_body_on_empty": null
+    },
+    {
+      "backend": "scrapy",
+      "fixture": "/delayed",
+      "fixture_sha256": "a2c42009bff802eb3d204ab7f3f2a811f38e300430f65289b5efe7a70e3809ce",
+      "status": "completed",
+      "snapshot_sha256": "a2c42009bff802eb3d204ab7f3f2a811f38e300430f65289b5efe7a70e3809ce",
+      "extraction_metadata": null,
+      "elapsed_seconds": 0.68548710498726,
+      "peak_parent_rss_kib": 122652,
+      "expected_body_recall": 0.0,
+      "false_body_on_empty": null
+    },
+    {
+      "backend": "scrapy",
+      "fixture": "/missing",
+      "fixture_sha256": "4dae6a1dc9f6385419aab724626d2488c3e4116eca0e772092d3304a48165cb7",
+      "status": "completed",
+      "snapshot_sha256": "4dae6a1dc9f6385419aab724626d2488c3e4116eca0e772092d3304a48165cb7",
+      "extraction_metadata": null,
+      "elapsed_seconds": 0.692609910009196,
+      "peak_parent_rss_kib": 122668,
+      "expected_body_recall": null,
+      "false_body_on_empty": false
+    },
+    {
+      "backend": "playwright",
+      "fixture": "/static",
+      "fixture_sha256": "160997301734ffad4f86644b44068918f60da6998cb49a55ad60bde899bcb60a",
+      "status": "completed",
+      "snapshot_sha256": "d6816e957d53ebdd47b31f3efe4a772d146132712798cbf0a6aeeb2d2fcf208b",
+      "extraction_metadata": {
+        "extractor": "extruct+html-metadata",
+        "version": "0.18.0",
+        "snapshot_sha256": "d6816e957d53ebdd47b31f3efe4a772d146132712798cbf0a6aeeb2d2fcf208b",
+        "selected": {
+          "title": {
+            "field": "title",
+            "value": "Fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4,
+            "selection_reason": "matching article URL, then article entity, metadata, canonical link, visible heading; locator breaks ties"
+          }
+        },
+        "candidates": [
+          {
+            "field": "title",
+            "value": "Fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4
+          }
+        ],
+        "diagnostics": [],
+        "canonical_identity_authoritative": false,
+        "body_extractor": {
+          "name": "trafilatura",
+          "version": "2.2.0",
+          "locator": "extracted-body; exact source spans unavailable"
+        }
+      },
+      "elapsed_seconds": 1.0439929680142086,
+      "peak_parent_rss_kib": 74252,
+      "expected_body_recall": 1.0,
+      "false_body_on_empty": null
+    },
+    {
+      "backend": "playwright",
+      "fixture": "/delayed",
+      "fixture_sha256": "a2c42009bff802eb3d204ab7f3f2a811f38e300430f65289b5efe7a70e3809ce",
+      "status": "completed",
+      "snapshot_sha256": "d6816e957d53ebdd47b31f3efe4a772d146132712798cbf0a6aeeb2d2fcf208b",
+      "extraction_metadata": {
+        "extractor": "extruct+html-metadata",
+        "version": "0.18.0",
+        "snapshot_sha256": "d6816e957d53ebdd47b31f3efe4a772d146132712798cbf0a6aeeb2d2fcf208b",
+        "selected": {
+          "title": {
+            "field": "title",
+            "value": "Fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4,
+            "selection_reason": "matching article URL, then article entity, metadata, canonical link, visible heading; locator breaks ties"
+          }
+        },
+        "candidates": [
+          {
+            "field": "title",
+            "value": "Fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4
+          }
+        ],
+        "diagnostics": [],
+        "canonical_identity_authoritative": false,
+        "body_extractor": {
+          "name": "trafilatura",
+          "version": "2.2.0",
+          "locator": "extracted-body; exact source spans unavailable"
+        }
+      },
+      "elapsed_seconds": 1.030612870992627,
+      "peak_parent_rss_kib": 74200,
+      "expected_body_recall": 1.0,
+      "false_body_on_empty": null
+    },
+    {
+      "backend": "playwright",
+      "fixture": "/missing",
+      "fixture_sha256": "4dae6a1dc9f6385419aab724626d2488c3e4116eca0e772092d3304a48165cb7",
+      "status": "failed",
+      "failure_type": "TimeoutError",
+      "failure": "Page.wait_for_selector: Timeout 1000ms exceeded.\nCall log:\n  - waiting for locator(\"article\") to be visible\n",
+      "elapsed_seconds": 1.367370401014341,
+      "peak_parent_rss_kib": 37608,
+      "expected_body_recall": null,
+      "false_body_on_empty": false
+    },
+    {
+      "backend": "crawl4ai",
+      "fixture": "/static",
+      "fixture_sha256": "160997301734ffad4f86644b44068918f60da6998cb49a55ad60bde899bcb60a",
+      "status": "completed",
+      "snapshot_sha256": "d6816e957d53ebdd47b31f3efe4a772d146132712798cbf0a6aeeb2d2fcf208b",
+      "extraction_metadata": {
+        "extractor": "extruct+html-metadata",
+        "version": "0.18.0",
+        "snapshot_sha256": "d6816e957d53ebdd47b31f3efe4a772d146132712798cbf0a6aeeb2d2fcf208b",
+        "selected": {
+          "title": {
+            "field": "title",
+            "value": "Fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4,
+            "selection_reason": "matching article URL, then article entity, metadata, canonical link, visible heading; locator breaks ties"
+          }
+        },
+        "candidates": [
+          {
+            "field": "title",
+            "value": "Fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4
+          }
+        ],
+        "diagnostics": [],
+        "canonical_identity_authoritative": false,
+        "body_extractor": {
+          "name": "trafilatura",
+          "version": "2.2.0",
+          "locator": "extracted-body; exact source spans unavailable"
+        }
+      },
+      "elapsed_seconds": 1.485477553011151,
+      "peak_parent_rss_kib": 144688,
+      "expected_body_recall": 1.0,
+      "false_body_on_empty": null
+    },
+    {
+      "backend": "crawl4ai",
+      "fixture": "/delayed",
+      "fixture_sha256": "a2c42009bff802eb3d204ab7f3f2a811f38e300430f65289b5efe7a70e3809ce",
+      "status": "completed",
+      "snapshot_sha256": "d6816e957d53ebdd47b31f3efe4a772d146132712798cbf0a6aeeb2d2fcf208b",
+      "extraction_metadata": {
+        "extractor": "extruct+html-metadata",
+        "version": "0.18.0",
+        "snapshot_sha256": "d6816e957d53ebdd47b31f3efe4a772d146132712798cbf0a6aeeb2d2fcf208b",
+        "selected": {
+          "title": {
+            "field": "title",
+            "value": "Fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4,
+            "selection_reason": "matching article URL, then article entity, metadata, canonical link, visible heading; locator breaks ties"
+          }
+        },
+        "candidates": [
+          {
+            "field": "title",
+            "value": "Fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4
+          }
+        ],
+        "diagnostics": [],
+        "canonical_identity_authoritative": false,
+        "body_extractor": {
+          "name": "trafilatura",
+          "version": "2.2.0",
+          "locator": "extracted-body; exact source spans unavailable"
+        }
+      },
+      "elapsed_seconds": 1.3352695769863203,
+      "peak_parent_rss_kib": 145296,
+      "expected_body_recall": 1.0,
+      "false_body_on_empty": null
+    },
+    {
+      "backend": "crawl4ai",
+      "fixture": "/missing",
+      "fixture_sha256": "4dae6a1dc9f6385419aab724626d2488c3e4116eca0e772092d3304a48165cb7",
+      "status": "failed",
+      "failure_type": "ValueError",
+      "failure": "Crawl4AI acquisition failed",
+      "elapsed_seconds": 10.80454570800066,
+      "peak_parent_rss_kib": 136572,
+      "expected_body_recall": null,
+      "false_body_on_empty": false
+    },
+    {
+      "backend": "crawlee",
+      "fixture": "/static",
+      "fixture_sha256": "160997301734ffad4f86644b44068918f60da6998cb49a55ad60bde899bcb60a",
+      "status": "completed",
+      "snapshot_sha256": "d6816e957d53ebdd47b31f3efe4a772d146132712798cbf0a6aeeb2d2fcf208b",
+      "extraction_metadata": {
+        "extractor": "extruct+html-metadata",
+        "version": "0.18.0",
+        "snapshot_sha256": "d6816e957d53ebdd47b31f3efe4a772d146132712798cbf0a6aeeb2d2fcf208b",
+        "selected": {
+          "title": {
+            "field": "title",
+            "value": "Fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4,
+            "selection_reason": "matching article URL, then article entity, metadata, canonical link, visible heading; locator breaks ties"
+          }
+        },
+        "candidates": [
+          {
+            "field": "title",
+            "value": "Fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4
+          }
+        ],
+        "diagnostics": [],
+        "canonical_identity_authoritative": false,
+        "body_extractor": {
+          "name": "trafilatura",
+          "version": "2.2.0",
+          "locator": "extracted-body; exact source spans unavailable"
+        }
+      },
+      "elapsed_seconds": 1.5188389230170287,
+      "peak_parent_rss_kib": 128064,
+      "expected_body_recall": 1.0,
+      "false_body_on_empty": null
+    },
+    {
+      "backend": "crawlee",
+      "fixture": "/delayed",
+      "fixture_sha256": "a2c42009bff802eb3d204ab7f3f2a811f38e300430f65289b5efe7a70e3809ce",
+      "status": "completed",
+      "snapshot_sha256": "d6816e957d53ebdd47b31f3efe4a772d146132712798cbf0a6aeeb2d2fcf208b",
+      "extraction_metadata": {
+        "extractor": "extruct+html-metadata",
+        "version": "0.18.0",
+        "snapshot_sha256": "d6816e957d53ebdd47b31f3efe4a772d146132712798cbf0a6aeeb2d2fcf208b",
+        "selected": {
+          "title": {
+            "field": "title",
+            "value": "Fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4,
+            "selection_reason": "matching article URL, then article entity, metadata, canonical link, visible heading; locator breaks ties"
+          }
+        },
+        "candidates": [
+          {
+            "field": "title",
+            "value": "Fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4
+          }
+        ],
+        "diagnostics": [],
+        "canonical_identity_authoritative": false,
+        "body_extractor": {
+          "name": "trafilatura",
+          "version": "2.2.0",
+          "locator": "extracted-body; exact source spans unavailable"
+        }
+      },
+      "elapsed_seconds": 1.726067884999793,
+      "peak_parent_rss_kib": 128328,
+      "expected_body_recall": 1.0,
+      "false_body_on_empty": null
+    },
+    {
+      "backend": "crawlee",
+      "fixture": "/missing",
+      "fixture_sha256": "4dae6a1dc9f6385419aab724626d2488c3e4116eca0e772092d3304a48165cb7",
+      "status": "failed",
+      "failure_type": "ValueError",
+      "failure": "Crawlee returned no page",
+      "elapsed_seconds": 2.071055135980714,
+      "peak_parent_rss_kib": 116336,
+      "expected_body_recall": null,
+      "false_body_on_empty": false
+    },
+    {
+      "backend": "zyte",
+      "status": "not_run",
+      "reason": "remote services cannot access local corpus; credentialed public-corpus evaluation and explicit price ceiling required"
+    },
+    {
+      "backend": "firecrawl",
+      "status": "not_run",
+      "reason": "remote services cannot access local corpus; credentialed public-corpus evaluation and explicit price ceiling required"
+    }
+  ],
+  "decision": "retain repaired production stack; defer optional backend adoption pending representative corpus, restart/deadline/resource checks and credentialed cost measurements"
+}
