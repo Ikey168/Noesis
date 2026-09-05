@@ -1,6 +1,7 @@
 """Offline coordinate transforms and topology operations with version receipts."""
 
 import math
+
 from .common import IntegrationError, receipt
 
 
@@ -117,9 +118,9 @@ def transform_geometry(geometry, source_crs, target_crs="EPSG:4326"):
 
 
 def topology(operation, left, right=None):
+    import shapely
     from shapely.geometry import shape
     from shapely.validation import explain_validity
-    import shapely
 
     for geometry in (left, right):
         if geometry is not None:

@@ -1,7 +1,8 @@
 """Optional local WhisperX alignment; original segment text remains authoritative."""
 
-from pathlib import Path
 import tempfile
+from pathlib import Path
+
 from .common import IntegrationError, digest, version
 
 
@@ -33,6 +34,7 @@ class WhisperXAligner:
 
     def __call__(self, audio_bytes, segments):
         import whisperx
+
         from src.ingestion.connectors.media.transcriber import _to_wav
 
         if len(audio_bytes) > 100_000_000 or len(segments) > 1000:

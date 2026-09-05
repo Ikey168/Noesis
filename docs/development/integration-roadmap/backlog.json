@@ -126,7 +126,7 @@
       "title": "Benchmark wtpsplit/SaT for German and multilingual sentence segmentation",
       "status": "implementation_partial",
       "validation": [
-        "See README.md for tested scope and outstanding acceptance evidence."
+        "Real pinned SaT ONNX and pinned local tokenizer produced exact DE/EN Unicode offsets; segmentation-probe.json is synthetic evidence only."
       ]
     },
     {
@@ -150,7 +150,7 @@
       "title": "Evaluate Qwen3-Reranker-0.6B with a dedicated multilingual scoring adapter",
       "status": "implementation_partial",
       "validation": [
-        "See README.md for tested scope and outstanding acceptance evidence."
+        "Real pinned CPU reranking through the existing interface preferred the relevant passage in 4/4 synthetic pairs; median two-passage batch 4472 ms. Independent comparison/calibration remains outstanding."
       ]
     },
     {

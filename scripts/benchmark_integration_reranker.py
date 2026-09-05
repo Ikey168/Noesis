@@ -2,17 +2,18 @@
 
 import argparse
 import json
-from pathlib import Path
 import platform
 import resource
 import statistics
 import time
+from pathlib import Path
 
 
 def main():
     import torch
-    from src.integrations.models import QwenReranker, pin
+
     from services.rag.rerank import CrossEncoderReranker
+    from src.integrations.models import QwenReranker, pin
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--out", type=Path, required=True)

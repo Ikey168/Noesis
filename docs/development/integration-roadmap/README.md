@@ -9,13 +9,14 @@ activate it. No benchmark issue is satisfied by a unit test or synthetic probe.
 ## Available entry points
 
 Install the pinned local backends with `pip install '.[workflow-integrations]'`.
-Model and MCP adapters require their separate runtime dependencies and locally
+Install `.[workflow-models]` for the pinned SaT/Outlines/Transformers runtime.
+Model and MCP adapters require their runtime dependencies and locally
 provisioned model snapshots. Model revisions are in `src/integrations/model-pins.json`.
 
 | Issues | Entry point | Current scope / remaining work |
 | --- | --- | --- |
 | #1473 | Research source pack `datacite-dois` | Native metadata, DOI lookup, cursor pagination; native capture regression; end-to-end publication and evaluation outstanding |
-| #1509 | `src.integrations.text.SaTSegmenter` and chunker's `sentence_segmenter` | Exact source offsets; real model benchmark outstanding |
+| #1509 | `src.integrations.text.SaTSegmenter` and chunker's `sentence_segmenter` | Exact source offsets; real ONNX smoke probe passed; independent benchmark outstanding |
 | #1510 | Normalizer `language_backend="lingua"` | Language confidence, abstention and mixed-language spans; independent corpus outstanding |
 | #1511 | Entity resolver `fuzzy_backend="rapidfuzz"` plus explicit threshold | Existing identity rules retained; false-merge and throughput benchmark outstanding |
 | #1512 | Origin inference `candidate_backend="minhash"` | Approximate candidates plus exhaustive provenance pairs; candidate-run receipts; measured recall outstanding |
@@ -34,7 +35,7 @@ provisioned model snapshots. Model revisions are in `src/integrations/model-pins
 | #1497 | `src.integrations.warc` | Bounded capture read/write and document ingestion; archive corpus and full ingestion regression outstanding |
 | #1501–1503 | `src.integrations.mcp.federation_adapter` | Explicit presets and tool allowlists; real service interoperability, stateful Playwright lifecycle and scoped evaluation outstanding |
 | #1504 | E5 embedding input policy and query embedding interface | Real pinned CPU smoke probe; independent retrieval benchmark outstanding |
-| #1506–1508 | Qwen scorer, optional multilingual NLI, LightOn OCR | Explicit adapters/model pins; actual model inference and benchmark outstanding |
+| #1506–1508 | Qwen scorer, optional multilingual NLI, LightOn OCR | Explicit adapters/model pins; Qwen inference passed; NLI/OCR inference and independent benchmarks outstanding |
 
 The remaining issues in the ledger have not been implemented by this checkpoint.
 In particular BGE-M3 multi-mode retrieval and GLiNER are not implemented here.
@@ -86,3 +87,26 @@ versions separate. A native metadata fetch succeeded; document storage, replay,
 restricted access and corrupt-download tests use synthetic files. General binary
 software/data artifact storage remains outstanding for #1476.
 Primary API documentation: https://developers.zenodo.org/ .
+
+## Latest combined regression and model probes
+
+The combined regression command passed **294 tests with 3 optional-backend skips**.
+The new CI integration job installs the optional local libraries and executes their
+actual backend tests; packaging checks also resolve both new extras and verify
+that the model registry is present in an installed wheel.
+
+`reranker-probe.json` records real Qwen inference through `CrossEncoderReranker`
+with `require_model=True` (fallback results cannot satisfy this probe). All four
+synthetic pairs ranked their relevant passage first. Median latency was 4472 ms
+for a two-passage batch on two CPU threads. This latency and the tiny fixture do
+not justify a default switch. Run `python -m scripts.benchmark_integration_reranker
+--out PATH` after explicitly provisioning the pinned model.
+
+`segmentation-probe.json` records real CPU ONNX SaT inference on two synthetic
+German/English samples. Model and tokenizer revisions are both pinned; instantiate
+`SaTSegmenter(model_dir, tokenizer_path=tokenizer_dir, use_onnx=True)`. It never
+falls back to fetching a default tokenizer. Exact source slices are recorded,
+but sentence-boundary quality still needs independent annotations.
+
+A public OpenReview API v2 notes request returned HTTP 403 in this environment;
+no OpenReview integration or successful live validation is claimed.

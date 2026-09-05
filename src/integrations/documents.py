@@ -1,6 +1,7 @@
 """Optional document converters with explicit representation and locator limits."""
 
 import io
+
 from .common import IntegrationError, version
 
 
@@ -27,10 +28,11 @@ def markitdown(content, fmt):
 
 
 def lighton_ocr(path, *, max_pages=20, device="cpu"):
-    import torch
     import fitz
+    import torch
     from PIL import Image
     from transformers import LightOnOcrForConditionalGeneration, LightOnOcrProcessor
+
     from .models import model_path, pin
 
     name = "lightonai/LightOnOCR-2-1B"

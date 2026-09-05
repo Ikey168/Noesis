@@ -10,6 +10,8 @@ on:
       - "src/evidence_bundle/**"
       - "src/kb/**"
       - "src/ingestion/**"
+      - "src/integrations/**"
+      - "tests/unit/integrations/**"
       - "services/ingest/**"
       - "contracts/**"
       - "examples/quickstart/**"
@@ -53,7 +55,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        extra: [minimal, ingestion, browser, server, models, vector, media, orchestration, cloud, full]
+        extra: [minimal, ingestion, browser, server, models, vector, media, orchestration, cloud, full, workflow-integrations, workflow-models]
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v6
@@ -95,3 +97,22 @@ jobs:
                   await browser.close()
           asyncio.run(check())
           PY
+
+  workflow-integrations:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - run: python -m pip install ".[workflow-integrations]" pytest ruff
+      - run: python -m pytest -q tests/unit/integrations
+      - run: ruff check src/integrations tests/unit/integrations
+      - name: Check packaged model registry outside checkout
+        run: |
+          cd "$(mktemp -d)"
+          python - <<'PYCODE'
+          from src.integrations.models import pin
+          assert len(pin("intfloat/multilingual-e5-small")["revision"]) == 40
+          PYCODE

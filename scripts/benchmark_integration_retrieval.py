@@ -2,16 +2,17 @@
 
 import argparse
 import json
-from pathlib import Path
 import platform
 import resource
 import statistics
 import time
+from pathlib import Path
 
 
 def main():
-    import torch
     import numpy as np
+    import torch
+
     from services.embeddings.backends.local_sentence_transformers import (
         LocalSentenceTransformersBackend,
     )

@@ -2,6 +2,7 @@
 
 import json
 from importlib.resources import files
+
 from .common import IntegrationError
 
 PINS = files("src.integrations").joinpath("model-pins.json")
@@ -20,7 +21,12 @@ def model_path(name, *, download=False):
     from huggingface_hub import snapshot_download
 
     revision = pin(name)["revision"]
-    return snapshot_download(name, revision=revision, local_files_only=not download)
+    return snapshot_download(
+        name,
+        revision=revision,
+        local_files_only=not download,
+        allow_patterns=["*.json", "*.txt", "*.safetensors", "*.model", "*.jinja"],
+    )
 
 
 class QwenReranker:
@@ -29,7 +35,7 @@ class QwenReranker:
     MODEL = "Qwen/Qwen3-Reranker-0.6B"
 
     def __init__(self, *, device="cpu", max_tokens=4096, batch_size=4):
-        from transformers import AutoTokenizer, AutoModelForCausalLM
+        from transformers import AutoModelForCausalLM, AutoTokenizer
 
         if not 128 <= max_tokens <= 32768 or not 1 <= batch_size <= 32:
             raise ValueError("invalid reranker bounds")

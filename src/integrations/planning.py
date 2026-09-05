@@ -1,6 +1,7 @@
 """Bounded source selection over existing planner candidates."""
 
-from decimal import Decimal, ROUND_CEILING, ROUND_FLOOR
+from decimal import ROUND_CEILING, ROUND_FLOOR, Decimal
+
 from .common import IntegrationError, finite, version
 
 

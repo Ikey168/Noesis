@@ -2,7 +2,8 @@
 
 from collections import defaultdict
 from itertools import combinations
-from .common import IntegrationError, finite, version, digest
+
+from .common import IntegrationError, digest, finite, version
 
 
 def candidate_pairs(
@@ -54,7 +55,7 @@ def candidate_pairs(
             values = signals[identity].get(field)
             if not isinstance(values, list):
                 values = [values]
-            for v in set(v for v in values if v):
+            for v in {v for v in values if v}:
                 groups[v].append(identity)
         for members in groups.values():
             for a, b in combinations(members, 2):

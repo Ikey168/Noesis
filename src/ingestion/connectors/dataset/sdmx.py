@@ -2,10 +2,12 @@
 
 import io
 import math
-from urllib.parse import urlsplit, parse_qsl, urlunsplit
-from .base import DatasetConnector, SeriesRef, RawSeries
-from services.ingest.common.series_model import SeriesRecord, Observation
+from urllib.parse import parse_qsl, urlsplit, urlunsplit
+
+from services.ingest.common.series_model import Observation, SeriesRecord
 from src.integrations.common import IntegrationError, digest, version
+
+from .base import DatasetConnector, RawSeries, SeriesRef
 
 
 class SDMXConnector(DatasetConnector):
@@ -45,6 +47,7 @@ class SDMXConnector(DatasetConnector):
 
     def fetch(self, ref):
         import sdmx
+
         from src.ingestion.source_pack_runtime import HTTPSPageAdapter
 
         client = sdmx.Client(self.source)
@@ -64,7 +67,6 @@ class SDMXConnector(DatasetConnector):
         if parts.scheme != "https" or parts.hostname not in {
             "data-api.ecb.europa.eu",
             "ec.europa.eu",
-            "api.statistiken.bundesbank.de",
             "api.statistiken.bundesbank.de",
         }:
             raise IntegrationError(

@@ -7,8 +7,8 @@ import time
 from urllib.parse import urlsplit
 
 from services.ingest.common.document_model import Document
-from src.ingestion.connectors.upload.parsers import extract_text
 from src.ingestion.connectors.upload.detectors import detect_format
+from src.ingestion.connectors.upload.parsers import extract_text
 from src.ingestion.source_pack_runtime import HTTPSPageAdapter
 from src.integrations.common import IntegrationError
 

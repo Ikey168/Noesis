@@ -1,6 +1,7 @@
 """Optional language and sentence adapters retaining exact input offsets."""
 
 from functools import lru_cache
+
 from .common import IntegrationError, finite, version
 
 
@@ -74,18 +75,24 @@ def detect_language(
 
 
 class SaTSegmenter:
-    def __init__(self, model_path):
+    def __init__(self, model_path, *, tokenizer_path, use_onnx=False):
         # A local, operator-pinned model directory prevents implicit model changes.
         from pathlib import Path
 
-        if not Path(model_path).is_dir():
+        if not Path(model_path).is_dir() or not Path(tokenizer_path).is_dir():
             raise IntegrationError(
-                "model_unavailable", "SaT requires a local pinned model directory"
+                "model_unavailable",
+                "SaT requires local pinned model and tokenizer directories",
             )
         version("wtpsplit")
         from wtpsplit import SaT
 
-        self.model = SaT(str(model_path))
+        self.model = SaT(
+            str(model_path),
+            tokenizer_name_or_path=str(tokenizer_path),
+            from_pretrained_kwargs={"local_files_only": True},
+            ort_providers=["CPUExecutionProvider"] if use_onnx else None,
+        )
 
     def __call__(self, text):
         if len(text) > 1_000_000:

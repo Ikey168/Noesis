@@ -1,10 +1,11 @@
 """Official MCP clients adapted to Noesis's existing synchronous federation."""
 
 import asyncio
-from datetime import timedelta
 import json
 import os
+from datetime import timedelta
 from urllib.parse import urlsplit
+
 from .common import IntegrationError
 
 PRESETS = {
@@ -89,7 +90,7 @@ class StreamableMCPClient:
             return asyncio.run(self._call(method, *args))
         except IntegrationError:
             raise
-        except Exception:
+        except Exception:  # noqa: BLE001 - normalize optional transport failures at adapter boundary
             raise IntegrationError(
                 "remote_unavailable",
                 "MCP request failed; check endpoint, credentials and timeout",

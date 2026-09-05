@@ -2,6 +2,7 @@
 
 import json
 import re
+
 from src.ingestion.source_pack_runtime import HTTPSPageAdapter
 from src.integrations.common import IntegrationError, digest
 from src.knowledge_graph.foundation.model import Node, make_node_id

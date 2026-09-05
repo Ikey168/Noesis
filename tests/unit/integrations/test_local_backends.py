@@ -155,7 +155,7 @@ def test_minhash_preserves_provenance_and_rebuild_removes_deleted_ids():
         "b": {"word_fingerprints": ["same", "words"]},
         "c": {"word_fingerprints": ["different"], "publisher_owner": "owner"},
     }
-    pairs, metadata = candidate_pairs(signals)
+    pairs, _metadata = candidate_pairs(signals)
     assert ("a", "b") in pairs and ("a", "c") in pairs
     assert not any(
         "b" in p
@@ -164,8 +164,9 @@ def test_minhash_preserves_provenance_and_rebuild_removes_deleted_ids():
 
 
 def test_annotation_offsets_revision_and_identity():
-    from src.integrations.annotation import export_tasks, import_annotations
     import copy
+
+    from src.integrations.annotation import export_tasks, import_annotations
 
     tasks = export_tasks(
         [{"task_id": "a", "revision_id": "r1", "text": "Über Berlin"}], labels=["place"]
@@ -202,7 +203,11 @@ def test_annotation_offsets_revision_and_identity():
 
 
 def test_rocrate_roundtrip_native_manifest(tmp_path):
-    import base64, json, zipfile, io
+    import base64
+    import io
+    import json
+    import zipfile
+
     from src.integrations.export import export_rocrate
 
     package = {
@@ -218,7 +223,10 @@ def test_rocrate_roundtrip_native_manifest(tmp_path):
 
 
 def test_pandoc_docx_preserves_text_and_citation():
-    import base64, io, zipfile
+    import base64
+    import io
+    import zipfile
+
     from src.integrations.export import render_report
 
     content = {

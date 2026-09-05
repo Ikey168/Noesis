@@ -1,6 +1,7 @@
 """Outlines schema-constrained edits remain unverified review proposals."""
 
 import json
+
 from .common import IntegrationError
 
 

@@ -6,6 +6,7 @@ import json
 import re
 from datetime import datetime
 from pathlib import Path
+
 from .common import IntegrationError, version
 
 
@@ -65,8 +66,8 @@ def read_warc(path, *, max_records=1000, max_bytes=20_000_000):
 
 
 def write_warc(captures, path, *, max_bytes=20_000_000):
-    from warcio.warcwriter import WARCWriter
     from warcio.statusandheaders import StatusAndHeaders
+    from warcio.warcwriter import WARCWriter
 
     if len(captures) > 10000:
         raise IntegrationError("record_limit", "Too many captures")
@@ -123,8 +124,8 @@ def write_warc(captures, path, *, max_bytes=20_000_000):
 
 
 def ingest_warc(path, store, *, language, max_records=1000, max_bytes=20_000_000):
-    from src.ingestion.extract import extract_article
     from services.ingest.common.document_model import Document
+    from src.ingestion.extract import extract_article
 
     if not isinstance(language, str) or not re.fullmatch(r"[a-z]{2}", language):
         raise ValueError("Declare an ISO 639-1 language for the capture batch")
@@ -146,10 +147,7 @@ def ingest_warc(path, store, *, language, max_records=1000, max_bytes=20_000_000
                 )
             text = extracted.text
         captured = int(
-            datetime.fromisoformat(
-                capture["captured_at"].replace("Z", "+00:00")
-            ).timestamp()
-            * 1000
+            datetime.fromisoformat(capture["captured_at"]).timestamp() * 1000
         )
         identity = "warc:" + hashlib.sha256(capture["url"].encode()).hexdigest()
         documents.append(

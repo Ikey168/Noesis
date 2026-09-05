@@ -1,9 +1,11 @@
 import json
 from pathlib import Path
+
 import pytest
+
 from src.ingestion.scholarly_api import parameters, records
-from src.ingestion.source_packs import validate_source_pack
 from src.ingestion.source_pack_runtime import HTTPSPageAdapter
+from src.ingestion.source_packs import validate_source_pack
 
 
 def test_native_datacite_page_in_runtime():
@@ -45,8 +47,8 @@ def test_datacite_rejects_foreign_cursor_and_bad_filters():
 
 def test_sdmx_native_ecb_retains_dimensions_and_observations():
     pytest.importorskip("sdmx")
-    from src.ingestion.connectors.dataset.sdmx import SDMXConnector
     from src.ingestion.connectors.dataset.base import RawSeries, SeriesRef
+    from src.ingestion.connectors.dataset.sdmx import SDMXConnector
 
     content = Path("tests/fixtures/integrations/ecb-native.xml").read_bytes()
     records = SDMXConnector().parse(
@@ -60,7 +62,7 @@ def test_sdmx_native_ecb_retains_dimensions_and_observations():
 
 def test_warc_roundtrip_and_expansion_bound(tmp_path):
     pytest.importorskip("warcio")
-    from src.integrations.warc import write_warc, read_warc
+    from src.integrations.warc import read_warc, write_warc
 
     path = tmp_path / "capture.warc"
     captures = [
@@ -98,8 +100,9 @@ def test_mcp_presets_are_opt_in_and_allowlist_only():
 def test_warc_document_store_retains_capture_and_replays(tmp_path):
     pytest.importorskip("warcio")
     import duckdb
+
     from src.ingestion.document_store import DocumentStore
-    from src.integrations.warc import write_warc, ingest_warc
+    from src.integrations.warc import ingest_warc, write_warc
 
     path = tmp_path / "evidence.warc"
     write_warc(
@@ -107,7 +110,7 @@ def test_warc_document_store_retains_capture_and_replays(tmp_path):
             {
                 "url": "https://example.org/berlin",
                 "captured_at": "2025-01-01T00:00:00Z",
-                "payload": "Berliner Forschung".encode(),
+                "payload": b"Berliner Forschung",
                 "content_type": "text/plain",
             }
         ],

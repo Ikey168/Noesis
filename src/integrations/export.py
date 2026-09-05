@@ -4,11 +4,12 @@ import base64
 import hashlib
 import io
 import json
-from pathlib import Path
 import re
 import shutil
 import subprocess
 import tempfile
+from pathlib import Path
+
 from .common import IntegrationError, version
 
 

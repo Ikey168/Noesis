@@ -1,6 +1,7 @@
 """Pint conversion restricted to explicit physical-unit definitions."""
 
-from decimal import Decimal, ROUND_HALF_EVEN
+from decimal import ROUND_HALF_EVEN, Decimal
+
 from .common import IntegrationError, receipt
 
 

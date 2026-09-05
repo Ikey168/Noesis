@@ -1,6 +1,7 @@
 """DataCite native DOI metadata, including related-resource provenance."""
 
-from urllib.parse import urlsplit, parse_qs
+from urllib.parse import parse_qs, urlsplit
+
 from src.ingestion.europepmc_api import _Text
 
 
@@ -38,7 +39,7 @@ def parameters(request, *, cursor, limit):
 
 def records(payload, *, cursor, limit):
     if not isinstance(payload, dict) or not isinstance(payload.get("data"), list):
-        raise ValueError("DataCite response lacks data array")
+        raise ValueError("DataCite response lacks data array")  # noqa: TRY004 - native response schema failure
     if len(payload["data"]) > limit:
         raise ValueError("DataCite exceeded page budget")
     result = []

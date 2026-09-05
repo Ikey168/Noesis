@@ -8080,7 +8080,7 @@ def export_authored_report(namespace: str, report_id: str, revision: int | None 
     from src.kb.authored_reports import READ_SCOPE, AuthoredReportStore
     def export(conn):
         store = AuthoredReportStore(conn, initialize=False)
-        args = dict(revision=revision, principal_id=_context()[0], scopes=_context()[1])
+        args = {"revision": revision, "principal_id": _context()[0], "scopes": _context()[1]}
         if output_format == "native":
             return store.export(namespace, report_id, **args)
         return store.render(namespace, report_id, output_format=output_format,
