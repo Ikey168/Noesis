@@ -15,6 +15,7 @@ import json
 import math
 import re
 import time
+from itertools import islice
 from collections import Counter
 from collections.abc import Mapping, Sequence
 from typing import Any
@@ -194,18 +195,16 @@ def _vector(text: str, dimensions: int = 12) -> list[float]:
 
 
 def _projection_values(
-    logical_id: str, object_type: str, content: Mapping[str, Any]
+    logical_id: str, object_type: str, content: Mapping[str, Any], *, vector_projection=None
 ) -> dict[str, dict[str, Any]]:
     text = _text(content)
     values: dict[str, dict[str, Any]] = {}
     if object_type in {"claim", "entity", "relation", "summary", "index"}:
         values["lexical"] = {"text": text, "normalized_text": _normalized_text(text)}
     if object_type in {"claim", "entity", "summary", "index", "embedding"}:
-        values["vector"] = {
-            "model": "noesis-content-hash-vector-v1",
-            "dimensions": 12,
-            "vector": _vector(text),
-        }
+        if vector_projection is None:
+            raise DerivedRevisionError("embedding_unavailable", "a configured vector projection is required")
+        values["vector"] = vector_projection(text)
     if object_type == "entity":
         values["graph"] = {
             "kind": "node",
@@ -320,14 +319,90 @@ def maintenance_observations(
 class DerivedRevisionStore:
     """Apply support changes and publish object projections in one transaction."""
 
-    def __init__(self, conn: Any, *, initialize: bool = True) -> None:
+    def __init__(self, conn: Any, *, initialize: bool = True, fixture_mode=False,
+                 embedding_provider=None, embedding_configuration=None) -> None:
         self.conn = conn
+        self.fixture_mode, self.embedding_provider = fixture_mode, embedding_provider
+        self.embedding_configuration = dict(embedding_configuration or {})
         if initialize:
             conn.execute(_DDL)
             conn.execute(
                 "ALTER TABLE derived_object_generations "
                 "ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'committed'"
             )
+
+    def _embedding_identity(self):
+        if self.fixture_mode:
+            return {"model": "noesis-content-hash-vector-v1", "dimensions": 12, "synthetic": True,
+                    "tokenization": {"policy": "fixture-text-hash"}, "configuration_hash": None}
+        if self.embedding_provider is None:
+            from services.embeddings.provider import get_embedding_provider
+            try:
+                self.embedding_provider = get_embedding_provider()
+            except Exception as exc:
+                raise DerivedRevisionError("embedding_unavailable", "configured semantic embedding provider is unavailable") from exc
+        model, dimensions = self.embedding_provider.name(), self.embedding_provider.dim()
+        if not model or "hash" in model.lower() or type(dimensions) is not int or dimensions < 1:
+            raise DerivedRevisionError("invalid_embedding_space", "production requires a declared semantic model and dimension")
+        max_chars = int(self.embedding_configuration.get("max_chars", 4000))
+        if not 1 <= max_chars <= 100000:
+            raise DerivedRevisionError("invalid_embedding_configuration", "max_chars must be in [1,100000]")
+        return {"model": model, "dimensions": dimensions, "synthetic": False,
+                "tokenization": {"policy": "character-prefix", "max_chars": max_chars,
+                                 "revision": self.embedding_configuration.get("tokenizer_revision", "provider-default")},
+                "configuration_hash": _digest(self.embedding_configuration)}
+
+    def _vector_projection(self, text):
+        identity = self._embedding_identity()
+        if self.fixture_mode:
+            return {**identity, "vector": _vector(text)}
+        matrix = list(islice(iter(self.embedding_provider.embed_texts([text[:identity["tokenization"]["max_chars"]]])), 2))
+        if len(matrix) != 1:
+            raise DerivedRevisionError("invalid_embedding", "provider must return exactly one vector")
+        vector = [float(value) for value in matrix[0]]
+        if len(vector) != identity["dimensions"] or not all(math.isfinite(value) for value in vector):
+            raise DerivedRevisionError("invalid_embedding", "provider vector dimension or finiteness differs")
+        return {**identity, "vector": vector}
+
+    def semantic_search(self, namespace, query, *, scopes, limit=20):
+        if "operator" not in scopes and ("knowledge:read" not in scopes or f"namespace:{namespace}:read" not in scopes):
+            raise DerivedRevisionError("unauthorized", "semantic search requires current namespace read access")
+        if self.fixture_mode:
+            raise DerivedRevisionError("unsupported_semantics", "fixture hash vectors are not semantic search")
+        projection = self._vector_projection(query)
+        vector = projection["vector"]
+        if not any(vector):
+            raise DerivedRevisionError("invalid_embedding", "query embedding has zero norm")
+        mismatch = self.conn.execute("""SELECT 1 FROM derived_projection_items p
+            JOIN derived_object_current c ON c.namespace=p.namespace AND c.revision_id=p.object_revision_id
+            WHERE p.namespace=? AND p.projection_kind='vector' AND c.lifecycle='active' AND
+            (json_extract_string(p.content_json,'$.model') IS DISTINCT FROM ? OR
+             CAST(json_extract(p.content_json,'$.dimensions') AS INTEGER) IS DISTINCT FROM ? OR
+             json_extract_string(p.content_json,'$.configuration_hash') IS DISTINCT FROM ?) LIMIT 1""",
+            [namespace, projection["model"], projection["dimensions"], projection["configuration_hash"]]).fetchone()
+        if mismatch:
+            raise DerivedRevisionError("embedding_space_conflict", "query provider differs from the namespace's embedding space")
+        rows = self.conn.execute("""WITH latest AS (
+            SELECT r.*,row_number() OVER (PARTITION BY r.logical_id ORDER BY r.revision DESC) AS ordinal
+            FROM derived_object_revisions r JOIN derived_object_generations g
+            ON g.namespace=r.namespace AND g.generation=r.generation AND g.status='committed'
+            WHERE r.namespace=?), candidates AS (
+            SELECT p.*,r.content_json AS object_content,r.support_json
+            FROM derived_projection_items p JOIN latest r ON r.revision_id=p.object_revision_id
+            WHERE p.namespace=? AND p.projection_kind='vector' AND r.ordinal=1 AND r.lifecycle='active')
+            SELECT logical_id,object_type,object_revision_id,object_content,support_json,
+            list_cosine_similarity(CAST(json_extract(content_json,'$.vector') AS DOUBLE[]),CAST(? AS DOUBLE[])) AS score
+            FROM candidates WHERE json_extract_string(content_json,'$.model')=?
+            AND CAST(json_extract(content_json,'$.dimensions') AS INTEGER)=?
+            AND json_extract_string(content_json,'$.configuration_hash')=?
+            ORDER BY score DESC,logical_id LIMIT ?""",
+            [namespace, namespace, vector, projection["model"], projection["dimensions"],
+             projection["configuration_hash"], min(max(int(limit), 1), 100)]).fetchall()
+        return [{"id": row[0], "object_type": row[1], "revision_id": row[2],
+                 "text": _text(_load(row[3], {})), "score": row[5],
+                 "citations": [{"document_id": support["document_id"], "revision_id": support["source_revision_id"]}
+                               for support in _load(row[4], []) if support.get("selected_content")],
+                 "native_rank": rank} for rank, row in enumerate(rows, 1)]
 
     @staticmethod
     def _normalize_observation(value: Mapping[str, Any]) -> dict[str, Any]:
@@ -426,7 +501,8 @@ class DerivedRevisionStore:
             }
         )
         input_hash = _digest(
-            {"observations": normalized, "changes": [dict(item) for item in changes]}
+            {"observations": normalized, "changes": [dict(item) for item in changes],
+             "embedding_space": self._embedding_identity()}
         )
         prior_commit = self._generation(namespace, generation)
         if prior_commit:
@@ -442,6 +518,19 @@ class DerivedRevisionStore:
                 "idempotent": True,
                 "changed": [],
             }
+        expected_space = self._embedding_identity()
+        for (encoded,) in self.conn.execute("""SELECT DISTINCT json_object(
+                'model',json_extract(p.content_json,'$.model'),
+                'dimensions',json_extract(p.content_json,'$.dimensions'),
+                'synthetic',json_extract(p.content_json,'$.synthetic'),
+                'tokenization',json_extract(p.content_json,'$.tokenization'),
+                'configuration_hash',json_extract(p.content_json,'$.configuration_hash'))
+                FROM derived_projection_items p
+                JOIN derived_object_current c ON c.namespace=p.namespace AND c.revision_id=p.object_revision_id
+                WHERE p.namespace=? AND p.projection_kind='vector' AND c.lifecycle='active' LIMIT 2""", [namespace]).fetchall():
+            prior_space = {key: value for key, value in _load(encoded, {}).items() if key != "vector"}
+            if prior_space != expected_space:
+                raise DerivedRevisionError("embedding_space_conflict", "rebuild into a new namespace before changing the active embedding space")
         last = self.conn.execute(
             "SELECT MAX(generation) FROM derived_object_generations WHERE namespace=?",
             [namespace],
@@ -615,7 +704,7 @@ class DerivedRevisionStore:
                 )
                 if lifecycle == "active":
                     for projection_kind, projection in sorted(
-                        _projection_values(logical_id, object_type, content).items()
+                        _projection_values(logical_id, object_type, content, vector_projection=self._vector_projection).items()
                     ):
                         item_id = f"{projection_kind}:{logical_id}"
                         self.conn.execute(

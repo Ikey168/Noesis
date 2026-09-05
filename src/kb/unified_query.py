@@ -1097,6 +1097,34 @@ class StaticQueryAdapter:
         }
 
 
+class MaintainedSemanticQueryAdapter:
+    """Search committed maintenance vectors in their declared semantic space."""
+
+    def __init__(self, conn, namespace, *, embedding_provider=None, embedding_configuration=None):
+        from src.kb.derived_revisions import DerivedRevisionStore
+        self.namespace = namespace
+        self.store = DerivedRevisionStore(conn, initialize=False, embedding_provider=embedding_provider,
+                                          embedding_configuration=embedding_configuration)
+        self.definition = capability_definition(
+            f"maintained-semantic:{namespace}", "maintained-semantic", namespaces=[namespace],
+            surfaces=["semantic"], object_types=["claim", "entity", "document"],
+            required_scopes=["knowledge:read", f"namespace:{namespace}:read"])
+
+    def describe(self):
+        return dict(self.definition)
+
+    def query(self, request, *, scopes):
+        if request.get("snapshot"):
+            raise UnifiedQueryError("snapshot_unavailable", "maintained semantic search currently serves the latest committed generation")
+        items = self.store.semantic_search(self.namespace, request["query"], scopes=scopes, limit=request.get("limit", 20))
+        for item in items:
+            if item["object_type"] in {"index", "embedding", "summary"}:
+                item["object_type"] = "document"
+        return {"source": self.definition["source_id"], "items": items, "score_semantics": "cosine-similarity",
+                "provenance": {"source_id": self.definition["source_id"], "capability_hash": self.definition["capability_hash"],
+                               "query_hash": _digest(request)}}
+
+
 def build_local_catalog(
     conn: Any,
     *,
@@ -1106,6 +1134,8 @@ def build_local_catalog(
     task_id: str | None = None,
     principal_id: str = "local-reader",
     include_memory: bool = True,
+    embedding_provider=None,
+    embedding_configuration=None,
 ) -> QueryCatalog:
     from src.kb.registry import KnowledgeDomainRegistry
 
@@ -1130,6 +1160,9 @@ def build_local_catalog(
             if table in installed_tables:
                 adapters.append(StoredGraphQueryAdapter(conn, domain, table))
     for namespace in sorted(namespaces):
+        if {"derived_projection_items", "derived_object_generations"} <= installed_tables:
+            adapters.append(MaintainedSemanticQueryAdapter(conn, namespace, embedding_provider=embedding_provider,
+                                                           embedding_configuration=embedding_configuration))
         if "canonical_events" in installed_tables:
             adapters.append(StoredObjectQueryAdapter(conn, namespace, "event"))
         if "knowledge_artifacts" in installed_tables:

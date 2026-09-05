@@ -55,7 +55,7 @@ def main() -> int:
             principal_id="reference",
         )
 
-    orchestrator = MaintenanceOrchestrator(conn, root=ROOT, now=lambda: 1_000)
+    orchestrator = MaintenanceOrchestrator(conn, root=ROOT, now=lambda: 1_000, execution_mode="fixture")
     degraded_pack = manifests[-1]["pack_id"]
 
     def adapters(pack_id: str) -> Mapping[str, Any]:

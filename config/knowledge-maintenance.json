@@ -3,5 +3,6 @@
   "lease_ms": 60000,
   "max_jobs_per_tick": 10,
   "max_catchup_windows": 10,
-  "network": "disabled"
+  "network": "disabled",
+  "execution_mode": "production"
 }

@@ -39,7 +39,7 @@ def setup_pack(clock: Clock):
         {"kind": "interval", "interval_s": 60, "next_run_at_ms": 100},
         principal_id="operator",
     )
-    return conn, manifest, runtime, MaintenanceOrchestrator(conn, root=ROOT, now=clock)
+    return conn, manifest, runtime, MaintenanceOrchestrator(conn, root=ROOT, now=clock, execution_mode="fixture")
 
 
 def execution_kwargs(orchestrator):

@@ -633,6 +633,63 @@ class _FixtureExtractor:
         return list(dict(value.get("metadata") or {}).get("knowledge") or [])
 
 
+class _ArgumentMiningExtractor:
+    def extract(self, value: Mapping[str, Any]) -> Sequence[Mapping[str, Any]]:
+        from services.ingest.common.document_model import Document
+        from src.argument_mining.evidence import extract_claims
+
+        document = Document.from_dict(dict(value["document"]))
+        text = document.content or ""
+        outputs = []
+        for claim in extract_claims(document):
+            locator = {"document_id": document.document_id, "revision_id": value["revision"]}
+            # A unique exact span is safe; ambiguous or normalized text retains
+            # its document revision locator without invented character offsets.
+            if claim.claim_text and text.count(claim.claim_text) == 1:
+                locator["start"] = text.index(claim.claim_text)
+                locator["end"] = locator["start"] + len(claim.claim_text)
+            outputs.append({"output_type": "claim", "value": {
+                "statement": claim.claim_text, "confidence": claim.confidence,
+                "document_id": document.document_id, "prediction_mode": claim.prediction_mode,
+                "source_locator": locator}})
+        return outputs
+
+
+def production_handlers(conn: Any, *, principal_id="maintenance-runner", extractor_definition=None,
+                        extractor_implementation=None) -> dict[str, StageHandler]:
+    """Use a versioned plain-text extractor with explicit unavailable outcomes."""
+    from src.argument_mining.model_registry import resolved_pins
+    from src.kb.extractors import ExtractorRegistry
+
+    definition = extractor_definition or {
+        "name": "argument-mining-text", "semantic_version": "1.0.0",
+        "capabilities": ["claim"], "accepted_object_types": ["document"],
+        "output_schemas": {"claim": "argument-claim-v1"},
+        "implementation": {"model_version": resolved_pins()["claim"]["revision"], "rule_version": "1.0.0"},
+        "configuration": {"model": resolved_pins()["claim"]["model"], "source": "document.content"},
+        "resources": {"network": False},
+    }
+    registry = ExtractorRegistry(conn)
+    implementation = extractor_implementation
+    if implementation is None and definition["name"] == "argument-mining-text":
+        implementation = _ArgumentMiningExtractor()
+    registered = registry.register(definition, implementation)
+
+    def extract(context, state):
+        inputs = [{"id": item["document_id"], "object_type": "document",
+                   "revision": item.get("_revision_id") or _digest(item), "document": item}
+                  for item in state.get("documents") or []]
+        result = registry.run(registered["extractor_id"], context.namespace, inputs, now_ms=context.now_ms)
+        if result["failures"]:
+            raise WorkflowError("handler_unavailable", "configured text extractor could not process the document inputs")
+        return {**state, "extraction": result,
+                "contract_versions": {"extractor": registered["extractor_id"]}, "execution_mode": "production"}
+
+    handlers = reference_handlers(conn, principal_id=principal_id)
+    handlers["extract"] = extract
+    return handlers
+
+
 def reference_handlers(conn: Any, *, principal_id: str = "reference-runner") -> dict[str, StageHandler]:
     """Compose real subsystem APIs into deterministic offline stage handlers."""
 
@@ -653,6 +710,8 @@ def reference_handlers(conn: Any, *, principal_id: str = "reference-runner") -> 
         for item in documents:
             document = store.get(str(item.get("document_id", "")))
             if document is not None:
+                if item.get("_revision_id"):
+                    document["_revision_id"] = item["_revision_id"]
                 stored.append(document)
         return {
             **state,
