@@ -24,7 +24,12 @@ from src.kb.derived_revisions import (
     maintenance_observations,
 )
 from src.kb.subscriptions import SubscriptionStore
-from src.kb.workflows import WorkflowStore, reference_handlers, reference_manifest, production_handlers
+from src.kb.workflows import (
+    WorkflowStore,
+    production_handlers,
+    reference_handlers,
+    reference_manifest,
+)
 
 JOB_REQUEST_CONTRACT = "noesis-maintenance-job-request-v1"
 JOB_RECEIPT_CONTRACT = "noesis-maintenance-job-receipt-v1"

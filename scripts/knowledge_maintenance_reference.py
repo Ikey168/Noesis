@@ -84,11 +84,7 @@ def main() -> int:
     ).execute(
         {
             "query": "noesis",
-            "scope": {
-                "domains": [
-                    domain for manifest in manifests for domain in manifest["domains"]
-                ]
-            },
+            "scope": {"domains": domains},
             "surfaces": ["lexical"],
             "budgets": {
                 "max_results": 100,
@@ -103,8 +99,8 @@ def main() -> int:
     ]
     statuses = {item["status"] for item in generations}
     passed = bool(
-        len(enqueue["created"]) == 6
-        and len(generations) == 6
+        len(enqueue["created"]) == len(manifests)
+        and len(generations) == len(manifests)
         and domains
         == ["economic", "osint", "political", "research", "scientific", "technical"]
         and statuses == {"complete", "partial"}

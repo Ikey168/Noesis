@@ -472,7 +472,8 @@ class HTTPSPageAdapter:
             int(request.get("limit", 100)),
             int(self.definition["limits"]["max_results"]),
         )
-        from src.ingestion.scholarly_api import provider, parameters as scholarly_parameters
+        from src.ingestion.scholarly_api import parameters as scholarly_parameters
+        from src.ingestion.scholarly_api import provider
         native_provider = provider(self.source)
         if native_provider:
             import os
@@ -484,7 +485,8 @@ class HTTPSPageAdapter:
         if is_europepmc(self.source):
             from src.ingestion.europepmc_api import parameters as europepmc_parameters
             parameters = europepmc_parameters(parameters, cursor=cursor, limit=parameters['limit'])
-        from src.ingestion.guardian_api import is_guardian, parameters as guardian_parameters
+        from src.ingestion.guardian_api import is_guardian
+        from src.ingestion.guardian_api import parameters as guardian_parameters
         guardian = is_guardian(self.source)
         if guardian:
             try:

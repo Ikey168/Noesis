@@ -1495,7 +1495,7 @@ class UnifiedQueryEngine:
                             failure(node, "source_busy", "bounded query worker capacity is exhausted")
                         else:
                             active[future] = node
-                    except Exception as exc:
+                    except Exception as exc:  # noqa: BLE001 - isolate provider failures and retain partial results
                         failure(node, getattr(exc, "code", "source_failed"), str(exc)[:300])
                 if not active:
                     continue
@@ -1508,7 +1508,7 @@ class UnifiedQueryEngine:
                         timings[node["node_id"]] = elapsed
                         completed.append((node, response))
                         failures.extend(response.get("failures") or ())
-                    except Exception as exc:
+                    except Exception as exc:  # noqa: BLE001 - isolate provider failures and retain partial results
                         failure(node, getattr(exc, "code", "source_failed"), str(exc)[:300])
             return completed
 
