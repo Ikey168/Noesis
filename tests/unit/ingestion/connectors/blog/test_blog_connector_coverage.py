@@ -337,7 +337,9 @@ def test_subscribe_unsubscribe_list_roundtrip(tmp_path):
 # ingest_to_kg graceful failure.
 # --------------------------------------------------------------------------- #
 
-def test_ingest_to_kg_returns_zeros_when_kg_unavailable():
+def test_ingest_to_kg_returns_zeros_when_kg_unavailable(monkeypatch):
+    import sys
+    monkeypatch.setitem(sys.modules, "src.knowledge_graph.enhanced_entity_extractor", None)
     conn = BlogConnector(fetch_full_text=False, http_get=lambda u: b"", full_text_getter=lambda u: "")
     doc = Document(
         document_id="blog-abc",
@@ -347,7 +349,7 @@ def test_ingest_to_kg_returns_zeros_when_kg_unavailable():
         title="Title",
         content="Some content about entities.",
     )
-    # KG deps are heavy/optional; the method swallows any exception -> zeros.
+    # Simulate an unavailable optional dependency regardless of installed models.
     result = conn.ingest_to_kg(doc)
     assert result == {"entities": 0, "relationships": 0}
 
