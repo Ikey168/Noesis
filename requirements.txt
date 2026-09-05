@@ -102,3 +102,8 @@ PyMuPDF>=1.24.0      # PDF: text + bookmark outline (install as fitz)
 pdfminer.six>=20221105  # PDF: pure-Python fallback text extraction
 pytesseract>=0.3.10  # OCR: Python wrapper for Tesseract (requires system tesseract)
 pdf2image>=1.17.0    # OCR: PDF->PIL images for pytesseract (requires system poppler)
+
+# Supported ingestion/browser extras (also declared in pyproject.toml)
+feedparser>=6,<7
+scrapy-playwright>=0.0.46,<1
+extruct>=0.18,<1

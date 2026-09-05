@@ -472,6 +472,14 @@ class HTTPSPageAdapter:
             int(request.get("limit", 100)),
             int(self.definition["limits"]["max_results"]),
         )
+        from src.ingestion.scholarly_api import provider, parameters as scholarly_parameters
+        native_provider = provider(self.source)
+        if native_provider:
+            import os
+            try:
+                parameters = scholarly_parameters(native_provider, request, cursor=cursor, limit=parameters["limit"], contact=os.environ.get("NOESIS_RESEARCH_CONTACT"), secret=self.secret)
+            except (ValueError, TypeError, OverflowError) as exc:
+                raise SourcePackError("parameter_forbidden", str(exc)) from exc
         from src.ingestion.europepmc_api import is_europepmc
         if is_europepmc(self.source):
             from src.ingestion.europepmc_api import parameters as europepmc_parameters
@@ -479,7 +487,7 @@ class HTTPSPageAdapter:
         headers = {
             "Accept": "application/json, application/xml;q=0.8, text/plain;q=0.5"
         }
-        if self.secret:
+        if self.secret and not native_provider:
             headers["Authorization"] = "Bearer " + self.secret
         response = self.transport(
             url=self.definition["endpoint"],
@@ -536,6 +544,12 @@ class HTTPSPageAdapter:
                 records, next_cursor = europepmc_records(payload, cursor=cursor, limit=int(parameters['pageSize']))
             except (ValueError, TypeError) as exc:
                 raise SourcePackError('schema_drift', str(exc)) from exc
+        elif native_provider:
+            from src.ingestion.scholarly_api import records as scholarly_records
+            try:
+                records, next_cursor = scholarly_records(native_provider, payload, cursor=cursor, limit=int(parameters["rows" if native_provider == "crossref" else "per_page"]))
+            except (ValueError, TypeError, KeyError, IndexError, AttributeError) as exc:
+                raise SourcePackError("schema_drift", "invalid native scholarly response") from exc
         elif isinstance(payload, list):
             records = payload
             next_cursor = None

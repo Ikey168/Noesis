@@ -2,7 +2,10 @@
 The Guardian news spider for NeuroNews.
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
+import re
+from urllib.parse import urlsplit
+from ..article_links import scoped_url
 
 import scrapy
 
@@ -18,15 +21,12 @@ class GuardianSpider(scrapy.Spider):
 
     def parse(self, response):
         """Parse the main Guardian page to find article links."""
-        # Extract article links
-        article_links = response.css(
-            'a[href*="/2024/"], a[href*="/2025/"]::attr(href)'
-        ).getall()
-
-        for link in article_links:
-            if link.startswith("/"):
-                link = response.urljoin(link)
-            yield scrapy.Request(url=link, callback=self.parse_article)
+        seen = set()
+        for link in response.css('a::attr(href)').getall():
+            link = scoped_url(response.url, link)
+            if link and re.search(r'/\d{4}/[a-z]{3}/\d{1,2}/[^/]+', urlsplit(link).path) and link not in seen:
+                seen.add(link)
+                yield scrapy.Request(url=link, callback=self.parse_article)
 
     def parse_article(self, response):
         """Parse a Guardian article page."""
@@ -64,7 +64,9 @@ class GuardianSpider(scrapy.Spider):
         if date_element:
             item["published_date"] = date_element
         else:
-            item["published_date"] = datetime.now().isoformat()
+            item["published_date"] = None
+
+        item["scraped_date"] = datetime.now(timezone.utc).isoformat()
 
         # Extract author
         author = (

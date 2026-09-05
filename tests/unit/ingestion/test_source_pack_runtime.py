@@ -194,7 +194,7 @@ def test_adapter_allows_only_declared_operations_and_bounded_get(setup):
         return {
             "status": 200,
             "content": json.dumps(
-                {"items": [{"id": "work:1", "title": "Study"}], "next_cursor": "2"}
+                {"message": {"items": [{"DOI": "10.1234/work1", "title": ["Study"]}, {"DOI": "10.1234/work2", "title": ["Second"]}], "next-cursor": "2"}}
             ),
         }
 
@@ -203,7 +203,7 @@ def test_adapter_allows_only_declared_operations_and_bounded_get(setup):
         {"operation": "search", "parameters": {"query": "evidence"}, "limit": 2},
         cursor="1",
     )
-    assert page.next_cursor == "2" and page.records[0]["id"] == "work:1"
+    assert page.next_cursor == "2" and page.records[0]["id"] == "10.1234/work1"
     assert seen["url"] == selected["endpoint"]
     assert seen["params"]["cursor"] == "1"
     with pytest.raises(SourcePackError) as caught:

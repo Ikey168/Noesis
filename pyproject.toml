@@ -25,6 +25,22 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+ingestion = [
+  "feedparser>=6,<7",
+  "beautifulsoup4>=4.12",
+  "trafilatura>=1.8,<3",
+  "readability-lxml>=0.8.1,<1",
+  "extruct>=0.18,<1",
+]
+browser = [
+  "scrapy>=2.17,<3",
+  "scrapy-playwright>=0.0.46,<1",
+  "playwright>=1.40,<2",
+  "aiohttp>=3.9,<4",
+  "aiofiles>=23",
+  "psutil>=5.9",
+  "beautifulsoup4>=4.12",
+]
 evaluation = ["ir-measures==0.4.3"]
 bibliography = [
   "pyzotero>=1.15.1,<1.16",

@@ -61,6 +61,7 @@ class RawDocument:
     content: Union[bytes, str]
     content_type: Optional[str] = None
     fetched_at: int = field(default_factory=lambda: int(time.time() * 1000))
+    metadata: Dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -75,6 +76,7 @@ class HarvestSummary:
     single degraded source is visible against a healthy run.
     """
 
+    unchanged: int = 0
     discovered: int = 0     # sources enumerated by discover()
     skipped: int = 0        # sources not due / quarantined (not fetched)
     fetched: int = 0        # sources fetched successfully
@@ -209,6 +211,12 @@ class Connector(abc.ABC):
                 continue
             summary.fetched += 1
             ps["fetched"] += 1
+            if raw.metadata.get('outcome') == 'unchanged':
+                summary.unchanged += 1
+                ps['unchanged'] = ps.get('unchanged', 0) + 1
+                if health is not None:
+                    health.record_unchanged(sid, now_ms=now_ms)
+                continue
 
             try:
                 documents = self.parse(raw)
@@ -248,14 +256,19 @@ class Connector(abc.ABC):
                 summary.fetch_errors += 1
                 ps["fetch_errors"] += 1
                 return None
-            except Exception:  # noqa: BLE001 - transient: retry with backoff
+            except Exception as exc:  # noqa: BLE001 - transient: retry with backoff
                 attempt += 1
                 if attempt > retries:
                     self._on_error("fetch", ref)
                     summary.fetch_errors += 1
                     ps["fetch_errors"] += 1
                     return None
-                sleep(backoff_base * (2 ** (attempt - 1)))
+                delay = max(backoff_base * (2 ** (attempt - 1)), getattr(exc, 'retry_after', None) or 0)
+                if delay > 60:
+                    summary.fetch_errors += 1
+                    ps['fetch_errors'] += 1
+                    return None  # Defer long Retry-After values to a later scheduled run.
+                sleep(delay)
 
     @staticmethod
     def _record_health(health, source_id, articles, documents, *, fetch_errors, now_ms):

@@ -1,0 +1,43 @@
+{
+  "checks": [
+    {
+      "source_id": "crossref-works",
+      "adapter_version": "native-scholarly-v1",
+      "source_hash": "2c73a00ca543d23eefa32e0dc2a653667bf986ad0c1d82453c103c82d882b3a6",
+      "checked_at": "2026-09-05T05:56:02.688212+00:00",
+      "fixture_status": "separate offline test suite",
+      "live_status": "verified",
+      "records": 2,
+      "has_next_cursor": true,
+      "representations": [
+        "title-only"
+      ]
+    },
+    {
+      "source_id": "openalex-works",
+      "adapter_version": "native-scholarly-v1",
+      "source_hash": "630461869904fe6f085a8ef67ea8d885cfdd2e44b27bc038aa4936c9fb638aaa",
+      "checked_at": "2026-09-05T05:56:03.270348+00:00",
+      "fixture_status": "separate offline test suite",
+      "live_status": "verified",
+      "records": 2,
+      "has_next_cursor": true,
+      "representations": [
+        "plain-text-abstract"
+      ]
+    },
+    {
+      "source_id": "europe-pmc",
+      "adapter_version": "native-scholarly-v1",
+      "source_hash": "e1bd5782a668d1c7aa7cae74777cb6de00d5c746ad2fd0337bbfffe5a0665508",
+      "checked_at": "2026-09-05T05:56:03.953752+00:00",
+      "fixture_status": "separate offline test suite",
+      "live_status": "verified",
+      "records": 2,
+      "has_next_cursor": true,
+      "representations": [
+        "plain-text-abstract"
+      ]
+    }
+  ]
+}
