@@ -12,7 +12,7 @@ from typing import Any
 
 CONTRACT = "noesis-knowledge-subscription-v1"
 EVENT_CONTRACT = "noesis-knowledge-subscription-event-v1"
-SCHEMA_VERSION = 2
+SCHEMA_VERSION = 3
 READ_SCOPE = "knowledge:subscriptions:read"
 WRITE_SCOPE = "knowledge:subscriptions:write"
 DELIVER_SCOPE = "knowledge:subscriptions:deliver"
@@ -63,6 +63,9 @@ CREATE TABLE IF NOT EXISTS knowledge_subscription_idempotency (
 CREATE TABLE IF NOT EXISTS knowledge_subscription_audit (
   event_id TEXT PRIMARY KEY, subscription_id TEXT, principal_id TEXT NOT NULL,
   action TEXT NOT NULL, detail_json TEXT NOT NULL, created_at_ms BIGINT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS knowledge_subscription_access (
+  subscription_id TEXT PRIMARY KEY, scopes_json TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_knowledge_subscription_owner
   ON knowledge_subscriptions(owner_principal, namespace, status);
@@ -116,6 +119,10 @@ class SubscriptionStore:
         if initialize: self.ensure_schema()
 
     def ensure_schema(self) -> None:
+        if self.conn.execute("SELECT 1 FROM information_schema.tables WHERE table_name='noesis_schema_migrations'").fetchone():
+            version=self.conn.execute("SELECT max(version) FROM noesis_schema_migrations WHERE component='knowledge-subscriptions'").fetchone()[0]
+            if version is not None and version>SCHEMA_VERSION:
+                raise SubscriptionError('unsupported_schema','subscription warehouse version is newer than this runtime')
         self.conn.execute(_DDL)
         self.conn.execute("ALTER TABLE knowledge_subscription_snapshots ADD COLUMN IF NOT EXISTS filter_hash TEXT")
         from src.kb.subscription_delivery import ensure_schema
@@ -140,6 +147,16 @@ class SubscriptionStore:
         return {"namespace":namespace,"watermark":value,"kind":kind,"status":"committed"}
 
     def create(self, definition: Mapping[str, Any], idempotency_key: str, *, principal_id: str, scopes: set[str]) -> dict[str, Any]:
+        self.conn.execute('BEGIN')
+        try:
+            result=self._create(definition,idempotency_key,principal_id=principal_id,scopes=scopes)
+            self.conn.execute('COMMIT')
+            return result
+        except Exception:
+            self.conn.execute('ROLLBACK')
+            raise
+
+    def _create(self, definition, idempotency_key, *, principal_id, scopes):
         namespace=str(definition.get("namespace", "")).strip(); _scope(scopes, WRITE_SCOPE, namespace); self._rate(principal_id)
         query=dict(definition.get("query") or {}); operation=str(query.get("operation", ""))
         if operation not in DETERMINISTIC_OPERATIONS or query.get("random") or query.get("now"):
@@ -149,6 +166,7 @@ class SubscriptionStore:
         prior=self.conn.execute("SELECT request_hash,result_json FROM knowledge_subscription_idempotency WHERE idempotency_key=?", [idempotency_key]).fetchone()
         if prior:
             if prior[0]!=request_hash: raise SubscriptionError("idempotency_conflict", "idempotency key was reused")
+            self._get(json.loads(prior[1])['subscription_id'],principal_id,scopes,write=True)
             return json.loads(prior[1])
         active=self.conn.execute("SELECT COUNT(*) FROM knowledge_subscriptions WHERE owner_principal=? AND status IN ('active','paused')", [principal_id]).fetchone()[0]
         if int(active)>=self.max_active_per_principal: raise SubscriptionError("quota_exceeded", "active subscription quota exceeded")
@@ -159,6 +177,8 @@ class SubscriptionStore:
         subscription_id="subscription:"+_digest(identity)[:24]; now=_now()
         result={"contract":CONTRACT,"subscription_id":subscription_id,"version":1,"owner_principal":principal_id,"namespace":namespace,"domain":str(definition.get("domain") or "general"),"query":query,"filters":dict(definition.get("filters") or {}),"cadence":cadence,"delivery":delivery,"status":"active","expires_at_ms":definition.get("expires_at_ms"),"created_at_ms":now,"updated_at_ms":now,"last_watermark":None}
         self.conn.execute("INSERT INTO knowledge_subscriptions VALUES (?,1,?,?,?,?,?,?,?,'active',?,?,?,NULL)", [subscription_id,_canonical(query),namespace,result["domain"],_canonical(result["filters"]),principal_id,_canonical(cadence),_canonical(delivery),result["expires_at_ms"],now,now])
+        from src.kb.subscription_access import remember
+        remember(self.conn,subscription_id,scopes)
         self.conn.execute("INSERT INTO knowledge_subscription_idempotency VALUES (?, ?, ?, ?)", [idempotency_key,request_hash,_canonical(result),now]); self._audit(subscription_id,principal_id,"create",{"version":1})
         return result
 
@@ -167,6 +187,8 @@ class SubscriptionStore:
         if not row: raise SubscriptionError("not_found", "subscription does not exist")
         _scope(scopes, WRITE_SCOPE if write else READ_SCOPE, row[3])
         if row[6]!=principal_id and "operator" not in scopes: raise SubscriptionError("not_found", "subscription does not exist")
+        from src.kb.subscription_access import require_current
+        require_current(self.conn,subscription_id,scopes)
         return row
 
     @staticmethod
@@ -178,7 +200,14 @@ class SubscriptionStore:
     def list(self, *, principal_id: str, scopes: set[str], namespace: str | None = None) -> list[dict[str, Any]]:
         _scope(scopes, READ_SCOPE, namespace); self._rate(principal_id)
         rows=self.conn.execute("SELECT subscription_id,version,query_json,namespace,domain,filters_json,owner_principal,cadence_json,delivery_json,status,expires_at_ms,created_at_ms,updated_at_ms,last_watermark FROM knowledge_subscriptions WHERE owner_principal=? AND (? IS NULL OR namespace=?) ORDER BY subscription_id", [principal_id,namespace,namespace]).fetchall()
-        return [self._value(row) for row in rows]
+        visible=[]
+        for row in rows:
+            try:
+                self._get(row[0],principal_id,scopes)
+                visible.append(self._value(row))
+            except SubscriptionError:
+                continue
+        return visible
 
     def update(self, subscription_id: str, patch: Mapping[str, Any], *, principal_id: str, scopes: set[str]) -> dict[str, Any]:
         row=self._get(subscription_id,principal_id,scopes,write=True); allowed={"filters","cadence","delivery","expires_at_ms"}
@@ -248,6 +277,8 @@ class SubscriptionStore:
         if bool(previous_coverage.get("complete",True)) and not bool(coverage.get("complete",True)): changes.append(("coverage-degraded","__coverage__",previous_coverage,coverage))
         self.conn.execute("BEGIN")
         try:
+            from src.kb.subscription_access import remember
+            remember(self.conn,subscription_id,scopes)
             self.conn.execute("INSERT INTO knowledge_subscription_snapshots (subscription_id,watermark,result_hash,result_json,coverage_json,captured_at_ms,filter_hash) VALUES (?, ?, ?, ?, ?, ?, ?)",[subscription_id,watermark,result_hash,_canonical(current),_canonical(coverage),now,_digest(subscription["filters"])])
             event_ids=[]
             for event_type,key,before,after in changes:

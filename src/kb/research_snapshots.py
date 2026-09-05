@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from src.kb.retention_coordination import coordinated
+
 import hashlib
 import json
 import secrets
@@ -207,6 +209,7 @@ class ResearchSnapshotStore:
         vector["omissions"] = omissions
         return vector, omissions
 
+    @coordinated
     def begin(
         self,
         selection: Mapping[str, Any],
@@ -321,13 +324,23 @@ class ResearchSnapshotStore:
         self, token: str, *, principal_id: str, scopes: set[str]
     ) -> dict[str, Any]:
         _require(scopes, READ_SCOPE)
-        return self._session(token, principal_id, allow_expired=True)
+        session=self._session(token, principal_id, allow_expired=True)
+        self._current_access(session,scopes)
+        return session
 
+    @staticmethod
+    def _current_access(session,scopes):
+        required=set(session['scopes'])-{READ_SCOPE,WRITE_SCOPE}
+        if 'operator' not in scopes and not required<=set(scopes):
+            raise ResearchSnapshotError('unauthorized','current access to pinned snapshot metadata is required')
+
+    @coordinated
     def renew(
         self, token: str, *, principal_id: str, scopes: set[str], ttl_ms: int
     ) -> dict[str, Any]:
         _require(scopes, WRITE_SCOPE)
         session = self._session(token, principal_id)
+        self._current_access(session,scopes)
         now = self.now()
         expires = min(now + max(1_000, int(ttl_ms)), session["maximum_expires_at_ms"])
         if expires <= now:
@@ -347,6 +360,7 @@ class ResearchSnapshotStore:
         )
         return {**session, "expires_at_ms": expires}
 
+    @coordinated
     def close(
         self, token: str, *, principal_id: str, scopes: set[str]
     ) -> dict[str, Any]:
@@ -375,6 +389,7 @@ class ResearchSnapshotStore:
         _require(scopes, READ_SCOPE)
         session = self._session(token, principal_id)
         original_scopes = set(session["scopes"])
+        self._current_access(session,scopes)
         if "operator" not in original_scopes and not scopes <= original_scopes:
             raise ResearchSnapshotError(
                 "scope_escalation", "session cannot gain authorization scopes"

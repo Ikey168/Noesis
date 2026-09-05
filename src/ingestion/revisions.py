@@ -8,6 +8,8 @@ change set are committed together by :class:`SourcePackRuntime`.
 
 from __future__ import annotations
 
+from src.kb.retention_coordination import coordinated
+
 import base64
 import hashlib
 import json
@@ -173,6 +175,7 @@ class DocumentRevisionStore:
             migrated += 1
         return migrated
 
+    @coordinated
     def observe(
         self,
         payload: Mapping[str, Any],
@@ -665,6 +668,8 @@ class DocumentRevisionStore:
         )
         result = dict(zip(keys, row))
         result["payload"] = json.loads(result["payload"])
+        if result['payload'].get('_payload_reclaimed') is True:
+            raise RevisionError('payload_reclaimed','revision payload was reclaimed; identity, hashes and lineage remain retained')
         result.update({"contract": REVISION_CONTRACT, "document_id": document_id})
         if not include_retracted and result["lifecycle"] != "active":
             return None

@@ -303,8 +303,6 @@ class ResearchPackageStore:
                 continue
             for row in rows:
                 dependencies = _load(row[3], [])
-                queue.extend(dep for dep in dependencies if dep not in seen)
-                queue.sort()
                 if row[4] == "inaccessible":
                     omissions.append(
                         {
@@ -314,6 +312,8 @@ class ResearchPackageStore:
                         }
                     )
                     continue
+                queue.extend(dep for dep in dependencies if dep not in seen)
+                queue.sort()
                 content = (
                     _load(row[5], {}) if row[4] == "redacted" else _load(row[1], {})
                 )

@@ -26,28 +26,32 @@ class SubscriptionDeliveryStore:
     def _owned(self, event_id, delivery_kind, principal_id, scopes):
         _scope(scopes, DELIVER_SCOPE)
         row = self.conn.execute("""SELECT o.status,o.attempts,o.lease_token,o.lease_until_ms,
-            o.last_outcome,s.namespace,s.owner_principal FROM knowledge_subscription_outbox o
+            o.last_outcome,s.namespace,s.owner_principal,s.subscription_id FROM knowledge_subscription_outbox o
             JOIN knowledge_subscription_events e ON e.event_id=o.event_id
             JOIN knowledge_subscriptions s ON s.subscription_id=e.subscription_id
             WHERE o.event_id=? AND o.delivery_kind=?""", [event_id, delivery_kind]).fetchone()
         if not row or row[6] != principal_id:
             raise SubscriptionError("not_found", "owned delivery does not exist")
         _scope(scopes, DELIVER_SCOPE, row[5])
+        from src.kb.subscription_access import require_current
+        require_current(self.conn,row[7],scopes)
         return row
 
     def pending(self, *, principal_id, scopes, limit=100):
         _scope(scopes, DELIVER_SCOPE)
         rows = self.conn.execute("""SELECT o.event_id,o.delivery_kind,o.destination_ref,o.payload_json,
-            o.attempts,s.namespace FROM knowledge_subscription_outbox o
+            o.attempts,s.namespace,s.subscription_id FROM knowledge_subscription_outbox o
             JOIN knowledge_subscription_events e ON e.event_id=o.event_id
             JOIN knowledge_subscriptions s ON s.subscription_id=e.subscription_id
             WHERE s.owner_principal=? AND s.status <> 'deleted' AND
             ((o.status='pending' AND o.available_at_ms<=?) OR (o.status='leased' AND o.lease_until_ms<=?))
             ORDER BY e.sequence LIMIT ?""", [principal_id, self.now(), self.now(), min(max(int(limit), 1), 500)]).fetchall()
         result = []
-        for event_id, kind, destination, payload, attempts, namespace in rows:
+        for event_id, kind, destination, payload, attempts, namespace, subscription_id in rows:
             try:
                 _scope(scopes, DELIVER_SCOPE, namespace)
+                from src.kb.subscription_access import require_current
+                require_current(self.conn,subscription_id,scopes)
             except SubscriptionError:
                 continue
             result.append({"event_id": event_id, "delivery_kind": kind, "destination_ref": destination,

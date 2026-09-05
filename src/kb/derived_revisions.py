@@ -382,14 +382,15 @@ class DerivedRevisionStore:
             [namespace, projection["model"], projection["dimensions"], projection["configuration_hash"]]).fetchone()
         if mismatch:
             raise DerivedRevisionError("embedding_space_conflict", "query provider differs from the namespace's embedding space")
-        rows = self.conn.execute("""WITH latest AS (
+        current_support = self._canonical_support_predicate('r')
+        rows = self.conn.execute(f"""WITH latest AS (
             SELECT r.*,row_number() OVER (PARTITION BY r.logical_id ORDER BY r.revision DESC) AS ordinal
             FROM derived_object_revisions r JOIN derived_object_generations g
             ON g.namespace=r.namespace AND g.generation=r.generation AND g.status='committed'
             WHERE r.namespace=?), candidates AS (
             SELECT p.*,r.content_json AS object_content,r.support_json
             FROM derived_projection_items p JOIN latest r ON r.revision_id=p.object_revision_id
-            WHERE p.namespace=? AND p.projection_kind='vector' AND r.ordinal=1 AND r.lifecycle='active')
+            WHERE p.namespace=? AND p.projection_kind='vector' AND r.ordinal=1 AND r.lifecycle='active' AND {current_support})
             SELECT logical_id,object_type,object_revision_id,object_content,support_json,
             list_cosine_similarity(CAST(json_extract(content_json,'$.vector') AS DOUBLE[]),CAST(? AS DOUBLE[])) AS score
             FROM candidates WHERE json_extract_string(content_json,'$.model')=?
@@ -401,8 +402,29 @@ class DerivedRevisionStore:
         return [{"id": row[0], "object_type": row[1], "revision_id": row[2],
                  "text": _text(_load(row[3], {})), "score": row[5],
                  "citations": [{"document_id": support["document_id"], "revision_id": support["source_revision_id"]}
-                               for support in _load(row[4], []) if support.get("selected_content")],
+                               for support in _load(row[4], []) if support.get("selected_content") and self._source_current(support)],
                  "native_rank": rank} for rank, row in enumerate(rows, 1)]
+
+    def _source_current(self, support):
+        if not self.conn.execute("SELECT 1 FROM information_schema.tables WHERE table_name='document_revision_records'").fetchone():
+            return True  # Explicit legacy external references have no canonical ledger.
+        row=self.conn.execute('SELECT revision_id,lifecycle FROM document_revision_records WHERE document_id=? AND committed_watermark IS NOT NULL ORDER BY revision DESC LIMIT 1',[support['document_id']]).fetchone()
+        if row is None:
+            return not self.conn.execute('SELECT 1 FROM document_revision_records WHERE document_id=? LIMIT 1',[support['document_id']]).fetchone()
+        return row[0]==support['source_revision_id'] and row[1]=='active'
+
+    def _canonical_support_predicate(self, alias):
+        if not self.conn.execute("SELECT 1 FROM information_schema.tables WHERE table_name='document_revision_records'").fetchone():
+            return 'TRUE'
+        return f"""EXISTS (SELECT 1 FROM json_each({alias}.support_json) s
+            WHERE coalesce(CAST(json_extract(s.value,'$.selected_content') AS BOOLEAN),false)
+            AND (NOT EXISTS (SELECT 1 FROM document_revision_records d WHERE d.document_id=json_extract_string(s.value,'$.document_id'))
+            OR EXISTS (SELECT 1 FROM document_revision_records d
+                WHERE d.document_id=json_extract_string(s.value,'$.document_id')
+                AND d.revision_id=json_extract_string(s.value,'$.source_revision_id')
+                AND d.lifecycle='active' AND d.committed_watermark IS NOT NULL
+                AND NOT EXISTS (SELECT 1 FROM document_revision_records newer WHERE newer.document_id=d.document_id
+                    AND newer.committed_watermark IS NOT NULL AND newer.revision>d.revision))))"""
 
     @staticmethod
     def _normalize_observation(value: Mapping[str, Any]) -> dict[str, Any]:
@@ -883,6 +905,9 @@ class DerivedRevisionStore:
             "observed_at_ms": int(row[13]),
             "created_at_ms": int(row[14]),
         }
+        if revision is None and generation is None and not include_unpublished and not include_retracted:
+            if not any(s.get('selected_content') and self._source_current(s) for s in result['support']):
+                return None
         return result if include_retracted or result["lifecycle"] == "active" else None
 
     def history(
@@ -1112,7 +1137,7 @@ class DerivedRevisionStore:
                 "invalid_projection", "projection kind is unsupported"
             )
         rows = self.conn.execute(
-            "WITH latest AS (SELECT r.logical_id,r.revision_id,r.lifecycle,r.generation,"
+            "WITH latest AS (SELECT r.logical_id,r.revision_id,r.lifecycle,r.generation,r.support_json,"
             "ROW_NUMBER() OVER (PARTITION BY r.logical_id ORDER BY r.revision DESC) AS ordinal "
             "FROM derived_object_revisions r JOIN derived_object_generations g "
             "ON g.namespace=r.namespace AND g.generation=r.generation AND g.status='committed' "
@@ -1120,7 +1145,7 @@ class DerivedRevisionStore:
             "SELECT p.item_id,p.logical_id,p.object_type,p.object_revision_id,p.content_json,"
             "p.content_hash,p.generation FROM derived_projection_items p JOIN latest l "
             "ON l.revision_id=p.object_revision_id WHERE p.namespace=? AND p.projection_kind=? "
-            "AND l.ordinal=1 AND l.lifecycle='active' ORDER BY p.item_id",
+            f"AND l.ordinal=1 AND l.lifecycle='active' AND {self._canonical_support_predicate('l')} ORDER BY p.item_id",
             [namespace, namespace, projection_kind],
         ).fetchall()
         return [
