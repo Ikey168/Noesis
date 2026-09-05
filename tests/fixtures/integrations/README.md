@@ -32,3 +32,17 @@ on 2026-09-05. The example describes Josiah Carberry; it is not an independently
 verified researcher biography or an annotation dataset. Contact fields and other
 unneeded profile sections were omitted. Source:
 `https://pub.orcid.org/v3.0/0000-0002-1825-0097/record`.
+
+
+Additional SDMX captures were fetched on 2026-09-05:
+- `estat-native.xml`: Eurostat SDMX 2.1 `nama_10_gdp/A.CP_MEUR.B1GQ.DE`, start/endPeriod 2023.
+- `estat-jsonstat-native.json`: the existing Eurostat JSON-stat endpoint, `nama_10_gdp`, geo=DE, unit=CP_MEUR, na_item=B1GQ, freq=A, time=2023.
+- `estat-dsd-native.xml.gz`: lossless gzip of native Eurostat NAMA_10_GDP data structure and code lists; original source https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/datastructure/ESTAT/NAMA_10_GDP/latest .
+- `bbk-native.xml`: Bundesbank SDMX `BBEX3/D.USD.EUR.BB.AC.000`, lastNObservations=2. Source https://api.statistiken.bundesbank.de/rest/data/BBEX3/D.USD.EUR.BB.AC.000 .
+
+These are public statistical facts and structure/code labels, attributed to
+Eurostat and Deutsche Bundesbank. They are native responses, not generated
+labels. Original numeric values and preliminary/status flags are retained.
+`sdmx-live-evaluation.json` records an additional actual live comparison and
+capture timestamps/URLs/hashes; its responses may have different message headers
+from these frozen captures. No historical provider vintage is inferred.

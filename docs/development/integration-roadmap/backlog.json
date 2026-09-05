@@ -77,9 +77,11 @@
     {
       "number": 1515,
       "title": "Evaluate sdmx1 for Eurostat, ECB and Bundesbank statistical acquisition",
-      "status": "implementation_partial",
+      "status": "implemented_pending_review",
       "validation": [
-        "See README.md for tested scope and outstanding acceptance evidence."
+        "Actual native ECB, Eurostat and Bundesbank requests succeeded; Eurostat SDMX values matched existing JSON-stat connector on the same German GDP series.",
+        "Structure/code-list mapping and projected labels, native attribute units/frequencies/status/original values, explicit HTTP diagnostics and source byte archival integrated.",
+        "9 SDMX/observation-store tests passed; live/replay benchmarks and native fixtures document measured parsing cost, precise timestamps, failures and limited adoption scope."
       ]
     },
     {

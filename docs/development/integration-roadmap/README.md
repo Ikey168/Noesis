@@ -23,7 +23,7 @@ provisioned model snapshots. Model revisions are in `src/integrations/model-pins
 | #1512 | Origin inference `candidate_backend="minhash"` | Approximate candidates plus exhaustive provenance pairs; candidate-run receipts; measured recall outstanding |
 | #1513 | Planner `optimizer="cp-sat"` | Bounded constraints; actual greedy comparison, exhaustive oracle and execution fallback/replay passed |
 | #1514 | Media connector `aligner=WhisperXAligner(...)` | Optional word alignment adapter; dependency/model and actual audio evaluation outstanding |
-| #1515 | `SDMXConnector` | Native series parsing and bounded transport; ECB live capture tested; Eurostat/Bundesbank and code-list mapping outstanding |
+| #1515 | `SDMXConnector` | Native ECB/Eurostat/Bundesbank data, structure/code-list mapping, archived ingestion and overlapping baseline comparison verified |
 | #1516 | Dataset store `validate_batch` | Explicit Pandera preflight, preserves declared schema; quarantine integration and comparative evaluation outstanding |
 | #1517 | Quantitative store `convert_physical` | Pint physical conversions plus isolated versioned Noesis unit definitions/aliases; formula evaluation and comparative cost evidence outstanding |
 | #1518 | Geospatial `relation(backend="shapely")` | Topology; wider geometry fixtures/evaluation outstanding |
@@ -303,3 +303,46 @@ storage, separate retrieval observations and idempotent document replay.
 Latest combined verification after the Context7 changes: **130 tests passed** across
 integrations, quantitative/report/planner/geospatial/federation stores, document
 and source-pack runtime, and quantitative/planner MCP surfaces.
+
+## SDMX provider completion (#1515)
+
+The optional sdmx1 2.27.0 connector now maps Eurostat lowercase dimensions and
+ECB/Bundesbank attribute-based unit/frequency fields, preserving their native
+names. Original numeric text, missing values/status flags, dataset action/validity,
+provider prepared/extracted timestamps and retrieval time remain explicit.
+Prepared/retrieved times do not establish a publication date or historical vintage.
+
+`fetch_structure` / `parse_structure` map dataflows, dimensions and multilingual
+code-list identities/versions. Data parsing accepts an explicit matching structure
+and includes labels for selected dimension codes. Structural annotations outside
+this mapping remain in the native RawSeries; the mapping states its coverage.
+`ingest(query, observation_store, structure=...)` archives exact source bytes in
+the existing SnapshotStore and publishes observations atomically. Both older
+values and their full native metadata remain available from archived bytes.
+
+Actual public requests succeeded for ECB EXR, Eurostat NAMA_10_GDP and Bundesbank
+BBEX3; no account credentials were supplied. The overlapping German 2023 GDP
+observation matched the existing Eurostat JSON-stat connector (4,254,930.0 in
+provider unit CP_MEUR, preliminary flag preserved). A native Eurostat structure
+capture contains six code lists and 5,751 codes. Bundesbank requires period syntax
+matching frequency; older BBK01 example keys returned no data. HTTP diagnostics
+now retain provider and status instead of a generic failure. Native unit codes,
+multipliers and denominator dimensions are retained without currency conversion.
+
+`python -m scripts.benchmark_integration_sdmx --out sdmx.json` replays the frozen
+captures; add `--live` for bounded public downloads and a fresh baseline comparison.
+The live command actually ran and records source URLs, capture timestamps and
+hashes in `sdmx-live-evaluation.json`. It writes raw captures beside the requested
+report. Twenty parser repetitions measured sub-1 ms median on these tiny data
+responses; structure download/parsing and full-corpus throughput are separate.
+Nine tests cover native mapping, source contract validation, code labels, missing
+values, provider errors, byte/observation controls, atomic archived ingestion and
+observation revision/replay. Limits are 8 MB / 10,000 observations by default,
+20-second requests, and 100,000 structural codes; failed/oversized requests do not
+publish truncated series.
+
+Decision: adopt as an explicit connector for these verified paths and retain the
+existing Eurostat default. This does not establish every provider endpoint,
+historical vintage access or economic comparability. Primary documentation:
+https://sdmx1.readthedocs.io/en/latest/sources.html and
+https://ec.europa.eu/eurostat/web/user-guides/data-browser/api-data-access/api-detailed-guidelines/sdmx2-1/structure-queries .
