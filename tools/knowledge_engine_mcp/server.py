@@ -7809,6 +7809,65 @@ def create_authored_report(namespace: str, request_key: str, content: dict[str, 
 
 
 @mcp.tool()
+def create_binary_forecast(namespace: str, request_key: str, question: str, outcome_rule: str,
+                            resolution_at_ms: int, probability: float, evidence: list[dict[str, Any]],
+                            resolution_match: dict[str, str] | None = None) -> dict:
+    """Record an explicit probability, resolution rule, deadline, forecaster, and evidence references."""
+    from src.kb.forecasts import ForecastStore, WRITE_SCOPE
+    return _safe(lambda c: ForecastStore(c).create(namespace, request_key, question=question,
+        outcome_rule=outcome_rule, resolution_at_ms=resolution_at_ms, probability=probability, evidence=evidence,
+        resolution_match=resolution_match, principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope=WRITE_SCOPE)
+
+
+@mcp.tool()
+def inspect_binary_forecast(namespace: str, forecast_id: str, cutoff_ms: int | None = None,
+                            outcome_cutoff_ms: int | None = None) -> dict:
+    """Inspect a forecast and reviewed outcome as recorded by explicit historical cutoffs."""
+    from src.kb.forecasts import ForecastStore, READ_SCOPE
+    return _safe(lambda c: ForecastStore(c, initialize=False).inspect(namespace, forecast_id,
+        cutoff_ms=cutoff_ms, outcome_cutoff_ms=outcome_cutoff_ms, principal_id=_context()[0], scopes=_context()[1]), required_scope=READ_SCOPE)
+
+
+@mcp.tool()
+def revise_binary_forecast(namespace: str, forecast_id: str, expected_revision: int, probability: float,
+                            evidence: list[dict[str, Any]], rationale: str, outcome_rule: str | None = None,
+                            resolution_match: dict[str, str] | None = None) -> dict:
+    """Revise a forecast before its deadline, preserving prior probabilities and rule versions."""
+    from src.kb.forecasts import ForecastStore, WRITE_SCOPE
+    return _safe(lambda c: ForecastStore(c).revise(namespace, forecast_id, expected_revision,
+        probability=probability, evidence=evidence, rationale=rationale, outcome_rule=outcome_rule,
+        resolution_match=resolution_match, principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope=WRITE_SCOPE)
+
+
+@mcp.tool()
+def propose_forecast_resolution(namespace: str, forecast_id: str) -> dict:
+    """Match registered quantitative rules to sourced observations without settling the forecast."""
+    from src.kb.forecasts import ForecastStore, READ_SCOPE
+    return _safe(lambda c: ForecastStore(c, initialize=False).propose_resolution(namespace, forecast_id,
+        principal_id=_context()[0], scopes=_context()[1]), required_scope=READ_SCOPE)
+
+
+@mcp.tool()
+def resolve_binary_forecast(namespace: str, forecast_id: str, expected_outcome_revision: int, status: str,
+                            outcome: int | None, evidence: list[dict[str, Any]], rationale: str,
+                            forecast_revision: int) -> dict:
+    """Record a reviewed outcome, dispute, cancellation, or retrospective correction."""
+    from src.kb.forecasts import ForecastStore, WRITE_SCOPE
+    return _safe(lambda c: ForecastStore(c).resolve(namespace, forecast_id, expected_outcome_revision,
+        status=status, outcome=outcome, evidence=evidence, rationale=rationale, forecast_revision=forecast_revision,
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope=WRITE_SCOPE)
+
+
+@mcp.tool()
+def score_binary_forecasts(namespace: str, forecast_ids: list[str], cutoff_ms: int,
+                            outcome_cutoff_ms: int | None = None) -> dict:
+    """Score a specified cohort with Brier scores, reliability intervals, baseline, and exclusions."""
+    from src.kb.forecasts import ForecastStore, READ_SCOPE
+    return _safe(lambda c: ForecastStore(c, initialize=False).score(namespace, forecast_ids, cutoff_ms=cutoff_ms,
+        outcome_cutoff_ms=outcome_cutoff_ms, principal_id=_context()[0], scopes=_context()[1]), required_scope=READ_SCOPE)
+
+
+@mcp.tool()
 def inspect_authored_report(namespace: str, report_id: str, revision: int | None = None) -> dict:
     """Reopen the current or historical report without regenerating authored wording."""
     from src.kb.authored_reports import AuthoredReportStore, READ_SCOPE
