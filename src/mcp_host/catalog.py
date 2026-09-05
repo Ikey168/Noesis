@@ -226,6 +226,8 @@ async def _inspect_server(
 
 
 def _mutability(name: str) -> str:
+    if name in {"revise_research_project", "archive_research_project", "record_research_project_expenditure"}:
+        return "write"
     if name in MUTATION_NAMES or name.startswith(MUTATION_PREFIXES):
         return "write"
     return "read"
@@ -333,6 +335,10 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
     if server_stem == "knowledge_engine_mcp":
         if tool_name == "set_research_package_trust_policy":
             return ["knowledge:packages:trust"]
+        if tool_name in {"create_research_project", "revise_research_project", "archive_research_project", "record_research_project_expenditure"}:
+            return ["knowledge:projects:write"]
+        if tool_name in {"inspect_research_project", "list_research_projects"}:
+            return ["knowledge:projects:read"]
         if tool_name in {
             "create_research_package_manifest",
             "register_research_package_component",

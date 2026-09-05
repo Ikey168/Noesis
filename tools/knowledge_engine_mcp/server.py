@@ -98,6 +98,7 @@ def knowledge_engine_capabilities() -> dict:
             "noesis-derived-object-replay-v1",
             "noesis-derived-object-lineage-v1",
             "noesis-research-snapshot-v1",
+            "noesis-research-project-v1",
             "noesis-research-snapshot-token-v1",
             "noesis-epistemic-taxonomy-v1",
             "noesis-epistemic-assessment-v1",
@@ -7782,6 +7783,66 @@ def inspect_retention_health(namespace: str) -> dict:
         ),
         required_scope="knowledge:retention:read",
     )
+
+
+@mcp.tool()
+def create_research_project(namespace: str, request_key: str, questions: list[str],
+                            success_criteria: list[str], scope: dict[str, Any], budget: dict[str, int]) -> dict:
+    """Create an owner-scoped persistent investigation with explicit success criteria and budget."""
+    from src.kb.research_projects import ResearchProjectStore, WRITE_SCOPE
+    return _safe(lambda c: ResearchProjectStore(c).create(
+        namespace, request_key, questions=questions, success_criteria=success_criteria,
+        scope=scope, budget=budget, principal_id=_context()[0], scopes=_context()[1]),
+        write=True, required_scope=WRITE_SCOPE)
+
+
+@mcp.tool()
+def inspect_research_project(namespace: str, project_id: str, revision: int | None = None) -> dict:
+    """Reopen a project or historical revision without rerunning its completed work."""
+    from src.kb.research_projects import ResearchProjectStore, READ_SCOPE
+    return _safe(lambda c: ResearchProjectStore(c, initialize=False).inspect(
+        namespace, project_id, revision=revision, principal_id=_context()[0], scopes=_context()[1]),
+        required_scope=READ_SCOPE)
+
+
+@mcp.tool()
+def list_research_projects(namespace: str, limit: int = 50, offset: int = 0) -> dict:
+    """List currently authorized projects in a namespace."""
+    from src.kb.research_projects import ResearchProjectStore, READ_SCOPE
+    return _safe(lambda c: ResearchProjectStore(c, initialize=False).list(
+        namespace, limit=limit, offset=offset, principal_id=_context()[0], scopes=_context()[1]),
+        required_scope=READ_SCOPE)
+
+
+@mcp.tool()
+def revise_research_project(namespace: str, project_id: str, expected_revision: int,
+                            questions: list[str] | None = None, success_criteria: list[str] | None = None,
+                            add_links: list[dict[str, Any]] | None = None, status: str | None = None) -> dict:
+    """Append question, evidence, or lifecycle changes with optimistic revision checks."""
+    from src.kb.research_projects import ResearchProjectStore, WRITE_SCOPE
+    return _safe(lambda c: ResearchProjectStore(c).revise(
+        namespace, project_id, expected_revision, questions=questions, success_criteria=success_criteria,
+        add_links=add_links, status=status, principal_id=_context()[0], scopes=_context()[1]),
+        write=True, required_scope=WRITE_SCOPE)
+
+
+@mcp.tool()
+def archive_research_project(namespace: str, project_id: str, expected_revision: int) -> dict:
+    """Archive a project while retaining its question and evidence history."""
+    from src.kb.research_projects import ResearchProjectStore, WRITE_SCOPE
+    return _safe(lambda c: ResearchProjectStore(c).revise(
+        namespace, project_id, expected_revision, status="archived", principal_id=_context()[0], scopes=_context()[1]),
+        write=True, required_scope=WRITE_SCOPE)
+
+
+@mcp.tool()
+def record_research_project_expenditure(namespace: str, project_id: str, receipt_id: str,
+                                        costs: dict[str, int], expected_revision: int) -> dict:
+    """Account for a committed execution receipt once against a project's cumulative budget."""
+    from src.kb.research_projects import ResearchProjectStore, WRITE_SCOPE
+    return _safe(lambda c: ResearchProjectStore(c).record_expenditure(
+        namespace, project_id, receipt_id, costs, expected_revision, principal_id=_context()[0], scopes=_context()[1]),
+        write=True, required_scope=WRITE_SCOPE)
 
 
 @mcp.tool()
