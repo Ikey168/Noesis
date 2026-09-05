@@ -212,10 +212,13 @@ class SubscriptionStore:
         if not committed: raise SubscriptionError("watermark_uncommitted", "subscriptions only evaluate committed state")
         if subscription["last_watermark"] is not None and int(watermark)<int(subscription["last_watermark"]): return {"subscription_id":subscription_id,"status":"ignored","reason":"out-of-order","watermark":watermark}
         result=result_or_evaluator(subscription) if callable(result_or_evaluator) else result_or_evaluator
-        current,coverage=self._normalize_results(result); result_hash=_digest(current)
-        duplicate=self.conn.execute("SELECT result_hash FROM knowledge_subscription_snapshots WHERE subscription_id=? AND watermark=?",[subscription_id,watermark]).fetchone()
+        current,coverage=self._normalize_results(result); result_hash=_digest({"items":current,"coverage":coverage})
+        duplicate=self.conn.execute("SELECT result_json,coverage_json FROM knowledge_subscription_snapshots WHERE subscription_id=? AND watermark=?",[subscription_id,watermark]).fetchone()
         if duplicate:
-            if duplicate[0]!=result_hash: raise SubscriptionError("snapshot_conflict", "watermark replay returned different results")
+            # Compare canonical content so snapshots written with the previous
+            # items-only hash remain replayable without rewriting history.
+            prior_hash=_digest({"items":_load(duplicate[0],{}),"coverage":_load(duplicate[1],{"complete":True})})
+            if prior_hash!=result_hash: raise SubscriptionError("snapshot_conflict", "watermark replay returned different results or coverage")
             return {"subscription_id":subscription_id,"status":"replayed","watermark":watermark,"events":0}
         previous_row=self.conn.execute("SELECT result_json,coverage_json FROM knowledge_subscription_snapshots WHERE subscription_id=? ORDER BY watermark DESC LIMIT 1",[subscription_id]).fetchone(); previous=_load(previous_row[0],{}) if previous_row else {}; previous_coverage=_load(previous_row[1],{"complete":True}) if previous_row else {"complete":True}
         changes=[]

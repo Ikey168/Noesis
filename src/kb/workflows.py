@@ -352,6 +352,7 @@ class WorkflowStore:
             "SELECT status,state_json FROM knowledge_workflow_runs WHERE run_id=?", [run_id]
         ).fetchone()
         if prior and prior[0] == "completed":
+            self._reconcile_index_publication(definition, run_id)
             result = self.inspect(run_id)
             result["idempotent"] = True
             return result
@@ -392,6 +393,8 @@ class WorkflowStore:
                 name = stage["name"]
                 if name in completed:
                     state = completed[name]
+                    if name == "index":
+                        watermark = self._reconcile_index_publication(definition, run_id)
                     completed_count += 1
                     continue
                 if cancelled and cancelled():
@@ -490,6 +493,28 @@ class WorkflowStore:
             )
             raise
         return self.inspect(run_id)
+
+    def _reconcile_index_publication(
+        self, definition: Mapping[str, Any], run_id: str
+    ) -> dict[str, Any] | None:
+        """Finish publication from the durable index receipt after interruption.
+
+        Both publication operations are idempotent. The receipt is the durable
+        intent, including the exact indexed state and its original commit time.
+        Never publish a later query/export state as the index generation.
+        """
+        receipt = self.conn.execute(
+            "SELECT output_json,completed_at_ms FROM knowledge_workflow_receipts "
+            "WHERE run_id=? AND stage='index' AND status='completed'",
+            [run_id],
+        ).fetchone()
+        if receipt is None:
+            return None
+        watermark = self._commit_watermark(
+            definition, run_id, _load(receipt[0], {}), int(receipt[1])
+        )
+        self._publish_subscription_watermark(watermark)
+        return watermark
 
     def _watermark_for_run(self, run_id: str) -> dict[str, Any] | None:
         row = self.conn.execute(

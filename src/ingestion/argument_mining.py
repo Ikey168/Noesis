@@ -127,6 +127,7 @@ def mine_unprocessed_documents(conn, limit: Optional[int] = None) -> dict[str, A
         doc = _document(row[:-1])
         content_hash = row[-1]
         now = datetime.now(timezone.utc)
+        conn.execute("BEGIN TRANSACTION")
         try:
             # A revision replaces derived rows instead of mixing old/new claims.
             conn.execute(
@@ -137,16 +138,7 @@ def mine_unprocessed_documents(conn, limit: Optional[int] = None) -> dict[str, A
             conn.execute("DELETE FROM argument_claims WHERE document_id = ?", [doc.document_id])
             claims, evidence = run_pipeline(doc, conn)
             classify_and_store(doc, conn)
-            votes_total += _record_legislative_metadata(conn, doc)
-            try:
-                database_path = conn.execute("PRAGMA database_list").fetchall()[0][2]
-                if database_path:
-                    from src.knowledge_graph.kg_updater import update_from_document
-                    update_from_document(doc.to_dict())
-            except Exception:
-                # The argument scan remains valid if the graph projection is
-                # temporarily unavailable; graph ingestion is idempotent.
-                pass
+            document_votes = _record_legislative_metadata(conn, doc)
             mode = get_claim_detector().prediction_mode
             conn.execute(
                 """INSERT INTO argument_mining_scans
@@ -161,10 +153,13 @@ def mine_unprocessed_documents(conn, limit: Optional[int] = None) -> dict[str, A
                      evidence_count=excluded.evidence_count, error=NULL""",
                 [doc.document_id, content_hash, now, mode, len(claims), len(evidence)],
             )
+            conn.execute("COMMIT")
             processed += 1
+            votes_total += document_votes
             claims_total += len(claims)
             evidence_total += len(evidence)
         except Exception as exc:  # one document must not abort the batch
+            conn.execute("ROLLBACK")
             message = str(exc)[:500]
             conn.execute(
                 """INSERT INTO argument_mining_scans
@@ -177,6 +172,17 @@ def mine_unprocessed_documents(conn, limit: Optional[int] = None) -> dict[str, A
             )
             failed += 1
             errors.append({"document_id": doc.document_id, "error": message})
+            continue
+
+        # External graph writes must never precede the warehouse commit.
+        try:
+            database_path = conn.execute("PRAGMA database_list").fetchall()[0][2]
+            if database_path:
+                from src.knowledge_graph.kg_updater import update_from_document
+                update_from_document(doc.to_dict())
+        except Exception:
+            # Graph projection recovery is independent of successful mining.
+            pass
 
     relation_summary: dict[str, Any] = {}
     try:
@@ -186,7 +192,7 @@ def mine_unprocessed_documents(conn, limit: Optional[int] = None) -> dict[str, A
         relation_summary = {"error": str(exc)}
 
     return {
-        "status": "complete", "processed": processed, "failed": failed,
+        "status": "partial" if failed else "complete", "processed": processed, "failed": failed,
         "claims": claims_total, "evidence": evidence_total,
         "legislative_records": votes_total, "budget": budget,
         "document_relations": relation_summary,

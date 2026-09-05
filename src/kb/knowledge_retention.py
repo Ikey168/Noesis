@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+from itertools import islice
 import json
 import time
 
@@ -326,7 +327,19 @@ class KnowledgeRetentionStore:
         limit=1000,
     ):
         _require(scopes, EXECUTE_SCOPE)
-        bounded = list(records)[: _bound(limit)]
+        cap = _bound(limit)
+        bounded = list(islice(iter(records), cap + 1))
+        if len(bounded) > cap:
+            raise KnowledgeRetentionError(
+                "checkpoint_too_large",
+                "checkpoint exceeds record limit; split the generation range explicitly",
+                limit=cap,
+            )
+        tombstones = list(islice(iter(tombstones), cap + 1))
+        if len(tombstones) > cap:
+            raise KnowledgeRetentionError(
+                "checkpoint_too_large", "checkpoint exceeds tombstone limit", limit=cap
+            )
         content = {
             "schema_version": schema_version,
             "generation_start": generation_start,
