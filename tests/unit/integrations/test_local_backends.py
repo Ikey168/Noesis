@@ -253,4 +253,5 @@ def test_pandoc_docx_preserves_text_and_citation():
             "Förderung" in xml
             and "Statistik Berlin" in xml
             and "Unverified support" in xml
+            and "support not independently verified" in xml
         )

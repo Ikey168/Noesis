@@ -62,7 +62,9 @@ def main():
         "intfloat/multilingual-e5-small",
     ]:
         extra = (
-            {"revision": pin(name)["revision"]} if name.startswith("intfloat/") else {}
+            {"revision": pin(name)["revision"]}
+            if name.startswith("intfloat/")
+            else {"revision": "1110a243fdf4706b3f48f1d95db1a4f5529b4d41"}
         )
         started = time.perf_counter()
         model = LocalSentenceTransformersBackend(

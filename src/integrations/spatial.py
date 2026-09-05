@@ -4,7 +4,45 @@ import math
 from .common import IntegrationError, receipt
 
 
+def _validate_coordinates(geometry):
+    dimensions = {
+        "Point": 0,
+        "LineString": 1,
+        "Polygon": 2,
+        "MultiPoint": 1,
+        "MultiLineString": 2,
+        "MultiPolygon": 3,
+    }
+    if geometry.get("type") not in dimensions:
+        raise IntegrationError("unsupported_geometry", "Unsupported geometry type")
+    pending = [(geometry.get("coordinates"), dimensions[geometry["type"]])]
+    points = 0
+    while pending:
+        coords, depth = pending.pop()
+        if not isinstance(coords, (list, tuple)) or not coords:
+            raise IntegrationError(
+                "invalid_geometry", "Nonempty coordinate arrays required"
+            )
+        if depth == 0:
+            points += 1
+            if len(coords) != 2 or any(
+                type(v) not in (float, int) or not math.isfinite(v) for v in coords
+            ):
+                raise IntegrationError(
+                    "invalid_geometry", "Finite two-dimensional coordinates required"
+                )
+        else:
+            if len(pending) + len(coords) > 100_000:
+                raise IntegrationError(
+                    "input_limit", "Geometry exceeds coordinate budget"
+                )
+            pending.extend((item, depth - 1) for item in coords)
+        if points > 100_000:
+            raise IntegrationError("input_limit", "Geometry exceeds coordinate budget")
+
+
 def transform_geometry(geometry, source_crs, target_crs="EPSG:4326"):
+    _validate_coordinates(geometry)
     import pyproj
     from pyproj.transformer import TransformerGroup
 
@@ -83,6 +121,9 @@ def topology(operation, left, right=None):
     from shapely.validation import explain_validity
     import shapely
 
+    for geometry in (left, right):
+        if geometry is not None:
+            _validate_coordinates(geometry)
     shapes = [shape(g) for g in (left, right) if g is not None]
     for g in shapes:
         if g.is_empty or not g.is_valid:

@@ -22,6 +22,8 @@ def render_report(
         )
     if locale not in {"de-DE", "en-GB", "en-US"}:
         raise IntegrationError("unsupported_locale", "Unsupported citation locale")
+    if len(json.dumps(exported, ensure_ascii=False).encode()) > 8_000_000:
+        raise IntegrationError("input_limit", "Report exceeds rendering input budget")
     content = exported["report"]["content"]
     known = {b["id"] for b in content["bibliography"]}
     references = list(references)
@@ -49,7 +51,12 @@ def render_report(
     for section in content["sections"]:
         blocks.append(heading(2, section["title"]))
         for assertion in section["assertions"]:
-            items = [inline(assertion["text"])]
+            prefix = (
+                "[Author commentary] "
+                if assertion.get("kind") == "commentary"
+                else "[Source-linked; support not independently verified] "
+            )
+            items = [inline(prefix + assertion["text"])]
             for cid in assertion["citations"]:
                 items.append({"t": "Space"})
                 if cid in ids:

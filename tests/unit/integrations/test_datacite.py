@@ -115,6 +115,6 @@ def test_warc_document_store_retains_capture_and_replays(tmp_path):
     )
     conn = duckdb.connect()
     store = DocumentStore(conn)
-    assert ingest_warc(path, store).invalid == 0
-    assert ingest_warc(path, store).invalid == 0
+    assert ingest_warc(path, store, language="de").invalid == 0
+    assert ingest_warc(path, store, language="de").invalid == 0
     assert conn.execute("SELECT count(*) FROM documents").fetchone()[0] == 1

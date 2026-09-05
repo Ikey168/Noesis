@@ -10,7 +10,7 @@ activate it. No benchmark issue is satisfied by a unit test or synthetic probe.
 
 Install the pinned local backends with `pip install '.[workflow-integrations]'`.
 Model and MCP adapters require their separate runtime dependencies and locally
-provisioned model snapshots. Model revisions are in `config/integration-models.json`.
+provisioned model snapshots. Model revisions are in `src/integrations/model-pins.json`.
 
 | Issues | Entry point | Current scope / remaining work |
 | --- | --- | --- |
@@ -75,7 +75,7 @@ Native Berlin fixture, inactive-record, same-name/different-ID, replay and durab
 restart tests cover this path. A direct public fetch of `01hcx6992` succeeded.
 Primary API documentation: https://ror.readme.io/docs/rest-api .
 
-`src.ingestion.zenodo.ZenodoClient().acquire(record_id, selected_file_keys, document_store)`
+`src.ingestion.zenodo.ZenodoClient().acquire(record_id, selected_file_keys, document_store, languages=language_by_file_key)`
 fetches a bounded public manifest, checks file sizes and MD5/SHA256 digests, and
 uses the existing upload parser and document store for selected textual artifacts.
 The default aggregate byte budget is 20 MB; at most 100 files may be listed.

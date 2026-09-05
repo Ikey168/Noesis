@@ -54,15 +54,29 @@ def test_selected_artifacts_replay_and_checksum_failure_are_atomic():
     client = ZenodoClient(transport=transport)
     conn = duckdb.connect()
     store = DocumentStore(conn)
-    client.acquire(123, list(payloads), store)
-    client.acquire(123, list(payloads), store)
+    client.acquire(
+        123, list(payloads), store, languages={"berlin.txt": "de", "english.txt": "en"}
+    )
+    client.acquire(
+        123, list(payloads), store, languages={"berlin.txt": "de", "english.txt": "en"}
+    )
     assert conn.execute("SELECT count(*) FROM documents").fetchone()[0] == 2
     corrupt = True
     with pytest.raises(ValueError, match="manifest"):
-        client.acquire(123, list(payloads), store)
+        client.acquire(
+            123,
+            list(payloads),
+            store,
+            languages={"berlin.txt": "de", "english.txt": "en"},
+        )
     assert conn.execute("SELECT count(*) FROM documents").fetchone()[0] == 2
     native["metadata"]["access_right"] = "restricted"
     with pytest.raises(ValueError, match="restricted"):
-        client.acquire(123, list(payloads), store)
+        client.acquire(
+            123,
+            list(payloads),
+            store,
+            languages={"berlin.txt": "de", "english.txt": "en"},
+        )
     with pytest.raises(ValueError, match="origin"):
         client._get("https://evil.example/artifact")

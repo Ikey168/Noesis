@@ -3,6 +3,7 @@
 import hashlib
 import io
 import json
+import re
 from datetime import datetime
 from pathlib import Path
 from .common import IntegrationError, version
@@ -121,10 +122,12 @@ def write_warc(captures, path, *, max_bytes=20_000_000):
     }
 
 
-def ingest_warc(path, store, *, max_records=1000, max_bytes=20_000_000):
+def ingest_warc(path, store, *, language, max_records=1000, max_bytes=20_000_000):
     from src.ingestion.extract import extract_article
     from services.ingest.common.document_model import Document
 
+    if not isinstance(language, str) or not re.fullmatch(r"[a-z]{2}", language):
+        raise ValueError("Declare an ISO 639-1 language for the capture batch")
     records = read_warc(path, max_records=max_records, max_bytes=max_bytes)
     documents = []
     for capture in records:
@@ -158,7 +161,7 @@ def ingest_warc(path, store, *, max_records=1000, max_bytes=20_000_000):
                 url=capture["url"],
                 source_id="warc-import",
                 ingested_at=captured,
-                language="unknown",
+                language=language,
                 metadata={
                     "archive_json": json.dumps(
                         {k: v for k, v in capture.items() if k != "payload"},

@@ -42,7 +42,7 @@ def test_all_production_packs_validate_against_contract() -> None:
         "scientific",
         "technical",
     }
-    assert sum(len(pack["sources"]) for pack in packs) == 23
+    assert sum(len(pack["sources"]) for pack in packs) == 24
     schema = json.loads(
         (ROOT / "contracts/schemas/jsonschema/noesis-source-pack-v1.json").read_text()
     )
@@ -144,10 +144,10 @@ def test_install_enable_upgrade_and_idempotency_are_pack_scoped(conn) -> None:
     assert store.install(research, principal_id="operator")["idempotent"]
 
     upgrade = copy.deepcopy(research)
-    upgrade["version"] = "1.2.0"
+    upgrade["version"] = "1.3.0"
     upgrade["description"] += " Upgraded."
     upgraded = store.install(upgrade, principal_id="operator", now_ms=20)
-    assert upgraded["version"] == "1.2.0" and upgraded["enabled"]
+    assert upgraded["version"] == "1.3.0" and upgraded["enabled"]
     assert conn.execute(
         "SELECT COUNT(*) FROM source_pack_versions WHERE pack_id='research-discovery'"
     ).fetchone() == (2,)

@@ -85,9 +85,16 @@ class ZenodoClient:
             "metadata_sha256": hashlib.sha256(content).hexdigest(),
         }
 
-    def acquire(self, record_id, selected_files, store):
+    def acquire(self, record_id, selected_files, store, *, languages):
         if not selected_files or len(set(selected_files)) != len(selected_files):
             raise ValueError("Select distinct file keys explicitly")
+        if set(languages) != set(selected_files) or any(
+            not isinstance(code, str) or not re.fullmatch(r"[a-z]{2}", code)
+            for code in languages.values()
+        ):
+            raise ValueError(
+                "Declare an ISO 639-1 language for every selected artifact"
+            )
         manifest = self.record(record_id)
         if manifest["access_right"] not in {"open", None}:
             raise IntegrationError(
@@ -147,7 +154,7 @@ class ZenodoClient:
                     + ":"
                     + hashlib.sha256(key.encode()).hexdigest(),
                     source_type="note",
-                    language="unknown",
+                    language=languages[key],
                     title=key,
                     content=text,
                     url=url,

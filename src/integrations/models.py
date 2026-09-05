@@ -1,10 +1,10 @@
 """Optional pinned model loaders and a dedicated Qwen relevance scorer."""
 
 import json
-from pathlib import Path
+from importlib.resources import files
 from .common import IntegrationError
 
-PINS = Path(__file__).resolve().parents[2] / "config" / "integration-models.json"
+PINS = files("src.integrations").joinpath("model-pins.json")
 
 
 def pin(name):
