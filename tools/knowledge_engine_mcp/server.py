@@ -7682,7 +7682,9 @@ def archive_knowledge_checkpoint(
 
 @mcp.tool()
 def restore_knowledge_archive(
-    namespace: str, archive_id: str, storage_available: bool = True
+    namespace: str, archive_id: str, storage_available: bool = True,
+    manifest: dict[str, Any] | None = None,
+    supported_schema_versions: list[str] | None = None,
 ) -> dict:
     """Verify and atomically restore a cold archive."""
     from src.kb.knowledge_retention import KnowledgeRetentionStore
@@ -7692,6 +7694,8 @@ def restore_knowledge_archive(
             namespace,
             archive_id,
             storage_available=storage_available,
+            manifest=manifest,
+            supported_schema_versions=tuple(supported_schema_versions or ["1", "2", "3"]),
             principal_id=_context()[0],
             scopes={"knowledge:retention:execute"},
         ),

@@ -57,8 +57,9 @@ def _bound(v, maximum=1000):
 
 
 class KnowledgeRetentionStore:
-    def __init__(self, conn, *, initialize=True, now=None):
+    def __init__(self, conn, *, initialize=True, now=None, archive_backend=None):
         self.conn, self.now = conn, now or (lambda: int(time.time() * 1000))
+        self.archive_backend = archive_backend
         if initialize:
             conn.execute(_DDL)
 
@@ -348,7 +349,7 @@ class KnowledgeRetentionStore:
             "tombstones": list(tombstones),
         }
         digest = _hash(content)
-        checkpoint_id = "retention-checkpoint:" + digest[:24]
+        checkpoint_id = "retention-checkpoint:" + _hash([namespace, digest])[:24]
         status = "cancelled" if cancel_requested else "complete"
         now = self.now()
         self.conn.execute(
@@ -432,80 +433,20 @@ class KnowledgeRetentionStore:
         scopes,
     ):
         _require(scopes, EXECUTE_SCOPE)
-        verified = self.verify_checkpoint(namespace, checkpoint_id, scopes={READ_SCOPE})
-        archive_id = "archive:" + _hash([namespace, checkpoint_id, storage])[:24]
-        status = (
-            "cancelled"
-            if cancel_requested
-            else "unavailable"
-            if not storage_available
-            else "partial"
-            if partial
-            else "archived"
-        )
-        manifest = {
-            "checkpoint_id": checkpoint_id,
-            "storage": dict(storage),
-            "encryption": dict(encryption or {}),
-            "content_hash": verified["content_hash"],
-            "identity_verified": verified["verified"],
-        }
-        now = self.now()
-        self.conn.execute(
-            "INSERT OR REPLACE INTO retention_archives VALUES (?,?,?,?,?,?,?,?,?)",
-            [
-                archive_id,
-                namespace,
-                checkpoint_id,
-                _canon(storage),
-                _canon(encryption or {}),
-                verified["content_hash"],
-                status,
-                _canon(manifest),
-                now,
-            ],
-        )
-        self._audit(namespace, "archive", archive_id, principal_id, {"status": status})
-        return {
-            "contract": ARCHIVE_CONTRACT,
-            "archive_id": archive_id,
-            "namespace": namespace,
-            **manifest,
-            "status": status,
-        }
+        from src.kb.archive_io import archive_checkpoint
+        return archive_checkpoint(self, namespace, checkpoint_id, storage,
+            encryption=encryption, storage_available=storage_available,
+            partial=partial, cancel_requested=cancel_requested, principal_id=principal_id)
 
     def restore(
-        self, namespace, archive_id, *, principal_id, scopes, storage_available=True
+        self, namespace, archive_id, *, principal_id, scopes, storage_available=True,
+        manifest=None, supported_schema_versions=("1", "2", "3")
     ):
         _require(scopes, EXECUTE_SCOPE)
-        row = self.conn.execute(
-            "SELECT checkpoint_id,storage_json,encryption_json,content_hash,status,manifest_json FROM retention_archives WHERE namespace=? AND archive_id=?",
-            [namespace, archive_id],
-        ).fetchone()
-        if not row:
-            raise KnowledgeRetentionError("archive_not_found", "archive not found")
-        if not storage_available:
-            raise KnowledgeRetentionError(
-                "archive_unavailable", "archive storage is unavailable"
-            )
-        verified = self.verify_checkpoint(namespace, row[0], scopes={READ_SCOPE})
-        if not verified["verified"] or verified["content_hash"] != row[3]:
-            raise KnowledgeRetentionError(
-                "checksum_mismatch", "archive identity verification failed"
-            )
-        self.conn.execute(
-            "UPDATE retention_archives SET status='restored' WHERE namespace=? AND archive_id=?",
-            [namespace, archive_id],
-        )
-        self._audit(namespace, "restore", archive_id, principal_id)
-        return {
-            "contract": ARCHIVE_CONTRACT,
-            "archive_id": archive_id,
-            "namespace": namespace,
-            **_load(row[5], {}),
-            "status": "restored",
-            "restored_atomically": True,
-        }
+        from src.kb.archive_io import restore_archive
+        return restore_archive(self, namespace, archive_id, principal_id=principal_id,
+            storage_available=storage_available, manifest=manifest,
+            supported_schema_versions=supported_schema_versions)
 
     def plan_gc(self, namespace, object_ids, *, principal_id, scopes, limit=1000):
         _require(scopes, ADMIN_SCOPE)
