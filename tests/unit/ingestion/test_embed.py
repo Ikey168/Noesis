@@ -4,6 +4,7 @@ deterministic hashing embedding backend (no heavy ML deps)."""
 from __future__ import annotations
 
 import duckdb
+import numpy as np
 import pytest
 
 from services.embeddings.provider import EmbeddingProvider
@@ -23,6 +24,35 @@ def _doc(doc_id, content, source_type="news"):
                     ingested_at=1_700_000_000_000, created_at=1_700_000_000_000,
                     url=f"https://ex.com/{doc_id}", title=f"title {doc_id}",
                     content=content, source_id="Src", metadata={"source": "Src"})
+
+
+class StubProvider:
+    def __init__(self, *, dim=2, outputs=None, fail_on_call=None):
+        self._dim = dim
+        self._outputs = iter(outputs) if outputs is not None else None
+        self._fail_on_call = fail_on_call
+        self.batch_sizes = []
+
+    def embed_texts(self, texts):
+        self.batch_sizes.append(len(texts))
+        if len(self.batch_sizes) == self._fail_on_call:
+            raise RuntimeError("provider failed")
+        if self._outputs is not None:
+            return np.asarray(next(self._outputs), dtype=float)
+        return np.ones((len(texts), self._dim))
+
+    def dim(self):
+        return self._dim
+
+    def name(self):
+        return "stub"
+
+
+def _add_documents(conn, count):
+    DocumentStore(conn).upsert([
+        _doc(f"extra-{i}", f"document {i} with enough content")
+        for i in range(count)
+    ])
 
 
 @pytest.fixture
@@ -65,12 +95,70 @@ def test_is_idempotent_only_fills_gaps(conn, provider):
     assert embed_documents(conn, provider=provider) == 1
 
 
-def test_limit_caps_the_batch(conn, provider):
-    assert embed_documents(conn, provider=provider, limit=1) == 1
-    assert EmbeddingStore(conn).count() == 1
+def test_limit_caps_work_across_batches(conn):
+    _add_documents(conn, 3)
+    provider = StubProvider()
+
+    assert embed_documents(conn, provider=provider, limit=3, batch_size=2) == 3
+    assert provider.batch_sizes == [2, 1]
+    assert EmbeddingStore(conn).count() == 3
 
 
 def test_covers_non_news_documents(conn, provider):
     embed_documents(conn, provider=provider)
     # The paper document (non-news) is embedded, not just news.
     assert EmbeddingStore(conn).get("p1") is not None
+
+
+def test_rejects_missing_vectors_without_persisting(conn):
+    provider = StubProvider(outputs=[[[0.1, 0.2]]])
+
+    with pytest.raises(ValueError, match="returned 1 vectors for 2 texts"):
+        embed_documents(conn, provider=provider)
+
+    assert EmbeddingStore(conn).count() == 0
+
+
+@pytest.mark.parametrize(
+    ("output", "dim", "message"),
+    [
+        ([0.1, 0.2], 2, "two-dimensional"),
+        ([[0.1, 0.2], [0.3, 0.4]], 3, "dimension 2; expected 3"),
+        ([[0.1, 0.2], [float("nan"), 0.4]], 2, "non-finite"),
+        ([[0.1, 0.2], [float("inf"), 0.4]], 2, "non-finite"),
+    ],
+)
+def test_rejects_malformed_vectors_without_persisting(conn, output, dim, message):
+    provider = StubProvider(dim=dim, outputs=[output])
+
+    with pytest.raises(ValueError, match=message):
+        embed_documents(conn, provider=provider)
+
+    assert EmbeddingStore(conn).count() == 0
+
+
+def test_batches_documents_before_calling_provider(conn):
+    _add_documents(conn, 3)
+    provider = StubProvider()
+
+    assert embed_documents(conn, provider=provider, batch_size=2) == 5
+    assert provider.batch_sizes == [2, 2, 1]
+
+
+def test_rejects_non_positive_batch_size(conn):
+    with pytest.raises(ValueError, match="batch_size must be positive"):
+        embed_documents(conn, provider=StubProvider(), batch_size=0)
+
+
+def test_middle_batch_failure_preserves_progress_for_retry(conn):
+    _add_documents(conn, 3)
+
+    with pytest.raises(RuntimeError, match="provider failed"):
+        embed_documents(conn, provider=StubProvider(fail_on_call=2), batch_size=2)
+
+    assert EmbeddingStore(conn).count() == 2
+
+    retry_provider = StubProvider()
+    assert embed_documents(conn, provider=retry_provider, batch_size=2) == 3
+    assert retry_provider.batch_sizes == [2, 1]
+    assert EmbeddingStore(conn).count() == 5
