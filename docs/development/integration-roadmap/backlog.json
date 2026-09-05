@@ -44,11 +44,12 @@
     {
       "number": 1519,
       "title": "Evaluate pyproj for provenance-preserving coordinate transformations",
-      "status": "implemented_pending_review",
+      "status": "implemented_merged",
       "validation": [
         "Published Berlin Umweltatlas page 25/table 7 coordinate pairs validate EPSG:4326/25833 at documented 3 m source/operation tolerance.",
         "coordinate-benchmark.json records 30 repetitions per point, errors/latency, full receipts and adoption scope; 9 coordinate/geospatial tests passed."
-      ]
+      ],
+      "merged_pr": 1525
     },
     {
       "number": 1518,
@@ -77,9 +78,11 @@
     {
       "number": 1515,
       "title": "Evaluate sdmx1 for Eurostat, ECB and Bundesbank statistical acquisition",
-      "status": "implementation_partial",
+      "status": "implemented_pending_review",
       "validation": [
-        "See README.md for tested scope and outstanding acceptance evidence."
+        "Actual native ECB, Eurostat and Bundesbank requests succeeded; Eurostat SDMX values matched existing JSON-stat connector on the same German GDP series.",
+        "Structure/code-list mapping and projected labels, native attribute units/frequencies/status/original values, explicit HTTP diagnostics and source byte archival integrated.",
+        "9 SDMX/observation-store tests passed; live/replay benchmarks and native fixtures document measured parsing cost, precise timestamps, failures and limited adoption scope."
       ]
     },
     {
@@ -93,11 +96,12 @@
     {
       "number": 1513,
       "title": "Evaluate OR-Tools CP-SAT for constrained source selection",
-      "status": "implemented_pending_review",
+      "status": "implemented_merged",
       "validation": [
         "24 seeded authored cases compare actual greedy/CP-SAT planner previews; native OR-Tools 9.15.6755; planning-benchmark.json includes costs, coverage, groups, receipts and timings.",
         "Independent exhaustive enumeration verifies 60 small cases; execution fallback/replay and explicit UNKNOWN/INFEASIBLE handling tested."
-      ]
+      ],
+      "merged_pr": 1525
     },
     {
       "number": 1512,
@@ -180,12 +184,13 @@
     {
       "number": 1502,
       "title": "Connect Context7 documentation through existing MCP federation",
-      "status": "implemented_pending_review",
+      "status": "implemented_merged",
       "validation": [
         "Anonymous Context7 MCP 4.0.5 discovery/query actually ran; ambiguous Pint library candidates preserved; exact requested version remains unattested.",
         "Selected original Pint documentation fetched into SnapshotStore and DocumentStore; context7-probe.json records digest, source URL, timing, missing-version state and adoption decision.",
         "Tests cover ambiguity, conflicting versions, missing citations, original-source access failure, durable replay and distinct observation snapshots."
-      ]
+      ],
+      "merged_pr": 1525
     },
     {
       "number": 1501,
@@ -244,8 +249,11 @@
     {
       "number": 1493,
       "title": "Benchmark GLiNER2-multi-v1 as a domain-specific extraction backend",
-      "status": "pending",
-      "validation": []
+      "status": "implementation_partial",
+      "validation": [
+        "Pinned GLiNER2 2.0.0 checkpoint runs on CPU; optional NER adapter preserves exact Unicode spans and records source/model/schema provenance.",
+        "gliner2-probe.json records three authored DE/EN examples and measured latency/memory; held-out baseline comparison and separate relations/fields evaluation remain."
+      ]
     },
     {
       "number": 1492,
@@ -346,19 +354,21 @@
     {
       "number": 1476,
       "title": "Ingest Zenodo research artifacts and versioned file manifests",
-      "status": "implemented_pending_review",
+      "status": "implemented_merged",
       "validation": [
         "Selected document or binary artifacts use checksum-verified content-addressed DocumentStore storage and atomic document/blob commits.",
         "Four tests cover native manifest, multi-file documents, checksum/restricted failures, binary version identities, explicit paper links, durable replay and validation rollback."
-      ]
+      ],
+      "merged_pr": 1525
     },
     {
       "number": 1475,
       "title": "Enrich institution identities and relationships from the ROR API",
-      "status": "implemented_pending_review",
+      "status": "implemented_merged",
       "validation": [
         "Native public Berlin fetch succeeded; 3 tests cover names, inactive revisions, distinct IDs, candidate search, replay and durable restart."
-      ]
+      ],
+      "merged_pr": 1525
     },
     {
       "number": 1474,
@@ -371,11 +381,12 @@
     {
       "number": 1473,
       "title": "Complete native DataCite DOI acquisition and related-resource mapping",
-      "status": "implemented_pending_review",
+      "status": "implemented_merged",
       "validation": [
         "Native DataCite query/author/DOI/version/update-range translation; directed typed relationships in immutable document revisions.",
         "47 integration/runtime tests passed, including multipage ingestion, committed replay, missing targets and historical version/part links."
-      ]
+      ],
+      "merged_pr": 1525
     },
     {
       "number": 1472,

@@ -106,6 +106,9 @@ class NERProcessor:
         device: str = None,
         max_length: int = 512,
         confidence_threshold: float = 0.7,
+        *,
+        backend: str = "transformers",
+        language: str = "en",
     ):
         """
         Initialize the NER processor.
@@ -119,6 +122,24 @@ class NERProcessor:
         self.model_name = model_name
         self.max_length = max_length
         self.confidence_threshold = confidence_threshold
+        self.backend = backend
+        self.language = language
+        if backend not in {"transformers", "gliner2"}:
+            raise ValueError("Unsupported NER backend")
+        self.stats = {
+            "total_texts_processed": 0,
+            "total_entities_extracted": 0,
+            "entity_type_counts": {},
+            "processing_errors": 0,
+        }
+        if backend == "gliner2":
+            from src.integrations.entities import GLiNER2Extractor
+
+            self.domain_extractor = GLiNER2Extractor(
+                device=device or "cpu", threshold=confidence_threshold
+            )
+            self.model_name = self.domain_extractor.MODEL
+            return
 
         # Determine device
         if device is None:
@@ -157,7 +178,7 @@ class NERProcessor:
         }
 
     def extract_entities(
-        self, text: str, article_id: str = None
+        self, text: str, article_id: str = None, *, revision_id: str = None
     ) -> List[Dict[str, Any]]:
         """
         Extract named entities from the given text.
@@ -169,6 +190,36 @@ class NERProcessor:
         Returns:
             List of extracted entities with metadata
         """
+        if self.backend == "gliner2":
+            # Preserve original offsets and surface backend errors explicitly.
+            # Model proposals must not pass through heuristic relabelling or
+            # cleaned-text offsets from the legacy transformer path.
+            try:
+                run = self.domain_extractor.extract(
+                    text,
+                    language=self.language,
+                    article_id=article_id,
+                    revision_id=revision_id,
+                )
+            except Exception:
+                self.stats["processing_errors"] += 1
+                raise
+            entities = [
+                {
+                    **entity,
+                    "provenance": run["receipt"]["request"],
+                    "extraction_receipt_sha256": run["receipt"]["sha256"],
+                }
+                for entity in run["entities"]
+            ]
+            self.stats["total_texts_processed"] += 1
+            self.stats["total_entities_extracted"] += len(entities)
+            for entity in entities:
+                label = entity["type"]
+                counts = self.stats["entity_type_counts"]
+                counts[label] = counts.get(label, 0) + 1
+            return entities
+
         if not text or not text.strip():
             logger.warning(
                 "Empty or invalid text provided for article {0}".format(article_id)
