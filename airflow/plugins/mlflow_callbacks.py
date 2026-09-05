@@ -18,10 +18,7 @@ from contextlib import contextmanager
 from typing import Optional, Dict, Any
 from datetime import datetime
 
-from airflow import DAG
-from airflow.models import TaskInstance
-from airflow.utils.state import DagRunState, TaskInstanceState
-from airflow.utils.context import Context
+from airflow.sdk import DAG, Context
 
 # MLflow imports with fallback handling
 try:
@@ -154,7 +151,7 @@ class AirflowMLflowCallbacks:
                 tags = {
                     "dag_id": dag.dag_id,
                     "run_id": dag_run.run_id,
-                    "execution_date": dag_run.execution_date.isoformat(),
+                    "execution_date": (dag_run.logical_date.isoformat() if dag_run.logical_date else ""),
                     "environment": os.getenv("AIRFLOW_ENV", "dev"),
                     "pipeline": "airflow",
                     "dag_description": dag.description or "",
@@ -173,10 +170,10 @@ class AirflowMLflowCallbacks:
                 
                 # Log DAG parameters
                 params = {
-                    "schedule_interval": str(dag.schedule_interval),
+                    "schedule_interval": str(dag.timetable),
                     "max_active_runs": dag.max_active_runs,
                     "catchup": dag.catchup,
-                    "is_paused": dag.is_paused,
+                    "is_paused_upon_creation": dag.is_paused_upon_creation,
                     "task_count": len(dag.task_ids)
                 }
                 
@@ -209,12 +206,12 @@ class AirflowMLflowCallbacks:
             
             with mlflow.start_run(run_id=parent_run_id):
                 # Log final metrics
-                end_time = datetime.now()
+                end_time = datetime.now(tz=dag_run.start_date.tzinfo)
                 duration_seconds = (end_time - dag_run.start_date).total_seconds()
                 
                 mlflow.log_metrics({
                     "duration_seconds": duration_seconds,
-                    "task_count": len(dag_run.get_task_instances()),
+                    "task_count": len(context["dag"].task_ids),
                     "end_time": end_time.timestamp()
                 })
                 
@@ -315,7 +312,9 @@ class AirflowMLflowCallbacks:
             if nested_run_id:
                 with mlflow.start_run(run_id=nested_run_id):
                     # Log task metrics
-                    end_time = datetime.now()
+                    end_time = datetime.now(
+                        tz=task_instance.start_date.tzinfo if task_instance.start_date else None
+                    )
                     if task_instance.start_date:
                         duration_seconds = (end_time - task_instance.start_date).total_seconds()
                         mlflow.log_metric("duration_seconds", duration_seconds)

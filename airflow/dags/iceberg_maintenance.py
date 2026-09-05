@@ -11,10 +11,9 @@ Tables maintained:
 - demo.news.articles_raw (future)
 """
 from datetime import datetime, timedelta
-from airflow import DAG
-from airflow.providers.postgres.operators.postgres import PostgresOperator
+
 from airflow.providers.apache.spark.operators.spark_submit import SparkSubmitOperator
-from airflow.sensors.external_task import ExternalTaskSensor
+from airflow.sdk import DAG
 
 # DAG configuration
 default_args = {
@@ -32,7 +31,7 @@ weekly_compaction_dag = DAG(
     'iceberg_weekly_compaction',
     default_args=default_args,
     description='Weekly Iceberg table compaction and manifest rewrite',
-    schedule_interval='0 2 * * 0',  # Sunday at 2 AM
+    schedule='0 2 * * 0',  # Sunday at 2 AM
     catchup=False,
     max_active_runs=1,
     tags=['iceberg', 'maintenance', 'compaction']
@@ -43,7 +42,7 @@ daily_expiration_dag = DAG(
     'iceberg_daily_snapshot_expiration',
     default_args=default_args,
     description='Daily Iceberg snapshot expiration',
-    schedule_interval='0 1 * * *',  # Daily at 1 AM
+    schedule='0 1 * * *',  # Daily at 1 AM
     catchup=False,
     max_active_runs=1,
     tags=['iceberg', 'maintenance', 'snapshots']

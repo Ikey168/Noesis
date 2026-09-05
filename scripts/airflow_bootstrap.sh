@@ -9,7 +9,7 @@
 #   ./scripts/airflow_bootstrap.sh [--env-file path/to/.env]
 #
 # Requirements:
-#   - Run inside Airflow webserver container after `airflow db init`
+#   - Run inside Airflow API server container after `airflow db migrate`
 #   - Environment variables for AWS credentials (optional)
 #   - Airflow CLI available
 #
@@ -137,7 +137,7 @@ check_airflow_cli() {
     
     # Check if Airflow is initialized
     if ! airflow db check &> /dev/null; then
-        print_error "Airflow database not initialized. Run 'airflow db init' first."
+        print_error "Airflow database not initialized. Run 'airflow db migrate' first."
         exit 1
     fi
     

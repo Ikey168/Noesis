@@ -4,9 +4,11 @@ This DAG demonstrates basic functionality and lineage tracking.
 """
 
 from datetime import datetime, timedelta
-from airflow import DAG
-from airflow.operators.dummy_operator import DummyOperator
-from airflow.operators.python_operator import PythonOperator
+
+from airflow.providers.standard.operators.empty import EmptyOperator
+from airflow.providers.standard.operators.python import PythonOperator
+from airflow.sdk import DAG
+
 
 def example_extract():
     """Mock data extraction task."""
@@ -42,14 +44,14 @@ dag = DAG(
     'neuronews_example_pipeline',
     default_args=default_args,
     description='Example NeuroNews ETL pipeline with lineage tracking',
-    schedule_interval='@daily',
+    schedule='@daily',
     catchup=False,
     tags=['example', 'neuronews', 'etl'],
     max_active_runs=1,
 )
 
 # Task definitions
-start_task = DummyOperator(
+start_task = EmptyOperator(
     task_id='start',
     dag=dag,
 )
@@ -63,18 +65,16 @@ extract_task = PythonOperator(
 transform_task = PythonOperator(
     task_id='transform',
     python_callable=example_transform,
-    provide_context=True,
     dag=dag,
 )
 
 load_task = PythonOperator(
     task_id='load',
     python_callable=example_load,
-    provide_context=True,
     dag=dag,
 )
 
-end_task = DummyOperator(
+end_task = EmptyOperator(
     task_id='end',
     dag=dag,
 )
