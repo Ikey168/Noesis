@@ -114,7 +114,7 @@ def test_same_document_id_appends_revision_and_updates_projection(store: Documen
 # --------------------------------------------------------------------------- #
 
 
-def test_syndicated_content_collapses_across_urls(store: DocumentStore):
+def test_syndicated_content_shares_bytes_preserving_observations(store: DocumentStore):
     body = "Parliament approved the budget after a marathon debate."
     summary = store.upsert(
         [
@@ -122,19 +122,24 @@ def test_syndicated_content_collapses_across_urls(store: DocumentStore):
             _doc("guardian-1", content=body, url="https://guardian.com/uk/budget"),
         ]
     )
-    # Same content, different ids/URLs -> second is a content duplicate.
-    assert summary.inserted == 1
-    assert summary.duplicate == 1
-    assert store.count() == 1
+    assert summary.inserted == 2
+    assert summary.duplicate == 0
+    assert store.count() == 2
+    assert store.conn.execute("SELECT count(*) FROM document_content_blobs").fetchone() == (1,)
+    assert store.conn.execute("SELECT count(*) FROM document_revision_content").fetchone() == (2,)
+    assert store.get("bbc-1")["url"] != store.get("guardian-1")["url"]
 
 
-def test_content_dedup_ignores_whitespace_and_case(store: DocumentStore):
+def test_content_similarity_never_overwrites_original_wording(store: DocumentStore):
     store.upsert([_doc("d1", content="The Budget Passed.", url="https://ex.com/1")])
     summary = store.upsert(
         [_doc("d2", content="the   budget\npassed.", url="https://ex.com/2")]
     )
-    assert summary.inserted == 0
-    assert summary.duplicate == 1
+    assert summary.inserted == 1
+    assert summary.duplicate == 0
+    assert store.get("d1")["content_hash"] == store.get("d2")["content_hash"]
+    assert store.get("d1")["content"] != store.get("d2")["content"]
+    assert store.conn.execute("SELECT count(*) FROM document_content_blobs").fetchone() == (2,)
 
 
 def test_same_body_different_source_type_are_both_kept(store: DocumentStore):
@@ -150,7 +155,7 @@ def test_same_body_different_source_type_are_both_kept(store: DocumentStore):
     assert store.count() == 2
 
 
-def test_within_batch_content_duplicates_collapse(store: DocumentStore):
+def test_within_batch_distinct_observations_survive(store: DocumentStore):
     body = "One story submitted twice in a single batch."
     summary = store.upsert(
         [
@@ -160,8 +165,18 @@ def test_within_batch_content_duplicates_collapse(store: DocumentStore):
         ]
     )
     assert summary.received == 3
-    assert summary.inserted == 1
-    assert summary.duplicate == 2
+    assert summary.inserted == 3
+    assert summary.duplicate == 0
+
+
+def test_missing_text_does_not_deduplicate_distinct_binary_references(store):
+    first = _doc("pdf-a").to_dict()
+    first.update(content=None, content_ref="https://example.org/a.pdf", source_id="a")
+    second = {**first, "document_id": "pdf-b", "content_ref": "https://example.org/b.pdf", "source_id": "b"}
+    summary = store.upsert([first, second])
+    assert summary.inserted == 2 and summary.duplicate == 0
+    assert store.upsert([first, second]).duplicate == 2
+    assert store.get("pdf-a")["content_ref"] != store.get("pdf-b")["content_ref"]
 
 
 # --------------------------------------------------------------------------- #
@@ -280,7 +295,7 @@ def test_summary_counts_reconcile(store: DocumentStore):
     d = summary.as_dict()
     # received == inserted + duplicate + invalid, always.
     assert d["received"] == d["inserted"] + d["duplicate"] + d["invalid"]
-    assert d == {"received": 4, "inserted": 2, "duplicate": 1, "invalid": 1}
+    assert d == {"received": 4, "inserted": 3, "duplicate": 0, "invalid": 1}
 
 
 def test_upsert_summary_dataclass_defaults():
