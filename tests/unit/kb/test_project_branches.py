@@ -89,3 +89,44 @@ def test_branch_atomic_failure_does_not_create_orphan(monkeypatch):
     with pytest.raises(ResearchProjectError):
         branch(store, parent, "two")
     assert conn.execute("SELECT count(*) FROM research_projects").fetchone()[0] == before
+
+
+def test_grounded_coverage_and_interpretation_differences_with_source_revocation():
+    from src.ingestion.revisions import DocumentRevisionStore
+    conn,store,parent=setup()
+    documents=DocumentRevisionStore(conn)
+    source=documents.observe({'document_id':'paper','source_id':'journal-a','content':'The treatment has uncertain benefits.'})
+    derived=DerivedRevisionStore(conn,fixture_mode=True)
+    def finding(generation,statement,configuration):
+        derived.apply_generation('r',generation,[{'object_type':'claim','logical_id':'finding',
+            'content':{'statement':statement},'document_id':'paper','source_revision_id':source['revision_id'],
+            'producer':{'name':'reviewed-fixture','version':'1'},'configuration':configuration}],
+            [{'document_id':'paper','revision_id':source['revision_id'],'change_kind':'updated'}])
+        derived.publish_generation('r',generation)
+        row=conn.execute("SELECT logical_id,revision FROM derived_object_revisions WHERE generation=?",[generation]).fetchone()
+        return {'kind':'finding','id':row[0],'revision':row[1],'locator':{'document_id':'paper','revision_id':source['revision_id'],'start':0,'end':10}}
+    first=finding(2,'Potential benefit',{'threshold':.5})
+    parent=store.revise('r',parent['project_id'],2,replace_links=[first],**AUTH)
+    child=branch(store,parent,baseline={'r':2})['project']
+    second=finding(3,'Benefit remains uncertain',{'threshold':.5})
+    store.revise('r',child['project_id'],1,replace_links=[second],**AUTH)
+    allowed={**AUTH,'scopes':AUTH['scopes']|{'document:paper:read'}}
+    comparison=store.compare('r',parent['project_id'],child['project_id'],**allowed)
+    assert comparison['coverage_comparable'] and comparison['coverage_equal']
+    assert comparison['finding_differences'][0]['kind']=='changed_interpretation'
+    assert comparison['finding_differences'][0]['after']['reference']['locator']['revision_id']==source['revision_id']
+    revoked=store.compare('r',parent['project_id'],child['project_id'],**AUTH)
+    assert not revoked['coverage_comparable'] and not revoked['finding_differences']
+    assert not revoked['left']['assessment']['sources']
+    assert revoked['left']['assessment']['omissions'][0]['reason']=='inaccessible_source'
+    third=finding(4,'Benefit remains uncertain',{'threshold':.8})
+    store.revise('r',child['project_id'],2,replace_links=[third],**AUTH)
+    # Compared to its prior interpretation this is method-only.
+    from src.kb.project_comparison import assess,differences
+    old=store.inspect('r',child['project_id'],revision=2,**AUTH)
+    new=store.inspect('r',child['project_id'],**AUTH)
+    assert differences(assess(conn,old,allowed['scopes']),assess(conn,new,allowed['scopes']))[0]['kind']=='changed_method'
+    documents.observe({'document_id':'paper','source_id':'journal-a','content':'Withdrawn','metadata':{'lifecycle':'retracted'}})
+    current=store.compare('r',parent['project_id'],child['project_id'],**allowed)
+    assert current['left']['assessment']['coverage']['current_source_groups']==[]
+    assert current['left']['assessment']['sources'][0]['historical_lifecycle']=='active'

@@ -104,11 +104,23 @@ class ProjectBranchStore(ResearchProjectStore):
                     "incremental_costs": state["spent"] if branch else {k: state["spent"][k] - base["spent"][k] for k in state["spent"]},
                     "reference_availability": state["reference_availability"]}
         deltas = [delta(state, branch) for state, branch in zip(states, lineages)]
+        from src.kb.project_comparison import assess, differences
+        baseline_assessment = assess(self.conn, base, scopes)
+        assessments = [assess(self.conn, state, scopes) for state in states]
+        for item, assessment in zip(deltas, assessments):
+            item['assessment'] = assessment
+            item['finding_changes_from_baseline'] = differences(baseline_assessment, assessment)
+        comparable = all(item['status'] == 'available' for item in availability) and all(a['complete'] for a in [baseline_assessment, *assessments]) and states[0]['questions'] == states[1]['questions']
         evidence_sets = [{_json(link) for link in state["links"] if link["kind"] == "evidence"} for state in states]
         return {"baseline": {"project_id": lineage["parent_id"], "revision": lineage["parent_revision"], "generations": lineage["baseline"]},
                 "baseline_availability": availability, "left": deltas[0], "right": deltas[1],
                 "evidence_references_equal": evidence_sets[0] == evidence_sets[1],
-                "coverage_comparable": False, "winner": None,
-                "limitations": ["Coverage and evidence contents have not been independently assessed",
+                "baseline_assessment": baseline_assessment,
+                "finding_differences": differences(*assessments),
+                "coverage_comparable": comparable,
+                "coverage_equal": assessments[0]['coverage'] == assessments[1]['coverage'] if comparable else None,
+                "winner": None,
+                "limitations": ["Coverage measures explicitly linked retained evidence, not all research or verified source independence",
+                    "Finding hashes distinguish recorded changes; semantic entailment and scientific validity are not certified",
                     "Declared method, source and assumption changes are author statements",
                     "References-only retention does not pin or reconstruct expired evidence"]}

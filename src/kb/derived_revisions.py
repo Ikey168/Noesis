@@ -641,6 +641,8 @@ class DerivedRevisionStore:
                         prior_revision["content_hash"] == selected_hash
                         and prior_revision["support_hash"] == support_hash
                         and prior_revision["lifecycle"] == lifecycle
+                        and prior_revision["configuration_hash"] == configuration_hash
+                        and prior_revision["producer"] == producer
                     ):
                         continue
                     revision_number = int(current[1]) + 1

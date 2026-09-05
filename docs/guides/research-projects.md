@@ -68,9 +68,12 @@ Current access is checked for both projects and their common ancestor.
 
 Branch replay preserves identity even if its baseline later expires; creating a
 new branch requires an available baseline. Comparison discloses missing or changed
-generations. Evidence contents and independent coverage are not inferred from
-reference counts: coverage remains unverified and no winner is selected. Automatic
-coverage and interpretation comparison remains dependent on the research-loop
-evaluation work.
+generations. Missing evidence remains explicit, and no winner is selected. The grounded comparison contract below defines coverage and recorded interpretation differences.
 
 Budget reservations use `reserve_research_project_budget`, `settle_research_project_budget`, and `inspect_research_project_budget`. Reservations share the project revision transaction, so concurrent actions cannot reserve the same balance. Direct expenditure also accounts for held amounts. Settlement is idempotent and cannot exceed the reserved ceiling. Already-incurred usage can settle after a project is paused; no new action is authorized by settlement. Unknown usage must stay reserved or be conservatively charged at the full ceiling. These accounting primitives do not themselves execute a research loop.
+
+Branch comparisons now resolve explicitly pinned evidence and finding references against committed canonical/derived revisions. A `finding` link identifies a derived logical ID and integer revision and supplies a source locator matching its support. Every support needs current `document:<id>:read` access (or operator scope); unavailable or unpinned findings remain omissions. Comparisons report current distinct-source/content coverage, retained historical source revisions, baseline-relative findings, and pairwise changes. Coverage is comparable only with retained baselines, fully resolved linked evidence, and equal questions. Unequal coverage is disclosed and no winner is inferred. These measures cover the project's explicit references; recipe outputs must be linked as evidence/findings to enter this comparison.
+
+For example, branches referencing the same paper revision but different finding-content hashes with an unchanged producer/configuration report `changed_interpretation`. Changing only the producer/configuration reports `changed_method`; combined source, method and content changes report `mixed_change`. The response includes both pinned finding revisions and source locators. This classification describes recorded changes, not their semantic correctness. Source IDs provide an independence proxy, and matching content is deduplicated. Historical retained evidence stays identifiable after correction/retraction but stops contributing to current coverage. Revoked source access prevents resolution even for an old branch revision.
+
+Bounded automatic execution is documented in [research loops](research-loops.md); the reservation primitives above are also used by that runtime.
