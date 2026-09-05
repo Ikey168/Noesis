@@ -226,6 +226,8 @@ async def _inspect_server(
 
 
 def _mutability(name: str) -> str:
+    if name in {"register_research_analysis", "execute_research_analysis", "cancel_research_analysis_run", "recover_research_analysis_run"}:
+        return "write"
     if name == "sync_zotero_library":
         return "write"
     if name in {"amend_review_protocol", "screen_review_candidate", "adjudicate_review_candidate", "extract_review_field", "review_study_field"}:
@@ -281,6 +283,12 @@ def _required_data(server_stem: str, tool_name: str) -> list[str]:
     if server_stem == "memory_mcp":
         return ["knowledge-memory-store"]
     if server_stem == "knowledge_engine_mcp":
+        if tool_name == "register_research_analysis":
+            return ["knowledge:analysis:write", "knowledge:dataset:read"]
+        if tool_name in {"execute_research_analysis", "cancel_research_analysis_run", "recover_research_analysis_run"}:
+            return ["knowledge:analysis:read", "knowledge:analysis:execute", "knowledge:dataset:read"]
+        if tool_name in {"inspect_research_analysis", "list_research_analysis_runs", "inspect_research_analysis_run", "export_research_analysis", "compare_research_analysis_runs", "export_research_analysis_package"}:
+            return ["knowledge:analysis:read", "knowledge:dataset:read"] + (["knowledge:packages:read"] if tool_name.endswith("_package") else [])
         return ["knowledge-engine-runtime"]
     if server_stem == "contract_mcp":
         return ["contract-schemas"]
@@ -347,6 +355,12 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
             return ["knowledge:memory:admin"]
         return ["knowledge:memory:read"]
     if server_stem == "knowledge_engine_mcp":
+        if tool_name == "register_research_analysis":
+            return ["knowledge:analysis:write", "knowledge:dataset:read"]
+        if tool_name in {"execute_research_analysis", "cancel_research_analysis_run", "recover_research_analysis_run"}:
+            return ["knowledge:analysis:read", "knowledge:analysis:execute", "knowledge:dataset:read"]
+        if tool_name in {"inspect_research_analysis", "list_research_analysis_runs", "inspect_research_analysis_run", "export_research_analysis", "compare_research_analysis_runs", "export_research_analysis_package"}:
+            return ["knowledge:analysis:read", "knowledge:dataset:read"] + (["knowledge:packages:read"] if tool_name.endswith("_package") else [])
         if tool_name in {"create_authored_report", "revise_authored_report", "reopen_authored_report"}:
             return ["knowledge:reports:write"]
         if tool_name in {"inspect_authored_report", "export_authored_report"}:

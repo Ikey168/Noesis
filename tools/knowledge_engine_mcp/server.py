@@ -8424,6 +8424,93 @@ def rollback_research_package_import(target_namespace: str, import_id: str) -> d
     )
 
 
+@mcp.tool()
+def register_research_analysis(namespace: str, request_key: str, manifest: dict[str, Any]) -> dict:
+    """Freeze exact dataset slices, notebook code, parameters, environment identity, and execution limits."""
+    from src.kb.research_analysis import ResearchAnalysisStore, WRITE_SCOPE
+    return _safe(lambda c: ResearchAnalysisStore(c).register(namespace, request_key, manifest,
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope=WRITE_SCOPE)
+
+
+@mcp.tool()
+def execute_research_analysis(namespace: str, analysis_id: str, request_key: str) -> dict:
+    """Execute pinned code in a bounded rootless container with no network or inherited credentials."""
+    from src.kb.research_analysis import ResearchAnalysisStore, EXECUTE_SCOPE
+    return _safe(lambda c: ResearchAnalysisStore(c).execute(namespace, analysis_id, request_key,
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope=EXECUTE_SCOPE)
+
+
+@mcp.tool()
+def inspect_research_analysis(namespace: str, analysis_id: str) -> dict:
+    """Inspect a registered manifest under current owner and input access."""
+    from src.kb.research_analysis import ResearchAnalysisStore, READ_SCOPE
+    return _safe(lambda c: ResearchAnalysisStore(c, initialize=False).inspect(namespace, analysis_id,
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope=READ_SCOPE)
+
+
+@mcp.tool()
+def list_research_analysis_runs(namespace: str, analysis_id: str, offset: int = 0, limit: int = 100) -> dict:
+    """Page through persisted runs for a registered analysis."""
+    from src.kb.research_analysis import ResearchAnalysisStore, READ_SCOPE
+    return _safe(lambda c: ResearchAnalysisStore(c, initialize=False).list_runs(namespace, analysis_id, offset=offset, limit=limit,
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope=READ_SCOPE)
+
+
+@mcp.tool()
+def inspect_research_analysis_run(namespace: str, run_id: str) -> dict:
+    """Inspect execution status, outputs, isolation receipt, and cell provenance."""
+    from src.kb.research_analysis import ResearchAnalysisStore, READ_SCOPE
+    return _safe(lambda c: ResearchAnalysisStore(c, initialize=False).inspect_run(namespace, run_id,
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope=READ_SCOPE)
+
+
+@mcp.tool()
+def cancel_research_analysis_run(namespace: str, run_id: str) -> dict:
+    """Request durable cancellation of a running notebook."""
+    from src.kb.research_analysis import ResearchAnalysisStore, EXECUTE_SCOPE
+    return _safe(lambda c: ResearchAnalysisStore(c, initialize=False).cancel(namespace, run_id,
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope=EXECUTE_SCOPE)
+
+
+@mcp.tool()
+def recover_research_analysis_run(namespace: str, run_id: str) -> dict:
+    """Publish staged results or mark an interrupted run after its hard deadline."""
+    from src.kb.research_analysis import ResearchAnalysisStore, EXECUTE_SCOPE
+    return _safe(lambda c: ResearchAnalysisStore(c, initialize=False).recover(namespace, run_id,
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope=EXECUTE_SCOPE)
+
+
+@mcp.tool()
+def export_research_analysis(namespace: str, run_id: str) -> dict:
+    """Export pinned code, outputs, permitted inputs, and explicit omissions."""
+    from src.kb.research_analysis import ResearchAnalysisStore, READ_SCOPE
+    return _safe(lambda c: ResearchAnalysisStore(c, initialize=False).export(namespace, run_id,
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope=READ_SCOPE)
+
+
+@mcp.tool()
+def export_research_analysis_package(namespace: str, run_id: str) -> dict:
+    """Build an offline research package without persisting private input copies."""
+    from src.kb.research_analysis import ResearchAnalysisStore, READ_SCOPE
+    return _safe(lambda c: ResearchAnalysisStore(c, initialize=False).export_package(namespace, run_id,
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope=READ_SCOPE)
+
+
+@mcp.tool()
+def compare_research_analysis_runs(namespace: str, left_run_id: str, right_run_id: str,
+                                   absolute_tolerance: float = 0.0, relative_tolerance: float = 0.0) -> dict:
+    """Compare completed outputs and provenance using explicit numeric tolerances."""
+    from src.kb.research_analysis import ResearchAnalysisStore, READ_SCOPE, compare_analysis_outputs
+    def operation(c):
+        store = ResearchAnalysisStore(c, initialize=False)
+        auth = {"principal_id": _context()[0], "scopes": _context()[1]}
+        left = store.inspect_run(namespace, left_run_id, **auth)
+        right = store.inspect_run(namespace, right_run_id, **auth)
+        return compare_analysis_outputs(left["result"], right["result"],
+            absolute_tolerance=absolute_tolerance, relative_tolerance=relative_tolerance)
+    return _safe(operation, write=True, required_scope=READ_SCOPE)
+
+
 if __name__ == "__main__":
     from src.mcp_host.transport import run_server
 
