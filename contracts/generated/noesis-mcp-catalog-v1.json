@@ -812,12 +812,13 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 402,
+      "tool_count": 407,
       "tools": [
         "noesis-knowledge-engine.accept_citation_repair",
         "noesis-knowledge-engine.accept_dataset_join",
         "noesis-knowledge-engine.accept_source_pack_license",
         "noesis-knowledge-engine.acknowledge_change_brief_delivery",
+        "noesis-knowledge-engine.acknowledge_decision_review_task",
         "noesis-knowledge-engine.add_review_candidate",
         "noesis-knowledge-engine.add_source_relationship",
         "noesis-knowledge-engine.adjudicate_review_candidate",
@@ -875,6 +876,7 @@
         "noesis-knowledge-engine.create_authored_report",
         "noesis-knowledge-engine.create_binary_forecast",
         "noesis-knowledge-engine.create_change_brief_subscription",
+        "noesis-knowledge-engine.create_decision_condition_watch",
         "noesis-knowledge-engine.create_event_record",
         "noesis-knowledge-engine.create_hypothesis_research_plan",
         "noesis-knowledge-engine.create_hypothesis_workspace",
@@ -986,6 +988,7 @@
         "noesis-knowledge-engine.inspect_authored_report",
         "noesis-knowledge-engine.inspect_authored_report_edit",
         "noesis-knowledge-engine.inspect_binary_forecast",
+        "noesis-knowledge-engine.inspect_decision_condition_watch",
         "noesis-knowledge-engine.inspect_effective_access_view",
         "noesis-knowledge-engine.inspect_entity_change_impact",
         "noesis-knowledge-engine.inspect_maintenance_generation",
@@ -1013,6 +1016,7 @@
         "noesis-knowledge-engine.link_hypothesis_evidence",
         "noesis-knowledge-engine.link_study_artifact",
         "noesis-knowledge-engine.list_change_briefs",
+        "noesis-knowledge-engine.list_decision_review_tasks",
         "noesis-knowledge-engine.list_epistemic_taxonomies",
         "noesis-knowledge-engine.list_event_accounts",
         "noesis-knowledge-engine.list_expiring_evidence",
@@ -1041,6 +1045,7 @@
         "noesis-knowledge-engine.place_retention_legal_hold",
         "noesis-knowledge-engine.plan_extractor_reprocessing",
         "noesis-knowledge-engine.plan_retention_gc",
+        "noesis-knowledge-engine.poll_decision_condition_watch",
         "noesis-knowledge-engine.preflight_source_pack_run",
         "noesis-knowledge-engine.preview_anomaly_baseline",
         "noesis-knowledge-engine.preview_artifact_invalidation",
@@ -1222,7 +1227,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 402
+      "visible_tool_count": 407
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -1236,9 +1241,9 @@
       "available": 81,
       "degraded": 155,
       "disabled": 3,
-      "unauthorized": 407
+      "unauthorized": 412
     },
-    "tools": 646
+    "tools": 651
   },
   "tools": [
     {
@@ -13367,6 +13372,64 @@
       "version": "1"
     },
     {
+      "cost_class": "medium",
+      "description": "Acknowledge a review task separately from an optional later decision revision; never changes the action.",
+      "id": "noesis-knowledge-engine.acknowledge_decision_review_task",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "rationale": {
+            "type": "string"
+          },
+          "subsequent_revision": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "task_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "task_id",
+          "rationale"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "acknowledge_decision_review_task",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge:decisions:read",
+        "knowledge:decisions:write",
+        "knowledge:projects:read",
+        "knowledge:briefs:deliver"
+      ],
+      "required_scopes": [
+        "knowledge:decisions:read",
+        "knowledge:decisions:write",
+        "knowledge:projects:read",
+        "knowledge:briefs:deliver"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "low",
       "description": "Trace a publication to its search run, protocol version, source revision, and study group.",
       "id": "noesis-knowledge-engine.add_review_candidate",
@@ -17045,6 +17108,59 @@
       ],
       "required_scopes": [
         "knowledge:briefs:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Pin source, assumption-evidence, or exact metric-threshold conditions to a decision revision.",
+      "id": "noesis-knowledge-engine.create_decision_condition_watch",
+      "input_schema": {
+        "properties": {
+          "conditions": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "decision_id": {
+            "type": "string"
+          },
+          "expected_revision": {
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "decision_id",
+          "expected_revision",
+          "conditions"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "create_decision_condition_watch",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge:decisions:read",
+        "knowledge:decisions:write",
+        "knowledge:projects:read"
+      ],
+      "required_scopes": [
+        "knowledge:decisions:read",
+        "knowledge:decisions:write",
+        "knowledge:projects:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -22558,6 +22674,45 @@
     },
     {
       "cost_class": "low",
+      "description": "Inspect a decision watch and its last assessment under current evidence access.",
+      "id": "noesis-knowledge-engine.inspect_decision_condition_watch",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "watch_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "watch_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "inspect_decision_condition_watch",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge:decisions:read",
+        "knowledge:projects:read"
+      ],
+      "required_scopes": [
+        "knowledge:decisions:read",
+        "knowledge:projects:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Inspect an effective decision with administrator-only reason disclosure.",
       "id": "noesis-knowledge-engine.inspect_effective_access_view",
       "input_schema": {
@@ -23877,6 +24032,53 @@
     },
     {
       "cost_class": "low",
+      "description": "Page through decision alerts, delivery references, acknowledgements, and later decision links.",
+      "id": "noesis-knowledge-engine.list_decision_review_tasks",
+      "input_schema": {
+        "properties": {
+          "limit": {
+            "default": 100,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "offset": {
+            "default": 0,
+            "type": "integer"
+          },
+          "watch_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "watch_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_decision_review_tasks",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge:decisions:read",
+        "knowledge:projects:read"
+      ],
+      "required_scopes": [
+        "knowledge:decisions:read",
+        "knowledge:projects:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "List versioned epistemic taxonomies visible to the caller.",
       "id": "noesis-knowledge-engine.list_epistemic_taxonomies",
       "input_schema": {
@@ -25117,6 +25319,53 @@
       ],
       "required_scopes": [
         "knowledge:retention:admin"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Create deduplicated evidence-linked review tasks and retry existing change-brief delivery.",
+      "id": "noesis-knowledge-engine.poll_decision_condition_watch",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "watch_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "watch_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "poll_decision_condition_watch",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge:decisions:read",
+        "knowledge:decisions:write",
+        "knowledge:projects:read",
+        "knowledge:briefs:read",
+        "knowledge:briefs:write",
+        "knowledge:briefs:deliver"
+      ],
+      "required_scopes": [
+        "knowledge:decisions:read",
+        "knowledge:decisions:write",
+        "knowledge:projects:read",
+        "knowledge:briefs:read",
+        "knowledge:briefs:write",
+        "knowledge:briefs:deliver"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",

@@ -8630,6 +8630,46 @@ def evaluate_review_annotation_predictions(namespace: str, release_id: str, befo
         principal_id=_context()[0], scopes=_context()[1]), required_scope=DATASET_SCOPE)
 
 
+@mcp.tool()
+def create_decision_condition_watch(namespace: str, decision_id: str, expected_revision: int, conditions: list[dict[str, Any]]) -> dict:
+    """Pin source, assumption-evidence, or exact metric-threshold conditions to a decision revision."""
+    from src.kb.decision_alerts import DecisionAlertStore
+    return _safe(lambda c: DecisionAlertStore(c).create_watch(namespace, decision_id, expected_revision, conditions,
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope="knowledge:decisions:write")
+
+
+@mcp.tool()
+def poll_decision_condition_watch(namespace: str, watch_id: str) -> dict:
+    """Create deduplicated evidence-linked review tasks and retry existing change-brief delivery."""
+    from src.kb.decision_alerts import DecisionAlertStore
+    return _safe(lambda c: DecisionAlertStore(c).poll_watch(namespace, watch_id,
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope="knowledge:decisions:write")
+
+
+@mcp.tool()
+def inspect_decision_condition_watch(namespace: str, watch_id: str) -> dict:
+    """Inspect a decision watch and its last assessment under current evidence access."""
+    from src.kb.decision_alerts import DecisionAlertStore
+    return _safe(lambda c: DecisionAlertStore(c, initialize=False).inspect_watch(namespace, watch_id,
+        principal_id=_context()[0], scopes=_context()[1]), required_scope="knowledge:decisions:read")
+
+
+@mcp.tool()
+def list_decision_review_tasks(namespace: str, watch_id: str, offset: int = 0, limit: int = 100) -> dict:
+    """Page through decision alerts, delivery references, acknowledgements, and later decision links."""
+    from src.kb.decision_alerts import DecisionAlertStore
+    return _safe(lambda c: DecisionAlertStore(c, initialize=False).list_tasks(namespace, watch_id, offset=offset, limit=limit,
+        principal_id=_context()[0], scopes=_context()[1]), required_scope="knowledge:decisions:read")
+
+
+@mcp.tool()
+def acknowledge_decision_review_task(namespace: str, task_id: str, rationale: str, subsequent_revision: int | None = None) -> dict:
+    """Acknowledge a review task separately from an optional later decision revision; never changes the action."""
+    from src.kb.decision_alerts import DecisionAlertStore
+    return _safe(lambda c: DecisionAlertStore(c).acknowledge(namespace, task_id, rationale, subsequent_revision=subsequent_revision,
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope="knowledge:decisions:write")
+
+
 if __name__ == "__main__":
     from src.mcp_host.transport import run_server
 
