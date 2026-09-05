@@ -7801,6 +7801,46 @@ def create_research_project(namespace: str, request_key: str, questions: list[st
 
 
 @mcp.tool()
+def create_authored_report(namespace: str, request_key: str, content: dict[str, Any]) -> dict:
+    """Persist authored sections, assertions, source revisions, bibliography, and limitations."""
+    from src.kb.authored_reports import AuthoredReportStore, WRITE_SCOPE
+    return _safe(lambda c: AuthoredReportStore(c).create(namespace, request_key, content,
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope=WRITE_SCOPE)
+
+
+@mcp.tool()
+def inspect_authored_report(namespace: str, report_id: str, revision: int | None = None) -> dict:
+    """Reopen the current or historical report without regenerating authored wording."""
+    from src.kb.authored_reports import AuthoredReportStore, READ_SCOPE
+    return _safe(lambda c: AuthoredReportStore(c, initialize=False).inspect(namespace, report_id,
+        revision=revision, principal_id=_context()[0], scopes=_context()[1]), required_scope=READ_SCOPE)
+
+
+@mcp.tool()
+def revise_authored_report(namespace: str, report_id: str, expected_revision: int, content: dict[str, Any]) -> dict:
+    """Append an authored revision with conflict checks and preserved historical versions."""
+    from src.kb.authored_reports import AuthoredReportStore, WRITE_SCOPE
+    return _safe(lambda c: AuthoredReportStore(c).revise(namespace, report_id, expected_revision, content,
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope=WRITE_SCOPE)
+
+
+@mcp.tool()
+def export_authored_report(namespace: str, report_id: str, revision: int | None = None) -> dict:
+    """Export report JSON, Markdown, and bibliography without external publication."""
+    from src.kb.authored_reports import AuthoredReportStore, READ_SCOPE
+    return _safe(lambda c: AuthoredReportStore(c, initialize=False).export(namespace, report_id,
+        revision=revision, principal_id=_context()[0], scopes=_context()[1]), required_scope=READ_SCOPE)
+
+
+@mcp.tool()
+def reopen_authored_report(namespace: str, request_key: str, package: dict[str, Any]) -> dict:
+    """Verify an exported report's content hash and preserve its authored contents in a new ledger."""
+    from src.kb.authored_reports import AuthoredReportStore, WRITE_SCOPE
+    return _safe(lambda c: AuthoredReportStore(c).reopen(namespace, request_key, package,
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope=WRITE_SCOPE)
+
+
+@mcp.tool()
 def inspect_research_project(namespace: str, project_id: str, revision: int | None = None) -> dict:
     """Reopen a project or historical revision without rerunning its completed work."""
     from src.kb.research_projects import ResearchProjectStore, READ_SCOPE

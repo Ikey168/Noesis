@@ -226,6 +226,8 @@ async def _inspect_server(
 
 
 def _mutability(name: str) -> str:
+    if name in {"revise_authored_report", "reopen_authored_report"}:
+        return "write"
     if name in {"claim_subscription_deliveries", "acknowledge_subscription_delivery", "fail_subscription_delivery", "redrive_subscription_delivery"}:
         return "write"
     if name in {"branch_research_project", "revise_research_project", "archive_research_project", "record_research_project_expenditure"}:
@@ -337,6 +339,10 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
             return ["knowledge:memory:admin"]
         return ["knowledge:memory:read"]
     if server_stem == "knowledge_engine_mcp":
+        if tool_name in {"create_authored_report", "revise_authored_report", "reopen_authored_report"}:
+            return ["knowledge:reports:write"]
+        if tool_name in {"inspect_authored_report", "export_authored_report"}:
+            return ["knowledge:reports:read"]
         if tool_name == "set_research_package_trust_policy":
             return ["knowledge:packages:trust"]
         if tool_name in {"branch_research_project", "create_research_project", "revise_research_project", "archive_research_project", "record_research_project_expenditure"}:
