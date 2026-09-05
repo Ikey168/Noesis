@@ -180,9 +180,11 @@
     {
       "number": 1502,
       "title": "Connect Context7 documentation through existing MCP federation",
-      "status": "implementation_partial",
+      "status": "implemented_pending_review",
       "validation": [
-        "See README.md for tested scope and outstanding acceptance evidence."
+        "Anonymous Context7 MCP 4.0.5 discovery/query actually ran; ambiguous Pint library candidates preserved; exact requested version remains unattested.",
+        "Selected original Pint documentation fetched into SnapshotStore and DocumentStore; context7-probe.json records digest, source URL, timing, missing-version state and adoption decision.",
+        "Tests cover ambiguity, conflicting versions, missing citations, original-source access failure, durable replay and distinct observation snapshots."
       ]
     },
     {

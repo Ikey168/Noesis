@@ -35,7 +35,8 @@ provisioned model snapshots. Model revisions are in `src/integrations/model-pins
 | #1524 | Research package `export_rocrate` | Native package in RO-Crate envelope; detailed entity mapping and independent validator outstanding |
 | #1495 | Upload parser `backend="markitdown"` | Explicit converted-text representation; actual HTML smoke test; document corpus outstanding |
 | #1497 | `src.integrations.warc` | Bounded capture read/write and document ingestion; archive corpus and full ingestion regression outstanding |
-| #1501–1503 | `src.integrations.mcp.federation_adapter` | Explicit presets and tool allowlists; real Playwright session probe passed; hosted-service and browser-domain evaluation outstanding |
+| #1501, #1503 | `src.integrations.mcp.federation_adapter` | Explicit presets and tool allowlists; real Playwright session probe passed; GitHub and browser-domain evaluation outstanding |
+| #1502 | `Context7Research` | Live documentation discovery/query and selected original capture; version uncertainty retained |
 | #1504 | E5 embedding input policy and query embedding interface | Real pinned CPU smoke probe; independent retrieval benchmark outstanding |
 | #1506–1508 | Qwen scorer, optional multilingual NLI, LightOn OCR | Explicit adapters/model pins; Qwen inference passed; NLI/OCR inference and independent benchmarks outstanding |
 
@@ -247,8 +248,8 @@ transports and exposes `close()` / a context manager for resource cleanup. Brows
 presets require `navigation_origins=["https://www.berlin.de"]` (or explicit local
 fixture origins). Only navigate, snapshot and bounded waits are exposed. This
 checks requested navigation destinations; it is not a browser-wide network or
-redirect sandbox. Hosted provider scope/evaluation and browser-domain enforcement
-remain outstanding, so #1501–1503 stay partial.
+redirect sandbox. GitHub provider scope/evaluation and browser-domain enforcement
+remain outstanding for #1501 and #1503. Context7 completion is described below.
 
 The real `@playwright/mcp@0.0.80` server passed navigation and a later dynamic German
 text snapshot through existing federation receipts. Its reported server version
@@ -265,3 +266,40 @@ same-session identity, timeout/reset/reconnect, closed-client rejection and
 pre-connection browser action/origin/wait limits. This is an interoperability
 result on authored HTML, not independent evaluation of public websites or a
 comparison with the production bulk browser acquisition path.
+
+## Context7 documentation research (#1502)
+
+`Context7Research` wraps the existing federated adapter. Discovery preserves
+multiple library candidates and requires explicit library selection; query
+results retain library ID, requested version, source links and retrieval time.
+The provider did not attest an exact version in the tested response, so
+`resolved_version` remains null even when the caller requests one. Conflicting
+version suffixes fail before a remote call. Missing citations are explicit.
+
+An anonymous live query against Context7 MCP 4.0.5 completed in 3.53 seconds.
+It returned Pint documentation at `stable`, not a verified 0.25.3 snapshot.
+The selected original page was independently fetched in 0.78 seconds, and its
+208,885 bytes were captured through existing SnapshotStore and DocumentStore
+contracts. `context7-probe.json` records the SHA256 and source URL. The original
+capture does not retroactively verify the snippet's requested library version.
+The source requires an identifying User-Agent; the client sends the Noesis
+project identity. Captures are limited to explicitly selected cited URLs on an
+allowed public host, same-host redirects, 2 MB and 15 seconds, with declared
+language. Source snapshots are local evidence archives; no external publication
+is performed.
+
+Reproduce with `python -m scripts.probe_context7 --anonymous --database evidence.duckdb
+--out context7.json --library-id /websites/pint_readthedocs_io_en_stable
+--requested-version 0.25.3 --query "Create an empty UnitRegistry with Decimal numeric values"
+--source-url https://pint.readthedocs.io/en/stable/_modules/pint/facets/plain/registry.html
+--allowed-host pint.readthedocs.io --language en`. Provision `NOESIS_CONTEXT7_API_KEY`
+for account-backed use and omit `--anonymous`; this run did not use an account.
+
+Decision: adopt opt-in discovery/query and original-source capture while retaining
+version uncertainty. Two focused tests additionally cover ambiguous names,
+version conflicts, missing citations, unavailable originals, immutable byte
+storage, separate retrieval observations and idempotent document replay.
+
+Latest combined verification after the Context7 changes: **130 tests passed** across
+integrations, quantitative/report/planner/geospatial/federation stores, document
+and source-pack runtime, and quantitative/planner MCP surfaces.
