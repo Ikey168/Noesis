@@ -20,25 +20,21 @@ Task bodies import the engine lazily, so the DAG imports (for dag-check) without
 the `src` package on the path; the tasks need it at execution time.
 """
 
-from datetime import datetime, timedelta
-from pathlib import Path
-import json
-import pandas as pd
-import yaml
-from typing import Any, Dict, List, Optional
-
-from airflow.decorators import dag, task
-from airflow.models import Variable
-from airflow.utils.dates import days_ago
 
 # Import NeuroNews lineage utilities (Issue #193)
 import sys
+from datetime import datetime, timedelta
+from pathlib import Path
+from typing import Any, Dict, Optional
+
+import yaml
+from airflow.sdk import AsyncCallback, DeadlineAlert, DeadlineReference, dag, task
+from deadline_callbacks import log_pipeline_deadline
+
 sys.path.append("/opt/airflow/plugins")
-from lineage_utils import LineageHelper, build_uri
 
 # Import MLflow callbacks for experiment tracking (Issue #225)
-from mlflow_callbacks import configure_dag_for_mlflow, configure_task_for_mlflow
-
+from mlflow_callbacks import configure_dag_for_mlflow
 
 # Default arguments for all tasks
 default_args = {
@@ -49,7 +45,6 @@ default_args = {
     'email_on_retry': False,
     'retries': 2,
     'retry_delay': timedelta(minutes=5),
-    'max_active_runs': 1,
 }
 
 
@@ -64,12 +59,17 @@ def load_io_paths() -> Dict[str, Any]:
     dag_id='news_pipeline',
     default_args=default_args,
     description='NeuroNews data pipeline: scrape → clean → nlp → analyze → publish',
-    schedule_interval='0 8 * * *',  # Daily at 08:00 Europe/Berlin
+    schedule='0 8 * * *',  # Daily at 08:00 Europe/Berlin
     start_date=datetime(2025, 8, 1),
     catchup=False,
     tags=['neuronews', 'data-pipeline', 'openlineage', 'mlflow:neuro_news_indexing'],
     max_active_runs=1,
     doc_md=__doc__,
+    deadline=DeadlineAlert(
+        reference=DeadlineReference.DAGRUN_LOGICAL_DATE,
+        interval=timedelta(minutes=15),
+        callback=AsyncCallback(log_pipeline_deadline),
+    ),
 )
 def news_pipeline():
     """
@@ -111,7 +111,7 @@ def news_pipeline():
     def clean(scrape_result: Dict[str, Any], **context) -> Dict[str, Any]:
         """Validation/dedup is done at write time by DocumentStore.
 
-        SLA: 15 minutes (Issue #190). This is a corpus checkpoint — it reports the
+        The DAG has a 15-minute deadline alert. This checkpoint reports the
         number of documents in the warehouse after the harvest.
         """
         from src.database.local_analytics_connector import get_shared_connection
@@ -130,8 +130,8 @@ def news_pipeline():
         ``src.ingestion.enrich`` pass (pluggable analyzer, lexicon default).
         """
         from src.database.local_analytics_connector import get_shared_connection
-        from src.ingestion.enrich import enrich_documents
         from src.ingestion.argument_mining import mine_unprocessed_documents
+        from src.ingestion.enrich import enrich_documents
 
         conn = get_shared_connection()
         enriched = enrich_documents(conn)
@@ -207,7 +207,7 @@ def news_pipeline():
     clean_result = clean(scrape_result)
     nlp_result = nlp(clean_result)
     analyze_result = analyze_arguments(nlp_result)
-    publish_result = publish(nlp_result, analyze_result)
+    publish(nlp_result, analyze_result)
 
 
 # Create the DAG instance
@@ -215,33 +215,3 @@ news_pipeline_dag = news_pipeline()
 
 # Configure MLflow integration (Issue #225)
 news_pipeline_dag = configure_dag_for_mlflow(news_pipeline_dag)
-
-# Configure SLA for the clean task (Issue #190)
-# Set SLA to 15 minutes to demonstrate SLA monitoring
-if hasattr(news_pipeline_dag, 'get_task') and news_pipeline_dag.get_task('clean', None):
-    clean_task = news_pipeline_dag.get_task('clean')
-    clean_task.sla = timedelta(minutes=15)
-    
-    # Add SLA miss callback for logging
-    def sla_miss_callback(dag, task_list, blocking_task_list, slas, blocking_tis):
-        """
-        Callback function for SLA misses.
-        Logs SLA violations for monitoring and alerting.
-        """
-        from airflow.utils.log.logging_mixin import LoggingMixin
-        logger = LoggingMixin().log
-        
-        for sla in slas:
-            logger.warning(
-                f"🚨 SLA MISS: Task '{sla.task_id}' in DAG '{sla.dag_id}' "
-                f"missed SLA. Expected by: {sla.execution_date + sla.sla}, "
-                f"Actual completion: Not completed yet"
-            )
-            
-        for blocking_ti in blocking_tis:
-            logger.warning(
-                f"⏳ BLOCKING: Task '{blocking_ti.task_id}' is blocking SLA compliance"
-            )
-    
-    # Apply SLA miss callback to the DAG
-    news_pipeline_dag.sla_miss_callback = sla_miss_callback

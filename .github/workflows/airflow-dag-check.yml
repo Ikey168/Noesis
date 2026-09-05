@@ -9,45 +9,30 @@ on:
 jobs:
   dag-check:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      AIRFLOW_HOME: ${{ github.workspace }}/.airflow_home
+      AIRFLOW__CORE__LOAD_EXAMPLES: "False"
+      AIRFLOW__CORE__UNIT_TEST_MODE: "True"
+      AIRFLOW__OPENLINEAGE__DISABLED: "True"
+      MLFLOW_DISABLED: "true"
+      PYTHONPATH: ${{ github.workspace }}:${{ github.workspace }}/airflow/plugins
     steps:
       - name: Checkout code
         uses: actions/checkout@v7
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
-          python-version: '3.9'
-      - name: Install Apache Airflow
+          python-version: '3.11'
+      - name: Install the production Airflow runtime
         run: |
-          # Install Airflow (and the postgres + spark providers the
-          # iceberg_maintenance DAG imports) with the official constraints file
-          # so transitive deps (e.g. google-re2) resolve to published wheels
-          # instead of building from source, which requires bazel and fails.
-          AIRFLOW_VERSION=2.8.1
-          PYTHON_VERSION="$(python -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')"
-          CONSTRAINT_URL="https://raw.githubusercontent.com/apache/airflow/constraints-${AIRFLOW_VERSION}/constraints-${PYTHON_VERSION}.txt"
-          # Install Airflow with the postgres + spark provider extras (needed by
-          # the iceberg_maintenance DAG) in one constrained command. The extras
-          # pin the providers to 2.8.1-compatible versions via the constraint
-          # file, so they install without upgrading the Airflow core (which
-          # would otherwise break the airflow.providers namespace).
-          pip install "apache-airflow[postgres,apache.spark]==${AIRFLOW_VERSION}" --constraint "${CONSTRAINT_URL}"
-          python -c "import airflow.providers.postgres, airflow.providers.apache.spark; print('providers OK')"
-      - name: Install project requirements
-        run: |
-          pip install -r airflow/requirements.txt || true
-          pip install -r requirements.txt || true
-          # Ensure the deps the news_pipeline DAG imports at parse time are present.
-          pip install pytest pandas pyyaml mlflow
+          python -m pip install --upgrade pip
+          pip install -r airflow/requirements.txt \
+            --constraint https://raw.githubusercontent.com/apache/airflow/constraints-3.3.1/constraints-3.11.txt
+          pip install "apache-airflow==3.3.1" ".[ingestion]" pytest pyarrow
+          pip check
+          airflow version
       - name: Initialize Airflow metadata DB
-        env:
-          AIRFLOW_HOME: ${{ github.workspace }}/.airflow_home
-          AIRFLOW__CORE__LOAD_EXAMPLES: "False"
-        run: |
-          # The DAG-structure tests resolve DAGs via DagBag, which queries the
-          # metadata DB; create a local SQLite one.
-          airflow db migrate
-      - name: Run DAG import/unit tests
-        env:
-          AIRFLOW_HOME: ${{ github.workspace }}/.airflow_home
-          AIRFLOW__CORE__LOAD_EXAMPLES: "False"
-        run: pytest -q tests/dags
+        run: airflow db migrate
+      - name: Run DAG import and serialization tests
+        run: python -m pytest -q tests/dags

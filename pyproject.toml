@@ -75,7 +75,7 @@ media = [
   "pytesseract>=0.3.10",
 ]
 orchestration = [
-  "apache-airflow>=2.8,<4.0",
+  "apache-airflow>=3.3.1,<4.0",
   "apscheduler>=3.10,<4.0",
   "dbt-core>=1.7,<2.0",
   "mlflow>=2.0,<4.0",
@@ -86,7 +86,7 @@ cloud = [
   "redis>=5.0",
 ]
 full = [
-  "apache-airflow>=2.8,<4.0",
+  "apache-airflow>=3.3.1,<4.0",
   "apscheduler>=3.10,<4.0",
   "beautifulsoup4>=4.12",
   "boto3>=1.26",
