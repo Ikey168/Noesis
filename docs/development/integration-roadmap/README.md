@@ -16,7 +16,7 @@ provisioned model snapshots. Model revisions are in `src/integrations/model-pins
 
 | Issues | Entry point | Current scope / remaining work |
 | --- | --- | --- |
-| #1473 | Research source pack `datacite-dois` | Native metadata, DOI lookup, cursor pagination; native capture regression; end-to-end publication and evaluation outstanding |
+| #1473 | Research source pack `datacite-dois` | Native queries, cursor pagination and typed relationships; committed ingestion/replay and historical version checks passed |
 | #1509 | `src.integrations.text.SaTSegmenter` and chunker's `sentence_segmenter` | Exact source offsets; real ONNX smoke probe passed; independent benchmark outstanding |
 | #1510 | Normalizer `language_backend="lingua"` | Language confidence, abstention and mixed-language spans; independent corpus outstanding |
 | #1511 | Entity resolver `fuzzy_backend="rapidfuzz"` plus explicit threshold | Existing identity rules retained; false-merge and throughput benchmark outstanding |
@@ -25,7 +25,7 @@ provisioned model snapshots. Model revisions are in `src/integrations/model-pins
 | #1514 | Media connector `aligner=WhisperXAligner(...)` | Optional word alignment adapter; dependency/model and actual audio evaluation outstanding |
 | #1515 | `SDMXConnector` | Native series parsing and bounded transport; ECB live capture tested; Eurostat/Bundesbank and code-list mapping outstanding |
 | #1516 | Dataset store `validate_batch` | Explicit Pandera preflight, preserves declared schema; quarantine integration and comparative evaluation outstanding |
-| #1517 | Quantitative store `convert_physical` | Pint physical conversions and receipts; custom-unit registry mapping outstanding |
+| #1517 | Quantitative store `convert_physical` | Pint physical conversions plus isolated versioned Noesis unit definitions/aliases; formula evaluation and comparative cost evidence outstanding |
 | #1518–1519 | Geospatial `relation(backend="shapely")`, `import_projected_geometry` | Topology and offline pyproj transforms; wider geometry fixtures/evaluation outstanding |
 | #1520 | Report updates `generate_proposal` with `OutlinesEditor` | Schema-constrained pending text proposals; real generation and semantic revision evaluation outstanding |
 | #1521 | Review inbox `export_label_studio` / `import_label_studio` | Pinned source/reviewer checks, exact Unicode spans, pending proposals; independent human annotation outstanding |
@@ -173,3 +173,17 @@ links. A separate check preserves HasPart/IsPartOf direction and URL identifiers
 Native captured Berlin metadata is reused; controlled version changes are
 synthetic test transitions. Documentation: https://support.datacite.org/docs/queries
 and https://support.datacite.org/docs/connecting-to-works .
+
+## Versioned Pint registry mapping
+
+`QuantitativeStore.convert(..., backend="pint")` resolves names/aliases through
+the existing Noesis ledger and builds an empty, isolated Pint registry from those
+exact definitions. Receipts pin unit IDs, semantic versions, definition hashes,
+registry hash and Pint version. Custom compound dimensions and Noesis offset
+semantics are preserved. Currency or exchange-rate inputs are explicitly refused;
+existing economic conversion and comparability contracts remain authoritative.
+
+39 focused quantitative/document-store tests passed, including candidate/native
+agreement for length, Celsius, ratios, percentages, compound speed and half-even
+rounding, plus replay after a custom unit version changes. This completes registry
+mapping; formula-backend comparison and measured cost evidence remain for #1517.
