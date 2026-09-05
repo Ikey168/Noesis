@@ -1,0 +1,899 @@
+{
+  "fixture_kind": "24 authored Berlin research objectives with seeded synthetic capabilities; costs are projected fixture units, not provider prices",
+  "seed": 1513,
+  "versions": {
+    "ortools": "9.15.6755",
+    "duckdb": "1.5.5"
+  },
+  "hardware": "Linux-7.1.4-204.fc44.x86_64-x86_64-with-glibc2.43",
+  "process_peak_rss_kib": 210956,
+  "runs": [
+    {
+      "case": 0,
+      "backend": "greedy",
+      "feasible": false,
+      "coverage": {
+        "parts_total": 2,
+        "parts_covered": 2,
+        "independent_groups": 1
+      },
+      "projected_cost": 4.0,
+      "selected": [
+        "fixture-5"
+      ],
+      "plan_hash": "e75ab60cd0752ac994c66ae7139789697835a8ee0c36e0223ddf3ccca5df2b5d",
+      "solver_status": null,
+      "latency_ms": [
+        4.497429996263236,
+        4.068736976478249,
+        4.185062018223107
+      ]
+    },
+    {
+      "case": 0,
+      "backend": "cp-sat",
+      "feasible": false,
+      "solver_status": "INFEASIBLE",
+      "latency_ms": [
+        89.78854698943906,
+        5.773444980150089,
+        4.581911023706198
+      ]
+    },
+    {
+      "case": 1,
+      "backend": "greedy",
+      "feasible": true,
+      "coverage": {
+        "parts_total": 2,
+        "parts_covered": 2,
+        "independent_groups": 1
+      },
+      "projected_cost": 6.0,
+      "selected": [
+        "fixture-0"
+      ],
+      "plan_hash": "6e5128073ba4a00d2d4e5b2e3f4c01f832c68c9d6f5c1a0c93a4c73b3223eaeb",
+      "solver_status": null,
+      "latency_ms": [
+        4.123919003177434,
+        4.173727997113019,
+        3.714036021847278
+      ]
+    },
+    {
+      "case": 1,
+      "backend": "cp-sat",
+      "feasible": true,
+      "coverage": {
+        "parts_total": 2,
+        "parts_covered": 2,
+        "independent_groups": 1
+      },
+      "projected_cost": 6.0,
+      "selected": [
+        "fixture-2"
+      ],
+      "plan_hash": "356adf3cb9545f093a5b9a74ad2b6b7ebce58ef98918aba944a47f5035d5dd00",
+      "solver_status": "OPTIMAL",
+      "latency_ms": [
+        6.128458015155047,
+        5.849829001817852,
+        6.192389992065728
+      ]
+    },
+    {
+      "case": 2,
+      "backend": "greedy",
+      "feasible": true,
+      "coverage": {
+        "parts_total": 2,
+        "parts_covered": 2,
+        "independent_groups": 1
+      },
+      "projected_cost": 2.0,
+      "selected": [
+        "fixture-1"
+      ],
+      "plan_hash": "433e622f04ac1f0341c1e8fdca2667789af1c7f92d8930d2a4e30b088d969940",
+      "solver_status": null,
+      "latency_ms": [
+        3.743526991456747,
+        3.8583969871979207,
+        3.6593980039469898
+      ]
+    },
+    {
+      "case": 2,
+      "backend": "cp-sat",
+      "feasible": true,
+      "coverage": {
+        "parts_total": 2,
+        "parts_covered": 2,
+        "independent_groups": 1
+      },
+      "projected_cost": 2.0,
+      "selected": [
+        "fixture-1"
+      ],
+      "plan_hash": "2486ebb6bf3254722d3fb03271af5edcaf918751de1d77bfa5786a1347e5173d",
+      "solver_status": "OPTIMAL",
+      "latency_ms": [
+        4.840965993935242,
+        4.468061990337446,
+        4.709581000497565
+      ]
+    },
+    {
+      "case": 3,
+      "backend": "greedy",
+      "feasible": false,
+      "coverage": {
+        "parts_total": 2,
+        "parts_covered": 2,
+        "independent_groups": 1
+      },
+      "projected_cost": 0.0,
+      "selected": [
+        "fixture-2"
+      ],
+      "plan_hash": "381552cbd222f7cd608d6f36f1df27337b4948d6c44c7a856cc5202703bcc743",
+      "solver_status": null,
+      "latency_ms": [
+        4.03526599984616,
+        4.032579978229478,
+        3.7377889966592193
+      ]
+    },
+    {
+      "case": 3,
+      "backend": "cp-sat",
+      "feasible": false,
+      "solver_status": "INFEASIBLE",
+      "latency_ms": [
+        4.663592000724748,
+        4.313955985708162,
+        4.097745026228949
+      ]
+    },
+    {
+      "case": 4,
+      "backend": "greedy",
+      "feasible": false,
+      "coverage": {
+        "parts_total": 2,
+        "parts_covered": 2,
+        "independent_groups": 1
+      },
+      "projected_cost": 2.0,
+      "selected": [
+        "fixture-2"
+      ],
+      "plan_hash": "2a74dc8db3517a4614364a9b09f354ccc17310d5b5085eae8f53f76a1e99a3a6",
+      "solver_status": null,
+      "latency_ms": [
+        3.8375759904738516,
+        3.674259001854807,
+        3.7330449849832803
+      ]
+    },
+    {
+      "case": 4,
+      "backend": "cp-sat",
+      "feasible": false,
+      "solver_status": "INFEASIBLE",
+      "latency_ms": [
+        4.708324006060138,
+        4.463311983272433,
+        4.3389789934735745
+      ]
+    },
+    {
+      "case": 5,
+      "backend": "greedy",
+      "feasible": true,
+      "coverage": {
+        "parts_total": 2,
+        "parts_covered": 2,
+        "independent_groups": 2
+      },
+      "projected_cost": 0.0,
+      "selected": [
+        "fixture-0",
+        "fixture-1"
+      ],
+      "plan_hash": "333004bd49db7bfaa31d71bc7836ad8b7842527107f94449aa78b5563e5b9f29",
+      "solver_status": null,
+      "latency_ms": [
+        4.174170986516401,
+        5.047001002822071,
+        4.65703901136294
+      ]
+    },
+    {
+      "case": 5,
+      "backend": "cp-sat",
+      "feasible": true,
+      "coverage": {
+        "parts_total": 2,
+        "parts_covered": 2,
+        "independent_groups": 1
+      },
+      "projected_cost": 0.0,
+      "selected": [
+        "fixture-0"
+      ],
+      "plan_hash": "a8d8e5ae490706fb4eb5cb64d5f02671270490653244675514ba73bf81d74c42",
+      "solver_status": "OPTIMAL",
+      "latency_ms": [
+        5.631775013171136,
+        5.487310001626611,
+        4.9385410093236715
+      ]
+    },
+    {
+      "case": 6,
+      "backend": "greedy",
+      "feasible": false,
+      "coverage": {
+        "parts_total": 2,
+        "parts_covered": 2,
+        "independent_groups": 1
+      },
+      "projected_cost": 6.0,
+      "selected": [
+        "fixture-4"
+      ],
+      "plan_hash": "5a777f3562687d980c0377bcbf7dbc46e3f28939ed6f67f10a9322c7cd1c4dcf",
+      "solver_status": null,
+      "latency_ms": [
+        4.301876004319638,
+        4.562265996355563,
+        4.413543996633962
+      ]
+    },
+    {
+      "case": 6,
+      "backend": "cp-sat",
+      "feasible": false,
+      "solver_status": "INFEASIBLE",
+      "latency_ms": [
+        4.725178994704038,
+        4.8511830100324005,
+        4.503172007389367
+      ]
+    },
+    {
+      "case": 7,
+      "backend": "greedy",
+      "feasible": false,
+      "coverage": {
+        "parts_total": 2,
+        "parts_covered": 2,
+        "independent_groups": 1
+      },
+      "projected_cost": 4.0,
+      "selected": [
+        "fixture-4"
+      ],
+      "plan_hash": "8f9434919cec143e6dc79dc3f7f74a55160d4a3e3965d548c19b94ed12ce4567",
+      "solver_status": null,
+      "latency_ms": [
+        4.042529006255791,
+        3.9296830072999,
+        4.110027017304674
+      ]
+    },
+    {
+      "case": 7,
+      "backend": "cp-sat",
+      "feasible": false,
+      "solver_status": "INFEASIBLE",
+      "latency_ms": [
+        5.075647990452126,
+        6.260653986828402,
+        4.799521004315466
+      ]
+    },
+    {
+      "case": 8,
+      "backend": "greedy",
+      "feasible": false,
+      "coverage": {
+        "parts_total": 2,
+        "parts_covered": 2,
+        "independent_groups": 1
+      },
+      "projected_cost": 0.0,
+      "selected": [
+        "fixture-4"
+      ],
+      "plan_hash": "ee0cfe5c2394f19559fcfdc9e034e6848679dbc83a1f2fa3556b91e5edcecbfd",
+      "solver_status": null,
+      "latency_ms": [
+        4.211616993416101,
+        4.39271199866198,
+        4.276124003808945
+      ]
+    },
+    {
+      "case": 8,
+      "backend": "cp-sat",
+      "feasible": false,
+      "solver_status": "INFEASIBLE",
+      "latency_ms": [
+        5.840268015163019,
+        5.136212013894692,
+        12.775173003319651
+      ]
+    },
+    {
+      "case": 9,
+      "backend": "greedy",
+      "feasible": false,
+      "coverage": {
+        "parts_total": 2,
+        "parts_covered": 2,
+        "independent_groups": 1
+      },
+      "projected_cost": 0.0,
+      "selected": [
+        "fixture-1"
+      ],
+      "plan_hash": "3daf37fd329ac18ff3db2b356be0df2290db94253fd9d095076c38297c6e8929",
+      "solver_status": null,
+      "latency_ms": [
+        3.8292410026770085,
+        4.161099001066759,
+        3.7926160148344934
+      ]
+    },
+    {
+      "case": 9,
+      "backend": "cp-sat",
+      "feasible": false,
+      "solver_status": "INFEASIBLE",
+      "latency_ms": [
+        4.524668998783454,
+        4.431731009390205,
+        4.512134997639805
+      ]
+    },
+    {
+      "case": 10,
+      "backend": "greedy",
+      "feasible": true,
+      "coverage": {
+        "parts_total": 2,
+        "parts_covered": 2,
+        "independent_groups": 2
+      },
+      "projected_cost": 0.0,
+      "selected": [
+        "fixture-5",
+        "fixture-0"
+      ],
+      "plan_hash": "adcd32850e027ea521580131b77a9c9bbe18c4c07932b8f6cd628c8ec27d17bd",
+      "solver_status": null,
+      "latency_ms": [
+        3.87956399936229,
+        3.753013996174559,
+        3.7085930234752595
+      ]
+    },
+    {
+      "case": 10,
+      "backend": "cp-sat",
+      "feasible": true,
+      "coverage": {
+        "parts_total": 2,
+        "parts_covered": 2,
+        "independent_groups": 1
+      },
+      "projected_cost": 0.0,
+      "selected": [
+        "fixture-5"
+      ],
+      "plan_hash": "47d50b749b5f41aa5b3ebe414cae46f9233f6239356b015902da2dce3662e174",
+      "solver_status": "OPTIMAL",
+      "latency_ms": [
+        5.043402983574197,
+        5.211790994508192,
+        5.0901340146083385
+      ]
+    },
+    {
+      "case": 11,
+      "backend": "greedy",
+      "feasible": true,
+      "coverage": {
+        "parts_total": 2,
+        "parts_covered": 2,
+        "independent_groups": 2
+      },
+      "projected_cost": 8.0,
+      "selected": [
+        "fixture-0",
+        "fixture-4"
+      ],
+      "plan_hash": "b1e1978321bb99a75ed5ffc8d93800d48874e72885807b35e959b5e3ffca941a",
+      "solver_status": null,
+      "latency_ms": [
+        3.945123986341059,
+        3.6734440072905272,
+        3.7582580116577446
+      ]
+    },
+    {
+      "case": 11,
+      "backend": "cp-sat",
+      "feasible": true,
+      "coverage": {
+        "parts_total": 2,
+        "parts_covered": 2,
+        "independent_groups": 2
+      },
+      "projected_cost": 8.0,
+      "selected": [
+        "fixture-0",
+        "fixture-4"
+      ],
+      "plan_hash": "70de1ebb0735228423308294ef98274274501903f453793e0603130c50aaeefb",
+      "solver_status": "OPTIMAL",
+      "latency_ms": [
+        4.896785016171634,
+        4.7324339975602925,
+        5.087840021587908
+      ]
+    },
+    {
+      "case": 12,
+      "backend": "greedy",
+      "feasible": false,
+      "coverage": {
+        "parts_total": 2,
+        "parts_covered": 2,
+        "independent_groups": 1
+      },
+      "projected_cost": 6.0,
+      "selected": [
+        "fixture-4"
+      ],
+      "plan_hash": "683c063a1d77ff5cab1b25becafcba427a9a1c808114e1a0a9d12371068d8b40",
+      "solver_status": null,
+      "latency_ms": [
+        3.856472991174087,
+        3.8562759873457253,
+        3.9253700233530253
+      ]
+    },
+    {
+      "case": 12,
+      "backend": "cp-sat",
+      "feasible": false,
+      "solver_status": "INFEASIBLE",
+      "latency_ms": [
+        4.647333000320941,
+        4.445724014658481,
+        4.306518996600062
+      ]
+    },
+    {
+      "case": 13,
+      "backend": "greedy",
+      "feasible": false,
+      "coverage": {
+        "parts_total": 2,
+        "parts_covered": 2,
+        "independent_groups": 1
+      },
+      "projected_cost": 0.0,
+      "selected": [
+        "fixture-4"
+      ],
+      "plan_hash": "19ff31d44d0c9fa422d39b7389ed45ce2d737c00f8da4adc486f654eb13e3617",
+      "solver_status": null,
+      "latency_ms": [
+        3.8440740026999265,
+        3.65857599535957,
+        3.7259939999785274
+      ]
+    },
+    {
+      "case": 13,
+      "backend": "cp-sat",
+      "feasible": false,
+      "solver_status": "INFEASIBLE",
+      "latency_ms": [
+        4.860276007093489,
+        4.296958999475464,
+        4.3598619813565165
+      ]
+    },
+    {
+      "case": 14,
+      "backend": "greedy",
+      "feasible": true,
+      "coverage": {
+        "parts_total": 2,
+        "parts_covered": 2,
+        "independent_groups": 1
+      },
+      "projected_cost": 0.0,
+      "selected": [
+        "fixture-2"
+      ],
+      "plan_hash": "c2cba384618e6784bb1a820eb4a5355053a5949567896ee56b43b0c0d71bc3bd",
+      "solver_status": null,
+      "latency_ms": [
+        4.324202018324286,
+        3.98482900345698,
+        4.983343998901546
+      ]
+    },
+    {
+      "case": 14,
+      "backend": "cp-sat",
+      "feasible": true,
+      "coverage": {
+        "parts_total": 2,
+        "parts_covered": 2,
+        "independent_groups": 1
+      },
+      "projected_cost": 0.0,
+      "selected": [
+        "fixture-2"
+      ],
+      "plan_hash": "797384acc5cf97cbfd44bc1128c71df372a8016f95550ba1c35859354ed4151c",
+      "solver_status": "OPTIMAL",
+      "latency_ms": [
+        5.439925997052342,
+        4.895500984275714,
+        4.544267983874306
+      ]
+    },
+    {
+      "case": 15,
+      "backend": "greedy",
+      "feasible": false,
+      "coverage": {
+        "parts_total": 2,
+        "parts_covered": 2,
+        "independent_groups": 2
+      },
+      "projected_cost": 10.0,
+      "selected": [
+        "fixture-2",
+        "fixture-3"
+      ],
+      "plan_hash": "38c7619756e6e4ae615f9bcec002d629a41bfd3c7d7165044f5e97e3f4e5ba12",
+      "solver_status": null,
+      "latency_ms": [
+        4.045979992952198,
+        3.9407389995176345,
+        4.002633009804413
+      ]
+    },
+    {
+      "case": 15,
+      "backend": "cp-sat",
+      "feasible": true,
+      "coverage": {
+        "parts_total": 2,
+        "parts_covered": 2,
+        "independent_groups": 1
+      },
+      "projected_cost": 8.0,
+      "selected": [
+        "fixture-0"
+      ],
+      "plan_hash": "be3f8a44c7cd9f2994c05f911487279cdaedcf4233b5362b03998bd919f19cfd",
+      "solver_status": "OPTIMAL",
+      "latency_ms": [
+        5.059193994384259,
+        5.056555004557595,
+        5.210263974731788
+      ]
+    },
+    {
+      "case": 16,
+      "backend": "greedy",
+      "feasible": false,
+      "coverage": {
+        "parts_total": 2,
+        "parts_covered": 0,
+        "independent_groups": 0
+      },
+      "projected_cost": 0.0,
+      "selected": [],
+      "plan_hash": "9f4b8c35a7d5a4150e3eb2d1f8ea71d13666a08ffbbb03928b55728987336867",
+      "solver_status": null,
+      "latency_ms": [
+        4.0554149891249835,
+        3.8165119767654687,
+        4.097997007193044
+      ]
+    },
+    {
+      "case": 16,
+      "backend": "cp-sat",
+      "feasible": false,
+      "solver_status": "INFEASIBLE",
+      "latency_ms": [
+        4.859439010033384,
+        4.866028000833467,
+        4.927792004309595
+      ]
+    },
+    {
+      "case": 17,
+      "backend": "greedy",
+      "feasible": true,
+      "coverage": {
+        "parts_total": 2,
+        "parts_covered": 2,
+        "independent_groups": 2
+      },
+      "projected_cost": 6.0,
+      "selected": [
+        "fixture-0",
+        "fixture-5"
+      ],
+      "plan_hash": "1fcbca1d04317bae36d4116ea49a434987c403d7dcefe6b3b148f52914bbb3fe",
+      "solver_status": null,
+      "latency_ms": [
+        4.1200979903806,
+        4.251601989381015,
+        4.172612010734156
+      ]
+    },
+    {
+      "case": 17,
+      "backend": "cp-sat",
+      "feasible": true,
+      "coverage": {
+        "parts_total": 2,
+        "parts_covered": 2,
+        "independent_groups": 1
+      },
+      "projected_cost": 2.0,
+      "selected": [
+        "fixture-0"
+      ],
+      "plan_hash": "ef5ca180b1e0bb3ff334d7badc5235b6a39b93aee3bda8c4c4630373961884a0",
+      "solver_status": "OPTIMAL",
+      "latency_ms": [
+        5.146021983819082,
+        5.355561996111646,
+        5.231199000263587
+      ]
+    },
+    {
+      "case": 18,
+      "backend": "greedy",
+      "feasible": false,
+      "coverage": {
+        "parts_total": 2,
+        "parts_covered": 2,
+        "independent_groups": 1
+      },
+      "projected_cost": 0.0,
+      "selected": [
+        "fixture-5"
+      ],
+      "plan_hash": "a744438625fb9e32c3d43df13c6fd6849e8c6c4cfa728038764ab9b9a0c9b264",
+      "solver_status": null,
+      "latency_ms": [
+        3.9275080198422074,
+        3.7475030112545937,
+        3.6731270083691925
+      ]
+    },
+    {
+      "case": 18,
+      "backend": "cp-sat",
+      "feasible": false,
+      "solver_status": "INFEASIBLE",
+      "latency_ms": [
+        4.9429130158387125,
+        4.867319978075102,
+        4.3339359981473535
+      ]
+    },
+    {
+      "case": 19,
+      "backend": "greedy",
+      "feasible": true,
+      "coverage": {
+        "parts_total": 2,
+        "parts_covered": 2,
+        "independent_groups": 1
+      },
+      "projected_cost": 2.0,
+      "selected": [
+        "fixture-4"
+      ],
+      "plan_hash": "9dcba1774863eb749316f8042aa3f898ef86e7492e8dc2a4bd9ce9acb3d4d37e",
+      "solver_status": null,
+      "latency_ms": [
+        4.177316004643217,
+        3.9731289725750685,
+        3.9611760003026575
+      ]
+    },
+    {
+      "case": 19,
+      "backend": "cp-sat",
+      "feasible": true,
+      "coverage": {
+        "parts_total": 2,
+        "parts_covered": 2,
+        "independent_groups": 1
+      },
+      "projected_cost": 2.0,
+      "selected": [
+        "fixture-4"
+      ],
+      "plan_hash": "791f4699bc1ee698132d15f8377fd118dc2454638faa1829284ef468f36b23d9",
+      "solver_status": "OPTIMAL",
+      "latency_ms": [
+        5.230228998698294,
+        5.049439001595601,
+        4.760151001391932
+      ]
+    },
+    {
+      "case": 20,
+      "backend": "greedy",
+      "feasible": false,
+      "coverage": {
+        "parts_total": 2,
+        "parts_covered": 2,
+        "independent_groups": 1
+      },
+      "projected_cost": 4.0,
+      "selected": [
+        "fixture-4"
+      ],
+      "plan_hash": "12e1fe0a19d562d10c08d616b1e096d468d0fa102d4a5a0c7913b41e4dd2ff42",
+      "solver_status": null,
+      "latency_ms": [
+        3.7632730090990663,
+        3.787169000133872,
+        4.031963006127626
+      ]
+    },
+    {
+      "case": 20,
+      "backend": "cp-sat",
+      "feasible": false,
+      "solver_status": "INFEASIBLE",
+      "latency_ms": [
+        4.755846020998433,
+        4.378279001684859,
+        4.169988009380177
+      ]
+    },
+    {
+      "case": 21,
+      "backend": "greedy",
+      "feasible": false,
+      "coverage": {
+        "parts_total": 2,
+        "parts_covered": 2,
+        "independent_groups": 3
+      },
+      "projected_cost": 8.0,
+      "selected": [
+        "fixture-3",
+        "fixture-1",
+        "fixture-2"
+      ],
+      "plan_hash": "cc9800ff878de989e54ea41c66691e853efcee99f1791b7dc51868743013c116",
+      "solver_status": null,
+      "latency_ms": [
+        4.875772981904447,
+        4.1946010023821145,
+        3.8880550127942115
+      ]
+    },
+    {
+      "case": 21,
+      "backend": "cp-sat",
+      "feasible": true,
+      "coverage": {
+        "parts_total": 2,
+        "parts_covered": 2,
+        "independent_groups": 1
+      },
+      "projected_cost": 8.0,
+      "selected": [
+        "fixture-0"
+      ],
+      "plan_hash": "d25e8b5ff6a5f07399c292729f0f5bc4bd8cf97b992c8a71735f03ce21f23d14",
+      "solver_status": "OPTIMAL",
+      "latency_ms": [
+        5.044638004619628,
+        5.044821999035776,
+        5.32788599957712
+      ]
+    },
+    {
+      "case": 22,
+      "backend": "greedy",
+      "feasible": false,
+      "coverage": {
+        "parts_total": 2,
+        "parts_covered": 2,
+        "independent_groups": 1
+      },
+      "projected_cost": 2.0,
+      "selected": [
+        "fixture-3"
+      ],
+      "plan_hash": "f5982f1e388d65e1dd174380dd2d1da81ec57ecde5e2588c6885237bab0ffc3b",
+      "solver_status": null,
+      "latency_ms": [
+        4.171929991571233,
+        3.800539008807391,
+        3.6891219788230956
+      ]
+    },
+    {
+      "case": 22,
+      "backend": "cp-sat",
+      "feasible": false,
+      "solver_status": "INFEASIBLE",
+      "latency_ms": [
+        4.540485009783879,
+        4.3468189833220094,
+        4.547260003164411
+      ]
+    },
+    {
+      "case": 23,
+      "backend": "greedy",
+      "feasible": false,
+      "coverage": {
+        "parts_total": 2,
+        "parts_covered": 2,
+        "independent_groups": 1
+      },
+      "projected_cost": 4.0,
+      "selected": [
+        "fixture-4"
+      ],
+      "plan_hash": "71d8ffbc8139bc7062ea91dd26490fe7cfae6ff2d5f981eaa415ed5ee909d1d9",
+      "solver_status": null,
+      "latency_ms": [
+        4.21036098850891,
+        3.7969829863868654,
+        3.6696659808512777
+      ]
+    },
+    {
+      "case": 23,
+      "backend": "cp-sat",
+      "feasible": false,
+      "solver_status": "INFEASIBLE",
+      "latency_ms": [
+        4.519623005762696,
+        4.385731997899711,
+        4.465614998480305
+      ]
+    }
+  ],
+  "summary": {
+    "greedy": {
+      "feasible_cases": 8,
+      "p50_ms": 3.967152486438863,
+      "p95_ms": 4.562265996355563
+    },
+    "cp-sat": {
+      "feasible_cases": 10,
+      "p50_ms": 4.859857508563437,
+      "p95_ms": 6.128458015155047
+    }
+  },
+  "decision": "Adopt as an explicit optional minimum-cost planner for bounded problems. Keep greedy default: authority is not part of the CP-SAT objective, and solving adds latency. No paid acquisition was executed."
+}

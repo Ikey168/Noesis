@@ -21,7 +21,7 @@ provisioned model snapshots. Model revisions are in `src/integrations/model-pins
 | #1510 | Normalizer `language_backend="lingua"` | Language confidence, abstention and mixed-language spans; independent corpus outstanding |
 | #1511 | Entity resolver `fuzzy_backend="rapidfuzz"` plus explicit threshold | Existing identity rules retained; false-merge and throughput benchmark outstanding |
 | #1512 | Origin inference `candidate_backend="minhash"` | Approximate candidates plus exhaustive provenance pairs; candidate-run receipts; measured recall outstanding |
-| #1513 | Planner `optimizer="cp-sat"` | Bounded coverage/cost/independence constraints; end-to-end execution comparison outstanding |
+| #1513 | Planner `optimizer="cp-sat"` | Bounded constraints; actual greedy comparison, exhaustive oracle and execution fallback/replay passed |
 | #1514 | Media connector `aligner=WhisperXAligner(...)` | Optional word alignment adapter; dependency/model and actual audio evaluation outstanding |
 | #1515 | `SDMXConnector` | Native series parsing and bounded transport; ECB live capture tested; Eurostat/Bundesbank and code-list mapping outstanding |
 | #1516 | Dataset store `validate_batch` | Explicit Pandera preflight, preserves declared schema; quarantine integration and comparative evaluation outstanding |
@@ -187,3 +187,30 @@ existing economic conversion and comparability contracts remain authoritative.
 agreement for length, Celsius, ratios, percentages, compound speed and half-even
 rounding, plus replay after a custom unit version changes. This completes registry
 mapping; formula-backend comparison and measured cost evidence remain for #1517.
+
+## Planner evaluation and adoption (#1513)
+
+`python -m scripts.benchmark_integration_planning --out planning-benchmark.json`
+compares the actual planner preview implementations on 24 reproducible authored
+Berlin objectives, with three repetitions each. These use synthetic capability,
+authority and cost values; they are not measurements of named providers.
+Greedy found 8 feasible cases and CP-SAT 10. Median preview latency was 3.97 ms
+versus 4.86 ms; p95 was 4.56 ms versus 6.13 ms. Per-case coverage, independent
+groups, projected costs, selected IDs and plan hashes are retained in the JSON.
+The process peak includes fixture/database setup and both backends.
+
+An independent exhaustive subset oracle verifies cost/count optimality or
+infeasibility over 60 additional seeded small cases. Runtime tests exercise
+persisted plan replay, fallback acquisition after a selected source fails, and
+explicit UNKNOWN/INFEASIBLE errors followed by caller-requested greedy fallback.
+The adapter reports the solver's OPTIMAL/FEASIBLE status without promoting a
+feasible result to optimal. Costs round up to millionths and budgets round down;
+the lexicographic objective minimizes projected cost, then source count. Coverage,
+required sources, source-count and independence are hard constraints.
+
+Decision: adopt as an explicit optional planner for this bounded constraint model.
+Keep greedy as default: editorial authority is not optimized by CP-SAT and the
+solver adds latency. OR-Tools 9.15.6755 is pinned in the optional installation;
+limits are 1000 candidates/parts, one worker and a 0.01–30 second solve deadline
+(default two seconds). No paid acquisition was invoked or actual provider cost
+inferred. Definition/receipt provenance continues through the existing planner.

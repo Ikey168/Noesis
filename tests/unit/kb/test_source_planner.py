@@ -434,3 +434,20 @@ def test_cp_sat_preserves_execution_fallbacks_and_plan_replay():
     assert receipt["budget"]["spent"] <= 2
     _validate("noesis-source-acquisition-plan-v1.json", plan)
     conn.close()
+
+
+@pytest.mark.parametrize("status", ["UNKNOWN", "INFEASIBLE"])
+def test_optimizer_no_solution_requires_explicit_greedy_fallback(monkeypatch, status):
+    from src.integrations import planning
+
+    conn = duckdb.connect()
+    store = SourcePlannerStore(conn, now=lambda: 100)
+    _capability(store, "berlin-primary", cost=1)
+    objective = _objective(store, constraints={"budget": 2})
+    monkeypatch.setattr(planning, "select_sources", lambda *args, **kwargs: {"status": status, "selected_ids": []})
+    with pytest.raises(SourcePlannerError) as caught:
+        store.preview("research", objective["objective_id"], at_ms=30, scopes=READ, optimizer="cp-sat")
+    assert caught.value.code == "optimizer_" + status.lower()
+    fallback = store.preview("research", objective["objective_id"], at_ms=30, scopes=READ, optimizer="greedy")
+    assert fallback["feasible"]
+    conn.close()

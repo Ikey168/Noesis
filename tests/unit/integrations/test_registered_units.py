@@ -82,3 +82,32 @@ def test_registered_units_fail_explicitly(source, target, code):
             principal_id="test",
         )
     assert caught.value.code == code
+
+
+def test_calculation_evidence_tracks_versioned_unit_inputs():
+    from src.kb.evidence_changes import EvidenceResolver
+
+    conn = duckdb.connect()
+    store = QuantitativeStore(conn)
+    options = {"scopes": {CALCULATE_SCOPE, WRITE_SCOPE}, "principal_id": "test"}
+    store.register_unit("berlin", "local_length", {"length": 1}, factor="2", **options)
+    calculation = store.convert(
+        "berlin", "3", "local_length", "m", backend="pint", **options
+    )
+    dependency = {
+        "namespace": "berlin",
+        "kind": "calculation",
+        "id": calculation["calculation_id"],
+        "revision": calculation["calculation_hash"],
+    }
+    resolver = EvidenceResolver(conn, {"operator"})
+    assert resolver.compare(dependency)["status"] == "current"
+    store.register_unit(
+        "berlin",
+        "local_length",
+        {"length": 1},
+        factor="3",
+        semantic_version="2.0.0",
+        **options,
+    )
+    assert resolver.compare(dependency)["reason"] == "calculation_inputs_revised"

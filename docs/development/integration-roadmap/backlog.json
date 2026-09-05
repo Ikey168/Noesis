@@ -92,9 +92,10 @@
     {
       "number": 1513,
       "title": "Evaluate OR-Tools CP-SAT for constrained source selection",
-      "status": "implementation_partial",
+      "status": "implemented_pending_review",
       "validation": [
-        "60 generated small instances match an independent exhaustive optimum/infeasibility oracle; planner execution retains fallback sources and stable plan hashes. Eight focused planner tests pass; comparative utility/latency evaluation remains outstanding."
+        "24 seeded authored cases compare actual greedy/CP-SAT planner previews; native OR-Tools 9.15.6755; planning-benchmark.json includes costs, coverage, groups, receipts and timings.",
+        "Independent exhaustive enumeration verifies 60 small cases; execution fallback/replay and explicit UNKNOWN/INFEASIBLE handling tested."
       ]
     },
     {
