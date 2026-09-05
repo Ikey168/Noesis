@@ -19448,6 +19448,10 @@
       "id": "noesis-knowledge-engine.evaluate_quantitative_formula",
       "input_schema": {
         "properties": {
+          "backend": {
+            "default": "native",
+            "type": "string"
+          },
           "inputs": {
             "additionalProperties": {
               "additionalProperties": true,
@@ -35317,11 +35321,26 @@
       "id": "noesis-knowledge-engine.simplify_geospatial_geometry",
       "input_schema": {
         "properties": {
+          "backend": {
+            "default": "stdlib",
+            "type": "string"
+          },
           "geometry_id": {
             "type": "string"
           },
           "namespace": {
             "type": "string"
+          },
+          "projected_crs": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
           },
           "tolerance_m": {
             "type": "number"

@@ -123,6 +123,7 @@ def knowledge_engine_capabilities() -> dict:
             "noesis-quantitative-comparability-v1",
             "noesis-geospatial-place-v1",
             "noesis-geospatial-geometry-v1",
+            "noesis-geospatial-geometry-v2",
             "noesis-geocode-resolution-v1",
             "noesis-spatial-result-v1",
             "noesis-claim-state-v1",
@@ -2224,6 +2225,7 @@ def evaluate_quantitative_formula(
     metric_id: str,
     inputs: dict[str, dict[str, Any]],
     precision: int = 6,
+    backend: str = "native",
 ) -> dict:
     """Evaluate a safe versioned metric formula with exact input lineage."""
     from src.kb.quantitative import QuantitativeStore
@@ -2235,6 +2237,7 @@ def evaluate_quantitative_formula(
             metric_id,
             inputs,
             precision=precision,
+            backend=backend,
             principal_id=principal,
             scopes=scopes,
         ),
@@ -2473,7 +2476,8 @@ def list_geospatial_geometries(
 
 @mcp.tool()
 def simplify_geospatial_geometry(
-    namespace: str, geometry_id: str, tolerance_m: float
+    namespace: str, geometry_id: str, tolerance_m: float,
+    backend: str = "stdlib", projected_crs: str | None = None,
 ) -> dict:
     """Create a source-linked simplified geometry at an explicit tolerance."""
     from src.kb.geospatial import GeospatialStore
@@ -2484,6 +2488,8 @@ def simplify_geospatial_geometry(
             namespace,
             geometry_id,
             tolerance_m,
+            backend=backend,
+            projected_crs=projected_crs,
             principal_id=principal,
             scopes=scopes,
         ),

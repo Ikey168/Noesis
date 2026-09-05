@@ -1,5 +1,12 @@
 # Native integration fixtures
 
+`berlin-mitte-native.json.gz` is the unmodified 64,099-byte GeoJSON WFS response
+for ALKIS Berlin Mitte, feature `bezirksgrenzen.11000001`, captured 2026-09-05.
+`berlin-mitte-provenance.json` records its exact request URL, hash and original
+EPSG:25833 CRS. Publisher: Senatsverwaltung für Stadtentwicklung, Bauen und Wohnen
+Berlin. License: Datenlizenz Deutschland – Zero – Version 2.0, as declared at
+https://daten.berlin.de/datensaetze/alkis-berlin-bezirke-wfs-ced31d7d .
+
 `datacite-native.json` is a native public DataCite response captured on 2026-09-05 from
 `https://api.datacite.org/dois?query=Berlin&page%5Bsize%5D=2&page%5Bcursor%5D=1`.
 DataCite metadata is CC0. The response is provider metadata, not independently verified

@@ -1,0 +1,1301 @@
+{
+  "pint_version": "0.25.3",
+  "repetitions": 20,
+  "cases": [
+    {
+      "kind": "conversion",
+      "value": "1.2",
+      "source": "kilometre",
+      "target": "m",
+      "expected": {
+        "native": "1200.000000",
+        "pint": "1200.000000"
+      },
+      "backends": {
+        "native": {
+          "median_ms": 2.811014506733045,
+          "p95_ms": 2.935075986897573,
+          "receipt": {
+            "contract": "noesis-quantitative-calculation-v1",
+            "calculation_id": "quantitative-calculation:1c7417c4a42e746ef055bac5",
+            "namespace": "berlin",
+            "operation": "conversion",
+            "request": {
+              "value": "1.2",
+              "from_unit": "quantitative-unit:f1ed0e8edf182d674a21080b",
+              "to_unit": "quantitative-unit:7d04406ab77263e0d13fd766",
+              "precision": 6,
+              "rate": null
+            },
+            "result": {
+              "value": "1200.000000",
+              "unit_id": "quantitative-unit:7d04406ab77263e0d13fd766"
+            },
+            "input_ids": [],
+            "formula_revision_id": null,
+            "rounding": "half-even",
+            "calculation_hash": "1c7417c4a42e746ef055bac5902bb21e14be1cb4f3d5c9dd1c6059475dba8673",
+            "principal_id": "fixture",
+            "created_at_ms": 100,
+            "idempotent": true
+          }
+        },
+        "pint": {
+          "median_ms": 4.041217500343919,
+          "p95_ms": 5.356142995879054,
+          "receipt": {
+            "contract": "noesis-quantitative-calculation-v1",
+            "calculation_id": "quantitative-calculation:c05635322958467cd1688b57",
+            "namespace": "berlin",
+            "operation": "conversion",
+            "request": {
+              "value": "1.2",
+              "from_unit": "quantitative-unit:f1ed0e8edf182d674a21080b",
+              "to_unit": "quantitative-unit:7d04406ab77263e0d13fd766",
+              "precision": 6,
+              "unit_definitions": [
+                {
+                  "unit_id": "quantitative-unit:f1ed0e8edf182d674a21080b",
+                  "symbol": "km",
+                  "dimension": {
+                    "length": 1
+                  },
+                  "factor": "1000",
+                  "offset": "0",
+                  "aliases": [
+                    "kilometer",
+                    "kilometre"
+                  ],
+                  "currency_code": null,
+                  "successor_unit_id": null,
+                  "redenomination_factor": null,
+                  "semantic_version": "1.0.0",
+                  "content_hash": "eba8eeed95f3083be8bb3719d27e34b69f46405a1ec86048b857fbcae2904353"
+                },
+                {
+                  "unit_id": "quantitative-unit:7d04406ab77263e0d13fd766",
+                  "symbol": "m",
+                  "dimension": {
+                    "length": 1
+                  },
+                  "factor": "1",
+                  "offset": "0",
+                  "aliases": [
+                    "meter",
+                    "metre"
+                  ],
+                  "currency_code": null,
+                  "successor_unit_id": null,
+                  "redenomination_factor": null,
+                  "semantic_version": "1.0.0",
+                  "content_hash": "6d8d9c4617a6c9b720704eb0c81586c99fb25ae571992038eaff0b82ccd30838"
+                }
+              ],
+              "registry_hash": "2bec417f0f5d9704a935aa9526cc504832d16710fbeb731b6dafd02cef46552f"
+            },
+            "result": {
+              "value": "1200.000000",
+              "unit_id": "quantitative-unit:7d04406ab77263e0d13fd766",
+              "dimension": {
+                "length": 1
+              },
+              "producer": {
+                "backend": "pint",
+                "version": "0.25.3"
+              }
+            },
+            "input_ids": [
+              "quantitative-unit:7d04406ab77263e0d13fd766",
+              "quantitative-unit:f1ed0e8edf182d674a21080b"
+            ],
+            "formula_revision_id": null,
+            "rounding": "half-even",
+            "calculation_hash": "c05635322958467cd1688b575d02e0484829051604e2a9bcef3852207e2be319",
+            "principal_id": "fixture",
+            "created_at_ms": 100,
+            "idempotent": true
+          }
+        }
+      }
+    },
+    {
+      "kind": "conversion",
+      "value": "0",
+      "source": "celsius",
+      "target": "K",
+      "expected": {
+        "native": "273.150000",
+        "pint": "273.150000"
+      },
+      "backends": {
+        "native": {
+          "median_ms": 2.790534505038522,
+          "p95_ms": 3.399951005121693,
+          "receipt": {
+            "contract": "noesis-quantitative-calculation-v1",
+            "calculation_id": "quantitative-calculation:70295cad0eb3679ed68351e7",
+            "namespace": "berlin",
+            "operation": "conversion",
+            "request": {
+              "value": "0",
+              "from_unit": "quantitative-unit:ede2c9e97418683b103c09ff",
+              "to_unit": "quantitative-unit:a92b3eef6281b55ef15df5af",
+              "precision": 6,
+              "rate": null
+            },
+            "result": {
+              "value": "273.150000",
+              "unit_id": "quantitative-unit:a92b3eef6281b55ef15df5af"
+            },
+            "input_ids": [],
+            "formula_revision_id": null,
+            "rounding": "half-even",
+            "calculation_hash": "70295cad0eb3679ed68351e70e054e5089b0cd1f30dab2aa02ee3778e6157786",
+            "principal_id": "fixture",
+            "created_at_ms": 100,
+            "idempotent": true
+          }
+        },
+        "pint": {
+          "median_ms": 4.062990992679261,
+          "p95_ms": 4.367439018096775,
+          "receipt": {
+            "contract": "noesis-quantitative-calculation-v1",
+            "calculation_id": "quantitative-calculation:eaaea7ce98a5f31f40e4edaf",
+            "namespace": "berlin",
+            "operation": "conversion",
+            "request": {
+              "value": "0",
+              "from_unit": "quantitative-unit:ede2c9e97418683b103c09ff",
+              "to_unit": "quantitative-unit:a92b3eef6281b55ef15df5af",
+              "precision": 6,
+              "unit_definitions": [
+                {
+                  "unit_id": "quantitative-unit:ede2c9e97418683b103c09ff",
+                  "symbol": "C",
+                  "dimension": {
+                    "temperature": 1
+                  },
+                  "factor": "1",
+                  "offset": "273.15",
+                  "aliases": [
+                    "celsius"
+                  ],
+                  "currency_code": null,
+                  "successor_unit_id": null,
+                  "redenomination_factor": null,
+                  "semantic_version": "1.0.0",
+                  "content_hash": "69d2199ff5a30f7a0e2fce38844d7cb9ea90a5ed13e8b20fe963bef715b6dc95"
+                },
+                {
+                  "unit_id": "quantitative-unit:a92b3eef6281b55ef15df5af",
+                  "symbol": "K",
+                  "dimension": {
+                    "temperature": 1
+                  },
+                  "factor": "1",
+                  "offset": "0",
+                  "aliases": [
+                    "kelvin"
+                  ],
+                  "currency_code": null,
+                  "successor_unit_id": null,
+                  "redenomination_factor": null,
+                  "semantic_version": "1.0.0",
+                  "content_hash": "cdd048feba6ecfd9cc4f242f3d7e9acc28fb5b77d2f078ed478cd6b43e7679b6"
+                }
+              ],
+              "registry_hash": "1406c6808c3f94464f21c2a2ed5735e4b49873e7aa111efc7d25ef0af70c4ec5"
+            },
+            "result": {
+              "value": "273.150000",
+              "unit_id": "quantitative-unit:a92b3eef6281b55ef15df5af",
+              "dimension": {
+                "temperature": 1
+              },
+              "producer": {
+                "backend": "pint",
+                "version": "0.25.3"
+              }
+            },
+            "input_ids": [
+              "quantitative-unit:a92b3eef6281b55ef15df5af",
+              "quantitative-unit:ede2c9e97418683b103c09ff"
+            ],
+            "formula_revision_id": null,
+            "rounding": "half-even",
+            "calculation_hash": "eaaea7ce98a5f31f40e4edaf20257184bcdd8354fef35aa1229ca8ecc20303d2",
+            "principal_id": "fixture",
+            "created_at_ms": 100,
+            "idempotent": true
+          }
+        }
+      }
+    },
+    {
+      "kind": "conversion",
+      "value": "273.15",
+      "source": "K",
+      "target": "C",
+      "expected": {
+        "native": "0.000000",
+        "pint": "0.000000"
+      },
+      "backends": {
+        "native": {
+          "median_ms": 2.717288996791467,
+          "p95_ms": 2.9320459871087223,
+          "receipt": {
+            "contract": "noesis-quantitative-calculation-v1",
+            "calculation_id": "quantitative-calculation:65594ed2c9677db971c8541c",
+            "namespace": "berlin",
+            "operation": "conversion",
+            "request": {
+              "value": "273.15",
+              "from_unit": "quantitative-unit:a92b3eef6281b55ef15df5af",
+              "to_unit": "quantitative-unit:ede2c9e97418683b103c09ff",
+              "precision": 6,
+              "rate": null
+            },
+            "result": {
+              "value": "0.000000",
+              "unit_id": "quantitative-unit:ede2c9e97418683b103c09ff"
+            },
+            "input_ids": [],
+            "formula_revision_id": null,
+            "rounding": "half-even",
+            "calculation_hash": "65594ed2c9677db971c8541cda858fecfce4572587232e6d2f63f5943eb2b551",
+            "principal_id": "fixture",
+            "created_at_ms": 100,
+            "idempotent": true
+          }
+        },
+        "pint": {
+          "median_ms": 4.372817493276671,
+          "p95_ms": 5.18678201478906,
+          "receipt": {
+            "contract": "noesis-quantitative-calculation-v1",
+            "calculation_id": "quantitative-calculation:0f5d46e977bdc51bac7f392c",
+            "namespace": "berlin",
+            "operation": "conversion",
+            "request": {
+              "value": "273.15",
+              "from_unit": "quantitative-unit:a92b3eef6281b55ef15df5af",
+              "to_unit": "quantitative-unit:ede2c9e97418683b103c09ff",
+              "precision": 6,
+              "unit_definitions": [
+                {
+                  "unit_id": "quantitative-unit:a92b3eef6281b55ef15df5af",
+                  "symbol": "K",
+                  "dimension": {
+                    "temperature": 1
+                  },
+                  "factor": "1",
+                  "offset": "0",
+                  "aliases": [
+                    "kelvin"
+                  ],
+                  "currency_code": null,
+                  "successor_unit_id": null,
+                  "redenomination_factor": null,
+                  "semantic_version": "1.0.0",
+                  "content_hash": "cdd048feba6ecfd9cc4f242f3d7e9acc28fb5b77d2f078ed478cd6b43e7679b6"
+                },
+                {
+                  "unit_id": "quantitative-unit:ede2c9e97418683b103c09ff",
+                  "symbol": "C",
+                  "dimension": {
+                    "temperature": 1
+                  },
+                  "factor": "1",
+                  "offset": "273.15",
+                  "aliases": [
+                    "celsius"
+                  ],
+                  "currency_code": null,
+                  "successor_unit_id": null,
+                  "redenomination_factor": null,
+                  "semantic_version": "1.0.0",
+                  "content_hash": "69d2199ff5a30f7a0e2fce38844d7cb9ea90a5ed13e8b20fe963bef715b6dc95"
+                }
+              ],
+              "registry_hash": "79ed55cce3221b9073b94ff36d75e0f901b840c99ed5986fe88235929ceba791"
+            },
+            "result": {
+              "value": "0.000000",
+              "unit_id": "quantitative-unit:ede2c9e97418683b103c09ff",
+              "dimension": {
+                "temperature": 1
+              },
+              "producer": {
+                "backend": "pint",
+                "version": "0.25.3"
+              }
+            },
+            "input_ids": [
+              "quantitative-unit:a92b3eef6281b55ef15df5af",
+              "quantitative-unit:ede2c9e97418683b103c09ff"
+            ],
+            "formula_revision_id": null,
+            "rounding": "half-even",
+            "calculation_hash": "0f5d46e977bdc51bac7f392c0778ad0072ff24430c8905dade1c4fe7e7cfdcd8",
+            "principal_id": "fixture",
+            "created_at_ms": 100,
+            "idempotent": true
+          }
+        }
+      }
+    },
+    {
+      "kind": "conversion",
+      "value": "25",
+      "source": "%",
+      "target": "fraction",
+      "expected": {
+        "native": "0.250000",
+        "pint": "0.250000"
+      },
+      "backends": {
+        "native": {
+          "median_ms": 2.7524784818524495,
+          "p95_ms": 3.2882490195333958,
+          "receipt": {
+            "contract": "noesis-quantitative-calculation-v1",
+            "calculation_id": "quantitative-calculation:cc293fb39e8bac1c9fe12e6c",
+            "namespace": "berlin",
+            "operation": "conversion",
+            "request": {
+              "value": "25",
+              "from_unit": "quantitative-unit:7b3e4ad6333dd5675af4a631",
+              "to_unit": "quantitative-unit:d02459dd5b731a95c8932946",
+              "precision": 6,
+              "rate": null
+            },
+            "result": {
+              "value": "0.250000",
+              "unit_id": "quantitative-unit:d02459dd5b731a95c8932946"
+            },
+            "input_ids": [],
+            "formula_revision_id": null,
+            "rounding": "half-even",
+            "calculation_hash": "cc293fb39e8bac1c9fe12e6c3d332e45395374d1845a26bf0c811efd1f0950ea",
+            "principal_id": "fixture",
+            "created_at_ms": 100,
+            "idempotent": true
+          }
+        },
+        "pint": {
+          "median_ms": 3.895064495736733,
+          "p95_ms": 4.283593996660784,
+          "receipt": {
+            "contract": "noesis-quantitative-calculation-v1",
+            "calculation_id": "quantitative-calculation:75f4b8316927c211b6a1f85e",
+            "namespace": "berlin",
+            "operation": "conversion",
+            "request": {
+              "value": "25",
+              "from_unit": "quantitative-unit:7b3e4ad6333dd5675af4a631",
+              "to_unit": "quantitative-unit:d02459dd5b731a95c8932946",
+              "precision": 6,
+              "unit_definitions": [
+                {
+                  "unit_id": "quantitative-unit:7b3e4ad6333dd5675af4a631",
+                  "symbol": "percent",
+                  "dimension": {},
+                  "factor": "0.01",
+                  "offset": "0",
+                  "aliases": [
+                    "%"
+                  ],
+                  "currency_code": null,
+                  "successor_unit_id": null,
+                  "redenomination_factor": null,
+                  "semantic_version": "1.0.0",
+                  "content_hash": "d49834fb9424b464c5feae40da488e8d1182e07784877097e00ee963bdfefd01"
+                },
+                {
+                  "unit_id": "quantitative-unit:d02459dd5b731a95c8932946",
+                  "symbol": "ratio",
+                  "dimension": {},
+                  "factor": "1",
+                  "offset": "0",
+                  "aliases": [
+                    "fraction"
+                  ],
+                  "currency_code": null,
+                  "successor_unit_id": null,
+                  "redenomination_factor": null,
+                  "semantic_version": "1.0.0",
+                  "content_hash": "24ace2318b03b0766b00d855830131c0d6a139a3b5b899502c4662307c038e1c"
+                }
+              ],
+              "registry_hash": "a2b0d54b44290b5291cdfd2cacaf4e0382a03bda8b7393fb4c37bf20a87de17b"
+            },
+            "result": {
+              "value": "0.250000",
+              "unit_id": "quantitative-unit:d02459dd5b731a95c8932946",
+              "dimension": {},
+              "producer": {
+                "backend": "pint",
+                "version": "0.25.3"
+              }
+            },
+            "input_ids": [
+              "quantitative-unit:7b3e4ad6333dd5675af4a631",
+              "quantitative-unit:d02459dd5b731a95c8932946"
+            ],
+            "formula_revision_id": null,
+            "rounding": "half-even",
+            "calculation_hash": "75f4b8316927c211b6a1f85ef151dc5d1557dd56ef3e64ac33f4df16e74f38c6",
+            "principal_id": "fixture",
+            "created_at_ms": 100,
+            "idempotent": true
+          }
+        }
+      }
+    },
+    {
+      "kind": "conversion",
+      "value": "1.2345665",
+      "source": "m",
+      "target": "m",
+      "expected": {
+        "native": "1.234566",
+        "pint": "1.234566"
+      },
+      "backends": {
+        "native": {
+          "median_ms": 2.8166460106149316,
+          "p95_ms": 3.6733029992319643,
+          "receipt": {
+            "contract": "noesis-quantitative-calculation-v1",
+            "calculation_id": "quantitative-calculation:c2eae97f82521a7cc2b43b1f",
+            "namespace": "berlin",
+            "operation": "conversion",
+            "request": {
+              "value": "1.2345665",
+              "from_unit": "quantitative-unit:7d04406ab77263e0d13fd766",
+              "to_unit": "quantitative-unit:7d04406ab77263e0d13fd766",
+              "precision": 6,
+              "rate": null
+            },
+            "result": {
+              "value": "1.234566",
+              "unit_id": "quantitative-unit:7d04406ab77263e0d13fd766"
+            },
+            "input_ids": [],
+            "formula_revision_id": null,
+            "rounding": "half-even",
+            "calculation_hash": "c2eae97f82521a7cc2b43b1fef5326f3ac2eb49841ee11433505baf555709adb",
+            "principal_id": "fixture",
+            "created_at_ms": 100,
+            "idempotent": true
+          }
+        },
+        "pint": {
+          "median_ms": 4.166342012467794,
+          "p95_ms": 5.1227170042693615,
+          "receipt": {
+            "contract": "noesis-quantitative-calculation-v1",
+            "calculation_id": "quantitative-calculation:87b5e9ab8f1a87a69090e21d",
+            "namespace": "berlin",
+            "operation": "conversion",
+            "request": {
+              "value": "1.2345665",
+              "from_unit": "quantitative-unit:7d04406ab77263e0d13fd766",
+              "to_unit": "quantitative-unit:7d04406ab77263e0d13fd766",
+              "precision": 6,
+              "unit_definitions": [
+                {
+                  "unit_id": "quantitative-unit:7d04406ab77263e0d13fd766",
+                  "symbol": "m",
+                  "dimension": {
+                    "length": 1
+                  },
+                  "factor": "1",
+                  "offset": "0",
+                  "aliases": [
+                    "meter",
+                    "metre"
+                  ],
+                  "currency_code": null,
+                  "successor_unit_id": null,
+                  "redenomination_factor": null,
+                  "semantic_version": "1.0.0",
+                  "content_hash": "6d8d9c4617a6c9b720704eb0c81586c99fb25ae571992038eaff0b82ccd30838"
+                },
+                {
+                  "unit_id": "quantitative-unit:7d04406ab77263e0d13fd766",
+                  "symbol": "m",
+                  "dimension": {
+                    "length": 1
+                  },
+                  "factor": "1",
+                  "offset": "0",
+                  "aliases": [
+                    "meter",
+                    "metre"
+                  ],
+                  "currency_code": null,
+                  "successor_unit_id": null,
+                  "redenomination_factor": null,
+                  "semantic_version": "1.0.0",
+                  "content_hash": "6d8d9c4617a6c9b720704eb0c81586c99fb25ae571992038eaff0b82ccd30838"
+                }
+              ],
+              "registry_hash": "5d981b27e03081776d1bd1644e4f97ca6ffa7a9a88455b1d5a160aca55bca450"
+            },
+            "result": {
+              "value": "1.234566",
+              "unit_id": "quantitative-unit:7d04406ab77263e0d13fd766",
+              "dimension": {
+                "length": 1
+              },
+              "producer": {
+                "backend": "pint",
+                "version": "0.25.3"
+              }
+            },
+            "input_ids": [
+              "quantitative-unit:7d04406ab77263e0d13fd766",
+              "quantitative-unit:7d04406ab77263e0d13fd766"
+            ],
+            "formula_revision_id": null,
+            "rounding": "half-even",
+            "calculation_hash": "87b5e9ab8f1a87a69090e21d5674661ca745b86c2c7d04bcf295736e3488f0ec",
+            "principal_id": "fixture",
+            "created_at_ms": 100,
+            "idempotent": true
+          }
+        }
+      }
+    },
+    {
+      "kind": "formula",
+      "metric_id": "quantitative-metric:02b9d48acea85d36e4e378b6",
+      "expression": "a / b",
+      "inputs": {
+        "a": {
+          "value": "100",
+          "unit_id": "m",
+          "dimension": {
+            "length": 1
+          }
+        },
+        "b": {
+          "value": "10",
+          "unit_id": "s",
+          "dimension": {
+            "time": 1
+          }
+        }
+      },
+      "expected": {
+        "native": "10.000000",
+        "pint": "10.000000"
+      },
+      "backends": {
+        "native": {
+          "median_ms": 1.1376619804650545,
+          "p95_ms": 1.369295991025865,
+          "receipt": {
+            "contract": "noesis-quantitative-calculation-v1",
+            "calculation_id": "quantitative-calculation:87d9e80e431779d54d7f7d29",
+            "namespace": "berlin",
+            "operation": "formula",
+            "request": {
+              "metric_id": "quantitative-metric:02b9d48acea85d36e4e378b6",
+              "inputs": {
+                "a": {
+                  "value": "100",
+                  "unit_id": "m",
+                  "dimension": {
+                    "length": 1
+                  }
+                },
+                "b": {
+                  "value": "10",
+                  "unit_id": "s",
+                  "dimension": {
+                    "time": 1
+                  }
+                }
+              },
+              "precision": 6
+            },
+            "result": {
+              "value": "10.000000",
+              "unit_id": "quantitative-unit:1bba0dc1608fdcb71b6319c6",
+              "dimension": {
+                "length": 1,
+                "time": -1
+              }
+            },
+            "input_ids": [
+              "e0e307a16ab55359af193a5884b5667f16735e49c525d3bf5a39d01c32598d02",
+              "e14073a657fa0b05dcee4930d59f76c88707640725af06fac9577dbf7e10714d"
+            ],
+            "formula_revision_id": "quantitative-metric-revision:061a19ef516322e112b95dbb",
+            "rounding": "half-even",
+            "calculation_hash": "87d9e80e431779d54d7f7d2942ba36594c66aa6866f37446178fe8409c14447d",
+            "principal_id": "fixture",
+            "created_at_ms": 100,
+            "idempotent": true
+          }
+        },
+        "pint": {
+          "median_ms": 6.586289498955011,
+          "p95_ms": 7.55920700612478,
+          "receipt": {
+            "contract": "noesis-quantitative-calculation-v1",
+            "calculation_id": "quantitative-calculation:f982d2fd6fb1479758f7eea4",
+            "namespace": "berlin",
+            "operation": "formula",
+            "request": {
+              "expression": "a / b",
+              "inputs": {
+                "a": {
+                  "value": "100",
+                  "unit_id": "m",
+                  "dimension": {
+                    "length": 1
+                  },
+                  "unit_definition": {
+                    "unit_id": "quantitative-unit:7d04406ab77263e0d13fd766",
+                    "symbol": "m",
+                    "dimension": {
+                      "length": 1
+                    },
+                    "factor": "1",
+                    "offset": "0",
+                    "aliases": [
+                      "meter",
+                      "metre"
+                    ],
+                    "currency_code": null,
+                    "successor_unit_id": null,
+                    "redenomination_factor": null,
+                    "semantic_version": "1.0.0",
+                    "content_hash": "6d8d9c4617a6c9b720704eb0c81586c99fb25ae571992038eaff0b82ccd30838"
+                  }
+                },
+                "b": {
+                  "value": "10",
+                  "unit_id": "s",
+                  "dimension": {
+                    "time": 1
+                  },
+                  "unit_definition": {
+                    "unit_id": "quantitative-unit:ba6c4cd2c2a06a8c734cc983",
+                    "symbol": "s",
+                    "dimension": {
+                      "time": 1
+                    },
+                    "factor": "1",
+                    "offset": "0",
+                    "aliases": [
+                      "second"
+                    ],
+                    "currency_code": null,
+                    "successor_unit_id": null,
+                    "redenomination_factor": null,
+                    "semantic_version": "1.0.0",
+                    "content_hash": "97b3ec45c2edd7f0d2fec83ce86c49198dd980958c31979f44e09276f817c6d6"
+                  }
+                }
+              },
+              "target_unit": {
+                "unit_id": "quantitative-unit:1bba0dc1608fdcb71b6319c6",
+                "symbol": "m/s",
+                "dimension": {
+                  "length": 1,
+                  "time": -1
+                },
+                "factor": "1",
+                "offset": "0",
+                "aliases": [],
+                "currency_code": null,
+                "successor_unit_id": null,
+                "redenomination_factor": null,
+                "semantic_version": "1.0.0",
+                "content_hash": "9adb5cac2f008c37c72303b2fe56f942c6f9acf4bb3d6438055e80856efac10c"
+              },
+              "precision": 6,
+              "registry_hash": "641f8aab2d718fe620d8ae7b37ec72a5d63741a14ada8c9ed477643690a593dd",
+              "metric_id": "quantitative-metric:02b9d48acea85d36e4e378b6"
+            },
+            "result": {
+              "value": "10.000000",
+              "unit_id": "quantitative-unit:1bba0dc1608fdcb71b6319c6",
+              "dimension": {
+                "length": 1,
+                "time": -1
+              },
+              "producer": {
+                "backend": "pint",
+                "version": "0.25.3"
+              }
+            },
+            "input_ids": [
+              "e0e307a16ab55359af193a5884b5667f16735e49c525d3bf5a39d01c32598d02",
+              "e14073a657fa0b05dcee4930d59f76c88707640725af06fac9577dbf7e10714d",
+              "quantitative-unit:1bba0dc1608fdcb71b6319c6",
+              "quantitative-unit:7d04406ab77263e0d13fd766",
+              "quantitative-unit:ba6c4cd2c2a06a8c734cc983"
+            ],
+            "formula_revision_id": "quantitative-metric-revision:061a19ef516322e112b95dbb",
+            "rounding": "half-even",
+            "calculation_hash": "f982d2fd6fb1479758f7eea426822d9e7591bd0157a962b4ed94f20a5c9145d0",
+            "principal_id": "fixture",
+            "created_at_ms": 100,
+            "idempotent": true
+          }
+        }
+      }
+    },
+    {
+      "kind": "formula",
+      "metric_id": "quantitative-metric:968ea565e340b629a901e01c",
+      "expression": "(a + b) / 2",
+      "inputs": {
+        "a": {
+          "value": "300",
+          "unit_id": "K",
+          "dimension": {
+            "temperature": 1
+          }
+        },
+        "b": {
+          "value": "302",
+          "unit_id": "K",
+          "dimension": {
+            "temperature": 1
+          }
+        }
+      },
+      "expected": {
+        "native": "301.000000",
+        "pint": "301.000000"
+      },
+      "backends": {
+        "native": {
+          "median_ms": 1.132623481680639,
+          "p95_ms": 1.2661550135817379,
+          "receipt": {
+            "contract": "noesis-quantitative-calculation-v1",
+            "calculation_id": "quantitative-calculation:27f57431eb16b635ef99a77b",
+            "namespace": "berlin",
+            "operation": "formula",
+            "request": {
+              "metric_id": "quantitative-metric:968ea565e340b629a901e01c",
+              "inputs": {
+                "a": {
+                  "value": "300",
+                  "unit_id": "K",
+                  "dimension": {
+                    "temperature": 1
+                  }
+                },
+                "b": {
+                  "value": "302",
+                  "unit_id": "K",
+                  "dimension": {
+                    "temperature": 1
+                  }
+                }
+              },
+              "precision": 6
+            },
+            "result": {
+              "value": "301.000000",
+              "unit_id": "quantitative-unit:a92b3eef6281b55ef15df5af",
+              "dimension": {
+                "temperature": 1
+              }
+            },
+            "input_ids": [
+              "1df3f1a6ede15608d726fca04504897968abdfc8b65eab0623f2eed69be4ddbb",
+              "800c1e7d59442bb07ea0e1d6daced6ed046fec0a718deb9182563fd9baaccc4d"
+            ],
+            "formula_revision_id": "quantitative-metric-revision:9a89b219a0fa7e1c78ce9b09",
+            "rounding": "half-even",
+            "calculation_hash": "27f57431eb16b635ef99a77bf7030dcba61646d7641cbc8f00aff11e8c2c4d1d",
+            "principal_id": "fixture",
+            "created_at_ms": 100,
+            "idempotent": true
+          }
+        },
+        "pint": {
+          "median_ms": 6.660403014393523,
+          "p95_ms": 7.1295700035989285,
+          "receipt": {
+            "contract": "noesis-quantitative-calculation-v1",
+            "calculation_id": "quantitative-calculation:159c3bab6015e1f4491cb921",
+            "namespace": "berlin",
+            "operation": "formula",
+            "request": {
+              "expression": "(a + b) / 2",
+              "inputs": {
+                "a": {
+                  "value": "300",
+                  "unit_id": "K",
+                  "dimension": {
+                    "temperature": 1
+                  },
+                  "unit_definition": {
+                    "unit_id": "quantitative-unit:a92b3eef6281b55ef15df5af",
+                    "symbol": "K",
+                    "dimension": {
+                      "temperature": 1
+                    },
+                    "factor": "1",
+                    "offset": "0",
+                    "aliases": [
+                      "kelvin"
+                    ],
+                    "currency_code": null,
+                    "successor_unit_id": null,
+                    "redenomination_factor": null,
+                    "semantic_version": "1.0.0",
+                    "content_hash": "cdd048feba6ecfd9cc4f242f3d7e9acc28fb5b77d2f078ed478cd6b43e7679b6"
+                  }
+                },
+                "b": {
+                  "value": "302",
+                  "unit_id": "K",
+                  "dimension": {
+                    "temperature": 1
+                  },
+                  "unit_definition": {
+                    "unit_id": "quantitative-unit:a92b3eef6281b55ef15df5af",
+                    "symbol": "K",
+                    "dimension": {
+                      "temperature": 1
+                    },
+                    "factor": "1",
+                    "offset": "0",
+                    "aliases": [
+                      "kelvin"
+                    ],
+                    "currency_code": null,
+                    "successor_unit_id": null,
+                    "redenomination_factor": null,
+                    "semantic_version": "1.0.0",
+                    "content_hash": "cdd048feba6ecfd9cc4f242f3d7e9acc28fb5b77d2f078ed478cd6b43e7679b6"
+                  }
+                }
+              },
+              "target_unit": {
+                "unit_id": "quantitative-unit:a92b3eef6281b55ef15df5af",
+                "symbol": "K",
+                "dimension": {
+                  "temperature": 1
+                },
+                "factor": "1",
+                "offset": "0",
+                "aliases": [
+                  "kelvin"
+                ],
+                "currency_code": null,
+                "successor_unit_id": null,
+                "redenomination_factor": null,
+                "semantic_version": "1.0.0",
+                "content_hash": "cdd048feba6ecfd9cc4f242f3d7e9acc28fb5b77d2f078ed478cd6b43e7679b6"
+              },
+              "precision": 6,
+              "registry_hash": "6db510afd9c4ee55609a10dbcac1351ea7b6c5073a6b0b3fb1aad82bdbc807b7",
+              "metric_id": "quantitative-metric:968ea565e340b629a901e01c"
+            },
+            "result": {
+              "value": "301.000000",
+              "unit_id": "quantitative-unit:a92b3eef6281b55ef15df5af",
+              "dimension": {
+                "temperature": 1
+              },
+              "producer": {
+                "backend": "pint",
+                "version": "0.25.3"
+              }
+            },
+            "input_ids": [
+              "1df3f1a6ede15608d726fca04504897968abdfc8b65eab0623f2eed69be4ddbb",
+              "800c1e7d59442bb07ea0e1d6daced6ed046fec0a718deb9182563fd9baaccc4d",
+              "quantitative-unit:a92b3eef6281b55ef15df5af",
+              "quantitative-unit:a92b3eef6281b55ef15df5af",
+              "quantitative-unit:a92b3eef6281b55ef15df5af"
+            ],
+            "formula_revision_id": "quantitative-metric-revision:9a89b219a0fa7e1c78ce9b09",
+            "rounding": "half-even",
+            "calculation_hash": "159c3bab6015e1f4491cb9210c823541cd7b69ed37ed7a5fa383e5ccfdbbfda7",
+            "principal_id": "fixture",
+            "created_at_ms": 100,
+            "idempotent": true
+          }
+        }
+      }
+    },
+    {
+      "kind": "formula",
+      "metric_id": "quantitative-metric:505c679a1b540b9e31eda3cd",
+      "expression": "a + b",
+      "inputs": {
+        "a": {
+          "value": "1",
+          "unit_id": "km",
+          "dimension": {
+            "length": 1
+          }
+        },
+        "b": {
+          "value": "500",
+          "unit_id": "m",
+          "dimension": {
+            "length": 1
+          }
+        }
+      },
+      "expected": {
+        "native": "501.000000",
+        "pint": "1500.000000"
+      },
+      "backends": {
+        "native": {
+          "median_ms": 1.1318254983052611,
+          "p95_ms": 1.5427700127474964,
+          "receipt": {
+            "contract": "noesis-quantitative-calculation-v1",
+            "calculation_id": "quantitative-calculation:2be7285cc3ad878536bac0ff",
+            "namespace": "berlin",
+            "operation": "formula",
+            "request": {
+              "metric_id": "quantitative-metric:505c679a1b540b9e31eda3cd",
+              "inputs": {
+                "a": {
+                  "value": "1",
+                  "unit_id": "km",
+                  "dimension": {
+                    "length": 1
+                  }
+                },
+                "b": {
+                  "value": "500",
+                  "unit_id": "m",
+                  "dimension": {
+                    "length": 1
+                  }
+                }
+              },
+              "precision": 6
+            },
+            "result": {
+              "value": "501.000000",
+              "unit_id": "quantitative-unit:7d04406ab77263e0d13fd766",
+              "dimension": {
+                "length": 1
+              }
+            },
+            "input_ids": [
+              "b5c784f8966f0ef2663f02e4d318a5296e6d275f53b542bc145f0e8e3d1631f5",
+              "bec056c7340effca93289d52ccbb67afbfc069258917aa3a4d77519c36f1e413"
+            ],
+            "formula_revision_id": "quantitative-metric-revision:9c2333405d52f8fe005a2fbe",
+            "rounding": "half-even",
+            "calculation_hash": "2be7285cc3ad878536bac0ff85c2a051f51670c50ab4c09cc3dcec1ff74b19e8",
+            "principal_id": "fixture",
+            "created_at_ms": 100,
+            "idempotent": true
+          }
+        },
+        "pint": {
+          "median_ms": 6.66774099227041,
+          "p95_ms": 7.090781000442803,
+          "receipt": {
+            "contract": "noesis-quantitative-calculation-v1",
+            "calculation_id": "quantitative-calculation:3a06afd801d6761499a29ae6",
+            "namespace": "berlin",
+            "operation": "formula",
+            "request": {
+              "expression": "a + b",
+              "inputs": {
+                "a": {
+                  "value": "1",
+                  "unit_id": "km",
+                  "dimension": {
+                    "length": 1
+                  },
+                  "unit_definition": {
+                    "unit_id": "quantitative-unit:f1ed0e8edf182d674a21080b",
+                    "symbol": "km",
+                    "dimension": {
+                      "length": 1
+                    },
+                    "factor": "1000",
+                    "offset": "0",
+                    "aliases": [
+                      "kilometer",
+                      "kilometre"
+                    ],
+                    "currency_code": null,
+                    "successor_unit_id": null,
+                    "redenomination_factor": null,
+                    "semantic_version": "1.0.0",
+                    "content_hash": "eba8eeed95f3083be8bb3719d27e34b69f46405a1ec86048b857fbcae2904353"
+                  }
+                },
+                "b": {
+                  "value": "500",
+                  "unit_id": "m",
+                  "dimension": {
+                    "length": 1
+                  },
+                  "unit_definition": {
+                    "unit_id": "quantitative-unit:7d04406ab77263e0d13fd766",
+                    "symbol": "m",
+                    "dimension": {
+                      "length": 1
+                    },
+                    "factor": "1",
+                    "offset": "0",
+                    "aliases": [
+                      "meter",
+                      "metre"
+                    ],
+                    "currency_code": null,
+                    "successor_unit_id": null,
+                    "redenomination_factor": null,
+                    "semantic_version": "1.0.0",
+                    "content_hash": "6d8d9c4617a6c9b720704eb0c81586c99fb25ae571992038eaff0b82ccd30838"
+                  }
+                }
+              },
+              "target_unit": {
+                "unit_id": "quantitative-unit:7d04406ab77263e0d13fd766",
+                "symbol": "m",
+                "dimension": {
+                  "length": 1
+                },
+                "factor": "1",
+                "offset": "0",
+                "aliases": [
+                  "meter",
+                  "metre"
+                ],
+                "currency_code": null,
+                "successor_unit_id": null,
+                "redenomination_factor": null,
+                "semantic_version": "1.0.0",
+                "content_hash": "6d8d9c4617a6c9b720704eb0c81586c99fb25ae571992038eaff0b82ccd30838"
+              },
+              "precision": 6,
+              "registry_hash": "455d7910fb3fb877367ca72bd7fde4f7f2050cc2619973103b5409d594a6b628",
+              "metric_id": "quantitative-metric:505c679a1b540b9e31eda3cd"
+            },
+            "result": {
+              "value": "1500.000000",
+              "unit_id": "quantitative-unit:7d04406ab77263e0d13fd766",
+              "dimension": {
+                "length": 1
+              },
+              "producer": {
+                "backend": "pint",
+                "version": "0.25.3"
+              }
+            },
+            "input_ids": [
+              "b5c784f8966f0ef2663f02e4d318a5296e6d275f53b542bc145f0e8e3d1631f5",
+              "bec056c7340effca93289d52ccbb67afbfc069258917aa3a4d77519c36f1e413",
+              "quantitative-unit:7d04406ab77263e0d13fd766",
+              "quantitative-unit:7d04406ab77263e0d13fd766",
+              "quantitative-unit:f1ed0e8edf182d674a21080b"
+            ],
+            "formula_revision_id": "quantitative-metric-revision:9c2333405d52f8fe005a2fbe",
+            "rounding": "half-even",
+            "calculation_hash": "3a06afd801d6761499a29ae62f8bfe54d256e6ec0acffb64ee70d0b1c2e0b8a7",
+            "principal_id": "fixture",
+            "created_at_ms": 100,
+            "idempotent": true
+          }
+        }
+      }
+    },
+    {
+      "kind": "formula",
+      "metric_id": "quantitative-metric:d9c9c0fc9bb3dc66ef1fc1b9",
+      "expression": "a * b",
+      "inputs": {
+        "a": {
+          "value": "25",
+          "unit_id": "%",
+          "dimension": {}
+        },
+        "b": {
+          "value": "200",
+          "unit_id": "m",
+          "dimension": {
+            "length": 1
+          }
+        }
+      },
+      "expected": {
+        "native": "5000.000000",
+        "pint": "50.000000"
+      },
+      "backends": {
+        "native": {
+          "median_ms": 1.159962484962307,
+          "p95_ms": 1.3928330154158175,
+          "receipt": {
+            "contract": "noesis-quantitative-calculation-v1",
+            "calculation_id": "quantitative-calculation:f57b67d8588e276b88c24241",
+            "namespace": "berlin",
+            "operation": "formula",
+            "request": {
+              "metric_id": "quantitative-metric:d9c9c0fc9bb3dc66ef1fc1b9",
+              "inputs": {
+                "a": {
+                  "value": "25",
+                  "unit_id": "%",
+                  "dimension": {}
+                },
+                "b": {
+                  "value": "200",
+                  "unit_id": "m",
+                  "dimension": {
+                    "length": 1
+                  }
+                }
+              },
+              "precision": 6
+            },
+            "result": {
+              "value": "5000.000000",
+              "unit_id": "quantitative-unit:7d04406ab77263e0d13fd766",
+              "dimension": {
+                "length": 1
+              }
+            },
+            "input_ids": [
+              "db92a69ea0ceb805f0c77bfe4c34cdf1139c1d69f0e6b733ba9d708cc9944c30",
+              "f37ccef194c84650aa3706ff368d3ff2b19f3974c89c4a500e36ae498f682023"
+            ],
+            "formula_revision_id": "quantitative-metric-revision:02db6d0f2fab6589b7497134",
+            "rounding": "half-even",
+            "calculation_hash": "f57b67d8588e276b88c2424182c56d9eecbadd9023011a8211c116d5c407b418",
+            "principal_id": "fixture",
+            "created_at_ms": 100,
+            "idempotent": true
+          }
+        },
+        "pint": {
+          "median_ms": 6.419117489713244,
+          "p95_ms": 7.05676298821345,
+          "receipt": {
+            "contract": "noesis-quantitative-calculation-v1",
+            "calculation_id": "quantitative-calculation:855360d52c9776dd442595f5",
+            "namespace": "berlin",
+            "operation": "formula",
+            "request": {
+              "expression": "a * b",
+              "inputs": {
+                "a": {
+                  "value": "25",
+                  "unit_id": "%",
+                  "dimension": {},
+                  "unit_definition": {
+                    "unit_id": "quantitative-unit:7b3e4ad6333dd5675af4a631",
+                    "symbol": "percent",
+                    "dimension": {},
+                    "factor": "0.01",
+                    "offset": "0",
+                    "aliases": [
+                      "%"
+                    ],
+                    "currency_code": null,
+                    "successor_unit_id": null,
+                    "redenomination_factor": null,
+                    "semantic_version": "1.0.0",
+                    "content_hash": "d49834fb9424b464c5feae40da488e8d1182e07784877097e00ee963bdfefd01"
+                  }
+                },
+                "b": {
+                  "value": "200",
+                  "unit_id": "m",
+                  "dimension": {
+                    "length": 1
+                  },
+                  "unit_definition": {
+                    "unit_id": "quantitative-unit:7d04406ab77263e0d13fd766",
+                    "symbol": "m",
+                    "dimension": {
+                      "length": 1
+                    },
+                    "factor": "1",
+                    "offset": "0",
+                    "aliases": [
+                      "meter",
+                      "metre"
+                    ],
+                    "currency_code": null,
+                    "successor_unit_id": null,
+                    "redenomination_factor": null,
+                    "semantic_version": "1.0.0",
+                    "content_hash": "6d8d9c4617a6c9b720704eb0c81586c99fb25ae571992038eaff0b82ccd30838"
+                  }
+                }
+              },
+              "target_unit": {
+                "unit_id": "quantitative-unit:7d04406ab77263e0d13fd766",
+                "symbol": "m",
+                "dimension": {
+                  "length": 1
+                },
+                "factor": "1",
+                "offset": "0",
+                "aliases": [
+                  "meter",
+                  "metre"
+                ],
+                "currency_code": null,
+                "successor_unit_id": null,
+                "redenomination_factor": null,
+                "semantic_version": "1.0.0",
+                "content_hash": "6d8d9c4617a6c9b720704eb0c81586c99fb25ae571992038eaff0b82ccd30838"
+              },
+              "precision": 6,
+              "registry_hash": "956d9177bfc0f91726700bbe819faedbdd78d8132cde1387c6bdf7ef7e7642c0",
+              "metric_id": "quantitative-metric:d9c9c0fc9bb3dc66ef1fc1b9"
+            },
+            "result": {
+              "value": "50.000000",
+              "unit_id": "quantitative-unit:7d04406ab77263e0d13fd766",
+              "dimension": {
+                "length": 1
+              },
+              "producer": {
+                "backend": "pint",
+                "version": "0.25.3"
+              }
+            },
+            "input_ids": [
+              "db92a69ea0ceb805f0c77bfe4c34cdf1139c1d69f0e6b733ba9d708cc9944c30",
+              "f37ccef194c84650aa3706ff368d3ff2b19f3974c89c4a500e36ae498f682023",
+              "quantitative-unit:7b3e4ad6333dd5675af4a631",
+              "quantitative-unit:7d04406ab77263e0d13fd766",
+              "quantitative-unit:7d04406ab77263e0d13fd766"
+            ],
+            "formula_revision_id": "quantitative-metric-revision:02db6d0f2fab6589b7497134",
+            "rounding": "half-even",
+            "calculation_hash": "855360d52c9776dd442595f522792d188ef17ab90d57d7ff979b324065cd535c",
+            "principal_id": "fixture",
+            "created_at_ms": 100,
+            "idempotent": true
+          }
+        }
+      }
+    }
+  ],
+  "fixture": "authored exact arithmetic with hand-specified expected values",
+  "differences": "Native formula arithmetic assumes values already share the intended scale; Pint carries explicit units through each operation.",
+  "process_peak_rss_kib": 213248,
+  "decision": "adopt explicit optional Pint physical conversions and non-offset dimensional formulas; preserve native defaults and economic semantics"
+}

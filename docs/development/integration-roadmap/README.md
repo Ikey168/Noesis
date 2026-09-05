@@ -26,8 +26,8 @@ provisioned model snapshots. Model revisions are in `src/integrations/model-pins
 | #1514 | Media connector `aligner=WhisperXAligner(...)` | Optional word alignment adapter; dependency/model and actual audio evaluation outstanding |
 | #1515 | `SDMXConnector` | Native ECB/Eurostat/Bundesbank data, structure/code-list mapping, archived ingestion and overlapping baseline comparison verified |
 | #1516 | Dataset store `validate_batch` | Explicit Pandera preflight, preserves declared schema; quarantine integration and comparative evaluation outstanding |
-| #1517 | Quantitative store `convert_physical` | Pint physical conversions plus isolated versioned Noesis unit definitions/aliases; formula evaluation and comparative cost evidence outstanding |
-| #1518 | Geospatial `relation(backend="shapely")` | Topology; wider geometry fixtures/evaluation outstanding |
+| #1517 | Quantitative `convert` / `evaluate_formula(backend="pint")` | Versioned isolated registry, dimensional arithmetic, Decimal rounding and native comparison/replay validated |
+| #1518 | Geospatial `relation` / `simplify(backend="shapely")` | Exact topology, projected simplification, multipart v2 contract and actual ALKIS Berlin comparison validated |
 | #1519 | Geospatial `import_projected_geometry` | Published Berlin coordinate references, offline transform receipts and import replay validated |
 | #1520 | Report updates `generate_proposal` with `OutlinesEditor` | Schema-constrained pending text proposals; real generation and semantic revision evaluation outstanding |
 | #1521 | Review inbox `export_label_studio` / `import_label_studio` | Pinned source/reviewer checks, exact Unicode spans, pending proposals; independent human annotation outstanding |
@@ -50,6 +50,8 @@ merged PR #1525 (`c65b4bce83a5838a532a8dc120b9d1fbf208a91b`). The ledger keeps
 these in the original 81-issue inventory with status `implemented_merged`.
 PR #1526 subsequently closed #1515 after all checks passed, bringing the merged
 total to seven issues. GLiNER2 remains partial despite its adapter being merged.
+PR #1527 closed #1472 and #1524 after all checks passed; nine original issues
+are now merged and closed.
 
 ## GLiNER2 optional entity extraction (#1493)
 
@@ -315,7 +317,46 @@ existing economic conversion and comparability contracts remain authoritative.
 39 focused quantitative/document-store tests passed, including candidate/native
 agreement for length, Celsius, ratios, percentages, compound speed and half-even
 rounding, plus replay after a custom unit version changes. This completes registry
-mapping; formula-backend comparison and measured cost evidence remain for #1517.
+mapping; the formula comparison and adoption decision follow below.
+
+### Pint formula completion and comparison (#1517)
+
+`QuantitativeStore.evaluate_formula(..., backend="pint")` and MCP
+`evaluate_quantitative_formula(backend="pint")` carry explicit input `unit_id`
+values through a bounded arithmetic AST, validating both input and output
+dimensions. The registry is empty except for exact resolved Noesis definitions.
+Receipts pin input observations, unit definitions/versions, registry hash and
+metric formula revision. Aliases resolve through Noesis before evaluation.
+Decimal literals are read from original expression text, avoiding binary-float
+rounding; output retains Decimal half-even rounding at 0–12 decimal places.
+
+The backend permits addition, subtraction, multiplication, division, unary minus
+and numeric constants. Limits are 4,096 expression characters, 128 AST nodes,
+32 inputs/dimensions and dimension exponents of at most 32. Unknown units,
+dimension conflicts, unsafe expressions, division by zero and non-finite inputs
+fail explicitly. Offset-unit arithmetic is deliberately unsupported: convert
+Celsius to an explicit absolute unit first, then evaluate. Offset conversion
+itself is tested in both directions. Currency/rate dates, provider evidence,
+comparability, populations and vintages remain with native Noesis operations.
+
+`python -m scripts.benchmark_integration_units --out pint-benchmark.json`
+compares nine authored exact-arithmetic cases across 20 repeated calls per
+backend, including idempotent receipt replay. `pint-benchmark.json` retains full
+receipts, expected values and timings. Median case latency was 2.72 ms native
+and 4.37 ms Pint; whole-process peak RSS was 208 MiB. Conversions and formulas
+with common scales agree. Two intentional mixed-scale cases differ: native
+arithmetic assumes already-normalized magnitudes, whereas Pint converts
+`1 km + 500 m` to `1500 m` and `25% * 200 m` to `50 m`.
+
+Decision: adopt the explicit optional Pint 0.25.3 backend for physical conversion
+and non-offset dimensional formulas, preserving the native default. The added
+dimension checks and scale handling justify the modest measured overhead for
+these bounded operations. Tests cover immutable unit-version replay, precision,
+compound dimensions, ratios, offsets, deterministic failure and the actual MCP
+authorization boundary. Install via `.[workflow-integrations]`; Pint uses the
+BSD-3-Clause license. References:
+https://pint.readthedocs.io/en/stable/advanced/defining.html and
+https://pint.readthedocs.io/en/stable/user/nonmult.html .
 
 ## Planner evaluation and adoption (#1513)
 
@@ -343,6 +384,57 @@ solver adds latency. OR-Tools 9.15.6755 is pinned in the optional installation;
 limits are 1000 candidates/parts, one worker and a 0.01–30 second solve deadline
 (default two seconds). No paid acquisition was invoked or actual provider cost
 inferred. Definition/receipt provenance continues through the existing planner.
+
+## Shapely geometry completion (#1518)
+
+`GeospatialStore.simplify(..., backend="shapely", projected_crs="EPSG:25833")`
+and the existing MCP simplification tool transform WGS84 into an explicit local
+metre CRS, preserve topology, then transform back using the same offline pyproj
+receipts as coordinate import. Allowed metric projections are ETRS89/UTM32N and
+33N; coordinates must fall within the selected CRS area. Geographic tolerances
+and Web Mercator are rejected for this metric operation. The tolerance is planar,
+not a geodesic-distance claim. Limits are 10,000 coordinates, 0–10,000 m tolerance
+and at most eight attempts. A sampled Hausdorff check (densify=0.25) halves the
+effective tolerance when needed; both requested/effective tolerances and the
+sampled displacement are recorded. This check is not an exact continuous
+Hausdorff-distance certificate.
+
+Original geometry IDs, source versions, CRS, precision and full transform records
+remain available. The derived precision adds declared input precision, requested
+tolerance and both transform accuracy estimates. The fixture's 1 m input precision
+is an authored propagation test value, not a claim about cadastral survey accuracy.
+MultiPolygon storage uses `noesis-geospatial-geometry-v2`; existing Point,
+LineString and Polygon records retain v1. GeometryCollection is explicitly
+unsupported. Invalid/self-intersecting shapes and unclosed rings are rejected by
+the Shapely operations, with no automatic repair. Geographic spans across the
+dateline require separate normalization and are rejected.
+
+`relation(backend="shapely")` distinguishes strict `contains` from boundary-inclusive
+`covers`, and detects intersections where a polygon lies wholly inside another.
+Analytically specified Berlin-area rectangles test holes and boundaries, including
+documented differences from the existing boundary-inclusive containment and
+edge-crossing intersection routines. Multipart native topology/simplification
+requires explicit Shapely selection rather than falling through incompatible code.
+
+The official ALKIS Berlin Mitte WFS feature `bezirksgrenzen.11000001` was captured
+in EPSG:25833 (64,099 bytes, dl-de-zero-2.0) and is retained losslessly in the
+fixtures with provider/URL/hash metadata. `python -m scripts.benchmark_integration_geometry --out geometry-benchmark.json` compares both store simplifiers on its first
+polygon and retains the full multipart transform/simplification receipt in the
+companion gzip artifact. Over ten repeated store calls, native simplification had
+median 8.59 ms and kept 1,305 coordinates; Shapely had median 118.65 ms and kept
+222. Both results were valid; sampled projected displacements were 9.50/4.98 m.
+The original has 2,555 coordinates. The separate 20-repeat multipart adapter
+measurement had median 103.88 ms, p95 110.68 ms, using effective tolerance 5 m
+for the requested 10 m budget. Twelve focused tests cover contracts, shared
+coordinate import, replay, restrictions and MCP authorization; the broader
+integration/geospatial/catalog run passed 94 tests.
+
+Decision: adopt explicit optional Shapely 2.1.2 topology and projected
+simplification; keep native defaults. This trades greater simplification and
+robust topology for measured additional cost. Shapely uses BSD-3-Clause and
+bundles GEOS under LGPL; install via `.[workflow-integrations]`. References:
+https://shapely.readthedocs.io/en/stable/reference/shapely.simplify.html and
+https://daten.berlin.de/datensaetze/alkis-berlin-bezirke-wfs-ced31d7d .
 
 ## Published Berlin coordinate reference (#1519)
 

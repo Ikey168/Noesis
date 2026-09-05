@@ -1,0 +1,10 @@
+{
+  "source": "https://gdi.berlin.de/services/wfs/alkis_bezirke?service=WFS&request=GetFeature&version=2.0.0&typeNames=alkis_bezirke%3Abezirksgrenzen&count=1&outputFormat=application%2Fjson&srsName=EPSG%3A25833",
+  "publisher": "Senatsverwaltung für Stadtentwicklung, Bauen und Wohnen Berlin",
+  "license": "dl-de-zero-2.0",
+  "captured_at": "2026-09-05T21:29:13.352904+00:00",
+  "bytes": 64099,
+  "sha256": "dc6c22a9ae6dd704691c573f731196d02eb29d5237cf28fc3aba99561bc61d76",
+  "feature_id": "bezirksgrenzen.11000001",
+  "source_crs": "EPSG:25833"
+}

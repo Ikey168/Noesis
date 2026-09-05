@@ -13,6 +13,7 @@ from typing import Any
 
 PLACE_CONTRACT = "noesis-geospatial-place-v1"
 GEOMETRY_CONTRACT = "noesis-geospatial-geometry-v1"
+MULTIPART_GEOMETRY_CONTRACT = "noesis-geospatial-geometry-v2"
 RESOLUTION_CONTRACT = "noesis-geocode-resolution-v1"
 SPATIAL_CONTRACT = "noesis-spatial-result-v1"
 READ_SCOPE = "knowledge:geospatial:read"
@@ -161,8 +162,14 @@ def _validate_geometry(geometry: Mapping[str, Any]) -> tuple[str, Any]:
         if not rings:
             raise GeospatialError("invalid_geometry", "polygon needs an exterior ring")
         return kind, rings
+    if kind == "MultiPolygon":
+        from src.integrations.spatial import _validate_coordinates
+
+        _validate_coordinates(geometry)
+        return kind, [_validate_geometry({"type": "Polygon", "coordinates": polygon})[1]
+                      for polygon in coordinates]
     raise GeospatialError(
-        "invalid_geometry", "only Point, LineString, and Polygon are supported"
+        "invalid_geometry", "only Point, LineString, Polygon and MultiPolygon are supported"
     )
 
 
@@ -220,6 +227,8 @@ def _contains(
     geometry: Mapping[str, Any], point: Sequence[Any], tolerance_m: float
 ) -> bool:
     kind, coordinates = _validate_geometry(geometry)
+    if kind == "MultiPolygon":
+        raise GeospatialError("unsupported_operation", "Multipart topology requires the Shapely backend")
     if kind == "Point":
         return _distance_m(coordinates, point) <= tolerance_m
     if kind == "Polygon":
@@ -248,6 +257,8 @@ def _segments(
     geometry: Mapping[str, Any],
 ) -> list[tuple[tuple[float, float], tuple[float, float]]]:
     kind, coordinates = _validate_geometry(geometry)
+    if kind == "MultiPolygon":
+        raise GeospatialError("unsupported_operation", "Multipart topology requires the Shapely backend")
     if kind == "Point":
         return []
     lines = [coordinates] if kind == "LineString" else coordinates
@@ -281,6 +292,8 @@ def _points(geometry: Mapping[str, Any]) -> list[list[float]]:
         return [coordinates]
     if kind == "LineString":
         return coordinates
+    if kind == "MultiPolygon":
+        return [point for polygon in coordinates for ring in polygon for point in ring]
     return [point for ring in coordinates for point in ring]
 
 
@@ -824,7 +837,7 @@ class GeospatialStore:
             ],
         )
         return {
-            "contract": GEOMETRY_CONTRACT,
+            "contract": MULTIPART_GEOMETRY_CONTRACT if kind == "MultiPolygon" else GEOMETRY_CONTRACT,
             "geometry_id": geometry_id,
             **stable,
             "content_hash": content_hash,
@@ -844,7 +857,7 @@ class GeospatialStore:
         if not row:
             return None
         return {
-            "contract": GEOMETRY_CONTRACT,
+            "contract": MULTIPART_GEOMETRY_CONTRACT if row[1] == "MultiPolygon" else GEOMETRY_CONTRACT,
             "geometry_id": geometry_id,
             "namespace": namespace,
             "place_id": row[0],
@@ -891,15 +904,30 @@ class GeospatialStore:
         *,
         principal_id: str,
         scopes: set[str],
+        backend: str = "stdlib",
+        projected_crs: str | None = None,
     ) -> dict[str, Any]:
         _require(scopes, WRITE_SCOPE)
         original = self.geometry(namespace, geometry_id, scopes={READ_SCOPE})
         if not original:
             raise GeospatialError("not_found", "geometry does not exist")
-        kind, coordinates = _validate_geometry(original["geometry"])
-        if kind == "Point":
-            reduced = coordinates
+        if backend not in {"stdlib", "shapely"}:
+            raise GeospatialError("invalid_backend", "Unknown simplification backend")
+        source = dict(original["source"])
+        if backend == "shapely":
+            from src.integrations.spatial import simplify_geometry
+
+            evaluated = simplify_geometry(original["geometry"], tolerance_m, projected_crs=projected_crs)
+            kind = evaluated["result"]["geometry"]["type"]
+            reduced = evaluated["result"]["geometry"]["coordinates"]
+            source["simplification"] = evaluated
         else:
+            kind, coordinates = _validate_geometry(original["geometry"])
+            if kind == "MultiPolygon":
+                raise GeospatialError("unsupported_operation", "Multipart simplification requires Shapely")
+        if backend == "stdlib" and kind == "Point":
+            reduced = coordinates
+        elif backend == "stdlib":
 
             def reduce_line(line):
                 kept = [line[0]]
@@ -923,11 +951,12 @@ class GeospatialStore:
             {"type": kind, "coordinates": reduced},
             place_id=original["place_id"],
             crs=original["crs"],
-            precision_m=max(original["precision_m"], float(tolerance_m)),
+            precision_m=(original["precision_m"] + float(tolerance_m) + evaluated["result"]["transformation_accuracy_m"]
+                         if backend == "shapely" else max(original["precision_m"], float(tolerance_m))),
             simplified_from=geometry_id,
             disputed=original["disputed"],
             admin_hierarchy=original["admin_hierarchy"],
-            source=original["source"],
+            source=source,
             evidence=original["evidence"],
             principal_id=principal_id,
             scopes=scopes,
