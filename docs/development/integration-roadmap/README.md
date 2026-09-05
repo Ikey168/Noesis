@@ -38,10 +38,48 @@ provisioned model snapshots. Model revisions are in `src/integrations/model-pins
 | #1501, #1503 | `src.integrations.mcp.federation_adapter` | Explicit presets and tool allowlists; real Playwright session probe passed; GitHub and browser-domain evaluation outstanding |
 | #1502 | `Context7Research` | Live documentation discovery/query and selected original capture; version uncertainty retained |
 | #1504 | E5 embedding input policy and query embedding interface | Real pinned CPU smoke probe; independent retrieval benchmark outstanding |
+| #1493 | `NERProcessor(backend="gliner2", language="de")` | Pinned GLiNER2 API, original Unicode spans and source/model receipts; real CPU smoke probe; independent comparison and relations/fields outstanding |
 | #1506–1508 | Qwen scorer, optional multilingual NLI, LightOn OCR | Explicit adapters/model pins; Qwen inference passed; NLI/OCR inference and independent benchmarks outstanding |
 
 The remaining issues in the ledger have not been implemented by this checkpoint.
-In particular BGE-M3 multi-mode retrieval and GLiNER are not implemented here.
+In particular BGE-M3 multi-mode retrieval is not implemented here.
+
+Six completed issues (#1473, #1475, #1476, #1502, #1513, #1519) were closed by
+merged PR #1525 (`c65b4bce83a5838a532a8dc120b9d1fbf208a91b`). The ledger keeps
+these in the original 81-issue inventory with status `implemented_merged`.
+
+## GLiNER2 optional entity extraction (#1493)
+
+Install `.[workflow-entities]` and explicitly provision the registry-pinned
+`fastino/gliner2-multi-v1` checkpoint with `model_path(name, download=True)`.
+Normal adapter construction uses local files only. This uses GLiNER2 2.0.0,
+not the original GLiNER API; the extra includes PEFT 0.20.0 because this version
+of GLiNER2 imports its training module even for inference. The model card declares
+Apache-2.0 licensing. The default NER backend remains unchanged.
+
+`NERProcessor(backend="gliner2", language="de")` accepts original text and
+explicit article/revision IDs through `extract_entities(text, article_id,
+revision_id=...)`. Separate German and English schemas cover authorities,
+funding programmes, organisations and legal references. Unknown labels/languages,
+missing source identity, non-finite scores and invalid source spans fail explicitly.
+Overlaps and repeated mentions remain distinct. The receipt records the model
+revision, schema, language, threshold and source hash; scores are uncalibrated.
+Inputs default to 8,000 characters, with an explicit maximum of 32,000.
+Text plus tokenized schema and a 64-token control reserve must fit the 512-token
+budget; longer inputs fail explicitly and require upstream passage selection.
+
+`OMP_NUM_THREADS=2 MKL_NUM_THREADS=2 python -m scripts.probe_gliner2 --out probe.json`
+runs the real checkpoint locally. `gliner2-probe.json` records three authored
+German/English examples: 7.20 s model load, 202–269 ms extraction and 3.01 GiB
+whole-process peak RSS on this machine. The pinned Transformers runtime falls
+back from SDPA to eager attention for this DeBERTa encoder. One English example
+labels Horizon Europe both a programme and an organisation, illustrating why
+plausible output is insufficient to establish quality. These examples are not
+independent annotations. Adoption remains deferred: held-out baseline comparison,
+and separate relation/structured-field adapters and evaluation, remain outstanding.
+
+Primary references: https://huggingface.co/fastino/gliner2-multi-v1 and
+https://github.com/fastino-ai/GLiNER2 .
 
 ## Evidence
 

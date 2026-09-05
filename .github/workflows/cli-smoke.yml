@@ -55,7 +55,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        extra: [minimal, ingestion, browser, server, models, vector, media, orchestration, cloud, full, workflow-integrations, workflow-models]
+        extra: [minimal, ingestion, browser, server, models, vector, media, orchestration, cloud, full, workflow-integrations, workflow-models, workflow-entities]
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v6

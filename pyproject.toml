@@ -32,6 +32,11 @@ workflow-models = [
   "sentence-transformers==6.0.1",
   "transformers==5.16.1",
 ]
+workflow-entities = [
+  "gliner2==2.0.0",
+  "peft==0.20.0",
+  "transformers==5.16.1",
+]
 workflow-integrations = [
   "warcio==1.8.1",
   "markitdown==0.1.7",
