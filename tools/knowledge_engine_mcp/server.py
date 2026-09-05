@@ -8544,6 +8544,92 @@ def decide_authored_report_edit(namespace: str, proposal_id: str, decision: str,
         principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope="knowledge:reports:write")
 
 
+@mcp.tool()
+def create_review_inbox_task(namespace: str, target: dict[str, str], sources: list[dict[str, str]], domain: str,
+                             impact: float, uncertainty: float, rationale: str, project: dict[str, str] | None = None,
+                             related_groups: list[str] | None = None) -> dict:
+    """Queue a current evidence reference with declared priority and related-document groups."""
+    from src.kb.review_inbox import ReviewInboxStore, WRITE_SCOPE
+    return _safe(lambda c: ReviewInboxStore(c).create(namespace, target, sources=sources, domain=domain, impact=impact,
+        uncertainty=uncertainty, rationale=rationale, project=project, related_groups=related_groups or [],
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope=WRITE_SCOPE)
+
+
+@mcp.tool()
+def list_review_inbox_tasks(namespace: str, domain: str | None = None, project_id: str | None = None,
+                            limit: int = 10, per_source: int = 2) -> dict:
+    """Rank accessible reviews by impact, uncertainty, recency, and source diversity."""
+    from src.kb.review_inbox import ReviewInboxStore, READ_SCOPE
+    return _safe(lambda c: ReviewInboxStore(c, initialize=False).list(namespace, domain=domain, project_id=project_id, limit=limit, per_source=per_source,
+        principal_id=_context()[0], scopes=_context()[1]), required_scope=READ_SCOPE)
+
+
+@mcp.tool()
+def inspect_review_inbox_task(namespace: str, task_id: str) -> dict:
+    """Inspect a task while preserving independent reviewer blindness before resolution."""
+    from src.kb.review_inbox import ReviewInboxStore, READ_SCOPE
+    return _safe(lambda c: ReviewInboxStore(c, initialize=False).inspect(namespace, task_id,
+        principal_id=_context()[0], scopes=_context()[1]), required_scope=READ_SCOPE)
+
+
+@mcp.tool()
+def assign_review_inbox_task(namespace: str, task_id: str, reviewers: list[str]) -> dict:
+    """Assign two to ten independent reviewers before submissions begin."""
+    from src.kb.review_inbox import ReviewInboxStore, WRITE_SCOPE
+    return _safe(lambda c: ReviewInboxStore(c).assign(namespace, task_id, reviewers,
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope=WRITE_SCOPE)
+
+
+@mcp.tool()
+def submit_review_inbox_annotation(namespace: str, task_id: str, expected_target_hash: str, label: dict[str, Any],
+                                    rationale: str, effort_ms: int, annotation_origin: str) -> dict:
+    """Submit an immutable revision-checked label with declared human/machine origin and effort."""
+    from src.kb.review_inbox import ReviewInboxStore, REVIEW_SCOPE
+    return _safe(lambda c: ReviewInboxStore(c).submit(namespace, task_id, expected_target_hash, label, rationale, effort_ms, annotation_origin,
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope=REVIEW_SCOPE)
+
+
+@mcp.tool()
+def resolve_review_inbox_task(namespace: str, task_id: str, rationale: str,
+                               adjudicated_label: dict[str, Any] | None = None) -> dict:
+    """Route consensus or independent adjudication through the existing domain review API atomically."""
+    from src.kb.review_inbox import ReviewInboxStore, REVIEW_SCOPE
+    return _safe(lambda c: ReviewInboxStore(c).resolve(namespace, task_id, rationale, adjudicated_label=adjudicated_label,
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope=REVIEW_SCOPE)
+
+
+@mcp.tool()
+def build_review_annotation_dataset(namespace: str, task_ids: list[str]) -> dict:
+    """Draft a grouped annotation dataset; disputed and machine labels remain excluded."""
+    from src.kb.review_datasets import ReviewDatasetStore, DATASET_SCOPE
+    return _safe(lambda c: ReviewDatasetStore(c).build_dataset(namespace, task_ids,
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope=DATASET_SCOPE)
+
+
+@mcp.tool()
+def release_review_annotation_dataset(namespace: str, release_id: str, rationale: str) -> dict:
+    """Explicitly release reviewed labels with immutable split guards; never starts training."""
+    from src.kb.review_datasets import ReviewDatasetStore, DATASET_SCOPE
+    return _safe(lambda c: ReviewDatasetStore(c).release_dataset(namespace, release_id, rationale,
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope=DATASET_SCOPE)
+
+
+@mcp.tool()
+def export_review_annotation_dataset(namespace: str, release_id: str) -> dict:
+    """Export a released annotation snapshot under current task and source access."""
+    from src.kb.review_datasets import ReviewDatasetStore, DATASET_SCOPE
+    return _safe(lambda c: ReviewDatasetStore(c, initialize=False).export_dataset(namespace, release_id,
+        principal_id=_context()[0], scopes=_context()[1]), required_scope=DATASET_SCOPE)
+
+
+@mcp.tool()
+def evaluate_review_annotation_predictions(namespace: str, release_id: str, before: dict[str, Any], after: dict[str, Any]) -> dict:
+    """Compare supplied paired predictions against the released held-out consensus labels."""
+    from src.kb.review_datasets import ReviewDatasetStore, DATASET_SCOPE
+    return _safe(lambda c: ReviewDatasetStore(c, initialize=False).evaluate_predictions(namespace, release_id, before, after,
+        principal_id=_context()[0], scopes=_context()[1]), required_scope=DATASET_SCOPE)
+
+
 if __name__ == "__main__":
     from src.mcp_host.transport import run_server
 

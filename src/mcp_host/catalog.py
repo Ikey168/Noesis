@@ -226,6 +226,8 @@ async def _inspect_server(
 
 
 def _mutability(name: str) -> str:
+    if name in {"assign_review_inbox_task", "submit_review_inbox_annotation", "resolve_review_inbox_task", "build_review_annotation_dataset", "release_review_annotation_dataset"}:
+        return "write"
     if name in {"assess_authored_report_changes", "propose_authored_report_edit", "decide_authored_report_edit"}:
         return "write"
     if name in {"register_research_analysis", "execute_research_analysis", "cancel_research_analysis_run", "recover_research_analysis_run"}:
@@ -285,6 +287,14 @@ def _required_data(server_stem: str, tool_name: str) -> list[str]:
     if server_stem == "memory_mcp":
         return ["knowledge-memory-store"]
     if server_stem == "knowledge_engine_mcp":
+        if tool_name in {"create_review_inbox_task", "assign_review_inbox_task"}:
+            return ["knowledge:inbox:read", "knowledge:inbox:write"]
+        if tool_name in {"list_review_inbox_tasks", "inspect_review_inbox_task"}:
+            return ["knowledge:inbox:read"]
+        if tool_name in {"submit_review_inbox_annotation", "resolve_review_inbox_task"}:
+            return ["knowledge:inbox:read", "knowledge:inbox:review"]
+        if tool_name in {"build_review_annotation_dataset", "release_review_annotation_dataset", "export_review_annotation_dataset", "evaluate_review_annotation_predictions"}:
+            return ["knowledge:inbox:read", "knowledge:inbox:datasets"]
         if tool_name in {"assess_authored_report_changes", "propose_authored_report_edit", "decide_authored_report_edit"}:
             return ["knowledge:reports:read", "knowledge:reports:write"]
         if tool_name == "inspect_authored_report_edit":
@@ -361,6 +371,14 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
             return ["knowledge:memory:admin"]
         return ["knowledge:memory:read"]
     if server_stem == "knowledge_engine_mcp":
+        if tool_name in {"create_review_inbox_task", "assign_review_inbox_task"}:
+            return ["knowledge:inbox:read", "knowledge:inbox:write"]
+        if tool_name in {"list_review_inbox_tasks", "inspect_review_inbox_task"}:
+            return ["knowledge:inbox:read"]
+        if tool_name in {"submit_review_inbox_annotation", "resolve_review_inbox_task"}:
+            return ["knowledge:inbox:read", "knowledge:inbox:review"]
+        if tool_name in {"build_review_annotation_dataset", "release_review_annotation_dataset", "export_review_annotation_dataset", "evaluate_review_annotation_predictions"}:
+            return ["knowledge:inbox:read", "knowledge:inbox:datasets"]
         if tool_name in {"assess_authored_report_changes", "propose_authored_report_edit", "decide_authored_report_edit"}:
             return ["knowledge:reports:read", "knowledge:reports:write"]
         if tool_name == "inspect_authored_report_edit":
