@@ -7978,11 +7978,33 @@ def verify_research_package(
 
 
 @mcp.tool()
+def set_research_package_trust_policy(
+    namespace: str,
+    public_keys: dict[str, Any],
+    require_signature: bool = True,
+    expected_revision: int = 0,
+) -> dict:
+    """Version the trusted signer policy for an isolated import namespace."""
+    from src.kb.research_packages import ResearchPackageStore, TRUST_SCOPE
+
+    return _safe(
+        lambda c: ResearchPackageStore(c).set_trust_policy(
+            namespace, public_keys, require_signature=require_signature,
+            expected_revision=expected_revision, principal_id=_context()[0], scopes={TRUST_SCOPE},
+        ),
+        write=True,
+        required_scope=TRUST_SCOPE,
+    )
+
+
+@mcp.tool()
 def import_research_package(
     package: dict[str, Any],
     target_namespace: str,
     trusted_recipe_ids: list[str] | None = None,
     cancel_requested: bool = False,
+    public_keys: dict[str, Any] | None = None,
+    require_signature: bool = False,
 ) -> dict:
     """Import verified members atomically into an isolated import namespace."""
     from src.kb.research_packages import ResearchPackageStore
@@ -7993,6 +8015,8 @@ def import_research_package(
             target_namespace,
             trusted_recipe_ids=trusted_recipe_ids or [],
             cancel_requested=cancel_requested,
+            public_keys=public_keys,
+            require_signature=require_signature,
             principal_id=_context()[0],
             scopes={"knowledge:packages:import"},
         ),

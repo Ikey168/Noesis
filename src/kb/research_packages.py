@@ -16,6 +16,7 @@ IMPORT_CONTRACT = "noesis-research-package-import-v1"
 READ_SCOPE = "knowledge:packages:read"
 WRITE_SCOPE = "knowledge:packages:write"
 IMPORT_SCOPE = "knowledge:packages:import"
+TRUST_SCOPE = "knowledge:packages:trust"
 
 _DDL = """
 CREATE TABLE IF NOT EXISTS research_package_components(namespace TEXT NOT NULL,component_type TEXT NOT NULL,component_id TEXT NOT NULL,content_json TEXT NOT NULL,content_hash TEXT NOT NULL,dependencies_json TEXT NOT NULL,access_status TEXT NOT NULL,redacted_content_json TEXT,metadata_json TEXT NOT NULL,PRIMARY KEY(namespace,component_type,component_id));
@@ -24,6 +25,7 @@ CREATE TABLE IF NOT EXISTS research_package_artifacts(package_hash TEXT PRIMARY 
 CREATE TABLE IF NOT EXISTS research_package_imports(import_id TEXT PRIMARY KEY,package_hash TEXT NOT NULL,target_namespace TEXT NOT NULL,status TEXT NOT NULL,receipt_json TEXT NOT NULL,created_at_ms BIGINT NOT NULL,UNIQUE(package_hash,target_namespace));
 CREATE TABLE IF NOT EXISTS research_package_imported_components(target_namespace TEXT NOT NULL,package_hash TEXT NOT NULL,component_type TEXT NOT NULL,component_id TEXT NOT NULL,content_json TEXT NOT NULL,content_hash TEXT NOT NULL,executable BOOLEAN NOT NULL,PRIMARY KEY(target_namespace,component_type,component_id));
 CREATE TABLE IF NOT EXISTS research_package_audit(audit_id TEXT PRIMARY KEY,namespace TEXT NOT NULL,operation TEXT NOT NULL,object_id TEXT NOT NULL,principal_id TEXT NOT NULL,detail_json TEXT NOT NULL,created_at_ms BIGINT NOT NULL);
+CREATE TABLE IF NOT EXISTS research_package_trust_policies(namespace TEXT NOT NULL,revision BIGINT NOT NULL,policy_json TEXT NOT NULL,principal_id TEXT NOT NULL,created_at_ms BIGINT NOT NULL,PRIMARY KEY(namespace,revision));
 """
 
 
@@ -327,6 +329,10 @@ class ResearchPackageStore:
                         "metadata": _load(row[6], {}),
                     }
                 )
+        # A partial bounded export must declare the unvisited frontier instead
+        # of silently dropping dependencies that the verifier cannot account for.
+        omissions.extend({"component_id": key, "reason": "bounded"}
+                         for key in sorted(set(queue) - seen))
         members.sort(key=lambda x: (x["component_type"], x["component_id"]))
         omissions.sort(key=lambda x: (x["component_id"], x.get("component_type", "")))
         return {
@@ -515,6 +521,65 @@ class ResearchPackageStore:
             )
         return json.loads(plaintext)
 
+    @staticmethod
+    def _verify_closure(package):
+        """Verify declared dependency structure independently of outer hashes."""
+        members, closure = package.get("members", []), package.get("closure", {})
+        errors, missing = [], []
+        if not isinstance(members, list) or not isinstance(closure, dict):
+            return ["invalid closure shape"], [], []
+        omissions, roots = closure.get("omissions", []), closure.get("root_ids", [])
+        if not isinstance(omissions, list) or not isinstance(roots, list):
+            return ["invalid roots or omissions"], [], []
+        if len(members) > 10000 or len(omissions) > 10000 or len(roots) > 10000:
+            return ["closure exceeds verification bounds"], [], []
+        identities, ids, required, member_failures = set(), set(), set(), []
+        for root in roots:
+            if not isinstance(root, str) or not root:
+                errors.append("invalid root identity")
+            else:
+                required.add(root)
+        for member in members:
+            if not isinstance(member, dict):
+                errors.append("invalid member")
+                continue
+            key, kind = member.get("component_id"), member.get("component_type")
+            if not isinstance(key, str) or not key or not isinstance(kind, str) or not kind:
+                errors.append("invalid member identity")
+                continue
+            identity = (kind, key)
+            if identity in identities:
+                errors.append("duplicate member identity: " + key)
+            identities.add(identity)
+            ids.add(key)
+            if "content" not in member or _hash(member["content"]) != member.get("content_hash"):
+                member_failures.append(key)
+            dependencies = member.get("dependencies")
+            if not isinstance(dependencies, list) or not all(isinstance(d, str) and d for d in dependencies):
+                errors.append("invalid dependencies: " + key)
+            else:
+                required.update(dependencies)
+        omitted = set()
+        for omission in omissions:
+            if not isinstance(omission, dict) or not isinstance(omission.get("component_id"), str):
+                errors.append("invalid omission")
+                continue
+            reason, key = omission.get("reason"), omission["component_id"]
+            if reason not in {"inaccessible", "missing", "bounded"}:
+                errors.append("unsupported omission reason: " + key)
+            if reason == "missing":
+                missing.append(omission)
+            if reason == "bounded" and not closure.get("bounded"):
+                errors.append("bounded omission without bounded closure")
+            omitted.add(key)
+        missing.extend({"component_id": key, "reason": "missing"}
+                       for key in sorted(required - ids - omitted))
+        if closure.get("closure_hash") != _hash({"members": members, "omissions": omissions}):
+            errors.append("closure hash mismatch")
+        if closure.get("complete") is not (not omissions and not closure.get("bounded") and not missing):
+            errors.append("closure completeness declaration mismatch")
+        return errors, missing, member_failures
+
     def verify(self, package, *, public_keys=None, require_signature=False):
         supplied = package.get("content_hash")
         core = {
@@ -532,22 +597,23 @@ class ResearchPackageStore:
             }
         }
         actual = _hash(core)
-        member_failures = [
-            member["component_id"]
-            for member in package.get("members", [])
-            if _hash(member["content"]) != member["content_hash"]
-        ]
-        missing = [
-            item
-            for item in package.get("closure", {}).get("omissions", [])
-            if item.get("reason") == "missing"
-        ]
+        structural_errors, missing, member_failures = self._verify_closure(package)
         signature = package.get("signature")
         signature_status = "absent"
         if signature:
             key_value = (public_keys or {}).get(signature.get("key_id"))
+            if isinstance(key_value, dict):
+                if key_value.get("revoked"):
+                    signature_status = "revoked_key"
+                    key_value = None
+                elif str(key_value.get("key_version")) != str(signature.get("key_version")):
+                    signature_status = "untrusted_key_version"
+                    key_value = None
+                else:
+                    key_value = key_value.get("public_key")
             if not key_value:
-                signature_status = "untrusted_key"
+                if signature_status == "absent":
+                    signature_status = "untrusted_key"
             else:
                 from cryptography.exceptions import InvalidSignature
                 from cryptography.hazmat.primitives.asymmetric.ed25519 import (
@@ -579,6 +645,7 @@ class ResearchPackageStore:
             supplied == actual
             and not member_failures
             and not missing
+            and not structural_errors
             and (not require_signature or signature_status == "valid")
         )
         return {
@@ -588,11 +655,51 @@ class ResearchPackageStore:
             "actual_hash": actual,
             "member_failures": member_failures,
             "missing_members": missing,
+            "structural_errors": structural_errors,
             "signature_status": signature_status,
             "key_id": signature.get("key_id") if signature else None,
             "key_version": signature.get("key_version") if signature else None,
             "offline": True,
         }
+
+    def set_trust_policy(self, namespace, public_keys, *, require_signature=True,
+                         expected_revision=0, principal_id, scopes):
+        """Append an operator-controlled namespace import trust policy.
+
+        Rotation uses a new key ID or an explicit version; old policies remain
+        auditable. Current policy is checked even when replaying an old import.
+        """
+        _require(scopes, TRUST_SCOPE)
+        if not namespace.startswith("import:") or not isinstance(public_keys, dict) or len(public_keys) > 1000:
+            raise ResearchPackageError("invalid_trust_policy", "invalid import namespace or keys")
+        for key_id, key in public_keys.items():
+            try:
+                if not key_id or not isinstance(key, dict) or set(key) - {"public_key", "key_version", "revoked"}:
+                    raise ValueError("invalid key record")
+                if not isinstance(key.get("key_version"), (str, int)) or not isinstance(key.get("revoked", False), bool):
+                    raise ValueError("invalid key version or revocation")
+                if len(base64.b64decode(key["public_key"], validate=True)) != 32:
+                    raise ValueError("invalid public key length")
+            except (KeyError, ValueError, TypeError) as exc:
+                raise ResearchPackageError("invalid_trust_policy", "malformed public key") from exc
+        if not isinstance(require_signature, bool):
+            raise ResearchPackageError("invalid_trust_policy", "signature requirement must be boolean")
+        self.conn.execute("BEGIN")
+        try:
+            row = self.conn.execute("SELECT max(revision) FROM research_package_trust_policies WHERE namespace=?", [namespace]).fetchone()
+            revision = int(row[0] or 0)
+            if revision != expected_revision:
+                raise ResearchPackageError("revision_conflict", "trust policy changed")
+            policy = {"namespace": namespace, "revision": revision + 1,
+                      "require_signature": require_signature, "public_keys": public_keys}
+            self.conn.execute("INSERT INTO research_package_trust_policies VALUES (?,?,?,?,?)",
+                              [namespace, revision + 1, canonical_bytes(policy).decode(), principal_id, self.now()])
+            self._audit(namespace, "set_trust_policy", str(revision + 1), principal_id)
+            self.conn.execute("COMMIT")
+        except Exception:
+            self.conn.execute("ROLLBACK")
+            raise
+        return policy
 
     def inspect(self, package, *, scopes):
         _require(scopes, READ_SCOPE)
@@ -618,6 +725,8 @@ class ResearchPackageStore:
         scopes,
         trusted_recipe_ids=(),
         cancel_requested=False,
+        public_keys=None,
+        require_signature=False,
     ):
         _require(scopes, IMPORT_SCOPE)
         if not target_namespace.startswith("import:"):
@@ -631,7 +740,16 @@ class ResearchPackageStore:
                 "package format version is not supported",
                 errors=manifest_validation["errors"],
             )
-        verification = self.verify(package)
+        policy_row = self.conn.execute(
+            "SELECT policy_json FROM research_package_trust_policies WHERE namespace=? ORDER BY revision DESC LIMIT 1",
+            [target_namespace],
+        ).fetchone()
+        policy = _load(policy_row[0], {}) if policy_row else None
+        verification = self.verify(
+            package,
+            public_keys=policy["public_keys"] if policy else public_keys,
+            require_signature=bool(require_signature or (policy and policy["require_signature"])),
+        )
         if not verification["valid"]:
             raise ResearchPackageError(
                 "invalid_package",

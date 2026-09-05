@@ -331,6 +331,8 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
             return ["knowledge:memory:admin"]
         return ["knowledge:memory:read"]
     if server_stem == "knowledge_engine_mcp":
+        if tool_name == "set_research_package_trust_policy":
+            return ["knowledge:packages:trust"]
         if tool_name in {
             "create_research_package_manifest",
             "register_research_package_component",
