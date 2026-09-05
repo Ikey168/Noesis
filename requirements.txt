@@ -107,3 +107,4 @@ pdf2image>=1.17.0    # OCR: PDF->PIL images for pytesseract (requires system pop
 feedparser>=6,<7
 scrapy-playwright>=0.0.46,<1
 extruct>=0.18,<1
+defusedxml>=0.7.1,<1

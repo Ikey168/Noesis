@@ -79,10 +79,12 @@ jobs:
           import asyncio
           import feedparser
           from src.ingestion.extract import extract_article
+          from src.ingestion.connectors.paper.full_text import parse_jats
           from playwright.async_api import async_playwright
           assert feedparser.parse('<rss><channel><item><title>Example</title></item></channel></rss>').entries
           result = extract_article('<article><h1>Example</h1><p>' + 'A sentence of evidence. ' * 40 + '</p></article>')
           assert result and result.metadata['snapshot_sha256']
+          assert 'Evidence' in parse_jats(b'<article><body><sec><title>Results</title><p>Evidence</p></sec></body></article>')['text']
           async def check():
               async with async_playwright() as p:
                   browser = await p.chromium.launch()
