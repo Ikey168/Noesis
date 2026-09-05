@@ -390,7 +390,7 @@ class RemoteMCPAdapter:
             raise FederationError("source_timeout", "remote MCP source exceeded its time budget")
         if len(_canonical(clean).encode()) > self.definition["limits"]["max_bytes"]:
             raise FederationError("result_too_large", "remote MCP output exceeded its byte budget")
-        item = {"id": f"mcp:{_digest([name, arguments, clean])[:20]}", "type": kind, "value": clean, "backend": {"operation": name, "arguments_hash": _digest(arguments)}}
+        item = {"id": f"mcp:{_digest([name, arguments, clean])[:20]}", "type": kind, "value": clean, "backend": {"operation": name, "arguments_hash": _digest(arguments), "server_version": (self._cache or {}).get("version", "unknown")}}
         return _envelope(self.definition, request, [item], started=started)
 
 

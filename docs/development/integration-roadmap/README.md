@@ -35,7 +35,7 @@ provisioned model snapshots. Model revisions are in `src/integrations/model-pins
 | #1524 | Research package `export_rocrate` | Native package in RO-Crate envelope; detailed entity mapping and independent validator outstanding |
 | #1495 | Upload parser `backend="markitdown"` | Explicit converted-text representation; actual HTML smoke test; document corpus outstanding |
 | #1497 | `src.integrations.warc` | Bounded capture read/write and document ingestion; archive corpus and full ingestion regression outstanding |
-| #1501–1503 | `src.integrations.mcp.federation_adapter` | Explicit presets and tool allowlists; real service interoperability, stateful Playwright lifecycle and scoped evaluation outstanding |
+| #1501–1503 | `src.integrations.mcp.federation_adapter` | Explicit presets and tool allowlists; real Playwright session probe passed; hosted-service and browser-domain evaluation outstanding |
 | #1504 | E5 embedding input policy and query embedding interface | Real pinned CPU smoke probe; independent retrieval benchmark outstanding |
 | #1506–1508 | Qwen scorer, optional multilingual NLI, LightOn OCR | Explicit adapters/model pins; Qwen inference passed; NLI/OCR inference and independent benchmarks outstanding |
 
@@ -238,3 +238,30 @@ Decision: adopt as an explicit offline regional import option at declared source
 precision. Other CRS pairs require their own reference validation. Existing
 geographic/planar metric restrictions are preserved. Source:
 https://www.berlin.de/umweltatlas/_assets/klima/klimaparameter/langjaehrig/de-texte/k413_2022.pdf?ts=1769763403
+
+## Persistent MCP sessions and real Playwright probe
+
+The official Python MCP client now keeps one session across discovery, navigation,
+wait and snapshot calls, serializes concurrent calls, resets failed/timed-out
+transports and exposes `close()` / a context manager for resource cleanup. Browser
+presets require `navigation_origins=["https://www.berlin.de"]` (or explicit local
+fixture origins). Only navigate, snapshot and bounded waits are exposed. This
+checks requested navigation destinations; it is not a browser-wide network or
+redirect sandbox. Hosted provider scope/evaluation and browser-domain enforcement
+remain outstanding, so #1501–1503 stay partial.
+
+The real `@playwright/mcp@0.0.80` server passed navigation and a later dynamic German
+text snapshot through existing federation receipts. Its reported server version
+is preserved in each result's backend provenance. `playwright-mcp-probe.json`
+retains the observations and generated snapshot files from the authored local
+page. Run `python -m scripts.probe_playwright_mcp --browser-path /path/to/chrome
+--out probe.json` with Node/npx and an installed Chromium executable. The probe
+starts an isolated profile, blocks service workers, and closes its client/browser
+server afterward. For this server version, `--allowed-hosts` must include the
+port, e.g. `127.0.0.1:8766`; a bare host receives HTTP 403.
+
+Eleven MCP/federation tests passed, including a real official-SDK local server,
+same-session identity, timeout/reset/reconnect, closed-client rejection and
+pre-connection browser action/origin/wait limits. This is an interoperability
+result on authored HTML, not independent evaluation of public websites or a
+comparison with the production bulk browser acquisition path.
