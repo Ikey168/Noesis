@@ -109,11 +109,11 @@ _events: List[_MutationEvent] = []
 _events_lock = threading.Lock()
 
 
-def _record(kind: str, entity_id: str, label: str, doc_id: str) -> None:
+def _record(kind: str, entity_id: str, label: str, doc_id: str, store=None) -> None:
     event = _MutationEvent(kind, entity_id, label, doc_id)
     with _events_lock:
         _events.append(event)
-    store = _shared_store()
+    store = store if store is not None else _shared_store()
     if isinstance(store, DuckDBKnowledgeGraphStore):
         store.record_event(kind, entity_id, label, doc_id, event.ts)
 
@@ -194,7 +194,7 @@ def _extract_mentions(text: str) -> List[tuple]:
 # Core update logic
 # ---------------------------------------------------------------------------
 
-def update_from_document(doc: Dict[str, Any]) -> None:
+def update_from_document(doc: Dict[str, Any], *, store=None, resolver=None, strict=False) -> None:
     """
     Extract entities from *doc* and update the shared KnowledgeGraphStore.
 
@@ -210,15 +210,19 @@ def update_from_document(doc: Dict[str, Any]) -> None:
         logger.debug("KG updater: no text content for doc=%r, skipping", doc_id)
         return
 
-    store = _shared_store()
-    resolver = _shared_resolver()
+    store = store if store is not None else _shared_store()
+    if resolver is None:
+        resolver = EntityResolver(decision_sink=_resolution_history_sink(store.connection)) if isinstance(store, DuckDBKnowledgeGraphStore) else EntityResolver()
+        resolver.seed(list(store._nodes.values()))
 
     # 1. Anchor document node
     doc_node = Node(type=EntityType.DOCUMENT, name=doc_id)
     try:
         store.add_node(doc_node)
-        _record("node", doc_node.node_id, doc_node.name, doc_id)
+        _record("node", doc_node.node_id, doc_node.name, doc_id, store)
     except Exception:
+        if strict:
+            raise
         # Node already exists — fine, we still want to add new entity triples
         pass
 
@@ -231,7 +235,7 @@ def update_from_document(doc: Dict[str, Any]) -> None:
             # Add to store (add_node merges if it already exists)
             stored = store.add_node(canonical)
             entity_node_ids.append(stored.node_id)
-            _record("node", stored.node_id, stored.name, doc_id)
+            _record("node", stored.node_id, stored.name, doc_id, store)
 
             # Feed the warehouse's canonical-entity layer from this same write
             # path. Downstream dossiers and graph tools now share surfaces.
@@ -252,6 +256,8 @@ def update_from_document(doc: Dict[str, Any]) -> None:
                      stored.node_id, datetime.now(timezone.utc).isoformat()],
                 )
         except Exception as exc:
+            if strict:
+                raise
             logger.debug("KG node upsert skipped for %r: %s", name, exc)
 
     # 3. Link document → each entity with MENTIONS triples
@@ -271,9 +277,11 @@ def update_from_document(doc: Dict[str, Any]) -> None:
             store.add_triple(triple)
             # Use "|" as separator; node_ids contain ":" so we can't use that.
             key_str = "|".join([triple.subject, triple.predicate.value, triple.object])
-            _record("triple", key_str, f"MENTIONS:{eid}", doc_id)
+            _record("triple", key_str, f"MENTIONS:{eid}", doc_id, store)
             new_triples += 1
         except Exception as exc:
+            if strict:
+                raise
             logger.debug("KG triple skipped: %s", exc)
 
     logger.info(
@@ -285,6 +293,8 @@ def update_from_document(doc: Dict[str, Any]) -> None:
             from src.kb.entities import run_entity_canonicalization_pass
             run_entity_canonicalization_pass(store.connection)
         except Exception as exc:
+            if strict:
+                raise
             logger.debug("canonical entity pass skipped for %s: %s", doc_id, exc)
 
 

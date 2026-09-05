@@ -73,6 +73,8 @@ def test_stage_mines_once_and_reprocesses_a_revision(monkeypatch):
     assert first["failed"] == 0
     assert first["documents_mined"] == 1
     assert first["freshness_ratio"] == 1.0
+    assert first["graph_documents_pending"] == 0
+    assert conn.execute("SELECT count(*) FROM kg_nodes").fetchone()[0] > 0
 
     assert mine_unprocessed_documents(conn, limit=10)["processed"] == 0
 
@@ -96,3 +98,66 @@ def test_stage_has_an_explicit_lean_install_opt_out(monkeypatch):
     assert result["status"] == "disabled"
     assert result["processed"] == 0
     assert result["documents_pending"] == 1
+
+
+def test_graph_failure_retries_after_restart_without_repeating_inference(monkeypatch, tmp_path):
+    calls = []
+    monkeypatch.setattr("src.argument_mining.evidence.run_pipeline", lambda doc, *_: (calls.append(doc.document_id) or [], []))
+    monkeypatch.setattr("src.argument_mining.frames.classify_and_store", lambda *_: None)
+    monkeypatch.setattr("src.argument_mining.models.get_claim_detector", lambda: type("Detector", (), {"prediction_mode": "test"})())
+    path = str(tmp_path / "warehouse.duckdb")
+    conn = duckdb.connect(path)
+    DocumentStore(conn).upsert([_document("John Smith published a policy decision.")])
+
+    def unavailable(_):
+        raise RuntimeError("graph unavailable")
+
+    result = mine_unprocessed_documents(conn, graph_publisher=unavailable)
+    assert result["processed"] == 1
+    assert result["graph_documents_pending"] == 1
+    assert result["graph_projection"]["failed"] == 1
+    assert conn.execute("SELECT attempts,last_error FROM argument_graph_projections").fetchone() == (1, "graph unavailable")
+    conn.close()
+    conn = duckdb.connect(path)
+    published = []
+    result = mine_unprocessed_documents(conn, graph_publisher=published.append)
+    assert result["processed"] == 0
+    assert result["graph_documents_pending"] == 0
+    assert result["graph_projection"]["completed"] == 1
+    assert calls == ["incremental-1"]
+    assert published[0]["content"] == "John Smith published a policy decision."
+    assert mine_unprocessed_documents(conn, graph_publisher=published.append)["graph_projection"]["completed"] == 0
+    assert len(published) == 1
+    conn.close()
+
+
+def test_failed_inference_does_not_enqueue_graph_work(monkeypatch):
+    def failure(*_):
+        raise RuntimeError("inference unavailable")
+    monkeypatch.setattr("src.argument_mining.evidence.run_pipeline", failure)
+    conn = duckdb.connect()
+    DocumentStore(conn).upsert([_document("New content.")])
+    mine_unprocessed_documents(conn, graph_publisher=lambda _: pytest.fail("must not project failed inference"))
+    assert conn.execute("SELECT count(*) FROM argument_graph_projections").fetchone()[0] == 0
+    conn.close()
+
+
+def test_model_and_configuration_changes_invalidate_unchanged_text(monkeypatch):
+    class Detector:
+        prediction_mode = "pretrained:model-one"
+    detector = Detector()
+    monkeypatch.setattr("src.argument_mining.models.get_claim_detector", lambda: detector)
+    monkeypatch.setattr("src.argument_mining.evidence.run_pipeline", lambda *_: ([], []))
+    monkeypatch.setattr("src.argument_mining.frames.classify_and_store", lambda *_: None)
+    conn = duckdb.connect()
+    DocumentStore(conn).upsert([_document("Same source text throughout.")])
+    assert mine_unprocessed_documents(conn)["processed"] == 1
+    assert mine_unprocessed_documents(conn)["processed"] == 0
+    detector.prediction_mode = "pretrained:model-two"
+    assert mine_unprocessed_documents(conn)["processed"] == 1
+    assert mine_unprocessed_documents(conn)["processed"] == 0
+    assert mine_unprocessed_documents(conn, configuration={"rules_version": 2})["processed"] == 1
+    assert mine_unprocessed_documents(conn, configuration={"rules_version": 2})["processed"] == 0
+    conn.execute("UPDATE documents SET title='A revised title'")
+    assert mine_unprocessed_documents(conn, configuration={"rules_version": 2})["processed"] == 1
+    conn.close()
