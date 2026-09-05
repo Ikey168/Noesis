@@ -19,3 +19,16 @@ record fetch succeeded. Names and relationships remain provider assertions.
 `https://zenodo.org/api/records/2092110`. Only public metadata is included; the
 PDF is not redistributed in this fixture. Checksum and multiple-file tests use
 explicitly synthetic local documents.
+
+`opencitations-native.json` wraps a native 72-edge public response from
+`https://api.opencitations.net/index/v2/references/doi:10.1186/1756-8722-6-59`
+in a Noesis snapshot with capture time and content hash. Acquired on 2026-09-05.
+Citation metadata identifies relationships; it does not independently corroborate
+the cited works' claims. No access token is stored in the fixture.
+
+`orcid-public-projection.json` contains unchanged professional-record fields
+selected from the public ORCID v3 example record `0000-0002-1825-0097`, captured
+on 2026-09-05. The example describes Josiah Carberry; it is not an independently
+verified researcher biography or an annotation dataset. Contact fields and other
+unneeded profile sections were omitted. Source:
+`https://pub.orcid.org/v3.0/0000-0002-1825-0097/record`.

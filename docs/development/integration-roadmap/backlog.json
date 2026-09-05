@@ -358,8 +358,10 @@
     {
       "number": 1474,
       "title": "Enrich research author identities from public ORCID records",
-      "status": "pending",
-      "validation": []
+      "status": "implementation_partial",
+      "validation": [
+        "Public example fetch and projection; parser/source-attribution, missingness, same-name/different-ID, revision and replay tests pass. Authenticated production access and ambiguous-match review integration outstanding."
+      ]
     },
     {
       "number": 1473,
@@ -372,8 +374,10 @@
     {
       "number": 1472,
       "title": "Add provenance-preserving OpenCitations citation acquisition",
-      "status": "pending",
-      "validation": []
+      "status": "implementation_partial",
+      "validation": [
+        "Real public 72-edge response; graph resume/replay and error tests pass. Research API/MCP acquisition and non-DOI cross-provider identity reconciliation remain outstanding."
+      ]
     },
     {
       "number": 1471,

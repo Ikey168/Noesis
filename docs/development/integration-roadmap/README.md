@@ -118,3 +118,30 @@ integration test verifies stable plan hashes and execution fallback after a
 selected source fails. Eight focused planner tests pass. This is an independent
 algorithmic oracle; the cases are synthetic and do not measure real acquisition
 utility or actual provider spending. The original greedy mode remains explicit.
+
+`src.ingestion.opencitations.OpenCitationsClient` captures incoming or outgoing
+citation records using API v2.2.0. Optional provider tokens stay in request headers.
+The documented service has no cursor pagination: the adapter bounds the full
+response (5 MB / 10,000 edges by default), then `ingest_snapshot` resumes over a
+captured snapshot with a hash-bound local cursor. OCI identifiers, observation
+times and native records are retained on knowledge-graph edges. Replaying an
+identical snapshot does not duplicate edges or provenance. A real 72-edge capture,
+incoming direction, malformed identifiers, changed snapshots and provider errors
+are tested. Provider copies do not count as independent corroboration. Binding
+acquisition to the research API/MCP surface and reconciling non-DOI cross-provider
+identities remain outstanding for #1472.
+Documentation: https://api.opencitations.net/index/v2 .
+
+`src.ingestion.orcid.ORCIDClient(token=read_public_token).enrich(orcid, graph_store)`
+uses ORCID v3 public professional-record data. Provision a `/read-public` OAuth
+token according to ORCID's documentation; secrets remain in request headers.
+Requests have a 15-second timeout and 2 MB cap. Names, public employment/education
+and works keep their original assertion sources and dates. Unavailable/private
+fields remain explicit missingness, never negative evidence. Explicit identifiers
+bind graph identities; same-name researchers with different ORCIDs remain distinct.
+Registry revisions are retained in `orcid_history`. The native public example was
+fetched anonymously for parser verification; authenticated production access has
+not been tested. Ambiguous-name integration with the review inbox also remains
+outstanding for #1474. Tests use an explicitly synthetic German name/affiliation
+change in addition to the public example.
+Documentation: https://info.orcid.org/documentation/api-tutorials/api-tutorial-read-data-on-a-record/ .
