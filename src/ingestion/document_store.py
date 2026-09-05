@@ -125,6 +125,31 @@ class DocumentStore:
             CREATE TABLE IF NOT EXISTS document_revision_content (
             revision_id TEXT PRIMARY KEY, blob_hash TEXT NOT NULL)""")
 
+    def put_artifact(self, content: bytes) -> str:
+        """Store bounded original bytes under an immutable content reference."""
+        if not isinstance(content, bytes) or len(content) > 100_000_000:
+            raise ValueError("Artifact must be bytes within the 100 MB limit")
+        digest = hashlib.sha256(content).hexdigest()
+        self.conn.execute("CREATE TABLE IF NOT EXISTS document_artifact_blobs (sha256 TEXT PRIMARY KEY, content BLOB NOT NULL)")
+        self.conn.execute("INSERT OR IGNORE INTO document_artifact_blobs VALUES (?, ?)", [digest, content])
+        return "noesis-artifact:sha256:" + digest
+
+    def read_artifact(self, content_ref: str) -> bytes | None:
+        """Read and verify original artifact bytes; no executable content is opened."""
+        import re
+
+        if not re.fullmatch(r"noesis-artifact:sha256:[a-f0-9]{64}", content_ref):
+            raise ValueError("Invalid artifact content reference")
+        self.conn.execute("CREATE TABLE IF NOT EXISTS document_artifact_blobs (sha256 TEXT PRIMARY KEY, content BLOB NOT NULL)")
+        digest = content_ref.rsplit(":", 1)[1]
+        row = self.conn.execute("SELECT content FROM document_artifact_blobs WHERE sha256=?", [digest]).fetchone()
+        if row is None:
+            return None
+        content = bytes(row[0])
+        if hashlib.sha256(content).hexdigest() != digest:
+            raise ValueError("Stored artifact checksum mismatch")
+        return content
+
     def related_resources(
         self, document_id: str, *, revision: int | None = None
     ) -> dict | None:

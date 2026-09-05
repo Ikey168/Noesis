@@ -85,7 +85,9 @@ class ZenodoClient:
             "metadata_sha256": hashlib.sha256(content).hexdigest(),
         }
 
-    def acquire(self, record_id, selected_files, store, *, languages):
+    def acquire(
+        self, record_id, selected_files, store, *, languages, artifact_only=False
+    ):
         if not selected_files or len(set(selected_files)) != len(selected_files):
             raise ValueError("Select distinct file keys explicitly")
         if set(languages) != set(selected_files) or any(
@@ -105,7 +107,7 @@ class ZenodoClient:
             raise IntegrationError(
                 "missing_file", "Selected file is absent from this record version"
             )
-        documents, total = [], 0
+        documents, blobs, total = [], [], 0
         for key in selected_files:
             item = available[key]
             size = item.get("size")
@@ -141,7 +143,17 @@ class ZenodoClient:
                 raise IntegrationError(
                     "input_limit", "Downloaded files exceed aggregate budget"
                 )
-            text, parser_metadata = extract_text(content, detect_format(content, key))
+            if artifact_only:
+                text = "Zenodo artifact: " + key
+                parser_metadata = {
+                    "representation": "artifact-metadata-only",
+                    "text_extracted": False,
+                }
+            else:
+                text, parser_metadata = extract_text(
+                    content, detect_format(content, key)
+                )
+            blobs.append(content)
             if not text.strip():
                 raise IntegrationError(
                     "unsupported_artifact",
@@ -157,6 +169,8 @@ class ZenodoClient:
                     language=languages[key],
                     title=key,
                     content=text,
+                    content_ref="noesis-artifact:sha256:"
+                    + hashlib.sha256(content).hexdigest(),
                     url=url,
                     source_id="zenodo",
                     ingested_at=int(time.time() * 1000),
@@ -165,6 +179,28 @@ class ZenodoClient:
                             manifest, ensure_ascii=False, sort_keys=True
                         ),
                         "artifact_key": key,
+                        "content_representation": "artifact-metadata-only"
+                        if artifact_only
+                        else "extracted-text",
+                        "related_resources_json": json.dumps(
+                            [
+                                {
+                                    "source_identifier": manifest["doi"]
+                                    or "zenodo:" + str(record_id),
+                                    "source_identifier_type": "DOI"
+                                    if manifest["doi"]
+                                    else "Zenodo",
+                                    "predicate": related.get("relation"),
+                                    "target_identifier": related.get("identifier"),
+                                    "target_identifier_type": related.get("scheme"),
+                                    "provider": "zenodo",
+                                    "native": related,
+                                    "assertion_kind": "bibliographic-relationship",
+                                }
+                                for related in manifest["related_identifiers"]
+                            ],
+                            sort_keys=True,
+                        ),
                         "checksum": checksum,
                         "sha256": hashlib.sha256(content).hexdigest(),
                         "parser_json": json.dumps(
@@ -174,4 +210,17 @@ class ZenodoClient:
                 )
             )
         # Validate every selected download before handing a batch to existing storage.
-        return store.upsert(documents)
+        store.conn.execute("BEGIN TRANSACTION")
+        try:
+            for content in blobs:
+                store.put_artifact(content)
+            result = store.upsert(documents)
+            if result.invalid:
+                raise IntegrationError(
+                    "invalid_document", "Artifact document validation failed"
+                )
+            store.conn.execute("COMMIT")
+            return result
+        except BaseException:
+            store.conn.execute("ROLLBACK")
+            raise

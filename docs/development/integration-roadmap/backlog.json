@@ -342,9 +342,10 @@
     {
       "number": 1476,
       "title": "Ingest Zenodo research artifacts and versioned file manifests",
-      "status": "implementation_partial",
+      "status": "implemented_pending_review",
       "validation": [
-        "Native public metadata fetch succeeded; document storage/replay, checksum failure and restricted-access tests pass; binary artifact integration remains outstanding."
+        "Selected document or binary artifacts use checksum-verified content-addressed DocumentStore storage and atomic document/blob commits.",
+        "Four tests cover native manifest, multi-file documents, checksum/restricted failures, binary version identities, explicit paper links, durable replay and validation rollback."
       ]
     },
     {

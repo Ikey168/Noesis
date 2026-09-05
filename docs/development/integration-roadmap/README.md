@@ -85,8 +85,13 @@ All selected downloads are checked before storage. Restricted and embargoed
 records fail explicitly. Metadata preserves DOI, concept/version links, licensing,
 and related identifiers as JSON in document metadata. Record-specific IDs keep
 versions separate. A native metadata fetch succeeded; document storage, replay,
-restricted access and corrupt-download tests use synthetic files. General binary
-software/data artifact storage remains outstanding for #1476.
+restricted access and corrupt-download tests use synthetic files. Pass `artifact_only=True` to retain software/data bytes without parsing or execution.
+Both modes store verified original bytes in the document store and carry immutable
+`noesis-artifact:sha256:` content references, readable with `read_artifact`. Blob and
+document writes commit together; validation failure rolls back both. Explicit
+provider paper links are available through `related_resources`. Four focused tests
+cover document and binary replay, distinct record versions, durable reopening,
+restricted downloads, checksums and validation rollback.
 Primary API documentation: https://developers.zenodo.org/ .
 
 ## Latest combined regression and model probes
