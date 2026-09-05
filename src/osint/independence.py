@@ -524,6 +524,7 @@ def run_origin_inference(
     near_duplicate_threshold: float = DEFAULT_NEAR_DUPLICATE_THRESHOLD,
     as_of_ms: int | None = None,
     run_id: str | None = None,
+    candidate_backend: str = "exhaustive",
 ) -> dict[str, Any]:
     """Recompute probable-origin components and preserve prior link history."""
     ensure_independence_schema(conn)
@@ -534,7 +535,15 @@ def run_origin_inference(
     document_ids = sorted(signals)
     uf = _UnionFind(document_ids)
     decisions: dict[tuple[str, str], dict[str, Any]] = {}
-    for left, right in combinations(document_ids, 2):
+    if candidate_backend == "minhash":
+        from src.integrations.reuse import candidate_pairs
+        pairs, candidate_metadata = candidate_pairs(signals)
+    elif candidate_backend == "exhaustive":
+        pairs = combinations(document_ids, 2)
+        candidate_metadata = {"backend": "exhaustive"}
+    else:
+        raise ValueError("unknown origin candidate backend")
+    for left, right in pairs:
         decision = compare_signals(
             signals[left], signals[right], near_duplicate_threshold=threshold
         )
@@ -632,6 +641,8 @@ def run_origin_inference(
 
     conn.execute("BEGIN TRANSACTION")
     try:
+        conn.execute("CREATE TABLE IF NOT EXISTS origin_candidate_runs (run_id TEXT PRIMARY KEY, metadata_json TEXT NOT NULL)")
+        conn.execute("INSERT OR REPLACE INTO origin_candidate_runs VALUES (?,?)", [run, json.dumps(candidate_metadata, sort_keys=True)])
         conn.execute(
             "UPDATE reporting_origins SET active = FALSE, updated_at_ms = ?"
             " WHERE method_version = ?",
@@ -696,6 +707,7 @@ def run_origin_inference(
         conn.execute("ROLLBACK")
         raise
     return {
+        "candidate_generation": candidate_metadata,
         "run_id": run,
         "method": METHOD,
         "method_version": METHOD_VERSION,

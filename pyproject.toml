@@ -25,6 +25,22 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+workflow-integrations = [
+  "warcio==1.8.1",
+  "markitdown==0.1.7",
+  "lingua-language-detector==2.2.0",
+  "rapidfuzz==3.14.6",
+  "datasketch==2.0.0",
+  "shapely==2.1.2",
+  "pyproj==3.7.2",
+  "pint==0.25.3",
+  "ortools==9.15.6755",
+  "pandera[pandas]==0.33.1",
+  "river==0.26.1",
+  "rocrate==0.15.1",
+  "sdmx1==2.27.0",
+  "pypandoc-binary==1.17",
+]
 ingestion = [
   "defusedxml>=0.7.1,<1",
   "feedparser>=6,<7",

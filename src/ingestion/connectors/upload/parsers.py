@@ -26,8 +26,14 @@ ParseResult = Tuple[str, Dict[str, Any]]
 # Public dispatch
 # --------------------------------------------------------------------------- #
 
-def extract_text(content: bytes, fmt: str) -> ParseResult:
+def extract_text(content: bytes, fmt: str, *, backend: str = "native") -> ParseResult:
     """Dispatch to the right parser and return (text, metadata)."""
+    if backend == "markitdown":
+        from src.integrations.documents import markitdown
+        return markitdown(content, fmt)
+    if backend != "native":
+        raise ValueError("unknown document parser backend")
+
     dispatch = {
         "pdf":      _parse_pdf,
         "docx":     _parse_docx,

@@ -6,6 +6,13 @@ from dataclasses import asdict
 
 
 def parse_backend(path, backend, *, grobid_url=None):
+    if backend == "lighton":
+        from src.integrations.documents import lighton_ocr
+        return lighton_ocr(path)
+    if backend == "markitdown":
+        from src.integrations.documents import markitdown
+        text, metadata = markitdown(path.read_bytes(), path.suffix.lstrip("."))
+        return {"text": text, **metadata}
     if backend == "pymupdf":
         import fitz
 

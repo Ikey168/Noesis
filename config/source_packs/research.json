@@ -1,6 +1,6 @@
 {
   "pack_id": "research-discovery",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Scholarly discovery, authorship, venue, identifier, and citation metadata.",
   "domains": [
     "research"
@@ -78,6 +78,20 @@
       "auth": {
         "kind": "optional-secret",
         "secret_ref": "NOESIS_OPENALEX_API_KEY"
+      }
+    },
+    {
+      "source_id": "datacite-dois",
+      "endpoint": "https://api.datacite.org/dois",
+      "publisher": "DataCite",
+      "operations": [
+        "search",
+        "doi"
+      ],
+      "license": {
+        "id": "cc0-metadata",
+        "terms_url": "https://support.datacite.org/docs/metadata-license",
+        "redistribution": "cc0"
       }
     }
   ]

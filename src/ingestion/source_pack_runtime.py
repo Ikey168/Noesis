@@ -562,7 +562,7 @@ class HTTPSPageAdapter:
         elif native_provider:
             from src.ingestion.scholarly_api import records as scholarly_records
             try:
-                records, next_cursor = scholarly_records(native_provider, payload, cursor=cursor, limit=int(parameters["rows" if native_provider == "crossref" else "per_page"]))
+                records, next_cursor = scholarly_records(native_provider, payload, cursor=cursor, limit=int(parameters[{"crossref": "rows", "openalex": "per_page", "datacite": "page[size]"}[native_provider]]))
             except (ValueError, TypeError, KeyError, IndexError, AttributeError) as exc:
                 raise SourcePackError("schema_drift", "invalid native scholarly response") from exc
         elif isinstance(payload, list):

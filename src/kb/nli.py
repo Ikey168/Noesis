@@ -38,13 +38,18 @@ class TransformersNLI:
     weights are unavailable.
     """
 
-    def __init__(self, model_name: Optional[str] = None) -> None:
+    def __init__(self, model_name: Optional[str] = None, *, evaluation_model: bool = False) -> None:
         from src.argument_mining.model_registry import cached_model_path, resolved_pins
 
         pin = resolved_pins()["nli"]
         self.model_name = model_name or pin["model"]
         local_path = cached_model_path("nli")
-        if local_path is None or self.model_name != pin["model"]:
+        if evaluation_model:
+            if model_name != "MoritzLaurer/mDeBERTa-v3-base-mnli-xnli":
+                raise ValueError("unsupported evaluation NLI model")
+            from src.integrations.models import model_path
+            local_path = model_path(model_name)
+        if local_path is None or not evaluation_model and self.model_name != pin["model"]:
             raise RuntimeError(
                 "pinned NLI weights are not in the local cache; run `make models`"
             )

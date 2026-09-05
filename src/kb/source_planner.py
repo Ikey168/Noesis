@@ -524,6 +524,8 @@ class SourcePlannerStore:
         credential_available: Callable[[str], bool] | None = None,
         persist: bool = False,
         principal_id: str = "preview",
+        optimizer: str = "greedy",
+        solver_timeout_seconds: float = 2,
     ) -> dict[str, Any]:
         _require(scopes, WRITE_SCOPE if persist else READ_SCOPE)
         objective = self.objective(namespace, objective_id, scopes={READ_SCOPE})
@@ -612,6 +614,23 @@ class SourcePlannerStore:
         candidates.sort(
             key=lambda item: (-item["score"], item["capability"]["source_id"])
         )
+        if optimizer not in {"greedy", "cp-sat"}:
+            raise SourcePlannerError("invalid_optimizer", "unknown source optimizer")
+        if optimizer == "cp-sat":
+            from src.integrations.planning import select_sources
+            optimization = select_sources(candidates, constraints, len(objective["decomposition"]),
+                                          timeout_seconds=solver_timeout_seconds)
+            constraints = {**constraints, "optimization": optimization}
+            if optimization["status"] not in {"OPTIMAL", "FEASIBLE"}:
+                raise SourcePlannerError("optimizer_" + optimization["status"].lower(),
+                                         "solver did not produce a feasible source plan", optimization=optimization)
+            chosen = set(optimization["selected_ids"])
+            for item in candidates:
+                if item["capability"]["source_id"] not in chosen:
+                    exclusions.append({"source_id": item["capability"]["source_id"],
+                                       "capability_id": item["capability"]["capability_id"],
+                                       "reasons": ["optimizer-not-selected"], "required": False})
+            candidates = [item for item in candidates if item["capability"]["source_id"] in chosen]
         selected, spent, groups, covered = [], 0.0, set(), set()
         budget = float(constraints["budget"])
         for item in candidates:
@@ -631,7 +650,8 @@ class SourcePlannerStore:
             adds_coverage = bool(set(item["covered_parts"]) - covered)
             adds_independence = capability["dependency_group"] not in groups
             if (
-                selected
+                optimizer == "greedy"
+                and selected
                 and not adds_coverage
                 and not adds_independence
                 and capability["source_id"] not in required

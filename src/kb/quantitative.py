@@ -1107,6 +1107,15 @@ class QuantitativeStore:
         }
         return result
 
+    def convert_physical(self, namespace, value, from_unit, to_unit, *, scopes, principal_id, precision=6):
+        """Optional Pint physical conversion, separate from versioned economic units."""
+        _require(scopes, CALCULATE_SCOPE)
+        from src.integrations.units import convert_physical
+        evaluated = convert_physical(value, from_unit, to_unit, precision=precision)
+        return self._calculation(namespace, "physical-conversion", evaluated["request"],
+                                 {**evaluated["result"], "producer": evaluated["producer"]},
+                                 input_ids=[], principal_id=principal_id, formula_revision_id=None)
+
     def convert(
         self,
         namespace: str,

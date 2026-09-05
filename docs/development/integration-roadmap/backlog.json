@@ -1,0 +1,544 @@
+{
+  "base_commit": "8ac181b99b90decae069be7d35165395f89b8d1b",
+  "issues": [
+    {
+      "number": 1524,
+      "title": "Evaluate RO-Crate export for interoperable research packages",
+      "status": "implementation_partial",
+      "validation": [
+        "See README.md for tested scope and outstanding acceptance evidence."
+      ]
+    },
+    {
+      "number": 1523,
+      "title": "Add optional Pandoc citeproc export for formatted research reports",
+      "status": "implementation_partial",
+      "validation": [
+        "See README.md for tested scope and outstanding acceptance evidence."
+      ]
+    },
+    {
+      "number": 1522,
+      "title": "Evaluate River ADWIN for extraction and model-quality drift monitoring",
+      "status": "implementation_partial",
+      "validation": [
+        "See README.md for tested scope and outstanding acceptance evidence."
+      ]
+    },
+    {
+      "number": 1521,
+      "title": "Evaluate Label Studio exchange for independent evidence annotation",
+      "status": "implementation_partial",
+      "validation": [
+        "See README.md for tested scope and outstanding acceptance evidence."
+      ]
+    },
+    {
+      "number": 1520,
+      "title": "Evaluate Outlines for schema-constrained report revision proposals",
+      "status": "implementation_partial",
+      "validation": [
+        "See README.md for tested scope and outstanding acceptance evidence."
+      ]
+    },
+    {
+      "number": 1519,
+      "title": "Evaluate pyproj for provenance-preserving coordinate transformations",
+      "status": "implementation_partial",
+      "validation": [
+        "See README.md for tested scope and outstanding acceptance evidence."
+      ]
+    },
+    {
+      "number": 1518,
+      "title": "Evaluate Shapely for validated geometry operations",
+      "status": "implementation_partial",
+      "validation": [
+        "See README.md for tested scope and outstanding acceptance evidence."
+      ]
+    },
+    {
+      "number": 1517,
+      "title": "Evaluate Pint for compound units and dimensional validation",
+      "status": "implementation_partial",
+      "validation": [
+        "See README.md for tested scope and outstanding acceptance evidence."
+      ]
+    },
+    {
+      "number": 1516,
+      "title": "Evaluate Pandera for declarative dataset validation",
+      "status": "implementation_partial",
+      "validation": [
+        "See README.md for tested scope and outstanding acceptance evidence."
+      ]
+    },
+    {
+      "number": 1515,
+      "title": "Evaluate sdmx1 for Eurostat, ECB and Bundesbank statistical acquisition",
+      "status": "implementation_partial",
+      "validation": [
+        "See README.md for tested scope and outstanding acceptance evidence."
+      ]
+    },
+    {
+      "number": 1514,
+      "title": "Evaluate WhisperX forced alignment for word-level evidence timestamps",
+      "status": "implementation_partial",
+      "validation": [
+        "See README.md for tested scope and outstanding acceptance evidence."
+      ]
+    },
+    {
+      "number": 1513,
+      "title": "Evaluate OR-Tools CP-SAT for constrained source selection",
+      "status": "implementation_partial",
+      "validation": [
+        "See README.md for tested scope and outstanding acceptance evidence."
+      ]
+    },
+    {
+      "number": 1512,
+      "title": "Evaluate datasketch MinHash LSH for scalable text-reuse candidate discovery",
+      "status": "implementation_partial",
+      "validation": [
+        "See README.md for tested scope and outstanding acceptance evidence."
+      ]
+    },
+    {
+      "number": 1511,
+      "title": "Benchmark RapidFuzz for entity-resolution candidate scoring",
+      "status": "implementation_partial",
+      "validation": [
+        "See README.md for tested scope and outstanding acceptance evidence."
+      ]
+    },
+    {
+      "number": 1510,
+      "title": "Benchmark Lingua for short and mixed-language research evidence",
+      "status": "implementation_partial",
+      "validation": [
+        "See README.md for tested scope and outstanding acceptance evidence."
+      ]
+    },
+    {
+      "number": 1509,
+      "title": "Benchmark wtpsplit/SaT for German and multilingual sentence segmentation",
+      "status": "implementation_partial",
+      "validation": [
+        "See README.md for tested scope and outstanding acceptance evidence."
+      ]
+    },
+    {
+      "number": 1508,
+      "title": "Benchmark LightOnOCR-2-1B on scanned German administrative documents",
+      "status": "implementation_partial",
+      "validation": [
+        "See README.md for tested scope and outstanding acceptance evidence."
+      ]
+    },
+    {
+      "number": 1507,
+      "title": "Evaluate multilingual mDeBERTa NLI for German evidence support and contradiction",
+      "status": "implementation_partial",
+      "validation": [
+        "See README.md for tested scope and outstanding acceptance evidence."
+      ]
+    },
+    {
+      "number": 1506,
+      "title": "Evaluate Qwen3-Reranker-0.6B with a dedicated multilingual scoring adapter",
+      "status": "implementation_partial",
+      "validation": [
+        "See README.md for tested scope and outstanding acceptance evidence."
+      ]
+    },
+    {
+      "number": 1505,
+      "title": "Benchmark BGE-M3 dense, sparse and multi-vector retrieval",
+      "status": "pending",
+      "validation": []
+    },
+    {
+      "number": 1504,
+      "title": "Benchmark multilingual-e5-small for lower-cost German/English retrieval",
+      "status": "implementation_partial",
+      "validation": [
+        "See README.md for tested scope and outstanding acceptance evidence."
+      ]
+    },
+    {
+      "number": 1503,
+      "title": "Evaluate Playwright MCP for interactive evidence acquisition",
+      "status": "implementation_partial",
+      "validation": [
+        "See README.md for tested scope and outstanding acceptance evidence."
+      ]
+    },
+    {
+      "number": 1502,
+      "title": "Connect Context7 documentation through existing MCP federation",
+      "status": "implementation_partial",
+      "validation": [
+        "See README.md for tested scope and outstanding acceptance evidence."
+      ]
+    },
+    {
+      "number": 1501,
+      "title": "Connect GitHub MCP research records through existing federation",
+      "status": "implementation_partial",
+      "validation": [
+        "See README.md for tested scope and outstanding acceptance evidence."
+      ]
+    },
+    {
+      "number": 1500,
+      "title": "Evaluate Phoenix tracing against existing MLflow and observability",
+      "status": "pending",
+      "validation": []
+    },
+    {
+      "number": 1499,
+      "title": "Evaluate Ragas alongside existing retrieval and answer-support metrics",
+      "status": "pending",
+      "validation": []
+    },
+    {
+      "number": 1498,
+      "title": "Acquire bounded historical captures from the Common Crawl index",
+      "status": "pending",
+      "validation": []
+    },
+    {
+      "number": 1497,
+      "title": "Add bounded WARC import and export with warcio",
+      "status": "implementation_partial",
+      "validation": [
+        "See README.md for tested scope and outstanding acceptance evidence."
+      ]
+    },
+    {
+      "number": 1496,
+      "title": "Benchmark PaddleOCR for scanned German and multilingual evidence",
+      "status": "pending",
+      "validation": []
+    },
+    {
+      "number": 1495,
+      "title": "Evaluate MarkItDown as an optional document conversion fallback",
+      "status": "implementation_partial",
+      "validation": [
+        "See README.md for tested scope and outstanding acceptance evidence."
+      ]
+    },
+    {
+      "number": 1494,
+      "title": "Evaluate Presidio for traceable redaction of derived research outputs",
+      "status": "pending",
+      "validation": []
+    },
+    {
+      "number": 1493,
+      "title": "Benchmark GLiNER2-multi-v1 as a domain-specific extraction backend",
+      "status": "pending",
+      "validation": []
+    },
+    {
+      "number": 1492,
+      "title": "Benchmark Splink for reviewable multi-attribute entity resolution",
+      "status": "pending",
+      "validation": []
+    },
+    {
+      "number": 1491,
+      "title": "Acquire historical web evidence through Wayback public APIs",
+      "status": "pending",
+      "validation": []
+    },
+    {
+      "number": 1490,
+      "title": "Evaluate Jina Reader as a bounded web extraction fallback",
+      "status": "pending",
+      "validation": []
+    },
+    {
+      "number": 1489,
+      "title": "Benchmark Tavily discovery against existing search acquisition",
+      "status": "pending",
+      "validation": []
+    },
+    {
+      "number": 1488,
+      "title": "Benchmark Exa discovery against existing search acquisition",
+      "status": "pending",
+      "validation": []
+    },
+    {
+      "number": 1487,
+      "title": "Ingest BfArM German medicine safety letters and updates",
+      "status": "pending",
+      "validation": []
+    },
+    {
+      "number": 1486,
+      "title": "Ingest EMA public medicine metadata and linked regulatory documents",
+      "status": "pending",
+      "validation": []
+    },
+    {
+      "number": 1485,
+      "title": "Enrich EU/German/Berlin entities from referenced Wikidata statements",
+      "status": "pending",
+      "validation": []
+    },
+    {
+      "number": 1484,
+      "title": "Add reviewable EU-focused OpenSanctions entity matches",
+      "status": "pending",
+      "validation": []
+    },
+    {
+      "number": 1483,
+      "title": "Add EU/German company enrichment through OpenCorporates",
+      "status": "pending",
+      "validation": []
+    },
+    {
+      "number": 1482,
+      "title": "Add Berlin legal texts and decisions through documented public access",
+      "status": "pending",
+      "validation": []
+    },
+    {
+      "number": 1481,
+      "title": "Acquire German federal court decisions from Rechtsprechung im Internet",
+      "status": "pending",
+      "validation": []
+    },
+    {
+      "number": 1480,
+      "title": "Extend EUR-Lex with CELLAR legal texts and case-law relationships",
+      "status": "pending",
+      "validation": []
+    },
+    {
+      "number": 1479,
+      "title": "Ingest German Clinical Trials Register DRKS exports",
+      "status": "pending",
+      "validation": []
+    },
+    {
+      "number": 1478,
+      "title": "Acquire EU/EEA clinical trial evidence from CTIS public records",
+      "status": "pending",
+      "validation": []
+    },
+    {
+      "number": 1477,
+      "title": "Acquire accessible OpenReview submissions, reviews and rebuttals",
+      "status": "pending",
+      "validation": []
+    },
+    {
+      "number": 1476,
+      "title": "Ingest Zenodo research artifacts and versioned file manifests",
+      "status": "pending",
+      "validation": []
+    },
+    {
+      "number": 1475,
+      "title": "Enrich institution identities and relationships from the ROR API",
+      "status": "pending",
+      "validation": []
+    },
+    {
+      "number": 1474,
+      "title": "Enrich research author identities from public ORCID records",
+      "status": "pending",
+      "validation": []
+    },
+    {
+      "number": 1473,
+      "title": "Complete native DataCite DOI acquisition and related-resource mapping",
+      "status": "implementation_partial",
+      "validation": [
+        "See README.md for tested scope and outstanding acceptance evidence."
+      ]
+    },
+    {
+      "number": 1472,
+      "title": "Add provenance-preserving OpenCitations citation acquisition",
+      "status": "pending",
+      "validation": []
+    },
+    {
+      "number": 1471,
+      "title": "Acquire OpenAlex PDFs and TEI XML through the existing paper pipeline",
+      "status": "pending",
+      "validation": []
+    },
+    {
+      "number": 1470,
+      "title": "Ingest Crossref Retraction Watch notices into evidence correction workflows",
+      "status": "pending",
+      "validation": []
+    },
+    {
+      "number": 1469,
+      "title": "[Tracking] API, library and MCP integration roadmap for EU/Germany/Berlin",
+      "status": "pending",
+      "validation": []
+    },
+    {
+      "number": 1463,
+      "title": "Draft and review report revisions",
+      "status": "pending",
+      "validation": []
+    },
+    {
+      "number": 1458,
+      "title": "Export reviewed corrections as evaluation/training candidates",
+      "status": "pending",
+      "validation": []
+    },
+    {
+      "number": 1444,
+      "title": "Improve and calibrate frame classification",
+      "status": "pending",
+      "validation": []
+    },
+    {
+      "number": 1443,
+      "title": "Improve and calibrate stance classification",
+      "status": "pending",
+      "validation": []
+    },
+    {
+      "number": 1427,
+      "title": "Evaluate whether answers are supported by their cited evidence",
+      "status": "pending",
+      "validation": []
+    },
+    {
+      "number": 1426,
+      "title": "Benchmark the existing hybrid retrieval and reranking paths",
+      "status": "pending",
+      "validation": []
+    },
+    {
+      "number": 1420,
+      "title": "Collect the missing independent human evaluation set",
+      "status": "pending",
+      "validation": []
+    },
+    {
+      "number": 1406,
+      "title": "[Tracking] Unified evidence review inbox",
+      "status": "pending",
+      "validation": []
+    },
+    {
+      "number": 1405,
+      "title": "[Tracking] Living research reports",
+      "status": "pending",
+      "validation": []
+    },
+    {
+      "number": 1401,
+      "title": "[Tracking] Query deadlines, retrieval relevance, and evidence-supported answers",
+      "status": "pending",
+      "validation": []
+    },
+    {
+      "number": 1399,
+      "title": "[Tracking] Revision-safe extraction, enrichment, and model evaluation",
+      "status": "pending",
+      "validation": []
+    },
+    {
+      "number": 1391,
+      "title": "Expose Guardian API collection through domain source packs",
+      "status": "pending",
+      "validation": []
+    },
+    {
+      "number": 1389,
+      "title": "Evaluate Firecrawl as an optional scrape API backend",
+      "status": "pending",
+      "validation": []
+    },
+    {
+      "number": 1388,
+      "title": "Evaluate Zyte API through the existing Scrapy integration boundary",
+      "status": "pending",
+      "validation": []
+    },
+    {
+      "number": 1387,
+      "title": "Evaluate Crawlee Python for resumable adaptive crawling",
+      "status": "pending",
+      "validation": []
+    },
+    {
+      "number": 1386,
+      "title": "Evaluate Crawl4AI on the scraping benchmark",
+      "status": "pending",
+      "validation": []
+    },
+    {
+      "number": 1385,
+      "title": "Build a reproducible scraping backend benchmark",
+      "status": "pending",
+      "validation": []
+    },
+    {
+      "number": 1366,
+      "title": "Evaluate GROBID for scientific sections and citation references",
+      "status": "pending",
+      "validation": []
+    },
+    {
+      "number": 1365,
+      "title": "Evaluate Docling against the structured-PDF baseline",
+      "status": "pending",
+      "validation": []
+    },
+    {
+      "number": 1364,
+      "title": "Build a structured-PDF evaluation corpus and PyMuPDF baseline",
+      "status": "pending",
+      "validation": []
+    },
+    {
+      "number": 1359,
+      "title": "Add an optional Brave Search source-discovery adapter",
+      "status": "pending",
+      "validation": []
+    },
+    {
+      "number": 1348,
+      "title": "[Tracking] Connect the existing Guardian API collector to domain source packs and incremental ingestion",
+      "status": "pending",
+      "validation": []
+    },
+    {
+      "number": 1347,
+      "title": "[Tracking] Benchmark optional crawl backends against the repaired Scrapy and Playwright pipeline",
+      "status": "pending",
+      "validation": []
+    },
+    {
+      "number": 1340,
+      "title": "[Tracking] Benchmark Docling and GROBID as optional structured document parsers",
+      "status": "pending",
+      "validation": []
+    },
+    {
+      "number": 1338,
+      "title": "[Tracking] Extend domain source discovery with scholarly search, sitemaps, and optional web search",
+      "status": "pending",
+      "validation": []
+    }
+  ],
+  "completion_policy": "Adapters and smoke tests do not satisfy independent benchmark or live-service evaluation requirements. No issues closed by this checkpoint."
+}

@@ -121,6 +121,43 @@ class ReviewInboxStore:
             'assignment_count': self.conn.execute('SELECT count(*) FROM review_inbox_assignments WHERE task_id=?', [task_id]).fetchone()[0],
             'submitted_count': len(votes)}
 
+    def export_label_studio(self, namespace, task_ids, *, labels, principal_id, scopes):
+        from src.integrations.annotation import export_tasks
+        records, source_maps = [], {}
+        if not 1 <= len(task_ids) <= 1000 or len(set(task_ids)) != len(task_ids):
+            raise ReviewTargetError('invalid_tasks', 'one to 1000 distinct task IDs required')
+        for task_id in task_ids:
+            task = self.inspect(namespace, task_id, principal_id=principal_id, scopes=scopes)
+            if task['stale']:
+                raise ReviewTargetError('target_stale', 'annotation target changed')
+            parts, locations, offset = [], [], 0
+            for spec in task['sources']:
+                row = self.conn.execute('SELECT payload_json FROM document_revision_records WHERE document_id=? AND revision_id=? AND committed_watermark IS NOT NULL',
+                                        [spec['document_id'], spec['revision_id']]).fetchone()
+                payload = json.loads(row[0]) if row else {}
+                if payload.get('_payload_reclaimed') or not isinstance(payload.get('content'), str):
+                    raise ReviewTargetError('source_unavailable', 'annotation source text unavailable')
+                text = payload['content']
+                locations.append({**spec, 'start': offset, 'end': offset + len(text)})
+                parts.append(text); offset += len(text) + 2
+            records.append({'task_id': task_id, 'revision_id': task['target_revision_hash'], 'text': '\n\n'.join(parts)})
+            source_maps[task_id] = locations
+        exported = export_tasks(records, labels=labels)
+        for task in exported:
+            task['meta']['source_spans'] = source_maps[task['data']['task_id']]
+        return exported
+
+    def import_label_studio(self, namespace, exported, returned, *, reviewer_mapping, principal_id, scopes):
+        from src.integrations.annotation import import_annotations
+        if not exported:
+            raise ReviewTargetError('invalid_tasks', 'exported task manifest required')
+        current = self.export_label_studio(namespace, [t['data']['task_id'] for t in exported],
+                    labels=exported[0]['data']['labels'], principal_id=principal_id, scopes=scopes)
+        if current != exported:
+            raise ReviewTargetError('target_stale', 'exported source or annotation schema changed')
+        return import_annotations(exported, returned, reviewer_mapping=reviewer_mapping,
+                                  current_revisions={t['data']['task_id']: t['data']['revision_id'] for t in current})
+
     def assign(self, namespace, task_id, reviewers, *, principal_id, scopes):
         task = self._task(namespace, task_id)
         self._authorize(task, principal_id, scopes, WRITE_SCOPE, coordinator=True)

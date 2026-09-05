@@ -106,7 +106,7 @@ class TextChunker:
     - Offset tracking for reconstruction
     """
     
-    def __init__(self, config: Optional[ChunkConfig] = None):
+    def __init__(self, config: Optional[ChunkConfig] = None, *, sentence_segmenter=None):
         """
         Initialize text chunker.
         
@@ -114,6 +114,7 @@ class TextChunker:
             config: Chunking configuration
         """
         self.config = config or ChunkConfig()
+        self.sentence_segmenter = sentence_segmenter
         if self.config.max_chars <= 0 or self.config.overlap_chars < 0 or self.config.min_chunk_chars < 0:
             raise ValueError("chunk bounds must be positive/nonnegative")
         
@@ -126,10 +127,10 @@ class TextChunker:
                     self.nlp = English()
                     self.nlp.add_pipe("sentencizer")
                 else:
-                    # Fallback to English for unsupported languages
-                    self.nlp = English()
+                    from spacy.util import get_lang_class
+                    self.nlp = get_lang_class(self.config.language)()
                     self.nlp.add_pipe("sentencizer")
-                    logger.warning(f"Language '{self.config.language}' not supported, using English")
+
             except Exception as e:
                 logger.warning(f"Failed to load spacy model: {e}, using regex fallback")
                 self.nlp = None
@@ -241,6 +242,16 @@ class TextChunker:
         return [text[start:end] for start, end in self._sentence_spans(text)]
 
     def _sentence_spans(self, text: str) -> List[Tuple[int, int]]:
+        if self.sentence_segmenter is not None:
+            spans = list(self.sentence_segmenter(text))
+            previous = 0
+            for start, end in spans:
+                if not 0 <= previous <= start < end <= len(text) or text[previous:start].strip():
+                    raise ValueError("segmenter returned invalid or incomplete source offsets")
+                previous = end
+            if text[previous:].strip():
+                raise ValueError("segmenter omitted source text")
+            return spans
         if self.nlp:
             try:
                 return [(sent.start_char, sent.end_char) for sent in self.nlp(text).sents]

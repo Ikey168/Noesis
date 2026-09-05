@@ -2586,6 +2586,7 @@ def calculate_spatial_relation(
     left_geometry_id: str,
     right: Any = None,
     tolerance_m: float = 0,
+    backend: str = "stdlib",
 ) -> dict:
     """Calculate containment, proximity, intersection, or route length with a receipt."""
     from src.kb.geospatial import GeospatialStore
@@ -2598,6 +2599,7 @@ def calculate_spatial_relation(
             left_geometry_id,
             right,
             tolerance_m=tolerance_m,
+            backend=backend,
             principal_id=principal,
             scopes=scopes,
         ),
@@ -4354,7 +4356,7 @@ def create_source_research_objective(
 
 @mcp.tool()
 def preview_source_acquisition_plan(
-    namespace: str, objective_id: str, at_ms: int
+    namespace: str, objective_id: str, at_ms: int, optimizer: str = "greedy"
 ) -> dict:
     """Preview deterministic source selection without persisting a plan or resolving secrets."""
     from src.kb.source_planner import SourcePlannerStore
@@ -4364,6 +4366,7 @@ def preview_source_acquisition_plan(
             namespace,
             objective_id,
             at_ms=at_ms,
+            optimizer=optimizer,
             credential_available=lambda ref: bool(_secret_resolver(ref)),
             scopes={"knowledge:source-planner:read"},
         ),
@@ -4373,7 +4376,7 @@ def preview_source_acquisition_plan(
 
 @mcp.tool()
 def create_source_acquisition_plan(
-    namespace: str, objective_id: str, at_ms: int
+    namespace: str, objective_id: str, at_ms: int, optimizer: str = "greedy"
 ) -> dict:
     """Persist an explainable plan pinned to exact source capability versions."""
     from src.kb.source_planner import SourcePlannerStore
@@ -4383,6 +4386,7 @@ def create_source_acquisition_plan(
             namespace,
             objective_id,
             at_ms=at_ms,
+            optimizer=optimizer,
             credential_available=lambda ref: bool(_secret_resolver(ref)),
             persist=True,
             principal_id=_context()[0],
@@ -8069,11 +8073,19 @@ def revise_authored_report(namespace: str, report_id: str, expected_revision: in
 
 
 @mcp.tool()
-def export_authored_report(namespace: str, report_id: str, revision: int | None = None) -> dict:
-    """Export report JSON, Markdown, and bibliography without external publication."""
+def export_authored_report(namespace: str, report_id: str, revision: int | None = None,
+                           output_format: str = "native", references: list[dict[str, Any]] | None = None,
+                           locale: str = "de-DE") -> dict:
+    """Export native JSON/Markdown or opt-in Pandoc DOCX/HTML with citations."""
     from src.kb.authored_reports import READ_SCOPE, AuthoredReportStore
-    return _safe(lambda c: AuthoredReportStore(c, initialize=False).export(namespace, report_id,
-        revision=revision, principal_id=_context()[0], scopes=_context()[1]), required_scope=READ_SCOPE)
+    def export(conn):
+        store = AuthoredReportStore(conn, initialize=False)
+        args = dict(revision=revision, principal_id=_context()[0], scopes=_context()[1])
+        if output_format == "native":
+            return store.export(namespace, report_id, **args)
+        return store.render(namespace, report_id, output_format=output_format,
+                            references=references or [], locale=locale, **args)
+    return _safe(export, required_scope=READ_SCOPE)
 
 
 @mcp.tool()
