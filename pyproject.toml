@@ -25,6 +25,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+evaluation = ["ir-measures==0.4.3"]
 bibliography = [
   "pyzotero>=1.15.1,<1.16",
   "bibtexparser>=1.4.4,<2.0",
