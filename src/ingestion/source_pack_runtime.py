@@ -392,7 +392,10 @@ class HTTPSPageAdapter:
         secret: str | None = None,
     ) -> None:
         self.source = json.loads(json.dumps(source))
-        self.transport = transport or self._request
+        if transport is None:
+            from functools import partial
+            transport = partial(self._request, max_bytes=int(source['budgets']['max_bytes']))
+        self.transport = transport
         self.secret = secret
         self.definition = {
             "contract": ADAPTER_CONTRACT,
@@ -416,6 +419,7 @@ class HTTPSPageAdapter:
         params: Mapping[str, Any],
         headers: Mapping[str, str],
         timeout: float,
+        max_bytes: int = 20_000_000,
     ) -> Mapping[str, Any]:
         query = urllib.parse.urlencode(params)
         target = url + ("?" + query if query else "")
@@ -430,10 +434,13 @@ class HTTPSPageAdapter:
 
         opener = urllib.request.build_opener(PublicSameHostRedirect())
         with opener.open(request, timeout=timeout) as response:
+            content = response.read(max_bytes + 1)
+            if len(content)>max_bytes:
+                raise SourcePackError('response_too_large', 'source response exceeds its byte limit')
             return {
                 "status": response.status,
                 "headers": dict(response.headers),
-                "content": response.read(),
+                "content": content,
             }
 
     def fetch_page(
@@ -456,6 +463,10 @@ class HTTPSPageAdapter:
             int(request.get("limit", 100)),
             int(self.definition["limits"]["max_results"]),
         )
+        from src.ingestion.europepmc_api import is_europepmc
+        if is_europepmc(self.source):
+            from src.ingestion.europepmc_api import parameters as europepmc_parameters
+            parameters = europepmc_parameters(parameters, cursor=cursor, limit=parameters['limit'])
         headers = {
             "Accept": "application/json, application/xml;q=0.8, text/plain;q=0.5"
         }
@@ -510,7 +521,13 @@ class HTTPSPageAdapter:
                     }
                 ]
             }
-        if isinstance(payload, list):
+        if is_europepmc(self.source):
+            from src.ingestion.europepmc_api import records as europepmc_records
+            try:
+                records, next_cursor = europepmc_records(payload, cursor=cursor, limit=int(parameters['pageSize']))
+            except (ValueError, TypeError) as exc:
+                raise SourcePackError('schema_drift', str(exc)) from exc
+        elif isinstance(payload, list):
             records = payload
             next_cursor = None
         elif isinstance(payload, Mapping):

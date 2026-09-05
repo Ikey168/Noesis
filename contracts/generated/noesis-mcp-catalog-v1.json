@@ -812,7 +812,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 410,
+      "tool_count": 415,
       "tools": [
         "noesis-knowledge-engine.accept_citation_repair",
         "noesis-knowledge-engine.accept_dataset_join",
@@ -850,6 +850,7 @@
         "noesis-knowledge-engine.calculate_spatial_relation",
         "noesis-knowledge-engine.cancel_knowledge_query",
         "noesis-knowledge-engine.cancel_maintenance_job",
+        "noesis-knowledge-engine.cancel_persistent_research_loop",
         "noesis-knowledge-engine.cancel_research_analysis_run",
         "noesis-knowledge-engine.cancel_research_recipe_run",
         "noesis-knowledge-engine.cancel_retention_job",
@@ -880,6 +881,7 @@
         "noesis-knowledge-engine.create_event_record",
         "noesis-knowledge-engine.create_hypothesis_research_plan",
         "noesis-knowledge-engine.create_hypothesis_workspace",
+        "noesis-knowledge-engine.create_persistent_research_loop",
         "noesis-knowledge-engine.create_research_decision",
         "noesis-knowledge-engine.create_research_package_manifest",
         "noesis-knowledge-engine.create_research_project",
@@ -994,6 +996,7 @@
         "noesis-knowledge-engine.inspect_maintenance_generation",
         "noesis-knowledge-engine.inspect_maintenance_job",
         "noesis-knowledge-engine.inspect_media_provenance",
+        "noesis-knowledge-engine.inspect_persistent_research_loop",
         "noesis-knowledge-engine.inspect_quality_health",
         "noesis-knowledge-engine.inspect_reference_workflow",
         "noesis-knowledge-engine.inspect_research_analysis",
@@ -1147,6 +1150,7 @@
         "noesis-knowledge-engine.resolve_source_alias",
         "noesis-knowledge-engine.restore_knowledge_archive",
         "noesis-knowledge-engine.resume_maintenance_schedule",
+        "noesis-knowledge-engine.resume_persistent_research_loop",
         "noesis-knowledge-engine.retire_hypothesis_workspace",
         "noesis-knowledge-engine.retract_event_account",
         "noesis-knowledge-engine.retract_hypothesis_evidence",
@@ -1177,6 +1181,7 @@
         "noesis-knowledge-engine.run_anomaly_detector",
         "noesis-knowledge-engine.run_maintenance_drain",
         "noesis-knowledge-engine.run_maintenance_once",
+        "noesis-knowledge-engine.run_persistent_research_loop",
         "noesis-knowledge-engine.run_reference_workflow",
         "noesis-knowledge-engine.run_research_recipe",
         "noesis-knowledge-engine.run_source_pack_execution",
@@ -1230,7 +1235,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 410
+      "visible_tool_count": 415
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -1244,9 +1249,9 @@
       "available": 81,
       "degraded": 155,
       "disabled": 3,
-      "unauthorized": 415
+      "unauthorized": 420
     },
-    "tools": 654
+    "tools": 659
   },
   "tools": [
     {
@@ -15607,6 +15612,45 @@
     },
     {
       "cost_class": "medium",
+      "description": "Persist cancellation; in-flight provider work retains its slot and reservation until it returns.",
+      "id": "noesis-knowledge-engine.cancel_persistent_research_loop",
+      "input_schema": {
+        "properties": {
+          "loop_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "loop_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "cancel_persistent_research_loop",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge:projects:read",
+        "knowledge:projects:write"
+      ],
+      "required_scopes": [
+        "knowledge:projects:read",
+        "knowledge:projects:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Request durable cancellation of a running notebook.",
       "id": "noesis-knowledge-engine.cancel_research_analysis_run",
       "input_schema": {
@@ -17430,6 +17474,70 @@
       ],
       "required_scopes": [
         "knowledge:hypothesis:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Compile selected gap tasks and acquisition plans into version-pinned project recipes.",
+      "id": "noesis-knowledge-engine.create_persistent_research_loop",
+      "input_schema": {
+        "properties": {
+          "bindings": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "limits": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "project_id": {
+            "type": "string"
+          },
+          "request_key": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "project_id",
+          "request_key",
+          "bindings",
+          "limits"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "create_persistent_research_loop",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge:projects:read",
+        "knowledge:projects:write",
+        "knowledge:recipes:write",
+        "knowledge:gaps:read",
+        "knowledge:source-planner:read"
+      ],
+      "required_scopes": [
+        "knowledge:projects:read",
+        "knowledge:projects:write",
+        "knowledge:recipes:write",
+        "knowledge:gaps:read",
+        "knowledge:source-planner:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -22913,6 +23021,43 @@
       ],
       "required_scopes": [
         "knowledge:multimodal:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Inspect durable project-loop limits, coverage, provenance and stop reasons.",
+      "id": "noesis-knowledge-engine.inspect_persistent_research_loop",
+      "input_schema": {
+        "properties": {
+          "loop_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "loop_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "inspect_persistent_research_loop",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge:projects:read"
+      ],
+      "required_scopes": [
+        "knowledge:projects:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -32370,6 +32515,45 @@
     },
     {
       "cost_class": "medium",
+      "description": "Resume a blocked/cancelled cycle without resetting its deadline, usage or retry history.",
+      "id": "noesis-knowledge-engine.resume_persistent_research_loop",
+      "input_schema": {
+        "properties": {
+          "loop_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "loop_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "resume_persistent_research_loop",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge:projects:read",
+        "knowledge:projects:write"
+      ],
+      "required_scopes": [
+        "knowledge:projects:read",
+        "knowledge:projects:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Retire a workspace through a retained lifecycle revision.",
       "id": "noesis-knowledge-engine.retire_hypothesis_workspace",
       "input_schema": {
@@ -33915,6 +34099,61 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Run live source acquisition and local model recipes in a bounded worker; return by the requested wait/deadline.",
+      "id": "noesis-knowledge-engine.run_persistent_research_loop",
+      "input_schema": {
+        "properties": {
+          "loop_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "wait_ms": {
+            "default": 1000,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "namespace",
+          "loop_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "run_persistent_research_loop",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge:projects:read",
+        "knowledge:projects:write",
+        "knowledge:projects:execute",
+        "knowledge:recipes:execute",
+        "knowledge:source-planner:read",
+        "knowledge:source-planner:execute",
+        "knowledge:gaps:write",
+        "knowledge:read"
+      ],
+      "required_scopes": [
+        "knowledge:projects:read",
+        "knowledge:projects:write",
+        "knowledge:projects:execute",
+        "knowledge:recipes:execute",
+        "knowledge:source-planner:read",
+        "knowledge:source-planner:execute",
+        "knowledge:gaps:write",
+        "knowledge:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
       "version": "1"
     },
     {

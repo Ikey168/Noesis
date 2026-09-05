@@ -1,0 +1,101 @@
+{
+  "budget": {
+    "available": {
+      "requests": 16,
+      "tokens": 0,
+      "usd_micros": 0
+    },
+    "budget": {
+      "requests": 20,
+      "tokens": 0,
+      "usd_micros": 0
+    },
+    "project_id": "project:6a8fdaf1b3f07a11f857de6f87796bfd",
+    "reserved": {
+      "requests": 0,
+      "tokens": 0,
+      "usd_micros": 0
+    },
+    "spent": {
+      "requests": 4,
+      "tokens": 0,
+      "usd_micros": 0
+    }
+  },
+  "independent_human_quality_judgments": false,
+  "runtime": {
+    "embedding_model": "all-MiniLM-L6-v2",
+    "embedding_provider": "local",
+    "embedding_revision": "1110a243fdf4706b3f48f1d95db1a4f5529b4d41",
+    "implementation": "a1b00ddd81ecf44daaae0d41ed03c07b4599a7e55f76bc53d7f7892cc7c4ee69",
+    "libraries": {
+      "sentence-transformers": "6.0.1",
+      "torch": "2.14.0+cpu",
+      "transformers": "5.16.1"
+    },
+    "models": {
+      "claim": {
+        "default": "Nithiwat/mdeberta-v3-base_claimbuster",
+        "env": "NOESIS_CLAIM_MODEL",
+        "model": "Nithiwat/mdeberta-v3-base_claimbuster",
+        "revision": "f0d23ebd02e98325f19419eee10637f9167f8a47",
+        "serves": [
+          "claim detection (#956)"
+        ]
+      },
+      "nli": {
+        "default": "cross-encoder/nli-deberta-v3-base",
+        "env": "NOESIS_NLI_MODEL",
+        "model": "cross-encoder/nli-deberta-v3-base",
+        "revision": "6c749ce3425cd33b46d187e45b92bbf96ee12ec7",
+        "serves": [
+          "stance (#954)",
+          "frames (#955)",
+          "claim links (#964)"
+        ]
+      }
+    }
+  },
+  "source_urls": [
+    "https://europepmc.org/article/MED/37409756",
+    "https://europepmc.org/article/MED/42605531"
+  ],
+  "state": {
+    "accounting": "conservative_reserved_ceiling",
+    "completed_iterations": 2,
+    "coverage": {
+      "economic": [
+        "europe-pmc"
+      ],
+      "scientific": [
+        "europe-pmc"
+      ]
+    },
+    "coverage_evidence": {
+      "economic": [
+        {
+          "content_hash": "1a18ba74cbf05a8851dd65c79ec79d4a3b38ac56616138f71690d016f947e102",
+          "document_id": "spdoc:b48e65e8ca8458e5f98c1cbb94e6",
+          "namespace": "economic",
+          "revision_id": "document-revision:4c3c6eb84b48dc9605862fc1d3abf249",
+          "source_id": "europe-pmc"
+        }
+      ],
+      "scientific": [
+        {
+          "content_hash": "71c918673a6087c2ca6fd27680d5f0bc8253979e72dc315a207a55f8a5ca7264",
+          "document_id": "spdoc:a151a71721cba02ff8215be1ece7",
+          "namespace": "scientific",
+          "revision_id": "document-revision:7c92bd29b29cfe5635d5a38e91aa40a1",
+          "source_id": "europe-pmc"
+        }
+      ]
+    },
+    "last_recipe_run_id": "recipe-run:4375e1f0c08774a5d01d240c",
+    "results": 2,
+    "stop_reason": "configured_coverage_met",
+    "substantive_support_verified": false
+  },
+  "status": "completed",
+  "validation_kind": "live public API and real local models; selected-publication integration check"
+}

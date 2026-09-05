@@ -226,6 +226,8 @@ async def _inspect_server(
 
 
 def _mutability(name: str) -> str:
+    if name in {"run_persistent_research_loop", "cancel_persistent_research_loop", "resume_persistent_research_loop"}:
+        return "write"
     if name in {"reserve_research_project_budget", "settle_research_project_budget"}:
         return "write"
     if name in {"poll_decision_condition_watch", "acknowledge_decision_review_task"}:
@@ -291,6 +293,14 @@ def _required_data(server_stem: str, tool_name: str) -> list[str]:
     if server_stem == "memory_mcp":
         return ["knowledge-memory-store"]
     if server_stem == "knowledge_engine_mcp":
+        if tool_name == "create_persistent_research_loop":
+            return ["knowledge:projects:read", "knowledge:projects:write", "knowledge:recipes:write", "knowledge:gaps:read", "knowledge:source-planner:read"]
+        if tool_name == "inspect_persistent_research_loop":
+            return ["knowledge:projects:read"]
+        if tool_name == "run_persistent_research_loop":
+            return ["knowledge:projects:read", "knowledge:projects:write", "knowledge:projects:execute", "knowledge:recipes:execute", "knowledge:source-planner:read", "knowledge:source-planner:execute", "knowledge:gaps:write", "knowledge:read"]
+        if tool_name in {"cancel_persistent_research_loop", "resume_persistent_research_loop"}:
+            return ["knowledge:projects:read", "knowledge:projects:write"]
         if tool_name in {"reserve_research_project_budget", "settle_research_project_budget"}:
             return ["knowledge:projects:write"]
         if tool_name == "inspect_research_project_budget":
@@ -383,6 +393,14 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
             return ["knowledge:memory:admin"]
         return ["knowledge:memory:read"]
     if server_stem == "knowledge_engine_mcp":
+        if tool_name == "create_persistent_research_loop":
+            return ["knowledge:projects:read", "knowledge:projects:write", "knowledge:recipes:write", "knowledge:gaps:read", "knowledge:source-planner:read"]
+        if tool_name == "inspect_persistent_research_loop":
+            return ["knowledge:projects:read"]
+        if tool_name == "run_persistent_research_loop":
+            return ["knowledge:projects:read", "knowledge:projects:write", "knowledge:projects:execute", "knowledge:recipes:execute", "knowledge:source-planner:read", "knowledge:source-planner:execute", "knowledge:gaps:write", "knowledge:read"]
+        if tool_name in {"cancel_persistent_research_loop", "resume_persistent_research_loop"}:
+            return ["knowledge:projects:read", "knowledge:projects:write"]
         if tool_name in {"reserve_research_project_budget", "settle_research_project_budget"}:
             return ["knowledge:projects:write"]
         if tool_name == "inspect_research_project_budget":

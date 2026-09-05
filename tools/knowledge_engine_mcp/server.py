@@ -8694,6 +8694,47 @@ def inspect_research_project_budget(namespace: str, project_id: str) -> dict:
         principal_id=_context()[0], scopes=_context()[1]), required_scope=READ_SCOPE)
 
 
+@mcp.tool()
+def create_persistent_research_loop(namespace: str, project_id: str, request_key: str,
+                                    bindings: list[dict[str, Any]], limits: dict[str, int]) -> dict:
+    """Compile selected gap tasks and acquisition plans into version-pinned project recipes."""
+    from src.kb.research_loops import ResearchLoopStore
+    return _safe(lambda c: ResearchLoopStore(c).create_loop(namespace, project_id, request_key, bindings, limits,
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope="knowledge:projects:write")
+
+
+@mcp.tool()
+def inspect_persistent_research_loop(namespace: str, loop_id: str) -> dict:
+    """Inspect durable project-loop limits, coverage, provenance and stop reasons."""
+    from src.kb.research_loops import ResearchLoopStore
+    return _safe(lambda c: ResearchLoopStore(c, initialize=False).inspect_loop(namespace, loop_id,
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope="knowledge:projects:read")
+
+
+@mcp.tool()
+def run_persistent_research_loop(namespace: str, loop_id: str, wait_ms: int = 1000) -> dict:
+    """Run live source acquisition and local model recipes in a bounded worker; return by the requested wait/deadline."""
+    from src.kb.research_loops import ResearchLoopStore, EXECUTE_SCOPE
+    return _safe(lambda c: ResearchLoopStore(c).run_bounded(namespace, loop_id, wait_ms=wait_ms,
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope=EXECUTE_SCOPE)
+
+
+@mcp.tool()
+def cancel_persistent_research_loop(namespace: str, loop_id: str) -> dict:
+    """Persist cancellation; in-flight provider work retains its slot and reservation until it returns."""
+    from src.kb.research_loops import ResearchLoopStore
+    return _safe(lambda c: ResearchLoopStore(c).cancel_loop(namespace, loop_id,
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope="knowledge:projects:write")
+
+
+@mcp.tool()
+def resume_persistent_research_loop(namespace: str, loop_id: str) -> dict:
+    """Resume a blocked/cancelled cycle without resetting its deadline, usage or retry history."""
+    from src.kb.research_loops import ResearchLoopStore
+    return _safe(lambda c: ResearchLoopStore(c).resume_loop(namespace, loop_id,
+        principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope="knowledge:projects:write")
+
+
 if __name__ == "__main__":
     from src.mcp_host.transport import run_server
 
