@@ -12,7 +12,7 @@ from typing import Any
 
 CONTRACT = "noesis-knowledge-subscription-v1"
 EVENT_CONTRACT = "noesis-knowledge-subscription-event-v1"
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 READ_SCOPE = "knowledge:subscriptions:read"
 WRITE_SCOPE = "knowledge:subscriptions:write"
 DELIVER_SCOPE = "knowledge:subscriptions:deliver"
@@ -117,6 +117,9 @@ class SubscriptionStore:
 
     def ensure_schema(self) -> None:
         self.conn.execute(_DDL)
+        self.conn.execute("ALTER TABLE knowledge_subscription_snapshots ADD COLUMN IF NOT EXISTS filter_hash TEXT")
+        from src.kb.subscription_delivery import ensure_schema
+        ensure_schema(self.conn)
         self.conn.execute("INSERT OR IGNORE INTO noesis_schema_migrations VALUES (?, ?, ?)", ["knowledge-subscriptions", SCHEMA_VERSION, _now()])
 
     def _rate(self, principal: str) -> None:
@@ -203,6 +206,22 @@ class SubscriptionStore:
         normalized={str(item.get("canonical_id") or item.get("identity") or item.get("id") or _digest(item)):dict(item) for item in items}
         coverage=dict(result.get("coverage") or {"complete":True}); return normalized,coverage
 
+    @staticmethod
+    def _removal_reason(key, coverage, subscription, previous_filter_hash):
+        confirmation = (coverage.get("removals") or {}).get(key, {})
+        if isinstance(confirmation, Mapping) and confirmation.get("revision_id") and confirmation.get("reason") in {"deleted", "retracted"}:
+            return {"reason": "confirmed-" + confirmation["reason"], "withdrawal_confirmed": True,
+                    "source_revision_id": confirmation["revision_id"]}
+        if not coverage.get("complete", True):
+            reason = "incomplete-coverage"
+        elif previous_filter_hash is not None and previous_filter_hash != _digest(subscription["filters"]):
+            reason = "filter-changed"
+        elif coverage.get("truncated") or coverage.get("top_k") or subscription["query"].get("limit"):
+            reason = "possible-top-k-displacement"
+        else:
+            reason = "result-set-absence"
+        return {"reason": reason, "withdrawal_confirmed": False}
+
     def evaluate(self, subscription_id: str, watermark: int, result_or_evaluator: Mapping[str, Any] | Callable[[dict[str, Any]], Mapping[str, Any]], *, principal_id: str, scopes: set[str], observed_at_ms: int | None = None) -> dict[str, Any]:
         row=self._get(subscription_id,principal_id,scopes,write=True); subscription=self._value(row)
         if subscription["status"]!="active": return {"subscription_id":subscription_id,"status":"skipped","reason":subscription["status"]}
@@ -220,7 +239,7 @@ class SubscriptionStore:
             prior_hash=_digest({"items":_load(duplicate[0],{}),"coverage":_load(duplicate[1],{"complete":True})})
             if prior_hash!=result_hash: raise SubscriptionError("snapshot_conflict", "watermark replay returned different results or coverage")
             return {"subscription_id":subscription_id,"status":"replayed","watermark":watermark,"events":0}
-        previous_row=self.conn.execute("SELECT result_json,coverage_json FROM knowledge_subscription_snapshots WHERE subscription_id=? ORDER BY watermark DESC LIMIT 1",[subscription_id]).fetchone(); previous=_load(previous_row[0],{}) if previous_row else {}; previous_coverage=_load(previous_row[1],{"complete":True}) if previous_row else {"complete":True}
+        previous_row=self.conn.execute("SELECT result_json,coverage_json,filter_hash FROM knowledge_subscription_snapshots WHERE subscription_id=? ORDER BY watermark DESC LIMIT 1",[subscription_id]).fetchone(); previous=_load(previous_row[0],{}) if previous_row else {}; previous_coverage=_load(previous_row[1],{"complete":True}) if previous_row else {"complete":True}
         changes=[]
         for key in sorted(current.keys()-previous.keys()): changes.append(("added",key,None,current[key]))
         for key in sorted(previous.keys()-current.keys()): changes.append(("removed",key,previous[key],None))
@@ -229,14 +248,16 @@ class SubscriptionStore:
         if bool(previous_coverage.get("complete",True)) and not bool(coverage.get("complete",True)): changes.append(("coverage-degraded","__coverage__",previous_coverage,coverage))
         self.conn.execute("BEGIN")
         try:
-            self.conn.execute("INSERT INTO knowledge_subscription_snapshots VALUES (?, ?, ?, ?, ?, ?)",[subscription_id,watermark,result_hash,_canonical(current),_canonical(coverage),now])
+            self.conn.execute("INSERT INTO knowledge_subscription_snapshots (subscription_id,watermark,result_hash,result_json,coverage_json,captured_at_ms,filter_hash) VALUES (?, ?, ?, ?, ?, ?, ?)",[subscription_id,watermark,result_hash,_canonical(current),_canonical(coverage),now,_digest(subscription["filters"])])
             event_ids=[]
             for event_type,key,before,after in changes:
                 identity={"subscription_id":subscription_id,"watermark":watermark,"type":event_type,"key":key,"before":before,"after":after}; event_id="subscription-event:"+_digest(identity)[:24]; idempotency=_digest(identity)
                 evidence={"query_hash":_digest(subscription["query"]),"committed_watermark":watermark,"watermark_detail":_load(committed[0],{}),"coverage":coverage}
+                if event_type == "removed":
+                    evidence["removal"] = self._removal_reason(key, coverage, subscription, previous_row[2] if previous_row else None)
                 self.conn.execute("INSERT INTO knowledge_subscription_events VALUES (nextval('knowledge_subscription_event_sequence'),?,?,?,?,?,?,?,?,?,?,?,?)",[event_id,idempotency,subscription_id,subscription["owner_principal"],subscription["namespace"],event_type,key,watermark,None if before is None else _canonical(before),None if after is None else _canonical(after),_canonical(evidence),now]); event_ids.append(event_id)
                 delivery=subscription["delivery"]
-                if delivery.get("kind")!="poll": self.conn.execute("INSERT INTO knowledge_subscription_outbox VALUES (?, ?, ?, ?, 'pending', 0, ?, NULL)",[event_id,delivery["kind"],delivery.get("destination_ref"),_canonical({"contract":EVENT_CONTRACT,"event_id":event_id,"event_type":event_type,"object_key":key,"watermark":watermark}),now])
+                if delivery.get("kind")!="poll": self.conn.execute("INSERT INTO knowledge_subscription_outbox (event_id,delivery_kind,destination_ref,payload_json,status,attempts,available_at_ms,delivered_at_ms) VALUES (?, ?, ?, ?, 'pending', 0, ?, NULL)",[event_id,delivery["kind"],delivery.get("destination_ref"),_canonical({"contract":EVENT_CONTRACT,"event_id":event_id,"event_type":event_type,"object_key":key,"watermark":watermark,"evidence":evidence}),now])
             self.conn.execute("UPDATE knowledge_subscriptions SET last_watermark=?,updated_at_ms=? WHERE subscription_id=?",[watermark,now,subscription_id]); self.conn.execute("COMMIT")
         except Exception:
             self.conn.execute("ROLLBACK"); raise
@@ -250,4 +271,5 @@ class SubscriptionStore:
         return {"subscription_id":subscription_id,"events":events,"cursor":_cursor(subscription_id,sequence),"has_more":len(rows)>capped}
 
     def pending_deliveries(self, *, principal_id: str, scopes: set[str], limit: int = 100) -> list[dict[str, Any]]:
-        _scope(scopes, DELIVER_SCOPE); rows=self.conn.execute("SELECT o.event_id,o.delivery_kind,o.destination_ref,o.payload_json,o.attempts FROM knowledge_subscription_outbox o JOIN knowledge_subscription_events e ON e.event_id=o.event_id WHERE e.owner_principal=? AND o.status='pending' AND o.available_at_ms<=? ORDER BY e.sequence LIMIT ?",[principal_id,_now(),min(int(limit),self.poll_limit)]).fetchall(); return [{"event_id":r[0],"delivery_kind":r[1],"destination_ref":r[2],"payload":_load(r[3],{}),"attempts":int(r[4])} for r in rows]
+        from src.kb.subscription_delivery import SubscriptionDeliveryStore
+        return SubscriptionDeliveryStore(self.conn, initialize=False).pending(principal_id=principal_id, scopes=scopes, limit=min(limit, self.poll_limit))

@@ -226,6 +226,8 @@ async def _inspect_server(
 
 
 def _mutability(name: str) -> str:
+    if name in {"claim_subscription_deliveries", "acknowledge_subscription_delivery", "fail_subscription_delivery", "redrive_subscription_delivery"}:
+        return "write"
     if name in {"revise_research_project", "archive_research_project", "record_research_project_expenditure"}:
         return "write"
     if name in MUTATION_NAMES or name.startswith(MUTATION_PREFIXES):
@@ -317,6 +319,8 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
     if server_stem == "subscriptions_mcp":
         if tool_name.startswith(("create_", "update_", "pause_", "resume_", "delete_")):
             return ["knowledge:subscriptions:write"]
+        if tool_name in {"claim_subscription_deliveries", "acknowledge_subscription_delivery", "fail_subscription_delivery", "redrive_subscription_delivery"}:
+            return ["knowledge:subscriptions:deliver"]
         if tool_name.startswith("pending_"):
             return ["knowledge:subscriptions:deliver"]
         return ["knowledge:subscriptions:read"]
