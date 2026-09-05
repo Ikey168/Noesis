@@ -7821,13 +7821,34 @@ def list_research_projects(namespace: str, limit: int = 50, offset: int = 0) -> 
 @mcp.tool()
 def revise_research_project(namespace: str, project_id: str, expected_revision: int,
                             questions: list[str] | None = None, success_criteria: list[str] | None = None,
-                            add_links: list[dict[str, Any]] | None = None, status: str | None = None) -> dict:
+                            add_links: list[dict[str, Any]] | None = None, status: str | None = None,
+                            replace_links: list[dict[str, Any]] | None = None) -> dict:
     """Append question, evidence, or lifecycle changes with optimistic revision checks."""
     from src.kb.research_projects import ResearchProjectStore, WRITE_SCOPE
     return _safe(lambda c: ResearchProjectStore(c).revise(
         namespace, project_id, expected_revision, questions=questions, success_criteria=success_criteria,
-        add_links=add_links, status=status, principal_id=_context()[0], scopes=_context()[1]),
+        add_links=add_links, replace_links=replace_links, status=status, principal_id=_context()[0], scopes=_context()[1]),
         write=True, required_scope=WRITE_SCOPE)
+
+
+@mcp.tool()
+def branch_research_project(namespace: str, project_id: str, revision: int, request_key: str,
+                            baseline: dict[str, int], changes: dict[str, Any], budget: dict[str, int]) -> dict:
+    """Branch an explicit project revision against retained committed namespace generations."""
+    from src.kb.project_branches import ProjectBranchStore
+    from src.kb.research_projects import WRITE_SCOPE
+    return _safe(lambda c: ProjectBranchStore(c).branch(namespace, project_id, revision, request_key,
+        baseline=baseline, changes=changes, budget=budget, principal_id=_context()[0], scopes=_context()[1]),
+        write=True, required_scope=WRITE_SCOPE)
+
+
+@mcp.tool()
+def compare_research_projects(namespace: str, left_id: str, right_id: str) -> dict:
+    """Compare shared-baseline references and costs, disclosing unavailable evidence and coverage."""
+    from src.kb.project_branches import ProjectBranchStore
+    from src.kb.research_projects import READ_SCOPE
+    return _safe(lambda c: ProjectBranchStore(c, initialize=False).compare(namespace, left_id, right_id,
+        principal_id=_context()[0], scopes=_context()[1]), required_scope=READ_SCOPE)
 
 
 @mcp.tool()

@@ -198,7 +198,7 @@ class ResearchProjectStore:
         return {"projects": result}
 
     def revise(self, namespace, project_id, expected_revision, *, principal_id, scopes,
-               questions=None, success_criteria=None, add_links=None, status=None):
+               questions=None, success_criteria=None, add_links=None, status=None, replace_links=None):
         self.conn.execute("BEGIN TRANSACTION")
         try:
             state = self._state(namespace, project_id)
@@ -210,7 +210,11 @@ class ResearchProjectStore:
                 state["question_revision"] += 1
             if success_criteria is not None:
                 state["success_criteria"] = _strings(success_criteria, "success_criteria", required=True)
-            for link in _links(add_links or []):
+            if replace_links is not None:
+                if add_links is not None:
+                    raise ResearchProjectError("invalid_links", "choose replacement or addition of references")
+                state["links"] = []
+            for link in _links(replace_links if replace_links is not None else add_links or []):
                 if link.get("namespace", namespace) not in {namespace, *state["scope"]["namespaces"]}:
                     raise ResearchProjectError("scope_mismatch", "reference is outside the project namespace scope")
                 link.setdefault("question_revision", state["question_revision"])

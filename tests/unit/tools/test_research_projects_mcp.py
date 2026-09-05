@@ -24,7 +24,27 @@ def test_project_public_tools_reopen_revise_archive_and_recheck_access(tmp_path,
     assert tools["list_research_projects"].fn(namespace="research")["projects"][0]["revision"] == 3
     scopes.remove("domain:policy:read")
     assert tools["inspect_research_project"].fn(**identity)["error"]["code"] == "unauthorized"
-    for name in ("create_research_project", "revise_research_project", "archive_research_project", "record_research_project_expenditure"):
+    for name in ("branch_research_project", "create_research_project", "revise_research_project", "archive_research_project", "record_research_project_expenditure"):
         assert _mutability(name) == "write"
         assert _required_scopes("knowledge_engine_mcp", "write", name) == ["knowledge:projects:write"]
     assert _required_scopes("knowledge_engine_mcp", "read", "inspect_research_project") == ["knowledge:projects:read"]
+
+
+def test_branch_public_tools(tmp_path, monkeypatch):
+    from src.kb.derived_revisions import DerivedRevisionStore
+    path = str(tmp_path / "branches.duckdb")
+    conn = duckdb.connect(path)
+    derived = DerivedRevisionStore(conn, fixture_mode=True)
+    derived.apply_generation("r", 1, [], [])
+    derived.publish_generation("r", 1)
+    conn.close()
+    monkeypatch.setattr(server, "_context", lambda: ("alice", {"operator"}))
+    monkeypatch.setattr(server, "_connection", lambda *, read_only: duckdb.connect(path, read_only=read_only))
+    tools = asyncio.run(server.mcp.get_tools())
+    parent = tools["create_research_project"].fn(namespace="r", request_key="q", questions=["Why?"],
+        success_criteria=["Evidence"], scope={"namespaces": ["r"], "domains": []}, budget={})
+    result = tools["branch_research_project"].fn(namespace="r", project_id=parent["project_id"], revision=1,
+        request_key="alternative", baseline={"r": 1}, changes={"methods": ["Alternative"]}, budget={})
+    assert "project" in result, result
+    compared = tools["compare_research_projects"].fn(namespace="r", left_id=parent["project_id"], right_id=result["project"]["project_id"])
+    assert compared["evidence_references_equal"]
