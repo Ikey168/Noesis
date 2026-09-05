@@ -3,31 +3,31 @@
     {
       "claims": 4,
       "documents": 2,
-      "documents_per_second": 1.0287387923813387,
-      "elapsed_seconds": 1.9441281059989706,
+      "documents_per_second": 0.8902977823491801,
+      "elapsed_seconds": 2.2464393820264377,
       "export_verified": true,
       "generation": 1,
-      "publication_lag_ms": 1944.1281059989706,
+      "publication_lag_ms": 2246.4393820264377,
       "subscription_events": 2
     },
     {
       "claims": 16,
       "documents": 8,
-      "documents_per_second": 3.6192780168722893,
-      "elapsed_seconds": 2.210385596990818,
+      "documents_per_second": 3.5933999614944994,
+      "elapsed_seconds": 2.2263038030068856,
       "export_verified": true,
       "generation": 2,
-      "publication_lag_ms": 2210.385596990818,
+      "publication_lag_ms": 2226.3038030068856,
       "subscription_events": 12
     },
     {
       "claims": 32,
       "documents": 16,
-      "documents_per_second": 3.672982880021035,
-      "elapsed_seconds": 4.356132473971229,
+      "documents_per_second": 3.523948659399248,
+      "elapsed_seconds": 4.540361266990658,
       "export_verified": true,
       "generation": 3,
-      "publication_lag_ms": 4356.132473971229,
+      "publication_lag_ms": 4540.361266990658,
       "subscription_events": 36
     }
   ],
@@ -37,7 +37,7 @@
     "local_compute_pricing": null,
     "token_usage": "not metered"
   },
-  "elapsed_seconds": 9.331860423000762,
+  "elapsed_seconds": 9.833078738010954,
   "embedding_revision": "1110a243fdf4706b3f48f1d95db1a4f5529b4d41",
   "environment": {
     "cpu": "Intel(R) Xeon(R) W-1370 @ 2.90GHz",
@@ -63,16 +63,16 @@
     ],
     "kind": "controlled failure fixtures; not provider throughput",
     "latency_ms": [
-      40.46805601683445,
-      40.398085984634236,
-      40.44846899341792,
-      40.39482501684688,
-      40.303132991539314,
-      40.39662698050961,
-      40.393389004748315,
-      40.42883598594926,
-      0.2903649874497205,
-      0.26010398869402707
+      40.41684599360451,
+      40.422752004815266,
+      40.48639099346474,
+      40.506805991753936,
+      40.37394898477942,
+      40.37916200468317,
+      40.36374398856424,
+      40.32856097910553,
+      0.2848519943654537,
+      0.2812440216075629
     ],
     "partial_status": "partial"
   },
@@ -131,7 +131,7 @@
       ]
     }
   },
-  "peak_rss_mib": 1470.29296875,
+  "peak_rss_mib": 1472.953125,
   "process_restart_replay": {
     "receipt_count_unchanged": true,
     "run_id": "workflow-run:f74e3cb6b2ed1ba3839c2bdc",
@@ -140,9 +140,9 @@
   "queries": 32,
   "query_failures": [],
   "query_latency_ms": {
-    "max": 85.52840401534922,
-    "p50": 55.903865984873846,
-    "p95": 82.7389300102368
+    "max": 75.95818000845611,
+    "p50": 58.22827300289646,
+    "p95": 73.37715799803846
   },
   "source_lengths": [
     324,
@@ -153,5 +153,5 @@
     "521050aaf6a75639e71475c88cf27ee1c6bb4b17d7d6750f136a05ed08aaa368"
   ],
   "targets_passed": true,
-  "warm_documents_per_second": 3.654905041094908
+  "warm_documents_per_second": 3.546798866462695
 }

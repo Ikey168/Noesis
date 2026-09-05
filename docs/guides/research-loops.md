@@ -43,3 +43,7 @@ NOESIS_LIVE_RESEARCH=1 NOESIS_RESEARCH_LOOP_EVIDENCE_PATH=docs/development/workf
 ```
 
 The evidence JSON records the actual configuration and observed workflow results. Independent human quality validation remains separate.
+
+Local research workers configure a process-wide PyTorch intra-operation thread budget once, defaulting to two threads (`NOESIS_MODEL_THREADS`, permitted range 1–8). The value is part of the pinned runtime identity. Changing it requires a worker restart; an active worker does not silently change another run's resource configuration. This avoids severe oversubscription on high-core-count hosts. The budget is shared by PyTorch models in that process, so configure it before serving other model workloads.
+
+The final live cycle also passed after canonical source-revision validation was tightened. The validation directory retains an upstream-acquisition failure and an extraction-budget stop alongside the successful run. Transport timeouts/availability failures now retain retryable codes, and HTTP error status/retry headers are preserved without copying upstream error bodies. A failed run never becomes successful through fixture substitution.

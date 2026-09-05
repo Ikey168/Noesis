@@ -6,10 +6,10 @@ The recorded run in `docs/development/workflow-implementation-evidence/workflow-
 
 | Measurement | Observed | Target |
 |---|---:|---:|
-| Query p95 | 82.74 ms | <2,000 ms |
-| Query maximum | 85.53 ms | — |
-| Warm ingestion/extraction/publication | 3.65 documents/s | ≥1 document/s |
-| Peak parent-process RSS | 1,470 MiB | <4,096 MiB |
+| Query p95 | 73.38 ms | <2,000 ms |
+| Query maximum | 75.96 ms | — |
+| Warm ingestion/extraction/publication | 3.55 documents/s | ≥1 document/s |
+| Peak parent-process RSS | 1,473 MiB | <4,096 MiB |
 | Query failures | 0 / 32 | 0 |
 | Noncooperative provider admissions | 8 | ≤8 |
 

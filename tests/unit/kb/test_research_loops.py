@@ -169,3 +169,23 @@ def test_project_cost_and_retry_limits_survive_resumed_attempts():
     result=store.execute_loop('projects',loop['loop_id'],runtime_factory=Failed,**AUTH)
     assert result['status']=='stopped' and result['state']['stop_reason']=='retry_budget_exhausted'
     assert store.inspect_budget('projects',project['project_id'],**AUTH)['reserved']['requests']==2
+
+
+def test_model_thread_budget_is_pinned_and_cannot_change_under_an_active_worker(monkeypatch):
+    import sys
+    from types import SimpleNamespace
+    import src.kb.research_loop_runtime as runtime
+    configured={'threads':99,'calls':0}
+    def set_threads(value):
+        configured['threads']=value;configured['calls']+=1
+    monkeypatch.setitem(sys.modules,'torch',SimpleNamespace(set_num_threads=set_threads,get_num_threads=lambda:configured['threads']))
+    monkeypatch.setattr(runtime,'_MODEL_THREADS',None)
+    monkeypatch.setenv('NOESIS_MODEL_THREADS','2')
+    runtime.configure_model_threads();runtime.configure_model_threads()
+    assert configured=={'threads':2,'calls':1}
+    monkeypatch.setenv('NOESIS_MODEL_THREADS','4')
+    with pytest.raises(ResearchLoopRuntimeError,match='restart'):
+        runtime.configure_model_threads()
+    monkeypatch.setenv('NOESIS_MODEL_THREADS','0')
+    with pytest.raises(ResearchLoopRuntimeError,match='1 to 8'):
+        runtime.model_threads()

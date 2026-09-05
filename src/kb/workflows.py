@@ -686,6 +686,20 @@ def production_handlers(conn: Any, *, principal_id="maintenance-runner", extract
                 "contract_versions": {"extractor": registered["extractor_id"]}, "execution_mode": "production"}
 
     handlers = reference_handlers(conn, principal_id=principal_id)
+    canonical_ingest = handlers['ingest']
+    def ingest(context, state):
+        from src.ingestion.revisions import DocumentRevisionStore
+        result = canonical_ingest(context, state)
+        revisions = DocumentRevisionStore(conn)
+        for item in result['documents']:
+            revision = revisions.revision(item['document_id'])
+            if revision is None:
+                raise WorkflowError('source_unavailable','production extraction requires a committed active source revision')
+            if item.get('_revision_id') and item['_revision_id'] != revision['revision_id']:
+                raise WorkflowError('source_revision_mismatch','supplied production source revision does not match the committed canonical input')
+            item['_revision_id'] = revision['revision_id']
+        return result
+    handlers['ingest'] = ingest
     handlers["extract"] = extract
     return handlers
 

@@ -77,7 +77,7 @@
   },
   "subscription_events": 2,
   "export_verified": true,
-  "elapsed_seconds": 10.336,
+  "elapsed_seconds": 11.81,
   "limitations": [
     "Small handpicked corpus; no independent retrieval or claim-quality judgments",
     "Lifecycle mutations are explicitly simulated on test copies",

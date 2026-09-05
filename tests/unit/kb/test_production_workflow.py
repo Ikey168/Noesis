@@ -18,7 +18,7 @@ class TestSemanticProvider:
 
 def document():
     return {"document_id": "d1", "source_type": "news", "language": "en", "ingested_at": 1,
-            "content": "The bank raised rates.", "metadata": {}, "_revision_id": "source-revision-1"}
+            "content": "The bank raised rates.", "metadata": {}}
 
 
 def run(conn, handlers):
@@ -40,17 +40,19 @@ def test_plain_text_uses_argument_mining_and_preserves_source_revision(monkeypat
     result = run(conn, production_handlers(conn))
     output = result["state"]["extraction"]["outputs"][0]
     assert output["output"]["value"]["statement"] == document()["content"]
-    assert output["provenance"]["input_revision"] == "source-revision-1"
+    from src.ingestion.revisions import DocumentRevisionStore
+    source_revision = DocumentRevisionStore(conn).revision("d1")["revision_id"]
+    assert output["provenance"]["input_revision"] == source_revision
     assert output["output"]["value"]["source_locator"]["end"] == len(document()["content"])
     assert "argument-mining-text" in output["provenance"]["extractor_id"]
     derived = DerivedRevisionStore(conn, embedding_provider=TestSemanticProvider())
-    receipt = derived.apply_generation("research", 1, maintenance_observations([document()], result["state"]["extraction"]),
+    receipt = derived.apply_generation("research", 1, maintenance_observations(result["state"]["documents"], result["state"]["extraction"]),
                                        [{"document_id": "d1", "change_kind": "added"}])
     derived.publish_generation("research", 1)
     adapter = MaintainedSemanticQueryAdapter(conn, "research", embedding_provider=TestSemanticProvider())
     answer = adapter.query({"query": "rates", "limit": 10}, scopes={"operator"})
     assert answer["items"] and all(item["score"] == 1 for item in answer["items"])
-    assert any({"document_id": "d1", "revision_id": "source-revision-1"} in item["citations"] for item in answer["items"])
+    assert any({"document_id": "d1", "revision_id": source_revision} in item["citations"] for item in answer["items"])
 
 
 def test_unavailable_model_is_an_explicit_failed_stage(monkeypatch):
@@ -87,3 +89,13 @@ def test_hash_backend_requires_fixture_mode():
     store = DerivedRevisionStore(duckdb.connect(), embedding_provider=provider)
     with pytest.raises(DerivedRevisionError, match="semantic model"):
         store.apply_generation("research", 1, [], [])
+
+
+def test_supplied_revision_must_match_committed_canonical_input():
+    conn=duckdb.connect();manifest=reference_manifest('research')
+    manifest['stages']=manifest['stages'][:2]
+    manifest['capabilities']=[stage['capability'] for stage in manifest['stages']]
+    with pytest.raises(Exception,match='canonical'):
+        WorkflowStore(conn).execute(manifest,production_handlers(conn),
+            {'documents':[{**document(),'_revision_id':'fabricated-revision'}]},run_key='bad-reference')
+    assert conn.execute('SELECT count(*) FROM knowledge_extractor_outputs').fetchone()[0]==0

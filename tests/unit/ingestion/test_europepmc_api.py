@@ -36,3 +36,21 @@ def test_runtime_adapter_maps_abstract_instead_of_response_envelope():
     assert requests[0]['params']['pageSize']==1 and requests[0]['params']['resultType']=='core'
     assert len(page.records)==1 and page.records[0]['content']=='Its exact abstract.'
     assert page.next_cursor is None
+
+
+def test_live_transport_preserves_retryable_status_and_sanitizes_failures(monkeypatch):
+    import urllib.error
+    from types import SimpleNamespace
+    import pytest
+    from src.ingestion.source_pack_runtime import HTTPSPageAdapter
+    from src.ingestion.source_packs import SourcePackError
+    def fail(exc):
+        def open(*args,**kwargs):raise exc
+        monkeypatch.setattr('urllib.request.build_opener',lambda *args:SimpleNamespace(open=open))
+    fail(TimeoutError('private transport detail'))
+    with pytest.raises(SourcePackError) as error:
+        HTTPSPageAdapter._request(url='https://example.org',params={},headers={},timeout=.1)
+    assert error.value.code=='source_timeout' and 'private' not in str(error.value)
+    fail(urllib.error.HTTPError('https://example.org',429,'rate limit',{'Retry-After':'10'},None))
+    response=HTTPSPageAdapter._request(url='https://example.org',params={},headers={},timeout=.1)
+    assert response['status']==429 and response['headers']['Retry-After']=='10' and response['content']==b''

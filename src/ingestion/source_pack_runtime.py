@@ -433,15 +433,24 @@ class HTTPSPageAdapter:
                 )
 
         opener = urllib.request.build_opener(PublicSameHostRedirect())
-        with opener.open(request, timeout=timeout) as response:
-            content = response.read(max_bytes + 1)
-            if len(content)>max_bytes:
-                raise SourcePackError('response_too_large', 'source response exceeds its byte limit')
-            return {
-                "status": response.status,
-                "headers": dict(response.headers),
-                "content": content,
-            }
+        try:
+            with opener.open(request, timeout=timeout) as response:
+                content = response.read(max_bytes + 1)
+                if len(content)>max_bytes:
+                    raise SourcePackError('response_too_large', 'source response exceeds its byte limit')
+                return {"status": response.status,"headers": dict(response.headers),"content": content}
+        except urllib.error.HTTPError as exc:
+            # Preserve status/retry headers without copying an unbounded or
+            # sensitive upstream error body into a durable failure receipt.
+            try:
+                return {'status':exc.code,'headers':dict(exc.headers or {}),'content':b''}
+            finally:
+                exc.close()
+        except TimeoutError as exc:
+            raise SourcePackError('source_timeout','source request exceeded its transport timeout') from exc
+        except urllib.error.URLError as exc:
+            code='source_timeout' if isinstance(exc.reason,TimeoutError) else 'source_unavailable'
+            raise SourcePackError(code,'source transport is unavailable') from exc
 
     def fetch_page(
         self, request: Mapping[str, Any], *, cursor: str | None

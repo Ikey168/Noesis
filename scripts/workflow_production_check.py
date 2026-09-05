@@ -25,7 +25,6 @@ def check():
     for document in documents:
         assert hashlib.sha256(document["content"].encode()).hexdigest() == document["metadata"]["pinned_text_sha256"]
         assert "knowledge" not in document["metadata"]
-        document["_revision_id"] = "pinned:" + document["metadata"]["pinned_text_sha256"]
     start = time.monotonic()
     provider = get_embedding_provider(provider="local", model_name="all-MiniLM-L6-v2")
     with tempfile.TemporaryDirectory(prefix="noesis-production-check-") as temporary:
@@ -43,6 +42,7 @@ def check():
         result = workflows.execute(manifest, handlers, initial, run_key="baseline")
         replay = workflows.execute(manifest, handlers, initial, run_key="baseline")
         assert result["run_id"] == replay["run_id"] and result["status"] == "completed"
+        documents = result["state"]["documents"]
         outputs = [out for out in result["state"]["extraction"]["outputs"] if out["status"] == "produced"]
         assert outputs, "real model produced no claims for this corpus"
         assert result["state"]["report"]["verified"]
@@ -74,9 +74,10 @@ def check():
         # that either publisher corrected or retracted these original articles.
         corrected = json.loads(json.dumps(documents))
         corrected[0]["metadata"]["test_copy_correction"] = "metadata correction exercise"
-        corrected[0]["_revision_id"] = "test-correction:2"
+        for doc in corrected:
+            doc.pop("_revision_id", None)
         update = workflows.execute(manifest, handlers, {"documents": corrected}, run_key="correction")
-        store.apply_generation("production-check", 2, maintenance_observations(corrected, update["state"]["extraction"]),
+        store.apply_generation("production-check", 2, maintenance_observations(update["state"]["documents"], update["state"]["extraction"]),
                                [{"document_id": doc["document_id"], "change_kind": "corrected"} for doc in corrected])
         store.publish_generation("production-check", 2)
         retraction = store.apply_generation("production-check", 3, [], [{"document_id": documents[1]["document_id"], "change_kind": "retracted"}])

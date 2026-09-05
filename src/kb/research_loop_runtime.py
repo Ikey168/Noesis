@@ -2,18 +2,44 @@
 import hashlib
 import importlib.metadata
 import json
+import os
+import threading
 from pathlib import Path
 import time
 
 from src.kb.research_projects import _hash
 
 EMBEDDING_REVISION = '1110a243fdf4706b3f48f1d95db1a4f5529b4d41'
+_MODEL_LOCK=threading.Lock()
+_MODEL_THREADS=None
 
 
 class ResearchLoopRuntimeError(ValueError):
     def __init__(self, code, message):
         super().__init__(message)
         self.code = code
+
+
+def model_threads():
+    try:
+        value=int(os.environ.get('NOESIS_MODEL_THREADS','2'))
+    except ValueError as exc:
+        raise ResearchLoopRuntimeError('invalid_runtime','NOESIS_MODEL_THREADS must be an integer from 1 to 8') from exc
+    if not 1<=value<=8:
+        raise ResearchLoopRuntimeError('invalid_runtime','NOESIS_MODEL_THREADS must be from 1 to 8')
+    return value
+
+
+def configure_model_threads():
+    global _MODEL_THREADS
+    import torch
+    requested=model_threads()
+    with _MODEL_LOCK:
+        if _MODEL_THREADS is None:
+            torch.set_num_threads(requested)
+            _MODEL_THREADS=requested
+        elif requested!=_MODEL_THREADS or torch.get_num_threads()!=requested:
+            raise ResearchLoopRuntimeError('runtime_changed','restart the model worker to change its pinned thread budget')
 
 
 def runtime_identity():
@@ -28,7 +54,7 @@ def runtime_identity():
         except importlib.metadata.PackageNotFoundError:
             libraries[name]=None
     return {'implementation': _hash({name: hashlib.sha256((root/name).read_bytes()).hexdigest() for name in files}), 'libraries':libraries,
-            'models': resolved_pins(), 'embedding_provider': 'local', 'embedding_model': 'all-MiniLM-L6-v2', 'embedding_revision': EMBEDDING_REVISION}
+            'models': resolved_pins(), 'model_threads':model_threads(), 'embedding_provider': 'local', 'embedding_model': 'all-MiniLM-L6-v2', 'embedding_revision': EMBEDDING_REVISION}
 
 
 class ProductionResearchRuntime:
@@ -40,6 +66,7 @@ class ProductionResearchRuntime:
         from src.argument_mining.model_registry import cached_model_path
         if cached_model_path('claim') is None:
             raise ResearchLoopRuntimeError('provider_unavailable', 'pinned claim model is absent from the local cache')
+        configure_model_threads()
 
     def check(self):
         if self.cancelled():
