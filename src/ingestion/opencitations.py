@@ -196,3 +196,206 @@ class OpenCitationsClient:
             if next_index < len(records)
             else None,
         }
+
+
+class CitationAcquisitionStore:
+    """Persist captured provider responses and atomically resume bounded imports."""
+
+    def __init__(self, conn):
+        self.conn = conn
+        conn.execute("""CREATE TABLE IF NOT EXISTS citation_provider_snapshots(
+            snapshot_sha256 TEXT PRIMARY KEY, snapshot_json TEXT NOT NULL,
+            observed_at_ms BIGINT NOT NULL)""")
+
+    def acquire(
+        self,
+        identifier,
+        *,
+        direction="references",
+        snapshot_sha256=None,
+        cursor=None,
+        page_size=100,
+        client=None,
+    ):
+        from src.knowledge_graph.foundation import DuckDBKnowledgeGraphStore
+
+        client = client or OpenCitationsClient()
+        normalized = normalize_identifier(identifier)
+        if not 1 <= page_size <= 1000:
+            raise IntegrationError("input_limit", "Import page size must be 1..1000")
+        if snapshot_sha256:
+            row = self.conn.execute(
+                "SELECT snapshot_json FROM citation_provider_snapshots WHERE snapshot_sha256=?",
+                [snapshot_sha256],
+            ).fetchone()
+            if row is None:
+                raise IntegrationError(
+                    "snapshot_not_found", "Captured citation snapshot not found"
+                )
+            snapshot = json.loads(row[0])
+            if (
+                snapshot["identifier"] != normalized
+                or snapshot["direction"] != direction
+            ):
+                raise IntegrationError(
+                    "identity_mismatch", "Snapshot belongs to another traversal"
+                )
+        else:
+            if cursor:
+                raise IntegrationError(
+                    "invalid_cursor", "Resume requires an explicit snapshot hash"
+                )
+            snapshot = client.snapshot(normalized, direction=direction)
+        graph = DuckDBKnowledgeGraphStore(connection=self.conn)
+        self.conn.execute("BEGIN")
+        try:
+            result = client.ingest_snapshot(
+                snapshot, graph, cursor=cursor, page_size=page_size
+            )
+            self.conn.execute(
+                "INSERT INTO citation_provider_snapshots VALUES (?,?,?) ON CONFLICT DO NOTHING",
+                [
+                    snapshot["sha256"],
+                    json.dumps(snapshot, ensure_ascii=False, sort_keys=True),
+                    snapshot["observed_at_ms"],
+                ],
+            )
+            self.conn.execute("COMMIT")
+        except Exception:
+            self.conn.execute("ROLLBACK")
+            raise
+        return {
+            **result,
+            "provider": "opencitations",
+            "identifier": normalized,
+            "direction": direction,
+            "observed_at_ms": snapshot["observed_at_ms"],
+            "captured_edge_count": len(snapshot["records"]),
+        }
+
+
+def traverse_citations(conn, identifier, *, direction="both", depth=1, limit=100):
+    """Read bounded persistent citation edges; provider assertions aren't votes."""
+    identifier = normalize_identifier(identifier)
+    if (
+        direction not in {"references", "citations", "both"}
+        or type(depth) is not int
+        or not 1 <= depth <= 3
+    ):
+        raise IntegrationError(
+            "invalid_traversal", "Direction and depth (1..3) required"
+        )
+    if type(limit) is not int or not 1 <= limit <= 1000:
+        raise IntegrationError("input_limit", "Edge limit must be 1..1000")
+    tables = {
+        row[0]
+        for row in conn.execute(
+            "SELECT table_name FROM information_schema.tables"
+        ).fetchall()
+    }
+    if "kg_triples" not in tables:
+        return {
+            "nodes": [],
+            "edges": [],
+            "node_count": 0,
+            "edge_count": 0,
+            "status": "no_citation_graph",
+        }
+    if (
+        "kg_nodes" not in tables
+        or conn.execute(
+            "SELECT 1 FROM kg_nodes WHERE node_id=?", [identifier]
+        ).fetchone()
+        is None
+    ):
+        return {
+            "nodes": [],
+            "edges": [],
+            "node_count": 0,
+            "edge_count": 0,
+            "status": "identifier_not_found",
+        }
+    frontier, visited, edges, node_ids = {identifier}, set(), {}, {identifier}
+    bounded = False
+    for _ in range(depth):
+        next_frontier = set()
+        for identity in sorted(frontier - visited):
+            visited.add(identity)
+            clauses, params = [], [RelationType.CITES.value]
+            if direction in {"references", "both"}:
+                clauses.append("subject=?")
+                params.append(identity)
+            if direction in {"citations", "both"}:
+                clauses.append("object=?")
+                params.append(identity)
+            rows = conn.execute(
+                "SELECT subject, object, properties FROM kg_triples WHERE predicate=? AND ("
+                + " OR ".join(clauses)
+                + ") ORDER BY subject,object LIMIT ?",
+                [*params, limit + 1],
+            ).fetchall()
+            for subject, target, properties in rows:
+                key = (subject, target)
+                if key in edges:
+                    continue
+                if len(edges) >= limit:
+                    bounded = True
+                    break
+                provenance = []
+                if "kg_provenance" in tables:
+                    assertions = conn.execute(
+                        "SELECT source_doc,extractor,chunk_id FROM kg_provenance WHERE subject=? AND predicate=? AND object=? ORDER BY source_doc,extractor,chunk_id LIMIT 21",
+                        [subject, RelationType.CITES.value, target],
+                    ).fetchall()
+                    for source_doc, extractor, chunk_id in assertions[:20]:
+                        observed = None
+                        if "citation_provider_snapshots" in tables:
+                            observation = conn.execute(
+                                "SELECT observed_at_ms FROM citation_provider_snapshots WHERE snapshot_sha256=?",
+                                [chunk_id],
+                            ).fetchone()
+                            observed = observation[0] if observation else None
+                        provenance.append(
+                            {
+                                "source_doc": source_doc,
+                                "extractor": extractor,
+                                "snapshot_sha256": chunk_id,
+                                "observed_at_ms": observed,
+                            }
+                        )
+                    bounded = bounded or len(assertions) > 20
+                native = json.loads(properties).get("opencitations", {})
+                projected = {
+                    key: native[key]
+                    for key in ("oci", "observed_at_ms", "snapshot_sha256")
+                    if key in native
+                }
+                edges[key] = {
+                    "from": subject,
+                    "to": target,
+                    "opencitations": projected,
+                    "provenance": provenance,
+                    "independent_evidence_count": None,
+                }
+                node_ids.update(key)
+                if direction in {"references", "both"} and subject == identity:
+                    next_frontier.add(target)
+                if direction in {"citations", "both"} and target == identity:
+                    next_frontier.add(subject)
+            if len(edges) >= limit:
+                break
+        frontier = next_frontier - visited
+        if not frontier or len(edges) >= limit:
+            bounded = bounded or bool(frontier)
+            break
+    return {
+        "nodes": [{"id": identity} for identity in sorted(node_ids)],
+        "edges": [edges[k] for k in sorted(edges)],
+        "node_count": len(node_ids),
+        "edge_count": len(edges),
+        "bounded": bounded,
+        "depth": depth,
+        "identifier": identifier,
+        "direction": direction,
+        "corroboration_semantics": "Provider observations of the same citation are not independent factual evidence.",
+    }

@@ -17,6 +17,7 @@ provisioned model snapshots. Model revisions are in `src/integrations/model-pins
 | Issues | Entry point | Current scope / remaining work |
 | --- | --- | --- |
 | #1473 | Research source pack `datacite-dois` | Native queries, cursor pagination and typed relationships; committed ingestion/replay and historical version checks passed |
+| #1472 | `acquire_opencitations` / research `citation_graph(identifier=...)` | Durable native capture, bounded resume/traversal and normalized DOI overlap; actual incoming/outgoing requests passed |
 | #1509 | `src.integrations.text.SaTSegmenter` and chunker's `sentence_segmenter` | Exact source offsets; real ONNX smoke probe passed; independent benchmark outstanding |
 | #1510 | Normalizer `language_backend="lingua"` | Language confidence, abstention and mixed-language spans; independent corpus outstanding |
 | #1511 | Entity resolver `fuzzy_backend="rapidfuzz"` plus explicit threshold | Existing identity rules retained; false-merge and throughput benchmark outstanding |
@@ -32,7 +33,7 @@ provisioned model snapshots. Model revisions are in `src/integrations/model-pins
 | #1521 | Review inbox `export_label_studio` / `import_label_studio` | Pinned source/reviewer checks, exact Unicode spans, pending proposals; independent human annotation outstanding |
 | #1522 | Anomaly store `simulate_drift` | Ordered ADWIN replay with duplicate/late-event handling; watch-delivery integration and tuning outstanding |
 | #1523 | Authored report `render` / MCP export `output_format="docx"` | Pandoc citeproc DOCX/HTML; PDF engine and larger citation/rendering evaluation outstanding |
-| #1524 | Research package `export_rocrate` | Native package in RO-Crate envelope; detailed entity mapping and independent validator outstanding |
+| #1524 | Research package `export_rocrate` / MCP build `output_format="ro-crate"` | Versioned member/lineage mapping, byte-identical replay, native signature retention and independent offline profile validation passed |
 | #1495 | Upload parser `backend="markitdown"` | Explicit converted-text representation; actual HTML smoke test; document corpus outstanding |
 | #1497 | `src.integrations.warc` | Bounded capture read/write and document ingestion; archive corpus and full ingestion regression outstanding |
 | #1501, #1503 | `src.integrations.mcp.federation_adapter` | Explicit presets and tool allowlists; real Playwright session probe passed; GitHub and browser-domain evaluation outstanding |
@@ -47,6 +48,8 @@ In particular BGE-M3 multi-mode retrieval is not implemented here.
 Six completed issues (#1473, #1475, #1476, #1502, #1513, #1519) were closed by
 merged PR #1525 (`c65b4bce83a5838a532a8dc120b9d1fbf208a91b`). The ledger keeps
 these in the original 81-issue inventory with status `implemented_merged`.
+PR #1526 subsequently closed #1515 after all checks passed, bringing the merged
+total to seven issues. GLiNER2 remains partial despite its adapter being merged.
 
 ## GLiNER2 optional entity extraction (#1493)
 
@@ -80,6 +83,61 @@ and separate relation/structured-field adapters and evaluation, remain outstandi
 
 Primary references: https://huggingface.co/fastino/gliner2-multi-v1 and
 https://github.com/fastino-ai/GLiNER2 .
+
+## RO-Crate mapping and validation (#1524)
+
+`ResearchPackageStore.export_rocrate(..., metadata=...)` and MCP
+`build_research_package(output_format="ro-crate", publication_metadata=...)`
+export the already-authorized native closure through ro-crate-py 0.15.1.
+The default format stays native. Cancellation and package write scopes still
+apply. Publication metadata requires an explicit ISO `datePublished` and HTTPS
+`license` identifier, with optional `name`/`description`; these can also be set
+in the native manifest's `extensions.x-ro-crate`. A license is never inferred
+from access permission. Missing metadata produces an explicit error.
+
+`noesis-ro-crate-mapping-v1` targets RO-Crate 1.1. Each authorized member becomes
+a JSON file at a hashed relative path, with its native ID, content hash and
+optional revision/version. Datasets use `File`/`Dataset`; document metadata with
+`artifact_kind="report"` uses `File`/`Report`; analysis assets and model records
+use `File`/`CreativeWork`. These files serialize native records, not substitute
+CSV/PDF renderings. Explicit metadata `software=[{name, version}]` becomes
+SoftwareApplication/CreateAction lineage, and checksum-valid HTTPS ORCID values
+in `authors` become Person references. This projects submitted metadata; it does
+not independently establish authorship or software execution. Other identifiers
+and metadata remain in the original native record. Native dependencies become
+`isBasedOn` links without asserting claim support.
+
+The unmodified native package, including any signature and canonical bytes,
+remains in `native-package.json`. `noesis-mapping.json` lists mapped paths,
+omissions, native verification results and unmapped semantics. Restricted content
+is excluded; redacted content retains its native redacted form. Declared missing
+members can produce a valid partial RO-Crate while native verification still
+reports that the research package is incomplete. Signatures require separate
+trusted-key native verification. RO-Crate does not transfer Noesis trust, access,
+encryption, executable recipe permissions or replay/evidence guarantees.
+
+Install `.[workflow-integrations,workflow-export-validation]` and run:
+
+```sh
+python -m scripts.benchmark_integration_rocrate --out /tmp/crate-evaluation.json --validate
+python -m scripts.benchmark_integration_rocrate --out /tmp/crate-offline.json --validate --offline-validator
+```
+
+The first command populates the independent validator's context cache; offline
+validation needs that cache. roc-validator 0.11.3 (Apache-2.0) passed all REQUIRED
+RO-Crate 1.1 checks for complete and partial authored Berlin-themed fixtures.
+`rocrate-evaluation.json` records the offline run: 7.2/8.3 kB ZIPs, 70.7 ms first
+export including imports and 2.9 ms subsequent export; validation took 0.75/0.54 s.
+Both exports were byte-identical on replay. Twenty-one native/package/MCP tests
+cover mapping, offline opening, path safety, omissions, author identifiers,
+authorization, cancellation, tampering and signature preservation. Input limits
+are 32 MB native JSON, 10,000 members and 64 kB publication metadata.
+
+Decision: adopt this explicit optional interchange mapping at RO-Crate 1.1
+REQUIRED conformance. It is not a claim of higher-profile or RECOMMENDED-level
+conformance. Sources: https://github.com/ResearchObject/ro-crate-py,
+https://www.researchobject.org/ro-crate/specification/1.1/ and
+https://github.com/crs4/rocrate-validator .
 
 ## Evidence
 
@@ -172,10 +230,41 @@ captured snapshot with a hash-bound local cursor. OCI identifiers, observation
 times and native records are retained on knowledge-graph edges. Replaying an
 identical snapshot does not duplicate edges or provenance. A real 72-edge capture,
 incoming direction, malformed identifiers, changed snapshots and provider errors
-are tested. Provider copies do not count as independent corroboration. Binding
-acquisition to the research API/MCP surface and reconciling non-DOI cross-provider
-identities remain outstanding for #1472.
+are tested. Provider copies do not count as independent corroboration. The
+supported acquisition/traversal binding and DOI overlap checks are described below.
 Documentation: https://api.opencitations.net/index/v2 .
+
+### OpenCitations durable workflow completion (#1472)
+
+MCP `acquire_opencitations(identifier, direction="references", page_size=100)`
+requires `knowledge:citation:capture` and persists both the captured native
+response and graph import in one transaction. The returned snapshot hash and
+cursor resume the same response after process restart; resume never refetches
+the provider. A graph failure rolls back the entire import page. Optional tokens
+come only from `NOESIS_OPENCITATIONS_TOKEN`; no token is needed for the measured
+public requests. OpenCitations Index data is CC0.
+
+Research MCP `citation_graph(identifier=..., direction="both", depth=1, limit=40)`
+reads the persistent graph. It supports incoming/outgoing/both directions, depths
+1–3, at most 1,000 edges and 20 provenance records per edge, reporting bounds.
+OCI, observation time, snapshot hash and source provenance remain visible. Unknown
+identifiers and invalid traversal options produce explicit results/errors. Legacy
+topic-based document-corpus traversal remains available when identifier is omitted.
+Identical normalized DOI pairs from the existing Semantic Scholar reference
+adapter share one edge with separate provenance. Different identifier namespaces
+without an explicit shared identity are not guessed or merged; historical
+arXiv-only nodes need explicit identity enrichment. No provider count is presented
+as independent evidence of the cited claims.
+
+`python -m scripts.probe_opencitations --database /tmp/citations.duckdb --out /tmp/citations.json`
+performed actual v2.2.0 requests for DOI `10.1186/1756-8722-6-59`: 72 outgoing and
+217 incoming records, with request plus first 20-edge import taking 614/845 ms.
+Both completed after reopening the database; replay imported zero observations.
+`opencitations-live-evaluation.json` retains exact capture hashes and timestamps.
+Incoming/outgoing native fixtures are committed. Five focused tests exercise the
+actual MCP surfaces, authorization, native-shaped Semantic Scholar overlap,
+provider errors, invalid identifiers/cursors, restart and atomic rollback.
+This measures API/graph integration, not citation accuracy or factual support.
 
 `src.ingestion.orcid.ORCIDClient(token=read_public_token).enrich(orcid, graph_store)`
 uses ORCID v3 public professional-record data. Provision a `/read-public` OAuth

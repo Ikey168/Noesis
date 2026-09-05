@@ -159,6 +159,7 @@ MUTATION_NAMES = frozenset(
         "restore_knowledge_archive",
         "plan_retention_gc",
         "build_research_package",
+        "acquire_opencitations",
     }
 )
 
@@ -445,6 +446,8 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
             return ["knowledge:reviews:read"]
         if tool_name == "sync_zotero_library":
             return ["knowledge:zotero:sync"]
+        if tool_name == "acquire_opencitations":
+            return ["knowledge:citation:capture"]
         if tool_name in {"list_zotero_items", "inspect_zotero_item", "export_zotero_bibliography"}:
             return ["knowledge:zotero:read"]
         if tool_name == "set_research_package_trust_policy":

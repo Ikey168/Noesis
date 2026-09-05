@@ -37,6 +37,7 @@ workflow-entities = [
   "peft==0.20.0",
   "transformers==5.16.1",
 ]
+workflow-export-validation = ["roc-validator==0.11.3"]
 workflow-integrations = [
   "warcio==1.8.1",
   "markitdown==0.1.7",

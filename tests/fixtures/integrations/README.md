@@ -23,6 +23,13 @@ explicitly synthetic local documents.
 `opencitations-native.json` wraps a native 72-edge public response from
 `https://api.opencitations.net/index/v2/references/doi:10.1186/1756-8722-6-59`
 in a Noesis snapshot with capture time and content hash. Acquired on 2026-09-05.
+
+`opencitations-incoming-native.json.gz` is a lossless, timestamped snapshot of
+217 incoming records captured on 2026-09-05 from
+`https://api.opencitations.net/index/v2/citations/doi:10.1186/1756-8722-6-59`.
+The snapshot retains native records, request identity, provider observation time
+and content digest. OpenCitations Index data is released under CC0. Live
+restart/resume and traversal measurements are in `opencitations-live-evaluation.json`.
 Citation metadata identifies relationships; it does not independently corroborate
 the cited works' claims. No access token is stored in the fixture.
 

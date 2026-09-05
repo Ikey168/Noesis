@@ -92,7 +92,8 @@ def venues() -> dict:
         "additionalProperties": True,
     },
 )
-def citation_graph(topic: Optional[str] = None) -> dict:
+def citation_graph(topic: Optional[str] = None, identifier: Optional[str] = None,
+                   direction: str = "both", depth: int = 1, limit: int = 40) -> dict:
     """The paper citation network (nodes = papers, edges = citations) from the
     document corpus, optionally scoped to a topic/concept.
 
@@ -106,7 +107,11 @@ def citation_graph(topic: Optional[str] = None) -> dict:
     try:
         from src.domains.research.analytics import citation_graph as _cg
 
-        return _cg(con, topic)
+        if identifier is not None:
+            from src.ingestion.opencitations import traverse_citations
+
+            return traverse_citations(con, identifier, direction=direction, depth=depth, limit=limit)
+        return _cg(con, topic, limit=min(max(limit, 1), 1000))
     except Exception as exc:
         return {"error": str(exc)}
     finally:

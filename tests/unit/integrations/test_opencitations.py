@@ -66,3 +66,124 @@ def test_incoming_direction_errors_and_missing_identifiers():
     failed = OpenCitationsClient(transport=lambda **_: {"status": 429, "content": b""})
     with pytest.raises(ValueError, match="failed"):
         failed.snapshot(snapshot["identifier"])
+
+
+def test_durable_capture_resume_mirrored_edge_and_traversal(tmp_path):
+    import duckdb
+
+    from src.ingestion.connectors.paper.citation_graph import build_citation_graph
+    from src.ingestion.connectors.paper.models import PaperMetadata
+    from src.ingestion.connectors.paper.references import SemanticScholarReferences
+    from src.ingestion.opencitations import CitationAcquisitionStore, traverse_citations
+    from src.knowledge_graph.foundation import DuckDBKnowledgeGraphStore
+
+    snapshot = fixture()
+    client = OpenCitationsClient(
+        transport=lambda **_: {"content": json.dumps(snapshot["records"])}
+    )
+    db = tmp_path / "citation.duckdb"
+    conn = duckdb.connect(str(db))
+    acquisition = CitationAcquisitionStore(conn)
+    first = acquisition.acquire(snapshot["identifier"], client=client, page_size=3)
+    conn.close()
+    conn = duckdb.connect(str(db))
+    acquisition = CitationAcquisitionStore(conn)
+    cursor = first["next_cursor"]
+    offline = OpenCitationsClient(
+        transport=lambda **_: pytest.fail("resume must not fetch")
+    )
+    while cursor:
+        cursor = acquisition.acquire(
+            snapshot["identifier"],
+            client=offline,
+            snapshot_sha256=first["snapshot_sha256"],
+            cursor=cursor,
+            page_size=10,
+        )["next_cursor"]
+    graph = DuckDBKnowledgeGraphStore(connection=conn)
+    edge = graph.triples(predicate=RelationType.CITES)[0]
+    paper = PaperMetadata(
+        title="Authored overlap fixture", doi=edge.subject.removeprefix("doi:")
+    )
+    baseline = SemanticScholarReferences(
+        http_get=lambda _: json.dumps(
+            {
+                "data": [
+                    {
+                        "citedPaper": {
+                            "title": "Authored reference fixture",
+                            "externalIds": {
+                                "DOI": edge.object.removeprefix("doi:").upper()
+                            },
+                        }
+                    }
+                ]
+            }
+        ).encode()
+    )
+    paper.references = baseline.references_for(paper)
+    build_citation_graph(graph, paper)
+    result = traverse_citations(
+        conn, snapshot["identifier"], direction="references", limit=100
+    )
+    assert result["edge_count"] == len(snapshot["records"])
+    mirrored = next(
+        e
+        for e in result["edges"]
+        if e["to"] == edge.object and e["from"] == edge.subject
+    )
+    assert len(mirrored["provenance"]) == 2
+    assert mirrored["independent_evidence_count"] is None
+    assert any(
+        p["observed_at_ms"] == first["observed_at_ms"] for p in mirrored["provenance"]
+    )
+    assert (
+        acquisition.acquire(
+            snapshot["identifier"],
+            client=offline,
+            snapshot_sha256=first["snapshot_sha256"],
+        )["imported"]
+        == 0
+    )
+    assert traverse_citations(conn, snapshot["identifier"], limit=1)["bounded"]
+    with pytest.raises(ValueError, match="another traversal"):
+        acquisition.acquire(
+            snapshot["identifier"],
+            snapshot_sha256=first["snapshot_sha256"],
+            direction="citations",
+        )
+    conn.close()
+
+
+def test_failed_page_rolls_back_graph_and_snapshot(tmp_path):
+    import duckdb
+
+    from src.ingestion.opencitations import CitationAcquisitionStore
+    from src.knowledge_graph.foundation import (
+        DuckDBKnowledgeGraphStore,
+        EntityType,
+        Node,
+    )
+
+    snapshot = fixture()
+    # Force a real graph type collision after at least one successful edge.
+    target = next(
+        v for v in snapshot["records"][1]["cited"].split() if v.startswith("doi:")
+    )
+    conn = duckdb.connect(str(tmp_path / "atomic.duckdb"))
+    graph = DuckDBKnowledgeGraphStore(connection=conn)
+    graph.add_node(Node(EntityType.PERSON, "Collision fixture", node_id=target))
+    client = OpenCitationsClient(
+        transport=lambda **_: {"content": json.dumps(snapshot["records"])}
+    )
+    with pytest.raises(ValueError):
+        CitationAcquisitionStore(conn).acquire(
+            snapshot["identifier"], client=client, page_size=3
+        )
+    assert conn.execute("SELECT count(*) FROM kg_triples").fetchone()[0] == 0
+    assert (
+        conn.execute("SELECT count(*) FROM citation_provider_snapshots").fetchone()[0]
+        == 0
+    )
+    assert conn.execute("SELECT count(*) FROM kg_nodes").fetchone()[0] == 1
+    conn.close()
