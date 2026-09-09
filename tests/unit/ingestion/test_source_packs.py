@@ -33,7 +33,7 @@ def conn():
 
 def test_all_production_packs_validate_against_contract() -> None:
     packs = load_source_packs(PACK_DIR)
-    assert len(packs) == 7
+    assert len(packs) == 8
     assert {domain for pack in packs for domain in pack["domains"]} == {
         "economic",
         "osint",
@@ -42,7 +42,7 @@ def test_all_production_packs_validate_against_contract() -> None:
         "scientific",
         "technical",
     }
-    assert sum(len(pack["sources"]) for pack in packs) == 23
+    assert sum(len(pack["sources"]) for pack in packs) == 24
     schema = json.loads(
         (ROOT / "contracts/schemas/jsonschema/noesis-source-pack-v1.json").read_text()
     )

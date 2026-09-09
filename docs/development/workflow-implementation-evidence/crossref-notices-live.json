@@ -1,0 +1,84 @@
+{
+  "observation_kind": "live Crossref API, one bounded page; no target document mutation",
+  "config": {
+    "from_date": "2026-05-04",
+    "until_date": "2026-05-04",
+    "targets": {},
+    "rows": 1,
+    "max_pages": 1,
+    "max_bytes": 2000000,
+    "adapter": "crossref-rest-v1/noesis-notices-v1"
+  },
+  "result": {
+    "cursor": "MTA3NjA5NTM4NjAwMCwxMC4xMDYzJTJGMS4xNjczNDAx",
+    "pages": 1,
+    "requests": 1,
+    "status": "running",
+    "notices": [
+      "crossref-notice:4ac467031fa6cb93088bc54b4766fc6049ff3dcdffe9b3581e1afb723304ee78"
+    ]
+  },
+  "notices": [
+    {
+      "notice_doi": "10.1063/1.1673401",
+      "target_doi": "10.1063/1.1697190",
+      "notice_type": "correction",
+      "raw_type": "correction",
+      "provider": "publisher",
+      "record_id": null,
+      "notice_date": {
+        "date-parts": [
+          [
+            1970,
+            3,
+            1
+          ]
+        ],
+        "date-time": "1970-03-01T00:00:00Z",
+        "timestamp": 5097600000
+      },
+      "indexed": {
+        "date-parts": [
+          [
+            2026,
+            5,
+            4
+          ]
+        ],
+        "date-time": "2026-05-04T10:57:26Z",
+        "timestamp": 1777892246106,
+        "version": "3.51.4"
+      },
+      "title": [
+        "Erratum: On the Theory of Chemiluminescent Electron-Transfer Reactions"
+      ],
+      "relation": {
+        "DOI": "10.1063/1.1697190",
+        "type": "correction",
+        "label": "Correction",
+        "source": "publisher",
+        "updated": {
+          "date-parts": [
+            [
+              1970,
+              3,
+              1
+            ]
+          ],
+          "date-time": "1970-03-01T00:00:00Z",
+          "timestamp": 5097600000
+        }
+      },
+      "notice_id": "crossref-notice:4ac467031fa6cb93088bc54b4766fc6049ff3dcdffe9b3581e1afb723304ee78",
+      "status": "supported",
+      "snapshot": {
+        "url": "https://api.crossref.org/v1/works",
+        "final_url": "https://api.crossref.org/v1/works",
+        "fetched_at": 1788648325009,
+        "digest": "1d7328c868fa55cc5dbec215fcbcf0795d8625f3561d4bdd1b4abfcf454c7be4",
+        "content_type": "application/json",
+        "bytes": 3124
+      }
+    }
+  ]
+}

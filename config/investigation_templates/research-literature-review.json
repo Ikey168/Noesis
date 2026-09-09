@@ -1,0 +1,34 @@
+{
+  "parameters": {
+    "topic": "Topic or named policy to investigate",
+    "period": "Explicit date range or review period"
+  },
+  "questions": [
+    "What changed for ${topic} during ${period}?",
+    "Which claims are supported, contradicted or unresolved?"
+  ],
+  "success_criteria": [
+    "Cite retained source revisions for every factual conclusion",
+    "Record scope limits and unresolved questions"
+  ],
+  "report_outline": [
+    "Scope and questions",
+    "Evidence changes for ${topic} during ${period}",
+    "Findings and contradictions",
+    "Unresolved questions and references"
+  ],
+  "name": "Research Literature Review",
+  "description": "Review new research literature on an explicit topic and period using existing scholarly discovery.",
+  "scope": {
+    "domains": [
+      "research"
+    ],
+    "namespaces": []
+  },
+  "source_packs": [
+    {
+      "pack_id": "research-discovery",
+      "version": "1.1.0"
+    }
+  ]
+}

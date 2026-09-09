@@ -1,0 +1,91 @@
+{
+  "provenance": "Publisher PDF: Ioannidis JPA (2005), PLoS Medicine 2(8): e124, doi:10.1371/journal.pmed.0020124. Copyright John P. A. Ioannidis; Creative Commons Attribution per publisher. Downloaded 2026-09-08. Agent visually checked selected title/headings/table/header/reference anchors on pages 1, 2 and 6; not a human annotation dataset. Sparse anchor coverage means token precision is NOT full-document text fidelity. The 2022 correction is separate and not silently applied.",
+  "documents": [
+    {
+      "path": "tests/fixtures/pdf_benchmark/plos-ioannidis-2005.pdf",
+      "sha256": "ffc1005680cb620eec4c913437dfabbf311b535cfe16cbaeb2faec1f92afc362",
+      "kind": "published-multicolumn-scientific-essay",
+      "source_url": "https://journals.plos.org/plosmedicine/article/file?id=10.1371/journal.pmed.0020124&type=printable",
+      "license": "Creative Commons Attribution, publisher grant",
+      "expected": [
+        {
+          "text": "Why Most Published Research Findings Are False",
+          "page": 1,
+          "bbox": [
+            44,
+            65,
+            488,
+            119
+          ]
+        },
+        {
+          "text": "Summary",
+          "page": 1,
+          "bbox": [
+            44,
+            147,
+            100,
+            164
+          ]
+        },
+        {
+          "text": "Bias",
+          "page": 2,
+          "bbox": [
+            44,
+            307,
+            75,
+            319
+          ]
+        },
+        {
+          "text": "References",
+          "page": 6,
+          "bbox": [
+            217,
+            192,
+            264,
+            203
+          ]
+        }
+      ],
+      "tables": [
+        {
+          "page": 2,
+          "cells": [
+            {
+              "row": 0,
+              "col": 0,
+              "text": "Research Finding"
+            },
+            {
+              "row": 0,
+              "col": 1,
+              "text": "True Relationship"
+            },
+            {
+              "row": 1,
+              "col": 1,
+              "text": "Yes"
+            },
+            {
+              "row": 1,
+              "col": 2,
+              "text": "No"
+            },
+            {
+              "row": 1,
+              "col": 3,
+              "text": "Total"
+            }
+          ]
+        }
+      ],
+      "references": [
+        "Comparison of evidence of treatment effects in randomized and nonrandomized studies",
+        "Better reporting of harms in randomized trials"
+      ],
+      "table_cells": []
+    }
+  ]
+}

@@ -1,0 +1,672 @@
+{
+  "kind": "synthetic contract fixture with independent structure expectations",
+  "baseline_markdown_ms": 0.8536970126442611,
+  "results": [
+    {
+      "locale": "de-DE",
+      "format": "docx",
+      "checks": {
+        "Müller": true,
+        "2025": true,
+        "revision-1": true,
+        "One source; no causal identification.": true,
+        "repeated_citation": true,
+        "localized_page_label": true
+      },
+      "receipt": {
+        "contract": "noesis-citeproc-export-v1",
+        "export_id": "citeproc-export:02bfe7e31c04c371c2527f4da6564194d22979dea166b65cd1b703475e2b55be",
+        "config": {
+          "report_hash": "a187e736a311e3c912398ad971aa4c2f4ef5771d589e11779e9e540588dc4b12",
+          "citation_metadata": {
+            "source-1": {
+              "type": "report",
+              "title": "Berliner Forschung und öffentliche Förderung",
+              "author": [
+                {
+                  "family": "Müller",
+                  "given": "Jörg"
+                }
+              ],
+              "issued": {
+                "date-parts": [
+                  [
+                    2025
+                  ]
+                ]
+              },
+              "publisher": "Berlin"
+            }
+          },
+          "locators": {
+            "a1": {
+              "source-1": "12"
+            }
+          },
+          "locale": "de-DE",
+          "format": "docx",
+          "pypandoc_binary": "1.17",
+          "pandoc": "3.9",
+          "typst": null,
+          "style_sha256": "14cbc22feafb0858f6d91e530d64a5cb7125893eb05863ef478835d7d0674e4c"
+        },
+        "pandoc_version": "3.9",
+        "output_sha256": "22c705ecf284a32a4b929f443db62f8c5f11df76bdacd518c9856c6547c79c48",
+        "bytes": 11296,
+        "elapsed_ms": 178.846,
+        "authored_fallback_ids": [
+          "incomplete"
+        ],
+        "source_package": {
+          "contract": "noesis-report-export-v1",
+          "report": {
+            "content": {
+              "bibliography": [
+                {
+                  "id": "source-1",
+                  "text": "Source One. Observations. 2026."
+                },
+                {
+                  "id": "incomplete",
+                  "text": "Ältere Quelle: Müller, öffentliche Förderung."
+                }
+              ],
+              "limitations": [
+                "One source; no causal identification."
+              ],
+              "sections": [
+                {
+                  "assertions": [
+                    {
+                      "citations": [
+                        "source-1"
+                      ],
+                      "dependencies": [
+                        {
+                          "id": "doc",
+                          "kind": "source",
+                          "locator": {
+                            "document_id": "doc",
+                            "end": 29,
+                            "revision_id": "revision-1",
+                            "start": 0
+                          },
+                          "namespace": "sources",
+                          "revision": "revision-1"
+                        }
+                      ],
+                      "id": "a1",
+                      "kind": "sourced",
+                      "text": "The reported value increased."
+                    },
+                    {
+                      "citations": [],
+                      "dependencies": [],
+                      "id": "a2",
+                      "kind": "commentary",
+                      "text": "I suspect a seasonal effect."
+                    },
+                    {
+                      "citations": [
+                        "source-1"
+                      ],
+                      "dependencies": [
+                        {
+                          "id": "doc",
+                          "kind": "source",
+                          "locator": {
+                            "document_id": "doc",
+                            "end": 29,
+                            "revision_id": "revision-1",
+                            "start": 0
+                          },
+                          "namespace": "sources",
+                          "revision": "revision-1"
+                        }
+                      ],
+                      "id": "a3",
+                      "kind": "sourced",
+                      "text": "Wiederholte Quellenangabe zur Berliner Forschung."
+                    }
+                  ],
+                  "id": "summary",
+                  "title": "Summary"
+                }
+              ],
+              "snapshot": {
+                "generations": {
+                  "sources": 1
+                },
+                "id": "snapshot:1"
+              },
+              "title": "Berliner Forschungsbericht"
+            },
+            "contract": "noesis-authored-report-v1",
+            "namespace": "evaluation",
+            "owner": "evaluation",
+            "report_id": "report:38324a709bd3c048293536fe916a4f5a",
+            "revision": 1,
+            "updated_at_ms": 1788648901624
+          },
+          "sha256": "a187e736a311e3c912398ad971aa4c2f4ef5771d589e11779e9e540588dc4b12",
+          "markdown": "# Berliner Forschungsbericht\n\n## Summary\n\n[Source-linked; support not independently verified] The reported value increased. [source-1]\n\n[Author commentary] I suspect a seasonal effect.\n\n[Source-linked; support not independently verified] Wiederholte Quellenangabe zur Berliner Forschung. [source-1]\n\n## Known limitations\n\n- One source; no causal identification.\n\n## Bibliography\n\n[source-1] Source One. Observations. 2026.\n[incomplete] Ältere Quelle: Müller, öffentliche Förderung.",
+          "bibliography": [
+            {
+              "id": "source-1",
+              "text": "Source One. Observations. 2026."
+            },
+            {
+              "id": "incomplete",
+              "text": "Ältere Quelle: Müller, öffentliche Förderung."
+            }
+          ],
+          "limitations": [
+            "Integrity hash is not signer authentication",
+            "Source support and snapshot availability are not certified"
+          ]
+        },
+        "support_verified": false
+      }
+    },
+    {
+      "locale": "de-DE",
+      "format": "pdf",
+      "checks": {
+        "Müller": true,
+        "2025": true,
+        "revision-1": true,
+        "One source; no causal identification.": true,
+        "repeated_citation": true,
+        "localized_page_label": true
+      },
+      "receipt": {
+        "contract": "noesis-citeproc-export-v1",
+        "export_id": "citeproc-export:b3293c7242579357fb1bf3dfe4a8ed2b4d9036894c8d32e5c07961184722da1a",
+        "config": {
+          "report_hash": "a187e736a311e3c912398ad971aa4c2f4ef5771d589e11779e9e540588dc4b12",
+          "citation_metadata": {
+            "source-1": {
+              "type": "report",
+              "title": "Berliner Forschung und öffentliche Förderung",
+              "author": [
+                {
+                  "family": "Müller",
+                  "given": "Jörg"
+                }
+              ],
+              "issued": {
+                "date-parts": [
+                  [
+                    2025
+                  ]
+                ]
+              },
+              "publisher": "Berlin"
+            }
+          },
+          "locators": {
+            "a1": {
+              "source-1": "12"
+            }
+          },
+          "locale": "de-DE",
+          "format": "pdf",
+          "pypandoc_binary": "1.17",
+          "pandoc": "3.9",
+          "typst": "0.15.0",
+          "style_sha256": "14cbc22feafb0858f6d91e530d64a5cb7125893eb05863ef478835d7d0674e4c"
+        },
+        "pandoc_version": "3.9",
+        "output_sha256": "d29af79f284b8c3b74767c2c2a067c96b79fb73054d3993c65cb0229b9fc982e",
+        "bytes": 24708,
+        "elapsed_ms": 244.867,
+        "authored_fallback_ids": [
+          "incomplete"
+        ],
+        "source_package": {
+          "contract": "noesis-report-export-v1",
+          "report": {
+            "content": {
+              "bibliography": [
+                {
+                  "id": "source-1",
+                  "text": "Source One. Observations. 2026."
+                },
+                {
+                  "id": "incomplete",
+                  "text": "Ältere Quelle: Müller, öffentliche Förderung."
+                }
+              ],
+              "limitations": [
+                "One source; no causal identification."
+              ],
+              "sections": [
+                {
+                  "assertions": [
+                    {
+                      "citations": [
+                        "source-1"
+                      ],
+                      "dependencies": [
+                        {
+                          "id": "doc",
+                          "kind": "source",
+                          "locator": {
+                            "document_id": "doc",
+                            "end": 29,
+                            "revision_id": "revision-1",
+                            "start": 0
+                          },
+                          "namespace": "sources",
+                          "revision": "revision-1"
+                        }
+                      ],
+                      "id": "a1",
+                      "kind": "sourced",
+                      "text": "The reported value increased."
+                    },
+                    {
+                      "citations": [],
+                      "dependencies": [],
+                      "id": "a2",
+                      "kind": "commentary",
+                      "text": "I suspect a seasonal effect."
+                    },
+                    {
+                      "citations": [
+                        "source-1"
+                      ],
+                      "dependencies": [
+                        {
+                          "id": "doc",
+                          "kind": "source",
+                          "locator": {
+                            "document_id": "doc",
+                            "end": 29,
+                            "revision_id": "revision-1",
+                            "start": 0
+                          },
+                          "namespace": "sources",
+                          "revision": "revision-1"
+                        }
+                      ],
+                      "id": "a3",
+                      "kind": "sourced",
+                      "text": "Wiederholte Quellenangabe zur Berliner Forschung."
+                    }
+                  ],
+                  "id": "summary",
+                  "title": "Summary"
+                }
+              ],
+              "snapshot": {
+                "generations": {
+                  "sources": 1
+                },
+                "id": "snapshot:1"
+              },
+              "title": "Berliner Forschungsbericht"
+            },
+            "contract": "noesis-authored-report-v1",
+            "namespace": "evaluation",
+            "owner": "evaluation",
+            "report_id": "report:38324a709bd3c048293536fe916a4f5a",
+            "revision": 1,
+            "updated_at_ms": 1788648901624
+          },
+          "sha256": "a187e736a311e3c912398ad971aa4c2f4ef5771d589e11779e9e540588dc4b12",
+          "markdown": "# Berliner Forschungsbericht\n\n## Summary\n\n[Source-linked; support not independently verified] The reported value increased. [source-1]\n\n[Author commentary] I suspect a seasonal effect.\n\n[Source-linked; support not independently verified] Wiederholte Quellenangabe zur Berliner Forschung. [source-1]\n\n## Known limitations\n\n- One source; no causal identification.\n\n## Bibliography\n\n[source-1] Source One. Observations. 2026.\n[incomplete] Ältere Quelle: Müller, öffentliche Förderung.",
+          "bibliography": [
+            {
+              "id": "source-1",
+              "text": "Source One. Observations. 2026."
+            },
+            {
+              "id": "incomplete",
+              "text": "Ältere Quelle: Müller, öffentliche Förderung."
+            }
+          ],
+          "limitations": [
+            "Integrity hash is not signer authentication",
+            "Source support and snapshot availability are not certified"
+          ]
+        },
+        "support_verified": false
+      }
+    },
+    {
+      "locale": "en-US",
+      "format": "docx",
+      "checks": {
+        "Müller": true,
+        "2025": true,
+        "revision-1": true,
+        "One source; no causal identification.": true,
+        "repeated_citation": true,
+        "localized_page_label": true
+      },
+      "receipt": {
+        "contract": "noesis-citeproc-export-v1",
+        "export_id": "citeproc-export:94ba14877d413b03d5427f965d2414f09a3803782f1519e029bd37e1f423f8ca",
+        "config": {
+          "report_hash": "a187e736a311e3c912398ad971aa4c2f4ef5771d589e11779e9e540588dc4b12",
+          "citation_metadata": {
+            "source-1": {
+              "type": "report",
+              "title": "Berliner Forschung und öffentliche Förderung",
+              "author": [
+                {
+                  "family": "Müller",
+                  "given": "Jörg"
+                }
+              ],
+              "issued": {
+                "date-parts": [
+                  [
+                    2025
+                  ]
+                ]
+              },
+              "publisher": "Berlin"
+            }
+          },
+          "locators": {
+            "a1": {
+              "source-1": "12"
+            }
+          },
+          "locale": "en-US",
+          "format": "docx",
+          "pypandoc_binary": "1.17",
+          "pandoc": "3.9",
+          "typst": null,
+          "style_sha256": "14cbc22feafb0858f6d91e530d64a5cb7125893eb05863ef478835d7d0674e4c"
+        },
+        "pandoc_version": "3.9",
+        "output_sha256": "a50d65568d5d13c7ab344542c5406b567367dff02856a2a60ccc5f9523a3f7af",
+        "bytes": 11276,
+        "elapsed_ms": 180.481,
+        "authored_fallback_ids": [
+          "incomplete"
+        ],
+        "source_package": {
+          "contract": "noesis-report-export-v1",
+          "report": {
+            "content": {
+              "bibliography": [
+                {
+                  "id": "source-1",
+                  "text": "Source One. Observations. 2026."
+                },
+                {
+                  "id": "incomplete",
+                  "text": "Ältere Quelle: Müller, öffentliche Förderung."
+                }
+              ],
+              "limitations": [
+                "One source; no causal identification."
+              ],
+              "sections": [
+                {
+                  "assertions": [
+                    {
+                      "citations": [
+                        "source-1"
+                      ],
+                      "dependencies": [
+                        {
+                          "id": "doc",
+                          "kind": "source",
+                          "locator": {
+                            "document_id": "doc",
+                            "end": 29,
+                            "revision_id": "revision-1",
+                            "start": 0
+                          },
+                          "namespace": "sources",
+                          "revision": "revision-1"
+                        }
+                      ],
+                      "id": "a1",
+                      "kind": "sourced",
+                      "text": "The reported value increased."
+                    },
+                    {
+                      "citations": [],
+                      "dependencies": [],
+                      "id": "a2",
+                      "kind": "commentary",
+                      "text": "I suspect a seasonal effect."
+                    },
+                    {
+                      "citations": [
+                        "source-1"
+                      ],
+                      "dependencies": [
+                        {
+                          "id": "doc",
+                          "kind": "source",
+                          "locator": {
+                            "document_id": "doc",
+                            "end": 29,
+                            "revision_id": "revision-1",
+                            "start": 0
+                          },
+                          "namespace": "sources",
+                          "revision": "revision-1"
+                        }
+                      ],
+                      "id": "a3",
+                      "kind": "sourced",
+                      "text": "Wiederholte Quellenangabe zur Berliner Forschung."
+                    }
+                  ],
+                  "id": "summary",
+                  "title": "Summary"
+                }
+              ],
+              "snapshot": {
+                "generations": {
+                  "sources": 1
+                },
+                "id": "snapshot:1"
+              },
+              "title": "Berliner Forschungsbericht"
+            },
+            "contract": "noesis-authored-report-v1",
+            "namespace": "evaluation",
+            "owner": "evaluation",
+            "report_id": "report:38324a709bd3c048293536fe916a4f5a",
+            "revision": 1,
+            "updated_at_ms": 1788648901624
+          },
+          "sha256": "a187e736a311e3c912398ad971aa4c2f4ef5771d589e11779e9e540588dc4b12",
+          "markdown": "# Berliner Forschungsbericht\n\n## Summary\n\n[Source-linked; support not independently verified] The reported value increased. [source-1]\n\n[Author commentary] I suspect a seasonal effect.\n\n[Source-linked; support not independently verified] Wiederholte Quellenangabe zur Berliner Forschung. [source-1]\n\n## Known limitations\n\n- One source; no causal identification.\n\n## Bibliography\n\n[source-1] Source One. Observations. 2026.\n[incomplete] Ältere Quelle: Müller, öffentliche Förderung.",
+          "bibliography": [
+            {
+              "id": "source-1",
+              "text": "Source One. Observations. 2026."
+            },
+            {
+              "id": "incomplete",
+              "text": "Ältere Quelle: Müller, öffentliche Förderung."
+            }
+          ],
+          "limitations": [
+            "Integrity hash is not signer authentication",
+            "Source support and snapshot availability are not certified"
+          ]
+        },
+        "support_verified": false
+      }
+    },
+    {
+      "locale": "en-US",
+      "format": "pdf",
+      "checks": {
+        "Müller": true,
+        "2025": true,
+        "revision-1": true,
+        "One source; no causal identification.": true,
+        "repeated_citation": true,
+        "localized_page_label": true
+      },
+      "receipt": {
+        "contract": "noesis-citeproc-export-v1",
+        "export_id": "citeproc-export:d7918a2474448bc4cc4058775547388c24380fd9a9ddcde8225f6c0dfbc22957",
+        "config": {
+          "report_hash": "a187e736a311e3c912398ad971aa4c2f4ef5771d589e11779e9e540588dc4b12",
+          "citation_metadata": {
+            "source-1": {
+              "type": "report",
+              "title": "Berliner Forschung und öffentliche Förderung",
+              "author": [
+                {
+                  "family": "Müller",
+                  "given": "Jörg"
+                }
+              ],
+              "issued": {
+                "date-parts": [
+                  [
+                    2025
+                  ]
+                ]
+              },
+              "publisher": "Berlin"
+            }
+          },
+          "locators": {
+            "a1": {
+              "source-1": "12"
+            }
+          },
+          "locale": "en-US",
+          "format": "pdf",
+          "pypandoc_binary": "1.17",
+          "pandoc": "3.9",
+          "typst": "0.15.0",
+          "style_sha256": "14cbc22feafb0858f6d91e530d64a5cb7125893eb05863ef478835d7d0674e4c"
+        },
+        "pandoc_version": "3.9",
+        "output_sha256": "5060e184f6b94af28719e00fd6deca32be7cbc06c8332eb4a393021c2d1d4748",
+        "bytes": 24042,
+        "elapsed_ms": 249.536,
+        "authored_fallback_ids": [
+          "incomplete"
+        ],
+        "source_package": {
+          "contract": "noesis-report-export-v1",
+          "report": {
+            "content": {
+              "bibliography": [
+                {
+                  "id": "source-1",
+                  "text": "Source One. Observations. 2026."
+                },
+                {
+                  "id": "incomplete",
+                  "text": "Ältere Quelle: Müller, öffentliche Förderung."
+                }
+              ],
+              "limitations": [
+                "One source; no causal identification."
+              ],
+              "sections": [
+                {
+                  "assertions": [
+                    {
+                      "citations": [
+                        "source-1"
+                      ],
+                      "dependencies": [
+                        {
+                          "id": "doc",
+                          "kind": "source",
+                          "locator": {
+                            "document_id": "doc",
+                            "end": 29,
+                            "revision_id": "revision-1",
+                            "start": 0
+                          },
+                          "namespace": "sources",
+                          "revision": "revision-1"
+                        }
+                      ],
+                      "id": "a1",
+                      "kind": "sourced",
+                      "text": "The reported value increased."
+                    },
+                    {
+                      "citations": [],
+                      "dependencies": [],
+                      "id": "a2",
+                      "kind": "commentary",
+                      "text": "I suspect a seasonal effect."
+                    },
+                    {
+                      "citations": [
+                        "source-1"
+                      ],
+                      "dependencies": [
+                        {
+                          "id": "doc",
+                          "kind": "source",
+                          "locator": {
+                            "document_id": "doc",
+                            "end": 29,
+                            "revision_id": "revision-1",
+                            "start": 0
+                          },
+                          "namespace": "sources",
+                          "revision": "revision-1"
+                        }
+                      ],
+                      "id": "a3",
+                      "kind": "sourced",
+                      "text": "Wiederholte Quellenangabe zur Berliner Forschung."
+                    }
+                  ],
+                  "id": "summary",
+                  "title": "Summary"
+                }
+              ],
+              "snapshot": {
+                "generations": {
+                  "sources": 1
+                },
+                "id": "snapshot:1"
+              },
+              "title": "Berliner Forschungsbericht"
+            },
+            "contract": "noesis-authored-report-v1",
+            "namespace": "evaluation",
+            "owner": "evaluation",
+            "report_id": "report:38324a709bd3c048293536fe916a4f5a",
+            "revision": 1,
+            "updated_at_ms": 1788648901624
+          },
+          "sha256": "a187e736a311e3c912398ad971aa4c2f4ef5771d589e11779e9e540588dc4b12",
+          "markdown": "# Berliner Forschungsbericht\n\n## Summary\n\n[Source-linked; support not independently verified] The reported value increased. [source-1]\n\n[Author commentary] I suspect a seasonal effect.\n\n[Source-linked; support not independently verified] Wiederholte Quellenangabe zur Berliner Forschung. [source-1]\n\n## Known limitations\n\n- One source; no causal identification.\n\n## Bibliography\n\n[source-1] Source One. Observations. 2026.\n[incomplete] Ältere Quelle: Müller, öffentliche Förderung.",
+          "bibliography": [
+            {
+              "id": "source-1",
+              "text": "Source One. Observations. 2026."
+            },
+            {
+              "id": "incomplete",
+              "text": "Ältere Quelle: Müller, öffentliche Förderung."
+            }
+          ],
+          "limitations": [
+            "Integrity hash is not signer authentication",
+            "Source support and snapshot availability are not certified"
+          ]
+        },
+        "support_verified": false
+      }
+    }
+  ],
+  "max_child_rss_kib": 193300,
+  "decision": "adopt as explicit optional export: four outputs passed structure checks; retain native Markdown for low-cost export; no evidence-support inference"
+}

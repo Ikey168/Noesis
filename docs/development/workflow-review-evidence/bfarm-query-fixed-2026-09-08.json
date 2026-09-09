@@ -1,0 +1,902 @@
+{
+  "status": "ingested",
+  "receipt": {
+    "document_ids": [
+      "regional:d615de117afd7355bab84d92dfca9bce"
+    ],
+    "native_capture": {
+      "actual_billed_usd_micros": null,
+      "budget_id": "query-fixed",
+      "bytes": 749781,
+      "contract": "noesis-provider-request-v1",
+      "digest": "c48ad5f4b4428db10f304dcb8bb920c6ceea4b048c1e85177a0bc25148a71af7",
+      "elapsed_seconds": 0.24037428500014357,
+      "execution": "network",
+      "http_status": 200,
+      "observed_at_ms": 1788902123599,
+      "parser_runtime": {
+        "elapsed_seconds": 1.269399961005547,
+        "execution": "isolated-local-process",
+        "hosted_inference_used": false,
+        "operation": "pdf-pymupdf",
+        "peak_process_tree_rss_bytes": 84381696,
+        "remote_processing_used": false,
+        "resource_limits": {
+          "rss_bytes": 1073741824,
+          "threads": 2,
+          "timeout_s": 120
+        },
+        "status": "completed"
+      },
+      "provider": "bfarm",
+      "request": {
+        "body": null,
+        "credential_slots": {
+          "body": [],
+          "headers": [],
+          "params": []
+        },
+        "headers": {
+          "Accept": "application/json"
+        },
+        "max_bytes": 20000000,
+        "max_cost_micros": 0,
+        "method": "GET",
+        "params": {},
+        "timeout_s": 15,
+        "url": "https://www.bfarm.de/SharedDocs/Risikoinformationen/Pharmakovigilanz/DE/RHB/2026/rhb-litfulo.pdf?__blob=publicationFile"
+      },
+      "request_hash": "5f2cdba25dfc42ddafa07168734f64fcb13da3675b5975e4d273879839811368",
+      "request_key": "4e47969d2438159e85989b10942f957f2710e7cc65604d77bd87ddb5d9eb9966:document",
+      "reserved_cost_micros": 0,
+      "response_headers": {
+        "content-type": "application/pdf",
+        "etag": "\"1367f3345a0ac1e10dd30dc967c07cd2\"",
+        "last-modified": "Thu, 13 Aug 2026 07:48:08 GMT"
+      },
+      "retry_after": null,
+      "snapshot": {
+        "bytes": 749781,
+        "content_type": "application/pdf",
+        "digest": "c48ad5f4b4428db10f304dcb8bb920c6ceea4b048c1e85177a0bc25148a71af7",
+        "fetched_at": 1788902123599,
+        "final_url": "https://www.bfarm.de/SharedDocs/Risikoinformationen/Pharmakovigilanz/DE/RHB/2026/rhb-litfulo.pdf?__blob=publicationFile",
+        "url": "https://www.bfarm.de/SharedDocs/Risikoinformationen/Pharmakovigilanz/DE/RHB/2026/rhb-litfulo.pdf?__blob=publicationFile"
+      },
+      "state": "completed"
+    },
+    "no_automatic_identity_merge": true,
+    "observation_id": "regional-observation:8ff51e56f0b8da83d4f30dc76822f0ac",
+    "record_versions": [
+      "7b81169130110a642e8064c60e803f44ad495d248d9257b4c220284ad04cae2a"
+    ],
+    "reuse_notice": "Public evaluation; publisher terms apply",
+    "source_refs": [
+      {
+        "document_id": "regional:d615de117afd7355bab84d92dfca9bce",
+        "revision_id": "document-revision:d5ba08dc0cb03e81a51f79a532bd21bf"
+      }
+    ]
+  },
+  "native_result": [
+    {
+      "contract": "noesis-native-regional-v1",
+      "coverage_notice": "BfArM safety communications; PEI material and causal conclusions are not inferred",
+      "fields": {},
+      "is_current_law": false,
+      "kind": "linked-regulatory-document",
+      "language": "de",
+      "missing_fields": [],
+      "native": {
+        "original_sha256": "c48ad5f4b4428db10f304dcb8bb920c6ceea4b048c1e85177a0bc25148a71af7",
+        "parser_receipt": {
+          "backend": "pymupdf",
+          "configuration": {
+            "min_words_vertical": 2,
+            "ocr": false,
+            "table_spans_inferred": false,
+            "table_strategy": "text"
+          },
+          "version": "1.28.2"
+        }
+      },
+      "provider": "bfarm",
+      "provider_id": "https://www.bfarm.de/SharedDocs/Risikoinformationen/Pharmakovigilanz/DE/RHB/2026/rhb-litfulo.pdf?__blob=publicationFile",
+      "published_at": null,
+      "relationships": [
+        {
+          "basis": "explicit source link",
+          "provider_id": "rhb-litfulo-2026",
+          "relation": "document-of"
+        }
+      ],
+      "review_required": false,
+      "sections": [
+        {
+          "locator": {
+            "bbox": [
+              471.3857116699219,
+              13.503572463989258,
+              535.4172973632812,
+              26.04357147216797
+            ],
+            "kind": "pdf-block",
+            "page": 1
+          },
+          "text": "Seite 1 von 3 \n"
+        },
+        {
+          "locator": {
+            "bbox": [
+              469.1015930175781,
+              267.27716064453125,
+              536.93359375,
+              282.2253112792969
+            ],
+            "kind": "pdf-block",
+            "page": 1
+          },
+          "text": "10.08.2026 \n"
+        },
+        {
+          "locator": {
+            "bbox": [
+              62.399871826171875,
+              308.35797119140625,
+              532.947265625,
+              395.65032958984375
+            ],
+            "kind": "pdf-block",
+            "page": 1
+          },
+          "text": "Litfulo\u25bc(Ritlecitinib): Aktualisierte Empfehlungen zur \nMinimierung des Risikos f\u00fcr schwerwiegende \nunerw\u00fcnschte kardiovaskul\u00e4re Ereignisse, maligne \nErkrankungen, ven\u00f6se Thromboembolien, schwerwiegende \nInfektionen und Mortalit\u00e4t \n"
+        },
+        {
+          "locator": {
+            "bbox": [
+              62.399898529052734,
+              403.9350891113281,
+              217.41253662109375,
+              416.2835693359375
+            ],
+            "kind": "pdf-block",
+            "page": 1
+          },
+          "text": "Sehr geehrte Damen und Herren, \n"
+        },
+        {
+          "locator": {
+            "bbox": [
+              62.390777587890625,
+              424.8107604980469,
+              477.7202453613281,
+              437.15924072265625
+            ],
+            "kind": "pdf-block",
+            "page": 1
+          },
+          "text": "der Zulassungsinhaber Pfizer Europe MA EEIG, Belgien, m\u00f6chte Sie in Abstimmung mit der \n"
+        },
+        {
+          "locator": {
+            "bbox": [
+              62.390777587890625,
+              438.7278747558594,
+              531.5847778320312,
+              451.07635498046875
+            ],
+            "kind": "pdf-block",
+            "page": 1
+          },
+          "text": "Europ\u00e4ischen Arzneimittelagentur (EMA) und dem Bundesinstitut f\u00fcr Arzneimittel und Medizinprodukte \n"
+        },
+        {
+          "locator": {
+            "bbox": [
+              62.390777587890625,
+              452.8912353515625,
+              307.8893737792969,
+              465.2397155761719
+            ],
+            "kind": "pdf-block",
+            "page": 1
+          },
+          "text": "(BfArM) \u00fcber den folgenden Sachverhalt informieren: \n"
+        },
+        {
+          "locator": {
+            "bbox": [
+              62.399898529052734,
+              488.0853576660156,
+              182.26560974121094,
+              503.2653503417969
+            ],
+            "kind": "pdf-block",
+            "page": 1
+          },
+          "text": "Zusammenfassung \n"
+        },
+        {
+          "locator": {
+            "bbox": [
+              62.399898529052734,
+              526.0077514648438,
+              470.5519714355469,
+              583.437744140625
+            ],
+            "kind": "pdf-block",
+            "page": 1
+          },
+          "text": "\u2022 \nDie bekannten Risiken von JAK-Inhibitoren \u2013 schwerwiegende \nunerw\u00fcnschte kardiovaskul\u00e4re Ereignisse (MACE), maligne \nErkrankungen, schwerwiegende Infektionen und ven\u00f6se \nThromboembolien (VTE) \u2013 sind auch f\u00fcr Ritlecitinib relevant. \n"
+        },
+        {
+          "locator": {
+            "bbox": [
+              62.410919189453125,
+              588.902587890625,
+              520.6583251953125,
+              632.4112548828125
+            ],
+            "kind": "pdf-block",
+            "page": 1
+          },
+          "text": "\u2022 \nBei folgenden Patientinnen und Patienten sollte Ritlecitinib nur \nangewendet werden, wenn keine geeigneten Behandlungsalternativen \nzur Verf\u00fcgung stehen: \n"
+        },
+        {
+          "locator": {
+            "bbox": [
+              98.40132904052734,
+              638.3507690429688,
+              233.4039764404297,
+              657.69287109375
+            ],
+            "kind": "pdf-block",
+            "page": 1
+          },
+          "text": "o 65 Jahre und \u00e4lter \n"
+        },
+        {
+          "locator": {
+            "bbox": [
+              98.40133666992188,
+              658.9955444335938,
+              453.6453552246094,
+              678.337646484375
+            ],
+            "kind": "pdf-block",
+            "page": 1
+          },
+          "text": "o atherosklerotische kardiovaskul\u00e4re Erkrankung in der \n"
+        },
+        {
+          "locator": {
+            "bbox": [
+              116.40757751464844,
+              672.9169921875,
+              514.819091796875,
+              702.4931640625
+            ],
+            "kind": "pdf-block",
+            "page": 1
+          },
+          "text": "Vorgeschichte oder andere kardiovaskul\u00e4re Risikofaktoren (wie \naktuelle oder ehemalige Langzeitraucher) \n"
+        },
+        {
+          "locator": {
+            "bbox": [
+              98.41239166259766,
+              707.9579467773438,
+              497.1983337402344,
+              727.300048828125
+            ],
+            "kind": "pdf-block",
+            "page": 1
+          },
+          "text": "o Risikofaktoren f\u00fcr maligne Erkrankungen (z. B. aktuelle oder \n"
+        },
+        {
+          "locator": {
+            "bbox": [
+              116.42967224121094,
+              722.3541259765625,
+              349.0203857421875,
+              737.5341186523438
+            ],
+            "kind": "pdf-block",
+            "page": 1
+          },
+          "text": "zur\u00fcckliegende maligne Erkrankung) \n"
+        },
+        {
+          "locator": {
+            "bbox": [
+              62.399898529052734,
+              768.2918701171875,
+              521.2205200195312,
+              800.3126220703125
+            ],
+            "kind": "pdf-block",
+            "page": 1
+          },
+          "text": "Bei Fragen zum Versand dieses Rote-Hand-Briefes oder Adress\u00e4nderungen wenden Sie sich bitte direkt an \nIQVIA Commercial GmbH & Co. OHG unter: IQVIA Commercial GmbH & Co. OHG, Einsteinring 24, 85609 \nAschheim \u2013 E-Mail: schwarzeck-marketing@iqvia.com \n"
+        },
+        {
+          "locator": {
+            "bbox": [
+              471.3857116699219,
+              13.503572463989258,
+              536.2562866210938,
+              26.04357147216797
+            ],
+            "kind": "pdf-block",
+            "page": 2
+          },
+          "text": "Seite 2 von 3 \n"
+        },
+        {
+          "locator": {
+            "bbox": [
+              62.400001525878906,
+              70.48531341552734,
+              507.1763610839844,
+              113.99392700195312
+            ],
+            "kind": "pdf-block",
+            "page": 2
+          },
+          "text": "\u2022 \nBei Patientinnen und Patienten mit anderen als den oben genannten \nRisikofaktoren f\u00fcr VTE sollte Ritlecitinib mit Vorsicht angewendet \nwerden. \n"
+        },
+        {
+          "locator": {
+            "bbox": [
+              62.422096252441406,
+              119.45870208740234,
+              513.9638671875,
+              149.03488159179688
+            ],
+            "kind": "pdf-block",
+            "page": 2
+          },
+          "text": "\u2022 \nRegelm\u00e4\u00dfige Hautuntersuchungen zur Fr\u00fcherkennung von Hautkrebs \nwerden bei allen Patientinnen und Patienten empfohlen. \n"
+        },
+        {
+          "locator": {
+            "bbox": [
+              62.422088623046875,
+              171.5343780517578,
+              514.987060546875,
+              200.63583374023438
+            ],
+            "kind": "pdf-block",
+            "page": 2
+          },
+          "text": "Hintergrund zu den Sicherheitsbedenken und aktualisierten Ma\u00dfnahmen \nzur Risikominimierung \n"
+        },
+        {
+          "locator": {
+            "bbox": [
+              62.399898529052734,
+              223.21511840820312,
+              515.43408203125,
+              235.5635986328125
+            ],
+            "kind": "pdf-block",
+            "page": 2
+          },
+          "text": "Litfulo (Ritlecitinib) ist ein selektiver Inhibitor von JAK3 und Kinasen der TEC-Familie und wurde im \n"
+        },
+        {
+          "locator": {
+            "bbox": [
+              62.399871826171875,
+              237.37844848632812,
+              490.117919921875,
+              249.7269287109375
+            ],
+            "kind": "pdf-block",
+            "page": 2
+          },
+          "text": "September 2023 f\u00fcr die Behandlung der schweren Alopecia areata (AA) bei Erwachsenen und \n"
+        },
+        {
+          "locator": {
+            "bbox": [
+              62.42724609375,
+              251.54177856445312,
+              242.2170867919922,
+              263.8902587890625
+            ],
+            "kind": "pdf-block",
+            "page": 2
+          },
+          "text": "Jugendlichen ab 12 Jahren zugelassen. \n"
+        },
+        {
+          "locator": {
+            "bbox": [
+              62.42724609375,
+              277.2151184082031,
+              525.9599609375,
+              289.57220458984375
+            ],
+            "kind": "pdf-block",
+            "page": 2
+          },
+          "text": "Im Februar 2023 wurde ein Rote-Hand-Brief1 f\u00fcr Cibinqo (Abrocitinib), Jyseleca (Filgotinib), Olumiant \n"
+        },
+        {
+          "locator": {
+            "bbox": [
+              62.40740966796875,
+              291.3784484863281,
+              524.0891723632812,
+              303.7269287109375
+            ],
+            "kind": "pdf-block",
+            "page": 2
+          },
+          "text": "(Baricitinib), Rinvoq (Upadacitinib) und Xeljanz (Tofacitinib) an Angeh\u00f6rige der Heilberufe versendet. \n"
+        },
+        {
+          "locator": {
+            "bbox": [
+              62.41650390625,
+              305.2955627441406,
+              504.989990234375,
+              317.64404296875
+            ],
+            "kind": "pdf-block",
+            "page": 2
+          },
+          "text": "In diesem wurden Sie dar\u00fcber informiert, dass bei Patienten mit rheumatoider Arthritis (RA), die \n"
+        },
+        {
+          "locator": {
+            "bbox": [
+              62.434722900390625,
+              319.2126770019531,
+              530.5252075195312,
+              331.5611572265625
+            ],
+            "kind": "pdf-block",
+            "page": 2
+          },
+          "text": "bestimmte Risikofaktoren aufwiesen und mit JAK-Inhibitoren behandelt wurden, eine erh\u00f6hte Inzidenz \n"
+        },
+        {
+          "locator": {
+            "bbox": [
+              62.45294189453125,
+              333.37603759765625,
+              527.4224853515625,
+              345.7245178222656
+            ],
+            "kind": "pdf-block",
+            "page": 2
+          },
+          "text": "von malignen Erkrankungen, schwerwiegenden unerw\u00fcnschten kardiovaskul\u00e4ren Ereignissen (MACE), \n"
+        },
+        {
+          "locator": {
+            "bbox": [
+              62.462066650390625,
+              347.29315185546875,
+              524.5816040039062,
+              359.6416320800781
+            ],
+            "kind": "pdf-block",
+            "page": 2
+          },
+          "text": "schwerwiegenden Infektionen, ven\u00f6sen Thromboembolien (VTE) und Mortalit\u00e4t im Vergleich zu TNF\u03b1\u00ad\n"
+        },
+        {
+          "locator": {
+            "bbox": [
+              62.462066650390625,
+              361.21026611328125,
+              502.54443359375,
+              373.5635681152344
+            ],
+            "kind": "pdf-block",
+            "page": 2
+          },
+          "text": "Inhibitoren beobachtet wurde2. Diese Risiken wurden als Klasseneffekte und als relevant f\u00fcr alle \n"
+        },
+        {
+          "locator": {
+            "bbox": [
+              62.412322998046875,
+              375.3784484863281,
+              531.3428955078125,
+              387.7269287109375
+            ],
+            "kind": "pdf-block",
+            "page": 2
+          },
+          "text": "zugelassenen Indikationen von JAK-Inhibitoren bei entz\u00fcndlichen und dermatologischen Erkrankungen \n"
+        },
+        {
+          "locator": {
+            "bbox": [
+              62.42143249511719,
+              389.2955627441406,
+              524.832763671875,
+              401.64404296875
+            ],
+            "kind": "pdf-block",
+            "page": 2
+          },
+          "text": "betrachtet. Es wurden daher Ma\u00dfnahmen f\u00fcr die gesamte Substanzklasse ergriffen, um diese Risiken \n"
+        },
+        {
+          "locator": {
+            "bbox": [
+              62.41229248046875,
+              403.4551086425781,
+              137.2289276123047,
+              415.8074035644531
+            ],
+            "kind": "pdf-block",
+            "page": 2
+          },
+          "text": "zu minimieren3. \n"
+        },
+        {
+          "locator": {
+            "bbox": [
+              62.399330139160156,
+              429.3741455078125,
+              528.2215576171875,
+              441.7226257324219
+            ],
+            "kind": "pdf-block",
+            "page": 2
+          },
+          "text": "Als Teil der routinem\u00e4\u00dfigen Bewertung des Nutzen-Risiko-Verh\u00e4ltnisses von Ritlecitinib durch die EMA \n"
+        },
+        {
+          "locator": {
+            "bbox": [
+              62.3992919921875,
+              443.291259765625,
+              528.5581665039062,
+              455.6397399902344
+            ],
+            "kind": "pdf-block",
+            "page": 2
+          },
+          "text": "gelangte man zu dem Schluss, dass die im Jahr 2023 zur Anwendung von Januskinase-Inhibitoren bei \n"
+        },
+        {
+          "locator": {
+            "bbox": [
+              62.408416748046875,
+              457.2083740234375,
+              535.1090087890625,
+              469.5568542480469
+            ],
+            "kind": "pdf-block",
+            "page": 2
+          },
+          "text": "chronisch-entz\u00fcndlichen Erkrankungen empfohlenen Vorsichtsma\u00dfnahmen auch f\u00fcr Ritlecitinib relevant \n"
+        },
+        {
+          "locator": {
+            "bbox": [
+              62.41754150390625,
+              471.3717346191406,
+              523.8394775390625,
+              483.72021484375
+            ],
+            "kind": "pdf-block",
+            "page": 2
+          },
+          "text": "sind. Diese Einsch\u00e4tzung basiert auf der kumulativen Evidenz aus klinischen Studien und Daten nach \n"
+        },
+        {
+          "locator": {
+            "bbox": [
+              62.408416748046875,
+              485.2888488769531,
+              535.2047119140625,
+              497.6373291015625
+            ],
+            "kind": "pdf-block",
+            "page": 2
+          },
+          "text": "der Markteinf\u00fchrung und in Ermangelung definitiver Daten, die belegen, dass die JAK3/TEC-Selektivit\u00e4t \n"
+        },
+        {
+          "locator": {
+            "bbox": [
+              62.399322509765625,
+              499.2059631347656,
+              508.298095703125,
+              511.554443359375
+            ],
+            "kind": "pdf-block",
+            "page": 2
+          },
+          "text": "diese Risiken aufhebt. Daher wurden die in der Zusammenfassung oben beschrieben Ma\u00dfnahmen \n"
+        },
+        {
+          "locator": {
+            "bbox": [
+              62.39018249511719,
+              513.6063842773438,
+              107.42930603027344,
+              525.9548950195312
+            ],
+            "kind": "pdf-block",
+            "page": 2
+          },
+          "text": "ergriffen. \n"
+        },
+        {
+          "locator": {
+            "bbox": [
+              62.39018249511719,
+              539.288330078125,
+              504.20599365234375,
+              551.6368408203125
+            ],
+            "kind": "pdf-block",
+            "page": 2
+          },
+          "text": "Die Produktinformation und das Schulungsmaterial von Litfulo werden entsprechend aktualisiert. \n"
+        },
+        {
+          "locator": {
+            "bbox": [
+              62.390167236328125,
+              553.2054443359375,
+              505.1014709472656,
+              565.553955078125
+            ],
+            "kind": "pdf-block",
+            "page": 2
+          },
+          "text": "Insgesamt kam die EMA zu dem Schluss, dass das Nutzen-Risiko-Verh\u00e4ltnis von Litfulo weiterhin \n"
+        },
+        {
+          "locator": {
+            "bbox": [
+              62.390167236328125,
+              567.3688354492188,
+              485.3949890136719,
+              579.7173461914062
+            ],
+            "kind": "pdf-block",
+            "page": 2
+          },
+          "text": "positiv bleibt. Die aktualisierten Empfehlungen sollen die Ma\u00dfnahmen zur Risikominimierung \n"
+        },
+        {
+          "locator": {
+            "bbox": [
+              62.3719482421875,
+              581.5321655273438,
+              197.94979858398438,
+              593.8806762695312
+            ],
+            "kind": "pdf-block",
+            "page": 2
+          },
+          "text": "unterst\u00fctzen und verst\u00e4rken. \n"
+        },
+        {
+          "locator": {
+            "bbox": [
+              62.399898529052734,
+              604.7252807617188,
+              363.9872741699219,
+              619.9052734375
+            ],
+            "kind": "pdf-block",
+            "page": 2
+          },
+          "text": "Aufforderung zur Meldung von Nebenwirkungen \n"
+        },
+        {
+          "locator": {
+            "bbox": [
+              62.399871826171875,
+              625.455078125,
+              521.0081787109375,
+              675.4783325195312
+            ],
+            "kind": "pdf-block",
+            "page": 2
+          },
+          "text": "Die Meldung des Verdachts auf Nebenwirkungen nach der Zulassung ist von gro\u00dfer Wichtigkeit. Sie \nerm\u00f6glicht eine kontinuierliche \u00dcberwachung des Nutzen-Risiko-Verh\u00e4ltnisses des Arzneimittels. \nAngeh\u00f6rige von Gesundheitsberufen sind aufgefordert, jeden Verdachtsfall einer Nebenwirkung dem \nZulassungsinhaber zu melden. \n"
+        },
+        {
+          "locator": {
+            "bbox": [
+              65.04466247558594,
+              685.017822265625,
+              168.7819366455078,
+              708.3558959960938
+            ],
+            "kind": "pdf-block",
+            "page": 2
+          },
+          "text": "Ansprechpartner im \nUnternehmen \n"
+        },
+        {
+          "locator": {
+            "bbox": [
+              176.88320922851562,
+              685.017822265625,
+              264.2837829589844,
+              708.3558959960938
+            ],
+            "kind": "pdf-block",
+            "page": 2
+          },
+          "text": "Bezeichnung der \nArzneimittel \n"
+        },
+        {
+          "locator": {
+            "bbox": [
+              280.322265625,
+              685.017822265625,
+              450.3628234863281,
+              697.5578002929688
+            ],
+            "kind": "pdf-block",
+            "page": 2
+          },
+          "text": "E-Mail \nFax \n"
+        },
+        {
+          "locator": {
+            "bbox": [
+              65.04000091552734,
+              711.436279296875,
+              262.3414611816406,
+              741.595703125
+            ],
+            "kind": "pdf-block",
+            "page": 2
+          },
+          "text": "Pfizer Pharma GmbH \nLitfulo 50 mg \nZulassungsnummer: \nEU/1/23/1755/002 \n"
+        },
+        {
+          "locator": {
+            "bbox": [
+              280.329345703125,
+              711.4284057617188,
+              514.6250610351562,
+              722.152099609375
+            ],
+            "kind": "pdf-block",
+            "page": 2
+          },
+          "text": "Medical.Information@pfizer.com \n030 55 00 54 10000 \n"
+        },
+        {
+          "locator": {
+            "bbox": [
+              62.399898529052734,
+              768.2918701171875,
+              521.2205200195312,
+              800.3126220703125
+            ],
+            "kind": "pdf-block",
+            "page": 2
+          },
+          "text": "Bei Fragen zum Versand dieses Rote-Hand-Briefes oder Adress\u00e4nderungen wenden Sie sich bitte direkt an \nIQVIA Commercial GmbH & Co. OHG unter: IQVIA Commercial GmbH & Co. OHG, Einsteinring 24, 85609 \nAschheim \u2013 E-Mail: schwarzeck-marketing@iqvia.com \n"
+        },
+        {
+          "locator": {
+            "bbox": [
+              471.3857116699219,
+              13.503572463989258,
+              535.4172973632812,
+              26.04357147216797
+            ],
+            "kind": "pdf-block",
+            "page": 3
+          },
+          "text": "Seite 3 von 3 \n"
+        },
+        {
+          "locator": {
+            "bbox": [
+              62.399383544921875,
+              109.46419525146484,
+              359.1341552734375,
+              121.81267547607422
+            ],
+            "kind": "pdf-block",
+            "page": 3
+          },
+          "text": "Alternativ k\u00f6nnen Verdachtsf\u00e4lle von Nebenwirkungen auch dem \n"
+        },
+        {
+          "locator": {
+            "bbox": [
+              62.38113021850586,
+              129.14517211914062,
+              339.7367858886719,
+              179.1683349609375
+            ],
+            "kind": "pdf-block",
+            "page": 3
+          },
+          "text": "Bundesinstitut f\u00fcr Arzneimittel und Medizinprodukte (BfArM) \nKurt-Georg-Kiesinger-Allee 3 \n53175 Bonn \nFax: +49 (0)228 207 5207 \n"
+        },
+        {
+          "locator": {
+            "bbox": [
+              62.371978759765625,
+              192.01840209960938,
+              523.9564208984375,
+              217.08929443359375
+            ],
+            "kind": "pdf-block",
+            "page": 3
+          },
+          "text": "schriftlich oder elektronisch \u00fcber das Internet (www.bfarm.de \u2013 Arzneimittel \u2013 Pharmakovigilanz \u2013 \nRisiken melden), oder gem\u00e4\u00df Berufsrecht an die jeweilige Arzneimittelkommission gemeldet werden. \n"
+        },
+        {
+          "locator": {
+            "bbox": [
+              62.39984130859375,
+              320.89801025390625,
+              496.7301940917969,
+              344.0445556640625
+            ],
+            "kind": "pdf-block",
+            "page": 3
+          },
+          "text": "1 https://www.bfarm.de/SharedDocs/Risikoinformationen/Pharmakovigilanz/DE/RHB/2023/rhb\u00ad\njanuskinase.html \n"
+        },
+        {
+          "locator": {
+            "bbox": [
+              62.400001525878906,
+              353.53851318359375,
+              484.94110107421875,
+              376.9313049316406
+            ],
+            "kind": "pdf-block",
+            "page": 3
+          },
+          "text": "2 Ytterberg SR, Bhatt DL, Mikuls TR, et al. Cardiovascular and Cancer Risk with Tofacitinib in \nRheumatoid Arthritis. N Engl J Med. 2022;386(4):316-326. \n"
+        },
+        {
+          "locator": {
+            "bbox": [
+              62.39984130859375,
+              386.4161071777344,
+              516.9644775390625,
+              420.60699462890625
+            ],
+            "kind": "pdf-block",
+            "page": 3
+          },
+          "text": "3 European Medicines Agency. EMA confirms measures to minimise risk of serious side effects with \nJanus kinase inhibitors for chronic inflammatory disorders. EMA/142279/2023. Published March 10, \n2023. Accessed July 2, 2026. https://www.ema.europa.eu. \n"
+        },
+        {
+          "locator": {
+            "bbox": [
+              62.399898529052734,
+              768.2918701171875,
+              521.2205200195312,
+              800.3126220703125
+            ],
+            "kind": "pdf-block",
+            "page": 3
+          },
+          "text": "Bei Fragen zum Versand dieses Rote-Hand-Briefes oder Adress\u00e4nderungen wenden Sie sich bitte direkt an \nIQVIA Commercial GmbH & Co. OHG unter: IQVIA Commercial GmbH & Co. OHG, Einsteinring 24, 85609 \nAschheim \u2013 E-Mail: schwarzeck-marketing@iqvia.com \n"
+        }
+      ],
+      "source_url": "https://www.bfarm.de/SharedDocs/Risikoinformationen/Pharmakovigilanz/DE/RHB/2026/rhb-litfulo.pdf?__blob=publicationFile",
+      "title": "rhb-litfulo-2026",
+      "updated_at": null
+    }
+  ],
+  "offline_replay": true
+}

@@ -58,7 +58,10 @@ CREATE TRIGGER trigger_chunks_updated_at
     FOR EACH ROW
     EXECUTE FUNCTION update_chunks_timestamp();
 
-NOTICE 'Migration 0003_add_indexer_columns.sql completed successfully';
-NOTICE 'Added CLI indexer support columns: doc_id, chunk_id, title, source, etc.';
-NOTICE 'Added unique constraint on (doc_id, chunk_id) for UPSERT operations';
-NOTICE 'Added vector similarity index for embeddings';
+DO $$
+BEGIN
+    RAISE NOTICE 'Migration 0003_add_indexer_columns.sql completed successfully';
+    RAISE NOTICE 'Added CLI indexer support columns: doc_id, chunk_id, title, source, etc.';
+    RAISE NOTICE 'Added unique constraint on (doc_id, chunk_id) for UPSERT operations';
+    RAISE NOTICE 'Added vector similarity index for embeddings';
+END $$;

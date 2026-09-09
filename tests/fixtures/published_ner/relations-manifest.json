@@ -1,0 +1,9 @@
+{
+  "url": "https://raw.githubusercontent.com/mainlp/CrossRE/a58885fa760559d2dc9e176e730fe731f020d6f3/crossre_data/politics-test.json",
+  "revision": "a58885fa760559d2dc9e176e730fe731f020d6f3",
+  "sha256": "95e2432cd6aac170f17019ec96aea60bd2674a7a8583ce4d7d8aaf3c37e0d441",
+  "size_bytes": 331510,
+  "source": "Bassignana and Plank (2022), CrossRE",
+  "license": "Repository GPL-3.0; underlying CrossNER source rights remain applicable. Raw dataset not redistributed.",
+  "label_origin": "published-human-annotation"
+}

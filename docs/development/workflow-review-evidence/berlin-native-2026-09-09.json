@@ -1,0 +1,224 @@
+{
+  "contract": "noesis-berlin-native-export-evaluation-v1",
+  "access": "Public UI search, displayed law XML ZIP download and rendered judgment page; no undocumented API used",
+  "runs": [
+    {
+      "automatic_identity_merge": false,
+      "contract": "noesis-regional-acquisition-v1",
+      "namespace": "law",
+      "observation": "law",
+      "provider": "berlin-law",
+      "receipt": {
+        "document_ids": [
+          "regional:809ee029efb271872ebaf6d5948330fa"
+        ],
+        "native_capture": {
+          "digest": "b701bc5b07cb78c22a9db24b39c74a15f7a896ea2b333a3002e6c41f8610fb8a",
+          "execution": "explicit-public-export-import",
+          "observed_at_ms": 1788909362589,
+          "snapshot": {
+            "bytes": 136850,
+            "content_type": "application/octet-stream",
+            "digest": "b701bc5b07cb78c22a9db24b39c74a15f7a896ea2b333a3002e6c41f8610fb8a",
+            "fetched_at": 1788909362589,
+            "final_url": "https://gesetze.berlin.de/jportal/bsbeAizDownload/Verf_BE.zip?doc.id=jlr-NNLBE000047B0&doc.part=X&_=%2FVerf_BE.zip",
+            "url": "https://gesetze.berlin.de/jportal/bsbeAizDownload/Verf_BE.zip?doc.id=jlr-NNLBE000047B0&doc.part=X&_=%2FVerf_BE.zip"
+          }
+        },
+        "no_automatic_identity_merge": true,
+        "observation_id": "regional-observation:0a6c2c42c54a4e5ec004da63894c0ea5",
+        "record_versions": [
+          "f84d7c0ac2aa74447e9f00741b2efc5434c499668c8b7b1cf7ec70c3ea5f07a6"
+        ],
+        "reuse_notice": "Land Berlin/juris public legal evidence; source redactions and reuse terms retained; editorial material separated",
+        "source_refs": [
+          {
+            "document_id": "regional:809ee029efb271872ebaf6d5948330fa",
+            "revision_id": "document-revision:f1930442648c629eab327f85ed90702b"
+          }
+        ]
+      },
+      "record_count": 1,
+      "source_evidence_not_independent_validation": true,
+      "status": "ingested",
+      "replayed": true
+    },
+    {
+      "automatic_identity_merge": false,
+      "contract": "noesis-regional-acquisition-v1",
+      "namespace": "law",
+      "observation": "court",
+      "provider": "berlin-law",
+      "receipt": {
+        "document_ids": [
+          "regional:20cfb29d326d7a6c4ffbd731d0219506"
+        ],
+        "native_capture": {
+          "digest": "1e74bd25b4037ab26045b123ff466156eb29ce7456e3326f8153275b44f4f9fd",
+          "execution": "explicit-public-export-import",
+          "observed_at_ms": 1788909397929,
+          "snapshot": {
+            "bytes": 117679,
+            "content_type": "application/octet-stream",
+            "digest": "1e74bd25b4037ab26045b123ff466156eb29ce7456e3326f8153275b44f4f9fd",
+            "fetched_at": 1788909397929,
+            "final_url": "https://gesetze.berlin.de/bsbe/document/NJRE001141408",
+            "url": "https://gesetze.berlin.de/bsbe/document/NJRE001141408"
+          }
+        },
+        "no_automatic_identity_merge": true,
+        "observation_id": "regional-observation:eccb7443b4e815c2f19399eacc1e3825",
+        "record_versions": [
+          "ceacb569c262346764c3148795e31beffa37d31c6f09c779a54b4d1bbdbc46d4"
+        ],
+        "reuse_notice": "Land Berlin/juris public legal evidence; source redactions and reuse terms retained; editorial material separated",
+        "source_refs": [
+          {
+            "document_id": "regional:20cfb29d326d7a6c4ffbd731d0219506",
+            "revision_id": "document-revision:38999da0b1b6abf15b23ca9a4a0fab52"
+          }
+        ]
+      },
+      "record_count": 1,
+      "source_evidence_not_independent_validation": true,
+      "status": "ingested",
+      "replayed": true
+    }
+  ],
+  "law": {
+    "sha256": "b701bc5b07cb78c22a9db24b39c74a15f7a896ea2b333a3002e6c41f8610fb8a",
+    "bytes": 136850,
+    "fields": {
+      "jurisdiction": "DE-BE",
+      "historical": false,
+      "enactment_date": "1995-11-23",
+      "effective_from": "1995-11-29",
+      "effective_until": null,
+      "gazette_reference": "GVBl. 1995, 779",
+      "native_norm_count": 115,
+      "amendment_notice": "Stand:  letzte ber\u00fccksichtigte \u00c4nderung: zuletzt ge\u00e4ndert durch Gesetz vom 29.04.2026 (GVBl. S. 186)",
+      "metadata_origin": "native-juris-XML"
+    },
+    "sections": 297,
+    "characters": 59466,
+    "locator_examples": [
+      {
+        "kind": "xml-path",
+        "path": "/textdaten[1]/p[1]",
+        "id": null,
+        "official_norm_id": "jlr-NNLBE000047B0NN00000000002",
+        "norm_label": "Eingangsformel"
+      },
+      {
+        "kind": "xml-path",
+        "path": "/textdaten[1]/p[2]",
+        "id": null,
+        "official_norm_id": "jlr-NNLBE000047B0NN00000000002",
+        "norm_label": "Eingangsformel"
+      },
+      {
+        "kind": "xml-path",
+        "path": "/textdaten[1]/p[3]",
+        "id": null,
+        "official_norm_id": "jlr-NNLBE000047B0NN00000000002",
+        "norm_label": "Eingangsformel"
+      }
+    ]
+  },
+  "archive": {
+    "url": "https://gesetze.berlin.de/jportal/bsbeAizDownload/Verf_BE.zip?doc.id=jlr-NNLBE000047B0&doc.part=X&_=%2FVerf_BE.zip",
+    "final_url": "https://gesetze.berlin.de/jportal/bsbeAizDownload/Verf_BE.zip?doc.id=jlr-NNLBE000047B0&doc.part=X&_=%2FVerf_BE.zip",
+    "fetched_at": 1788909417500,
+    "digest": "85e31af6b784f0b3cc5594d1c993b02c7869ded18873d05abe1413a9cb7c96f7",
+    "content_type": "application/zip",
+    "bytes": 24619
+  },
+  "archive_member": "content.xml",
+  "court": {
+    "sha256": "1e74bd25b4037ab26045b123ff466156eb29ce7456e3326f8153275b44f4f9fd",
+    "bytes": 117679,
+    "fields": {
+      "court": "Verfassungsgerichtshof des Landes Berlin",
+      "case_number": "155/11",
+      "ecli": "ECLI:DE:VERFGBE:2013:0513.155.11.0A",
+      "decision_date": "2013-05-13",
+      "jurisdiction": "DE-BE",
+      "historical": null,
+      "editorial_text_excluded_from_evidence": true
+    },
+    "sections": 68,
+    "characters": 46869,
+    "locator_examples": [
+      {
+        "kind": "rendered-html-paragraph",
+        "container": ".docLayoutText.doktyp-juris-r",
+        "index_in_headings_and_paragraphs": 1,
+        "paragraph_number": null,
+        "section_role": "official-headnote"
+      },
+      {
+        "kind": "rendered-html-paragraph",
+        "container": ".docLayoutText.doktyp-juris-r",
+        "index_in_headings_and_paragraphs": 4,
+        "paragraph_number": null,
+        "section_role": "disposition"
+      },
+      {
+        "kind": "rendered-html-paragraph",
+        "container": ".docLayoutText.doktyp-juris-r",
+        "index_in_headings_and_paragraphs": 6,
+        "paragraph_number": null,
+        "section_role": "disposition"
+      }
+    ]
+  },
+  "court_pdf": {
+    "receipt": {
+      "contract": "noesis-provider-request-v1",
+      "provider": "berlin-law",
+      "budget_id": "berlin-pdf",
+      "request_key": "court-pdf",
+      "request_hash": "6fd3c1c4e7d1017d2293b930aa6026060fc2dd273be8bf444160eab2d9304d96",
+      "request": {
+        "url": "https://gesetze.berlin.de/jportal/recherche3doc/Verfassungsgerichtshof_des_Landes_Berlin_155-11_NJRE001141408.pdf?json=%7B%22format%22%3A%22pdf%22%2C%22docPart%22%3A%22L%22%2C%22docId%22%3A%22NJRE001141408%22%2C%22portalId%22%3A%22bsbe%22%7D&_=%2FVerfassungsgerichtshof_des_Landes_Berlin_155-11_NJRE001141408.pdf",
+        "method": "GET",
+        "params": {},
+        "body": null,
+        "headers": {
+          "Accept": "application/pdf"
+        },
+        "credential_slots": {
+          "headers": [],
+          "params": [],
+          "body": []
+        },
+        "max_bytes": 20000000,
+        "max_cost_micros": 0,
+        "timeout_s": 15
+      },
+      "reserved_cost_micros": 0,
+      "actual_billed_usd_micros": null,
+      "observed_at_ms": 1788909417713,
+      "execution": "network",
+      "state": "completed",
+      "http_status": 200,
+      "retry_after": null,
+      "elapsed_seconds": 0.16453596899373224,
+      "digest": "9d395d5448bda0f7060ff114ae0d6e26b96d0a676c1a94be639a7b72fa818443",
+      "bytes": 196,
+      "response_headers": {
+        "content-type": "text/plain;charset=ISO-8859-1"
+      },
+      "snapshot": {
+        "url": "https://gesetze.berlin.de/jportal/recherche3doc/Verfassungsgerichtshof_des_Landes_Berlin_155-11_NJRE001141408.pdf?json=%7B%22format%22%3A%22pdf%22%2C%22docPart%22%3A%22L%22%2C%22docId%22%3A%22NJRE001141408%22%2C%22portalId%22%3A%22bsbe%22%7D&_=%2FVerfassungsgerichtshof_des_Landes_Berlin_155-11_NJRE001141408.pdf",
+        "final_url": "https://gesetze.berlin.de/jportal/recherche3doc/Verfassungsgerichtshof_des_Landes_Berlin_155-11_NJRE001141408.pdf?json=%7B%22format%22%3A%22pdf%22%2C%22docPart%22%3A%22L%22%2C%22docId%22%3A%22NJRE001141408%22%2C%22portalId%22%3A%22bsbe%22%7D&_=%2FVerfassungsgerichtshof_des_Landes_Berlin_155-11_NJRE001141408.pdf",
+        "fetched_at": 1788909417713,
+        "digest": "9d395d5448bda0f7060ff114ae0d6e26b96d0a676c1a94be639a7b72fa818443",
+        "content_type": "text/plain;charset=ISO-8859-1",
+        "bytes": 196
+      }
+    },
+    "is_pdf": false
+  },
+  "offline_replay": true
+}

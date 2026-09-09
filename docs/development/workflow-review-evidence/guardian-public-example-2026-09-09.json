@@ -1,0 +1,36 @@
+{
+  "contract": "noesis-guardian-public-example-probe-v1",
+  "credential_origin": "Public api-key=test example in official Guardian documentation, not a user production credential",
+  "scope": "One non-commercial integration test request; no model training or redistribution",
+  "fixture_conformance": {
+    "contract": "noesis-source-pack-conformance-v1",
+    "pack_id": "guardian-news",
+    "version": "1.0.0",
+    "offline": true,
+    "valid": true,
+    "sources": [
+      {
+        "source_id": "guardian-content",
+        "connector": "declarative-rest",
+        "fixture_hash": "6995eafef6be04d3f574031c424fd459f1e36c3ccdec8afd96adab864422d6af",
+        "output_hash": "42d0a4e8230eb675417bbc575e91e6a2a6e4998a42fcdd8cd2cbd1358a6dbe41",
+        "valid": true,
+        "records": 1,
+        "scenarios": [
+          "article-identity",
+          "credentialed-live-unavailable",
+          "native-pagination",
+          "partial-body"
+        ]
+      }
+    ],
+    "coverage": {
+      "configured": 1,
+      "verified": 1
+    }
+  },
+  "status": "failed",
+  "failure_type": "SourcePackError",
+  "failure_code": "authentication_failed",
+  "elapsed_seconds": 0.19771843100170372
+}

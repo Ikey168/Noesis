@@ -46,7 +46,7 @@ def _provider_for_embedding_model(model: str):
     provider_name, separator, model_name = str(model or "").partition(":")
     from services.embeddings.provider import get_embedding_provider
 
-    if provider_name not in {"hashing", "local", "openai"}:
+    if provider_name not in {"hashing", "local", "openai", "e5", "bge-m3"}:
         return get_embedding_provider(provider="local", model_name=str(model))
     return get_embedding_provider(
         provider=provider_name,

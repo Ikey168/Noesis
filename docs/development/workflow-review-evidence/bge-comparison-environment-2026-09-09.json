@@ -1,0 +1,24 @@
+{
+  "contract": "noesis-bge-comparison-environment-v1",
+  "python": "3.14.6",
+  "packages": {
+    "FlagEmbedding": "1.4.2",
+    "peft": "0.20.0",
+    "accelerate": "1.14.0",
+    "datasets": "5.0.1",
+    "torch": "2.14.0+cpu",
+    "transformers": "5.16.1",
+    "sentence-transformers": "5.7.0",
+    "duckdb": "1.5.5",
+    "numpy": "2.4.6",
+    "ir-measures": "0.4.3"
+  },
+  "cpu": "Intel Xeon W-1370",
+  "worker_threads": 2,
+  "inference": "CPU float32; BGE use_fp16=False",
+  "corpus_sha256": "db8add1b84d3e2bc6f127ed68f45ab1b628693496f85c010d9b52d7392d4d4dc",
+  "query_set_sha256": "bf986e7423b844567d470f314f317c4e9337e8aa81ea459c642292e7ebd02069",
+  "bge_and_hybrid_inputs_identical": true,
+  "inference_packages_path": "/tmp/noesis-bge-packages:.eval-packages:.",
+  "hosted_inference_used": false
+}

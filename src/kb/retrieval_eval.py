@@ -32,11 +32,36 @@ def evaluate_retrieval(manifest_path, *, allow_fixture=False):
         raise ValueError('bounded cutoffs must include a value above 20')
     if set(manifest['runs'])!=MODES:
         raise ValueError('compare lexical, semantic, fusion and reranked runs')
-    import ir_measures as ir
     qrels=read(manifest['qrels']['path'],manifest['qrels']['sha256'])
     if set(qrels)!={q['id'] for q in queries} or any(not rows or len(rows)>10000 or any(type(v) is not int or not 0<=v<=3 for v in rows.values()) for rows in qrels.values()):
         raise ValueError('every frozen query needs bounded graded judgments')
-    measures=[measure@k for k in cutoffs for measure in (ir.R,ir.nDCG,ir.RR,ir.Judged)]
+    measure_names=[f'{name}@{k}' for k in cutoffs for name in ('R','nDCG','RR','Judged')]
+
+    def metrics_for(ranking, judgments):
+        """Compute the bounded metrics used by this evaluation contract.
+
+        Keeping these four small metrics local makes the benchmark reproducible
+        in minimal installs; ir-measures remains a useful optional cross-check,
+        not a runtime requirement for reading a frozen evaluation bundle.
+        """
+        result={}
+        relevant_total=sum(1 for grade in judgments.values() if grade>0)
+        ideal=sorted((grade for grade in judgments.values() if grade>0), reverse=True)
+        for k in cutoffs:
+            top=ranking[:k]
+            hits=sum(1 for doc_id in top if judgments.get(doc_id,0)>0)
+            result[f'R@{k}']=hits/relevant_total if relevant_total else 0.0
+            reciprocal=0.0
+            for rank,doc_id in enumerate(top,1):
+                if judgments.get(doc_id,0)>0:
+                    reciprocal=1.0/rank
+                    break
+            result[f'RR@{k}']=reciprocal
+            dcg=sum((2**judgments.get(doc_id,0)-1)/math.log2(rank+1) for rank,doc_id in enumerate(top,1))
+            idcg=sum((2**grade-1)/math.log2(rank+1) for rank,grade in enumerate(ideal[:k],1))
+            result[f'nDCG@{k}']=dcg/idcg if idcg else 0.0
+            result[f'Judged@{k}']=(sum(1 for doc_id in top if doc_id in judgments)/len(top) if top else 0.0)
+        return result
     results={}
     for mode,member in sorted(manifest['runs'].items()):
         run=read(member['path'],member['sha256'])
@@ -54,12 +79,8 @@ def evaluate_retrieval(manifest_path, *, allow_fixture=False):
             if outcome['status']!='complete':
                 partial.append(qid)
             scores[qid]={r['id']:float(r['score']) for r in rows}; latencies.append(latency); costs.append(cost)
-        per_query={q['id']:{} for q in queries}
-        # ir-measures 0.4.3 Judged divides by zero for an explicit empty
-        # ranking. Omitted rankings receive the evaluator's zero metrics.
-        for metric in ir.iter_calc(measures,qrels,{q: rows for q,rows in scores.items() if rows}):
-            per_query[metric.query_id][str(metric.measure)]=metric.value
-        average=lambda ids:{str(m):sum(per_query[q][str(m)] for q in ids)/len(ids) for m in measures}
+        per_query={qid:metrics_for(list(scores[qid]),qrels[qid]) for qid in qrels}
+        average=lambda ids:{m:sum(per_query[q][m] for q in ids)/len(ids) for m in measure_names}
         ordered=sorted(latencies)
         results[mode]={'metrics':average(list(qrels)),'per_query':per_query,
             'domains':{domain:average([q['id'] for q in queries if q['domain']==domain]) for domain in sorted({q['domain'] for q in queries})},

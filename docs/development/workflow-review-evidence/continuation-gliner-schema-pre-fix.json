@@ -1,0 +1,40 @@
+{
+  "contract": "noesis-native-schema-smoke-v1",
+  "label_origin": "authored-fixture",
+  "quality_validated": false,
+  "independent_human_labels": false,
+  "observations": {
+    "de": {
+      "status": "failed",
+      "failure_code": "invalid_model_output",
+      "failure_type": "BackendError",
+      "operation": "gliner2",
+      "elapsed_seconds": 8.697898372003692,
+      "peak_process_tree_rss_bytes": 3131006976,
+      "resource_limits": {
+        "timeout_s": 120,
+        "rss_bytes": 6442450944,
+        "threads": 2
+      },
+      "execution": "isolated-local-process",
+      "hosted_inference_used": false,
+      "remote_processing_used": false
+    },
+    "en": {
+      "status": "failed",
+      "failure_code": "invalid_model_output",
+      "failure_type": "BackendError",
+      "operation": "gliner2",
+      "elapsed_seconds": 7.71158991799166,
+      "peak_process_tree_rss_bytes": 3154522112,
+      "resource_limits": {
+        "timeout_s": 120,
+        "rss_bytes": 6442450944,
+        "threads": 2
+      },
+      "execution": "isolated-local-process",
+      "hosted_inference_used": false,
+      "remote_processing_used": false
+    }
+  }
+}

@@ -475,6 +475,14 @@ class HTTPSPageAdapter:
         from src.ingestion.scholarly_api import parameters as scholarly_parameters
         from src.ingestion.scholarly_api import provider
         native_provider = provider(self.source)
+        from src.ingestion.openreview_api import is_openreview
+        openreview = is_openreview(self.source)
+        if openreview:
+            from src.ingestion.openreview_api import parameters as openreview_parameters
+            try:
+                parameters = openreview_parameters(request, cursor=cursor, limit=parameters["limit"])
+            except (ValueError, TypeError) as exc:
+                raise SourcePackError("parameter_forbidden", str(exc)) from exc
         if native_provider:
             import os
             try:
@@ -496,7 +504,7 @@ class HTTPSPageAdapter:
         headers = {
             "Accept": "application/json, application/xml;q=0.8, text/plain;q=0.5"
         }
-        if self.secret and not native_provider and not guardian:
+        if self.secret and not native_provider and not guardian and not openreview:
             headers["Authorization"] = "Bearer " + self.secret
         response = self.transport(
             url=self.definition["endpoint"],
@@ -559,6 +567,12 @@ class HTTPSPageAdapter:
                 records, next_cursor = guardian_records(payload,limit=parameters['page-size'])
             except (ValueError,TypeError,AttributeError) as exc:
                 raise SourcePackError('schema_drift','invalid Guardian native response') from exc
+        elif openreview:
+            from src.ingestion.openreview_api import records as openreview_records
+            try:
+                records, next_cursor = openreview_records(payload, cursor=cursor, limit=parameters["limit"])
+            except (ValueError, TypeError, KeyError, AttributeError) as exc:
+                raise SourcePackError("schema_drift", "invalid public OpenReview response") from exc
         elif native_provider:
             from src.ingestion.scholarly_api import records as scholarly_records
             try:

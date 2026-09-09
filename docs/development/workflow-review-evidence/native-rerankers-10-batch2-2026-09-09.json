@@ -1,0 +1,2992 @@
+{
+  "contract": "noesis-native-reranker-comparison-v1",
+  "sources": {
+    "retrieval": {
+      "germandpr-test.parquet": {
+        "sha256": "f6106a22d6d6a6cab1621d70a06e0edd8edea9d1428e52424b1610f83b6228f0",
+        "url": "https://huggingface.co/datasets/deepset/germandpr/resolve/d0b867a49c45a44d172041351b5df73a87714372/plain_text/test/0000.parquet",
+        "license": "CC-BY-4.0",
+        "attribution": "Möller, Risch and Pietsch (2021), GermanQuAD and GermanDPR; deepset and Wikipedia contributors"
+      },
+      "scifact.zip": {
+        "sha256": "536e14446a0ba56ed1398ab1055f39fe852686ecad24a6306c80c490fa8e0165",
+        "url": "https://public.ukp.informatik.tu-darmstadt.de/thakur/BEIR/datasets/scifact.zip",
+        "license": "CC-BY-SA-4.0 declared by the BeIR/scifact dataset card; underlying abstracts retain their source rights",
+        "attribution": "Wadden et al. (2020), Fact or Fiction: Verifying Scientific Claims; BEIR distribution"
+      }
+    },
+    "xnli": {
+      "dataset": "facebook/xnli",
+      "revision": "698f8e6ef634f838d19dcf896958caa5d727dc79",
+      "files": {
+        "de-validation.parquet": {
+          "url": "https://huggingface.co/datasets/facebook/xnli/resolve/698f8e6ef634f838d19dcf896958caa5d727dc79/de/validation/0000.parquet",
+          "sha256": "68f6b30f13ba0fb92acf2567edd7cb1ec26a6b8b38c2274eb6f140fb7075f66e",
+          "bytes": 180990
+        },
+        "de-test.parquet": {
+          "url": "https://huggingface.co/datasets/facebook/xnli/resolve/698f8e6ef634f838d19dcf896958caa5d727dc79/de/test/0000.parquet",
+          "sha256": "c25f5695d21673dbe966bac7b3c6a1e2df369431976928565c3cc56838f5632b",
+          "bytes": 356132
+        },
+        "en-validation.parquet": {
+          "url": "https://huggingface.co/datasets/facebook/xnli/resolve/698f8e6ef634f838d19dcf896958caa5d727dc79/en/validation/0000.parquet",
+          "sha256": "42961a7b66dee147da655d78db8cbaac97b3dbcf898009acffec6cda2d80f2bf",
+          "bytes": 157207
+        },
+        "en-test.parquet": {
+          "url": "https://huggingface.co/datasets/facebook/xnli/resolve/698f8e6ef634f838d19dcf896958caa5d727dc79/en/test/0000.parquet",
+          "sha256": "8f0fd1e105091e0f11cd37f9b2bc382f16de9949aa9471e1366b2605ba037167",
+          "bytes": 308237
+        }
+      },
+      "license": "CC-BY-NC-4.0",
+      "license_url": "https://github.com/facebookresearch/XNLI/blob/main/LICENSE",
+      "attribution": "Conneau et al. (2018), XNLI: Evaluating Cross-lingual Sentence Representations; Facebook Research",
+      "selection": "First 20 examples per native class in validation and test, paired German/English row identities; exclude shared English-premise groups across splits before model inference."
+    }
+  },
+  "corpus_sha256": "db8add1b84d3e2bc6f127ed68f45ab1b628693496f85c010d9b52d7392d4d4dc",
+  "selection": "First 1 queries per direction; fixed top 10 MiniLM candidates without gold injection",
+  "configuration": {
+    "threads": 2,
+    "timeout_s": 600,
+    "max_worker_rss_bytes": 4294967296,
+    "batch_size": 2
+  },
+  "baseline_runs": [
+    {
+      "backend": "minilm",
+      "query_id": "germandpr:test:5",
+      "language": "de-de",
+      "judgments": {
+        "germandpr:fb0d7dbff188647708b684366a08e1c037c1176b64426342a3b8e39797d6505a": 1,
+        "germandpr:64b4d6e60230df58ecc664461d746ccb66410ccc53ae51746ba46035a849a328": 0,
+        "germandpr:2a13196f174bea2ab432341be27d673a283e58c067dac327f9474102c974a846": 0
+      },
+      "label_origin": "published source judgments",
+      "query_encoding_s": 0.011690788000123575,
+      "search_s": 0.013600379999843426,
+      "query_s": 0.025291167999967,
+      "job": {
+        "result": {
+          "results": [
+            {
+              "id": "germandpr:fb0d7dbff188647708b684366a08e1c037c1176b64426342a3b8e39797d6505a",
+              "revision": "fb0d7dbff188647708b684366a08e1c037c1176b64426342a3b8e39797d6505a",
+              "scores": {
+                "dense": 0.5560570110757452,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.5560570110757452,
+              "provenance": {
+                "source": "germandpr",
+                "revision": "fb0d7dbff188647708b684366a08e1c037c1176b64426342a3b8e39797d6505a"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "germandpr:64b4d6e60230df58ecc664461d746ccb66410ccc53ae51746ba46035a849a328",
+              "revision": "64b4d6e60230df58ecc664461d746ccb66410ccc53ae51746ba46035a849a328",
+              "scores": {
+                "dense": 0.3913545597245299,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.3913545597245299,
+              "provenance": {
+                "source": "germandpr",
+                "revision": "64b4d6e60230df58ecc664461d746ccb66410ccc53ae51746ba46035a849a328"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "germandpr:2a13196f174bea2ab432341be27d673a283e58c067dac327f9474102c974a846",
+              "revision": "2a13196f174bea2ab432341be27d673a283e58c067dac327f9474102c974a846",
+              "scores": {
+                "dense": 0.34549986699363383,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.34549986699363383,
+              "provenance": {
+                "source": "germandpr",
+                "revision": "2a13196f174bea2ab432341be27d673a283e58c067dac327f9474102c974a846"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "germandpr:8985b538a8a6e12a6895909354e42326a65ee020b6ca94a90d2fdb4046a220f5",
+              "revision": "8985b538a8a6e12a6895909354e42326a65ee020b6ca94a90d2fdb4046a220f5",
+              "scores": {
+                "dense": 0.296494500352563,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.296494500352563,
+              "provenance": {
+                "source": "germandpr",
+                "revision": "8985b538a8a6e12a6895909354e42326a65ee020b6ca94a90d2fdb4046a220f5"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "germandpr:9a05d6e3b66f1463893ed1d448df57b4d5580fad6e903f9858cdc5a46751476d",
+              "revision": "9a05d6e3b66f1463893ed1d448df57b4d5580fad6e903f9858cdc5a46751476d",
+              "scores": {
+                "dense": 0.26541917868478127,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.26541917868478127,
+              "provenance": {
+                "source": "germandpr",
+                "revision": "9a05d6e3b66f1463893ed1d448df57b4d5580fad6e903f9858cdc5a46751476d"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "germandpr:03691ac9c4190a0231f7cca647fa8abe8939a531fff0ae981b535ffe9a9f3a82",
+              "revision": "03691ac9c4190a0231f7cca647fa8abe8939a531fff0ae981b535ffe9a9f3a82",
+              "scores": {
+                "dense": 0.24422907966750868,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.24422907966750868,
+              "provenance": {
+                "source": "germandpr",
+                "revision": "03691ac9c4190a0231f7cca647fa8abe8939a531fff0ae981b535ffe9a9f3a82"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "germandpr:60c3c46a6794b6e58640168d81adae3f2016bd16ae1dfe9c2aaa8893a2482041",
+              "revision": "60c3c46a6794b6e58640168d81adae3f2016bd16ae1dfe9c2aaa8893a2482041",
+              "scores": {
+                "dense": 0.22090055382255697,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.22090055382255697,
+              "provenance": {
+                "source": "germandpr",
+                "revision": "60c3c46a6794b6e58640168d81adae3f2016bd16ae1dfe9c2aaa8893a2482041"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "germandpr:f1594543528fda6fba5d93a92d734ce1bcf4557ea228af07dee7e5ce62d8d3d1",
+              "revision": "f1594543528fda6fba5d93a92d734ce1bcf4557ea228af07dee7e5ce62d8d3d1",
+              "scores": {
+                "dense": 0.21935835720538777,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.21935835720538777,
+              "provenance": {
+                "source": "germandpr",
+                "revision": "f1594543528fda6fba5d93a92d734ce1bcf4557ea228af07dee7e5ce62d8d3d1"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "germandpr:30b1017171e36514a2ba644f07e03b8746766ae3f40592311c96de69d313f1c9",
+              "revision": "30b1017171e36514a2ba644f07e03b8746766ae3f40592311c96de69d313f1c9",
+              "scores": {
+                "dense": 0.20623727107938306,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.20623727107938306,
+              "provenance": {
+                "source": "germandpr",
+                "revision": "30b1017171e36514a2ba644f07e03b8746766ae3f40592311c96de69d313f1c9"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "germandpr:e9749763e93d95ab6ba656dc1fabeee11b7a594b998c334f73976af79d904690",
+              "revision": "e9749763e93d95ab6ba656dc1fabeee11b7a594b998c334f73976af79d904690",
+              "scores": {
+                "dense": 0.1974960088917156,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.1974960088917156,
+              "provenance": {
+                "source": "germandpr",
+                "revision": "e9749763e93d95ab6ba656dc1fabeee11b7a594b998c334f73976af79d904690"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "germandpr:f9c67a5004577184a10e27eb1f85337cf42272d2cd3dd40ed3a1456fd3d0df2f",
+              "revision": "f9c67a5004577184a10e27eb1f85337cf42272d2cd3dd40ed3a1456fd3d0df2f",
+              "scores": {
+                "dense": 0.1905409315239261,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.1905409315239261,
+              "provenance": {
+                "source": "germandpr",
+                "revision": "f9c67a5004577184a10e27eb1f85337cf42272d2cd3dd40ed3a1456fd3d0df2f"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "germandpr:8a0f4939412c62ef241aad33546ba5a8f89b101930b2a42748f4b48d35c705d0",
+              "revision": "8a0f4939412c62ef241aad33546ba5a8f89b101930b2a42748f4b48d35c705d0",
+              "scores": {
+                "dense": 0.189164585464498,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.189164585464498,
+              "provenance": {
+                "source": "germandpr",
+                "revision": "8a0f4939412c62ef241aad33546ba5a8f89b101930b2a42748f4b48d35c705d0"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "germandpr:9a111d5f09bcce95f8733dbe83b260306dff4cfeb7ca53e75651a3526941e123",
+              "revision": "9a111d5f09bcce95f8733dbe83b260306dff4cfeb7ca53e75651a3526941e123",
+              "scores": {
+                "dense": 0.18906389636510326,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.18906389636510326,
+              "provenance": {
+                "source": "germandpr",
+                "revision": "9a111d5f09bcce95f8733dbe83b260306dff4cfeb7ca53e75651a3526941e123"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "germandpr:835ae75da88f962b8fe858c7e43677fb28f9239b8d0f57c06749e71349472185",
+              "revision": "835ae75da88f962b8fe858c7e43677fb28f9239b8d0f57c06749e71349472185",
+              "scores": {
+                "dense": 0.18534972570274102,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.18534972570274102,
+              "provenance": {
+                "source": "germandpr",
+                "revision": "835ae75da88f962b8fe858c7e43677fb28f9239b8d0f57c06749e71349472185"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "germandpr:11e26eb20f3ce21a2fd612ddacc4c43d520ad1e10fc5e6d38021243303e7c4e3",
+              "revision": "11e26eb20f3ce21a2fd612ddacc4c43d520ad1e10fc5e6d38021243303e7c4e3",
+              "scores": {
+                "dense": 0.17625665846236377,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.17625665846236377,
+              "provenance": {
+                "source": "germandpr",
+                "revision": "11e26eb20f3ce21a2fd612ddacc4c43d520ad1e10fc5e6d38021243303e7c4e3"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "germandpr:712e68c4b6f643bfa3ecc01038326c6299983f092a8cdbbaea720ba888609603",
+              "revision": "712e68c4b6f643bfa3ecc01038326c6299983f092a8cdbbaea720ba888609603",
+              "scores": {
+                "dense": 0.15960620426030128,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.15960620426030128,
+              "provenance": {
+                "source": "germandpr",
+                "revision": "712e68c4b6f643bfa3ecc01038326c6299983f092a8cdbbaea720ba888609603"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "xnli-support:682309e9ded6803838433a24a9f6594739a639fd35a3a275c95618753aaf3cbb",
+              "revision": "682309e9ded6803838433a24a9f6594739a639fd35a3a275c95618753aaf3cbb",
+              "scores": {
+                "dense": 0.13665526463823585,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.13665526463823585,
+              "provenance": {
+                "source": "xnli",
+                "revision": "682309e9ded6803838433a24a9f6594739a639fd35a3a275c95618753aaf3cbb"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "germandpr:5f8c483a2b5fd4b054d7f37c506fd3981206db578725162d59f02986d09d79fb",
+              "revision": "5f8c483a2b5fd4b054d7f37c506fd3981206db578725162d59f02986d09d79fb",
+              "scores": {
+                "dense": 0.12557097209516987,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.12557097209516987,
+              "provenance": {
+                "source": "germandpr",
+                "revision": "5f8c483a2b5fd4b054d7f37c506fd3981206db578725162d59f02986d09d79fb"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "scifact:1173667",
+              "revision": "4b28d0f46da5aae41ec4351bafc503ecf955a21b94cbee955f2ee46e9de6dfbf",
+              "scores": {
+                "dense": 0.09314090590376195,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.09314090590376195,
+              "provenance": {
+                "source": "scifact",
+                "revision": "4b28d0f46da5aae41ec4351bafc503ecf955a21b94cbee955f2ee46e9de6dfbf"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "scifact:70115",
+              "revision": "acef6ce6da3b66340864fac9b8c4c5c6ba4c821a49f8d70f5ab0b42fb26bd9f1",
+              "scores": {
+                "dense": 0.09113492067269524,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.09113492067269524,
+              "provenance": {
+                "source": "scifact",
+                "revision": "acef6ce6da3b66340864fac9b8c4c5c6ba4c821a49f8d70f5ab0b42fb26bd9f1"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "scifact:1428830",
+              "revision": "7c48ef94076ccd6dd53d8b0f81ab9345861efe847da96af3c1e1d9bbb64caae5",
+              "scores": {
+                "dense": 0.07998199883108227,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.07998199883108227,
+              "provenance": {
+                "source": "scifact",
+                "revision": "7c48ef94076ccd6dd53d8b0f81ab9345861efe847da96af3c1e1d9bbb64caae5"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "scifact:1067605",
+              "revision": "2c4ac8b65f3534e9604b7744ff9395fc2a60c1c7a26fdf323257177f61dfe3fc",
+              "scores": {
+                "dense": 0.0589241615653754,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.0589241615653754,
+              "provenance": {
+                "source": "scifact",
+                "revision": "2c4ac8b65f3534e9604b7744ff9395fc2a60c1c7a26fdf323257177f61dfe3fc"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "scifact:10536636",
+              "revision": "d1a277eea6b2b7ae3253c0c316e335993e49d4945f3e8ad8b017740002a95dfd",
+              "scores": {
+                "dense": 0.05306339826998977,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.05306339826998977,
+              "provenance": {
+                "source": "scifact",
+                "revision": "d1a277eea6b2b7ae3253c0c316e335993e49d4945f3e8ad8b017740002a95dfd"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "scifact:306311",
+              "revision": "1b1e4a02c2462ce687ee3f86627497286385bf35af0713f73a40610fc817ea6c",
+              "scores": {
+                "dense": 0.05168074665917465,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.05168074665917465,
+              "provenance": {
+                "source": "scifact",
+                "revision": "1b1e4a02c2462ce687ee3f86627497286385bf35af0713f73a40610fc817ea6c"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "scifact:599582",
+              "revision": "b857374e4fcd86c737dcc898de4e7953109913a40222d00acad75e56b43735fd",
+              "scores": {
+                "dense": 0.04952464680894881,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.04952464680894881,
+              "provenance": {
+                "source": "scifact",
+                "revision": "b857374e4fcd86c737dcc898de4e7953109913a40222d00acad75e56b43735fd"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "scifact:1031534",
+              "revision": "8fa89bb4c840341810d39068c8477738c13d9aadd2e7aeffb38ba42b8f83f564",
+              "scores": {
+                "dense": 0.04521561720324396,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.04521561720324396,
+              "provenance": {
+                "source": "scifact",
+                "revision": "8fa89bb4c840341810d39068c8477738c13d9aadd2e7aeffb38ba42b8f83f564"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "scifact:427082",
+              "revision": "051ea6d07e56b736aff8bfe5b2c974036448d35673623b29bbca36eed099dc05",
+              "scores": {
+                "dense": 0.037754758679208446,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.037754758679208446,
+              "provenance": {
+                "source": "scifact",
+                "revision": "051ea6d07e56b736aff8bfe5b2c974036448d35673623b29bbca36eed099dc05"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "scifact:485020",
+              "revision": "268d5ab56a694f1efebf081acba64831635c083bb20515e63fd2889e6e828134",
+              "scores": {
+                "dense": 0.032566574881415775,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.032566574881415775,
+              "provenance": {
+                "source": "scifact",
+                "revision": "268d5ab56a694f1efebf081acba64831635c083bb20515e63fd2889e6e828134"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "scifact:810480",
+              "revision": "ab38c7b8c63e0a21a8833003dc40df940257d9b4624e362426d51248a7ee50a8",
+              "scores": {
+                "dense": 0.028539068512035193,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.028539068512035193,
+              "provenance": {
+                "source": "scifact",
+                "revision": "ab38c7b8c63e0a21a8833003dc40df940257d9b4624e362426d51248a7ee50a8"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "scifact:335029",
+              "revision": "92b3982db1e29d65918a622842e5d9a3518dc474dc0601d54c549cb77f1d312a",
+              "scores": {
+                "dense": 0.02742241943090891,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.02742241943090891,
+              "provenance": {
+                "source": "scifact",
+                "revision": "92b3982db1e29d65918a622842e5d9a3518dc474dc0601d54c549cb77f1d312a"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            }
+          ]
+        }
+      },
+      "metrics": {
+        "5": {
+          "recall_at_k": 1.0,
+          "mrr_at_k": 1.0,
+          "ndcg_at_k": 1.0,
+          "judged_fraction": 0.6,
+          "cutoff": 5
+        },
+        "10": {
+          "recall_at_k": 1.0,
+          "mrr_at_k": 1.0,
+          "ndcg_at_k": 1.0,
+          "judged_fraction": 0.3,
+          "cutoff": 10
+        },
+        "30": {
+          "recall_at_k": 1.0,
+          "mrr_at_k": 1.0,
+          "ndcg_at_k": 1.0,
+          "judged_fraction": 0.1,
+          "cutoff": 30
+        }
+      }
+    },
+    {
+      "backend": "minilm",
+      "query_id": "scifact:test:1",
+      "language": "en-en",
+      "judgments": {
+        "scifact:31715818": 1
+      },
+      "label_origin": "published source judgments",
+      "query_encoding_s": 0.01024952600710094,
+      "search_s": 0.013365794002311304,
+      "query_s": 0.023615320009412244,
+      "job": {
+        "result": {
+          "results": [
+            {
+              "id": "scifact:31715818",
+              "revision": "b1abfd39e9f92e6c9c0dbf1b33834a5f7d33080c1a86d74274be443b7f33f2e2",
+              "scores": {
+                "dense": 0.2915560219549185,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.2915560219549185,
+              "provenance": {
+                "source": "scifact",
+                "revision": "b1abfd39e9f92e6c9c0dbf1b33834a5f7d33080c1a86d74274be443b7f33f2e2"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "scifact:803312",
+              "revision": "675d956a7e0fa18da629c86b7051615780c46103eb686f9f1dc504c73dc9f791",
+              "scores": {
+                "dense": 0.22865200382768486,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.22865200382768486,
+              "provenance": {
+                "source": "scifact",
+                "revision": "675d956a7e0fa18da629c86b7051615780c46103eb686f9f1dc504c73dc9f791"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "scifact:502797",
+              "revision": "181dac40ad274dd27939cb578adf1cd2868d99c26f4858c3986226d9dbff3e88",
+              "scores": {
+                "dense": 0.21873255807064199,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.21873255807064199,
+              "provenance": {
+                "source": "scifact",
+                "revision": "181dac40ad274dd27939cb578adf1cd2868d99c26f4858c3986226d9dbff3e88"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "scifact:825728",
+              "revision": "b623f942922d6d8ac6d4c97bd4b59dda7dd4b51f00aebe863b68564805703e92",
+              "scores": {
+                "dense": 0.17424728414888704,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.17424728414888704,
+              "provenance": {
+                "source": "scifact",
+                "revision": "b623f942922d6d8ac6d4c97bd4b59dda7dd4b51f00aebe863b68564805703e92"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "scifact:463309",
+              "revision": "db5f37394c61a43742cbbd16358c6bfebe5833f8b0d9189deaf8ed19198ec5ca",
+              "scores": {
+                "dense": 0.17184408634685616,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.17184408634685616,
+              "provenance": {
+                "source": "scifact",
+                "revision": "db5f37394c61a43742cbbd16358c6bfebe5833f8b0d9189deaf8ed19198ec5ca"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "scifact:461550",
+              "revision": "1692230e1be960fcf87ae7376c4167559a42a9b54d965f9017e0ea2627df2638",
+              "scores": {
+                "dense": 0.15856443092362335,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.15856443092362335,
+              "provenance": {
+                "source": "scifact",
+                "revision": "1692230e1be960fcf87ae7376c4167559a42a9b54d965f9017e0ea2627df2638"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "scifact:323030",
+              "revision": "37c679bb6c850e3d9dfe507a27a687207c5c6ef9f4e7c72b9b37a5ab8b9942b8",
+              "scores": {
+                "dense": 0.15783159535845784,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.15783159535845784,
+              "provenance": {
+                "source": "scifact",
+                "revision": "37c679bb6c850e3d9dfe507a27a687207c5c6ef9f4e7c72b9b37a5ab8b9942b8"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "scifact:279052",
+              "revision": "dc175a3db79d293fac94583b41e3f66005c301843e9224b876af0b566f5e2e35",
+              "scores": {
+                "dense": 0.1491060328213125,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.1491060328213125,
+              "provenance": {
+                "source": "scifact",
+                "revision": "dc175a3db79d293fac94583b41e3f66005c301843e9224b876af0b566f5e2e35"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "scifact:464511",
+              "revision": "3fe91d6fabb44ed0d33826d5a550668a8a13826cb0b195ed01098a877b4b33a7",
+              "scores": {
+                "dense": 0.1469858178733548,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.1469858178733548,
+              "provenance": {
+                "source": "scifact",
+                "revision": "3fe91d6fabb44ed0d33826d5a550668a8a13826cb0b195ed01098a877b4b33a7"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "scifact:427082",
+              "revision": "051ea6d07e56b736aff8bfe5b2c974036448d35673623b29bbca36eed099dc05",
+              "scores": {
+                "dense": 0.14232238882817336,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.14232238882817336,
+              "provenance": {
+                "source": "scifact",
+                "revision": "051ea6d07e56b736aff8bfe5b2c974036448d35673623b29bbca36eed099dc05"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "scifact:36474",
+              "revision": "b22ad85728725a8d5f474709a34e53e2ebb8c073faa81ce28a4a7e6274eaa138",
+              "scores": {
+                "dense": 0.14032159133503613,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.14032159133503613,
+              "provenance": {
+                "source": "scifact",
+                "revision": "b22ad85728725a8d5f474709a34e53e2ebb8c073faa81ce28a4a7e6274eaa138"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "scifact:432261",
+              "revision": "0276a0c376e0e1340d18ba209b51f590bedb3845fd05354518e422aa855e5b9f",
+              "scores": {
+                "dense": 0.1345334458178718,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.1345334458178718,
+              "provenance": {
+                "source": "scifact",
+                "revision": "0276a0c376e0e1340d18ba209b51f590bedb3845fd05354518e422aa855e5b9f"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "scifact:45638119",
+              "revision": "e97060c2235a370d94096256ececf3b221142958a085fe4b8ee28cecc06cf699",
+              "scores": {
+                "dense": 0.1341437917922656,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.1341437917922656,
+              "provenance": {
+                "source": "scifact",
+                "revision": "e97060c2235a370d94096256ececf3b221142958a085fe4b8ee28cecc06cf699"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "scifact:1389264",
+              "revision": "7bc949c0288ce73d4c281ece198d81738107776b08bda2d091dc707a47af409b",
+              "scores": {
+                "dense": 0.1309301996908067,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.1309301996908067,
+              "provenance": {
+                "source": "scifact",
+                "revision": "7bc949c0288ce73d4c281ece198d81738107776b08bda2d091dc707a47af409b"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "scifact:327319",
+              "revision": "25087600fc308344c357cec7ae1ca8ce386009e1f7943c7814cbe2acaddd5b82",
+              "scores": {
+                "dense": 0.12801897519363753,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.12801897519363753,
+              "provenance": {
+                "source": "scifact",
+                "revision": "25087600fc308344c357cec7ae1ca8ce386009e1f7943c7814cbe2acaddd5b82"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "scifact:92499",
+              "revision": "4bb515276dcb971e568e973c8a76599bb7edf75558a356ea646285192d680841",
+              "scores": {
+                "dense": 0.12779579935272034,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.12779579935272034,
+              "provenance": {
+                "source": "scifact",
+                "revision": "4bb515276dcb971e568e973c8a76599bb7edf75558a356ea646285192d680841"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "scifact:950306",
+              "revision": "8112dc9ab78fed0c6c9a874a257d16e748f86686e2b6b56a1501c3afaa66368f",
+              "scores": {
+                "dense": 0.12310156250284322,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.12310156250284322,
+              "provenance": {
+                "source": "scifact",
+                "revision": "8112dc9ab78fed0c6c9a874a257d16e748f86686e2b6b56a1501c3afaa66368f"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "scifact:1388704",
+              "revision": "a5d0fd7e5cf8db653c015b0903bad7e121801519b12792d57c7f811b33625fbe",
+              "scores": {
+                "dense": 0.11983752975962723,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.11983752975962723,
+              "provenance": {
+                "source": "scifact",
+                "revision": "a5d0fd7e5cf8db653c015b0903bad7e121801519b12792d57c7f811b33625fbe"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "scifact:1103795",
+              "revision": "de74c33a712720d5b55e2b666c923fb3bf48411e74a1afb91caab24c798ba4c8",
+              "scores": {
+                "dense": 0.1126167044640436,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.1126167044640436,
+              "provenance": {
+                "source": "scifact",
+                "revision": "de74c33a712720d5b55e2b666c923fb3bf48411e74a1afb91caab24c798ba4c8"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "scifact:991137",
+              "revision": "dc2631fab180d75b8427276f016813730a800eb1b9e67c0152102878f67e3166",
+              "scores": {
+                "dense": 0.11013864538322587,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.11013864538322587,
+              "provenance": {
+                "source": "scifact",
+                "revision": "dc2631fab180d75b8427276f016813730a800eb1b9e67c0152102878f67e3166"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "scifact:1387654",
+              "revision": "53530f08758c2fd24f50e69b9dcc1bbd300f7f4c50be06d7fadc603c8e4eed7e",
+              "scores": {
+                "dense": 0.10820998300407156,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.10820998300407156,
+              "provenance": {
+                "source": "scifact",
+                "revision": "53530f08758c2fd24f50e69b9dcc1bbd300f7f4c50be06d7fadc603c8e4eed7e"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "scifact:1283401",
+              "revision": "fb4e8e5e1fbc530c5a126c55d656fe4594240758f586c9264bbb3ae3886d8a9b",
+              "scores": {
+                "dense": 0.10346590930309382,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.10346590930309382,
+              "provenance": {
+                "source": "scifact",
+                "revision": "fb4e8e5e1fbc530c5a126c55d656fe4594240758f586c9264bbb3ae3886d8a9b"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "scifact:102662",
+              "revision": "0610e906a2f5a347a5a3c803ceeb906b12d2b9011087b9b847a935f290d23bff",
+              "scores": {
+                "dense": 0.10111490266017839,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.10111490266017839,
+              "provenance": {
+                "source": "scifact",
+                "revision": "0610e906a2f5a347a5a3c803ceeb906b12d2b9011087b9b847a935f290d23bff"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "scifact:544971",
+              "revision": "41d1c68d81d78ca8af8b5930be259ea91be128eb8875d1d8e86c31273d4f2f84",
+              "scores": {
+                "dense": 0.09957217938214889,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.09957217938214889,
+              "provenance": {
+                "source": "scifact",
+                "revision": "41d1c68d81d78ca8af8b5930be259ea91be128eb8875d1d8e86c31273d4f2f84"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "scifact:1031534",
+              "revision": "8fa89bb4c840341810d39068c8477738c13d9aadd2e7aeffb38ba42b8f83f564",
+              "scores": {
+                "dense": 0.09161659565629372,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.09161659565629372,
+              "provenance": {
+                "source": "scifact",
+                "revision": "8fa89bb4c840341810d39068c8477738c13d9aadd2e7aeffb38ba42b8f83f564"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "scifact:226488",
+              "revision": "b93aa010db487d92fe512a77992706fcdbffbcbb9f1b37439cf884f2ee5b5f93",
+              "scores": {
+                "dense": 0.08920532304632409,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.08920532304632409,
+              "provenance": {
+                "source": "scifact",
+                "revision": "b93aa010db487d92fe512a77992706fcdbffbcbb9f1b37439cf884f2ee5b5f93"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "scifact:1227277",
+              "revision": "d21a0b9d6789ae4f7c4eb8d66f9ae546ae0283b6e03d7693655f60a62f7db91f",
+              "scores": {
+                "dense": 0.08634099205827558,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.08634099205827558,
+              "provenance": {
+                "source": "scifact",
+                "revision": "d21a0b9d6789ae4f7c4eb8d66f9ae546ae0283b6e03d7693655f60a62f7db91f"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "scifact:952111",
+              "revision": "2ca66cae748ff8082c57347eb5f52d6fddc765f10d38f1614afd442b83f99123",
+              "scores": {
+                "dense": 0.08565945457161227,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.08565945457161227,
+              "provenance": {
+                "source": "scifact",
+                "revision": "2ca66cae748ff8082c57347eb5f52d6fddc765f10d38f1614afd442b83f99123"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "germandpr:9a05d6e3b66f1463893ed1d448df57b4d5580fad6e903f9858cdc5a46751476d",
+              "revision": "9a05d6e3b66f1463893ed1d448df57b4d5580fad6e903f9858cdc5a46751476d",
+              "scores": {
+                "dense": 0.08547861350695685,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.08547861350695685,
+              "provenance": {
+                "source": "germandpr",
+                "revision": "9a05d6e3b66f1463893ed1d448df57b4d5580fad6e903f9858cdc5a46751476d"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "scifact:1379127",
+              "revision": "afd8673d340ee8b4e5d30b6477a843ab592caeceead1b1667b9f4804ad51c335",
+              "scores": {
+                "dense": 0.07742829319393396,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.07742829319393396,
+              "provenance": {
+                "source": "scifact",
+                "revision": "afd8673d340ee8b4e5d30b6477a843ab592caeceead1b1667b9f4804ad51c335"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            }
+          ]
+        }
+      },
+      "metrics": {
+        "5": {
+          "recall_at_k": 1.0,
+          "mrr_at_k": 1.0,
+          "ndcg_at_k": 1.0,
+          "judged_fraction": 0.2,
+          "cutoff": 5
+        },
+        "10": {
+          "recall_at_k": 1.0,
+          "mrr_at_k": 1.0,
+          "ndcg_at_k": 1.0,
+          "judged_fraction": 0.1,
+          "cutoff": 10
+        },
+        "30": {
+          "recall_at_k": 1.0,
+          "mrr_at_k": 1.0,
+          "ndcg_at_k": 1.0,
+          "judged_fraction": 0.03333333333333333,
+          "cutoff": 30
+        }
+      }
+    },
+    {
+      "backend": "minilm",
+      "query_id": "xnli:de:test:1:de-en",
+      "language": "de-en",
+      "judgments": {
+        "xnli-support:a99546657eee50ad4c35abf8f680742ad6d039586e59f804cf270d7921abfa8d": 1
+      },
+      "label_origin": "Supporting-passage relevance derived from published human entailment labels and aligned professional translations; not a separately annotated retrieval judgment",
+      "query_encoding_s": 0.012022412003716454,
+      "search_s": 0.012999922997551039,
+      "query_s": 0.025022335001267493,
+      "job": {
+        "result": {
+          "results": [
+            {
+              "id": "germandpr:2a13196f174bea2ab432341be27d673a283e58c067dac327f9474102c974a846",
+              "revision": "2a13196f174bea2ab432341be27d673a283e58c067dac327f9474102c974a846",
+              "scores": {
+                "dense": 0.25219771271769026,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.25219771271769026,
+              "provenance": {
+                "source": "germandpr",
+                "revision": "2a13196f174bea2ab432341be27d673a283e58c067dac327f9474102c974a846"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "germandpr:8a0f4939412c62ef241aad33546ba5a8f89b101930b2a42748f4b48d35c705d0",
+              "revision": "8a0f4939412c62ef241aad33546ba5a8f89b101930b2a42748f4b48d35c705d0",
+              "scores": {
+                "dense": 0.21311782453122674,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.21311782453122674,
+              "provenance": {
+                "source": "germandpr",
+                "revision": "8a0f4939412c62ef241aad33546ba5a8f89b101930b2a42748f4b48d35c705d0"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "germandpr:11e26eb20f3ce21a2fd612ddacc4c43d520ad1e10fc5e6d38021243303e7c4e3",
+              "revision": "11e26eb20f3ce21a2fd612ddacc4c43d520ad1e10fc5e6d38021243303e7c4e3",
+              "scores": {
+                "dense": 0.19925717943774132,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.19925717943774132,
+              "provenance": {
+                "source": "germandpr",
+                "revision": "11e26eb20f3ce21a2fd612ddacc4c43d520ad1e10fc5e6d38021243303e7c4e3"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "germandpr:9a111d5f09bcce95f8733dbe83b260306dff4cfeb7ca53e75651a3526941e123",
+              "revision": "9a111d5f09bcce95f8733dbe83b260306dff4cfeb7ca53e75651a3526941e123",
+              "scores": {
+                "dense": 0.19650262077268726,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.19650262077268726,
+              "provenance": {
+                "source": "germandpr",
+                "revision": "9a111d5f09bcce95f8733dbe83b260306dff4cfeb7ca53e75651a3526941e123"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "germandpr:e9749763e93d95ab6ba656dc1fabeee11b7a594b998c334f73976af79d904690",
+              "revision": "e9749763e93d95ab6ba656dc1fabeee11b7a594b998c334f73976af79d904690",
+              "scores": {
+                "dense": 0.18011189489186658,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.18011189489186658,
+              "provenance": {
+                "source": "germandpr",
+                "revision": "e9749763e93d95ab6ba656dc1fabeee11b7a594b998c334f73976af79d904690"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "germandpr:9a05d6e3b66f1463893ed1d448df57b4d5580fad6e903f9858cdc5a46751476d",
+              "revision": "9a05d6e3b66f1463893ed1d448df57b4d5580fad6e903f9858cdc5a46751476d",
+              "scores": {
+                "dense": 0.154445683596387,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.154445683596387,
+              "provenance": {
+                "source": "germandpr",
+                "revision": "9a05d6e3b66f1463893ed1d448df57b4d5580fad6e903f9858cdc5a46751476d"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "germandpr:8985b538a8a6e12a6895909354e42326a65ee020b6ca94a90d2fdb4046a220f5",
+              "revision": "8985b538a8a6e12a6895909354e42326a65ee020b6ca94a90d2fdb4046a220f5",
+              "scores": {
+                "dense": 0.14733056392005628,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.14733056392005628,
+              "provenance": {
+                "source": "germandpr",
+                "revision": "8985b538a8a6e12a6895909354e42326a65ee020b6ca94a90d2fdb4046a220f5"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "germandpr:835ae75da88f962b8fe858c7e43677fb28f9239b8d0f57c06749e71349472185",
+              "revision": "835ae75da88f962b8fe858c7e43677fb28f9239b8d0f57c06749e71349472185",
+              "scores": {
+                "dense": 0.1465688270880887,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.1465688270880887,
+              "provenance": {
+                "source": "germandpr",
+                "revision": "835ae75da88f962b8fe858c7e43677fb28f9239b8d0f57c06749e71349472185"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "germandpr:f9c67a5004577184a10e27eb1f85337cf42272d2cd3dd40ed3a1456fd3d0df2f",
+              "revision": "f9c67a5004577184a10e27eb1f85337cf42272d2cd3dd40ed3a1456fd3d0df2f",
+              "scores": {
+                "dense": 0.13472781207587664,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.13472781207587664,
+              "provenance": {
+                "source": "germandpr",
+                "revision": "f9c67a5004577184a10e27eb1f85337cf42272d2cd3dd40ed3a1456fd3d0df2f"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "scifact:797114",
+              "revision": "d61c48493f12ffbc78d471d66a5544ff4e2d18b8dadef3c6de45d3defa33a36e",
+              "scores": {
+                "dense": 0.12942188307812388,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.12942188307812388,
+              "provenance": {
+                "source": "scifact",
+                "revision": "d61c48493f12ffbc78d471d66a5544ff4e2d18b8dadef3c6de45d3defa33a36e"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "germandpr:60c3c46a6794b6e58640168d81adae3f2016bd16ae1dfe9c2aaa8893a2482041",
+              "revision": "60c3c46a6794b6e58640168d81adae3f2016bd16ae1dfe9c2aaa8893a2482041",
+              "scores": {
+                "dense": 0.12745117997336708,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.12745117997336708,
+              "provenance": {
+                "source": "germandpr",
+                "revision": "60c3c46a6794b6e58640168d81adae3f2016bd16ae1dfe9c2aaa8893a2482041"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "germandpr:30b1017171e36514a2ba644f07e03b8746766ae3f40592311c96de69d313f1c9",
+              "revision": "30b1017171e36514a2ba644f07e03b8746766ae3f40592311c96de69d313f1c9",
+              "scores": {
+                "dense": 0.1239359947540772,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.1239359947540772,
+              "provenance": {
+                "source": "germandpr",
+                "revision": "30b1017171e36514a2ba644f07e03b8746766ae3f40592311c96de69d313f1c9"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "scifact:919007",
+              "revision": "556037b890e6c4f958971edc135d585d444b2636c56d15e1251a204e02f0a95b",
+              "scores": {
+                "dense": 0.12146724730194738,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.12146724730194738,
+              "provenance": {
+                "source": "scifact",
+                "revision": "556037b890e6c4f958971edc135d585d444b2636c56d15e1251a204e02f0a95b"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "scifact:680949",
+              "revision": "d55b869e1d5d50bcd07ec4e761764162e75caebea43bdcf373942a7a9208fd6a",
+              "scores": {
+                "dense": 0.11652450484399691,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.11652450484399691,
+              "provenance": {
+                "source": "scifact",
+                "revision": "d55b869e1d5d50bcd07ec4e761764162e75caebea43bdcf373942a7a9208fd6a"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "scifact:335029",
+              "revision": "92b3982db1e29d65918a622842e5d9a3518dc474dc0601d54c549cb77f1d312a",
+              "scores": {
+                "dense": 0.11446919375591105,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.11446919375591105,
+              "provenance": {
+                "source": "scifact",
+                "revision": "92b3982db1e29d65918a622842e5d9a3518dc474dc0601d54c549cb77f1d312a"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "germandpr:712e68c4b6f643bfa3ecc01038326c6299983f092a8cdbbaea720ba888609603",
+              "revision": "712e68c4b6f643bfa3ecc01038326c6299983f092a8cdbbaea720ba888609603",
+              "scores": {
+                "dense": 0.10801341301000583,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.10801341301000583,
+              "provenance": {
+                "source": "germandpr",
+                "revision": "712e68c4b6f643bfa3ecc01038326c6299983f092a8cdbbaea720ba888609603"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "germandpr:64b4d6e60230df58ecc664461d746ccb66410ccc53ae51746ba46035a849a328",
+              "revision": "64b4d6e60230df58ecc664461d746ccb66410ccc53ae51746ba46035a849a328",
+              "scores": {
+                "dense": 0.10739613936402093,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.10739613936402093,
+              "provenance": {
+                "source": "germandpr",
+                "revision": "64b4d6e60230df58ecc664461d746ccb66410ccc53ae51746ba46035a849a328"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "scifact:615047",
+              "revision": "560982690474fdd01aa35a60a13328f422672070107cca7b7854b9eff2e80325",
+              "scores": {
+                "dense": 0.10471992279241285,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.10471992279241285,
+              "provenance": {
+                "source": "scifact",
+                "revision": "560982690474fdd01aa35a60a13328f422672070107cca7b7854b9eff2e80325"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "scifact:10536636",
+              "revision": "d1a277eea6b2b7ae3253c0c316e335993e49d4945f3e8ad8b017740002a95dfd",
+              "scores": {
+                "dense": 0.10284322106225754,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.10284322106225754,
+              "provenance": {
+                "source": "scifact",
+                "revision": "d1a277eea6b2b7ae3253c0c316e335993e49d4945f3e8ad8b017740002a95dfd"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "scifact:1031534",
+              "revision": "8fa89bb4c840341810d39068c8477738c13d9aadd2e7aeffb38ba42b8f83f564",
+              "scores": {
+                "dense": 0.08320019740163526,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.08320019740163526,
+              "provenance": {
+                "source": "scifact",
+                "revision": "8fa89bb4c840341810d39068c8477738c13d9aadd2e7aeffb38ba42b8f83f564"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "scifact:790598",
+              "revision": "52e828c54957fa18e01fa9ec0c4860f48279a36641983461e172ae7c9e87d241",
+              "scores": {
+                "dense": 0.0820854806585841,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.0820854806585841,
+              "provenance": {
+                "source": "scifact",
+                "revision": "52e828c54957fa18e01fa9ec0c4860f48279a36641983461e172ae7c9e87d241"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "germandpr:03691ac9c4190a0231f7cca647fa8abe8939a531fff0ae981b535ffe9a9f3a82",
+              "revision": "03691ac9c4190a0231f7cca647fa8abe8939a531fff0ae981b535ffe9a9f3a82",
+              "scores": {
+                "dense": 0.076035461460387,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.076035461460387,
+              "provenance": {
+                "source": "germandpr",
+                "revision": "03691ac9c4190a0231f7cca647fa8abe8939a531fff0ae981b535ffe9a9f3a82"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "scifact:226488",
+              "revision": "b93aa010db487d92fe512a77992706fcdbffbcbb9f1b37439cf884f2ee5b5f93",
+              "scores": {
+                "dense": 0.07542710860192017,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.07542710860192017,
+              "provenance": {
+                "source": "scifact",
+                "revision": "b93aa010db487d92fe512a77992706fcdbffbcbb9f1b37439cf884f2ee5b5f93"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "scifact:2251426",
+              "revision": "e57e4b522bb48dfa8d3317b0244770437e5ce046f9265e1bf296900031434a17",
+              "scores": {
+                "dense": 0.07244813281061048,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.07244813281061048,
+              "provenance": {
+                "source": "scifact",
+                "revision": "e57e4b522bb48dfa8d3317b0244770437e5ce046f9265e1bf296900031434a17"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "scifact:1148122",
+              "revision": "6ef73c0b9f7b61dbadf197c66f84d8406dbbe0eeb64d408e39aaf41c806f65d0",
+              "scores": {
+                "dense": 0.07056045274539839,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.07056045274539839,
+              "provenance": {
+                "source": "scifact",
+                "revision": "6ef73c0b9f7b61dbadf197c66f84d8406dbbe0eeb64d408e39aaf41c806f65d0"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "scifact:164189",
+              "revision": "b301bcf763c2e88ffbe8ce0346611d99f5242884554cf6d243167ecd4d89084b",
+              "scores": {
+                "dense": 0.06766966904115657,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.06766966904115657,
+              "provenance": {
+                "source": "scifact",
+                "revision": "b301bcf763c2e88ffbe8ce0346611d99f5242884554cf6d243167ecd4d89084b"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "scifact:327319",
+              "revision": "25087600fc308344c357cec7ae1ca8ce386009e1f7943c7814cbe2acaddd5b82",
+              "scores": {
+                "dense": 0.0608921510930352,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.0608921510930352,
+              "provenance": {
+                "source": "scifact",
+                "revision": "25087600fc308344c357cec7ae1ca8ce386009e1f7943c7814cbe2acaddd5b82"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "scifact:1103795",
+              "revision": "de74c33a712720d5b55e2b666c923fb3bf48411e74a1afb91caab24c798ba4c8",
+              "scores": {
+                "dense": 0.05808468841250212,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.05808468841250212,
+              "provenance": {
+                "source": "scifact",
+                "revision": "de74c33a712720d5b55e2b666c923fb3bf48411e74a1afb91caab24c798ba4c8"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "scifact:1067605",
+              "revision": "2c4ac8b65f3534e9604b7744ff9395fc2a60c1c7a26fdf323257177f61dfe3fc",
+              "scores": {
+                "dense": 0.04598410734427688,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.04598410734427688,
+              "provenance": {
+                "source": "scifact",
+                "revision": "2c4ac8b65f3534e9604b7744ff9395fc2a60c1c7a26fdf323257177f61dfe3fc"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            },
+            {
+              "id": "xnli-support:2ce90c09cb0316de94c7669daa18c25881dda6509d4e5a42560263b5762a200b",
+              "revision": "2ce90c09cb0316de94c7669daa18c25881dda6509d4e5a42560263b5762a200b",
+              "scores": {
+                "dense": 0.04478077040596978,
+                "sparse": 0.0,
+                "multivector": null
+              },
+              "score": 0.04478077040596978,
+              "provenance": {
+                "source": "xnli",
+                "revision": "2ce90c09cb0316de94c7669daa18c25881dda6509d4e5a42560263b5762a200b"
+              },
+              "space_id": "1a427d8262b0360677c5d02bd47aa5e6ba5fd68cf6505df88f610b1f78920f8e"
+            }
+          ]
+        }
+      },
+      "metrics": {
+        "5": {
+          "recall_at_k": 0.0,
+          "mrr_at_k": 0.0,
+          "ndcg_at_k": 0.0,
+          "judged_fraction": 0.0,
+          "cutoff": 5
+        },
+        "10": {
+          "recall_at_k": 0.0,
+          "mrr_at_k": 0.0,
+          "ndcg_at_k": 0.0,
+          "judged_fraction": 0.0,
+          "cutoff": 10
+        },
+        "30": {
+          "recall_at_k": 0.0,
+          "mrr_at_k": 0.0,
+          "ndcg_at_k": 0.0,
+          "judged_fraction": 0.0,
+          "cutoff": 30
+        }
+      }
+    }
+  ],
+  "runs": {
+    "minilm-reranker": {
+      "job": {
+        "status": "completed",
+        "result": {
+          "backend": "minilm-reranker",
+          "model": {
+            "kind": "minilm-reranker",
+            "model": "cross-encoder/ms-marco-MiniLM-L6-v2",
+            "revision": "233902d25c440f23af6f7d6e94d2946bac0bee0a",
+            "license": "apache-2.0"
+          },
+          "batch_size": 2,
+          "model_load_s": 3.164349130995106,
+          "runs": [
+            {
+              "backend": "minilm-reranker",
+              "query_id": "germandpr:test:5",
+              "language": "de-de",
+              "judgments": {
+                "germandpr:fb0d7dbff188647708b684366a08e1c037c1176b64426342a3b8e39797d6505a": 1,
+                "germandpr:64b4d6e60230df58ecc664461d746ccb66410ccc53ae51746ba46035a849a328": 0,
+                "germandpr:2a13196f174bea2ab432341be27d673a283e58c067dac327f9474102c974a846": 0
+              },
+              "candidate_ids": [
+                "germandpr:fb0d7dbff188647708b684366a08e1c037c1176b64426342a3b8e39797d6505a",
+                "germandpr:64b4d6e60230df58ecc664461d746ccb66410ccc53ae51746ba46035a849a328",
+                "germandpr:2a13196f174bea2ab432341be27d673a283e58c067dac327f9474102c974a846",
+                "germandpr:8985b538a8a6e12a6895909354e42326a65ee020b6ca94a90d2fdb4046a220f5",
+                "germandpr:9a05d6e3b66f1463893ed1d448df57b4d5580fad6e903f9858cdc5a46751476d",
+                "germandpr:03691ac9c4190a0231f7cca647fa8abe8939a531fff0ae981b535ffe9a9f3a82",
+                "germandpr:60c3c46a6794b6e58640168d81adae3f2016bd16ae1dfe9c2aaa8893a2482041",
+                "germandpr:f1594543528fda6fba5d93a92d734ce1bcf4557ea228af07dee7e5ce62d8d3d1",
+                "germandpr:30b1017171e36514a2ba644f07e03b8746766ae3f40592311c96de69d313f1c9",
+                "germandpr:e9749763e93d95ab6ba656dc1fabeee11b7a594b998c334f73976af79d904690"
+              ],
+              "candidate_count": 10,
+              "score_range": [
+                -11.293449401855469,
+                2.7224481105804443
+              ],
+              "legacy_fusion": {
+                "weights": {
+                  "retrieval": 0.7,
+                  "native_reranker": 0.3
+                },
+                "results": [
+                  {
+                    "id": "germandpr:fb0d7dbff188647708b684366a08e1c037c1176b64426342a3b8e39797d6505a",
+                    "revision": "fb0d7dbff188647708b684366a08e1c037c1176b64426342a3b8e39797d6505a",
+                    "score": 1.2059743409271548,
+                    "input_rank": 0,
+                    "support_verified": false
+                  },
+                  {
+                    "id": "germandpr:64b4d6e60230df58ecc664461d746ccb66410ccc53ae51746ba46035a849a328",
+                    "revision": "64b4d6e60230df58ecc664461d746ccb66410ccc53ae51746ba46035a849a328",
+                    "score": 0.9703500739788018,
+                    "input_rank": 1,
+                    "support_verified": false
+                  },
+                  {
+                    "id": "germandpr:2a13196f174bea2ab432341be27d673a283e58c067dac327f9474102c974a846",
+                    "revision": "2a13196f174bea2ab432341be27d673a283e58c067dac327f9474102c974a846",
+                    "score": -0.9156667633315071,
+                    "input_rank": 2,
+                    "support_verified": false
+                  },
+                  {
+                    "id": "germandpr:f1594543528fda6fba5d93a92d734ce1bcf4557ea228af07dee7e5ce62d8d3d1",
+                    "revision": "f1594543528fda6fba5d93a92d734ce1bcf4557ea228af07dee7e5ce62d8d3d1",
+                    "score": -2.669209350456717,
+                    "input_rank": 7,
+                    "support_verified": false
+                  },
+                  {
+                    "id": "germandpr:8985b538a8a6e12a6895909354e42326a65ee020b6ca94a90d2fdb4046a220f5",
+                    "revision": "8985b538a8a6e12a6895909354e42326a65ee020b6ca94a90d2fdb4046a220f5",
+                    "score": -2.6830265884006668,
+                    "input_rank": 3,
+                    "support_verified": false
+                  },
+                  {
+                    "id": "germandpr:9a05d6e3b66f1463893ed1d448df57b4d5580fad6e903f9858cdc5a46751476d",
+                    "revision": "9a05d6e3b66f1463893ed1d448df57b4d5580fad6e903f9858cdc5a46751476d",
+                    "score": -2.7723303542175284,
+                    "input_rank": 4,
+                    "support_verified": false
+                  },
+                  {
+                    "id": "germandpr:60c3c46a6794b6e58640168d81adae3f2016bd16ae1dfe9c2aaa8893a2482041",
+                    "revision": "60c3c46a6794b6e58640168d81adae3f2016bd16ae1dfe9c2aaa8893a2482041",
+                    "score": -2.910456740009757,
+                    "input_rank": 6,
+                    "support_verified": false
+                  },
+                  {
+                    "id": "germandpr:e9749763e93d95ab6ba656dc1fabeee11b7a594b998c334f73976af79d904690",
+                    "revision": "e9749763e93d95ab6ba656dc1fabeee11b7a594b998c334f73976af79d904690",
+                    "score": -2.9442546820509454,
+                    "input_rank": 9,
+                    "support_verified": false
+                  },
+                  {
+                    "id": "germandpr:03691ac9c4190a0231f7cca647fa8abe8939a531fff0ae981b535ffe9a9f3a82",
+                    "revision": "03691ac9c4190a0231f7cca647fa8abe8939a531fff0ae981b535ffe9a9f3a82",
+                    "score": -3.1654106845769823,
+                    "input_rank": 5,
+                    "support_verified": false
+                  },
+                  {
+                    "id": "germandpr:30b1017171e36514a2ba644f07e03b8746766ae3f40592311c96de69d313f1c9",
+                    "revision": "30b1017171e36514a2ba644f07e03b8746766ae3f40592311c96de69d313f1c9",
+                    "score": -3.2436687308010725,
+                    "input_rank": 8,
+                    "support_verified": false
+                  }
+                ],
+                "metrics": {
+                  "5": {
+                    "recall_at_k": 1.0,
+                    "mrr_at_k": 1.0,
+                    "ndcg_at_k": 1.0,
+                    "judged_fraction": 0.6,
+                    "cutoff": 5
+                  },
+                  "10": {
+                    "recall_at_k": 1.0,
+                    "mrr_at_k": 1.0,
+                    "ndcg_at_k": 1.0,
+                    "judged_fraction": 0.3,
+                    "cutoff": 10
+                  },
+                  "30": {
+                    "recall_at_k": 1.0,
+                    "mrr_at_k": 1.0,
+                    "ndcg_at_k": 1.0,
+                    "judged_fraction": 0.3,
+                    "cutoff": 30
+                  }
+                }
+              },
+              "query_s": 0.3352529520052485,
+              "job": {
+                "result": {
+                  "results": [
+                    {
+                      "id": "germandpr:fb0d7dbff188647708b684366a08e1c037c1176b64426342a3b8e39797d6505a",
+                      "revision": "fb0d7dbff188647708b684366a08e1c037c1176b64426342a3b8e39797d6505a",
+                      "score": 2.7224481105804443,
+                      "input_rank": 0,
+                      "support_verified": false
+                    },
+                    {
+                      "id": "germandpr:64b4d6e60230df58ecc664461d746ccb66410ccc53ae51746ba46035a849a328",
+                      "revision": "64b4d6e60230df58ecc664461d746ccb66410ccc53ae51746ba46035a849a328",
+                      "score": 2.3213396072387695,
+                      "input_rank": 1,
+                      "support_verified": false
+                    },
+                    {
+                      "id": "germandpr:2a13196f174bea2ab432341be27d673a283e58c067dac327f9474102c974a846",
+                      "revision": "2a13196f174bea2ab432341be27d673a283e58c067dac327f9474102c974a846",
+                      "score": -3.858388900756836,
+                      "input_rank": 2,
+                      "support_verified": false
+                    },
+                    {
+                      "id": "germandpr:f1594543528fda6fba5d93a92d734ce1bcf4557ea228af07dee7e5ce62d8d3d1",
+                      "revision": "f1594543528fda6fba5d93a92d734ce1bcf4557ea228af07dee7e5ce62d8d3d1",
+                      "score": -9.409200668334961,
+                      "input_rank": 7,
+                      "support_verified": false
+                    },
+                    {
+                      "id": "germandpr:8985b538a8a6e12a6895909354e42326a65ee020b6ca94a90d2fdb4046a220f5",
+                      "revision": "8985b538a8a6e12a6895909354e42326a65ee020b6ca94a90d2fdb4046a220f5",
+                      "score": -9.635242462158203,
+                      "input_rank": 3,
+                      "support_verified": false
+                    },
+                    {
+                      "id": "germandpr:9a05d6e3b66f1463893ed1d448df57b4d5580fad6e903f9858cdc5a46751476d",
+                      "revision": "9a05d6e3b66f1463893ed1d448df57b4d5580fad6e903f9858cdc5a46751476d",
+                      "score": -9.86041259765625,
+                      "input_rank": 4,
+                      "support_verified": false
+                    },
+                    {
+                      "id": "germandpr:60c3c46a6794b6e58640168d81adae3f2016bd16ae1dfe9c2aaa8893a2482041",
+                      "revision": "60c3c46a6794b6e58640168d81adae3f2016bd16ae1dfe9c2aaa8893a2482041",
+                      "score": -10.216957092285156,
+                      "input_rank": 6,
+                      "support_verified": false
+                    },
+                    {
+                      "id": "germandpr:e9749763e93d95ab6ba656dc1fabeee11b7a594b998c334f73976af79d904690",
+                      "revision": "e9749763e93d95ab6ba656dc1fabeee11b7a594b998c334f73976af79d904690",
+                      "score": -10.275006294250488,
+                      "input_rank": 9,
+                      "support_verified": false
+                    },
+                    {
+                      "id": "germandpr:03691ac9c4190a0231f7cca647fa8abe8939a531fff0ae981b535ffe9a9f3a82",
+                      "revision": "03691ac9c4190a0231f7cca647fa8abe8939a531fff0ae981b535ffe9a9f3a82",
+                      "score": -11.121236801147461,
+                      "input_rank": 5,
+                      "support_verified": false
+                    },
+                    {
+                      "id": "germandpr:30b1017171e36514a2ba644f07e03b8746766ae3f40592311c96de69d313f1c9",
+                      "revision": "30b1017171e36514a2ba644f07e03b8746766ae3f40592311c96de69d313f1c9",
+                      "score": -11.293449401855469,
+                      "input_rank": 8,
+                      "support_verified": false
+                    }
+                  ]
+                }
+              },
+              "metrics": {
+                "5": {
+                  "recall_at_k": 1.0,
+                  "mrr_at_k": 1.0,
+                  "ndcg_at_k": 1.0,
+                  "judged_fraction": 0.6,
+                  "cutoff": 5
+                },
+                "10": {
+                  "recall_at_k": 1.0,
+                  "mrr_at_k": 1.0,
+                  "ndcg_at_k": 1.0,
+                  "judged_fraction": 0.3,
+                  "cutoff": 10
+                },
+                "30": {
+                  "recall_at_k": 1.0,
+                  "mrr_at_k": 1.0,
+                  "ndcg_at_k": 1.0,
+                  "judged_fraction": 0.3,
+                  "cutoff": 30
+                }
+              }
+            },
+            {
+              "backend": "minilm-reranker",
+              "query_id": "scifact:test:1",
+              "language": "en-en",
+              "judgments": {
+                "scifact:31715818": 1
+              },
+              "candidate_ids": [
+                "scifact:31715818",
+                "scifact:803312",
+                "scifact:502797",
+                "scifact:825728",
+                "scifact:463309",
+                "scifact:461550",
+                "scifact:323030",
+                "scifact:279052",
+                "scifact:464511",
+                "scifact:427082"
+              ],
+              "candidate_count": 10,
+              "score_range": [
+                -11.182350158691406,
+                -9.132110595703125
+              ],
+              "legacy_fusion": {
+                "weights": {
+                  "retrieval": 0.7,
+                  "native_reranker": 0.3
+                },
+                "results": [
+                  {
+                    "id": "scifact:464511",
+                    "revision": "3fe91d6fabb44ed0d33826d5a550668a8a13826cb0b195ed01098a877b4b33a7",
+                    "score": -2.636743106199589,
+                    "input_rank": 8,
+                    "support_verified": false
+                  },
+                  {
+                    "id": "scifact:803312",
+                    "revision": "675d956a7e0fa18da629c86b7051615780c46103eb686f9f1dc504c73dc9f791",
+                    "score": -2.9655050253906885,
+                    "input_rank": 1,
+                    "support_verified": false
+                  },
+                  {
+                    "id": "scifact:825728",
+                    "revision": "b623f942922d6d8ac6d4c97bd4b59dda7dd4b51f00aebe863b68564805703e92",
+                    "score": -3.1039338453706815,
+                    "input_rank": 3,
+                    "support_verified": false
+                  },
+                  {
+                    "id": "scifact:461550",
+                    "revision": "1692230e1be960fcf87ae7376c4167559a42a9b54d965f9017e0ea2627df2638",
+                    "score": -3.114946747108346,
+                    "input_rank": 5,
+                    "support_verified": false
+                  },
+                  {
+                    "id": "scifact:427082",
+                    "revision": "051ea6d07e56b736aff8bfe5b2c974036448d35673623b29bbca36eed099dc05",
+                    "score": -3.130228625458218,
+                    "input_rank": 9,
+                    "support_verified": false
+                  },
+                  {
+                    "id": "scifact:31715818",
+                    "revision": "b1abfd39e9f92e6c9c0dbf1b33834a5f7d33080c1a86d74274be443b7f33f2e2",
+                    "score": -3.1354904622133444,
+                    "input_rank": 0,
+                    "support_verified": false
+                  },
+                  {
+                    "id": "scifact:463309",
+                    "revision": "db5f37394c61a43742cbbd16358c6bfebe5833f8b0d9189deaf8ed19198ec5ca",
+                    "score": -3.157690420837718,
+                    "input_rank": 4,
+                    "support_verified": false
+                  },
+                  {
+                    "id": "scifact:323030",
+                    "revision": "37c679bb6c850e3d9dfe507a27a687207c5c6ef9f4e7c72b9b37a5ab8b9942b8",
+                    "score": -3.1660646476228584,
+                    "input_rank": 6,
+                    "support_verified": false
+                  },
+                  {
+                    "id": "scifact:502797",
+                    "revision": "181dac40ad274dd27939cb578adf1cd2868d99c26f4858c3986226d9dbff3e88",
+                    "score": -3.1787426971740365,
+                    "input_rank": 2,
+                    "support_verified": false
+                  },
+                  {
+                    "id": "scifact:279052",
+                    "revision": "dc175a3db79d293fac94583b41e3f66005c301843e9224b876af0b566f5e2e35",
+                    "score": -3.2503308246325027,
+                    "input_rank": 7,
+                    "support_verified": false
+                  }
+                ],
+                "metrics": {
+                  "5": {
+                    "recall_at_k": 0.0,
+                    "mrr_at_k": 0.0,
+                    "ndcg_at_k": 0.0,
+                    "judged_fraction": 0.0,
+                    "cutoff": 5
+                  },
+                  "10": {
+                    "recall_at_k": 1.0,
+                    "mrr_at_k": 0.16666666666666666,
+                    "ndcg_at_k": 0.3562071871080222,
+                    "judged_fraction": 0.1,
+                    "cutoff": 10
+                  },
+                  "30": {
+                    "recall_at_k": 1.0,
+                    "mrr_at_k": 0.16666666666666666,
+                    "ndcg_at_k": 0.3562071871080222,
+                    "judged_fraction": 0.1,
+                    "cutoff": 30
+                  }
+                }
+              },
+              "query_s": 0.29477153401239775,
+              "job": {
+                "result": {
+                  "results": [
+                    {
+                      "id": "scifact:464511",
+                      "revision": "3fe91d6fabb44ed0d33826d5a550668a8a13826cb0b195ed01098a877b4b33a7",
+                      "score": -9.132110595703125,
+                      "input_rank": 8,
+                      "support_verified": false
+                    },
+                    {
+                      "id": "scifact:803312",
+                      "revision": "675d956a7e0fa18da629c86b7051615780c46103eb686f9f1dc504c73dc9f791",
+                      "score": -10.418538093566895,
+                      "input_rank": 1,
+                      "support_verified": false
+                    },
+                    {
+                      "id": "scifact:825728",
+                      "revision": "b623f942922d6d8ac6d4c97bd4b59dda7dd4b51f00aebe863b68564805703e92",
+                      "score": -10.753023147583008,
+                      "input_rank": 3,
+                      "support_verified": false
+                    },
+                    {
+                      "id": "scifact:461550",
+                      "revision": "1692230e1be960fcf87ae7376c4167559a42a9b54d965f9017e0ea2627df2638",
+                      "score": -10.75313949584961,
+                      "input_rank": 5,
+                      "support_verified": false
+                    },
+                    {
+                      "id": "scifact:427082",
+                      "revision": "051ea6d07e56b736aff8bfe5b2c974036448d35673623b29bbca36eed099dc05",
+                      "score": -10.766180992126465,
+                      "input_rank": 9,
+                      "support_verified": false
+                    },
+                    {
+                      "id": "scifact:323030",
+                      "revision": "37c679bb6c850e3d9dfe507a27a687207c5c6ef9f4e7c72b9b37a5ab8b9942b8",
+                      "score": -10.921822547912598,
+                      "input_rank": 6,
+                      "support_verified": false
+                    },
+                    {
+                      "id": "scifact:463309",
+                      "revision": "db5f37394c61a43742cbbd16358c6bfebe5833f8b0d9189deaf8ed19198ec5ca",
+                      "score": -10.926604270935059,
+                      "input_rank": 4,
+                      "support_verified": false
+                    },
+                    {
+                      "id": "scifact:502797",
+                      "revision": "181dac40ad274dd27939cb578adf1cd2868d99c26f4858c3986226d9dbff3e88",
+                      "score": -11.106184959411621,
+                      "input_rank": 2,
+                      "support_verified": false
+                    },
+                    {
+                      "id": "scifact:31715818",
+                      "revision": "b1abfd39e9f92e6c9c0dbf1b33834a5f7d33080c1a86d74274be443b7f33f2e2",
+                      "score": -11.131932258605957,
+                      "input_rank": 0,
+                      "support_verified": false
+                    },
+                    {
+                      "id": "scifact:279052",
+                      "revision": "dc175a3db79d293fac94583b41e3f66005c301843e9224b876af0b566f5e2e35",
+                      "score": -11.182350158691406,
+                      "input_rank": 7,
+                      "support_verified": false
+                    }
+                  ]
+                }
+              },
+              "metrics": {
+                "5": {
+                  "recall_at_k": 0.0,
+                  "mrr_at_k": 0.0,
+                  "ndcg_at_k": 0.0,
+                  "judged_fraction": 0.0,
+                  "cutoff": 5
+                },
+                "10": {
+                  "recall_at_k": 1.0,
+                  "mrr_at_k": 0.1111111111111111,
+                  "ndcg_at_k": 0.3010299956639812,
+                  "judged_fraction": 0.1,
+                  "cutoff": 10
+                },
+                "30": {
+                  "recall_at_k": 1.0,
+                  "mrr_at_k": 0.1111111111111111,
+                  "ndcg_at_k": 0.3010299956639812,
+                  "judged_fraction": 0.1,
+                  "cutoff": 30
+                }
+              }
+            },
+            {
+              "backend": "minilm-reranker",
+              "query_id": "xnli:de:test:1:de-en",
+              "language": "de-en",
+              "judgments": {
+                "xnli-support:a99546657eee50ad4c35abf8f680742ad6d039586e59f804cf270d7921abfa8d": 1
+              },
+              "candidate_ids": [
+                "germandpr:2a13196f174bea2ab432341be27d673a283e58c067dac327f9474102c974a846",
+                "germandpr:8a0f4939412c62ef241aad33546ba5a8f89b101930b2a42748f4b48d35c705d0",
+                "germandpr:11e26eb20f3ce21a2fd612ddacc4c43d520ad1e10fc5e6d38021243303e7c4e3",
+                "germandpr:9a111d5f09bcce95f8733dbe83b260306dff4cfeb7ca53e75651a3526941e123",
+                "germandpr:e9749763e93d95ab6ba656dc1fabeee11b7a594b998c334f73976af79d904690",
+                "germandpr:9a05d6e3b66f1463893ed1d448df57b4d5580fad6e903f9858cdc5a46751476d",
+                "germandpr:8985b538a8a6e12a6895909354e42326a65ee020b6ca94a90d2fdb4046a220f5",
+                "germandpr:835ae75da88f962b8fe858c7e43677fb28f9239b8d0f57c06749e71349472185",
+                "germandpr:f9c67a5004577184a10e27eb1f85337cf42272d2cd3dd40ed3a1456fd3d0df2f",
+                "scifact:797114"
+              ],
+              "candidate_count": 10,
+              "score_range": [
+                -9.991334915161133,
+                -1.3917381763458252
+              ],
+              "legacy_fusion": {
+                "weights": {
+                  "retrieval": 0.7,
+                  "native_reranker": 0.3
+                },
+                "results": [
+                  {
+                    "id": "germandpr:9a05d6e3b66f1463893ed1d448df57b4d5580fad6e903f9858cdc5a46751476d",
+                    "revision": "9a05d6e3b66f1463893ed1d448df57b4d5580fad6e903f9858cdc5a46751476d",
+                    "score": -0.30940947438627664,
+                    "input_rank": 5,
+                    "support_verified": false
+                  },
+                  {
+                    "id": "germandpr:2a13196f174bea2ab432341be27d673a283e58c067dac327f9474102c974a846",
+                    "revision": "2a13196f174bea2ab432341be27d673a283e58c067dac327f9474102c974a846",
+                    "score": -0.8514630525899263,
+                    "input_rank": 0,
+                    "support_verified": false
+                  },
+                  {
+                    "id": "germandpr:e9749763e93d95ab6ba656dc1fabeee11b7a594b998c334f73976af79d904690",
+                    "revision": "e9749763e93d95ab6ba656dc1fabeee11b7a594b998c334f73976af79d904690",
+                    "score": -0.9297200372613013,
+                    "input_rank": 4,
+                    "support_verified": false
+                  },
+                  {
+                    "id": "germandpr:8a0f4939412c62ef241aad33546ba5a8f89b101930b2a42748f4b48d35c705d0",
+                    "revision": "8a0f4939412c62ef241aad33546ba5a8f89b101930b2a42748f4b48d35c705d0",
+                    "score": -1.0122269008798992,
+                    "input_rank": 1,
+                    "support_verified": false
+                  },
+                  {
+                    "id": "germandpr:f9c67a5004577184a10e27eb1f85337cf42272d2cd3dd40ed3a1456fd3d0df2f",
+                    "revision": "f9c67a5004577184a10e27eb1f85337cf42272d2cd3dd40ed3a1456fd3d0df2f",
+                    "score": -1.2050206707070426,
+                    "input_rank": 8,
+                    "support_verified": false
+                  },
+                  {
+                    "id": "germandpr:9a111d5f09bcce95f8733dbe83b260306dff4cfeb7ca53e75651a3526941e123",
+                    "revision": "9a111d5f09bcce95f8733dbe83b260306dff4cfeb7ca53e75651a3526941e123",
+                    "score": -1.484643456978284,
+                    "input_rank": 3,
+                    "support_verified": false
+                  },
+                  {
+                    "id": "germandpr:11e26eb20f3ce21a2fd612ddacc4c43d520ad1e10fc5e6d38021243303e7c4e3",
+                    "revision": "11e26eb20f3ce21a2fd612ddacc4c43d520ad1e10fc5e6d38021243303e7c4e3",
+                    "score": -1.766250364942287,
+                    "input_rank": 2,
+                    "support_verified": false
+                  },
+                  {
+                    "id": "germandpr:835ae75da88f962b8fe858c7e43677fb28f9239b8d0f57c06749e71349472185",
+                    "revision": "835ae75da88f962b8fe858c7e43677fb28f9239b8d0f57c06749e71349472185",
+                    "score": -1.956383191964241,
+                    "input_rank": 7,
+                    "support_verified": false
+                  },
+                  {
+                    "id": "germandpr:8985b538a8a6e12a6895909354e42326a65ee020b6ca94a90d2fdb4046a220f5",
+                    "revision": "8985b538a8a6e12a6895909354e42326a65ee020b6ca94a90d2fdb4046a220f5",
+                    "score": -2.4225513406990755,
+                    "input_rank": 6,
+                    "support_verified": false
+                  },
+                  {
+                    "id": "scifact:797114",
+                    "revision": "d61c48493f12ffbc78d471d66a5544ff4e2d18b8dadef3c6de45d3defa33a36e",
+                    "score": -2.906805156393653,
+                    "input_rank": 9,
+                    "support_verified": false
+                  }
+                ],
+                "metrics": {
+                  "5": {
+                    "recall_at_k": 0.0,
+                    "mrr_at_k": 0.0,
+                    "ndcg_at_k": 0.0,
+                    "judged_fraction": 0.0,
+                    "cutoff": 5
+                  },
+                  "10": {
+                    "recall_at_k": 0.0,
+                    "mrr_at_k": 0.0,
+                    "ndcg_at_k": 0.0,
+                    "judged_fraction": 0.0,
+                    "cutoff": 10
+                  },
+                  "30": {
+                    "recall_at_k": 0.0,
+                    "mrr_at_k": 0.0,
+                    "ndcg_at_k": 0.0,
+                    "judged_fraction": 0.0,
+                    "cutoff": 30
+                  }
+                }
+              },
+              "query_s": 0.34854181499395054,
+              "job": {
+                "result": {
+                  "results": [
+                    {
+                      "id": "germandpr:9a05d6e3b66f1463893ed1d448df57b4d5580fad6e903f9858cdc5a46751476d",
+                      "revision": "9a05d6e3b66f1463893ed1d448df57b4d5580fad6e903f9858cdc5a46751476d",
+                      "score": -1.3917381763458252,
+                      "input_rank": 5,
+                      "support_verified": false
+                    },
+                    {
+                      "id": "germandpr:2a13196f174bea2ab432341be27d673a283e58c067dac327f9474102c974a846",
+                      "revision": "2a13196f174bea2ab432341be27d673a283e58c067dac327f9474102c974a846",
+                      "score": -3.4266715049743652,
+                      "input_rank": 0,
+                      "support_verified": false
+                    },
+                    {
+                      "id": "germandpr:e9749763e93d95ab6ba656dc1fabeee11b7a594b998c334f73976af79d904690",
+                      "revision": "e9749763e93d95ab6ba656dc1fabeee11b7a594b998c334f73976af79d904690",
+                      "score": -3.5193278789520264,
+                      "input_rank": 4,
+                      "support_verified": false
+                    },
+                    {
+                      "id": "germandpr:8a0f4939412c62ef241aad33546ba5a8f89b101930b2a42748f4b48d35c705d0",
+                      "revision": "8a0f4939412c62ef241aad33546ba5a8f89b101930b2a42748f4b48d35c705d0",
+                      "score": -3.8713645935058594,
+                      "input_rank": 1,
+                      "support_verified": false
+                    },
+                    {
+                      "id": "germandpr:f9c67a5004577184a10e27eb1f85337cf42272d2cd3dd40ed3a1456fd3d0df2f",
+                      "revision": "f9c67a5004577184a10e27eb1f85337cf42272d2cd3dd40ed3a1456fd3d0df2f",
+                      "score": -4.3311004638671875,
+                      "input_rank": 8,
+                      "support_verified": false
+                    },
+                    {
+                      "id": "germandpr:9a111d5f09bcce95f8733dbe83b260306dff4cfeb7ca53e75651a3526941e123",
+                      "revision": "9a111d5f09bcce95f8733dbe83b260306dff4cfeb7ca53e75651a3526941e123",
+                      "score": -5.407317638397217,
+                      "input_rank": 3,
+                      "support_verified": false
+                    },
+                    {
+                      "id": "germandpr:11e26eb20f3ce21a2fd612ddacc4c43d520ad1e10fc5e6d38021243303e7c4e3",
+                      "revision": "11e26eb20f3ce21a2fd612ddacc4c43d520ad1e10fc5e6d38021243303e7c4e3",
+                      "score": -6.3524346351623535,
+                      "input_rank": 2,
+                      "support_verified": false
+                    },
+                    {
+                      "id": "germandpr:835ae75da88f962b8fe858c7e43677fb28f9239b8d0f57c06749e71349472185",
+                      "revision": "835ae75da88f962b8fe858c7e43677fb28f9239b8d0f57c06749e71349472185",
+                      "score": -6.863271236419678,
+                      "input_rank": 7,
+                      "support_verified": false
+                    },
+                    {
+                      "id": "germandpr:8985b538a8a6e12a6895909354e42326a65ee020b6ca94a90d2fdb4046a220f5",
+                      "revision": "8985b538a8a6e12a6895909354e42326a65ee020b6ca94a90d2fdb4046a220f5",
+                      "score": -8.41894245147705,
+                      "input_rank": 6,
+                      "support_verified": false
+                    },
+                    {
+                      "id": "scifact:797114",
+                      "revision": "d61c48493f12ffbc78d471d66a5544ff4e2d18b8dadef3c6de45d3defa33a36e",
+                      "score": -9.991334915161133,
+                      "input_rank": 9,
+                      "support_verified": false
+                    }
+                  ]
+                }
+              },
+              "metrics": {
+                "5": {
+                  "recall_at_k": 0.0,
+                  "mrr_at_k": 0.0,
+                  "ndcg_at_k": 0.0,
+                  "judged_fraction": 0.0,
+                  "cutoff": 5
+                },
+                "10": {
+                  "recall_at_k": 0.0,
+                  "mrr_at_k": 0.0,
+                  "ndcg_at_k": 0.0,
+                  "judged_fraction": 0.0,
+                  "cutoff": 10
+                },
+                "30": {
+                  "recall_at_k": 0.0,
+                  "mrr_at_k": 0.0,
+                  "ndcg_at_k": 0.0,
+                  "judged_fraction": 0.0,
+                  "cutoff": 30
+                }
+              }
+            }
+          ],
+          "input_sha256": "34a979a26a71e7604d1d37cfa9d30bbb6ce88448d9e52687f1e37b80e85a9f2f",
+          "score_semantics": "native relevance ranking only; no factual support or score calibration claim",
+          "production_index_modified": false
+        },
+        "operation": "reranker-benchmark",
+        "elapsed_seconds": 5.710673445995781,
+        "peak_process_tree_rss_bytes": 710647808,
+        "resource_limits": {
+          "timeout_s": 600,
+          "rss_bytes": 4294967296,
+          "threads": 2
+        },
+        "execution": "isolated-local-process",
+        "hosted_inference_used": false,
+        "remote_processing_used": false
+      },
+      "metric_verification": {
+        "package": "ir-measures",
+        "version": "0.4.3",
+        "checked_scores": 27,
+        "agreement_tolerance": 1e-09
+      },
+      "summary": {
+        "p50_s": 0.3352529520052485,
+        "p95_s": 0.34854181499395054,
+        "pairs_per_second": 30.657094944908057
+      }
+    },
+    "qwen3-reranker": {
+      "job": {
+        "status": "completed",
+        "result": {
+          "backend": "qwen3-reranker",
+          "model": {
+            "kind": "qwen3-reranker",
+            "model": "Qwen/Qwen3-Reranker-0.6B",
+            "revision": "e61197ed45024b0ed8a2d74b80b4d909f1255473",
+            "license": "apache-2.0"
+          },
+          "batch_size": 2,
+          "model_load_s": 3.2019387030013604,
+          "runs": [
+            {
+              "backend": "qwen3-reranker",
+              "query_id": "germandpr:test:5",
+              "language": "de-de",
+              "judgments": {
+                "germandpr:fb0d7dbff188647708b684366a08e1c037c1176b64426342a3b8e39797d6505a": 1,
+                "germandpr:64b4d6e60230df58ecc664461d746ccb66410ccc53ae51746ba46035a849a328": 0,
+                "germandpr:2a13196f174bea2ab432341be27d673a283e58c067dac327f9474102c974a846": 0
+              },
+              "candidate_ids": [
+                "germandpr:fb0d7dbff188647708b684366a08e1c037c1176b64426342a3b8e39797d6505a",
+                "germandpr:64b4d6e60230df58ecc664461d746ccb66410ccc53ae51746ba46035a849a328",
+                "germandpr:2a13196f174bea2ab432341be27d673a283e58c067dac327f9474102c974a846",
+                "germandpr:8985b538a8a6e12a6895909354e42326a65ee020b6ca94a90d2fdb4046a220f5",
+                "germandpr:9a05d6e3b66f1463893ed1d448df57b4d5580fad6e903f9858cdc5a46751476d",
+                "germandpr:03691ac9c4190a0231f7cca647fa8abe8939a531fff0ae981b535ffe9a9f3a82",
+                "germandpr:60c3c46a6794b6e58640168d81adae3f2016bd16ae1dfe9c2aaa8893a2482041",
+                "germandpr:f1594543528fda6fba5d93a92d734ce1bcf4557ea228af07dee7e5ce62d8d3d1",
+                "germandpr:30b1017171e36514a2ba644f07e03b8746766ae3f40592311c96de69d313f1c9",
+                "germandpr:e9749763e93d95ab6ba656dc1fabeee11b7a594b998c334f73976af79d904690"
+              ],
+              "candidate_count": 10,
+              "score_range": [
+                1.3246803973743226e-05,
+                0.9959110021591187
+              ],
+              "legacy_fusion": {
+                "weights": {
+                  "retrieval": 0.7,
+                  "native_reranker": 0.3
+                },
+                "results": [
+                  {
+                    "id": "germandpr:fb0d7dbff188647708b684366a08e1c037c1176b64426342a3b8e39797d6505a",
+                    "revision": "fb0d7dbff188647708b684366a08e1c037c1176b64426342a3b8e39797d6505a",
+                    "score": 0.6880132084007573,
+                    "input_rank": 0,
+                    "support_verified": false
+                  },
+                  {
+                    "id": "germandpr:64b4d6e60230df58ecc664461d746ccb66410ccc53ae51746ba46035a849a328",
+                    "revision": "64b4d6e60230df58ecc664461d746ccb66410ccc53ae51746ba46035a849a328",
+                    "score": 0.5314291528915368,
+                    "input_rank": 1,
+                    "support_verified": false
+                  },
+                  {
+                    "id": "germandpr:2a13196f174bea2ab432341be27d673a283e58c067dac327f9474102c974a846",
+                    "revision": "2a13196f174bea2ab432341be27d673a283e58c067dac327f9474102c974a846",
+                    "score": 0.2448910538705543,
+                    "input_rank": 2,
+                    "support_verified": false
+                  },
+                  {
+                    "id": "germandpr:8985b538a8a6e12a6895909354e42326a65ee020b6ca94a90d2fdb4046a220f5",
+                    "revision": "8985b538a8a6e12a6895909354e42326a65ee020b6ca94a90d2fdb4046a220f5",
+                    "score": 0.20761263618378034,
+                    "input_rank": 3,
+                    "support_verified": false
+                  },
+                  {
+                    "id": "germandpr:9a05d6e3b66f1463893ed1d448df57b4d5580fad6e903f9858cdc5a46751476d",
+                    "revision": "9a05d6e3b66f1463893ed1d448df57b4d5580fad6e903f9858cdc5a46751476d",
+                    "score": 0.18582122019276628,
+                    "input_rank": 4,
+                    "support_verified": false
+                  },
+                  {
+                    "id": "germandpr:03691ac9c4190a0231f7cca647fa8abe8939a531fff0ae981b535ffe9a9f3a82",
+                    "revision": "03691ac9c4190a0231f7cca647fa8abe8939a531fff0ae981b535ffe9a9f3a82",
+                    "score": 0.17113812173667592,
+                    "input_rank": 5,
+                    "support_verified": false
+                  },
+                  {
+                    "id": "germandpr:60c3c46a6794b6e58640168d81adae3f2016bd16ae1dfe9c2aaa8893a2482041",
+                    "revision": "60c3c46a6794b6e58640168d81adae3f2016bd16ae1dfe9c2aaa8893a2482041",
+                    "score": 0.1546581439094022,
+                    "input_rank": 6,
+                    "support_verified": false
+                  },
+                  {
+                    "id": "germandpr:f1594543528fda6fba5d93a92d734ce1bcf4557ea228af07dee7e5ce62d8d3d1",
+                    "revision": "f1594543528fda6fba5d93a92d734ce1bcf4557ea228af07dee7e5ce62d8d3d1",
+                    "score": 0.15364932725171057,
+                    "input_rank": 7,
+                    "support_verified": false
+                  },
+                  {
+                    "id": "germandpr:30b1017171e36514a2ba644f07e03b8746766ae3f40592311c96de69d313f1c9",
+                    "revision": "30b1017171e36514a2ba644f07e03b8746766ae3f40592311c96de69d313f1c9",
+                    "score": 0.14444811338362418,
+                    "input_rank": 8,
+                    "support_verified": false
+                  },
+                  {
+                    "id": "germandpr:e9749763e93d95ab6ba656dc1fabeee11b7a594b998c334f73976af79d904690",
+                    "revision": "e9749763e93d95ab6ba656dc1fabeee11b7a594b998c334f73976af79d904690",
+                    "score": 0.13825118026539301,
+                    "input_rank": 9,
+                    "support_verified": false
+                  }
+                ],
+                "metrics": {
+                  "5": {
+                    "recall_at_k": 1.0,
+                    "mrr_at_k": 1.0,
+                    "ndcg_at_k": 1.0,
+                    "judged_fraction": 0.6,
+                    "cutoff": 5
+                  },
+                  "10": {
+                    "recall_at_k": 1.0,
+                    "mrr_at_k": 1.0,
+                    "ndcg_at_k": 1.0,
+                    "judged_fraction": 0.3,
+                    "cutoff": 10
+                  },
+                  "30": {
+                    "recall_at_k": 1.0,
+                    "mrr_at_k": 1.0,
+                    "ndcg_at_k": 1.0,
+                    "judged_fraction": 0.3,
+                    "cutoff": 30
+                  }
+                }
+              },
+              "query_s": 13.065523461002158,
+              "job": {
+                "result": {
+                  "results": [
+                    {
+                      "id": "germandpr:fb0d7dbff188647708b684366a08e1c037c1176b64426342a3b8e39797d6505a",
+                      "revision": "fb0d7dbff188647708b684366a08e1c037c1176b64426342a3b8e39797d6505a",
+                      "score": 0.9959110021591187,
+                      "input_rank": 0,
+                      "support_verified": false
+                    },
+                    {
+                      "id": "germandpr:64b4d6e60230df58ecc664461d746ccb66410ccc53ae51746ba46035a849a328",
+                      "revision": "64b4d6e60230df58ecc664461d746ccb66410ccc53ae51746ba46035a849a328",
+                      "score": 0.8582698702812195,
+                      "input_rank": 1,
+                      "support_verified": false
+                    },
+                    {
+                      "id": "germandpr:2a13196f174bea2ab432341be27d673a283e58c067dac327f9474102c974a846",
+                      "revision": "2a13196f174bea2ab432341be27d673a283e58c067dac327f9474102c974a846",
+                      "score": 0.010137156583368778,
+                      "input_rank": 2,
+                      "support_verified": false
+                    },
+                    {
+                      "id": "germandpr:03691ac9c4190a0231f7cca647fa8abe8939a531fff0ae981b535ffe9a9f3a82",
+                      "revision": "03691ac9c4190a0231f7cca647fa8abe8939a531fff0ae981b535ffe9a9f3a82",
+                      "score": 0.0005925532313995063,
+                      "input_rank": 5,
+                      "support_verified": false
+                    },
+                    {
+                      "id": "germandpr:f1594543528fda6fba5d93a92d734ce1bcf4557ea228af07dee7e5ce62d8d3d1",
+                      "revision": "f1594543528fda6fba5d93a92d734ce1bcf4557ea228af07dee7e5ce62d8d3d1",
+                      "score": 0.000328257359797135,
+                      "input_rank": 7,
+                      "support_verified": false
+                    },
+                    {
+                      "id": "germandpr:30b1017171e36514a2ba644f07e03b8746766ae3f40592311c96de69d313f1c9",
+                      "revision": "30b1017171e36514a2ba644f07e03b8746766ae3f40592311c96de69d313f1c9",
+                      "score": 0.0002734120935201645,
+                      "input_rank": 8,
+                      "support_verified": false
+                    },
+                    {
+                      "id": "germandpr:8985b538a8a6e12a6895909354e42326a65ee020b6ca94a90d2fdb4046a220f5",
+                      "revision": "8985b538a8a6e12a6895909354e42326a65ee020b6ca94a90d2fdb4046a220f5",
+                      "score": 0.0002216197899542749,
+                      "input_rank": 3,
+                      "support_verified": false
+                    },
+                    {
+                      "id": "germandpr:9a05d6e3b66f1463893ed1d448df57b4d5580fad6e903f9858cdc5a46751476d",
+                      "revision": "9a05d6e3b66f1463893ed1d448df57b4d5580fad6e903f9858cdc5a46751476d",
+                      "score": 9.26503780647181e-05,
+                      "input_rank": 4,
+                      "support_verified": false
+                    },
+                    {
+                      "id": "germandpr:60c3c46a6794b6e58640168d81adae3f2016bd16ae1dfe9c2aaa8893a2482041",
+                      "revision": "60c3c46a6794b6e58640168d81adae3f2016bd16ae1dfe9c2aaa8893a2482041",
+                      "score": 9.252077870769426e-05,
+                      "input_rank": 6,
+                      "support_verified": false
+                    },
+                    {
+                      "id": "germandpr:e9749763e93d95ab6ba656dc1fabeee11b7a594b998c334f73976af79d904690",
+                      "revision": "e9749763e93d95ab6ba656dc1fabeee11b7a594b998c334f73976af79d904690",
+                      "score": 1.3246803973743226e-05,
+                      "input_rank": 9,
+                      "support_verified": false
+                    }
+                  ]
+                }
+              },
+              "metrics": {
+                "5": {
+                  "recall_at_k": 1.0,
+                  "mrr_at_k": 1.0,
+                  "ndcg_at_k": 1.0,
+                  "judged_fraction": 0.6,
+                  "cutoff": 5
+                },
+                "10": {
+                  "recall_at_k": 1.0,
+                  "mrr_at_k": 1.0,
+                  "ndcg_at_k": 1.0,
+                  "judged_fraction": 0.3,
+                  "cutoff": 10
+                },
+                "30": {
+                  "recall_at_k": 1.0,
+                  "mrr_at_k": 1.0,
+                  "ndcg_at_k": 1.0,
+                  "judged_fraction": 0.3,
+                  "cutoff": 30
+                }
+              }
+            },
+            {
+              "backend": "qwen3-reranker",
+              "query_id": "scifact:test:1",
+              "language": "en-en",
+              "judgments": {
+                "scifact:31715818": 1
+              },
+              "candidate_ids": [
+                "scifact:31715818",
+                "scifact:803312",
+                "scifact:502797",
+                "scifact:825728",
+                "scifact:463309",
+                "scifact:461550",
+                "scifact:323030",
+                "scifact:279052",
+                "scifact:464511",
+                "scifact:427082"
+              ],
+              "candidate_count": 10,
+              "score_range": [
+                1.2546449397632387e-05,
+                0.0019803547766059637
+              ],
+              "legacy_fusion": {
+                "weights": {
+                  "retrieval": 0.7,
+                  "native_reranker": 0.3
+                },
+                "results": [
+                  {
+                    "id": "scifact:31715818",
+                    "revision": "b1abfd39e9f92e6c9c0dbf1b33834a5f7d33080c1a86d74274be443b7f33f2e2",
+                    "score": 0.20468332180142473,
+                    "input_rank": 0,
+                    "support_verified": false
+                  },
+                  {
+                    "id": "scifact:803312",
+                    "revision": "675d956a7e0fa18da629c86b7051615780c46103eb686f9f1dc504c73dc9f791",
+                    "score": 0.16006971366875894,
+                    "input_rank": 1,
+                    "support_verified": false
+                  },
+                  {
+                    "id": "scifact:502797",
+                    "revision": "181dac40ad274dd27939cb578adf1cd2868d99c26f4858c3986226d9dbff3e88",
+                    "score": 0.1531902743855444,
+                    "input_rank": 2,
+                    "support_verified": false
+                  },
+                  {
+                    "id": "scifact:825728",
+                    "revision": "b623f942922d6d8ac6d4c97bd4b59dda7dd4b51f00aebe863b68564805703e92",
+                    "score": 0.12198359276322934,
+                    "input_rank": 3,
+                    "support_verified": false
+                  },
+                  {
+                    "id": "scifact:463309",
+                    "revision": "db5f37394c61a43742cbbd16358c6bfebe5833f8b0d9189deaf8ed19198ec5ca",
+                    "score": 0.1202946243776186,
+                    "input_rank": 4,
+                    "support_verified": false
+                  },
+                  {
+                    "id": "scifact:461550",
+                    "revision": "1692230e1be960fcf87ae7376c4167559a42a9b54d965f9017e0ea2627df2638",
+                    "score": 0.11099964426234304,
+                    "input_rank": 5,
+                    "support_verified": false
+                  },
+                  {
+                    "id": "scifact:323030",
+                    "revision": "37c679bb6c850e3d9dfe507a27a687207c5c6ef9f4e7c72b9b37a5ab8b9942b8",
+                    "score": 0.11048845267027232,
+                    "input_rank": 6,
+                    "support_verified": false
+                  },
+                  {
+                    "id": "scifact:279052",
+                    "revision": "dc175a3db79d293fac94583b41e3f66005c301843e9224b876af0b566f5e2e35",
+                    "score": 0.10437817494840426,
+                    "input_rank": 7,
+                    "support_verified": false
+                  },
+                  {
+                    "id": "scifact:464511",
+                    "revision": "3fe91d6fabb44ed0d33826d5a550668a8a13826cb0b195ed01098a877b4b33a7",
+                    "score": 0.1028966373379656,
+                    "input_rank": 8,
+                    "support_verified": false
+                  },
+                  {
+                    "id": "scifact:427082",
+                    "revision": "051ea6d07e56b736aff8bfe5b2c974036448d35673623b29bbca36eed099dc05",
+                    "score": 0.09963047854253416,
+                    "input_rank": 9,
+                    "support_verified": false
+                  }
+                ],
+                "metrics": {
+                  "5": {
+                    "recall_at_k": 1.0,
+                    "mrr_at_k": 1.0,
+                    "ndcg_at_k": 1.0,
+                    "judged_fraction": 0.2,
+                    "cutoff": 5
+                  },
+                  "10": {
+                    "recall_at_k": 1.0,
+                    "mrr_at_k": 1.0,
+                    "ndcg_at_k": 1.0,
+                    "judged_fraction": 0.1,
+                    "cutoff": 10
+                  },
+                  "30": {
+                    "recall_at_k": 1.0,
+                    "mrr_at_k": 1.0,
+                    "ndcg_at_k": 1.0,
+                    "judged_fraction": 0.1,
+                    "cutoff": 30
+                  }
+                }
+              },
+              "query_s": 13.633720299985725,
+              "job": {
+                "result": {
+                  "results": [
+                    {
+                      "id": "scifact:31715818",
+                      "revision": "b1abfd39e9f92e6c9c0dbf1b33834a5f7d33080c1a86d74274be443b7f33f2e2",
+                      "score": 0.0019803547766059637,
+                      "input_rank": 0,
+                      "support_verified": false
+                    },
+                    {
+                      "id": "scifact:502797",
+                      "revision": "181dac40ad274dd27939cb578adf1cd2868d99c26f4858c3986226d9dbff3e88",
+                      "score": 0.00025827912031672895,
+                      "input_rank": 2,
+                      "support_verified": false
+                    },
+                    {
+                      "id": "scifact:803312",
+                      "revision": "675d956a7e0fa18da629c86b7051615780c46103eb686f9f1dc504c73dc9f791",
+                      "score": 4.436996459844522e-05,
+                      "input_rank": 1,
+                      "support_verified": false
+                    },
+                    {
+                      "id": "scifact:825728",
+                      "revision": "b623f942922d6d8ac6d4c97bd4b59dda7dd4b51f00aebe863b68564805703e92",
+                      "score": 3.497953002806753e-05,
+                      "input_rank": 3,
+                      "support_verified": false
+                    },
+                    {
+                      "id": "scifact:464511",
+                      "revision": "3fe91d6fabb44ed0d33826d5a550668a8a13826cb0b195ed01098a877b4b33a7",
+                      "score": 2.1882755390834063e-05,
+                      "input_rank": 8,
+                      "support_verified": false
+                    },
+                    {
+                      "id": "scifact:323030",
+                      "revision": "37c679bb6c850e3d9dfe507a27a687207c5c6ef9f4e7c72b9b37a5ab8b9942b8",
+                      "score": 2.1119731172802858e-05,
+                      "input_rank": 6,
+                      "support_verified": false
+                    },
+                    {
+                      "id": "scifact:427082",
+                      "revision": "051ea6d07e56b736aff8bfe5b2c974036448d35673623b29bbca36eed099dc05",
+                      "score": 1.6021209376049228e-05,
+                      "input_rank": 9,
+                      "support_verified": false
+                    },
+                    {
+                      "id": "scifact:461550",
+                      "revision": "1692230e1be960fcf87ae7376c4167559a42a9b54d965f9017e0ea2627df2638",
+                      "score": 1.514205268904334e-05,
+                      "input_rank": 5,
+                      "support_verified": false
+                    },
+                    {
+                      "id": "scifact:279052",
+                      "revision": "dc175a3db79d293fac94583b41e3f66005c301843e9224b876af0b566f5e2e35",
+                      "score": 1.3173244951758534e-05,
+                      "input_rank": 7,
+                      "support_verified": false
+                    },
+                    {
+                      "id": "scifact:463309",
+                      "revision": "db5f37394c61a43742cbbd16358c6bfebe5833f8b0d9189deaf8ed19198ec5ca",
+                      "score": 1.2546449397632387e-05,
+                      "input_rank": 4,
+                      "support_verified": false
+                    }
+                  ]
+                }
+              },
+              "metrics": {
+                "5": {
+                  "recall_at_k": 1.0,
+                  "mrr_at_k": 1.0,
+                  "ndcg_at_k": 1.0,
+                  "judged_fraction": 0.2,
+                  "cutoff": 5
+                },
+                "10": {
+                  "recall_at_k": 1.0,
+                  "mrr_at_k": 1.0,
+                  "ndcg_at_k": 1.0,
+                  "judged_fraction": 0.1,
+                  "cutoff": 10
+                },
+                "30": {
+                  "recall_at_k": 1.0,
+                  "mrr_at_k": 1.0,
+                  "ndcg_at_k": 1.0,
+                  "judged_fraction": 0.1,
+                  "cutoff": 30
+                }
+              }
+            },
+            {
+              "backend": "qwen3-reranker",
+              "query_id": "xnli:de:test:1:de-en",
+              "language": "de-en",
+              "judgments": {
+                "xnli-support:a99546657eee50ad4c35abf8f680742ad6d039586e59f804cf270d7921abfa8d": 1
+              },
+              "candidate_ids": [
+                "germandpr:2a13196f174bea2ab432341be27d673a283e58c067dac327f9474102c974a846",
+                "germandpr:8a0f4939412c62ef241aad33546ba5a8f89b101930b2a42748f4b48d35c705d0",
+                "germandpr:11e26eb20f3ce21a2fd612ddacc4c43d520ad1e10fc5e6d38021243303e7c4e3",
+                "germandpr:9a111d5f09bcce95f8733dbe83b260306dff4cfeb7ca53e75651a3526941e123",
+                "germandpr:e9749763e93d95ab6ba656dc1fabeee11b7a594b998c334f73976af79d904690",
+                "germandpr:9a05d6e3b66f1463893ed1d448df57b4d5580fad6e903f9858cdc5a46751476d",
+                "germandpr:8985b538a8a6e12a6895909354e42326a65ee020b6ca94a90d2fdb4046a220f5",
+                "germandpr:835ae75da88f962b8fe858c7e43677fb28f9239b8d0f57c06749e71349472185",
+                "germandpr:f9c67a5004577184a10e27eb1f85337cf42272d2cd3dd40ed3a1456fd3d0df2f",
+                "scifact:797114"
+              ],
+              "candidate_count": 10,
+              "score_range": [
+                7.671986168134026e-06,
+                0.0012688833521679044
+              ],
+              "legacy_fusion": {
+                "weights": {
+                  "retrieval": 0.7,
+                  "native_reranker": 0.3
+                },
+                "results": [
+                  {
+                    "id": "germandpr:2a13196f174bea2ab432341be27d673a283e58c067dac327f9474102c974a846",
+                    "revision": "2a13196f174bea2ab432341be27d673a283e58c067dac327f9474102c974a846",
+                    "score": 0.17656172742183857,
+                    "input_rank": 0,
+                    "support_verified": false
+                  },
+                  {
+                    "id": "germandpr:8a0f4939412c62ef241aad33546ba5a8f89b101930b2a42748f4b48d35c705d0",
+                    "revision": "8a0f4939412c62ef241aad33546ba5a8f89b101930b2a42748f4b48d35c705d0",
+                    "score": 0.1492184116633201,
+                    "input_rank": 1,
+                    "support_verified": false
+                  },
+                  {
+                    "id": "germandpr:11e26eb20f3ce21a2fd612ddacc4c43d520ad1e10fc5e6d38021243303e7c4e3",
+                    "revision": "11e26eb20f3ce21a2fd612ddacc4c43d520ad1e10fc5e6d38021243303e7c4e3",
+                    "score": 0.13952411668283443,
+                    "input_rank": 2,
+                    "support_verified": false
+                  },
+                  {
+                    "id": "germandpr:9a111d5f09bcce95f8733dbe83b260306dff4cfeb7ca53e75651a3526941e123",
+                    "revision": "9a111d5f09bcce95f8733dbe83b260306dff4cfeb7ca53e75651a3526941e123",
+                    "score": 0.13759562866654884,
+                    "input_rank": 3,
+                    "support_verified": false
+                  },
+                  {
+                    "id": "germandpr:e9749763e93d95ab6ba656dc1fabeee11b7a594b998c334f73976af79d904690",
+                    "revision": "e9749763e93d95ab6ba656dc1fabeee11b7a594b998c334f73976af79d904690",
+                    "score": 0.12610046570449707,
+                    "input_rank": 4,
+                    "support_verified": false
+                  },
+                  {
+                    "id": "germandpr:9a05d6e3b66f1463893ed1d448df57b4d5580fad6e903f9858cdc5a46751476d",
+                    "revision": "9a05d6e3b66f1463893ed1d448df57b4d5580fad6e903f9858cdc5a46751476d",
+                    "score": 0.10817810284081894,
+                    "input_rank": 5,
+                    "support_verified": false
+                  },
+                  {
+                    "id": "germandpr:8985b538a8a6e12a6895909354e42326a65ee020b6ca94a90d2fdb4046a220f5",
+                    "revision": "8985b538a8a6e12a6895909354e42326a65ee020b6ca94a90d2fdb4046a220f5",
+                    "score": 0.10351205974968976,
+                    "input_rank": 6,
+                    "support_verified": false
+                  },
+                  {
+                    "id": "germandpr:835ae75da88f962b8fe858c7e43677fb28f9239b8d0f57c06749e71349472185",
+                    "revision": "835ae75da88f962b8fe858c7e43677fb28f9239b8d0f57c06749e71349472185",
+                    "score": 0.1026270877877236,
+                    "input_rank": 7,
+                    "support_verified": false
+                  },
+                  {
+                    "id": "germandpr:f9c67a5004577184a10e27eb1f85337cf42272d2cd3dd40ed3a1456fd3d0df2f",
+                    "revision": "f9c67a5004577184a10e27eb1f85337cf42272d2cd3dd40ed3a1456fd3d0df2f",
+                    "score": 0.09436177651002463,
+                    "input_rank": 8,
+                    "support_verified": false
+                  },
+                  {
+                    "id": "scifact:797114",
+                    "revision": "d61c48493f12ffbc78d471d66a5544ff4e2d18b8dadef3c6de45d3defa33a36e",
+                    "score": 0.09059761975053715,
+                    "input_rank": 9,
+                    "support_verified": false
+                  }
+                ],
+                "metrics": {
+                  "5": {
+                    "recall_at_k": 0.0,
+                    "mrr_at_k": 0.0,
+                    "ndcg_at_k": 0.0,
+                    "judged_fraction": 0.0,
+                    "cutoff": 5
+                  },
+                  "10": {
+                    "recall_at_k": 0.0,
+                    "mrr_at_k": 0.0,
+                    "ndcg_at_k": 0.0,
+                    "judged_fraction": 0.0,
+                    "cutoff": 10
+                  },
+                  "30": {
+                    "recall_at_k": 0.0,
+                    "mrr_at_k": 0.0,
+                    "ndcg_at_k": 0.0,
+                    "judged_fraction": 0.0,
+                    "cutoff": 30
+                  }
+                }
+              },
+              "query_s": 13.723012956994353,
+              "job": {
+                "result": {
+                  "results": [
+                    {
+                      "id": "germandpr:8985b538a8a6e12a6895909354e42326a65ee020b6ca94a90d2fdb4046a220f5",
+                      "revision": "8985b538a8a6e12a6895909354e42326a65ee020b6ca94a90d2fdb4046a220f5",
+                      "score": 0.0012688833521679044,
+                      "input_rank": 6,
+                      "support_verified": false
+                    },
+                    {
+                      "id": "germandpr:9a05d6e3b66f1463893ed1d448df57b4d5580fad6e903f9858cdc5a46751476d",
+                      "revision": "9a05d6e3b66f1463893ed1d448df57b4d5580fad6e903f9858cdc5a46751476d",
+                      "score": 0.00022041441116016358,
+                      "input_rank": 5,
+                      "support_verified": false
+                    },
+                    {
+                      "id": "germandpr:f9c67a5004577184a10e27eb1f85337cf42272d2cd3dd40ed3a1456fd3d0df2f",
+                      "revision": "f9c67a5004577184a10e27eb1f85337cf42272d2cd3dd40ed3a1456fd3d0df2f",
+                      "score": 0.00017436018970329314,
+                      "input_rank": 8,
+                      "support_verified": false
+                    },
+                    {
+                      "id": "germandpr:11e26eb20f3ce21a2fd612ddacc4c43d520ad1e10fc5e6d38021243303e7c4e3",
+                      "revision": "11e26eb20f3ce21a2fd612ddacc4c43d520ad1e10fc5e6d38021243303e7c4e3",
+                      "score": 0.00014697025471832603,
+                      "input_rank": 2,
+                      "support_verified": false
+                    },
+                    {
+                      "id": "germandpr:9a111d5f09bcce95f8733dbe83b260306dff4cfeb7ca53e75651a3526941e123",
+                      "revision": "9a111d5f09bcce95f8733dbe83b260306dff4cfeb7ca53e75651a3526941e123",
+                      "score": 0.0001459804188925773,
+                      "input_rank": 3,
+                      "support_verified": false
+                    },
+                    {
+                      "id": "germandpr:8a0f4939412c62ef241aad33546ba5a8f89b101930b2a42748f4b48d35c705d0",
+                      "revision": "8a0f4939412c62ef241aad33546ba5a8f89b101930b2a42748f4b48d35c705d0",
+                      "score": 0.00011978163820458576,
+                      "input_rank": 1,
+                      "support_verified": false
+                    },
+                    {
+                      "id": "germandpr:835ae75da88f962b8fe858c7e43677fb28f9239b8d0f57c06749e71349472185",
+                      "revision": "835ae75da88f962b8fe858c7e43677fb28f9239b8d0f57c06749e71349472185",
+                      "score": 9.636275353841484e-05,
+                      "input_rank": 7,
+                      "support_verified": false
+                    },
+                    {
+                      "id": "germandpr:2a13196f174bea2ab432341be27d673a283e58c067dac327f9474102c974a846",
+                      "revision": "2a13196f174bea2ab432341be27d673a283e58c067dac327f9474102c974a846",
+                      "score": 7.776173151796684e-05,
+                      "input_rank": 0,
+                      "support_verified": false
+                    },
+                    {
+                      "id": "germandpr:e9749763e93d95ab6ba656dc1fabeee11b7a594b998c334f73976af79d904690",
+                      "revision": "e9749763e93d95ab6ba656dc1fabeee11b7a594b998c334f73976af79d904690",
+                      "score": 7.379760063486174e-05,
+                      "input_rank": 4,
+                      "support_verified": false
+                    },
+                    {
+                      "id": "scifact:797114",
+                      "revision": "d61c48493f12ffbc78d471d66a5544ff4e2d18b8dadef3c6de45d3defa33a36e",
+                      "score": 7.671986168134026e-06,
+                      "input_rank": 9,
+                      "support_verified": false
+                    }
+                  ]
+                }
+              },
+              "metrics": {
+                "5": {
+                  "recall_at_k": 0.0,
+                  "mrr_at_k": 0.0,
+                  "ndcg_at_k": 0.0,
+                  "judged_fraction": 0.0,
+                  "cutoff": 5
+                },
+                "10": {
+                  "recall_at_k": 0.0,
+                  "mrr_at_k": 0.0,
+                  "ndcg_at_k": 0.0,
+                  "judged_fraction": 0.0,
+                  "cutoff": 10
+                },
+                "30": {
+                  "recall_at_k": 0.0,
+                  "mrr_at_k": 0.0,
+                  "ndcg_at_k": 0.0,
+                  "judged_fraction": 0.0,
+                  "cutoff": 30
+                }
+              }
+            }
+          ],
+          "input_sha256": "34a979a26a71e7604d1d37cfa9d30bbb6ce88448d9e52687f1e37b80e85a9f2f",
+          "score_semantics": "native relevance ranking only; no factual support or score calibration claim",
+          "production_index_modified": false
+        },
+        "operation": "reranker-benchmark",
+        "elapsed_seconds": 45.24673614600033,
+        "peak_process_tree_rss_bytes": 4143472640,
+        "resource_limits": {
+          "timeout_s": 600,
+          "rss_bytes": 4294967296,
+          "threads": 2
+        },
+        "execution": "isolated-local-process",
+        "hosted_inference_used": false,
+        "remote_processing_used": false
+      },
+      "metric_verification": {
+        "package": "ir-measures",
+        "version": "0.4.3",
+        "checked_scores": 27,
+        "agreement_tolerance": 1e-09
+      },
+      "summary": {
+        "p50_s": 13.633720299985725,
+        "p95_s": 13.723012956994353,
+        "pairs_per_second": 0.7421653919350377
+      }
+    }
+  },
+  "limitations": [
+    "Eight queries per direction on a selected 104-document mixed corpus; not full public benchmark scores",
+    "Cross-language labels derive from human NLI entailment and professional translations; measure supporting-evidence retrieval, not unrestricted search relevance",
+    "Unjudged passages count as nonrelevant; relevance judgments are incomplete",
+    "Public benchmark training contamination is not ruled out",
+    "No new Noesis human collection or legal/Berlin task-readiness certificate",
+    "Local non-commercial dataset evaluation; original data licenses remain authoritative",
+    "Small query subset; native scores are not calibrated and relevance is not factual support"
+  ],
+  "decision": "Keep reranking opt-in; this bounded fixed-candidate experiment does not establish deployment readiness."
+}

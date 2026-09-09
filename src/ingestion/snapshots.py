@@ -103,9 +103,11 @@ class SnapshotStore:
         )
         return {"url": url, "fetched_at": fetched_at, "content_hash": content_hash, "chars": len(text)}
 
-    def snapshot_bytes(self, url, data, fetched_at, *, content_type, final_url):
+    def snapshot_bytes(self, url, data, fetched_at, *, content_type, final_url, max_bytes=20_000_000):
         """Content-addressed binary snapshots with independent acquisition receipts."""
-        if len(data)>20_000_000:
+        if type(max_bytes) is not int or not 1 <= max_bytes <= 100_000_000:
+            raise ValueError("binary snapshot byte budget must be 1..100000000")
+        if len(data)>max_bytes:
             raise ValueError('binary snapshot exceeds byte budget')
         self._conn.execute('CREATE TABLE IF NOT EXISTS source_binary_blobs(digest TEXT PRIMARY KEY, payload BLOB NOT NULL)')
         self._conn.execute('CREATE TABLE IF NOT EXISTS source_binary_observations(url TEXT, fetched_at BIGINT, digest TEXT, final_url TEXT, content_type TEXT, PRIMARY KEY(url,fetched_at,digest))')

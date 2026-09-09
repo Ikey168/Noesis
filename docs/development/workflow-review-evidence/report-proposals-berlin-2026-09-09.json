@@ -1,0 +1,1220 @@
+{
+  "contract": "noesis-report-proposal-comparison-v1",
+  "label_origin": "Independent published Berlin enactment-date metadata; deliberately incorrect authored starting assertions. No independent human edit-quality study.",
+  "configuration": {
+    "max_new_tokens": 512,
+    "timeout_s": 120,
+    "max_rss_bytes": 3221225472
+  },
+  "dependency_versions": {
+    "outlines": "1.3.3",
+    "llguidance": "1.8.0",
+    "transformers": "5.16.1",
+    "torch": "2.14.0+cpu"
+  },
+  "cases": [
+    {
+      "language": "de",
+      "before": "Die Verfassung von Berlin wurde am 1996-11-23 ausgefertigt.",
+      "captured_correction": "{\"official_id\": \"jlr-NNLBE000047B0\", \"metadata\": {\"jurabk\": \"Verf BE\", \"ausfertigung-datum\": \"23.11.1995\", \"gueltigab\": \"29.11.1995\", \"gueltigbis\": \"\", \"dokumenttyp\": \"Gesetz\", \"fundstelle\": \"GVBl. 1995, 779\", \"gliederungsnr\": \"100-1\", \"langue\": \"Verfassung von Berlin vom 23. November 1995\", \"titel\": \"Verfassung von Berlin vom 23. November 1995\"}}",
+      "notice": {
+        "elapsed_s": 0.014794175993301906,
+        "result": {
+          "proposal_id": "report-edit:231effd6d1d82aad51a7e1a3cce3a216",
+          "status": "pending",
+          "proposal": {
+            "assertion_id": "a",
+            "assessment_id": "report-assessment:d438a6c027e8d930754a1e262c0861dc",
+            "base_report_revision": 1,
+            "before": {
+              "citations": [
+                "source-1"
+              ],
+              "dependencies": [
+                {
+                  "id": "doc",
+                  "kind": "source",
+                  "locator": {
+                    "document_id": "doc",
+                    "end": 59,
+                    "revision_id": "document-revision:dbc75bf8b86fea68ed590208942ec2fc",
+                    "start": 0
+                  },
+                  "namespace": "sources",
+                  "revision": "document-revision:dbc75bf8b86fea68ed590208942ec2fc"
+                }
+              ],
+              "id": "a",
+              "kind": "sourced",
+              "text": "Die Verfassung von Berlin wurde am 1996-11-23 ausgefertigt."
+            },
+            "evidence": [
+              {
+                "after": {
+                  "change_class": "silent_substantive",
+                  "change_kind": "updated",
+                  "committed_watermark": 0,
+                  "content_hash": "310eedf08c067a34bad3df9a44f1b26d2f026ef604a3c0cc907e7e7ac8a42abe",
+                  "created_at_ms": 0,
+                  "document_id": "doc",
+                  "lifecycle": "active",
+                  "metadata_hash": "f58374da5f851b6bed9ac8203965e4f32b89e3e9c2cf07b25496c59a0d8fd782",
+                  "observed_at_ms": 0,
+                  "pack_id": "direct",
+                  "payload_hash": "224251f5aacec646d2fbbfcff972dac9936a0d3876ffe070cb0c59fb8f9c7a10",
+                  "payload_json": "{\"content\":\"{\\\"official_id\\\": \\\"jlr-NNLBE000047B0\\\", \\\"metadata\\\": {\\\"jurabk\\\": \\\"Verf BE\\\", \\\"ausfertigung-datum\\\": \\\"23.11.1995\\\", \\\"gueltigab\\\": \\\"29.11.1995\\\", \\\"gueltigbis\\\": \\\"\\\", \\\"dokumenttyp\\\": \\\"Gesetz\\\", \\\"fundstelle\\\": \\\"GVBl. 1995, 779\\\", \\\"gliederungsnr\\\": \\\"100-1\\\", \\\"langue\\\": \\\"Verfassung von Berlin vom 23. November 1995\\\", \\\"titel\\\": \\\"Verfassung von Berlin vom 23. November 1995\\\"}}\",\"document_id\":\"doc\",\"metadata\":{\"expected_value\":\"1995-11-23\",\"locator\":\"/dokumente/norm[1]/metadaten/ausfertigung-datum\",\"original_sha256\":\"b701bc5b07cb78c22a9db24b39c74a15f7a896ea2b333a3002e6c41f8610fb8a\",\"source_url\":\"https://gesetze.berlin.de/jportal/bsbeAizDownload/Verf_BE.zip?doc.id=jlr-NNLBE000047B0&doc.part=X&_=%2FVerf_BE.zip\"}}",
+                  "predecessor_revision_id": "document-revision:dbc75bf8b86fea68ed590208942ec2fc",
+                  "revision": 1,
+                  "revision_id": "document-revision:2405a032f4c5b8796010b6e70c8835dc",
+                  "run_id": "direct:doc",
+                  "source_id": null,
+                  "valid_from_ms": null,
+                  "valid_to_ms": null
+                },
+                "assessment_hash": "21ecb188662fc7bc0bddbf5b47c204dac82227cf0c41a75969b7bd27b45c7c2d",
+                "before": {
+                  "change_class": "unchanged",
+                  "change_kind": "added",
+                  "committed_watermark": 0,
+                  "content_hash": "c4628bfacddeaf275f7dd5db075013ccbc647be85e74a40f4e935020ec91edca",
+                  "created_at_ms": 0,
+                  "document_id": "doc",
+                  "lifecycle": "active",
+                  "metadata_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+                  "observed_at_ms": 0,
+                  "pack_id": "direct",
+                  "payload_hash": "f5fd6679955e573ab4dfd8a956b8241bee6da8487e53b07499fab51b1cb3ae4f",
+                  "payload_json": "{\"content\":\"Die Verfassung von Berlin wurde am 1996-11-23 ausgefertigt.\",\"document_id\":\"doc\",\"metadata\":{}}",
+                  "predecessor_revision_id": null,
+                  "revision": 0,
+                  "revision_id": "document-revision:dbc75bf8b86fea68ed590208942ec2fc",
+                  "run_id": "direct:doc",
+                  "source_id": null,
+                  "valid_from_ms": null,
+                  "valid_to_ms": null
+                },
+                "coverage": "complete_for_declared_dependency",
+                "dependency": {
+                  "id": "doc",
+                  "kind": "source",
+                  "locator": {
+                    "document_id": "doc",
+                    "end": 59,
+                    "revision_id": "document-revision:dbc75bf8b86fea68ed590208942ec2fc",
+                    "start": 0
+                  },
+                  "namespace": "sources",
+                  "revision": "document-revision:dbc75bf8b86fea68ed590208942ec2fc"
+                },
+                "details": [],
+                "reason": "revision_changed",
+                "status": "affected"
+              }
+            ],
+            "method": "deterministic-review-notice-v1",
+            "proposed": {
+              "citations": [
+                "source-1"
+              ],
+              "dependencies": [
+                {
+                  "id": "doc",
+                  "kind": "source",
+                  "locator": {
+                    "document_id": "doc",
+                    "end": 59,
+                    "revision_id": "document-revision:dbc75bf8b86fea68ed590208942ec2fc",
+                    "start": 0
+                  },
+                  "namespace": "sources",
+                  "revision": "document-revision:dbc75bf8b86fea68ed590208942ec2fc"
+                }
+              ],
+              "id": "a",
+              "kind": "sourced",
+              "text": "Evidence update requires review (revision_changed). Previously reported: Die Verfassung von Berlin wurde am 1996-11-23 ausgefertigt."
+            },
+            "proposed_dependency_states": [
+              {
+                "after": {
+                  "change_class": "silent_substantive",
+                  "change_kind": "updated",
+                  "committed_watermark": 0,
+                  "content_hash": "310eedf08c067a34bad3df9a44f1b26d2f026ef604a3c0cc907e7e7ac8a42abe",
+                  "created_at_ms": 0,
+                  "document_id": "doc",
+                  "lifecycle": "active",
+                  "metadata_hash": "f58374da5f851b6bed9ac8203965e4f32b89e3e9c2cf07b25496c59a0d8fd782",
+                  "observed_at_ms": 0,
+                  "pack_id": "direct",
+                  "payload_hash": "224251f5aacec646d2fbbfcff972dac9936a0d3876ffe070cb0c59fb8f9c7a10",
+                  "payload_json": "{\"content\":\"{\\\"official_id\\\": \\\"jlr-NNLBE000047B0\\\", \\\"metadata\\\": {\\\"jurabk\\\": \\\"Verf BE\\\", \\\"ausfertigung-datum\\\": \\\"23.11.1995\\\", \\\"gueltigab\\\": \\\"29.11.1995\\\", \\\"gueltigbis\\\": \\\"\\\", \\\"dokumenttyp\\\": \\\"Gesetz\\\", \\\"fundstelle\\\": \\\"GVBl. 1995, 779\\\", \\\"gliederungsnr\\\": \\\"100-1\\\", \\\"langue\\\": \\\"Verfassung von Berlin vom 23. November 1995\\\", \\\"titel\\\": \\\"Verfassung von Berlin vom 23. November 1995\\\"}}\",\"document_id\":\"doc\",\"metadata\":{\"expected_value\":\"1995-11-23\",\"locator\":\"/dokumente/norm[1]/metadaten/ausfertigung-datum\",\"original_sha256\":\"b701bc5b07cb78c22a9db24b39c74a15f7a896ea2b333a3002e6c41f8610fb8a\",\"source_url\":\"https://gesetze.berlin.de/jportal/bsbeAizDownload/Verf_BE.zip?doc.id=jlr-NNLBE000047B0&doc.part=X&_=%2FVerf_BE.zip\"}}",
+                  "predecessor_revision_id": "document-revision:dbc75bf8b86fea68ed590208942ec2fc",
+                  "revision": 1,
+                  "revision_id": "document-revision:2405a032f4c5b8796010b6e70c8835dc",
+                  "run_id": "direct:doc",
+                  "source_id": null,
+                  "valid_from_ms": null,
+                  "valid_to_ms": null
+                },
+                "assessment_hash": "21ecb188662fc7bc0bddbf5b47c204dac82227cf0c41a75969b7bd27b45c7c2d",
+                "before": {
+                  "change_class": "unchanged",
+                  "change_kind": "added",
+                  "committed_watermark": 0,
+                  "content_hash": "c4628bfacddeaf275f7dd5db075013ccbc647be85e74a40f4e935020ec91edca",
+                  "created_at_ms": 0,
+                  "document_id": "doc",
+                  "lifecycle": "active",
+                  "metadata_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+                  "observed_at_ms": 0,
+                  "pack_id": "direct",
+                  "payload_hash": "f5fd6679955e573ab4dfd8a956b8241bee6da8487e53b07499fab51b1cb3ae4f",
+                  "payload_json": "{\"content\":\"Die Verfassung von Berlin wurde am 1996-11-23 ausgefertigt.\",\"document_id\":\"doc\",\"metadata\":{}}",
+                  "predecessor_revision_id": null,
+                  "revision": 0,
+                  "revision_id": "document-revision:dbc75bf8b86fea68ed590208942ec2fc",
+                  "run_id": "direct:doc",
+                  "source_id": null,
+                  "valid_from_ms": null,
+                  "valid_to_ms": null
+                },
+                "coverage": "complete_for_declared_dependency",
+                "dependency": {
+                  "id": "doc",
+                  "kind": "source",
+                  "locator": {
+                    "document_id": "doc",
+                    "end": 59,
+                    "revision_id": "document-revision:dbc75bf8b86fea68ed590208942ec2fc",
+                    "start": 0
+                  },
+                  "namespace": "sources",
+                  "revision": "document-revision:dbc75bf8b86fea68ed590208942ec2fc"
+                },
+                "details": [],
+                "reason": "revision_changed",
+                "status": "affected"
+              }
+            ],
+            "reasons": [
+              "revision_changed"
+            ],
+            "report_id": "report:2ef5a4cfc52971190361d763f81fdf22",
+            "section_id": "s",
+            "support_verified": false
+          },
+          "decision": null
+        }
+      },
+      "runs": {
+        "outlines": {
+          "job": {
+            "status": "completed",
+            "result": {
+              "status": "pending_review",
+              "proposal": {
+                "base_report_revision": 1,
+                "explanation": "The document was revised by the author of the document. The document was revised by the author of the document.",
+                "assertion": {
+                  "id": "a",
+                  "text": "Die Verfassung von Berlin wurde am 1996-11-23 ausgefertigt.",
+                  "kind": "sourced",
+                  "dependencies": [
+                    {
+                      "id": "doc",
+                      "kind": "source",
+                      "locator": {
+                        "document_id": "doc",
+                        "end": 59,
+                        "revision_id": "document-revision:dbc75bf8b86fea68ed590208942ec2fc",
+                        "start": 0
+                      },
+                      "namespace": "sources",
+                      "revision": "document-revision:dbc75bf8b86fea68ed590208942ec2fc"
+                    }
+                  ],
+                  "citations": [
+                    "source-1"
+                  ]
+                }
+              },
+              "model": {
+                "kind": "proposal",
+                "model": "HuggingFaceTB/SmolLM2-135M-Instruct",
+                "revision": "12fd25f77366fa6b3b4b768ec3050bf629380bac",
+                "license": "apache-2.0"
+              },
+              "mode": "native-outlines",
+              "schema_valid": true,
+              "support_verified": false,
+              "auto_approved": false,
+              "schema_sha256": "21fa99ca6eeebf91360683ee46e6240e1eb7e89d14ca221fcd21f176af658e7b",
+              "request_sha256": "8bae5d123457279aaa217c0c174b052fc1eb49175fe113c2ef5fc0cd1acf333c",
+              "elapsed_seconds": 31.274503892011126
+            },
+            "operation": "outlines",
+            "elapsed_seconds": 39.26766635700187,
+            "peak_process_tree_rss_bytes": 1100832768,
+            "resource_limits": {
+              "timeout_s": 120,
+              "rss_bytes": 3221225472,
+              "threads": 2
+            },
+            "execution": "isolated-local-process",
+            "hosted_inference_used": false,
+            "remote_processing_used": false
+          },
+          "usable_schema_valid_proposal": true,
+          "independent_substantive_quality": "not_measured",
+          "authored_correction_probe": {
+            "contains_expected_value": false,
+            "retains_incorrect_value": true,
+            "semantics": "literal diagnostic, not entailment or human edit quality"
+          },
+          "pending_review_artifact": {
+            "proposal_id": "report-edit:974608233d7dd7e0ce70406c7347037b",
+            "status": "pending",
+            "proposal": {
+              "assertion_id": "a",
+              "assessment_id": "report-assessment:d438a6c027e8d930754a1e262c0861dc",
+              "base_report_revision": 1,
+              "before": {
+                "citations": [
+                  "source-1"
+                ],
+                "dependencies": [
+                  {
+                    "id": "doc",
+                    "kind": "source",
+                    "locator": {
+                      "document_id": "doc",
+                      "end": 59,
+                      "revision_id": "document-revision:dbc75bf8b86fea68ed590208942ec2fc",
+                      "start": 0
+                    },
+                    "namespace": "sources",
+                    "revision": "document-revision:dbc75bf8b86fea68ed590208942ec2fc"
+                  }
+                ],
+                "id": "a",
+                "kind": "sourced",
+                "text": "Die Verfassung von Berlin wurde am 1996-11-23 ausgefertigt."
+              },
+              "evidence": [
+                {
+                  "after": {
+                    "change_class": "silent_substantive",
+                    "change_kind": "updated",
+                    "committed_watermark": 0,
+                    "content_hash": "310eedf08c067a34bad3df9a44f1b26d2f026ef604a3c0cc907e7e7ac8a42abe",
+                    "created_at_ms": 0,
+                    "document_id": "doc",
+                    "lifecycle": "active",
+                    "metadata_hash": "f58374da5f851b6bed9ac8203965e4f32b89e3e9c2cf07b25496c59a0d8fd782",
+                    "observed_at_ms": 0,
+                    "pack_id": "direct",
+                    "payload_hash": "224251f5aacec646d2fbbfcff972dac9936a0d3876ffe070cb0c59fb8f9c7a10",
+                    "payload_json": "{\"content\":\"{\\\"official_id\\\": \\\"jlr-NNLBE000047B0\\\", \\\"metadata\\\": {\\\"jurabk\\\": \\\"Verf BE\\\", \\\"ausfertigung-datum\\\": \\\"23.11.1995\\\", \\\"gueltigab\\\": \\\"29.11.1995\\\", \\\"gueltigbis\\\": \\\"\\\", \\\"dokumenttyp\\\": \\\"Gesetz\\\", \\\"fundstelle\\\": \\\"GVBl. 1995, 779\\\", \\\"gliederungsnr\\\": \\\"100-1\\\", \\\"langue\\\": \\\"Verfassung von Berlin vom 23. November 1995\\\", \\\"titel\\\": \\\"Verfassung von Berlin vom 23. November 1995\\\"}}\",\"document_id\":\"doc\",\"metadata\":{\"expected_value\":\"1995-11-23\",\"locator\":\"/dokumente/norm[1]/metadaten/ausfertigung-datum\",\"original_sha256\":\"b701bc5b07cb78c22a9db24b39c74a15f7a896ea2b333a3002e6c41f8610fb8a\",\"source_url\":\"https://gesetze.berlin.de/jportal/bsbeAizDownload/Verf_BE.zip?doc.id=jlr-NNLBE000047B0&doc.part=X&_=%2FVerf_BE.zip\"}}",
+                    "predecessor_revision_id": "document-revision:dbc75bf8b86fea68ed590208942ec2fc",
+                    "revision": 1,
+                    "revision_id": "document-revision:2405a032f4c5b8796010b6e70c8835dc",
+                    "run_id": "direct:doc",
+                    "source_id": null,
+                    "valid_from_ms": null,
+                    "valid_to_ms": null
+                  },
+                  "assessment_hash": "21ecb188662fc7bc0bddbf5b47c204dac82227cf0c41a75969b7bd27b45c7c2d",
+                  "before": {
+                    "change_class": "unchanged",
+                    "change_kind": "added",
+                    "committed_watermark": 0,
+                    "content_hash": "c4628bfacddeaf275f7dd5db075013ccbc647be85e74a40f4e935020ec91edca",
+                    "created_at_ms": 0,
+                    "document_id": "doc",
+                    "lifecycle": "active",
+                    "metadata_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+                    "observed_at_ms": 0,
+                    "pack_id": "direct",
+                    "payload_hash": "f5fd6679955e573ab4dfd8a956b8241bee6da8487e53b07499fab51b1cb3ae4f",
+                    "payload_json": "{\"content\":\"Die Verfassung von Berlin wurde am 1996-11-23 ausgefertigt.\",\"document_id\":\"doc\",\"metadata\":{}}",
+                    "predecessor_revision_id": null,
+                    "revision": 0,
+                    "revision_id": "document-revision:dbc75bf8b86fea68ed590208942ec2fc",
+                    "run_id": "direct:doc",
+                    "source_id": null,
+                    "valid_from_ms": null,
+                    "valid_to_ms": null
+                  },
+                  "coverage": "complete_for_declared_dependency",
+                  "dependency": {
+                    "id": "doc",
+                    "kind": "source",
+                    "locator": {
+                      "document_id": "doc",
+                      "end": 59,
+                      "revision_id": "document-revision:dbc75bf8b86fea68ed590208942ec2fc",
+                      "start": 0
+                    },
+                    "namespace": "sources",
+                    "revision": "document-revision:dbc75bf8b86fea68ed590208942ec2fc"
+                  },
+                  "details": [],
+                  "reason": "revision_changed",
+                  "status": "affected"
+                }
+              ],
+              "method": "model-generated-pending-review",
+              "producer": {
+                "explanation": "The document was revised by the author of the document. The document was revised by the author of the document.",
+                "name": "HuggingFaceTB/SmolLM2-135M-Instruct",
+                "support_verified": false,
+                "version": "12fd25f77366fa6b3b4b768ec3050bf629380bac"
+              },
+              "proposed": {
+                "citations": [
+                  "source-1"
+                ],
+                "dependencies": [
+                  {
+                    "id": "doc",
+                    "kind": "source",
+                    "locator": {
+                      "document_id": "doc",
+                      "end": 59,
+                      "revision_id": "document-revision:dbc75bf8b86fea68ed590208942ec2fc",
+                      "start": 0
+                    },
+                    "namespace": "sources",
+                    "revision": "document-revision:dbc75bf8b86fea68ed590208942ec2fc"
+                  }
+                ],
+                "id": "a",
+                "kind": "sourced",
+                "text": "Die Verfassung von Berlin wurde am 1996-11-23 ausgefertigt."
+              },
+              "proposed_dependency_states": [
+                {
+                  "after": {
+                    "change_class": "silent_substantive",
+                    "change_kind": "updated",
+                    "committed_watermark": 0,
+                    "content_hash": "310eedf08c067a34bad3df9a44f1b26d2f026ef604a3c0cc907e7e7ac8a42abe",
+                    "created_at_ms": 0,
+                    "document_id": "doc",
+                    "lifecycle": "active",
+                    "metadata_hash": "f58374da5f851b6bed9ac8203965e4f32b89e3e9c2cf07b25496c59a0d8fd782",
+                    "observed_at_ms": 0,
+                    "pack_id": "direct",
+                    "payload_hash": "224251f5aacec646d2fbbfcff972dac9936a0d3876ffe070cb0c59fb8f9c7a10",
+                    "payload_json": "{\"content\":\"{\\\"official_id\\\": \\\"jlr-NNLBE000047B0\\\", \\\"metadata\\\": {\\\"jurabk\\\": \\\"Verf BE\\\", \\\"ausfertigung-datum\\\": \\\"23.11.1995\\\", \\\"gueltigab\\\": \\\"29.11.1995\\\", \\\"gueltigbis\\\": \\\"\\\", \\\"dokumenttyp\\\": \\\"Gesetz\\\", \\\"fundstelle\\\": \\\"GVBl. 1995, 779\\\", \\\"gliederungsnr\\\": \\\"100-1\\\", \\\"langue\\\": \\\"Verfassung von Berlin vom 23. November 1995\\\", \\\"titel\\\": \\\"Verfassung von Berlin vom 23. November 1995\\\"}}\",\"document_id\":\"doc\",\"metadata\":{\"expected_value\":\"1995-11-23\",\"locator\":\"/dokumente/norm[1]/metadaten/ausfertigung-datum\",\"original_sha256\":\"b701bc5b07cb78c22a9db24b39c74a15f7a896ea2b333a3002e6c41f8610fb8a\",\"source_url\":\"https://gesetze.berlin.de/jportal/bsbeAizDownload/Verf_BE.zip?doc.id=jlr-NNLBE000047B0&doc.part=X&_=%2FVerf_BE.zip\"}}",
+                    "predecessor_revision_id": "document-revision:dbc75bf8b86fea68ed590208942ec2fc",
+                    "revision": 1,
+                    "revision_id": "document-revision:2405a032f4c5b8796010b6e70c8835dc",
+                    "run_id": "direct:doc",
+                    "source_id": null,
+                    "valid_from_ms": null,
+                    "valid_to_ms": null
+                  },
+                  "assessment_hash": "21ecb188662fc7bc0bddbf5b47c204dac82227cf0c41a75969b7bd27b45c7c2d",
+                  "before": {
+                    "change_class": "unchanged",
+                    "change_kind": "added",
+                    "committed_watermark": 0,
+                    "content_hash": "c4628bfacddeaf275f7dd5db075013ccbc647be85e74a40f4e935020ec91edca",
+                    "created_at_ms": 0,
+                    "document_id": "doc",
+                    "lifecycle": "active",
+                    "metadata_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+                    "observed_at_ms": 0,
+                    "pack_id": "direct",
+                    "payload_hash": "f5fd6679955e573ab4dfd8a956b8241bee6da8487e53b07499fab51b1cb3ae4f",
+                    "payload_json": "{\"content\":\"Die Verfassung von Berlin wurde am 1996-11-23 ausgefertigt.\",\"document_id\":\"doc\",\"metadata\":{}}",
+                    "predecessor_revision_id": null,
+                    "revision": 0,
+                    "revision_id": "document-revision:dbc75bf8b86fea68ed590208942ec2fc",
+                    "run_id": "direct:doc",
+                    "source_id": null,
+                    "valid_from_ms": null,
+                    "valid_to_ms": null
+                  },
+                  "coverage": "complete_for_declared_dependency",
+                  "dependency": {
+                    "id": "doc",
+                    "kind": "source",
+                    "locator": {
+                      "document_id": "doc",
+                      "end": 59,
+                      "revision_id": "document-revision:dbc75bf8b86fea68ed590208942ec2fc",
+                      "start": 0
+                    },
+                    "namespace": "sources",
+                    "revision": "document-revision:dbc75bf8b86fea68ed590208942ec2fc"
+                  },
+                  "details": [],
+                  "reason": "revision_changed",
+                  "status": "affected"
+                }
+              ],
+              "reasons": [
+                "revision_changed"
+              ],
+              "report_id": "report:2ef5a4cfc52971190361d763f81fdf22",
+              "section_id": "s",
+              "support_verified": false
+            },
+            "decision": null
+          }
+        },
+        "report-unconstrained": {
+          "job": {
+            "status": "failed",
+            "failure_code": "truncated_or_invalid_json",
+            "failure_type": "BackendError",
+            "operation": "report-unconstrained",
+            "elapsed_seconds": 57.83989013399696,
+            "peak_process_tree_rss_bytes": 948375552,
+            "resource_limits": {
+              "timeout_s": 120,
+              "rss_bytes": 3221225472,
+              "threads": 2
+            },
+            "execution": "isolated-local-process",
+            "hosted_inference_used": false,
+            "remote_processing_used": false
+          },
+          "usable_schema_valid_proposal": false,
+          "independent_substantive_quality": "not_measured"
+        }
+      },
+      "authorized_request": {
+        "assertion": {
+          "citations": [
+            "source-1"
+          ],
+          "dependencies": [
+            {
+              "id": "doc",
+              "kind": "source",
+              "locator": {
+                "document_id": "doc",
+                "end": 59,
+                "revision_id": "document-revision:dbc75bf8b86fea68ed590208942ec2fc",
+                "start": 0
+              },
+              "namespace": "sources",
+              "revision": "document-revision:dbc75bf8b86fea68ed590208942ec2fc"
+            }
+          ],
+          "id": "a",
+          "kind": "sourced",
+          "text": "Die Verfassung von Berlin wurde am 1996-11-23 ausgefertigt."
+        },
+        "base_report_revision": 1,
+        "authorized_dependencies": [
+          {
+            "id": "doc",
+            "kind": "source",
+            "locator": {
+              "document_id": "doc",
+              "end": 59,
+              "revision_id": "document-revision:dbc75bf8b86fea68ed590208942ec2fc",
+              "start": 0
+            },
+            "namespace": "sources",
+            "revision": "document-revision:dbc75bf8b86fea68ed590208942ec2fc"
+          }
+        ],
+        "authorized_citations": [
+          "source-1"
+        ],
+        "evidence": {
+          "changes": [
+            {
+              "after": {
+                "change_class": "silent_substantive",
+                "change_kind": "updated",
+                "committed_watermark": 0,
+                "content_hash": "310eedf08c067a34bad3df9a44f1b26d2f026ef604a3c0cc907e7e7ac8a42abe",
+                "created_at_ms": 0,
+                "document_id": "doc",
+                "lifecycle": "active",
+                "metadata_hash": "f58374da5f851b6bed9ac8203965e4f32b89e3e9c2cf07b25496c59a0d8fd782",
+                "observed_at_ms": 0,
+                "pack_id": "direct",
+                "payload_hash": "224251f5aacec646d2fbbfcff972dac9936a0d3876ffe070cb0c59fb8f9c7a10",
+                "payload_json": "{\"content\":\"{\\\"official_id\\\": \\\"jlr-NNLBE000047B0\\\", \\\"metadata\\\": {\\\"jurabk\\\": \\\"Verf BE\\\", \\\"ausfertigung-datum\\\": \\\"23.11.1995\\\", \\\"gueltigab\\\": \\\"29.11.1995\\\", \\\"gueltigbis\\\": \\\"\\\", \\\"dokumenttyp\\\": \\\"Gesetz\\\", \\\"fundstelle\\\": \\\"GVBl. 1995, 779\\\", \\\"gliederungsnr\\\": \\\"100-1\\\", \\\"langue\\\": \\\"Verfassung von Berlin vom 23. November 1995\\\", \\\"titel\\\": \\\"Verfassung von Berlin vom 23. November 1995\\\"}}\",\"document_id\":\"doc\",\"metadata\":{\"expected_value\":\"1995-11-23\",\"locator\":\"/dokumente/norm[1]/metadaten/ausfertigung-datum\",\"original_sha256\":\"b701bc5b07cb78c22a9db24b39c74a15f7a896ea2b333a3002e6c41f8610fb8a\",\"source_url\":\"https://gesetze.berlin.de/jportal/bsbeAizDownload/Verf_BE.zip?doc.id=jlr-NNLBE000047B0&doc.part=X&_=%2FVerf_BE.zip\"}}",
+                "predecessor_revision_id": "document-revision:dbc75bf8b86fea68ed590208942ec2fc",
+                "revision": 1,
+                "revision_id": "document-revision:2405a032f4c5b8796010b6e70c8835dc",
+                "run_id": "direct:doc",
+                "source_id": null,
+                "valid_from_ms": null,
+                "valid_to_ms": null
+              },
+              "assessment_hash": "21ecb188662fc7bc0bddbf5b47c204dac82227cf0c41a75969b7bd27b45c7c2d",
+              "before": {
+                "change_class": "unchanged",
+                "change_kind": "added",
+                "committed_watermark": 0,
+                "content_hash": "c4628bfacddeaf275f7dd5db075013ccbc647be85e74a40f4e935020ec91edca",
+                "created_at_ms": 0,
+                "document_id": "doc",
+                "lifecycle": "active",
+                "metadata_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+                "observed_at_ms": 0,
+                "pack_id": "direct",
+                "payload_hash": "f5fd6679955e573ab4dfd8a956b8241bee6da8487e53b07499fab51b1cb3ae4f",
+                "payload_json": "{\"content\":\"Die Verfassung von Berlin wurde am 1996-11-23 ausgefertigt.\",\"document_id\":\"doc\",\"metadata\":{}}",
+                "predecessor_revision_id": null,
+                "revision": 0,
+                "revision_id": "document-revision:dbc75bf8b86fea68ed590208942ec2fc",
+                "run_id": "direct:doc",
+                "source_id": null,
+                "valid_from_ms": null,
+                "valid_to_ms": null
+              },
+              "coverage": "complete_for_declared_dependency",
+              "dependency": {
+                "id": "doc",
+                "kind": "source",
+                "locator": {
+                  "document_id": "doc",
+                  "end": 59,
+                  "revision_id": "document-revision:dbc75bf8b86fea68ed590208942ec2fc",
+                  "start": 0
+                },
+                "namespace": "sources",
+                "revision": "document-revision:dbc75bf8b86fea68ed590208942ec2fc"
+              },
+              "details": [],
+              "reason": "revision_changed",
+              "status": "affected"
+            }
+          ],
+          "source_texts": [
+            {
+              "document_id": "doc",
+              "revision_id": "document-revision:dbc75bf8b86fea68ed590208942ec2fc",
+              "text": "Die Verfassung von Berlin wurde am 1996-11-23 ausgefertigt."
+            },
+            {
+              "document_id": "doc",
+              "revision_id": "document-revision:2405a032f4c5b8796010b6e70c8835dc",
+              "text": "{\"official_id\": \"jlr-NNLBE000047B0\", \"metadata\": {\"jurabk\": \"Verf BE\", \"ausfertigung-datum\": \"23.11.1995\", \"gueltigab\": \"29.11.1995\", \"gueltigbis\": \"\", \"dokumenttyp\": \"Gesetz\", \"fundstelle\": \"GVBl. 1995, 779\", \"gliederungsnr\": \"100-1\", \"langue\": \"Verfassung von Berlin vom 23. November 1995\", \"titel\": \"Verfassung von Berlin vom 23. November 1995\"}}"
+            }
+          ]
+        },
+        "change_reasons": [
+          "revision_changed"
+        ]
+      },
+      "report_revision_unchanged": true
+    },
+    {
+      "language": "en",
+      "before": "The Berlin constitution was enacted on 1996-11-23.",
+      "captured_correction": "{\"official_id\": \"jlr-NNLBE000047B0\", \"metadata\": {\"jurabk\": \"Verf BE\", \"ausfertigung-datum\": \"23.11.1995\", \"gueltigab\": \"29.11.1995\", \"gueltigbis\": \"\", \"dokumenttyp\": \"Gesetz\", \"fundstelle\": \"GVBl. 1995, 779\", \"gliederungsnr\": \"100-1\", \"langue\": \"Verfassung von Berlin vom 23. November 1995\", \"titel\": \"Verfassung von Berlin vom 23. November 1995\"}}",
+      "notice": {
+        "elapsed_s": 0.015173578009125777,
+        "result": {
+          "proposal_id": "report-edit:0e5379951a48d993011859f29486b281",
+          "status": "pending",
+          "proposal": {
+            "assertion_id": "a",
+            "assessment_id": "report-assessment:f70eb9b18b260f4f8eee7dad43a93f95",
+            "base_report_revision": 1,
+            "before": {
+              "citations": [
+                "source-1"
+              ],
+              "dependencies": [
+                {
+                  "id": "doc",
+                  "kind": "source",
+                  "locator": {
+                    "document_id": "doc",
+                    "end": 50,
+                    "revision_id": "document-revision:270774e9e11ee98c67905242cb169b05",
+                    "start": 0
+                  },
+                  "namespace": "sources",
+                  "revision": "document-revision:270774e9e11ee98c67905242cb169b05"
+                }
+              ],
+              "id": "a",
+              "kind": "sourced",
+              "text": "The Berlin constitution was enacted on 1996-11-23."
+            },
+            "evidence": [
+              {
+                "after": {
+                  "change_class": "silent_substantive",
+                  "change_kind": "updated",
+                  "committed_watermark": 0,
+                  "content_hash": "310eedf08c067a34bad3df9a44f1b26d2f026ef604a3c0cc907e7e7ac8a42abe",
+                  "created_at_ms": 0,
+                  "document_id": "doc",
+                  "lifecycle": "active",
+                  "metadata_hash": "f58374da5f851b6bed9ac8203965e4f32b89e3e9c2cf07b25496c59a0d8fd782",
+                  "observed_at_ms": 0,
+                  "pack_id": "direct",
+                  "payload_hash": "224251f5aacec646d2fbbfcff972dac9936a0d3876ffe070cb0c59fb8f9c7a10",
+                  "payload_json": "{\"content\":\"{\\\"official_id\\\": \\\"jlr-NNLBE000047B0\\\", \\\"metadata\\\": {\\\"jurabk\\\": \\\"Verf BE\\\", \\\"ausfertigung-datum\\\": \\\"23.11.1995\\\", \\\"gueltigab\\\": \\\"29.11.1995\\\", \\\"gueltigbis\\\": \\\"\\\", \\\"dokumenttyp\\\": \\\"Gesetz\\\", \\\"fundstelle\\\": \\\"GVBl. 1995, 779\\\", \\\"gliederungsnr\\\": \\\"100-1\\\", \\\"langue\\\": \\\"Verfassung von Berlin vom 23. November 1995\\\", \\\"titel\\\": \\\"Verfassung von Berlin vom 23. November 1995\\\"}}\",\"document_id\":\"doc\",\"metadata\":{\"expected_value\":\"1995-11-23\",\"locator\":\"/dokumente/norm[1]/metadaten/ausfertigung-datum\",\"original_sha256\":\"b701bc5b07cb78c22a9db24b39c74a15f7a896ea2b333a3002e6c41f8610fb8a\",\"source_url\":\"https://gesetze.berlin.de/jportal/bsbeAizDownload/Verf_BE.zip?doc.id=jlr-NNLBE000047B0&doc.part=X&_=%2FVerf_BE.zip\"}}",
+                  "predecessor_revision_id": "document-revision:270774e9e11ee98c67905242cb169b05",
+                  "revision": 1,
+                  "revision_id": "document-revision:c9faee9988790c7145715e5d28262d5c",
+                  "run_id": "direct:doc",
+                  "source_id": null,
+                  "valid_from_ms": null,
+                  "valid_to_ms": null
+                },
+                "assessment_hash": "675b4bd1a772d3dd747b9f23395747d9708aa6fa0b4fc504059976b06edb7566",
+                "before": {
+                  "change_class": "unchanged",
+                  "change_kind": "added",
+                  "committed_watermark": 0,
+                  "content_hash": "34da4fde78390e5b184bfc007060a31de2f3f0421ff847adf5b0cd126c1dbc65",
+                  "created_at_ms": 0,
+                  "document_id": "doc",
+                  "lifecycle": "active",
+                  "metadata_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+                  "observed_at_ms": 0,
+                  "pack_id": "direct",
+                  "payload_hash": "118f3dd906f6cdb4da52345ddff6e365616f591438dfdcd49c56dcf0d9a8ab21",
+                  "payload_json": "{\"content\":\"The Berlin constitution was enacted on 1996-11-23.\",\"document_id\":\"doc\",\"metadata\":{}}",
+                  "predecessor_revision_id": null,
+                  "revision": 0,
+                  "revision_id": "document-revision:270774e9e11ee98c67905242cb169b05",
+                  "run_id": "direct:doc",
+                  "source_id": null,
+                  "valid_from_ms": null,
+                  "valid_to_ms": null
+                },
+                "coverage": "complete_for_declared_dependency",
+                "dependency": {
+                  "id": "doc",
+                  "kind": "source",
+                  "locator": {
+                    "document_id": "doc",
+                    "end": 50,
+                    "revision_id": "document-revision:270774e9e11ee98c67905242cb169b05",
+                    "start": 0
+                  },
+                  "namespace": "sources",
+                  "revision": "document-revision:270774e9e11ee98c67905242cb169b05"
+                },
+                "details": [],
+                "reason": "revision_changed",
+                "status": "affected"
+              }
+            ],
+            "method": "deterministic-review-notice-v1",
+            "proposed": {
+              "citations": [
+                "source-1"
+              ],
+              "dependencies": [
+                {
+                  "id": "doc",
+                  "kind": "source",
+                  "locator": {
+                    "document_id": "doc",
+                    "end": 50,
+                    "revision_id": "document-revision:270774e9e11ee98c67905242cb169b05",
+                    "start": 0
+                  },
+                  "namespace": "sources",
+                  "revision": "document-revision:270774e9e11ee98c67905242cb169b05"
+                }
+              ],
+              "id": "a",
+              "kind": "sourced",
+              "text": "Evidence update requires review (revision_changed). Previously reported: The Berlin constitution was enacted on 1996-11-23."
+            },
+            "proposed_dependency_states": [
+              {
+                "after": {
+                  "change_class": "silent_substantive",
+                  "change_kind": "updated",
+                  "committed_watermark": 0,
+                  "content_hash": "310eedf08c067a34bad3df9a44f1b26d2f026ef604a3c0cc907e7e7ac8a42abe",
+                  "created_at_ms": 0,
+                  "document_id": "doc",
+                  "lifecycle": "active",
+                  "metadata_hash": "f58374da5f851b6bed9ac8203965e4f32b89e3e9c2cf07b25496c59a0d8fd782",
+                  "observed_at_ms": 0,
+                  "pack_id": "direct",
+                  "payload_hash": "224251f5aacec646d2fbbfcff972dac9936a0d3876ffe070cb0c59fb8f9c7a10",
+                  "payload_json": "{\"content\":\"{\\\"official_id\\\": \\\"jlr-NNLBE000047B0\\\", \\\"metadata\\\": {\\\"jurabk\\\": \\\"Verf BE\\\", \\\"ausfertigung-datum\\\": \\\"23.11.1995\\\", \\\"gueltigab\\\": \\\"29.11.1995\\\", \\\"gueltigbis\\\": \\\"\\\", \\\"dokumenttyp\\\": \\\"Gesetz\\\", \\\"fundstelle\\\": \\\"GVBl. 1995, 779\\\", \\\"gliederungsnr\\\": \\\"100-1\\\", \\\"langue\\\": \\\"Verfassung von Berlin vom 23. November 1995\\\", \\\"titel\\\": \\\"Verfassung von Berlin vom 23. November 1995\\\"}}\",\"document_id\":\"doc\",\"metadata\":{\"expected_value\":\"1995-11-23\",\"locator\":\"/dokumente/norm[1]/metadaten/ausfertigung-datum\",\"original_sha256\":\"b701bc5b07cb78c22a9db24b39c74a15f7a896ea2b333a3002e6c41f8610fb8a\",\"source_url\":\"https://gesetze.berlin.de/jportal/bsbeAizDownload/Verf_BE.zip?doc.id=jlr-NNLBE000047B0&doc.part=X&_=%2FVerf_BE.zip\"}}",
+                  "predecessor_revision_id": "document-revision:270774e9e11ee98c67905242cb169b05",
+                  "revision": 1,
+                  "revision_id": "document-revision:c9faee9988790c7145715e5d28262d5c",
+                  "run_id": "direct:doc",
+                  "source_id": null,
+                  "valid_from_ms": null,
+                  "valid_to_ms": null
+                },
+                "assessment_hash": "675b4bd1a772d3dd747b9f23395747d9708aa6fa0b4fc504059976b06edb7566",
+                "before": {
+                  "change_class": "unchanged",
+                  "change_kind": "added",
+                  "committed_watermark": 0,
+                  "content_hash": "34da4fde78390e5b184bfc007060a31de2f3f0421ff847adf5b0cd126c1dbc65",
+                  "created_at_ms": 0,
+                  "document_id": "doc",
+                  "lifecycle": "active",
+                  "metadata_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+                  "observed_at_ms": 0,
+                  "pack_id": "direct",
+                  "payload_hash": "118f3dd906f6cdb4da52345ddff6e365616f591438dfdcd49c56dcf0d9a8ab21",
+                  "payload_json": "{\"content\":\"The Berlin constitution was enacted on 1996-11-23.\",\"document_id\":\"doc\",\"metadata\":{}}",
+                  "predecessor_revision_id": null,
+                  "revision": 0,
+                  "revision_id": "document-revision:270774e9e11ee98c67905242cb169b05",
+                  "run_id": "direct:doc",
+                  "source_id": null,
+                  "valid_from_ms": null,
+                  "valid_to_ms": null
+                },
+                "coverage": "complete_for_declared_dependency",
+                "dependency": {
+                  "id": "doc",
+                  "kind": "source",
+                  "locator": {
+                    "document_id": "doc",
+                    "end": 50,
+                    "revision_id": "document-revision:270774e9e11ee98c67905242cb169b05",
+                    "start": 0
+                  },
+                  "namespace": "sources",
+                  "revision": "document-revision:270774e9e11ee98c67905242cb169b05"
+                },
+                "details": [],
+                "reason": "revision_changed",
+                "status": "affected"
+              }
+            ],
+            "reasons": [
+              "revision_changed"
+            ],
+            "report_id": "report:2ef5a4cfc52971190361d763f81fdf22",
+            "section_id": "s",
+            "support_verified": false
+          },
+          "decision": null
+        }
+      },
+      "runs": {
+        "outlines": {
+          "job": {
+            "status": "completed",
+            "result": {
+              "status": "pending_review",
+              "proposal": {
+                "base_report_revision": 1,
+                "explanation": "The Berlin constitution was enacted on 1996-11-23.",
+                "assertion": {
+                  "id": "a",
+                  "text": "The Berlin constitution was enacted on 1996-11-23.",
+                  "kind": "sourced",
+                  "dependencies": [
+                    {
+                      "id": "doc",
+                      "kind": "source",
+                      "locator": {
+                        "document_id": "doc",
+                        "end": 50,
+                        "revision_id": "document-revision:270774e9e11ee98c67905242cb169b05",
+                        "start": 0
+                      },
+                      "namespace": "sources",
+                      "revision": "document-revision:270774e9e11ee98c67905242cb169b05"
+                    }
+                  ],
+                  "citations": [
+                    "source-1"
+                  ]
+                }
+              },
+              "model": {
+                "kind": "proposal",
+                "model": "HuggingFaceTB/SmolLM2-135M-Instruct",
+                "revision": "12fd25f77366fa6b3b4b768ec3050bf629380bac",
+                "license": "apache-2.0"
+              },
+              "mode": "native-outlines",
+              "schema_valid": true,
+              "support_verified": false,
+              "auto_approved": false,
+              "schema_sha256": "5bb9350e9a1bbafe972a8de6513f66fc8bf8e58d19963c6064f45f4cb1459e79",
+              "request_sha256": "0f19cd6d7ccc2b4da60e2d1de5260eab2d7cba818878ae0a30412976e30f5e57",
+              "elapsed_seconds": 30.69559605899849
+            },
+            "operation": "outlines",
+            "elapsed_seconds": 38.56413523000083,
+            "peak_process_tree_rss_bytes": 1192873984,
+            "resource_limits": {
+              "timeout_s": 120,
+              "rss_bytes": 3221225472,
+              "threads": 2
+            },
+            "execution": "isolated-local-process",
+            "hosted_inference_used": false,
+            "remote_processing_used": false
+          },
+          "usable_schema_valid_proposal": true,
+          "independent_substantive_quality": "not_measured",
+          "authored_correction_probe": {
+            "contains_expected_value": false,
+            "retains_incorrect_value": true,
+            "semantics": "literal diagnostic, not entailment or human edit quality"
+          },
+          "pending_review_artifact": {
+            "proposal_id": "report-edit:e096d11d99e4475cb4e83a6fe3855d7d",
+            "status": "pending",
+            "proposal": {
+              "assertion_id": "a",
+              "assessment_id": "report-assessment:f70eb9b18b260f4f8eee7dad43a93f95",
+              "base_report_revision": 1,
+              "before": {
+                "citations": [
+                  "source-1"
+                ],
+                "dependencies": [
+                  {
+                    "id": "doc",
+                    "kind": "source",
+                    "locator": {
+                      "document_id": "doc",
+                      "end": 50,
+                      "revision_id": "document-revision:270774e9e11ee98c67905242cb169b05",
+                      "start": 0
+                    },
+                    "namespace": "sources",
+                    "revision": "document-revision:270774e9e11ee98c67905242cb169b05"
+                  }
+                ],
+                "id": "a",
+                "kind": "sourced",
+                "text": "The Berlin constitution was enacted on 1996-11-23."
+              },
+              "evidence": [
+                {
+                  "after": {
+                    "change_class": "silent_substantive",
+                    "change_kind": "updated",
+                    "committed_watermark": 0,
+                    "content_hash": "310eedf08c067a34bad3df9a44f1b26d2f026ef604a3c0cc907e7e7ac8a42abe",
+                    "created_at_ms": 0,
+                    "document_id": "doc",
+                    "lifecycle": "active",
+                    "metadata_hash": "f58374da5f851b6bed9ac8203965e4f32b89e3e9c2cf07b25496c59a0d8fd782",
+                    "observed_at_ms": 0,
+                    "pack_id": "direct",
+                    "payload_hash": "224251f5aacec646d2fbbfcff972dac9936a0d3876ffe070cb0c59fb8f9c7a10",
+                    "payload_json": "{\"content\":\"{\\\"official_id\\\": \\\"jlr-NNLBE000047B0\\\", \\\"metadata\\\": {\\\"jurabk\\\": \\\"Verf BE\\\", \\\"ausfertigung-datum\\\": \\\"23.11.1995\\\", \\\"gueltigab\\\": \\\"29.11.1995\\\", \\\"gueltigbis\\\": \\\"\\\", \\\"dokumenttyp\\\": \\\"Gesetz\\\", \\\"fundstelle\\\": \\\"GVBl. 1995, 779\\\", \\\"gliederungsnr\\\": \\\"100-1\\\", \\\"langue\\\": \\\"Verfassung von Berlin vom 23. November 1995\\\", \\\"titel\\\": \\\"Verfassung von Berlin vom 23. November 1995\\\"}}\",\"document_id\":\"doc\",\"metadata\":{\"expected_value\":\"1995-11-23\",\"locator\":\"/dokumente/norm[1]/metadaten/ausfertigung-datum\",\"original_sha256\":\"b701bc5b07cb78c22a9db24b39c74a15f7a896ea2b333a3002e6c41f8610fb8a\",\"source_url\":\"https://gesetze.berlin.de/jportal/bsbeAizDownload/Verf_BE.zip?doc.id=jlr-NNLBE000047B0&doc.part=X&_=%2FVerf_BE.zip\"}}",
+                    "predecessor_revision_id": "document-revision:270774e9e11ee98c67905242cb169b05",
+                    "revision": 1,
+                    "revision_id": "document-revision:c9faee9988790c7145715e5d28262d5c",
+                    "run_id": "direct:doc",
+                    "source_id": null,
+                    "valid_from_ms": null,
+                    "valid_to_ms": null
+                  },
+                  "assessment_hash": "675b4bd1a772d3dd747b9f23395747d9708aa6fa0b4fc504059976b06edb7566",
+                  "before": {
+                    "change_class": "unchanged",
+                    "change_kind": "added",
+                    "committed_watermark": 0,
+                    "content_hash": "34da4fde78390e5b184bfc007060a31de2f3f0421ff847adf5b0cd126c1dbc65",
+                    "created_at_ms": 0,
+                    "document_id": "doc",
+                    "lifecycle": "active",
+                    "metadata_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+                    "observed_at_ms": 0,
+                    "pack_id": "direct",
+                    "payload_hash": "118f3dd906f6cdb4da52345ddff6e365616f591438dfdcd49c56dcf0d9a8ab21",
+                    "payload_json": "{\"content\":\"The Berlin constitution was enacted on 1996-11-23.\",\"document_id\":\"doc\",\"metadata\":{}}",
+                    "predecessor_revision_id": null,
+                    "revision": 0,
+                    "revision_id": "document-revision:270774e9e11ee98c67905242cb169b05",
+                    "run_id": "direct:doc",
+                    "source_id": null,
+                    "valid_from_ms": null,
+                    "valid_to_ms": null
+                  },
+                  "coverage": "complete_for_declared_dependency",
+                  "dependency": {
+                    "id": "doc",
+                    "kind": "source",
+                    "locator": {
+                      "document_id": "doc",
+                      "end": 50,
+                      "revision_id": "document-revision:270774e9e11ee98c67905242cb169b05",
+                      "start": 0
+                    },
+                    "namespace": "sources",
+                    "revision": "document-revision:270774e9e11ee98c67905242cb169b05"
+                  },
+                  "details": [],
+                  "reason": "revision_changed",
+                  "status": "affected"
+                }
+              ],
+              "method": "model-generated-pending-review",
+              "producer": {
+                "explanation": "The Berlin constitution was enacted on 1996-11-23.",
+                "name": "HuggingFaceTB/SmolLM2-135M-Instruct",
+                "support_verified": false,
+                "version": "12fd25f77366fa6b3b4b768ec3050bf629380bac"
+              },
+              "proposed": {
+                "citations": [
+                  "source-1"
+                ],
+                "dependencies": [
+                  {
+                    "id": "doc",
+                    "kind": "source",
+                    "locator": {
+                      "document_id": "doc",
+                      "end": 50,
+                      "revision_id": "document-revision:270774e9e11ee98c67905242cb169b05",
+                      "start": 0
+                    },
+                    "namespace": "sources",
+                    "revision": "document-revision:270774e9e11ee98c67905242cb169b05"
+                  }
+                ],
+                "id": "a",
+                "kind": "sourced",
+                "text": "The Berlin constitution was enacted on 1996-11-23."
+              },
+              "proposed_dependency_states": [
+                {
+                  "after": {
+                    "change_class": "silent_substantive",
+                    "change_kind": "updated",
+                    "committed_watermark": 0,
+                    "content_hash": "310eedf08c067a34bad3df9a44f1b26d2f026ef604a3c0cc907e7e7ac8a42abe",
+                    "created_at_ms": 0,
+                    "document_id": "doc",
+                    "lifecycle": "active",
+                    "metadata_hash": "f58374da5f851b6bed9ac8203965e4f32b89e3e9c2cf07b25496c59a0d8fd782",
+                    "observed_at_ms": 0,
+                    "pack_id": "direct",
+                    "payload_hash": "224251f5aacec646d2fbbfcff972dac9936a0d3876ffe070cb0c59fb8f9c7a10",
+                    "payload_json": "{\"content\":\"{\\\"official_id\\\": \\\"jlr-NNLBE000047B0\\\", \\\"metadata\\\": {\\\"jurabk\\\": \\\"Verf BE\\\", \\\"ausfertigung-datum\\\": \\\"23.11.1995\\\", \\\"gueltigab\\\": \\\"29.11.1995\\\", \\\"gueltigbis\\\": \\\"\\\", \\\"dokumenttyp\\\": \\\"Gesetz\\\", \\\"fundstelle\\\": \\\"GVBl. 1995, 779\\\", \\\"gliederungsnr\\\": \\\"100-1\\\", \\\"langue\\\": \\\"Verfassung von Berlin vom 23. November 1995\\\", \\\"titel\\\": \\\"Verfassung von Berlin vom 23. November 1995\\\"}}\",\"document_id\":\"doc\",\"metadata\":{\"expected_value\":\"1995-11-23\",\"locator\":\"/dokumente/norm[1]/metadaten/ausfertigung-datum\",\"original_sha256\":\"b701bc5b07cb78c22a9db24b39c74a15f7a896ea2b333a3002e6c41f8610fb8a\",\"source_url\":\"https://gesetze.berlin.de/jportal/bsbeAizDownload/Verf_BE.zip?doc.id=jlr-NNLBE000047B0&doc.part=X&_=%2FVerf_BE.zip\"}}",
+                    "predecessor_revision_id": "document-revision:270774e9e11ee98c67905242cb169b05",
+                    "revision": 1,
+                    "revision_id": "document-revision:c9faee9988790c7145715e5d28262d5c",
+                    "run_id": "direct:doc",
+                    "source_id": null,
+                    "valid_from_ms": null,
+                    "valid_to_ms": null
+                  },
+                  "assessment_hash": "675b4bd1a772d3dd747b9f23395747d9708aa6fa0b4fc504059976b06edb7566",
+                  "before": {
+                    "change_class": "unchanged",
+                    "change_kind": "added",
+                    "committed_watermark": 0,
+                    "content_hash": "34da4fde78390e5b184bfc007060a31de2f3f0421ff847adf5b0cd126c1dbc65",
+                    "created_at_ms": 0,
+                    "document_id": "doc",
+                    "lifecycle": "active",
+                    "metadata_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+                    "observed_at_ms": 0,
+                    "pack_id": "direct",
+                    "payload_hash": "118f3dd906f6cdb4da52345ddff6e365616f591438dfdcd49c56dcf0d9a8ab21",
+                    "payload_json": "{\"content\":\"The Berlin constitution was enacted on 1996-11-23.\",\"document_id\":\"doc\",\"metadata\":{}}",
+                    "predecessor_revision_id": null,
+                    "revision": 0,
+                    "revision_id": "document-revision:270774e9e11ee98c67905242cb169b05",
+                    "run_id": "direct:doc",
+                    "source_id": null,
+                    "valid_from_ms": null,
+                    "valid_to_ms": null
+                  },
+                  "coverage": "complete_for_declared_dependency",
+                  "dependency": {
+                    "id": "doc",
+                    "kind": "source",
+                    "locator": {
+                      "document_id": "doc",
+                      "end": 50,
+                      "revision_id": "document-revision:270774e9e11ee98c67905242cb169b05",
+                      "start": 0
+                    },
+                    "namespace": "sources",
+                    "revision": "document-revision:270774e9e11ee98c67905242cb169b05"
+                  },
+                  "details": [],
+                  "reason": "revision_changed",
+                  "status": "affected"
+                }
+              ],
+              "reasons": [
+                "revision_changed"
+              ],
+              "report_id": "report:2ef5a4cfc52971190361d763f81fdf22",
+              "section_id": "s",
+              "support_verified": false
+            },
+            "decision": null
+          }
+        },
+        "report-unconstrained": {
+          "job": {
+            "status": "failed",
+            "failure_code": "truncated_or_invalid_json",
+            "failure_type": "BackendError",
+            "operation": "report-unconstrained",
+            "elapsed_seconds": 63.201390949994675,
+            "peak_process_tree_rss_bytes": 920510464,
+            "resource_limits": {
+              "timeout_s": 120,
+              "rss_bytes": 3221225472,
+              "threads": 2
+            },
+            "execution": "isolated-local-process",
+            "hosted_inference_used": false,
+            "remote_processing_used": false
+          },
+          "usable_schema_valid_proposal": false,
+          "independent_substantive_quality": "not_measured"
+        }
+      },
+      "authorized_request": {
+        "assertion": {
+          "citations": [
+            "source-1"
+          ],
+          "dependencies": [
+            {
+              "id": "doc",
+              "kind": "source",
+              "locator": {
+                "document_id": "doc",
+                "end": 50,
+                "revision_id": "document-revision:270774e9e11ee98c67905242cb169b05",
+                "start": 0
+              },
+              "namespace": "sources",
+              "revision": "document-revision:270774e9e11ee98c67905242cb169b05"
+            }
+          ],
+          "id": "a",
+          "kind": "sourced",
+          "text": "The Berlin constitution was enacted on 1996-11-23."
+        },
+        "base_report_revision": 1,
+        "authorized_dependencies": [
+          {
+            "id": "doc",
+            "kind": "source",
+            "locator": {
+              "document_id": "doc",
+              "end": 50,
+              "revision_id": "document-revision:270774e9e11ee98c67905242cb169b05",
+              "start": 0
+            },
+            "namespace": "sources",
+            "revision": "document-revision:270774e9e11ee98c67905242cb169b05"
+          }
+        ],
+        "authorized_citations": [
+          "source-1"
+        ],
+        "evidence": {
+          "changes": [
+            {
+              "after": {
+                "change_class": "silent_substantive",
+                "change_kind": "updated",
+                "committed_watermark": 0,
+                "content_hash": "310eedf08c067a34bad3df9a44f1b26d2f026ef604a3c0cc907e7e7ac8a42abe",
+                "created_at_ms": 0,
+                "document_id": "doc",
+                "lifecycle": "active",
+                "metadata_hash": "f58374da5f851b6bed9ac8203965e4f32b89e3e9c2cf07b25496c59a0d8fd782",
+                "observed_at_ms": 0,
+                "pack_id": "direct",
+                "payload_hash": "224251f5aacec646d2fbbfcff972dac9936a0d3876ffe070cb0c59fb8f9c7a10",
+                "payload_json": "{\"content\":\"{\\\"official_id\\\": \\\"jlr-NNLBE000047B0\\\", \\\"metadata\\\": {\\\"jurabk\\\": \\\"Verf BE\\\", \\\"ausfertigung-datum\\\": \\\"23.11.1995\\\", \\\"gueltigab\\\": \\\"29.11.1995\\\", \\\"gueltigbis\\\": \\\"\\\", \\\"dokumenttyp\\\": \\\"Gesetz\\\", \\\"fundstelle\\\": \\\"GVBl. 1995, 779\\\", \\\"gliederungsnr\\\": \\\"100-1\\\", \\\"langue\\\": \\\"Verfassung von Berlin vom 23. November 1995\\\", \\\"titel\\\": \\\"Verfassung von Berlin vom 23. November 1995\\\"}}\",\"document_id\":\"doc\",\"metadata\":{\"expected_value\":\"1995-11-23\",\"locator\":\"/dokumente/norm[1]/metadaten/ausfertigung-datum\",\"original_sha256\":\"b701bc5b07cb78c22a9db24b39c74a15f7a896ea2b333a3002e6c41f8610fb8a\",\"source_url\":\"https://gesetze.berlin.de/jportal/bsbeAizDownload/Verf_BE.zip?doc.id=jlr-NNLBE000047B0&doc.part=X&_=%2FVerf_BE.zip\"}}",
+                "predecessor_revision_id": "document-revision:270774e9e11ee98c67905242cb169b05",
+                "revision": 1,
+                "revision_id": "document-revision:c9faee9988790c7145715e5d28262d5c",
+                "run_id": "direct:doc",
+                "source_id": null,
+                "valid_from_ms": null,
+                "valid_to_ms": null
+              },
+              "assessment_hash": "675b4bd1a772d3dd747b9f23395747d9708aa6fa0b4fc504059976b06edb7566",
+              "before": {
+                "change_class": "unchanged",
+                "change_kind": "added",
+                "committed_watermark": 0,
+                "content_hash": "34da4fde78390e5b184bfc007060a31de2f3f0421ff847adf5b0cd126c1dbc65",
+                "created_at_ms": 0,
+                "document_id": "doc",
+                "lifecycle": "active",
+                "metadata_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+                "observed_at_ms": 0,
+                "pack_id": "direct",
+                "payload_hash": "118f3dd906f6cdb4da52345ddff6e365616f591438dfdcd49c56dcf0d9a8ab21",
+                "payload_json": "{\"content\":\"The Berlin constitution was enacted on 1996-11-23.\",\"document_id\":\"doc\",\"metadata\":{}}",
+                "predecessor_revision_id": null,
+                "revision": 0,
+                "revision_id": "document-revision:270774e9e11ee98c67905242cb169b05",
+                "run_id": "direct:doc",
+                "source_id": null,
+                "valid_from_ms": null,
+                "valid_to_ms": null
+              },
+              "coverage": "complete_for_declared_dependency",
+              "dependency": {
+                "id": "doc",
+                "kind": "source",
+                "locator": {
+                  "document_id": "doc",
+                  "end": 50,
+                  "revision_id": "document-revision:270774e9e11ee98c67905242cb169b05",
+                  "start": 0
+                },
+                "namespace": "sources",
+                "revision": "document-revision:270774e9e11ee98c67905242cb169b05"
+              },
+              "details": [],
+              "reason": "revision_changed",
+              "status": "affected"
+            }
+          ],
+          "source_texts": [
+            {
+              "document_id": "doc",
+              "revision_id": "document-revision:270774e9e11ee98c67905242cb169b05",
+              "text": "The Berlin constitution was enacted on 1996-11-23."
+            },
+            {
+              "document_id": "doc",
+              "revision_id": "document-revision:c9faee9988790c7145715e5d28262d5c",
+              "text": "{\"official_id\": \"jlr-NNLBE000047B0\", \"metadata\": {\"jurabk\": \"Verf BE\", \"ausfertigung-datum\": \"23.11.1995\", \"gueltigab\": \"29.11.1995\", \"gueltigbis\": \"\", \"dokumenttyp\": \"Gesetz\", \"fundstelle\": \"GVBl. 1995, 779\", \"gliederungsnr\": \"100-1\", \"langue\": \"Verfassung von Berlin vom 23. November 1995\", \"titel\": \"Verfassung von Berlin vom 23. November 1995\"}}"
+            }
+          ]
+        },
+        "change_reasons": [
+          "revision_changed"
+        ]
+      },
+      "report_revision_unchanged": true
+    }
+  ],
+  "source_capture": {
+    "source_url": "https://gesetze.berlin.de/jportal/bsbeAizDownload/Verf_BE.zip?doc.id=jlr-NNLBE000047B0&doc.part=X&_=%2FVerf_BE.zip",
+    "original_sha256": "b701bc5b07cb78c22a9db24b39c74a15f7a896ea2b333a3002e6c41f8610fb8a",
+    "locator": "/dokumente/norm[1]/metadaten/ausfertigung-datum",
+    "expected_value": "1995-11-23"
+  },
+  "decision": "Defer: retain deterministic notices and explicit review. Native schema validity and authored date probes do not establish independent substantive edit quality or evidence support."
+}

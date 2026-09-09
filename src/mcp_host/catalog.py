@@ -226,6 +226,13 @@ async def _inspect_server(
 
 
 def _mutability(name: str) -> str:
+    from tools.knowledge_engine_mcp.investigations import (
+        ALERT_WRITES,
+        COMPARISON_WRITES,
+        TEMPLATE_WRITES,
+    )
+    if name in TEMPLATE_WRITES | ALERT_WRITES | COMPARISON_WRITES:
+        return "write"
     if name in {"run_persistent_research_loop", "cancel_persistent_research_loop", "resume_persistent_research_loop"}:
         return "write"
     if name in {"reserve_research_project_budget", "settle_research_project_budget"}:
@@ -449,6 +456,26 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
             return ["knowledge:zotero:read"]
         if tool_name == "set_research_package_trust_policy":
             return ["knowledge:packages:trust"]
+        from tools.knowledge_engine_mcp.investigations import (
+            ALERT_READS,
+            ALERT_WRITES,
+            COMPARISON_READS,
+            COMPARISON_WRITES,
+            TEMPLATE_READS,
+            TEMPLATE_WRITES,
+        )
+        if tool_name in TEMPLATE_WRITES:
+            return ["knowledge:projects:read", "knowledge:projects:write"]
+        if tool_name in TEMPLATE_READS:
+            return ["knowledge:projects:read"]
+        if tool_name in COMPARISON_WRITES:
+            return ["knowledge:projects:read", "knowledge:projects:write", "knowledge:recipes:read"]
+        if tool_name in COMPARISON_READS:
+            return ["knowledge:projects:read", "knowledge:recipes:read"]
+        if tool_name in ALERT_WRITES:
+            return ["knowledge:subscriptions:read", "knowledge:subscriptions:write"]
+        if tool_name in ALERT_READS:
+            return ["knowledge:subscriptions:read"]
         if tool_name in {"branch_research_project", "create_research_project", "revise_research_project", "archive_research_project", "record_research_project_expenditure"}:
             return ["knowledge:projects:write"]
         if tool_name in {"compare_research_projects", "inspect_research_project", "list_research_projects"}:

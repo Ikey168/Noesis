@@ -1,0 +1,29 @@
+{
+  "checked_at": "2026-09-05T22:15:09.554743+00:00",
+  "provider": "wikidata",
+  "entity": "Q64",
+  "properties": [
+    "P17",
+    "P31"
+  ],
+  "mode": "live",
+  "status": "available",
+  "revision": 2539733841,
+  "statements": 24,
+  "snapshot_digest": "81ea73a7646754ffe2163eff9589e000d5bc762336f9ddc2e7e7d2fb89e3d275",
+  "prior_observations": [
+    {
+      "checked_at": "2026-09-05T22:14:42.492009+00:00",
+      "provider": "wikidata",
+      "entity": "Q64",
+      "properties": [
+        "P17",
+        "P31"
+      ],
+      "mode": "live",
+      "status": "failed",
+      "failure_type": "ValueError",
+      "failure": "invalid or duplicate Wikidata statement identity"
+    }
+  ]
+}

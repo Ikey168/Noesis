@@ -8745,6 +8745,13 @@ def resume_persistent_research_loop(namespace: str, loop_id: str) -> dict:
         principal_id=_context()[0], scopes=_context()[1]), write=True, required_scope="knowledge:projects:write")
 
 
+from tools.knowledge_engine_mcp.investigations import (
+    register as register_investigation_tools,
+)
+
+register_investigation_tools(mcp, _safe, lambda: _context())
+
+
 if __name__ == "__main__":
     from src.mcp_host.transport import run_server
 

@@ -1,0 +1,25 @@
+{
+  "entities": {
+    "authority": "Berlin public authority",
+    "legal_reference": "Explicit law or section reference"
+  },
+  "relations": {
+    "applies": "Authority applies an explicitly named legal provision"
+  },
+  "structures": {
+    "notice": {
+      "authority": {
+        "dtype": "str",
+        "description": "Issuing authority"
+      },
+      "legal_references": {
+        "dtype": "list",
+        "description": "Law and section references"
+      },
+      "date": {
+        "dtype": "str",
+        "description": "Date stated in notice"
+      }
+    }
+  }
+}

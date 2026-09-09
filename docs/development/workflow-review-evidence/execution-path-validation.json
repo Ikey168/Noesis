@@ -1,0 +1,264 @@
+{
+  "contract": "noesis-execution-path-validation-v1",
+  "recorded_at": "2026-09-07T13:30:55.747348+00:00",
+  "branch": "feat/workflow-review-implementation",
+  "all_remaining_implementations_complete": false,
+  "all_acceptance_satisfied": false,
+  "inventory": {
+    "leaf_tasks": 50,
+    "tracking_parents": 8,
+    "open": 58,
+    "source": "previous refreshed inventory, not a fresh GitHub query in this finalization"
+  },
+  "broad_regression": {
+    "tests": 1515,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 13,
+    "passed": 1502,
+    "seconds": 104.981,
+    "scope": [
+      "tests/unit/ingestion",
+      "tests/unit/kb",
+      "tests/unit/evaluation",
+      "tests/unit/noesis_cli/test_optional.py",
+      "tests/rag/test_normalization.py",
+      "tests/unit/services/rag/test_lingua_normalization.py",
+      "tests/knowledge_graph/test_entity_resolution.py"
+    ],
+    "log": "/tmp/noesis-continuation-final.log",
+    "junit": "/tmp/noesis-continuation-final.xml",
+    "log_sha256": "98ea1708dabe374518b16e4b29c543531a48077bdb485335389d6443aff32de7",
+    "junit_sha256": "3bbbd839013b290a7508ff00a68b83a7c64356d552ecf01943c620ef62e4d4ea",
+    "skips": [
+      {
+        "test": "::tests.unit.ingestion.connectors.media.test_diarizer_coverage",
+        "reason": "collection skipped"
+      },
+      {
+        "test": "::tests.unit.ingestion.test_common_crawl",
+        "reason": "collection skipped"
+      },
+      {
+        "test": "::tests.unit.ingestion.test_warc_io",
+        "reason": "collection skipped"
+      },
+      {
+        "test": "::tests.unit.kb.test_adwin_evaluation",
+        "reason": "collection skipped"
+      },
+      {
+        "test": "::tests.unit.kb.test_citeproc_export",
+        "reason": "collection skipped"
+      },
+      {
+        "test": "::tests.unit.kb.test_pandera_evaluation",
+        "reason": "collection skipped"
+      },
+      {
+        "test": "::tests.unit.kb.test_pint_evaluation",
+        "reason": "collection skipped"
+      },
+      {
+        "test": "tests.unit.ingestion.connectors.book.test_book_pdf_parser_coverage::test_parse_with_pdfminer_on_real_pdf",
+        "reason": "could not import 'pdfminer': No module named 'pdfminer'"
+      },
+      {
+        "test": "tests.unit.ingestion.connectors.book.test_book_pdf_parser_coverage::test_parse_with_pdfminer_empty_returns_none",
+        "reason": "could not import 'pdfminer': No module named 'pdfminer'"
+      },
+      {
+        "test": "tests.unit.ingestion.test_zotero_sync::test_bibliography_unicode_corporate_authors_editions_and_report_closure",
+        "reason": "could not import 'bibtexparser': No module named 'bibtexparser'"
+      },
+      {
+        "test": "tests.unit.ingestion.test_zotero_sync::test_real_pyzotero_transport_negotiation_and_read_only_requests[web]",
+        "reason": "could not import 'pyzotero.zotero': No module named 'pyzotero'"
+      },
+      {
+        "test": "tests.unit.ingestion.test_zotero_sync::test_real_pyzotero_transport_negotiation_and_read_only_requests[local]",
+        "reason": "could not import 'pyzotero.zotero': No module named 'pyzotero'"
+      },
+      {
+        "test": "tests.unit.ingestion.test_zotero_sync::test_changed_remote_version_and_legacy_local_do_not_publish",
+        "reason": "could not import 'pyzotero': No module named 'pyzotero'"
+      }
+    ]
+  },
+  "focused_current_paths": {
+    "tests": 59,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "passed": 59,
+    "seconds": 6.268,
+    "scope": [
+      "tests/unit/kb/test_model_registry.py",
+      "tests/rag/test_chunking.py",
+      "tests/unit/services/rag/test_chunking_comprehensive.py",
+      "tests/unit/services/rag/test_retriever_comprehensive.py",
+      "tests/unit/kb/test_derived_revisions.py"
+    ],
+    "log": "/tmp/noesis-continuation-provider-ready.log",
+    "junit": "/tmp/noesis-continuation-provider-ready.xml",
+    "log_sha256": "37885b3a639a50564cfd58bc0a87cab719747d33adf078108d58ef49cf85036b",
+    "junit_sha256": "293708805218d8a8dbcbc1d17838e64560534cbe07c864631aa1f63a09f1a7ca",
+    "skips": []
+  },
+  "overlap_warning": "The 59-test group overlaps the broad scope; do not add counts.",
+  "focused_historical_command_discrepancy": {
+    "missing_paths": [
+      "tests/argument_mining/test_model_registry.py",
+      "tests/unit/services/rag/test_retriever_config.py"
+    ],
+    "attempts_executed_no_tests": [
+      "/tmp/noesis-continuation-provider.log",
+      "/tmp/noesis-continuation-provider-corrected.log"
+    ],
+    "correct_current_registry_path": "tests/unit/kb/test_model_registry.py",
+    "retriever_config_file": "not found; not silently invented or substituted",
+    "initial_current_path_collection_error": "missing psycopg2; /tmp/noesis-continuation-provider-current.log",
+    "resolution": "installed psycopg2-binary==2.9.12 only into .eval-packages, then current five-file scope passed"
+  },
+  "native_evidence": {
+    "cached_model_workers": {
+      "artifact": "continuation-cached-model-smoke.json",
+      "observations": {
+        "retrieval-minilm": {
+          "status": "completed",
+          "elapsed_seconds": 6.412742284999695,
+          "peak_process_tree_rss_bytes": 701386752
+        },
+        "qwen3-reranker": {
+          "status": "completed",
+          "elapsed_seconds": 18.694971721008187,
+          "peak_process_tree_rss_bytes": 2006831104
+        }
+      },
+      "label_origin": "authored-fixture",
+      "independent_quality_validated": false
+    },
+    "presidio_local_models": {
+      "log": "/tmp/noesis-presidio-local-smoke.log",
+      "log_sha256": "de2f77d681dfef821c453f1dd90b254715aa45dffd4f87ed0f609c7ddbeba661",
+      "languages": [
+        "de",
+        "en"
+      ],
+      "status": "completed",
+      "implicit_spacy_download_calls": 0,
+      "quality_benchmark": false
+    },
+    "linkage": {
+      "test": "tests/unit/kb/test_entity_analysis_binding.py",
+      "engines": [
+        "rapidfuzz",
+        "splink"
+      ],
+      "native_scoring_to_source_artifact_and_review": "passed",
+      "labels": "authored-fixture",
+      "automatic_merge": false
+    },
+    "gliner2": {
+      "sdk": "2.0.0",
+      "python": "3.12.13",
+      "transformers": "4.57.6",
+      "torch": "2.14.0+cpu",
+      "pre_fix_workers": {
+        "artifact": "continuation-gliner-schema-pre-fix.json",
+        "languages": [
+          "de",
+          "en"
+        ],
+        "status": "failed",
+        "failure_code": "invalid_model_output"
+      },
+      "observed_sdk_mismatch": "Description-qualified relation keys accompanying empty canonical keys. Exact frozen-schema alias mapping added; arbitrary unknown relations remain invalid.",
+      "raw_native_inference": "completed on authored German source",
+      "raw_result_fixture": "tests/fixtures/workflow_review/gliner2_native_schema.json",
+      "post_fix_captured_native_output_replay": "passed",
+      "post_fix_full_worker_rerun": "blocked_by_execution_tool_safety_status_check_not_executed",
+      "independent_quality_validated": false
+    },
+    "packaged_publication_path": {
+      "artifact": "continuation-wheel-validation.json",
+      "doctor": "passed",
+      "analysis_missing_dependency_exit": 3,
+      "backend_status": "unavailable",
+      "artifact_count": 0,
+      "replay": "passed",
+      "python_network_attempts": 0,
+      "outside_checkout": true
+    }
+  },
+  "code_sha256": {
+    "src/evaluation/runtime_outcomes.py": "8073b4de576c3c3e9bb5c5eeb646d1a6180bfc0aa16c6f58fb4660114b63917f",
+    "src/evaluation/runtime_jobs.py": "f4cdf963cb2b8dc77e1fa34f8c4c5e7915253272dfa6c85c9840016c2952fa67",
+    "src/evaluation/media_backends.py": "4882184571eee53048a581fd58753e4fdf9a6f2ceed86e1187e56f8f7ad4b3a2",
+    "src/evaluation/benchmark_runtime.py": "ee4a15a1ce25c53a45e18b0b60722735e91c22c30249dce655c402b98f9b0aa2",
+    "src/evaluation/observability.py": "520161456dea22bac7c3205714ce6ecdb92bbefc14b6492f2cf3babcb4d66409",
+    "src/evaluation/presidio_redaction.py": "82bd229b45d79dd9b0a6a39c079daeca48316a6cee2fb6e23d410aff44205e2a",
+    "src/evaluation/model_backends.py": "1f3239fab0f97f831de62d48cde5c43bbd750eae2b43fc85729ecbe2e634f9b8",
+    "src/evaluation/gliner_schema.py": "46eff78249abcb2d5c9ed64a0bed50f19c03aac2211b1d1d966e82f04c88c42d",
+    "src/ingestion/pdf_evaluation.py": "5efce4683d4b1d719942f8e382e53f5483dfac2660b165378bc321a42c371204",
+    "src/kb/optional_runtime.py": "5ef7cf5f12eb51f73c03ceee173114c0e815c2638021ee8222ce807ed4036659",
+    "src/kb/entity_analysis_inputs.py": "d28af47e1ca44c4e56f80bf04326045097306c71862c7c9160a00a5d5503a721",
+    "src/kb/mcp_research.py": "b422d9d3fbe4ce94268cc17fef3fbf43cbc800548e31c9bc2f4b4b4856a1b30d"
+  },
+  "test_sha256": {
+    "tests/unit/evaluation/test_execution_outcomes.py": "0ec4e42b98d47e79a34af3f692fa589ca821a3e6caa406094c7b98313ef934c5",
+    "tests/unit/evaluation/test_gliner_schema.py": "cbc1d1827ac55a8aa61161db5db163bdaac992e614ec69a14a78a8cac2c58728",
+    "tests/unit/evaluation/test_media_backends.py": "21a0f802609e717e69039143745f2c5e85741df07f50db29382d7c60ed06dd02",
+    "tests/unit/evaluation/test_runtime_jobs.py": "0dd11f39b493acd7a1a5e71ec4f4674500046376f4370790f0e2b815f4f466f4",
+    "tests/unit/evaluation/test_benchmark_runtime.py": "fc12bce90e908f97332bc729e13e17a409055d7af5188ce47a3a8f7391f6bc52",
+    "tests/unit/evaluation/test_presidio_redaction.py": "8ebc5e03fb5af7dabbca4391bb68536c2ea3241002212beeed2d8e8e04ff12e8",
+    "tests/unit/evaluation/test_model_backends.py": "db0f8c951932ae5b14fb1b42b942b8c24d1a696750603a6e27b6fab53fa74c62",
+    "tests/unit/ingestion/test_pdf_runtime_contracts.py": "c6daf53ed445943da7f535e3993d0b169a4cb35c21cd91e42160da90935dd010",
+    "tests/unit/kb/test_entity_analysis_binding.py": "465916e32b31543f82f56992fe50c0f0bc7b763fc638a1bc0e911e89f8ca7676",
+    "tests/unit/kb/test_optional_runtime.py": "00f0fee6ea21a0d9dafa1c82c344c942406742861763f3dc160534bd1c7226e2",
+    "tests/unit/kb/test_mcp_research.py": "66423c2433eb783fa8b2dc667c3a1257bea5838dc02e98804133a829317c867a"
+  },
+  "scoped_ruff": "passed",
+  "git_diff_check": "passed",
+  "full_repository_suite": "not_certified",
+  "environment_changes": {
+    "gliner_local_extra": {
+      "environment": ".venv312",
+      "installed": [
+        "gliner2==2.0.0",
+        "accelerate==1.14.0",
+        "peft==0.20.0"
+      ],
+      "python": "3.12.13",
+      "torch": "2.14.0+cpu",
+      "transformers": "4.57.6",
+      "sentence_transformers": "not installed in this separate environment",
+      "log": "/tmp/noesis-gliner-install.log"
+    },
+    "postgresql_test_driver": {
+      "environment": ".eval-packages",
+      "installed": "psycopg2-binary==2.9.12",
+      "log": "/tmp/noesis-continuation-psycopg-install.log",
+      "broad_suite_timing": "Broad regression above predates this added optional driver; the 59-test current-path run follows it."
+    }
+  },
+  "independent_human_labels_collected": false,
+  "paid_provider_requests": 0,
+  "commit_push_merge_or_issue_closure_performed": false,
+  "historical_artifacts_globally_migrated": false,
+  "limitations": [
+    "The 50 leaf issues have not all undergone a complete acceptance-body/invocation audit. File mapping is not implementation completion.",
+    "Historical invalid artifact graph rows or downstream artifacts were not globally migrated or invalidated. Optional-runtime read/replay suppresses invalid artifact references while preserving stored history.",
+    "Several compatible neural/parser/media SDKs and model weights still lack current real invocation evidence. Do not classify all remaining work as only independent quality validation.",
+    "GLiNER post-fix captured-native-output replay is not a successful post-fix full worker run; that rerun was tool-blocked. Preserved de/en worker artifacts still record their pre-fix failures.",
+    "The #1420 500-1000-sentence independent dual-human collection, other required human relevance/support labels, reviewer pilots and independent held-out quality decisions remain absent.",
+    "Representative PDF/OCR/scientific/media, anti-bot and active-handler crash benchmark requirements are not satisfied by the authored fixtures.",
+    "Official deployed GitHub/guarded Playwright MCP captures, Label Studio pilot and Phoenix retention/debugging studies are not certified.",
+    "Native provider pipeline/source-pack integration and supported export formats require issue-specific audit where not rechecked; optional CLI exposure alone is not universal acceptance.",
+    "Process/CPU/RSS/deadline limits are not a universal hostile-code/network sandbox; a configured browser guard assertion is not deployment proof.",
+    "MinHash development selection changed after inspecting the reused held-out fixture; that fixture is not fresh independent validation.",
+    "No paid-provider execution or cost evidence was fabricated. #1388 explicitly permits an unavailable live evaluation without authorized access; a paid run is not imposed as an unconditional requirement.",
+    "#1463 report versioning/individual accept-reject/history/export criteria are covered by actual store tests; unrelated model-quality prerequisites are not added. GitHub closure remains separate.",
+    "This is not the full repository test or lint suite. Overlapping test groups must not be summed as unique counts."
+  ]
+}

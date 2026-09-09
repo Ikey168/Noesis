@@ -1,0 +1,656 @@
+{
+  "contract": "noesis-ema-backoff-retry-v1",
+  "prior_failure": "http_429",
+  "prior_retry_after_seconds": 10,
+  "elapsed_since_failure_seconds_at_review": 2758,
+  "runs": [
+    {
+      "automatic_identity_merge": false,
+      "contract": "noesis-regional-acquisition-v1",
+      "cursor": {},
+      "namespace": "medicine",
+      "native_result": [
+        {
+          "contract": "noesis-native-regional-v1",
+          "coverage_notice": "EMA website records; not all national authorisations and not openFDA API parity",
+          "fields": {},
+          "is_current_law": false,
+          "kind": "linked-regulatory-document",
+          "language": "en",
+          "missing_fields": [],
+          "native": {
+            "original_sha256": "5551a69c04b3802b9cafc042dcfadaaecc6d2a16583cde675025947da3a6da00",
+            "parser_receipt": {
+              "backend": "pymupdf",
+              "configuration": {
+                "min_words_vertical": 2,
+                "ocr": false,
+                "table_spans_inferred": false,
+                "table_strategy": "text"
+              },
+              "version": "1.28.2"
+            }
+          },
+          "provider": "ema",
+          "provider_id": "https://www.ema.europa.eu/en/documents/all-authorised-presentations/benlysta-epar-all-authorised-presentations_en.pdf",
+          "published_at": null,
+          "relationships": [
+            {
+              "basis": "explicit source link",
+              "provider_id": "EMEA/H/C/002015",
+              "relation": "document-of"
+            }
+          ],
+          "review_required": false,
+          "sections": [
+            {
+              "locator": {
+                "bbox": [
+                  70.03500366210938,
+                  616.468017578125,
+                  80.96099853515625,
+                  774.26953125
+                ],
+                "kind": "pdf-block",
+                "page": 1
+              },
+              "text": "MA (EU) number \n(Invented) \n"
+            },
+            {
+              "locator": {
+                "bbox": [
+                  70.03500366210938,
+                  435.607666015625,
+                  91.88099670410156,
+                  675.26953125
+                ],
+                "kind": "pdf-block",
+                "page": 1
+              },
+              "text": "name \nStrength \nPharmaceutical \n"
+            },
+            {
+              "locator": {
+                "bbox": [
+                  80.95500183105469,
+                  487.7472839355469,
+                  91.88099670410156,
+                  516.8695068359375
+                ],
+                "kind": "pdf-block",
+                "page": 1
+              },
+              "text": "Form \n"
+            },
+            {
+              "locator": {
+                "bbox": [
+                  70.03500366210938,
+                  372.166015625,
+                  80.96099853515625,
+                  417.989501953125
+                ],
+                "kind": "pdf-block",
+                "page": 1
+              },
+              "text": "Route of \n"
+            },
+            {
+              "locator": {
+                "bbox": [
+                  70.03500366210938,
+                  264.11163330078125,
+                  91.88099670410156,
+                  417.989501953125
+                ],
+                "kind": "pdf-block",
+                "page": 1
+              },
+              "text": "Administration \nImmediate \n"
+            },
+            {
+              "locator": {
+                "bbox": [
+                  70.03500366210938,
+                  191.4691162109375,
+                  91.88099670410156,
+                  322.64947509765625
+                ],
+                "kind": "pdf-block",
+                "page": 1
+              },
+              "text": "Packaging \nContent \n"
+            },
+            {
+              "locator": {
+                "bbox": [
+                  70.03500366210938,
+                  85.41131591796875,
+                  91.88099670410156,
+                  234.26947021484375
+                ],
+                "kind": "pdf-block",
+                "page": 1
+              },
+              "text": "(concentration) \nPack size \n"
+            },
+            {
+              "locator": {
+                "bbox": [
+                  102.79499816894531,
+                  465.00970458984375,
+                  113.72099304199219,
+                  774.26953125
+                ],
+                "kind": "pdf-block",
+                "page": 1
+              },
+              "text": "EU/1/11/700/001 \nBenlysta \n120 mg \nPowder for \n"
+            },
+            {
+              "locator": {
+                "bbox": [
+                  113.7750015258789,
+                  444.7498779296875,
+                  124.70099639892578,
+                  516.8695068359375
+                ],
+                "kind": "pdf-block",
+                "page": 1
+              },
+              "text": "concentrate for \n"
+            },
+            {
+              "locator": {
+                "bbox": [
+                  124.69500732421875,
+                  462.5158386230469,
+                  135.62100219726562,
+                  516.8695068359375
+                ],
+                "kind": "pdf-block",
+                "page": 1
+              },
+              "text": "solution for \n"
+            },
+            {
+              "locator": {
+                "bbox": [
+                  135.61500549316406,
+                  478.3594970703125,
+                  146.54100036621094,
+                  516.8695068359375
+                ],
+                "kind": "pdf-block",
+                "page": 1
+              },
+              "text": "infusion \n"
+            },
+            {
+              "locator": {
+                "bbox": [
+                  102.79499816894531,
+                  104.38046264648438,
+                  113.72099304199219,
+                  417.989501953125
+                ],
+                "kind": "pdf-block",
+                "page": 1
+              },
+              "text": "Intravenous use \nvial (glass) \n120 mg \n1 vial  \n"
+            },
+            {
+              "locator": {
+                "bbox": [
+                  146.53500366210938,
+                  465.00970458984375,
+                  157.46099853515625,
+                  774.26953125
+                ],
+                "kind": "pdf-block",
+                "page": 1
+              },
+              "text": "EU/1/11/700/002 \nBenlysta \n400 mg \nPowder for \n"
+            },
+            {
+              "locator": {
+                "bbox": [
+                  157.51499938964844,
+                  444.7498779296875,
+                  168.4409942626953,
+                  516.8695068359375
+                ],
+                "kind": "pdf-block",
+                "page": 1
+              },
+              "text": "concentrate for \n"
+            },
+            {
+              "locator": {
+                "bbox": [
+                  168.43499755859375,
+                  462.5158386230469,
+                  179.36099243164062,
+                  516.8695068359375
+                ],
+                "kind": "pdf-block",
+                "page": 1
+              },
+              "text": "solution for \n"
+            },
+            {
+              "locator": {
+                "bbox": [
+                  179.35499572753906,
+                  478.3594970703125,
+                  190.28099060058594,
+                  516.8695068359375
+                ],
+                "kind": "pdf-block",
+                "page": 1
+              },
+              "text": "infusion \n"
+            },
+            {
+              "locator": {
+                "bbox": [
+                  146.53500366210938,
+                  104.38046264648438,
+                  157.46099853515625,
+                  417.989501953125
+                ],
+                "kind": "pdf-block",
+                "page": 1
+              },
+              "text": "Intravenous use \nvial (glass) \n400 mg \n1 vial  \n"
+            },
+            {
+              "locator": {
+                "bbox": [
+                  190.27500915527344,
+                  461.0848083496094,
+                  201.2010040283203,
+                  774.26953125
+                ],
+                "kind": "pdf-block",
+                "page": 1
+              },
+              "text": "EU/1/11/700/003 \nBenlysta \n200 mg \nSolution for \n"
+            },
+            {
+              "locator": {
+                "bbox": [
+                  190.27500915527344,
+                  243.06716918945312,
+                  212.18099975585938,
+                  516.8695068359375
+                ],
+                "kind": "pdf-block",
+                "page": 1
+              },
+              "text": "injection \nSubcutaneous use \nPre-filled syringe \n"
+            },
+            {
+              "locator": {
+                "bbox": [
+                  201.2550048828125,
+                  258.21844482421875,
+                  212.18099975585938,
+                  322.64947509765625
+                ],
+                "kind": "pdf-block",
+                "page": 1
+              },
+              "text": "(glass) in pre-\n"
+            },
+            {
+              "locator": {
+                "bbox": [
+                  212.1750030517578,
+                  278.1067810058594,
+                  223.1009979248047,
+                  322.64947509765625
+                ],
+                "kind": "pdf-block",
+                "page": 1
+              },
+              "text": "filled pen \n"
+            },
+            {
+              "locator": {
+                "bbox": [
+                  190.27500915527344,
+                  59.729888916015625,
+                  201.2010040283203,
+                  234.26947021484375
+                ],
+                "kind": "pdf-block",
+                "page": 1
+              },
+              "text": "1ml (200 mg/ml) \n1 pre-filled pen  \n"
+            },
+            {
+              "locator": {
+                "bbox": [
+                  223.09500122070312,
+                  461.0848083496094,
+                  234.02099609375,
+                  774.26953125
+                ],
+                "kind": "pdf-block",
+                "page": 1
+              },
+              "text": "EU/1/11/700/004 \nBenlysta \n200 mg \nSolution for \n"
+            },
+            {
+              "locator": {
+                "bbox": [
+                  223.09500122070312,
+                  243.06716918945312,
+                  244.9409942626953,
+                  516.8695068359375
+                ],
+                "kind": "pdf-block",
+                "page": 1
+              },
+              "text": "injection \nSubcutaneous use \nPre-filled syringe \n"
+            },
+            {
+              "locator": {
+                "bbox": [
+                  234.01499938964844,
+                  258.21844482421875,
+                  244.9409942626953,
+                  322.64947509765625
+                ],
+                "kind": "pdf-block",
+                "page": 1
+              },
+              "text": "(glass) in pre-\n"
+            },
+            {
+              "locator": {
+                "bbox": [
+                  244.9949951171875,
+                  278.1067810058594,
+                  255.92098999023438,
+                  322.64947509765625
+                ],
+                "kind": "pdf-block",
+                "page": 1
+              },
+              "text": "filled pen \n"
+            },
+            {
+              "locator": {
+                "bbox": [
+                  223.09500122070312,
+                  55.049896240234375,
+                  234.02099609375,
+                  234.26947021484375
+                ],
+                "kind": "pdf-block",
+                "page": 1
+              },
+              "text": "1ml (200 mg/ml) \n4 pre-filled pens  \n"
+            },
+            {
+              "locator": {
+                "bbox": [
+                  255.9149932861328,
+                  461.0848083496094,
+                  266.84100341796875,
+                  774.26953125
+                ],
+                "kind": "pdf-block",
+                "page": 1
+              },
+              "text": "EU/1/11/700/005 \nBenlysta \n200 mg \nSolution for \n"
+            },
+            {
+              "locator": {
+                "bbox": [
+                  255.9149932861328,
+                  243.06716918945312,
+                  277.7610168457031,
+                  516.8695068359375
+                ],
+                "kind": "pdf-block",
+                "page": 1
+              },
+              "text": "injection \nSubcutaneous use \nPre-filled syringe \n"
+            },
+            {
+              "locator": {
+                "bbox": [
+                  266.8349914550781,
+                  258.21844482421875,
+                  277.7610168457031,
+                  322.64947509765625
+                ],
+                "kind": "pdf-block",
+                "page": 1
+              },
+              "text": "(glass) in pre-\n"
+            },
+            {
+              "locator": {
+                "bbox": [
+                  277.7549743652344,
+                  278.1067810058594,
+                  288.6809997558594,
+                  322.64947509765625
+                ],
+                "kind": "pdf-block",
+                "page": 1
+              },
+              "text": "filled pen \n"
+            },
+            {
+              "locator": {
+                "bbox": [
+                  255.9149932861328,
+                  42.502777099609375,
+                  277.7610168457031,
+                  234.26947021484375
+                ],
+                "kind": "pdf-block",
+                "page": 1
+              },
+              "text": "1ml (200 mg/ml) \n12 (3 x 4) pre-filled \npens (multipack)  \n"
+            },
+            {
+              "locator": {
+                "bbox": [
+                  288.7349853515625,
+                  461.0848083496094,
+                  299.6610107421875,
+                  774.26953125
+                ],
+                "kind": "pdf-block",
+                "page": 1
+              },
+              "text": "EU/1/11/700/006 \nBenlysta \n200 mg \nSolution for \n"
+            },
+            {
+              "locator": {
+                "bbox": [
+                  288.7349853515625,
+                  243.06716918945312,
+                  310.5810241699219,
+                  516.8695068359375
+                ],
+                "kind": "pdf-block",
+                "page": 1
+              },
+              "text": "injection \nSubcutaneous use \nPre-filled syringe \n"
+            },
+            {
+              "locator": {
+                "bbox": [
+                  288.7349853515625,
+                  43.377777099609375,
+                  310.5810241699219,
+                  322.64947509765625
+                ],
+                "kind": "pdf-block",
+                "page": 1
+              },
+              "text": "(glass) \n1ml (200 mg/ml) \n1 pre-filled syringe  \n"
+            },
+            {
+              "locator": {
+                "bbox": [
+                  310.5749816894531,
+                  461.0848083496094,
+                  321.5010070800781,
+                  774.26953125
+                ],
+                "kind": "pdf-block",
+                "page": 1
+              },
+              "text": "EU/1/11/700/007 \nBenlysta \n200 mg \nSolution for \n"
+            },
+            {
+              "locator": {
+                "bbox": [
+                  310.5749816894531,
+                  243.06716918945312,
+                  332.4210205078125,
+                  516.8695068359375
+                ],
+                "kind": "pdf-block",
+                "page": 1
+              },
+              "text": "injection \nSubcutaneous use \nPre-filled syringe \n"
+            },
+            {
+              "locator": {
+                "bbox": [
+                  310.5749816894531,
+                  38.668670654296875,
+                  332.4210205078125,
+                  322.64947509765625
+                ],
+                "kind": "pdf-block",
+                "page": 1
+              },
+              "text": "(glass) \n1ml (200 mg/ml) \n4 pre-filled syringes  \n"
+            }
+          ],
+          "source_url": "https://www.ema.europa.eu/en/documents/all-authorised-presentations/benlysta-epar-all-authorised-presentations_en.pdf",
+          "title": "EMEA/H/C/002015",
+          "updated_at": null
+        }
+      ],
+      "observation": "english-after-backoff",
+      "operation": "acquire_document",
+      "provider": "ema",
+      "receipt": {
+        "document_ids": [
+          "regional:e32667cccad68857c6f21f82586f74cf"
+        ],
+        "native_capture": {
+          "actual_billed_usd_micros": null,
+          "budget_id": "ema-english-after-backoff",
+          "bytes": 11071,
+          "contract": "noesis-provider-request-v1",
+          "digest": "5551a69c04b3802b9cafc042dcfadaaecc6d2a16583cde675025947da3a6da00",
+          "elapsed_seconds": 0.3522123400034616,
+          "execution": "network",
+          "http_status": 200,
+          "observed_at_ms": 1788909624977,
+          "parser_runtime": {
+            "elapsed_seconds": 0.3046189829983632,
+            "execution": "isolated-local-process",
+            "hosted_inference_used": false,
+            "operation": "pdf-pymupdf",
+            "peak_process_tree_rss_bytes": 74530816,
+            "remote_processing_used": false,
+            "resource_limits": {
+              "rss_bytes": 1073741824,
+              "threads": 2,
+              "timeout_s": 120
+            },
+            "status": "completed"
+          },
+          "provider": "ema",
+          "request": {
+            "body": null,
+            "credential_slots": {
+              "body": [],
+              "headers": [],
+              "params": []
+            },
+            "headers": {
+              "Accept": "application/pdf, text/html, application/xhtml+xml, application/xml;q=0.9, */*;q=0.1"
+            },
+            "max_bytes": 20000000,
+            "max_cost_micros": 0,
+            "method": "GET",
+            "params": {},
+            "timeout_s": 15,
+            "url": "https://www.ema.europa.eu/en/documents/all-authorised-presentations/benlysta-epar-all-authorised-presentations_en.pdf"
+          },
+          "request_hash": "2f33f69d0bab18d93656ee154600efb53195360de12b981c7932585e9959264c",
+          "request_key": "c4b24770bcc1c5a81117893e15b66a47cdc744faa796e9bb162a82c9419a9e6d:document",
+          "reserved_cost_micros": 0,
+          "response_headers": {
+            "content-type": "application/pdf",
+            "etag": "\"1695311187\"",
+            "last-modified": "Thu, 21 Sep 2023 15:46:27 GMT"
+          },
+          "retry_after": null,
+          "snapshot": {
+            "bytes": 11071,
+            "content_type": "application/pdf",
+            "digest": "5551a69c04b3802b9cafc042dcfadaaecc6d2a16583cde675025947da3a6da00",
+            "fetched_at": 1788909624977,
+            "final_url": "https://www.ema.europa.eu/en/documents/all-authorised-presentations/benlysta-epar-all-authorised-presentations_en.pdf",
+            "url": "https://www.ema.europa.eu/en/documents/all-authorised-presentations/benlysta-epar-all-authorised-presentations_en.pdf"
+          },
+          "state": "completed"
+        },
+        "no_automatic_identity_merge": true,
+        "observation_id": "regional-observation:3259d2e9173a371efb44fe13344f4452",
+        "record_versions": [
+          "800513b9328626076189e6a578652efebd5561398ad1adb8661d8a5446e286ba"
+        ],
+        "reuse_notice": "Bounded public evaluation; EMA publisher terms apply",
+        "source_refs": [
+          {
+            "document_id": "regional:e32667cccad68857c6f21f82586f74cf",
+            "revision_id": "document-revision:996bad00eddfe559de408ba6cad055ea"
+          }
+        ]
+      },
+      "source_evidence_not_independent_validation": true,
+      "status": "ingested",
+      "replayed": false
+    }
+  ],
+  "budget": {
+    "budget_id": "ema-english-after-backoff",
+    "configuration": {
+      "provider": "ema",
+      "hosts": [
+        "www.ema.europa.eu"
+      ],
+      "account_ref": "public",
+      "reuse_notice": "Bounded public evaluation; EMA publisher terms apply",
+      "limits": {
+        "requests": 1,
+        "usd_micros": 0,
+        "bytes": 20000000
+      },
+      "transport": "network"
+    },
+    "used_requests": 1,
+    "reserved_usd_micros": 0,
+    "reserved_bytes": 20000000,
+    "actual_billed_usd_micros": null,
+    "cost_semantics": "conservative reservations, not billing measurements"
+  },
+  "prior_offline_replay": true,
+  "english_offline_replay": true
+}

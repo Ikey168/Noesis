@@ -1,0 +1,58 @@
+{
+  "pack_id": "openreview-research",
+  "version": "1.0.0",
+  "description": "Public OpenReview API v2 notes and attributable review threads.",
+  "domains": [
+    "research"
+  ],
+  "defaults": {
+    "connector": "declarative-rest",
+    "scope": "global scholarly metadata",
+    "update_cadence": "daily",
+    "temporal_semantics": "publication-and-provider-update",
+    "mapping": {
+      "target_schema": "scholarly-work-v1",
+      "version": "1.0.0"
+    },
+    "extractor_versions": [
+      "openreview-notes:1.0.0"
+    ],
+    "schedule": {
+      "kind": "interval",
+      "interval_s": 86400
+    },
+    "budgets": {
+      "timeout_ms": 10000,
+      "max_results": 100,
+      "max_bytes": 5000000,
+      "max_pages": 5
+    },
+    "auth": {
+      "kind": "none"
+    },
+    "fixture": {
+      "path": "tests/fixtures/source_packs/openreview.json",
+      "sha256": "0a611cd52139e5a8dd4a4ad7c9902b199961a444541f325456eaa282b212382b",
+      "expected_output_hash": "52ce8ddb546810b49f6a6336f255020f8c821c98d1491c3632ecf4b4eb615359"
+    },
+    "health": {
+      "required": true,
+      "max_staleness_s": 172800
+    }
+  },
+  "sources": [
+    {
+      "source_id": "openreview-notes",
+      "endpoint": "https://api2.openreview.net/notes",
+      "publisher": "OpenReview",
+      "license": {
+        "id": "openreview-per-note",
+        "terms_url": "https://openreview.net/legal/terms",
+        "redistribution": "per-note-license"
+      },
+      "operations": [
+        "search"
+      ]
+    }
+  ]
+}

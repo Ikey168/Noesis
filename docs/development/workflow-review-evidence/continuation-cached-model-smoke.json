@@ -1,0 +1,117 @@
+{
+  "contract": "noesis-cached-native-smoke-v1",
+  "label_origin": "authored-fixture",
+  "quality_validated": false,
+  "results": {
+    "retrieval-minilm": {
+      "status": "completed",
+      "result": {
+        "backend": "minilm",
+        "model": {
+          "kind": "minilm",
+          "model": "sentence-transformers/all-MiniLM-L6-v2",
+          "revision": "1110a243fdf4706b3f48f1d95db1a4f5529b4d41",
+          "license": "apache-2.0"
+        },
+        "results": [
+          {
+            "id": "de",
+            "revision": "r1",
+            "scores": {
+              "dense": 0.30247999474001097,
+              "sparse": 0.0,
+              "multivector": null
+            },
+            "score": 0.30247999474001097,
+            "provenance": {
+              "source": null,
+              "original_text_sha256": "2831f2eccc6d756fadc1ae975e2fcaf230c846b513e97b0a64774a3da2ca6e52"
+            },
+            "space_id": "9543632a0e8d113e877157952ed68593ecef6819761278421755ca938938754a"
+          },
+          {
+            "id": "en",
+            "revision": "r1",
+            "scores": {
+              "dense": 0.006647109881418065,
+              "sparse": 0.0,
+              "multivector": null
+            },
+            "score": 0.006647109881418065,
+            "provenance": {
+              "source": null,
+              "original_text_sha256": "8ff1c6da99889d5bcf869061f8b8a51ad931db4bf1e8b7baba6121dbb80a3ac0"
+            },
+            "space_id": "9543632a0e8d113e877157952ed68593ecef6819761278421755ca938938754a"
+          }
+        ],
+        "corpus_sha256": "1f41460c976c76e03a5e9dc5156f9198977fe5aa3a7933d5603c0bdac1e0b352",
+        "timing_contract": "noesis-retrieval-timing-v2",
+        "model_load_seconds": 4.0686246850091266,
+        "corpus_encoding_seconds": 0.054798953991848975,
+        "query_encoding_seconds": 0.010830024009919725,
+        "search_seconds": 0.0015573980053886771,
+        "encoding_seconds": 4.134253663010895,
+        "indexing_seconds": 0.013469769997755066,
+        "query_seconds": 0.012387422015308402,
+        "timing_semantics": "query_seconds includes warm query encoding and search, excluding model load, corpus/index construction, index sizing and teardown",
+        "serialized_index_bytes": 17285,
+        "space_id": "9543632a0e8d113e877157952ed68593ecef6819761278421755ca938938754a",
+        "production_index_modified": false
+      },
+      "operation": "retrieval-minilm",
+      "elapsed_seconds": 6.412742284999695,
+      "peak_process_tree_rss_bytes": 701386752,
+      "resource_limits": {
+        "timeout_s": 120,
+        "rss_bytes": 6442450944,
+        "threads": 2
+      },
+      "execution": "isolated-local-process",
+      "hosted_inference_used": false,
+      "remote_processing_used": false
+    },
+    "qwen3-reranker": {
+      "status": "completed",
+      "result": {
+        "results": [
+          {
+            "id": "de",
+            "revision": "r1",
+            "text": "Solarenergie kann Strom erzeugen.",
+            "relevance_score": 0.62109375,
+            "input_rank": 0,
+            "model_revision": "e61197ed45024b0ed8a2d74b80b4d909f1255473",
+            "support_verified": false
+          },
+          {
+            "id": "en",
+            "revision": "r1",
+            "text": "Libraries lend books to readers.",
+            "relevance_score": 4.9114227294921875e-05,
+            "input_rank": 1,
+            "model_revision": "e61197ed45024b0ed8a2d74b80b4d909f1255473",
+            "support_verified": false
+          }
+        ],
+        "model": {
+          "kind": "qwen3-reranker",
+          "model": "Qwen/Qwen3-Reranker-0.6B",
+          "revision": "e61197ed45024b0ed8a2d74b80b4d909f1255473",
+          "license": "apache-2.0"
+        }
+      },
+      "operation": "qwen3-reranker",
+      "elapsed_seconds": 18.694971721008187,
+      "peak_process_tree_rss_bytes": 2006831104,
+      "resource_limits": {
+        "timeout_s": 120,
+        "rss_bytes": 6442450944,
+        "threads": 2
+      },
+      "execution": "isolated-local-process",
+      "hosted_inference_used": false,
+      "remote_processing_used": false
+    }
+  }
+}

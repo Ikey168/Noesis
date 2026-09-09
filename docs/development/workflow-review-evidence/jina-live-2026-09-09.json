@@ -1,0 +1,383 @@
+{
+  "contract": "noesis-jina-public-comparison-v1",
+  "date": "2026-09-09",
+  "cases": [
+    {
+      "language": "de",
+      "url": "https://www.berlin.de/",
+      "source_receipt": {
+        "actual_billed_usd_micros": null,
+        "budget_id": "source-de",
+        "bytes": 38467,
+        "contract": "noesis-provider-request-v1",
+        "digest": "d1848ae58ee883a128696946a36d06d49c8a14539a433aa7d125188417f3366e",
+        "elapsed_seconds": 0.152167025997187,
+        "execution": "network",
+        "http_status": 200,
+        "observed_at_ms": 1788906440102,
+        "provider": "public-source",
+        "request": {
+          "body": null,
+          "credential_slots": {
+            "body": [],
+            "headers": [],
+            "params": []
+          },
+          "headers": {
+            "Accept": "application/json"
+          },
+          "max_bytes": 2000000,
+          "max_cost_micros": 0,
+          "method": "GET",
+          "params": {},
+          "timeout_s": 15,
+          "url": "https://www.berlin.de/"
+        },
+        "request_hash": "d91b9ef05183f005b28cfdd1e2f41a7b1fdd828f10a09bc16972a76574a074da",
+        "request_key": "source",
+        "reserved_cost_micros": 0,
+        "response_headers": {
+          "content-type": "text/html; charset=UTF-8"
+        },
+        "retry_after": null,
+        "snapshot": {
+          "bytes": 38467,
+          "content_type": "text/html; charset=UTF-8",
+          "digest": "d1848ae58ee883a128696946a36d06d49c8a14539a433aa7d125188417f3366e",
+          "fetched_at": 1788906440102,
+          "final_url": "https://www.berlin.de/",
+          "url": "https://www.berlin.de/"
+        },
+        "state": "completed",
+        "replayed": true
+      },
+      "status": "completed",
+      "baseline_text": "\u00a9 dpa Schnelles Internet f\u00fcr alle Berliner Schulen Die Digitalisierung in den Berliner Schulen schreitet voran. Seit diesem Jahr haben alle \u00f6ffentlichen Schulen eine leistungsstarke Internetverbindung. mehr Wir brauchen Hauptstadtmacherinnen und Hauptstadtmacher! Lernen Sie das Land Berlin als Arbeitgeber kennen. 8.Sep Nicht erschrecken: In dieser Woche heulen in Berlin wieder die Sirenen. Dabei handelt es sich um einen bundesweiten Test. Mehrzu: Warntag am Donnerstag: Berlin testet Warnsirenen Nach dem Hackerangriff auf die Berliner Verwaltung gibt der Senat Entwarnung: Daten mit nationaler Sicherheitsrelevanz sind laut Digital-Staatssekret\u00e4r Hauer nicht gestohlen worden. Mehrzu: Keine Hochsicherheits-Daten von Hackerangriff betroffen 4.Sep Nach der Ver\u00f6ffentlichung der gestohlenen Daten aus der Berliner Verwaltung wollen die Beh\u00f6rden mit den betroffenen Menschen Kontakt aufnehmen. Mehrzu: Ver\u00f6ffentliche Daten: Land will Betroffene kontaktieren",
+      "baseline_metadata": {
+        "extractor": "extruct+html-metadata",
+        "version": "0.18.0",
+        "snapshot_sha256": "d1848ae58ee883a128696946a36d06d49c8a14539a433aa7d125188417f3366e",
+        "selected": {
+          "canonical_url": {
+            "field": "canonical_url",
+            "value": "https://www.berlin.de/",
+            "origin": "html-link",
+            "locator": "link[rel=canonical][0]",
+            "rank": 3,
+            "selection_reason": "matching article URL, then article entity, metadata, canonical link, visible heading; locator breaks ties"
+          },
+          "title": {
+            "field": "title",
+            "value": "Berlin - Offizielles Stadtportal der Hauptstadt Deutschlands",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4,
+            "selection_reason": "matching article URL, then article entity, metadata, canonical link, visible heading; locator breaks ties"
+          }
+        },
+        "candidates": [
+          {
+            "field": "canonical_url",
+            "value": "https://www.berlin.de/",
+            "origin": "html-link",
+            "locator": "link[rel=canonical][0]",
+            "rank": 3
+          },
+          {
+            "field": "title",
+            "value": "Berlin - Offizielles Stadtportal der Hauptstadt Deutschlands",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4
+          }
+        ],
+        "diagnostics": [],
+        "canonical_identity_authoritative": false,
+        "body_extractor": {
+          "name": "trafilatura",
+          "version": "2.2.0",
+          "locator": "extracted-body; exact source spans unavailable"
+        }
+      },
+      "result": {
+        "text": "[![Image 1: Berlin.de](https://www.berlin.de/css/berlin_de/foxtrot/images/logo_berlin_m_srgb.svg)](https://www.berlin.de/)\n\n[Berlin.de Das offizielle Hauptstadtportal](https://www.berlin.de/ \"Link zu: Startseite Berlin.de\")\n\nBarrierefrei\n\n## Barrierefreiheit\n\nSchlie\u00dfen: Barrierefreiheit\n\n### Wie barrierefrei ist diese Webseite?\n\n[Erkl\u00e4rung zur Barrierefreiheit](https://www.berlin.de/wir-ueber-uns/8100503-4219174-erklaerung-zur-barrierefreiheit.html)\n### Haben Sie Anmerkungen oder Fragen zur Barrierefreiheit dieser Webseite?\n\n[Kontakt zur Ansprechperson](https://www.berlin.de/wir-ueber-uns/8100503-4219174-erklaerung-zur-barrierefreiheit.html#hansprechperson)\n### Wo gibt es zus\u00e4tzliche Informationen zur Barrierefreiheit im Land Berlin?\n\n[Barrierefreie Informations- und Kommunikationstechnik (IKT)](https://www.berlin.de/moderne-verwaltung/barrierefreie-it/anlaufstellen/kompetenzstelle/artikel.988002.php)\n\n\u00d6ffnen: Suche Suche\n\n## Suche\n\nSchlie\u00dfen: Suche\n\nSuche auf Berlin.de \n\nSuchen\n\n\u00d6ffnen: Men\u00fc Men\u00fc\n\n## Men\u00fc\n\nSchlie\u00dfen: Men\u00fc\n\n### Sprache der Webseite \u00e4ndern\n\n*   [Deutsch](https://www.berlin.de/)\n*   [English](https://www.berlin.de/en/)\n*   [\u0627\u0644\u0639\u0631\u0628\u064a\u0629](https://www.berlin.de/ar/)\n*   [Fran\u00e7ais](https://www.berlin.de/fr/)\n*   [Polski](https://www.berlin.de/pl/)\n*   [\u0420\u0443\u0441\u0441\u043a\u0438\u0439](https://www.berlin.de/ru/)\n*   [T\u00fcrk\u00e7e](https://www.berlin.de/tr/)\n*   [\u0423\u043a\u0440\u0430\u0457\u043d\u0441\u044c\u043a\u0430](https://www.berlin.de/uk/)\n\n### Weitere Links\n\n*   [Stadtplan](https://www.berlin.de/stadtplan/)\n*   [Berlin.de Mail](https://www.berlin.de/mail/)\n*   [Berlin.de auf Facebook](https://de-de.facebook.com/Hauptstadtportal/)\n*   [Berlin.de auf Instagram](https://www.instagram.com/hauptstadtportal/)\n*   [Berlin.de auf Bluesky](https://bsky.app/profile/hauptstadtportal.bsky.social)\n\n# Berlin - Offizielles Stadtportal der Hauptstadt Deutschlands\n\n![Image 2: Suchanimation Olympia und Ukraine (Hintergrund)](https://www.berlin.de/binaries/link/file/1774450104/10282930.svg)\n\n# Das offizielle Hauptstadtportal\n\n![Image 3: Suchanimation Olympia und Ukraine](https://www.berlin.de/binaries/link/file/1774438546/10282915.svg)\n\nBerlin, ich brauche Informationen zu: \n\nSuchen\n\n Animation anhalten \n\n## Zu den Themenstartseiten\n\n*   ![Image 4: Beratungsgespr\u00e4ch](https://www.berlin.de/binaries/asset/image_assets/8215610/ratio_4_3/1763987184/800x600/) [Politik und Verwaltung f\u00fcr Berlin](https://www.berlin.de/politik-verwaltung/ \"Link zu: Politik und Verwaltung f\u00fcr Berlin\")\n\u00a9 contrastwerkstatt - stock.adobe.com   \n*   ![Image 5: Berliner Ensemble](https://www.berlin.de/binaries/asset/image_assets/8158745/ratio_4_3/1775650409/800x600/) [Kultur in Berlin](https://www.berlin.de/kultur-und-tickets/ \"Link zu: Kultur in Berlin\")\n\u00a9 dpa   \n*   ![Image 6: Brandenburger Tor](https://www.berlin.de/binaries/asset/image_assets/8215661/ratio_4_3/1760961406/800x600/) [Zu Gast in Berlin](https://www.berlin.de/tourismus/ \"Link zu: Zu Gast in Berlin\")\n\u00a9 dpa   \n*   ![Image 7: Kind mit Seifenblasen](https://www.berlin.de/binaries/asset/image_assets/8215538/ratio_4_3/1774260000/800x600/) [Zu Hause in Berlin](https://www.berlin.de/special/ \"Link zu: Zuhause in Berlin\")\n\u00a9 dpa   \n\n[Berlin Mail](https://www.berlin.de/mail/ \"Berlin-Mail \u2013 Login\")\n\n## Service-Dienstleistungen\n\n*    [Ich m\u00f6chte eine Wohnung anmelden](https://service.berlin.de/dienstleistung/120686/ \"Ich m\u00f6chte eine Wohnung anmelden\")  \n*    [Ich m\u00f6chte einen Personalausweis beantragen](https://service.berlin.de/dienstleistung/120703/ \"Ich m\u00f6chte einen Personalausweis beantragen\")  \n*    [Ich m\u00f6chte einen WBS beantragen](https://service.berlin.de/dienstleistung/120671/ \"Ich m\u00f6chte einen WBS beantragen\")  \n*    [Ich m\u00f6chte ein F\u00fchrungszeugnis beantragen](https://service.berlin.de/dienstleistung/120926/ \"Ich m\u00f6chte ein F\u00fchrungszeugnis beantragen\")  \n*    [Ich m\u00f6chte einen Reisepass beantragen](https://service.berlin.de/dienstleistung/121151/ \"Ich m\u00f6chte einen Reisepass beantragen\")  \n*    [Ich m\u00f6chte ein Auto umschreiben](https://service.berlin.de/dienstleistung/329036/ \"Ich m\u00f6chte ein Auto umschreiben\")  \n*    [Ich m\u00f6chte einen Termin vereinbaren](https://service.berlin.de/terminvereinbarung/ \"Ich m\u00f6chte einen Termin vereinbaren\")  \n*    [Alle Dienstleistungen anzeigen](https://service.berlin.de/dienstleistungen/ \"Alle Dienstleistungen anzeigen\")  \n\n## Karriere beim Land Berlin\n\nWir brauchen Hauptstadtmacherinnen und Hauptstadtmacher! Lernen Sie das Land Berlin als Arbeitgeber kennen.\n\n[Stellenangebote](https://www.karriereportal-stellen.berlin.de/)\n\n## Im Fokus\n\n*   ![Image 8: Kind mit Laptop in der Schule](https://www.berlin.de/binaries/asset/image_assets/10608031/ratio_4_3/1788337526/800x600/) \n\u00a9 dpa \n### Schnelles Internet f\u00fcr alle Berliner Schulen\n\nDie Digitalisierung in den Berliner Schulen schreitet voran. Seit diesem Jahr haben alle \u00f6ffentlichen Schulen eine leistungsstarke Internetverbindung. [mehr](https://www.berlin.de/rbmskzl/fokusthemen/#Digitalisierungsstrategie \"Link zu: Schnelles Internet f\u00fcr alle Berliner Schulen\") \n*   ![Image 9: Zwei Kinder mit Schulranzen stehen von hinten an einer Stra\u00dfe und warten darauf, sie zu \u00fcberqueren, im Hintergrund flie\u00dfender Verkehr.](https://www.berlin.de/binaries/asset/image_assets/10605521/ratio_4_3/1788785399/800x600/) \n\u00a9 dpa \n### Mehr Sicherheit auf dem Schulweg\n\nBerlin entwickelt ein Konzept f\u00fcr sichere Schulwege. Im Mittelpunkt stehen drei Bereiche: Kinder lernen, wie sie sich sicher im Stra\u00dfenverkehr bewegen. [mehr](https://www.berlin.de/rbmskzl/fokusthemen/#Schulweg \"Link zu: Mehr Sicherheit auf dem Schulweg\") \n*   ![Image 10: Bunte Bobby-Cars und Rutschautos stehen auf einem blauen Teppich in einem Kita-Gruppenraum, im Hintergrund ein Regal mit Aufbewahrungsboxen.](https://www.berlin.de/binaries/asset/image_assets/10585076/ratio_4_3/1787319018/800x600/) \n\u00a9 dpa \n### Kita-Navigator neu aufgestellt\n\nDer Berliner Kita-Navigator bietet ab sofort mehr M\u00f6glichkeiten bei der Suche nach Betreuungsangeboten. Familien k\u00f6nnen nun auch nach Kindertagespflege sowie Sprachf\u00f6rder- und Integrationspl\u00e4tzen suchen. [mehr](https://www.berlin.de/rbmskzl/fokusthemen#kitanavigator \"Link zu: Kita-Navigator neu aufgestellt\") \n*   ![Image 11: Mobilfunkmast mit Antennen vor blauem Himmel und wenigen wei\u00dfen Wolken.](https://www.berlin.de/binaries/asset/image_assets/10578176/ratio_4_3/1787056498/800x600/) \n\u00a9 dpa \n### Mehr Schutz f\u00fcr Kommunikationsnetze\n\nBerlin st\u00e4rkt seine Mobilfunk- und Kommunikationsnetze f\u00fcr Krisenf\u00e4lle. Zw\u00f6lf Ma\u00dfnahmen sollen daf\u00fcr sorgen, dass Telefon, Internet und Warnmeldungen auch bei Stromausf\u00e4llen oder anderen Notlagen zuverl\u00e4ssig funktionieren. [mehr](https://www.berlin.de/rbmskzl/fokusthemen/#Mobilfunk \"Link zu: Mehr Schutz f\u00fcr Kommunikationsnetze\") \n*   ![Image 12: Ein Mann im Anzug sitzt vor einem Computerbildschirm und liest die \"Anleitung zum Digitalcheck\", ein Online-Dokument mit Erl\u00e4uterungen zur Vorpr\u00fcfung von Regelungsvorhaben.](https://www.berlin.de/binaries/asset/image_assets/9300933/ratio_4_3/1787036381/800x600/) \n\u00a9 dpa \n### Digitalcheck f\u00fcr Gesetze\n\nBerlin f\u00fchrt einen verbindlichen Digitalcheck f\u00fcr neue Gesetze ein. Schon bei der Ausarbeitung wird gepr\u00fcft, ob neue Regeln digital gut umgesetzt werden k\u00f6nnen. [mehr](https://www.berlin.de/rbmskzl/fokusthemen/#Digitalcheck \"Link zu: Digitalcheck f\u00fcr Gesetze\") \n*   ![Image 13: B\u00fcrgeramt](https://www.berlin.de/binaries/asset/image_assets/10042099/ratio_4_3/1764072654/800x600/) \n\u00a9 dpa \n### Alle Aufgaben der Verwaltung auf einen Blick\n\nDer Senat ordnet die Aufgaben der Berliner Verwaltung neu. Dazu wurden alle Aufgaben in einem Katalog zusammengefasst. Diese Liste beschreibt, ordnet und weist jede Aufgabe einer zust\u00e4ndigen Stelle zu. [mehr](https://www.berlin.de/rbmskzl/fokusthemen/#Aufgabenkatalog \"Link zu: Alle Aufgaben der Verwaltung auf einen Blick\") \n*   ![Image 14: Vorstellung des Pilotprojekts \"Reorganisation B\u00fcrger\u00e4mter\u201c](https://www.berlin.de/binaries/asset/image_assets/10557344/ratio_4_3/1786086369/800x600/) \n\u00a9 dpa \n### Berlin testet das B\u00fcrgeramt von morgen\n\nBerlin startet ein Pilotprojekt zur Modernisierung der B\u00fcrger\u00e4mter. Im B\u00fcrgeramt Sch\u00f6neberg werden neue Abl\u00e4ufe und Formen der Organisation getestet. [mehr](https://www.berlin.de/rbmskzl/fokusthemen/#Pilotprojekt \"Link zu: Berlin testet das B\u00fcrgeramt von morgen\") \n*   ![Image 15: Kita](https://www.berlin.de/binaries/asset/image_assets/10552570/ratio_4_3/1785848843/800x600/) \n\u00a9 dpa \n### Willkommensgutscheine f\u00fcr die Kita\n\nFamilien, deren Kinder noch keine Kita besuchen, bekommen den Kita-Gutschein ab dem 1. August automatisch. Ein Antrag ist nicht n\u00f6tig. Mit dem Gutschein k\u00f6nnen Eltern ihr Kind f\u00fcr eine Betreuung anmelden. [mehr](https://www.berlin.de/rbmskzl/fokusthemen/#Willkommensgutschein \"Link zu: Willkommensgutscheine f\u00fcr die Kita\") \n\n## Berlin erleben\n\n*   ![Image 16: Gewinner der Berlinale 2018](https://www.berlin.de/binaries/asset/image_assets/5214789/ratio_4_3/1615821563/800x600/) [Kino](https://www.berlin.de/kino/ \"Link zu: Kino und Film in Berlin\")\n\u00a9 dpa  \n*   ![Image 17: Lina Lapelyt\u0117. We Make Years Out of Hours](https://www.berlin.de/binaries/asset/image_assets/10354975/ratio_4_3/1786690337/800x600/) [Ausstellungen](https://www.berlin.de/ausstellungen/ \"Link zu: Ausstellungen in Berlin\")\n\u00a9 Lina Lapelyt\u0117. VG Bild-Kunst, Bonn 2026  \n*   ![Image 18: Schauspieler stehen auf der B\u00fchne](https://www.berlin.de/binaries/asset/image_assets/6643159/ratio_4_3/1641565285/800x600/) [Theater](https://www.berlin.de/tickets/theater/ \"Link zu: Theater\")\n\u00a9 dpa  \n*   ![Image 19: Testbilder Startseite (2)](https://www.berlin.de/binaries/asset/image_assets/8158625/ratio_4_3/1760961409/800x600/) [Museumsf\u00fchrer](https://www.berlin.de/museum/ \"Link zu: Museumsf\u00fchrer\")\n\u00a9 dpa  \n*   ![Image 20: Mauerpark in Berlin](https://www.berlin.de/binaries/asset/image_assets/8234300/ratio_4_3/1785483007/800x600/) [Parks & G\u00e4rten](https://www.berlin.de/tourismus/parks-und-gaerten/ \"Link zu: Parks & G\u00e4rten\")\n\u00a9 dpa  \n*   ![Image 21: Antik- und Buchmarkt am Bode-Museum](https://www.berlin.de/binaries/asset/image_assets/10297120/ratio_4_3/1787822444/800x600/) [Flohm\u00e4rkte](https://www.berlin.de/special/shopping/flohmaerkte/ \"Link zu: Flohm\u00e4rkte in Berlin: Tr\u00f6delm\u00e4rkte der Stadt\")\n\u00a9 till beck/stock.adobe.com  \n\n## [Aktuelle Meldungen](https://www.berlin.de/aktuelles/ \"Aktuelles aus Berlin\")\n\n*   8.Sep\n\n### Warntag am Donnerstag: Berlin testet Warnsirenen\n\nNicht erschrecken: In dieser Woche heulen in Berlin wieder die Sirenen. Dabei handelt es sich um einen bundesweiten Test. [Mehr zu: Warntag am Donnerstag: Berlin testet Warnsirenen](https://www.berlin.de/aktuelles/10620619-958090-warntag-am-donnerstag-berlin-testet-warn.html \"Warntag am Donnerstag: Berlin testet Warnsirenen\") \n*   8.Sep\n\n### Keine Hochsicherheits-Daten von Hackerangriff betroffen\n\nNach dem Hackerangriff auf die Berliner Verwaltung gibt der Senat Entwarnung: Daten mit nationaler Sicherheitsrelevanz sind laut Digital-Staatssekret\u00e4r Hauer nicht gestohlen worden. [Mehr zu: Keine Hochsicherheits-Daten von Hackerangriff betroffen](https://www.berlin.de/aktuelles/10618882-958090-keine-hochsicherheitsdaten-von-hackerang.html \"Keine Hochsicherheits-Daten von Hackerangriff betroffen\") \n*   4.Sep\n\n### Ver\u00f6ffentliche Daten: Land will Betroffene kontaktieren\n\nNach der Ver\u00f6ffentlichung der gestohlenen Daten aus der Berliner Verwaltung wollen die Beh\u00f6rden mit den betroffenen Menschen Kontakt aufnehmen. [Mehr zu: Ver\u00f6ffentliche Daten: Land will Betroffene kontaktieren](https://www.berlin.de/aktuelles/10614460-958090-veroeffentliche-daten-land-will-betroffe.html \"Ver\u00f6ffentliche Daten: Land will Betroffene kontaktieren\") \n\n[Alle Meldungen](https://www.berlin.de/aktuelles/ \"Aktuelles aus Berlin\")\n\n## Veranstaltungen\n\n*    [Heute](https://www.berlin.de/tickets/heute/ \"Heute\") \n*    [Morgen](https://www.berlin.de/tickets/morgen/ \"Morgen\") \n*    [Dieses Wochenende](https://www.berlin.de/wochenend-tipps/ \"Dieses Wochenende\") \n*    [Highlights im September](https://www.berlin.de/events/jahresuebersicht/september/ \"Highlights im September\") \n\n[Alle Veranstaltungen](https://www.berlin.de/tickets/ \"Veranstaltungen in Berlin\")\n\n## Oft gesucht\n\n*   [Presse](https://www.berlin.de/presse/)\n*   [Wahlen 2026](https://www.berlin.de/wahlen/wahlen/berliner-wahlen-2026/)\n*   [Familie](https://familienportal.berlin.de/)\n*   [Ukraine](https://www.berlin.de/ukraine/)\n*   [Einwanderungsamt](https://www.berlin.de/einwanderung/)\n*   [Wetter](https://www.berlin.de/wetter/)\n*   [Sehensw\u00fcrdigkeiten](https://www.berlin.de/sehenswuerdigkeiten/)\n*   [Kino](https://www.berlin.de/kino/)\n*   [Meldungen in Leichter Sprache](https://www.berlin.de/meldungen-leichte-sprache/)\n*   [meinBerlin](https://mein.berlin.de/)\n*   [Berlin-Ticket S](https://www.berlin.de/sen/soziales/soziale-sicherung/bn-berlin-ticket-s/)\n*   [Bibliotheken](https://service.berlin.de/stadtbibliotheken/)\n*   [Internetwache](https://www.internetwache-polizei-berlin.de/)\n*   [Ordnungsamt](https://ordnungsamt.berlin.de/frontend/dynamic)\n*   [Open Data](https://daten.berlin.de/)\n*   [F\u00fchrerschein](https://service.berlin.de/fuehrerschein/)\n*   [Standes\u00e4mter](https://service.berlin.de/standorte/standesaemter/)\n*   [Webcams](https://www.berlin.de/webcams/)\n*   [Organigramm](https://service.berlin.de/verwaltungsgliederung-organigramme/)\n\n## Weitere Informationen zu diesem Auftritt\n\n[Zum Seitenanfang](https://www.berlin.de/#top)\n\n## Weitere Informationen zu Berlin.de\n\n[![Image 22: Berlin](https://www.berlin.de/css/berlin_de/foxtrot/images/logo_berlin_m_negativ.svg)](https://www.berlin.de/ \"Zur Startseite von Berlin.de\")\n\n*   ### Hauptstadtportal\n\n    *   [Impressum](https://www.berlin.de/wir-ueber-uns/impressum/)\n    *   [Kontakt](https://www.berlin.de/wir-ueber-uns/kontakt/)\n    *   [Datenschutzerkl\u00e4rung](https://www.berlin.de/wir-ueber-uns/agb/datenschutz/)\n    *   [Erkl\u00e4rung zur Barrierefreiheit](https://www.berlin.de/wir-ueber-uns/8100503-4219174-erklaerung-zur-barrierefreiheit.html)\n\n*   ### Politik & Verwaltung\n\n    *   [Service-Portal](https://service.berlin.de/)\n    *   [B\u00fcrgertelefon 115](https://www.berlin.de/moderne-verwaltung/buergerservice/am-telefon/)\n    *   [Terminvereinbarung](https://service.berlin.de/terminvereinbarung/)\n    *   [Presse](https://www.berlin.de/presse/)\n    *   [Karriere im Land Berlin](https://www.berlin.de/karriereportal/)\n\n*   ### Beh\u00f6rden\n\n    *   [Beh\u00f6rden A-Z](https://service.berlin.de/behoerden/)\n    *   [Senatsverwaltungen](https://service.berlin.de/senatsverwaltungen/)\n    *   [Bezirks\u00e4mter](https://service.berlin.de/bezirksaemter/)\n    *   [B\u00fcrger\u00e4mter](https://service.berlin.de/standorte/buergeraemter/)\n    *   [Jobcenter](https://service.berlin.de/jobcenter/)\n\n*   ### Berlin erleben\n\n    *   [Kultur](https://www.berlin.de/kultur-und-tickets/)\n    *   [Tourismus](https://www.berlin.de/tourismus/)\n    *   [Stadtleben](https://www.berlin.de/special/)\n    *   [Wirtschaft](https://www.berlin.de/wirtschaft/)\n    *   [Kalender](https://www.berlin.de/tickets/)\n\n*   ### Extras\n\n    *   [Newsletter](https://www.berlin.de/kultur-und-tickets/newsletter/)\n    *   [Notdienste](https://www.berlin.de/tourismus/infos/1748526-1721039-notfall-notapotheken.html)\n    *   [Berlin.de-Mail buchen](https://www.berlin.de/mail/)\n    *   [Berlin.de-Mail widerrufen](https://webmail.berlin.de/widerruf/)\n    *   [Berlin.de-Mail k\u00fcndigen](https://webmail.berlin.de/kuendigung/)\n\n*   ### In anderen Sprachen\n\n    *   [English](https://www.berlin.de/en/)\n    *   [\u0627\u0644\u0639\u0631\u0628\u064a\u0629](https://www.berlin.de/ar/)\n    *   [Fran\u00e7ais](https://www.berlin.de/fr/)\n    *   [Polski](https://www.berlin.de/pl/)\n    *   [\u0420\u0443\u0441\u0441\u043a\u0438\u0439](https://www.berlin.de/ru/)\n    *   [T\u00fcrk\u00e7e](https://www.berlin.de/tr/)\n    *   [\u0423\u043a\u0440\u0430\u0457\u043d\u0441\u044c\u043a\u0430](https://www.berlin.de/uk/)\n\nBerlin.de ist ein Angebot des Landes Berlin.",
+        "source_url": "https://www.berlin.de/",
+        "original_snapshot": {
+          "bytes": 38467,
+          "content_type": "text/html; charset=UTF-8",
+          "digest": "d1848ae58ee883a128696946a36d06d49c8a14539a433aa7d125188417f3366e",
+          "fetched_at": 1788906440102,
+          "final_url": "https://www.berlin.de/",
+          "url": "https://www.berlin.de/"
+        },
+        "transformation_snapshot": {
+          "bytes": 18461,
+          "content_type": "application/json; charset=utf-8",
+          "digest": "1e13ef04ef8e23e962e3b8ace0c96e2008fa6de52dcbd0f0934a9f2235fea851",
+          "fetched_at": 1788906440925,
+          "final_url": "https://r.jina.ai/https://www.berlin.de/",
+          "url": "https://r.jina.ai/https://www.berlin.de/"
+        },
+        "representation": "jina-markdown",
+        "precise_locators": false,
+        "receipt": {
+          "actual_billed_usd_micros": null,
+          "budget_id": "reader",
+          "bytes": 18461,
+          "contract": "noesis-provider-request-v1",
+          "digest": "1e13ef04ef8e23e962e3b8ace0c96e2008fa6de52dcbd0f0934a9f2235fea851",
+          "elapsed_seconds": 1.9091617480007699,
+          "execution": "network",
+          "http_status": 200,
+          "observed_at_ms": 1788906440925,
+          "provider": "jina",
+          "request": {
+            "body": null,
+            "credential_slots": {
+              "body": [],
+              "headers": [],
+              "params": []
+            },
+            "headers": {
+              "Accept": "application/json",
+              "X-Respond-With": "markdown",
+              "X-Token-Budget": "16000"
+            },
+            "max_bytes": 4000000,
+            "max_cost_micros": 0,
+            "method": "GET",
+            "params": {},
+            "timeout_s": 30,
+            "url": "https://r.jina.ai/https://www.berlin.de/"
+          },
+          "request_hash": "e2cf09cd2cc53d4f80b3a7ff649831b09dd63bc1c31fea6d8379f8cc6fc5e722",
+          "request_key": "de:reader",
+          "reserved_cost_micros": 0,
+          "response_headers": {
+            "content-type": "application/json; charset=utf-8"
+          },
+          "retry_after": null,
+          "snapshot": {
+            "bytes": 18461,
+            "content_type": "application/json; charset=utf-8",
+            "digest": "1e13ef04ef8e23e962e3b8ace0c96e2008fa6de52dcbd0f0934a9f2235fea851",
+            "fetched_at": 1788906440925,
+            "final_url": "https://r.jina.ai/https://www.berlin.de/",
+            "url": "https://r.jina.ai/https://www.berlin.de/"
+          },
+          "state": "completed",
+          "replayed": true
+        },
+        "reported_usage": {
+          "tokens": 5131
+        }
+      },
+      "body_token_recall": 0.9754098360655737,
+      "offline_replay_same_text": true
+    },
+    {
+      "language": "en",
+      "url": "https://www.python.org/",
+      "source_receipt": {
+        "actual_billed_usd_micros": null,
+        "budget_id": "source-en",
+        "bytes": 52466,
+        "contract": "noesis-provider-request-v1",
+        "digest": "98e2baed942f2013f3184411d74b78da4bba9aeee8a48e94a27ebc7eb4b7416f",
+        "elapsed_seconds": 0.015550408999843057,
+        "execution": "network",
+        "http_status": 200,
+        "observed_at_ms": 1788906442870,
+        "provider": "public-source",
+        "request": {
+          "body": null,
+          "credential_slots": {
+            "body": [],
+            "headers": [],
+            "params": []
+          },
+          "headers": {
+            "Accept": "application/json"
+          },
+          "max_bytes": 2000000,
+          "max_cost_micros": 0,
+          "method": "GET",
+          "params": {},
+          "timeout_s": 15,
+          "url": "https://www.python.org/"
+        },
+        "request_hash": "a27e0b6304cf684311453ff28949e63a274d880a3449300ae036dc18dd4d5e39",
+        "request_key": "source",
+        "reserved_cost_micros": 0,
+        "response_headers": {
+          "content-type": "text/html; charset=utf-8"
+        },
+        "retry_after": null,
+        "snapshot": {
+          "bytes": 52466,
+          "content_type": "text/html; charset=utf-8",
+          "digest": "98e2baed942f2013f3184411d74b78da4bba9aeee8a48e94a27ebc7eb4b7416f",
+          "fetched_at": 1788906442870,
+          "final_url": "https://www.python.org/",
+          "url": "https://www.python.org/"
+        },
+        "state": "completed",
+        "replayed": true
+      },
+      "status": "completed",
+      "baseline_text": "Get Started Whether you're new to programming or an experienced developer, it's easy to learn and use Python. Download Python source code and installers are available for download for all versions! Latest: Python 3.14.7 Docs Documentation for Python's standard library, along with tutorials and guides, are available online. Jobs Looking for work or have a Python related position that you're trying to hire for? Our relaunched community-run job board is the place to go. Use Python for\u2026 - Web Development: Django, Pyramid, Bottle, Tornado, Flask, Litestar, FastAPI - GUI Development: tkInter, PyGObject, PyQt, PySide, Kivy, wxPython, DearPyGui - AI and Machine Learning: PyTorch, TensorFlow, scikit-learn, Transformers, Anthropic, LangChain - Scientific and Numeric: SciPy, Pandas, IPython - Software Development: Buildbot, Trac, Roundup - System Administration: Ansible, Salt, OpenStack, xonsh >>> Python Software Foundation The mission of the Python Software Foundation is to promote, protect, and advance the Python programming language, and to support and facilitate the growth of a diverse and international community of Python programmers. Learn more",
+      "baseline_metadata": {
+        "extractor": "extruct+html-metadata",
+        "version": "0.18.0",
+        "snapshot_sha256": "98e2baed942f2013f3184411d74b78da4bba9aeee8a48e94a27ebc7eb4b7416f",
+        "selected": {
+          "title": {
+            "field": "title",
+            "value": "Welcome to Python.org",
+            "origin": "html-meta",
+            "locator": "meta[14]",
+            "rank": 2,
+            "selection_reason": "matching article URL, then article entity, metadata, canonical link, visible heading; locator breaks ties"
+          },
+          "canonical_url": {
+            "field": "canonical_url",
+            "value": "https://www.python.org/",
+            "origin": "html-meta",
+            "locator": "meta[18]",
+            "rank": 2,
+            "selection_reason": "matching article URL, then article entity, metadata, canonical link, visible heading; locator breaks ties"
+          }
+        },
+        "candidates": [
+          {
+            "field": "title",
+            "value": "Welcome to Python.org",
+            "origin": "html-meta",
+            "locator": "meta[14]",
+            "rank": 2
+          },
+          {
+            "field": "canonical_url",
+            "value": "https://www.python.org/",
+            "origin": "html-meta",
+            "locator": "meta[18]",
+            "rank": 2
+          },
+          {
+            "field": "title",
+            "value": "Intuitive Interpretation",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4
+          }
+        ],
+        "diagnostics": [],
+        "canonical_identity_authoritative": false,
+        "body_extractor": {
+          "name": "trafilatura",
+          "version": "2.2.0",
+          "locator": "extracted-body; exact source spans unavailable"
+        }
+      },
+      "result": {
+        "text": "**Notice:** This page displays a fallback because interactive scripts did not run. Possible causes include disabled JavaScript or failure to load scripts or stylesheets.\n\n[Skip to content](https://www.python.org/#content \"Skip to content\")\n\n[\u25bc Close](https://www.python.org/#python-network)\n*   [Python](https://www.python.org/ \"The Python Programming Language\")\n*   [PSF](https://www.python.org/psf/ \"The Python Software Foundation\")\n*   [Docs](https://docs.python.org/ \"Python Documentation\")\n*   [PyPI](https://pypi.org/ \"Python Package Index\")\n*   [Jobs](https://www.python.org/jobs/ \"Python Job Board\")\n*   [Community](https://www.python.org/community/)\n\n[\u25b2 The Python Network](https://www.python.org/#top)\n\n[![Image 1: python\u2122](https://www.python.org/static/img/python-logo.png)](https://www.python.org/)\n\n[Donate](https://donate.python.org/)\n\n[\u2261 Menu](https://www.python.org/#site-map)Search This Site  GO \n\n*   [**A A**](https://www.python.org/#)\n    *   [Smaller](javascript:; \"Make Text Smaller\")\n    *   [Larger](javascript:; \"Make Text Larger\")\n    *   [Reset](javascript:; \"Reset any font size changes I have made\")\n\n*   [Socialize](https://www.python.org/#)\n    *   [LinkedIn](https://www.linkedin.com/company/python-software-foundation/)\n    *   [Mastodon](https://fosstodon.org/@ThePSF)\n    *   [Chat on IRC](https://www.python.org/community/irc/)\n    *   [Twitter](https://twitter.com/ThePSF)\n\n*   [Sign In](https://www.python.org/accounts/login/ \"Sign Up or Sign In to Python.org\")\n    *   [Sign Up / Register](https://www.python.org/accounts/signup/)\n    *   [Sign In](https://www.python.org/accounts/login/)\n\n*   [About](https://www.python.org/about/)\n    *   [Applications](https://www.python.org/about/apps/)\n    *   [Quotes](https://www.python.org/about/quotes/)\n    *   [Getting Started](https://www.python.org/about/gettingstarted/)\n    *   [Help](https://www.python.org/about/help/)\n    *   #### Python is a programming language that lets you work more quickly and integrate your systems more effectively.\n\nYou can learn to use Python and see almost immediate gains in productivity and lower maintenance costs. [Learn more about Python](https://www.python.org/about).\n\n*   [Downloads](https://www.python.org/downloads/)\n    *   [All releases](https://www.python.org/downloads/)\n    *   [Source code](https://www.python.org/downloads/source/)\n    *   [Windows](https://www.python.org/downloads/windows/)\n    *   [macOS](https://www.python.org/downloads/macos/)\n    *   [Android](https://www.python.org/downloads/android/)\n    *   [iOS](https://www.python.org/downloads/ios/)\n    *   [Other Platforms](https://www.python.org/download/other/)\n    *   [License](https://docs.python.org/3/license.html)\n    *   [Alternative Implementations](https://www.python.org/download/alternatives)\n    *   ### Python Source\n\n[Python 3.14.7](https://www.python.org/ftp/python/3.14.7/Python-3.14.7.tar.xz)\n\nNot the OS you are looking for? Python can be used on many operating systems and environments. [View the full list of downloads](https://www.python.org/downloads/). #### Download for Windows\n\n[Python install manager](https://www.python.org/ftp/python/pymanager/python-manager-26.3.msix)\n\nOr get the standalone installer for [Python 3.14.7](https://www.python.org/ftp/python/3.14.7/python-3.14.7-amd64.exe)\n\nNot the OS you are looking for? Python can be used on many operating systems and environments. [View the full list of downloads](https://www.python.org/downloads/). #### Download for macOS\n\n[Python 3.14.7](https://www.python.org/ftp/python/3.14.7/python-3.14.7-macos11.pkg)\n\nNot the OS you are looking for? Python can be used on many operating systems and environments. [View the full list of downloads](https://www.python.org/downloads/). #### Download Python for Any OS\n\nPython can be used on many operating systems and environments.\n\n[View the full list of downloads](https://www.python.org/downloads/operating-systems/) \n\n*   [Documentation](https://www.python.org/doc/)\n    *   [Docs](https://www.python.org/doc/)\n    *   [Audio/Visual Talks](https://www.python.org/doc/av)\n    *   [Beginner's Guide](https://wiki.python.org/moin/BeginnersGuide)\n    *   [FAQ](https://docs.python.org/3/faq/)\n    *   [Non-English Docs](https://translations.python.org/)\n    *   [PEP Index](https://peps.python.org/)\n    *   [Python Books](https://wiki.python.org/moin/PythonBooks)\n    *   [Python Essays](https://www.python.org/doc/essays/)\n    *   #### Python\u2019s standard documentation: download, browse or watch a tutorial.\n\nGet started below, or visit the [Documentation page to browse by version](https://www.python.org/doc/versions/).\n\n[Python Docs](https://docs.python.org/3/)\n\n*   [Community](https://www.python.org/community/)\n    *   [Diversity](https://www.python.org/community/diversity/)\n    *   [Mailing Lists](https://www.python.org/community/lists/)\n    *   [IRC](https://www.python.org/community/irc/)\n    *   [Forums](https://www.python.org/community/forums/)\n    *   [PSF Annual Impact Report](https://www.python.org/psf/annual-report/2024/)\n    *   [Python Conferences](https://www.python.org/community/workshops/)\n    *   [Special Interest Groups](https://www.python.org/community/sigs/)\n    *   [Python Logo](https://www.python.org/community/logos/)\n    *   [Python Wiki](https://wiki.python.org/moin/)\n    *   [Code of Conduct](https://www.python.org/psf/conduct/)\n    *   [Community Awards](https://www.python.org/community/awards)\n    *   [Get Involved](https://www.python.org/psf/get-involved/)\n    *   [Shared Stories](https://www.python.org/psf/community-stories/)\n    *   #### The Python Community\n\nGreat software is supported by great people. Our user base is enthusiastic, dedicated to encouraging use of the language, and committed to being diverse and friendly.\n\n*   [Success Stories](https://www.python.org/success-stories/ \"success-stories\")\n    *   [Arts](https://www.python.org/success-stories/category/arts/)\n    *   [Business](https://www.python.org/success-stories/category/business/)\n    *   [Education](https://www.python.org/success-stories/category/education/)\n    *   [Engineering](https://www.python.org/success-stories/category/engineering/)\n    *   [Government](https://www.python.org/success-stories/category/government/)\n    *   [Scientific](https://www.python.org/success-stories/category/scientific/)\n    *   [Software Development](https://www.python.org/success-stories/category/software-development/)\n    *   > Want to know how Python is performing on Arm across Linux, Windows, and the cloud? Our 2025 update highlights the latest JIT improvements, ecosystem milestones like GitHub runners and PyTorch on Windows, and the continued collaboration driving it all forward.\n\nDiego Russo, [Arm Ltd](https://www.arm.com/)\n\n*   [News](https://www.python.org/blogs/ \"News from around the Python world\")\n    *   [Python News](https://www.python.org/blogs/ \"Python Insider Blog Posts\")\n    *   [PSF Newsletter](https://www.python.org/psf/newsletter/ \"Python Software Foundation Newsletter\")\n    *   [PSF News](https://pyfound.blogspot.com/ \"PSF Blog\")\n    *   [PyCon US News](https://pycon.blogspot.com/ \"PyCon Blog\")\n    *   [Python Insider](https://blog.python.org/ \"News and updates from the Python core team\")\n    *   [News from the Community](https://planetpython.org/ \"Planet Python\")\n\n*   [Events](https://www.python.org/events/)\n    *   [Python Events](https://www.python.org/events/python-events/)\n    *   [User Group Events](https://www.python.org/events/python-user-group/)\n    *   [Python Events Archive](https://www.python.org/events/python-events/past/)\n    *   [User Group Events Archive](https://www.python.org/events/python-user-group/past/)\n    *   [Submit an Event](https://wiki.python.org/moin/PythonEventsCalendar#Submitting_an_Event)\n    *   Find events from the Python Community around the world!\n\n*   [>_ Launch Interactive Shell](https://www.python.org/shell/)\n\n*   ```\n# Simple arithmetic\n>>> 1 / 2\n0.5\n>>> 2 ** 3\n8\n>>> 17 / 3  # true division returns a float\n5.666666666666667\n>>> 17 // 3  # floor division\n5\n``` # Intuitive Interpretation\n\nCalculations are simple with Python, and expression syntax is straightforward: the operators `+`, `-`, `*` and `/` work as expected; parentheses `()` can be used for grouping. [More about simple math functions in Python 3](http://docs.python.org/3/tutorial/introduction.html#using-python-as-a-calculator). \n*   ```\n# Python 3: List comprehensions\n>>> fruits = ['Banana', 'Apple', 'Lime']\n>>> loud_fruits = [fruit.upper() for fruit in fruits]\n>>> print(loud_fruits)\n['BANANA', 'APPLE', 'LIME']\n\n# List and the enumerate function\n>>> list(enumerate(fruits))\n[(0, 'Banana'), (1, 'Apple'), (2, 'Lime')]\n``` # Compound Data Types\n\nLists (known as arrays in other languages) are one of the compound data types that Python understands. Lists can be indexed, sliced and manipulated with other built-in functions. [More about lists in Python 3](https://docs.python.org/3/tutorial/introduction.html#lists) \n*   ```\n# For loop on a list\n>>> numbers = [2, 4, 6, 8]\n>>> product = 1\n>>> for number in numbers:\n...    product = product * number\n... \n>>> print('The product is:', product)\nThe product is: 384\n``` # All the Flow You\u2019d Expect\n\nPython knows the usual control flow statements that other languages speak \u2014 `if`, `for`, `while` and `range` \u2014 with some of its own twists, of course. [More control flow tools in Python 3](https://docs.python.org/3/tutorial/controlflow.html) \n*   ```\n# Python 3: Fibonacci series up to n\n>>> def fib(n):\n>>>     a, b = 0, 1\n>>>     while a < n:\n>>>         print(a, end=' ')\n>>>         a, b = b, a+b\n>>>     print()\n>>> fib(1000)\n0 1 1 2 3 5 8 13 21 34 55 89 144 233 377 610 987\n``` # Functions Defined\n\nThe core of extensible programming is defining functions. Python allows mandatory and optional arguments, keyword arguments, and even arbitrary argument lists. [More about defining functions in Python 3](https://docs.python.org/3/tutorial/controlflow.html#defining-functions) \n*   ```\n# Simple output (with Unicode)\n>>> print(\"Hello, I'm Python!\")\nHello, I'm Python!\n\n# Input, assignment\n>>> name = input('What is your name?\\n')\n>>> print(f'Hi, {name}.')\nWhat is your name?\nPython\nHi, Python.\n``` # Quick & Easy to Learn\n\nExperienced programmers in any other language can pick up Python very quickly, and beginners find the clean syntax and indentation structure easy to learn. [Whet your appetite](https://docs.python.org/3/tutorial/) with our Python 3 overview. \n\n1.   [1](https://www.python.org/)\n2.   [2](https://www.python.org/)\n3.   [3](https://www.python.org/)\n4.   [4](https://www.python.org/)\n5.   [5](https://www.python.org/)\n\nPython is a programming language that lets you work quickly and integrate systems more effectively. [Learn More](https://www.python.org/doc/)\n\n## Get Started\n\nWhether you're new to programming or an experienced developer, it's easy to learn and use Python.\n\n[Start with our Beginner\u2019s Guide](https://www.python.org/about/gettingstarted/)\n\n## Download\n\nPython source code and installers are available for download for all versions!\n\nLatest: [Python 3.14.7](https://www.python.org/downloads/release/python-3147/)\n\n## Docs\n\nDocumentation for Python's standard library, along with tutorials and guides, are available online.\n\n[docs.python.org](https://docs.python.org/)\n\n## Jobs\n\nLooking for work or have a Python related position that you're trying to hire for? Our **relaunched community-run job board** is the place to go.\n\n[jobs.python.org](https://jobs.python.org/)\n\n## Latest News\n\n[More](https://blog.python.org/ \"More News\")\n\n*   2026-09-01[The 2026 PSF Board Election is Open!](https://pyfound.blogspot.com/2026/09/the-2026-psf-board-election-is-open.html)\n*   2026-09-01[Inaugural Python Packaging Council Election: Voting is now open!](https://pyfound.blogspot.com/2026/09/inaugural-python-packaging-council.html)\n*   2026-09-01[Python 3.15.0 candidate 2 is here!](https://blog.python.org/2026/09/python-3150-rc2/)\n*   2026-08-31[Kojo Idrissa: 2026 PSF Board Election Candidate Interview](https://pyfound.blogspot.com/2026/08/kojo-idrissa-2026-psf-board-election.html)\n*   2026-08-25[Ramya Ravi: 2026 PSF Board Election Candidate Interview](https://pyfound.blogspot.com/2026/08/ramya-ravi-2026-psf-board-election.html)\n\n## Upcoming Events\n\n[More](https://www.python.org/events/calendars/ \"More Events\")\n\n*   2026-09-12[PyDay Boyac\u00e1 2026](https://www.python.org/events/python-events/2202/)\n*   2026-09-17[PyCon Cameroon 2026](https://www.python.org/events/python-events/2159/)\n*   2026-09-17[Python Leiden User Group](https://www.python.org/events/python-user-group/2204/)\n*   2026-09-26[PythonCamp R\u00fcgen 2026](https://www.python.org/events/python-user-group/2182/)\n*   2026-10-03[PyBay 2026](https://www.python.org/events/python-events/2136/)\n\n## Success Stories\n\n[More](https://www.python.org/success-stories/ \"More Success Stories\")\n\n> [\"Some of the things [SonarCloud] spots are impressive (probably driven by some introspection and/or type inference), not just the simple pattern matching that I am used to in most of the flake8 ecosystem.\" - Peter J. A. Cock - maintainer of BioPython](https://www.python.org/success-stories/deliver-clean-and-safe-code-for-your-python-applications/)\n\n[Deliver Clean and Safe Code for Your Python Applications](https://www.python.org/success-stories/deliver-clean-and-safe-code-for-your-python-applications/)_by Kirti Joshi, Nicolas Bontoux_\n\n## Use Python for\u2026\n\n[More](https://www.python.org/about/apps \"More Applications\")\n\n*   **Web Development**: [Django](https://www.djangoproject.com/), [Pyramid](https://trypyramid.com/), [Bottle](https://bottlepy.org/), [Tornado](https://www.tornadoweb.org/), [Flask](https://flask.palletsprojects.com/), [Litestar](https://litestar.dev/), [FastAPI](https://fastapi.tiangolo.com/)\n*   **GUI Development**: [tkInter](https://en.wikipedia.org/wiki/Tkinter), [PyGObject](https://pygobject.gnome.org/), [PyQt](https://riverbankcomputing.com/software/pyqt/intro), [PySide](https://wiki.qt.io/Qt_for_Python), [Kivy](https://kivy.org/), [wxPython](https://www.wxpython.org/), [DearPyGui](https://dearpygui.readthedocs.io/en/latest/)\n*   **AI and Machine Learning**: [PyTorch](https://pytorch.org/), [TensorFlow](https://www.tensorflow.org/), [scikit-learn](https://scikit-learn.org/), [Transformers](https://huggingface.co/docs/transformers/), [Anthropic](https://docs.anthropic.com/), [LangChain](https://langchain.com/)\n*   **Scientific and Numeric**: [SciPy](https://scipy.org/), [Pandas](https://pandas.pydata.org/), [IPython](https://ipython.org/)\n*   **Software Development**: [Buildbot](https://buildbot.net/), [Trac](https://trac.edgewall.org/), [Roundup](https://www.roundup-tracker.org/)\n*   **System Administration**: [Ansible](https://docs.ansible.com/), [Salt](https://saltproject.io/), [OpenStack](https://www.openstack.org/), [xonsh](https://xon.sh/)\n\n## >>>[Python Software Foundation](https://www.python.org/psf/)\n\nThe mission of the Python Software Foundation is to promote, protect, and advance the Python programming language, and to support and facilitate the growth of a diverse and international community of Python programmers. [Learn more](https://www.python.org/psf/)\n\n[Become a Member](https://www.python.org/psf/membership/)[Donate to the PSF](https://www.python.org/psf/donations/)\n\n[\u25b2 Back to Top](https://www.python.org/#python-network)\n*   [About](https://www.python.org/about/)\n    *   [Applications](https://www.python.org/about/apps/)\n    *   [Quotes](https://www.python.org/about/quotes/)\n    *   [Getting Started](https://www.python.org/about/gettingstarted/)\n    *   [Help](https://www.python.org/about/help/)\n\n*   [Downloads](https://www.python.org/downloads/)\n    *   [All releases](https://www.python.org/downloads/)\n    *   [Source code](https://www.python.org/downloads/source/)\n    *   [Windows](https://www.python.org/downloads/windows/)\n    *   [macOS](https://www.python.org/downloads/macos/)\n    *   [Android](https://www.python.org/downloads/android/)\n    *   [iOS](https://www.python.org/downloads/ios/)\n    *   [Other Platforms](https://www.python.org/download/other/)\n    *   [License](https://docs.python.org/3/license.html)\n    *   [Alternative Implementations](https://www.python.org/download/alternatives)\n\n*   [Documentation](https://www.python.org/doc/)\n    *   [Docs](https://www.python.org/doc/)\n    *   [Audio/Visual Talks](https://www.python.org/doc/av)\n    *   [Beginner's Guide](https://wiki.python.org/moin/BeginnersGuide)\n    *   [FAQ](https://docs.python.org/3/faq/)\n    *   [Non-English Docs](https://translations.python.org/)\n    *   [PEP Index](https://peps.python.org/)\n    *   [Python Books](https://wiki.python.org/moin/PythonBooks)\n    *   [Python Essays](https://www.python.org/doc/essays/)\n\n*   [Community](https://www.python.org/community/)\n    *   [Diversity](https://www.python.org/community/diversity/)\n    *   [Mailing Lists](https://www.python.org/community/lists/)\n    *   [IRC](https://www.python.org/community/irc/)\n    *   [Forums](https://www.python.org/community/forums/)\n    *   [PSF Annual Impact Report](https://www.python.org/psf/annual-report/2024/)\n    *   [Python Conferences](https://www.python.org/community/workshops/)\n    *   [Special Interest Groups](https://www.python.org/community/sigs/)\n    *   [Python Logo](https://www.python.org/community/logos/)\n    *   [Python Wiki](https://wiki.python.org/moin/)\n    *   [Code of Conduct](https://www.python.org/psf/conduct/)\n    *   [Community Awards](https://www.python.org/community/awards)\n    *   [Get Involved](https://www.python.org/psf/get-involved/)\n    *   [Shared Stories](https://www.python.org/psf/community-stories/)\n\n*   [Success Stories](https://www.python.org/success-stories/ \"success-stories\")\n    *   [Arts](https://www.python.org/success-stories/category/arts/)\n    *   [Business](https://www.python.org/success-stories/category/business/)\n    *   [Education](https://www.python.org/success-stories/category/education/)\n    *   [Engineering](https://www.python.org/success-stories/category/engineering/)\n    *   [Government](https://www.python.org/success-stories/category/government/)\n    *   [Scientific](https://www.python.org/success-stories/category/scientific/)\n    *   [Software Development](https://www.python.org/success-stories/category/software-development/)\n\n*   [News](https://www.python.org/blogs/ \"News from around the Python world\")\n    *   [Python News](https://www.python.org/blogs/ \"Python Insider Blog Posts\")\n    *   [PSF Newsletter](https://www.python.org/psf/newsletter/ \"Python Software Foundation Newsletter\")\n    *   [PSF News](https://pyfound.blogspot.com/ \"PSF Blog\")\n    *   [PyCon US News](https://pycon.blogspot.com/ \"PyCon Blog\")\n    *   [Python Insider](https://blog.python.org/ \"News and updates from the Python core team\")\n    *   [News from the Community](https://planetpython.org/ \"Planet Python\")\n\n*   [Events](https://www.python.org/events/)\n    *   [Python Events](https://www.python.org/events/python-events/)\n    *   [User Group Events](https://www.python.org/events/python-user-group/)\n    *   [Python Events Archive](https://www.python.org/events/python-events/past/)\n    *   [User Group Events Archive](https://www.python.org/events/python-user-group/past/)\n    *   [Submit an Event](https://wiki.python.org/moin/PythonEventsCalendar#Submitting_an_Event)\n\n*   [Contributing](https://www.python.org/dev/)\n    *   [Developer's Guide](https://devguide.python.org/)\n    *   [Issue Tracker](https://github.com/python/cpython/issues)\n    *   [python-dev list](https://mail.python.org/mailman/listinfo/python-dev)\n    *   [Core Mentorship](https://www.python.org/dev/core-mentorship/)\n    *   [Report a Security Issue](https://www.python.org/dev/security/)\n\n[\u25b2 Back to Top](https://www.python.org/#python-network)\n\n*   [Help &General Contact](https://www.python.org/about/help/)\n*   [Diversity Initiatives](https://www.python.org/community/diversity/)\n*   [Submit Website Bug](https://github.com/python/pythondotorg/issues)\n*   [Status](https://status.python.org/ \"All Systems Operational\")\n\nCopyright \u00a92001-2026.[Python Software Foundation](https://www.python.org/psf-landing/)[Legal Statements](https://www.python.org/about/legal/)[Privacy Notice](https://policies.python.org/python.org/Privacy-Notice/)",
+        "source_url": "https://www.python.org/",
+        "original_snapshot": {
+          "bytes": 52466,
+          "content_type": "text/html; charset=utf-8",
+          "digest": "98e2baed942f2013f3184411d74b78da4bba9aeee8a48e94a27ebc7eb4b7416f",
+          "fetched_at": 1788906442870,
+          "final_url": "https://www.python.org/",
+          "url": "https://www.python.org/"
+        },
+        "transformation_snapshot": {
+          "bytes": 23412,
+          "content_type": "application/json; charset=utf-8",
+          "digest": "66b4a09ce457df2a9e928db86269b95746d7e7d59b1b9653894b0e5475e320dd",
+          "fetched_at": 1788906444149,
+          "final_url": "https://r.jina.ai/https://www.python.org/",
+          "url": "https://r.jina.ai/https://www.python.org/"
+        },
+        "representation": "jina-markdown",
+        "precise_locators": false,
+        "receipt": {
+          "actual_billed_usd_micros": null,
+          "budget_id": "reader",
+          "bytes": 23412,
+          "contract": "noesis-provider-request-v1",
+          "digest": "66b4a09ce457df2a9e928db86269b95746d7e7d59b1b9653894b0e5475e320dd",
+          "elapsed_seconds": 0.3823347989964532,
+          "execution": "network",
+          "http_status": 200,
+          "observed_at_ms": 1788906444149,
+          "provider": "jina",
+          "request": {
+            "body": null,
+            "credential_slots": {
+              "body": [],
+              "headers": [],
+              "params": []
+            },
+            "headers": {
+              "Accept": "application/json",
+              "X-Respond-With": "markdown",
+              "X-Token-Budget": "16000"
+            },
+            "max_bytes": 4000000,
+            "max_cost_micros": 0,
+            "method": "GET",
+            "params": {},
+            "timeout_s": 30,
+            "url": "https://r.jina.ai/https://www.python.org/"
+          },
+          "request_hash": "ee2f4a68fd9e01bff0ef590f0d26a220a92999b14a81f14a020e4ea7395183a9",
+          "request_key": "en:reader",
+          "reserved_cost_micros": 0,
+          "response_headers": {
+            "content-type": "application/json; charset=utf-8"
+          },
+          "retry_after": null,
+          "snapshot": {
+            "bytes": 23412,
+            "content_type": "application/json; charset=utf-8",
+            "digest": "66b4a09ce457df2a9e928db86269b95746d7e7d59b1b9653894b0e5475e320dd",
+            "fetched_at": 1788906444149,
+            "final_url": "https://r.jina.ai/https://www.python.org/",
+            "url": "https://r.jina.ai/https://www.python.org/"
+          },
+          "state": "completed",
+          "replayed": true
+        },
+        "reported_usage": {
+          "tokens": 5369
+        }
+      },
+      "body_token_recall": 0.7125748502994012,
+      "offline_replay_same_text": true
+    }
+  ],
+  "label_origin": "measured sequential public captures; not independent human fidelity labels",
+  "budget": {
+    "budget_id": "reader",
+    "configuration": {
+      "provider": "jina",
+      "hosts": [
+        "r.jina.ai"
+      ],
+      "account_ref": "public",
+      "reuse_notice": "Public-page evaluation; source publisher terms apply",
+      "limits": {
+        "requests": 2,
+        "usd_micros": 0,
+        "bytes": 100000000
+      },
+      "transport": "network"
+    },
+    "used_requests": 2,
+    "reserved_usd_micros": 0,
+    "reserved_bytes": 8000000,
+    "actual_billed_usd_micros": null,
+    "cost_semantics": "conservative reservations, not billing measurements"
+  },
+  "decision": "defer production adoption; preserve local extraction default"
+}

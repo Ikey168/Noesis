@@ -42,6 +42,8 @@ class EvidenceResolver:
             reason = 'published_identity_decision'
         if kind == 'calculation' and extra:
             reason = 'calculation_inputs_revised'
+        if kind == 'source' and extra:
+            reason = 'provider_notice_requires_review'
         result.update(status='affected' if changed else 'current', reason=reason, coverage='incomplete' if pending else 'complete_for_declared_dependency', details=extra)
         if pending:
             result.update(status='affected' if changed else 'uncertain', reason=reason if changed else 'uncommitted_evidence_pending')
@@ -53,7 +55,14 @@ class EvidenceResolver:
         before = self._one(base + ' AND revision_id=?', [identity, revision])
         after = self._one(base + ' ORDER BY revision DESC LIMIT 1', [identity])
         pending = self.conn.execute('SELECT 1 FROM document_revision_records WHERE document_id=? AND committed_watermark IS NULL LIMIT 1', [identity]).fetchone() is not None
-        return before, after, pending, []
+        notices = []
+        if self.conn.execute("SELECT 1 FROM information_schema.tables WHERE table_name='crossref_notices'").fetchone():
+            rows = self.conn.execute('SELECT notice_id,notice_document_id,notice_json FROM crossref_notices WHERE document_id=? ORDER BY notice_id LIMIT 101', [identity]).fetchall()
+            pending = pending or len(rows) > 100
+            for notice_id, document_id, raw in rows[:100]:
+                value = json.loads(raw)
+                notices.append({'notice_id': notice_id, 'notice_document_id': document_id, 'notice_type': value['notice_type'], 'provider': value['provider'], 'notice_date': value['notice_date']})
+        return before, after, pending, notices
 
     def _artifact(self, ns, identity, revision):
         base = 'SELECT to_json(a) FROM knowledge_artifacts a WHERE namespace=? AND (logical_id=? OR artifact_id=?)'

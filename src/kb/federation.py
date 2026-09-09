@@ -373,16 +373,23 @@ class RemoteMCPAdapter:
             return self.refresh(scopes=scopes)
         return dict(self._cache)
 
-    def query(self, request: Mapping[str, Any], *, scopes: set[str]) -> dict[str, Any]:
+    def query(self, request: Mapping[str, Any], *, scopes: set[str], cancelled: Callable[[], bool] | None = None) -> dict[str, Any]:
+        if cancelled and cancelled():
+            raise FederationError("cancelled", "remote MCP request cancelled")
         started = time.monotonic(); _authorize(self.definition, scopes); self.capabilities(scopes=scopes)
         kind, name = str(request.get("kind", "resource")), str(request.get("name", ""))
         arguments = _redact(dict(request.get("arguments") or {}))
         if kind == "resource" and name in self.allowed_resources:
             raw = self.client.read_resource(name)
         elif kind == "tool" and name in self.allowed_tools:
-            raw = self.client.call_tool(name, arguments)
+            if cancelled is not None and getattr(self.client, "supports_cancellation", False):
+                raw = self.client.call_tool(name, arguments, cancelled=cancelled)
+            else:
+                raw = self.client.call_tool(name, arguments)
         else:
             raise FederationError("remote_operation_forbidden", "remote operation is not allowlisted")
+        if cancelled and cancelled():
+            raise FederationError("cancelled", "remote MCP request cancelled")
         if isinstance(raw, Mapping) and any(key in raw for key in ("prompts", "roots")):
             raise FederationError("untrusted_control_content", "remote control-plane content is not knowledge")
         clean = _redact(raw)

@@ -1,0 +1,107 @@
+{
+  "text": "Die Europäische Kommission fördert das Programm Horizont Europa. Die Universität Berlin erhält 2 Millionen Euro.",
+  "schema": {
+    "entities": {
+      "authority": "Funding authority",
+      "funding_programme": "Named EU funding programme",
+      "organisation": "Beneficiary organisation"
+    },
+    "relations": {
+      "funds": "Funding authority explicitly funds an organisation or programme"
+    },
+    "structures": {
+      "award": {
+        "programme": {
+          "dtype": "str",
+          "description": "Funding programme"
+        },
+        "beneficiary": {
+          "dtype": "str",
+          "description": "Beneficiary name"
+        },
+        "amount": {
+          "dtype": "str",
+          "description": "Explicit award amount including currency"
+        }
+      }
+    }
+  },
+  "output": {
+    "award": [
+      {
+        "programme": {
+          "text": "Horizont Europa",
+          "confidence": 0.9913722276687622,
+          "start": 48,
+          "end": 63
+        },
+        "beneficiary": {
+          "text": "Universität Berlin",
+          "confidence": 0.9973456263542175,
+          "start": 69,
+          "end": 87
+        },
+        "amount": {
+          "text": "2 Millionen Euro",
+          "confidence": 0.9968597888946533,
+          "start": 95,
+          "end": 111
+        }
+      }
+    ],
+    "entities": {
+      "authority": [
+        {
+          "text": "Europäische Kommission",
+          "confidence": 0.9996525049209595,
+          "start": 4,
+          "end": 26
+        }
+      ],
+      "funding_programme": [
+        {
+          "text": "Horizont Europa",
+          "confidence": 0.9912747144699097,
+          "start": 48,
+          "end": 63
+        }
+      ],
+      "organisation": [
+        {
+          "text": "Universität Berlin",
+          "confidence": 0.9981949925422668,
+          "start": 69,
+          "end": 87
+        }
+      ]
+    },
+    "relation_extraction": {
+      "funds: Funding authority explicitly funds an organisation or programme": [
+        {
+          "head": {
+            "text": "Europäische Kommission",
+            "confidence": 0.9978753328323364,
+            "start": 4,
+            "end": 26
+          },
+          "tail": {
+            "text": "Horizont Europa",
+            "confidence": 0.7869108319282532,
+            "start": 48,
+            "end": 63
+          }
+        }
+      ],
+      "funds": []
+    }
+  },
+  "provenance": {
+    "origin": "recorded-native-sdk-on-authored-input",
+    "independent_human_labels": false,
+    "gliner2": "2.0.0",
+    "transformers": "4.57.6",
+    "python": "3.12.13",
+    "checkpoint": "fastino/gliner2-multi-v1",
+    "revision": "c6296e25603e4d31f68ef8a9f4edb73421d1e45a"
+  }
+}

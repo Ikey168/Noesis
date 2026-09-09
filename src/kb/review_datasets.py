@@ -43,6 +43,11 @@ class ReviewDatasetStore(ReviewInboxStore):
             if self._sources(task['sources'], scopes) != task['source_fingerprints']:
                 excluded.append({'task_id': identity, 'reason': 'source_changed_after_review'})
                 continue
+            annotation_rows = self.conn.execute('SELECT reviewer_id,details_json FROM review_annotation_details WHERE task_id=? ORDER BY reviewer_id', [identity]).fetchall()
+            annotations = [json.loads(value[1]) for value in annotation_rows]
+            if annotations and (len(annotations) != len(task['votes']) or len({_json(value['annotation']) for value in annotations}) != 1):
+                excluded.append({'task_id': identity, 'reason': 'disputed_annotation_details'})
+                continue
             tokens = ['document:'+v['document_id'] for v in task['source_fingerprints']]
             tokens += ['content:'+v['content_hash'] for v in task['source_fingerprints']]
             tokens += ['declared:'+v for v in task['related_groups']]
@@ -56,6 +61,9 @@ class ReviewDatasetStore(ReviewInboxStore):
                 'sources': task['source_fingerprints'], 'group_tokens': sorted(set(tokens)), 'label': resolution['label'],
                 'annotators': task['votes'], 'agreement': True, 'resolution': resolution,
                 'self_reported_effort_ms': sum(v['effort_ms'] for v in task['votes'])})
+            if annotations:
+                rows[-1]['annotation'] = annotations[0]['annotation']
+                rows[-1]['annotation_provenance'] = [value['provenance'] for value in annotations]
         # Connected components cover revisions, shared content, shared entities,
         # and curator-declared related publications before assigning any split.
         parent = {}

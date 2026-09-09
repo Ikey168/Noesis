@@ -18,18 +18,20 @@ def discover_candidates(text, url):
     if stripped.startswith(("<?xml", "<urlset", "<sitemapindex", "<rss", "<feed")):
         root = ET.fromstring(text)
         if root.tag.rsplit("}", 1)[-1] in ("rss", "feed"):
-            from trafilatura.feeds import FeedParameters, extract_links
-
-            params = FeedParameters(
-                baseurl=url,
-                domain=urlsplit(url).hostname,
-                reference=url,
-                external=False,
-            )
+            # Keep feed discovery deterministic and independent of trafilatura
+            # parser-version behavior. RSS uses <link> text while Atom commonly
+            # uses href attributes; both are already present in the parsed XML.
+            feed_links = []
+            for element in root.iter():
+                local = element.tag.rsplit("}", 1)[-1]
+                value = None
+                if local == "link":
+                    value = element.get("href") or element.text
+                if value and (target := scoped_url(url, value.strip())):
+                    feed_links.append(target)
             return [
                 {"url": target, "kind": "page", "discovered_from": url}
-                for value in extract_links(text, params)
-                if (target := scoped_url(url, value))
+                for target in dict.fromkeys(feed_links)
             ]
         if root.tag.rsplit("}", 1)[-1] not in ("urlset", "sitemapindex"):
             raise ValueError("unsupported discovery XML")
@@ -49,9 +51,12 @@ def discover_candidates(text, url):
             if link.get("type") in ("application/rss+xml", "application/atom+xml"):
                 candidates.append((link["href"], "feed"))
     else:
-        from trafilatura.sitemaps import extract_robots_sitemaps
-
-        candidates.extend((v, "sitemap") for v in extract_robots_sitemaps(text, url))
+        # robots.txt sitemap declarations are deliberately simple and parsing
+        # them locally avoids version-dependent normalization of relative URLs.
+        for line in text.splitlines():
+            key, sep, value = line.partition(":")
+            if sep and key.strip().casefold() == "sitemap" and value.strip():
+                candidates.append((value.strip(), "sitemap"))
     result = []
     seen = set()
     for value, kind in candidates:

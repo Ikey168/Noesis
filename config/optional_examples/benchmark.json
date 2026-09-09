@@ -1,0 +1,5 @@
+{
+  "kind": "benchmark",
+  "namespace": "research",
+  "manifest_file": "tests/fixtures/workflow_review/native_retrieval_smoke.json"
+}

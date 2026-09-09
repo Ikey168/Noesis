@@ -1,0 +1,46 @@
+{
+  "contract": "noesis-playwright-mcp-live-review-v1",
+  "endpoint": "http://127.0.0.1:8931/mcp",
+  "url": "https://www.berlin.de/",
+  "declared_origins": [
+    "https://www.berlin.de"
+  ],
+  "network_guard": "config/mcp/playwright_guard.mjs",
+  "server_version": "1.63.0-alpha-2026-08-31",
+  "capture": {
+    "status": "captured",
+    "document_id": "browser-mcp:741e025e4534747360dc3ada10bf9b62",
+    "url": "https://www.berlin.de/",
+    "snapshot": {
+      "url": "https://www.berlin.de/",
+      "final_url": "https://www.berlin.de/",
+      "fetched_at": 1788885319655,
+      "digest": "23e0a82838c9ffb37bdc6c60e7a4467c5f872d827e7b92d8c6f3b4b07bf0bd1d",
+      "content_type": "application/json",
+      "bytes": 27287
+    },
+    "screenshots": [],
+    "observed_at_ms": 1788885319655,
+    "precise_source_offsets": false
+  },
+  "thread_name": "noesis-mcp-browser",
+  "transport_thread_closed": true,
+  "offline_replay": {
+    "document_id": "browser-mcp:741e025e4534747360dc3ada10bf9b62",
+    "observed_at_ms": 1788885319655,
+    "precise_source_offsets": false,
+    "screenshots": [],
+    "snapshot": {
+      "bytes": 27287,
+      "content_type": "application/json",
+      "digest": "23e0a82838c9ffb37bdc6c60e7a4467c5f872d827e7b92d8c6f3b4b07bf0bd1d",
+      "fetched_at": 1788885319655,
+      "final_url": "https://www.berlin.de/",
+      "url": "https://www.berlin.de/"
+    },
+    "status": "captured",
+    "url": "https://www.berlin.de/",
+    "replayed": true
+  },
+  "status": "completed"
+}

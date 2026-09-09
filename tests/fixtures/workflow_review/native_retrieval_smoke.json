@@ -1,0 +1,386 @@
+{
+  "contract": "noesis-native-benchmark-v1",
+  "provenance": "Authored smoke cases; NOT independent human relevance judgments. No production quality claim follows.",
+  "configuration": {
+    "timeout_s": 120,
+    "max_rss_bytes": 4294967296,
+    "development_groups": []
+  },
+  "cases": [
+    {
+      "id": "minilm-de-de",
+      "split": "test",
+      "group_id": "authored-holdout-de-de",
+      "source": "authored-fixture",
+      "domain": "research",
+      "language": "de-de",
+      "label_origin": "fixture",
+      "operation": "retrieval-minilm",
+      "metric": "ranking",
+      "metric_configuration": {
+        "k": 30
+      },
+      "output_pointer": "/results",
+      "payload": {
+        "query": "Wasserqualität und Messungen",
+        "documents": [
+          {
+            "id": "de-source",
+            "revision": "fixture-v1",
+            "source": "authored-fixture",
+            "text": "Die Berliner Beispielbehörde veröffentlicht einen Bericht über Wasserqualität und Messungen."
+          },
+          {
+            "id": "en-source",
+            "revision": "fixture-v1",
+            "source": "authored-fixture",
+            "text": "The example authority publishes a report about water quality and measurement methods."
+          },
+          {
+            "id": "unrelated",
+            "revision": "fixture-v1",
+            "source": "authored-fixture",
+            "text": "This example discusses graphics processors and rendering pipelines."
+          }
+        ],
+        "limit": 30
+      },
+      "expected": {
+        "de-source": 3,
+        "en-source": 2,
+        "unrelated": 0
+      }
+    },
+    {
+      "id": "minilm-en-en",
+      "split": "test",
+      "group_id": "authored-holdout-en-en",
+      "source": "authored-fixture",
+      "domain": "research",
+      "language": "en-en",
+      "label_origin": "fixture",
+      "operation": "retrieval-minilm",
+      "metric": "ranking",
+      "metric_configuration": {
+        "k": 30
+      },
+      "output_pointer": "/results",
+      "payload": {
+        "query": "Water quality measurement report",
+        "documents": [
+          {
+            "id": "de-source",
+            "revision": "fixture-v1",
+            "source": "authored-fixture",
+            "text": "Die Berliner Beispielbehörde veröffentlicht einen Bericht über Wasserqualität und Messungen."
+          },
+          {
+            "id": "en-source",
+            "revision": "fixture-v1",
+            "source": "authored-fixture",
+            "text": "The example authority publishes a report about water quality and measurement methods."
+          },
+          {
+            "id": "unrelated",
+            "revision": "fixture-v1",
+            "source": "authored-fixture",
+            "text": "This example discusses graphics processors and rendering pipelines."
+          }
+        ],
+        "limit": 30
+      },
+      "expected": {
+        "de-source": 2,
+        "en-source": 3,
+        "unrelated": 0
+      }
+    },
+    {
+      "id": "minilm-de-en",
+      "split": "test",
+      "group_id": "authored-holdout-de-en",
+      "source": "authored-fixture",
+      "domain": "research",
+      "language": "de-en",
+      "label_origin": "fixture",
+      "operation": "retrieval-minilm",
+      "metric": "ranking",
+      "metric_configuration": {
+        "k": 30
+      },
+      "output_pointer": "/results",
+      "payload": {
+        "query": "Bericht über Wasserqualität",
+        "documents": [
+          {
+            "id": "en-source",
+            "revision": "fixture-v1",
+            "source": "authored-fixture",
+            "text": "The example authority publishes a report about water quality and measurement methods."
+          },
+          {
+            "id": "unrelated",
+            "revision": "fixture-v1",
+            "source": "authored-fixture",
+            "text": "This example discusses graphics processors and rendering pipelines."
+          }
+        ],
+        "limit": 30
+      },
+      "expected": {
+        "en-source": 3,
+        "unrelated": 0
+      }
+    },
+    {
+      "id": "e5-de-de",
+      "split": "test",
+      "group_id": "authored-holdout-de-de",
+      "source": "authored-fixture",
+      "domain": "research",
+      "language": "de-de",
+      "label_origin": "fixture",
+      "operation": "retrieval-e5",
+      "metric": "ranking",
+      "metric_configuration": {
+        "k": 30
+      },
+      "output_pointer": "/results",
+      "payload": {
+        "query": "Wasserqualität und Messungen",
+        "documents": [
+          {
+            "id": "de-source",
+            "revision": "fixture-v1",
+            "source": "authored-fixture",
+            "text": "Die Berliner Beispielbehörde veröffentlicht einen Bericht über Wasserqualität und Messungen."
+          },
+          {
+            "id": "en-source",
+            "revision": "fixture-v1",
+            "source": "authored-fixture",
+            "text": "The example authority publishes a report about water quality and measurement methods."
+          },
+          {
+            "id": "unrelated",
+            "revision": "fixture-v1",
+            "source": "authored-fixture",
+            "text": "This example discusses graphics processors and rendering pipelines."
+          }
+        ],
+        "limit": 30
+      },
+      "expected": {
+        "de-source": 3,
+        "en-source": 2,
+        "unrelated": 0
+      }
+    },
+    {
+      "id": "e5-en-en",
+      "split": "test",
+      "group_id": "authored-holdout-en-en",
+      "source": "authored-fixture",
+      "domain": "research",
+      "language": "en-en",
+      "label_origin": "fixture",
+      "operation": "retrieval-e5",
+      "metric": "ranking",
+      "metric_configuration": {
+        "k": 30
+      },
+      "output_pointer": "/results",
+      "payload": {
+        "query": "Water quality measurement report",
+        "documents": [
+          {
+            "id": "de-source",
+            "revision": "fixture-v1",
+            "source": "authored-fixture",
+            "text": "Die Berliner Beispielbehörde veröffentlicht einen Bericht über Wasserqualität und Messungen."
+          },
+          {
+            "id": "en-source",
+            "revision": "fixture-v1",
+            "source": "authored-fixture",
+            "text": "The example authority publishes a report about water quality and measurement methods."
+          },
+          {
+            "id": "unrelated",
+            "revision": "fixture-v1",
+            "source": "authored-fixture",
+            "text": "This example discusses graphics processors and rendering pipelines."
+          }
+        ],
+        "limit": 30
+      },
+      "expected": {
+        "de-source": 2,
+        "en-source": 3,
+        "unrelated": 0
+      }
+    },
+    {
+      "id": "e5-de-en",
+      "split": "test",
+      "group_id": "authored-holdout-de-en",
+      "source": "authored-fixture",
+      "domain": "research",
+      "language": "de-en",
+      "label_origin": "fixture",
+      "operation": "retrieval-e5",
+      "metric": "ranking",
+      "metric_configuration": {
+        "k": 30
+      },
+      "output_pointer": "/results",
+      "payload": {
+        "query": "Bericht über Wasserqualität",
+        "documents": [
+          {
+            "id": "en-source",
+            "revision": "fixture-v1",
+            "source": "authored-fixture",
+            "text": "The example authority publishes a report about water quality and measurement methods."
+          },
+          {
+            "id": "unrelated",
+            "revision": "fixture-v1",
+            "source": "authored-fixture",
+            "text": "This example discusses graphics processors and rendering pipelines."
+          }
+        ],
+        "limit": 30
+      },
+      "expected": {
+        "en-source": 3,
+        "unrelated": 0
+      }
+    },
+    {
+      "id": "bge-m3-de-de",
+      "split": "test",
+      "group_id": "authored-holdout-de-de",
+      "source": "authored-fixture",
+      "domain": "research",
+      "language": "de-de",
+      "label_origin": "fixture",
+      "operation": "retrieval-bge-m3",
+      "metric": "ranking",
+      "metric_configuration": {
+        "k": 30
+      },
+      "output_pointer": "/results",
+      "payload": {
+        "query": "Wasserqualität und Messungen",
+        "documents": [
+          {
+            "id": "de-source",
+            "revision": "fixture-v1",
+            "source": "authored-fixture",
+            "text": "Die Berliner Beispielbehörde veröffentlicht einen Bericht über Wasserqualität und Messungen."
+          },
+          {
+            "id": "en-source",
+            "revision": "fixture-v1",
+            "source": "authored-fixture",
+            "text": "The example authority publishes a report about water quality and measurement methods."
+          },
+          {
+            "id": "unrelated",
+            "revision": "fixture-v1",
+            "source": "authored-fixture",
+            "text": "This example discusses graphics processors and rendering pipelines."
+          }
+        ],
+        "limit": 30
+      },
+      "expected": {
+        "de-source": 3,
+        "en-source": 2,
+        "unrelated": 0
+      }
+    },
+    {
+      "id": "bge-m3-en-en",
+      "split": "test",
+      "group_id": "authored-holdout-en-en",
+      "source": "authored-fixture",
+      "domain": "research",
+      "language": "en-en",
+      "label_origin": "fixture",
+      "operation": "retrieval-bge-m3",
+      "metric": "ranking",
+      "metric_configuration": {
+        "k": 30
+      },
+      "output_pointer": "/results",
+      "payload": {
+        "query": "Water quality measurement report",
+        "documents": [
+          {
+            "id": "de-source",
+            "revision": "fixture-v1",
+            "source": "authored-fixture",
+            "text": "Die Berliner Beispielbehörde veröffentlicht einen Bericht über Wasserqualität und Messungen."
+          },
+          {
+            "id": "en-source",
+            "revision": "fixture-v1",
+            "source": "authored-fixture",
+            "text": "The example authority publishes a report about water quality and measurement methods."
+          },
+          {
+            "id": "unrelated",
+            "revision": "fixture-v1",
+            "source": "authored-fixture",
+            "text": "This example discusses graphics processors and rendering pipelines."
+          }
+        ],
+        "limit": 30
+      },
+      "expected": {
+        "de-source": 2,
+        "en-source": 3,
+        "unrelated": 0
+      }
+    },
+    {
+      "id": "bge-m3-de-en",
+      "split": "test",
+      "group_id": "authored-holdout-de-en",
+      "source": "authored-fixture",
+      "domain": "research",
+      "language": "de-en",
+      "label_origin": "fixture",
+      "operation": "retrieval-bge-m3",
+      "metric": "ranking",
+      "metric_configuration": {
+        "k": 30
+      },
+      "output_pointer": "/results",
+      "payload": {
+        "query": "Bericht über Wasserqualität",
+        "documents": [
+          {
+            "id": "en-source",
+            "revision": "fixture-v1",
+            "source": "authored-fixture",
+            "text": "The example authority publishes a report about water quality and measurement methods."
+          },
+          {
+            "id": "unrelated",
+            "revision": "fixture-v1",
+            "source": "authored-fixture",
+            "text": "This example discusses graphics processors and rendering pipelines."
+          }
+        ],
+        "limit": 30
+      },
+      "expected": {
+        "en-source": 3,
+        "unrelated": 0
+      }
+    }
+  ]
+}

@@ -202,18 +202,7 @@ class AuthoredReportStore:
 
     def export(self, namespace, report_id, *, principal_id, scopes, revision=None):
         state = self.inspect(namespace, report_id, revision=revision, principal_id=principal_id, scopes=scopes)
-        content = state["content"]
-        lines = ["# " + content["title"], ""]
-        for section in content["sections"]:
-            lines.extend(["## " + section["title"], ""])
-            for assertion in section["assertions"]:
-                prefix = "[Author commentary] " if assertion["kind"] == "commentary" else "[Source-linked; support not independently verified] "
-                lines.extend([prefix + assertion["text"] + "".join(" [" + c + "]" for c in assertion["citations"]), ""])
-        lines.extend(["## Known limitations", "", *["- " + value for value in content["limitations"]], "", "## Bibliography", ""])
-        lines.extend("[" + item["id"] + "] " + item["text"] for item in content["bibliography"])
-        return {"contract": "noesis-report-export-v1", "report": state, "sha256": _hash(state),
-                "markdown": "\n".join(lines), "bibliography": content["bibliography"],
-                "limitations": ["Integrity hash is not signer authentication", "Source support and snapshot availability are not certified"]}
+        return render_export(state)
 
     def reopen(self, namespace, request_key, package, *, principal_id, scopes):
         if not isinstance(package, dict) or package.get("contract") != "noesis-report-export-v1" or package.get("sha256") != _hash(package.get("report")):
@@ -221,3 +210,19 @@ class AuthoredReportStore:
         state = package["report"]
         self._authorize(state, principal_id, scopes)
         return self.create(namespace, request_key, state["content"], principal_id=principal_id, scopes=scopes)
+
+
+def render_export(state):
+    """Render an already-authorized report-shaped state without writing it."""
+    content = state["content"]
+    lines = ["# " + content["title"], ""]
+    for section in content["sections"]:
+        lines.extend(["## " + section["title"], ""])
+        for assertion in section["assertions"]:
+            prefix = "[Author commentary] " if assertion["kind"] == "commentary" else "[Source-linked; support not independently verified] "
+            lines.extend([prefix + assertion["text"] + "".join(" [" + c + "]" for c in assertion["citations"]), ""])
+    lines.extend(["## Known limitations", "", *["- " + value for value in content["limitations"]], "", "## Bibliography", ""])
+    lines.extend("[" + item["id"] + "] " + item["text"] for item in content["bibliography"])
+    return {"contract": "noesis-report-export-v1", "report": state, "sha256": _hash(state),
+            "markdown": "\n".join(lines), "bibliography": content["bibliography"],
+            "limitations": ["Integrity hash is not signer authentication", "Source support and snapshot availability are not certified"]}

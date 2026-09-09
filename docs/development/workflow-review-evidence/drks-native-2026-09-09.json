@@ -1,0 +1,114 @@
+{
+  "contract": "noesis-drks-native-export-evaluation-v1",
+  "receipt": {
+    "automatic_identity_merge": false,
+    "contract": "noesis-regional-acquisition-v1",
+    "namespace": "science",
+    "observation": "native",
+    "provider": "drks",
+    "receipt": {
+      "document_ids": [
+        "regional:b05536d7bdd1835df2c0c7e8a03ea1ea"
+      ],
+      "native_capture": {
+        "digest": "5e4fd7bedead788325b509f37a116047002f308caeae57a537c1edb2bf244303",
+        "execution": "explicit-public-export-import",
+        "observed_at_ms": 1788908320703,
+        "snapshot": {
+          "bytes": 18399,
+          "content_type": "application/octet-stream",
+          "digest": "5e4fd7bedead788325b509f37a116047002f308caeae57a537c1edb2bf244303",
+          "fetched_at": 1788908320703,
+          "final_url": "https://drks.de/search/de/trial/DRKS00037756/download",
+          "url": "https://drks.de/search/de/trial/DRKS00037756/download"
+        }
+      },
+      "no_automatic_identity_merge": true,
+      "observation_id": "regional-observation:21cebf49074851219f8fe523229553e0",
+      "record_versions": [
+        "2dedb3f458eff4eef5f7626775395d07f5355832cc5702d7b1f7542b55db07b4"
+      ],
+      "reuse_notice": "DRKS, retrieved 2026-09-09; 2025 registration under CC BY 4.0; no endorsement; publisher terms retained",
+      "source_refs": [
+        {
+          "document_id": "regional:b05536d7bdd1835df2c0c7e8a03ea1ea",
+          "revision_id": "document-revision:634873ada9cb3f019db6bf6cab50c1e8"
+        }
+      ]
+    },
+    "record_count": 1,
+    "source_evidence_not_independent_validation": true,
+    "status": "ingested",
+    "replayed": false
+  },
+  "source_url": "https://drks.de/search/de/trial/DRKS00037756/download",
+  "sha256": "5e4fd7bedead788325b509f37a116047002f308caeae57a537c1edb2bf244303",
+  "bytes": 18399,
+  "download_filename": "DRKS_trial-DRKS00037756-v5-17.04.2026.json",
+  "access": "Documented public UI JSON export; accepted published terms after review",
+  "reuse_notice": "DRKS, retrieved 2026-09-09; 2025 registration under CC BY 4.0; no endorsement; publisher terms retained",
+  "native_fields": {
+    "countries": [
+      "DE"
+    ],
+    "identifiers": null,
+    "documents": null,
+    "sites": [
+      {
+        "type": "MEDICAL_CENTER",
+        "name": "Ambulanz f\u00fcr Multimodale Therapie bei Post-COVID-Beschwerden (CBF)",
+        "city": "Berlin"
+      },
+      {
+        "type": "MEDICAL_CENTER",
+        "name": "Charit\u00e9 Fatigue Centrum \u2013 ME/CFS (CVK)",
+        "city": "Berlin"
+      },
+      {
+        "type": "MEDICAL_CENTER",
+        "name": "Hochschulambulanz f\u00fcr Neuroimmunologie (CBB, ECRC)",
+        "city": "Berlin"
+      },
+      {
+        "type": "MEDICAL_CENTER",
+        "name": "Physikalische Medizin (CCM und CBF)",
+        "city": "Berlin"
+      },
+      {
+        "type": "MEDICAL_CENTER",
+        "name": "Infektiologie, Pneumologie und Intensivmedizin (F\u00e4cherverbund CCM, CVK und CBF)",
+        "city": "Berlin"
+      },
+      {
+        "type": "MEDICAL_CENTER",
+        "name": "Hochschulambulanz f\u00fcr Kardiologie (CBB, ECRC)",
+        "city": "Berlin"
+      },
+      {
+        "type": "MEDICAL_CENTER",
+        "name": "Hochschulambulanz der Klinik f\u00fcr Neurologie (CBF)",
+        "city": "Berlin"
+      }
+    ],
+    "registry_status": "RECRUITING",
+    "results": null,
+    "sponsor": "Charit\u00e9 \u2013 Universit\u00e4tsmedizin Berlin",
+    "registry_record_status": "UPDATED",
+    "registered_at": "2025-09-01",
+    "secondary_identifiers": {
+      "otherPrimaryRegisterId": null,
+      "otherPrimaryRegisterName": null,
+      "universalTrialNumber": null,
+      "eudraCtNumber": null,
+      "eudamedNumber": null,
+      "noOtherIdentificationNumbersAvailable": true
+    },
+    "publication_references": []
+  },
+  "sections_count": 3,
+  "native_languages": [
+    "de",
+    "en"
+  ],
+  "offline_replay": true
+}

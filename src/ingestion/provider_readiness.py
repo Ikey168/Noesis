@@ -12,8 +12,13 @@ def protocol_status(source):
 
     if is_guardian(source):
         name = "guardian"
+    from src.ingestion.openreview_api import is_openreview
+    if is_openreview(source):
+        name = "openreview"
     return {
-        "adapter_version": "native-guardian-v1"
+        "adapter_version": "native-openreview-v1"
+        if name == "openreview"
+        else "native-guardian-v1"
         if name == "guardian"
         else "native-scholarly-v1"
         if name

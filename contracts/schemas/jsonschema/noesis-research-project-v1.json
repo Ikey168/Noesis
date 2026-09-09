@@ -24,6 +24,7 @@
     "retention_policy": {"const": "references-only"},
     "updated_at_ms": {"type": "integer", "minimum": 0},
     "idempotent": {"type": "boolean"},
+    "template_origin": {"type": "object","required": ["template_id","template_revision","parameters","report_outline","source_packs"],"additionalProperties": false,"properties": {"template_id": {"type": "string","pattern": "^template:"},"template_revision": {"type": "integer","minimum": 1},"parameters": {"type": "object","maxProperties": 30,"additionalProperties": {"type": "string","minLength": 1,"maxLength": 1000}},"report_outline": {"type": "array","minItems": 1,"maxItems": 50,"items": {"type": "string"}},"source_packs": {"type": "array","minItems": 1,"maxItems": 20,"items": {"type": "object","required": ["pack_id","version","manifest_sha256"],"additionalProperties": false,"properties": {"pack_id": {"type": "string"},"version": {"type": "string"},"manifest_sha256": {"type": "string"}}}}}},
     "reference_availability": {"type": "array", "items": {"type": "object"}}
   },
   "additionalProperties": false,

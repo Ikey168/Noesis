@@ -1,0 +1,179 @@
+{
+  "contract": "noesis-minhash-reuse-evaluation-v1",
+  "package": {
+    "distribution": "datasketch",
+    "version": "2.0.0"
+  },
+  "fixture_contract": "noesis-minhash-reuse-fixture-v1",
+  "label_origin": "authored-regression-exact-similarity-and-provenance",
+  "configuration": {
+    "shingle_size": 5,
+    "num_perm": 128,
+    "seed": 17,
+    "exact_adjudication_threshold": 0.5,
+    "selected_lsh_threshold": 0.2
+  },
+  "development_threshold_curve": [
+    {
+      "threshold": 0.2,
+      "candidate_recall": 1.0,
+      "candidate_pairs": 4,
+      "final_decision_recall": 1.0,
+      "final_false_decisions": 0
+    },
+    {
+      "threshold": 0.3,
+      "candidate_recall": 1.0,
+      "candidate_pairs": 4,
+      "final_decision_recall": 1.0,
+      "final_false_decisions": 0
+    },
+    {
+      "threshold": 0.35,
+      "candidate_recall": 1.0,
+      "candidate_pairs": 4,
+      "final_decision_recall": 1.0,
+      "final_false_decisions": 0
+    },
+    {
+      "threshold": 0.4,
+      "candidate_recall": 1.0,
+      "candidate_pairs": 4,
+      "final_decision_recall": 1.0,
+      "final_false_decisions": 0
+    },
+    {
+      "threshold": 0.5,
+      "candidate_recall": 1.0,
+      "candidate_pairs": 4,
+      "final_decision_recall": 1.0,
+      "final_false_decisions": 0
+    }
+  ],
+  "test": {
+    "records": 6,
+    "expected_exact_or_provenance_pairs": [
+      [
+        "test-original",
+        "test-partial"
+      ],
+      [
+        "test-original",
+        "test-revision"
+      ],
+      [
+        "test-original",
+        "test-syndicated"
+      ],
+      [
+        "test-partial",
+        "test-syndicated"
+      ]
+    ],
+    "candidate_pairs": [
+      [
+        "test-original",
+        "test-partial"
+      ],
+      [
+        "test-original",
+        "test-revision"
+      ],
+      [
+        "test-original",
+        "test-syndicated"
+      ],
+      [
+        "test-partial",
+        "test-syndicated"
+      ]
+    ],
+    "final_decisions": [
+      [
+        "test-original",
+        "test-partial"
+      ],
+      [
+        "test-original",
+        "test-revision"
+      ],
+      [
+        "test-original",
+        "test-syndicated"
+      ],
+      [
+        "test-partial",
+        "test-syndicated"
+      ]
+    ],
+    "candidate_recall": 1.0,
+    "final_decision_recall": 1.0,
+    "final_false_decisions": 0,
+    "build_seconds": 0.03776968299644068,
+    "query_seconds_all_records": 0.0018262839948874898,
+    "peak_tracemalloc_bytes": 72220
+  },
+  "replay": {
+    "candidate_pairs_identical": true,
+    "final_decisions_identical": true,
+    "version": "noesis-minhash-lsh-v1:2dbd7ea1db49"
+  },
+  "revision_and_delete": {
+    "updated_revision": "r2",
+    "update_seconds": 0.00028366500191623345,
+    "deleted_unrelated_record": true,
+    "delete_seconds": 2.3624997993465513e-05
+  },
+  "scaling": [
+    {
+      "records": 50,
+      "build_seconds": 0.0921312520003994,
+      "candidate_query_seconds_all_records": 0.013602482998976484,
+      "exhaustive_pair_scan_seconds": 0.0008276029984699562,
+      "candidate_pairs": 74,
+      "final_decisions": 5,
+      "exhaustive_decisions": 5,
+      "final_matches_exhaustive": true,
+      "serialized_state_bytes": 7286,
+      "peak_tracemalloc_bytes": 580067,
+      "update_seconds": 0.00038275700353551656,
+      "delete_seconds": 1.6097001207526773e-05
+    },
+    {
+      "records": 200,
+      "build_seconds": 0.31457190299988724,
+      "candidate_query_seconds_all_records": 0.06004842300171731,
+      "exhaustive_pair_scan_seconds": 0.012278668000362813,
+      "candidate_pairs": 1336,
+      "final_decisions": 20,
+      "exhaustive_decisions": 20,
+      "final_matches_exhaustive": true,
+      "serialized_state_bytes": 29009,
+      "peak_tracemalloc_bytes": 2288118,
+      "update_seconds": 0.0004461470016394742,
+      "delete_seconds": 2.0326995581854135e-05
+    },
+    {
+      "records": 1000,
+      "build_seconds": 1.2453764739984763,
+      "candidate_query_seconds_all_records": 0.4988526200031629,
+      "exhaustive_pair_scan_seconds": 0.2885546709949267,
+      "candidate_pairs": 32908,
+      "final_decisions": 100,
+      "exhaustive_decisions": 100,
+      "final_matches_exhaustive": true,
+      "serialized_state_bytes": 145818,
+      "peak_tracemalloc_bytes": 11228735,
+      "update_seconds": 0.0004742189994431101,
+      "delete_seconds": 2.2709995391778648e-05
+    }
+  ],
+  "mandatory_provenance_links_bypass_lsh_misses": true,
+  "production_default_changed": false,
+  "decision": "defer production adoption: no exact-decision-preserving query-time advantage at the largest measured corpus size; retain exhaustive baseline",
+  "limitations": [
+    "Ground truth is exact-shingle/provenance behavior on an authored held-out regression corpus, not independent human semantic judgments.",
+    "tracemalloc measures Python allocations rather than complete process RSS.",
+    "MinHash is only lexical candidate generation and does not establish source independence or semantic equivalence."
+  ]
+}

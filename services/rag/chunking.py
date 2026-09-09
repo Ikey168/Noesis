@@ -106,7 +106,7 @@ class TextChunker:
     - Offset tracking for reconstruction
     """
     
-    def __init__(self, config: Optional[ChunkConfig] = None):
+    def __init__(self, config: Optional[ChunkConfig] = None, *, segmenter=None):
         """
         Initialize text chunker.
         
@@ -114,6 +114,7 @@ class TextChunker:
             config: Chunking configuration
         """
         self.config = config or ChunkConfig()
+        self.segmenter = segmenter
         if self.config.max_chars <= 0 or self.config.overlap_chars < 0 or self.config.min_chunk_chars < 0:
             raise ValueError("chunk bounds must be positive/nonnegative")
         
@@ -125,11 +126,13 @@ class TextChunker:
                 if self.config.language == "en":
                     self.nlp = English()
                     self.nlp.add_pipe("sentencizer")
-                else:
-                    # Fallback to English for unsupported languages
-                    self.nlp = English()
+                elif self.config.language == "de":
+                    self.nlp = spacy.blank("de")
                     self.nlp.add_pipe("sentencizer")
-                    logger.warning(f"Language '{self.config.language}' not supported, using English")
+                else:
+                    self.nlp = spacy.blank("xx")
+                    self.nlp.add_pipe("sentencizer")
+                    logger.warning("No language-specific sentencizer for %s; using multilingual rules", self.config.language)
             except Exception as e:
                 logger.warning(f"Failed to load spacy model: {e}, using regex fallback")
                 self.nlp = None
@@ -241,6 +244,11 @@ class TextChunker:
         return [text[start:end] for start, end in self._sentence_spans(text)]
 
     def _sentence_spans(self, text: str) -> List[Tuple[int, int]]:
+        if self.segmenter is not None:
+            # Optional SaT errors must remain visible, never silently change the
+            # tokenizer/chunk provenance to a different fallback algorithm.
+            rows = self.segmenter.segment(text)
+            return [(row["start"], row["end"]) for row in rows]
         if self.nlp:
             try:
                 return [(sent.start_char, sent.end_char) for sent in self.nlp(text).sents]

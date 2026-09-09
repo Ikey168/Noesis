@@ -1,0 +1,82 @@
+{
+  "fixture_provenance": "Authored deterministic conformance fixture; not live provider output and not independent human labels.",
+  "offline_contracts": {
+    "status": "completed",
+    "providers": [
+      "berlin-law",
+      "bfarm",
+      "cellar",
+      "ctis",
+      "drks",
+      "ema",
+      "german-courts",
+      "opencorporates",
+      "opensanctions"
+    ],
+    "records": 9
+  },
+  "access_contracts": {
+    "berlin-law": {
+      "access": "documented public export/import where available",
+      "coverage": "Berlin official portal; unrestricted API not asserted",
+      "version": "2026-09-contract"
+    },
+    "bfarm": {
+      "access": "public RSS/linked documents",
+      "coverage": "BfArM scope; PEI products excluded unless explicitly sourced",
+      "version": "2026-09-contract"
+    },
+    "cellar": {
+      "access": "public CELLAR dissemination/SPARQL",
+      "coverage": "EU Publications Office legal corpus",
+      "version": "2026-09-contract"
+    },
+    "ctis": {
+      "access": "documented-export-import; no public REST API asserted",
+      "coverage": "EU/EEA CTIS public records; field availability varies",
+      "version": "2026-09-contract"
+    },
+    "drks": {
+      "access": "documented JSON/CSV/RIS export-import",
+      "coverage": "German Clinical Trials Register",
+      "version": "2026-09-contract"
+    },
+    "ema": {
+      "access": "public website JSON/PMS API",
+      "coverage": "centralised EMA material only unless source says otherwise",
+      "version": "2026-09-contract"
+    },
+    "german-courts": {
+      "access": "official publication/import",
+      "coverage": "published German federal court decisions, not all German case law",
+      "version": "2026-09-contract"
+    },
+    "opencorporates": {
+      "access": "credentialed API; explicit account/cost policy",
+      "coverage": "provider registry coverage; not an official registry substitute",
+      "version": "2026-09-contract"
+    },
+    "opensanctions": {
+      "access": "credentialed API/dataset; review-only matches",
+      "coverage": "provider datasets and list coverage",
+      "version": "2026-09-contract"
+    }
+  },
+  "live_status": {
+    "openalex_paid_content": "unavailable:not-run-account-gated",
+    "opencorporates": "unavailable:not-run-account-gated",
+    "opensanctions": "unavailable:not-run-account-gated",
+    "exa": "unavailable:not-run-account-gated",
+    "tavily": "unavailable:not-run-account-gated",
+    "jina_reader": "unavailable:not-run-remote-processing",
+    "markitdown": "unavailable-or-local-optional-dependency; no representative corpus run",
+    "paddleocr": "unavailable:no-model-inference-run"
+  },
+  "decisions": {
+    "regional_import_adapters": "adopt as bounded import/normalization contracts; provider live coverage remains separately gated",
+    "hosted_discovery": "defer pending credentialed shared-query relevance/cost evaluation",
+    "jina_reader": "defer pending public-page fidelity/cost evaluation",
+    "markitdown": "defer pending format-specific representative corpus",
+    "paddleocr": "defer pending real German/multilingual scan benchmark"
+  }
+}

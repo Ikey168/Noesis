@@ -1,0 +1,16 @@
+{
+  "backend": "crawlee",
+  "version": "1.10.0",
+  "status": "passed",
+  "completed_per_process": [
+    1,
+    1,
+    0
+  ],
+  "page_fetch_counts": {
+    "/first": 1,
+    "/second": 1
+  },
+  "concurrency_ceiling": 1,
+  "assessment": "Named queue survives a bounded stop and process restart without refetching completed pages. Delayed DOM readiness passes. The persisted request counter requires increasing the cumulative request ceiling on resume. Adaptive concurrency and crash-during-handler recovery are not established."
+}

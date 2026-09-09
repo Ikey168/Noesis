@@ -1,0 +1,87 @@
+{
+  "contract": "noesis-regulatory-linked-live-v1",
+  "paid_calls": false,
+  "results": [
+    {
+      "provider": "bfarm",
+      "status": "ingested",
+      "source_url": "https://www.bfarm.de/SharedDocs/Risikoinformationen/Pharmakovigilanz/DE/RHB/2026/rhb-litfulo.pdf?__blob=publicationFile",
+      "language": "de",
+      "receipt": {
+        "document_ids": [
+          "regional:60bddd6f91c859681d6924b03de0a74a"
+        ],
+        "native_capture": {
+          "actual_billed_usd_micros": null,
+          "budget_id": "linked-evaluation-sept8-bfarm",
+          "bytes": 349844,
+          "contract": "noesis-provider-request-v1",
+          "digest": "eedf6639ec1ad98ca86595f3734ce7063ece67e31c83272ef8401308a4956104",
+          "elapsed_seconds": 0.12612024400004884,
+          "execution": "network",
+          "http_status": 200,
+          "observed_at_ms": 1788885529629,
+          "provider": "bfarm",
+          "request": {
+            "body": null,
+            "credential_slots": {
+              "body": [],
+              "headers": [],
+              "params": []
+            },
+            "headers": {
+              "Accept": "application/json"
+            },
+            "max_bytes": 20000000,
+            "max_cost_micros": 0,
+            "method": "GET",
+            "params": {},
+            "timeout_s": 15,
+            "url": "https://www.bfarm.de/SharedDocs/Risikoinformationen/Pharmakovigilanz/DE/RHB/2026/rhb-litfulo.pdf?__blob=publicationFile"
+          },
+          "request_hash": "5f2cdba25dfc42ddafa07168734f64fcb13da3675b5975e4d273879839811368",
+          "request_key": "101302f3c21773b2cba313d421d209f22ca16e03b1c35c5f5449a8629b2ddf98:document",
+          "reserved_cost_micros": 0,
+          "response_headers": {
+            "content-type": "text/html;charset=utf-8"
+          },
+          "retry_after": null,
+          "snapshot": {
+            "bytes": 349844,
+            "content_type": "text/html;charset=utf-8",
+            "digest": "eedf6639ec1ad98ca86595f3734ce7063ece67e31c83272ef8401308a4956104",
+            "fetched_at": 1788885529629,
+            "final_url": "https://www.bfarm.de/SharedDocs/Risikoinformationen/Pharmakovigilanz/DE/RHB/2026/rhb-litfulo.pdf?__blob=publicationFile",
+            "url": "https://www.bfarm.de/SharedDocs/Risikoinformationen/Pharmakovigilanz/DE/RHB/2026/rhb-litfulo.pdf?__blob=publicationFile"
+          },
+          "state": "completed"
+        },
+        "no_automatic_identity_merge": true,
+        "observation_id": "regional-observation:1b8d62b3449ef11ab312000e25ec6759",
+        "record_versions": [
+          "c4171d6ba88e9cb5a0d29c68bff9b33f0005d474d3ceab81bdf7db039786ec35"
+        ],
+        "reuse_notice": "Public evaluation, publisher terms apply",
+        "source_refs": [
+          {
+            "document_id": "regional:60bddd6f91c859681d6924b03de0a74a",
+            "revision_id": "document-revision:1adca0b313ff4431239b91d377e6e3c1"
+          }
+        ]
+      },
+      "section_count": 5,
+      "offline_replay": true
+    },
+    {
+      "provider": "ema",
+      "status": "unavailable",
+      "failure_code": "http_429",
+      "failure_type": "ProviderError",
+      "message": "provider acquisition failed; inspect the credential-free receipt"
+    }
+  ],
+  "acceptance_correction": {
+    "date": "2026-09-08",
+    "finding": "BfArM selected PDF URL returned text/html and has no PDF parser receipt. Earlier ingested status describes HTML capture only, not successful PDF acquisition. This result does not satisfy linked-PDF acceptance. The adapter now rejects non-PDF bytes returned by selected .pdf URLs."
+  }
+}

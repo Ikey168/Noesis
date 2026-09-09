@@ -264,15 +264,17 @@ class StanceClassifier:
     #: below this best-entailment score the NLI backend answers neutral
     NLI_FLOOR = 0.40
 
-    def __init__(self, model_dir: Optional[Path] = None, nli: Optional[Any] = None) -> None:
+    def __init__(self, model_dir: Optional[Path] = None, nli: Optional[Any] = None, *, calibration=None) -> None:
         _reject_removed_backend("NOESIS_STANCE_BACKEND", "stance classification")
         self._model_dir = model_dir or _STANCE_MODEL_DIR
         self._pipeline = None
         self._nli = nli
         self._nli_cache: dict = {}
-        self._try_load()
-        if self._pipeline is None and self._nli is None:
-            self._try_load_nli()
+        self._calibrated = calibration
+        if calibration is None:
+            self._try_load()
+            if self._pipeline is None and self._nli is None:
+                self._try_load_nli()
 
     def _try_load_nli(self) -> None:
         """Use pinned zero-shot NLI by default when its weights are cached."""
@@ -307,6 +309,8 @@ class StanceClassifier:
         """Return the active trained-model provenance."""
         if self._pipeline is not None:
             return f"model:{self._model_dir.name}"
+        if self._calibrated is not None:
+            return "calibrated:" + self._calibrated.policy["policy_sha256"]
         if self._nli is not None:
             return self._nli.prediction_mode
         raise RuntimeError("stance classifier has no active model backend")
@@ -320,6 +324,14 @@ class StanceClassifier:
         sentences = sentences_from_document(document)
         if not sentences:
             return []
+        if self._calibrated is not None:
+            results = []
+            for i, sentence in enumerate(sentences):
+                result = self._calibrated.predict(sentence, topic=topic)
+                stance = result["labels"][0] if result["labels"] else "unsupported"
+                confidence = result["scores"].get(stance, 0.0)
+                results.append(StancePrediction(sentence, i, topic, stance, confidence))
+            return results
         if self._pipeline is not None:
             return self._predict_model(sentences, topic)
         if self._nli is not None:

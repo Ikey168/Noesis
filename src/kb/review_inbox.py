@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS review_inbox_assignments(
 CREATE TABLE IF NOT EXISTS review_inbox_votes(
  vote_id TEXT PRIMARY KEY,task_id TEXT NOT NULL,reviewer_id TEXT NOT NULL,label_json TEXT NOT NULL,rationale TEXT NOT NULL,
  effort_ms BIGINT NOT NULL,submitted_at_ms BIGINT NOT NULL,annotation_origin TEXT NOT NULL,UNIQUE(task_id,reviewer_id));
+CREATE TABLE IF NOT EXISTS review_annotation_details(task_id TEXT,reviewer_id TEXT,details_json TEXT NOT NULL,PRIMARY KEY(task_id,reviewer_id));
 CREATE TABLE IF NOT EXISTS review_inbox_resolutions(
  task_id TEXT PRIMARY KEY,resolution_json TEXT NOT NULL);
 '''
@@ -143,18 +144,31 @@ class ReviewInboxStore:
             self.conn.execute('ROLLBACK'); raise
         return self.inspect(namespace, task_id, principal_id=principal_id, scopes=scopes)
 
-    def submit(self, namespace, task_id, expected_target_hash, label, rationale, effort_ms, annotation_origin, *, principal_id, scopes):
+    def submit(self, namespace, task_id, expected_target_hash, label, rationale, effort_ms, annotation_origin, *, principal_id, scopes, annotation_details=None):
         task = self._task(namespace, task_id)
         self._authorize(task, principal_id, scopes, REVIEW_SCOPE)
         if annotation_origin not in {'human', 'machine'} or type(effort_ms) is not int or not 0 <= effort_ms <= 8*3600*1000:
             raise ReviewTargetError('invalid_annotation', 'declared human/machine origin and bounded self-reported effort required')
         _text(rationale)
+        if annotation_details is not None and (not isinstance(annotation_details, dict) or len(_json(annotation_details).encode()) > 4*1024*1024):
+            raise ReviewTargetError('invalid_annotation', 'bounded imported annotation details required')
+        if annotation_details is not None:
+            if set(annotation_details) != {'annotation', 'provenance'} or not isinstance(annotation_details['annotation'], dict) or not isinstance(annotation_details['provenance'], dict):
+                raise ReviewTargetError('invalid_annotation', 'annotation content and provenance required')
+            detail = annotation_details['annotation']
+            if not any(detail.get('source_id') == v['document_id'] and detail.get('source_revision') == v['revision_id'] for v in task['sources']):
+                raise ReviewTargetError('invalid_annotation', 'annotation must bind the reviewed source revision')
+            if annotation_details['provenance'].get('assisted') and annotation_origin != 'machine':
+                raise ReviewTargetError('invalid_annotation', 'assisted annotations must remain distinguishable from independent labels')
         ReviewTargets.validate_label(task['target']['kind'], label)
         assigned = self.conn.execute('SELECT assigned_at_ms FROM review_inbox_assignments WHERE task_id=? AND reviewer_id=?', [task_id, principal_id]).fetchone()
         if not assigned:
             raise ReviewTargetError('unauthorized', 'only assigned reviewers submit labels')
         prior = self.conn.execute('SELECT label_json,rationale,effort_ms,annotation_origin FROM review_inbox_votes WHERE task_id=? AND reviewer_id=?', [task_id, principal_id]).fetchone()
         if prior:
+            detail_row = self.conn.execute('SELECT details_json FROM review_annotation_details WHERE task_id=? AND reviewer_id=?', [task_id, principal_id]).fetchone()
+            if (detail_row[0] if detail_row else None) != (_json(annotation_details) if annotation_details is not None else None):
+                raise ReviewTargetError('submission_conflict', 'imported annotation details changed')
             if prior != (_json(label), rationale, effort_ms, annotation_origin):
                 raise ReviewTargetError('submission_conflict', 'submitted annotation is immutable; use adjudication or a fresh task')
             return {**self.inspect(namespace, task_id, principal_id=principal_id, scopes=scopes), 'idempotent': True}
@@ -169,9 +183,18 @@ class ReviewInboxStore:
                 raise ReviewTargetError('source_changed', 'source snapshot changed')
             self.conn.execute('INSERT INTO review_inbox_votes VALUES (?,?,?,?,?,?,?,?)',
                 ['inbox-vote:'+_hash([task_id, principal_id])[:32], task_id, principal_id, _json(label), rationale, effort_ms, self.now(), annotation_origin])
+            if annotation_details is not None:
+                source = annotation_details['annotation']
+                current_source = self.conn.execute('SELECT revision_id FROM document_current_revisions WHERE document_id=?', [source['source_id']]).fetchone()
+                if not current_source or current_source[0] != source['source_revision']:
+                    raise ReviewTargetError('source_changed', 'annotation source changed before vote publication')
+                self.conn.execute('INSERT INTO review_annotation_details VALUES (?,?,?)', [task_id, principal_id, _json(annotation_details)])
             labels = self.conn.execute('SELECT label_json FROM review_inbox_votes WHERE task_id=?', [task_id]).fetchall()
             count = self.conn.execute('SELECT count(*) FROM review_inbox_assignments WHERE task_id=?', [task_id]).fetchone()[0]
             status = 'in_review' if len(labels) < count else 'consensus_ready' if len(set(v[0] for v in labels)) == 1 else 'disputed'
+            details = self.conn.execute('SELECT details_json FROM review_annotation_details WHERE task_id=?', [task_id]).fetchall()
+            if len(labels) == count and details and (len(details) != count or len({_json(json.loads(value[0])['annotation']) for value in details}) != 1):
+                status = 'disputed'
             self.conn.execute('UPDATE review_inbox_tasks SET status=? WHERE task_id=?', [status, task_id])
             self.conn.execute('COMMIT')
         except Exception:

@@ -1,0 +1,21 @@
+{
+  "entities": {
+    "authority": "German public authority named explicitly",
+    "organisation": "Organisation named in the source"
+  },
+  "relations": {
+    "responsible_for": "Authority explicitly responsible for an organisation"
+  },
+  "structures": {
+    "authority_record": {
+      "name": {
+        "dtype": "str",
+        "description": "Full official authority name"
+      },
+      "jurisdiction": {
+        "dtype": "str",
+        "description": "Explicit jurisdiction or administrative area"
+      }
+    }
+  }
+}

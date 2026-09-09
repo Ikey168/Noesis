@@ -1,0 +1,138 @@
+{
+  "contract": "noesis-native-runtime-validation-v1",
+  "recorded_at": "2026-09-07T01:44:24.285562+00:00",
+  "python_version": "3.14.6",
+  "broad_regression": {
+    "tests": 1434,
+    "errors": 0,
+    "failures": 0,
+    "skipped": 13,
+    "passed": 1421
+  },
+  "broad_regression_seconds": 83.81,
+  "broad_scope": [
+    "tests/unit/ingestion",
+    "tests/unit/kb",
+    "tests/unit/evaluation",
+    "tests/unit/noesis_cli/test_optional.py",
+    "tests/rag/test_normalization.py",
+    "tests/unit/services/rag/test_lingua_normalization.py",
+    "tests/knowledge_graph/test_entity_resolution.py"
+  ],
+  "focused_provider_regression": {
+    "passed": 43,
+    "skipped": 4,
+    "scope": [
+      "tests/argument_mining/test_model_registry.py",
+      "tests/rag/test_chunking.py",
+      "tests/unit/services/rag/test_chunking_comprehensive.py",
+      "tests/unit/services/rag/test_retriever_comprehensive.py",
+      "tests/unit/services/rag/test_retriever_config.py",
+      "tests/unit/kb/test_derived_revisions.py"
+    ],
+    "note": "Some tests overlap the broad suite; do not sum as unique test count."
+  },
+  "skipped": [
+    {
+      "test": "::tests.unit.ingestion.connectors.media.test_diarizer_coverage",
+      "reason": "collection skipped"
+    },
+    {
+      "test": "::tests.unit.ingestion.test_common_crawl",
+      "reason": "collection skipped"
+    },
+    {
+      "test": "::tests.unit.ingestion.test_warc_io",
+      "reason": "collection skipped"
+    },
+    {
+      "test": "::tests.unit.kb.test_adwin_evaluation",
+      "reason": "collection skipped"
+    },
+    {
+      "test": "::tests.unit.kb.test_citeproc_export",
+      "reason": "collection skipped"
+    },
+    {
+      "test": "::tests.unit.kb.test_pandera_evaluation",
+      "reason": "collection skipped"
+    },
+    {
+      "test": "::tests.unit.kb.test_pint_evaluation",
+      "reason": "collection skipped"
+    },
+    {
+      "test": "tests.unit.ingestion.connectors.book.test_book_pdf_parser_coverage::test_parse_with_pdfminer_on_real_pdf",
+      "reason": "could not import 'pdfminer': No module named 'pdfminer'"
+    },
+    {
+      "test": "tests.unit.ingestion.connectors.book.test_book_pdf_parser_coverage::test_parse_with_pdfminer_empty_returns_none",
+      "reason": "could not import 'pdfminer': No module named 'pdfminer'"
+    },
+    {
+      "test": "tests.unit.ingestion.test_zotero_sync::test_bibliography_unicode_corporate_authors_editions_and_report_closure",
+      "reason": "could not import 'bibtexparser': No module named 'bibtexparser'"
+    },
+    {
+      "test": "tests.unit.ingestion.test_zotero_sync::test_real_pyzotero_transport_negotiation_and_read_only_requests[web]",
+      "reason": "could not import 'pyzotero.zotero': No module named 'pyzotero'"
+    },
+    {
+      "test": "tests.unit.ingestion.test_zotero_sync::test_real_pyzotero_transport_negotiation_and_read_only_requests[local]",
+      "reason": "could not import 'pyzotero.zotero': No module named 'pyzotero'"
+    },
+    {
+      "test": "tests.unit.ingestion.test_zotero_sync::test_changed_remote_version_and_legacy_local_do_not_publish",
+      "reason": "could not import 'pyzotero': No module named 'pyzotero'"
+    }
+  ],
+  "scoped_ruff": "passed",
+  "repository_wide_ruff": "not_certified; historical unrelated lint debt retained",
+  "git_diff_check": "passed",
+  "package": {
+    "wheel_built": true,
+    "required_module_archive_checks": 10,
+    "outside_checkout_cli_doctor": "passed",
+    "runtime_operations": 25,
+    "doctor_network_calls": 0
+  },
+  "observed_distributions": {
+    "PyMuPDF": "1.28.2",
+    "scrapy": "2.18.0",
+    "playwright": "1.62.0",
+    "crawl4ai": "0.9.3",
+    "crawlee": "1.10.0",
+    "rapidfuzz": "3.14.3",
+    "splink": "4.0.17",
+    "datasketch": "2.0.0",
+    "lingua-language-detector": "2.2.0",
+    "presidio-analyzer": "2.2.364",
+    "markitdown": "0.1.7",
+    "ragas": "0.4.3",
+    "langchain-community": "0.3.31",
+    "mcp": "1.28.1",
+    "opentelemetry-sdk": "1.44.0",
+    "torch": "2.14.0+cpu",
+    "transformers": "5.16.1",
+    "sentence-transformers": "5.7.0"
+  },
+  "pdf_execution_artifact": "pdf-structured-executed.json",
+  "scraping_execution_artifact": "scraping-native-runtime.json",
+  "independent_human_labels_collected": false,
+  "paid_provider_requests": 0,
+  "github_open_inventory": 58,
+  "commit_push_or_issue_closure_performed": false,
+  "limitations": [
+    "Test doubles are used for neural model contracts where pinned weights/dependencies are absent. They are not model quality results.",
+    "Native package and local HTTP/SDK tests do not replace configured live-provider or deployed-model acceptance.",
+    "The full repository test and lint suites were not certified by this scoped run."
+  ],
+  "broad_regression_log_sha256": "d6d57915ea21784adc885b05ea7012094cc04493d679c2ef01fbcea691e0de5a",
+  "focused_regression_log_sha256": "3e06eed9d8edfcea38dd4300eb464148c4210611f6c30a732213f9d550a14405",
+  "junit_sha256": "cf1c361db4247dbb028c77a55572c9b48f35371ac2c15e23891e4162060b0bbf",
+  "historical_evidence": true,
+  "current_execution_path_audit": "docs/development/execution-path-audit.md",
+  "current_execution_path_validation": "docs/development/workflow-review-evidence/execution-path-validation.json",
+  "completion_claim_warning": "Historical scoped test/package observations only. Subsequent execution-path defects were reproduced and repaired; retain original measurements but do not treat them as complete implementation evidence.",
+  "focused_command_reproducibility_note": "The two paths tests/argument_mining/test_model_registry.py and tests/unit/services/rag/test_retriever_config.py were absent during current finalization. A separately recorded five-file current-path scope passed 59 tests after adding the optional PostgreSQL driver; the old command was not retroactively certified."
+}

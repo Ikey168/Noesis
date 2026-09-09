@@ -1,0 +1,76 @@
+{
+  "status": "completed",
+  "outcome": {
+    "status": "completed",
+    "result": {
+      "contract": "noesis-derived-redaction-v1",
+      "source_reference": {
+        "sha256": "7ea48e14862fc94a890f76cf788afb21db998a7ae44947555b193b6722340dfa",
+        "resolution": "authorized-artifact-dependencies"
+      },
+      "policy_version": "presidio-derived-redaction-v1",
+      "text": "[REDACTED:PERSON] unter [REDACTED:EMAIL_ADDRESS] in [REDACTED:LOCATION].",
+      "decisions": [
+        {
+          "start": 0,
+          "end": 18,
+          "entity_type": "PERSON",
+          "locator_id": "a7e10bfa56f29a3db8d2320987f8cc3a77f85c641d53011d6120ca7f0245eb25"
+        },
+        {
+          "start": 25,
+          "end": 48,
+          "entity_type": "EMAIL_ADDRESS",
+          "locator_id": "cc1c48ad960df4691e280f941fa1869d03b051dffcb23182817a9e441e49d94b"
+        },
+        {
+          "start": 52,
+          "end": 58,
+          "entity_type": "LOCATION",
+          "locator_id": "d85c1e398b95b0178ddd2afe160bd2caf8c1d0577c5359989a8a3c86c6f4da3f"
+        }
+      ],
+      "original_embedded": false,
+      "derived_only": true,
+      "detector": "presidio-analyzer",
+      "language": "de",
+      "detection_count": 3,
+      "detector_scores": [
+        {
+          "start": 0,
+          "end": 18,
+          "entity_type": "PERSON",
+          "score": 0.85
+        },
+        {
+          "start": 25,
+          "end": 48,
+          "entity_type": "EMAIL_ADDRESS",
+          "score": 1.0
+        },
+        {
+          "start": 52,
+          "end": 58,
+          "entity_type": "LOCATION",
+          "score": 0.85
+        }
+      ]
+    },
+    "operation": "presidio",
+    "elapsed_seconds": 7.859461772000941,
+    "peak_process_tree_rss_bytes": 760651776,
+    "resource_limits": {
+      "timeout_s": 60,
+      "rss_bytes": 2147483648,
+      "threads": 2
+    },
+    "execution": "isolated-local-process",
+    "hosted_inference_used": false,
+    "remote_processing_used": false
+  },
+  "fixture_not_independent_labels": true,
+  "restricted_source_dependency_retained": true,
+  "literal_sensitive_identifier_absent_from_export": true,
+  "reopened_replay_same_result": true,
+  "revoked_access_rejected": true
+}

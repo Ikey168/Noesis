@@ -1,0 +1,75 @@
+{
+  "date": "2026-09-09",
+  "repository": "Ikey168/Noesis",
+  "issues": [
+    {
+      "closedAt": "2026-09-09T04:18:51Z",
+      "number": 1529,
+      "state": "CLOSED",
+      "stateReason": "COMPLETED",
+      "title": "Add reusable investigation templates for recurring research",
+      "url": "https://github.com/Ikey168/Noesis/issues/1529"
+    },
+    {
+      "closedAt": "2026-09-09T04:18:53Z",
+      "number": 1530,
+      "state": "CLOSED",
+      "stateReason": "COMPLETED",
+      "title": "Add project and report subscriptions for cited-evidence change alerts",
+      "url": "https://github.com/Ikey168/Noesis/issues/1530"
+    },
+    {
+      "closedAt": "2026-09-09T04:18:55Z",
+      "number": 1531,
+      "state": "CLOSED",
+      "stateReason": "COMPLETED",
+      "title": "Add evidence-linked comparisons between completed investigation runs",
+      "url": "https://github.com/Ikey168/Noesis/issues/1531"
+    }
+  ],
+  "open_issues_after_closure": [],
+  "code_committed_or_pushed": false,
+  "implementation_complete": true,
+  "new_public_mcp_tools": 16,
+  "guide": "docs/guides/investigation-workflows.md",
+  "validation": {
+    "broad": {
+      "command": ".venv/bin/python -m pytest tests/unit/kb tests/unit/tools tests/unit/mcp_host --basetemp=/home/ik/.cache/noesis-investigation-regression-final -q",
+      "passed": 1559,
+      "skipped": 1,
+      "failed": 1,
+      "warnings": 3,
+      "seconds": 833.17,
+      "failure": "Generated catalog equality check ran with the earlier in-process scope metadata while its file was regenerated; resolved by fresh final verification."
+    },
+    "final": {
+      "command": ".venv/bin/python -m pytest tests/unit/mcp_host tests/unit/kb/test_investigation_templates.py tests/unit/kb/test_citation_alerts.py tests/unit/kb/test_investigation_comparisons.py tests/unit/tools/test_investigation_workflows_mcp.py --basetemp=/home/ik/.cache/noesis-investigation-final-contracts -q",
+      "passed": 66,
+      "failed": 0,
+      "warnings": 1,
+      "seconds": 11.21,
+      "includes": "All 17 new workflow tests, output-schema checks and all MCP-host tests including the previously failing catalog equality check"
+    },
+    "targeted_ruff": "passed for all new implementation and test modules; new shared-file import warnings fixed",
+    "existing_shared_lint": "Seven pre-existing BLE001 findings remain in authored_reports.py and research_projects.py",
+    "diff_check": "passed",
+    "examples": "Both shipped template definitions validate; guide links resolve",
+    "initial_environment_failure": "An earlier /tmp-based broad run exceeded disk quota; a concurrent focused run aborted in DuckDB. Neither is counted as passing validation; final pytest runs were sequential with disk-backed temporary storage."
+  },
+  "logs": {
+    "broad": {
+      "path": "/home/ik/.cache/noesis-investigation-regression-final.log",
+      "sha256": "8e4be525d53389147e176afea280b95963fd03b682014b884fd698511015115a"
+    },
+    "final": {
+      "path": "/home/ik/.cache/noesis-investigation-final-contracts.log",
+      "sha256": "ac89a300c5cce23066ef67e5a45d2b43a7a27cbddd0d6a6b5a75d26b89a6d0d5"
+    }
+  },
+  "limitations": [
+    "Headless public MCP workflows, not a new frontend",
+    "Citation evaluation is explicit local polling, not a newly installed background acquisition scheduler",
+    "Contract tests use authored fixtures/local recipe adapters, not independent model-quality labels",
+    "Previously deferred evaluations and provider access work remain in docs/development/further-evaluations-and-access.md"
+  ]
+}

@@ -1,0 +1,121 @@
+{
+  "corpus": "authored local static/JS/pagination/lazy/error/source-edit fixtures; not production anti-bot or independent fidelity evaluation",
+  "cost_accounting": "local backends are recorded as zero provider cost; hosted backend cost remains unavailable until an authorized credentialed run with an explicit ceiling",
+  "versions": {
+    "scrapy": null,
+    "playwright": null,
+    "crawl4ai": null,
+    "crawlee": null,
+    "trafilatura": null
+  },
+  "runs": [
+    {
+      "backend": "scrapy",
+      "fixture": "/static",
+      "fixture_sha256": "160997301734ffad4f86644b44068918f60da6998cb49a55ad60bde899bcb60a",
+      "status": "failed",
+      "failure_type": "ModuleNotFoundError",
+      "failure": "No module named 'scrapy'",
+      "elapsed_seconds": 0.00022286099920165725,
+      "peak_parent_rss_kib": 20892,
+      "expected_body_recall": 0.0,
+      "false_body_on_empty": null
+    },
+    {
+      "backend": "scrapy",
+      "fixture": "/delayed",
+      "fixture_sha256": "a2c42009bff802eb3d204ab7f3f2a811f38e300430f65289b5efe7a70e3809ce",
+      "status": "failed",
+      "failure_type": "ModuleNotFoundError",
+      "failure": "No module named 'scrapy'",
+      "elapsed_seconds": 0.00040892400284064934,
+      "peak_parent_rss_kib": 21016,
+      "expected_body_recall": 0.0,
+      "false_body_on_empty": null
+    },
+    {
+      "backend": "scrapy",
+      "fixture": "/pagination-1",
+      "fixture_sha256": "2dcc801c6b7c7d059b4e1aeb32f98e7ce82ef5d3039e7dc7cb379c889136060b",
+      "status": "failed",
+      "failure_type": "ModuleNotFoundError",
+      "failure": "No module named 'scrapy'",
+      "elapsed_seconds": 0.0002584189969638828,
+      "peak_parent_rss_kib": 21016,
+      "expected_body_recall": 0.0,
+      "false_body_on_empty": null
+    },
+    {
+      "backend": "scrapy",
+      "fixture": "/pagination-2",
+      "fixture_sha256": "63cd97ae0186fb4a860aeadc6054546efb0aa19fb6d628b2fa31456cf051c3a7",
+      "status": "failed",
+      "failure_type": "ModuleNotFoundError",
+      "failure": "No module named 'scrapy'",
+      "elapsed_seconds": 0.00026703299954533577,
+      "peak_parent_rss_kib": 21016,
+      "expected_body_recall": 0.0,
+      "false_body_on_empty": null
+    },
+    {
+      "backend": "scrapy",
+      "fixture": "/lazy",
+      "fixture_sha256": "c741b421002aae6d683f952374212411f6395c63fdea8e482ef0dc2b9dce8ad7",
+      "status": "failed",
+      "failure_type": "ModuleNotFoundError",
+      "failure": "No module named 'scrapy'",
+      "elapsed_seconds": 0.0002975819988932926,
+      "peak_parent_rss_kib": 21016,
+      "expected_body_recall": 0.0,
+      "false_body_on_empty": null
+    },
+    {
+      "backend": "scrapy",
+      "fixture": "/edited-before",
+      "fixture_sha256": "21c9b5a8855b8b03ded303dcf4c2a03ef37f65af16eea04bbf3d53d13510cf8b",
+      "status": "failed",
+      "failure_type": "ModuleNotFoundError",
+      "failure": "No module named 'scrapy'",
+      "elapsed_seconds": 0.0002824570001394022,
+      "peak_parent_rss_kib": 21016,
+      "expected_body_recall": 0.0,
+      "false_body_on_empty": null
+    },
+    {
+      "backend": "scrapy",
+      "fixture": "/edited-after",
+      "fixture_sha256": "6dea5fd67a4d647a23ab6839918f6eca45444740a3898d4071c2ff66c7dbe9f4",
+      "status": "failed",
+      "failure_type": "ModuleNotFoundError",
+      "failure": "No module named 'scrapy'",
+      "elapsed_seconds": 0.0002721130003919825,
+      "peak_parent_rss_kib": 21020,
+      "expected_body_recall": 0.0,
+      "false_body_on_empty": null
+    },
+    {
+      "backend": "scrapy",
+      "fixture": "/missing",
+      "fixture_sha256": "4dae6a1dc9f6385419aab724626d2488c3e4116eca0e772092d3304a48165cb7",
+      "status": "failed",
+      "failure_type": "ModuleNotFoundError",
+      "failure": "No module named 'scrapy'",
+      "elapsed_seconds": 0.00025661899780971,
+      "peak_parent_rss_kib": 21020,
+      "expected_body_recall": null,
+      "false_body_on_empty": false
+    }
+  ],
+  "summaries": {
+    "scrapy": {
+      "fixtures": 8,
+      "completed": 0,
+      "completion_rate": 0.0,
+      "p50_elapsed_seconds": null,
+      "p95_elapsed_seconds": null,
+      "max_peak_parent_rss_kib": null,
+      "live_cost": 0
+    }
+  },
+  "decision": "retain repaired production stack; defer optional backend adoption pending representative corpus, restart/deadline/resource checks and credentialed cost measurements"
+}

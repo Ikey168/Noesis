@@ -79,7 +79,7 @@ class ReportUpdateStore(AuthoredReportStore):
                         raise ReportError('unauthorized', 'current access to assessed evidence is required')
         return result
 
-    def propose(self, namespace, assessment_id, assertion_id, *, principal_id, scopes, replacement=None):
+    def propose(self, namespace, assessment_id, assertion_id, *, principal_id, scopes, replacement=None, producer=None):
         assessment = self._assessment(namespace, assessment_id, principal_id=principal_id, scopes=scopes)
         state = self.inspect(namespace, assessment['report_id'], revision=assessment['report_revision'], principal_id=principal_id, scopes=scopes)
         self._authorize(state, principal_id, scopes, write=True)
@@ -102,9 +102,16 @@ class ReportUpdateStore(AuthoredReportStore):
             section['assertions'] = [proposed if a['id'] == assertion_id else a for a in section['assertions']]
         validate_content(content)
         self._authorize({**state, 'content': content}, principal_id, scopes, write=True)
+        proposed_dependency_states = [EvidenceResolver(self.conn, scopes).compare(dep) for dep in proposed['dependencies']]
         core = {'assessment_id': assessment_id, 'report_id': state['report_id'], 'base_report_revision': state['revision'],
             'section_id': section_id, 'assertion_id': assertion_id, 'before': original, 'proposed': proposed,
-            'reasons': reasons, 'evidence': found[0]['dependencies'], 'method': method, 'support_verified': False}
+            'reasons': reasons, 'evidence': found[0]['dependencies'], 'method': method, 'support_verified': False, 'proposed_dependency_states': proposed_dependency_states}
+        if producer is not None:
+            if replacement is None or not isinstance(producer, dict) or set(producer) != {"name", "version", "explanation", "support_verified"} or producer["support_verified"] is not False:
+                raise ReportError("invalid_proposal", "model proposals require explicit unverified producer attribution")
+            for field in ("name", "version", "explanation"):
+                _text(producer[field], "producer " + field, 10000)
+            core.update(method="model-generated-pending-review", producer=copy.deepcopy(producer))
         proposal_id = 'report-edit:' + _hash(core)[:32]
         self.conn.execute("INSERT OR IGNORE INTO report_edit_proposals VALUES (?,?,?,?,?,'pending',?,NULL)",
             [proposal_id, state['report_id'], namespace, assessment_id, assertion_id, _json(core)])
@@ -135,7 +142,7 @@ class ReportUpdateStore(AuthoredReportStore):
             if found is None or found[0] != proposal['section_id'] or _hash(found[1]) != _hash(proposal['before']):
                 raise ReportError('author_edit_conflict', 'the affected assertion changed; create a fresh assessment and proposal')
             resolver = EvidenceResolver(self.conn, scopes)
-            for dep in proposal['evidence']:
+            for dep in [*proposal['evidence'], *proposal.get('proposed_dependency_states', [])]:
                 if resolver.compare(dep['dependency']) != dep:
                     raise ReportError('evidence_changed', 'evidence changed again; assess before accepting')
             for section in content['sections']:
@@ -147,6 +154,9 @@ class ReportUpdateStore(AuthoredReportStore):
         self.conn.execute('BEGIN')
         try:
             if decision == 'accept':
+                for dep in [*proposal['evidence'], *proposal.get('proposed_dependency_states', [])]:
+                    if EvidenceResolver(self.conn, scopes).compare(dep['dependency']) != dep:
+                        raise ReportError('evidence_changed', 'evidence changed before publication')
                 changed = self.conn.execute('UPDATE authored_reports SET revision=revision+1 WHERE report_id=? AND revision=? RETURNING revision', [current['report_id'], current['revision']]).fetchone()
                 if not changed:
                     raise ReportError('revision_conflict', 'report changed during acceptance; retry')

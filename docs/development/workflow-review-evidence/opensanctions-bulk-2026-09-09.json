@@ -1,0 +1,404 @@
+{
+  "contract": "noesis-opensanctions-public-bulk-evaluation-v1",
+  "hosted_matching_api_executed": false,
+  "use": "non-commercial integration evaluation",
+  "run": {
+    "automatic_identity_merge": false,
+    "contract": "noesis-regional-acquisition-v1",
+    "cursor": {},
+    "namespace": "research",
+    "native_result": {
+      "automatic_merge": false,
+      "matched_entities": 2,
+      "missing_from_selected_dataset": [],
+      "records": [
+        {
+          "contract": "noesis-native-regional-v1",
+          "coverage_notice": "Review candidates only; provider presence or similarity is not identity or misconduct",
+          "fields": {
+            "absence_is_not_global_delisting": true,
+            "artifact_version": "20260908225701-knv",
+            "automatic_merge": false,
+            "dataset_jurisdiction": "EU",
+            "dataset_presence": "present",
+            "entity_id": "Q111793104",
+            "first_seen": "2025-05-28T10:57:08",
+            "last_seen": "2026-09-08T22:57:01",
+            "originating_lists": [
+              "eu_fsf"
+            ],
+            "properties": {
+              "birthDate": [
+                "1993-09-17"
+              ],
+              "birthPlace": [
+                "Hamburg, GERMANY"
+              ],
+              "country": [
+                "de"
+              ],
+              "firstName": [
+                "Alina"
+              ],
+              "gender": [
+                "female"
+              ],
+              "lastName": [
+                "LIPP"
+              ],
+              "modifiedAt": [
+                "2025-05-20"
+              ],
+              "name": [
+                "Alina LIPP"
+              ],
+              "nationality": [
+                "de"
+              ],
+              "position": [
+                "war correspondent"
+              ],
+              "programId": [
+                "EU-RUSDA"
+              ],
+              "topics": [
+                "sanction"
+              ]
+            },
+            "provider_score": null,
+            "query_id": "bulk:eu_fsf",
+            "schema": "Person",
+            "score_semantics": "bulk file has no provider matching score; local exact casefolded name/alias selection is not identity evidence",
+            "selected_dataset": "eu_fsf",
+            "target": true
+          },
+          "is_current_law": false,
+          "kind": "potential-entity-match",
+          "language": "en",
+          "missing_fields": [
+            "provider_score"
+          ],
+          "native": {
+            "caption": "Alina LIPP",
+            "datasets": [
+              "eu_fsf"
+            ],
+            "first_seen": "2025-05-28T10:57:08",
+            "id": "Q111793104",
+            "last_change": "2026-04-24T10:57:01",
+            "last_seen": "2026-09-08T22:57:01",
+            "origin": [
+              "metadata",
+              "patch",
+              "inferred"
+            ],
+            "properties": {
+              "birthDate": [
+                "1993-09-17"
+              ],
+              "birthPlace": [
+                "Hamburg, GERMANY"
+              ],
+              "country": [
+                "de"
+              ],
+              "firstName": [
+                "Alina"
+              ],
+              "gender": [
+                "female"
+              ],
+              "lastName": [
+                "LIPP"
+              ],
+              "modifiedAt": [
+                "2025-05-20"
+              ],
+              "name": [
+                "Alina LIPP"
+              ],
+              "nationality": [
+                "de"
+              ],
+              "position": [
+                "war correspondent"
+              ],
+              "programId": [
+                "EU-RUSDA"
+              ],
+              "topics": [
+                "sanction"
+              ]
+            },
+            "referents": [
+              "ru-inn-770484472816",
+              "eu-oj-b12d7a5ff68020c8f74d4320b3f78d8a4df8ff08",
+              "fr-ga-8038",
+              "be-fod-ae32c8d7809132df789ba82c7193182c35ba8c00",
+              "eu-fsf-eu-13139-2",
+              "eu-oj-2bd2d03551459aace9c897e3a767698686326656",
+              "mc-freezes-de487b8a109a66c1059e228260f86aa017c3eff0"
+            ],
+            "schema": "Person",
+            "target": true
+          },
+          "provider": "opensanctions",
+          "provider_id": "eu_fsf:Q111793104",
+          "published_at": null,
+          "relationships": [],
+          "review_required": true,
+          "sections": [],
+          "source_url": "https://www.opensanctions.org/entities/Q111793104/",
+          "title": "Alina LIPP",
+          "updated_at": "2026-04-24T10:57:01"
+        },
+        {
+          "contract": "noesis-native-regional-v1",
+          "coverage_notice": "Review candidates only; provider presence or similarity is not identity or misconduct",
+          "fields": {
+            "absence_is_not_global_delisting": true,
+            "artifact_version": "20260908225701-knv",
+            "automatic_merge": false,
+            "dataset_jurisdiction": "EU",
+            "dataset_presence": "present",
+            "entity_id": "Q61937639",
+            "first_seen": "2025-05-28T10:57:08",
+            "last_seen": "2026-09-08T22:57:01",
+            "originating_lists": [
+              "eu_fsf"
+            ],
+            "properties": {
+              "birthDate": [
+                "1971-11-26"
+              ],
+              "birthPlace": [
+                "Bremen, GERMANY"
+              ],
+              "country": [
+                "de"
+              ],
+              "firstName": [
+                "Thomas"
+              ],
+              "gender": [
+                "male"
+              ],
+              "lastName": [
+                "R\u00d6PER"
+              ],
+              "modifiedAt": [
+                "2025-05-20"
+              ],
+              "name": [
+                "Thomas R\u00d6PER",
+                "\u0422\u043e\u043c\u0430\u0441 \u0420\u0401\u041f\u0415\u0420"
+              ],
+              "nationality": [
+                "de"
+              ],
+              "position": [
+                "war correspondent"
+              ],
+              "programId": [
+                "EU-RUSDA"
+              ],
+              "topics": [
+                "sanction"
+              ]
+            },
+            "provider_score": null,
+            "query_id": "bulk:eu_fsf",
+            "schema": "Person",
+            "score_semantics": "bulk file has no provider matching score; local exact casefolded name/alias selection is not identity evidence",
+            "selected_dataset": "eu_fsf",
+            "target": true
+          },
+          "is_current_law": false,
+          "kind": "potential-entity-match",
+          "language": "en",
+          "missing_fields": [
+            "provider_score"
+          ],
+          "native": {
+            "caption": "Thomas R\u00d6PER",
+            "datasets": [
+              "eu_fsf"
+            ],
+            "first_seen": "2025-05-28T10:57:08",
+            "id": "Q61937639",
+            "last_change": "2026-04-24T10:57:01",
+            "last_seen": "2026-09-08T22:57:01",
+            "origin": [
+              "metadata",
+              "patch",
+              "inferred"
+            ],
+            "properties": {
+              "birthDate": [
+                "1971-11-26"
+              ],
+              "birthPlace": [
+                "Bremen, GERMANY"
+              ],
+              "country": [
+                "de"
+              ],
+              "firstName": [
+                "Thomas"
+              ],
+              "gender": [
+                "male"
+              ],
+              "lastName": [
+                "R\u00d6PER"
+              ],
+              "modifiedAt": [
+                "2025-05-20"
+              ],
+              "name": [
+                "Thomas R\u00d6PER",
+                "\u0422\u043e\u043c\u0430\u0441 \u0420\u0401\u041f\u0415\u0420"
+              ],
+              "nationality": [
+                "de"
+              ],
+              "position": [
+                "war correspondent"
+              ],
+              "programId": [
+                "EU-RUSDA"
+              ],
+              "topics": [
+                "sanction"
+              ]
+            },
+            "referents": [
+              "fr-ga-8061",
+              "be-fod-15a488d7d617d69c0cf85ad2ee2cb473f3d96d3c",
+              "eu-oj-65f116782c6c6390163989b5d4e3f49657b1c7e9",
+              "eu-oj-5a3c6b6e35f6657a698d2dc0aff0e4efaf4aa065",
+              "mc-freezes-d3a9580bcd5986ac7a104e7dac274bf9107558f6",
+              "ua-nsdc-18489-roper-tomas",
+              "eu-fsf-eu-13154-42"
+            ],
+            "schema": "Person",
+            "target": true
+          },
+          "provider": "opensanctions",
+          "provider_id": "eu_fsf:Q61937639",
+          "published_at": null,
+          "relationships": [],
+          "review_required": true,
+          "sections": [],
+          "source_url": "https://www.opensanctions.org/entities/Q61937639/",
+          "title": "Thomas R\u00d6PER",
+          "updated_at": "2026-04-24T10:57:01"
+        }
+      ],
+      "review_required": true,
+      "scanned_entities": 15938,
+      "selection_truncated": false
+    },
+    "observation": "eu-fsf",
+    "operation": "sanctions_dataset",
+    "provider": "opensanctions",
+    "receipt": {
+      "document_ids": [
+        "regional:dbbc2de8fd0efada8ff2fb5b1da034fb",
+        "regional:509902a2f028d7d110c9838afe2d05de"
+      ],
+      "native_capture": {
+        "actual_billed_usd_micros": null,
+        "budget_id": "eu-fsf-public",
+        "bytes": 16325268,
+        "contract": "noesis-provider-request-v1",
+        "digest": "6df1612596e93d67de3a253688c860ff6d9bbd79cb9c2b7abcce9e52235011e9",
+        "elapsed_seconds": 0.7025797379974392,
+        "execution": "network",
+        "http_status": 200,
+        "observed_at_ms": 1788909894150,
+        "provider": "opensanctions",
+        "request": {
+          "body": null,
+          "credential_slots": {
+            "body": [],
+            "headers": [],
+            "params": []
+          },
+          "headers": {
+            "Accept": "application/x-ndjson, application/json"
+          },
+          "max_bytes": 20000000,
+          "max_cost_micros": 0,
+          "method": "GET",
+          "params": {},
+          "timeout_s": 60,
+          "url": "https://data.opensanctions.org/artifacts/eu_fsf/20260908225701-knv/entities.ftm.json"
+        },
+        "request_hash": "98d529037826ac07b6858804ca420cfd7ab924177629468a8d96c5e8b513ab68",
+        "request_key": "2718c77b6d775c6c675409a67a77ea7f38d7d8ba054acb12d293821868add6f1:bulk",
+        "reserved_cost_micros": 0,
+        "response_headers": {
+          "content-type": "application/json+ftm",
+          "etag": "\"9a639314bcac8f6899aca5e342b08be2\"",
+          "last-modified": "Tue, 08 Sep 2026 22:58:15 GMT"
+        },
+        "retry_after": null,
+        "snapshot": {
+          "bytes": 16325268,
+          "content_type": "application/json+ftm",
+          "digest": "6df1612596e93d67de3a253688c860ff6d9bbd79cb9c2b7abcce9e52235011e9",
+          "fetched_at": 1788909894150,
+          "final_url": "https://data.opensanctions.org/artifacts/eu_fsf/20260908225701-knv/entities.ftm.json",
+          "url": "https://data.opensanctions.org/artifacts/eu_fsf/20260908225701-knv/entities.ftm.json"
+        },
+        "state": "completed"
+      },
+      "no_automatic_identity_merge": true,
+      "observation_id": "regional-observation:a82b0a5e7a92e3efaba923047af2ad6b",
+      "record_versions": [
+        "48b59469ae967a97daddea8f4abc23fdf88096813988d852e622c30fa3b5acda",
+        "932f090f413ecc5a298c6226f35f41b49582388b81e956de9244100088fa7777"
+      ],
+      "reuse_notice": "OpenSanctions EU FSF bulk; non-commercial local integration evaluation; attribution and originating sources retained; commercial reuse requires provider license",
+      "source_refs": [
+        {
+          "document_id": "regional:dbbc2de8fd0efada8ff2fb5b1da034fb",
+          "revision_id": "document-revision:177b5ff9c75dc3cbf0e594c1034b8fad"
+        },
+        {
+          "document_id": "regional:509902a2f028d7d110c9838afe2d05de",
+          "revision_id": "document-revision:7488cfbcae71f12743f19621dae6bb6c"
+        }
+      ]
+    },
+    "source_evidence_not_independent_validation": true,
+    "status": "ingested",
+    "replayed": false
+  },
+  "budget": {
+    "budget_id": "eu-fsf-public",
+    "configuration": {
+      "provider": "opensanctions",
+      "hosts": [
+        "api.opensanctions.org",
+        "data.opensanctions.org",
+        "www.opensanctions.org"
+      ],
+      "account_ref": "public",
+      "reuse_notice": "OpenSanctions EU FSF bulk; non-commercial local integration evaluation; attribution and originating sources retained; commercial reuse requires provider license",
+      "limits": {
+        "requests": 1,
+        "usd_micros": 0,
+        "bytes": 20000000
+      },
+      "transport": "network"
+    },
+    "used_requests": 1,
+    "reserved_usd_micros": 0,
+    "reserved_bytes": 20000000,
+    "actual_billed_usd_micros": null,
+    "cost_semantics": "conservative reservations, not billing measurements"
+  },
+  "offline_replay": true
+}

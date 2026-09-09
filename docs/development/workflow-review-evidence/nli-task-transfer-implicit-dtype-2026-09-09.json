@@ -1,0 +1,2258 @@
+{
+  "contract": "noesis-nli-task-transfer-v1",
+  "source_captures": {
+    "stance": {
+      "path": "data/argument_mining/stance.parquet",
+      "sha256": "d66efe06ce038729c6718d2deac0346e3dfad0f5b14442dc36b7c47d124ac4a8",
+      "split": "test"
+    },
+    "frames": {
+      "path": "data/argument_mining/frames.parquet",
+      "sha256": "a067866fc964ac04d0e40204ad29f128b3cae371a0746c417576c87e6b714cb3",
+      "split": "test"
+    }
+  },
+  "selection": "First six test records per task whose labels are in the existing ontology; unchanged source text/targets. Not a representative quality estimate.",
+  "label_origin": "existing benchmark, not independently collected EX-05 human labels",
+  "runs": {
+    "baseline": {
+      "status": "completed",
+      "result": {
+        "backend": "baseline",
+        "model": {
+          "env": "NOESIS_NLI_MODEL",
+          "default": "cross-encoder/nli-deberta-v3-base",
+          "revision": "6c749ce3425cd33b46d187e45b92bbf96ee12ec7",
+          "serves": [
+            "stance (#954)",
+            "frames (#955)",
+            "claim links (#964)"
+          ],
+          "model": "cross-encoder/nli-deberta-v3-base"
+        },
+        "model_load_s": 5.728333844002918,
+        "rows": [
+          {
+            "id": "xnli:de:test:132",
+            "group_id": "6d519e6ff7a05b1e938419e7392d194f477936fdaedab650dd8027dd20988d20",
+            "split": "test",
+            "labels": [
+              "neutral"
+            ],
+            "label_origin": "independent-human",
+            "source": "facebook/xnli",
+            "domain": "xnli-reported-speech-challenge",
+            "language": "de",
+            "input_sha256": "f850d44509dcf975a07649aeb5a8c7d149edb69e44e80e2cb31156a5859de71b",
+            "scores": [
+              0.0007834727293811738,
+              0.9654343724250793,
+              0.033782199025154114
+            ],
+            "elapsed_s": 0.6750181109964615
+          },
+          {
+            "id": "xnli:en:test:132",
+            "group_id": "6d519e6ff7a05b1e938419e7392d194f477936fdaedab650dd8027dd20988d20",
+            "split": "test",
+            "labels": [
+              "neutral"
+            ],
+            "label_origin": "independent-human",
+            "source": "facebook/xnli",
+            "domain": "xnli-reported-speech-challenge",
+            "language": "en",
+            "input_sha256": "d5845fc56420cb6c0f344925acf52e60fc27832998bf07d9b79bac61a7e94f20",
+            "scores": [
+              0.00028342180303297937,
+              0.9994156360626221,
+              0.0003009093052241951
+            ],
+            "elapsed_s": 0.3729000159946736
+          }
+        ],
+        "batch_probes": [
+          {
+            "batch_size": 2,
+            "elapsed_s": 0.3807663780025905,
+            "max_probability_difference_from_single_pair": 1.1175870895385742e-08
+          }
+        ],
+        "task_probes": {
+          "stance": {
+            "templates": {
+              "supportive": "This text is supportive of {topic}.",
+              "critical": "This text is critical of {topic}.",
+              "neutral": "This text reports on {topic} neutrally.",
+              "ambiguous": "This text is ambiguous about {topic}."
+            },
+            "rows": [
+              {
+                "id": "b7ffadf6-dfd6-4561-86c4-face66fae530",
+                "labels": [
+                  "critical"
+                ],
+                "scores": [
+                  0.117817,
+                  0.004685,
+                  0.002002,
+                  0.011887
+                ],
+                "source_type": "blog",
+                "domain": "not annotated",
+                "language": "not annotated",
+                "target": "public debt",
+                "input_sha256": "86937b199b7469aefd4a1dc00df0b4266ce1aceb19655acf110f9a9c560eef50",
+                "elapsed_s": 0.3683325669990154
+              },
+              {
+                "id": "21b3da5c-48a7-45cf-98fd-b0ee4bdc2539",
+                "labels": [
+                  "neutral"
+                ],
+                "scores": [
+                  0.00069,
+                  0.000103,
+                  1.8e-05,
+                  0.001596
+                ],
+                "source_type": "news",
+                "domain": "not annotated",
+                "language": "not annotated",
+                "target": "fiscal policy",
+                "input_sha256": "dffb0022f29a2ebe103b12e1c4d9b6be6c12e544d770607beadb02ef3f2bcd90",
+                "elapsed_s": 0.324798596004257
+              },
+              {
+                "id": "7d7d02bd-374b-46ac-b1b8-2e6696fa4e1b",
+                "labels": [
+                  "neutral"
+                ],
+                "scores": [
+                  0.09272,
+                  0.006116,
+                  2.3e-05,
+                  0.000655
+                ],
+                "source_type": "note",
+                "domain": "not annotated",
+                "language": "not annotated",
+                "target": "monetary policy",
+                "input_sha256": "b04d1845c0cb630042c3637f7183e5368cafc001369256be9f2dfb59f38b44d3",
+                "elapsed_s": 0.2950922399904812
+              },
+              {
+                "id": "a172c4ac-4bdd-405e-94a0-a04f6d9c975c",
+                "labels": [
+                  "neutral"
+                ],
+                "scores": [
+                  0.007746,
+                  0.000146,
+                  1.1e-05,
+                  9.3e-05
+                ],
+                "source_type": "note",
+                "domain": "not annotated",
+                "language": "not annotated",
+                "target": "economic reform",
+                "input_sha256": "9abd4f82e6deae1957f2c41630f9810dd964a2ec5cfbc4d68d01c96fbe454dad",
+                "elapsed_s": 0.27449800999602303
+              },
+              {
+                "id": "cc6c34c7-eeb5-4be4-8669-70549e68fcff",
+                "labels": [
+                  "neutral"
+                ],
+                "scores": [
+                  0.990989,
+                  0.000997,
+                  0.000348,
+                  0.019042
+                ],
+                "source_type": "book",
+                "domain": "not annotated",
+                "language": "not annotated",
+                "target": "border security",
+                "input_sha256": "10b6dec31c6bb36b05b71175992b2bfaad8daf03b10c1a7a780b60c61670e16c",
+                "elapsed_s": 0.35292927200498525
+              },
+              {
+                "id": "938e1690-f302-4370-a993-5f7b972514ef",
+                "labels": [
+                  "ambiguous"
+                ],
+                "scores": [
+                  0.029136,
+                  0.000532,
+                  6e-05,
+                  0.033248
+                ],
+                "source_type": "news",
+                "domain": "not annotated",
+                "language": "not annotated",
+                "target": "public debt",
+                "input_sha256": "ac14fcf3067bc75bc40099f9d951957205c17e54d6792b81fc6f09ce7891b7d6",
+                "elapsed_s": 1.610758071008604
+              }
+            ],
+            "metrics": {
+              "per_class": {
+                "supportive": {
+                  "precision": 0.0,
+                  "recall": 0,
+                  "f1": 0,
+                  "support": 0
+                },
+                "critical": {
+                  "precision": 0,
+                  "recall": 0.0,
+                  "f1": 0,
+                  "support": 1
+                },
+                "neutral": {
+                  "precision": 0.6,
+                  "recall": 0.75,
+                  "f1": 0.6666666666666665,
+                  "support": 4
+                },
+                "ambiguous": {
+                  "precision": 0,
+                  "recall": 0.0,
+                  "f1": 0,
+                  "support": 1
+                }
+              },
+              "macro_f1": 0.16666666666666663,
+              "exact_accuracy": 0.5,
+              "n": 6,
+              "out_of_ontology_labels": {},
+              "out_of_ontology_rows": 0,
+              "coverage": 1.0,
+              "unsupported": 0,
+              "selective_accuracy": 0.5,
+              "brier": 1.5665982687992168,
+              "calibration_bins": [
+                {
+                  "lower": 0.5,
+                  "n": 5,
+                  "confidence": 0.5,
+                  "accuracy": 0.6
+                },
+                {
+                  "lower": 0.9,
+                  "n": 1,
+                  "confidence": 0.9798423138377813,
+                  "accuracy": 0.0
+                }
+              ],
+              "ece": 0.2466403856396302,
+              "calibration_basis": "normalized stance scores",
+              "confusions": [
+                {
+                  "expected": "ambiguous",
+                  "predicted": "neutral",
+                  "n": 1
+                },
+                {
+                  "expected": "critical",
+                  "predicted": "neutral",
+                  "n": 1
+                },
+                {
+                  "expected": "neutral",
+                  "predicted": "neutral",
+                  "n": 3
+                },
+                {
+                  "expected": "neutral",
+                  "predicted": "supportive",
+                  "n": 1
+                }
+              ],
+              "by_source": {
+                "blog": {
+                  "per_class": {
+                    "supportive": {
+                      "precision": 0,
+                      "recall": 0,
+                      "f1": 0,
+                      "support": 0
+                    },
+                    "critical": {
+                      "precision": 0,
+                      "recall": 0.0,
+                      "f1": 0,
+                      "support": 1
+                    },
+                    "neutral": {
+                      "precision": 0.0,
+                      "recall": 0,
+                      "f1": 0,
+                      "support": 0
+                    },
+                    "ambiguous": {
+                      "precision": 0,
+                      "recall": 0,
+                      "f1": 0,
+                      "support": 0
+                    }
+                  },
+                  "macro_f1": 0.0,
+                  "exact_accuracy": 0.0,
+                  "n": 1
+                },
+                "book": {
+                  "per_class": {
+                    "supportive": {
+                      "precision": 0.0,
+                      "recall": 0,
+                      "f1": 0,
+                      "support": 0
+                    },
+                    "critical": {
+                      "precision": 0,
+                      "recall": 0,
+                      "f1": 0,
+                      "support": 0
+                    },
+                    "neutral": {
+                      "precision": 0,
+                      "recall": 0.0,
+                      "f1": 0,
+                      "support": 1
+                    },
+                    "ambiguous": {
+                      "precision": 0,
+                      "recall": 0,
+                      "f1": 0,
+                      "support": 0
+                    }
+                  },
+                  "macro_f1": 0.0,
+                  "exact_accuracy": 0.0,
+                  "n": 1
+                },
+                "news": {
+                  "per_class": {
+                    "supportive": {
+                      "precision": 0,
+                      "recall": 0,
+                      "f1": 0,
+                      "support": 0
+                    },
+                    "critical": {
+                      "precision": 0,
+                      "recall": 0,
+                      "f1": 0,
+                      "support": 0
+                    },
+                    "neutral": {
+                      "precision": 0.5,
+                      "recall": 1.0,
+                      "f1": 0.6666666666666666,
+                      "support": 1
+                    },
+                    "ambiguous": {
+                      "precision": 0,
+                      "recall": 0.0,
+                      "f1": 0,
+                      "support": 1
+                    }
+                  },
+                  "macro_f1": 0.16666666666666666,
+                  "exact_accuracy": 0.5,
+                  "n": 2
+                },
+                "note": {
+                  "per_class": {
+                    "supportive": {
+                      "precision": 0,
+                      "recall": 0,
+                      "f1": 0,
+                      "support": 0
+                    },
+                    "critical": {
+                      "precision": 0,
+                      "recall": 0,
+                      "f1": 0,
+                      "support": 0
+                    },
+                    "neutral": {
+                      "precision": 1.0,
+                      "recall": 1.0,
+                      "f1": 1.0,
+                      "support": 2
+                    },
+                    "ambiguous": {
+                      "precision": 0,
+                      "recall": 0,
+                      "f1": 0,
+                      "support": 0
+                    }
+                  },
+                  "macro_f1": 0.25,
+                  "exact_accuracy": 1.0,
+                  "n": 2
+                }
+              },
+              "by_domain": {
+                "not annotated": {
+                  "per_class": {
+                    "supportive": {
+                      "precision": 0.0,
+                      "recall": 0,
+                      "f1": 0,
+                      "support": 0
+                    },
+                    "critical": {
+                      "precision": 0,
+                      "recall": 0.0,
+                      "f1": 0,
+                      "support": 1
+                    },
+                    "neutral": {
+                      "precision": 0.6,
+                      "recall": 0.75,
+                      "f1": 0.6666666666666665,
+                      "support": 4
+                    },
+                    "ambiguous": {
+                      "precision": 0,
+                      "recall": 0.0,
+                      "f1": 0,
+                      "support": 1
+                    }
+                  },
+                  "macro_f1": 0.16666666666666663,
+                  "exact_accuracy": 0.5,
+                  "n": 6
+                }
+              },
+              "readiness_targets": {
+                "macro_f1": 0.7,
+                "minimum_class_recall": 0.7,
+                "coverage": 0.8
+              },
+              "absolute_metric_targets_met": false,
+              "task_ready": false,
+              "readiness_blocker": "Independent EX-05 human validation and domain readiness review are still required"
+            },
+            "label_origin": "existing Noesis benchmark labels, not independent EX-05 human collection",
+            "language_coverage": "not certified; corpus has no language annotations",
+            "readiness": "unsupported pending independent task-specific evaluation"
+          },
+          "frames": {
+            "templates": {
+              "economic": "This text frames the issue as an economic issue.",
+              "security": "This text frames the issue as a security issue.",
+              "humanitarian": "This text frames the issue as a humanitarian issue.",
+              "legal": "This text frames the issue as a legal issue.",
+              "political": "This text frames the issue as a political issue.",
+              "scientific": "This text frames the issue as a scientific issue.",
+              "other": "This text frames the issue outside economics, security, humanitarian, legal, political, or scientific terms."
+            },
+            "rows": [
+              {
+                "id": "b7ffadf6-dfd6-4561-86c4-face66fae530",
+                "labels": [
+                  "scientific"
+                ],
+                "scores": [
+                  0.002883,
+                  0.279557,
+                  0.021269,
+                  0.006471,
+                  0.001449,
+                  0.653064,
+                  0.997161
+                ],
+                "source_type": "blog",
+                "domain": "not annotated",
+                "language": "not annotated",
+                "target": "the issue",
+                "input_sha256": "86937b199b7469aefd4a1dc00df0b4266ce1aceb19655acf110f9a9c560eef50",
+                "elapsed_s": 0.6828960529965116
+              },
+              {
+                "id": "21b3da5c-48a7-45cf-98fd-b0ee4bdc2539",
+                "labels": [
+                  "legal",
+                  "economic"
+                ],
+                "scores": [
+                  0.999817,
+                  8.6e-05,
+                  3.3e-05,
+                  0.999888,
+                  0.000239,
+                  6e-05,
+                  0.993403
+                ],
+                "source_type": "news",
+                "domain": "not annotated",
+                "language": "not annotated",
+                "target": "the issue",
+                "input_sha256": "dffb0022f29a2ebe103b12e1c4d9b6be6c12e544d770607beadb02ef3f2bcd90",
+                "elapsed_s": 0.4608398459968157
+              },
+              {
+                "id": "7d7d02bd-374b-46ac-b1b8-2e6696fa4e1b",
+                "labels": [
+                  "economic"
+                ],
+                "scores": [
+                  0.109429,
+                  0.022926,
+                  0.056538,
+                  0.035246,
+                  0.006125,
+                  0.057702,
+                  0.952285
+                ],
+                "source_type": "note",
+                "domain": "not annotated",
+                "language": "not annotated",
+                "target": "the issue",
+                "input_sha256": "b04d1845c0cb630042c3637f7183e5368cafc001369256be9f2dfb59f38b44d3",
+                "elapsed_s": 0.5545386390003841
+              },
+              {
+                "id": "a172c4ac-4bdd-405e-94a0-a04f6d9c975c",
+                "labels": [
+                  "economic"
+                ],
+                "scores": [
+                  0.006995,
+                  0.04479,
+                  0.046383,
+                  0.026458,
+                  0.029214,
+                  0.013506,
+                  0.99581
+                ],
+                "source_type": "note",
+                "domain": "not annotated",
+                "language": "not annotated",
+                "target": "the issue",
+                "input_sha256": "9abd4f82e6deae1957f2c41630f9810dd964a2ec5cfbc4d68d01c96fbe454dad",
+                "elapsed_s": 0.5271621069987305
+              },
+              {
+                "id": "cc6c34c7-eeb5-4be4-8669-70549e68fcff",
+                "labels": [
+                  "humanitarian",
+                  "security"
+                ],
+                "scores": [
+                  0.559344,
+                  0.163545,
+                  0.728989,
+                  0.104286,
+                  0.355392,
+                  0.000737,
+                  0.933393
+                ],
+                "source_type": "book",
+                "domain": "not annotated",
+                "language": "not annotated",
+                "target": "the issue",
+                "input_sha256": "10b6dec31c6bb36b05b71175992b2bfaad8daf03b10c1a7a780b60c61670e16c",
+                "elapsed_s": 0.582511672997498
+              },
+              {
+                "id": "938e1690-f302-4370-a993-5f7b972514ef",
+                "labels": [
+                  "economic",
+                  "humanitarian"
+                ],
+                "scores": [
+                  0.999946,
+                  0.006342,
+                  0.43047,
+                  0.060442,
+                  0.319547,
+                  0.001579,
+                  0.967646
+                ],
+                "source_type": "news",
+                "domain": "not annotated",
+                "language": "not annotated",
+                "target": "the issue",
+                "input_sha256": "ac14fcf3067bc75bc40099f9d951957205c17e54d6792b81fc6f09ce7891b7d6",
+                "elapsed_s": 0.4180687360058073
+              }
+            ],
+            "metrics": {
+              "per_class": {
+                "economic": {
+                  "precision": 0.6666666666666666,
+                  "recall": 0.5,
+                  "f1": 0.5714285714285715,
+                  "support": 4
+                },
+                "security": {
+                  "precision": 0,
+                  "recall": 0.0,
+                  "f1": 0,
+                  "support": 1
+                },
+                "humanitarian": {
+                  "precision": 1.0,
+                  "recall": 1.0,
+                  "f1": 1.0,
+                  "support": 2
+                },
+                "legal": {
+                  "precision": 1.0,
+                  "recall": 1.0,
+                  "f1": 1.0,
+                  "support": 1
+                },
+                "political": {
+                  "precision": 0.0,
+                  "recall": 0,
+                  "f1": 0,
+                  "support": 0
+                },
+                "scientific": {
+                  "precision": 1.0,
+                  "recall": 1.0,
+                  "f1": 1.0,
+                  "support": 1
+                },
+                "other": {
+                  "precision": 0.0,
+                  "recall": 0,
+                  "f1": 0,
+                  "support": 0
+                }
+              },
+              "macro_f1": 0.5102040816326531,
+              "exact_accuracy": 0.0,
+              "n": 6,
+              "out_of_ontology_labels": {},
+              "out_of_ontology_rows": 0,
+              "per_label_calibration": {
+                "economic": {
+                  "brier": 0.34867494908266666,
+                  "ece": 0.40671233333333334,
+                  "bins": [
+                    {
+                      "lower": 0.0,
+                      "n": 2,
+                      "mean_score": 0.004939000000000001,
+                      "observed_fraction": 0.5
+                    },
+                    {
+                      "lower": 0.1,
+                      "n": 1,
+                      "mean_score": 0.109429,
+                      "observed_fraction": 1.0
+                    },
+                    {
+                      "lower": 0.5,
+                      "n": 1,
+                      "mean_score": 0.559344,
+                      "observed_fraction": 0.0
+                    },
+                    {
+                      "lower": 0.9,
+                      "n": 2,
+                      "mean_score": 0.9998815,
+                      "observed_fraction": 1.0
+                    }
+                  ]
+                },
+                "security": {
+                  "brier": 0.13006350953499998,
+                  "ece": 0.19835933333333333,
+                  "bins": [
+                    {
+                      "lower": 0.0,
+                      "n": 4,
+                      "mean_score": 0.018536,
+                      "observed_fraction": 0.0
+                    },
+                    {
+                      "lower": 0.1,
+                      "n": 1,
+                      "mean_score": 0.163545,
+                      "observed_fraction": 1.0
+                    },
+                    {
+                      "lower": 0.2,
+                      "n": 1,
+                      "mean_score": 0.279557,
+                      "observed_fraction": 0.0
+                    }
+                  ]
+                },
+                "humanitarian": {
+                  "brier": 0.06726861376733333,
+                  "ece": 0.160794,
+                  "bins": [
+                    {
+                      "lower": 0.0,
+                      "n": 4,
+                      "mean_score": 0.03105575,
+                      "observed_fraction": 0.0
+                    },
+                    {
+                      "lower": 0.4,
+                      "n": 1,
+                      "mean_score": 0.43047,
+                      "observed_fraction": 1.0
+                    },
+                    {
+                      "lower": 0.7,
+                      "n": 1,
+                      "mean_score": 0.728989,
+                      "observed_fraction": 1.0
+                    }
+                  ]
+                },
+                "legal": {
+                  "brier": 0.0027521663041666666,
+                  "ece": 0.03883583333333334,
+                  "bins": [
+                    {
+                      "lower": 0.0,
+                      "n": 4,
+                      "mean_score": 0.03215425,
+                      "observed_fraction": 0.0
+                    },
+                    {
+                      "lower": 0.1,
+                      "n": 1,
+                      "mean_score": 0.104286,
+                      "observed_fraction": 0.0
+                    },
+                    {
+                      "lower": 0.9,
+                      "n": 1,
+                      "mean_score": 0.999888,
+                      "observed_fraction": 1.0
+                    }
+                  ]
+                },
+                "political": {
+                  "brier": 0.038217814836,
+                  "ece": 0.118661,
+                  "bins": [
+                    {
+                      "lower": 0.0,
+                      "n": 4,
+                      "mean_score": 0.00925675,
+                      "observed_fraction": 0.0
+                    },
+                    {
+                      "lower": 0.3,
+                      "n": 2,
+                      "mean_score": 0.3374695,
+                      "observed_fraction": 0.0
+                    }
+                  ]
+                },
+                "scientific": {
+                  "brier": 0.020646593491000006,
+                  "ece": 0.07008666666666667,
+                  "bins": [
+                    {
+                      "lower": 0.0,
+                      "n": 5,
+                      "mean_score": 0.014716800000000002,
+                      "observed_fraction": 0.0
+                    },
+                    {
+                      "lower": 0.6,
+                      "n": 1,
+                      "mean_score": 0.653064,
+                      "observed_fraction": 1.0
+                    }
+                  ]
+                },
+                "other": {
+                  "brier": 0.9478708552366667,
+                  "ece": 0.973283,
+                  "bins": [
+                    {
+                      "lower": 0.9,
+                      "n": 6,
+                      "mean_score": 0.973283,
+                      "observed_fraction": 0.0
+                    }
+                  ]
+                }
+              },
+              "coverage": 1.0,
+              "unsupported": 0,
+              "selective_accuracy": 0.0,
+              "brier": 0.22221350032183332,
+              "calibration_bins": [
+                {
+                  "lower": 0.9,
+                  "n": 6,
+                  "confidence": 0.9797471666666667,
+                  "accuracy": 0.0
+                }
+              ],
+              "ece": 0.9797471666666667,
+              "calibration_basis": "max frame score versus exact label-set accuracy (descriptive only)",
+              "confusions": [],
+              "by_source": {
+                "blog": {
+                  "per_class": {
+                    "economic": {
+                      "precision": 0,
+                      "recall": 0,
+                      "f1": 0,
+                      "support": 0
+                    },
+                    "security": {
+                      "precision": 0,
+                      "recall": 0,
+                      "f1": 0,
+                      "support": 0
+                    },
+                    "humanitarian": {
+                      "precision": 0,
+                      "recall": 0,
+                      "f1": 0,
+                      "support": 0
+                    },
+                    "legal": {
+                      "precision": 0,
+                      "recall": 0,
+                      "f1": 0,
+                      "support": 0
+                    },
+                    "political": {
+                      "precision": 0,
+                      "recall": 0,
+                      "f1": 0,
+                      "support": 0
+                    },
+                    "scientific": {
+                      "precision": 1.0,
+                      "recall": 1.0,
+                      "f1": 1.0,
+                      "support": 1
+                    },
+                    "other": {
+                      "precision": 0.0,
+                      "recall": 0,
+                      "f1": 0,
+                      "support": 0
+                    }
+                  },
+                  "macro_f1": 0.14285714285714285,
+                  "exact_accuracy": 0.0,
+                  "n": 1
+                },
+                "book": {
+                  "per_class": {
+                    "economic": {
+                      "precision": 0.0,
+                      "recall": 0,
+                      "f1": 0,
+                      "support": 0
+                    },
+                    "security": {
+                      "precision": 0,
+                      "recall": 0.0,
+                      "f1": 0,
+                      "support": 1
+                    },
+                    "humanitarian": {
+                      "precision": 1.0,
+                      "recall": 1.0,
+                      "f1": 1.0,
+                      "support": 1
+                    },
+                    "legal": {
+                      "precision": 0,
+                      "recall": 0,
+                      "f1": 0,
+                      "support": 0
+                    },
+                    "political": {
+                      "precision": 0.0,
+                      "recall": 0,
+                      "f1": 0,
+                      "support": 0
+                    },
+                    "scientific": {
+                      "precision": 0,
+                      "recall": 0,
+                      "f1": 0,
+                      "support": 0
+                    },
+                    "other": {
+                      "precision": 0.0,
+                      "recall": 0,
+                      "f1": 0,
+                      "support": 0
+                    }
+                  },
+                  "macro_f1": 0.14285714285714285,
+                  "exact_accuracy": 0.0,
+                  "n": 1
+                },
+                "news": {
+                  "per_class": {
+                    "economic": {
+                      "precision": 1.0,
+                      "recall": 1.0,
+                      "f1": 1.0,
+                      "support": 2
+                    },
+                    "security": {
+                      "precision": 0,
+                      "recall": 0,
+                      "f1": 0,
+                      "support": 0
+                    },
+                    "humanitarian": {
+                      "precision": 1.0,
+                      "recall": 1.0,
+                      "f1": 1.0,
+                      "support": 1
+                    },
+                    "legal": {
+                      "precision": 1.0,
+                      "recall": 1.0,
+                      "f1": 1.0,
+                      "support": 1
+                    },
+                    "political": {
+                      "precision": 0,
+                      "recall": 0,
+                      "f1": 0,
+                      "support": 0
+                    },
+                    "scientific": {
+                      "precision": 0,
+                      "recall": 0,
+                      "f1": 0,
+                      "support": 0
+                    },
+                    "other": {
+                      "precision": 0.0,
+                      "recall": 0,
+                      "f1": 0,
+                      "support": 0
+                    }
+                  },
+                  "macro_f1": 0.42857142857142855,
+                  "exact_accuracy": 0.0,
+                  "n": 2
+                },
+                "note": {
+                  "per_class": {
+                    "economic": {
+                      "precision": 0,
+                      "recall": 0.0,
+                      "f1": 0,
+                      "support": 2
+                    },
+                    "security": {
+                      "precision": 0,
+                      "recall": 0,
+                      "f1": 0,
+                      "support": 0
+                    },
+                    "humanitarian": {
+                      "precision": 0,
+                      "recall": 0,
+                      "f1": 0,
+                      "support": 0
+                    },
+                    "legal": {
+                      "precision": 0,
+                      "recall": 0,
+                      "f1": 0,
+                      "support": 0
+                    },
+                    "political": {
+                      "precision": 0,
+                      "recall": 0,
+                      "f1": 0,
+                      "support": 0
+                    },
+                    "scientific": {
+                      "precision": 0,
+                      "recall": 0,
+                      "f1": 0,
+                      "support": 0
+                    },
+                    "other": {
+                      "precision": 0.0,
+                      "recall": 0,
+                      "f1": 0,
+                      "support": 0
+                    }
+                  },
+                  "macro_f1": 0.0,
+                  "exact_accuracy": 0.0,
+                  "n": 2
+                }
+              },
+              "by_domain": {
+                "not annotated": {
+                  "per_class": {
+                    "economic": {
+                      "precision": 0.6666666666666666,
+                      "recall": 0.5,
+                      "f1": 0.5714285714285715,
+                      "support": 4
+                    },
+                    "security": {
+                      "precision": 0,
+                      "recall": 0.0,
+                      "f1": 0,
+                      "support": 1
+                    },
+                    "humanitarian": {
+                      "precision": 1.0,
+                      "recall": 1.0,
+                      "f1": 1.0,
+                      "support": 2
+                    },
+                    "legal": {
+                      "precision": 1.0,
+                      "recall": 1.0,
+                      "f1": 1.0,
+                      "support": 1
+                    },
+                    "political": {
+                      "precision": 0.0,
+                      "recall": 0,
+                      "f1": 0,
+                      "support": 0
+                    },
+                    "scientific": {
+                      "precision": 1.0,
+                      "recall": 1.0,
+                      "f1": 1.0,
+                      "support": 1
+                    },
+                    "other": {
+                      "precision": 0.0,
+                      "recall": 0,
+                      "f1": 0,
+                      "support": 0
+                    }
+                  },
+                  "macro_f1": 0.5102040816326531,
+                  "exact_accuracy": 0.0,
+                  "n": 6
+                }
+              },
+              "readiness_targets": {
+                "macro_f1": 0.65,
+                "minimum_class_recall": 0.5,
+                "coverage": 0.8
+              },
+              "absolute_metric_targets_met": false,
+              "task_ready": false,
+              "readiness_blocker": "Independent EX-05 human validation and domain readiness review are still required"
+            },
+            "label_origin": "existing Noesis benchmark labels, not independent EX-05 human collection",
+            "language_coverage": "not certified; corpus has no language annotations",
+            "readiness": "unsupported pending independent task-specific evaluation"
+          }
+        },
+        "configuration": {
+          "premise_first": true,
+          "max_pair_tokens": 512,
+          "truncation": false,
+          "main_batch_size": 1,
+          "device": "cpu",
+          "class_order": [
+            "entailment",
+            "neutral",
+            "contradiction"
+          ]
+        },
+        "corpus_sha256": "a88a2798363df2f1ac7903bb984d71630b6bb02d2197703f40182cfe02a0e957"
+      },
+      "operation": "nli-benchmark",
+      "elapsed_seconds": 16.165659712001798,
+      "peak_process_tree_rss_bytes": 956993536,
+      "resource_limits": {
+        "timeout_s": 300,
+        "rss_bytes": 3221225472,
+        "threads": 2
+      },
+      "execution": "isolated-local-process",
+      "hosted_inference_used": false,
+      "remote_processing_used": false
+    },
+    "mdeberta": {
+      "status": "completed",
+      "result": {
+        "backend": "mdeberta",
+        "model": {
+          "kind": "mdeberta",
+          "model": "MoritzLaurer/mDeBERTa-v3-base-mnli-xnli",
+          "revision": "8adb042d524ecd5c26d3e3ba0e3fbcf7e2d0864c",
+          "license": "mit"
+        },
+        "model_load_s": 6.281258773000445,
+        "rows": [
+          {
+            "id": "xnli:de:test:132",
+            "group_id": "6d519e6ff7a05b1e938419e7392d194f477936fdaedab650dd8027dd20988d20",
+            "split": "test",
+            "labels": [
+              "neutral"
+            ],
+            "label_origin": "independent-human",
+            "source": "facebook/xnli",
+            "domain": "xnli-reported-speech-challenge",
+            "language": "de",
+            "input_sha256": "f850d44509dcf975a07649aeb5a8c7d149edb69e44e80e2cb31156a5859de71b",
+            "scores": [
+              0.54150390625,
+              0.45654296875,
+              0.001712799072265625
+            ],
+            "elapsed_s": 0.8207062060100725
+          },
+          {
+            "id": "xnli:en:test:132",
+            "group_id": "6d519e6ff7a05b1e938419e7392d194f477936fdaedab650dd8027dd20988d20",
+            "split": "test",
+            "labels": [
+              "neutral"
+            ],
+            "label_origin": "independent-human",
+            "source": "facebook/xnli",
+            "domain": "xnli-reported-speech-challenge",
+            "language": "en",
+            "input_sha256": "d5845fc56420cb6c0f344925acf52e60fc27832998bf07d9b79bac61a7e94f20",
+            "scores": [
+              0.0006961822509765625,
+              0.99755859375,
+              0.0019016265869140625
+            ],
+            "elapsed_s": 0.6347645040077623
+          }
+        ],
+        "batch_probes": [
+          {
+            "batch_size": 2,
+            "elapsed_s": 0.9058836370095378,
+            "max_probability_difference_from_single_pair": 1.811981201171875e-05
+          }
+        ],
+        "task_probes": {
+          "stance": {
+            "templates": {
+              "supportive": "This text is supportive of {topic}.",
+              "critical": "This text is critical of {topic}.",
+              "neutral": "This text reports on {topic} neutrally.",
+              "ambiguous": "This text is ambiguous about {topic}."
+            },
+            "rows": [
+              {
+                "id": "b7ffadf6-dfd6-4561-86c4-face66fae530",
+                "labels": [
+                  "critical"
+                ],
+                "scores": [
+                  0.240234,
+                  0.500977,
+                  0.31543,
+                  0.592773
+                ],
+                "source_type": "blog",
+                "domain": "not annotated",
+                "language": "not annotated",
+                "target": "public debt",
+                "input_sha256": "86937b199b7469aefd4a1dc00df0b4266ce1aceb19655acf110f9a9c560eef50",
+                "elapsed_s": 1.5366851740109269
+              },
+              {
+                "id": "21b3da5c-48a7-45cf-98fd-b0ee4bdc2539",
+                "labels": [
+                  "neutral"
+                ],
+                "scores": [
+                  0.227783,
+                  0.265381,
+                  0.06131,
+                  0.071838
+                ],
+                "source_type": "news",
+                "domain": "not annotated",
+                "language": "not annotated",
+                "target": "fiscal policy",
+                "input_sha256": "dffb0022f29a2ebe103b12e1c4d9b6be6c12e544d770607beadb02ef3f2bcd90",
+                "elapsed_s": 1.7723586060019443
+              },
+              {
+                "id": "7d7d02bd-374b-46ac-b1b8-2e6696fa4e1b",
+                "labels": [
+                  "neutral"
+                ],
+                "scores": [
+                  0.688965,
+                  0.519531,
+                  0.090027,
+                  0.247681
+                ],
+                "source_type": "note",
+                "domain": "not annotated",
+                "language": "not annotated",
+                "target": "monetary policy",
+                "input_sha256": "b04d1845c0cb630042c3637f7183e5368cafc001369256be9f2dfb59f38b44d3",
+                "elapsed_s": 1.7315660579915857
+              },
+              {
+                "id": "a172c4ac-4bdd-405e-94a0-a04f6d9c975c",
+                "labels": [
+                  "neutral"
+                ],
+                "scores": [
+                  0.428467,
+                  0.366943,
+                  0.126221,
+                  0.32666
+                ],
+                "source_type": "note",
+                "domain": "not annotated",
+                "language": "not annotated",
+                "target": "economic reform",
+                "input_sha256": "9abd4f82e6deae1957f2c41630f9810dd964a2ec5cfbc4d68d01c96fbe454dad",
+                "elapsed_s": 1.429844708996825
+              },
+              {
+                "id": "cc6c34c7-eeb5-4be4-8669-70549e68fcff",
+                "labels": [
+                  "neutral"
+                ],
+                "scores": [
+                  0.347168,
+                  0.659668,
+                  0.111206,
+                  0.606934
+                ],
+                "source_type": "book",
+                "domain": "not annotated",
+                "language": "not annotated",
+                "target": "border security",
+                "input_sha256": "10b6dec31c6bb36b05b71175992b2bfaad8daf03b10c1a7a780b60c61670e16c",
+                "elapsed_s": 1.4642059580073692
+              },
+              {
+                "id": "938e1690-f302-4370-a993-5f7b972514ef",
+                "labels": [
+                  "ambiguous"
+                ],
+                "scores": [
+                  0.02774,
+                  0.240234,
+                  0.05957,
+                  0.679199
+                ],
+                "source_type": "news",
+                "domain": "not annotated",
+                "language": "not annotated",
+                "target": "public debt",
+                "input_sha256": "ac14fcf3067bc75bc40099f9d951957205c17e54d6792b81fc6f09ce7891b7d6",
+                "elapsed_s": 1.4786671640031273
+              }
+            ],
+            "metrics": {
+              "per_class": {
+                "supportive": {
+                  "precision": 0.0,
+                  "recall": 0,
+                  "f1": 0,
+                  "support": 0
+                },
+                "critical": {
+                  "precision": 0.0,
+                  "recall": 0.0,
+                  "f1": 0,
+                  "support": 1
+                },
+                "neutral": {
+                  "precision": 1.0,
+                  "recall": 0.25,
+                  "f1": 0.4,
+                  "support": 4
+                },
+                "ambiguous": {
+                  "precision": 0.5,
+                  "recall": 1.0,
+                  "f1": 0.6666666666666666,
+                  "support": 1
+                }
+              },
+              "macro_f1": 0.26666666666666666,
+              "exact_accuracy": 0.3333333333333333,
+              "n": 6,
+              "out_of_ontology_labels": {},
+              "out_of_ontology_rows": 0,
+              "coverage": 1.0,
+              "unsupported": 0,
+              "selective_accuracy": 0.3333333333333333,
+              "brier": 0.9113450511484836,
+              "calibration_bins": [
+                {
+                  "lower": 0.3,
+                  "n": 3,
+                  "confidence": 0.3616828112026121,
+                  "accuracy": 0.0
+                },
+                {
+                  "lower": 0.4,
+                  "n": 1,
+                  "confidence": 0.44558479993584293,
+                  "accuracy": 0.0
+                },
+                {
+                  "lower": 0.5,
+                  "n": 1,
+                  "confidence": 0.5,
+                  "accuracy": 1.0
+                },
+                {
+                  "lower": 0.6,
+                  "n": 1,
+                  "confidence": 0.6746498361548081,
+                  "accuracy": 1.0
+                }
+              ],
+              "ece": 0.3926638995648119,
+              "calibration_basis": "normalized stance scores",
+              "confusions": [
+                {
+                  "expected": "ambiguous",
+                  "predicted": "ambiguous",
+                  "n": 1
+                },
+                {
+                  "expected": "critical",
+                  "predicted": "ambiguous",
+                  "n": 1
+                },
+                {
+                  "expected": "neutral",
+                  "predicted": "critical",
+                  "n": 1
+                },
+                {
+                  "expected": "neutral",
+                  "predicted": "neutral",
+                  "n": 1
+                },
+                {
+                  "expected": "neutral",
+                  "predicted": "supportive",
+                  "n": 2
+                }
+              ],
+              "by_source": {
+                "blog": {
+                  "per_class": {
+                    "supportive": {
+                      "precision": 0,
+                      "recall": 0,
+                      "f1": 0,
+                      "support": 0
+                    },
+                    "critical": {
+                      "precision": 0,
+                      "recall": 0.0,
+                      "f1": 0,
+                      "support": 1
+                    },
+                    "neutral": {
+                      "precision": 0,
+                      "recall": 0,
+                      "f1": 0,
+                      "support": 0
+                    },
+                    "ambiguous": {
+                      "precision": 0.0,
+                      "recall": 0,
+                      "f1": 0,
+                      "support": 0
+                    }
+                  },
+                  "macro_f1": 0.0,
+                  "exact_accuracy": 0.0,
+                  "n": 1
+                },
+                "book": {
+                  "per_class": {
+                    "supportive": {
+                      "precision": 0,
+                      "recall": 0,
+                      "f1": 0,
+                      "support": 0
+                    },
+                    "critical": {
+                      "precision": 0.0,
+                      "recall": 0,
+                      "f1": 0,
+                      "support": 0
+                    },
+                    "neutral": {
+                      "precision": 0,
+                      "recall": 0.0,
+                      "f1": 0,
+                      "support": 1
+                    },
+                    "ambiguous": {
+                      "precision": 0,
+                      "recall": 0,
+                      "f1": 0,
+                      "support": 0
+                    }
+                  },
+                  "macro_f1": 0.0,
+                  "exact_accuracy": 0.0,
+                  "n": 1
+                },
+                "news": {
+                  "per_class": {
+                    "supportive": {
+                      "precision": 0,
+                      "recall": 0,
+                      "f1": 0,
+                      "support": 0
+                    },
+                    "critical": {
+                      "precision": 0,
+                      "recall": 0,
+                      "f1": 0,
+                      "support": 0
+                    },
+                    "neutral": {
+                      "precision": 1.0,
+                      "recall": 1.0,
+                      "f1": 1.0,
+                      "support": 1
+                    },
+                    "ambiguous": {
+                      "precision": 1.0,
+                      "recall": 1.0,
+                      "f1": 1.0,
+                      "support": 1
+                    }
+                  },
+                  "macro_f1": 0.5,
+                  "exact_accuracy": 1.0,
+                  "n": 2
+                },
+                "note": {
+                  "per_class": {
+                    "supportive": {
+                      "precision": 0.0,
+                      "recall": 0,
+                      "f1": 0,
+                      "support": 0
+                    },
+                    "critical": {
+                      "precision": 0,
+                      "recall": 0,
+                      "f1": 0,
+                      "support": 0
+                    },
+                    "neutral": {
+                      "precision": 0,
+                      "recall": 0.0,
+                      "f1": 0,
+                      "support": 2
+                    },
+                    "ambiguous": {
+                      "precision": 0,
+                      "recall": 0,
+                      "f1": 0,
+                      "support": 0
+                    }
+                  },
+                  "macro_f1": 0.0,
+                  "exact_accuracy": 0.0,
+                  "n": 2
+                }
+              },
+              "by_domain": {
+                "not annotated": {
+                  "per_class": {
+                    "supportive": {
+                      "precision": 0.0,
+                      "recall": 0,
+                      "f1": 0,
+                      "support": 0
+                    },
+                    "critical": {
+                      "precision": 0.0,
+                      "recall": 0.0,
+                      "f1": 0,
+                      "support": 1
+                    },
+                    "neutral": {
+                      "precision": 1.0,
+                      "recall": 0.25,
+                      "f1": 0.4,
+                      "support": 4
+                    },
+                    "ambiguous": {
+                      "precision": 0.5,
+                      "recall": 1.0,
+                      "f1": 0.6666666666666666,
+                      "support": 1
+                    }
+                  },
+                  "macro_f1": 0.26666666666666666,
+                  "exact_accuracy": 0.3333333333333333,
+                  "n": 6
+                }
+              },
+              "readiness_targets": {
+                "macro_f1": 0.7,
+                "minimum_class_recall": 0.7,
+                "coverage": 0.8
+              },
+              "absolute_metric_targets_met": false,
+              "task_ready": false,
+              "readiness_blocker": "Independent EX-05 human validation and domain readiness review are still required"
+            },
+            "label_origin": "existing Noesis benchmark labels, not independent EX-05 human collection",
+            "language_coverage": "not certified; corpus has no language annotations",
+            "readiness": "unsupported pending independent task-specific evaluation"
+          },
+          "frames": {
+            "templates": {
+              "economic": "This text frames the issue as an economic issue.",
+              "security": "This text frames the issue as a security issue.",
+              "humanitarian": "This text frames the issue as a humanitarian issue.",
+              "legal": "This text frames the issue as a legal issue.",
+              "political": "This text frames the issue as a political issue.",
+              "scientific": "This text frames the issue as a scientific issue.",
+              "other": "This text frames the issue outside economics, security, humanitarian, legal, political, or scientific terms."
+            },
+            "rows": [
+              {
+                "id": "b7ffadf6-dfd6-4561-86c4-face66fae530",
+                "labels": [
+                  "scientific"
+                ],
+                "scores": [
+                  0.253174,
+                  0.48291,
+                  0.296631,
+                  0.300537,
+                  0.19397,
+                  0.524414,
+                  0.505859
+                ],
+                "source_type": "blog",
+                "domain": "not annotated",
+                "language": "not annotated",
+                "target": "the issue",
+                "input_sha256": "86937b199b7469aefd4a1dc00df0b4266ce1aceb19655acf110f9a9c560eef50",
+                "elapsed_s": 2.93620443000691
+              },
+              {
+                "id": "21b3da5c-48a7-45cf-98fd-b0ee4bdc2539",
+                "labels": [
+                  "legal",
+                  "economic"
+                ],
+                "scores": [
+                  0.381104,
+                  0.001681,
+                  0.000748,
+                  0.966309,
+                  0.010651,
+                  0.004467,
+                  0.26416
+                ],
+                "source_type": "news",
+                "domain": "not annotated",
+                "language": "not annotated",
+                "target": "the issue",
+                "input_sha256": "dffb0022f29a2ebe103b12e1c4d9b6be6c12e544d770607beadb02ef3f2bcd90",
+                "elapsed_s": 2.8511237740021897
+              },
+              {
+                "id": "7d7d02bd-374b-46ac-b1b8-2e6696fa4e1b",
+                "labels": [
+                  "economic"
+                ],
+                "scores": [
+                  0.373291,
+                  0.155396,
+                  0.251953,
+                  0.275391,
+                  0.743652,
+                  0.279297,
+                  0.226562
+                ],
+                "source_type": "note",
+                "domain": "not annotated",
+                "language": "not annotated",
+                "target": "the issue",
+                "input_sha256": "b04d1845c0cb630042c3637f7183e5368cafc001369256be9f2dfb59f38b44d3",
+                "elapsed_s": 3.133840614988003
+              },
+              {
+                "id": "a172c4ac-4bdd-405e-94a0-a04f6d9c975c",
+                "labels": [
+                  "economic"
+                ],
+                "scores": [
+                  0.22937,
+                  0.34082,
+                  0.330322,
+                  0.279541,
+                  0.203247,
+                  0.199829,
+                  0.290283
+                ],
+                "source_type": "note",
+                "domain": "not annotated",
+                "language": "not annotated",
+                "target": "the issue",
+                "input_sha256": "9abd4f82e6deae1957f2c41630f9810dd964a2ec5cfbc4d68d01c96fbe454dad",
+                "elapsed_s": 2.888157235007384
+              },
+              {
+                "id": "cc6c34c7-eeb5-4be4-8669-70549e68fcff",
+                "labels": [
+                  "humanitarian",
+                  "security"
+                ],
+                "scores": [
+                  0.487305,
+                  0.332275,
+                  0.630859,
+                  0.304199,
+                  0.431152,
+                  0.113342,
+                  0.445557
+                ],
+                "source_type": "book",
+                "domain": "not annotated",
+                "language": "not annotated",
+                "target": "the issue",
+                "input_sha256": "10b6dec31c6bb36b05b71175992b2bfaad8daf03b10c1a7a780b60c61670e16c",
+                "elapsed_s": 2.934718803007854
+              },
+              {
+                "id": "938e1690-f302-4370-a993-5f7b972514ef",
+                "labels": [
+                  "economic",
+                  "humanitarian"
+                ],
+                "scores": [
+                  0.302734,
+                  0.061523,
+                  0.371094,
+                  0.193481,
+                  0.154053,
+                  0.048096,
+                  0.234009
+                ],
+                "source_type": "news",
+                "domain": "not annotated",
+                "language": "not annotated",
+                "target": "the issue",
+                "input_sha256": "ac14fcf3067bc75bc40099f9d951957205c17e54d6792b81fc6f09ce7891b7d6",
+                "elapsed_s": 2.7598066339996876
+              }
+            ],
+            "metrics": {
+              "per_class": {
+                "economic": {
+                  "precision": 0.0,
+                  "recall": 0.0,
+                  "f1": 0,
+                  "support": 4
+                },
+                "security": {
+                  "precision": 0.0,
+                  "recall": 0.0,
+                  "f1": 0,
+                  "support": 1
+                },
+                "humanitarian": {
+                  "precision": 1.0,
+                  "recall": 1.0,
+                  "f1": 1.0,
+                  "support": 2
+                },
+                "legal": {
+                  "precision": 1.0,
+                  "recall": 1.0,
+                  "f1": 1.0,
+                  "support": 1
+                },
+                "political": {
+                  "precision": 0.0,
+                  "recall": 0,
+                  "f1": 0,
+                  "support": 0
+                },
+                "scientific": {
+                  "precision": 1.0,
+                  "recall": 1.0,
+                  "f1": 1.0,
+                  "support": 1
+                },
+                "other": {
+                  "precision": 0.0,
+                  "recall": 0,
+                  "f1": 0,
+                  "support": 0
+                }
+              },
+              "macro_f1": 0.42857142857142855,
+              "exact_accuracy": 0.0,
+              "n": 6,
+              "out_of_ontology_labels": {},
+              "out_of_ontology_rows": 0,
+              "per_label_calibration": {
+                "economic": {
+                  "brier": 0.359568356409,
+                  "ece": 0.49127199999999993,
+                  "bins": [
+                    {
+                      "lower": 0.2,
+                      "n": 2,
+                      "mean_score": 0.241272,
+                      "observed_fraction": 0.5
+                    },
+                    {
+                      "lower": 0.3,
+                      "n": 3,
+                      "mean_score": 0.35237633333333335,
+                      "observed_fraction": 1.0
+                    },
+                    {
+                      "lower": 0.4,
+                      "n": 1,
+                      "mean_score": 0.487305,
+                      "observed_fraction": 0.0
+                    }
+                  ]
+                },
+                "security": {
+                  "brier": 0.13719213970516667,
+                  "ece": 0.1714025,
+                  "bins": [
+                    {
+                      "lower": 0.0,
+                      "n": 2,
+                      "mean_score": 0.031602,
+                      "observed_fraction": 0.0
+                    },
+                    {
+                      "lower": 0.1,
+                      "n": 1,
+                      "mean_score": 0.155396,
+                      "observed_fraction": 0.0
+                    },
+                    {
+                      "lower": 0.3,
+                      "n": 2,
+                      "mean_score": 0.3365475,
+                      "observed_fraction": 0.5
+                    },
+                    {
+                      "lower": 0.4,
+                      "n": 1,
+                      "mean_score": 0.48291,
+                      "observed_fraction": 0.0
+                    }
+                  ]
+                },
+                "humanitarian": {
+                  "brier": 0.13206188037916666,
+                  "ece": 0.20284283333333333,
+                  "bins": [
+                    {
+                      "lower": 0.0,
+                      "n": 1,
+                      "mean_score": 0.000748,
+                      "observed_fraction": 0.0
+                    },
+                    {
+                      "lower": 0.2,
+                      "n": 2,
+                      "mean_score": 0.274292,
+                      "observed_fraction": 0.0
+                    },
+                    {
+                      "lower": 0.3,
+                      "n": 2,
+                      "mean_score": 0.350708,
+                      "observed_fraction": 0.5
+                    },
+                    {
+                      "lower": 0.6,
+                      "n": 1,
+                      "mean_score": 0.630859,
+                      "observed_fraction": 1.0
+                    }
+                  ]
+                },
+                "legal": {
+                  "brier": 0.06256881239566667,
+                  "ece": 0.23113999999999998,
+                  "bins": [
+                    {
+                      "lower": 0.1,
+                      "n": 1,
+                      "mean_score": 0.193481,
+                      "observed_fraction": 0.0
+                    },
+                    {
+                      "lower": 0.2,
+                      "n": 2,
+                      "mean_score": 0.277466,
+                      "observed_fraction": 0.0
+                    },
+                    {
+                      "lower": 0.3,
+                      "n": 2,
+                      "mean_score": 0.30236799999999997,
+                      "observed_fraction": 0.0
+                    },
+                    {
+                      "lower": 0.9,
+                      "n": 1,
+                      "mean_score": 0.966309,
+                      "observed_fraction": 1.0
+                    }
+                  ]
+                },
+                "political": {
+                  "brier": 0.1402816364545,
+                  "ece": 0.2894541666666666,
+                  "bins": [
+                    {
+                      "lower": 0.0,
+                      "n": 1,
+                      "mean_score": 0.010651,
+                      "observed_fraction": 0.0
+                    },
+                    {
+                      "lower": 0.1,
+                      "n": 2,
+                      "mean_score": 0.17401149999999999,
+                      "observed_fraction": 0.0
+                    },
+                    {
+                      "lower": 0.2,
+                      "n": 1,
+                      "mean_score": 0.203247,
+                      "observed_fraction": 0.0
+                    },
+                    {
+                      "lower": 0.4,
+                      "n": 1,
+                      "mean_score": 0.431152,
+                      "observed_fraction": 0.0
+                    },
+                    {
+                      "lower": 0.7,
+                      "n": 1,
+                      "mean_score": 0.743652,
+                      "observed_fraction": 0.0
+                    }
+                  ]
+                },
+                "scientific": {
+                  "brier": 0.05988334585249999,
+                  "ece": 0.1867695,
+                  "bins": [
+                    {
+                      "lower": 0.0,
+                      "n": 2,
+                      "mean_score": 0.0262815,
+                      "observed_fraction": 0.0
+                    },
+                    {
+                      "lower": 0.1,
+                      "n": 2,
+                      "mean_score": 0.1565855,
+                      "observed_fraction": 0.0
+                    },
+                    {
+                      "lower": 0.2,
+                      "n": 1,
+                      "mean_score": 0.279297,
+                      "observed_fraction": 0.0
+                    },
+                    {
+                      "lower": 0.5,
+                      "n": 1,
+                      "mean_score": 0.524414,
+                      "observed_fraction": 1.0
+                    }
+                  ]
+                },
+                "other": {
+                  "brier": 0.11909160762399999,
+                  "ece": 0.3277383333333333,
+                  "bins": [
+                    {
+                      "lower": 0.2,
+                      "n": 4,
+                      "mean_score": 0.2537535,
+                      "observed_fraction": 0.0
+                    },
+                    {
+                      "lower": 0.4,
+                      "n": 1,
+                      "mean_score": 0.445557,
+                      "observed_fraction": 0.0
+                    },
+                    {
+                      "lower": 0.5,
+                      "n": 1,
+                      "mean_score": 0.505859,
+                      "observed_fraction": 0.0
+                    }
+                  ]
+                }
+              },
+              "coverage": 1.0,
+              "unsupported": 0,
+              "selective_accuracy": 0.0,
+              "brier": 0.14437825411714286,
+              "calibration_bins": [
+                {
+                  "lower": 0.3,
+                  "n": 2,
+                  "confidence": 0.35595699999999997,
+                  "accuracy": 0.0
+                },
+                {
+                  "lower": 0.5,
+                  "n": 1,
+                  "confidence": 0.524414,
+                  "accuracy": 0.0
+                },
+                {
+                  "lower": 0.6,
+                  "n": 1,
+                  "confidence": 0.630859,
+                  "accuracy": 0.0
+                },
+                {
+                  "lower": 0.7,
+                  "n": 1,
+                  "confidence": 0.743652,
+                  "accuracy": 0.0
+                },
+                {
+                  "lower": 0.9,
+                  "n": 1,
+                  "confidence": 0.966309,
+                  "accuracy": 0.0
+                }
+              ],
+              "ece": 0.5961913333333333,
+              "calibration_basis": "max frame score versus exact label-set accuracy (descriptive only)",
+              "confusions": [],
+              "by_source": {
+                "blog": {
+                  "per_class": {
+                    "economic": {
+                      "precision": 0,
+                      "recall": 0,
+                      "f1": 0,
+                      "support": 0
+                    },
+                    "security": {
+                      "precision": 0.0,
+                      "recall": 0,
+                      "f1": 0,
+                      "support": 0
+                    },
+                    "humanitarian": {
+                      "precision": 0,
+                      "recall": 0,
+                      "f1": 0,
+                      "support": 0
+                    },
+                    "legal": {
+                      "precision": 0,
+                      "recall": 0,
+                      "f1": 0,
+                      "support": 0
+                    },
+                    "political": {
+                      "precision": 0,
+                      "recall": 0,
+                      "f1": 0,
+                      "support": 0
+                    },
+                    "scientific": {
+                      "precision": 1.0,
+                      "recall": 1.0,
+                      "f1": 1.0,
+                      "support": 1
+                    },
+                    "other": {
+                      "precision": 0.0,
+                      "recall": 0,
+                      "f1": 0,
+                      "support": 0
+                    }
+                  },
+                  "macro_f1": 0.14285714285714285,
+                  "exact_accuracy": 0.0,
+                  "n": 1
+                },
+                "book": {
+                  "per_class": {
+                    "economic": {
+                      "precision": 0.0,
+                      "recall": 0,
+                      "f1": 0,
+                      "support": 0
+                    },
+                    "security": {
+                      "precision": 0,
+                      "recall": 0.0,
+                      "f1": 0,
+                      "support": 1
+                    },
+                    "humanitarian": {
+                      "precision": 1.0,
+                      "recall": 1.0,
+                      "f1": 1.0,
+                      "support": 1
+                    },
+                    "legal": {
+                      "precision": 0,
+                      "recall": 0,
+                      "f1": 0,
+                      "support": 0
+                    },
+                    "political": {
+                      "precision": 0.0,
+                      "recall": 0,
+                      "f1": 0,
+                      "support": 0
+                    },
+                    "scientific": {
+                      "precision": 0,
+                      "recall": 0,
+                      "f1": 0,
+                      "support": 0
+                    },
+                    "other": {
+                      "precision": 0,
+                      "recall": 0,
+                      "f1": 0,
+                      "support": 0
+                    }
+                  },
+                  "macro_f1": 0.14285714285714285,
+                  "exact_accuracy": 0.0,
+                  "n": 1
+                },
+                "news": {
+                  "per_class": {
+                    "economic": {
+                      "precision": 0,
+                      "recall": 0.0,
+                      "f1": 0,
+                      "support": 2
+                    },
+                    "security": {
+                      "precision": 0,
+                      "recall": 0,
+                      "f1": 0,
+                      "support": 0
+                    },
+                    "humanitarian": {
+                      "precision": 1.0,
+                      "recall": 1.0,
+                      "f1": 1.0,
+                      "support": 1
+                    },
+                    "legal": {
+                      "precision": 1.0,
+                      "recall": 1.0,
+                      "f1": 1.0,
+                      "support": 1
+                    },
+                    "political": {
+                      "precision": 0,
+                      "recall": 0,
+                      "f1": 0,
+                      "support": 0
+                    },
+                    "scientific": {
+                      "precision": 0,
+                      "recall": 0,
+                      "f1": 0,
+                      "support": 0
+                    },
+                    "other": {
+                      "precision": 0,
+                      "recall": 0,
+                      "f1": 0,
+                      "support": 0
+                    }
+                  },
+                  "macro_f1": 0.2857142857142857,
+                  "exact_accuracy": 0.0,
+                  "n": 2
+                },
+                "note": {
+                  "per_class": {
+                    "economic": {
+                      "precision": 0,
+                      "recall": 0.0,
+                      "f1": 0,
+                      "support": 2
+                    },
+                    "security": {
+                      "precision": 0,
+                      "recall": 0,
+                      "f1": 0,
+                      "support": 0
+                    },
+                    "humanitarian": {
+                      "precision": 0,
+                      "recall": 0,
+                      "f1": 0,
+                      "support": 0
+                    },
+                    "legal": {
+                      "precision": 0,
+                      "recall": 0,
+                      "f1": 0,
+                      "support": 0
+                    },
+                    "political": {
+                      "precision": 0.0,
+                      "recall": 0,
+                      "f1": 0,
+                      "support": 0
+                    },
+                    "scientific": {
+                      "precision": 0,
+                      "recall": 0,
+                      "f1": 0,
+                      "support": 0
+                    },
+                    "other": {
+                      "precision": 0.0,
+                      "recall": 0,
+                      "f1": 0,
+                      "support": 0
+                    }
+                  },
+                  "macro_f1": 0.0,
+                  "exact_accuracy": 0.0,
+                  "n": 2
+                }
+              },
+              "by_domain": {
+                "not annotated": {
+                  "per_class": {
+                    "economic": {
+                      "precision": 0.0,
+                      "recall": 0.0,
+                      "f1": 0,
+                      "support": 4
+                    },
+                    "security": {
+                      "precision": 0.0,
+                      "recall": 0.0,
+                      "f1": 0,
+                      "support": 1
+                    },
+                    "humanitarian": {
+                      "precision": 1.0,
+                      "recall": 1.0,
+                      "f1": 1.0,
+                      "support": 2
+                    },
+                    "legal": {
+                      "precision": 1.0,
+                      "recall": 1.0,
+                      "f1": 1.0,
+                      "support": 1
+                    },
+                    "political": {
+                      "precision": 0.0,
+                      "recall": 0,
+                      "f1": 0,
+                      "support": 0
+                    },
+                    "scientific": {
+                      "precision": 1.0,
+                      "recall": 1.0,
+                      "f1": 1.0,
+                      "support": 1
+                    },
+                    "other": {
+                      "precision": 0.0,
+                      "recall": 0,
+                      "f1": 0,
+                      "support": 0
+                    }
+                  },
+                  "macro_f1": 0.42857142857142855,
+                  "exact_accuracy": 0.0,
+                  "n": 6
+                }
+              },
+              "readiness_targets": {
+                "macro_f1": 0.65,
+                "minimum_class_recall": 0.5,
+                "coverage": 0.8
+              },
+              "absolute_metric_targets_met": false,
+              "task_ready": false,
+              "readiness_blocker": "Independent EX-05 human validation and domain readiness review are still required"
+            },
+            "label_origin": "existing Noesis benchmark labels, not independent EX-05 human collection",
+            "language_coverage": "not certified; corpus has no language annotations",
+            "readiness": "unsupported pending independent task-specific evaluation"
+          }
+        },
+        "configuration": {
+          "premise_first": true,
+          "max_pair_tokens": 512,
+          "truncation": false,
+          "main_batch_size": 1,
+          "device": "cpu",
+          "class_order": [
+            "entailment",
+            "neutral",
+            "contradiction"
+          ]
+        },
+        "corpus_sha256": "a88a2798363df2f1ac7903bb984d71630b6bb02d2197703f40182cfe02a0e957"
+      },
+      "operation": "nli-benchmark",
+      "elapsed_seconds": 38.14999309901032,
+      "peak_process_tree_rss_bytes": 891539456,
+      "resource_limits": {
+        "timeout_s": 300,
+        "rss_bytes": 3221225472,
+        "threads": 2
+      },
+      "execution": "isolated-local-process",
+      "hosted_inference_used": false,
+      "remote_processing_used": false
+    }
+  },
+  "decision": "Defer stance/frame replacement; do not transfer NLI calibration thresholds or treat NLI accuracy as task accuracy."
+}

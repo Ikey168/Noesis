@@ -1,0 +1,169 @@
+{
+  "contract": "noesis-phoenix-local-evaluation-v1",
+  "versions": {
+    "arize-phoenix": "20.8.0",
+    "arize-phoenix-client": "3.4.0",
+    "opentelemetry-sdk": "1.44.0",
+    "opentelemetry-exporter-otlp-proto-http": "1.44.0"
+  },
+  "input_origin": "authored success/timeout/unsupported operational probes; not a human debugging study",
+  "endpoint": "http://127.0.0.1:16006",
+  "export_results": [
+    {
+      "status": "submitted",
+      "exported": true,
+      "span_count": 1,
+      "trace_id": "fd703f964663723ae932172f9d57cf96",
+      "private_payload_exported": false,
+      "retention_verified": false,
+      "authoritative_run_store_changed": false
+    },
+    {
+      "status": "submitted",
+      "exported": true,
+      "span_count": 2,
+      "trace_id": "1415c8dfb8a4b988e7bfa4dbf06febd2",
+      "private_payload_exported": false,
+      "retention_verified": false,
+      "authoritative_run_store_changed": false
+    },
+    {
+      "status": "submitted",
+      "exported": true,
+      "span_count": 3,
+      "trace_id": "b0a74d6f793e6edbc3195964a79ea9fb",
+      "private_payload_exported": false,
+      "retention_verified": false,
+      "authoritative_run_store_changed": false
+    }
+  ],
+  "stored_spans": [
+    {
+      "id": "U3Bhbjoz",
+      "name": "answer",
+      "context": {
+        "trace_id": "b0a74d6f793e6edbc3195964a79ea9fb",
+        "span_id": "283b71217209004e"
+      },
+      "span_kind": "CHAIN",
+      "parent_id": "e4d0b879665b4da6",
+      "start_time": "2026-09-08T16:37:23.703995+00:00",
+      "end_time": "2026-09-08T16:37:23.706995+00:00",
+      "status_code": "ERROR",
+      "status_message": "",
+      "attributes": {
+        "noesis.status": "unsupported",
+        "noesis.run.sha256": "b0a74d6f793e6edbc3195964a79ea9fbe4d0b879665b4da668ebc48eba1de23e",
+        "noesis.project.sha256": "a854fbac3bc1416e3a460c0591ca7a8f3c780e6962c3495c9fa8025761b13f6c",
+        "noesis.evidence.sha256": [
+          "cc7b8b0aa50604deb08fdd167694fb5cfab0c8453189796d7d35b66858a76128"
+        ],
+        "noesis.retention_policy.sha256": "52f0c38e67402c181f9bb08ae442d44c71b1cd2df66d36d55049ff7b98217912",
+        "noesis.latency_ms": 3
+      },
+      "events": []
+    },
+    {
+      "id": "U3Bhbjoy",
+      "name": "answer",
+      "context": {
+        "trace_id": "1415c8dfb8a4b988e7bfa4dbf06febd2",
+        "span_id": "5dddd6efc6da5e74"
+      },
+      "span_kind": "CHAIN",
+      "parent_id": "c5ab085d2bdd101e",
+      "start_time": "2026-09-08T16:37:23.700911+00:00",
+      "end_time": "2026-09-08T16:37:23.702911+00:00",
+      "status_code": "ERROR",
+      "status_message": "",
+      "attributes": {
+        "noesis.status": "timeout",
+        "noesis.run.sha256": "1415c8dfb8a4b988e7bfa4dbf06febd2c5ab085d2bdd101e3c1ad28366ffd217",
+        "noesis.project.sha256": "a854fbac3bc1416e3a460c0591ca7a8f3c780e6962c3495c9fa8025761b13f6c",
+        "noesis.evidence.sha256": [
+          "cc7b8b0aa50604deb08fdd167694fb5cfab0c8453189796d7d35b66858a76128"
+        ],
+        "noesis.retention_policy.sha256": "52f0c38e67402c181f9bb08ae442d44c71b1cd2df66d36d55049ff7b98217912",
+        "noesis.latency_ms": 2
+      },
+      "events": []
+    },
+    {
+      "id": "U3Bhbjox",
+      "name": "answer",
+      "context": {
+        "trace_id": "fd703f964663723ae932172f9d57cf96",
+        "span_id": "04bcad2e4043965d"
+      },
+      "span_kind": "CHAIN",
+      "parent_id": "efdda7c8df7d90fe",
+      "start_time": "2026-09-08T16:37:23.693599+00:00",
+      "end_time": "2026-09-08T16:37:23.694599+00:00",
+      "status_code": "OK",
+      "status_message": "",
+      "attributes": {
+        "noesis.status": "success",
+        "noesis.run.sha256": "fd703f964663723ae932172f9d57cf96efdda7c8df7d90fec5cdcde94a27dd3f",
+        "noesis.project.sha256": "a854fbac3bc1416e3a460c0591ca7a8f3c780e6962c3495c9fa8025761b13f6c",
+        "noesis.evidence.sha256": [
+          "cc7b8b0aa50604deb08fdd167694fb5cfab0c8453189796d7d35b66858a76128"
+        ],
+        "noesis.retention_policy.sha256": "52f0c38e67402c181f9bb08ae442d44c71b1cd2df66d36d55049ff7b98217912",
+        "noesis.latency_ms": 1
+      },
+      "events": []
+    }
+  ],
+  "project": {
+    "name": "noesis",
+    "description": null,
+    "id": "UHJvamVjdDoy"
+  },
+  "stored_statuses": [
+    "success",
+    "timeout",
+    "unsupported"
+  ],
+  "all_statuses_round_trip": true,
+  "private_payload_excluded": true,
+  "trace_id_correlates_with_receipt_run": true,
+  "measurements": {
+    "disabled_emit_microseconds": [
+      2.812,
+      2.217,
+      0.63
+    ],
+    "receipt_serialization_microseconds": [
+      27.024,
+      9.007,
+      6.937
+    ],
+    "synchronous_otlp_emit_milliseconds": [
+      8.303577997139655,
+      4.093667994311545,
+      3.982782996899914
+    ],
+    "median_otlp_emit_milliseconds": 4.093667994311545
+  },
+  "diagnostic_comparison": {
+    "existing_receipts": "Retain authoritative status, evidence and run identity locally.",
+    "phoenix": "Queryable status/correlation spans round-trip without source text; no additional root-cause content exported.",
+    "mlflow_deployment_comparison": "not performed"
+  },
+  "decision": "defer production adoption: successful local transport alone adds no demonstrated diagnostic value beyond existing receipts; synchronous export adds measured request latency",
+  "limits": {
+    "events": 3,
+    "export_timeout_seconds": 2,
+    "retention_expiry_observed": false,
+    "external_service_cost": 0,
+    "human_debugging_effort_measured": false
+  },
+  "configured_retention_policies": [
+    {
+      "id": 0,
+      "name": "Default",
+      "cron_expression": "0 0 * * 0",
+      "rule": "{\"max_days\":1.0,\"type\":\"max_days\"}"
+    }
+  ]
+}

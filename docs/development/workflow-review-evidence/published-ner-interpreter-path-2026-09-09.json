@@ -1,0 +1,5253 @@
+{
+  "contract": "noesis-published-ner-comparison-v1",
+  "sources": {
+    "germeval-test.tsv": {
+      "url": "https://raw.githubusercontent.com/AKSW/germeval-morph-analysis/26c8e45ca02c74a526e40a3bb671696d5fbdffe9/data/official/NER-de-test.tsv",
+      "source": "GermEval 2014 / NoSta-D",
+      "license": "CC-BY-4.0",
+      "language": "de",
+      "sha256": "9405e49532379f3aee048851d116b35823d31c04e9521b87a9c4e6572c269097",
+      "size_bytes": 1682738,
+      "split": "test",
+      "label_origin": "published-human-annotation"
+    },
+    "crossner-politics-test.txt": {
+      "url": "https://raw.githubusercontent.com/zliucr/CrossNER/2e7ba2a7798c961e3f29fbc51252c5a8d40224bf/ner_data/politics/test.txt",
+      "source": "CrossNER, Liu et al. (2021), politics",
+      "license": "Dataset repository does not declare an explicit dataset license; local research only; raw corpus not redistributed",
+      "language": "en",
+      "sha256": "05cadc5e129d394f7f92b4a052cf4b6ea4c60878d32a833e500cf046c297455f",
+      "size_bytes": 325917,
+      "split": "test",
+      "label_origin": "published-human-annotation"
+    }
+  },
+  "selection": {
+    "germeval-test.tsv": {
+      "available_sentences": 5100,
+      "selected": 20,
+      "rule": "First eligible positive test sentences, at most 80 tokens, all native labels within declared mapped ontology; selected before inference"
+    },
+    "crossner-politics-test.txt": {
+      "available_sentences": 651,
+      "selected": 20,
+      "rule": "First eligible positive test sentences, at most 80 tokens, all native labels within declared mapped ontology; selected before inference"
+    }
+  },
+  "configuration": {
+    "timeout_s": 600,
+    "max_rss_bytes": 4294967296,
+    "threads": 2,
+    "threshold": "GLiNER2 default 0.5"
+  },
+  "limitations": [
+    "Selected positive test sentences within a shared person/organisation/location ontology; not full benchmark scores",
+    "Character coordinates use space-joined published tokens; original article whitespace is not available",
+    "GermEval nested spans are retained; compound/other ontology sentences excluded before inference",
+    "CrossNER specialised politician/party/country tags are explicitly mapped to shared entity types",
+    "No training or threshold tuning; public benchmark training contamination is unknown",
+    "Authorities, funding programmes, legal references, relations and structured-field readiness are not established by these three-class labels",
+    "Does not replace the specified independent Noesis human collection"
+  ],
+  "runs": {
+    "metadata-spacy": {
+      "job": {
+        "status": "completed",
+        "result": {
+          "backend": "metadata-spacy",
+          "model": {
+            "en": {
+              "name": "core_web_sm",
+              "version": "3.8.0"
+            }
+          },
+          "model_load_s": 0.8713812630012399,
+          "rows": [
+            {
+              "expected": [
+                {
+                  "label": "person",
+                  "start": 3,
+                  "end": 7
+                }
+              ],
+              "unsupported_labels": [],
+              "source_locator": "http://de.wikipedia.org/wiki/Die_Geschichte_vom_kleinen_Muck\t[2009-10-18]",
+              "native_sentence_index": 1,
+              "token_count": 22,
+              "id": "germeval-test.tsv:1",
+              "source_revision": "ef5484251e5f69ef483c0ecbd8817f5fc0fe07c84efd490a8da30f9f5f8917b2",
+              "language": "de",
+              "source": "GermEval 2014 / NoSta-D",
+              "label_origin": "published-human-annotation",
+              "predicted": [
+                {
+                  "label": "person",
+                  "start": 0,
+                  "end": 27
+                },
+                {
+                  "label": "organisation",
+                  "start": 59,
+                  "end": 80
+                },
+                {
+                  "label": "person",
+                  "start": 99,
+                  "end": 121
+                }
+              ],
+              "elapsed_s": 0.00489791200379841,
+              "metrics": {
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0,
+                "true_positives": 0,
+                "false_positives": 3,
+                "false_negatives": 1
+              }
+            },
+            {
+              "expected": [
+                {
+                  "label": "person",
+                  "start": 12,
+                  "end": 21
+                }
+              ],
+              "unsupported_labels": [],
+              "source_locator": "http://de.wikipedia.org/wiki/Adolf_Schlatter\t[2009-12-05]",
+              "native_sentence_index": 3,
+              "token_count": 18,
+              "id": "germeval-test.tsv:3",
+              "source_revision": "665c9d60847d649d10ffb4e9096354b95f8ebf9fc8c1acd0c62afb846f5fbf5d",
+              "language": "de",
+              "source": "GermEval 2014 / NoSta-D",
+              "label_origin": "published-human-annotation",
+              "predicted": [
+                {
+                  "label": "person",
+                  "start": 46,
+                  "end": 51
+                },
+                {
+                  "label": "location",
+                  "start": 81,
+                  "end": 94
+                }
+              ],
+              "elapsed_s": 0.0035559059906518087,
+              "metrics": {
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0,
+                "true_positives": 0,
+                "false_positives": 2,
+                "false_negatives": 1
+              }
+            },
+            {
+              "expected": [
+                {
+                  "label": "person",
+                  "start": 86,
+                  "end": 91
+                }
+              ],
+              "unsupported_labels": [],
+              "source_locator": "http://feeds.gulli.com/~r/gulli/~3/0XnFf2wkBpc/\t[2009-04-03]",
+              "native_sentence_index": 5,
+              "token_count": 15,
+              "id": "germeval-test.tsv:5",
+              "source_revision": "41ccc9d58a72fa188265fb0e15c6d185822006e2c2dbbd47edf0fb2c33ac97a4",
+              "language": "de",
+              "source": "GermEval 2014 / NoSta-D",
+              "label_origin": "published-human-annotation",
+              "predicted": [
+                {
+                  "label": "organisation",
+                  "start": 0,
+                  "end": 15
+                },
+                {
+                  "label": "person",
+                  "start": 24,
+                  "end": 45
+                },
+                {
+                  "label": "person",
+                  "start": 86,
+                  "end": 94
+                }
+              ],
+              "elapsed_s": 0.0032968119921861216,
+              "metrics": {
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0,
+                "true_positives": 0,
+                "false_positives": 3,
+                "false_negatives": 1
+              }
+            },
+            {
+              "expected": [
+                {
+                  "label": "person",
+                  "start": 15,
+                  "end": 34
+                },
+                {
+                  "label": "location",
+                  "start": 54,
+                  "end": 60
+                }
+              ],
+              "unsupported_labels": [],
+              "source_locator": "http://www.sueddeutsche.de/panorama/artikel/386/106280/\t[2007-03-20]",
+              "native_sentence_index": 7,
+              "token_count": 12,
+              "id": "germeval-test.tsv:7",
+              "source_revision": "19e8eb8023c8220f7f86b0cb054e7e732f057b4abb03a2c906725afe14bacfd4",
+              "language": "de",
+              "source": "GermEval 2014 / NoSta-D",
+              "label_origin": "published-human-annotation",
+              "predicted": [
+                {
+                  "label": "person",
+                  "start": 15,
+                  "end": 34
+                },
+                {
+                  "label": "location",
+                  "start": 54,
+                  "end": 60
+                }
+              ],
+              "elapsed_s": 0.0031092110002646223,
+              "metrics": {
+                "precision": 1.0,
+                "recall": 1.0,
+                "f1": 1.0,
+                "true_positives": 2,
+                "false_positives": 0,
+                "false_negatives": 0
+              }
+            },
+            {
+              "expected": [
+                {
+                  "label": "person",
+                  "start": 28,
+                  "end": 39
+                },
+                {
+                  "label": "location",
+                  "start": 45,
+                  "end": 50
+                },
+                {
+                  "label": "location",
+                  "start": 108,
+                  "end": 116
+                },
+                {
+                  "label": "location",
+                  "start": 180,
+                  "end": 185
+                }
+              ],
+              "unsupported_labels": [],
+              "source_locator": "http://de.wikipedia.org/wiki/Francesco_Antommarchi\t[2009-10-17]",
+              "native_sentence_index": 9,
+              "token_count": 28,
+              "id": "germeval-test.tsv:9",
+              "source_revision": "913cb187e468a0428e55a85658f26802ef823b19a1907a935154c25e9a8972bd",
+              "language": "de",
+              "source": "GermEval 2014 / NoSta-D",
+              "label_origin": "published-human-annotation",
+              "predicted": [
+                {
+                  "label": "organisation",
+                  "start": 0,
+                  "end": 9
+                },
+                {
+                  "label": "location",
+                  "start": 28,
+                  "end": 39
+                },
+                {
+                  "label": "person",
+                  "start": 45,
+                  "end": 50
+                },
+                {
+                  "label": "organisation",
+                  "start": 82,
+                  "end": 104
+                },
+                {
+                  "label": "location",
+                  "start": 108,
+                  "end": 116
+                },
+                {
+                  "label": "person",
+                  "start": 121,
+                  "end": 132
+                },
+                {
+                  "label": "person",
+                  "start": 144,
+                  "end": 153
+                },
+                {
+                  "label": "person",
+                  "start": 156,
+                  "end": 169
+                },
+                {
+                  "label": "location",
+                  "start": 180,
+                  "end": 185
+                }
+              ],
+              "elapsed_s": 0.004448984007467516,
+              "metrics": {
+                "precision": 0.2222222222222222,
+                "recall": 0.5,
+                "f1": 0.30769230769230765,
+                "true_positives": 2,
+                "false_positives": 7,
+                "false_negatives": 2
+              }
+            },
+            {
+              "expected": [
+                {
+                  "label": "person",
+                  "start": 26,
+                  "end": 39
+                },
+                {
+                  "label": "location",
+                  "start": 63,
+                  "end": 69
+                }
+              ],
+              "unsupported_labels": [],
+              "source_locator": "http://de.wikipedia.org/wiki/Manuel_Bulnes_Prieto\t[2009-09-02]",
+              "native_sentence_index": 10,
+              "token_count": 16,
+              "id": "germeval-test.tsv:10",
+              "source_revision": "b4b8791ffc04f969c37248babd93dc96d2fea59a623f79034c0704f6176862b8",
+              "language": "de",
+              "source": "GermEval 2014 / NoSta-D",
+              "label_origin": "published-human-annotation",
+              "predicted": [
+                {
+                  "label": "person",
+                  "start": 26,
+                  "end": 39
+                },
+                {
+                  "label": "person",
+                  "start": 48,
+                  "end": 69
+                },
+                {
+                  "label": "person",
+                  "start": 88,
+                  "end": 92
+                }
+              ],
+              "elapsed_s": 0.0033671870041871443,
+              "metrics": {
+                "precision": 0.3333333333333333,
+                "recall": 0.5,
+                "f1": 0.4,
+                "true_positives": 1,
+                "false_positives": 2,
+                "false_negatives": 1
+              }
+            },
+            {
+              "expected": [
+                {
+                  "label": "location",
+                  "start": 216,
+                  "end": 229
+                },
+                {
+                  "label": "person",
+                  "start": 221,
+                  "end": 229
+                }
+              ],
+              "unsupported_labels": [],
+              "source_locator": "http://de.wikipedia.org/wiki/Plauer_Torturm\t[2010-01-12]",
+              "native_sentence_index": 17,
+              "token_count": 34,
+              "id": "germeval-test.tsv:17",
+              "source_revision": "947fe8a852e72b9fdfacece71b5744f3b9724803c6c89dd6e665449730271157",
+              "language": "de",
+              "source": "GermEval 2014 / NoSta-D",
+              "label_origin": "published-human-annotation",
+              "predicted": [
+                {
+                  "label": "person",
+                  "start": 28,
+                  "end": 54
+                },
+                {
+                  "label": "person",
+                  "start": 66,
+                  "end": 70
+                },
+                {
+                  "label": "organisation",
+                  "start": 101,
+                  "end": 111
+                },
+                {
+                  "label": "person",
+                  "start": 168,
+                  "end": 179
+                },
+                {
+                  "label": "organisation",
+                  "start": 195,
+                  "end": 218
+                },
+                {
+                  "label": "person",
+                  "start": 221,
+                  "end": 245
+                }
+              ],
+              "elapsed_s": 0.004583261004881933,
+              "metrics": {
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0,
+                "true_positives": 0,
+                "false_positives": 6,
+                "false_negatives": 2
+              }
+            },
+            {
+              "expected": [
+                {
+                  "label": "person",
+                  "start": 11,
+                  "end": 25
+                },
+                {
+                  "label": "location",
+                  "start": 30,
+                  "end": 39
+                },
+                {
+                  "label": "person",
+                  "start": 48,
+                  "end": 55
+                },
+                {
+                  "label": "location",
+                  "start": 91,
+                  "end": 97
+                }
+              ],
+              "unsupported_labels": [],
+              "source_locator": "http://de.wikipedia.org/wiki/Pommerellen\t[2010-01-06]",
+              "native_sentence_index": 19,
+              "token_count": 33,
+              "id": "germeval-test.tsv:19",
+              "source_revision": "3a65d87fe2fc90810c1efd281a2b1c4e627f4c994c4ccc6777770702fcc842cf",
+              "language": "de",
+              "source": "GermEval 2014 / NoSta-D",
+              "label_origin": "published-human-annotation",
+              "predicted": [
+                {
+                  "label": "person",
+                  "start": 26,
+                  "end": 39
+                },
+                {
+                  "label": "person",
+                  "start": 79,
+                  "end": 97
+                },
+                {
+                  "label": "person",
+                  "start": 159,
+                  "end": 172
+                },
+                {
+                  "label": "location",
+                  "start": 178,
+                  "end": 187
+                }
+              ],
+              "elapsed_s": 0.005003496989957057,
+              "metrics": {
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0,
+                "true_positives": 0,
+                "false_positives": 4,
+                "false_negatives": 4
+              }
+            },
+            {
+              "expected": [
+                {
+                  "label": "organisation",
+                  "start": 4,
+                  "end": 19
+                },
+                {
+                  "label": "person",
+                  "start": 58,
+                  "end": 70
+                },
+                {
+                  "label": "location",
+                  "start": 171,
+                  "end": 182
+                },
+                {
+                  "label": "location",
+                  "start": 4,
+                  "end": 10
+                }
+              ],
+              "unsupported_labels": [],
+              "source_locator": "http://de.wikipedia.org/wiki/Siemens-Skandal\t[2009-08-02]",
+              "native_sentence_index": 21,
+              "token_count": 34,
+              "id": "germeval-test.tsv:21",
+              "source_revision": "ae5bc12d2f3cf723810582704a237d1e67b162034169dea7ef0c263113e3d921",
+              "language": "de",
+              "source": "GermEval 2014 / NoSta-D",
+              "label_origin": "published-human-annotation",
+              "predicted": [
+                {
+                  "label": "person",
+                  "start": 58,
+                  "end": 70
+                },
+                {
+                  "label": "organisation",
+                  "start": 81,
+                  "end": 91
+                },
+                {
+                  "label": "location",
+                  "start": 171,
+                  "end": 182
+                },
+                {
+                  "label": "organisation",
+                  "start": 216,
+                  "end": 221
+                }
+              ],
+              "elapsed_s": 0.005008388994610868,
+              "metrics": {
+                "precision": 0.5,
+                "recall": 0.5,
+                "f1": 0.5,
+                "true_positives": 2,
+                "false_positives": 2,
+                "false_negatives": 2
+              }
+            },
+            {
+              "expected": [
+                {
+                  "label": "location",
+                  "start": 20,
+                  "end": 29
+                },
+                {
+                  "label": "person",
+                  "start": 33,
+                  "end": 55
+                },
+                {
+                  "label": "person",
+                  "start": 139,
+                  "end": 149
+                },
+                {
+                  "label": "location",
+                  "start": 143,
+                  "end": 149
+                }
+              ],
+              "unsupported_labels": [],
+              "source_locator": "http://de.wikipedia.org/wiki/Burg_Stolberg\t[2009-10-26]",
+              "native_sentence_index": 31,
+              "token_count": 28,
+              "id": "germeval-test.tsv:31",
+              "source_revision": "c7eaa86e5c03b340785cb42841ca994adb53e146dc4e4d8c7df93210058a3710",
+              "language": "de",
+              "source": "GermEval 2014 / NoSta-D",
+              "label_origin": "published-human-annotation",
+              "predicted": [
+                {
+                  "label": "organisation",
+                  "start": 0,
+                  "end": 3
+                },
+                {
+                  "label": "person",
+                  "start": 8,
+                  "end": 29
+                },
+                {
+                  "label": "organisation",
+                  "start": 108,
+                  "end": 149
+                }
+              ],
+              "elapsed_s": 0.004135588009376079,
+              "metrics": {
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0,
+                "true_positives": 0,
+                "false_positives": 3,
+                "false_negatives": 4
+              }
+            },
+            {
+              "expected": [
+                {
+                  "label": "organisation",
+                  "start": 85,
+                  "end": 109
+                },
+                {
+                  "label": "location",
+                  "start": 85,
+                  "end": 100
+                }
+              ],
+              "unsupported_labels": [],
+              "source_locator": "http://www.mz-web.de/artikel?id=1194628285234\t[2007-11-18]",
+              "native_sentence_index": 32,
+              "token_count": 24,
+              "id": "germeval-test.tsv:32",
+              "source_revision": "552d0c5ae18d49ca716167b623ff7608bb21c9395f7b939195866ba4d127d294",
+              "language": "de",
+              "source": "GermEval 2014 / NoSta-D",
+              "label_origin": "published-human-annotation",
+              "predicted": [
+                {
+                  "label": "person",
+                  "start": 42,
+                  "end": 54
+                },
+                {
+                  "label": "organisation",
+                  "start": 69,
+                  "end": 109
+                },
+                {
+                  "label": "person",
+                  "start": 120,
+                  "end": 145
+                }
+              ],
+              "elapsed_s": 0.004971062007825822,
+              "metrics": {
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0,
+                "true_positives": 0,
+                "false_positives": 3,
+                "false_negatives": 2
+              }
+            },
+            {
+              "expected": [
+                {
+                  "label": "person",
+                  "start": 0,
+                  "end": 4
+                }
+              ],
+              "unsupported_labels": [],
+              "source_locator": "http://de.wikipedia.org/wiki/Ero_der_Schelm\t[2009-11-25]",
+              "native_sentence_index": 36,
+              "token_count": 15,
+              "id": "germeval-test.tsv:36",
+              "source_revision": "a85f41bab3a4db63d31ddf498735d11cc48685d92667fce43152288841c9c94b",
+              "language": "de",
+              "source": "GermEval 2014 / NoSta-D",
+              "label_origin": "published-human-annotation",
+              "predicted": [
+                {
+                  "label": "person",
+                  "start": 57,
+                  "end": 63
+                }
+              ],
+              "elapsed_s": 0.0030922389996703714,
+              "metrics": {
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0,
+                "true_positives": 0,
+                "false_positives": 1,
+                "false_negatives": 1
+              }
+            },
+            {
+              "expected": [
+                {
+                  "label": "location",
+                  "start": 44,
+                  "end": 51
+                },
+                {
+                  "label": "location",
+                  "start": 77,
+                  "end": 90
+                }
+              ],
+              "unsupported_labels": [],
+              "source_locator": "http://de.wikipedia.org/wiki/Bretonvillers\t[2009-09-03]",
+              "native_sentence_index": 37,
+              "token_count": 16,
+              "id": "germeval-test.tsv:37",
+              "source_revision": "00385bb451e046da7a09dad2678c20c54c0a1203c535a246a6f449522f86ed71",
+              "language": "de",
+              "source": "GermEval 2014 / NoSta-D",
+              "label_origin": "published-human-annotation",
+              "predicted": [
+                {
+                  "label": "organisation",
+                  "start": 0,
+                  "end": 3
+                },
+                {
+                  "label": "organisation",
+                  "start": 15,
+                  "end": 18
+                },
+                {
+                  "label": "location",
+                  "start": 23,
+                  "end": 39
+                },
+                {
+                  "label": "location",
+                  "start": 44,
+                  "end": 51
+                },
+                {
+                  "label": "person",
+                  "start": 64,
+                  "end": 90
+                }
+              ],
+              "elapsed_s": 0.0031049850076669827,
+              "metrics": {
+                "precision": 0.2,
+                "recall": 0.5,
+                "f1": 0.28571428571428575,
+                "true_positives": 1,
+                "false_positives": 4,
+                "false_negatives": 1
+              }
+            },
+            {
+              "expected": [
+                {
+                  "label": "person",
+                  "start": 53,
+                  "end": 62
+                }
+              ],
+              "unsupported_labels": [],
+              "source_locator": "http://de.wikipedia.org/wiki/Death_Proof_–_Todsicher\t[2010-01-01]",
+              "native_sentence_index": 38,
+              "token_count": 10,
+              "id": "germeval-test.tsv:38",
+              "source_revision": "cf31a71e4465b877ef8fcb69385468f0717d5ef46da3cd39672988f8551c6d79",
+              "language": "de",
+              "source": "GermEval 2014 / NoSta-D",
+              "label_origin": "published-human-annotation",
+              "predicted": [
+                {
+                  "label": "organisation",
+                  "start": 33,
+                  "end": 43
+                },
+                {
+                  "label": "organisation",
+                  "start": 53,
+                  "end": 62
+                }
+              ],
+              "elapsed_s": 0.002603426997666247,
+              "metrics": {
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0,
+                "true_positives": 0,
+                "false_positives": 2,
+                "false_negatives": 1
+              }
+            },
+            {
+              "expected": [
+                {
+                  "label": "person",
+                  "start": 129,
+                  "end": 135
+                }
+              ],
+              "unsupported_labels": [],
+              "source_locator": "http://www.spiegel.de/schulspiegel/0,1518,702367,00.html\t[2010-06-24]",
+              "native_sentence_index": 39,
+              "token_count": 23,
+              "id": "germeval-test.tsv:39",
+              "source_revision": "604e9cbb136df6dd0a6954bf00b98edca0468abd094e0b671400cb52d84b4ac3",
+              "language": "de",
+              "source": "GermEval 2014 / NoSta-D",
+              "label_origin": "published-human-annotation",
+              "predicted": [
+                {
+                  "label": "organisation",
+                  "start": 15,
+                  "end": 20
+                },
+                {
+                  "label": "person",
+                  "start": 66,
+                  "end": 78
+                },
+                {
+                  "label": "organisation",
+                  "start": 87,
+                  "end": 97
+                },
+                {
+                  "label": "person",
+                  "start": 98,
+                  "end": 113
+                },
+                {
+                  "label": "person",
+                  "start": 129,
+                  "end": 135
+                }
+              ],
+              "elapsed_s": 0.004469210005481727,
+              "metrics": {
+                "precision": 0.2,
+                "recall": 1.0,
+                "f1": 0.33333333333333337,
+                "true_positives": 1,
+                "false_positives": 4,
+                "false_negatives": 0
+              }
+            },
+            {
+              "expected": [
+                {
+                  "label": "organisation",
+                  "start": 40,
+                  "end": 49
+                }
+              ],
+              "unsupported_labels": [],
+              "source_locator": "http://www.mdr.de/kinoroyal/rueckblick/5249324.htm\t[2011-01-11]",
+              "native_sentence_index": 41,
+              "token_count": 9,
+              "id": "germeval-test.tsv:41",
+              "source_revision": "7767080bf85df8c90c37d01870282e6072bef16a3c3f5a31265a28cb2a1808b1",
+              "language": "de",
+              "source": "GermEval 2014 / NoSta-D",
+              "label_origin": "published-human-annotation",
+              "predicted": [
+                {
+                  "label": "organisation",
+                  "start": 5,
+                  "end": 25
+                },
+                {
+                  "label": "location",
+                  "start": 40,
+                  "end": 49
+                }
+              ],
+              "elapsed_s": 0.002922836007201113,
+              "metrics": {
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0,
+                "true_positives": 0,
+                "false_positives": 2,
+                "false_negatives": 1
+              }
+            },
+            {
+              "expected": [
+                {
+                  "label": "person",
+                  "start": 101,
+                  "end": 107
+                }
+              ],
+              "unsupported_labels": [],
+              "source_locator": "http://de.wikipedia.org/wiki/Dexter_(Fernsehserie)\t[2010-01-15]",
+              "native_sentence_index": 42,
+              "token_count": 26,
+              "id": "germeval-test.tsv:42",
+              "source_revision": "7493ac69525dc7aeef883ecd05950ba7e74385888c3a4e5d4d0f2e2d540f9030",
+              "language": "de",
+              "source": "GermEval 2014 / NoSta-D",
+              "label_origin": "published-human-annotation",
+              "predicted": [
+                {
+                  "label": "person",
+                  "start": 34,
+                  "end": 45
+                },
+                {
+                  "label": "person",
+                  "start": 55,
+                  "end": 63
+                },
+                {
+                  "label": "person",
+                  "start": 84,
+                  "end": 93
+                },
+                {
+                  "label": "person",
+                  "start": 101,
+                  "end": 107
+                },
+                {
+                  "label": "person",
+                  "start": 115,
+                  "end": 125
+                }
+              ],
+              "elapsed_s": 0.0040325470035895705,
+              "metrics": {
+                "precision": 0.2,
+                "recall": 1.0,
+                "f1": 0.33333333333333337,
+                "true_positives": 1,
+                "false_positives": 4,
+                "false_negatives": 0
+              }
+            },
+            {
+              "expected": [
+                {
+                  "label": "organisation",
+                  "start": 4,
+                  "end": 24
+                },
+                {
+                  "label": "organisation",
+                  "start": 59,
+                  "end": 80
+                },
+                {
+                  "label": "organisation",
+                  "start": 85,
+                  "end": 96
+                },
+                {
+                  "label": "location",
+                  "start": 10,
+                  "end": 24
+                },
+                {
+                  "label": "location",
+                  "start": 88,
+                  "end": 96
+                }
+              ],
+              "unsupported_labels": [],
+              "source_locator": "http://www.sat1.de/sport/sportnews/news/2008/12/15/sid_214803/\t[2008-12-15]",
+              "native_sentence_index": 43,
+              "token_count": 15,
+              "id": "germeval-test.tsv:43",
+              "source_revision": "f6a1911bde76b06c7427d4c7ad635d56831cf279cab7c1d973857d8a6371ff22",
+              "language": "de",
+              "source": "GermEval 2014 / NoSta-D",
+              "label_origin": "published-human-annotation",
+              "predicted": [
+                {
+                  "label": "person",
+                  "start": 43,
+                  "end": 58
+                }
+              ],
+              "elapsed_s": 0.0036160799936624244,
+              "metrics": {
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0,
+                "true_positives": 0,
+                "false_positives": 1,
+                "false_negatives": 5
+              }
+            },
+            {
+              "expected": [
+                {
+                  "label": "location",
+                  "start": 38,
+                  "end": 44
+                }
+              ],
+              "unsupported_labels": [],
+              "source_locator": "http://de.wikipedia.org/wiki/Dachau\t[2010-01-12]",
+              "native_sentence_index": 47,
+              "token_count": 23,
+              "id": "germeval-test.tsv:47",
+              "source_revision": "9088fb15f97bf57122acba1b590b52ef199cde3eba3227c8083d16309d34f9f5",
+              "language": "de",
+              "source": "GermEval 2014 / NoSta-D",
+              "label_origin": "published-human-annotation",
+              "predicted": [
+                {
+                  "label": "person",
+                  "start": 22,
+                  "end": 34
+                },
+                {
+                  "label": "person",
+                  "start": 38,
+                  "end": 48
+                },
+                {
+                  "label": "person",
+                  "start": 69,
+                  "end": 88
+                }
+              ],
+              "elapsed_s": 0.003712628997163847,
+              "metrics": {
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0,
+                "true_positives": 0,
+                "false_positives": 3,
+                "false_negatives": 1
+              }
+            },
+            {
+              "expected": [
+                {
+                  "label": "organisation",
+                  "start": 45,
+                  "end": 48
+                }
+              ],
+              "unsupported_labels": [],
+              "source_locator": "welt.de vom 19.09.2005\t[2005-09-19]",
+              "native_sentence_index": 48,
+              "token_count": 13,
+              "id": "germeval-test.tsv:48",
+              "source_revision": "bd34568971f1ad116a028b3e264fce8edff1af77a9f9ea48e187da165c6164ad",
+              "language": "de",
+              "source": "GermEval 2014 / NoSta-D",
+              "label_origin": "published-human-annotation",
+              "predicted": [
+                {
+                  "label": "organisation",
+                  "start": 45,
+                  "end": 48
+                },
+                {
+                  "label": "person",
+                  "start": 59,
+                  "end": 68
+                }
+              ],
+              "elapsed_s": 0.003086153999902308,
+              "metrics": {
+                "precision": 0.5,
+                "recall": 1.0,
+                "f1": 0.6666666666666666,
+                "true_positives": 1,
+                "false_positives": 1,
+                "false_negatives": 0
+              }
+            },
+            {
+              "expected": [
+                {
+                  "label": "location",
+                  "start": 108,
+                  "end": 114
+                },
+                {
+                  "label": "location",
+                  "start": 117,
+                  "end": 123
+                },
+                {
+                  "label": "location",
+                  "start": 127,
+                  "end": 133
+                }
+              ],
+              "unsupported_labels": [],
+              "source_locator": null,
+              "native_sentence_index": 0,
+              "token_count": 22,
+              "id": "crossner-politics-test.txt:0",
+              "source_revision": "feef9c7cf2f0a35ae699be6c923fa4c89411d7809d6519ad8dc91dba90f91975",
+              "language": "en",
+              "source": "CrossNER, Liu et al. (2021), politics",
+              "label_origin": "published-human-annotation",
+              "predicted": [
+                {
+                  "label": "location",
+                  "start": 108,
+                  "end": 114
+                },
+                {
+                  "label": "location",
+                  "start": 117,
+                  "end": 123
+                },
+                {
+                  "label": "location",
+                  "start": 127,
+                  "end": 133
+                }
+              ],
+              "elapsed_s": 0.004821110007469542,
+              "metrics": {
+                "precision": 1.0,
+                "recall": 1.0,
+                "f1": 1.0,
+                "true_positives": 3,
+                "false_positives": 0,
+                "false_negatives": 0
+              }
+            },
+            {
+              "expected": [
+                {
+                  "label": "person",
+                  "start": 0,
+                  "end": 12
+                },
+                {
+                  "label": "person",
+                  "start": 46,
+                  "end": 58
+                },
+                {
+                  "label": "person",
+                  "start": 73,
+                  "end": 83
+                },
+                {
+                  "label": "person",
+                  "start": 119,
+                  "end": 131
+                }
+              ],
+              "unsupported_labels": [],
+              "source_locator": null,
+              "native_sentence_index": 2,
+              "token_count": 26,
+              "id": "crossner-politics-test.txt:2",
+              "source_revision": "aa681e16e7d2bb6f5c82b154cf745ce3a0fa8a666cfeb8df0df71477379f69f9",
+              "language": "en",
+              "source": "CrossNER, Liu et al. (2021), politics",
+              "label_origin": "published-human-annotation",
+              "predicted": [
+                {
+                  "label": "person",
+                  "start": 0,
+                  "end": 12
+                },
+                {
+                  "label": "person",
+                  "start": 46,
+                  "end": 58
+                },
+                {
+                  "label": "organisation",
+                  "start": 62,
+                  "end": 70
+                },
+                {
+                  "label": "organisation",
+                  "start": 73,
+                  "end": 83
+                },
+                {
+                  "label": "organisation",
+                  "start": 104,
+                  "end": 112
+                },
+                {
+                  "label": "person",
+                  "start": 119,
+                  "end": 131
+                },
+                {
+                  "label": "organisation",
+                  "start": 135,
+                  "end": 140
+                }
+              ],
+              "elapsed_s": 0.004350519011495635,
+              "metrics": {
+                "precision": 0.42857142857142855,
+                "recall": 0.75,
+                "f1": 0.5454545454545454,
+                "true_positives": 3,
+                "false_positives": 4,
+                "false_negatives": 1
+              }
+            },
+            {
+              "expected": [
+                {
+                  "label": "person",
+                  "start": 54,
+                  "end": 64
+                },
+                {
+                  "label": "person",
+                  "start": 67,
+                  "end": 77
+                },
+                {
+                  "label": "person",
+                  "start": 80,
+                  "end": 92
+                },
+                {
+                  "label": "person",
+                  "start": 99,
+                  "end": 116
+                }
+              ],
+              "unsupported_labels": [],
+              "source_locator": null,
+              "native_sentence_index": 3,
+              "token_count": 53,
+              "id": "crossner-politics-test.txt:3",
+              "source_revision": "d67cd6009614ae79276dca7c62b4b7d6290c3f418fb2ce67a11a2b608dc584b1",
+              "language": "en",
+              "source": "CrossNER, Liu et al. (2021), politics",
+              "label_origin": "published-human-annotation",
+              "predicted": [
+                {
+                  "label": "location",
+                  "start": 54,
+                  "end": 64
+                },
+                {
+                  "label": "person",
+                  "start": 67,
+                  "end": 77
+                },
+                {
+                  "label": "person",
+                  "start": 80,
+                  "end": 92
+                },
+                {
+                  "label": "person",
+                  "start": 99,
+                  "end": 116
+                }
+              ],
+              "elapsed_s": 0.007428141005220823,
+              "metrics": {
+                "precision": 0.75,
+                "recall": 0.75,
+                "f1": 0.75,
+                "true_positives": 3,
+                "false_positives": 1,
+                "false_negatives": 1
+              }
+            },
+            {
+              "expected": [
+                {
+                  "label": "person",
+                  "start": 0,
+                  "end": 8
+                },
+                {
+                  "label": "organisation",
+                  "start": 47,
+                  "end": 75
+                },
+                {
+                  "label": "location",
+                  "start": 79,
+                  "end": 85
+                },
+                {
+                  "label": "location",
+                  "start": 112,
+                  "end": 119
+                },
+                {
+                  "label": "location",
+                  "start": 141,
+                  "end": 156
+                }
+              ],
+              "unsupported_labels": [],
+              "source_locator": null,
+              "native_sentence_index": 4,
+              "token_count": 27,
+              "id": "crossner-politics-test.txt:4",
+              "source_revision": "20b38b2096a63e6c36f1e4ae35b6b6c7a0c9ead5da1db51c68f0494e967ed8aa",
+              "language": "en",
+              "source": "CrossNER, Liu et al. (2021), politics",
+              "label_origin": "published-human-annotation",
+              "predicted": [
+                {
+                  "label": "organisation",
+                  "start": 47,
+                  "end": 75
+                },
+                {
+                  "label": "location",
+                  "start": 79,
+                  "end": 85
+                },
+                {
+                  "label": "location",
+                  "start": 112,
+                  "end": 119
+                },
+                {
+                  "label": "location",
+                  "start": 141,
+                  "end": 148
+                },
+                {
+                  "label": "location",
+                  "start": 149,
+                  "end": 156
+                }
+              ],
+              "elapsed_s": 0.00478754700452555,
+              "metrics": {
+                "precision": 0.6,
+                "recall": 0.6,
+                "f1": 0.6,
+                "true_positives": 3,
+                "false_positives": 2,
+                "false_negatives": 2
+              }
+            },
+            {
+              "expected": [
+                {
+                  "label": "person",
+                  "start": 0,
+                  "end": 14
+                },
+                {
+                  "label": "person",
+                  "start": 20,
+                  "end": 28
+                },
+                {
+                  "label": "person",
+                  "start": 37,
+                  "end": 54
+                },
+                {
+                  "label": "person",
+                  "start": 81,
+                  "end": 99
+                },
+                {
+                  "label": "person",
+                  "start": 126,
+                  "end": 144
+                }
+              ],
+              "unsupported_labels": [],
+              "source_locator": null,
+              "native_sentence_index": 5,
+              "token_count": 24,
+              "id": "crossner-politics-test.txt:5",
+              "source_revision": "5890d5cfc78bca26ec47c962aad37a76576f4320a7c9498114084554c607ad49",
+              "language": "en",
+              "source": "CrossNER, Liu et al. (2021), politics",
+              "label_origin": "published-human-annotation",
+              "predicted": [
+                {
+                  "label": "organisation",
+                  "start": 0,
+                  "end": 14
+                },
+                {
+                  "label": "person",
+                  "start": 20,
+                  "end": 28
+                },
+                {
+                  "label": "person",
+                  "start": 37,
+                  "end": 54
+                },
+                {
+                  "label": "person",
+                  "start": 81,
+                  "end": 99
+                },
+                {
+                  "label": "person",
+                  "start": 126,
+                  "end": 144
+                }
+              ],
+              "elapsed_s": 0.00413524400210008,
+              "metrics": {
+                "precision": 0.8,
+                "recall": 0.8,
+                "f1": 0.8000000000000002,
+                "true_positives": 4,
+                "false_positives": 1,
+                "false_negatives": 1
+              }
+            },
+            {
+              "expected": [
+                {
+                  "label": "person",
+                  "start": 8,
+                  "end": 13
+                },
+                {
+                  "label": "location",
+                  "start": 35,
+                  "end": 47
+                },
+                {
+                  "label": "location",
+                  "start": 58,
+                  "end": 70
+                },
+                {
+                  "label": "location",
+                  "start": 74,
+                  "end": 81
+                },
+                {
+                  "label": "location",
+                  "start": 107,
+                  "end": 117
+                },
+                {
+                  "label": "location",
+                  "start": 121,
+                  "end": 127
+                },
+                {
+                  "label": "location",
+                  "start": 142,
+                  "end": 161
+                }
+              ],
+              "unsupported_labels": [],
+              "source_locator": null,
+              "native_sentence_index": 7,
+              "token_count": 32,
+              "id": "crossner-politics-test.txt:7",
+              "source_revision": "7d30099b3b515913f0f568e9ae5cf2883779b045e2ba01d42238744c87ba2be8",
+              "language": "en",
+              "source": "CrossNER, Liu et al. (2021), politics",
+              "label_origin": "published-human-annotation",
+              "predicted": [
+                {
+                  "label": "location",
+                  "start": 54,
+                  "end": 70
+                },
+                {
+                  "label": "organisation",
+                  "start": 107,
+                  "end": 117
+                },
+                {
+                  "label": "location",
+                  "start": 121,
+                  "end": 127
+                }
+              ],
+              "elapsed_s": 0.0042872299964074045,
+              "metrics": {
+                "precision": 0.3333333333333333,
+                "recall": 0.14285714285714285,
+                "f1": 0.2,
+                "true_positives": 1,
+                "false_positives": 2,
+                "false_negatives": 6
+              }
+            },
+            {
+              "expected": [
+                {
+                  "label": "person",
+                  "start": 0,
+                  "end": 4
+                },
+                {
+                  "label": "location",
+                  "start": 26,
+                  "end": 38
+                },
+                {
+                  "label": "location",
+                  "start": 49,
+                  "end": 70
+                },
+                {
+                  "label": "location",
+                  "start": 75,
+                  "end": 87
+                },
+                {
+                  "label": "location",
+                  "start": 98,
+                  "end": 122
+                },
+                {
+                  "label": "location",
+                  "start": 138,
+                  "end": 142
+                },
+                {
+                  "label": "location",
+                  "start": 155,
+                  "end": 163
+                },
+                {
+                  "label": "location",
+                  "start": 184,
+                  "end": 190
+                }
+              ],
+              "unsupported_labels": [],
+              "source_locator": null,
+              "native_sentence_index": 10,
+              "token_count": 36,
+              "id": "crossner-politics-test.txt:10",
+              "source_revision": "d99cadb0e9de7085064675fe2e92d2bbdf75b66bff469b38398749439ae2068c",
+              "language": "en",
+              "source": "CrossNER, Liu et al. (2021), politics",
+              "label_origin": "published-human-annotation",
+              "predicted": [
+                {
+                  "label": "location",
+                  "start": 45,
+                  "end": 70
+                },
+                {
+                  "label": "person",
+                  "start": 75,
+                  "end": 87
+                },
+                {
+                  "label": "location",
+                  "start": 138,
+                  "end": 142
+                },
+                {
+                  "label": "location",
+                  "start": 184,
+                  "end": 190
+                }
+              ],
+              "elapsed_s": 0.004996542003937066,
+              "metrics": {
+                "precision": 0.5,
+                "recall": 0.25,
+                "f1": 0.3333333333333333,
+                "true_positives": 2,
+                "false_positives": 2,
+                "false_negatives": 6
+              }
+            },
+            {
+              "expected": [
+                {
+                  "label": "person",
+                  "start": 14,
+                  "end": 32
+                },
+                {
+                  "label": "person",
+                  "start": 42,
+                  "end": 55
+                },
+                {
+                  "label": "person",
+                  "start": 84,
+                  "end": 99
+                }
+              ],
+              "unsupported_labels": [],
+              "source_locator": null,
+              "native_sentence_index": 11,
+              "token_count": 21,
+              "id": "crossner-politics-test.txt:11",
+              "source_revision": "6f06eb7fe1cc9213dadb26cd51477d2e81c45a980e43d834a884a978f8de311e",
+              "language": "en",
+              "source": "CrossNER, Liu et al. (2021), politics",
+              "label_origin": "published-human-annotation",
+              "predicted": [
+                {
+                  "label": "person",
+                  "start": 14,
+                  "end": 32
+                },
+                {
+                  "label": "person",
+                  "start": 42,
+                  "end": 55
+                },
+                {
+                  "label": "person",
+                  "start": 84,
+                  "end": 99
+                }
+              ],
+              "elapsed_s": 0.0037290549953468144,
+              "metrics": {
+                "precision": 1.0,
+                "recall": 1.0,
+                "f1": 1.0,
+                "true_positives": 3,
+                "false_positives": 0,
+                "false_negatives": 0
+              }
+            },
+            {
+              "expected": [
+                {
+                  "label": "location",
+                  "start": 44,
+                  "end": 54
+                },
+                {
+                  "label": "location",
+                  "start": 72,
+                  "end": 87
+                },
+                {
+                  "label": "location",
+                  "start": 90,
+                  "end": 97
+                },
+                {
+                  "label": "location",
+                  "start": 104,
+                  "end": 120
+                }
+              ],
+              "unsupported_labels": [],
+              "source_locator": null,
+              "native_sentence_index": 12,
+              "token_count": 22,
+              "id": "crossner-politics-test.txt:12",
+              "source_revision": "245f9f05973e67ffe0ed7107d8e46b083aafc05378c6195ec3d97fb0c48c8b20",
+              "language": "en",
+              "source": "CrossNER, Liu et al. (2021), politics",
+              "label_origin": "published-human-annotation",
+              "predicted": [
+                {
+                  "label": "person",
+                  "start": 90,
+                  "end": 97
+                },
+                {
+                  "label": "person",
+                  "start": 104,
+                  "end": 120
+                }
+              ],
+              "elapsed_s": 0.004589361997204833,
+              "metrics": {
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0,
+                "true_positives": 0,
+                "false_positives": 2,
+                "false_negatives": 4
+              }
+            },
+            {
+              "expected": [
+                {
+                  "label": "location",
+                  "start": 26,
+                  "end": 37
+                },
+                {
+                  "label": "location",
+                  "start": 43,
+                  "end": 50
+                },
+                {
+                  "label": "location",
+                  "start": 65,
+                  "end": 70
+                },
+                {
+                  "label": "location",
+                  "start": 103,
+                  "end": 109
+                },
+                {
+                  "label": "location",
+                  "start": 114,
+                  "end": 120
+                }
+              ],
+              "unsupported_labels": [],
+              "source_locator": null,
+              "native_sentence_index": 13,
+              "token_count": 22,
+              "id": "crossner-politics-test.txt:13",
+              "source_revision": "cda88be6f8785d6403f14bed75857569f1baf81daeaf7787b9437b0a56688d1a",
+              "language": "en",
+              "source": "CrossNER, Liu et al. (2021), politics",
+              "label_origin": "published-human-annotation",
+              "predicted": [
+                {
+                  "label": "location",
+                  "start": 26,
+                  "end": 37
+                },
+                {
+                  "label": "location",
+                  "start": 43,
+                  "end": 50
+                },
+                {
+                  "label": "location",
+                  "start": 65,
+                  "end": 70
+                },
+                {
+                  "label": "organisation",
+                  "start": 103,
+                  "end": 109
+                },
+                {
+                  "label": "location",
+                  "start": 114,
+                  "end": 120
+                }
+              ],
+              "elapsed_s": 0.004278505002730526,
+              "metrics": {
+                "precision": 0.8,
+                "recall": 0.8,
+                "f1": 0.8000000000000002,
+                "true_positives": 4,
+                "false_positives": 1,
+                "false_negatives": 1
+              }
+            },
+            {
+              "expected": [
+                {
+                  "label": "location",
+                  "start": 55,
+                  "end": 65
+                },
+                {
+                  "label": "location",
+                  "start": 85,
+                  "end": 94
+                },
+                {
+                  "label": "location",
+                  "start": 97,
+                  "end": 106
+                },
+                {
+                  "label": "location",
+                  "start": 109,
+                  "end": 116
+                },
+                {
+                  "label": "location",
+                  "start": 119,
+                  "end": 124
+                },
+                {
+                  "label": "location",
+                  "start": 127,
+                  "end": 133
+                },
+                {
+                  "label": "location",
+                  "start": 136,
+                  "end": 141
+                },
+                {
+                  "label": "location",
+                  "start": 144,
+                  "end": 155
+                },
+                {
+                  "label": "location",
+                  "start": 158,
+                  "end": 164
+                },
+                {
+                  "label": "location",
+                  "start": 167,
+                  "end": 179
+                },
+                {
+                  "label": "location",
+                  "start": 186,
+                  "end": 198
+                },
+                {
+                  "label": "location",
+                  "start": 205,
+                  "end": 219
+                },
+                {
+                  "label": "location",
+                  "start": 230,
+                  "end": 243
+                }
+              ],
+              "unsupported_labels": [],
+              "source_locator": null,
+              "native_sentence_index": 16,
+              "token_count": 47,
+              "id": "crossner-politics-test.txt:16",
+              "source_revision": "b6993b54d52d3be1ca9d3b0e2ba99565b0223017eb569265c7942cb2c9c54b3f",
+              "language": "en",
+              "source": "CrossNER, Liu et al. (2021), politics",
+              "label_origin": "published-human-annotation",
+              "predicted": [
+                {
+                  "label": "location",
+                  "start": 85,
+                  "end": 94
+                },
+                {
+                  "label": "location",
+                  "start": 97,
+                  "end": 106
+                },
+                {
+                  "label": "location",
+                  "start": 109,
+                  "end": 116
+                },
+                {
+                  "label": "location",
+                  "start": 119,
+                  "end": 124
+                },
+                {
+                  "label": "location",
+                  "start": 127,
+                  "end": 133
+                },
+                {
+                  "label": "location",
+                  "start": 136,
+                  "end": 141
+                },
+                {
+                  "label": "location",
+                  "start": 144,
+                  "end": 155
+                },
+                {
+                  "label": "location",
+                  "start": 158,
+                  "end": 164
+                },
+                {
+                  "label": "location",
+                  "start": 167,
+                  "end": 179
+                },
+                {
+                  "label": "location",
+                  "start": 182,
+                  "end": 198
+                },
+                {
+                  "label": "location",
+                  "start": 201,
+                  "end": 219
+                },
+                {
+                  "label": "location",
+                  "start": 226,
+                  "end": 243
+                }
+              ],
+              "elapsed_s": 0.005799251011922024,
+              "metrics": {
+                "precision": 0.75,
+                "recall": 0.6923076923076923,
+                "f1": 0.7199999999999999,
+                "true_positives": 9,
+                "false_positives": 3,
+                "false_negatives": 4
+              }
+            },
+            {
+              "expected": [
+                {
+                  "label": "location",
+                  "start": 29,
+                  "end": 35
+                },
+                {
+                  "label": "location",
+                  "start": 54,
+                  "end": 61
+                },
+                {
+                  "label": "location",
+                  "start": 76,
+                  "end": 82
+                },
+                {
+                  "label": "location",
+                  "start": 99,
+                  "end": 106
+                },
+                {
+                  "label": "location",
+                  "start": 109,
+                  "end": 115
+                },
+                {
+                  "label": "location",
+                  "start": 118,
+                  "end": 123
+                },
+                {
+                  "label": "location",
+                  "start": 128,
+                  "end": 134
+                }
+              ],
+              "unsupported_labels": [],
+              "source_locator": null,
+              "native_sentence_index": 22,
+              "token_count": 27,
+              "id": "crossner-politics-test.txt:22",
+              "source_revision": "e6b0b59a46135609291757c357ecf9c1d9c6a8303396cf84505fee9aec9546fd",
+              "language": "en",
+              "source": "CrossNER, Liu et al. (2021), politics",
+              "label_origin": "published-human-annotation",
+              "predicted": [
+                {
+                  "label": "location",
+                  "start": 29,
+                  "end": 35
+                },
+                {
+                  "label": "location",
+                  "start": 54,
+                  "end": 61
+                },
+                {
+                  "label": "location",
+                  "start": 76,
+                  "end": 82
+                },
+                {
+                  "label": "location",
+                  "start": 99,
+                  "end": 106
+                },
+                {
+                  "label": "location",
+                  "start": 109,
+                  "end": 115
+                },
+                {
+                  "label": "location",
+                  "start": 118,
+                  "end": 123
+                },
+                {
+                  "label": "location",
+                  "start": 128,
+                  "end": 134
+                }
+              ],
+              "elapsed_s": 0.005194386001676321,
+              "metrics": {
+                "precision": 1.0,
+                "recall": 1.0,
+                "f1": 1.0,
+                "true_positives": 7,
+                "false_positives": 0,
+                "false_negatives": 0
+              }
+            },
+            {
+              "expected": [
+                {
+                  "label": "location",
+                  "start": 15,
+                  "end": 21
+                },
+                {
+                  "label": "person",
+                  "start": 28,
+                  "end": 35
+                },
+                {
+                  "label": "location",
+                  "start": 95,
+                  "end": 102
+                },
+                {
+                  "label": "location",
+                  "start": 105,
+                  "end": 113
+                },
+                {
+                  "label": "location",
+                  "start": 120,
+                  "end": 125
+                }
+              ],
+              "unsupported_labels": [],
+              "source_locator": null,
+              "native_sentence_index": 24,
+              "token_count": 20,
+              "id": "crossner-politics-test.txt:24",
+              "source_revision": "38b9968bf908c677bf188a15698aa1672a9320694f3a10052cb8464623919917",
+              "language": "en",
+              "source": "CrossNER, Liu et al. (2021), politics",
+              "label_origin": "published-human-annotation",
+              "predicted": [
+                {
+                  "label": "location",
+                  "start": 15,
+                  "end": 21
+                },
+                {
+                  "label": "person",
+                  "start": 28,
+                  "end": 35
+                },
+                {
+                  "label": "location",
+                  "start": 95,
+                  "end": 102
+                },
+                {
+                  "label": "location",
+                  "start": 105,
+                  "end": 113
+                },
+                {
+                  "label": "location",
+                  "start": 120,
+                  "end": 125
+                }
+              ],
+              "elapsed_s": 0.004413371003465727,
+              "metrics": {
+                "precision": 1.0,
+                "recall": 1.0,
+                "f1": 1.0,
+                "true_positives": 5,
+                "false_positives": 0,
+                "false_negatives": 0
+              }
+            },
+            {
+              "expected": [
+                {
+                  "label": "person",
+                  "start": 0,
+                  "end": 7
+                },
+                {
+                  "label": "location",
+                  "start": 86,
+                  "end": 92
+                },
+                {
+                  "label": "location",
+                  "start": 95,
+                  "end": 100
+                },
+                {
+                  "label": "location",
+                  "start": 103,
+                  "end": 109
+                },
+                {
+                  "label": "location",
+                  "start": 112,
+                  "end": 126
+                }
+              ],
+              "unsupported_labels": [],
+              "source_locator": null,
+              "native_sentence_index": 25,
+              "token_count": 22,
+              "id": "crossner-politics-test.txt:25",
+              "source_revision": "4c195be0d7c3be394fabe27343d1fbea610f44ecaa9b82a7ecbc632f11460ca8",
+              "language": "en",
+              "source": "CrossNER, Liu et al. (2021), politics",
+              "label_origin": "published-human-annotation",
+              "predicted": [
+                {
+                  "label": "person",
+                  "start": 0,
+                  "end": 7
+                },
+                {
+                  "label": "location",
+                  "start": 86,
+                  "end": 92
+                },
+                {
+                  "label": "location",
+                  "start": 95,
+                  "end": 100
+                },
+                {
+                  "label": "location",
+                  "start": 103,
+                  "end": 109
+                },
+                {
+                  "label": "location",
+                  "start": 112,
+                  "end": 126
+                }
+              ],
+              "elapsed_s": 0.004082048006239347,
+              "metrics": {
+                "precision": 1.0,
+                "recall": 1.0,
+                "f1": 1.0,
+                "true_positives": 5,
+                "false_positives": 0,
+                "false_negatives": 0
+              }
+            },
+            {
+              "expected": [
+                {
+                  "label": "location",
+                  "start": 25,
+                  "end": 36
+                },
+                {
+                  "label": "location",
+                  "start": 49,
+                  "end": 61
+                },
+                {
+                  "label": "location",
+                  "start": 64,
+                  "end": 72
+                },
+                {
+                  "label": "location",
+                  "start": 91,
+                  "end": 108
+                },
+                {
+                  "label": "location",
+                  "start": 137,
+                  "end": 143
+                },
+                {
+                  "label": "location",
+                  "start": 148,
+                  "end": 155
+                },
+                {
+                  "label": "location",
+                  "start": 159,
+                  "end": 166
+                },
+                {
+                  "label": "person",
+                  "start": 197,
+                  "end": 203
+                },
+                {
+                  "label": "person",
+                  "start": 216,
+                  "end": 237
+                },
+                {
+                  "label": "person",
+                  "start": 256,
+                  "end": 282
+                }
+              ],
+              "unsupported_labels": [],
+              "source_locator": null,
+              "native_sentence_index": 27,
+              "token_count": 54,
+              "id": "crossner-politics-test.txt:27",
+              "source_revision": "c95283f4dfc07ecdcd781bc2279949e78c861a9b7f3ca3b64c474cf92ab75142",
+              "language": "en",
+              "source": "CrossNER, Liu et al. (2021), politics",
+              "label_origin": "published-human-annotation",
+              "predicted": [
+                {
+                  "label": "organisation",
+                  "start": 0,
+                  "end": 8
+                },
+                {
+                  "label": "location",
+                  "start": 25,
+                  "end": 36
+                },
+                {
+                  "label": "person",
+                  "start": 49,
+                  "end": 55
+                },
+                {
+                  "label": "location",
+                  "start": 64,
+                  "end": 72
+                },
+                {
+                  "label": "location",
+                  "start": 137,
+                  "end": 143
+                },
+                {
+                  "label": "location",
+                  "start": 197,
+                  "end": 203
+                },
+                {
+                  "label": "person",
+                  "start": 216,
+                  "end": 237
+                },
+                {
+                  "label": "person",
+                  "start": 256,
+                  "end": 271
+                },
+                {
+                  "label": "location",
+                  "start": 275,
+                  "end": 282
+                }
+              ],
+              "elapsed_s": 0.006674133008345962,
+              "metrics": {
+                "precision": 0.4444444444444444,
+                "recall": 0.4,
+                "f1": 0.4210526315789474,
+                "true_positives": 4,
+                "false_positives": 5,
+                "false_negatives": 6
+              }
+            },
+            {
+              "expected": [
+                {
+                  "label": "person",
+                  "start": 21,
+                  "end": 27
+                },
+                {
+                  "label": "location",
+                  "start": 47,
+                  "end": 65
+                },
+                {
+                  "label": "location",
+                  "start": 68,
+                  "end": 83
+                },
+                {
+                  "label": "location",
+                  "start": 88,
+                  "end": 106
+                },
+                {
+                  "label": "location",
+                  "start": 194,
+                  "end": 199
+                },
+                {
+                  "label": "person",
+                  "start": 243,
+                  "end": 253
+                }
+              ],
+              "unsupported_labels": [],
+              "source_locator": null,
+              "native_sentence_index": 29,
+              "token_count": 49,
+              "id": "crossner-politics-test.txt:29",
+              "source_revision": "1e559431d8389be46fda48b1ee6227f45006e09b2c6983be606cafdc46d6fc5c",
+              "language": "en",
+              "source": "CrossNER, Liu et al. (2021), politics",
+              "label_origin": "published-human-annotation",
+              "predicted": [
+                {
+                  "label": "location",
+                  "start": 21,
+                  "end": 27
+                },
+                {
+                  "label": "organisation",
+                  "start": 47,
+                  "end": 65
+                },
+                {
+                  "label": "location",
+                  "start": 194,
+                  "end": 199
+                },
+                {
+                  "label": "person",
+                  "start": 243,
+                  "end": 253
+                }
+              ],
+              "elapsed_s": 0.007093507010722533,
+              "metrics": {
+                "precision": 0.5,
+                "recall": 0.3333333333333333,
+                "f1": 0.4,
+                "true_positives": 2,
+                "false_positives": 2,
+                "false_negatives": 4
+              }
+            },
+            {
+              "expected": [
+                {
+                  "label": "location",
+                  "start": 39,
+                  "end": 55
+                },
+                {
+                  "label": "location",
+                  "start": 58,
+                  "end": 73
+                },
+                {
+                  "label": "location",
+                  "start": 80,
+                  "end": 98
+                },
+                {
+                  "label": "location",
+                  "start": 108,
+                  "end": 123
+                }
+              ],
+              "unsupported_labels": [],
+              "source_locator": null,
+              "native_sentence_index": 30,
+              "token_count": 25,
+              "id": "crossner-politics-test.txt:30",
+              "source_revision": "886ee89a03eb6b0f4d418a363b1ff34040770075a87f977eb1d7778ced1ef686",
+              "language": "en",
+              "source": "CrossNER, Liu et al. (2021), politics",
+              "label_origin": "published-human-annotation",
+              "predicted": [
+                {
+                  "label": "location",
+                  "start": 35,
+                  "end": 48
+                },
+                {
+                  "label": "organisation",
+                  "start": 80,
+                  "end": 98
+                },
+                {
+                  "label": "location",
+                  "start": 117,
+                  "end": 123
+                }
+              ],
+              "elapsed_s": 0.004492559004575014,
+              "metrics": {
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0,
+                "true_positives": 0,
+                "false_positives": 3,
+                "false_negatives": 4
+              }
+            },
+            {
+              "expected": [
+                {
+                  "label": "organisation",
+                  "start": 0,
+                  "end": 3
+                },
+                {
+                  "label": "location",
+                  "start": 29,
+                  "end": 41
+                },
+                {
+                  "label": "location",
+                  "start": 50,
+                  "end": 70
+                },
+                {
+                  "label": "location",
+                  "start": 73,
+                  "end": 76
+                },
+                {
+                  "label": "organisation",
+                  "start": 140,
+                  "end": 155
+                },
+                {
+                  "label": "location",
+                  "start": 168,
+                  "end": 173
+                }
+              ],
+              "unsupported_labels": [],
+              "source_locator": null,
+              "native_sentence_index": 33,
+              "token_count": 28,
+              "id": "crossner-politics-test.txt:33",
+              "source_revision": "534237ce8ed61e3a0fb007bd9a6e8580271e569a8741a9805a16ba551e90a9ec",
+              "language": "en",
+              "source": "CrossNER, Liu et al. (2021), politics",
+              "label_origin": "published-human-annotation",
+              "predicted": [
+                {
+                  "label": "organisation",
+                  "start": 0,
+                  "end": 3
+                },
+                {
+                  "label": "location",
+                  "start": 29,
+                  "end": 41
+                },
+                {
+                  "label": "location",
+                  "start": 46,
+                  "end": 70
+                },
+                {
+                  "label": "organisation",
+                  "start": 140,
+                  "end": 148
+                },
+                {
+                  "label": "location",
+                  "start": 168,
+                  "end": 173
+                }
+              ],
+              "elapsed_s": 0.006544849995407276,
+              "metrics": {
+                "precision": 0.6,
+                "recall": 0.5,
+                "f1": 0.5454545454545454,
+                "true_positives": 3,
+                "false_positives": 2,
+                "false_negatives": 3
+              }
+            },
+            {
+              "expected": [
+                {
+                  "label": "person",
+                  "start": 42,
+                  "end": 57
+                },
+                {
+                  "label": "organisation",
+                  "start": 68,
+                  "end": 76
+                },
+                {
+                  "label": "person",
+                  "start": 122,
+                  "end": 142
+                },
+                {
+                  "label": "location",
+                  "start": 188,
+                  "end": 192
+                },
+                {
+                  "label": "organisation",
+                  "start": 202,
+                  "end": 223
+                },
+                {
+                  "label": "person",
+                  "start": 240,
+                  "end": 257
+                },
+                {
+                  "label": "person",
+                  "start": 293,
+                  "end": 313
+                },
+                {
+                  "label": "person",
+                  "start": 325,
+                  "end": 333
+                },
+                {
+                  "label": "organisation",
+                  "start": 401,
+                  "end": 405
+                },
+                {
+                  "label": "organisation",
+                  "start": 418,
+                  "end": 432
+                }
+              ],
+              "unsupported_labels": [],
+              "source_locator": null,
+              "native_sentence_index": 34,
+              "token_count": 75,
+              "id": "crossner-politics-test.txt:34",
+              "source_revision": "1ecad4cfb16e4d72a95f9e38ba166691a5a427dcab2426ba626cf94e3c46ed09",
+              "language": "en",
+              "source": "CrossNER, Liu et al. (2021), politics",
+              "label_origin": "published-human-annotation",
+              "predicted": [
+                {
+                  "label": "person",
+                  "start": 42,
+                  "end": 57
+                },
+                {
+                  "label": "organisation",
+                  "start": 68,
+                  "end": 76
+                },
+                {
+                  "label": "person",
+                  "start": 122,
+                  "end": 142
+                },
+                {
+                  "label": "location",
+                  "start": 188,
+                  "end": 192
+                },
+                {
+                  "label": "organisation",
+                  "start": 198,
+                  "end": 223
+                },
+                {
+                  "label": "person",
+                  "start": 240,
+                  "end": 257
+                },
+                {
+                  "label": "person",
+                  "start": 293,
+                  "end": 313
+                },
+                {
+                  "label": "organisation",
+                  "start": 325,
+                  "end": 333
+                },
+                {
+                  "label": "organisation",
+                  "start": 418,
+                  "end": 432
+                }
+              ],
+              "elapsed_s": 0.01056527100445237,
+              "metrics": {
+                "precision": 0.7777777777777778,
+                "recall": 0.7,
+                "f1": 0.7368421052631577,
+                "true_positives": 7,
+                "false_positives": 2,
+                "false_negatives": 3
+              }
+            },
+            {
+              "expected": [
+                {
+                  "label": "organisation",
+                  "start": 32,
+                  "end": 58
+                },
+                {
+                  "label": "organisation",
+                  "start": 127,
+                  "end": 159
+                },
+                {
+                  "label": "organisation",
+                  "start": 201,
+                  "end": 222
+                }
+              ],
+              "unsupported_labels": [],
+              "source_locator": null,
+              "native_sentence_index": 35,
+              "token_count": 35,
+              "id": "crossner-politics-test.txt:35",
+              "source_revision": "611bc4ebecaf23f7f95888e99253c3c37c377eccd01774444ea38b0f8c00ab37",
+              "language": "en",
+              "source": "CrossNER, Liu et al. (2021), politics",
+              "label_origin": "published-human-annotation",
+              "predicted": [
+                {
+                  "label": "organisation",
+                  "start": 16,
+                  "end": 21
+                },
+                {
+                  "label": "organisation",
+                  "start": 32,
+                  "end": 45
+                },
+                {
+                  "label": "location",
+                  "start": 49,
+                  "end": 58
+                },
+                {
+                  "label": "organisation",
+                  "start": 127,
+                  "end": 159
+                },
+                {
+                  "label": "organisation",
+                  "start": 197,
+                  "end": 222
+                }
+              ],
+              "elapsed_s": 0.006854449005913921,
+              "metrics": {
+                "precision": 0.2,
+                "recall": 0.3333333333333333,
+                "f1": 0.25,
+                "true_positives": 1,
+                "false_positives": 4,
+                "false_negatives": 2
+              }
+            }
+          ],
+          "span_coordinate_system": "Unicode character offsets in space-joined original published tokens",
+          "default_changed": false,
+          "confidence_is_correctness": false
+        },
+        "operation": "ner-benchmark",
+        "elapsed_seconds": 2.5498002910026116,
+        "peak_process_tree_rss_bytes": 364822528,
+        "resource_limits": {
+          "timeout_s": 600,
+          "rss_bytes": 4294967296,
+          "threads": 2
+        },
+        "execution": "isolated-local-process",
+        "hosted_inference_used": false,
+        "remote_processing_used": false
+      },
+      "summary": {
+        "de": {
+          "n": 20,
+          "gold_spans": 41,
+          "predicted_spans": 68,
+          "correct_spans": 11,
+          "precision": 0.16176470588235295,
+          "recall": 0.2682926829268293,
+          "f1": 0.2018348623853211,
+          "p50_s": 0.0036643544954131357,
+          "p95_s": 0.005003496989957057
+        },
+        "en": {
+          "n": 20,
+          "gold_spans": 117,
+          "predicted_spans": 105,
+          "correct_spans": 69,
+          "precision": 0.6571428571428571,
+          "recall": 0.5897435897435898,
+          "f1": 0.6216216216216216,
+          "p50_s": 0.004804328505997546,
+          "p95_s": 0.007428141005220823
+        }
+      }
+    },
+    "language-spacy": {
+      "job": {
+        "status": "completed",
+        "result": {
+          "backend": "language-spacy",
+          "model": {
+            "en": {
+              "name": "core_web_sm",
+              "version": "3.8.0"
+            },
+            "de": {
+              "name": "core_news_sm",
+              "version": "3.8.0"
+            }
+          },
+          "model_load_s": 1.1793257829995127,
+          "rows": [
+            {
+              "expected": [
+                {
+                  "label": "person",
+                  "start": 3,
+                  "end": 7
+                }
+              ],
+              "unsupported_labels": [],
+              "source_locator": "http://de.wikipedia.org/wiki/Die_Geschichte_vom_kleinen_Muck\t[2009-10-18]",
+              "native_sentence_index": 1,
+              "token_count": 22,
+              "id": "germeval-test.tsv:1",
+              "source_revision": "ef5484251e5f69ef483c0ecbd8817f5fc0fe07c84efd490a8da30f9f5f8917b2",
+              "language": "de",
+              "source": "GermEval 2014 / NoSta-D",
+              "label_origin": "published-human-annotation",
+              "predicted": [
+                {
+                  "label": "person",
+                  "start": 3,
+                  "end": 7
+                }
+              ],
+              "elapsed_s": 0.005922790995100513,
+              "metrics": {
+                "precision": 1.0,
+                "recall": 1.0,
+                "f1": 1.0,
+                "true_positives": 1,
+                "false_positives": 0,
+                "false_negatives": 0
+              }
+            },
+            {
+              "expected": [
+                {
+                  "label": "person",
+                  "start": 12,
+                  "end": 21
+                }
+              ],
+              "unsupported_labels": [],
+              "source_locator": "http://de.wikipedia.org/wiki/Adolf_Schlatter\t[2009-12-05]",
+              "native_sentence_index": 3,
+              "token_count": 18,
+              "id": "germeval-test.tsv:3",
+              "source_revision": "665c9d60847d649d10ffb4e9096354b95f8ebf9fc8c1acd0c62afb846f5fbf5d",
+              "language": "de",
+              "source": "GermEval 2014 / NoSta-D",
+              "label_origin": "published-human-annotation",
+              "predicted": [],
+              "elapsed_s": 0.0040185910038417205,
+              "metrics": {
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0,
+                "true_positives": 0,
+                "false_positives": 0,
+                "false_negatives": 1
+              }
+            },
+            {
+              "expected": [
+                {
+                  "label": "person",
+                  "start": 86,
+                  "end": 91
+                }
+              ],
+              "unsupported_labels": [],
+              "source_locator": "http://feeds.gulli.com/~r/gulli/~3/0XnFf2wkBpc/\t[2009-04-03]",
+              "native_sentence_index": 5,
+              "token_count": 15,
+              "id": "germeval-test.tsv:5",
+              "source_revision": "41ccc9d58a72fa188265fb0e15c6d185822006e2c2dbbd47edf0fb2c33ac97a4",
+              "language": "de",
+              "source": "GermEval 2014 / NoSta-D",
+              "label_origin": "published-human-annotation",
+              "predicted": [
+                {
+                  "label": "person",
+                  "start": 86,
+                  "end": 91
+                }
+              ],
+              "elapsed_s": 0.003856113995425403,
+              "metrics": {
+                "precision": 1.0,
+                "recall": 1.0,
+                "f1": 1.0,
+                "true_positives": 1,
+                "false_positives": 0,
+                "false_negatives": 0
+              }
+            },
+            {
+              "expected": [
+                {
+                  "label": "person",
+                  "start": 15,
+                  "end": 34
+                },
+                {
+                  "label": "location",
+                  "start": 54,
+                  "end": 60
+                }
+              ],
+              "unsupported_labels": [],
+              "source_locator": "http://www.sueddeutsche.de/panorama/artikel/386/106280/\t[2007-03-20]",
+              "native_sentence_index": 7,
+              "token_count": 12,
+              "id": "germeval-test.tsv:7",
+              "source_revision": "19e8eb8023c8220f7f86b0cb054e7e732f057b4abb03a2c906725afe14bacfd4",
+              "language": "de",
+              "source": "GermEval 2014 / NoSta-D",
+              "label_origin": "published-human-annotation",
+              "predicted": [
+                {
+                  "label": "person",
+                  "start": 15,
+                  "end": 34
+                },
+                {
+                  "label": "location",
+                  "start": 54,
+                  "end": 60
+                }
+              ],
+              "elapsed_s": 0.003331572996103205,
+              "metrics": {
+                "precision": 1.0,
+                "recall": 1.0,
+                "f1": 1.0,
+                "true_positives": 2,
+                "false_positives": 0,
+                "false_negatives": 0
+              }
+            },
+            {
+              "expected": [
+                {
+                  "label": "person",
+                  "start": 28,
+                  "end": 39
+                },
+                {
+                  "label": "location",
+                  "start": 45,
+                  "end": 50
+                },
+                {
+                  "label": "location",
+                  "start": 108,
+                  "end": 116
+                },
+                {
+                  "label": "location",
+                  "start": 180,
+                  "end": 185
+                }
+              ],
+              "unsupported_labels": [],
+              "source_locator": "http://de.wikipedia.org/wiki/Francesco_Antommarchi\t[2009-10-17]",
+              "native_sentence_index": 9,
+              "token_count": 28,
+              "id": "germeval-test.tsv:9",
+              "source_revision": "913cb187e468a0428e55a85658f26802ef823b19a1907a935154c25e9a8972bd",
+              "language": "de",
+              "source": "GermEval 2014 / NoSta-D",
+              "label_origin": "published-human-annotation",
+              "predicted": [
+                {
+                  "label": "person",
+                  "start": 28,
+                  "end": 39
+                },
+                {
+                  "label": "location",
+                  "start": 45,
+                  "end": 50
+                },
+                {
+                  "label": "location",
+                  "start": 86,
+                  "end": 104
+                },
+                {
+                  "label": "location",
+                  "start": 108,
+                  "end": 116
+                },
+                {
+                  "label": "location",
+                  "start": 180,
+                  "end": 185
+                }
+              ],
+              "elapsed_s": 0.004410648005432449,
+              "metrics": {
+                "precision": 0.8,
+                "recall": 1.0,
+                "f1": 0.888888888888889,
+                "true_positives": 4,
+                "false_positives": 1,
+                "false_negatives": 0
+              }
+            },
+            {
+              "expected": [
+                {
+                  "label": "person",
+                  "start": 26,
+                  "end": 39
+                },
+                {
+                  "label": "location",
+                  "start": 63,
+                  "end": 69
+                }
+              ],
+              "unsupported_labels": [],
+              "source_locator": "http://de.wikipedia.org/wiki/Manuel_Bulnes_Prieto\t[2009-09-02]",
+              "native_sentence_index": 10,
+              "token_count": 16,
+              "id": "germeval-test.tsv:10",
+              "source_revision": "b4b8791ffc04f969c37248babd93dc96d2fea59a623f79034c0704f6176862b8",
+              "language": "de",
+              "source": "GermEval 2014 / NoSta-D",
+              "label_origin": "published-human-annotation",
+              "predicted": [
+                {
+                  "label": "person",
+                  "start": 26,
+                  "end": 39
+                },
+                {
+                  "label": "location",
+                  "start": 63,
+                  "end": 69
+                }
+              ],
+              "elapsed_s": 0.0036995219998061657,
+              "metrics": {
+                "precision": 1.0,
+                "recall": 1.0,
+                "f1": 1.0,
+                "true_positives": 2,
+                "false_positives": 0,
+                "false_negatives": 0
+              }
+            },
+            {
+              "expected": [
+                {
+                  "label": "location",
+                  "start": 216,
+                  "end": 229
+                },
+                {
+                  "label": "person",
+                  "start": 221,
+                  "end": 229
+                }
+              ],
+              "unsupported_labels": [],
+              "source_locator": "http://de.wikipedia.org/wiki/Plauer_Torturm\t[2010-01-12]",
+              "native_sentence_index": 17,
+              "token_count": 34,
+              "id": "germeval-test.tsv:17",
+              "source_revision": "947fe8a852e72b9fdfacece71b5744f3b9724803c6c89dd6e665449730271157",
+              "language": "de",
+              "source": "GermEval 2014 / NoSta-D",
+              "label_origin": "published-human-annotation",
+              "predicted": [
+                {
+                  "label": "location",
+                  "start": 216,
+                  "end": 218
+                }
+              ],
+              "elapsed_s": 0.005540061989449896,
+              "metrics": {
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0,
+                "true_positives": 0,
+                "false_positives": 1,
+                "false_negatives": 2
+              }
+            },
+            {
+              "expected": [
+                {
+                  "label": "person",
+                  "start": 11,
+                  "end": 25
+                },
+                {
+                  "label": "location",
+                  "start": 30,
+                  "end": 39
+                },
+                {
+                  "label": "person",
+                  "start": 48,
+                  "end": 55
+                },
+                {
+                  "label": "location",
+                  "start": 91,
+                  "end": 97
+                }
+              ],
+              "unsupported_labels": [],
+              "source_locator": "http://de.wikipedia.org/wiki/Pommerellen\t[2010-01-06]",
+              "native_sentence_index": 19,
+              "token_count": 33,
+              "id": "germeval-test.tsv:19",
+              "source_revision": "3a65d87fe2fc90810c1efd281a2b1c4e627f4c994c4ccc6777770702fcc842cf",
+              "language": "de",
+              "source": "GermEval 2014 / NoSta-D",
+              "label_origin": "published-human-annotation",
+              "predicted": [
+                {
+                  "label": "person",
+                  "start": 11,
+                  "end": 21
+                },
+                {
+                  "label": "person",
+                  "start": 48,
+                  "end": 55
+                }
+              ],
+              "elapsed_s": 0.0052751139883184806,
+              "metrics": {
+                "precision": 0.5,
+                "recall": 0.25,
+                "f1": 0.3333333333333333,
+                "true_positives": 1,
+                "false_positives": 1,
+                "false_negatives": 3
+              }
+            },
+            {
+              "expected": [
+                {
+                  "label": "organisation",
+                  "start": 4,
+                  "end": 19
+                },
+                {
+                  "label": "person",
+                  "start": 58,
+                  "end": 70
+                },
+                {
+                  "label": "location",
+                  "start": 171,
+                  "end": 182
+                },
+                {
+                  "label": "location",
+                  "start": 4,
+                  "end": 10
+                }
+              ],
+              "unsupported_labels": [],
+              "source_locator": "http://de.wikipedia.org/wiki/Siemens-Skandal\t[2009-08-02]",
+              "native_sentence_index": 21,
+              "token_count": 34,
+              "id": "germeval-test.tsv:21",
+              "source_revision": "ae5bc12d2f3cf723810582704a237d1e67b162034169dea7ef0c263113e3d921",
+              "language": "de",
+              "source": "GermEval 2014 / NoSta-D",
+              "label_origin": "published-human-annotation",
+              "predicted": [
+                {
+                  "label": "person",
+                  "start": 58,
+                  "end": 70
+                },
+                {
+                  "label": "location",
+                  "start": 171,
+                  "end": 182
+                }
+              ],
+              "elapsed_s": 0.00508591000107117,
+              "metrics": {
+                "precision": 1.0,
+                "recall": 0.5,
+                "f1": 0.6666666666666666,
+                "true_positives": 2,
+                "false_positives": 0,
+                "false_negatives": 2
+              }
+            },
+            {
+              "expected": [
+                {
+                  "label": "location",
+                  "start": 20,
+                  "end": 29
+                },
+                {
+                  "label": "person",
+                  "start": 33,
+                  "end": 55
+                },
+                {
+                  "label": "person",
+                  "start": 139,
+                  "end": 149
+                },
+                {
+                  "label": "location",
+                  "start": 143,
+                  "end": 149
+                }
+              ],
+              "unsupported_labels": [],
+              "source_locator": "http://de.wikipedia.org/wiki/Burg_Stolberg\t[2009-10-26]",
+              "native_sentence_index": 31,
+              "token_count": 28,
+              "id": "germeval-test.tsv:31",
+              "source_revision": "c7eaa86e5c03b340785cb42841ca994adb53e146dc4e4d8c7df93210058a3710",
+              "language": "de",
+              "source": "GermEval 2014 / NoSta-D",
+              "label_origin": "published-human-annotation",
+              "predicted": [
+                {
+                  "label": "person",
+                  "start": 20,
+                  "end": 29
+                },
+                {
+                  "label": "person",
+                  "start": 33,
+                  "end": 55
+                },
+                {
+                  "label": "location",
+                  "start": 131,
+                  "end": 149
+                }
+              ],
+              "elapsed_s": 0.005107724005938508,
+              "metrics": {
+                "precision": 0.3333333333333333,
+                "recall": 0.25,
+                "f1": 0.28571428571428575,
+                "true_positives": 1,
+                "false_positives": 2,
+                "false_negatives": 3
+              }
+            },
+            {
+              "expected": [
+                {
+                  "label": "organisation",
+                  "start": 85,
+                  "end": 109
+                },
+                {
+                  "label": "location",
+                  "start": 85,
+                  "end": 100
+                }
+              ],
+              "unsupported_labels": [],
+              "source_locator": "http://www.mz-web.de/artikel?id=1194628285234\t[2007-11-18]",
+              "native_sentence_index": 32,
+              "token_count": 24,
+              "id": "germeval-test.tsv:32",
+              "source_revision": "552d0c5ae18d49ca716167b623ff7608bb21c9395f7b939195866ba4d127d294",
+              "language": "de",
+              "source": "GermEval 2014 / NoSta-D",
+              "label_origin": "published-human-annotation",
+              "predicted": [
+                {
+                  "label": "organisation",
+                  "start": 85,
+                  "end": 109
+                },
+                {
+                  "label": "organisation",
+                  "start": 124,
+                  "end": 145
+                }
+              ],
+              "elapsed_s": 0.005314861991791986,
+              "metrics": {
+                "precision": 0.5,
+                "recall": 0.5,
+                "f1": 0.5,
+                "true_positives": 1,
+                "false_positives": 1,
+                "false_negatives": 1
+              }
+            },
+            {
+              "expected": [
+                {
+                  "label": "person",
+                  "start": 0,
+                  "end": 4
+                }
+              ],
+              "unsupported_labels": [],
+              "source_locator": "http://de.wikipedia.org/wiki/Ero_der_Schelm\t[2009-11-25]",
+              "native_sentence_index": 36,
+              "token_count": 15,
+              "id": "germeval-test.tsv:36",
+              "source_revision": "a85f41bab3a4db63d31ddf498735d11cc48685d92667fce43152288841c9c94b",
+              "language": "de",
+              "source": "GermEval 2014 / NoSta-D",
+              "label_origin": "published-human-annotation",
+              "predicted": [
+                {
+                  "label": "location",
+                  "start": 0,
+                  "end": 4
+                }
+              ],
+              "elapsed_s": 0.004694825009210035,
+              "metrics": {
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0,
+                "true_positives": 0,
+                "false_positives": 1,
+                "false_negatives": 1
+              }
+            },
+            {
+              "expected": [
+                {
+                  "label": "location",
+                  "start": 44,
+                  "end": 51
+                },
+                {
+                  "label": "location",
+                  "start": 77,
+                  "end": 90
+                }
+              ],
+              "unsupported_labels": [],
+              "source_locator": "http://de.wikipedia.org/wiki/Bretonvillers\t[2009-09-03]",
+              "native_sentence_index": 37,
+              "token_count": 16,
+              "id": "germeval-test.tsv:37",
+              "source_revision": "00385bb451e046da7a09dad2678c20c54c0a1203c535a246a6f449522f86ed71",
+              "language": "de",
+              "source": "GermEval 2014 / NoSta-D",
+              "label_origin": "published-human-annotation",
+              "predicted": [
+                {
+                  "label": "location",
+                  "start": 44,
+                  "end": 51
+                },
+                {
+                  "label": "location",
+                  "start": 77,
+                  "end": 90
+                }
+              ],
+              "elapsed_s": 0.003941022005164996,
+              "metrics": {
+                "precision": 1.0,
+                "recall": 1.0,
+                "f1": 1.0,
+                "true_positives": 2,
+                "false_positives": 0,
+                "false_negatives": 0
+              }
+            },
+            {
+              "expected": [
+                {
+                  "label": "person",
+                  "start": 53,
+                  "end": 62
+                }
+              ],
+              "unsupported_labels": [],
+              "source_locator": "http://de.wikipedia.org/wiki/Death_Proof_–_Todsicher\t[2010-01-01]",
+              "native_sentence_index": 38,
+              "token_count": 10,
+              "id": "germeval-test.tsv:38",
+              "source_revision": "cf31a71e4465b877ef8fcb69385468f0717d5ef46da3cd39672988f8551c6d79",
+              "language": "de",
+              "source": "GermEval 2014 / NoSta-D",
+              "label_origin": "published-human-annotation",
+              "predicted": [
+                {
+                  "label": "person",
+                  "start": 0,
+                  "end": 12
+                },
+                {
+                  "label": "person",
+                  "start": 53,
+                  "end": 62
+                }
+              ],
+              "elapsed_s": 0.00360196600377094,
+              "metrics": {
+                "precision": 0.5,
+                "recall": 1.0,
+                "f1": 0.6666666666666666,
+                "true_positives": 1,
+                "false_positives": 1,
+                "false_negatives": 0
+              }
+            },
+            {
+              "expected": [
+                {
+                  "label": "person",
+                  "start": 129,
+                  "end": 135
+                }
+              ],
+              "unsupported_labels": [],
+              "source_locator": "http://www.spiegel.de/schulspiegel/0,1518,702367,00.html\t[2010-06-24]",
+              "native_sentence_index": 39,
+              "token_count": 23,
+              "id": "germeval-test.tsv:39",
+              "source_revision": "604e9cbb136df6dd0a6954bf00b98edca0468abd094e0b671400cb52d84b4ac3",
+              "language": "de",
+              "source": "GermEval 2014 / NoSta-D",
+              "label_origin": "published-human-annotation",
+              "predicted": [],
+              "elapsed_s": 0.004698461008956656,
+              "metrics": {
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0,
+                "true_positives": 0,
+                "false_positives": 0,
+                "false_negatives": 1
+              }
+            },
+            {
+              "expected": [
+                {
+                  "label": "organisation",
+                  "start": 40,
+                  "end": 49
+                }
+              ],
+              "unsupported_labels": [],
+              "source_locator": "http://www.mdr.de/kinoroyal/rueckblick/5249324.htm\t[2011-01-11]",
+              "native_sentence_index": 41,
+              "token_count": 9,
+              "id": "germeval-test.tsv:41",
+              "source_revision": "7767080bf85df8c90c37d01870282e6072bef16a3c3f5a31265a28cb2a1808b1",
+              "language": "de",
+              "source": "GermEval 2014 / NoSta-D",
+              "label_origin": "published-human-annotation",
+              "predicted": [],
+              "elapsed_s": 0.003741150998394005,
+              "metrics": {
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0,
+                "true_positives": 0,
+                "false_positives": 0,
+                "false_negatives": 1
+              }
+            },
+            {
+              "expected": [
+                {
+                  "label": "person",
+                  "start": 101,
+                  "end": 107
+                }
+              ],
+              "unsupported_labels": [],
+              "source_locator": "http://de.wikipedia.org/wiki/Dexter_(Fernsehserie)\t[2010-01-15]",
+              "native_sentence_index": 42,
+              "token_count": 26,
+              "id": "germeval-test.tsv:42",
+              "source_revision": "7493ac69525dc7aeef883ecd05950ba7e74385888c3a4e5d4d0f2e2d540f9030",
+              "language": "de",
+              "source": "GermEval 2014 / NoSta-D",
+              "label_origin": "published-human-annotation",
+              "predicted": [],
+              "elapsed_s": 0.004587463001371361,
+              "metrics": {
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0,
+                "true_positives": 0,
+                "false_positives": 0,
+                "false_negatives": 1
+              }
+            },
+            {
+              "expected": [
+                {
+                  "label": "organisation",
+                  "start": 4,
+                  "end": 24
+                },
+                {
+                  "label": "organisation",
+                  "start": 59,
+                  "end": 80
+                },
+                {
+                  "label": "organisation",
+                  "start": 85,
+                  "end": 96
+                },
+                {
+                  "label": "location",
+                  "start": 10,
+                  "end": 24
+                },
+                {
+                  "label": "location",
+                  "start": 88,
+                  "end": 96
+                }
+              ],
+              "unsupported_labels": [],
+              "source_locator": "http://www.sat1.de/sport/sportnews/news/2008/12/15/sid_214803/\t[2008-12-15]",
+              "native_sentence_index": 43,
+              "token_count": 15,
+              "id": "germeval-test.tsv:43",
+              "source_revision": "f6a1911bde76b06c7427d4c7ad635d56831cf279cab7c1d973857d8a6371ff22",
+              "language": "de",
+              "source": "GermEval 2014 / NoSta-D",
+              "label_origin": "published-human-annotation",
+              "predicted": [
+                {
+                  "label": "organisation",
+                  "start": 4,
+                  "end": 24
+                },
+                {
+                  "label": "organisation",
+                  "start": 59,
+                  "end": 80
+                },
+                {
+                  "label": "organisation",
+                  "start": 85,
+                  "end": 96
+                }
+              ],
+              "elapsed_s": 0.0036540000000968575,
+              "metrics": {
+                "precision": 1.0,
+                "recall": 0.6,
+                "f1": 0.7499999999999999,
+                "true_positives": 3,
+                "false_positives": 0,
+                "false_negatives": 2
+              }
+            },
+            {
+              "expected": [
+                {
+                  "label": "location",
+                  "start": 38,
+                  "end": 44
+                }
+              ],
+              "unsupported_labels": [],
+              "source_locator": "http://de.wikipedia.org/wiki/Dachau\t[2010-01-12]",
+              "native_sentence_index": 47,
+              "token_count": 23,
+              "id": "germeval-test.tsv:47",
+              "source_revision": "9088fb15f97bf57122acba1b590b52ef199cde3eba3227c8083d16309d34f9f5",
+              "language": "de",
+              "source": "GermEval 2014 / NoSta-D",
+              "label_origin": "published-human-annotation",
+              "predicted": [
+                {
+                  "label": "location",
+                  "start": 38,
+                  "end": 44
+                }
+              ],
+              "elapsed_s": 0.004352047995780595,
+              "metrics": {
+                "precision": 1.0,
+                "recall": 1.0,
+                "f1": 1.0,
+                "true_positives": 1,
+                "false_positives": 0,
+                "false_negatives": 0
+              }
+            },
+            {
+              "expected": [
+                {
+                  "label": "organisation",
+                  "start": 45,
+                  "end": 48
+                }
+              ],
+              "unsupported_labels": [],
+              "source_locator": "welt.de vom 19.09.2005\t[2005-09-19]",
+              "native_sentence_index": 48,
+              "token_count": 13,
+              "id": "germeval-test.tsv:48",
+              "source_revision": "bd34568971f1ad116a028b3e264fce8edff1af77a9f9ea48e187da165c6164ad",
+              "language": "de",
+              "source": "GermEval 2014 / NoSta-D",
+              "label_origin": "published-human-annotation",
+              "predicted": [
+                {
+                  "label": "organisation",
+                  "start": 45,
+                  "end": 48
+                }
+              ],
+              "elapsed_s": 0.0037448729999596253,
+              "metrics": {
+                "precision": 1.0,
+                "recall": 1.0,
+                "f1": 1.0,
+                "true_positives": 1,
+                "false_positives": 0,
+                "false_negatives": 0
+              }
+            },
+            {
+              "expected": [
+                {
+                  "label": "location",
+                  "start": 108,
+                  "end": 114
+                },
+                {
+                  "label": "location",
+                  "start": 117,
+                  "end": 123
+                },
+                {
+                  "label": "location",
+                  "start": 127,
+                  "end": 133
+                }
+              ],
+              "unsupported_labels": [],
+              "source_locator": null,
+              "native_sentence_index": 0,
+              "token_count": 22,
+              "id": "crossner-politics-test.txt:0",
+              "source_revision": "feef9c7cf2f0a35ae699be6c923fa4c89411d7809d6519ad8dc91dba90f91975",
+              "language": "en",
+              "source": "CrossNER, Liu et al. (2021), politics",
+              "label_origin": "published-human-annotation",
+              "predicted": [
+                {
+                  "label": "location",
+                  "start": 108,
+                  "end": 114
+                },
+                {
+                  "label": "location",
+                  "start": 117,
+                  "end": 123
+                },
+                {
+                  "label": "location",
+                  "start": 127,
+                  "end": 133
+                }
+              ],
+              "elapsed_s": 0.005597169001703151,
+              "metrics": {
+                "precision": 1.0,
+                "recall": 1.0,
+                "f1": 1.0,
+                "true_positives": 3,
+                "false_positives": 0,
+                "false_negatives": 0
+              }
+            },
+            {
+              "expected": [
+                {
+                  "label": "person",
+                  "start": 0,
+                  "end": 12
+                },
+                {
+                  "label": "person",
+                  "start": 46,
+                  "end": 58
+                },
+                {
+                  "label": "person",
+                  "start": 73,
+                  "end": 83
+                },
+                {
+                  "label": "person",
+                  "start": 119,
+                  "end": 131
+                }
+              ],
+              "unsupported_labels": [],
+              "source_locator": null,
+              "native_sentence_index": 2,
+              "token_count": 26,
+              "id": "crossner-politics-test.txt:2",
+              "source_revision": "aa681e16e7d2bb6f5c82b154cf745ce3a0fa8a666cfeb8df0df71477379f69f9",
+              "language": "en",
+              "source": "CrossNER, Liu et al. (2021), politics",
+              "label_origin": "published-human-annotation",
+              "predicted": [
+                {
+                  "label": "person",
+                  "start": 0,
+                  "end": 12
+                },
+                {
+                  "label": "person",
+                  "start": 46,
+                  "end": 58
+                },
+                {
+                  "label": "organisation",
+                  "start": 62,
+                  "end": 70
+                },
+                {
+                  "label": "organisation",
+                  "start": 73,
+                  "end": 83
+                },
+                {
+                  "label": "organisation",
+                  "start": 104,
+                  "end": 112
+                },
+                {
+                  "label": "person",
+                  "start": 119,
+                  "end": 131
+                },
+                {
+                  "label": "organisation",
+                  "start": 135,
+                  "end": 140
+                }
+              ],
+              "elapsed_s": 0.0043759350082837045,
+              "metrics": {
+                "precision": 0.42857142857142855,
+                "recall": 0.75,
+                "f1": 0.5454545454545454,
+                "true_positives": 3,
+                "false_positives": 4,
+                "false_negatives": 1
+              }
+            },
+            {
+              "expected": [
+                {
+                  "label": "person",
+                  "start": 54,
+                  "end": 64
+                },
+                {
+                  "label": "person",
+                  "start": 67,
+                  "end": 77
+                },
+                {
+                  "label": "person",
+                  "start": 80,
+                  "end": 92
+                },
+                {
+                  "label": "person",
+                  "start": 99,
+                  "end": 116
+                }
+              ],
+              "unsupported_labels": [],
+              "source_locator": null,
+              "native_sentence_index": 3,
+              "token_count": 53,
+              "id": "crossner-politics-test.txt:3",
+              "source_revision": "d67cd6009614ae79276dca7c62b4b7d6290c3f418fb2ce67a11a2b608dc584b1",
+              "language": "en",
+              "source": "CrossNER, Liu et al. (2021), politics",
+              "label_origin": "published-human-annotation",
+              "predicted": [
+                {
+                  "label": "location",
+                  "start": 54,
+                  "end": 64
+                },
+                {
+                  "label": "person",
+                  "start": 67,
+                  "end": 77
+                },
+                {
+                  "label": "person",
+                  "start": 80,
+                  "end": 92
+                },
+                {
+                  "label": "person",
+                  "start": 99,
+                  "end": 116
+                }
+              ],
+              "elapsed_s": 0.007216232988866977,
+              "metrics": {
+                "precision": 0.75,
+                "recall": 0.75,
+                "f1": 0.75,
+                "true_positives": 3,
+                "false_positives": 1,
+                "false_negatives": 1
+              }
+            },
+            {
+              "expected": [
+                {
+                  "label": "person",
+                  "start": 0,
+                  "end": 8
+                },
+                {
+                  "label": "organisation",
+                  "start": 47,
+                  "end": 75
+                },
+                {
+                  "label": "location",
+                  "start": 79,
+                  "end": 85
+                },
+                {
+                  "label": "location",
+                  "start": 112,
+                  "end": 119
+                },
+                {
+                  "label": "location",
+                  "start": 141,
+                  "end": 156
+                }
+              ],
+              "unsupported_labels": [],
+              "source_locator": null,
+              "native_sentence_index": 4,
+              "token_count": 27,
+              "id": "crossner-politics-test.txt:4",
+              "source_revision": "20b38b2096a63e6c36f1e4ae35b6b6c7a0c9ead5da1db51c68f0494e967ed8aa",
+              "language": "en",
+              "source": "CrossNER, Liu et al. (2021), politics",
+              "label_origin": "published-human-annotation",
+              "predicted": [
+                {
+                  "label": "organisation",
+                  "start": 47,
+                  "end": 75
+                },
+                {
+                  "label": "location",
+                  "start": 79,
+                  "end": 85
+                },
+                {
+                  "label": "location",
+                  "start": 112,
+                  "end": 119
+                },
+                {
+                  "label": "location",
+                  "start": 141,
+                  "end": 148
+                },
+                {
+                  "label": "location",
+                  "start": 149,
+                  "end": 156
+                }
+              ],
+              "elapsed_s": 0.004542916009086184,
+              "metrics": {
+                "precision": 0.6,
+                "recall": 0.6,
+                "f1": 0.6,
+                "true_positives": 3,
+                "false_positives": 2,
+                "false_negatives": 2
+              }
+            },
+            {
+              "expected": [
+                {
+                  "label": "person",
+                  "start": 0,
+                  "end": 14
+                },
+                {
+                  "label": "person",
+                  "start": 20,
+                  "end": 28
+                },
+                {
+                  "label": "person",
+                  "start": 37,
+                  "end": 54
+                },
+                {
+                  "label": "person",
+                  "start": 81,
+                  "end": 99
+                },
+                {
+                  "label": "person",
+                  "start": 126,
+                  "end": 144
+                }
+              ],
+              "unsupported_labels": [],
+              "source_locator": null,
+              "native_sentence_index": 5,
+              "token_count": 24,
+              "id": "crossner-politics-test.txt:5",
+              "source_revision": "5890d5cfc78bca26ec47c962aad37a76576f4320a7c9498114084554c607ad49",
+              "language": "en",
+              "source": "CrossNER, Liu et al. (2021), politics",
+              "label_origin": "published-human-annotation",
+              "predicted": [
+                {
+                  "label": "organisation",
+                  "start": 0,
+                  "end": 14
+                },
+                {
+                  "label": "person",
+                  "start": 20,
+                  "end": 28
+                },
+                {
+                  "label": "person",
+                  "start": 37,
+                  "end": 54
+                },
+                {
+                  "label": "person",
+                  "start": 81,
+                  "end": 99
+                },
+                {
+                  "label": "person",
+                  "start": 126,
+                  "end": 144
+                }
+              ],
+              "elapsed_s": 0.004163252990110777,
+              "metrics": {
+                "precision": 0.8,
+                "recall": 0.8,
+                "f1": 0.8000000000000002,
+                "true_positives": 4,
+                "false_positives": 1,
+                "false_negatives": 1
+              }
+            },
+            {
+              "expected": [
+                {
+                  "label": "person",
+                  "start": 8,
+                  "end": 13
+                },
+                {
+                  "label": "location",
+                  "start": 35,
+                  "end": 47
+                },
+                {
+                  "label": "location",
+                  "start": 58,
+                  "end": 70
+                },
+                {
+                  "label": "location",
+                  "start": 74,
+                  "end": 81
+                },
+                {
+                  "label": "location",
+                  "start": 107,
+                  "end": 117
+                },
+                {
+                  "label": "location",
+                  "start": 121,
+                  "end": 127
+                },
+                {
+                  "label": "location",
+                  "start": 142,
+                  "end": 161
+                }
+              ],
+              "unsupported_labels": [],
+              "source_locator": null,
+              "native_sentence_index": 7,
+              "token_count": 32,
+              "id": "crossner-politics-test.txt:7",
+              "source_revision": "7d30099b3b515913f0f568e9ae5cf2883779b045e2ba01d42238744c87ba2be8",
+              "language": "en",
+              "source": "CrossNER, Liu et al. (2021), politics",
+              "label_origin": "published-human-annotation",
+              "predicted": [
+                {
+                  "label": "location",
+                  "start": 31,
+                  "end": 47
+                },
+                {
+                  "label": "location",
+                  "start": 54,
+                  "end": 70
+                },
+                {
+                  "label": "organisation",
+                  "start": 107,
+                  "end": 117
+                },
+                {
+                  "label": "location",
+                  "start": 121,
+                  "end": 127
+                }
+              ],
+              "elapsed_s": 0.004564560003927909,
+              "metrics": {
+                "precision": 0.25,
+                "recall": 0.14285714285714285,
+                "f1": 0.18181818181818182,
+                "true_positives": 1,
+                "false_positives": 3,
+                "false_negatives": 6
+              }
+            },
+            {
+              "expected": [
+                {
+                  "label": "person",
+                  "start": 0,
+                  "end": 4
+                },
+                {
+                  "label": "location",
+                  "start": 26,
+                  "end": 38
+                },
+                {
+                  "label": "location",
+                  "start": 49,
+                  "end": 70
+                },
+                {
+                  "label": "location",
+                  "start": 75,
+                  "end": 87
+                },
+                {
+                  "label": "location",
+                  "start": 98,
+                  "end": 122
+                },
+                {
+                  "label": "location",
+                  "start": 138,
+                  "end": 142
+                },
+                {
+                  "label": "location",
+                  "start": 155,
+                  "end": 163
+                },
+                {
+                  "label": "location",
+                  "start": 184,
+                  "end": 190
+                }
+              ],
+              "unsupported_labels": [],
+              "source_locator": null,
+              "native_sentence_index": 10,
+              "token_count": 36,
+              "id": "crossner-politics-test.txt:10",
+              "source_revision": "d99cadb0e9de7085064675fe2e92d2bbdf75b66bff469b38398749439ae2068c",
+              "language": "en",
+              "source": "CrossNER, Liu et al. (2021), politics",
+              "label_origin": "published-human-annotation",
+              "predicted": [
+                {
+                  "label": "location",
+                  "start": 26,
+                  "end": 38
+                },
+                {
+                  "label": "location",
+                  "start": 45,
+                  "end": 70
+                },
+                {
+                  "label": "person",
+                  "start": 75,
+                  "end": 87
+                },
+                {
+                  "label": "location",
+                  "start": 94,
+                  "end": 122
+                },
+                {
+                  "label": "location",
+                  "start": 138,
+                  "end": 142
+                },
+                {
+                  "label": "location",
+                  "start": 184,
+                  "end": 190
+                }
+              ],
+              "elapsed_s": 0.004952974006300792,
+              "metrics": {
+                "precision": 0.5,
+                "recall": 0.375,
+                "f1": 0.42857142857142855,
+                "true_positives": 3,
+                "false_positives": 3,
+                "false_negatives": 5
+              }
+            },
+            {
+              "expected": [
+                {
+                  "label": "person",
+                  "start": 14,
+                  "end": 32
+                },
+                {
+                  "label": "person",
+                  "start": 42,
+                  "end": 55
+                },
+                {
+                  "label": "person",
+                  "start": 84,
+                  "end": 99
+                }
+              ],
+              "unsupported_labels": [],
+              "source_locator": null,
+              "native_sentence_index": 11,
+              "token_count": 21,
+              "id": "crossner-politics-test.txt:11",
+              "source_revision": "6f06eb7fe1cc9213dadb26cd51477d2e81c45a980e43d834a884a978f8de311e",
+              "language": "en",
+              "source": "CrossNER, Liu et al. (2021), politics",
+              "label_origin": "published-human-annotation",
+              "predicted": [
+                {
+                  "label": "person",
+                  "start": 14,
+                  "end": 32
+                },
+                {
+                  "label": "person",
+                  "start": 42,
+                  "end": 55
+                },
+                {
+                  "label": "person",
+                  "start": 84,
+                  "end": 99
+                }
+              ],
+              "elapsed_s": 0.0036909070040564984,
+              "metrics": {
+                "precision": 1.0,
+                "recall": 1.0,
+                "f1": 1.0,
+                "true_positives": 3,
+                "false_positives": 0,
+                "false_negatives": 0
+              }
+            },
+            {
+              "expected": [
+                {
+                  "label": "location",
+                  "start": 44,
+                  "end": 54
+                },
+                {
+                  "label": "location",
+                  "start": 72,
+                  "end": 87
+                },
+                {
+                  "label": "location",
+                  "start": 90,
+                  "end": 97
+                },
+                {
+                  "label": "location",
+                  "start": 104,
+                  "end": 120
+                }
+              ],
+              "unsupported_labels": [],
+              "source_locator": null,
+              "native_sentence_index": 12,
+              "token_count": 22,
+              "id": "crossner-politics-test.txt:12",
+              "source_revision": "245f9f05973e67ffe0ed7107d8e46b083aafc05378c6195ec3d97fb0c48c8b20",
+              "language": "en",
+              "source": "CrossNER, Liu et al. (2021), politics",
+              "label_origin": "published-human-annotation",
+              "predicted": [
+                {
+                  "label": "location",
+                  "start": 68,
+                  "end": 87
+                },
+                {
+                  "label": "person",
+                  "start": 90,
+                  "end": 97
+                },
+                {
+                  "label": "person",
+                  "start": 104,
+                  "end": 120
+                }
+              ],
+              "elapsed_s": 0.003644010008429177,
+              "metrics": {
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0,
+                "true_positives": 0,
+                "false_positives": 3,
+                "false_negatives": 4
+              }
+            },
+            {
+              "expected": [
+                {
+                  "label": "location",
+                  "start": 26,
+                  "end": 37
+                },
+                {
+                  "label": "location",
+                  "start": 43,
+                  "end": 50
+                },
+                {
+                  "label": "location",
+                  "start": 65,
+                  "end": 70
+                },
+                {
+                  "label": "location",
+                  "start": 103,
+                  "end": 109
+                },
+                {
+                  "label": "location",
+                  "start": 114,
+                  "end": 120
+                }
+              ],
+              "unsupported_labels": [],
+              "source_locator": null,
+              "native_sentence_index": 13,
+              "token_count": 22,
+              "id": "crossner-politics-test.txt:13",
+              "source_revision": "cda88be6f8785d6403f14bed75857569f1baf81daeaf7787b9437b0a56688d1a",
+              "language": "en",
+              "source": "CrossNER, Liu et al. (2021), politics",
+              "label_origin": "published-human-annotation",
+              "predicted": [
+                {
+                  "label": "location",
+                  "start": 26,
+                  "end": 37
+                },
+                {
+                  "label": "location",
+                  "start": 43,
+                  "end": 50
+                },
+                {
+                  "label": "location",
+                  "start": 65,
+                  "end": 70
+                },
+                {
+                  "label": "organisation",
+                  "start": 103,
+                  "end": 109
+                },
+                {
+                  "label": "location",
+                  "start": 114,
+                  "end": 120
+                }
+              ],
+              "elapsed_s": 0.0039914999942993745,
+              "metrics": {
+                "precision": 0.8,
+                "recall": 0.8,
+                "f1": 0.8000000000000002,
+                "true_positives": 4,
+                "false_positives": 1,
+                "false_negatives": 1
+              }
+            },
+            {
+              "expected": [
+                {
+                  "label": "location",
+                  "start": 55,
+                  "end": 65
+                },
+                {
+                  "label": "location",
+                  "start": 85,
+                  "end": 94
+                },
+                {
+                  "label": "location",
+                  "start": 97,
+                  "end": 106
+                },
+                {
+                  "label": "location",
+                  "start": 109,
+                  "end": 116
+                },
+                {
+                  "label": "location",
+                  "start": 119,
+                  "end": 124
+                },
+                {
+                  "label": "location",
+                  "start": 127,
+                  "end": 133
+                },
+                {
+                  "label": "location",
+                  "start": 136,
+                  "end": 141
+                },
+                {
+                  "label": "location",
+                  "start": 144,
+                  "end": 155
+                },
+                {
+                  "label": "location",
+                  "start": 158,
+                  "end": 164
+                },
+                {
+                  "label": "location",
+                  "start": 167,
+                  "end": 179
+                },
+                {
+                  "label": "location",
+                  "start": 186,
+                  "end": 198
+                },
+                {
+                  "label": "location",
+                  "start": 205,
+                  "end": 219
+                },
+                {
+                  "label": "location",
+                  "start": 230,
+                  "end": 243
+                }
+              ],
+              "unsupported_labels": [],
+              "source_locator": null,
+              "native_sentence_index": 16,
+              "token_count": 47,
+              "id": "crossner-politics-test.txt:16",
+              "source_revision": "b6993b54d52d3be1ca9d3b0e2ba99565b0223017eb569265c7942cb2c9c54b3f",
+              "language": "en",
+              "source": "CrossNER, Liu et al. (2021), politics",
+              "label_origin": "published-human-annotation",
+              "predicted": [
+                {
+                  "label": "location",
+                  "start": 55,
+                  "end": 65
+                },
+                {
+                  "label": "location",
+                  "start": 85,
+                  "end": 94
+                },
+                {
+                  "label": "location",
+                  "start": 97,
+                  "end": 106
+                },
+                {
+                  "label": "location",
+                  "start": 109,
+                  "end": 116
+                },
+                {
+                  "label": "location",
+                  "start": 119,
+                  "end": 124
+                },
+                {
+                  "label": "location",
+                  "start": 127,
+                  "end": 133
+                },
+                {
+                  "label": "location",
+                  "start": 136,
+                  "end": 141
+                },
+                {
+                  "label": "location",
+                  "start": 144,
+                  "end": 155
+                },
+                {
+                  "label": "location",
+                  "start": 158,
+                  "end": 164
+                },
+                {
+                  "label": "location",
+                  "start": 167,
+                  "end": 179
+                },
+                {
+                  "label": "location",
+                  "start": 182,
+                  "end": 198
+                },
+                {
+                  "label": "location",
+                  "start": 201,
+                  "end": 219
+                },
+                {
+                  "label": "location",
+                  "start": 226,
+                  "end": 243
+                }
+              ],
+              "elapsed_s": 0.006192223998368718,
+              "metrics": {
+                "precision": 0.7692307692307693,
+                "recall": 0.7692307692307693,
+                "f1": 0.7692307692307693,
+                "true_positives": 10,
+                "false_positives": 3,
+                "false_negatives": 3
+              }
+            },
+            {
+              "expected": [
+                {
+                  "label": "location",
+                  "start": 29,
+                  "end": 35
+                },
+                {
+                  "label": "location",
+                  "start": 54,
+                  "end": 61
+                },
+                {
+                  "label": "location",
+                  "start": 76,
+                  "end": 82
+                },
+                {
+                  "label": "location",
+                  "start": 99,
+                  "end": 106
+                },
+                {
+                  "label": "location",
+                  "start": 109,
+                  "end": 115
+                },
+                {
+                  "label": "location",
+                  "start": 118,
+                  "end": 123
+                },
+                {
+                  "label": "location",
+                  "start": 128,
+                  "end": 134
+                }
+              ],
+              "unsupported_labels": [],
+              "source_locator": null,
+              "native_sentence_index": 22,
+              "token_count": 27,
+              "id": "crossner-politics-test.txt:22",
+              "source_revision": "e6b0b59a46135609291757c357ecf9c1d9c6a8303396cf84505fee9aec9546fd",
+              "language": "en",
+              "source": "CrossNER, Liu et al. (2021), politics",
+              "label_origin": "published-human-annotation",
+              "predicted": [
+                {
+                  "label": "location",
+                  "start": 29,
+                  "end": 35
+                },
+                {
+                  "label": "location",
+                  "start": 54,
+                  "end": 61
+                },
+                {
+                  "label": "location",
+                  "start": 76,
+                  "end": 82
+                },
+                {
+                  "label": "location",
+                  "start": 99,
+                  "end": 106
+                },
+                {
+                  "label": "location",
+                  "start": 109,
+                  "end": 115
+                },
+                {
+                  "label": "location",
+                  "start": 118,
+                  "end": 123
+                },
+                {
+                  "label": "location",
+                  "start": 128,
+                  "end": 134
+                }
+              ],
+              "elapsed_s": 0.004506173994741403,
+              "metrics": {
+                "precision": 1.0,
+                "recall": 1.0,
+                "f1": 1.0,
+                "true_positives": 7,
+                "false_positives": 0,
+                "false_negatives": 0
+              }
+            },
+            {
+              "expected": [
+                {
+                  "label": "location",
+                  "start": 15,
+                  "end": 21
+                },
+                {
+                  "label": "person",
+                  "start": 28,
+                  "end": 35
+                },
+                {
+                  "label": "location",
+                  "start": 95,
+                  "end": 102
+                },
+                {
+                  "label": "location",
+                  "start": 105,
+                  "end": 113
+                },
+                {
+                  "label": "location",
+                  "start": 120,
+                  "end": 125
+                }
+              ],
+              "unsupported_labels": [],
+              "source_locator": null,
+              "native_sentence_index": 24,
+              "token_count": 20,
+              "id": "crossner-politics-test.txt:24",
+              "source_revision": "38b9968bf908c677bf188a15698aa1672a9320694f3a10052cb8464623919917",
+              "language": "en",
+              "source": "CrossNER, Liu et al. (2021), politics",
+              "label_origin": "published-human-annotation",
+              "predicted": [
+                {
+                  "label": "location",
+                  "start": 15,
+                  "end": 21
+                },
+                {
+                  "label": "person",
+                  "start": 28,
+                  "end": 35
+                },
+                {
+                  "label": "location",
+                  "start": 95,
+                  "end": 102
+                },
+                {
+                  "label": "location",
+                  "start": 105,
+                  "end": 113
+                },
+                {
+                  "label": "location",
+                  "start": 120,
+                  "end": 125
+                }
+              ],
+              "elapsed_s": 0.003971711004851386,
+              "metrics": {
+                "precision": 1.0,
+                "recall": 1.0,
+                "f1": 1.0,
+                "true_positives": 5,
+                "false_positives": 0,
+                "false_negatives": 0
+              }
+            },
+            {
+              "expected": [
+                {
+                  "label": "person",
+                  "start": 0,
+                  "end": 7
+                },
+                {
+                  "label": "location",
+                  "start": 86,
+                  "end": 92
+                },
+                {
+                  "label": "location",
+                  "start": 95,
+                  "end": 100
+                },
+                {
+                  "label": "location",
+                  "start": 103,
+                  "end": 109
+                },
+                {
+                  "label": "location",
+                  "start": 112,
+                  "end": 126
+                }
+              ],
+              "unsupported_labels": [],
+              "source_locator": null,
+              "native_sentence_index": 25,
+              "token_count": 22,
+              "id": "crossner-politics-test.txt:25",
+              "source_revision": "4c195be0d7c3be394fabe27343d1fbea610f44ecaa9b82a7ecbc632f11460ca8",
+              "language": "en",
+              "source": "CrossNER, Liu et al. (2021), politics",
+              "label_origin": "published-human-annotation",
+              "predicted": [
+                {
+                  "label": "person",
+                  "start": 0,
+                  "end": 7
+                },
+                {
+                  "label": "location",
+                  "start": 86,
+                  "end": 92
+                },
+                {
+                  "label": "location",
+                  "start": 95,
+                  "end": 100
+                },
+                {
+                  "label": "location",
+                  "start": 103,
+                  "end": 109
+                },
+                {
+                  "label": "location",
+                  "start": 112,
+                  "end": 126
+                }
+              ],
+              "elapsed_s": 0.003752933000214398,
+              "metrics": {
+                "precision": 1.0,
+                "recall": 1.0,
+                "f1": 1.0,
+                "true_positives": 5,
+                "false_positives": 0,
+                "false_negatives": 0
+              }
+            },
+            {
+              "expected": [
+                {
+                  "label": "location",
+                  "start": 25,
+                  "end": 36
+                },
+                {
+                  "label": "location",
+                  "start": 49,
+                  "end": 61
+                },
+                {
+                  "label": "location",
+                  "start": 64,
+                  "end": 72
+                },
+                {
+                  "label": "location",
+                  "start": 91,
+                  "end": 108
+                },
+                {
+                  "label": "location",
+                  "start": 137,
+                  "end": 143
+                },
+                {
+                  "label": "location",
+                  "start": 148,
+                  "end": 155
+                },
+                {
+                  "label": "location",
+                  "start": 159,
+                  "end": 166
+                },
+                {
+                  "label": "person",
+                  "start": 197,
+                  "end": 203
+                },
+                {
+                  "label": "person",
+                  "start": 216,
+                  "end": 237
+                },
+                {
+                  "label": "person",
+                  "start": 256,
+                  "end": 282
+                }
+              ],
+              "unsupported_labels": [],
+              "source_locator": null,
+              "native_sentence_index": 27,
+              "token_count": 54,
+              "id": "crossner-politics-test.txt:27",
+              "source_revision": "c95283f4dfc07ecdcd781bc2279949e78c861a9b7f3ca3b64c474cf92ab75142",
+              "language": "en",
+              "source": "CrossNER, Liu et al. (2021), politics",
+              "label_origin": "published-human-annotation",
+              "predicted": [
+                {
+                  "label": "organisation",
+                  "start": 0,
+                  "end": 8
+                },
+                {
+                  "label": "location",
+                  "start": 25,
+                  "end": 36
+                },
+                {
+                  "label": "person",
+                  "start": 49,
+                  "end": 55
+                },
+                {
+                  "label": "location",
+                  "start": 64,
+                  "end": 72
+                },
+                {
+                  "label": "location",
+                  "start": 137,
+                  "end": 143
+                },
+                {
+                  "label": "location",
+                  "start": 197,
+                  "end": 203
+                },
+                {
+                  "label": "person",
+                  "start": 216,
+                  "end": 237
+                },
+                {
+                  "label": "person",
+                  "start": 256,
+                  "end": 271
+                },
+                {
+                  "label": "location",
+                  "start": 275,
+                  "end": 282
+                }
+              ],
+              "elapsed_s": 0.006080223000026308,
+              "metrics": {
+                "precision": 0.4444444444444444,
+                "recall": 0.4,
+                "f1": 0.4210526315789474,
+                "true_positives": 4,
+                "false_positives": 5,
+                "false_negatives": 6
+              }
+            },
+            {
+              "expected": [
+                {
+                  "label": "person",
+                  "start": 21,
+                  "end": 27
+                },
+                {
+                  "label": "location",
+                  "start": 47,
+                  "end": 65
+                },
+                {
+                  "label": "location",
+                  "start": 68,
+                  "end": 83
+                },
+                {
+                  "label": "location",
+                  "start": 88,
+                  "end": 106
+                },
+                {
+                  "label": "location",
+                  "start": 194,
+                  "end": 199
+                },
+                {
+                  "label": "person",
+                  "start": 243,
+                  "end": 253
+                }
+              ],
+              "unsupported_labels": [],
+              "source_locator": null,
+              "native_sentence_index": 29,
+              "token_count": 49,
+              "id": "crossner-politics-test.txt:29",
+              "source_revision": "1e559431d8389be46fda48b1ee6227f45006e09b2c6983be606cafdc46d6fc5c",
+              "language": "en",
+              "source": "CrossNER, Liu et al. (2021), politics",
+              "label_origin": "published-human-annotation",
+              "predicted": [
+                {
+                  "label": "location",
+                  "start": 21,
+                  "end": 27
+                },
+                {
+                  "label": "organisation",
+                  "start": 47,
+                  "end": 65
+                },
+                {
+                  "label": "location",
+                  "start": 194,
+                  "end": 199
+                },
+                {
+                  "label": "person",
+                  "start": 243,
+                  "end": 253
+                }
+              ],
+              "elapsed_s": 0.006254929001443088,
+              "metrics": {
+                "precision": 0.5,
+                "recall": 0.3333333333333333,
+                "f1": 0.4,
+                "true_positives": 2,
+                "false_positives": 2,
+                "false_negatives": 4
+              }
+            },
+            {
+              "expected": [
+                {
+                  "label": "location",
+                  "start": 39,
+                  "end": 55
+                },
+                {
+                  "label": "location",
+                  "start": 58,
+                  "end": 73
+                },
+                {
+                  "label": "location",
+                  "start": 80,
+                  "end": 98
+                },
+                {
+                  "label": "location",
+                  "start": 108,
+                  "end": 123
+                }
+              ],
+              "unsupported_labels": [],
+              "source_locator": null,
+              "native_sentence_index": 30,
+              "token_count": 25,
+              "id": "crossner-politics-test.txt:30",
+              "source_revision": "886ee89a03eb6b0f4d418a363b1ff34040770075a87f977eb1d7778ced1ef686",
+              "language": "en",
+              "source": "CrossNER, Liu et al. (2021), politics",
+              "label_origin": "published-human-annotation",
+              "predicted": [
+                {
+                  "label": "location",
+                  "start": 35,
+                  "end": 48
+                },
+                {
+                  "label": "organisation",
+                  "start": 80,
+                  "end": 98
+                },
+                {
+                  "label": "location",
+                  "start": 117,
+                  "end": 123
+                }
+              ],
+              "elapsed_s": 0.0040037940052570775,
+              "metrics": {
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0,
+                "true_positives": 0,
+                "false_positives": 3,
+                "false_negatives": 4
+              }
+            },
+            {
+              "expected": [
+                {
+                  "label": "organisation",
+                  "start": 0,
+                  "end": 3
+                },
+                {
+                  "label": "location",
+                  "start": 29,
+                  "end": 41
+                },
+                {
+                  "label": "location",
+                  "start": 50,
+                  "end": 70
+                },
+                {
+                  "label": "location",
+                  "start": 73,
+                  "end": 76
+                },
+                {
+                  "label": "organisation",
+                  "start": 140,
+                  "end": 155
+                },
+                {
+                  "label": "location",
+                  "start": 168,
+                  "end": 173
+                }
+              ],
+              "unsupported_labels": [],
+              "source_locator": null,
+              "native_sentence_index": 33,
+              "token_count": 28,
+              "id": "crossner-politics-test.txt:33",
+              "source_revision": "534237ce8ed61e3a0fb007bd9a6e8580271e569a8741a9805a16ba551e90a9ec",
+              "language": "en",
+              "source": "CrossNER, Liu et al. (2021), politics",
+              "label_origin": "published-human-annotation",
+              "predicted": [
+                {
+                  "label": "organisation",
+                  "start": 0,
+                  "end": 3
+                },
+                {
+                  "label": "location",
+                  "start": 29,
+                  "end": 41
+                },
+                {
+                  "label": "location",
+                  "start": 46,
+                  "end": 70
+                },
+                {
+                  "label": "organisation",
+                  "start": 140,
+                  "end": 148
+                },
+                {
+                  "label": "location",
+                  "start": 168,
+                  "end": 173
+                }
+              ],
+              "elapsed_s": 0.0073486490000505,
+              "metrics": {
+                "precision": 0.6,
+                "recall": 0.5,
+                "f1": 0.5454545454545454,
+                "true_positives": 3,
+                "false_positives": 2,
+                "false_negatives": 3
+              }
+            },
+            {
+              "expected": [
+                {
+                  "label": "person",
+                  "start": 42,
+                  "end": 57
+                },
+                {
+                  "label": "organisation",
+                  "start": 68,
+                  "end": 76
+                },
+                {
+                  "label": "person",
+                  "start": 122,
+                  "end": 142
+                },
+                {
+                  "label": "location",
+                  "start": 188,
+                  "end": 192
+                },
+                {
+                  "label": "organisation",
+                  "start": 202,
+                  "end": 223
+                },
+                {
+                  "label": "person",
+                  "start": 240,
+                  "end": 257
+                },
+                {
+                  "label": "person",
+                  "start": 293,
+                  "end": 313
+                },
+                {
+                  "label": "person",
+                  "start": 325,
+                  "end": 333
+                },
+                {
+                  "label": "organisation",
+                  "start": 401,
+                  "end": 405
+                },
+                {
+                  "label": "organisation",
+                  "start": 418,
+                  "end": 432
+                }
+              ],
+              "unsupported_labels": [],
+              "source_locator": null,
+              "native_sentence_index": 34,
+              "token_count": 75,
+              "id": "crossner-politics-test.txt:34",
+              "source_revision": "1ecad4cfb16e4d72a95f9e38ba166691a5a427dcab2426ba626cf94e3c46ed09",
+              "language": "en",
+              "source": "CrossNER, Liu et al. (2021), politics",
+              "label_origin": "published-human-annotation",
+              "predicted": [
+                {
+                  "label": "person",
+                  "start": 42,
+                  "end": 57
+                },
+                {
+                  "label": "organisation",
+                  "start": 68,
+                  "end": 76
+                },
+                {
+                  "label": "person",
+                  "start": 122,
+                  "end": 142
+                },
+                {
+                  "label": "location",
+                  "start": 188,
+                  "end": 192
+                },
+                {
+                  "label": "organisation",
+                  "start": 198,
+                  "end": 223
+                },
+                {
+                  "label": "person",
+                  "start": 240,
+                  "end": 257
+                },
+                {
+                  "label": "person",
+                  "start": 293,
+                  "end": 313
+                },
+                {
+                  "label": "organisation",
+                  "start": 325,
+                  "end": 333
+                },
+                {
+                  "label": "organisation",
+                  "start": 418,
+                  "end": 432
+                }
+              ],
+              "elapsed_s": 0.013309175003087148,
+              "metrics": {
+                "precision": 0.7777777777777778,
+                "recall": 0.7,
+                "f1": 0.7368421052631577,
+                "true_positives": 7,
+                "false_positives": 2,
+                "false_negatives": 3
+              }
+            },
+            {
+              "expected": [
+                {
+                  "label": "organisation",
+                  "start": 32,
+                  "end": 58
+                },
+                {
+                  "label": "organisation",
+                  "start": 127,
+                  "end": 159
+                },
+                {
+                  "label": "organisation",
+                  "start": 201,
+                  "end": 222
+                }
+              ],
+              "unsupported_labels": [],
+              "source_locator": null,
+              "native_sentence_index": 35,
+              "token_count": 35,
+              "id": "crossner-politics-test.txt:35",
+              "source_revision": "611bc4ebecaf23f7f95888e99253c3c37c377eccd01774444ea38b0f8c00ab37",
+              "language": "en",
+              "source": "CrossNER, Liu et al. (2021), politics",
+              "label_origin": "published-human-annotation",
+              "predicted": [
+                {
+                  "label": "organisation",
+                  "start": 16,
+                  "end": 21
+                },
+                {
+                  "label": "organisation",
+                  "start": 32,
+                  "end": 45
+                },
+                {
+                  "label": "location",
+                  "start": 49,
+                  "end": 58
+                },
+                {
+                  "label": "organisation",
+                  "start": 127,
+                  "end": 159
+                },
+                {
+                  "label": "organisation",
+                  "start": 197,
+                  "end": 222
+                }
+              ],
+              "elapsed_s": 0.007026170991593972,
+              "metrics": {
+                "precision": 0.2,
+                "recall": 0.3333333333333333,
+                "f1": 0.25,
+                "true_positives": 1,
+                "false_positives": 4,
+                "false_negatives": 2
+              }
+            }
+          ],
+          "span_coordinate_system": "Unicode character offsets in space-joined original published tokens",
+          "default_changed": false,
+          "confidence_is_correctness": false
+        },
+        "operation": "ner-benchmark",
+        "elapsed_seconds": 2.7332490439875983,
+        "peak_process_tree_rss_bytes": 537710592,
+        "resource_limits": {
+          "timeout_s": 600,
+          "rss_bytes": 4294967296,
+          "threads": 2
+        },
+        "execution": "isolated-local-process",
+        "hosted_inference_used": false,
+        "remote_processing_used": false
+      },
+      "summary": {
+        "de": {
+          "n": 20,
+          "gold_spans": 41,
+          "predicted_spans": 31,
+          "correct_spans": 23,
+          "precision": 0.7419354838709677,
+          "recall": 0.5609756097560976,
+          "f1": 0.638888888888889,
+          "p50_s": 0.004381348000606522,
+          "p95_s": 0.005540061989449896
+        },
+        "en": {
+          "n": 20,
+          "gold_spans": 117,
+          "predicted_spans": 110,
+          "correct_spans": 71,
+          "precision": 0.6454545454545455,
+          "recall": 0.6068376068376068,
+          "f1": 0.6255506607929515,
+          "p50_s": 0.0045537380065070465,
+          "p95_s": 0.0073486490000505
+        }
+      }
+    },
+    "gliner2": {
+      "job": {
+        "status": "unavailable",
+        "failure_code": "optional_dependency_unavailable",
+        "failure_type": "ModuleNotFoundError",
+        "operation": "ner-benchmark",
+        "elapsed_seconds": 0.07745691899617668,
+        "peak_process_tree_rss_bytes": 21364736,
+        "resource_limits": {
+          "timeout_s": 600,
+          "rss_bytes": 4294967296,
+          "threads": 2
+        },
+        "execution": "isolated-local-process",
+        "hosted_inference_used": false,
+        "remote_processing_used": false
+      }
+    }
+  },
+  "decision": "Keep optional extraction backends opt-in; a small shared-ontology evaluation does not certify domain schema readiness."
+}

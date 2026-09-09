@@ -46,6 +46,9 @@ class ArticleNormalizer:
         preserve_paragraphs: bool = True,
         remove_extra_whitespace: bool = True,
         detect_language: bool = True,
+        language_backend: str = "langdetect",
+        lingua_languages: tuple[str, ...] = ("de", "en"),
+        language_confidence_threshold: float = 0.75,
         min_paragraph_length: int = 10,
     ):
         """
@@ -60,6 +63,11 @@ class ArticleNormalizer:
         self.preserve_paragraphs = preserve_paragraphs
         self.remove_extra_whitespace = remove_extra_whitespace
         self.detect_language = detect_language
+        if language_backend not in {"langdetect", "lingua"}:
+            raise ValueError("language_backend must be 'langdetect' or 'lingua'")
+        self.language_backend = language_backend
+        self.lingua_languages = tuple(lingua_languages)
+        self.language_confidence_threshold = float(language_confidence_threshold)
         self.min_paragraph_length = min_paragraph_length
         
         # Common patterns for cleaning
@@ -294,9 +302,37 @@ class ArticleNormalizer:
         result['char_count'] = len(content) if content else 0
         
         # Detect language if enabled
-        if self.detect_language and content and langdetect:
+        if self.detect_language and content and self.language_backend == "lingua":
+            try:
+                from services.rag.language_detection import detect_with_lingua
+
+                language = detect_with_lingua(
+                    content,
+                    languages=self.lingua_languages,
+                    confidence_threshold=self.language_confidence_threshold,
+                )
+                result['language'] = language['language']
+                result['language_detection'] = language
+            except Exception as e:
+                logger.debug(f"Lingua language detection failed: {e}")
+                result['language'] = 'unknown'
+                result['language_detection'] = {
+                    'backend': 'lingua',
+                    'language': 'unknown',
+                    'uncertain': True,
+                    'reason': type(e).__name__,
+                    'segments': [],
+                }
+        elif self.detect_language and content and langdetect:
             try:
                 result['language'] = langdetect.detect(content)
+                result['language_detection'] = {
+                    'backend': 'langdetect',
+                    'language': result['language'],
+                    'confidence': None,
+                    'uncertain': False,
+                    'segments': [],
+                }
             except Exception as e:
                 logger.debug(f"Language detection failed: {e}")
                 result['language'] = 'unknown'

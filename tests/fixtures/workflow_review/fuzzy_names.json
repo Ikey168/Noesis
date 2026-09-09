@@ -1,0 +1,10 @@
+[
+  {"id":"org-de-umlaut","entity_type":"organization","left":"Müller Forschung GmbH","right":"Mueller Forschung","same_entity":true},
+  {"id":"org-suffix","entity_type":"organization","left":"Acme Technologies AG","right":"Acme Technologies","same_entity":true},
+  {"id":"org-spacing","entity_type":"organization","left":"OpenAI","right":"Open AI","same_entity":true},
+  {"id":"person-initial","entity_type":"person","left":"G. Hinton","right":"Geoffrey Hinton","same_entity":true},
+  {"id":"person-hard-negative","entity_type":"person","left":"John Smith","right":"Jane Smith","same_entity":false},
+  {"id":"org-hard-negative","entity_type":"organization","left":"Berlin Energy Network GmbH","right":"Berlin Energy Research GmbH","same_entity":false},
+  {"id":"org-hard-negative-short","entity_type":"organization","left":"Müller Bank AG","right":"Müller Bau AG","same_entity":false},
+  {"id":"person-hard-negative-initial","entity_type":"person","left":"J. Müller","right":"K. Müller","same_entity":false}
+]

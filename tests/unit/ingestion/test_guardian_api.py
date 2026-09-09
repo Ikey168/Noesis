@@ -1,10 +1,12 @@
 import json
 from pathlib import Path
+
 import duckdb
+
+from src.ingestion.document_store import DocumentStore
 from src.ingestion.guardian_api import parameters, records
 from src.ingestion.source_pack_runtime import HTTPSPageAdapter
 from src.ingestion.source_packs import validate_source_pack
-from src.ingestion.document_store import DocumentStore
 
 
 def test_native_page_dates_identity_and_partial_coverage():
@@ -75,9 +77,9 @@ def test_three_acquisitions_keep_revisions_and_one_origin():
     }
     assert origins == {"guardian:world/2026/sep/01/a"}
     from src.osint.independence import (
+        origin_summary,
         record_document_signals,
         run_origin_inference,
-        origin_summary,
     )
 
     for doc in docs:
@@ -128,3 +130,25 @@ def test_explicit_preference_retains_partial_receipts_and_rejects_wrong_article(
         assert conn.execute("SELECT count(*) FROM documents").fetchone() == (2,)
     finally:
         conn.close()
+
+
+def test_recorded_native_fixture_maps_contributors_dates_and_cursor():
+    fixture = json.loads(Path("tests/fixtures/source_packs/guardian.json").read_text())
+    mapped, cursor = records(fixture["native_response"], limit=1)
+    assert cursor == "2"
+    assert mapped[0]["id"] == "world/2026/sep/01/example"
+    assert mapped[0]["authors"] == ["Fixture Author"]
+    assert mapped[0]["published_at"] == "2026-09-01T08:00:00Z"
+    assert mapped[0]["updated_at"] == "2026-09-01T09:00:00Z"
+    assert mapped[0]["body_html"] == "<p>Fixture content only.</p>"
+
+
+def test_guardian_source_pack_fixture_conformance_and_live_disabled():
+    from src.ingestion.source_packs import SourcePackConformance
+
+    manifest = json.loads(Path("config/source_packs/guardian.json").read_text())
+    conformance = SourcePackConformance(Path("."))
+    offline = conformance.offline(manifest)
+    assert offline["valid"] and offline["coverage"] == {"configured": 1, "verified": 1}
+    live = conformance.live(manifest, lambda source: {}, enabled=False)
+    assert live["status"] == "disabled" and live["requests"] == 0

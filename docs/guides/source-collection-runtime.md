@@ -16,7 +16,7 @@ Optional extruct parses already-fetched structured metadata. Matching article UR
 
 `PaperConnector.discover` also accepts `{ "topic": "climate", "author": "Example", "from_date": "2024-01-01", "to_date": "2024-12-31", "limit": 20, "max_pages": 3 }`. Existing ID calls continue to work, including explicit version suffixes. Full-text acquisition is opt-in through `FullTextAcquirer` with a SnapshotStore and explicit allowed hosts; failed/empty parsing never upgrades abstract coverage. `resolve_unpaywall` requires an explicit contact address and preserves absent/unknown license information.
 
-`WebsiteFrontier` persists a configured domain/source/seed and bounded crawl state in SQLite. Reopen with the same configuration to resume pending URLs; completed URLs are not refetched. A crash during an uncommitted fetch may repeat that fetch. The caller owns and closes the frontier connection. `BraveDiscovery` returns acquisition candidates only and requires an API key plus an explicit per-request price and total ceiling; integration with persistent planner reservations is still pending.
+`WebsiteFrontier` persists a configured domain/source/seed and bounded crawl state in SQLite. Reopen with the same configuration to resume pending URLs; completed URLs are not refetched. A crash during an uncommitted fetch may repeat that fetch. The caller owns and closes the frontier connection. `BraveDiscovery` returns acquisition candidates only and requires an API key plus an explicit per-request price and total ceiling; `discover_for_project` reserves request and USD ceilings in the persistent project ledger.
 
 The `guardian-news` source pack requires `NOESIS_GUARDIAN_API_KEY` and explicit acceptance of the provider's access/license terms through the existing runtime. No key is bundled. API paging and the legacy aggregator share the same normalization functions. Canonical article origins do not discard acquisition receipts or distinct content revisions.
 
@@ -29,3 +29,8 @@ Use `python scripts/discover_website.py --state ./website.sqlite --domain resear
 Guardian callers can use `guardian_api.collect_with_preference(url, fetchers, preference=('api', 'rss', 'html'), store=document_store)`. Each fetcher returns the normal document mapping. The collector stores partial representations before trying the next configured route, accepts full text only when explicitly labelled, and rejects a response identifying a different article. Returned attempts make unavailable, failed, partial and complete routes visible. API/RSS/HTML records retain separate revisions while origin inference uses stable Guardian article identity.
 
 The research pack is now version 1.1.0 so existing installations can upgrade its changed authentication declarations without violating immutable pack versions.
+
+The [archive and discovery acquisition guide](archive-and-discovery-acquisition.md)
+documents the new candidate-to-document handoff, public OpenReview source pack,
+optional WARC/ARC exchange, Wayback capture acquisition, and attributable Wikidata
+statement acquisition. Use `acquire_candidates` to send discovered URLs into normal page extraction and storage.

@@ -1,0 +1,26 @@
+[
+  {
+    "id": "unsupported-citation",
+    "claim": "The cited regulation requires a permit.",
+    "evidence": "The regulation discusses reporting but contains no permit requirement.",
+    "support_label": "insufficient",
+    "relevance": "relevant-topic-not-supporting",
+    "label_origin": "fixture-only"
+  },
+  {
+    "id": "contradiction",
+    "claim": "The deadline is 1 June.",
+    "evidence": "The corrected notice states that the deadline is 15 June, not 1 June.",
+    "support_label": "contradicted",
+    "relevance": "direct",
+    "label_origin": "fixture-only"
+  },
+  {
+    "id": "appropriate-refusal",
+    "claim": "State the unpublished result.",
+    "evidence": "No authorized evidence is available.",
+    "support_label": "refusal",
+    "relevance": "none",
+    "label_origin": "fixture-only"
+  }
+]

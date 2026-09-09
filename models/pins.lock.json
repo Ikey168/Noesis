@@ -16,5 +16,61 @@
       "frames (#955)",
       "claim links (#964)"
     ]
+  },
+  "optional:bge-m3": {
+    "model": "BAAI/bge-m3",
+    "requested_revision": "5617a9f61b028005a4858fdac845db406aefb181",
+    "resolved_revision": "5617a9f61b028005a4858fdac845db406aefb181",
+    "serves": [
+      "opt-in evaluation"
+    ]
+  },
+  "optional:e5": {
+    "model": "intfloat/multilingual-e5-small",
+    "requested_revision": "614241f622f53c4eeff9890bdc4f31cfecc418b3",
+    "resolved_revision": "614241f622f53c4eeff9890bdc4f31cfecc418b3",
+    "serves": [
+      "opt-in evaluation"
+    ]
+  },
+  "optional:mdeberta": {
+    "model": "MoritzLaurer/mDeBERTa-v3-base-mnli-xnli",
+    "requested_revision": "8adb042d524ecd5c26d3e3ba0e3fbcf7e2d0864c",
+    "resolved_revision": "8adb042d524ecd5c26d3e3ba0e3fbcf7e2d0864c",
+    "serves": [
+      "opt-in evaluation"
+    ]
+  },
+  "optional:minilm-reranker": {
+    "model": "cross-encoder/ms-marco-MiniLM-L6-v2",
+    "requested_revision": "233902d25c440f23af6f7d6e94d2946bac0bee0a",
+    "resolved_revision": "233902d25c440f23af6f7d6e94d2946bac0bee0a",
+    "serves": [
+      "opt-in evaluation"
+    ]
+  },
+  "optional:paddle-det": {
+    "model": "PaddlePaddle/PP-OCRv5_mobile_det",
+    "requested_revision": "0d63e78e2b680928f6b1747d76a08db6e645efb7",
+    "resolved_revision": "0d63e78e2b680928f6b1747d76a08db6e645efb7",
+    "serves": [
+      "opt-in evaluation"
+    ]
+  },
+  "optional:paddle-latin": {
+    "model": "PaddlePaddle/latin_PP-OCRv5_mobile_rec",
+    "requested_revision": "ab2cd5cc5fa6309be2e5acdfe66eca2c2c127d57",
+    "resolved_revision": "ab2cd5cc5fa6309be2e5acdfe66eca2c2c127d57",
+    "serves": [
+      "opt-in evaluation"
+    ]
+  },
+  "optional:proposal": {
+    "model": "HuggingFaceTB/SmolLM2-135M-Instruct",
+    "requested_revision": "12fd25f77366fa6b3b4b768ec3050bf629380bac",
+    "resolved_revision": "12fd25f77366fa6b3b4b768ec3050bf629380bac",
+    "serves": [
+      "opt-in evaluation"
+    ]
   }
 }

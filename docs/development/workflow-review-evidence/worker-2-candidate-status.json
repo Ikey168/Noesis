@@ -1,0 +1,239 @@
+{
+  "candidates": [
+    {
+      "candidate": "splink",
+      "dependency": {
+        "distribution": "splink",
+        "import_name": "splink",
+        "status": "unavailable",
+        "version": null
+      },
+      "issue": 1492,
+      "production_default_changed": false,
+      "status": "unavailable"
+    },
+    {
+      "candidate": "fastino/gliner2-multi-v1",
+      "dependency": {
+        "distribution": "gliner2",
+        "import_name": "gliner2",
+        "status": "unavailable",
+        "version": null
+      },
+      "issue": 1493,
+      "kind": "entity-extraction",
+      "notes": [
+        "schema-driven adapter; German coverage must be measured"
+      ],
+      "production_default_changed": false,
+      "revision": "model-card-revision-required-at-live-run",
+      "status": "unavailable"
+    },
+    {
+      "candidate": "presidio-analyzer",
+      "dependency": {
+        "distribution": "presidio-analyzer",
+        "import_name": "presidio_analyzer",
+        "status": "unavailable",
+        "version": null
+      },
+      "issue": 1494,
+      "production_default_changed": false,
+      "status": "unavailable"
+    },
+    {
+      "candidate": "ragas",
+      "dependency": {
+        "distribution": "ragas",
+        "import_name": "ragas",
+        "status": "unavailable",
+        "version": null
+      },
+      "issue": 1499,
+      "production_default_changed": false,
+      "status": "unavailable"
+    },
+    {
+      "candidate": "arize-phoenix",
+      "dependency": {
+        "distribution": "arize-phoenix",
+        "import_name": "phoenix",
+        "status": "unavailable",
+        "version": null
+      },
+      "issue": 1500,
+      "production_default_changed": false,
+      "status": "unavailable"
+    },
+    {
+      "candidate": "intfloat/multilingual-e5-small",
+      "dependency": {
+        "distribution": "sentence-transformers",
+        "import_name": "sentence_transformers",
+        "status": "unavailable",
+        "version": null
+      },
+      "issue": 1504,
+      "kind": "embedding",
+      "notes": [
+        "query: and passage: prefixes required",
+        "isolated versioned index required"
+      ],
+      "production_default_changed": false,
+      "revision": "model-card-revision-required-at-live-run",
+      "status": "unavailable"
+    },
+    {
+      "candidate": "BAAI/bge-m3",
+      "dependency": {
+        "distribution": "FlagEmbedding",
+        "import_name": "FlagEmbedding",
+        "status": "unavailable",
+        "version": null
+      },
+      "issue": 1505,
+      "kind": "dense-sparse-multivector",
+      "notes": [
+        "multi-vector storage is not assumed"
+      ],
+      "production_default_changed": false,
+      "revision": "model-card-revision-required-at-live-run",
+      "status": "unavailable"
+    },
+    {
+      "candidate": "Qwen/Qwen3-Reranker-0.6B",
+      "dependency": {
+        "distribution": "transformers",
+        "import_name": "transformers",
+        "status": "unavailable",
+        "version": null
+      },
+      "issue": 1506,
+      "kind": "reranker",
+      "notes": [
+        "dedicated yes/no relevance template required"
+      ],
+      "production_default_changed": false,
+      "revision": "model-card-revision-required-at-live-run",
+      "status": "unavailable"
+    },
+    {
+      "candidate": "MoritzLaurer/mDeBERTa-v3-base-mnli-xnli",
+      "dependency": {
+        "distribution": "transformers",
+        "import_name": "transformers",
+        "status": "unavailable",
+        "version": null
+      },
+      "issue": 1507,
+      "kind": "nli",
+      "notes": [
+        "premise/hypothesis and id2label must be verified"
+      ],
+      "production_default_changed": false,
+      "revision": "model-card-revision-required-at-live-run",
+      "status": "unavailable"
+    },
+    {
+      "candidate": "lightonai/LightOnOCR-2-1B",
+      "dependency": {
+        "distribution": "transformers",
+        "import_name": "transformers",
+        "status": "unavailable",
+        "version": null
+      },
+      "issue": 1508,
+      "kind": "ocr",
+      "notes": [
+        "page identity retained; bbox image boxes are not text coordinates"
+      ],
+      "production_default_changed": false,
+      "revision": "model-card-revision-required-at-live-run",
+      "status": "unavailable"
+    },
+    {
+      "candidate": "wtpsplit",
+      "dependency": {
+        "distribution": "wtpsplit",
+        "import_name": "wtpsplit",
+        "status": "unavailable",
+        "version": null
+      },
+      "issue": 1509,
+      "production_default_changed": false,
+      "status": "unavailable"
+    },
+    {
+      "candidate": "lingua-language-detector",
+      "dependency": {
+        "distribution": "lingua-language-detector",
+        "import_name": "lingua",
+        "status": "unavailable",
+        "version": null
+      },
+      "issue": 1510,
+      "production_default_changed": false,
+      "status": "unavailable"
+    },
+    {
+      "candidate": "rapidfuzz",
+      "dependency": {
+        "distribution": "rapidfuzz",
+        "import_name": "rapidfuzz",
+        "status": "available",
+        "version": "3.14.3"
+      },
+      "issue": 1511,
+      "production_default_changed": false,
+      "status": "ready_for_opt_in_run"
+    },
+    {
+      "candidate": "datasketch",
+      "dependency": {
+        "distribution": "datasketch",
+        "import_name": "datasketch",
+        "status": "unavailable",
+        "version": null
+      },
+      "issue": 1512,
+      "production_default_changed": false,
+      "status": "unavailable"
+    },
+    {
+      "candidate": "whisperx",
+      "dependency": {
+        "distribution": "whisperx",
+        "import_name": "whisperx",
+        "status": "unavailable",
+        "version": null
+      },
+      "issue": 1514,
+      "production_default_changed": false,
+      "status": "unavailable"
+    },
+    {
+      "candidate": "outlines",
+      "dependency": {
+        "distribution": "outlines",
+        "import_name": "outlines",
+        "status": "unavailable",
+        "version": null
+      },
+      "issue": 1520,
+      "production_default_changed": false,
+      "status": "unavailable"
+    }
+  ],
+  "claims": {
+    "independent_human_labels_collected_by_this_script": false,
+    "live_benchmarks_run": false,
+    "paid_provider_results": false
+  },
+  "contract": "noesis-workflow-review-candidate-status-v1",
+  "human_evaluation": {
+    "declared_status": "not_collected",
+    "path": "data/argument_mining/human_eval/status.json",
+    "reason": "independent_human_labels_not_collected",
+    "status": "unavailable"
+  }
+}

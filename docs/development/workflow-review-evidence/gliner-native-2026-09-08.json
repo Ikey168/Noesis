@@ -1,0 +1,137 @@
+{
+  "execution": "real-bounded-native-worker",
+  "network": "offline environment; cached pinned weights",
+  "input_fixture": "tests/fixtures/workflow_review/gliner2_native_schema.json",
+  "input_fixture_sha256": "01b32e7ce9e972f0040ca539592ac18f5c13ee6f343877c58696172b6fc3439d",
+  "independent_human_evaluation": false,
+  "result": {
+    "status": "completed",
+    "result": {
+      "contract": "noesis-extractor-spans-v1",
+      "source_id": "authored-native-smoke",
+      "source_revision": "v1",
+      "language": "de",
+      "model": "fastino/gliner2-multi-v1",
+      "model_revision": "c6296e25603e4d31f68ef8a9f4edb73421d1e45a",
+      "entities": [
+        {
+          "label": "authority",
+          "text": "Europäische Kommission",
+          "start": 4,
+          "end": 26,
+          "confidence": 0.9996525049209595,
+          "confidence_is_correctness": false
+        },
+        {
+          "label": "funding_programme",
+          "text": "Horizont Europa",
+          "start": 48,
+          "end": 63,
+          "confidence": 0.9912747144699097,
+          "confidence_is_correctness": false
+        },
+        {
+          "label": "organisation",
+          "text": "Universität Berlin",
+          "start": 69,
+          "end": 87,
+          "confidence": 0.9981949925422668,
+          "confidence_is_correctness": false
+        }
+      ],
+      "unsupported": [],
+      "relations": [
+        {
+          "label": "funds",
+          "native_label": "funds: Funding authority explicitly funds an organisation or programme",
+          "head": {
+            "text": "Europäische Kommission",
+            "start": 4,
+            "end": 26,
+            "confidence": 0.9978753328323364,
+            "confidence_is_correctness": false
+          },
+          "tail": {
+            "text": "Horizont Europa",
+            "start": 48,
+            "end": 63,
+            "confidence": 0.7869108319282532,
+            "confidence_is_correctness": false
+          },
+          "support_verified": false
+        }
+      ],
+      "structures": {
+        "award": [
+          {
+            "programme": {
+              "text": "Horizont Europa",
+              "start": 48,
+              "end": 63,
+              "confidence": 0.9913722276687622,
+              "confidence_is_correctness": false
+            },
+            "beneficiary": {
+              "text": "Universität Berlin",
+              "start": 69,
+              "end": 87,
+              "confidence": 0.9973456263542175,
+              "confidence_is_correctness": false
+            },
+            "amount": {
+              "text": "2 Millionen Euro",
+              "start": 95,
+              "end": 111,
+              "confidence": 0.9968597888946533,
+              "confidence_is_correctness": false
+            }
+          }
+        ]
+      },
+      "missing_fields": [],
+      "missing_structures": [],
+      "threshold": 0.5,
+      "support_verified": false,
+      "schema_sha256": "20735df78d9358bcaeb12b33650a3a19f9747bf2423a8d27a1e2bac39384c75f",
+      "schema": {
+        "entities": {
+          "authority": "Funding authority",
+          "funding_programme": "Named EU funding programme",
+          "organisation": "Beneficiary organisation"
+        },
+        "relations": {
+          "funds": "Funding authority explicitly funds an organisation or programme"
+        },
+        "structures": {
+          "award": {
+            "programme": {
+              "dtype": "str",
+              "description": "Funding programme"
+            },
+            "beneficiary": {
+              "dtype": "str",
+              "description": "Beneficiary name"
+            },
+            "amount": {
+              "dtype": "str",
+              "description": "Explicit award amount including currency"
+            }
+          }
+        }
+      },
+      "source_text_sha256": "7cf34e65424f28f0455f119daf1d6a7e97b5b34b909e174151a1cada43522230",
+      "structured_contract": "noesis-gliner-structured-spans-v1"
+    },
+    "operation": "gliner2",
+    "elapsed_seconds": 80.78390876800404,
+    "peak_process_tree_rss_bytes": 2997657600,
+    "resource_limits": {
+      "timeout_s": 120,
+      "rss_bytes": 6442450944,
+      "threads": 2
+    },
+    "execution": "isolated-local-process",
+    "hosted_inference_used": false,
+    "remote_processing_used": false
+  }
+}

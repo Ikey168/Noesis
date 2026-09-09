@@ -1,0 +1,98 @@
+{
+  "schema": "noesis-pint-evaluation-v1",
+  "python": "3.14.6",
+  "pint": "0.25.2",
+  "fixture_kind": "synthetic independently specified arithmetic references; not human quality labels",
+  "results": [
+    {
+      "backend": "native",
+      "checks": [
+        {
+          "case": "Berlin distance",
+          "expected": "1234.567500",
+          "actual": "1234.567500",
+          "passed": true
+        },
+        {
+          "case": "Freezing water",
+          "expected": "273.150000",
+          "actual": "273.150000",
+          "passed": true
+        },
+        {
+          "case": "Kelvin offset",
+          "expected": "0.000000",
+          "actual": "0.000000",
+          "passed": true
+        },
+        {
+          "case": "Survey share",
+          "expected": "0.125000",
+          "actual": "0.125000",
+          "passed": true
+        },
+        {
+          "case": "Duration",
+          "expected": "1200.000000",
+          "actual": "1200.000000",
+          "passed": true
+        },
+        {
+          "case": "Mass",
+          "expected": "1.000000",
+          "actual": "1.000000",
+          "passed": true
+        }
+      ],
+      "first_call_ms": 5.642963020363823,
+      "median_warm_ms": 2.6974509964929894,
+      "calls": 120
+    },
+    {
+      "backend": "pint",
+      "checks": [
+        {
+          "case": "Berlin distance",
+          "expected": "1234.567500",
+          "actual": "1234.567500",
+          "passed": true
+        },
+        {
+          "case": "Freezing water",
+          "expected": "273.150000",
+          "actual": "273.150000",
+          "passed": true
+        },
+        {
+          "case": "Kelvin offset",
+          "expected": "0.000000",
+          "actual": "0.000000",
+          "passed": true
+        },
+        {
+          "case": "Survey share",
+          "expected": "0.125000",
+          "actual": "0.125000",
+          "passed": true
+        },
+        {
+          "case": "Duration",
+          "expected": "1200.000000",
+          "actual": "1200.000000",
+          "passed": true
+        },
+        {
+          "case": "Mass",
+          "expected": "1.000000",
+          "actual": "1.000000",
+          "passed": true
+        }
+      ],
+      "first_call_ms": 56.65454000700265,
+      "median_warm_ms": 2.849158991011791,
+      "calls": 120
+    }
+  ],
+  "process_peak_rss_kib": 217220,
+  "decision": "defer default adoption: exact conversion parity on six cases; added dependency and cold-start cost; optional compound-dimension utility only"
+}

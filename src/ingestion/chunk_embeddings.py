@@ -112,7 +112,8 @@ def embed_document_chunks(conn, provider, *, document_ids=None, limit=100, max_t
 def search_document_chunks(conn, query, provider, *, top_k=10, document_ids=None):
     if provider.count_tokens(query) > provider.token_limit():
         raise ValueError("query exceeds the configured tokenizer limit")
-    matrix = list(islice(iter(provider.embed_texts([query])), 2))
+    encode_query = getattr(provider, "embed_queries", provider.embed_texts)
+    matrix = list(islice(iter(encode_query([query])), 2))
     if len(matrix) != 1:
         raise ValueError("query provider returned an incorrect vector count")
     vector = [float(value) for value in matrix[0]]

@@ -164,7 +164,44 @@
         "Beta",
         "24"
       ],
-      "references": []
+      "references": [],
+      "tables": [
+        {
+          "page": 1,
+          "cells": [
+            {
+              "row": 0,
+              "col": 0,
+              "text": "Group"
+            },
+            {
+              "row": 0,
+              "col": 1,
+              "text": "Count"
+            },
+            {
+              "row": 1,
+              "col": 0,
+              "text": "Alpha"
+            },
+            {
+              "row": 1,
+              "col": 1,
+              "text": "12"
+            },
+            {
+              "row": 2,
+              "col": 0,
+              "text": "Beta"
+            },
+            {
+              "row": 2,
+              "col": 1,
+              "text": "24"
+            }
+          ]
+        }
+      ]
     },
     {
       "path": "tests/fixtures/pdf_benchmark/bibliography.pdf",

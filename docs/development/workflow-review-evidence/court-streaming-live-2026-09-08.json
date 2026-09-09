@@ -1,0 +1,914 @@
+{
+  "contract": "noesis-court-streaming-evaluation-v1",
+  "documents": [
+    {
+      "automatic_identity_merge": false,
+      "contract": "noesis-regional-acquisition-v1",
+      "cursor": {},
+      "namespace": "law",
+      "native_result": [
+        {
+          "contract": "noesis-native-regional-v1",
+          "provider": "german-courts",
+          "provider_id": "JURE100054597",
+          "kind": "court-decision",
+          "title": "JURE100054597",
+          "source_url": "https://www.rechtsprechung-im-internet.de/jportal/docs/bsjrs/jb-JURE100054597.xml",
+          "language": "de",
+          "published_at": "2010-01-08",
+          "updated_at": null,
+          "fields": {
+            "court": "BVerwG 9. Senat",
+            "docket_number": "9 B 3/09",
+            "ecli": null,
+            "decision_date": "2010-01-08",
+            "decision_type": "Beschluss",
+            "cited_norms": "",
+            "prior_instances": "vorgehend Oberverwaltungsgericht des Landes Sachsen-Anhalt, 2. September 2008, Az: 4 L 572/04, Urteil"
+          },
+          "missing_fields": [
+            "cited_norms",
+            "ecli"
+          ],
+          "sections": [
+            {
+              "text": "Die Beschwerde des Kl\u00e4gers gegen die Nichtzulassung der Revision in dem Urteil des Oberverwaltungsgerichts des Landes Sachsen-Anhalt vom 2. September 2008 wird verworfen.",
+              "locator": {
+                "kind": "xml-path",
+                "path": "/dokument[1]/tenor[1]/div[1]/dl[2]/dd[1]/p[1]",
+                "id": null
+              }
+            },
+            {
+              "text": "Der Kl\u00e4ger tr\u00e4gt die Kosten des Beschwerdeverfahrens.",
+              "locator": {
+                "kind": "xml-path",
+                "path": "/dokument[1]/tenor[1]/div[1]/dl[4]/dd[1]/p[1]",
+                "id": null
+              }
+            },
+            {
+              "text": "Der Wert des Streitgegenstandes wird f\u00fcr das Beschwerdeverfahren auf 1 852,82 \u20ac festgesetzt.",
+              "locator": {
+                "kind": "xml-path",
+                "path": "/dokument[1]/tenor[1]/div[1]/dl[6]/dd[1]/p[1]",
+                "id": null
+              }
+            },
+            {
+              "text": "Die Beschwerde ist als unzul\u00e4ssig zu verwerfen. Sie ist nicht innerhalb von zwei Monaten nach der Zustellung des vollst\u00e4ndigen Urteils, das der Kl\u00e4ger angreift, begr\u00fcndet worden (\u00a7 133 Abs. 3 Satz 1 und 2 VwGO). Die Beschwerdebegr\u00fcndung ist am letzten Tag der Begr\u00fcndungsfrist entgegen \u00a7 133 Abs. 3 Satz 2 VwGO und der zutreffenden Rechtsmittelbelehrung des angefochtenen Urteils nicht bei dem Oberverwaltungsgericht, sondern per Telefax beim Bundesverwaltungsgericht eingereicht worden. Erst am Folgetag - also nach Ablauf der Beschwerdebegr\u00fcndungsfrist und damit versp\u00e4tet - wurde die Beschwerdebegr\u00fcndung an das Oberverwaltungsgericht \u00fcbermittelt.",
+              "locator": {
+                "kind": "xml-path",
+                "path": "/dokument[1]/gruende[1]/div[1]/dl[2]/dd[1]/p[1]",
+                "id": null,
+                "paragraph_number": "1"
+              }
+            },
+            {
+              "text": "Dem Kl\u00e4ger ist keine Wiedereinsetzung in die vers\u00e4umte Beschwerdebegr\u00fcndungsfrist zu gew\u00e4hren (\u00a7 60 Abs. 1 VwGO).",
+              "locator": {
+                "kind": "xml-path",
+                "path": "/dokument[1]/gruende[1]/div[1]/dl[4]/dd[1]/p[1]",
+                "id": null,
+                "paragraph_number": "2"
+              }
+            },
+            {
+              "text": "Der Kl\u00e4ger tr\u00e4gt hierzu vor: Sein Prozessbevollm\u00e4chtigter habe den Entwurf der Beschwerdebegr\u00fcndung am Nachmittag des letzten Tages der Begr\u00fcndungsfrist zu Ende diktiert. Eine Kanzleimitarbeiterin habe bei der maschinenschriftlichen Anfertigung des Schriftsatzes versehentlich die aufgrund eines vorangegangenen Revisionsverfahrens des Kl\u00e4gers (BVerwG 9 C 5.06) im Rechner gespeicherte Anschrift und Telefaxnummer des Bundesverwaltungsgerichts eingef\u00fcgt. Sein Prozessbevollm\u00e4chtigter habe dieses Versehen nach der Unterzeichnung des Schriftsatzes bemerkt und angeordnet, dass der Schriftsatz an das Oberverwaltungsgericht zu richten und \u201edas Deckblatt\u201c (die Seite 1) entsprechend ausgetauscht werden m\u00fcsse. Die angewiesene Kanzleiangestellte habe die Seite auch abge\u00e4ndert, ausgedruckt und in die Akte \u201eauf den Schriftsatz\u201c bzw. \u201ezu dem Schriftsatz\u201c gelegt. Anschlie\u00dfend habe sie die Kanzlei verlassen. Es sei dann Aufgabe einer anderen Mitarbeiterin gewesen, den Schriftsatz per Telefax zu \u00fcbermitteln und die Frist zu kontrollieren. Das fehlerhafte \u201eDeckblatt\u201c sei aber nicht ausgewechselt gewesen. Diese zweite Mitarbeiterin habe die verschiedenen Anschriften nicht bemerkt, \u201eso dass das urspr\u00fcngliche Exemplar \u2026 versehentlich an das Bundesverwaltungsgericht gefaxt\u201c worden sei. Anschlie\u00dfend habe sie dem Prozessbevollm\u00e4chtigten best\u00e4tigt, dass der \u00dcbermittlungsvorgang technisch ordnungsgem\u00e4\u00df verlaufen sei. Erst am Folgetag sei festgestellt worden, dass die fehlerhafte Seite nicht ausgewechselt und der Schriftsatz mit dem fehlerhaften \u201eDeckblatt\u201c gefaxt worden war und die korrigierte Seite noch \u201ehierneben in der Akte\u201c lag.",
+              "locator": {
+                "kind": "xml-path",
+                "path": "/dokument[1]/gruende[1]/div[1]/dl[6]/dd[1]/p[1]",
+                "id": null,
+                "paragraph_number": "3"
+              }
+            },
+            {
+              "text": "Bei diesem Sachverhalt kann der Antrag auf Wiedereinsetzung in den vorigen Stand keinen Erfolg haben, weil der Kl\u00e4ger nicht ohne Verschulden gehindert war, die Beschwerdebegr\u00fcndungsfrist einzuhalten. Ein Verschulden i.S.v. \u00a7 60 Abs. 1 VwGO liegt vor, wenn der Betroffene diejenige Sorgfalt au\u00dfer Acht l\u00e4sst, die f\u00fcr einen gewissenhaften und seine Rechte und Pflichten sachgem\u00e4\u00df wahrnehmenden Prozessf\u00fchrenden im Hinblick auf die Fristwahrung geboten ist und ihm nach den gesamten Umst\u00e4nden des konkreten Falls zuzumuten war. Dabei ist ihm ein Verschulden seines Prozessbevollm\u00e4chtigen zuzurechnen (\u00a7 173 VwGO i.V.m. \u00a7 85 Abs. 2 ZPO).",
+              "locator": {
+                "kind": "xml-path",
+                "path": "/dokument[1]/gruende[1]/div[1]/dl[8]/dd[1]/p[1]",
+                "id": null,
+                "paragraph_number": "4"
+              }
+            },
+            {
+              "text": "Die Richtigkeit des vorstehend wiedergegebenen Geschehens unterstellt, trifft den Prozessbevollm\u00e4chtigten des Kl\u00e4gers ein eigenes Verschulden, unabh\u00e4ngig von Vers\u00e4umnissen seiner Kanzleiangestellten, weil er selbst durch schuldhaftes Verhalten eine wesentliche Ursache daf\u00fcr gesetzt hat, dass die Frist zur Beschwerdebegr\u00fcndung nicht eingehalten wurde. Denn er hat es zugelassen, dass das von ihm als fehlerhaft erkannte \u201eDeckblatt\u201c, die Seite 1 des Beschwerdebegr\u00fcndungsschriftsatzes, mit der unzutreffenden Adressierung an das Bundesverwaltungsgericht im Gesch\u00e4ftsgang seiner Kanzlei verblieb, ohne hinreichende Vorsorge dagegen zu treffen, dass dieses Schriftst\u00fcck aufgrund der fehlerhaften Adressierung an das unzutreffende Gericht \u00fcbermittelt wurde. Zu solcher Vorsorge bestand f\u00fcr den Prozessbevollm\u00e4chtigten des Kl\u00e4gers hier besonderer Anlass, weil er den Schriftsatz bereits unterschrieben hatte, er auf eine weitere eigene Kontrolle der zutreffenden Adressierung desselben verzichten wollte und die Korrektur und \u00dcbermittlung des Schriftsatzes im arbeitsteiligen, aber - wie der Streitfall zeigt - fehleranf\u00e4lligen Wechsel verschiedener Kanzleimitarbeiterinnen erledigt werden sollten. Das eigene Verschulden des Prozessbevollm\u00e4chtigten des Kl\u00e4gers bestand hier darin, dass er, nachdem er die unzutreffende Adressierung des Schriftsatzes erkannt hatte, die fehlerhafte Seite nicht sofort aus dem Gesch\u00e4ftsbetrieb seiner Kanzlei entfernte oder \u201eung\u00fcltig\u201c machte, z.B. indem er durch Zerrei\u00dfen dieser Seite oder Durchstreichen der Adressierung kenntlich machte, dass diese Version nicht an das auf Seite 1 f\u00e4lschlicherweise als Adressaten ausgewiesene Gericht \u00fcbermittelt werden sollte, und dadurch zugleich sicherstellte, dass dies auch nicht infolge eines Versehens geschehen konnte (vgl. Beschluss vom 28. Februar 2008 - BVerwG 9 VR 2.08 - Buchholz 310 \u00a7 60 VwGO Nr. 262 Rn. 6 f. = D\u00d6V 2008, 517; VGH Kassel, Beschluss vom 9. Januar 2004 - 9 UZ 3444/03 - NVwZ-RR 2004, 386 f.). Nachdem die unzutreffende Adressierung von dem Prozessbevollm\u00e4chtigten des Kl\u00e4gers erkannt worden war, bestand kein Grund, die fehlerhafte Seite 1 in der Entwurfsfassung (d.h. mit unkorrigierter Adressierung) aufzubewahren. Sie geh\u00f6rte umgehend aus dem Kanzleibetrieb entfernt oder jedenfalls als nicht zur Versendung bestimmt kenntlich gemacht.",
+              "locator": {
+                "kind": "xml-path",
+                "path": "/dokument[1]/gruende[1]/div[1]/dl[10]/dd[1]/p[1]",
+                "id": null,
+                "paragraph_number": "5"
+              }
+            },
+            {
+              "text": "Die Kostenentscheidung folgt aus \u00a7 154 Abs. 2 VwGO. Die Festsetzung des Werts des Streitgegenstandes beruht auf \u00a7 52 Abs. 3, \u00a7 47 Abs. 1 und 3 GKG.",
+              "locator": {
+                "kind": "xml-path",
+                "path": "/dokument[1]/gruende[1]/div[1]/dl[12]/dd[1]/p[1]",
+                "id": null,
+                "paragraph_number": "6"
+              }
+            }
+          ],
+          "relationships": [],
+          "native": {
+            "fields": {
+              "doknr": "JURE100054597",
+              "ecli": "",
+              "gertyp": "BVerwG",
+              "gerort": "",
+              "spruchkoerper": "9. Senat",
+              "entsch-datum": "20100108",
+              "aktenzeichen": "9 B 3/09",
+              "doktyp": "Beschluss",
+              "norm": "",
+              "vorinstanz": "vorgehend Oberverwaltungsgericht des Landes Sachsen-Anhalt, 2. September 2008, Az: 4 L 572/04, Urteil",
+              "region": "DEU Bundesrepublik Deutschland",
+              "mitwirkung": "",
+              "titelzeile": "",
+              "abwmeinung": "",
+              "sonstlt": "",
+              "identifier": "http://www.rechtsprechung-im-internet.de/jportal/?quelle=jlink&docid=jb-JURE100054597&psml=bsjrsprod.psml&max=true",
+              "coverage": "Deutschland",
+              "language": "deutsch",
+              "publisher": "BMJV",
+              "accessRights": "public"
+            },
+            "field_occurrences": {
+              "doknr": [
+                "JURE100054597"
+              ],
+              "ecli": [
+                ""
+              ],
+              "gertyp": [
+                "BVerwG"
+              ],
+              "gerort": [
+                ""
+              ],
+              "spruchkoerper": [
+                "9. Senat"
+              ],
+              "entsch-datum": [
+                "20100108"
+              ],
+              "aktenzeichen": [
+                "9 B 3/09"
+              ],
+              "doktyp": [
+                "Beschluss"
+              ],
+              "norm": [
+                ""
+              ],
+              "vorinstanz": [
+                "vorgehend Oberverwaltungsgericht des Landes Sachsen-Anhalt, 2. September 2008, Az: 4 L 572/04, Urteil"
+              ],
+              "region": [
+                "DEU Bundesrepublik Deutschland"
+              ],
+              "mitwirkung": [
+                ""
+              ],
+              "titelzeile": [
+                ""
+              ],
+              "abwmeinung": [
+                ""
+              ],
+              "sonstlt": [
+                ""
+              ],
+              "identifier": [
+                "http://www.rechtsprechung-im-internet.de/jportal/?quelle=jlink&docid=jb-JURE100054597&psml=bsjrsprod.psml&max=true"
+              ],
+              "coverage": [
+                "Deutschland"
+              ],
+              "language": [
+                "deutsch"
+              ],
+              "publisher": [
+                "BMJV"
+              ],
+              "accessRights": [
+                "public"
+              ]
+            },
+            "xml_sha256": "51c34529eae18b02466efb595fb48f1bb7fe3127a19532e062f0d3e4226abb5b"
+          },
+          "coverage_notice": "Official published federal decisions, not all German case law",
+          "review_required": false,
+          "is_current_law": null
+        }
+      ],
+      "observation": "JURE100054597",
+      "operation": "court_decision",
+      "provider": "german-courts",
+      "receipt": {
+        "observation_id": "regional-observation:d1b4fd9ececc53c970a72ef5c1dc1153",
+        "native_capture": {
+          "actual_billed_usd_micros": null,
+          "budget_id": "streamed-index",
+          "bytes": 3367,
+          "contract": "noesis-provider-request-v1",
+          "digest": "f6ae2f516c8e0783729f7c26dfa03545ffa3534ed5fcc0bed25d390495e25732",
+          "elapsed_seconds": 0.13170464200084098,
+          "execution": "network",
+          "http_status": 200,
+          "observed_at_ms": 1788902951929,
+          "provider": "german-courts",
+          "request": {
+            "body": null,
+            "credential_slots": {
+              "body": [],
+              "headers": [],
+              "params": []
+            },
+            "headers": {
+              "Accept": "application/json"
+            },
+            "max_bytes": 10000000,
+            "max_cost_micros": 0,
+            "method": "GET",
+            "params": {},
+            "timeout_s": 15,
+            "url": "https://www.rechtsprechung-im-internet.de/jportal/docs/bsjrs/jb-JURE100054597.zip"
+          },
+          "request_hash": "795f62ad5879734db0e8321d1633a05269223a44557dae65a7fb0cc4ee13a342",
+          "request_key": "db05339ce9f8d4f0f62ee7d6a0c1d21d21c76636683963ea68af09ccdb2c3bcf:JURE100054597",
+          "reserved_cost_micros": 0,
+          "response_headers": {
+            "content-type": "application/zip",
+            "last-modified": "Tue, 08 Sep 2026 21:29:12 GMT"
+          },
+          "retry_after": null,
+          "snapshot": {
+            "bytes": 3367,
+            "content_type": "application/zip",
+            "digest": "f6ae2f516c8e0783729f7c26dfa03545ffa3534ed5fcc0bed25d390495e25732",
+            "fetched_at": 1788902951929,
+            "final_url": "https://www.rechtsprechung-im-internet.de/jportal/docs/bsjrs/jb-JURE100054597.zip",
+            "url": "https://www.rechtsprechung-im-internet.de/jportal/docs/bsjrs/jb-JURE100054597.zip"
+          },
+          "state": "completed"
+        },
+        "document_ids": [
+          "regional:c17a3b875b8d15b4dad0c656a75f2196"
+        ],
+        "record_versions": [
+          "03855c041a0e862133c7874ece0617184d0a0b54a525ebbbc7df52f1dedb3368"
+        ],
+        "source_refs": [
+          {
+            "document_id": "regional:c17a3b875b8d15b4dad0c656a75f2196",
+            "revision_id": "document-revision:998c64713fb541a27283e4dd01051da1"
+          }
+        ],
+        "reuse_notice": "Bounded official public decision evaluation",
+        "no_automatic_identity_merge": true
+      },
+      "source_evidence_not_independent_validation": true,
+      "status": "ingested",
+      "replayed": false
+    },
+    {
+      "automatic_identity_merge": false,
+      "contract": "noesis-regional-acquisition-v1",
+      "cursor": {},
+      "namespace": "law",
+      "native_result": [
+        {
+          "contract": "noesis-native-regional-v1",
+          "provider": "german-courts",
+          "provider_id": "JURE100054926",
+          "kind": "court-decision",
+          "title": "JURE100054926",
+          "source_url": "https://www.rechtsprechung-im-internet.de/jportal/docs/bsjrs/jb-JURE100054926.xml",
+          "language": "de",
+          "published_at": "2010-01-11",
+          "updated_at": null,
+          "fields": {
+            "court": "BVerwG 10. Senat",
+            "docket_number": "10 C 6/09",
+            "ecli": null,
+            "decision_date": "2010-01-11",
+            "decision_type": "Beschluss",
+            "cited_norms": "",
+            "prior_instances": "vorgehend Hessischer Verwaltungsgerichtshof, 28. Januar 2009, Az: 6 A 1867/07.A, Urteil"
+          },
+          "missing_fields": [
+            "cited_norms",
+            "ecli"
+          ],
+          "sections": [
+            {
+              "text": "Das Verfahren wird eingestellt.",
+              "locator": {
+                "kind": "xml-path",
+                "path": "/dokument[1]/tenor[1]/div[1]/dl[2]/dd[1]/p[1]",
+                "id": null
+              }
+            },
+            {
+              "text": "Das Urteil des Hessischen Verwaltungsgerichtshofs vom 28. Januar 2009 und das Urteil des Verwaltungsgerichts Wiesbaden vom 22. Mai 2007 sind unwirksam, soweit sie die Feststellung eines Abschiebungsverbots nach \u00a7 60 Abs. 7 Satz 1 AufenthG i.V.m. Art. 15 Buchst. b und Art. 18 der Richtlinie 2004/83/EG betreffen.",
+              "locator": {
+                "kind": "xml-path",
+                "path": "/dokument[1]/tenor[1]/div[1]/dl[4]/dd[1]/p[1]",
+                "id": null
+              }
+            },
+            {
+              "text": "Die Beklagte tr\u00e4gt die Kosten des Revisionsverfahrens und des Verfahrens zweiter Instanz, soweit sie nicht bereits von der Kostenentscheidung im Beschluss des Hessischen Verwaltungsgerichtshofs vom 6. September 2007 (6 UZ 1631/07.A) erfasst sind. Die Kosten des Verfahrens erster Instanz tragen der Kl\u00e4ger und die Beklagte je zur H\u00e4lfte.",
+              "locator": {
+                "kind": "xml-path",
+                "path": "/dokument[1]/tenor[1]/div[1]/dl[6]/dd[1]/p[1]",
+                "id": null
+              }
+            },
+            {
+              "text": "Die Beteiligten haben den Rechtsstreit, soweit er noch nicht rechtskr\u00e4ftig abgeschlossen war, \u00fcbereinstimmend in der Hauptsache f\u00fcr erledigt erkl\u00e4rt. Das Verfahren ist deshalb in entsprechender Anwendung des \u00a7 92 Abs. 3 VwGO in Verbindung mit den \u00a7\u00a7 141,125 Abs. 1 VwGO einzustellen, die teilweise Unwirksamkeit der Entscheidungen der Vorinstanzen festzustellen und hinsichtlich des noch anh\u00e4ngig gewesenen Verfahrens gem\u00e4\u00df \u00a7 161 Abs. 2 VwGO \u00fcber die Kosten des Verfahrens nach billigem Ermessen unter Ber\u00fccksichtigung des bisherigen Sach- und Streitstands zu entscheiden.",
+              "locator": {
+                "kind": "xml-path",
+                "path": "/dokument[1]/gruende[1]/div[1]/dl[2]/dd[1]/p[1]",
+                "id": null,
+                "paragraph_number": "1"
+              }
+            },
+            {
+              "text": "Billigem Ermessen entspricht es hier, die Kosten insoweit der Beklagten aufzuerlegen. Das Berufungsgericht ist davon ausgegangen, dass der Kl\u00e4ger sowohl die Voraussetzungen des \u00a7 60 Abs. 7 Satz 1 AufenthG als auch die Voraussetzungen des Art. 15 Buchst. b i.V.m. Art. 18 der Richtlinie 2004/83/EG (Qualifikationsrichtlinie) erf\u00fcllt. Soweit es die Beklagte zur Feststellung eines Abschiebungsverbots nach \u201e\u00a7 60 Abs. 7 Satz 1 AufenthG i.V.m. Art. 15 Buchst. b und Art. 18 der Richtlinie 2004/83/EG\u201c verpflichtet hat, hat es allerdings nicht ber\u00fccksichtigt, dass es sich bei \u00a7 60 Abs. 7 Satz 1 AufenthG um ein rein nationales Abschiebungsverbot handelt, w\u00e4hrend bei Vorliegen der Voraussetzungen des Art. 15 Buchst. b der Richtlinie 2004/83/EG nach \u00a7 60 Abs. 2 AufenthG ein eigenst\u00e4ndiges - vorrangig vor sonstigen herkunftslandbezogenen nationalen Abschiebungsverboten zu pr\u00fcfendes - Abschiebungsverbot besteht (vgl. Senatsurteil vom 24. Juni 2008 - BVerwG 10 C 43.07 - BVerwGE 131, 198 <201 ff.>). Dies \u00e4ndert aber nichts daran, dass das Verwaltungsgericht die Beklagte der Sache nach zur Feststellung eines Abschiebungsverbots in Umsetzung des subsidi\u00e4ren Schutzkonzepts der Qualifikationsrichtlinie verpflichtet hat. Dem ist die Beklagte mit der zwischenzeitlichen Feststellung eines Abschiebungsverbots nach \u00a7 60 Abs. 2 AufenthG nachgekommen. Damit hat sie den Kl\u00e4ger klaglos gestellt und sich aus eigenem Entschluss in die Rolle der Unterlegenen begeben.",
+              "locator": {
+                "kind": "xml-path",
+                "path": "/dokument[1]/gruende[1]/div[1]/dl[4]/dd[1]/p[1]",
+                "id": null,
+                "paragraph_number": "2"
+              }
+            },
+            {
+              "text": "Gerichtskosten werden gem\u00e4\u00df \u00a7 83b AsylVfG nicht erhoben. Der Gegenstandswert ergibt sich aus \u00a7 30 RVG.",
+              "locator": {
+                "kind": "xml-path",
+                "path": "/dokument[1]/gruende[1]/div[1]/dl[6]/dd[1]/p[1]",
+                "id": null,
+                "paragraph_number": "3"
+              }
+            }
+          ],
+          "relationships": [],
+          "native": {
+            "fields": {
+              "doknr": "JURE100054926",
+              "ecli": "",
+              "gertyp": "BVerwG",
+              "gerort": "",
+              "spruchkoerper": "10. Senat",
+              "entsch-datum": "20100111",
+              "aktenzeichen": "10 C 6/09",
+              "doktyp": "Beschluss",
+              "norm": "",
+              "vorinstanz": "vorgehend Hessischer Verwaltungsgerichtshof, 28. Januar 2009, Az: 6 A 1867/07.A, Urteil",
+              "region": "DEU Bundesrepublik Deutschland",
+              "mitwirkung": "",
+              "titelzeile": "",
+              "abwmeinung": "",
+              "sonstlt": "",
+              "identifier": "http://www.rechtsprechung-im-internet.de/jportal/?quelle=jlink&docid=jb-JURE100054926&psml=bsjrsprod.psml&max=true",
+              "coverage": "Deutschland",
+              "language": "deutsch",
+              "publisher": "BMJV",
+              "accessRights": "public"
+            },
+            "field_occurrences": {
+              "doknr": [
+                "JURE100054926"
+              ],
+              "ecli": [
+                ""
+              ],
+              "gertyp": [
+                "BVerwG"
+              ],
+              "gerort": [
+                ""
+              ],
+              "spruchkoerper": [
+                "10. Senat"
+              ],
+              "entsch-datum": [
+                "20100111"
+              ],
+              "aktenzeichen": [
+                "10 C 6/09"
+              ],
+              "doktyp": [
+                "Beschluss"
+              ],
+              "norm": [
+                ""
+              ],
+              "vorinstanz": [
+                "vorgehend Hessischer Verwaltungsgerichtshof, 28. Januar 2009, Az: 6 A 1867/07.A, Urteil"
+              ],
+              "region": [
+                "DEU Bundesrepublik Deutschland"
+              ],
+              "mitwirkung": [
+                ""
+              ],
+              "titelzeile": [
+                ""
+              ],
+              "abwmeinung": [
+                ""
+              ],
+              "sonstlt": [
+                ""
+              ],
+              "identifier": [
+                "http://www.rechtsprechung-im-internet.de/jportal/?quelle=jlink&docid=jb-JURE100054926&psml=bsjrsprod.psml&max=true"
+              ],
+              "coverage": [
+                "Deutschland"
+              ],
+              "language": [
+                "deutsch"
+              ],
+              "publisher": [
+                "BMJV"
+              ],
+              "accessRights": [
+                "public"
+              ]
+            },
+            "xml_sha256": "dee703a73e3bb7c378fda22796e36243594cbad37282f2ce41283db088ab3f35"
+          },
+          "coverage_notice": "Official published federal decisions, not all German case law",
+          "review_required": false,
+          "is_current_law": null
+        }
+      ],
+      "observation": "JURE100054926",
+      "operation": "court_decision",
+      "provider": "german-courts",
+      "receipt": {
+        "observation_id": "regional-observation:7c3308e51c647207d251e4df7bad5c14",
+        "native_capture": {
+          "actual_billed_usd_micros": null,
+          "budget_id": "streamed-index",
+          "bytes": 2103,
+          "contract": "noesis-provider-request-v1",
+          "digest": "601c70d7902ee270dac573358ee82828e15854f06d12be5109130a0bbdb94339",
+          "elapsed_seconds": 0.1303603300038958,
+          "execution": "network",
+          "http_status": 200,
+          "observed_at_ms": 1788902952158,
+          "provider": "german-courts",
+          "request": {
+            "body": null,
+            "credential_slots": {
+              "body": [],
+              "headers": [],
+              "params": []
+            },
+            "headers": {
+              "Accept": "application/json"
+            },
+            "max_bytes": 10000000,
+            "max_cost_micros": 0,
+            "method": "GET",
+            "params": {},
+            "timeout_s": 15,
+            "url": "https://www.rechtsprechung-im-internet.de/jportal/docs/bsjrs/jb-JURE100054926.zip"
+          },
+          "request_hash": "cbb9c89ae6312d528aa1fc8f60ee1c613ae6dea12a526d34f8da96d125351a3f",
+          "request_key": "900b85178e33620c1bbadc0954cadf0b05b691269f823c8436524888e5cdeb97:JURE100054926",
+          "reserved_cost_micros": 0,
+          "response_headers": {
+            "content-type": "application/zip",
+            "last-modified": "Tue, 08 Sep 2026 21:29:12 GMT"
+          },
+          "retry_after": null,
+          "snapshot": {
+            "bytes": 2103,
+            "content_type": "application/zip",
+            "digest": "601c70d7902ee270dac573358ee82828e15854f06d12be5109130a0bbdb94339",
+            "fetched_at": 1788902952158,
+            "final_url": "https://www.rechtsprechung-im-internet.de/jportal/docs/bsjrs/jb-JURE100054926.zip",
+            "url": "https://www.rechtsprechung-im-internet.de/jportal/docs/bsjrs/jb-JURE100054926.zip"
+          },
+          "state": "completed"
+        },
+        "document_ids": [
+          "regional:51c474cf67fb795a55ce94d87483aa53"
+        ],
+        "record_versions": [
+          "1d673aeeafac9b3c84b238548e5b03a48b551abf48d62124d5953564fb052cfb"
+        ],
+        "source_refs": [
+          {
+            "document_id": "regional:51c474cf67fb795a55ce94d87483aa53",
+            "revision_id": "document-revision:fb45e6c0847f8f8ec86c79e9836b9bbe"
+          }
+        ],
+        "reuse_notice": "Bounded official public decision evaluation",
+        "no_automatic_identity_merge": true
+      },
+      "source_evidence_not_independent_validation": true,
+      "status": "ingested",
+      "replayed": false
+    },
+    {
+      "automatic_identity_merge": false,
+      "contract": "noesis-regional-acquisition-v1",
+      "cursor": {},
+      "namespace": "law",
+      "native_result": [
+        {
+          "contract": "noesis-native-regional-v1",
+          "coverage_notice": "Official published federal decisions, not all German case law",
+          "fields": {
+            "cited_norms": "\u00a7 4 InsO, \u00a7 13 ZPO, \u00a7 251 ZPO",
+            "court": "BGH 9. Zivilsenat",
+            "decision_date": "2010-01-14",
+            "decision_type": "Beschluss",
+            "docket_number": "IX ZB 72/08",
+            "ecli": null,
+            "prior_instances": "vorgehend LG Aachen, 17. M\u00e4rz 2008, Az: 6 T 104/07, Beschlussvorgehend AG Aachen, 13. Februar 2007, Az: 92 IN 9/07"
+          },
+          "is_current_law": null,
+          "kind": "court-decision",
+          "language": "de",
+          "missing_fields": [
+            "ecli"
+          ],
+          "native": {
+            "field_occurrences": {
+              "abwmeinung": [
+                ""
+              ],
+              "accessRights": [
+                "public"
+              ],
+              "aktenzeichen": [
+                "IX ZB 72/08"
+              ],
+              "coverage": [
+                "Deutschland"
+              ],
+              "doknr": [
+                "JURE100055033"
+              ],
+              "doktyp": [
+                "Beschluss"
+              ],
+              "ecli": [
+                ""
+              ],
+              "entsch-datum": [
+                "20100114"
+              ],
+              "gerort": [
+                ""
+              ],
+              "gertyp": [
+                "BGH"
+              ],
+              "identifier": [
+                "http://www.rechtsprechung-im-internet.de/jportal/?quelle=jlink&docid=jb-JURE100055033&psml=bsjrsprod.psml&max=true"
+              ],
+              "language": [
+                "deutsch"
+              ],
+              "mitwirkung": [
+                ""
+              ],
+              "norm": [
+                "\u00a7 4 InsO, \u00a7 13 ZPO, \u00a7 251 ZPO"
+              ],
+              "publisher": [
+                "BMJV"
+              ],
+              "region": [
+                "DEU Bundesrepublik Deutschland"
+              ],
+              "sonstlt": [
+                ""
+              ],
+              "spruchkoerper": [
+                "9. Zivilsenat"
+              ],
+              "titelzeile": [
+                "Insolvenzverfahren: Anwendbarkeit der Vorschrift \u00fcber das Ruhen des Verfahrens; Beschwerderecht des Insolvenzverwalters im Zusammenhang mit der Verfahrenser\u00f6ffnung"
+              ],
+              "vorinstanz": [
+                "vorgehend LG Aachen, 17. M\u00e4rz 2008, Az: 6 T 104/07, Beschlussvorgehend AG Aachen, 13. Februar 2007, Az: 92 IN 9/07"
+              ]
+            },
+            "fields": {
+              "abwmeinung": "",
+              "accessRights": "public",
+              "aktenzeichen": "IX ZB 72/08",
+              "coverage": "Deutschland",
+              "doknr": "JURE100055033",
+              "doktyp": "Beschluss",
+              "ecli": "",
+              "entsch-datum": "20100114",
+              "gerort": "",
+              "gertyp": "BGH",
+              "identifier": "http://www.rechtsprechung-im-internet.de/jportal/?quelle=jlink&docid=jb-JURE100055033&psml=bsjrsprod.psml&max=true",
+              "language": "deutsch",
+              "mitwirkung": "",
+              "norm": "\u00a7 4 InsO, \u00a7 13 ZPO, \u00a7 251 ZPO",
+              "publisher": "BMJV",
+              "region": "DEU Bundesrepublik Deutschland",
+              "sonstlt": "",
+              "spruchkoerper": "9. Zivilsenat",
+              "titelzeile": "Insolvenzverfahren: Anwendbarkeit der Vorschrift \u00fcber das Ruhen des Verfahrens; Beschwerderecht des Insolvenzverwalters im Zusammenhang mit der Verfahrenser\u00f6ffnung",
+              "vorinstanz": "vorgehend LG Aachen, 17. M\u00e4rz 2008, Az: 6 T 104/07, Beschlussvorgehend AG Aachen, 13. Februar 2007, Az: 92 IN 9/07"
+            },
+            "xml_sha256": "09e320c5ba7277d51f23948fd89b0cce48ed16f3042d9f457f60c57067e094ed"
+          },
+          "provider": "german-courts",
+          "provider_id": "JURE100055033",
+          "published_at": "2010-01-14",
+          "relationships": [],
+          "review_required": false,
+          "sections": [
+            {
+              "locator": {
+                "id": null,
+                "kind": "xml-path",
+                "path": "/dokument[1]/titelzeile[1]/dl[1]/dd[1]/p[1]"
+              },
+              "text": "Insolvenzverfahren: Anwendbarkeit der Vorschrift \u00fcber das Ruhen des Verfahrens; Beschwerderecht des Insolvenzverwalters im Zusammenhang mit der Verfahrenser\u00f6ffnung"
+            },
+            {
+              "locator": {
+                "id": null,
+                "kind": "xml-path",
+                "path": "/dokument[1]/tenor[1]/div[1]/dl[1]/dd[1]/p[1]"
+              },
+              "text": "Der Antrag des weiteren Beteiligten zu 2 auf Bewilligung von Prozesskostenhilfe wird abgelehnt."
+            },
+            {
+              "locator": {
+                "id": null,
+                "kind": "xml-path",
+                "path": "/dokument[1]/tenor[1]/div[1]/dl[3]/dd[1]/p[1]"
+              },
+              "text": "Die Rechtsbeschwerde gegen den Beschluss der 6. Zivilkammer des Landgerichts Aachen vom 17. M\u00e4rz 2008 wird auf Kosten der Schuldnerin als unzul\u00e4ssig verworfen."
+            },
+            {
+              "locator": {
+                "id": null,
+                "kind": "xml-path",
+                "path": "/dokument[1]/tenor[1]/div[1]/dl[5]/dd[1]/p[1]"
+              },
+              "text": "Der Gegenstandswert des Rechtsbeschwerdeverfahrens wird auf 50.000 \u20ac festgesetzt."
+            },
+            {
+              "locator": {
+                "id": null,
+                "kind": "xml-path",
+                "paragraph_number": "1",
+                "path": "/dokument[1]/gruende[1]/div[1]/dl[1]/dd[1]/p[1]"
+              },
+              "text": "1. Einer Entscheidung steht nicht entgegen, dass die Schuldnerin das Ruhen des Verfahrens beantragt hat. Die Vorschrift \u00fcber das Ruhen des Verfahrens (\u00a7 251 ZPO) ist im grunds\u00e4tzlich eilbed\u00fcrftigen, auf eine rasche Befriedigung der Gl\u00e4ubiger angelegten Insolvenzverfahren und damit auch im Verfahren \u00fcber eine insolvenzrechtliche Rechtsbeschwerde nicht anwendbar (M\u00fcnchKomm-InsO/Ganter, 2. Aufl. \u00a7 4 Rn. 15; Jaeger/Gerhardt, InsO \u00a7 4 Rn. 57; HK-InsO/Kirchhof, 5. Aufl. \u00a7 4 Rn. 25; HmbKomm-InsO/R\u00fcther, 3. Aufl. \u00a7 4 Rn. 57). Im \u00dcbrigen hat die weitere Beteiligte zu 1, die als Gl\u00e4ubigerin die Er\u00f6ffnung des Insolvenzverfahrens beantragt hat, als Rechtsbeschwerdegegnerin dem Antrag nicht zugestimmt."
+            },
+            {
+              "locator": {
+                "id": null,
+                "kind": "xml-path",
+                "paragraph_number": "2",
+                "path": "/dokument[1]/gruende[1]/div[1]/dl[3]/dd[1]/p[1]"
+              },
+              "text": "2. Dem weiteren Beteiligten zu 2 kann nach \u00a7 4 InsO in Verbindung mit \u00a7\u00a7 114 ff ZPO keine Prozesskostenhilfe gew\u00e4hrt werden, weil er im Rechtsbeschwerdeverfahren gegen die Er\u00f6ffnung des Insolvenzverfahrens keine eigenen Rechte verfolgen kann. Im Ausgangspunkt kann Prozesskostenhilfe nur der \"Partei\" gew\u00e4hrt werden (\u00a7 114 Abs. 1 Satz 1 ZPO). Dieser Begriff ist zwar weit auszulegen (vgl. Musielak/Fischer, ZPO 7. Aufl. \u00a7 114 Rn. 2); es ist deshalb anerkannt, dass die Vorschrift auch Antragsteller, Antragsgegner sowie die Streithelfer der Parteien erfasst. Der weitere Beteiligte zu 2 geh\u00f6rt im Streitfall als Insolvenzverwalter indes nicht zu diesem Personenkreis (vgl. M\u00fcnchKomm-InsO/Ganter, aaO \u00a7 4 Rn. 21; Jaeger/Gerhardt, aaO \u00a7 4 Rn. 48). Er ist nicht berechtigt, die Er\u00f6ffnung des Insolvenzverfahrens zu beantragen (\u00a7 13 Abs. 1 InsO). Auch ein Beschwerderecht r\u00e4umt ihm die Insolvenzordnung im Zusammenhang mit der Verfahrenser\u00f6ffnung nicht ein (BGH, Beschl. v. 8. M\u00e4rz 2007 - IX ZB 163/06, ZIP 2007, 792)."
+            },
+            {
+              "locator": {
+                "id": null,
+                "kind": "xml-path",
+                "paragraph_number": "3",
+                "path": "/dokument[1]/gruende[1]/div[1]/dl[5]/dd[1]/p[1]"
+              },
+              "text": "3. Die Rechtsbeschwerde ist statthaft (\u00a7\u00a7 7, 6, 34 Abs. 2 Satz 1 InsO, \u00a7 574 Abs. 1 Satz 1 Nr. 1 ZPO), aber unzul\u00e4ssig. Weder hat die Rechtssache grunds\u00e4tzliche Bedeutung noch erfordert die Fortbildung des Rechts oder die Sicherung einer einheitlichen Rechtsprechung eine Entscheidung des Rechtsbeschwerdegerichts (\u00a7 574 Abs. 2 ZPO)."
+            },
+            {
+              "locator": {
+                "id": null,
+                "kind": "xml-path",
+                "paragraph_number": "4",
+                "path": "/dokument[1]/gruende[1]/div[1]/dl[7]/dd[1]/p[1]"
+              },
+              "text": "a) Die von der Rechtsbeschwerde f\u00fcr grunds\u00e4tzlich erachtete Frage, ob eine nach dem Ausscheiden ihres vorletzten Gesellschafters erloschene, aber noch im Handelsregister eingetragene Kommanditgesellschaft nach dem Rechtsgedanken des \u00a7 15 HGB weiterhin insolvenzf\u00e4hig ist, bedarf im Streitfall keiner Entscheidung, weil das Beschwerdegericht den Austritt der Gesellschafter aus der KG ohne zulassungsrelevanten Rechtsfehler als unwirksam nach \u00a7 117 BGB beurteilt hat; seine Rechtsauffassung zu \u00a7 15 HGB war daher nicht entscheidungserheblich."
+            },
+            {
+              "locator": {
+                "id": null,
+                "kind": "xml-path",
+                "paragraph_number": "5",
+                "path": "/dokument[1]/gruende[1]/div[1]/dl[9]/dd[1]/p[1]"
+              },
+              "text": "b) Auch die Ausf\u00fchrungen des Beschwerdegerichts zum rechtlichen Interesse der weiteren Beteiligten zu 1 an der Er\u00f6ffnung des Insolvenzverfahrens (\u00a7 14 Abs. 1 InsO) begr\u00fcnden nicht die Zul\u00e4ssigkeit der Rechtsbeschwerde. Dass die Vorinstanzen den zugrunde liegenden Sachverhalt insoweit anders subsumiert haben als der zust\u00e4ndige Abteilungsrichter im Insolvenzverfahren betreffend das Verm\u00f6gen des L. N., ber\u00fchrt nicht die Einheitlichkeit der Rechtsprechung i.S.v. \u00a7 574 Abs. 2 Nr. 2 ZPO (BGH, Beschl. v. 16. September 2003 - XI ZR 238/02, NJW 2004, 1167)."
+            },
+            {
+              "locator": {
+                "id": null,
+                "kind": "xml-path",
+                "paragraph_number": "6",
+                "path": "/dokument[1]/gruende[1]/div[1]/dl[11]/dd[1]/p[1]"
+              },
+              "text": "c) Dahinstehen kann schlie\u00dflich, ob das Beschwerdegericht die Forderung der U. GmbH gegen die Schuldnerin bei der Beurteilung des Er\u00f6ffnungsgrundes der Zahlungsunf\u00e4higkeit trotz der Erkl\u00e4rung des \"Generalbevollm\u00e4chtigten\" der U. GmbH betreffend eine angebliche Stundung dieser Forderung ber\u00fccksichtigen durfte. Denn die Beurteilung des Beschwerdegerichts zur Zahlungsunf\u00e4higkeit der Schuldnerin wird bereits durch die unstreitig bestehende Umsatzsteuerforderung des Finanzamts G. getragen. Die von der Rechtsbeschwerde insoweit ger\u00fcgte Verletzung des rechtlichen Geh\u00f6rs (Art. 103 Abs. 1 GG) liegt nicht vor."
+            },
+            {
+              "locator": {
+                "id": null,
+                "kind": "xml-path",
+                "path": "/dokument[1]/gruende[1]/div[1]/dl[13]/dd[1]/p[1]"
+              },
+              "text": "Ganter Gehrlein Vill"
+            },
+            {
+              "locator": {
+                "id": null,
+                "kind": "xml-path",
+                "path": "/dokument[1]/gruende[1]/div[1]/dl[14]/dd[1]/p[1]"
+              },
+              "text": "Fischer Grupp"
+            }
+          ],
+          "source_url": "https://www.rechtsprechung-im-internet.de/jportal/docs/bsjrs/jb-JURE100055033.xml",
+          "title": "Insolvenzverfahren: Anwendbarkeit der Vorschrift \u00fcber das Ruhen des Verfahrens; Beschwerderecht des Insolvenzverwalters im Zusammenhang mit der Verfahrenser\u00f6ffnung",
+          "updated_at": null
+        }
+      ],
+      "observation": "bgh-JURE100055033",
+      "operation": "court_decision",
+      "provider": "german-courts",
+      "receipt": {
+        "document_ids": [
+          "regional:07ae124f41c92cf88b9aa57871ba3a68"
+        ],
+        "native_capture": {
+          "actual_billed_usd_micros": null,
+          "budget_id": "court-bgh",
+          "bytes": 2839,
+          "contract": "noesis-provider-request-v1",
+          "digest": "ca286575e85f5dd9f6a8c26f5ac9e9bffd07d85f83f827fde9a6af6279718d0f",
+          "elapsed_seconds": 0.16509703399788123,
+          "execution": "network",
+          "http_status": 200,
+          "observed_at_ms": 1788903067535,
+          "provider": "german-courts",
+          "request": {
+            "body": null,
+            "credential_slots": {
+              "body": [],
+              "headers": [],
+              "params": []
+            },
+            "headers": {
+              "Accept": "application/json"
+            },
+            "max_bytes": 10000000,
+            "max_cost_micros": 0,
+            "method": "GET",
+            "params": {},
+            "timeout_s": 15,
+            "url": "https://www.rechtsprechung-im-internet.de/jportal/docs/bsjrs/jb-JURE100055033.zip"
+          },
+          "request_hash": "77c934939cc1da7916989d3672ecb5f39153e4de8f67a2ec66e259e03cb902f5",
+          "request_key": "24c3adf21f064bd938036b32b4751d7abe127b499ed3aa85145c5cb6af8552b8:JURE100055033",
+          "reserved_cost_micros": 0,
+          "response_headers": {
+            "content-type": "application/zip",
+            "last-modified": "Tue, 08 Sep 2026 21:31:07 GMT"
+          },
+          "retry_after": null,
+          "snapshot": {
+            "bytes": 2839,
+            "content_type": "application/zip",
+            "digest": "ca286575e85f5dd9f6a8c26f5ac9e9bffd07d85f83f827fde9a6af6279718d0f",
+            "fetched_at": 1788903067535,
+            "final_url": "https://www.rechtsprechung-im-internet.de/jportal/docs/bsjrs/jb-JURE100055033.zip",
+            "url": "https://www.rechtsprechung-im-internet.de/jportal/docs/bsjrs/jb-JURE100055033.zip"
+          },
+          "state": "completed"
+        },
+        "no_automatic_identity_merge": true,
+        "observation_id": "regional-observation:134cd4cd4a5876eace4944fcbec8a5d9",
+        "record_versions": [
+          "85c9f2393b9aefff72d95e4cf99e4f333e87998ef79d55ee750e110d966612fb"
+        ],
+        "reuse_notice": "Bounded official public decision evaluation",
+        "source_refs": [
+          {
+            "document_id": "regional:07ae124f41c92cf88b9aa57871ba3a68",
+            "revision_id": "document-revision:a2cd5ad50e7ad2f745aff3b94270b1cf"
+          }
+        ]
+      },
+      "source_evidence_not_independent_validation": true,
+      "status": "ingested",
+      "replayed": false
+    }
+  ],
+  "index": {
+    "total_selected": 84174,
+    "receipt": {
+      "contract": "noesis-provider-request-v1",
+      "provider": "german-courts",
+      "budget_id": "streamed-index",
+      "request_key": "index:index",
+      "request_hash": "e6641ff2cc0cf2f5b4e7123b0046299159c0500ea8a214f30d1a7079eb0a8a4e",
+      "request": {
+        "url": "https://www.rechtsprechung-im-internet.de/rii-toc.xml",
+        "method": "GET",
+        "params": {},
+        "body": null,
+        "headers": {
+          "Accept": "application/json"
+        },
+        "credential_slots": {
+          "headers": [],
+          "params": [],
+          "body": []
+        },
+        "max_bytes": 80000000,
+        "max_cost_micros": 0,
+        "timeout_s": 60
+      },
+      "reserved_cost_micros": 0,
+      "actual_billed_usd_micros": null,
+      "observed_at_ms": 1788902949330,
+      "execution": "network",
+      "state": "completed",
+      "http_status": 200,
+      "retry_after": null,
+      "elapsed_seconds": 0.7032854950011824,
+      "digest": "0514a016961ee52e1e696ce5583cbb829118626d980acf8ce8d7efb7aeba4d49",
+      "bytes": 23335699,
+      "response_headers": {
+        "content-type": "application/xml",
+        "last-modified": "Tue, 08 Sep 2026 21:29:09 GMT"
+      },
+      "snapshot": {
+        "url": "https://www.rechtsprechung-im-internet.de/rii-toc.xml",
+        "final_url": "https://www.rechtsprechung-im-internet.de/rii-toc.xml",
+        "fetched_at": 1788902949330,
+        "digest": "0514a016961ee52e1e696ce5583cbb829118626d980acf8ce8d7efb7aeba4d49",
+        "content_type": "application/xml",
+        "bytes": 23335699
+      }
+    },
+    "returned": 1000
+  },
+  "status": "completed",
+  "budget": {
+    "budget_id": "streamed-index",
+    "configuration": {
+      "provider": "german-courts",
+      "hosts": [
+        "www.rechtsprechung-im-internet.de"
+      ],
+      "account_ref": "public",
+      "reuse_notice": "Bounded official public decision evaluation",
+      "limits": {
+        "requests": 3,
+        "usd_micros": 0,
+        "bytes": 100000000
+      },
+      "transport": "network"
+    },
+    "used_requests": 3,
+    "reserved_usd_micros": 0,
+    "reserved_bytes": 100000000,
+    "actual_billed_usd_micros": null,
+    "cost_semantics": "conservative reservations, not billing measurements"
+  },
+  "offline_replay_verified": true,
+  "additional_budget": {
+    "budget_id": "court-bgh",
+    "configuration": {
+      "provider": "german-courts",
+      "hosts": [
+        "www.rechtsprechung-im-internet.de"
+      ],
+      "account_ref": "public",
+      "reuse_notice": "Bounded official public decision evaluation",
+      "limits": {
+        "requests": 1,
+        "usd_micros": 0,
+        "bytes": 10000000
+      },
+      "transport": "network"
+    },
+    "used_requests": 1,
+    "reserved_usd_micros": 0,
+    "reserved_bytes": 10000000,
+    "actual_billed_usd_micros": null,
+    "cost_semantics": "conservative reservations, not billing measurements"
+  },
+  "updated_parser_replayed_existing_captures": true
+}

@@ -1,0 +1,136 @@
+{
+  "contract": "noesis-fuzzy-frozen-split-v1",
+  "label_origin": "authored-regression; fictional name pairs, not independent human adjudication",
+  "development": [
+    {
+      "id": "org-de-umlaut",
+      "entity_type": "organization",
+      "left": "Müller Forschung GmbH",
+      "right": "Mueller Forschung",
+      "same_entity": true,
+      "group_id": "development-org-de-umlaut"
+    },
+    {
+      "id": "org-suffix",
+      "entity_type": "organization",
+      "left": "Acme Technologies AG",
+      "right": "Acme Technologies",
+      "same_entity": true,
+      "group_id": "development-org-suffix"
+    },
+    {
+      "id": "org-spacing",
+      "entity_type": "organization",
+      "left": "OpenAI",
+      "right": "Open AI",
+      "same_entity": true,
+      "group_id": "development-org-spacing"
+    },
+    {
+      "id": "person-initial",
+      "entity_type": "person",
+      "left": "G. Hinton",
+      "right": "Geoffrey Hinton",
+      "same_entity": true,
+      "group_id": "development-person-initial"
+    },
+    {
+      "id": "person-hard-negative",
+      "entity_type": "person",
+      "left": "John Smith",
+      "right": "Jane Smith",
+      "same_entity": false,
+      "group_id": "development-person-hard-negative"
+    },
+    {
+      "id": "org-hard-negative",
+      "entity_type": "organization",
+      "left": "Berlin Energy Network GmbH",
+      "right": "Berlin Energy Research GmbH",
+      "same_entity": false,
+      "group_id": "development-org-hard-negative"
+    },
+    {
+      "id": "org-hard-negative-short",
+      "entity_type": "organization",
+      "left": "Müller Bank AG",
+      "right": "Müller Bau AG",
+      "same_entity": false,
+      "group_id": "development-org-hard-negative-short"
+    },
+    {
+      "id": "person-hard-negative-initial",
+      "entity_type": "person",
+      "left": "J. Müller",
+      "right": "K. Müller",
+      "same_entity": false,
+      "group_id": "development-person-hard-negative-initial"
+    }
+  ],
+  "test": [
+    {
+      "id": "heldout-0",
+      "group_id": "heldout-schneider",
+      "entity_type": "organization",
+      "left": "Schneider Forschung GmbH",
+      "right": "Schneider Forschung",
+      "same_entity": true
+    },
+    {
+      "id": "heldout-1",
+      "group_id": "heldout-1",
+      "entity_type": "organization",
+      "left": "Rhine Robotics AG",
+      "right": "Rhine Robotics",
+      "same_entity": true
+    },
+    {
+      "id": "heldout-2",
+      "group_id": "heldout-2",
+      "entity_type": "organization",
+      "left": "Grüner Forschungsrat",
+      "right": "Gruener Forschungsrat",
+      "same_entity": true
+    },
+    {
+      "id": "heldout-3",
+      "group_id": "heldout-weber",
+      "entity_type": "person",
+      "left": "A. Weber",
+      "right": "Anna Weber",
+      "same_entity": true
+    },
+    {
+      "id": "heldout-4",
+      "group_id": "heldout-weber",
+      "entity_type": "person",
+      "left": "Anna Weber",
+      "right": "Anton Weber",
+      "same_entity": false
+    },
+    {
+      "id": "heldout-5",
+      "group_id": "heldout-5",
+      "entity_type": "organization",
+      "left": "Hamburg Solar GmbH",
+      "right": "Hamburg Stahl GmbH",
+      "same_entity": false
+    },
+    {
+      "id": "heldout-6",
+      "group_id": "heldout-schneider",
+      "entity_type": "organization",
+      "left": "Schneider Bank AG",
+      "right": "Schneider Bau AG",
+      "same_entity": false
+    },
+    {
+      "id": "heldout-7",
+      "group_id": "heldout-7",
+      "entity_type": "person",
+      "left": "L. Schuster",
+      "right": "P. Schuster",
+      "same_entity": false
+    }
+  ]
+}

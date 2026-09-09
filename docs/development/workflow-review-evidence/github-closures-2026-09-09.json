@@ -1,0 +1,146 @@
+{
+  "date": "2026-09-09",
+  "repository": "Ikey168/Noesis",
+  "closed_in_september_9_continuation": [
+    {
+      "closedAt": "2026-09-09T01:30:35Z",
+      "number": 1520,
+      "state": "CLOSED",
+      "title": "Evaluate Outlines for schema-constrained report revision proposals",
+      "url": "https://github.com/Ikey168/Noesis/issues/1520"
+    },
+    {
+      "closedAt": "2026-09-09T02:16:15Z",
+      "number": 1506,
+      "state": "CLOSED",
+      "title": "Evaluate Qwen3-Reranker-0.6B with a dedicated multilingual scoring adapter",
+      "url": "https://github.com/Ikey168/Noesis/issues/1506"
+    },
+    {
+      "closedAt": "2026-09-09T02:43:50Z",
+      "number": 1505,
+      "state": "CLOSED",
+      "title": "Benchmark BGE-M3 dense, sparse and multi-vector retrieval",
+      "url": "https://github.com/Ikey168/Noesis/issues/1505"
+    },
+    {
+      "closedAt": "2026-09-09T01:55:54Z",
+      "number": 1504,
+      "state": "CLOSED",
+      "title": "Benchmark multilingual-e5-small for lower-cost German/English retrieval",
+      "url": "https://github.com/Ikey168/Noesis/issues/1504"
+    },
+    {
+      "closedAt": "2026-09-08T22:49:02Z",
+      "number": 1500,
+      "state": "CLOSED",
+      "title": "Evaluate Phoenix tracing against existing MLflow and observability",
+      "url": "https://github.com/Ikey168/Noesis/issues/1500"
+    },
+    {
+      "closedAt": "2026-09-08T23:27:26Z",
+      "number": 1496,
+      "state": "CLOSED",
+      "title": "Benchmark PaddleOCR for scanned German and multilingual evidence",
+      "url": "https://github.com/Ikey168/Noesis/issues/1496"
+    },
+    {
+      "closedAt": "2026-09-08T22:31:29Z",
+      "number": 1494,
+      "state": "CLOSED",
+      "title": "Evaluate Presidio for traceable redaction of derived research outputs",
+      "url": "https://github.com/Ikey168/Noesis/issues/1494"
+    },
+    {
+      "closedAt": "2026-09-08T22:31:28Z",
+      "number": 1490,
+      "state": "CLOSED",
+      "title": "Evaluate Jina Reader as a bounded web extraction fallback",
+      "url": "https://github.com/Ikey168/Noesis/issues/1490"
+    },
+    {
+      "closedAt": "2026-09-08T23:27:23Z",
+      "number": 1486,
+      "state": "CLOSED",
+      "title": "Ingest EMA public medicine metadata and linked regulatory documents",
+      "url": "https://github.com/Ikey168/Noesis/issues/1486"
+    },
+    {
+      "closedAt": "2026-09-08T23:33:47Z",
+      "number": 1484,
+      "state": "CLOSED",
+      "title": "Add reviewable EU-focused OpenSanctions entity matches",
+      "url": "https://github.com/Ikey168/Noesis/issues/1484"
+    },
+    {
+      "closedAt": "2026-09-08T23:27:22Z",
+      "number": 1482,
+      "state": "CLOSED",
+      "title": "Add Berlin legal texts and decisions through documented public access",
+      "url": "https://github.com/Ikey168/Noesis/issues/1482"
+    },
+    {
+      "closedAt": "2026-09-08T23:04:16Z",
+      "number": 1480,
+      "state": "CLOSED",
+      "title": "Extend EUR-Lex with CELLAR legal texts and case-law relationships",
+      "url": "https://github.com/Ikey168/Noesis/issues/1480"
+    },
+    {
+      "closedAt": "2026-09-08T23:01:34Z",
+      "number": 1479,
+      "state": "CLOSED",
+      "title": "Ingest German Clinical Trials Register DRKS exports",
+      "url": "https://github.com/Ikey168/Noesis/issues/1479"
+    },
+    {
+      "closedAt": "2026-09-08T22:49:00Z",
+      "number": 1478,
+      "state": "CLOSED",
+      "title": "Acquire EU/EEA clinical trial evidence from CTIS public records",
+      "url": "https://github.com/Ikey168/Noesis/issues/1478"
+    },
+    {
+      "closedAt": "2026-09-09T01:28:05Z",
+      "number": 1426,
+      "state": "CLOSED",
+      "title": "Benchmark the existing hybrid retrieval and reranking paths",
+      "url": "https://github.com/Ikey168/Noesis/issues/1426"
+    },
+    {
+      "closedAt": "2026-09-09T03:14:28Z",
+      "number": 1493,
+      "state": "CLOSED",
+      "title": "Benchmark GLiNER2-multi-v1 as a domain-specific extraction backend",
+      "url": "https://github.com/Ikey168/Noesis/issues/1493"
+    }
+  ],
+  "remaining_open_issue_numbers": [
+    1348,
+    1391,
+    1399,
+    1401,
+    1406,
+    1420,
+    1427,
+    1443,
+    1444,
+    1458,
+    1469,
+    1471,
+    1483,
+    1488,
+    1489,
+    1492,
+    1499,
+    1507,
+    1508,
+    1509,
+    1510,
+    1514,
+    1521
+  ],
+  "full_backlog_complete": false,
+  "code_committed_or_pushed": false,
+  "historical_snapshot_notice": "Acceptance-completed closures and open inventory before the later user-directed deferral. See deferred-issue-closures-2026-09-09.json for current zero-open state."
+}

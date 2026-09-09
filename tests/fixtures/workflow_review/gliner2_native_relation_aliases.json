@@ -1,0 +1,78 @@
+{
+  "source_id": "politics-test-2",
+  "text": "Lincoln replaced Buell with William Rosecrans ; and after the 1862 and 1863 United States House of Representatives elections he replaced McClellan with Ambrose Burnside .",
+  "schema": {
+    "artifact": "artifact relation from the first named entity to the second",
+    "compare": "compare relation from the first named entity to the second",
+    "general_affiliation": "general affiliation relation from the first named entity to the second",
+    "named": "named relation from the first named entity to the second",
+    "opposite": "opposite relation from the first named entity to the second",
+    "origin": "origin relation from the first named entity to the second",
+    "part_of": "part of relation from the first named entity to the second",
+    "physical": "physical relation from the first named entity to the second",
+    "related_to": "related to relation from the first named entity to the second",
+    "role": "role relation from the first named entity to the second",
+    "social": "social relation from the first named entity to the second",
+    "temporal": "temporal relation from the first named entity to the second",
+    "topic": "topic relation from the first named entity to the second",
+    "type_of": "type of relation from the first named entity to the second",
+    "win_defeat": "win defeat relation from the first named entity to the second"
+  },
+  "raw": {
+    "artifact: artifact relation from the first named entity to the second": [],
+    "compare: compare relation from the first named entity to the second": [],
+    "general_affiliation: general affiliation relation from the first named entity to the second": [],
+    "named: named relation from the first named entity to the second": [],
+    "origin: origin relation from the first named entity to the second": [],
+    "part_of: part of relation from the first named entity to the second": [],
+    "physical: physical relation from the first named entity to the second": [],
+    "related_to: related to relation from the first named entity to the second": [],
+    "role: role relation from the first named entity to the second": [],
+    "social: social relation from the first named entity to the second": [],
+    "temporal: temporal relation from the first named entity to the second": [],
+    "topic: topic relation from the first named entity to the second": [],
+    "type_of: type of relation from the first named entity to the second": [],
+    "win_defeat: win defeat relation from the first named entity to the second": [],
+    "relation_extraction": {
+      "opposite: opposite relation from the first named entity to the second": [
+        {
+          "head": {
+            "text": "Buell",
+            "confidence": 0.5347782373428345,
+            "start": 17,
+            "end": 22
+          },
+          "tail": {
+            "text": "William Rosecrans",
+            "confidence": 0.7304672002792358,
+            "start": 28,
+            "end": 45
+          }
+        }
+      ],
+      "artifact": [],
+      "compare": [],
+      "general_affiliation": [],
+      "named": [],
+      "opposite": [],
+      "origin": [],
+      "part_of": [],
+      "physical": [],
+      "related_to": [],
+      "role": [],
+      "social": [],
+      "temporal": [],
+      "topic": [],
+      "type_of": [],
+      "win_defeat": []
+    }
+  },
+  "provenance": {
+    "kind": "native-model-output-not-human-labels",
+    "library": "gliner2 2.0.0",
+    "model": "fastino/gliner2-multi-v1",
+    "revision": "c6296e25603e4d31f68ef8a9f4edb73421d1e45a",
+    "source_manifest": "tests/fixtures/published_ner/relations-manifest.json",
+    "purpose": "Replay top-level empty relation aliases observed in the native SDK"
+  }
+}
