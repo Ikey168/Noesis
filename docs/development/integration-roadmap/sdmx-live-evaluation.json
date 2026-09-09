@@ -1,0 +1,344 @@
+{
+  "mode": "live-and-replay",
+  "capture_provenance": [
+    {
+      "fixture": "ecb-native.xml",
+      "source_url": "https://data-api.ecb.europa.eu/service/data/EXR/D.USD.EUR.SP00.A?startPeriod=2024-01-02&endPeriod=2024-01-03",
+      "fetched_at_ms": 1788640331241,
+      "sha256": "edd3698b532f3f154dc89d7572678fc6fabb422fb9300c2aaec65c6b8b870b92"
+    },
+    {
+      "fixture": "estat-native.xml",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/nama_10_gdp/A.CP_MEUR.B1GQ.DE?startPeriod=2023&endPeriod=2023",
+      "fetched_at_ms": 1788640331334,
+      "sha256": "b6f4a915e00b3340405a148acaa22ac5a0efba41b049e631cf1f933917654bfa"
+    },
+    {
+      "fixture": "bbk-native.xml",
+      "source_url": "https://api.statistiken.bundesbank.de/rest/data/BBEX3/D.USD.EUR.BB.AC.000?lastNObservations=2",
+      "fetched_at_ms": 1788640331400,
+      "sha256": "3941d892e56a9183f81ff187ae1dbbae8128c35693d72fe323444fe14149549c"
+    },
+    {
+      "fixture": "estat-dsd-native.xml.gz",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/datastructure/ESTAT/NAMA_10_GDP/latest?references=descendants",
+      "fetched_at_ms": 1788640332532,
+      "sha256_uncompressed": "0e9e624889c30ea63b404e95c4e0fcb60bc403d5192e41ed3dddb45b715b7aa0"
+    },
+    {
+      "fixture": "estat-jsonstat-native.json",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/nama_10_gdp?format=JSON&geo=DE&unit=CP_MEUR&na_item=B1GQ&freq=A&time=2023",
+      "fetched_at_ms": 1788640332672,
+      "sha256": "5810a14cec77dd1a34471146adf5655b3ba65dd717c4bd2642afa2ab6970a69f"
+    }
+  ],
+  "replay_retrieval_timestamp": "100 is an explicit synthetic timestamp for deterministic parser replay; live fetch times are in capture_provenance",
+  "runs": [
+    {
+      "provider": "ECB",
+      "source_fixture": "ecb-native.xml",
+      "native_sha256": "edd3698b532f3f154dc89d7572678fc6fabb422fb9300c2aaec65c6b8b870b92",
+      "series_id": "ecb:EXR/D.USD.EUR.SP00.A:75583e975593b10ca5467e8f",
+      "unit": "USD",
+      "frequency": "daily",
+      "geography": null,
+      "observations": [
+        {
+          "period": "2024-01-02",
+          "value": 1.0956
+        },
+        {
+          "period": "2024-01-03",
+          "value": 1.0919
+        }
+      ],
+      "metadata": {
+        "dimensions": {
+          "FREQ": "D",
+          "CURRENCY": "USD",
+          "CURRENCY_DENOM": "EUR",
+          "EXR_TYPE": "SP00",
+          "EXR_SUFFIX": "A"
+        },
+        "common_attributes": {
+          "OBS_STATUS": "A",
+          "OBS_CONF": "F",
+          "SOURCE_AGENCY": "4F0",
+          "TIME_FORMAT": "P1D",
+          "UNIT_MULT": "0",
+          "COLLECTION": "A",
+          "TITLE_COMPL": "ECB reference exchange rate, US dollar/Euro, 2.15 pm (C.E.T.)",
+          "DECIMALS": "4",
+          "TITLE": "US dollar/Euro ECB reference exchange rate",
+          "UNIT": "USD",
+          "UNIT_INDEX_BASE": "99Q1=100"
+        },
+        "original_values": {
+          "2024-01-02": "1.0956",
+          "2024-01-03": "1.0919"
+        },
+        "provider_prepared_at": "2026-09-05 22:22:38.782000+02:00",
+        "provider_release_at": null,
+        "dataset_metadata": [
+          {
+            "action": null,
+            "valid_from": null,
+            "structure_id": "ECB_EXR1"
+          }
+        ],
+        "provider_extracted_at": null,
+        "dataflow_id": "EXR",
+        "structure": {
+          "status": "not_requested"
+        },
+        "observation_attributes": {
+          "2024-01-02": {
+            "OBS_STATUS": "A",
+            "OBS_CONF": "F",
+            "SOURCE_AGENCY": "4F0",
+            "TIME_FORMAT": "P1D",
+            "UNIT_MULT": "0",
+            "COLLECTION": "A",
+            "TITLE_COMPL": "ECB reference exchange rate, US dollar/Euro, 2.15 pm (C.E.T.)",
+            "DECIMALS": "4",
+            "TITLE": "US dollar/Euro ECB reference exchange rate",
+            "UNIT": "USD",
+            "UNIT_INDEX_BASE": "99Q1=100"
+          },
+          "2024-01-03": {
+            "OBS_STATUS": "A",
+            "OBS_CONF": "F",
+            "SOURCE_AGENCY": "4F0",
+            "TIME_FORMAT": "P1D",
+            "UNIT_MULT": "0",
+            "COLLECTION": "A",
+            "TITLE_COMPL": "ECB reference exchange rate, US dollar/Euro, 2.15 pm (C.E.T.)",
+            "DECIMALS": "4",
+            "TITLE": "US dollar/Euro ECB reference exchange rate",
+            "UNIT": "USD",
+            "UNIT_INDEX_BASE": "99Q1=100"
+          }
+        },
+        "raw_sha256": "edd3698b532f3f154dc89d7572678fc6fabb422fb9300c2aaec65c6b8b870b92",
+        "sdmx_version": "2.27.0",
+        "vintage_semantics": "retrieval time; historical provider vintage not inferred"
+      },
+      "parse_p50_ms": 0.8549795020371675,
+      "parse_p95_ms": 0.965297018410638
+    },
+    {
+      "provider": "ESTAT",
+      "source_fixture": "estat-native.xml",
+      "native_sha256": "b6f4a915e00b3340405a148acaa22ac5a0efba41b049e631cf1f933917654bfa",
+      "series_id": "estat:nama_10_gdp/A.CP_MEUR.B1GQ.DE:7758cd34c97f7b9394299cea",
+      "unit": "CP_MEUR",
+      "frequency": "annual",
+      "geography": "DE",
+      "observations": [
+        {
+          "period": "2023",
+          "value": 4254930.0
+        }
+      ],
+      "metadata": {
+        "dimensions": {
+          "geo": "DE",
+          "na_item": "B1GQ",
+          "unit": "CP_MEUR",
+          "freq": "A"
+        },
+        "common_attributes": {
+          "OBS_FLAG": "p"
+        },
+        "original_values": {
+          "2023": "4254930.0"
+        },
+        "provider_prepared_at": "2026-09-04 03:16:46.752000+00:00",
+        "provider_release_at": null,
+        "dataset_metadata": [
+          {
+            "action": null,
+            "valid_from": null,
+            "structure_id": "NAMA_10_GDP"
+          }
+        ],
+        "provider_extracted_at": "2026-09-04 03:16:46.752000+00:00",
+        "dataflow_id": "nama_10_gdp",
+        "structure": {
+          "source_url": null,
+          "raw_sha256": "0e9e624889c30ea63b404e95c4e0fcb60bc403d5192e41ed3dddb45b715b7aa0",
+          "definitions": [
+            {
+              "id": "NAMA_10_GDP",
+              "version": "137.1",
+              "dimensions": {
+                "geo": {
+                  "code": "DE",
+                  "codelist_id": "GEO",
+                  "codelist_version": "28.0",
+                  "labels": {
+                    "en": "Germany",
+                    "de": "Deutschland",
+                    "fr": "Allemagne"
+                  }
+                },
+                "na_item": {
+                  "code": "B1GQ",
+                  "codelist_id": "NA_ITEM",
+                  "codelist_version": "30.1",
+                  "labels": {
+                    "en": "Gross domestic product at market prices",
+                    "de": "Bruttoinlandsprodukt zu Marktpreisen",
+                    "fr": "Produit int\u00e9rieur brut aux prix du march\u00e9"
+                  }
+                },
+                "unit": {
+                  "code": "CP_MEUR",
+                  "codelist_id": "UNIT",
+                  "codelist_version": "82.0",
+                  "labels": {
+                    "en": "Current prices, million euro",
+                    "de": "Jeweilige Preise, Millionen Euro",
+                    "fr": "Prix courants, millions d'euros"
+                  }
+                },
+                "freq": {
+                  "code": "A",
+                  "codelist_id": "FREQ",
+                  "codelist_version": "3.9",
+                  "labels": {
+                    "en": "Annual",
+                    "de": "J\u00e4hrlich",
+                    "fr": "Annuel"
+                  }
+                }
+              }
+            }
+          ],
+          "status": "mapped"
+        },
+        "observation_attributes": {
+          "2023": {
+            "OBS_FLAG": "p"
+          }
+        },
+        "raw_sha256": "b6f4a915e00b3340405a148acaa22ac5a0efba41b049e631cf1f933917654bfa",
+        "sdmx_version": "2.27.0",
+        "vintage_semantics": "retrieval time; historical provider vintage not inferred"
+      },
+      "parse_p50_ms": 0.6870124925626442,
+      "parse_p95_ms": 0.8353549928870052
+    },
+    {
+      "provider": "BBK",
+      "source_fixture": "bbk-native.xml",
+      "native_sha256": "3941d892e56a9183f81ff187ae1dbbae8128c35693d72fe323444fe14149549c",
+      "series_id": "bbk:BBEX3/D.USD.EUR.BB.AC.000:b7cbb19c641214d8f7b5d1d2",
+      "unit": "USD",
+      "frequency": "daily",
+      "geography": null,
+      "observations": [
+        {
+          "period": "2026-09-03",
+          "value": 1.1615
+        },
+        {
+          "period": "2026-09-04",
+          "value": 1.1622
+        }
+      ],
+      "metadata": {
+        "dimensions": {
+          "BBK_STD_FREQ": "D",
+          "BBK_STD_CURRENCY": "USD",
+          "BBK_ERX_PARTNER_CURRENCY": "EUR",
+          "BBK_ERX_SERIES_TYPE": "BB",
+          "BBK_ERX_RATE_TYPE": "AC",
+          "BBK_ERX_SUFFIX": "000"
+        },
+        "common_attributes": {
+          "TIME_FORMAT": "P1D",
+          "BBK_DECIMALS": "4",
+          "BBK_ID": "BBEX3.D.USD.EUR.BB.AC.000",
+          "BBK_UNIT": "USD",
+          "BBK_UNIT_MULT": "0",
+          "BBK_TITLE": "Euro-Referenzkurs der EZB / 1 EUR = ... USD / Vereinigte Staaten",
+          "BBK_TITLE_ENG": "Euro foreign exchange reference rate of the ECB / EUR 1 = USD ... / United States",
+          "BBK_COMM_GEN": "Die EZB ver\u00f6ffentlicht t\u00e4gliche Referenzkurse, die auf Grundlage der Konzertation zwischen Zentralbanken um 14.15 Uhr ermittelt werden.",
+          "BBK_COMM_GEN_ENG": "The ECB publishes daily euro foreign exchange reference rates, which are calculated on the basis of the concertation between central banks at 14.15.",
+          "BBK_COMM_SRC": "Europ\u00e4ische Zentralbank (EZB).",
+          "BBK_COMM_SRC_ENG": "European Central Bank (ECB).",
+          "WEB_CATEGORY": "WEDE"
+        },
+        "original_values": {
+          "2026-09-03": "1.1615",
+          "2026-09-04": "1.1622"
+        },
+        "provider_prepared_at": "2026-09-04 15:56:23+02:00",
+        "provider_release_at": null,
+        "dataset_metadata": [
+          {
+            "action": null,
+            "valid_from": null,
+            "structure_id": "BBK_ERX"
+          }
+        ],
+        "provider_extracted_at": null,
+        "dataflow_id": "BBEX3",
+        "structure": {
+          "status": "not_requested"
+        },
+        "observation_attributes": {
+          "2026-09-03": {
+            "BBK_DIFF": "0.3",
+            "TIME_FORMAT": "P1D",
+            "BBK_DECIMALS": "4",
+            "BBK_ID": "BBEX3.D.USD.EUR.BB.AC.000",
+            "BBK_UNIT": "USD",
+            "BBK_UNIT_MULT": "0",
+            "BBK_TITLE": "Euro-Referenzkurs der EZB / 1 EUR = ... USD / Vereinigte Staaten",
+            "BBK_TITLE_ENG": "Euro foreign exchange reference rate of the ECB / EUR 1 = USD ... / United States",
+            "BBK_COMM_GEN": "Die EZB ver\u00f6ffentlicht t\u00e4gliche Referenzkurse, die auf Grundlage der Konzertation zwischen Zentralbanken um 14.15 Uhr ermittelt werden.",
+            "BBK_COMM_GEN_ENG": "The ECB publishes daily euro foreign exchange reference rates, which are calculated on the basis of the concertation between central banks at 14.15.",
+            "BBK_COMM_SRC": "Europ\u00e4ische Zentralbank (EZB).",
+            "BBK_COMM_SRC_ENG": "European Central Bank (ECB).",
+            "WEB_CATEGORY": "WEDE"
+          },
+          "2026-09-04": {
+            "BBK_DIFF": "0.1",
+            "TIME_FORMAT": "P1D",
+            "BBK_DECIMALS": "4",
+            "BBK_ID": "BBEX3.D.USD.EUR.BB.AC.000",
+            "BBK_UNIT": "USD",
+            "BBK_UNIT_MULT": "0",
+            "BBK_TITLE": "Euro-Referenzkurs der EZB / 1 EUR = ... USD / Vereinigte Staaten",
+            "BBK_TITLE_ENG": "Euro foreign exchange reference rate of the ECB / EUR 1 = USD ... / United States",
+            "BBK_COMM_GEN": "Die EZB ver\u00f6ffentlicht t\u00e4gliche Referenzkurse, die auf Grundlage der Konzertation zwischen Zentralbanken um 14.15 Uhr ermittelt werden.",
+            "BBK_COMM_GEN_ENG": "The ECB publishes daily euro foreign exchange reference rates, which are calculated on the basis of the concertation between central banks at 14.15.",
+            "BBK_COMM_SRC": "Europ\u00e4ische Zentralbank (EZB).",
+            "BBK_COMM_SRC_ENG": "European Central Bank (ECB).",
+            "WEB_CATEGORY": "WEDE"
+          }
+        },
+        "raw_sha256": "3941d892e56a9183f81ff187ae1dbbae8128c35693d72fe323444fe14149549c",
+        "sdmx_version": "2.27.0",
+        "vintage_semantics": "retrieval time; historical provider vintage not inferred"
+      },
+      "parse_p50_ms": 0.8462995028821751,
+      "parse_p95_ms": 0.9425939933862537
+    }
+  ],
+  "eurostat_baseline_values": [
+    {
+      "period": "2023",
+      "value": 4254930.0
+    }
+  ],
+  "process_peak_rss_kib": 158384,
+  "decision": "Adopt optional SDMX connector for verified ECB, Eurostat and Bundesbank data paths with explicit structures. Keep legacy Eurostat default. Small native captures establish protocol fidelity, not complete endpoint coverage or historical vintages.",
+  "limitations": [
+    "DataStructure mapping retains identity/dimensions/code labels; other annotations require retained RawSeries.",
+    "BBK01 documentation example keys returned no data; period syntax must match frequency.",
+    "Publication/release time is not inferred from prepared/retrieval timestamps."
+  ]
+}

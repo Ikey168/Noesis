@@ -7,10 +7,9 @@
 # NEW / not-yet-triaged fixable findings rather than on this known backlog.
 #
 # Each entry is a pre-existing dependency CVE whose fix requires a dependency
-# upgrade tracked as separate work. The breaking ones (mlflow 2.x -> 3.x,
-# Airflow 2.8 -> 3.x) are deferred because upgrading them in this PR would
-# break the pipeline/DAG jobs; the rest are scheduled for a dependency-bump
-# pass. Remove an ID here once its package is upgraded past the fixed version.
+# upgrade tracked as separate work. Remove an ID here once its package is
+# upgraded past the fixed version. Airflow exceptions were removed with the
+# Airflow 3.3.1 migration.
 
 # --- mlflow 2.10.0 ---
 # MLflow tracking-server RCE / SSRF / path-traversal / auth CVEs. This repo
@@ -39,18 +38,6 @@ CVE-2026-2614
 CVE-2026-2635
 CVE-2026-2652
 CVE-2026-4137
-
-# --- apache-airflow 2.8.1 + apache-airflow-providers-http 4.7.0 ---
-# Fixes require Airflow 3.x, which is a breaking migration (the DAG-check job
-# pins Airflow 2.8.1). Airflow runs in a controlled internal environment.
-# Tracked for a separate Airflow 3 migration.
-CVE-2026-40961
-CVE-2024-39877
-CVE-2024-45034
-CVE-2024-56373
-CVE-2025-54550
-CVE-2025-68675
-CVE-2025-69219
 
 # --- cryptography 41.0.8 ---
 # Fixes available (42.0.4 / 46.0.5 / 48.0.1); scheduled for a dependency-bump pass.

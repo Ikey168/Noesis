@@ -126,6 +126,32 @@ def test_geospatial_mcp_registry_resolution_search_relations_and_auth(
     assert polygon["geometry_id"] in {item["geometry_id"] for item in searched["items"]}
 
 
+def test_optional_multipart_simplification_tool(tmp_path, monkeypatch):
+    import pytest
+    pytest.importorskip("shapely")
+    pytest.importorskip("pyproj")
+    from src.kb.geospatial import WRITE_SCOPE, GeospatialStore
+    database = tmp_path / "multipart.duckdb"
+    conn = duckdb.connect(str(database))
+    store = GeospatialStore(conn)
+    original = store.store_geometry("berlin", {"type":"MultiPolygon", "coordinates":[[[[13,52],[13.1,52],[13.1,52.1],[13,52.1],[13,52]]]]},
+        place_id=None,crs="EPSG:4326",precision_m=1,simplified_from=None,disputed=False,
+        admin_hierarchy=[],source={"fixture":True},evidence=[],principal_id="fixture",scopes={WRITE_SCOPE})
+    conn.close()
+    scopes = {WRITE_SCOPE}
+    monkeypatch.setattr(server, "_context", lambda: ("fixture", scopes))
+    monkeypatch.setattr(server, "_connection", lambda *, read_only: duckdb.connect(str(database)))
+    tools = asyncio.run(server.mcp.get_tools())
+    result = _call(tools["simplify_geospatial_geometry"], namespace="berlin", geometry_id=original["geometry_id"],
+        tolerance_m=10, backend="shapely", projected_crs="EPSG:25833")
+    assert result["simplified_from"] == original["geometry_id"]
+    assert result["source"]["simplification"]["request"]["repair_policy"] == "reject"
+    scopes.clear()
+    denied = _call(tools["simplify_geospatial_geometry"], namespace="berlin", geometry_id=original["geometry_id"],
+        tolerance_m=10, backend="shapely", projected_crs="EPSG:25833")
+    assert denied["error"]["code"] == "unauthorized"
+
+
 def test_geospatial_capabilities_advertise_contracts_and_features():
     capabilities = server.knowledge_engine_capabilities.fn()
     assert {

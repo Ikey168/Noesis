@@ -591,7 +591,7 @@ def test_schedules_reject_overlap_and_report_runtime_coverage(setup):
     )
     coverage = runtime.runtime_coverage()
     assert coverage["domains"]["research"] == {
-        "configured": 4,
+        "configured": 5,
         "ready": 1,
         "attempted": 1,
         "completed": 1,

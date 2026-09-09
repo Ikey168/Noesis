@@ -1,0 +1,214 @@
+{
+  "captured_at": "2026-09-05T20:56:17.418016+00:00",
+  "model_load_ms": 7198.929270001827,
+  "corpus": "authored smoke examples, not independently annotated evaluation",
+  "decision": "defer adoption pending held-out comparison (#1420/#1493)",
+  "device": "cpu",
+  "examples": [
+    {
+      "text": "Die Humboldt-Universität zu Berlin erhält Mittel aus Horizont Europa.",
+      "latency_ms": 269.0645680122543,
+      "entities": [
+        {
+          "text": "Humboldt-Universität zu Berlin",
+          "type": "ORGANIZATION",
+          "confidence": 0.9745912551879883,
+          "start_position": 4,
+          "end_position": 34
+        },
+        {
+          "text": "Horizont Europa",
+          "type": "FUNDING_PROGRAMME",
+          "confidence": 0.9708830118179321,
+          "start_position": 53,
+          "end_position": 68
+        }
+      ],
+      "receipt": {
+        "producer": {
+          "backend": "gliner2",
+          "version": "2.0.0"
+        },
+        "request": {
+          "model": "fastino/gliner2-multi-v1",
+          "revision": "c6296e25603e4d31f68ef8a9f4edb73421d1e45a",
+          "language": "de",
+          "schema": {
+            "AUTHORITY": "Behörde oder öffentliche Verwaltung, einschließlich Senatsverwaltungen",
+            "FUNDING_PROGRAMME": "Name eines Förderprogramms der EU, Deutschlands oder Berlins",
+            "ORGANIZATION": "Benannte Organisation, Hochschule, Unternehmen oder Verein",
+            "LEGAL_REFERENCE": "Benanntes Gesetz, Verordnung, Artikel oder Paragraph"
+          },
+          "threshold": 0.5,
+          "max_tokens": 512,
+          "article_id": "authored:0",
+          "revision_id": "v1",
+          "text_sha256": "d32bcbbd03579efcda8cac31da2bf4b07556891314156f0789fcb3a01da1f97c",
+          "offset_unit": "unicode_codepoint",
+          "overlap_policy": "allow",
+          "confidence_semantics": "uncalibrated_model_score"
+        },
+        "result": [
+          {
+            "text": "Humboldt-Universität zu Berlin",
+            "type": "ORGANIZATION",
+            "confidence": 0.9745912551879883,
+            "start_position": 4,
+            "end_position": 34
+          },
+          {
+            "text": "Horizont Europa",
+            "type": "FUNDING_PROGRAMME",
+            "confidence": 0.9708830118179321,
+            "start_position": 53,
+            "end_position": 68
+          }
+        ],
+        "sha256": "24b6aa89fdaaad29f8d8ae70aa5ed281644f9cb4d56c263e752183c3f4f95b91"
+      }
+    },
+    {
+      "text": "The European Commission funds research through Horizon Europe.",
+      "latency_ms": 201.72438799636438,
+      "entities": [
+        {
+          "text": "European Commission",
+          "type": "AUTHORITY",
+          "confidence": 0.9963646531105042,
+          "start_position": 4,
+          "end_position": 23
+        },
+        {
+          "text": "Horizon Europe",
+          "type": "FUNDING_PROGRAMME",
+          "confidence": 0.5934843420982361,
+          "start_position": 47,
+          "end_position": 61
+        },
+        {
+          "text": "Horizon Europe",
+          "type": "ORGANIZATION",
+          "confidence": 0.9765914678573608,
+          "start_position": 47,
+          "end_position": 61
+        }
+      ],
+      "receipt": {
+        "producer": {
+          "backend": "gliner2",
+          "version": "2.0.0"
+        },
+        "request": {
+          "model": "fastino/gliner2-multi-v1",
+          "revision": "c6296e25603e4d31f68ef8a9f4edb73421d1e45a",
+          "language": "en",
+          "schema": {
+            "AUTHORITY": "Named public authority or government department",
+            "FUNDING_PROGRAMME": "Named EU, German or Berlin funding programme",
+            "ORGANIZATION": "Named organisation, university, company or association",
+            "LEGAL_REFERENCE": "Named law, regulation, article or statutory section"
+          },
+          "threshold": 0.5,
+          "max_tokens": 512,
+          "article_id": "authored:1",
+          "revision_id": "v1",
+          "text_sha256": "480d7bb0a435f79f554159e08585d8f36bea041037dbb22ff5bd1d0629ef5856",
+          "offset_unit": "unicode_codepoint",
+          "overlap_policy": "allow",
+          "confidence_semantics": "uncalibrated_model_score"
+        },
+        "result": [
+          {
+            "text": "European Commission",
+            "type": "AUTHORITY",
+            "confidence": 0.9963646531105042,
+            "start_position": 4,
+            "end_position": 23
+          },
+          {
+            "text": "Horizon Europe",
+            "type": "FUNDING_PROGRAMME",
+            "confidence": 0.5934843420982361,
+            "start_position": 47,
+            "end_position": 61
+          },
+          {
+            "text": "Horizon Europe",
+            "type": "ORGANIZATION",
+            "confidence": 0.9765914678573608,
+            "start_position": 47,
+            "end_position": 61
+          }
+        ],
+        "sha256": "103e5f0016e977f442af3e00d5b50ef78720622c6d4939a01a28195b87ea06d4"
+      }
+    },
+    {
+      "text": "Das Bezirksamt Mitte prüft den Antrag nach § 34 BauGB.",
+      "latency_ms": 258.8213979906868,
+      "entities": [
+        {
+          "text": "Bezirksamt Mitte",
+          "type": "AUTHORITY",
+          "confidence": 0.9842324256896973,
+          "start_position": 4,
+          "end_position": 20
+        },
+        {
+          "text": "§ 34 BauGB",
+          "type": "LEGAL_REFERENCE",
+          "confidence": 0.9742940068244934,
+          "start_position": 43,
+          "end_position": 53
+        }
+      ],
+      "receipt": {
+        "producer": {
+          "backend": "gliner2",
+          "version": "2.0.0"
+        },
+        "request": {
+          "model": "fastino/gliner2-multi-v1",
+          "revision": "c6296e25603e4d31f68ef8a9f4edb73421d1e45a",
+          "language": "de",
+          "schema": {
+            "AUTHORITY": "Behörde oder öffentliche Verwaltung, einschließlich Senatsverwaltungen",
+            "FUNDING_PROGRAMME": "Name eines Förderprogramms der EU, Deutschlands oder Berlins",
+            "ORGANIZATION": "Benannte Organisation, Hochschule, Unternehmen oder Verein",
+            "LEGAL_REFERENCE": "Benanntes Gesetz, Verordnung, Artikel oder Paragraph"
+          },
+          "threshold": 0.5,
+          "max_tokens": 512,
+          "article_id": "authored:2",
+          "revision_id": "v1",
+          "text_sha256": "64b343b7c37e53c2b102ac4c9eb47f5003201b1017d7e3bf189122d330b0711f",
+          "offset_unit": "unicode_codepoint",
+          "overlap_policy": "allow",
+          "confidence_semantics": "uncalibrated_model_score"
+        },
+        "result": [
+          {
+            "text": "Bezirksamt Mitte",
+            "type": "AUTHORITY",
+            "confidence": 0.9842324256896973,
+            "start_position": 4,
+            "end_position": 20
+          },
+          {
+            "text": "§ 34 BauGB",
+            "type": "LEGAL_REFERENCE",
+            "confidence": 0.9742940068244934,
+            "start_position": 43,
+            "end_position": 53
+          }
+        ],
+        "sha256": "8b1a3a0fbbe787128e1215f9e53d0ad1b4f535b18c0cac2d37a0df3016700066"
+      }
+    }
+  ],
+  "process_peak_rss_kib": 3159992,
+  "runtime_threads": {
+    "OMP_NUM_THREADS": 2,
+    "MKL_NUM_THREADS": 2
+  }
+}

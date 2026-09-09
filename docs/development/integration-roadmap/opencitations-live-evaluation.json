@@ -1,0 +1,50 @@
+{
+  "provider": "opencitations",
+  "api_version": "2.2.0",
+  "cases": [
+    {
+      "direction": "references",
+      "acquisition": {
+        "imported": 20,
+        "processed": 20,
+        "snapshot_sha256": "9e1a770f055332c010de1b0df4acdef6c9c4dd6c6c8b2597f0f2e22d5169128c",
+        "next_cursor": {
+          "snapshot_sha256": "9e1a770f055332c010de1b0df4acdef6c9c4dd6c6c8b2597f0f2e22d5169128c",
+          "index": 20
+        },
+        "provider": "opencitations",
+        "identifier": "doi:10.1186/1756-8722-6-59",
+        "direction": "references",
+        "observed_at_ms": 1788642849682,
+        "captured_edge_count": 72
+      },
+      "fetch_first_import_ms": 613.5149599867873,
+      "restart_resume_complete": true,
+      "replay_imported": 0,
+      "traversal_edge_count": 72,
+      "traversal_bounded": false
+    },
+    {
+      "direction": "citations",
+      "acquisition": {
+        "imported": 20,
+        "processed": 20,
+        "snapshot_sha256": "b7b70772a05a518b94d1bb93c5606f18e302ef036e72e0ba0ab94d8c13e585c6",
+        "next_cursor": {
+          "snapshot_sha256": "b7b70772a05a518b94d1bb93c5606f18e302ef036e72e0ba0ab94d8c13e585c6",
+          "index": 20
+        },
+        "provider": "opencitations",
+        "identifier": "doi:10.1186/1756-8722-6-59",
+        "direction": "citations",
+        "observed_at_ms": 1788642851483,
+        "captured_edge_count": 217
+      },
+      "fetch_first_import_ms": 844.9541849840898,
+      "restart_resume_complete": true,
+      "replay_imported": 0,
+      "traversal_edge_count": 217,
+      "traversal_bounded": false
+    }
+  ]
+}

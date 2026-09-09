@@ -7,6 +7,8 @@ from src.ingestion.europepmc_api import _Text
 
 def provider(source):
     endpoint = urlsplit(source["endpoint"])
+    if source["source_id"] == "datacite-dois" and endpoint.hostname == "api.datacite.org" and endpoint.path.rstrip("/") == "/dois":
+        return "datacite"
     for name, host in [
         ("crossref", "api.crossref.org"),
         ("openalex", "api.openalex.org"),
@@ -21,6 +23,9 @@ def provider(source):
 
 
 def parameters(name, request, *, cursor, limit, contact=None, secret=None):
+    if name == "datacite":
+        from src.ingestion.datacite_api import parameters as datacite_parameters
+        return datacite_parameters(request, cursor=cursor, limit=limit)
     values = dict(request.get("parameters") or {})
     filters = []
     result = {}
@@ -99,6 +104,9 @@ def parameters(name, request, *, cursor, limit, contact=None, secret=None):
 
 
 def records(name, payload, *, cursor, limit):
+    if name == "datacite":
+        from src.ingestion.datacite_api import records as datacite_records
+        return datacite_records(payload, cursor=cursor, limit=limit)
     envelope = (
         payload.get("message")
         if name == "crossref" and isinstance(payload, dict)

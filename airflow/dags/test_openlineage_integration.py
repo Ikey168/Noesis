@@ -6,12 +6,13 @@ in our custom Airflow image. It performs simple data operations that should
 generate lineage events.
 """
 
-from datetime import datetime, timedelta
-from airflow import DAG
-from airflow.operators.python import PythonOperator
-from airflow.operators.bash import BashOperator
-import pandas as pd
 import logging
+from datetime import datetime, timedelta
+
+import pandas as pd
+from airflow.providers.standard.operators.bash import BashOperator
+from airflow.providers.standard.operators.python import PythonOperator
+from airflow.sdk import DAG
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -32,7 +33,7 @@ dag = DAG(
     'test_openlineage_integration',
     default_args=default_args,
     description='Test DAG for OpenLineage provider integration',
-    schedule_interval=timedelta(hours=1),
+    schedule=timedelta(hours=1),
     start_date=datetime(2024, 1, 1),
     catchup=False,
     tags=['test', 'openlineage', 'issue-187'],
@@ -41,16 +42,16 @@ dag = DAG(
 def test_openlineage_import():
     """Test that OpenLineage modules can be imported."""
     try:
-        import openlineage.airflow
+        import airflow.providers.openlineage
         from openlineage.client import OpenLineageClient
-        from openlineage.client.transport import HttpTransport
+        from openlineage.client.transport.http import HttpConfig, HttpTransport
         
         logger.info("✅ OpenLineage modules imported successfully!")
-        logger.info(f"OpenLineage Airflow version: {openlineage.airflow.__version__}")
+        logger.info(f"OpenLineage Airflow version: {airflow.providers.openlineage.__version__}")
         
         # Test client creation
-        transport = HttpTransport("http://marquez:5000")
-        client = OpenLineageClient(transport=transport)
+        transport = HttpTransport(HttpConfig(url="http://marquez:5000"))
+        OpenLineageClient(transport=transport)
         
         logger.info("✅ OpenLineage client created successfully!")
         return "OpenLineage integration test passed"
@@ -100,14 +101,13 @@ def simulate_data_processing():
 def check_airflow_plugins():
     """Check that Airflow plugins are loaded correctly."""
     try:
-        from airflow.plugins_manager import AirflowPlugin
         from airflow import configuration
         
         # Get OpenLineage configuration
         try:
-            ol_transport = configuration.get('openlineage', 'transport', fallback='not configured')
-            ol_namespace = configuration.get('openlineage', 'namespace', fallback='not configured')
-            ol_disabled = configuration.get('openlineage', 'disabled', fallback='not configured')
+            ol_transport = configuration.conf.get('openlineage', 'transport', fallback='not configured')
+            ol_namespace = configuration.conf.get('openlineage', 'namespace', fallback='not configured')
+            ol_disabled = configuration.conf.get('openlineage', 'disabled', fallback='not configured')
             
             logger.info(f"🔧 OpenLineage Transport: {ol_transport}")
             logger.info(f"🏷️  OpenLineage Namespace: {ol_namespace}")
@@ -142,16 +142,16 @@ check_provider_task = BashOperator(
     bash_command="""
     echo "🔍 Checking OpenLineage provider installation..."
     python -c "
-import pkg_resources
+from importlib.metadata import PackageNotFoundError, version
 import sys
 
 # Check for OpenLineage packages
-packages = ['apache-airflow-providers-openlineage', 'openlineage-airflow', 'openlineage-python']
+packages = ['apache-airflow-providers-openlineage', 'openlineage-python']
 for package in packages:
     try:
-        version = pkg_resources.get_distribution(package).version
-        print(f'✅ {package}: {version}')
-    except pkg_resources.DistributionNotFound:
+        package_version = version(package)
+        print(f'✅ {package}: {package_version}')
+    except PackageNotFoundError:
         print(f'❌ {package}: NOT FOUND')
         sys.exit(1)
 

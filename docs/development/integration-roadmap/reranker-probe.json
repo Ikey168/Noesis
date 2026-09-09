@@ -1,0 +1,71 @@
+{
+  "fixture_kind": "synthetic engineering probe; not independent human evaluation",
+  "model": "Qwen/Qwen3-Reranker-0.6B",
+  "revision": "e61197ed45024b0ed8a2d74b80b4d909f1255473",
+  "hardware": "Linux-7.1.4-204.fc44.x86_64-x86_64-with-glibc2.43",
+  "threads": 2,
+  "load_ms": 1931.9094539969228,
+  "batch_latency_p50_ms": 4472.002824491938,
+  "batch_latencies_ms": [
+    7037.274459988112,
+    4139.215139002772,
+    4261.573359981412,
+    4682.432289002463
+  ],
+  "process_peak_rss_kib": 1976624,
+  "runs": [
+    {
+      "query": "Welche Förderung unterstützt die Gebäudesanierung?",
+      "passages": [
+        "Das Förderprogramm unterstützt die energetische Sanierung von Wohngebäuden.",
+        "Der Fußballverein gewann sein Heimspiel."
+      ],
+      "scores": [
+        0.9995121955871582,
+        2.818866414600052e-05
+      ],
+      "expected_preference": 0,
+      "preferred": 0
+    },
+    {
+      "query": "What supports renovation of residential buildings?",
+      "passages": [
+        "Das Förderprogramm unterstützt die energetische Sanierung von Wohngebäuden.",
+        "Der Fußballverein gewann sein Heimspiel."
+      ],
+      "scores": [
+        0.999937891960144,
+        8.80110019352287e-06
+      ],
+      "expected_preference": 0,
+      "preferred": 0
+    },
+    {
+      "query": "Welche Studie untersucht die Behandlung von Diabetes?",
+      "passages": [
+        "The clinical trial compares two diabetes treatments in adult patients.",
+        "Train departures are listed in the railway timetable."
+      ],
+      "scores": [
+        0.9724147915840149,
+        7.127360277081607e-06
+      ],
+      "expected_preference": 0,
+      "preferred": 0
+    },
+    {
+      "query": "What does the diabetes trial compare?",
+      "passages": [
+        "The clinical trial compares two diabetes treatments in adult patients.",
+        "Train departures are listed in the railway timetable."
+      ],
+      "scores": [
+        0.9997387528419495,
+        2.327823131054174e-05
+      ],
+      "expected_preference": 0,
+      "preferred": 0
+    }
+  ],
+  "adoption": "defer; independent corpus, baseline comparison and calibration outstanding"
+}

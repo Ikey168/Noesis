@@ -123,6 +123,7 @@ def knowledge_engine_capabilities() -> dict:
             "noesis-quantitative-comparability-v1",
             "noesis-geospatial-place-v1",
             "noesis-geospatial-geometry-v1",
+            "noesis-geospatial-geometry-v2",
             "noesis-geocode-resolution-v1",
             "noesis-spatial-result-v1",
             "noesis-claim-state-v1",
@@ -2224,6 +2225,7 @@ def evaluate_quantitative_formula(
     metric_id: str,
     inputs: dict[str, dict[str, Any]],
     precision: int = 6,
+    backend: str = "native",
 ) -> dict:
     """Evaluate a safe versioned metric formula with exact input lineage."""
     from src.kb.quantitative import QuantitativeStore
@@ -2235,6 +2237,7 @@ def evaluate_quantitative_formula(
             metric_id,
             inputs,
             precision=precision,
+            backend=backend,
             principal_id=principal,
             scopes=scopes,
         ),
@@ -2473,7 +2476,8 @@ def list_geospatial_geometries(
 
 @mcp.tool()
 def simplify_geospatial_geometry(
-    namespace: str, geometry_id: str, tolerance_m: float
+    namespace: str, geometry_id: str, tolerance_m: float,
+    backend: str = "stdlib", projected_crs: str | None = None,
 ) -> dict:
     """Create a source-linked simplified geometry at an explicit tolerance."""
     from src.kb.geospatial import GeospatialStore
@@ -2484,6 +2488,8 @@ def simplify_geospatial_geometry(
             namespace,
             geometry_id,
             tolerance_m,
+            backend=backend,
+            projected_crs=projected_crs,
             principal_id=principal,
             scopes=scopes,
         ),
@@ -2586,6 +2592,7 @@ def calculate_spatial_relation(
     left_geometry_id: str,
     right: Any = None,
     tolerance_m: float = 0,
+    backend: str = "stdlib",
 ) -> dict:
     """Calculate containment, proximity, intersection, or route length with a receipt."""
     from src.kb.geospatial import GeospatialStore
@@ -2598,6 +2605,7 @@ def calculate_spatial_relation(
             left_geometry_id,
             right,
             tolerance_m=tolerance_m,
+            backend=backend,
             principal_id=principal,
             scopes=scopes,
         ),
@@ -4354,7 +4362,7 @@ def create_source_research_objective(
 
 @mcp.tool()
 def preview_source_acquisition_plan(
-    namespace: str, objective_id: str, at_ms: int
+    namespace: str, objective_id: str, at_ms: int, optimizer: str = "greedy"
 ) -> dict:
     """Preview deterministic source selection without persisting a plan or resolving secrets."""
     from src.kb.source_planner import SourcePlannerStore
@@ -4364,6 +4372,7 @@ def preview_source_acquisition_plan(
             namespace,
             objective_id,
             at_ms=at_ms,
+            optimizer=optimizer,
             credential_available=lambda ref: bool(_secret_resolver(ref)),
             scopes={"knowledge:source-planner:read"},
         ),
@@ -4373,7 +4382,7 @@ def preview_source_acquisition_plan(
 
 @mcp.tool()
 def create_source_acquisition_plan(
-    namespace: str, objective_id: str, at_ms: int
+    namespace: str, objective_id: str, at_ms: int, optimizer: str = "greedy"
 ) -> dict:
     """Persist an explainable plan pinned to exact source capability versions."""
     from src.kb.source_planner import SourcePlannerStore
@@ -4383,6 +4392,7 @@ def create_source_acquisition_plan(
             namespace,
             objective_id,
             at_ms=at_ms,
+            optimizer=optimizer,
             credential_available=lambda ref: bool(_secret_resolver(ref)),
             persist=True,
             principal_id=_context()[0],
@@ -8069,11 +8079,19 @@ def revise_authored_report(namespace: str, report_id: str, expected_revision: in
 
 
 @mcp.tool()
-def export_authored_report(namespace: str, report_id: str, revision: int | None = None) -> dict:
-    """Export report JSON, Markdown, and bibliography without external publication."""
+def export_authored_report(namespace: str, report_id: str, revision: int | None = None,
+                           output_format: str = "native", references: list[dict[str, Any]] | None = None,
+                           locale: str = "de-DE") -> dict:
+    """Export native JSON/Markdown or opt-in Pandoc DOCX/HTML with citations."""
     from src.kb.authored_reports import READ_SCOPE, AuthoredReportStore
-    return _safe(lambda c: AuthoredReportStore(c, initialize=False).export(namespace, report_id,
-        revision=revision, principal_id=_context()[0], scopes=_context()[1]), required_scope=READ_SCOPE)
+    def export(conn):
+        store = AuthoredReportStore(conn, initialize=False)
+        args = {"revision": revision, "principal_id": _context()[0], "scopes": _context()[1]}
+        if output_format == "native":
+            return store.export(namespace, report_id, **args)
+        return store.render(namespace, report_id, output_format=output_format,
+                            references=references or [], locale=locale, **args)
+    return _safe(export, required_scope=READ_SCOPE)
 
 
 @mcp.tool()
@@ -8239,6 +8257,28 @@ def resolve_research_package_closure(
 
 
 @mcp.tool()
+def acquire_opencitations(
+    identifier: str, direction: str = "references", snapshot_sha256: str | None = None,
+    cursor: dict[str, Any] | None = None, page_size: int = 100,
+) -> dict:
+    """Capture an OpenCitations response or resume its bounded, persistent graph import."""
+    import os
+
+    from src.ingestion.opencitations import (
+        CitationAcquisitionStore,
+        OpenCitationsClient,
+    )
+
+    return _safe(
+        lambda c: CitationAcquisitionStore(c).acquire(
+            identifier, direction=direction, snapshot_sha256=snapshot_sha256,
+            cursor=cursor, page_size=page_size,
+            client=OpenCitationsClient(token=os.environ.get("NOESIS_OPENCITATIONS_TOKEN")),
+        ), write=True, required_scope="knowledge:citation:capture",
+    )
+
+
+@mcp.tool()
 def build_research_package(
     namespace: str,
     package_id: str,
@@ -8246,12 +8286,18 @@ def build_research_package(
     allow_partial: bool = False,
     cancel_requested: bool = False,
     limit: int = 10000,
+    output_format: str = "native",
+    publication_metadata: dict[str, Any] | None = None,
 ) -> dict:
-    """Build deterministic content-addressed bytes for a research package."""
+    """Build native package bytes or an optional RO-Crate with declared publication metadata."""
     from src.kb.research_packages import ResearchPackageStore
 
-    return _safe(
-        lambda c: ResearchPackageStore(c).build(
+    def build(c):
+        if output_format not in {"native", "ro-crate"}:
+            from src.integrations.common import IntegrationError
+
+            raise IntegrationError("unsupported_format", "Use native or ro-crate")
+        package = ResearchPackageStore(c).build(
             namespace,
             package_id,
             root_ids,
@@ -8260,7 +8306,15 @@ def build_research_package(
             limit=limit,
             principal_id=_context()[0],
             scopes={"knowledge:packages:write"},
-        ),
+        )
+        if output_format == "native" or package["status"] == "cancelled":
+            return package
+        from src.integrations.export import export_rocrate
+
+        return export_rocrate(package, metadata=publication_metadata)
+
+    return _safe(
+        build,
         write=True,
         required_scope="knowledge:packages:write",
     )

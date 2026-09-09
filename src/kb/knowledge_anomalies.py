@@ -212,6 +212,13 @@ class KnowledgeAnomalyStore:
             ),
         }
 
+    def simulate_drift(self, namespace, watch_id, observations, *, scopes):
+        _require(scopes, READ_SCOPE)
+        watch = self.watch(namespace, watch_id, scopes={READ_SCOPE})
+        from src.integrations.drift import detect_drift
+        config = watch["detector"]
+        return detect_drift(observations, delta=config.get("delta", .002), clock=config.get("clock", 32))
+
     def simulate(self, namespace, watch_id, observations, *, scopes, limit=1000):
         _require(scopes, READ_SCOPE)
         observations = list(observations)[: _limit(limit)]

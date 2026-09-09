@@ -50,6 +50,7 @@ class ArticleNormalizer:
         lingua_languages: tuple[str, ...] = ("de", "en"),
         language_confidence_threshold: float = 0.75,
         min_paragraph_length: int = 10,
+        language_candidates: tuple[str, ...] | None = None,
     ):
         """
         Initialize article normalizer.
@@ -66,7 +67,8 @@ class ArticleNormalizer:
         if language_backend not in {"langdetect", "lingua"}:
             raise ValueError("language_backend must be 'langdetect' or 'lingua'")
         self.language_backend = language_backend
-        self.lingua_languages = tuple(lingua_languages)
+        self.lingua_languages = tuple(language_candidates if language_candidates is not None else lingua_languages)
+        self.language_candidates = self.lingua_languages
         self.language_confidence_threshold = float(language_confidence_threshold)
         self.min_paragraph_length = min_paragraph_length
         

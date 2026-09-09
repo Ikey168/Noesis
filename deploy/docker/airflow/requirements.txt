@@ -1,19 +1,2 @@
-# Minimal Airflow Requirements for NeuroNews Custom Image (Issue #187)
-# Core OpenLineage providers for data lineage tracking
-
-# OpenLineage providers for data lineage tracking
-apache-airflow-providers-openlineage==1.4.0
-openlineage-airflow==1.9.0
-openlineage-python==1.9.0
-
-# Essential providers
-apache-airflow-providers-postgres==5.8.0
-apache-airflow-providers-http==4.7.0
-
-# Core data libraries for DAGs
-pandas==2.1.4
-requests==2.31.0
-sqlalchemy==2.0.25
-
-# Configuration management
-python-dotenv==1.0.0
+# Canonical runtime requirements (build context: repository root).
+-r ../../../airflow/requirements.txt

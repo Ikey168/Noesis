@@ -1,0 +1,219 @@
+{
+  "shapely_version": "2.1.2",
+  "geos_version": "3.13.1",
+  "reference_cases": [
+    {
+      "point": [
+        13.01,
+        52.01
+      ],
+      "strict_contains_expected": true,
+      "backends": {
+        "stdlib": {
+          "elapsed_ms": 3.708703996380791,
+          "result": {
+            "contains": true
+          }
+        },
+        "shapely": {
+          "elapsed_ms": 4.53136398573406,
+          "result": {
+            "contains": true,
+            "geos_version": "3.13.1",
+            "semantics": "planar topology in supplied coordinates; no metric distances"
+          }
+        }
+      }
+    },
+    {
+      "point": [
+        13.03,
+        52.03
+      ],
+      "strict_contains_expected": false,
+      "backends": {
+        "stdlib": {
+          "elapsed_ms": 3.5267600032966584,
+          "result": {
+            "contains": false
+          }
+        },
+        "shapely": {
+          "elapsed_ms": 4.041315987706184,
+          "result": {
+            "contains": false,
+            "geos_version": "3.13.1",
+            "semantics": "planar topology in supplied coordinates; no metric distances"
+          }
+        }
+      }
+    },
+    {
+      "point": [
+        13,
+        52.05
+      ],
+      "strict_contains_expected": false,
+      "backends": {
+        "stdlib": {
+          "elapsed_ms": 3.577533003408462,
+          "result": {
+            "contains": true
+          }
+        },
+        "shapely": {
+          "elapsed_ms": 4.260240006260574,
+          "result": {
+            "contains": false,
+            "geos_version": "3.13.1",
+            "semantics": "planar topology in supplied coordinates; no metric distances"
+          }
+        }
+      }
+    },
+    {
+      "point": [
+        13.02,
+        52.03
+      ],
+      "strict_contains_expected": false,
+      "backends": {
+        "stdlib": {
+          "elapsed_ms": 3.3754169999156147,
+          "result": {
+            "contains": false
+          }
+        },
+        "shapely": {
+          "elapsed_ms": 4.23928999225609,
+          "result": {
+            "contains": false,
+            "geos_version": "3.13.1",
+            "semantics": "planar topology in supplied coordinates; no metric distances"
+          }
+        }
+      }
+    }
+  ],
+  "reference_provenance": "Authored axis-aligned rectangles with analytically specified topology; not statistical ground truth",
+  "boundary_covers": {
+    "producer": {
+      "backend": "shapely",
+      "version": "2.1.2"
+    },
+    "request": {
+      "operation": "covers",
+      "left": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              13,
+              52
+            ],
+            [
+              13.1,
+              52
+            ],
+            [
+              13.1,
+              52.1
+            ],
+            [
+              13,
+              52.1
+            ],
+            [
+              13,
+              52
+            ]
+          ],
+          [
+            [
+              13.02,
+              52.02
+            ],
+            [
+              13.04,
+              52.02
+            ],
+            [
+              13.04,
+              52.04
+            ],
+            [
+              13.02,
+              52.04
+            ],
+            [
+              13.02,
+              52.02
+            ]
+          ]
+        ]
+      },
+      "right": {
+        "type": "Point",
+        "coordinates": [
+          13,
+          52.05
+        ]
+      },
+      "crs": "EPSG:4326",
+      "repair_policy": "reject"
+    },
+    "result": {
+      "covers": true,
+      "geos_version": "3.13.1",
+      "semantics": "planar topology in supplied coordinates; no metric distances"
+    },
+    "sha256": "7f0717f71d43fe394ba315ed98d8326788e43ab81087f6239d816e89dd20e498"
+  },
+  "store_simplification_comparison": {
+    "stdlib": {
+      "median_ms": 8.594138489570469,
+      "repetitions": 10,
+      "geometry_id": "geometry:09137d23278cb2faa85bde9a",
+      "source_geometry_id": "geometry:8a93f25b65f3cfde116ca109",
+      "valid": true,
+      "coordinates": 1305,
+      "discrete_hausdorff_m": 9.499204703548433
+    },
+    "shapely": {
+      "median_ms": 118.65299849887379,
+      "repetitions": 10,
+      "geometry_id": "geometry:d88bc0911cab5f3965675113",
+      "source_geometry_id": "geometry:8a93f25b65f3cfde116ca109",
+      "valid": true,
+      "coordinates": 222,
+      "discrete_hausdorff_m": 4.984531520123057
+    }
+  },
+  "native_berlin_case": {
+    "source": {
+      "source": "https://gdi.berlin.de/services/wfs/alkis_bezirke?service=WFS&request=GetFeature&version=2.0.0&typeNames=alkis_bezirke%3Abezirksgrenzen&count=1&outputFormat=application%2Fjson&srsName=EPSG%3A25833",
+      "publisher": "Senatsverwaltung für Stadtentwicklung, Bauen und Wohnen Berlin",
+      "license": "dl-de-zero-2.0",
+      "captured_at": "2026-09-05T21:29:13.352904+00:00",
+      "bytes": 64099,
+      "sha256": "dc6c22a9ae6dd704691c573f731196d02eb29d5237cf28fc3aba99561bc61d76",
+      "feature_id": "bezirksgrenzen.11000001",
+      "source_crs": "EPSG:25833"
+    },
+    "feature_id": "bezirksgrenzen.11000001",
+    "repetitions": 20,
+    "median_ms": 103.8780270027928,
+    "p95_ms": 110.68388100829907,
+    "original_coordinates": 2555,
+    "simplified_coordinates": 222,
+    "valid": true,
+    "receipt_artifact": {
+      "path": "geometry-benchmark.receipt.json.gz",
+      "uncompressed_sha256": "fec1e5c8dd5fa7e1e658672020389ffcde58219d499da70d492cbac0f2de02e7",
+      "receipt_sha256": "50fd94ff126ac925cb79d540d0860e099eeebd521f0f8ca3577ee838117d547d",
+      "sampled_displacement_m": 4.984531520123057,
+      "effective_tolerance_m": 5.0
+    }
+  },
+  "decision": "adopt explicit optional topology and projected simplification; preserve originals, reject repairs and unsupported GeometryCollection/dateline operations"
+}

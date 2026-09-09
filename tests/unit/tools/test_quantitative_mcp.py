@@ -133,6 +133,26 @@ def test_quantitative_mcp_discovery_vintages_comparison_calculation_and_auth(
     assert replay["deterministic"]
 
 
+def test_optional_pint_formula_tool(tmp_path, monkeypatch):
+    import pytest
+    pytest.importorskip("pint")
+    database = tmp_path / "formula.duckdb"
+    scopes = {"knowledge:quantitative:write", "knowledge:quantitative:calculate"}
+    monkeypatch.setattr(server, "_context", lambda: ("fixture", scopes))
+    monkeypatch.setattr(server, "_connection", lambda *, read_only: duckdb.connect(str(database)))
+    tools = asyncio.run(server.mcp.get_tools())
+    metric = _call(tools["register_quantitative_metric"], namespace="berlin", canonical_name="Authored length",
+        definition="Mixed-scale formula fixture", unit="m", formula={"expression": "a + b",
+            "input_dimensions": {"a": {"length": 1}, "b": {"length": 1}}})
+    inputs = {"a": {"value": "1", "unit_id": "km", "dimension": {"length": 1}},
+              "b": {"value": "500", "unit_id": "m", "dimension": {"length": 1}}}
+    result = _call(tools["evaluate_quantitative_formula"], namespace="berlin", metric_id=metric["metric_id"], inputs=inputs, backend="pint")
+    assert result["result"]["value"] == "1500.000000"
+    scopes.remove("knowledge:quantitative:calculate")
+    denied = _call(tools["evaluate_quantitative_formula"], namespace="berlin", metric_id=metric["metric_id"], inputs=inputs, backend="pint")
+    assert denied["error"]["code"] == "unauthorized"
+
+
 def test_quantitative_capabilities_advertise_contracts_and_features():
     capabilities = server.knowledge_engine_capabilities.fn()
     assert {

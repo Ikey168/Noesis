@@ -674,6 +674,23 @@ class DatasetIntelligenceStore:
             return raw if isinstance(raw, (dict, list)) else json.loads(str(raw))
         raise ValueError(f"unsupported type {kind}")
 
+    def validate_batch(self, namespace, release_id, table_id, rows, *, scopes, checks=None):
+        """Preflight a batch with Pandera; validation does not publish or coerce rows."""
+        _require(scopes, INGEST_SCOPE)
+        release, table = self._table(namespace, release_id, table_id)
+        from src.integrations.validation import validate_rows
+        checks = checks or {}
+        extra = checks.get("columns", {})
+        declared = {column["name"] for column in table["columns"]}
+        if set(extra) - declared or any(
+            set(options) - {"minimum", "maximum", "allowed"}
+            for options in extra.values()
+        ):
+            raise ValueError("Checks may constrain declared columns, not override their schema")
+        columns = [{**column, **extra.get(column["name"], {})} for column in table["columns"]]
+        return validate_rows(rows, columns, unique=table.get("primary_key"),
+                             comparisons=checks.get("comparisons", ()))
+
     def ingest(
         self,
         namespace: str,

@@ -49,6 +49,35 @@ unit-evaluation = ["pint==0.25.2"]
 report-rendering = ["pypandoc_binary==1.17", "typst==0.15.0"]
 drift-evaluation = ["river==0.26.1"]
 dataset-validation = ["pandera[pandas]==0.33.1"]
+workflow-models = [
+  "onnxruntime==1.29.0",
+  "wtpsplit==2.2.1",
+  "outlines==1.3.3",
+  "sentence-transformers==6.0.1",
+  "transformers==5.16.1",
+]
+workflow-entities = [
+  "gliner2==2.0.0",
+  "peft==0.20.0",
+  "transformers==5.16.1",
+]
+workflow-export-validation = ["roc-validator==0.11.3"]
+workflow-integrations = [
+  "warcio==1.8.1",
+  "markitdown==0.1.7",
+  "lingua-language-detector==2.2.0",
+  "rapidfuzz==3.14.6",
+  "datasketch==2.0.0",
+  "shapely==2.1.2",
+  "pyproj==3.7.2",
+  "pint==0.25.3",
+  "ortools==9.15.6755",
+  "pandera[pandas]==0.33.1",
+  "river==0.26.1",
+  "rocrate==0.15.1",
+  "sdmx1==2.27.0",
+  "pypandoc-binary==1.17",
+]
 ingestion = [
   "defusedxml>=0.7.1,<1",
   "feedparser>=6,<7",
@@ -99,7 +128,7 @@ media = [
   "pytesseract>=0.3.10",
 ]
 orchestration = [
-  "apache-airflow>=2.8,<4.0",
+  "apache-airflow>=3.3.1,<4.0",
   "apscheduler>=3.10,<4.0",
   "dbt-core>=1.7,<2.0",
   "mlflow>=2.0,<4.0",
@@ -110,7 +139,7 @@ cloud = [
   "redis>=5.0",
 ]
 full = [
-  "apache-airflow>=2.8,<4.0",
+  "apache-airflow>=3.3.1,<4.0",
   "apscheduler>=3.10,<4.0",
   "beautifulsoup4>=4.12",
   "boto3>=1.26",
@@ -154,3 +183,4 @@ namespaces = true
 "contracts.schemas.avro" = ["*.avsc"]
 "contracts.schemas.jsonschema" = ["*.json"]
 "src.noesis_cli" = ["resources/*"]
+"src.integrations" = ["model-pins.json"]

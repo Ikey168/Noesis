@@ -1,0 +1,111 @@
+{
+  "fixture_kind": "authored local German dynamic HTML; real MCP/browser execution, not production site evaluation",
+  "npm_package": "@playwright/mcp@0.0.80",
+  "server_version": "1.63.0-alpha-2026-08-31",
+  "navigation": {
+    "contract": "noesis-source-result-v1",
+    "source": "playwright-mcp",
+    "items": [
+      {
+        "id": "mcp:61947497d6163d9aa2b1",
+        "type": "tool",
+        "value": {
+          "meta": null,
+          "content": [
+            {
+              "type": "text",
+              "text": "### Ran Playwright code\n```js\nawait page.goto('http://127.0.0.1:40655/berlin');\n```\n### Page\n- Page URL: http://127.0.0.1:40655/berlin\n- Page Title: Berliner Forschung\n### Snapshot\n- [Snapshot](../noesis-mcp-probe-qd4w77pt/page-2026-09-05T20-12-13-286Z.yml)",
+              "annotations": null,
+              "meta": null
+            }
+          ],
+          "structuredContent": null,
+          "isError": false
+        },
+        "backend": {
+          "operation": "browser_navigate",
+          "arguments_hash": "a274fabc2124f2385c0aa7db220759ac06eb975a0dc411cf90906dd9336279d9",
+          "server_version": "1.63.0-alpha-2026-08-31"
+        }
+      }
+    ],
+    "cursor": null,
+    "coverage": {
+      "complete": true,
+      "returned": 1
+    },
+    "score_semantics": "none",
+    "temporal_support": "remote-declared",
+    "warnings": [],
+    "provenance": {
+      "source_id": "playwright-mcp",
+      "source_kind": "mcp",
+      "source_version": "1.0.0",
+      "capability_hash": "cf62a07ff2970609fbacf4e5106e71ca04a331a0f2d6835dc14cbb416a0019ff",
+      "query_hash": "94b559a51315aa650fd65a007352f13de29b6e9bfa7e15502cdc6e996f2f3b74",
+      "observed_at_ms": 1788639133290,
+      "freshness": {
+        "kind": "unknown"
+      },
+      "consistency": "remote-declared"
+    },
+    "latency_ms": 737.57
+  },
+  "snapshot": {
+    "contract": "noesis-source-result-v1",
+    "source": "playwright-mcp",
+    "items": [
+      {
+        "id": "mcp:1e11b92b13ed8af049bb",
+        "type": "tool",
+        "value": {
+          "meta": null,
+          "content": [
+            {
+              "type": "text",
+              "text": "### Page\n- Page URL: http://127.0.0.1:40655/berlin\n- Page Title: Berliner Forschung\n### Snapshot\n```yaml\n- generic [active] [ref=e1]:\n  - heading \"Berliner Forschung\" [level=1] [ref=e2]\n  - paragraph [ref=e3]: Förderung geprüft\n```",
+              "annotations": null,
+              "meta": null
+            }
+          ],
+          "structuredContent": null,
+          "isError": false
+        },
+        "backend": {
+          "operation": "browser_snapshot",
+          "arguments_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+          "server_version": "1.63.0-alpha-2026-08-31"
+        }
+      }
+    ],
+    "cursor": null,
+    "coverage": {
+      "complete": true,
+      "returned": 1
+    },
+    "score_semantics": "none",
+    "temporal_support": "remote-declared",
+    "warnings": [],
+    "provenance": {
+      "source_id": "playwright-mcp",
+      "source_kind": "mcp",
+      "source_version": "1.0.0",
+      "capability_hash": "cf62a07ff2970609fbacf4e5106e71ca04a331a0f2d6835dc14cbb416a0019ff",
+      "query_hash": "a95950b3321ec71aac3f36fc9e697587c812f6247cc8a848ecd5cc69b443576f",
+      "observed_at_ms": 1788639133421,
+      "freshness": {
+        "kind": "unknown"
+      },
+      "consistency": "remote-declared"
+    },
+    "latency_ms": 9.408
+  },
+  "captured_files": {
+    "page-2026-09-05T20-12-13-410Z.yml": "- generic [active] [ref=e1]:\n  - heading \"Berliner Forschung\" [level=1] [ref=e2]\n  - paragraph [ref=e3]: Förderung geprüft",
+    "page-2026-09-05T20-12-13-286Z.yml": "- generic [active] [ref=e1]:\n  - heading \"Berliner Forschung\" [level=1] [ref=e2]\n  - paragraph [ref=e3]: Laden"
+  },
+  "limitations": [
+    "Navigation allowlist constrains requested destinations; it is not a browser network sandbox or redirect policy.",
+    "Independent comparison against existing bulk browser acquisition remains outstanding."
+  ]
+}

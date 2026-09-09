@@ -1,0 +1,68 @@
+{
+  "fixture": "authored contract examples; no empirical research claims",
+  "cases": [
+    {
+      "partial": false,
+      "native_verification": {
+        "contract": "noesis-research-package-verification-v1",
+        "valid": true,
+        "content_hash": "9675d7a64f9af7eba4d72d30d6726b2654bca1ebcc3b3472ec7a7f75e6b9e351",
+        "actual_hash": "9675d7a64f9af7eba4d72d30d6726b2654bca1ebcc3b3472ec7a7f75e6b9e351",
+        "member_failures": [],
+        "missing_members": [],
+        "structural_errors": [],
+        "signature_status": "absent",
+        "key_id": null,
+        "key_version": null,
+        "offline": true
+      },
+      "export_ms": 70.71748899761587,
+      "bytes": 7220,
+      "sha256": "89c7222040fac10155cc176ec9f90f82f835db1c71bef63a70a99736b8dcf9d0",
+      "replay_byte_identical": true,
+      "independent_validation": {
+        "package": "roc-validator",
+        "version": "0.11.3",
+        "profile": "ro-crate-1.1",
+        "severity": "REQUIRED",
+        "offline": true,
+        "elapsed_ms": 748.2897650043014,
+        "issues": []
+      }
+    },
+    {
+      "partial": true,
+      "native_verification": {
+        "contract": "noesis-research-package-verification-v1",
+        "valid": false,
+        "content_hash": "bccb898b3996504516bac9c371d391f644c7a630b3899e07f188759f1b5ca42a",
+        "actual_hash": "bccb898b3996504516bac9c371d391f644c7a630b3899e07f188759f1b5ca42a",
+        "member_failures": [],
+        "missing_members": [
+          {
+            "component_id": "missing:1",
+            "reason": "missing"
+          }
+        ],
+        "structural_errors": [],
+        "signature_status": "absent",
+        "key_id": null,
+        "key_version": null,
+        "offline": true
+      },
+      "export_ms": 2.897464990383014,
+      "bytes": 8315,
+      "sha256": "7a1697e930233311b536df6b6180386ebee067bb25f88a6cae8dbdbd468190d2",
+      "replay_byte_identical": true,
+      "independent_validation": {
+        "package": "roc-validator",
+        "version": "0.11.3",
+        "profile": "ro-crate-1.1",
+        "severity": "REQUIRED",
+        "offline": true,
+        "elapsed_ms": 544.3447879806627,
+        "issues": []
+      }
+    }
+  ]
+}

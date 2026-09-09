@@ -149,6 +149,13 @@ class EmbeddingProvider:
         
         return np.vstack(all_embeddings) if all_embeddings else np.empty((0, self.dim()))
     
+    def embed_queries(self, texts: List[str]) -> np.ndarray:
+        """Use the backend query policy; documents retain embed_texts semantics."""
+        encode = getattr(self.backend, "embed_queries", self.backend.embed_texts)
+        if not texts:
+            return np.empty((0, self.dim()))
+        return np.vstack([encode(texts[i:i+self.batch_size]) for i in range(0, len(texts), self.batch_size)])
+
     def dim(self) -> int:
         """Return the embedding dimension."""
         return self.backend.dim()
@@ -156,11 +163,6 @@ class EmbeddingProvider:
     def name(self) -> str:
         """Return the provider name."""
         return f"{self.provider_name}:{self.backend.name()}"
-
-    def embed_queries(self, texts):
-        """Use query-specific prefixes when the selected model requires them."""
-        method = getattr(self.backend, "embed_queries", None)
-        return method(texts) if method is not None else self.embed_texts(texts)
 
     def count_tokens(self, text: str) -> int:
         """Count the actual backend tokenizer input, including special tokens."""

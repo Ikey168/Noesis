@@ -812,7 +812,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 431,
+      "tool_count": 432,
       "tools": [
         "noesis-knowledge-engine.accept_citation_repair",
         "noesis-knowledge-engine.accept_dataset_join",
@@ -820,6 +820,7 @@
         "noesis-knowledge-engine.acknowledge_change_brief_delivery",
         "noesis-knowledge-engine.acknowledge_cited_evidence_alert",
         "noesis-knowledge-engine.acknowledge_decision_review_task",
+        "noesis-knowledge-engine.acquire_opencitations",
         "noesis-knowledge-engine.add_review_candidate",
         "noesis-knowledge-engine.add_source_relationship",
         "noesis-knowledge-engine.adjudicate_review_candidate",
@@ -1251,7 +1252,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 431
+      "visible_tool_count": 432
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -1265,9 +1266,9 @@
       "available": 81,
       "degraded": 155,
       "disabled": 3,
-      "unauthorized": 436
+      "unauthorized": 437
     },
-    "tools": 675
+    "tools": 676
   },
   "tools": [
     {
@@ -4214,6 +4215,29 @@
       "id": "noesis-research.citation_graph",
       "input_schema": {
         "properties": {
+          "depth": {
+            "default": 1,
+            "type": "integer"
+          },
+          "direction": {
+            "default": "both",
+            "type": "string"
+          },
+          "identifier": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "limit": {
+            "default": 40,
+            "type": "integer"
+          },
           "topic": {
             "anyOf": [
               {
@@ -13492,6 +13516,70 @@
       "version": "1"
     },
     {
+      "cost_class": "medium",
+      "description": "Capture an OpenCitations response or resume its bounded, persistent graph import.",
+      "id": "noesis-knowledge-engine.acquire_opencitations",
+      "input_schema": {
+        "properties": {
+          "cursor": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "direction": {
+            "default": "references",
+            "type": "string"
+          },
+          "identifier": {
+            "type": "string"
+          },
+          "page_size": {
+            "default": 100,
+            "type": "integer"
+          },
+          "snapshot_sha256": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "identifier"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "acquire_opencitations",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:citation:capture"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "low",
       "description": "Trace a publication to its search run, protocol version, source revision, and study group.",
       "id": "noesis-knowledge-engine.add_review_candidate",
@@ -15431,7 +15519,7 @@
     },
     {
       "cost_class": "medium",
-      "description": "Build deterministic content-addressed bytes for a research package.",
+      "description": "Build native package bytes or an optional RO-Crate with declared publication metadata.",
       "id": "noesis-knowledge-engine.build_research_package",
       "input_schema": {
         "properties": {
@@ -15450,8 +15538,24 @@
           "namespace": {
             "type": "string"
           },
+          "output_format": {
+            "default": "native",
+            "type": "string"
+          },
           "package_id": {
             "type": "string"
+          },
+          "publication_metadata": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
           },
           "root_ids": {
             "items": {
@@ -15597,6 +15701,10 @@
       "id": "noesis-knowledge-engine.calculate_spatial_relation",
       "input_schema": {
         "properties": {
+          "backend": {
+            "default": "stdlib",
+            "type": "string"
+          },
           "left_geometry_id": {
             "type": "string"
           },
@@ -18116,6 +18224,10 @@
           },
           "objective_id": {
             "type": "string"
+          },
+          "optimizer": {
+            "default": "greedy",
+            "type": "string"
           }
         },
         "required": [
@@ -19558,6 +19670,10 @@
       "id": "noesis-knowledge-engine.evaluate_quantitative_formula",
       "input_schema": {
         "properties": {
+          "backend": {
+            "default": "native",
+            "type": "string"
+          },
           "inputs": {
             "additionalProperties": {
               "additionalProperties": true,
@@ -20349,12 +20465,35 @@
     },
     {
       "cost_class": "low",
-      "description": "Export report JSON, Markdown, and bibliography without external publication.",
+      "description": "Export native JSON/Markdown or opt-in Pandoc DOCX/HTML with citations.",
       "id": "noesis-knowledge-engine.export_authored_report",
       "input_schema": {
         "properties": {
+          "locale": {
+            "default": "de-DE",
+            "type": "string"
+          },
           "namespace": {
             "type": "string"
+          },
+          "output_format": {
+            "default": "native",
+            "type": "string"
+          },
+          "references": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
           },
           "report_id": {
             "type": "string"
@@ -26702,6 +26841,10 @@
             "type": "string"
           },
           "objective_id": {
+            "type": "string"
+          },
+          "optimizer": {
+            "default": "greedy",
             "type": "string"
           }
         },
@@ -35818,11 +35961,26 @@
       "id": "noesis-knowledge-engine.simplify_geospatial_geometry",
       "input_schema": {
         "properties": {
+          "backend": {
+            "default": "stdlib",
+            "type": "string"
+          },
           "geometry_id": {
             "type": "string"
           },
           "namespace": {
             "type": "string"
+          },
+          "projected_crs": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
           },
           "tolerance_m": {
             "type": "number"

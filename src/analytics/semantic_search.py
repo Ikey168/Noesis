@@ -141,7 +141,7 @@ def semantic_search(
         from services.embeddings.provider import get_embedding_provider
 
         provider = get_embedding_provider()
-    qvec = np.asarray(provider.embed_texts([query])[0], dtype=np.float64)
+    qvec = np.asarray(getattr(provider, "embed_queries", provider.embed_texts)([query])[0], dtype=np.float64)
     if qvec.shape[0] != mat.shape[1]:
         return {"error": "query/corpus embedding dimensions differ; index and "
                          "query with the same model", "code": "dim_mismatch",

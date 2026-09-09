@@ -204,6 +204,13 @@ class AuthoredReportStore:
         state = self.inspect(namespace, report_id, revision=revision, principal_id=principal_id, scopes=scopes)
         return render_export(state)
 
+    def render(self, namespace, report_id, *, principal_id, scopes, revision=None,
+               output_format="docx", references=(), locale="de-DE", csl_path=None):
+        from src.integrations.export import render_report
+        exported = self.export(namespace, report_id, principal_id=principal_id, scopes=scopes, revision=revision)
+        return render_report(exported, output_format=output_format, references=references,
+                             locale=locale, csl_path=csl_path)
+
     def reopen(self, namespace, request_key, package, *, principal_id, scopes):
         if not isinstance(package, dict) or package.get("contract") != "noesis-report-export-v1" or package.get("sha256") != _hash(package.get("report")):
             raise ReportError("invalid_export", "report export integrity verification failed")

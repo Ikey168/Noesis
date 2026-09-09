@@ -259,6 +259,15 @@ def parse_backend(
                     "table_spans_inferred": False,
                 },
             }
+    if backend == "lighton":
+        from src.integrations.documents import lighton_ocr
+
+        return lighton_ocr(path)
+    if backend == "markitdown":
+        from src.integrations.documents import markitdown
+
+        text, metadata = markitdown(raw, path.suffix.lstrip("."))
+        return {"text": text, **metadata}
     if backend == "docling":
         from docling.datamodel.accelerator_options import (
             AcceleratorDevice,

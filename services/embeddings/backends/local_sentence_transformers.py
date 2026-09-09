@@ -36,6 +36,7 @@ class LocalSentenceTransformersBackend(EmbeddingBackend):
         cache_dir: Optional[str] = None,
         device: Optional[str] = None,
         deterministic_seed: Optional[int] = None,
+        input_policy: Optional[str] = None,
         **kwargs
     ):
         """
@@ -49,6 +50,9 @@ class LocalSentenceTransformersBackend(EmbeddingBackend):
             **kwargs: Additional arguments passed to SentenceTransformer
         """
         self.model_name = model_name
+        self.input_policy = input_policy or ("e5" if model_name == "intfloat/multilingual-e5-small" else "symmetric")
+        if self.input_policy not in {"e5", "symmetric"}:
+            raise ValueError("unknown embedding input policy")
         self.cache_dir = cache_dir
         self.device = device
         self.deterministic_seed = deterministic_seed
@@ -101,7 +105,7 @@ class LocalSentenceTransformersBackend(EmbeddingBackend):
         
         # Generate embeddings
         embeddings = self.model.encode(
-            texts,
+            ["passage: " + text for text in texts] if self.input_policy == "e5" else texts,
             convert_to_numpy=True,
             show_progress_bar=False,
             normalize_embeddings=True,  # Normalize for consistent similarity calculations
@@ -113,12 +117,20 @@ class LocalSentenceTransformersBackend(EmbeddingBackend):
             
         return embeddings
     
+    def embed_queries(self, texts: List[str]) -> np.ndarray:
+        if self.input_policy != "e5":
+            return self.embed_texts(texts)
+        if not texts:
+            return np.empty((0, self._embedding_dimension))
+        return self.model.encode(["query: " + text for text in texts], convert_to_numpy=True,
+                                 show_progress_bar=False, normalize_embeddings=True)
+
     def dim(self) -> int:
         """Return the embedding dimension."""
         return self._embedding_dimension
 
     def count_tokens(self, text: str) -> int:
-        return len(self.model.tokenizer.encode(text, add_special_tokens=True, truncation=False))
+        return len(self.model.tokenizer.encode(("passage: " + text) if self.input_policy == "e5" else text, add_special_tokens=True, truncation=False))
 
     def token_limit(self) -> int:
         return int(self.model.max_seq_length)
@@ -143,4 +155,5 @@ class LocalSentenceTransformersBackend(EmbeddingBackend):
             "max_seq_length": getattr(self.model, "max_seq_length", "unknown"),
             "cache_dir": self.cache_dir,
             "deterministic_seed": self.deterministic_seed,
+            "input_policy": self.input_policy,
         }

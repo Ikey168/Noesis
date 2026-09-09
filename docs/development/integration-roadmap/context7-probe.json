@@ -1,0 +1,32 @@
+{
+  "access": "anonymous MCP request; no account key supplied",
+  "query_ms": 3531.1386640241835,
+  "capture_ms": 776.9494180101901,
+  "server_version": "4.0.5",
+  "library_id": "/websites/pint_readthedocs_io_en_stable",
+  "requested_version": "0.25.3",
+  "resolved_version": null,
+  "version_status": "provider_did_not_attest_exact_version",
+  "source_links": [
+    "https://pint.readthedocs.io/en/stable/_modules/pint/facets/plain/registry.html",
+    "https://pint.readthedocs.io/en/stable/getting/tutorial.html"
+  ],
+  "capture": {
+    "snapshot": {
+      "url": "https://pint.readthedocs.io/en/stable/_modules/pint/facets/plain/registry.html",
+      "final_url": "https://pint.readthedocs.io/en/stable/_modules/pint/facets/plain/registry.html",
+      "fetched_at": 1788639566113,
+      "digest": "460f0fdc05c655162dc9831ca2de1422224c15b2f9a41b3b5cde2e10ceceea1a",
+      "content_type": "text/html",
+      "bytes": 208885
+    },
+    "document_result": {
+      "received": 1,
+      "inserted": 1,
+      "duplicate": 0,
+      "invalid": 0
+    },
+    "snippet_version_verified": false
+  },
+  "decision": "Use opt-in documentation discovery and explicit source capture. Stable documentation cannot attest requested version 0.25.3; retain version uncertainty."
+}
