@@ -1,0 +1,34 @@
+{
+  "date": "2026-09-09",
+  "gliner_runtime": {
+    "python": "3.12.13",
+    "gliner2": "2.0.0",
+    "transformers": "4.57.6",
+    "torch": "2.14.0+cpu"
+  },
+  "baseline_runtime": {
+    "python": "3.14",
+    "spacy": "3.8.16",
+    "de_core_news_sm": "3.8.0",
+    "en_core_web_sm": "3.8.0"
+  },
+  "model": "fastino/gliner2-multi-v1",
+  "revision": "c6296e25603e4d31f68ef8a9f4edb73421d1e45a",
+  "threshold": 0.5,
+  "hardware": {
+    "cpu": "Intel Xeon W-1370",
+    "logical_cpus": 16,
+    "host_ram_gib": 15.33,
+    "worker_threads": 2,
+    "worker_rss_bytes": 4294967296
+  },
+  "artifacts": [
+    "published-ner-2026-09-09.json",
+    "published-ner-politics-2026-09-09.json",
+    "published-relations-2026-09-09.json",
+    "gliner-berlin-2026-09-09.json"
+  ],
+  "decision": "defer production adoption",
+  "structured_field_quality": "Independent domain structured-field labels unavailable; native span and missing-field diagnostics only",
+  "full_backlog_complete": false
+}

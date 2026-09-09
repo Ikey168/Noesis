@@ -178,6 +178,14 @@ def document_integrity(conn, document_id: str) -> dict[str, Any]:
     assets, asset_findings = _assets(conn, document_id)
     cross_modal, cross_findings = _cross_modal(conn, doc)
     findings = [*revision_findings, *asset_findings, *cross_findings]
+    if _table(conn, "crossref_notices"):
+        for notice_id, notice_doc, raw in conn.execute(
+            "SELECT notice_id,notice_document_id,notice_json FROM crossref_notices WHERE document_id=? ORDER BY notice_id", [document_id]
+        ).fetchall():
+            notice = json.loads(raw)
+            locator = citation(document_id, doc.get("source_id"), doc.get("url"), chunk=notice_id, resolved=True)
+            locator.update(notice_document_id=notice_doc, revision_id=notice.get("target_after_revision"))
+            findings.append({"kind": "provider_notice", "severity": "review", "change_class": notice["notice_type"], "notice_id": notice_id, "provider": notice["provider"], "evidence": [locator]})
     return analytic_envelope(
         n=len(findings), method=METHOD, assumptions=ASSUMPTIONS,
         document={**doc, "evidence": citation(

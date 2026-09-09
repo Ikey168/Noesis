@@ -1,0 +1,252 @@
+{
+  "independent_quality_evaluation": false,
+  "paid_calls": false,
+  "initial_runs": [
+    {
+      "provider": "german-courts",
+      "status": "unavailable",
+      "failure_code": "response_limit",
+      "offline_replay": null,
+      "budget": {
+        "budget_id": "public-smoke-sept8-german-courts",
+        "configuration": {
+          "provider": "german-courts",
+          "hosts": [
+            "www.rechtsprechung-im-internet.de"
+          ],
+          "account_ref": "public",
+          "reuse_notice": "Bounded public-source integration smoke; publisher reuse conditions retained; no redistribution of full documents",
+          "limits": {
+            "requests": 2,
+            "usd_micros": 0,
+            "bytes": 40000000
+          },
+          "transport": "network"
+        },
+        "used_requests": 1,
+        "reserved_usd_micros": 0,
+        "reserved_bytes": 20000000,
+        "actual_billed_usd_micros": null,
+        "cost_semantics": "conservative reservations, not billing measurements"
+      },
+      "receipt": null,
+      "sample_count": 0
+    },
+    {
+      "provider": "ema",
+      "status": "ingested",
+      "failure_code": null,
+      "offline_replay": true,
+      "budget": {
+        "budget_id": "public-smoke-sept8-ema",
+        "configuration": {
+          "provider": "ema",
+          "hosts": [
+            "www.ema.europa.eu"
+          ],
+          "account_ref": "public",
+          "reuse_notice": "Bounded public-source integration smoke; publisher reuse conditions retained; no redistribution of full documents",
+          "limits": {
+            "requests": 2,
+            "usd_micros": 0,
+            "bytes": 40000000
+          },
+          "transport": "network"
+        },
+        "used_requests": 1,
+        "reserved_usd_micros": 0,
+        "reserved_bytes": 15000000,
+        "actual_billed_usd_micros": null,
+        "cost_semantics": "conservative reservations, not billing measurements"
+      },
+      "receipt": {
+        "document_ids": [
+          "regional:c65f6bdf93a7fbfc279b138adbacd351"
+        ],
+        "native_capture": {
+          "actual_billed_usd_micros": null,
+          "budget_id": "public-smoke-sept8-ema",
+          "bytes": 6742740,
+          "contract": "noesis-provider-request-v1",
+          "digest": "485e4a554b3359f508fba35fb1b754ea9ac2c1376f38a3b0aef65882cde69294",
+          "elapsed_seconds": 0.21420906700950582,
+          "execution": "network",
+          "http_status": 200,
+          "observed_at_ms": 1788832666564,
+          "provider": "ema",
+          "request": {
+            "body": null,
+            "credential_slots": {
+              "body": [],
+              "headers": [],
+              "params": []
+            },
+            "headers": {
+              "Accept": "application/json"
+            },
+            "max_bytes": 15000000,
+            "max_cost_micros": 0,
+            "method": "GET",
+            "params": {},
+            "timeout_s": 15,
+            "url": "https://www.ema.europa.eu/en/documents/report/medicines-output-medicines_json-report_en.json"
+          },
+          "request_hash": "f0ca56843ad2151debfde0bbbb459be01e6c4576c20a3ac56a3ff6923384ae8d",
+          "request_key": "21a6ff5469d1ff59b6fb81a59a4143954b7205d008b04dcb2f42fb62bf1d673c:medicines",
+          "reserved_cost_micros": 0,
+          "response_headers": {
+            "content-type": "application/json",
+            "last-modified": "Mon, 07 Sep 2026 16:02:12 GMT"
+          },
+          "retry_after": null,
+          "snapshot": {
+            "bytes": 6742740,
+            "content_type": "application/json",
+            "digest": "485e4a554b3359f508fba35fb1b754ea9ac2c1376f38a3b0aef65882cde69294",
+            "fetched_at": 1788832666564,
+            "final_url": "https://www.ema.europa.eu/en/documents/report/medicines-output-medicines_json-report_en.json",
+            "url": "https://www.ema.europa.eu/en/documents/report/medicines-output-medicines_json-report_en.json"
+          },
+          "state": "completed"
+        },
+        "no_automatic_identity_merge": true,
+        "observation_id": "regional-observation:57685864b8a6845692c83c9d644a7b00",
+        "record_versions": [
+          "5708e3b6d92a08ea2c6348a714e935e6fd0f9504dde187f7c23fd4ac904c977e"
+        ],
+        "reuse_notice": "Public-source integration check only",
+        "source_refs": [
+          {
+            "document_id": "regional:c65f6bdf93a7fbfc279b138adbacd351",
+            "revision_id": "document-revision:1db72b6cb26d3bcc17c43810107b7356"
+          }
+        ]
+      },
+      "sample_count": 1
+    },
+    {
+      "provider": "bfarm",
+      "status": "ingested",
+      "failure_code": null,
+      "offline_replay": true,
+      "budget": {
+        "budget_id": "public-smoke-sept8-bfarm",
+        "configuration": {
+          "provider": "bfarm",
+          "hosts": [
+            "www.bfarm.de"
+          ],
+          "account_ref": "public",
+          "reuse_notice": "Bounded public-source integration smoke; publisher reuse conditions retained; no redistribution of full documents",
+          "limits": {
+            "requests": 2,
+            "usd_micros": 0,
+            "bytes": 40000000
+          },
+          "transport": "network"
+        },
+        "used_requests": 1,
+        "reserved_usd_micros": 0,
+        "reserved_bytes": 2000000,
+        "actual_billed_usd_micros": null,
+        "cost_semantics": "conservative reservations, not billing measurements"
+      },
+      "receipt": {
+        "document_ids": [
+          "regional:e7ca55d9db47fc9a0fc44ec7311a821f",
+          "regional:4de724e36a37ce76606ec9ccd502a8d2"
+        ],
+        "native_capture": {
+          "actual_billed_usd_micros": null,
+          "budget_id": "public-smoke-sept8-bfarm",
+          "bytes": 11590,
+          "contract": "noesis-provider-request-v1",
+          "digest": "9b233f654c60b8f9320c293070c02005dc158fe6d1720584d0700f4f38daa6c7",
+          "elapsed_seconds": 0.14500304200919345,
+          "execution": "network",
+          "http_status": 200,
+          "observed_at_ms": 1788832666458,
+          "provider": "bfarm",
+          "request": {
+            "body": null,
+            "credential_slots": {
+              "body": [],
+              "headers": [],
+              "params": []
+            },
+            "headers": {
+              "Accept": "application/json"
+            },
+            "max_bytes": 2000000,
+            "max_cost_micros": 0,
+            "method": "GET",
+            "params": {},
+            "timeout_s": 15,
+            "url": "https://www.bfarm.de/SiteGlobals/Functions/RSSFeed/DE/Pharmakovigilanz/Rote-Hand-Briefe/RSSNewsfeed.xml?nn=591002"
+          },
+          "request_hash": "311b2b12552e361d3e4ce4ec0685afe200ab10d21106b7e66b0c46ccff8855d2",
+          "request_key": "2a7e746fc8840155f513972345e6c19c7b144a1adc0704e8fafb0ec0c06826da:feed",
+          "reserved_cost_micros": 0,
+          "response_headers": {
+            "content-type": "text/xml;charset=utf-8"
+          },
+          "retry_after": null,
+          "snapshot": {
+            "bytes": 11590,
+            "content_type": "text/xml;charset=utf-8",
+            "digest": "9b233f654c60b8f9320c293070c02005dc158fe6d1720584d0700f4f38daa6c7",
+            "fetched_at": 1788832666458,
+            "final_url": "https://www.bfarm.de/SiteGlobals/Functions/RSSFeed/DE/Pharmakovigilanz/Rote-Hand-Briefe/RSSNewsfeed.xml?nn=591002",
+            "url": "https://www.bfarm.de/SiteGlobals/Functions/RSSFeed/DE/Pharmakovigilanz/Rote-Hand-Briefe/RSSNewsfeed.xml?nn=591002"
+          },
+          "state": "completed"
+        },
+        "no_automatic_identity_merge": true,
+        "observation_id": "regional-observation:a48bebf6091a0638959aae89363dd429",
+        "record_versions": [
+          "bea0ea0e680c322c21f0246d6cc13271e1e56a462a69962ad2b065489ea4a338",
+          "81a805ab2199c55b041e52c976fc1882382b93ca5ebf4898e2f5023587d79f7e"
+        ],
+        "reuse_notice": "Public-source integration check only",
+        "source_refs": [
+          {
+            "document_id": "regional:e7ca55d9db47fc9a0fc44ec7311a821f",
+            "revision_id": "document-revision:f41e7a78040e74499635d17584e58e75"
+          },
+          {
+            "document_id": "regional:4de724e36a37ce76606ec9ccd502a8d2",
+            "revision_id": "document-revision:1ce023b28e50ba14f5ec367ca0f3ac50"
+          }
+        ]
+      },
+      "sample_count": 2
+    }
+  ],
+  "enlarged_court_index_attempt": {
+    "status": "unavailable",
+    "failure_code": "provider_failed",
+    "error_type": "ProviderError",
+    "budget": {
+      "budget_id": "public-court-large-index",
+      "configuration": {
+        "provider": "german-courts",
+        "hosts": [
+          "www.rechtsprechung-im-internet.de"
+        ],
+        "account_ref": "public",
+        "reuse_notice": "Bounded public-source integration check",
+        "limits": {
+          "requests": 2,
+          "usd_micros": 0,
+          "bytes": 90000000
+        },
+        "transport": "network"
+      },
+      "used_requests": 1,
+      "reserved_usd_micros": 0,
+      "reserved_bytes": 80000000,
+      "actual_billed_usd_micros": null,
+      "cost_semantics": "conservative reservations, not billing measurements"
+    }
+  }
+}

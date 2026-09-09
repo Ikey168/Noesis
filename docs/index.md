@@ -19,6 +19,8 @@ For the project overview and local setup, start with the
 
 ## Start here
 
+- **[Recurring investigation workflows](guides/investigation-workflows.md)** —
+  reusable templates, cited-evidence alerts, and completed-run comparisons
 - **[Local-first CLI](guides/cli.md)** — install, initialize, ingest, ask,
   watch, export, verify, and serve without Docker or cloud credentials
 - **[System architecture](architecture/overview.md)** — the whole system with

@@ -1,0 +1,678 @@
+{
+  "contract": "noesis-ctis-native-export-evaluation-v1",
+  "portal_version": "2.2.5",
+  "access": "Documented public UI: search Berlin, Download results, select FIRE-12, Download clinical trial. No private API used.",
+  "trial_id": "2025-524131-39-00",
+  "runs": [
+    {
+      "automatic_identity_merge": false,
+      "contract": "noesis-regional-acquisition-v1",
+      "namespace": "science",
+      "observation": "search-csv",
+      "provider": "ctis",
+      "receipt": {
+        "document_ids": [
+          "regional:6fdaeb0df766fa961cb71f663e002efa",
+          "regional:a674ef138e048e8d5e813ee021819642",
+          "regional:b1a0cd4229363f12d81dceacf6e53ed7",
+          "regional:6772522c14734d0327c5228d0a761f89",
+          "regional:77280b1c4d7dc88f90eab0ac8035cd5d",
+          "regional:d606c0546108de688e429cef51c50e0b",
+          "regional:b9dad7c424b872e26bcbb45744ec3f24",
+          "regional:48ca04e2ee05cfcd0a11c34693ea0a99",
+          "regional:dcbfcdd9895209531e48ef3843712292",
+          "regional:70498107547ac0b2b8621ba3751f9d08",
+          "regional:ea2ad054c794705ef914e5346d7daf75",
+          "regional:942394e489f73c4f5f1f2cea3be264fc",
+          "regional:cac2fc7e9bb8225f1e612890eb121b28",
+          "regional:f71fa7991e358209c8b6e3712250d69c",
+          "regional:f2e3ea52175cbc391fc6057331d80e00",
+          "regional:82cf8fce8a216eb64658eaaec996fdff",
+          "regional:ff36322cb4b92f027071f71a0952b354",
+          "regional:2853543693d9659fe8cab30c8167f763",
+          "regional:3370056459004bba48da2145e285d6a2",
+          "regional:55ad0d9a3a05618e9e97f8137bf695af",
+          "regional:e85d3ca0466d981e6846faf90e55d27f",
+          "regional:d951a34597b23b5119aebc61a702d9a4",
+          "regional:880bd785dc9284529d833c2497aa5b43",
+          "regional:6a4707701eec43937d324c0efe7565cd",
+          "regional:8c197bb9be741cfb66ed837aa89627b3",
+          "regional:56b9e64a9eb0f1bf04828e286bfd0d0a",
+          "regional:dbebf03bb11794dcfacccdc29dc2e81c",
+          "regional:1b7d3408bb27ef354d31383a93327fc4",
+          "regional:c494523659493335c68b5b73f171852f",
+          "regional:4f09039fdc3bbb0b1076b2b9be748cfd",
+          "regional:a140497a9153ea5c2403321c10148e7c",
+          "regional:77056fb9f83eeb1ac6aa6305472bc183",
+          "regional:81f496a9e9e52274a5452af0c896030b",
+          "regional:f9e6ecd144098c49fb1df1de6158a474",
+          "regional:8ad53b6208794826cdec11151a3241cf",
+          "regional:308b981b4f264eb818986a4ad9e150ad",
+          "regional:cc2d8b9e5191eb2561f6d4f7dcbf884e",
+          "regional:3b627d49b52272c8ff07550133bb7590",
+          "regional:416012954e92ee0680c5232c4e888d17",
+          "regional:b2d47ca731a807c840fe334c25aa2317",
+          "regional:e6065d08d0f5328b793c43755ee4cc3b",
+          "regional:7910d85c171872e461301fb032ffb9b6",
+          "regional:51b29d69b4c3891aaa663a8545baf79f",
+          "regional:4f7b288ddc58c35a512901753b8d4165",
+          "regional:17dd4fa87ad701ca5b37f5c82360b788",
+          "regional:6684f35d48c79baf5328833ef3ad1809",
+          "regional:669e36572dbb4035a8b98f4d9b7d191f",
+          "regional:87d5a7d6534096a891d415c23b3baefa",
+          "regional:63567a4e11082dbcde6d56565b79af64",
+          "regional:b2dd7681856bdb97d15632d18a6aca6e",
+          "regional:bd783cb3ae877ac0fccf05eb78192197",
+          "regional:4a4ea458b85c45c190de14f2342cbe38",
+          "regional:95611a50c8050966445ebe4240d658c4",
+          "regional:700ac90ac8dc28e7f89c38a772380873",
+          "regional:76f8107f4c1db08e35791b6c52e354c8",
+          "regional:098e2c9684da56af62964bd306bf6f8c",
+          "regional:d3a8556cb0148150ca2e452ea1063377",
+          "regional:22fec6fc9d8801a3f11aaa223d952e64",
+          "regional:a497f2fff47418281e51cd167336b605",
+          "regional:754fece9e291f90a3b5b8806413df52b",
+          "regional:9d0572e1f19ac8df80f3842d52162bba",
+          "regional:d31cb6e46162a51d9e71f26bfcb14afd",
+          "regional:642683712772402cd8cc5f9fb69e982a",
+          "regional:56c3f5ec908e1db8d70a72d2268668c0",
+          "regional:686053613ad9080f43fa60dc45f05dcf",
+          "regional:c89390980de3510d6b284186728e9fed",
+          "regional:0bf4b365dbcffa0527d053daa6d10f70",
+          "regional:2b49356cfd9a24ed249da768fa0343f0"
+        ],
+        "native_capture": {
+          "digest": "f8b664a2b64a64360661cbf96f997dbd6fdf9f6cce87c4dbcf79f128a696103e",
+          "execution": "explicit-public-export-import",
+          "observed_at_ms": 1788907353333,
+          "snapshot": {
+            "bytes": 135441,
+            "content_type": "application/octet-stream",
+            "digest": "f8b664a2b64a64360661cbf96f997dbd6fdf9f6cce87c4dbcf79f128a696103e",
+            "fetched_at": 1788907353333,
+            "final_url": "https://euclinicaltrials.eu/search-for-clinical-trials/",
+            "url": "https://euclinicaltrials.eu/search-for-clinical-trials/"
+          }
+        },
+        "no_automatic_identity_merge": true,
+        "observation_id": "regional-observation:15f085c31933b6641ffdcddf96c8aa44",
+        "record_versions": [
+          "28ecdd58d77ca5df0eec7d5a69592d2848f5672d58fccac72c885462c5d40296",
+          "96e332283bf41a20c7fc2db20868bccacbd9a93688b9fb861e1b274ba11bc47a",
+          "0dc39c3f77f9f74c69db8d88689ef22908477c1ceda8f7be8db0770fcf053456",
+          "968460ee0a50965904909b10827475bf509e2c01c0e31994393679862c842ec0",
+          "5f30a6f76ea9333f57da3aa3f92b94dce37895c665c777e5aec1a9f81f656b75",
+          "471b2ecca574209b744fbadc530eeb3b5c9db62128529c814ff933a4be266971",
+          "3375e6139b036ac117c4d61a3f85693ae907f9b840fab67ef31c4e3595157517",
+          "b57fd683923273322b202216592b750ef8b6ccefd4d6a705276490a1a6b7d51e",
+          "23cb7e74e0943dbd769d302f573b7da1cd688e4f613db67240a1f48264e72d3e",
+          "eb1001e197fcc40ebfe80731049733867f9cba48cbdb19cbadfb6e1cf5ee176b",
+          "03bd2272a4b9bd965b891a51c6ed027268b8e0946d34486ba0b8607b3586973b",
+          "0ce5da1ef99ff485e752aed14952a95d5fc3b809f855a8d142fcbf100cf23efa",
+          "6156a9effc4e7d117e4f7460b3c274b1db6d708ec6ffe3b9be7163efa98fbc3c",
+          "58baf8ce61b1b68f9bbd1e097ee4496d31cc3a9a8053fec4ac19f1f3326ceea5",
+          "cd8840f57ef8af3e1f83108e06450fb86c4272f1617f22c69df87011449cbc32",
+          "844e602810ca0e6a61f6b1eedf4f93a1af945757eb98e0cb9b84dee097840fe4",
+          "704ed5012cc4b9ec9d231977407e592d3143a5337106e065388ab7b2c5811f89",
+          "218265213a5b13196be070635743de47b9ec034968f7788c9ba31084c2398105",
+          "ea5d78cc021096aa191d1731cd0a3d02df30032cef4e26075200e4057ed65d97",
+          "a6b693cc178be0dc92a1a61cdd92fe9c5a76cfcef34093fa10e52955c5bc6760",
+          "29a6b1f208d01aede4e48fd7437b5a77ef12d6df0926604045928211d98b75d6",
+          "aa10ecdf2e669f57c95bf2b5764bdcf775bb8f65d3d6add12042bea4ee403cb7",
+          "16f2a71f4801038ec23d4a726f2cdf8d8a2c0f377f7a4fb31ba85d7105b0085f",
+          "608e4ec2d0745034356b08bb993f32ad150003f1d45f44570067a246dc99c8de",
+          "98404a93ced89e456c5bb2cdcf73388310c616ecd574044034794998a5447af9",
+          "d42155340705d26669d94bcea5db976eff8fe1c52ef3c5d9e7044cf6e7a5e484",
+          "8d571268ae388d5b6884924812d342ec9846c1b020cc066c111849fe04351ed7",
+          "80347d70c2bae535b2f086f322208469d3b5016566f674310ad75de1b2fcd78d",
+          "f4b4935095e9a77c782eae6a9be7f07362c7dfa2fdc963d94a904e873f0988a4",
+          "7dfd06ff877a49ccd772f6253058c116e87ade3993c6ec67d9c21a5de4514e1f",
+          "34828153db012cf99916d04a2260bb2d1fa0a06dfe052c814ffc67902879a55c",
+          "67fc86f6fa6a34b1a054a34d52124665678a3ed92c528e0bb223ff5676e9bda4",
+          "190964aad8ea2f25e1b823dad5e37996e09db0620cc5456b5ba62fb00af38e76",
+          "b98fd5419be7bd9c83acc3eb06535be2a6ec6174841fb786a1e7147e70c09b7e",
+          "f6716e985dd3c0715fe606d0789b555f0ef8fd8e98ae3220f69ab1b0f678af52",
+          "9a521d9e6d91c11dd25942b2066ddf5df3b086b4c234994a0e89089bb072e209",
+          "512b6f3bb8f87b97c51ac22ec4a553ac1be1858dfa8ddaf817b90fba08b68cc3",
+          "75fc0bbd66a785dd92ddb842b173d089a4a65f19aa9294112f5b10cd747526b4",
+          "f2d057099e119a00019fe61037018b447d2629f48be04b0a626cb161cfd842ae",
+          "26e6df279e8b2797d2816bad465086438ece9c3c04c14e7e1ed5971ab8ac5d55",
+          "593b0263b14e63b31636ab7506b8cd0189e2f4ebe145ea2d3bc9599c590362a9",
+          "2f25626fad10d77d41f40d6e681f35f967ff45da823bd0d28e6571622f89ab38",
+          "cfc5608fcc6b02899538afbce25ef8d800c238b03d70f192abafca74a85da60b",
+          "5fac93c588d63bc27c63e4074683354854f1fcd6edeeb745c051a374a7a05908",
+          "a01f4f9e74fa1fda44f1431cc5d048eb353daa2ff7c3e5169cd64571d3d8cfb8",
+          "c1459a81ee802da087c8c1d4269827f6b6231ae31648f908471fd7fca3c1946a",
+          "898b0857fc2a6bb4f8e0adc7aee468c0538c93e9325f6bb7dd1e90e30ae1af76",
+          "735ce8b94ff53700990acd54ec32e2a9d2c80d44173efc36754ae8466d15a59c",
+          "53608ad3c99b05ca7965d719b1e881441bd220253be981ed358200cbbe92747a",
+          "485a11e1e6000ae0e8dc555bebc5b33f417b14968939e756205517f420c5d610",
+          "53be0c40c9fe832e65c95e429eb788cf7ca8bad717241eff0da5be520bf3b785",
+          "d60fd0bc8c505bec57315f560f8ffb197e9c68e05cf8bedd4da132612e908097",
+          "7c0c094e42dc9a26bf7ca1d7615163881da342d693f22362521dbebc04e37c36",
+          "a2a38b6d60c1b8a7fbe3af268797fddae7c7ae9f842747274fcd91d74332d51f",
+          "0b79980dc8646c32e492e5e70bd7893e667a0a2eed91047bea4a317cca538214",
+          "142de0708f74412fa2b51cb39b1124fb0502c28b40f03597da6365ad7d4e4e59",
+          "bd622cd93cc81aa16a1bf06ec79411867a656845979f3a36a6756e87d03111d6",
+          "ff004dda30c6d678960f4d3155f2cc93a53b8e87b92a0b93c3bdbbfab29f5b91",
+          "e41b10f8bfc001b8d3cdcc0512293d8e2c89e27287450a1080fc8065505cd085",
+          "f54c151d51aae56853f2bb23e5009de7a45bc0abff483a3e93fdf5d289c860dc",
+          "4ada3b40fa08be28c4b09d43360d1234264f97b4a60e2999cc6f0969a8a493dc",
+          "b81dcc72d8b7189b724dced743cb8c720d830edd4c59d5660f9d4ac0763ffde5",
+          "e1f1e52afb6e51f1a5ac2bd7ea8810c0a27d7bcdef3175b6ddef9d0359514d04",
+          "226a3c7df53f03b9952f70a0c9d810524c7688f29fc46cfd937f8369311fab0b",
+          "a3e3c7cb550824d7d1561a3eee26fb05524b105b0bf5905e5e5c264f6e77c648",
+          "39935c343ed702f9308a01f02e41625892190b0736fedd351962afe24ae6fe87",
+          "d129e048ef5ec06b73e8cd39c523a46796ba5049f48469720df22d199396084a",
+          "812131de6742b90ee77ac23d73d1af62a076683d897feda48c0f89dfabb46a7b"
+        ],
+        "reuse_notice": "Official CTIS public export; publisher terms and source redactions retained",
+        "source_refs": [
+          {
+            "document_id": "regional:6fdaeb0df766fa961cb71f663e002efa",
+            "revision_id": "document-revision:7b1b81894ea5cc951dc2a1f5ff7d3517"
+          },
+          {
+            "document_id": "regional:a674ef138e048e8d5e813ee021819642",
+            "revision_id": "document-revision:f3f5d88b7212a9d6cc8c37b5add773d3"
+          },
+          {
+            "document_id": "regional:b1a0cd4229363f12d81dceacf6e53ed7",
+            "revision_id": "document-revision:318a39703058d25cb51444d3d3fcc840"
+          },
+          {
+            "document_id": "regional:6772522c14734d0327c5228d0a761f89",
+            "revision_id": "document-revision:26ce8e94f54c8cc659cf4252ad369776"
+          },
+          {
+            "document_id": "regional:77280b1c4d7dc88f90eab0ac8035cd5d",
+            "revision_id": "document-revision:0913908c9e62c3ab050f2fc42da6a723"
+          },
+          {
+            "document_id": "regional:d606c0546108de688e429cef51c50e0b",
+            "revision_id": "document-revision:bb0c72aaf2bd7647dca6e278a2406aff"
+          },
+          {
+            "document_id": "regional:b9dad7c424b872e26bcbb45744ec3f24",
+            "revision_id": "document-revision:33359b44e6f191924d9f59042cf00650"
+          },
+          {
+            "document_id": "regional:48ca04e2ee05cfcd0a11c34693ea0a99",
+            "revision_id": "document-revision:6696e0504764876e11b2b6bdb20b8dd8"
+          },
+          {
+            "document_id": "regional:dcbfcdd9895209531e48ef3843712292",
+            "revision_id": "document-revision:8d6022e5ed871e9cf33fe5e180b7d91d"
+          },
+          {
+            "document_id": "regional:70498107547ac0b2b8621ba3751f9d08",
+            "revision_id": "document-revision:cb2293530690d622c99ecba51020fb58"
+          },
+          {
+            "document_id": "regional:ea2ad054c794705ef914e5346d7daf75",
+            "revision_id": "document-revision:ea9d03ab8105736a25706866d7cf3e93"
+          },
+          {
+            "document_id": "regional:942394e489f73c4f5f1f2cea3be264fc",
+            "revision_id": "document-revision:19ff2ed6aeaf4b862e9a061de6508047"
+          },
+          {
+            "document_id": "regional:cac2fc7e9bb8225f1e612890eb121b28",
+            "revision_id": "document-revision:c972fa7dd237f50b4e04c1b4f8d515ed"
+          },
+          {
+            "document_id": "regional:f71fa7991e358209c8b6e3712250d69c",
+            "revision_id": "document-revision:1565a0ab5a9e2d5839c565208a64d794"
+          },
+          {
+            "document_id": "regional:f2e3ea52175cbc391fc6057331d80e00",
+            "revision_id": "document-revision:b3d5dc068084d5f248e9866d7fee3b54"
+          },
+          {
+            "document_id": "regional:82cf8fce8a216eb64658eaaec996fdff",
+            "revision_id": "document-revision:ce791b810635ce904fb4ec2aa6b6a454"
+          },
+          {
+            "document_id": "regional:ff36322cb4b92f027071f71a0952b354",
+            "revision_id": "document-revision:39454f1e627dfa67033da18beddf1137"
+          },
+          {
+            "document_id": "regional:2853543693d9659fe8cab30c8167f763",
+            "revision_id": "document-revision:1018d3bf85cbd82d638d12ceb12b73a2"
+          },
+          {
+            "document_id": "regional:3370056459004bba48da2145e285d6a2",
+            "revision_id": "document-revision:f930ab4ce870d105a21d692a45c378eb"
+          },
+          {
+            "document_id": "regional:55ad0d9a3a05618e9e97f8137bf695af",
+            "revision_id": "document-revision:1fbdfe21047c5769a55e795f910a7726"
+          },
+          {
+            "document_id": "regional:e85d3ca0466d981e6846faf90e55d27f",
+            "revision_id": "document-revision:6896409d21e4bc594400e3f2b1c3fb54"
+          },
+          {
+            "document_id": "regional:d951a34597b23b5119aebc61a702d9a4",
+            "revision_id": "document-revision:de8b44dd7ab0e7c09d5b3afd4bfb9f8f"
+          },
+          {
+            "document_id": "regional:880bd785dc9284529d833c2497aa5b43",
+            "revision_id": "document-revision:37e31e47cd635023dc6c96ff228fd432"
+          },
+          {
+            "document_id": "regional:6a4707701eec43937d324c0efe7565cd",
+            "revision_id": "document-revision:1838af4efa4d44b537fc4919d1366fa4"
+          },
+          {
+            "document_id": "regional:8c197bb9be741cfb66ed837aa89627b3",
+            "revision_id": "document-revision:77bb3ff3b1891c55a58d1d036331c5df"
+          },
+          {
+            "document_id": "regional:56b9e64a9eb0f1bf04828e286bfd0d0a",
+            "revision_id": "document-revision:ccbfbba6bd5831dddb22e149e4a44436"
+          },
+          {
+            "document_id": "regional:dbebf03bb11794dcfacccdc29dc2e81c",
+            "revision_id": "document-revision:2205d3284178c003ee024d8a50e5d77d"
+          },
+          {
+            "document_id": "regional:1b7d3408bb27ef354d31383a93327fc4",
+            "revision_id": "document-revision:335253aa3231c9f41611a09d159ec7c3"
+          },
+          {
+            "document_id": "regional:c494523659493335c68b5b73f171852f",
+            "revision_id": "document-revision:028b5eeed13e08feeee81674561dc853"
+          },
+          {
+            "document_id": "regional:4f09039fdc3bbb0b1076b2b9be748cfd",
+            "revision_id": "document-revision:b123bbe2755d0c85025bd6d83350bda5"
+          },
+          {
+            "document_id": "regional:a140497a9153ea5c2403321c10148e7c",
+            "revision_id": "document-revision:15443c0b90a73b178f626a5f2dfb27a1"
+          },
+          {
+            "document_id": "regional:77056fb9f83eeb1ac6aa6305472bc183",
+            "revision_id": "document-revision:e8ff7562820cd9d8b2da681514275c9b"
+          },
+          {
+            "document_id": "regional:81f496a9e9e52274a5452af0c896030b",
+            "revision_id": "document-revision:233d2e2d4ee0eb0dd682254f75ae7e82"
+          },
+          {
+            "document_id": "regional:f9e6ecd144098c49fb1df1de6158a474",
+            "revision_id": "document-revision:3b968319377f314c6b03cf7d265ffd4f"
+          },
+          {
+            "document_id": "regional:8ad53b6208794826cdec11151a3241cf",
+            "revision_id": "document-revision:54367d328f7a401333f6d50695c92deb"
+          },
+          {
+            "document_id": "regional:308b981b4f264eb818986a4ad9e150ad",
+            "revision_id": "document-revision:9e476de24e7e4aa9a0575a6c0ee19431"
+          },
+          {
+            "document_id": "regional:cc2d8b9e5191eb2561f6d4f7dcbf884e",
+            "revision_id": "document-revision:4079b1eb43836b9dbe11a34efafab3e6"
+          },
+          {
+            "document_id": "regional:3b627d49b52272c8ff07550133bb7590",
+            "revision_id": "document-revision:ad64f906eb946730b6e152b3becca8f6"
+          },
+          {
+            "document_id": "regional:416012954e92ee0680c5232c4e888d17",
+            "revision_id": "document-revision:22ab84c6a52c1cc9272c1e02f00a763f"
+          },
+          {
+            "document_id": "regional:b2d47ca731a807c840fe334c25aa2317",
+            "revision_id": "document-revision:e1110ffb44cf6a0d3ccc13bca9e99ce2"
+          },
+          {
+            "document_id": "regional:e6065d08d0f5328b793c43755ee4cc3b",
+            "revision_id": "document-revision:9610fbb6985032eef67e2ff1bd0d2911"
+          },
+          {
+            "document_id": "regional:7910d85c171872e461301fb032ffb9b6",
+            "revision_id": "document-revision:f8245298f3f265ae14292f6f6a670448"
+          },
+          {
+            "document_id": "regional:51b29d69b4c3891aaa663a8545baf79f",
+            "revision_id": "document-revision:e201acef357866cb70a3fc6123d88ced"
+          },
+          {
+            "document_id": "regional:4f7b288ddc58c35a512901753b8d4165",
+            "revision_id": "document-revision:aa63c76473d38a09669dc7118f874e84"
+          },
+          {
+            "document_id": "regional:17dd4fa87ad701ca5b37f5c82360b788",
+            "revision_id": "document-revision:2c2f925b2934420d264f5b43d0a68d27"
+          },
+          {
+            "document_id": "regional:6684f35d48c79baf5328833ef3ad1809",
+            "revision_id": "document-revision:ed0ec908998c79461bf78d3d5bc55cdc"
+          },
+          {
+            "document_id": "regional:669e36572dbb4035a8b98f4d9b7d191f",
+            "revision_id": "document-revision:c74bd7707baf6e942d6bf6a7e057d337"
+          },
+          {
+            "document_id": "regional:87d5a7d6534096a891d415c23b3baefa",
+            "revision_id": "document-revision:15d3967d53fa2d5585ff52d67cf42460"
+          },
+          {
+            "document_id": "regional:63567a4e11082dbcde6d56565b79af64",
+            "revision_id": "document-revision:5e81650a855eda75901253c1d9a8219e"
+          },
+          {
+            "document_id": "regional:b2dd7681856bdb97d15632d18a6aca6e",
+            "revision_id": "document-revision:38e765084da49fe339fee082851a3f4e"
+          },
+          {
+            "document_id": "regional:bd783cb3ae877ac0fccf05eb78192197",
+            "revision_id": "document-revision:9c8cb734ec5fc11346a4c659e9d97125"
+          },
+          {
+            "document_id": "regional:4a4ea458b85c45c190de14f2342cbe38",
+            "revision_id": "document-revision:fc11b01c565f428ffbf7458d14940ef6"
+          },
+          {
+            "document_id": "regional:95611a50c8050966445ebe4240d658c4",
+            "revision_id": "document-revision:dade3c6ba0299cd61061f671d9dd2b10"
+          },
+          {
+            "document_id": "regional:700ac90ac8dc28e7f89c38a772380873",
+            "revision_id": "document-revision:c53521e9247f67f9ab080a691058d2ca"
+          },
+          {
+            "document_id": "regional:76f8107f4c1db08e35791b6c52e354c8",
+            "revision_id": "document-revision:fd41d162f639bb7f49359c4ae4217bb7"
+          },
+          {
+            "document_id": "regional:098e2c9684da56af62964bd306bf6f8c",
+            "revision_id": "document-revision:7554a59db6333e6dfddc29057809e8de"
+          },
+          {
+            "document_id": "regional:d3a8556cb0148150ca2e452ea1063377",
+            "revision_id": "document-revision:834d7eef821f571efad74f0bdca30149"
+          },
+          {
+            "document_id": "regional:22fec6fc9d8801a3f11aaa223d952e64",
+            "revision_id": "document-revision:24e40d03f328ad35bd5285672b9aca09"
+          },
+          {
+            "document_id": "regional:a497f2fff47418281e51cd167336b605",
+            "revision_id": "document-revision:ec61cf5526ccf07e6ab684e20efc7402"
+          },
+          {
+            "document_id": "regional:754fece9e291f90a3b5b8806413df52b",
+            "revision_id": "document-revision:5dc484c2f5d24013212c3ea912e8eed8"
+          },
+          {
+            "document_id": "regional:9d0572e1f19ac8df80f3842d52162bba",
+            "revision_id": "document-revision:9873f7f62deef7e2bfb2101d486b7293"
+          },
+          {
+            "document_id": "regional:d31cb6e46162a51d9e71f26bfcb14afd",
+            "revision_id": "document-revision:1f14e03ca7307c46e000211c7fb04f29"
+          },
+          {
+            "document_id": "regional:642683712772402cd8cc5f9fb69e982a",
+            "revision_id": "document-revision:c1827f1341e4df19d6444be5808810a2"
+          },
+          {
+            "document_id": "regional:56c3f5ec908e1db8d70a72d2268668c0",
+            "revision_id": "document-revision:0598ecfcf303f1c846be93d9b6c53749"
+          },
+          {
+            "document_id": "regional:686053613ad9080f43fa60dc45f05dcf",
+            "revision_id": "document-revision:8927d8c83025450655e569df256e5b24"
+          },
+          {
+            "document_id": "regional:c89390980de3510d6b284186728e9fed",
+            "revision_id": "document-revision:854cef23d4e523f469e56b2ebb58f341"
+          },
+          {
+            "document_id": "regional:0bf4b365dbcffa0527d053daa6d10f70",
+            "revision_id": "document-revision:f339bd4f6d04fa8972d43c625ea5e20e"
+          },
+          {
+            "document_id": "regional:2b49356cfd9a24ed249da768fa0343f0",
+            "revision_id": "document-revision:96ff335cca359400f9caebc89756a447"
+          }
+        ]
+      },
+      "record_count": 68,
+      "source_evidence_not_independent_validation": true,
+      "status": "ingested",
+      "replayed": false
+    },
+    {
+      "automatic_identity_merge": false,
+      "contract": "noesis-regional-acquisition-v1",
+      "namespace": "science",
+      "observation": "document-0",
+      "provider": "ctis",
+      "receipt": {
+        "document_ids": [
+          "regional:73c73d96a51eafd6c8ed6c20c8137245"
+        ],
+        "native_capture": {
+          "digest": "599c0218d9c817987a546b76c6fb02f98f4e53dec077cb925c6671217016ec2c",
+          "execution": "explicit-public-export-import",
+          "observed_at_ms": 1788907355160,
+          "snapshot": {
+            "bytes": 102416,
+            "content_type": "application/octet-stream",
+            "digest": "599c0218d9c817987a546b76c6fb02f98f4e53dec077cb925c6671217016ec2c",
+            "fetched_at": 1788907355160,
+            "final_url": "https://euclinicaltrials.eu/ctis-public/view/2025-524131-39-00?lang=en",
+            "url": "https://euclinicaltrials.eu/ctis-public/view/2025-524131-39-00?lang=en"
+          }
+        },
+        "no_automatic_identity_merge": true,
+        "observation_id": "regional-observation:26aebc6ecb1ecb32f547972046dd8263",
+        "record_versions": [
+          "d4ccc7db3832bc0bbecf890bc33753e99833f40ceed5459b1872e923074b870c"
+        ],
+        "reuse_notice": "Official CTIS public export; publisher terms and source redactions retained",
+        "source_refs": [
+          {
+            "document_id": "regional:73c73d96a51eafd6c8ed6c20c8137245",
+            "revision_id": "document-revision:0ccd920b564118c162124e4dd73d924a"
+          }
+        ]
+      },
+      "record_count": 1,
+      "source_evidence_not_independent_validation": true,
+      "status": "ingested",
+      "replayed": false
+    },
+    {
+      "automatic_identity_merge": false,
+      "contract": "noesis-regional-acquisition-v1",
+      "namespace": "science",
+      "observation": "document-1",
+      "provider": "ctis",
+      "receipt": {
+        "document_ids": [
+          "regional:36af3682f7e29b489770595d0009af58"
+        ],
+        "native_capture": {
+          "digest": "4332b4e82ba6c0f556a9bd64ae4bf73942ff08c4a5f9388ef14d8e57390a01ad",
+          "execution": "explicit-public-export-import",
+          "observed_at_ms": 1788907358038,
+          "snapshot": {
+            "bytes": 247842,
+            "content_type": "application/octet-stream",
+            "digest": "4332b4e82ba6c0f556a9bd64ae4bf73942ff08c4a5f9388ef14d8e57390a01ad",
+            "fetched_at": 1788907358038,
+            "final_url": "https://euclinicaltrials.eu/ctis-public/view/2025-524131-39-00?lang=en",
+            "url": "https://euclinicaltrials.eu/ctis-public/view/2025-524131-39-00?lang=en"
+          }
+        },
+        "no_automatic_identity_merge": true,
+        "observation_id": "regional-observation:861a98fc650cf6f1c58884a1327a4757",
+        "record_versions": [
+          "08802f17b2e60146f9f06529b38a6936950c26761bbd9b0207055c5eca090ddc"
+        ],
+        "reuse_notice": "Official CTIS public export; publisher terms and source redactions retained",
+        "source_refs": [
+          {
+            "document_id": "regional:36af3682f7e29b489770595d0009af58",
+            "revision_id": "document-revision:843ae51127fb475875f553f047f47bc8"
+          }
+        ]
+      },
+      "record_count": 1,
+      "source_evidence_not_independent_validation": true,
+      "status": "ingested",
+      "replayed": false
+    },
+    {
+      "automatic_identity_merge": false,
+      "contract": "noesis-regional-acquisition-v1",
+      "namespace": "science",
+      "observation": "document-2",
+      "provider": "ctis",
+      "receipt": {
+        "document_ids": [
+          "regional:5533507f5db1b5129a62d3db9b23f348"
+        ],
+        "native_capture": {
+          "digest": "9335799e1178cf942798eba9243fd9afb3cc01b2e9b8623e7c2a41b7f40669bc",
+          "execution": "explicit-public-export-import",
+          "observed_at_ms": 1788907420969,
+          "snapshot": {
+            "bytes": 2692074,
+            "content_type": "application/octet-stream",
+            "digest": "9335799e1178cf942798eba9243fd9afb3cc01b2e9b8623e7c2a41b7f40669bc",
+            "fetched_at": 1788907420969,
+            "final_url": "https://euclinicaltrials.eu/ctis-public/view/2025-524131-39-00?lang=en",
+            "url": "https://euclinicaltrials.eu/ctis-public/view/2025-524131-39-00?lang=en"
+          }
+        },
+        "no_automatic_identity_merge": true,
+        "observation_id": "regional-observation:c119d1aa74df8882d8c5e1f7a3639f6f",
+        "record_versions": [
+          "f696dc55ec62a9442f045f1f152ab0f329a0352fc2446ad90a65befea55b30e4"
+        ],
+        "reuse_notice": "Official CTIS public export; publisher terms and source redactions retained",
+        "source_refs": [
+          {
+            "document_id": "regional:5533507f5db1b5129a62d3db9b23f348",
+            "revision_id": "document-revision:4798b5d5b87720cfefe0c16ebfe2a259"
+          }
+        ]
+      },
+      "record_count": 1,
+      "source_evidence_not_independent_validation": true,
+      "status": "ingested",
+      "replayed": false
+    }
+  ],
+  "csv_sha256": "f8b664a2b64a64360661cbf96f997dbd6fdf9f6cce87c4dbcf79f128a696103e",
+  "archive_sha256": "76f11694f93b6e199efb90607ab0e0c6fad8d8b6ba91a5e3c95d02a44ef75337",
+  "documents": [
+    {
+      "member": "Trial details.html",
+      "kind": "registration-detail",
+      "language": "en",
+      "sha256": "599c0218d9c817987a546b76c6fb02f98f4e53dec077cb925c6671217016ec2c",
+      "characters": 35586,
+      "source_locators": [
+        {
+          "locator": {
+            "id": null,
+            "index_in_selected_main_nodes": 0,
+            "kind": "html-selector",
+            "precision": "element-selection; not exact byte offsets",
+            "tag": "p"
+          },
+          "text": "Title:"
+        },
+        {
+          "locator": {
+            "id": null,
+            "index_in_selected_main_nodes": 1,
+            "kind": "html-selector",
+            "precision": "element-selection; not exact byte offsets",
+            "tag": "p"
+          },
+          "text": "FIRE-12"
+        }
+      ]
+    },
+    {
+      "member": "Trial documents/Synopsis of the protocol/D1_FIRE-12_Synopse_german.PDF",
+      "kind": "protocol",
+      "language": "de",
+      "sha256": "4332b4e82ba6c0f556a9bd64ae4bf73942ff08c4a5f9388ef14d8e57390a01ad",
+      "characters": 22225,
+      "source_locators": [
+        {
+          "locator": {
+            "bbox": [
+              70.8239974975586,
+              36.32880783081055,
+              527.569091796875,
+              48.63840866088867
+            ],
+            "kind": "pdf-block",
+            "page": 1
+          },
+          "text": "FIRE-12 \n \nV2.0: 27.07.2026 \n"
+        },
+        {
+          "locator": {
+            "bbox": [
+              70.8239974975586,
+              77.14881896972656,
+              158.84912109375,
+              89.45841217041016
+            ],
+            "kind": "pdf-block",
+            "page": 1
+          },
+          "text": "Studiensynopse \n"
+        }
+      ]
+    },
+    {
+      "member": "Trial documents/Protocol/D1_Clinical Trial Protocol FIRE-12_V 1_2_13May2026_redacted.PDF",
+      "kind": "protocol",
+      "language": "en",
+      "sha256": "9335799e1178cf942798eba9243fd9afb3cc01b2e9b8623e7c2a41b7f40669bc",
+      "characters": 219978,
+      "source_locators": [
+        {
+          "locator": {
+            "bbox": [
+              70.94400024414062,
+              784.0949096679688,
+              527.0020141601562,
+              805.5299072265625
+            ],
+            "kind": "pdf-block",
+            "page": 1
+          },
+          "text": "Confidential \n Page 1 of 87 \n \n"
+        },
+        {
+          "locator": {
+            "bbox": [
+              93.14399719238281,
+              56.35612487792969,
+              506.5804443359375,
+              74.15152740478516
+            ],
+            "kind": "pdf-block",
+            "page": 1
+          },
+          "text": "First-line treatment in locally advanced or metastastic \n"
+        }
+      ]
+    }
+  ],
+  "reopened_offline_replay": true
+}

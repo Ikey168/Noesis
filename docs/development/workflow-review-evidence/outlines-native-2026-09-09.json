@@ -1,0 +1,27 @@
+{
+  "contract": "noesis-outlines-native-probe-v1",
+  "fixture_type": "authored-regression-not-independent-labels",
+  "versions": {
+    "outlines": "1.3.3",
+    "llguidance": "1.8.0",
+    "transformers": "5.16.1",
+    "torch": "2.14.0+cpu"
+  },
+  "result": {
+    "status": "failed",
+    "failure_code": "truncated_or_invalid_json",
+    "failure_type": "BackendError",
+    "operation": "outlines",
+    "elapsed_seconds": 39.14613230500254,
+    "peak_process_tree_rss_bytes": 1146814464,
+    "resource_limits": {
+      "timeout_s": 90,
+      "rss_bytes": 3221225472,
+      "threads": 2
+    },
+    "execution": "isolated-local-process",
+    "hosted_inference_used": false,
+    "remote_processing_used": false
+  },
+  "decision": "defer; native bounded execution does not establish substantive edit quality"
+}

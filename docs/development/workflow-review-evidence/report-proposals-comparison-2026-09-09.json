@@ -1,0 +1,1214 @@
+{
+  "contract": "noesis-report-proposal-comparison-v1",
+  "label_origin": "authored regression expectations, not independent human quality judgments",
+  "configuration": {
+    "max_new_tokens": 512,
+    "timeout_s": 120,
+    "max_rss_bytes": 3221225472
+  },
+  "dependency_versions": {
+    "outlines": "1.3.3",
+    "llguidance": "1.8.0",
+    "transformers": "5.16.1",
+    "torch": "2.14.0+cpu"
+  },
+  "cases": [
+    {
+      "language": "de",
+      "before": "Das Beispielprojekt begann 2023.",
+      "captured_correction": "Korrektur: Das Beispielprojekt begann 2024.",
+      "notice": {
+        "elapsed_s": 0.014137745994958095,
+        "result": {
+          "proposal_id": "report-edit:bc7815ff398e821b12ce6080e87bbe8a",
+          "status": "pending",
+          "proposal": {
+            "assertion_id": "a",
+            "assessment_id": "report-assessment:d13c8d9e3f026a17549268afe9f57e2a",
+            "base_report_revision": 1,
+            "before": {
+              "citations": [
+                "source-1"
+              ],
+              "dependencies": [
+                {
+                  "id": "doc",
+                  "kind": "source",
+                  "locator": {
+                    "document_id": "doc",
+                    "end": 32,
+                    "revision_id": "document-revision:2cf2b95c233af1da109db748724b5cc5",
+                    "start": 0
+                  },
+                  "namespace": "sources",
+                  "revision": "document-revision:2cf2b95c233af1da109db748724b5cc5"
+                }
+              ],
+              "id": "a",
+              "kind": "sourced",
+              "text": "Das Beispielprojekt begann 2023."
+            },
+            "evidence": [
+              {
+                "after": {
+                  "change_class": "silent_substantive",
+                  "change_kind": "updated",
+                  "committed_watermark": 0,
+                  "content_hash": "5216a48a7ab5d5a652dd6b1341921a68472e848c3399c076ba2b2f6609945aef",
+                  "created_at_ms": 0,
+                  "document_id": "doc",
+                  "lifecycle": "active",
+                  "metadata_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+                  "observed_at_ms": 0,
+                  "pack_id": "direct",
+                  "payload_hash": "e763f3f368e72a47f62ad8f6ed6351d350b6df8de167094d841b1dd2d87ad5f7",
+                  "payload_json": "{\"content\":\"Korrektur: Das Beispielprojekt begann 2024.\",\"document_id\":\"doc\",\"metadata\":{}}",
+                  "predecessor_revision_id": "document-revision:2cf2b95c233af1da109db748724b5cc5",
+                  "revision": 1,
+                  "revision_id": "document-revision:77c1900dc429d6fb11f24f30a2a30097",
+                  "run_id": "direct:doc",
+                  "source_id": null,
+                  "valid_from_ms": null,
+                  "valid_to_ms": null
+                },
+                "assessment_hash": "02a31ba064f78d7fc1478a3dd3a0f969306cc29a4a8141e4fd2257e060c40a81",
+                "before": {
+                  "change_class": "unchanged",
+                  "change_kind": "added",
+                  "committed_watermark": 0,
+                  "content_hash": "7ff2964749dad06f8d5de0e9267c49717fd62801c09bf14eca88ed9b7058e940",
+                  "created_at_ms": 0,
+                  "document_id": "doc",
+                  "lifecycle": "active",
+                  "metadata_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+                  "observed_at_ms": 0,
+                  "pack_id": "direct",
+                  "payload_hash": "27b899a0a53f93ccf9f4a47b13460cc26bff0e9f3c529a38b50457fef7f8f8dc",
+                  "payload_json": "{\"content\":\"Das Beispielprojekt begann 2023.\",\"document_id\":\"doc\",\"metadata\":{}}",
+                  "predecessor_revision_id": null,
+                  "revision": 0,
+                  "revision_id": "document-revision:2cf2b95c233af1da109db748724b5cc5",
+                  "run_id": "direct:doc",
+                  "source_id": null,
+                  "valid_from_ms": null,
+                  "valid_to_ms": null
+                },
+                "coverage": "complete_for_declared_dependency",
+                "dependency": {
+                  "id": "doc",
+                  "kind": "source",
+                  "locator": {
+                    "document_id": "doc",
+                    "end": 32,
+                    "revision_id": "document-revision:2cf2b95c233af1da109db748724b5cc5",
+                    "start": 0
+                  },
+                  "namespace": "sources",
+                  "revision": "document-revision:2cf2b95c233af1da109db748724b5cc5"
+                },
+                "details": [],
+                "reason": "revision_changed",
+                "status": "affected"
+              }
+            ],
+            "method": "deterministic-review-notice-v1",
+            "proposed": {
+              "citations": [
+                "source-1"
+              ],
+              "dependencies": [
+                {
+                  "id": "doc",
+                  "kind": "source",
+                  "locator": {
+                    "document_id": "doc",
+                    "end": 32,
+                    "revision_id": "document-revision:2cf2b95c233af1da109db748724b5cc5",
+                    "start": 0
+                  },
+                  "namespace": "sources",
+                  "revision": "document-revision:2cf2b95c233af1da109db748724b5cc5"
+                }
+              ],
+              "id": "a",
+              "kind": "sourced",
+              "text": "Evidence update requires review (revision_changed). Previously reported: Das Beispielprojekt begann 2023."
+            },
+            "proposed_dependency_states": [
+              {
+                "after": {
+                  "change_class": "silent_substantive",
+                  "change_kind": "updated",
+                  "committed_watermark": 0,
+                  "content_hash": "5216a48a7ab5d5a652dd6b1341921a68472e848c3399c076ba2b2f6609945aef",
+                  "created_at_ms": 0,
+                  "document_id": "doc",
+                  "lifecycle": "active",
+                  "metadata_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+                  "observed_at_ms": 0,
+                  "pack_id": "direct",
+                  "payload_hash": "e763f3f368e72a47f62ad8f6ed6351d350b6df8de167094d841b1dd2d87ad5f7",
+                  "payload_json": "{\"content\":\"Korrektur: Das Beispielprojekt begann 2024.\",\"document_id\":\"doc\",\"metadata\":{}}",
+                  "predecessor_revision_id": "document-revision:2cf2b95c233af1da109db748724b5cc5",
+                  "revision": 1,
+                  "revision_id": "document-revision:77c1900dc429d6fb11f24f30a2a30097",
+                  "run_id": "direct:doc",
+                  "source_id": null,
+                  "valid_from_ms": null,
+                  "valid_to_ms": null
+                },
+                "assessment_hash": "02a31ba064f78d7fc1478a3dd3a0f969306cc29a4a8141e4fd2257e060c40a81",
+                "before": {
+                  "change_class": "unchanged",
+                  "change_kind": "added",
+                  "committed_watermark": 0,
+                  "content_hash": "7ff2964749dad06f8d5de0e9267c49717fd62801c09bf14eca88ed9b7058e940",
+                  "created_at_ms": 0,
+                  "document_id": "doc",
+                  "lifecycle": "active",
+                  "metadata_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+                  "observed_at_ms": 0,
+                  "pack_id": "direct",
+                  "payload_hash": "27b899a0a53f93ccf9f4a47b13460cc26bff0e9f3c529a38b50457fef7f8f8dc",
+                  "payload_json": "{\"content\":\"Das Beispielprojekt begann 2023.\",\"document_id\":\"doc\",\"metadata\":{}}",
+                  "predecessor_revision_id": null,
+                  "revision": 0,
+                  "revision_id": "document-revision:2cf2b95c233af1da109db748724b5cc5",
+                  "run_id": "direct:doc",
+                  "source_id": null,
+                  "valid_from_ms": null,
+                  "valid_to_ms": null
+                },
+                "coverage": "complete_for_declared_dependency",
+                "dependency": {
+                  "id": "doc",
+                  "kind": "source",
+                  "locator": {
+                    "document_id": "doc",
+                    "end": 32,
+                    "revision_id": "document-revision:2cf2b95c233af1da109db748724b5cc5",
+                    "start": 0
+                  },
+                  "namespace": "sources",
+                  "revision": "document-revision:2cf2b95c233af1da109db748724b5cc5"
+                },
+                "details": [],
+                "reason": "revision_changed",
+                "status": "affected"
+              }
+            ],
+            "reasons": [
+              "revision_changed"
+            ],
+            "report_id": "report:2ef5a4cfc52971190361d763f81fdf22",
+            "section_id": "s",
+            "support_verified": false
+          },
+          "decision": null
+        }
+      },
+      "runs": {
+        "outlines": {
+          "job": {
+            "status": "completed",
+            "result": {
+              "status": "pending_review",
+              "proposal": {
+                "base_report_revision": 1,
+                "explanation": "Das Beispielprojekt begann 2023. Korrektur: Das Beispielprojekt begann 2024.",
+                "assertion": {
+                  "id": "a",
+                  "text": "Das Beispielprojekt begann 2023.",
+                  "kind": "sourced",
+                  "dependencies": [
+                    {
+                      "id": "doc",
+                      "kind": "source",
+                      "locator": {
+                        "document_id": "doc",
+                        "end": 32,
+                        "revision_id": "document-revision:2cf2b95c233af1da109db748724b5cc5",
+                        "start": 0
+                      },
+                      "namespace": "sources",
+                      "revision": "document-revision:2cf2b95c233af1da109db748724b5cc5"
+                    }
+                  ],
+                  "citations": [
+                    "source-1"
+                  ]
+                }
+              },
+              "model": {
+                "kind": "proposal",
+                "model": "HuggingFaceTB/SmolLM2-135M-Instruct",
+                "revision": "12fd25f77366fa6b3b4b768ec3050bf629380bac",
+                "license": "apache-2.0"
+              },
+              "mode": "native-outlines",
+              "schema_valid": true,
+              "support_verified": false,
+              "auto_approved": false,
+              "schema_sha256": "61e8d8694528cbb26268e878f4980cea255fd562ba22b6cec7e7a9252a8ec8da",
+              "request_sha256": "6cde0955cb89f2f8d9aae16c65ea5a68660ababe2b0c3812f6b3b56216e856c0",
+              "elapsed_seconds": 26.707328278003843
+            },
+            "operation": "outlines",
+            "elapsed_seconds": 33.74617751999176,
+            "peak_process_tree_rss_bytes": 1151754240,
+            "resource_limits": {
+              "timeout_s": 120,
+              "rss_bytes": 3221225472,
+              "threads": 2
+            },
+            "execution": "isolated-local-process",
+            "hosted_inference_used": false,
+            "remote_processing_used": false
+          },
+          "usable_schema_valid_proposal": true,
+          "independent_substantive_quality": "not_measured",
+          "authored_correction_probe": {
+            "contains_new_year": false,
+            "retains_old_year": true,
+            "semantics": "literal diagnostic, not entailment or human edit quality"
+          },
+          "pending_review_artifact": {
+            "proposal_id": "report-edit:430b2fa632e7537b33f7493931450ba1",
+            "status": "pending",
+            "proposal": {
+              "assertion_id": "a",
+              "assessment_id": "report-assessment:d13c8d9e3f026a17549268afe9f57e2a",
+              "base_report_revision": 1,
+              "before": {
+                "citations": [
+                  "source-1"
+                ],
+                "dependencies": [
+                  {
+                    "id": "doc",
+                    "kind": "source",
+                    "locator": {
+                      "document_id": "doc",
+                      "end": 32,
+                      "revision_id": "document-revision:2cf2b95c233af1da109db748724b5cc5",
+                      "start": 0
+                    },
+                    "namespace": "sources",
+                    "revision": "document-revision:2cf2b95c233af1da109db748724b5cc5"
+                  }
+                ],
+                "id": "a",
+                "kind": "sourced",
+                "text": "Das Beispielprojekt begann 2023."
+              },
+              "evidence": [
+                {
+                  "after": {
+                    "change_class": "silent_substantive",
+                    "change_kind": "updated",
+                    "committed_watermark": 0,
+                    "content_hash": "5216a48a7ab5d5a652dd6b1341921a68472e848c3399c076ba2b2f6609945aef",
+                    "created_at_ms": 0,
+                    "document_id": "doc",
+                    "lifecycle": "active",
+                    "metadata_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+                    "observed_at_ms": 0,
+                    "pack_id": "direct",
+                    "payload_hash": "e763f3f368e72a47f62ad8f6ed6351d350b6df8de167094d841b1dd2d87ad5f7",
+                    "payload_json": "{\"content\":\"Korrektur: Das Beispielprojekt begann 2024.\",\"document_id\":\"doc\",\"metadata\":{}}",
+                    "predecessor_revision_id": "document-revision:2cf2b95c233af1da109db748724b5cc5",
+                    "revision": 1,
+                    "revision_id": "document-revision:77c1900dc429d6fb11f24f30a2a30097",
+                    "run_id": "direct:doc",
+                    "source_id": null,
+                    "valid_from_ms": null,
+                    "valid_to_ms": null
+                  },
+                  "assessment_hash": "02a31ba064f78d7fc1478a3dd3a0f969306cc29a4a8141e4fd2257e060c40a81",
+                  "before": {
+                    "change_class": "unchanged",
+                    "change_kind": "added",
+                    "committed_watermark": 0,
+                    "content_hash": "7ff2964749dad06f8d5de0e9267c49717fd62801c09bf14eca88ed9b7058e940",
+                    "created_at_ms": 0,
+                    "document_id": "doc",
+                    "lifecycle": "active",
+                    "metadata_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+                    "observed_at_ms": 0,
+                    "pack_id": "direct",
+                    "payload_hash": "27b899a0a53f93ccf9f4a47b13460cc26bff0e9f3c529a38b50457fef7f8f8dc",
+                    "payload_json": "{\"content\":\"Das Beispielprojekt begann 2023.\",\"document_id\":\"doc\",\"metadata\":{}}",
+                    "predecessor_revision_id": null,
+                    "revision": 0,
+                    "revision_id": "document-revision:2cf2b95c233af1da109db748724b5cc5",
+                    "run_id": "direct:doc",
+                    "source_id": null,
+                    "valid_from_ms": null,
+                    "valid_to_ms": null
+                  },
+                  "coverage": "complete_for_declared_dependency",
+                  "dependency": {
+                    "id": "doc",
+                    "kind": "source",
+                    "locator": {
+                      "document_id": "doc",
+                      "end": 32,
+                      "revision_id": "document-revision:2cf2b95c233af1da109db748724b5cc5",
+                      "start": 0
+                    },
+                    "namespace": "sources",
+                    "revision": "document-revision:2cf2b95c233af1da109db748724b5cc5"
+                  },
+                  "details": [],
+                  "reason": "revision_changed",
+                  "status": "affected"
+                }
+              ],
+              "method": "model-generated-pending-review",
+              "producer": {
+                "explanation": "Das Beispielprojekt begann 2023. Korrektur: Das Beispielprojekt begann 2024.",
+                "name": "HuggingFaceTB/SmolLM2-135M-Instruct",
+                "support_verified": false,
+                "version": "12fd25f77366fa6b3b4b768ec3050bf629380bac"
+              },
+              "proposed": {
+                "citations": [
+                  "source-1"
+                ],
+                "dependencies": [
+                  {
+                    "id": "doc",
+                    "kind": "source",
+                    "locator": {
+                      "document_id": "doc",
+                      "end": 32,
+                      "revision_id": "document-revision:2cf2b95c233af1da109db748724b5cc5",
+                      "start": 0
+                    },
+                    "namespace": "sources",
+                    "revision": "document-revision:2cf2b95c233af1da109db748724b5cc5"
+                  }
+                ],
+                "id": "a",
+                "kind": "sourced",
+                "text": "Das Beispielprojekt begann 2023."
+              },
+              "proposed_dependency_states": [
+                {
+                  "after": {
+                    "change_class": "silent_substantive",
+                    "change_kind": "updated",
+                    "committed_watermark": 0,
+                    "content_hash": "5216a48a7ab5d5a652dd6b1341921a68472e848c3399c076ba2b2f6609945aef",
+                    "created_at_ms": 0,
+                    "document_id": "doc",
+                    "lifecycle": "active",
+                    "metadata_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+                    "observed_at_ms": 0,
+                    "pack_id": "direct",
+                    "payload_hash": "e763f3f368e72a47f62ad8f6ed6351d350b6df8de167094d841b1dd2d87ad5f7",
+                    "payload_json": "{\"content\":\"Korrektur: Das Beispielprojekt begann 2024.\",\"document_id\":\"doc\",\"metadata\":{}}",
+                    "predecessor_revision_id": "document-revision:2cf2b95c233af1da109db748724b5cc5",
+                    "revision": 1,
+                    "revision_id": "document-revision:77c1900dc429d6fb11f24f30a2a30097",
+                    "run_id": "direct:doc",
+                    "source_id": null,
+                    "valid_from_ms": null,
+                    "valid_to_ms": null
+                  },
+                  "assessment_hash": "02a31ba064f78d7fc1478a3dd3a0f969306cc29a4a8141e4fd2257e060c40a81",
+                  "before": {
+                    "change_class": "unchanged",
+                    "change_kind": "added",
+                    "committed_watermark": 0,
+                    "content_hash": "7ff2964749dad06f8d5de0e9267c49717fd62801c09bf14eca88ed9b7058e940",
+                    "created_at_ms": 0,
+                    "document_id": "doc",
+                    "lifecycle": "active",
+                    "metadata_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+                    "observed_at_ms": 0,
+                    "pack_id": "direct",
+                    "payload_hash": "27b899a0a53f93ccf9f4a47b13460cc26bff0e9f3c529a38b50457fef7f8f8dc",
+                    "payload_json": "{\"content\":\"Das Beispielprojekt begann 2023.\",\"document_id\":\"doc\",\"metadata\":{}}",
+                    "predecessor_revision_id": null,
+                    "revision": 0,
+                    "revision_id": "document-revision:2cf2b95c233af1da109db748724b5cc5",
+                    "run_id": "direct:doc",
+                    "source_id": null,
+                    "valid_from_ms": null,
+                    "valid_to_ms": null
+                  },
+                  "coverage": "complete_for_declared_dependency",
+                  "dependency": {
+                    "id": "doc",
+                    "kind": "source",
+                    "locator": {
+                      "document_id": "doc",
+                      "end": 32,
+                      "revision_id": "document-revision:2cf2b95c233af1da109db748724b5cc5",
+                      "start": 0
+                    },
+                    "namespace": "sources",
+                    "revision": "document-revision:2cf2b95c233af1da109db748724b5cc5"
+                  },
+                  "details": [],
+                  "reason": "revision_changed",
+                  "status": "affected"
+                }
+              ],
+              "reasons": [
+                "revision_changed"
+              ],
+              "report_id": "report:2ef5a4cfc52971190361d763f81fdf22",
+              "section_id": "s",
+              "support_verified": false
+            },
+            "decision": null
+          }
+        },
+        "report-unconstrained": {
+          "job": {
+            "status": "failed",
+            "failure_code": "truncated_or_invalid_json",
+            "failure_type": "BackendError",
+            "operation": "report-unconstrained",
+            "elapsed_seconds": 45.0677292879991,
+            "peak_process_tree_rss_bytes": 966733824,
+            "resource_limits": {
+              "timeout_s": 120,
+              "rss_bytes": 3221225472,
+              "threads": 2
+            },
+            "execution": "isolated-local-process",
+            "hosted_inference_used": false,
+            "remote_processing_used": false
+          },
+          "usable_schema_valid_proposal": false,
+          "independent_substantive_quality": "not_measured"
+        }
+      },
+      "authorized_request": {
+        "assertion": {
+          "citations": [
+            "source-1"
+          ],
+          "dependencies": [
+            {
+              "id": "doc",
+              "kind": "source",
+              "locator": {
+                "document_id": "doc",
+                "end": 32,
+                "revision_id": "document-revision:2cf2b95c233af1da109db748724b5cc5",
+                "start": 0
+              },
+              "namespace": "sources",
+              "revision": "document-revision:2cf2b95c233af1da109db748724b5cc5"
+            }
+          ],
+          "id": "a",
+          "kind": "sourced",
+          "text": "Das Beispielprojekt begann 2023."
+        },
+        "base_report_revision": 1,
+        "authorized_dependencies": [
+          {
+            "id": "doc",
+            "kind": "source",
+            "locator": {
+              "document_id": "doc",
+              "end": 32,
+              "revision_id": "document-revision:2cf2b95c233af1da109db748724b5cc5",
+              "start": 0
+            },
+            "namespace": "sources",
+            "revision": "document-revision:2cf2b95c233af1da109db748724b5cc5"
+          }
+        ],
+        "authorized_citations": [
+          "source-1"
+        ],
+        "evidence": {
+          "changes": [
+            {
+              "after": {
+                "change_class": "silent_substantive",
+                "change_kind": "updated",
+                "committed_watermark": 0,
+                "content_hash": "5216a48a7ab5d5a652dd6b1341921a68472e848c3399c076ba2b2f6609945aef",
+                "created_at_ms": 0,
+                "document_id": "doc",
+                "lifecycle": "active",
+                "metadata_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+                "observed_at_ms": 0,
+                "pack_id": "direct",
+                "payload_hash": "e763f3f368e72a47f62ad8f6ed6351d350b6df8de167094d841b1dd2d87ad5f7",
+                "payload_json": "{\"content\":\"Korrektur: Das Beispielprojekt begann 2024.\",\"document_id\":\"doc\",\"metadata\":{}}",
+                "predecessor_revision_id": "document-revision:2cf2b95c233af1da109db748724b5cc5",
+                "revision": 1,
+                "revision_id": "document-revision:77c1900dc429d6fb11f24f30a2a30097",
+                "run_id": "direct:doc",
+                "source_id": null,
+                "valid_from_ms": null,
+                "valid_to_ms": null
+              },
+              "assessment_hash": "02a31ba064f78d7fc1478a3dd3a0f969306cc29a4a8141e4fd2257e060c40a81",
+              "before": {
+                "change_class": "unchanged",
+                "change_kind": "added",
+                "committed_watermark": 0,
+                "content_hash": "7ff2964749dad06f8d5de0e9267c49717fd62801c09bf14eca88ed9b7058e940",
+                "created_at_ms": 0,
+                "document_id": "doc",
+                "lifecycle": "active",
+                "metadata_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+                "observed_at_ms": 0,
+                "pack_id": "direct",
+                "payload_hash": "27b899a0a53f93ccf9f4a47b13460cc26bff0e9f3c529a38b50457fef7f8f8dc",
+                "payload_json": "{\"content\":\"Das Beispielprojekt begann 2023.\",\"document_id\":\"doc\",\"metadata\":{}}",
+                "predecessor_revision_id": null,
+                "revision": 0,
+                "revision_id": "document-revision:2cf2b95c233af1da109db748724b5cc5",
+                "run_id": "direct:doc",
+                "source_id": null,
+                "valid_from_ms": null,
+                "valid_to_ms": null
+              },
+              "coverage": "complete_for_declared_dependency",
+              "dependency": {
+                "id": "doc",
+                "kind": "source",
+                "locator": {
+                  "document_id": "doc",
+                  "end": 32,
+                  "revision_id": "document-revision:2cf2b95c233af1da109db748724b5cc5",
+                  "start": 0
+                },
+                "namespace": "sources",
+                "revision": "document-revision:2cf2b95c233af1da109db748724b5cc5"
+              },
+              "details": [],
+              "reason": "revision_changed",
+              "status": "affected"
+            }
+          ],
+          "source_texts": [
+            {
+              "document_id": "doc",
+              "revision_id": "document-revision:2cf2b95c233af1da109db748724b5cc5",
+              "text": "Das Beispielprojekt begann 2023."
+            },
+            {
+              "document_id": "doc",
+              "revision_id": "document-revision:77c1900dc429d6fb11f24f30a2a30097",
+              "text": "Korrektur: Das Beispielprojekt begann 2024."
+            }
+          ]
+        },
+        "change_reasons": [
+          "revision_changed"
+        ]
+      },
+      "report_revision_unchanged": true
+    },
+    {
+      "language": "en",
+      "before": "The example project began in 2023.",
+      "captured_correction": "Correction: the example project began in 2024.",
+      "notice": {
+        "elapsed_s": 0.013787192991003394,
+        "result": {
+          "proposal_id": "report-edit:abf7a957024fc273f18ddf980b29fd72",
+          "status": "pending",
+          "proposal": {
+            "assertion_id": "a",
+            "assessment_id": "report-assessment:449250b7c00a6f8788a3da9480790ddd",
+            "base_report_revision": 1,
+            "before": {
+              "citations": [
+                "source-1"
+              ],
+              "dependencies": [
+                {
+                  "id": "doc",
+                  "kind": "source",
+                  "locator": {
+                    "document_id": "doc",
+                    "end": 34,
+                    "revision_id": "document-revision:574baccc10d4166babe58a69ef57526e",
+                    "start": 0
+                  },
+                  "namespace": "sources",
+                  "revision": "document-revision:574baccc10d4166babe58a69ef57526e"
+                }
+              ],
+              "id": "a",
+              "kind": "sourced",
+              "text": "The example project began in 2023."
+            },
+            "evidence": [
+              {
+                "after": {
+                  "change_class": "correction_notice",
+                  "change_kind": "corrected",
+                  "committed_watermark": 0,
+                  "content_hash": "b62fad1d3dc193f0af59aba6dfba260bf24abdf93b11e55673a4d4d7935e9d4e",
+                  "created_at_ms": 0,
+                  "document_id": "doc",
+                  "lifecycle": "active",
+                  "metadata_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+                  "observed_at_ms": 0,
+                  "pack_id": "direct",
+                  "payload_hash": "4cbb4b995cf32d854f3bfd1515fa4dc437953fb055d4c243350faaaf9e1b5e18",
+                  "payload_json": "{\"content\":\"Correction: the example project began in 2024.\",\"document_id\":\"doc\",\"metadata\":{}}",
+                  "predecessor_revision_id": "document-revision:574baccc10d4166babe58a69ef57526e",
+                  "revision": 1,
+                  "revision_id": "document-revision:dbb392b381532af475996b81b534a664",
+                  "run_id": "direct:doc",
+                  "source_id": null,
+                  "valid_from_ms": null,
+                  "valid_to_ms": null
+                },
+                "assessment_hash": "d8d8a69f130f3c321f2a20d9d7a382ecb169c4ea3699520cf098fb9dddab4811",
+                "before": {
+                  "change_class": "unchanged",
+                  "change_kind": "added",
+                  "committed_watermark": 0,
+                  "content_hash": "b30491634b52643e8d9c5f34c35455bfdfa8da1ade44d3399a4d71feec4d1dea",
+                  "created_at_ms": 0,
+                  "document_id": "doc",
+                  "lifecycle": "active",
+                  "metadata_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+                  "observed_at_ms": 0,
+                  "pack_id": "direct",
+                  "payload_hash": "9f22f6f155d7e0618c3bc42ed2e41f402d428a6945baad13c38e2a034bf7dea1",
+                  "payload_json": "{\"content\":\"The example project began in 2023.\",\"document_id\":\"doc\",\"metadata\":{}}",
+                  "predecessor_revision_id": null,
+                  "revision": 0,
+                  "revision_id": "document-revision:574baccc10d4166babe58a69ef57526e",
+                  "run_id": "direct:doc",
+                  "source_id": null,
+                  "valid_from_ms": null,
+                  "valid_to_ms": null
+                },
+                "coverage": "complete_for_declared_dependency",
+                "dependency": {
+                  "id": "doc",
+                  "kind": "source",
+                  "locator": {
+                    "document_id": "doc",
+                    "end": 34,
+                    "revision_id": "document-revision:574baccc10d4166babe58a69ef57526e",
+                    "start": 0
+                  },
+                  "namespace": "sources",
+                  "revision": "document-revision:574baccc10d4166babe58a69ef57526e"
+                },
+                "details": [],
+                "reason": "revision_changed",
+                "status": "affected"
+              }
+            ],
+            "method": "deterministic-review-notice-v1",
+            "proposed": {
+              "citations": [
+                "source-1"
+              ],
+              "dependencies": [
+                {
+                  "id": "doc",
+                  "kind": "source",
+                  "locator": {
+                    "document_id": "doc",
+                    "end": 34,
+                    "revision_id": "document-revision:574baccc10d4166babe58a69ef57526e",
+                    "start": 0
+                  },
+                  "namespace": "sources",
+                  "revision": "document-revision:574baccc10d4166babe58a69ef57526e"
+                }
+              ],
+              "id": "a",
+              "kind": "sourced",
+              "text": "Evidence update requires review (revision_changed). Previously reported: The example project began in 2023."
+            },
+            "proposed_dependency_states": [
+              {
+                "after": {
+                  "change_class": "correction_notice",
+                  "change_kind": "corrected",
+                  "committed_watermark": 0,
+                  "content_hash": "b62fad1d3dc193f0af59aba6dfba260bf24abdf93b11e55673a4d4d7935e9d4e",
+                  "created_at_ms": 0,
+                  "document_id": "doc",
+                  "lifecycle": "active",
+                  "metadata_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+                  "observed_at_ms": 0,
+                  "pack_id": "direct",
+                  "payload_hash": "4cbb4b995cf32d854f3bfd1515fa4dc437953fb055d4c243350faaaf9e1b5e18",
+                  "payload_json": "{\"content\":\"Correction: the example project began in 2024.\",\"document_id\":\"doc\",\"metadata\":{}}",
+                  "predecessor_revision_id": "document-revision:574baccc10d4166babe58a69ef57526e",
+                  "revision": 1,
+                  "revision_id": "document-revision:dbb392b381532af475996b81b534a664",
+                  "run_id": "direct:doc",
+                  "source_id": null,
+                  "valid_from_ms": null,
+                  "valid_to_ms": null
+                },
+                "assessment_hash": "d8d8a69f130f3c321f2a20d9d7a382ecb169c4ea3699520cf098fb9dddab4811",
+                "before": {
+                  "change_class": "unchanged",
+                  "change_kind": "added",
+                  "committed_watermark": 0,
+                  "content_hash": "b30491634b52643e8d9c5f34c35455bfdfa8da1ade44d3399a4d71feec4d1dea",
+                  "created_at_ms": 0,
+                  "document_id": "doc",
+                  "lifecycle": "active",
+                  "metadata_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+                  "observed_at_ms": 0,
+                  "pack_id": "direct",
+                  "payload_hash": "9f22f6f155d7e0618c3bc42ed2e41f402d428a6945baad13c38e2a034bf7dea1",
+                  "payload_json": "{\"content\":\"The example project began in 2023.\",\"document_id\":\"doc\",\"metadata\":{}}",
+                  "predecessor_revision_id": null,
+                  "revision": 0,
+                  "revision_id": "document-revision:574baccc10d4166babe58a69ef57526e",
+                  "run_id": "direct:doc",
+                  "source_id": null,
+                  "valid_from_ms": null,
+                  "valid_to_ms": null
+                },
+                "coverage": "complete_for_declared_dependency",
+                "dependency": {
+                  "id": "doc",
+                  "kind": "source",
+                  "locator": {
+                    "document_id": "doc",
+                    "end": 34,
+                    "revision_id": "document-revision:574baccc10d4166babe58a69ef57526e",
+                    "start": 0
+                  },
+                  "namespace": "sources",
+                  "revision": "document-revision:574baccc10d4166babe58a69ef57526e"
+                },
+                "details": [],
+                "reason": "revision_changed",
+                "status": "affected"
+              }
+            ],
+            "reasons": [
+              "revision_changed"
+            ],
+            "report_id": "report:2ef5a4cfc52971190361d763f81fdf22",
+            "section_id": "s",
+            "support_verified": false
+          },
+          "decision": null
+        }
+      },
+      "runs": {
+        "outlines": {
+          "job": {
+            "status": "completed",
+            "result": {
+              "status": "pending_review",
+              "proposal": {
+                "base_report_revision": 1,
+                "explanation": "The example project began in 2023.",
+                "assertion": {
+                  "id": "a",
+                  "text": "The example project began in 2024.",
+                  "kind": "sourced",
+                  "dependencies": [
+                    {
+                      "id": "doc",
+                      "kind": "source",
+                      "locator": {
+                        "document_id": "doc",
+                        "end": 34,
+                        "revision_id": "document-revision:574baccc10d4166babe58a69ef57526e",
+                        "start": 0
+                      },
+                      "namespace": "sources",
+                      "revision": "document-revision:574baccc10d4166babe58a69ef57526e"
+                    }
+                  ],
+                  "citations": [
+                    "source-1"
+                  ]
+                }
+              },
+              "model": {
+                "kind": "proposal",
+                "model": "HuggingFaceTB/SmolLM2-135M-Instruct",
+                "revision": "12fd25f77366fa6b3b4b768ec3050bf629380bac",
+                "license": "apache-2.0"
+              },
+              "mode": "native-outlines",
+              "schema_valid": true,
+              "support_verified": false,
+              "auto_approved": false,
+              "schema_sha256": "49b49eb8c629a4a8a10d6549c8a0cd0c3a1658399b9d61e12cd69b8f8040236c",
+              "request_sha256": "eb7a4bae12cba06f5e4a0551f2e75e0494506999b6e327c8c831885f33fdec9f",
+              "elapsed_seconds": 21.903068853003788
+            },
+            "operation": "outlines",
+            "elapsed_seconds": 27.313732902999618,
+            "peak_process_tree_rss_bytes": 1171304448,
+            "resource_limits": {
+              "timeout_s": 120,
+              "rss_bytes": 3221225472,
+              "threads": 2
+            },
+            "execution": "isolated-local-process",
+            "hosted_inference_used": false,
+            "remote_processing_used": false
+          },
+          "usable_schema_valid_proposal": true,
+          "independent_substantive_quality": "not_measured",
+          "authored_correction_probe": {
+            "contains_new_year": true,
+            "retains_old_year": false,
+            "semantics": "literal diagnostic, not entailment or human edit quality"
+          },
+          "pending_review_artifact": {
+            "proposal_id": "report-edit:7d729c3de1fff01651d4933fec70681e",
+            "status": "pending",
+            "proposal": {
+              "assertion_id": "a",
+              "assessment_id": "report-assessment:449250b7c00a6f8788a3da9480790ddd",
+              "base_report_revision": 1,
+              "before": {
+                "citations": [
+                  "source-1"
+                ],
+                "dependencies": [
+                  {
+                    "id": "doc",
+                    "kind": "source",
+                    "locator": {
+                      "document_id": "doc",
+                      "end": 34,
+                      "revision_id": "document-revision:574baccc10d4166babe58a69ef57526e",
+                      "start": 0
+                    },
+                    "namespace": "sources",
+                    "revision": "document-revision:574baccc10d4166babe58a69ef57526e"
+                  }
+                ],
+                "id": "a",
+                "kind": "sourced",
+                "text": "The example project began in 2023."
+              },
+              "evidence": [
+                {
+                  "after": {
+                    "change_class": "correction_notice",
+                    "change_kind": "corrected",
+                    "committed_watermark": 0,
+                    "content_hash": "b62fad1d3dc193f0af59aba6dfba260bf24abdf93b11e55673a4d4d7935e9d4e",
+                    "created_at_ms": 0,
+                    "document_id": "doc",
+                    "lifecycle": "active",
+                    "metadata_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+                    "observed_at_ms": 0,
+                    "pack_id": "direct",
+                    "payload_hash": "4cbb4b995cf32d854f3bfd1515fa4dc437953fb055d4c243350faaaf9e1b5e18",
+                    "payload_json": "{\"content\":\"Correction: the example project began in 2024.\",\"document_id\":\"doc\",\"metadata\":{}}",
+                    "predecessor_revision_id": "document-revision:574baccc10d4166babe58a69ef57526e",
+                    "revision": 1,
+                    "revision_id": "document-revision:dbb392b381532af475996b81b534a664",
+                    "run_id": "direct:doc",
+                    "source_id": null,
+                    "valid_from_ms": null,
+                    "valid_to_ms": null
+                  },
+                  "assessment_hash": "d8d8a69f130f3c321f2a20d9d7a382ecb169c4ea3699520cf098fb9dddab4811",
+                  "before": {
+                    "change_class": "unchanged",
+                    "change_kind": "added",
+                    "committed_watermark": 0,
+                    "content_hash": "b30491634b52643e8d9c5f34c35455bfdfa8da1ade44d3399a4d71feec4d1dea",
+                    "created_at_ms": 0,
+                    "document_id": "doc",
+                    "lifecycle": "active",
+                    "metadata_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+                    "observed_at_ms": 0,
+                    "pack_id": "direct",
+                    "payload_hash": "9f22f6f155d7e0618c3bc42ed2e41f402d428a6945baad13c38e2a034bf7dea1",
+                    "payload_json": "{\"content\":\"The example project began in 2023.\",\"document_id\":\"doc\",\"metadata\":{}}",
+                    "predecessor_revision_id": null,
+                    "revision": 0,
+                    "revision_id": "document-revision:574baccc10d4166babe58a69ef57526e",
+                    "run_id": "direct:doc",
+                    "source_id": null,
+                    "valid_from_ms": null,
+                    "valid_to_ms": null
+                  },
+                  "coverage": "complete_for_declared_dependency",
+                  "dependency": {
+                    "id": "doc",
+                    "kind": "source",
+                    "locator": {
+                      "document_id": "doc",
+                      "end": 34,
+                      "revision_id": "document-revision:574baccc10d4166babe58a69ef57526e",
+                      "start": 0
+                    },
+                    "namespace": "sources",
+                    "revision": "document-revision:574baccc10d4166babe58a69ef57526e"
+                  },
+                  "details": [],
+                  "reason": "revision_changed",
+                  "status": "affected"
+                }
+              ],
+              "method": "model-generated-pending-review",
+              "producer": {
+                "explanation": "The example project began in 2023.",
+                "name": "HuggingFaceTB/SmolLM2-135M-Instruct",
+                "support_verified": false,
+                "version": "12fd25f77366fa6b3b4b768ec3050bf629380bac"
+              },
+              "proposed": {
+                "citations": [
+                  "source-1"
+                ],
+                "dependencies": [
+                  {
+                    "id": "doc",
+                    "kind": "source",
+                    "locator": {
+                      "document_id": "doc",
+                      "end": 34,
+                      "revision_id": "document-revision:574baccc10d4166babe58a69ef57526e",
+                      "start": 0
+                    },
+                    "namespace": "sources",
+                    "revision": "document-revision:574baccc10d4166babe58a69ef57526e"
+                  }
+                ],
+                "id": "a",
+                "kind": "sourced",
+                "text": "The example project began in 2024."
+              },
+              "proposed_dependency_states": [
+                {
+                  "after": {
+                    "change_class": "correction_notice",
+                    "change_kind": "corrected",
+                    "committed_watermark": 0,
+                    "content_hash": "b62fad1d3dc193f0af59aba6dfba260bf24abdf93b11e55673a4d4d7935e9d4e",
+                    "created_at_ms": 0,
+                    "document_id": "doc",
+                    "lifecycle": "active",
+                    "metadata_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+                    "observed_at_ms": 0,
+                    "pack_id": "direct",
+                    "payload_hash": "4cbb4b995cf32d854f3bfd1515fa4dc437953fb055d4c243350faaaf9e1b5e18",
+                    "payload_json": "{\"content\":\"Correction: the example project began in 2024.\",\"document_id\":\"doc\",\"metadata\":{}}",
+                    "predecessor_revision_id": "document-revision:574baccc10d4166babe58a69ef57526e",
+                    "revision": 1,
+                    "revision_id": "document-revision:dbb392b381532af475996b81b534a664",
+                    "run_id": "direct:doc",
+                    "source_id": null,
+                    "valid_from_ms": null,
+                    "valid_to_ms": null
+                  },
+                  "assessment_hash": "d8d8a69f130f3c321f2a20d9d7a382ecb169c4ea3699520cf098fb9dddab4811",
+                  "before": {
+                    "change_class": "unchanged",
+                    "change_kind": "added",
+                    "committed_watermark": 0,
+                    "content_hash": "b30491634b52643e8d9c5f34c35455bfdfa8da1ade44d3399a4d71feec4d1dea",
+                    "created_at_ms": 0,
+                    "document_id": "doc",
+                    "lifecycle": "active",
+                    "metadata_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+                    "observed_at_ms": 0,
+                    "pack_id": "direct",
+                    "payload_hash": "9f22f6f155d7e0618c3bc42ed2e41f402d428a6945baad13c38e2a034bf7dea1",
+                    "payload_json": "{\"content\":\"The example project began in 2023.\",\"document_id\":\"doc\",\"metadata\":{}}",
+                    "predecessor_revision_id": null,
+                    "revision": 0,
+                    "revision_id": "document-revision:574baccc10d4166babe58a69ef57526e",
+                    "run_id": "direct:doc",
+                    "source_id": null,
+                    "valid_from_ms": null,
+                    "valid_to_ms": null
+                  },
+                  "coverage": "complete_for_declared_dependency",
+                  "dependency": {
+                    "id": "doc",
+                    "kind": "source",
+                    "locator": {
+                      "document_id": "doc",
+                      "end": 34,
+                      "revision_id": "document-revision:574baccc10d4166babe58a69ef57526e",
+                      "start": 0
+                    },
+                    "namespace": "sources",
+                    "revision": "document-revision:574baccc10d4166babe58a69ef57526e"
+                  },
+                  "details": [],
+                  "reason": "revision_changed",
+                  "status": "affected"
+                }
+              ],
+              "reasons": [
+                "revision_changed"
+              ],
+              "report_id": "report:2ef5a4cfc52971190361d763f81fdf22",
+              "section_id": "s",
+              "support_verified": false
+            },
+            "decision": null
+          }
+        },
+        "report-unconstrained": {
+          "job": {
+            "status": "failed",
+            "failure_code": "truncated_or_invalid_json",
+            "failure_type": "BackendError",
+            "operation": "report-unconstrained",
+            "elapsed_seconds": 21.757086901008734,
+            "peak_process_tree_rss_bytes": 960774144,
+            "resource_limits": {
+              "timeout_s": 120,
+              "rss_bytes": 3221225472,
+              "threads": 2
+            },
+            "execution": "isolated-local-process",
+            "hosted_inference_used": false,
+            "remote_processing_used": false
+          },
+          "usable_schema_valid_proposal": false,
+          "independent_substantive_quality": "not_measured"
+        }
+      },
+      "authorized_request": {
+        "assertion": {
+          "citations": [
+            "source-1"
+          ],
+          "dependencies": [
+            {
+              "id": "doc",
+              "kind": "source",
+              "locator": {
+                "document_id": "doc",
+                "end": 34,
+                "revision_id": "document-revision:574baccc10d4166babe58a69ef57526e",
+                "start": 0
+              },
+              "namespace": "sources",
+              "revision": "document-revision:574baccc10d4166babe58a69ef57526e"
+            }
+          ],
+          "id": "a",
+          "kind": "sourced",
+          "text": "The example project began in 2023."
+        },
+        "base_report_revision": 1,
+        "authorized_dependencies": [
+          {
+            "id": "doc",
+            "kind": "source",
+            "locator": {
+              "document_id": "doc",
+              "end": 34,
+              "revision_id": "document-revision:574baccc10d4166babe58a69ef57526e",
+              "start": 0
+            },
+            "namespace": "sources",
+            "revision": "document-revision:574baccc10d4166babe58a69ef57526e"
+          }
+        ],
+        "authorized_citations": [
+          "source-1"
+        ],
+        "evidence": {
+          "changes": [
+            {
+              "after": {
+                "change_class": "correction_notice",
+                "change_kind": "corrected",
+                "committed_watermark": 0,
+                "content_hash": "b62fad1d3dc193f0af59aba6dfba260bf24abdf93b11e55673a4d4d7935e9d4e",
+                "created_at_ms": 0,
+                "document_id": "doc",
+                "lifecycle": "active",
+                "metadata_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+                "observed_at_ms": 0,
+                "pack_id": "direct",
+                "payload_hash": "4cbb4b995cf32d854f3bfd1515fa4dc437953fb055d4c243350faaaf9e1b5e18",
+                "payload_json": "{\"content\":\"Correction: the example project began in 2024.\",\"document_id\":\"doc\",\"metadata\":{}}",
+                "predecessor_revision_id": "document-revision:574baccc10d4166babe58a69ef57526e",
+                "revision": 1,
+                "revision_id": "document-revision:dbb392b381532af475996b81b534a664",
+                "run_id": "direct:doc",
+                "source_id": null,
+                "valid_from_ms": null,
+                "valid_to_ms": null
+              },
+              "assessment_hash": "d8d8a69f130f3c321f2a20d9d7a382ecb169c4ea3699520cf098fb9dddab4811",
+              "before": {
+                "change_class": "unchanged",
+                "change_kind": "added",
+                "committed_watermark": 0,
+                "content_hash": "b30491634b52643e8d9c5f34c35455bfdfa8da1ade44d3399a4d71feec4d1dea",
+                "created_at_ms": 0,
+                "document_id": "doc",
+                "lifecycle": "active",
+                "metadata_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+                "observed_at_ms": 0,
+                "pack_id": "direct",
+                "payload_hash": "9f22f6f155d7e0618c3bc42ed2e41f402d428a6945baad13c38e2a034bf7dea1",
+                "payload_json": "{\"content\":\"The example project began in 2023.\",\"document_id\":\"doc\",\"metadata\":{}}",
+                "predecessor_revision_id": null,
+                "revision": 0,
+                "revision_id": "document-revision:574baccc10d4166babe58a69ef57526e",
+                "run_id": "direct:doc",
+                "source_id": null,
+                "valid_from_ms": null,
+                "valid_to_ms": null
+              },
+              "coverage": "complete_for_declared_dependency",
+              "dependency": {
+                "id": "doc",
+                "kind": "source",
+                "locator": {
+                  "document_id": "doc",
+                  "end": 34,
+                  "revision_id": "document-revision:574baccc10d4166babe58a69ef57526e",
+                  "start": 0
+                },
+                "namespace": "sources",
+                "revision": "document-revision:574baccc10d4166babe58a69ef57526e"
+              },
+              "details": [],
+              "reason": "revision_changed",
+              "status": "affected"
+            }
+          ],
+          "source_texts": [
+            {
+              "document_id": "doc",
+              "revision_id": "document-revision:574baccc10d4166babe58a69ef57526e",
+              "text": "The example project began in 2023."
+            },
+            {
+              "document_id": "doc",
+              "revision_id": "document-revision:dbb392b381532af475996b81b534a664",
+              "text": "Correction: the example project began in 2024."
+            }
+          ]
+        },
+        "change_reasons": [
+          "revision_changed"
+        ]
+      },
+      "report_revision_unchanged": true
+    }
+  ],
+  "decision": "Defer: retain deterministic notices and explicit review. Native schema validity and authored date probes do not establish independent substantive edit quality or evidence support."
+}

@@ -1,0 +1,14 @@
+{
+  "provenance": "Authored deterministic conformance fixture; not live provider output and not independent human labels.",
+  "records": {
+    "ctis": {"id": "EU-CT-2026-000001", "title": "Synthetic CTIS export record", "jurisdiction": "EU", "language": "en", "status": "authorised", "missing_fields": ["results"]},
+    "drks": {"id": "DRKS00000001", "title": "Synthetische Berliner Studie", "jurisdiction": "DE", "language": "de", "status": "recruiting"},
+    "cellar": {"id": "CELEX:32026R0001", "title": "Synthetischer EU-Rechtsakt", "jurisdiction": "EU", "language": "de", "relationships": [{"type": "amends", "target": "CELEX:32024R0001"}]},
+    "german-courts": {"id": "ECLI:DE:BGH:2026:010126U1ZR1.26.0", "title": "Synthetische Entscheidung", "jurisdiction": "DE", "language": "de", "locators": [{"paragraph": 12}]},
+    "berlin-law": {"id": "BE-GVBl-2026-1", "title": "Synthetisches Berliner Gesetz", "jurisdiction": "DE-BE", "language": "de", "locators": [{"paragraph": "§ 1"}]},
+    "opencorporates": {"id": "de_hrb_123", "title": "Beispiel GmbH", "jurisdiction": "DE", "status": "Active", "missing_fields": ["headquarters"]},
+    "opensanctions": {"id": "os-example", "title": "Max Mustermann", "jurisdiction": "DE", "provider_score": 0.72, "review_required": true},
+    "ema": {"id": "EMA-MED-001", "title": "Synthetic Medicine", "jurisdiction": "EU", "status": "authorised", "language": "de"},
+    "bfarm": {"id": "BfArM-RHB-2026-001", "title": "Synthetischer Rote-Hand-Brief", "jurisdiction": "DE", "language": "de", "published_at": "2026-08-01"}
+  }
+}

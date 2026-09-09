@@ -1,0 +1,30 @@
+{
+  "dataset": "facebook/xnli",
+  "revision": "698f8e6ef634f838d19dcf896958caa5d727dc79",
+  "files": {
+    "de-validation.parquet": {
+      "url": "https://huggingface.co/datasets/facebook/xnli/resolve/698f8e6ef634f838d19dcf896958caa5d727dc79/de/validation/0000.parquet",
+      "sha256": "68f6b30f13ba0fb92acf2567edd7cb1ec26a6b8b38c2274eb6f140fb7075f66e",
+      "bytes": 180990
+    },
+    "de-test.parquet": {
+      "url": "https://huggingface.co/datasets/facebook/xnli/resolve/698f8e6ef634f838d19dcf896958caa5d727dc79/de/test/0000.parquet",
+      "sha256": "c25f5695d21673dbe966bac7b3c6a1e2df369431976928565c3cc56838f5632b",
+      "bytes": 356132
+    },
+    "en-validation.parquet": {
+      "url": "https://huggingface.co/datasets/facebook/xnli/resolve/698f8e6ef634f838d19dcf896958caa5d727dc79/en/validation/0000.parquet",
+      "sha256": "42961a7b66dee147da655d78db8cbaac97b3dbcf898009acffec6cda2d80f2bf",
+      "bytes": 157207
+    },
+    "en-test.parquet": {
+      "url": "https://huggingface.co/datasets/facebook/xnli/resolve/698f8e6ef634f838d19dcf896958caa5d727dc79/en/test/0000.parquet",
+      "sha256": "8f0fd1e105091e0f11cd37f9b2bc382f16de9949aa9471e1366b2605ba037167",
+      "bytes": 308237
+    }
+  },
+  "license": "CC-BY-NC-4.0",
+  "license_url": "https://github.com/facebookresearch/XNLI/blob/main/LICENSE",
+  "attribution": "Conneau et al. (2018), XNLI: Evaluating Cross-lingual Sentence Representations; Facebook Research",
+  "selection": "First 20 examples per native class in validation and test, paired German/English row identities; exclude shared English-premise groups across splits before model inference."
+}

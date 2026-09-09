@@ -65,6 +65,7 @@ def main():
                 "path": str(path),
                 "sha256": hashlib.sha256(raw).hexdigest(),
                 "kind": name,
+                "tables": [{"page":1,"cells":[{"row":r,"col":c,"text":v} for r,row in enumerate([["Group","Count"],["Alpha","12"],["Beta","24"]]) for c,v in enumerate(row)]}] if name == "table" else [],
                 "expected": expected,
                 "table_cells": ["Group", "Count", "Alpha", "12", "Beta", "24"]
                 if name == "table"

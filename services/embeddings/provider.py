@@ -87,6 +87,14 @@ class EmbeddingProvider:
         
     def _create_backend(self, provider: str, model_name: Optional[str], **kwargs) -> EmbeddingBackend:
         """Create the appropriate backend instance."""
+        if provider in {"e5", "bge-m3"}:
+            from src.argument_mining.model_registry import optional_model_spec
+            from src.evaluation.model_backends import BGEBackend, E5Backend
+            spec = optional_model_spec(provider)
+            short = "multilingual-e5-small" if provider == "e5" else "bge-m3"
+            if model_name not in (None, spec["model"], short + ":" + spec["revision"]):
+                raise ValueError("model name differs from the selected optional registry pin")
+            return (E5Backend if provider == "e5" else BGEBackend)(**kwargs)
         if provider == "local":
             from .backends.local_sentence_transformers import LocalSentenceTransformersBackend
             return LocalSentenceTransformersBackend(

@@ -1,0 +1,115 @@
+{
+  "kind": "synthetic contract fixture with independent structure expectations",
+  "content": {
+    "title": "Berliner Forschungsbericht",
+    "snapshot": {
+      "id": "snapshot:1",
+      "generations": {
+        "sources": 1
+      }
+    },
+    "sections": [
+      {
+        "id": "summary",
+        "title": "Summary",
+        "assertions": [
+          {
+            "id": "a1",
+            "text": "The reported value increased.",
+            "kind": "sourced",
+            "citations": [
+              "source-1"
+            ],
+            "dependencies": [
+              {
+                "kind": "source",
+                "id": "doc",
+                "revision": "revision-1",
+                "namespace": "sources",
+                "locator": {
+                  "document_id": "doc",
+                  "revision_id": "revision-1",
+                  "start": 0,
+                  "end": 29
+                }
+              }
+            ]
+          },
+          {
+            "id": "a2",
+            "text": "I suspect a seasonal effect.",
+            "kind": "commentary",
+            "citations": [],
+            "dependencies": []
+          },
+          {
+            "id": "a3",
+            "text": "Wiederholte Quellenangabe zur Berliner Forschung.",
+            "kind": "sourced",
+            "citations": [
+              "source-1"
+            ],
+            "dependencies": [
+              {
+                "kind": "source",
+                "id": "doc",
+                "revision": "revision-1",
+                "namespace": "sources",
+                "locator": {
+                  "document_id": "doc",
+                  "revision_id": "revision-1",
+                  "start": 0,
+                  "end": 29
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "bibliography": [
+      {
+        "id": "source-1",
+        "text": "Source One. Observations. 2026."
+      },
+      {
+        "id": "incomplete",
+        "text": "Ältere Quelle: Müller, öffentliche Förderung."
+      }
+    ],
+    "limitations": [
+      "One source; no causal identification."
+    ]
+  },
+  "citation_metadata": {
+    "source-1": {
+      "type": "report",
+      "title": "Berliner Forschung und öffentliche Förderung",
+      "author": [
+        {
+          "family": "Müller",
+          "given": "Jörg"
+        }
+      ],
+      "issued": {
+        "date-parts": [
+          [
+            2025
+          ]
+        ]
+      },
+      "publisher": "Berlin"
+    }
+  },
+  "locators": {
+    "a1": {
+      "source-1": "12"
+    }
+  },
+  "expected_tokens": [
+    "Müller",
+    "2025",
+    "revision-1",
+    "One source; no causal identification."
+  ]
+}

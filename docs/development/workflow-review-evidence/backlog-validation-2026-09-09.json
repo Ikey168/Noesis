@@ -1,0 +1,81 @@
+{
+  "date": "2026-09-09",
+  "broad_suite": {
+    "command": ".venv/bin/python -m pytest tests/unit/ingestion tests/unit/kb tests/unit/evaluation -q",
+    "passed": 1598,
+    "skipped": 13,
+    "warnings": 19,
+    "duration_seconds": 96.96
+  },
+  "published_retrieval_contract_tests": {
+    "passed": 3,
+    "covers": [
+      "published label preservation",
+      "fixed corpus selection",
+      "explicit omitted overlong negatives",
+      "digest tampering rejection",
+      "missing-source failure",
+      "ir-measures agreement and discrepancy detection"
+    ]
+  },
+  "github": {
+    "closed_this_continuation": [
+      1426,
+      1478,
+      1479,
+      1480,
+      1482,
+      1484,
+      1486,
+      1490,
+      1493,
+      1494,
+      1496,
+      1500,
+      1504,
+      1505,
+      1506,
+      1520
+    ],
+    "remaining_open": 0,
+    "closed_as_deferred_non_implementation": [
+      1348,
+      1391,
+      1399,
+      1401,
+      1406,
+      1420,
+      1427,
+      1443,
+      1444,
+      1458,
+      1469,
+      1471,
+      1483,
+      1488,
+      1489,
+      1492,
+      1499,
+      1507,
+      1508,
+      1509,
+      1510,
+      1514,
+      1521
+    ]
+  },
+  "full_backlog_complete": false,
+  "code_committed_or_pushed": false,
+  "additional_verification": {
+    "rag_tests_passed": 28,
+    "native_model_contracts_passed": 17,
+    "native_postgresql_tests_passed": 1,
+    "native_outlines_tests_passed_earlier": 10,
+    "targeted_ruff": "passed",
+    "git_diff_check": "passed",
+    "published_extraction_and_runtime_contracts_passed": 28
+  },
+  "implementation_issue_queue_closed": true,
+  "evaluation_acceptance_complete": false,
+  "follow_up_document": "../further-evaluations-and-access.md"
+}

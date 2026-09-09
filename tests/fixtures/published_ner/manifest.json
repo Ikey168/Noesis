@@ -1,0 +1,22 @@
+{
+  "germeval-test.tsv": {
+    "url": "https://raw.githubusercontent.com/AKSW/germeval-morph-analysis/26c8e45ca02c74a526e40a3bb671696d5fbdffe9/data/official/NER-de-test.tsv",
+    "source": "GermEval 2014 / NoSta-D",
+    "license": "CC-BY-4.0",
+    "language": "de",
+    "sha256": "9405e49532379f3aee048851d116b35823d31c04e9521b87a9c4e6572c269097",
+    "size_bytes": 1682738,
+    "split": "test",
+    "label_origin": "published-human-annotation"
+  },
+  "crossner-politics-test.txt": {
+    "url": "https://raw.githubusercontent.com/zliucr/CrossNER/2e7ba2a7798c961e3f29fbc51252c5a8d40224bf/ner_data/politics/test.txt",
+    "source": "CrossNER, Liu et al. (2021), politics",
+    "license": "Dataset license not established in this capture; redistribution rights are not inferred; raw corpus is not redistributed",
+    "language": "en",
+    "sha256": "05cadc5e129d394f7f92b4a052cf4b6ea4c60878d32a833e500cf046c297455f",
+    "size_bytes": 325917,
+    "split": "test",
+    "label_origin": "published-human-annotation"
+  }
+}

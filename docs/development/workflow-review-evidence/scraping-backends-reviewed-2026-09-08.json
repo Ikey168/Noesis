@@ -1,0 +1,3601 @@
+{
+  "corpus": "authored local static/JS/pagination/lazy/error/source-edit fixtures; not production anti-bot or independent fidelity evaluation",
+  "cost_accounting": "local backends are recorded as zero provider cost; hosted backend cost remains unavailable until an authorized credentialed run with an explicit ceiling",
+  "versions": {
+    "scrapy": "2.18.0",
+    "playwright": "1.62.0",
+    "crawl4ai": "0.9.3",
+    "crawlee": "1.10.0",
+    "trafilatura": null
+  },
+  "runs": [
+    {
+      "backend": "scrapy",
+      "fixture": "/static",
+      "fixture_sha256": "160997301734ffad4f86644b44068918f60da6998cb49a55ad60bde899bcb60a",
+      "status": "completed",
+      "text": "Fixture A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations.",
+      "snapshot_sha256": "160997301734ffad4f86644b44068918f60da6998cb49a55ad60bde899bcb60a",
+      "captured_html": "<article><h1>Fixture</h1><p>A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. </p></article>",
+      "backend_markdown": null,
+      "acquisition_metadata": {
+        "source_url": "http://127.0.0.1:34219/static",
+        "final_url": "http://127.0.0.1:34219/static",
+        "backend": "scrapy",
+        "observed_at_ms": 1788902172210,
+        "sha256": "160997301734ffad4f86644b44068918f60da6998cb49a55ad60bde899bcb60a",
+        "representation": "transport-decoded-http-body",
+        "original_wire_bytes": false,
+        "native": {
+          "status": 200,
+          "response_body_sha256": "160997301734ffad4f86644b44068918f60da6998cb49a55ad60bde899bcb60a"
+        }
+      },
+      "extraction_metadata": {
+        "extractor": "extruct+html-metadata",
+        "version": null,
+        "snapshot_sha256": "160997301734ffad4f86644b44068918f60da6998cb49a55ad60bde899bcb60a",
+        "selected": {
+          "title": {
+            "field": "title",
+            "value": "Fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4,
+            "selection_reason": "matching article URL, then article entity, metadata, canonical link, visible heading; locator breaks ties"
+          }
+        },
+        "candidates": [
+          {
+            "field": "title",
+            "value": "Fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4
+          }
+        ],
+        "diagnostics": [
+          {
+            "reason": "optional_extruct_unavailable"
+          }
+        ],
+        "canonical_identity_authoritative": false,
+        "body_extractor": {
+          "name": "bs4-heuristic",
+          "version": "4.15.0",
+          "locator": "extracted-body; exact source spans unavailable"
+        }
+      },
+      "elapsed_seconds": 0.5035564560021157,
+      "peak_parent_rss_kib": 81660,
+      "worker_receipt": {
+        "status": "completed",
+        "operation": "scrape-fixture",
+        "elapsed_seconds": 0.5035564560021157,
+        "peak_process_tree_rss_bytes": 84250624,
+        "resource_limits": {
+          "timeout_s": 45,
+          "rss_bytes": 1073741824,
+          "threads": 2
+        },
+        "execution": "isolated-local-process",
+        "hosted_inference_used": false,
+        "remote_processing_used": false
+      },
+      "peak_process_tree_rss_bytes": 84250624,
+      "expected_body_recall": 1.0,
+      "false_body_on_empty": null,
+      "title_matches_expected": true,
+      "metadata_bound_to_snapshot": true,
+      "title_locator_present": true
+    },
+    {
+      "backend": "scrapy",
+      "fixture": "/delayed",
+      "fixture_sha256": "a2c42009bff802eb3d204ab7f3f2a811f38e300430f65289b5efe7a70e3809ce",
+      "status": "completed",
+      "text": "",
+      "snapshot_sha256": "a2c42009bff802eb3d204ab7f3f2a811f38e300430f65289b5efe7a70e3809ce",
+      "captured_html": "<html><body><script>setTimeout(()=>{document.body.innerHTML=\"<article><h1>Fixture</h1><p>A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. </p></article>\"},100)</script></body></html>",
+      "backend_markdown": null,
+      "acquisition_metadata": {
+        "source_url": "http://127.0.0.1:34219/delayed",
+        "final_url": "http://127.0.0.1:34219/delayed",
+        "backend": "scrapy",
+        "observed_at_ms": 1788902172714,
+        "sha256": "a2c42009bff802eb3d204ab7f3f2a811f38e300430f65289b5efe7a70e3809ce",
+        "representation": "transport-decoded-http-body",
+        "original_wire_bytes": false,
+        "native": {
+          "status": 200,
+          "response_body_sha256": "a2c42009bff802eb3d204ab7f3f2a811f38e300430f65289b5efe7a70e3809ce"
+        }
+      },
+      "extraction_metadata": null,
+      "elapsed_seconds": 0.5029384749941528,
+      "peak_parent_rss_kib": 82012,
+      "worker_receipt": {
+        "status": "completed",
+        "operation": "scrape-fixture",
+        "elapsed_seconds": 0.5029384749941528,
+        "peak_process_tree_rss_bytes": 84271104,
+        "resource_limits": {
+          "timeout_s": 45,
+          "rss_bytes": 1073741824,
+          "threads": 2
+        },
+        "execution": "isolated-local-process",
+        "hosted_inference_used": false,
+        "remote_processing_used": false
+      },
+      "peak_process_tree_rss_bytes": 84271104,
+      "expected_body_recall": 0.0,
+      "false_body_on_empty": null,
+      "title_matches_expected": false,
+      "metadata_bound_to_snapshot": false,
+      "title_locator_present": false
+    },
+    {
+      "backend": "scrapy",
+      "fixture": "/pagination-1",
+      "fixture_sha256": "2dcc801c6b7c7d059b4e1aeb32f98e7ce82ef5d3039e7dc7cb379c889136060b",
+      "status": "completed",
+      "text": "Page one A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. Next",
+      "snapshot_sha256": "2dcc801c6b7c7d059b4e1aeb32f98e7ce82ef5d3039e7dc7cb379c889136060b",
+      "captured_html": "<article><h1>Page one</h1><p>A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. </p><a rel='next' href='/pagination-2'>Next</a></article>",
+      "backend_markdown": null,
+      "acquisition_metadata": {
+        "source_url": "http://127.0.0.1:34219/pagination-1",
+        "final_url": "http://127.0.0.1:34219/pagination-1",
+        "backend": "scrapy",
+        "observed_at_ms": 1788902173222,
+        "sha256": "2dcc801c6b7c7d059b4e1aeb32f98e7ce82ef5d3039e7dc7cb379c889136060b",
+        "representation": "transport-decoded-http-body",
+        "original_wire_bytes": false,
+        "native": {
+          "status": 200,
+          "response_body_sha256": "2dcc801c6b7c7d059b4e1aeb32f98e7ce82ef5d3039e7dc7cb379c889136060b"
+        }
+      },
+      "extraction_metadata": {
+        "extractor": "extruct+html-metadata",
+        "version": null,
+        "snapshot_sha256": "2dcc801c6b7c7d059b4e1aeb32f98e7ce82ef5d3039e7dc7cb379c889136060b",
+        "selected": {
+          "title": {
+            "field": "title",
+            "value": "Page one",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4,
+            "selection_reason": "matching article URL, then article entity, metadata, canonical link, visible heading; locator breaks ties"
+          }
+        },
+        "candidates": [
+          {
+            "field": "title",
+            "value": "Page one",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4
+          }
+        ],
+        "diagnostics": [
+          {
+            "reason": "optional_extruct_unavailable"
+          }
+        ],
+        "canonical_identity_authoritative": false,
+        "body_extractor": {
+          "name": "bs4-heuristic",
+          "version": "4.15.0",
+          "locator": "extracted-body; exact source spans unavailable"
+        }
+      },
+      "elapsed_seconds": 0.5335367160005262,
+      "peak_parent_rss_kib": 82028,
+      "worker_receipt": {
+        "status": "completed",
+        "operation": "scrape-fixture",
+        "elapsed_seconds": 0.5335367160005262,
+        "peak_process_tree_rss_bytes": 84246528,
+        "resource_limits": {
+          "timeout_s": 45,
+          "rss_bytes": 1073741824,
+          "threads": 2
+        },
+        "execution": "isolated-local-process",
+        "hosted_inference_used": false,
+        "remote_processing_used": false
+      },
+      "peak_process_tree_rss_bytes": 84246528,
+      "expected_body_recall": 1.0,
+      "false_body_on_empty": null,
+      "title_matches_expected": true,
+      "metadata_bound_to_snapshot": true,
+      "title_locator_present": true
+    },
+    {
+      "backend": "scrapy",
+      "fixture": "/pagination-2",
+      "fixture_sha256": "63cd97ae0186fb4a860aeadc6054546efb0aa19fb6d628b2fa31456cf051c3a7",
+      "status": "completed",
+      "text": "Page two A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations.",
+      "snapshot_sha256": "63cd97ae0186fb4a860aeadc6054546efb0aa19fb6d628b2fa31456cf051c3a7",
+      "captured_html": "<article><h1>Page two</h1><p>A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. </p></article>",
+      "backend_markdown": null,
+      "acquisition_metadata": {
+        "source_url": "http://127.0.0.1:34219/pagination-2",
+        "final_url": "http://127.0.0.1:34219/pagination-2",
+        "backend": "scrapy",
+        "observed_at_ms": 1788902173808,
+        "sha256": "63cd97ae0186fb4a860aeadc6054546efb0aa19fb6d628b2fa31456cf051c3a7",
+        "representation": "transport-decoded-http-body",
+        "original_wire_bytes": false,
+        "native": {
+          "status": 200,
+          "response_body_sha256": "63cd97ae0186fb4a860aeadc6054546efb0aa19fb6d628b2fa31456cf051c3a7"
+        }
+      },
+      "extraction_metadata": {
+        "extractor": "extruct+html-metadata",
+        "version": null,
+        "snapshot_sha256": "63cd97ae0186fb4a860aeadc6054546efb0aa19fb6d628b2fa31456cf051c3a7",
+        "selected": {
+          "title": {
+            "field": "title",
+            "value": "Page two",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4,
+            "selection_reason": "matching article URL, then article entity, metadata, canonical link, visible heading; locator breaks ties"
+          }
+        },
+        "candidates": [
+          {
+            "field": "title",
+            "value": "Page two",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4
+          }
+        ],
+        "diagnostics": [
+          {
+            "reason": "optional_extruct_unavailable"
+          }
+        ],
+        "canonical_identity_authoritative": false,
+        "body_extractor": {
+          "name": "bs4-heuristic",
+          "version": "4.15.0",
+          "locator": "extracted-body; exact source spans unavailable"
+        }
+      },
+      "elapsed_seconds": 0.581114496999362,
+      "peak_parent_rss_kib": 81724,
+      "worker_receipt": {
+        "status": "completed",
+        "operation": "scrape-fixture",
+        "elapsed_seconds": 0.581114496999362,
+        "peak_process_tree_rss_bytes": 84393984,
+        "resource_limits": {
+          "timeout_s": 45,
+          "rss_bytes": 1073741824,
+          "threads": 2
+        },
+        "execution": "isolated-local-process",
+        "hosted_inference_used": false,
+        "remote_processing_used": false
+      },
+      "peak_process_tree_rss_bytes": 84393984,
+      "expected_body_recall": 1.0,
+      "false_body_on_empty": null,
+      "title_matches_expected": true,
+      "metadata_bound_to_snapshot": true,
+      "title_locator_present": true
+    },
+    {
+      "backend": "scrapy",
+      "fixture": "/lazy",
+      "fixture_sha256": "c741b421002aae6d683f952374212411f6395c63fdea8e482ef0dc2b9dce8ad7",
+      "status": "completed",
+      "text": "",
+      "snapshot_sha256": "c741b421002aae6d683f952374212411f6395c63fdea8e482ef0dc2b9dce8ad7",
+      "captured_html": "<html><body><script>setTimeout(()=>{document.body.innerHTML=\"<article><h1>Lazy</h1><p>A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. </p></article>\"},250)</script></body></html>",
+      "backend_markdown": null,
+      "acquisition_metadata": {
+        "source_url": "http://127.0.0.1:34219/lazy",
+        "final_url": "http://127.0.0.1:34219/lazy",
+        "backend": "scrapy",
+        "observed_at_ms": 1788902174347,
+        "sha256": "c741b421002aae6d683f952374212411f6395c63fdea8e482ef0dc2b9dce8ad7",
+        "representation": "transport-decoded-http-body",
+        "original_wire_bytes": false,
+        "native": {
+          "status": 200,
+          "response_body_sha256": "c741b421002aae6d683f952374212411f6395c63fdea8e482ef0dc2b9dce8ad7"
+        }
+      },
+      "extraction_metadata": null,
+      "elapsed_seconds": 0.535080649999145,
+      "peak_parent_rss_kib": 81860,
+      "worker_receipt": {
+        "status": "completed",
+        "operation": "scrape-fixture",
+        "elapsed_seconds": 0.535080649999145,
+        "peak_process_tree_rss_bytes": 84344832,
+        "resource_limits": {
+          "timeout_s": 45,
+          "rss_bytes": 1073741824,
+          "threads": 2
+        },
+        "execution": "isolated-local-process",
+        "hosted_inference_used": false,
+        "remote_processing_used": false
+      },
+      "peak_process_tree_rss_bytes": 84344832,
+      "expected_body_recall": 0.0,
+      "false_body_on_empty": null,
+      "title_matches_expected": false,
+      "metadata_bound_to_snapshot": false,
+      "title_locator_present": false
+    },
+    {
+      "backend": "scrapy",
+      "fixture": "/edited-before",
+      "fixture_sha256": "21c9b5a8855b8b03ded303dcf4c2a03ef37f65af16eea04bbf3d53d13510cf8b",
+      "status": "completed",
+      "text": "Edit fixture A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. version before.",
+      "snapshot_sha256": "21c9b5a8855b8b03ded303dcf4c2a03ef37f65af16eea04bbf3d53d13510cf8b",
+      "captured_html": "<article><h1>Edit fixture</h1><p>A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. version before.</p></article>",
+      "backend_markdown": null,
+      "acquisition_metadata": {
+        "source_url": "http://127.0.0.1:34219/edited",
+        "final_url": "http://127.0.0.1:34219/edited",
+        "backend": "scrapy",
+        "observed_at_ms": 1788902174895,
+        "sha256": "21c9b5a8855b8b03ded303dcf4c2a03ef37f65af16eea04bbf3d53d13510cf8b",
+        "representation": "transport-decoded-http-body",
+        "original_wire_bytes": false,
+        "native": {
+          "status": 200,
+          "response_body_sha256": "21c9b5a8855b8b03ded303dcf4c2a03ef37f65af16eea04bbf3d53d13510cf8b"
+        }
+      },
+      "extraction_metadata": {
+        "extractor": "extruct+html-metadata",
+        "version": null,
+        "snapshot_sha256": "21c9b5a8855b8b03ded303dcf4c2a03ef37f65af16eea04bbf3d53d13510cf8b",
+        "selected": {
+          "title": {
+            "field": "title",
+            "value": "Edit fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4,
+            "selection_reason": "matching article URL, then article entity, metadata, canonical link, visible heading; locator breaks ties"
+          }
+        },
+        "candidates": [
+          {
+            "field": "title",
+            "value": "Edit fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4
+          }
+        ],
+        "diagnostics": [
+          {
+            "reason": "optional_extruct_unavailable"
+          }
+        ],
+        "canonical_identity_authoritative": false,
+        "body_extractor": {
+          "name": "bs4-heuristic",
+          "version": "4.15.0",
+          "locator": "extracted-body; exact source spans unavailable"
+        }
+      },
+      "elapsed_seconds": 0.5586320100046578,
+      "peak_parent_rss_kib": 81140,
+      "worker_receipt": {
+        "status": "completed",
+        "operation": "scrape-fixture",
+        "elapsed_seconds": 0.5586320100046578,
+        "peak_process_tree_rss_bytes": 84168704,
+        "resource_limits": {
+          "timeout_s": 45,
+          "rss_bytes": 1073741824,
+          "threads": 2
+        },
+        "execution": "isolated-local-process",
+        "hosted_inference_used": false,
+        "remote_processing_used": false
+      },
+      "peak_process_tree_rss_bytes": 84168704,
+      "expected_body_recall": 1.0,
+      "false_body_on_empty": null,
+      "title_matches_expected": true,
+      "metadata_bound_to_snapshot": true,
+      "title_locator_present": true
+    },
+    {
+      "backend": "scrapy",
+      "fixture": "/edited-after",
+      "fixture_sha256": "6dea5fd67a4d647a23ab6839918f6eca45444740a3898d4071c2ff66c7dbe9f4",
+      "status": "completed",
+      "text": "Edit fixture A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. version after.",
+      "snapshot_sha256": "6dea5fd67a4d647a23ab6839918f6eca45444740a3898d4071c2ff66c7dbe9f4",
+      "captured_html": "<article><h1>Edit fixture</h1><p>A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. version after.</p></article>",
+      "backend_markdown": null,
+      "acquisition_metadata": {
+        "source_url": "http://127.0.0.1:34219/edited",
+        "final_url": "http://127.0.0.1:34219/edited",
+        "backend": "scrapy",
+        "observed_at_ms": 1788902175448,
+        "sha256": "6dea5fd67a4d647a23ab6839918f6eca45444740a3898d4071c2ff66c7dbe9f4",
+        "representation": "transport-decoded-http-body",
+        "original_wire_bytes": false,
+        "native": {
+          "status": 200,
+          "response_body_sha256": "6dea5fd67a4d647a23ab6839918f6eca45444740a3898d4071c2ff66c7dbe9f4"
+        }
+      },
+      "extraction_metadata": {
+        "extractor": "extruct+html-metadata",
+        "version": null,
+        "snapshot_sha256": "6dea5fd67a4d647a23ab6839918f6eca45444740a3898d4071c2ff66c7dbe9f4",
+        "selected": {
+          "title": {
+            "field": "title",
+            "value": "Edit fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4,
+            "selection_reason": "matching article URL, then article entity, metadata, canonical link, visible heading; locator breaks ties"
+          }
+        },
+        "candidates": [
+          {
+            "field": "title",
+            "value": "Edit fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4
+          }
+        ],
+        "diagnostics": [
+          {
+            "reason": "optional_extruct_unavailable"
+          }
+        ],
+        "canonical_identity_authoritative": false,
+        "body_extractor": {
+          "name": "bs4-heuristic",
+          "version": "4.15.0",
+          "locator": "extracted-body; exact source spans unavailable"
+        }
+      },
+      "elapsed_seconds": 0.5568151820043568,
+      "peak_parent_rss_kib": 81304,
+      "worker_receipt": {
+        "status": "completed",
+        "operation": "scrape-fixture",
+        "elapsed_seconds": 0.5568151820043568,
+        "peak_process_tree_rss_bytes": 84168704,
+        "resource_limits": {
+          "timeout_s": 45,
+          "rss_bytes": 1073741824,
+          "threads": 2
+        },
+        "execution": "isolated-local-process",
+        "hosted_inference_used": false,
+        "remote_processing_used": false
+      },
+      "peak_process_tree_rss_bytes": 84168704,
+      "expected_body_recall": 1.0,
+      "false_body_on_empty": null,
+      "title_matches_expected": true,
+      "metadata_bound_to_snapshot": true,
+      "title_locator_present": true
+    },
+    {
+      "backend": "scrapy",
+      "fixture": "/http-error",
+      "fixture_sha256": "b78cafc3a2c746f171dc34c48284695fba9473266f9ddaff8ec9b7cb3688f0b1",
+      "status": "failed",
+      "failure_type": "ValueError",
+      "failure": "Scrapy returned no page",
+      "elapsed_seconds": 0.5088198279991047,
+      "peak_parent_rss_kib": 76868,
+      "worker_receipt": {
+        "status": "failed",
+        "failure_code": "backend_failed",
+        "operation": "scrape-fixture",
+        "elapsed_seconds": 0.5088198279991047,
+        "peak_process_tree_rss_bytes": 79966208,
+        "resource_limits": {
+          "timeout_s": 45,
+          "rss_bytes": 1073741824,
+          "threads": 2
+        },
+        "execution": "isolated-local-process",
+        "hosted_inference_used": false,
+        "remote_processing_used": false
+      },
+      "peak_process_tree_rss_bytes": 79966208,
+      "expected_body_recall": null,
+      "false_body_on_empty": null,
+      "title_matches_expected": null,
+      "metadata_bound_to_snapshot": false,
+      "title_locator_present": false
+    },
+    {
+      "backend": "scrapy",
+      "fixture": "/lazy-scroll",
+      "fixture_sha256": "48dff461fb8216f8e6cc85fb7fd64729b27c65a29a6413e6db9ce8ca7f20dca9",
+      "status": "completed",
+      "text": "",
+      "snapshot_sha256": "48dff461fb8216f8e6cc85fb7fd64729b27c65a29a6413e6db9ce8ca7f20dca9",
+      "captured_html": "<html><body><div style='height:2400px'></div><div id='sentinel'></div><script>new IntersectionObserver(entries=>{if(entries.some(e=>e.isIntersecting)){document.getElementById('sentinel').innerHTML=\"<article><p>A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. </p></article>\";}}).observe(document.getElementById('sentinel'))</script></body></html>",
+      "backend_markdown": null,
+      "acquisition_metadata": {
+        "source_url": "http://127.0.0.1:34219/lazy-scroll",
+        "final_url": "http://127.0.0.1:34219/lazy-scroll",
+        "backend": "scrapy",
+        "observed_at_ms": 1788902176500,
+        "sha256": "48dff461fb8216f8e6cc85fb7fd64729b27c65a29a6413e6db9ce8ca7f20dca9",
+        "representation": "transport-decoded-http-body",
+        "original_wire_bytes": false,
+        "native": {
+          "status": 200,
+          "response_body_sha256": "48dff461fb8216f8e6cc85fb7fd64729b27c65a29a6413e6db9ce8ca7f20dca9"
+        }
+      },
+      "extraction_metadata": null,
+      "elapsed_seconds": 0.5315529119980056,
+      "peak_parent_rss_kib": 81460,
+      "worker_receipt": {
+        "status": "completed",
+        "operation": "scrape-fixture",
+        "elapsed_seconds": 0.5315529119980056,
+        "peak_process_tree_rss_bytes": 84180992,
+        "resource_limits": {
+          "timeout_s": 45,
+          "rss_bytes": 1073741824,
+          "threads": 2
+        },
+        "execution": "isolated-local-process",
+        "hosted_inference_used": false,
+        "remote_processing_used": false
+      },
+      "peak_process_tree_rss_bytes": 84180992,
+      "expected_body_recall": 0.0,
+      "false_body_on_empty": null,
+      "title_matches_expected": null,
+      "metadata_bound_to_snapshot": false,
+      "title_locator_present": false
+    },
+    {
+      "backend": "scrapy",
+      "fixture": "/missing",
+      "fixture_sha256": "4dae6a1dc9f6385419aab724626d2488c3e4116eca0e772092d3304a48165cb7",
+      "status": "completed",
+      "text": "",
+      "snapshot_sha256": "4dae6a1dc9f6385419aab724626d2488c3e4116eca0e772092d3304a48165cb7",
+      "captured_html": "<html><body>No article is available.</body></html>",
+      "backend_markdown": null,
+      "acquisition_metadata": {
+        "source_url": "http://127.0.0.1:34219/missing",
+        "final_url": "http://127.0.0.1:34219/missing",
+        "backend": "scrapy",
+        "observed_at_ms": 1788902177025,
+        "sha256": "4dae6a1dc9f6385419aab724626d2488c3e4116eca0e772092d3304a48165cb7",
+        "representation": "transport-decoded-http-body",
+        "original_wire_bytes": false,
+        "native": {
+          "status": 200,
+          "response_body_sha256": "4dae6a1dc9f6385419aab724626d2488c3e4116eca0e772092d3304a48165cb7"
+        }
+      },
+      "extraction_metadata": null,
+      "elapsed_seconds": 0.5047191810008371,
+      "peak_parent_rss_kib": 81628,
+      "worker_receipt": {
+        "status": "completed",
+        "operation": "scrape-fixture",
+        "elapsed_seconds": 0.5047191810008371,
+        "peak_process_tree_rss_bytes": 84463616,
+        "resource_limits": {
+          "timeout_s": 45,
+          "rss_bytes": 1073741824,
+          "threads": 2
+        },
+        "execution": "isolated-local-process",
+        "hosted_inference_used": false,
+        "remote_processing_used": false
+      },
+      "peak_process_tree_rss_bytes": 84463616,
+      "expected_body_recall": null,
+      "false_body_on_empty": false,
+      "title_matches_expected": null,
+      "metadata_bound_to_snapshot": false,
+      "title_locator_present": false
+    },
+    {
+      "backend": "scrapy",
+      "fixture": "/restart-static",
+      "fixture_sha256": "160997301734ffad4f86644b44068918f60da6998cb49a55ad60bde899bcb60a",
+      "status": "completed",
+      "text": "Fixture A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations.",
+      "snapshot_sha256": "160997301734ffad4f86644b44068918f60da6998cb49a55ad60bde899bcb60a",
+      "captured_html": "<article><h1>Fixture</h1><p>A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. </p></article>",
+      "backend_markdown": null,
+      "acquisition_metadata": {
+        "source_url": "http://127.0.0.1:34219/static",
+        "final_url": "http://127.0.0.1:34219/static",
+        "backend": "scrapy",
+        "observed_at_ms": 1788902177525,
+        "sha256": "160997301734ffad4f86644b44068918f60da6998cb49a55ad60bde899bcb60a",
+        "representation": "transport-decoded-http-body",
+        "original_wire_bytes": false,
+        "native": {
+          "status": 200,
+          "response_body_sha256": "160997301734ffad4f86644b44068918f60da6998cb49a55ad60bde899bcb60a"
+        }
+      },
+      "extraction_metadata": {
+        "extractor": "extruct+html-metadata",
+        "version": null,
+        "snapshot_sha256": "160997301734ffad4f86644b44068918f60da6998cb49a55ad60bde899bcb60a",
+        "selected": {
+          "title": {
+            "field": "title",
+            "value": "Fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4,
+            "selection_reason": "matching article URL, then article entity, metadata, canonical link, visible heading; locator breaks ties"
+          }
+        },
+        "candidates": [
+          {
+            "field": "title",
+            "value": "Fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4
+          }
+        ],
+        "diagnostics": [
+          {
+            "reason": "optional_extruct_unavailable"
+          }
+        ],
+        "canonical_identity_authoritative": false,
+        "body_extractor": {
+          "name": "bs4-heuristic",
+          "version": "4.15.0",
+          "locator": "extracted-body; exact source spans unavailable"
+        }
+      },
+      "elapsed_seconds": 0.5084026510012336,
+      "peak_parent_rss_kib": 81684,
+      "worker_receipt": {
+        "status": "completed",
+        "operation": "scrape-fixture",
+        "elapsed_seconds": 0.5084026510012336,
+        "peak_process_tree_rss_bytes": 84267008,
+        "resource_limits": {
+          "timeout_s": 45,
+          "rss_bytes": 1073741824,
+          "threads": 2
+        },
+        "execution": "isolated-local-process",
+        "hosted_inference_used": false,
+        "remote_processing_used": false
+      },
+      "peak_process_tree_rss_bytes": 84267008,
+      "expected_body_recall": 1.0,
+      "false_body_on_empty": null,
+      "title_matches_expected": true,
+      "metadata_bound_to_snapshot": true,
+      "title_locator_present": true
+    },
+    {
+      "backend": "playwright",
+      "fixture": "/static",
+      "fixture_sha256": "160997301734ffad4f86644b44068918f60da6998cb49a55ad60bde899bcb60a",
+      "status": "completed",
+      "text": "Fixture A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations.",
+      "snapshot_sha256": "d6816e957d53ebdd47b31f3efe4a772d146132712798cbf0a6aeeb2d2fcf208b",
+      "captured_html": "<html><head></head><body><article><h1>Fixture</h1><p>A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. </p></article></body></html>",
+      "backend_markdown": null,
+      "acquisition_metadata": {
+        "source_url": "http://127.0.0.1:34219/static",
+        "final_url": "http://127.0.0.1:34219/static",
+        "backend": "playwright",
+        "observed_at_ms": 1788902178168,
+        "sha256": "d6816e957d53ebdd47b31f3efe4a772d146132712798cbf0a6aeeb2d2fcf208b",
+        "representation": "browser-rendered-html",
+        "original_wire_bytes": false,
+        "native": null
+      },
+      "extraction_metadata": {
+        "extractor": "extruct+html-metadata",
+        "version": null,
+        "snapshot_sha256": "d6816e957d53ebdd47b31f3efe4a772d146132712798cbf0a6aeeb2d2fcf208b",
+        "selected": {
+          "title": {
+            "field": "title",
+            "value": "Fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4,
+            "selection_reason": "matching article URL, then article entity, metadata, canonical link, visible heading; locator breaks ties"
+          }
+        },
+        "candidates": [
+          {
+            "field": "title",
+            "value": "Fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4
+          }
+        ],
+        "diagnostics": [
+          {
+            "reason": "optional_extruct_unavailable"
+          }
+        ],
+        "canonical_identity_authoritative": false,
+        "body_extractor": {
+          "name": "bs4-heuristic",
+          "version": "4.15.0",
+          "locator": "extracted-body; exact source spans unavailable"
+        }
+      },
+      "elapsed_seconds": 0.6238471219985513,
+      "peak_parent_rss_kib": 48468,
+      "worker_receipt": {
+        "status": "completed",
+        "operation": "scrape-fixture",
+        "elapsed_seconds": 0.6238471219985513,
+        "peak_process_tree_rss_bytes": 657301504,
+        "resource_limits": {
+          "timeout_s": 45,
+          "rss_bytes": 1073741824,
+          "threads": 2
+        },
+        "execution": "isolated-local-process",
+        "hosted_inference_used": false,
+        "remote_processing_used": false
+      },
+      "peak_process_tree_rss_bytes": 657301504,
+      "expected_body_recall": 1.0,
+      "false_body_on_empty": null,
+      "title_matches_expected": true,
+      "metadata_bound_to_snapshot": true,
+      "title_locator_present": true
+    },
+    {
+      "backend": "playwright",
+      "fixture": "/delayed",
+      "fixture_sha256": "a2c42009bff802eb3d204ab7f3f2a811f38e300430f65289b5efe7a70e3809ce",
+      "status": "completed",
+      "text": "Fixture A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations.",
+      "snapshot_sha256": "d6816e957d53ebdd47b31f3efe4a772d146132712798cbf0a6aeeb2d2fcf208b",
+      "captured_html": "<html><head></head><body><article><h1>Fixture</h1><p>A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. </p></article></body></html>",
+      "backend_markdown": null,
+      "acquisition_metadata": {
+        "source_url": "http://127.0.0.1:34219/delayed",
+        "final_url": "http://127.0.0.1:34219/delayed",
+        "backend": "playwright",
+        "observed_at_ms": 1788902178995,
+        "sha256": "d6816e957d53ebdd47b31f3efe4a772d146132712798cbf0a6aeeb2d2fcf208b",
+        "representation": "browser-rendered-html",
+        "original_wire_bytes": false,
+        "native": null
+      },
+      "extraction_metadata": {
+        "extractor": "extruct+html-metadata",
+        "version": null,
+        "snapshot_sha256": "d6816e957d53ebdd47b31f3efe4a772d146132712798cbf0a6aeeb2d2fcf208b",
+        "selected": {
+          "title": {
+            "field": "title",
+            "value": "Fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4,
+            "selection_reason": "matching article URL, then article entity, metadata, canonical link, visible heading; locator breaks ties"
+          }
+        },
+        "candidates": [
+          {
+            "field": "title",
+            "value": "Fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4
+          }
+        ],
+        "diagnostics": [
+          {
+            "reason": "optional_extruct_unavailable"
+          }
+        ],
+        "canonical_identity_authoritative": false,
+        "body_extractor": {
+          "name": "bs4-heuristic",
+          "version": "4.15.0",
+          "locator": "extracted-body; exact source spans unavailable"
+        }
+      },
+      "elapsed_seconds": 0.8192286289995536,
+      "peak_parent_rss_kib": 48368,
+      "worker_receipt": {
+        "status": "completed",
+        "operation": "scrape-fixture",
+        "elapsed_seconds": 0.8192286289995536,
+        "peak_process_tree_rss_bytes": 678969344,
+        "resource_limits": {
+          "timeout_s": 45,
+          "rss_bytes": 1073741824,
+          "threads": 2
+        },
+        "execution": "isolated-local-process",
+        "hosted_inference_used": false,
+        "remote_processing_used": false
+      },
+      "peak_process_tree_rss_bytes": 678969344,
+      "expected_body_recall": 1.0,
+      "false_body_on_empty": null,
+      "title_matches_expected": true,
+      "metadata_bound_to_snapshot": true,
+      "title_locator_present": true
+    },
+    {
+      "backend": "playwright",
+      "fixture": "/pagination-1",
+      "fixture_sha256": "2dcc801c6b7c7d059b4e1aeb32f98e7ce82ef5d3039e7dc7cb379c889136060b",
+      "status": "completed",
+      "text": "Page one A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. Next",
+      "snapshot_sha256": "f6693f8ee4faf8c5feacff4f375b1861eea656c6a4b9e4cf651dd6f0175cf3d3",
+      "captured_html": "<html><head></head><body><article><h1>Page one</h1><p>A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. </p><a rel=\"next\" href=\"/pagination-2\">Next</a></article></body></html>",
+      "backend_markdown": null,
+      "acquisition_metadata": {
+        "source_url": "http://127.0.0.1:34219/pagination-1",
+        "final_url": "http://127.0.0.1:34219/pagination-1",
+        "backend": "playwright",
+        "observed_at_ms": 1788902179608,
+        "sha256": "f6693f8ee4faf8c5feacff4f375b1861eea656c6a4b9e4cf651dd6f0175cf3d3",
+        "representation": "browser-rendered-html",
+        "original_wire_bytes": false,
+        "native": null
+      },
+      "extraction_metadata": {
+        "extractor": "extruct+html-metadata",
+        "version": null,
+        "snapshot_sha256": "f6693f8ee4faf8c5feacff4f375b1861eea656c6a4b9e4cf651dd6f0175cf3d3",
+        "selected": {
+          "title": {
+            "field": "title",
+            "value": "Page one",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4,
+            "selection_reason": "matching article URL, then article entity, metadata, canonical link, visible heading; locator breaks ties"
+          }
+        },
+        "candidates": [
+          {
+            "field": "title",
+            "value": "Page one",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4
+          }
+        ],
+        "diagnostics": [
+          {
+            "reason": "optional_extruct_unavailable"
+          }
+        ],
+        "canonical_identity_authoritative": false,
+        "body_extractor": {
+          "name": "bs4-heuristic",
+          "version": "4.15.0",
+          "locator": "extracted-body; exact source spans unavailable"
+        }
+      },
+      "elapsed_seconds": 0.6621960830016178,
+      "peak_parent_rss_kib": 48420,
+      "worker_receipt": {
+        "status": "completed",
+        "operation": "scrape-fixture",
+        "elapsed_seconds": 0.6621960830016178,
+        "peak_process_tree_rss_bytes": 659525632,
+        "resource_limits": {
+          "timeout_s": 45,
+          "rss_bytes": 1073741824,
+          "threads": 2
+        },
+        "execution": "isolated-local-process",
+        "hosted_inference_used": false,
+        "remote_processing_used": false
+      },
+      "peak_process_tree_rss_bytes": 659525632,
+      "expected_body_recall": 1.0,
+      "false_body_on_empty": null,
+      "title_matches_expected": true,
+      "metadata_bound_to_snapshot": true,
+      "title_locator_present": true
+    },
+    {
+      "backend": "playwright",
+      "fixture": "/pagination-2",
+      "fixture_sha256": "63cd97ae0186fb4a860aeadc6054546efb0aa19fb6d628b2fa31456cf051c3a7",
+      "status": "completed",
+      "text": "Page two A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations.",
+      "snapshot_sha256": "5fc39c1dd4813b77aa2d27341dc6c95bde3b783bb78eabad01306b495eb40a20",
+      "captured_html": "<html><head></head><body><article><h1>Page two</h1><p>A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. </p></article></body></html>",
+      "backend_markdown": null,
+      "acquisition_metadata": {
+        "source_url": "http://127.0.0.1:34219/pagination-2",
+        "final_url": "http://127.0.0.1:34219/pagination-2",
+        "backend": "playwright",
+        "observed_at_ms": 1788902180307,
+        "sha256": "5fc39c1dd4813b77aa2d27341dc6c95bde3b783bb78eabad01306b495eb40a20",
+        "representation": "browser-rendered-html",
+        "original_wire_bytes": false,
+        "native": null
+      },
+      "extraction_metadata": {
+        "extractor": "extruct+html-metadata",
+        "version": null,
+        "snapshot_sha256": "5fc39c1dd4813b77aa2d27341dc6c95bde3b783bb78eabad01306b495eb40a20",
+        "selected": {
+          "title": {
+            "field": "title",
+            "value": "Page two",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4,
+            "selection_reason": "matching article URL, then article entity, metadata, canonical link, visible heading; locator breaks ties"
+          }
+        },
+        "candidates": [
+          {
+            "field": "title",
+            "value": "Page two",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4
+          }
+        ],
+        "diagnostics": [
+          {
+            "reason": "optional_extruct_unavailable"
+          }
+        ],
+        "canonical_identity_authoritative": false,
+        "body_extractor": {
+          "name": "bs4-heuristic",
+          "version": "4.15.0",
+          "locator": "extracted-body; exact source spans unavailable"
+        }
+      },
+      "elapsed_seconds": 0.6633088539965684,
+      "peak_parent_rss_kib": 48580,
+      "worker_receipt": {
+        "status": "completed",
+        "operation": "scrape-fixture",
+        "elapsed_seconds": 0.6633088539965684,
+        "peak_process_tree_rss_bytes": 665993216,
+        "resource_limits": {
+          "timeout_s": 45,
+          "rss_bytes": 1073741824,
+          "threads": 2
+        },
+        "execution": "isolated-local-process",
+        "hosted_inference_used": false,
+        "remote_processing_used": false
+      },
+      "peak_process_tree_rss_bytes": 665993216,
+      "expected_body_recall": 1.0,
+      "false_body_on_empty": null,
+      "title_matches_expected": true,
+      "metadata_bound_to_snapshot": true,
+      "title_locator_present": true
+    },
+    {
+      "backend": "playwright",
+      "fixture": "/lazy",
+      "fixture_sha256": "c741b421002aae6d683f952374212411f6395c63fdea8e482ef0dc2b9dce8ad7",
+      "status": "completed",
+      "text": "Lazy A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations.",
+      "snapshot_sha256": "ab43841dbc04c34650c81b8fc527b0150c22358fe6fd0be75766ec90523ee755",
+      "captured_html": "<html><head></head><body><article><h1>Lazy</h1><p>A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. </p></article></body></html>",
+      "backend_markdown": null,
+      "acquisition_metadata": {
+        "source_url": "http://127.0.0.1:34219/lazy",
+        "final_url": "http://127.0.0.1:34219/lazy",
+        "backend": "playwright",
+        "observed_at_ms": 1788902181244,
+        "sha256": "ab43841dbc04c34650c81b8fc527b0150c22358fe6fd0be75766ec90523ee755",
+        "representation": "browser-rendered-html",
+        "original_wire_bytes": false,
+        "native": null
+      },
+      "extraction_metadata": {
+        "extractor": "extruct+html-metadata",
+        "version": null,
+        "snapshot_sha256": "ab43841dbc04c34650c81b8fc527b0150c22358fe6fd0be75766ec90523ee755",
+        "selected": {
+          "title": {
+            "field": "title",
+            "value": "Lazy",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4,
+            "selection_reason": "matching article URL, then article entity, metadata, canonical link, visible heading; locator breaks ties"
+          }
+        },
+        "candidates": [
+          {
+            "field": "title",
+            "value": "Lazy",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4
+          }
+        ],
+        "diagnostics": [
+          {
+            "reason": "optional_extruct_unavailable"
+          }
+        ],
+        "canonical_identity_authoritative": false,
+        "body_extractor": {
+          "name": "bs4-heuristic",
+          "version": "4.15.0",
+          "locator": "extracted-body; exact source spans unavailable"
+        }
+      },
+      "elapsed_seconds": 0.9529733150047832,
+      "peak_parent_rss_kib": 48724,
+      "worker_receipt": {
+        "status": "completed",
+        "operation": "scrape-fixture",
+        "elapsed_seconds": 0.9529733150047832,
+        "peak_process_tree_rss_bytes": 661889024,
+        "resource_limits": {
+          "timeout_s": 45,
+          "rss_bytes": 1073741824,
+          "threads": 2
+        },
+        "execution": "isolated-local-process",
+        "hosted_inference_used": false,
+        "remote_processing_used": false
+      },
+      "peak_process_tree_rss_bytes": 661889024,
+      "expected_body_recall": 1.0,
+      "false_body_on_empty": null,
+      "title_matches_expected": true,
+      "metadata_bound_to_snapshot": true,
+      "title_locator_present": true
+    },
+    {
+      "backend": "playwright",
+      "fixture": "/edited-before",
+      "fixture_sha256": "21c9b5a8855b8b03ded303dcf4c2a03ef37f65af16eea04bbf3d53d13510cf8b",
+      "status": "completed",
+      "text": "Edit fixture A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. version before.",
+      "snapshot_sha256": "c75dd6e8d6b991496ea93fd63a6af26b7d6b2d884f47f11e9621278ee0835497",
+      "captured_html": "<html><head></head><body><article><h1>Edit fixture</h1><p>A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. version before.</p></article></body></html>",
+      "backend_markdown": null,
+      "acquisition_metadata": {
+        "source_url": "http://127.0.0.1:34219/edited",
+        "final_url": "http://127.0.0.1:34219/edited",
+        "backend": "playwright",
+        "observed_at_ms": 1788902181997,
+        "sha256": "c75dd6e8d6b991496ea93fd63a6af26b7d6b2d884f47f11e9621278ee0835497",
+        "representation": "browser-rendered-html",
+        "original_wire_bytes": false,
+        "native": null
+      },
+      "extraction_metadata": {
+        "extractor": "extruct+html-metadata",
+        "version": null,
+        "snapshot_sha256": "c75dd6e8d6b991496ea93fd63a6af26b7d6b2d884f47f11e9621278ee0835497",
+        "selected": {
+          "title": {
+            "field": "title",
+            "value": "Edit fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4,
+            "selection_reason": "matching article URL, then article entity, metadata, canonical link, visible heading; locator breaks ties"
+          }
+        },
+        "candidates": [
+          {
+            "field": "title",
+            "value": "Edit fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4
+          }
+        ],
+        "diagnostics": [
+          {
+            "reason": "optional_extruct_unavailable"
+          }
+        ],
+        "canonical_identity_authoritative": false,
+        "body_extractor": {
+          "name": "bs4-heuristic",
+          "version": "4.15.0",
+          "locator": "extracted-body; exact source spans unavailable"
+        }
+      },
+      "elapsed_seconds": 0.7606578820050345,
+      "peak_parent_rss_kib": 48428,
+      "worker_receipt": {
+        "status": "completed",
+        "operation": "scrape-fixture",
+        "elapsed_seconds": 0.7606578820050345,
+        "peak_process_tree_rss_bytes": 660439040,
+        "resource_limits": {
+          "timeout_s": 45,
+          "rss_bytes": 1073741824,
+          "threads": 2
+        },
+        "execution": "isolated-local-process",
+        "hosted_inference_used": false,
+        "remote_processing_used": false
+      },
+      "peak_process_tree_rss_bytes": 660439040,
+      "expected_body_recall": 1.0,
+      "false_body_on_empty": null,
+      "title_matches_expected": true,
+      "metadata_bound_to_snapshot": true,
+      "title_locator_present": true
+    },
+    {
+      "backend": "playwright",
+      "fixture": "/edited-after",
+      "fixture_sha256": "6dea5fd67a4d647a23ab6839918f6eca45444740a3898d4071c2ff66c7dbe9f4",
+      "status": "completed",
+      "text": "Edit fixture A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. version after.",
+      "snapshot_sha256": "b6277ed3695c626b4d64fc70050205abf44f41b44431a3c9bd3185758855423d",
+      "captured_html": "<html><head></head><body><article><h1>Edit fixture</h1><p>A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. version after.</p></article></body></html>",
+      "backend_markdown": null,
+      "acquisition_metadata": {
+        "source_url": "http://127.0.0.1:34219/edited",
+        "final_url": "http://127.0.0.1:34219/edited",
+        "backend": "playwright",
+        "observed_at_ms": 1788902182702,
+        "sha256": "b6277ed3695c626b4d64fc70050205abf44f41b44431a3c9bd3185758855423d",
+        "representation": "browser-rendered-html",
+        "original_wire_bytes": false,
+        "native": null
+      },
+      "extraction_metadata": {
+        "extractor": "extruct+html-metadata",
+        "version": null,
+        "snapshot_sha256": "b6277ed3695c626b4d64fc70050205abf44f41b44431a3c9bd3185758855423d",
+        "selected": {
+          "title": {
+            "field": "title",
+            "value": "Edit fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4,
+            "selection_reason": "matching article URL, then article entity, metadata, canonical link, visible heading; locator breaks ties"
+          }
+        },
+        "candidates": [
+          {
+            "field": "title",
+            "value": "Edit fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4
+          }
+        ],
+        "diagnostics": [
+          {
+            "reason": "optional_extruct_unavailable"
+          }
+        ],
+        "canonical_identity_authoritative": false,
+        "body_extractor": {
+          "name": "bs4-heuristic",
+          "version": "4.15.0",
+          "locator": "extracted-body; exact source spans unavailable"
+        }
+      },
+      "elapsed_seconds": 0.6851631919998908,
+      "peak_parent_rss_kib": 48452,
+      "worker_receipt": {
+        "status": "completed",
+        "operation": "scrape-fixture",
+        "elapsed_seconds": 0.6851631919998908,
+        "peak_process_tree_rss_bytes": 666935296,
+        "resource_limits": {
+          "timeout_s": 45,
+          "rss_bytes": 1073741824,
+          "threads": 2
+        },
+        "execution": "isolated-local-process",
+        "hosted_inference_used": false,
+        "remote_processing_used": false
+      },
+      "peak_process_tree_rss_bytes": 666935296,
+      "expected_body_recall": 1.0,
+      "false_body_on_empty": null,
+      "title_matches_expected": true,
+      "metadata_bound_to_snapshot": true,
+      "title_locator_present": true
+    },
+    {
+      "backend": "playwright",
+      "fixture": "/http-error",
+      "fixture_sha256": "b78cafc3a2c746f171dc34c48284695fba9473266f9ddaff8ec9b7cb3688f0b1",
+      "status": "failed",
+      "failure_type": "ValueError",
+      "failure": "acquisition returned non-success HTTP status",
+      "elapsed_seconds": 0.5906556099944282,
+      "peak_parent_rss_kib": 35748,
+      "worker_receipt": {
+        "status": "failed",
+        "failure_code": "backend_failed",
+        "operation": "scrape-fixture",
+        "elapsed_seconds": 0.5906556099944282,
+        "peak_process_tree_rss_bytes": 603365376,
+        "resource_limits": {
+          "timeout_s": 45,
+          "rss_bytes": 1073741824,
+          "threads": 2
+        },
+        "execution": "isolated-local-process",
+        "hosted_inference_used": false,
+        "remote_processing_used": false
+      },
+      "peak_process_tree_rss_bytes": 603365376,
+      "expected_body_recall": null,
+      "false_body_on_empty": null,
+      "title_matches_expected": null,
+      "metadata_bound_to_snapshot": false,
+      "title_locator_present": false
+    },
+    {
+      "backend": "playwright",
+      "fixture": "/lazy-scroll",
+      "fixture_sha256": "48dff461fb8216f8e6cc85fb7fd64729b27c65a29a6413e6db9ce8ca7f20dca9",
+      "status": "failed",
+      "failure_type": "TimeoutError",
+      "failure": "Page.wait_for_selector: Timeout 1000ms exceeded.\nCall log:\n  - waiting for locator(\"article\") to be visible\n",
+      "elapsed_seconds": 1.6831891740002902,
+      "peak_parent_rss_kib": 35724,
+      "worker_receipt": {
+        "status": "failed",
+        "failure_code": "backend_failed",
+        "operation": "scrape-fixture",
+        "elapsed_seconds": 1.6831891740002902,
+        "peak_process_tree_rss_bytes": 663445504,
+        "resource_limits": {
+          "timeout_s": 45,
+          "rss_bytes": 1073741824,
+          "threads": 2
+        },
+        "execution": "isolated-local-process",
+        "hosted_inference_used": false,
+        "remote_processing_used": false
+      },
+      "peak_process_tree_rss_bytes": 663445504,
+      "expected_body_recall": null,
+      "false_body_on_empty": null,
+      "title_matches_expected": null,
+      "metadata_bound_to_snapshot": false,
+      "title_locator_present": false
+    },
+    {
+      "backend": "playwright",
+      "fixture": "/missing",
+      "fixture_sha256": "4dae6a1dc9f6385419aab724626d2488c3e4116eca0e772092d3304a48165cb7",
+      "status": "failed",
+      "failure_type": "TimeoutError",
+      "failure": "Page.wait_for_selector: Timeout 1000ms exceeded.\nCall log:\n  - waiting for locator(\"article\") to be visible\n",
+      "elapsed_seconds": 1.870428685004299,
+      "peak_parent_rss_kib": 35684,
+      "worker_receipt": {
+        "status": "failed",
+        "failure_code": "backend_failed",
+        "operation": "scrape-fixture",
+        "elapsed_seconds": 1.870428685004299,
+        "peak_process_tree_rss_bytes": 671584256,
+        "resource_limits": {
+          "timeout_s": 45,
+          "rss_bytes": 1073741824,
+          "threads": 2
+        },
+        "execution": "isolated-local-process",
+        "hosted_inference_used": false,
+        "remote_processing_used": false
+      },
+      "peak_process_tree_rss_bytes": 671584256,
+      "expected_body_recall": null,
+      "false_body_on_empty": null,
+      "title_matches_expected": null,
+      "metadata_bound_to_snapshot": false,
+      "title_locator_present": false
+    },
+    {
+      "backend": "playwright",
+      "fixture": "/restart-static",
+      "fixture_sha256": "160997301734ffad4f86644b44068918f60da6998cb49a55ad60bde899bcb60a",
+      "status": "completed",
+      "text": "Fixture A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations.",
+      "snapshot_sha256": "d6816e957d53ebdd47b31f3efe4a772d146132712798cbf0a6aeeb2d2fcf208b",
+      "captured_html": "<html><head></head><body><article><h1>Fixture</h1><p>A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. </p></article></body></html>",
+      "backend_markdown": null,
+      "acquisition_metadata": {
+        "source_url": "http://127.0.0.1:34219/static",
+        "final_url": "http://127.0.0.1:34219/static",
+        "backend": "playwright",
+        "observed_at_ms": 1788902188137,
+        "sha256": "d6816e957d53ebdd47b31f3efe4a772d146132712798cbf0a6aeeb2d2fcf208b",
+        "representation": "browser-rendered-html",
+        "original_wire_bytes": false,
+        "native": null
+      },
+      "extraction_metadata": {
+        "extractor": "extruct+html-metadata",
+        "version": null,
+        "snapshot_sha256": "d6816e957d53ebdd47b31f3efe4a772d146132712798cbf0a6aeeb2d2fcf208b",
+        "selected": {
+          "title": {
+            "field": "title",
+            "value": "Fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4,
+            "selection_reason": "matching article URL, then article entity, metadata, canonical link, visible heading; locator breaks ties"
+          }
+        },
+        "candidates": [
+          {
+            "field": "title",
+            "value": "Fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4
+          }
+        ],
+        "diagnostics": [
+          {
+            "reason": "optional_extruct_unavailable"
+          }
+        ],
+        "canonical_identity_authoritative": false,
+        "body_extractor": {
+          "name": "bs4-heuristic",
+          "version": "4.15.0",
+          "locator": "extracted-body; exact source spans unavailable"
+        }
+      },
+      "elapsed_seconds": 1.314799209998455,
+      "peak_parent_rss_kib": 48048,
+      "worker_receipt": {
+        "status": "completed",
+        "operation": "scrape-fixture",
+        "elapsed_seconds": 1.314799209998455,
+        "peak_process_tree_rss_bytes": 659951616,
+        "resource_limits": {
+          "timeout_s": 45,
+          "rss_bytes": 1073741824,
+          "threads": 2
+        },
+        "execution": "isolated-local-process",
+        "hosted_inference_used": false,
+        "remote_processing_used": false
+      },
+      "peak_process_tree_rss_bytes": 659951616,
+      "expected_body_recall": 1.0,
+      "false_body_on_empty": null,
+      "title_matches_expected": true,
+      "metadata_bound_to_snapshot": true,
+      "title_locator_present": true
+    },
+    {
+      "backend": "crawl4ai",
+      "fixture": "/static",
+      "fixture_sha256": "160997301734ffad4f86644b44068918f60da6998cb49a55ad60bde899bcb60a",
+      "status": "completed",
+      "text": "Fixture A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations.",
+      "snapshot_sha256": "d6816e957d53ebdd47b31f3efe4a772d146132712798cbf0a6aeeb2d2fcf208b",
+      "captured_html": "<html><head></head><body><article><h1>Fixture</h1><p>A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. </p></article></body></html>",
+      "backend_markdown": "# Fixture\nA precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. \n",
+      "acquisition_metadata": {
+        "source_url": "http://127.0.0.1:34219/static",
+        "final_url": "http://127.0.0.1:34219/static",
+        "backend": "crawl4ai",
+        "observed_at_ms": 1788902189696,
+        "sha256": "d6816e957d53ebdd47b31f3efe4a772d146132712798cbf0a6aeeb2d2fcf208b",
+        "representation": "browser-rendered-html",
+        "original_wire_bytes": false,
+        "native": null
+      },
+      "extraction_metadata": {
+        "extractor": "extruct+html-metadata",
+        "version": null,
+        "snapshot_sha256": "d6816e957d53ebdd47b31f3efe4a772d146132712798cbf0a6aeeb2d2fcf208b",
+        "selected": {
+          "title": {
+            "field": "title",
+            "value": "Fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4,
+            "selection_reason": "matching article URL, then article entity, metadata, canonical link, visible heading; locator breaks ties"
+          }
+        },
+        "candidates": [
+          {
+            "field": "title",
+            "value": "Fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4
+          }
+        ],
+        "diagnostics": [
+          {
+            "reason": "optional_extruct_unavailable"
+          }
+        ],
+        "canonical_identity_authoritative": false,
+        "body_extractor": {
+          "name": "bs4-heuristic",
+          "version": "4.15.0",
+          "locator": "extracted-body; exact source spans unavailable"
+        }
+      },
+      "elapsed_seconds": 1.677069137993385,
+      "peak_parent_rss_kib": 133660,
+      "worker_receipt": {
+        "status": "completed",
+        "operation": "scrape-fixture",
+        "elapsed_seconds": 1.677069137993385,
+        "peak_process_tree_rss_bytes": 682315776,
+        "resource_limits": {
+          "timeout_s": 45,
+          "rss_bytes": 1073741824,
+          "threads": 2
+        },
+        "execution": "isolated-local-process",
+        "hosted_inference_used": false,
+        "remote_processing_used": false
+      },
+      "peak_process_tree_rss_bytes": 682315776,
+      "expected_body_recall": 1.0,
+      "false_body_on_empty": null,
+      "title_matches_expected": true,
+      "metadata_bound_to_snapshot": true,
+      "title_locator_present": true
+    },
+    {
+      "backend": "crawl4ai",
+      "fixture": "/delayed",
+      "fixture_sha256": "a2c42009bff802eb3d204ab7f3f2a811f38e300430f65289b5efe7a70e3809ce",
+      "status": "completed",
+      "text": "Fixture A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations.",
+      "snapshot_sha256": "d6816e957d53ebdd47b31f3efe4a772d146132712798cbf0a6aeeb2d2fcf208b",
+      "captured_html": "<html><head></head><body><article><h1>Fixture</h1><p>A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. </p></article></body></html>",
+      "backend_markdown": "# Fixture\nA precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. \n",
+      "acquisition_metadata": {
+        "source_url": "http://127.0.0.1:34219/delayed",
+        "final_url": "http://127.0.0.1:34219/delayed",
+        "backend": "crawl4ai",
+        "observed_at_ms": 1788902191220,
+        "sha256": "d6816e957d53ebdd47b31f3efe4a772d146132712798cbf0a6aeeb2d2fcf208b",
+        "representation": "browser-rendered-html",
+        "original_wire_bytes": false,
+        "native": null
+      },
+      "extraction_metadata": {
+        "extractor": "extruct+html-metadata",
+        "version": null,
+        "snapshot_sha256": "d6816e957d53ebdd47b31f3efe4a772d146132712798cbf0a6aeeb2d2fcf208b",
+        "selected": {
+          "title": {
+            "field": "title",
+            "value": "Fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4,
+            "selection_reason": "matching article URL, then article entity, metadata, canonical link, visible heading; locator breaks ties"
+          }
+        },
+        "candidates": [
+          {
+            "field": "title",
+            "value": "Fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4
+          }
+        ],
+        "diagnostics": [
+          {
+            "reason": "optional_extruct_unavailable"
+          }
+        ],
+        "canonical_identity_authoritative": false,
+        "body_extractor": {
+          "name": "bs4-heuristic",
+          "version": "4.15.0",
+          "locator": "extracted-body; exact source spans unavailable"
+        }
+      },
+      "elapsed_seconds": 1.5375892969968845,
+      "peak_parent_rss_kib": 134692,
+      "worker_receipt": {
+        "status": "completed",
+        "operation": "scrape-fixture",
+        "elapsed_seconds": 1.5375892969968845,
+        "peak_process_tree_rss_bytes": 681345024,
+        "resource_limits": {
+          "timeout_s": 45,
+          "rss_bytes": 1073741824,
+          "threads": 2
+        },
+        "execution": "isolated-local-process",
+        "hosted_inference_used": false,
+        "remote_processing_used": false
+      },
+      "peak_process_tree_rss_bytes": 681345024,
+      "expected_body_recall": 1.0,
+      "false_body_on_empty": null,
+      "title_matches_expected": true,
+      "metadata_bound_to_snapshot": true,
+      "title_locator_present": true
+    },
+    {
+      "backend": "crawl4ai",
+      "fixture": "/pagination-1",
+      "fixture_sha256": "2dcc801c6b7c7d059b4e1aeb32f98e7ce82ef5d3039e7dc7cb379c889136060b",
+      "status": "completed",
+      "text": "Page one A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. Next",
+      "snapshot_sha256": "f6693f8ee4faf8c5feacff4f375b1861eea656c6a4b9e4cf651dd6f0175cf3d3",
+      "captured_html": "<html><head></head><body><article><h1>Page one</h1><p>A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. </p><a rel=\"next\" href=\"/pagination-2\">Next</a></article></body></html>",
+      "backend_markdown": "# Page one\nA precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. \n[Next](http://127.0.0.1:34219/pagination-2)\n",
+      "acquisition_metadata": {
+        "source_url": "http://127.0.0.1:34219/pagination-1",
+        "final_url": "http://127.0.0.1:34219/pagination-1",
+        "backend": "crawl4ai",
+        "observed_at_ms": 1788902192819,
+        "sha256": "f6693f8ee4faf8c5feacff4f375b1861eea656c6a4b9e4cf651dd6f0175cf3d3",
+        "representation": "browser-rendered-html",
+        "original_wire_bytes": false,
+        "native": null
+      },
+      "extraction_metadata": {
+        "extractor": "extruct+html-metadata",
+        "version": null,
+        "snapshot_sha256": "f6693f8ee4faf8c5feacff4f375b1861eea656c6a4b9e4cf651dd6f0175cf3d3",
+        "selected": {
+          "title": {
+            "field": "title",
+            "value": "Page one",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4,
+            "selection_reason": "matching article URL, then article entity, metadata, canonical link, visible heading; locator breaks ties"
+          }
+        },
+        "candidates": [
+          {
+            "field": "title",
+            "value": "Page one",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4
+          }
+        ],
+        "diagnostics": [
+          {
+            "reason": "optional_extruct_unavailable"
+          }
+        ],
+        "canonical_identity_authoritative": false,
+        "body_extractor": {
+          "name": "bs4-heuristic",
+          "version": "4.15.0",
+          "locator": "extracted-body; exact source spans unavailable"
+        }
+      },
+      "elapsed_seconds": 1.6090218309982447,
+      "peak_parent_rss_kib": 134048,
+      "worker_receipt": {
+        "status": "completed",
+        "operation": "scrape-fixture",
+        "elapsed_seconds": 1.6090218309982447,
+        "peak_process_tree_rss_bytes": 681795584,
+        "resource_limits": {
+          "timeout_s": 45,
+          "rss_bytes": 1073741824,
+          "threads": 2
+        },
+        "execution": "isolated-local-process",
+        "hosted_inference_used": false,
+        "remote_processing_used": false
+      },
+      "peak_process_tree_rss_bytes": 681795584,
+      "expected_body_recall": 1.0,
+      "false_body_on_empty": null,
+      "title_matches_expected": true,
+      "metadata_bound_to_snapshot": true,
+      "title_locator_present": true
+    },
+    {
+      "backend": "crawl4ai",
+      "fixture": "/pagination-2",
+      "fixture_sha256": "63cd97ae0186fb4a860aeadc6054546efb0aa19fb6d628b2fa31456cf051c3a7",
+      "status": "completed",
+      "text": "Page two A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations.",
+      "snapshot_sha256": "5fc39c1dd4813b77aa2d27341dc6c95bde3b783bb78eabad01306b495eb40a20",
+      "captured_html": "<html><head></head><body><article><h1>Page two</h1><p>A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. </p></article></body></html>",
+      "backend_markdown": "# Page two\nA precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. \n",
+      "acquisition_metadata": {
+        "source_url": "http://127.0.0.1:34219/pagination-2",
+        "final_url": "http://127.0.0.1:34219/pagination-2",
+        "backend": "crawl4ai",
+        "observed_at_ms": 1788902194399,
+        "sha256": "5fc39c1dd4813b77aa2d27341dc6c95bde3b783bb78eabad01306b495eb40a20",
+        "representation": "browser-rendered-html",
+        "original_wire_bytes": false,
+        "native": null
+      },
+      "extraction_metadata": {
+        "extractor": "extruct+html-metadata",
+        "version": null,
+        "snapshot_sha256": "5fc39c1dd4813b77aa2d27341dc6c95bde3b783bb78eabad01306b495eb40a20",
+        "selected": {
+          "title": {
+            "field": "title",
+            "value": "Page two",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4,
+            "selection_reason": "matching article URL, then article entity, metadata, canonical link, visible heading; locator breaks ties"
+          }
+        },
+        "candidates": [
+          {
+            "field": "title",
+            "value": "Page two",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4
+          }
+        ],
+        "diagnostics": [
+          {
+            "reason": "optional_extruct_unavailable"
+          }
+        ],
+        "canonical_identity_authoritative": false,
+        "body_extractor": {
+          "name": "bs4-heuristic",
+          "version": "4.15.0",
+          "locator": "extracted-body; exact source spans unavailable"
+        }
+      },
+      "elapsed_seconds": 1.567775620998873,
+      "peak_parent_rss_kib": 134200,
+      "worker_receipt": {
+        "status": "completed",
+        "operation": "scrape-fixture",
+        "elapsed_seconds": 1.567775620998873,
+        "peak_process_tree_rss_bytes": 680058880,
+        "resource_limits": {
+          "timeout_s": 45,
+          "rss_bytes": 1073741824,
+          "threads": 2
+        },
+        "execution": "isolated-local-process",
+        "hosted_inference_used": false,
+        "remote_processing_used": false
+      },
+      "peak_process_tree_rss_bytes": 680058880,
+      "expected_body_recall": 1.0,
+      "false_body_on_empty": null,
+      "title_matches_expected": true,
+      "metadata_bound_to_snapshot": true,
+      "title_locator_present": true
+    },
+    {
+      "backend": "crawl4ai",
+      "fixture": "/lazy",
+      "fixture_sha256": "c741b421002aae6d683f952374212411f6395c63fdea8e482ef0dc2b9dce8ad7",
+      "status": "completed",
+      "text": "Lazy A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations.",
+      "snapshot_sha256": "ab43841dbc04c34650c81b8fc527b0150c22358fe6fd0be75766ec90523ee755",
+      "captured_html": "<html><head></head><body><article><h1>Lazy</h1><p>A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. </p></article></body></html>",
+      "backend_markdown": "# Lazy\nA precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. \n",
+      "acquisition_metadata": {
+        "source_url": "http://127.0.0.1:34219/lazy",
+        "final_url": "http://127.0.0.1:34219/lazy",
+        "backend": "crawl4ai",
+        "observed_at_ms": 1788902196260,
+        "sha256": "ab43841dbc04c34650c81b8fc527b0150c22358fe6fd0be75766ec90523ee755",
+        "representation": "browser-rendered-html",
+        "original_wire_bytes": false,
+        "native": null
+      },
+      "extraction_metadata": {
+        "extractor": "extruct+html-metadata",
+        "version": null,
+        "snapshot_sha256": "ab43841dbc04c34650c81b8fc527b0150c22358fe6fd0be75766ec90523ee755",
+        "selected": {
+          "title": {
+            "field": "title",
+            "value": "Lazy",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4,
+            "selection_reason": "matching article URL, then article entity, metadata, canonical link, visible heading; locator breaks ties"
+          }
+        },
+        "candidates": [
+          {
+            "field": "title",
+            "value": "Lazy",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4
+          }
+        ],
+        "diagnostics": [
+          {
+            "reason": "optional_extruct_unavailable"
+          }
+        ],
+        "canonical_identity_authoritative": false,
+        "body_extractor": {
+          "name": "bs4-heuristic",
+          "version": "4.15.0",
+          "locator": "extracted-body; exact source spans unavailable"
+        }
+      },
+      "elapsed_seconds": 1.8466412940033479,
+      "peak_parent_rss_kib": 133916,
+      "worker_receipt": {
+        "status": "completed",
+        "operation": "scrape-fixture",
+        "elapsed_seconds": 1.8466412940033479,
+        "peak_process_tree_rss_bytes": 687800320,
+        "resource_limits": {
+          "timeout_s": 45,
+          "rss_bytes": 1073741824,
+          "threads": 2
+        },
+        "execution": "isolated-local-process",
+        "hosted_inference_used": false,
+        "remote_processing_used": false
+      },
+      "peak_process_tree_rss_bytes": 687800320,
+      "expected_body_recall": 1.0,
+      "false_body_on_empty": null,
+      "title_matches_expected": true,
+      "metadata_bound_to_snapshot": true,
+      "title_locator_present": true
+    },
+    {
+      "backend": "crawl4ai",
+      "fixture": "/edited-before",
+      "fixture_sha256": "21c9b5a8855b8b03ded303dcf4c2a03ef37f65af16eea04bbf3d53d13510cf8b",
+      "status": "completed",
+      "text": "Edit fixture A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. version before.",
+      "snapshot_sha256": "c75dd6e8d6b991496ea93fd63a6af26b7d6b2d884f47f11e9621278ee0835497",
+      "captured_html": "<html><head></head><body><article><h1>Edit fixture</h1><p>A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. version before.</p></article></body></html>",
+      "backend_markdown": "# Edit fixture\nA precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. version before.\n",
+      "acquisition_metadata": {
+        "source_url": "http://127.0.0.1:34219/edited",
+        "final_url": "http://127.0.0.1:34219/edited",
+        "backend": "crawl4ai",
+        "observed_at_ms": 1788902197804,
+        "sha256": "c75dd6e8d6b991496ea93fd63a6af26b7d6b2d884f47f11e9621278ee0835497",
+        "representation": "browser-rendered-html",
+        "original_wire_bytes": false,
+        "native": null
+      },
+      "extraction_metadata": {
+        "extractor": "extruct+html-metadata",
+        "version": null,
+        "snapshot_sha256": "c75dd6e8d6b991496ea93fd63a6af26b7d6b2d884f47f11e9621278ee0835497",
+        "selected": {
+          "title": {
+            "field": "title",
+            "value": "Edit fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4,
+            "selection_reason": "matching article URL, then article entity, metadata, canonical link, visible heading; locator breaks ties"
+          }
+        },
+        "candidates": [
+          {
+            "field": "title",
+            "value": "Edit fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4
+          }
+        ],
+        "diagnostics": [
+          {
+            "reason": "optional_extruct_unavailable"
+          }
+        ],
+        "canonical_identity_authoritative": false,
+        "body_extractor": {
+          "name": "bs4-heuristic",
+          "version": "4.15.0",
+          "locator": "extracted-body; exact source spans unavailable"
+        }
+      },
+      "elapsed_seconds": 1.52596495400212,
+      "peak_parent_rss_kib": 133920,
+      "worker_receipt": {
+        "status": "completed",
+        "operation": "scrape-fixture",
+        "elapsed_seconds": 1.52596495400212,
+        "peak_process_tree_rss_bytes": 680525824,
+        "resource_limits": {
+          "timeout_s": 45,
+          "rss_bytes": 1073741824,
+          "threads": 2
+        },
+        "execution": "isolated-local-process",
+        "hosted_inference_used": false,
+        "remote_processing_used": false
+      },
+      "peak_process_tree_rss_bytes": 680525824,
+      "expected_body_recall": 1.0,
+      "false_body_on_empty": null,
+      "title_matches_expected": true,
+      "metadata_bound_to_snapshot": true,
+      "title_locator_present": true
+    },
+    {
+      "backend": "crawl4ai",
+      "fixture": "/edited-after",
+      "fixture_sha256": "6dea5fd67a4d647a23ab6839918f6eca45444740a3898d4071c2ff66c7dbe9f4",
+      "status": "completed",
+      "text": "Edit fixture A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. version after.",
+      "snapshot_sha256": "b6277ed3695c626b4d64fc70050205abf44f41b44431a3c9bd3185758855423d",
+      "captured_html": "<html><head></head><body><article><h1>Edit fixture</h1><p>A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. version after.</p></article></body></html>",
+      "backend_markdown": "# Edit fixture\nA precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. version after.\n",
+      "acquisition_metadata": {
+        "source_url": "http://127.0.0.1:34219/edited",
+        "final_url": "http://127.0.0.1:34219/edited",
+        "backend": "crawl4ai",
+        "observed_at_ms": 1788902199270,
+        "sha256": "b6277ed3695c626b4d64fc70050205abf44f41b44431a3c9bd3185758855423d",
+        "representation": "browser-rendered-html",
+        "original_wire_bytes": false,
+        "native": null
+      },
+      "extraction_metadata": {
+        "extractor": "extruct+html-metadata",
+        "version": null,
+        "snapshot_sha256": "b6277ed3695c626b4d64fc70050205abf44f41b44431a3c9bd3185758855423d",
+        "selected": {
+          "title": {
+            "field": "title",
+            "value": "Edit fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4,
+            "selection_reason": "matching article URL, then article entity, metadata, canonical link, visible heading; locator breaks ties"
+          }
+        },
+        "candidates": [
+          {
+            "field": "title",
+            "value": "Edit fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4
+          }
+        ],
+        "diagnostics": [
+          {
+            "reason": "optional_extruct_unavailable"
+          }
+        ],
+        "canonical_identity_authoritative": false,
+        "body_extractor": {
+          "name": "bs4-heuristic",
+          "version": "4.15.0",
+          "locator": "extracted-body; exact source spans unavailable"
+        }
+      },
+      "elapsed_seconds": 1.4540781339965179,
+      "peak_parent_rss_kib": 134528,
+      "worker_receipt": {
+        "status": "completed",
+        "operation": "scrape-fixture",
+        "elapsed_seconds": 1.4540781339965179,
+        "peak_process_tree_rss_bytes": 682147840,
+        "resource_limits": {
+          "timeout_s": 45,
+          "rss_bytes": 1073741824,
+          "threads": 2
+        },
+        "execution": "isolated-local-process",
+        "hosted_inference_used": false,
+        "remote_processing_used": false
+      },
+      "peak_process_tree_rss_bytes": 682147840,
+      "expected_body_recall": 1.0,
+      "false_body_on_empty": null,
+      "title_matches_expected": true,
+      "metadata_bound_to_snapshot": true,
+      "title_locator_present": true
+    },
+    {
+      "backend": "crawl4ai",
+      "fixture": "/http-error",
+      "fixture_sha256": "b78cafc3a2c746f171dc34c48284695fba9473266f9ddaff8ec9b7cb3688f0b1",
+      "status": "failed",
+      "failure_type": "ValueError",
+      "failure": "acquisition returned non-success HTTP status",
+      "elapsed_seconds": 11.395328531994892,
+      "peak_parent_rss_kib": 133812,
+      "worker_receipt": {
+        "status": "failed",
+        "failure_code": "backend_failed",
+        "operation": "scrape-fixture",
+        "elapsed_seconds": 11.395328531994892,
+        "peak_process_tree_rss_bytes": 682663936,
+        "resource_limits": {
+          "timeout_s": 45,
+          "rss_bytes": 1073741824,
+          "threads": 2
+        },
+        "execution": "isolated-local-process",
+        "hosted_inference_used": false,
+        "remote_processing_used": false
+      },
+      "peak_process_tree_rss_bytes": 682663936,
+      "expected_body_recall": null,
+      "false_body_on_empty": null,
+      "title_matches_expected": null,
+      "metadata_bound_to_snapshot": false,
+      "title_locator_present": false
+    },
+    {
+      "backend": "crawl4ai",
+      "fixture": "/lazy-scroll",
+      "fixture_sha256": "48dff461fb8216f8e6cc85fb7fd64729b27c65a29a6413e6db9ce8ca7f20dca9",
+      "status": "failed",
+      "failure_type": "ValueError",
+      "failure": "acquisition returned non-success HTTP status",
+      "elapsed_seconds": 11.45342691100086,
+      "peak_parent_rss_kib": 133632,
+      "worker_receipt": {
+        "status": "failed",
+        "failure_code": "backend_failed",
+        "operation": "scrape-fixture",
+        "elapsed_seconds": 11.45342691100086,
+        "peak_process_tree_rss_bytes": 675618816,
+        "resource_limits": {
+          "timeout_s": 45,
+          "rss_bytes": 1073741824,
+          "threads": 2
+        },
+        "execution": "isolated-local-process",
+        "hosted_inference_used": false,
+        "remote_processing_used": false
+      },
+      "peak_process_tree_rss_bytes": 675618816,
+      "expected_body_recall": null,
+      "false_body_on_empty": null,
+      "title_matches_expected": null,
+      "metadata_bound_to_snapshot": false,
+      "title_locator_present": false
+    },
+    {
+      "backend": "crawl4ai",
+      "fixture": "/missing",
+      "fixture_sha256": "4dae6a1dc9f6385419aab724626d2488c3e4116eca0e772092d3304a48165cb7",
+      "status": "failed",
+      "failure_type": "ValueError",
+      "failure": "acquisition returned non-success HTTP status",
+      "elapsed_seconds": 11.638876404002076,
+      "peak_parent_rss_kib": 134036,
+      "worker_receipt": {
+        "status": "failed",
+        "failure_code": "backend_failed",
+        "operation": "scrape-fixture",
+        "elapsed_seconds": 11.638876404002076,
+        "peak_process_tree_rss_bytes": 679124992,
+        "resource_limits": {
+          "timeout_s": 45,
+          "rss_bytes": 1073741824,
+          "threads": 2
+        },
+        "execution": "isolated-local-process",
+        "hosted_inference_used": false,
+        "remote_processing_used": false
+      },
+      "peak_process_tree_rss_bytes": 679124992,
+      "expected_body_recall": null,
+      "false_body_on_empty": null,
+      "title_matches_expected": null,
+      "metadata_bound_to_snapshot": false,
+      "title_locator_present": false
+    },
+    {
+      "backend": "crawl4ai",
+      "fixture": "/restart-static",
+      "fixture_sha256": "160997301734ffad4f86644b44068918f60da6998cb49a55ad60bde899bcb60a",
+      "status": "completed",
+      "text": "Fixture A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations.",
+      "snapshot_sha256": "d6816e957d53ebdd47b31f3efe4a772d146132712798cbf0a6aeeb2d2fcf208b",
+      "captured_html": "<html><head></head><body><article><h1>Fixture</h1><p>A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. </p></article></body></html>",
+      "backend_markdown": "# Fixture\nA precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. \n",
+      "acquisition_metadata": {
+        "source_url": "http://127.0.0.1:34219/static",
+        "final_url": "http://127.0.0.1:34219/static",
+        "backend": "crawl4ai",
+        "observed_at_ms": 1788902235463,
+        "sha256": "d6816e957d53ebdd47b31f3efe4a772d146132712798cbf0a6aeeb2d2fcf208b",
+        "representation": "browser-rendered-html",
+        "original_wire_bytes": false,
+        "native": null
+      },
+      "extraction_metadata": {
+        "extractor": "extruct+html-metadata",
+        "version": null,
+        "snapshot_sha256": "d6816e957d53ebdd47b31f3efe4a772d146132712798cbf0a6aeeb2d2fcf208b",
+        "selected": {
+          "title": {
+            "field": "title",
+            "value": "Fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4,
+            "selection_reason": "matching article URL, then article entity, metadata, canonical link, visible heading; locator breaks ties"
+          }
+        },
+        "candidates": [
+          {
+            "field": "title",
+            "value": "Fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4
+          }
+        ],
+        "diagnostics": [
+          {
+            "reason": "optional_extruct_unavailable"
+          }
+        ],
+        "canonical_identity_authoritative": false,
+        "body_extractor": {
+          "name": "bs4-heuristic",
+          "version": "4.15.0",
+          "locator": "extracted-body; exact source spans unavailable"
+        }
+      },
+      "elapsed_seconds": 1.747395708996919,
+      "peak_parent_rss_kib": 133800,
+      "worker_receipt": {
+        "status": "completed",
+        "operation": "scrape-fixture",
+        "elapsed_seconds": 1.747395708996919,
+        "peak_process_tree_rss_bytes": 680677376,
+        "resource_limits": {
+          "timeout_s": 45,
+          "rss_bytes": 1073741824,
+          "threads": 2
+        },
+        "execution": "isolated-local-process",
+        "hosted_inference_used": false,
+        "remote_processing_used": false
+      },
+      "peak_process_tree_rss_bytes": 680677376,
+      "expected_body_recall": 1.0,
+      "false_body_on_empty": null,
+      "title_matches_expected": true,
+      "metadata_bound_to_snapshot": true,
+      "title_locator_present": true
+    },
+    {
+      "backend": "crawlee",
+      "fixture": "/static",
+      "fixture_sha256": "160997301734ffad4f86644b44068918f60da6998cb49a55ad60bde899bcb60a",
+      "status": "completed",
+      "text": "Fixture A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations.",
+      "snapshot_sha256": "d6816e957d53ebdd47b31f3efe4a772d146132712798cbf0a6aeeb2d2fcf208b",
+      "captured_html": "<html><head></head><body><article><h1>Fixture</h1><p>A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. </p></article></body></html>",
+      "backend_markdown": null,
+      "acquisition_metadata": {
+        "source_url": "http://127.0.0.1:34219/static",
+        "final_url": "http://127.0.0.1:34219/static",
+        "backend": "crawlee",
+        "observed_at_ms": 1788902238581,
+        "sha256": "d6816e957d53ebdd47b31f3efe4a772d146132712798cbf0a6aeeb2d2fcf208b",
+        "representation": "browser-rendered-html",
+        "original_wire_bytes": false,
+        "native": null
+      },
+      "extraction_metadata": {
+        "extractor": "extruct+html-metadata",
+        "version": null,
+        "snapshot_sha256": "d6816e957d53ebdd47b31f3efe4a772d146132712798cbf0a6aeeb2d2fcf208b",
+        "selected": {
+          "title": {
+            "field": "title",
+            "value": "Fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4,
+            "selection_reason": "matching article URL, then article entity, metadata, canonical link, visible heading; locator breaks ties"
+          }
+        },
+        "candidates": [
+          {
+            "field": "title",
+            "value": "Fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4
+          }
+        ],
+        "diagnostics": [
+          {
+            "reason": "optional_extruct_unavailable"
+          }
+        ],
+        "canonical_identity_authoritative": false,
+        "body_extractor": {
+          "name": "bs4-heuristic",
+          "version": "4.15.0",
+          "locator": "extracted-body; exact source spans unavailable"
+        }
+      },
+      "elapsed_seconds": 3.6006591810000828,
+      "peak_parent_rss_kib": 303672,
+      "worker_receipt": {
+        "status": "completed",
+        "operation": "scrape-fixture",
+        "elapsed_seconds": 3.6006591810000828,
+        "peak_process_tree_rss_bytes": 1029873664,
+        "resource_limits": {
+          "timeout_s": 45,
+          "rss_bytes": 1073741824,
+          "threads": 2
+        },
+        "execution": "isolated-local-process",
+        "hosted_inference_used": false,
+        "remote_processing_used": false
+      },
+      "peak_process_tree_rss_bytes": 1029873664,
+      "expected_body_recall": 1.0,
+      "false_body_on_empty": null,
+      "title_matches_expected": true,
+      "metadata_bound_to_snapshot": true,
+      "title_locator_present": true
+    },
+    {
+      "backend": "crawlee",
+      "fixture": "/delayed",
+      "fixture_sha256": "a2c42009bff802eb3d204ab7f3f2a811f38e300430f65289b5efe7a70e3809ce",
+      "status": "completed",
+      "text": "Fixture A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations.",
+      "snapshot_sha256": "d6816e957d53ebdd47b31f3efe4a772d146132712798cbf0a6aeeb2d2fcf208b",
+      "captured_html": "<html><head></head><body><article><h1>Fixture</h1><p>A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. </p></article></body></html>",
+      "backend_markdown": null,
+      "acquisition_metadata": {
+        "source_url": "http://127.0.0.1:34219/delayed",
+        "final_url": "http://127.0.0.1:34219/delayed",
+        "backend": "crawlee",
+        "observed_at_ms": 1788902242075,
+        "sha256": "d6816e957d53ebdd47b31f3efe4a772d146132712798cbf0a6aeeb2d2fcf208b",
+        "representation": "browser-rendered-html",
+        "original_wire_bytes": false,
+        "native": null
+      },
+      "extraction_metadata": {
+        "extractor": "extruct+html-metadata",
+        "version": null,
+        "snapshot_sha256": "d6816e957d53ebdd47b31f3efe4a772d146132712798cbf0a6aeeb2d2fcf208b",
+        "selected": {
+          "title": {
+            "field": "title",
+            "value": "Fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4,
+            "selection_reason": "matching article URL, then article entity, metadata, canonical link, visible heading; locator breaks ties"
+          }
+        },
+        "candidates": [
+          {
+            "field": "title",
+            "value": "Fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4
+          }
+        ],
+        "diagnostics": [
+          {
+            "reason": "optional_extruct_unavailable"
+          }
+        ],
+        "canonical_identity_authoritative": false,
+        "body_extractor": {
+          "name": "bs4-heuristic",
+          "version": "4.15.0",
+          "locator": "extracted-body; exact source spans unavailable"
+        }
+      },
+      "elapsed_seconds": 3.5943607139997766,
+      "peak_parent_rss_kib": 303980,
+      "worker_receipt": {
+        "status": "completed",
+        "operation": "scrape-fixture",
+        "elapsed_seconds": 3.5943607139997766,
+        "peak_process_tree_rss_bytes": 1045913600,
+        "resource_limits": {
+          "timeout_s": 45,
+          "rss_bytes": 1073741824,
+          "threads": 2
+        },
+        "execution": "isolated-local-process",
+        "hosted_inference_used": false,
+        "remote_processing_used": false
+      },
+      "peak_process_tree_rss_bytes": 1045913600,
+      "expected_body_recall": 1.0,
+      "false_body_on_empty": null,
+      "title_matches_expected": true,
+      "metadata_bound_to_snapshot": true,
+      "title_locator_present": true
+    },
+    {
+      "backend": "crawlee",
+      "fixture": "/pagination-1",
+      "fixture_sha256": "2dcc801c6b7c7d059b4e1aeb32f98e7ce82ef5d3039e7dc7cb379c889136060b",
+      "status": "completed",
+      "text": "Page one A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. Next",
+      "snapshot_sha256": "f6693f8ee4faf8c5feacff4f375b1861eea656c6a4b9e4cf651dd6f0175cf3d3",
+      "captured_html": "<html><head></head><body><article><h1>Page one</h1><p>A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. </p><a rel=\"next\" href=\"/pagination-2\">Next</a></article></body></html>",
+      "backend_markdown": null,
+      "acquisition_metadata": {
+        "source_url": "http://127.0.0.1:34219/pagination-1",
+        "final_url": "http://127.0.0.1:34219/pagination-1",
+        "backend": "crawlee",
+        "observed_at_ms": 1788902245743,
+        "sha256": "f6693f8ee4faf8c5feacff4f375b1861eea656c6a4b9e4cf651dd6f0175cf3d3",
+        "representation": "browser-rendered-html",
+        "original_wire_bytes": false,
+        "native": null
+      },
+      "extraction_metadata": {
+        "extractor": "extruct+html-metadata",
+        "version": null,
+        "snapshot_sha256": "f6693f8ee4faf8c5feacff4f375b1861eea656c6a4b9e4cf651dd6f0175cf3d3",
+        "selected": {
+          "title": {
+            "field": "title",
+            "value": "Page one",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4,
+            "selection_reason": "matching article URL, then article entity, metadata, canonical link, visible heading; locator breaks ties"
+          }
+        },
+        "candidates": [
+          {
+            "field": "title",
+            "value": "Page one",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4
+          }
+        ],
+        "diagnostics": [
+          {
+            "reason": "optional_extruct_unavailable"
+          }
+        ],
+        "canonical_identity_authoritative": false,
+        "body_extractor": {
+          "name": "bs4-heuristic",
+          "version": "4.15.0",
+          "locator": "extracted-body; exact source spans unavailable"
+        }
+      },
+      "elapsed_seconds": 3.5856009749986697,
+      "peak_parent_rss_kib": 304068,
+      "worker_receipt": {
+        "status": "completed",
+        "operation": "scrape-fixture",
+        "elapsed_seconds": 3.5856009749986697,
+        "peak_process_tree_rss_bytes": 1041874944,
+        "resource_limits": {
+          "timeout_s": 45,
+          "rss_bytes": 1073741824,
+          "threads": 2
+        },
+        "execution": "isolated-local-process",
+        "hosted_inference_used": false,
+        "remote_processing_used": false
+      },
+      "peak_process_tree_rss_bytes": 1041874944,
+      "expected_body_recall": 1.0,
+      "false_body_on_empty": null,
+      "title_matches_expected": true,
+      "metadata_bound_to_snapshot": true,
+      "title_locator_present": true
+    },
+    {
+      "backend": "crawlee",
+      "fixture": "/pagination-2",
+      "fixture_sha256": "63cd97ae0186fb4a860aeadc6054546efb0aa19fb6d628b2fa31456cf051c3a7",
+      "status": "completed",
+      "text": "Page two A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations.",
+      "snapshot_sha256": "5fc39c1dd4813b77aa2d27341dc6c95bde3b783bb78eabad01306b495eb40a20",
+      "captured_html": "<html><head></head><body><article><h1>Page two</h1><p>A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. </p></article></body></html>",
+      "backend_markdown": null,
+      "acquisition_metadata": {
+        "source_url": "http://127.0.0.1:34219/pagination-2",
+        "final_url": "http://127.0.0.1:34219/pagination-2",
+        "backend": "crawlee",
+        "observed_at_ms": 1788902248883,
+        "sha256": "5fc39c1dd4813b77aa2d27341dc6c95bde3b783bb78eabad01306b495eb40a20",
+        "representation": "browser-rendered-html",
+        "original_wire_bytes": false,
+        "native": null
+      },
+      "extraction_metadata": {
+        "extractor": "extruct+html-metadata",
+        "version": null,
+        "snapshot_sha256": "5fc39c1dd4813b77aa2d27341dc6c95bde3b783bb78eabad01306b495eb40a20",
+        "selected": {
+          "title": {
+            "field": "title",
+            "value": "Page two",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4,
+            "selection_reason": "matching article URL, then article entity, metadata, canonical link, visible heading; locator breaks ties"
+          }
+        },
+        "candidates": [
+          {
+            "field": "title",
+            "value": "Page two",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4
+          }
+        ],
+        "diagnostics": [
+          {
+            "reason": "optional_extruct_unavailable"
+          }
+        ],
+        "canonical_identity_authoritative": false,
+        "body_extractor": {
+          "name": "bs4-heuristic",
+          "version": "4.15.0",
+          "locator": "extracted-body; exact source spans unavailable"
+        }
+      },
+      "elapsed_seconds": 3.0810084819968324,
+      "peak_parent_rss_kib": 303428,
+      "worker_receipt": {
+        "status": "completed",
+        "operation": "scrape-fixture",
+        "elapsed_seconds": 3.0810084819968324,
+        "peak_process_tree_rss_bytes": 1035296768,
+        "resource_limits": {
+          "timeout_s": 45,
+          "rss_bytes": 1073741824,
+          "threads": 2
+        },
+        "execution": "isolated-local-process",
+        "hosted_inference_used": false,
+        "remote_processing_used": false
+      },
+      "peak_process_tree_rss_bytes": 1035296768,
+      "expected_body_recall": 1.0,
+      "false_body_on_empty": null,
+      "title_matches_expected": true,
+      "metadata_bound_to_snapshot": true,
+      "title_locator_present": true
+    },
+    {
+      "backend": "crawlee",
+      "fixture": "/lazy",
+      "fixture_sha256": "c741b421002aae6d683f952374212411f6395c63fdea8e482ef0dc2b9dce8ad7",
+      "status": "completed",
+      "text": "Lazy A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations.",
+      "snapshot_sha256": "ab43841dbc04c34650c81b8fc527b0150c22358fe6fd0be75766ec90523ee755",
+      "captured_html": "<html><head></head><body><article><h1>Lazy</h1><p>A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. </p></article></body></html>",
+      "backend_markdown": null,
+      "acquisition_metadata": {
+        "source_url": "http://127.0.0.1:34219/lazy",
+        "final_url": "http://127.0.0.1:34219/lazy",
+        "backend": "crawlee",
+        "observed_at_ms": 1788902252053,
+        "sha256": "ab43841dbc04c34650c81b8fc527b0150c22358fe6fd0be75766ec90523ee755",
+        "representation": "browser-rendered-html",
+        "original_wire_bytes": false,
+        "native": null
+      },
+      "extraction_metadata": {
+        "extractor": "extruct+html-metadata",
+        "version": null,
+        "snapshot_sha256": "ab43841dbc04c34650c81b8fc527b0150c22358fe6fd0be75766ec90523ee755",
+        "selected": {
+          "title": {
+            "field": "title",
+            "value": "Lazy",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4,
+            "selection_reason": "matching article URL, then article entity, metadata, canonical link, visible heading; locator breaks ties"
+          }
+        },
+        "candidates": [
+          {
+            "field": "title",
+            "value": "Lazy",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4
+          }
+        ],
+        "diagnostics": [
+          {
+            "reason": "optional_extruct_unavailable"
+          }
+        ],
+        "canonical_identity_authoritative": false,
+        "body_extractor": {
+          "name": "bs4-heuristic",
+          "version": "4.15.0",
+          "locator": "extracted-body; exact source spans unavailable"
+        }
+      },
+      "elapsed_seconds": 3.1446895849949215,
+      "peak_parent_rss_kib": 304368,
+      "worker_receipt": {
+        "status": "completed",
+        "operation": "scrape-fixture",
+        "elapsed_seconds": 3.1446895849949215,
+        "peak_process_tree_rss_bytes": 1044213760,
+        "resource_limits": {
+          "timeout_s": 45,
+          "rss_bytes": 1073741824,
+          "threads": 2
+        },
+        "execution": "isolated-local-process",
+        "hosted_inference_used": false,
+        "remote_processing_used": false
+      },
+      "peak_process_tree_rss_bytes": 1044213760,
+      "expected_body_recall": 1.0,
+      "false_body_on_empty": null,
+      "title_matches_expected": true,
+      "metadata_bound_to_snapshot": true,
+      "title_locator_present": true
+    },
+    {
+      "backend": "crawlee",
+      "fixture": "/edited-before",
+      "fixture_sha256": "21c9b5a8855b8b03ded303dcf4c2a03ef37f65af16eea04bbf3d53d13510cf8b",
+      "status": "completed",
+      "text": "Edit fixture A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. version before.",
+      "snapshot_sha256": "c75dd6e8d6b991496ea93fd63a6af26b7d6b2d884f47f11e9621278ee0835497",
+      "captured_html": "<html><head></head><body><article><h1>Edit fixture</h1><p>A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. version before.</p></article></body></html>",
+      "backend_markdown": null,
+      "acquisition_metadata": {
+        "source_url": "http://127.0.0.1:34219/edited",
+        "final_url": "http://127.0.0.1:34219/edited",
+        "backend": "crawlee",
+        "observed_at_ms": 1788902254938,
+        "sha256": "c75dd6e8d6b991496ea93fd63a6af26b7d6b2d884f47f11e9621278ee0835497",
+        "representation": "browser-rendered-html",
+        "original_wire_bytes": false,
+        "native": null
+      },
+      "extraction_metadata": {
+        "extractor": "extruct+html-metadata",
+        "version": null,
+        "snapshot_sha256": "c75dd6e8d6b991496ea93fd63a6af26b7d6b2d884f47f11e9621278ee0835497",
+        "selected": {
+          "title": {
+            "field": "title",
+            "value": "Edit fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4,
+            "selection_reason": "matching article URL, then article entity, metadata, canonical link, visible heading; locator breaks ties"
+          }
+        },
+        "candidates": [
+          {
+            "field": "title",
+            "value": "Edit fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4
+          }
+        ],
+        "diagnostics": [
+          {
+            "reason": "optional_extruct_unavailable"
+          }
+        ],
+        "canonical_identity_authoritative": false,
+        "body_extractor": {
+          "name": "bs4-heuristic",
+          "version": "4.15.0",
+          "locator": "extracted-body; exact source spans unavailable"
+        }
+      },
+      "elapsed_seconds": 2.923048912998638,
+      "peak_parent_rss_kib": 304612,
+      "worker_receipt": {
+        "status": "completed",
+        "operation": "scrape-fixture",
+        "elapsed_seconds": 2.923048912998638,
+        "peak_process_tree_rss_bytes": 1032818688,
+        "resource_limits": {
+          "timeout_s": 45,
+          "rss_bytes": 1073741824,
+          "threads": 2
+        },
+        "execution": "isolated-local-process",
+        "hosted_inference_used": false,
+        "remote_processing_used": false
+      },
+      "peak_process_tree_rss_bytes": 1032818688,
+      "expected_body_recall": 1.0,
+      "false_body_on_empty": null,
+      "title_matches_expected": true,
+      "metadata_bound_to_snapshot": true,
+      "title_locator_present": true
+    },
+    {
+      "backend": "crawlee",
+      "fixture": "/edited-after",
+      "fixture_sha256": "6dea5fd67a4d647a23ab6839918f6eca45444740a3898d4071c2ff66c7dbe9f4",
+      "status": "completed",
+      "text": "Edit fixture A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. version after.",
+      "snapshot_sha256": "b6277ed3695c626b4d64fc70050205abf44f41b44431a3c9bd3185758855423d",
+      "captured_html": "<html><head></head><body><article><h1>Edit fixture</h1><p>A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. version after.</p></article></body></html>",
+      "backend_markdown": null,
+      "acquisition_metadata": {
+        "source_url": "http://127.0.0.1:34219/edited",
+        "final_url": "http://127.0.0.1:34219/edited",
+        "backend": "crawlee",
+        "observed_at_ms": 1788902257961,
+        "sha256": "b6277ed3695c626b4d64fc70050205abf44f41b44431a3c9bd3185758855423d",
+        "representation": "browser-rendered-html",
+        "original_wire_bytes": false,
+        "native": null
+      },
+      "extraction_metadata": {
+        "extractor": "extruct+html-metadata",
+        "version": null,
+        "snapshot_sha256": "b6277ed3695c626b4d64fc70050205abf44f41b44431a3c9bd3185758855423d",
+        "selected": {
+          "title": {
+            "field": "title",
+            "value": "Edit fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4,
+            "selection_reason": "matching article URL, then article entity, metadata, canonical link, visible heading; locator breaks ties"
+          }
+        },
+        "candidates": [
+          {
+            "field": "title",
+            "value": "Edit fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4
+          }
+        ],
+        "diagnostics": [
+          {
+            "reason": "optional_extruct_unavailable"
+          }
+        ],
+        "canonical_identity_authoritative": false,
+        "body_extractor": {
+          "name": "bs4-heuristic",
+          "version": "4.15.0",
+          "locator": "extracted-body; exact source spans unavailable"
+        }
+      },
+      "elapsed_seconds": 3.046692747004272,
+      "peak_parent_rss_kib": 304128,
+      "worker_receipt": {
+        "status": "completed",
+        "operation": "scrape-fixture",
+        "elapsed_seconds": 3.046692747004272,
+        "peak_process_tree_rss_bytes": 1035702272,
+        "resource_limits": {
+          "timeout_s": 45,
+          "rss_bytes": 1073741824,
+          "threads": 2
+        },
+        "execution": "isolated-local-process",
+        "hosted_inference_used": false,
+        "remote_processing_used": false
+      },
+      "peak_process_tree_rss_bytes": 1035702272,
+      "expected_body_recall": 1.0,
+      "false_body_on_empty": null,
+      "title_matches_expected": true,
+      "metadata_bound_to_snapshot": true,
+      "title_locator_present": true
+    },
+    {
+      "backend": "crawlee",
+      "fixture": "/http-error",
+      "fixture_sha256": "b78cafc3a2c746f171dc34c48284695fba9473266f9ddaff8ec9b7cb3688f0b1",
+      "status": "failed",
+      "failure_type": "ValueError",
+      "failure": "Crawlee returned no page",
+      "elapsed_seconds": 2.7812979120062664,
+      "peak_parent_rss_kib": 304544,
+      "worker_receipt": {
+        "status": "failed",
+        "failure_code": "backend_failed",
+        "operation": "scrape-fixture",
+        "elapsed_seconds": 2.7812979120062664,
+        "peak_process_tree_rss_bytes": 995139584,
+        "resource_limits": {
+          "timeout_s": 45,
+          "rss_bytes": 1073741824,
+          "threads": 2
+        },
+        "execution": "isolated-local-process",
+        "hosted_inference_used": false,
+        "remote_processing_used": false
+      },
+      "peak_process_tree_rss_bytes": 995139584,
+      "expected_body_recall": null,
+      "false_body_on_empty": null,
+      "title_matches_expected": null,
+      "metadata_bound_to_snapshot": false,
+      "title_locator_present": false
+    },
+    {
+      "backend": "crawlee",
+      "fixture": "/lazy-scroll",
+      "fixture_sha256": "48dff461fb8216f8e6cc85fb7fd64729b27c65a29a6413e6db9ce8ca7f20dca9",
+      "status": "failed",
+      "failure_type": "ValueError",
+      "failure": "Crawlee returned no page",
+      "elapsed_seconds": 3.86640885000088,
+      "peak_parent_rss_kib": 304120,
+      "worker_receipt": {
+        "status": "failed",
+        "failure_code": "backend_failed",
+        "operation": "scrape-fixture",
+        "elapsed_seconds": 3.86640885000088,
+        "peak_process_tree_rss_bytes": 1038856192,
+        "resource_limits": {
+          "timeout_s": 45,
+          "rss_bytes": 1073741824,
+          "threads": 2
+        },
+        "execution": "isolated-local-process",
+        "hosted_inference_used": false,
+        "remote_processing_used": false
+      },
+      "peak_process_tree_rss_bytes": 1038856192,
+      "expected_body_recall": null,
+      "false_body_on_empty": null,
+      "title_matches_expected": null,
+      "metadata_bound_to_snapshot": false,
+      "title_locator_present": false
+    },
+    {
+      "backend": "crawlee",
+      "fixture": "/missing",
+      "fixture_sha256": "4dae6a1dc9f6385419aab724626d2488c3e4116eca0e772092d3304a48165cb7",
+      "status": "failed",
+      "failure_type": "ValueError",
+      "failure": "Crawlee returned no page",
+      "elapsed_seconds": 3.908815846996731,
+      "peak_parent_rss_kib": 304552,
+      "worker_receipt": {
+        "status": "failed",
+        "failure_code": "backend_failed",
+        "operation": "scrape-fixture",
+        "elapsed_seconds": 3.908815846996731,
+        "peak_process_tree_rss_bytes": 1052704768,
+        "resource_limits": {
+          "timeout_s": 45,
+          "rss_bytes": 1073741824,
+          "threads": 2
+        },
+        "execution": "isolated-local-process",
+        "hosted_inference_used": false,
+        "remote_processing_used": false
+      },
+      "peak_process_tree_rss_bytes": 1052704768,
+      "expected_body_recall": null,
+      "false_body_on_empty": null,
+      "title_matches_expected": null,
+      "metadata_bound_to_snapshot": false,
+      "title_locator_present": false
+    },
+    {
+      "backend": "crawlee",
+      "fixture": "/restart-static",
+      "fixture_sha256": "160997301734ffad4f86644b44068918f60da6998cb49a55ad60bde899bcb60a",
+      "status": "completed",
+      "text": "Fixture A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations.",
+      "snapshot_sha256": "d6816e957d53ebdd47b31f3efe4a772d146132712798cbf0a6aeeb2d2fcf208b",
+      "captured_html": "<html><head></head><body><article><h1>Fixture</h1><p>A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. </p></article></body></html>",
+      "backend_markdown": null,
+      "acquisition_metadata": {
+        "source_url": "http://127.0.0.1:34219/static",
+        "final_url": "http://127.0.0.1:34219/static",
+        "backend": "crawlee",
+        "observed_at_ms": 1788902271525,
+        "sha256": "d6816e957d53ebdd47b31f3efe4a772d146132712798cbf0a6aeeb2d2fcf208b",
+        "representation": "browser-rendered-html",
+        "original_wire_bytes": false,
+        "native": null
+      },
+      "extraction_metadata": {
+        "extractor": "extruct+html-metadata",
+        "version": null,
+        "snapshot_sha256": "d6816e957d53ebdd47b31f3efe4a772d146132712798cbf0a6aeeb2d2fcf208b",
+        "selected": {
+          "title": {
+            "field": "title",
+            "value": "Fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4,
+            "selection_reason": "matching article URL, then article entity, metadata, canonical link, visible heading; locator breaks ties"
+          }
+        },
+        "candidates": [
+          {
+            "field": "title",
+            "value": "Fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4
+          }
+        ],
+        "diagnostics": [
+          {
+            "reason": "optional_extruct_unavailable"
+          }
+        ],
+        "canonical_identity_authoritative": false,
+        "body_extractor": {
+          "name": "bs4-heuristic",
+          "version": "4.15.0",
+          "locator": "extracted-body; exact source spans unavailable"
+        }
+      },
+      "elapsed_seconds": 2.961864371005504,
+      "peak_parent_rss_kib": 303968,
+      "worker_receipt": {
+        "status": "completed",
+        "operation": "scrape-fixture",
+        "elapsed_seconds": 2.961864371005504,
+        "peak_process_tree_rss_bytes": 1031462912,
+        "resource_limits": {
+          "timeout_s": 45,
+          "rss_bytes": 1073741824,
+          "threads": 2
+        },
+        "execution": "isolated-local-process",
+        "hosted_inference_used": false,
+        "remote_processing_used": false
+      },
+      "peak_process_tree_rss_bytes": 1031462912,
+      "expected_body_recall": 1.0,
+      "false_body_on_empty": null,
+      "title_matches_expected": true,
+      "metadata_bound_to_snapshot": true,
+      "title_locator_present": true
+    },
+    {
+      "backend": "crawlee-adaptive",
+      "fixture": "/static",
+      "fixture_sha256": "160997301734ffad4f86644b44068918f60da6998cb49a55ad60bde899bcb60a",
+      "status": "completed",
+      "text": "Fixture A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations.",
+      "snapshot_sha256": "e7674dbd36751df69155cb6cd631fb7af2c9d1b2b8cbfc75fb8d20c554abaa4a",
+      "captured_html": "<html><body><article><h1>Fixture</h1><p>A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. </p></article></body></html>",
+      "backend_markdown": null,
+      "acquisition_metadata": {
+        "source_url": "http://127.0.0.1:34219/static",
+        "final_url": "http://127.0.0.1:34219/static",
+        "backend": "crawlee-adaptive",
+        "observed_at_ms": 1788902274252,
+        "sha256": "e7674dbd36751df69155cb6cd631fb7af2c9d1b2b8cbfc75fb8d20c554abaa4a",
+        "representation": "static-parser-serialized-html",
+        "original_wire_bytes": false,
+        "native": {
+          "http_only_request_handler_runs": 1,
+          "browser_request_handler_runs": 0,
+          "rendering_type_mispredictions": 0
+        },
+        "acquisition_mode": "http",
+        "selection_policy": "deterministic static-first fallback probe; not learned predictor evaluation"
+      },
+      "extraction_metadata": {
+        "extractor": "extruct+html-metadata",
+        "version": null,
+        "snapshot_sha256": "e7674dbd36751df69155cb6cd631fb7af2c9d1b2b8cbfc75fb8d20c554abaa4a",
+        "selected": {
+          "title": {
+            "field": "title",
+            "value": "Fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4,
+            "selection_reason": "matching article URL, then article entity, metadata, canonical link, visible heading; locator breaks ties"
+          }
+        },
+        "candidates": [
+          {
+            "field": "title",
+            "value": "Fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4
+          }
+        ],
+        "diagnostics": [
+          {
+            "reason": "optional_extruct_unavailable"
+          }
+        ],
+        "canonical_identity_authoritative": false,
+        "body_extractor": {
+          "name": "bs4-heuristic",
+          "version": "4.15.0",
+          "locator": "extracted-body; exact source spans unavailable"
+        }
+      },
+      "elapsed_seconds": 2.5768246709994855,
+      "peak_parent_rss_kib": 330596,
+      "worker_receipt": {
+        "status": "completed",
+        "operation": "scrape-fixture",
+        "elapsed_seconds": 2.5768246709994855,
+        "peak_process_tree_rss_bytes": 469413888,
+        "resource_limits": {
+          "timeout_s": 45,
+          "rss_bytes": 1073741824,
+          "threads": 2
+        },
+        "execution": "isolated-local-process",
+        "hosted_inference_used": false,
+        "remote_processing_used": false
+      },
+      "peak_process_tree_rss_bytes": 469413888,
+      "expected_body_recall": 1.0,
+      "false_body_on_empty": null,
+      "title_matches_expected": true,
+      "metadata_bound_to_snapshot": true,
+      "title_locator_present": true
+    },
+    {
+      "backend": "crawlee-adaptive",
+      "fixture": "/delayed",
+      "fixture_sha256": "a2c42009bff802eb3d204ab7f3f2a811f38e300430f65289b5efe7a70e3809ce",
+      "status": "failed",
+      "failure_code": "memory_limit",
+      "worker_receipt": {
+        "status": "failed",
+        "failure_code": "memory_limit",
+        "operation": "scrape-fixture",
+        "elapsed_seconds": 2.2790094039955875,
+        "peak_process_tree_rss_bytes": 1083179008,
+        "resource_limits": {
+          "timeout_s": 45,
+          "rss_bytes": 1073741824,
+          "threads": 2
+        },
+        "execution": "isolated-local-process",
+        "hosted_inference_used": false,
+        "remote_processing_used": false
+      },
+      "elapsed_seconds": 2.2790094039955875,
+      "peak_process_tree_rss_bytes": 1083179008,
+      "expected_body_recall": null,
+      "false_body_on_empty": null,
+      "title_matches_expected": false,
+      "metadata_bound_to_snapshot": false,
+      "title_locator_present": false
+    },
+    {
+      "backend": "crawlee-adaptive",
+      "fixture": "/pagination-1",
+      "fixture_sha256": "2dcc801c6b7c7d059b4e1aeb32f98e7ce82ef5d3039e7dc7cb379c889136060b",
+      "status": "completed",
+      "text": "Page one A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. Next",
+      "snapshot_sha256": "0dbe267ea51c086720a2a24f473149cb20c8e27137255f58d955783f7cc003a3",
+      "captured_html": "<html><body><article><h1>Page one</h1><p>A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. </p><a href=\"/pagination-2\" rel=\"next\">Next</a></article></body></html>",
+      "backend_markdown": null,
+      "acquisition_metadata": {
+        "source_url": "http://127.0.0.1:34219/pagination-1",
+        "final_url": "http://127.0.0.1:34219/pagination-1",
+        "backend": "crawlee-adaptive",
+        "observed_at_ms": 1788902279213,
+        "sha256": "0dbe267ea51c086720a2a24f473149cb20c8e27137255f58d955783f7cc003a3",
+        "representation": "static-parser-serialized-html",
+        "original_wire_bytes": false,
+        "native": {
+          "http_only_request_handler_runs": 1,
+          "browser_request_handler_runs": 0,
+          "rendering_type_mispredictions": 0
+        },
+        "acquisition_mode": "http",
+        "selection_policy": "deterministic static-first fallback probe; not learned predictor evaluation"
+      },
+      "extraction_metadata": {
+        "extractor": "extruct+html-metadata",
+        "version": null,
+        "snapshot_sha256": "0dbe267ea51c086720a2a24f473149cb20c8e27137255f58d955783f7cc003a3",
+        "selected": {
+          "title": {
+            "field": "title",
+            "value": "Page one",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4,
+            "selection_reason": "matching article URL, then article entity, metadata, canonical link, visible heading; locator breaks ties"
+          }
+        },
+        "candidates": [
+          {
+            "field": "title",
+            "value": "Page one",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4
+          }
+        ],
+        "diagnostics": [
+          {
+            "reason": "optional_extruct_unavailable"
+          }
+        ],
+        "canonical_identity_authoritative": false,
+        "body_extractor": {
+          "name": "bs4-heuristic",
+          "version": "4.15.0",
+          "locator": "extracted-body; exact source spans unavailable"
+        }
+      },
+      "elapsed_seconds": 2.683181241998682,
+      "peak_parent_rss_kib": 330312,
+      "worker_receipt": {
+        "status": "completed",
+        "operation": "scrape-fixture",
+        "elapsed_seconds": 2.683181241998682,
+        "peak_process_tree_rss_bytes": 466579456,
+        "resource_limits": {
+          "timeout_s": 45,
+          "rss_bytes": 1073741824,
+          "threads": 2
+        },
+        "execution": "isolated-local-process",
+        "hosted_inference_used": false,
+        "remote_processing_used": false
+      },
+      "peak_process_tree_rss_bytes": 466579456,
+      "expected_body_recall": 1.0,
+      "false_body_on_empty": null,
+      "title_matches_expected": true,
+      "metadata_bound_to_snapshot": true,
+      "title_locator_present": true
+    },
+    {
+      "backend": "crawlee-adaptive",
+      "fixture": "/pagination-2",
+      "fixture_sha256": "63cd97ae0186fb4a860aeadc6054546efb0aa19fb6d628b2fa31456cf051c3a7",
+      "status": "completed",
+      "text": "Page two A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations.",
+      "snapshot_sha256": "140fc5297f0a317564483a82b356a68487efecab07c79f8468cbdd8f393e6700",
+      "captured_html": "<html><body><article><h1>Page two</h1><p>A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. </p></article></body></html>",
+      "backend_markdown": null,
+      "acquisition_metadata": {
+        "source_url": "http://127.0.0.1:34219/pagination-2",
+        "final_url": "http://127.0.0.1:34219/pagination-2",
+        "backend": "crawlee-adaptive",
+        "observed_at_ms": 1788902281876,
+        "sha256": "140fc5297f0a317564483a82b356a68487efecab07c79f8468cbdd8f393e6700",
+        "representation": "static-parser-serialized-html",
+        "original_wire_bytes": false,
+        "native": {
+          "http_only_request_handler_runs": 1,
+          "browser_request_handler_runs": 0,
+          "rendering_type_mispredictions": 0
+        },
+        "acquisition_mode": "http",
+        "selection_policy": "deterministic static-first fallback probe; not learned predictor evaluation"
+      },
+      "extraction_metadata": {
+        "extractor": "extruct+html-metadata",
+        "version": null,
+        "snapshot_sha256": "140fc5297f0a317564483a82b356a68487efecab07c79f8468cbdd8f393e6700",
+        "selected": {
+          "title": {
+            "field": "title",
+            "value": "Page two",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4,
+            "selection_reason": "matching article URL, then article entity, metadata, canonical link, visible heading; locator breaks ties"
+          }
+        },
+        "candidates": [
+          {
+            "field": "title",
+            "value": "Page two",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4
+          }
+        ],
+        "diagnostics": [
+          {
+            "reason": "optional_extruct_unavailable"
+          }
+        ],
+        "canonical_identity_authoritative": false,
+        "body_extractor": {
+          "name": "bs4-heuristic",
+          "version": "4.15.0",
+          "locator": "extracted-body; exact source spans unavailable"
+        }
+      },
+      "elapsed_seconds": 2.650761306002096,
+      "peak_parent_rss_kib": 330336,
+      "worker_receipt": {
+        "status": "completed",
+        "operation": "scrape-fixture",
+        "elapsed_seconds": 2.650761306002096,
+        "peak_process_tree_rss_bytes": 474173440,
+        "resource_limits": {
+          "timeout_s": 45,
+          "rss_bytes": 1073741824,
+          "threads": 2
+        },
+        "execution": "isolated-local-process",
+        "hosted_inference_used": false,
+        "remote_processing_used": false
+      },
+      "peak_process_tree_rss_bytes": 474173440,
+      "expected_body_recall": 1.0,
+      "false_body_on_empty": null,
+      "title_matches_expected": true,
+      "metadata_bound_to_snapshot": true,
+      "title_locator_present": true
+    },
+    {
+      "backend": "crawlee-adaptive",
+      "fixture": "/lazy",
+      "fixture_sha256": "c741b421002aae6d683f952374212411f6395c63fdea8e482ef0dc2b9dce8ad7",
+      "status": "failed",
+      "failure_code": "memory_limit",
+      "worker_receipt": {
+        "status": "failed",
+        "failure_code": "memory_limit",
+        "operation": "scrape-fixture",
+        "elapsed_seconds": 2.3517130030013504,
+        "peak_process_tree_rss_bytes": 1082273792,
+        "resource_limits": {
+          "timeout_s": 45,
+          "rss_bytes": 1073741824,
+          "threads": 2
+        },
+        "execution": "isolated-local-process",
+        "hosted_inference_used": false,
+        "remote_processing_used": false
+      },
+      "elapsed_seconds": 2.3517130030013504,
+      "peak_process_tree_rss_bytes": 1082273792,
+      "expected_body_recall": null,
+      "false_body_on_empty": null,
+      "title_matches_expected": false,
+      "metadata_bound_to_snapshot": false,
+      "title_locator_present": false
+    },
+    {
+      "backend": "crawlee-adaptive",
+      "fixture": "/edited-before",
+      "fixture_sha256": "21c9b5a8855b8b03ded303dcf4c2a03ef37f65af16eea04bbf3d53d13510cf8b",
+      "status": "completed",
+      "text": "Edit fixture A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. version before.",
+      "snapshot_sha256": "8ec8292b35fbabb8e4aa4a09465c3c40f93aef17e88df17676f98b1d5b2fb4fb",
+      "captured_html": "<html><body><article><h1>Edit fixture</h1><p>A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. version before.</p></article></body></html>",
+      "backend_markdown": null,
+      "acquisition_metadata": {
+        "source_url": "http://127.0.0.1:34219/edited",
+        "final_url": "http://127.0.0.1:34219/edited",
+        "backend": "crawlee-adaptive",
+        "observed_at_ms": 1788902286936,
+        "sha256": "8ec8292b35fbabb8e4aa4a09465c3c40f93aef17e88df17676f98b1d5b2fb4fb",
+        "representation": "static-parser-serialized-html",
+        "original_wire_bytes": false,
+        "native": {
+          "http_only_request_handler_runs": 1,
+          "browser_request_handler_runs": 0,
+          "rendering_type_mispredictions": 0
+        },
+        "acquisition_mode": "http",
+        "selection_policy": "deterministic static-first fallback probe; not learned predictor evaluation"
+      },
+      "extraction_metadata": {
+        "extractor": "extruct+html-metadata",
+        "version": null,
+        "snapshot_sha256": "8ec8292b35fbabb8e4aa4a09465c3c40f93aef17e88df17676f98b1d5b2fb4fb",
+        "selected": {
+          "title": {
+            "field": "title",
+            "value": "Edit fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4,
+            "selection_reason": "matching article URL, then article entity, metadata, canonical link, visible heading; locator breaks ties"
+          }
+        },
+        "candidates": [
+          {
+            "field": "title",
+            "value": "Edit fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4
+          }
+        ],
+        "diagnostics": [
+          {
+            "reason": "optional_extruct_unavailable"
+          }
+        ],
+        "canonical_identity_authoritative": false,
+        "body_extractor": {
+          "name": "bs4-heuristic",
+          "version": "4.15.0",
+          "locator": "extracted-body; exact source spans unavailable"
+        }
+      },
+      "elapsed_seconds": 2.718081008999434,
+      "peak_parent_rss_kib": 330560,
+      "worker_receipt": {
+        "status": "completed",
+        "operation": "scrape-fixture",
+        "elapsed_seconds": 2.718081008999434,
+        "peak_process_tree_rss_bytes": 473833472,
+        "resource_limits": {
+          "timeout_s": 45,
+          "rss_bytes": 1073741824,
+          "threads": 2
+        },
+        "execution": "isolated-local-process",
+        "hosted_inference_used": false,
+        "remote_processing_used": false
+      },
+      "peak_process_tree_rss_bytes": 473833472,
+      "expected_body_recall": 1.0,
+      "false_body_on_empty": null,
+      "title_matches_expected": true,
+      "metadata_bound_to_snapshot": true,
+      "title_locator_present": true
+    },
+    {
+      "backend": "crawlee-adaptive",
+      "fixture": "/edited-after",
+      "fixture_sha256": "6dea5fd67a4d647a23ab6839918f6eca45444740a3898d4071c2ff66c7dbe9f4",
+      "status": "completed",
+      "text": "Edit fixture A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. version after.",
+      "snapshot_sha256": "d95d1d26f503c1ea59b25094df978204e2dbac60558c2f75de4fba4377b26288",
+      "captured_html": "<html><body><article><h1>Edit fixture</h1><p>A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. version after.</p></article></body></html>",
+      "backend_markdown": null,
+      "acquisition_metadata": {
+        "source_url": "http://127.0.0.1:34219/edited",
+        "final_url": "http://127.0.0.1:34219/edited",
+        "backend": "crawlee-adaptive",
+        "observed_at_ms": 1788902289616,
+        "sha256": "d95d1d26f503c1ea59b25094df978204e2dbac60558c2f75de4fba4377b26288",
+        "representation": "static-parser-serialized-html",
+        "original_wire_bytes": false,
+        "native": {
+          "http_only_request_handler_runs": 1,
+          "browser_request_handler_runs": 0,
+          "rendering_type_mispredictions": 0
+        },
+        "acquisition_mode": "http",
+        "selection_policy": "deterministic static-first fallback probe; not learned predictor evaluation"
+      },
+      "extraction_metadata": {
+        "extractor": "extruct+html-metadata",
+        "version": null,
+        "snapshot_sha256": "d95d1d26f503c1ea59b25094df978204e2dbac60558c2f75de4fba4377b26288",
+        "selected": {
+          "title": {
+            "field": "title",
+            "value": "Edit fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4,
+            "selection_reason": "matching article URL, then article entity, metadata, canonical link, visible heading; locator breaks ties"
+          }
+        },
+        "candidates": [
+          {
+            "field": "title",
+            "value": "Edit fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4
+          }
+        ],
+        "diagnostics": [
+          {
+            "reason": "optional_extruct_unavailable"
+          }
+        ],
+        "canonical_identity_authoritative": false,
+        "body_extractor": {
+          "name": "bs4-heuristic",
+          "version": "4.15.0",
+          "locator": "extracted-body; exact source spans unavailable"
+        }
+      },
+      "elapsed_seconds": 2.7202721610010485,
+      "peak_parent_rss_kib": 330372,
+      "worker_receipt": {
+        "status": "completed",
+        "operation": "scrape-fixture",
+        "elapsed_seconds": 2.7202721610010485,
+        "peak_process_tree_rss_bytes": 471810048,
+        "resource_limits": {
+          "timeout_s": 45,
+          "rss_bytes": 1073741824,
+          "threads": 2
+        },
+        "execution": "isolated-local-process",
+        "hosted_inference_used": false,
+        "remote_processing_used": false
+      },
+      "peak_process_tree_rss_bytes": 471810048,
+      "expected_body_recall": 1.0,
+      "false_body_on_empty": null,
+      "title_matches_expected": true,
+      "metadata_bound_to_snapshot": true,
+      "title_locator_present": true
+    },
+    {
+      "backend": "crawlee-adaptive",
+      "fixture": "/http-error",
+      "fixture_sha256": "b78cafc3a2c746f171dc34c48284695fba9473266f9ddaff8ec9b7cb3688f0b1",
+      "status": "failed",
+      "failure_type": "ValueError",
+      "failure": "Adaptive crawler returned no page",
+      "elapsed_seconds": 3.2965820620011073,
+      "peak_parent_rss_kib": 307936,
+      "worker_receipt": {
+        "status": "failed",
+        "failure_code": "backend_failed",
+        "operation": "scrape-fixture",
+        "elapsed_seconds": 3.2965820620011073,
+        "peak_process_tree_rss_bytes": 1025380352,
+        "resource_limits": {
+          "timeout_s": 45,
+          "rss_bytes": 1073741824,
+          "threads": 2
+        },
+        "execution": "isolated-local-process",
+        "hosted_inference_used": false,
+        "remote_processing_used": false
+      },
+      "peak_process_tree_rss_bytes": 1025380352,
+      "expected_body_recall": null,
+      "false_body_on_empty": null,
+      "title_matches_expected": null,
+      "metadata_bound_to_snapshot": false,
+      "title_locator_present": false
+    },
+    {
+      "backend": "crawlee-adaptive",
+      "fixture": "/lazy-scroll",
+      "fixture_sha256": "48dff461fb8216f8e6cc85fb7fd64729b27c65a29a6413e6db9ce8ca7f20dca9",
+      "status": "failed",
+      "failure_type": "ValueError",
+      "failure": "Adaptive crawler returned no page",
+      "elapsed_seconds": 4.751229827001225,
+      "peak_parent_rss_kib": 333952,
+      "worker_receipt": {
+        "status": "failed",
+        "failure_code": "backend_failed",
+        "operation": "scrape-fixture",
+        "elapsed_seconds": 4.751229827001225,
+        "peak_process_tree_rss_bytes": 1071177728,
+        "resource_limits": {
+          "timeout_s": 45,
+          "rss_bytes": 1073741824,
+          "threads": 2
+        },
+        "execution": "isolated-local-process",
+        "hosted_inference_used": false,
+        "remote_processing_used": false
+      },
+      "peak_process_tree_rss_bytes": 1071177728,
+      "expected_body_recall": null,
+      "false_body_on_empty": null,
+      "title_matches_expected": null,
+      "metadata_bound_to_snapshot": false,
+      "title_locator_present": false
+    },
+    {
+      "backend": "crawlee-adaptive",
+      "fixture": "/missing",
+      "fixture_sha256": "4dae6a1dc9f6385419aab724626d2488c3e4116eca0e772092d3304a48165cb7",
+      "status": "failed",
+      "failure_code": "memory_limit",
+      "worker_receipt": {
+        "status": "failed",
+        "failure_code": "memory_limit",
+        "operation": "scrape-fixture",
+        "elapsed_seconds": 2.7197242209949763,
+        "peak_process_tree_rss_bytes": 1074245632,
+        "resource_limits": {
+          "timeout_s": 45,
+          "rss_bytes": 1073741824,
+          "threads": 2
+        },
+        "execution": "isolated-local-process",
+        "hosted_inference_used": false,
+        "remote_processing_used": false
+      },
+      "elapsed_seconds": 2.7197242209949763,
+      "peak_process_tree_rss_bytes": 1074245632,
+      "expected_body_recall": null,
+      "false_body_on_empty": null,
+      "title_matches_expected": null,
+      "metadata_bound_to_snapshot": false,
+      "title_locator_present": false
+    },
+    {
+      "backend": "crawlee-adaptive",
+      "fixture": "/restart-static",
+      "fixture_sha256": "160997301734ffad4f86644b44068918f60da6998cb49a55ad60bde899bcb60a",
+      "status": "completed",
+      "text": "Fixture A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations.",
+      "snapshot_sha256": "e7674dbd36751df69155cb6cd631fb7af2c9d1b2b8cbfc75fb8d20c554abaa4a",
+      "captured_html": "<html><body><article><h1>Fixture</h1><p>A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. A precisely attributed source explains the evidence and its limitations. </p></article></body></html>",
+      "backend_markdown": null,
+      "acquisition_metadata": {
+        "source_url": "http://127.0.0.1:34219/static",
+        "final_url": "http://127.0.0.1:34219/static",
+        "backend": "crawlee-adaptive",
+        "observed_at_ms": 1788902303075,
+        "sha256": "e7674dbd36751df69155cb6cd631fb7af2c9d1b2b8cbfc75fb8d20c554abaa4a",
+        "representation": "static-parser-serialized-html",
+        "original_wire_bytes": false,
+        "native": {
+          "http_only_request_handler_runs": 1,
+          "browser_request_handler_runs": 0,
+          "rendering_type_mispredictions": 0
+        },
+        "acquisition_mode": "http",
+        "selection_policy": "deterministic static-first fallback probe; not learned predictor evaluation"
+      },
+      "extraction_metadata": {
+        "extractor": "extruct+html-metadata",
+        "version": null,
+        "snapshot_sha256": "e7674dbd36751df69155cb6cd631fb7af2c9d1b2b8cbfc75fb8d20c554abaa4a",
+        "selected": {
+          "title": {
+            "field": "title",
+            "value": "Fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4,
+            "selection_reason": "matching article URL, then article entity, metadata, canonical link, visible heading; locator breaks ties"
+          }
+        },
+        "candidates": [
+          {
+            "field": "title",
+            "value": "Fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4
+          }
+        ],
+        "diagnostics": [
+          {
+            "reason": "optional_extruct_unavailable"
+          }
+        ],
+        "canonical_identity_authoritative": false,
+        "body_extractor": {
+          "name": "bs4-heuristic",
+          "version": "4.15.0",
+          "locator": "extracted-body; exact source spans unavailable"
+        }
+      },
+      "elapsed_seconds": 2.718372707000526,
+      "peak_parent_rss_kib": 330612,
+      "worker_receipt": {
+        "status": "completed",
+        "operation": "scrape-fixture",
+        "elapsed_seconds": 2.718372707000526,
+        "peak_process_tree_rss_bytes": 460869632,
+        "resource_limits": {
+          "timeout_s": 45,
+          "rss_bytes": 1073741824,
+          "threads": 2
+        },
+        "execution": "isolated-local-process",
+        "hosted_inference_used": false,
+        "remote_processing_used": false
+      },
+      "peak_process_tree_rss_bytes": 460869632,
+      "expected_body_recall": 1.0,
+      "false_body_on_empty": null,
+      "title_matches_expected": true,
+      "metadata_bound_to_snapshot": true,
+      "title_locator_present": true
+    }
+  ],
+  "summaries": {
+    "scrapy": {
+      "usable_document_rate": 0.6666666666666666,
+      "locator_metadata_coverage": 0.6666666666666666,
+      "restart": {
+        "contract": "fresh-worker repeat of the same static URL; no persisted queue claimed",
+        "completed": true,
+        "same_text": true,
+        "same_snapshot": true
+      },
+      "same_url_source_edit": {
+        "completed": true,
+        "changed_text": true,
+        "changed_snapshot": true
+      },
+      "fixtures": 11,
+      "completed": 10,
+      "completion_rate": 0.9090909090909091,
+      "p50_elapsed_seconds": 0.5325448139992659,
+      "p95_elapsed_seconds": 0.581114496999362,
+      "max_peak_parent_rss_kib": 82028,
+      "max_peak_process_tree_rss_bytes": 84463616,
+      "live_cost": 0
+    },
+    "playwright": {
+      "usable_document_rate": 0.8888888888888888,
+      "locator_metadata_coverage": 0.8888888888888888,
+      "restart": {
+        "contract": "fresh-worker repeat of the same static URL; no persisted queue claimed",
+        "completed": true,
+        "same_text": true,
+        "same_snapshot": true
+      },
+      "same_url_source_edit": {
+        "completed": true,
+        "changed_text": true,
+        "changed_snapshot": true
+      },
+      "fixtures": 11,
+      "completed": 8,
+      "completion_rate": 0.7272727272727273,
+      "p50_elapsed_seconds": 0.7229105370024627,
+      "p95_elapsed_seconds": 1.314799209998455,
+      "max_peak_parent_rss_kib": 48724,
+      "max_peak_process_tree_rss_bytes": 678969344,
+      "live_cost": 0
+    },
+    "crawl4ai": {
+      "usable_document_rate": 0.8888888888888888,
+      "locator_metadata_coverage": 0.8888888888888888,
+      "restart": {
+        "contract": "fresh-worker repeat of the same static URL; no persisted queue claimed",
+        "completed": true,
+        "same_text": true,
+        "same_snapshot": true
+      },
+      "same_url_source_edit": {
+        "completed": true,
+        "changed_text": true,
+        "changed_snapshot": true
+      },
+      "fixtures": 11,
+      "completed": 8,
+      "completion_rate": 0.7272727272727273,
+      "p50_elapsed_seconds": 1.5883987259985588,
+      "p95_elapsed_seconds": 1.8466412940033479,
+      "max_peak_parent_rss_kib": 134692,
+      "max_peak_process_tree_rss_bytes": 687800320,
+      "live_cost": 0
+    },
+    "crawlee": {
+      "usable_document_rate": 0.8888888888888888,
+      "locator_metadata_coverage": 0.8888888888888888,
+      "restart": {
+        "contract": "fresh-worker repeat of the same static URL; no persisted queue claimed",
+        "completed": true,
+        "same_text": true,
+        "same_snapshot": true
+      },
+      "same_url_source_edit": {
+        "completed": true,
+        "changed_text": true,
+        "changed_snapshot": true
+      },
+      "fixtures": 11,
+      "completed": 8,
+      "completion_rate": 0.7272727272727273,
+      "p50_elapsed_seconds": 3.112849033495877,
+      "p95_elapsed_seconds": 3.6006591810000828,
+      "max_peak_parent_rss_kib": 304612,
+      "max_peak_process_tree_rss_bytes": 1052704768,
+      "live_cost": 0
+    },
+    "crawlee-adaptive": {
+      "usable_document_rate": 0.6666666666666666,
+      "locator_metadata_coverage": 0.6666666666666666,
+      "restart": {
+        "contract": "fresh-worker repeat of the same static URL; no persisted queue claimed",
+        "completed": true,
+        "same_text": true,
+        "same_snapshot": true
+      },
+      "same_url_source_edit": {
+        "completed": true,
+        "changed_text": true,
+        "changed_snapshot": true
+      },
+      "fixtures": 11,
+      "completed": 6,
+      "completion_rate": 0.5454545454545454,
+      "p50_elapsed_seconds": 2.700631125499058,
+      "p95_elapsed_seconds": 2.7202721610010485,
+      "max_peak_parent_rss_kib": 330612,
+      "max_peak_process_tree_rss_bytes": 1083179008,
+      "live_cost": 0
+    }
+  },
+  "decision": "retain repaired production stack; defer optional backend adoption pending representative corpus, restart/deadline/resource checks and credentialed cost measurements",
+  "postprocessing_note": "Title fidelity and metadata/snapshot binding scored from the captured outputs; no acquisition re-execution or modified measurements."
+}

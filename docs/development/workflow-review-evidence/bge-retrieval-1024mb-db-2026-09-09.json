@@ -1,0 +1,854 @@
+{
+  "contract": "noesis-cross-language-retrieval-v1",
+  "sources": {
+    "retrieval": {
+      "germandpr-test.parquet": {
+        "sha256": "f6106a22d6d6a6cab1621d70a06e0edd8edea9d1428e52424b1610f83b6228f0",
+        "url": "https://huggingface.co/datasets/deepset/germandpr/resolve/d0b867a49c45a44d172041351b5df73a87714372/plain_text/test/0000.parquet",
+        "license": "CC-BY-4.0",
+        "attribution": "Möller, Risch and Pietsch (2021), GermanQuAD and GermanDPR; deepset and Wikipedia contributors"
+      },
+      "scifact.zip": {
+        "sha256": "536e14446a0ba56ed1398ab1055f39fe852686ecad24a6306c80c490fa8e0165",
+        "url": "https://public.ukp.informatik.tu-darmstadt.de/thakur/BEIR/datasets/scifact.zip",
+        "license": "CC-BY-SA-4.0 declared by the BeIR/scifact dataset card; underlying abstracts retain their source rights",
+        "attribution": "Wadden et al. (2020), Fact or Fiction: Verifying Scientific Claims; BEIR distribution"
+      }
+    },
+    "xnli": {
+      "dataset": "facebook/xnli",
+      "revision": "698f8e6ef634f838d19dcf896958caa5d727dc79",
+      "files": {
+        "de-validation.parquet": {
+          "url": "https://huggingface.co/datasets/facebook/xnli/resolve/698f8e6ef634f838d19dcf896958caa5d727dc79/de/validation/0000.parquet",
+          "sha256": "68f6b30f13ba0fb92acf2567edd7cb1ec26a6b8b38c2274eb6f140fb7075f66e",
+          "bytes": 180990
+        },
+        "de-test.parquet": {
+          "url": "https://huggingface.co/datasets/facebook/xnli/resolve/698f8e6ef634f838d19dcf896958caa5d727dc79/de/test/0000.parquet",
+          "sha256": "c25f5695d21673dbe966bac7b3c6a1e2df369431976928565c3cc56838f5632b",
+          "bytes": 356132
+        },
+        "en-validation.parquet": {
+          "url": "https://huggingface.co/datasets/facebook/xnli/resolve/698f8e6ef634f838d19dcf896958caa5d727dc79/en/validation/0000.parquet",
+          "sha256": "42961a7b66dee147da655d78db8cbaac97b3dbcf898009acffec6cda2d80f2bf",
+          "bytes": 157207
+        },
+        "en-test.parquet": {
+          "url": "https://huggingface.co/datasets/facebook/xnli/resolve/698f8e6ef634f838d19dcf896958caa5d727dc79/en/test/0000.parquet",
+          "sha256": "8f0fd1e105091e0f11cd37f9b2bc382f16de9949aa9471e1366b2605ba037167",
+          "bytes": 308237
+        }
+      },
+      "license": "CC-BY-NC-4.0",
+      "license_url": "https://github.com/facebookresearch/XNLI/blob/main/LICENSE",
+      "attribution": "Conneau et al. (2018), XNLI: Evaluating Cross-lingual Sentence Representations; Facebook Research",
+      "selection": "First 20 examples per native class in validation and test, paired German/English row identities; exclude shared English-premise groups across splits before model inference."
+    }
+  },
+  "query_provenance": [
+    {
+      "id": "germandpr:test:5",
+      "omitted_overlong_hard_negatives": 1,
+      "language": "de",
+      "judgments": {
+        "germandpr:fb0d7dbff188647708b684366a08e1c037c1176b64426342a3b8e39797d6505a": 1,
+        "germandpr:64b4d6e60230df58ecc664461d746ccb66410ccc53ae51746ba46035a849a328": 0,
+        "germandpr:2a13196f174bea2ab432341be27d673a283e58c067dac327f9474102c974a846": 0
+      },
+      "language_pair": "de-de"
+    },
+    {
+      "id": "germandpr:test:6",
+      "omitted_overlong_hard_negatives": 1,
+      "language": "de",
+      "judgments": {
+        "germandpr:60c3c46a6794b6e58640168d81adae3f2016bd16ae1dfe9c2aaa8893a2482041": 1,
+        "germandpr:835ae75da88f962b8fe858c7e43677fb28f9239b8d0f57c06749e71349472185": 0,
+        "germandpr:9a05d6e3b66f1463893ed1d448df57b4d5580fad6e903f9858cdc5a46751476d": 0
+      },
+      "language_pair": "de-de"
+    },
+    {
+      "id": "germandpr:test:9",
+      "omitted_overlong_hard_negatives": 3,
+      "language": "de",
+      "judgments": {
+        "germandpr:f1594543528fda6fba5d93a92d734ce1bcf4557ea228af07dee7e5ce62d8d3d1": 1
+      },
+      "language_pair": "de-de"
+    },
+    {
+      "id": "germandpr:test:11",
+      "omitted_overlong_hard_negatives": 2,
+      "language": "de",
+      "judgments": {
+        "germandpr:f9c67a5004577184a10e27eb1f85337cf42272d2cd3dd40ed3a1456fd3d0df2f": 1,
+        "germandpr:e9749763e93d95ab6ba656dc1fabeee11b7a594b998c334f73976af79d904690": 0
+      },
+      "language_pair": "de-de"
+    },
+    {
+      "id": "germandpr:test:35",
+      "omitted_overlong_hard_negatives": 2,
+      "language": "de",
+      "judgments": {
+        "germandpr:5f8c483a2b5fd4b054d7f37c506fd3981206db578725162d59f02986d09d79fb": 1,
+        "germandpr:8985b538a8a6e12a6895909354e42326a65ee020b6ca94a90d2fdb4046a220f5": 0
+      },
+      "language_pair": "de-de"
+    },
+    {
+      "id": "germandpr:test:46",
+      "omitted_overlong_hard_negatives": 2,
+      "language": "de",
+      "judgments": {
+        "germandpr:03691ac9c4190a0231f7cca647fa8abe8939a531fff0ae981b535ffe9a9f3a82": 1,
+        "germandpr:30b1017171e36514a2ba644f07e03b8746766ae3f40592311c96de69d313f1c9": 0
+      },
+      "language_pair": "de-de"
+    },
+    {
+      "id": "germandpr:test:48",
+      "omitted_overlong_hard_negatives": 3,
+      "language": "de",
+      "judgments": {
+        "germandpr:8a0f4939412c62ef241aad33546ba5a8f89b101930b2a42748f4b48d35c705d0": 1
+      },
+      "language_pair": "de-de"
+    },
+    {
+      "id": "germandpr:test:59",
+      "omitted_overlong_hard_negatives": 1,
+      "language": "de",
+      "judgments": {
+        "germandpr:11e26eb20f3ce21a2fd612ddacc4c43d520ad1e10fc5e6d38021243303e7c4e3": 1,
+        "germandpr:9a111d5f09bcce95f8733dbe83b260306dff4cfeb7ca53e75651a3526941e123": 0,
+        "germandpr:712e68c4b6f643bfa3ecc01038326c6299983f092a8cdbbaea720ba888609603": 0
+      },
+      "language_pair": "de-de"
+    },
+    {
+      "id": "scifact:test:1",
+      "language": "en",
+      "judgments": {
+        "scifact:31715818": 1
+      },
+      "language_pair": "en-en"
+    },
+    {
+      "id": "scifact:test:49",
+      "language": "en",
+      "judgments": {
+        "scifact:5953485": 1
+      },
+      "language_pair": "en-en"
+    },
+    {
+      "id": "scifact:test:51",
+      "language": "en",
+      "judgments": {
+        "scifact:45638119": 1
+      },
+      "language_pair": "en-en"
+    },
+    {
+      "id": "scifact:test:53",
+      "language": "en",
+      "judgments": {
+        "scifact:45638119": 1
+      },
+      "language_pair": "en-en"
+    },
+    {
+      "id": "scifact:test:232",
+      "language": "en",
+      "judgments": {
+        "scifact:10536636": 1
+      },
+      "language_pair": "en-en"
+    },
+    {
+      "id": "scifact:test:238",
+      "language": "en",
+      "judgments": {
+        "scifact:2251426": 1
+      },
+      "language_pair": "en-en"
+    },
+    {
+      "id": "scifact:test:248",
+      "language": "en",
+      "judgments": {
+        "scifact:1568684": 1
+      },
+      "language_pair": "en-en"
+    },
+    {
+      "id": "scifact:test:249",
+      "language": "en",
+      "judgments": {
+        "scifact:1568684": 1
+      },
+      "language_pair": "en-en"
+    },
+    {
+      "id": "xnli:de:test:1:de-en",
+      "language": "de",
+      "language_pair": "de-en",
+      "judgments": {
+        "xnli-support:a99546657eee50ad4c35abf8f680742ad6d039586e59f804cf270d7921abfa8d": 1
+      },
+      "label_origin": "Supporting-passage relevance derived from published human entailment labels and aligned professional translations; not a separately annotated retrieval judgment",
+      "native_query_row": "xnli:de:test:1",
+      "native_passage_row": "xnli:en:test:1"
+    },
+    {
+      "id": "xnli:de:test:4:de-en",
+      "language": "de",
+      "language_pair": "de-en",
+      "judgments": {
+        "xnli-support:3be7954c986f561420472b1592ad50f09c3bf73ba7c645fb3fa3f67618cc0d14": 1
+      },
+      "label_origin": "Supporting-passage relevance derived from published human entailment labels and aligned professional translations; not a separately annotated retrieval judgment",
+      "native_query_row": "xnli:de:test:4",
+      "native_passage_row": "xnli:en:test:4"
+    },
+    {
+      "id": "xnli:de:test:7:de-en",
+      "language": "de",
+      "language_pair": "de-en",
+      "judgments": {
+        "xnli-support:6f51e7510fe4a8cbf6b7ee87388be20089836648d37ae00e41842f27949b7ea3": 1
+      },
+      "label_origin": "Supporting-passage relevance derived from published human entailment labels and aligned professional translations; not a separately annotated retrieval judgment",
+      "native_query_row": "xnli:de:test:7",
+      "native_passage_row": "xnli:en:test:7"
+    },
+    {
+      "id": "xnli:de:test:10:de-en",
+      "language": "de",
+      "language_pair": "de-en",
+      "judgments": {
+        "xnli-support:c9629d0e5861346392de612dbbba833a50d613a3d740b4af0a685c0c9b8a4536": 1
+      },
+      "label_origin": "Supporting-passage relevance derived from published human entailment labels and aligned professional translations; not a separately annotated retrieval judgment",
+      "native_query_row": "xnli:de:test:10",
+      "native_passage_row": "xnli:en:test:10"
+    },
+    {
+      "id": "xnli:de:test:13:de-en",
+      "language": "de",
+      "language_pair": "de-en",
+      "judgments": {
+        "xnli-support:395a472094ef23e81b5fb36fea0661e46f31051d062232af27d0a23fef73c12c": 1
+      },
+      "label_origin": "Supporting-passage relevance derived from published human entailment labels and aligned professional translations; not a separately annotated retrieval judgment",
+      "native_query_row": "xnli:de:test:13",
+      "native_passage_row": "xnli:en:test:13"
+    },
+    {
+      "id": "xnli:de:test:17:de-en",
+      "language": "de",
+      "language_pair": "de-en",
+      "judgments": {
+        "xnli-support:f228b9ea08022b6c97b8c0c2cd68b8d1a558297ba21013c82e349f3820595b5f": 1
+      },
+      "label_origin": "Supporting-passage relevance derived from published human entailment labels and aligned professional translations; not a separately annotated retrieval judgment",
+      "native_query_row": "xnli:de:test:17",
+      "native_passage_row": "xnli:en:test:17"
+    },
+    {
+      "id": "xnli:de:test:19:de-en",
+      "language": "de",
+      "language_pair": "de-en",
+      "judgments": {
+        "xnli-support:682309e9ded6803838433a24a9f6594739a639fd35a3a275c95618753aaf3cbb": 1
+      },
+      "label_origin": "Supporting-passage relevance derived from published human entailment labels and aligned professional translations; not a separately annotated retrieval judgment",
+      "native_query_row": "xnli:de:test:19",
+      "native_passage_row": "xnli:en:test:19"
+    },
+    {
+      "id": "xnli:de:test:21:de-en",
+      "language": "de",
+      "language_pair": "de-en",
+      "judgments": {
+        "xnli-support:2ce90c09cb0316de94c7669daa18c25881dda6509d4e5a42560263b5762a200b": 1
+      },
+      "label_origin": "Supporting-passage relevance derived from published human entailment labels and aligned professional translations; not a separately annotated retrieval judgment",
+      "native_query_row": "xnli:de:test:21",
+      "native_passage_row": "xnli:en:test:21"
+    }
+  ],
+  "document_provenance": [
+    {
+      "id": "germandpr:fb0d7dbff188647708b684366a08e1c037c1176b64426342a3b8e39797d6505a",
+      "revision": "fb0d7dbff188647708b684366a08e1c037c1176b64426342a3b8e39797d6505a",
+      "source": "germandpr"
+    },
+    {
+      "id": "germandpr:64b4d6e60230df58ecc664461d746ccb66410ccc53ae51746ba46035a849a328",
+      "revision": "64b4d6e60230df58ecc664461d746ccb66410ccc53ae51746ba46035a849a328",
+      "source": "germandpr"
+    },
+    {
+      "id": "germandpr:2a13196f174bea2ab432341be27d673a283e58c067dac327f9474102c974a846",
+      "revision": "2a13196f174bea2ab432341be27d673a283e58c067dac327f9474102c974a846",
+      "source": "germandpr"
+    },
+    {
+      "id": "germandpr:60c3c46a6794b6e58640168d81adae3f2016bd16ae1dfe9c2aaa8893a2482041",
+      "revision": "60c3c46a6794b6e58640168d81adae3f2016bd16ae1dfe9c2aaa8893a2482041",
+      "source": "germandpr"
+    },
+    {
+      "id": "germandpr:835ae75da88f962b8fe858c7e43677fb28f9239b8d0f57c06749e71349472185",
+      "revision": "835ae75da88f962b8fe858c7e43677fb28f9239b8d0f57c06749e71349472185",
+      "source": "germandpr"
+    },
+    {
+      "id": "germandpr:9a05d6e3b66f1463893ed1d448df57b4d5580fad6e903f9858cdc5a46751476d",
+      "revision": "9a05d6e3b66f1463893ed1d448df57b4d5580fad6e903f9858cdc5a46751476d",
+      "source": "germandpr"
+    },
+    {
+      "id": "germandpr:f1594543528fda6fba5d93a92d734ce1bcf4557ea228af07dee7e5ce62d8d3d1",
+      "revision": "f1594543528fda6fba5d93a92d734ce1bcf4557ea228af07dee7e5ce62d8d3d1",
+      "source": "germandpr"
+    },
+    {
+      "id": "germandpr:f9c67a5004577184a10e27eb1f85337cf42272d2cd3dd40ed3a1456fd3d0df2f",
+      "revision": "f9c67a5004577184a10e27eb1f85337cf42272d2cd3dd40ed3a1456fd3d0df2f",
+      "source": "germandpr"
+    },
+    {
+      "id": "germandpr:e9749763e93d95ab6ba656dc1fabeee11b7a594b998c334f73976af79d904690",
+      "revision": "e9749763e93d95ab6ba656dc1fabeee11b7a594b998c334f73976af79d904690",
+      "source": "germandpr"
+    },
+    {
+      "id": "germandpr:5f8c483a2b5fd4b054d7f37c506fd3981206db578725162d59f02986d09d79fb",
+      "revision": "5f8c483a2b5fd4b054d7f37c506fd3981206db578725162d59f02986d09d79fb",
+      "source": "germandpr"
+    },
+    {
+      "id": "germandpr:8985b538a8a6e12a6895909354e42326a65ee020b6ca94a90d2fdb4046a220f5",
+      "revision": "8985b538a8a6e12a6895909354e42326a65ee020b6ca94a90d2fdb4046a220f5",
+      "source": "germandpr"
+    },
+    {
+      "id": "germandpr:03691ac9c4190a0231f7cca647fa8abe8939a531fff0ae981b535ffe9a9f3a82",
+      "revision": "03691ac9c4190a0231f7cca647fa8abe8939a531fff0ae981b535ffe9a9f3a82",
+      "source": "germandpr"
+    },
+    {
+      "id": "germandpr:30b1017171e36514a2ba644f07e03b8746766ae3f40592311c96de69d313f1c9",
+      "revision": "30b1017171e36514a2ba644f07e03b8746766ae3f40592311c96de69d313f1c9",
+      "source": "germandpr"
+    },
+    {
+      "id": "germandpr:8a0f4939412c62ef241aad33546ba5a8f89b101930b2a42748f4b48d35c705d0",
+      "revision": "8a0f4939412c62ef241aad33546ba5a8f89b101930b2a42748f4b48d35c705d0",
+      "source": "germandpr"
+    },
+    {
+      "id": "germandpr:11e26eb20f3ce21a2fd612ddacc4c43d520ad1e10fc5e6d38021243303e7c4e3",
+      "revision": "11e26eb20f3ce21a2fd612ddacc4c43d520ad1e10fc5e6d38021243303e7c4e3",
+      "source": "germandpr"
+    },
+    {
+      "id": "germandpr:9a111d5f09bcce95f8733dbe83b260306dff4cfeb7ca53e75651a3526941e123",
+      "revision": "9a111d5f09bcce95f8733dbe83b260306dff4cfeb7ca53e75651a3526941e123",
+      "source": "germandpr"
+    },
+    {
+      "id": "germandpr:712e68c4b6f643bfa3ecc01038326c6299983f092a8cdbbaea720ba888609603",
+      "revision": "712e68c4b6f643bfa3ecc01038326c6299983f092a8cdbbaea720ba888609603",
+      "source": "germandpr"
+    },
+    {
+      "id": "scifact:31715818",
+      "revision": "b1abfd39e9f92e6c9c0dbf1b33834a5f7d33080c1a86d74274be443b7f33f2e2",
+      "source": "scifact"
+    },
+    {
+      "id": "scifact:5953485",
+      "revision": "e61e0e09931fb56e6591f1da53a212531bfa30c1dc86bbd0390f7cb851adb3c5",
+      "source": "scifact"
+    },
+    {
+      "id": "scifact:45638119",
+      "revision": "e97060c2235a370d94096256ececf3b221142958a085fe4b8ee28cecc06cf699",
+      "source": "scifact"
+    },
+    {
+      "id": "scifact:10536636",
+      "revision": "d1a277eea6b2b7ae3253c0c316e335993e49d4945f3e8ad8b017740002a95dfd",
+      "source": "scifact"
+    },
+    {
+      "id": "scifact:2251426",
+      "revision": "e57e4b522bb48dfa8d3317b0244770437e5ce046f9265e1bf296900031434a17",
+      "source": "scifact"
+    },
+    {
+      "id": "scifact:1568684",
+      "revision": "e66b68102072faa9e187d420d60e2b2b839d04561acdd3280d97c11208e49cf4",
+      "source": "scifact"
+    },
+    {
+      "id": "scifact:36474",
+      "revision": "b22ad85728725a8d5f474709a34e53e2ebb8c073faa81ce28a4a7e6274eaa138",
+      "source": "scifact"
+    },
+    {
+      "id": "scifact:70115",
+      "revision": "acef6ce6da3b66340864fac9b8c4c5c6ba4c821a49f8d70f5ab0b42fb26bd9f1",
+      "source": "scifact"
+    },
+    {
+      "id": "scifact:70490",
+      "revision": "d04af86978e268d7a10987602804c01a333e7e3ccf091710f5b1eb608776d6b1",
+      "source": "scifact"
+    },
+    {
+      "id": "scifact:92499",
+      "revision": "4bb515276dcb971e568e973c8a76599bb7edf75558a356ea646285192d680841",
+      "source": "scifact"
+    },
+    {
+      "id": "scifact:102662",
+      "revision": "0610e906a2f5a347a5a3c803ceeb906b12d2b9011087b9b847a935f290d23bff",
+      "source": "scifact"
+    },
+    {
+      "id": "scifact:103007",
+      "revision": "dbe62e60fd1a7f771984ffc41dd31cfd2cf3c9b1f76b03e02004c8981faf1a41",
+      "source": "scifact"
+    },
+    {
+      "id": "scifact:120626",
+      "revision": "5141d0e9225c93644948f44d12fc13a375334ea1a6987a0662749ed042de73fd",
+      "source": "scifact"
+    },
+    {
+      "id": "scifact:153744",
+      "revision": "78d0b75c834cbe28c7fc3e2dffb0bf80f814002be1df9178f42c4080c911eee6",
+      "source": "scifact"
+    },
+    {
+      "id": "scifact:164189",
+      "revision": "b301bcf763c2e88ffbe8ce0346611d99f5242884554cf6d243167ecd4d89084b",
+      "source": "scifact"
+    },
+    {
+      "id": "scifact:195352",
+      "revision": "230fc211ae3107c149a4ba8f7eec92af9195eac9281094ae99002b6a423b8e92",
+      "source": "scifact"
+    },
+    {
+      "id": "scifact:226488",
+      "revision": "b93aa010db487d92fe512a77992706fcdbffbcbb9f1b37439cf884f2ee5b5f93",
+      "source": "scifact"
+    },
+    {
+      "id": "scifact:279052",
+      "revision": "dc175a3db79d293fac94583b41e3f66005c301843e9224b876af0b566f5e2e35",
+      "source": "scifact"
+    },
+    {
+      "id": "scifact:285794",
+      "revision": "a8385e74e0f35c5d51cf4151e99f3dee9a74ad998f22c5144bc2f4307fef164e",
+      "source": "scifact"
+    },
+    {
+      "id": "scifact:293661",
+      "revision": "fbfecdec5cfb32d140c0e0c0794a2bcbc13f86f691e959e45da40d7ef2ddd33a",
+      "source": "scifact"
+    },
+    {
+      "id": "scifact:306006",
+      "revision": "004a878df13761ebfa55dafff7496cb2a9ef136dda33a6299168c01ed5a2358a",
+      "source": "scifact"
+    },
+    {
+      "id": "scifact:306311",
+      "revision": "1b1e4a02c2462ce687ee3f86627497286385bf35af0713f73a40610fc817ea6c",
+      "source": "scifact"
+    },
+    {
+      "id": "scifact:323030",
+      "revision": "37c679bb6c850e3d9dfe507a27a687207c5c6ef9f4e7c72b9b37a5ab8b9942b8",
+      "source": "scifact"
+    },
+    {
+      "id": "scifact:327319",
+      "revision": "25087600fc308344c357cec7ae1ca8ce386009e1f7943c7814cbe2acaddd5b82",
+      "source": "scifact"
+    },
+    {
+      "id": "scifact:335029",
+      "revision": "92b3982db1e29d65918a622842e5d9a3518dc474dc0601d54c549cb77f1d312a",
+      "source": "scifact"
+    },
+    {
+      "id": "scifact:406733",
+      "revision": "ca53b63c035337f7720ed70c82c6aa4bcf1b908bebf4976dd51a542b76cca4d6",
+      "source": "scifact"
+    },
+    {
+      "id": "scifact:418246",
+      "revision": "da12ff42dca4e6a429d30cab6e308ea59fcd0931d407e07ed582ae049c22f5bb",
+      "source": "scifact"
+    },
+    {
+      "id": "scifact:427082",
+      "revision": "051ea6d07e56b736aff8bfe5b2c974036448d35673623b29bbca36eed099dc05",
+      "source": "scifact"
+    },
+    {
+      "id": "scifact:427865",
+      "revision": "2a54efc1f5ce3588911d3c566d4fea4626454b06556609909c1b243842467c56",
+      "source": "scifact"
+    },
+    {
+      "id": "scifact:432261",
+      "revision": "0276a0c376e0e1340d18ba209b51f590bedb3845fd05354518e422aa855e5b9f",
+      "source": "scifact"
+    },
+    {
+      "id": "scifact:461550",
+      "revision": "1692230e1be960fcf87ae7376c4167559a42a9b54d965f9017e0ea2627df2638",
+      "source": "scifact"
+    },
+    {
+      "id": "scifact:463309",
+      "revision": "db5f37394c61a43742cbbd16358c6bfebe5833f8b0d9189deaf8ed19198ec5ca",
+      "source": "scifact"
+    },
+    {
+      "id": "scifact:464511",
+      "revision": "3fe91d6fabb44ed0d33826d5a550668a8a13826cb0b195ed01098a877b4b33a7",
+      "source": "scifact"
+    },
+    {
+      "id": "scifact:471921",
+      "revision": "cf3d7c977adb23a5fe416cbecb0db887eb78cfaecba2fb735197f8f5a6765894",
+      "source": "scifact"
+    },
+    {
+      "id": "scifact:485020",
+      "revision": "268d5ab56a694f1efebf081acba64831635c083bb20515e63fd2889e6e828134",
+      "source": "scifact"
+    },
+    {
+      "id": "scifact:493346",
+      "revision": "f589160cc3900c79ea7e01296f7a8d0f8a23ef5b8541a47b7703d728b4c8b560",
+      "source": "scifact"
+    },
+    {
+      "id": "scifact:502797",
+      "revision": "181dac40ad274dd27939cb578adf1cd2868d99c26f4858c3986226d9dbff3e88",
+      "source": "scifact"
+    },
+    {
+      "id": "scifact:519974",
+      "revision": "4cd238ba200bf237a7e1ed285285e8ff056fdcc90830d3ac4993b2b732c4d37b",
+      "source": "scifact"
+    },
+    {
+      "id": "scifact:544971",
+      "revision": "41d1c68d81d78ca8af8b5930be259ea91be128eb8875d1d8e86c31273d4f2f84",
+      "source": "scifact"
+    },
+    {
+      "id": "scifact:599582",
+      "revision": "b857374e4fcd86c737dcc898de4e7953109913a40222d00acad75e56b43735fd",
+      "source": "scifact"
+    },
+    {
+      "id": "scifact:612002",
+      "revision": "603b4a366b32b697867a85a1e5d676cf47eb7270fce5df3dddbc5ad6b5fa52fe",
+      "source": "scifact"
+    },
+    {
+      "id": "scifact:615047",
+      "revision": "560982690474fdd01aa35a60a13328f422672070107cca7b7854b9eff2e80325",
+      "source": "scifact"
+    },
+    {
+      "id": "scifact:680949",
+      "revision": "d55b869e1d5d50bcd07ec4e761764162e75caebea43bdcf373942a7a9208fd6a",
+      "source": "scifact"
+    },
+    {
+      "id": "scifact:695938",
+      "revision": "c6bfd4a584d9a292f3148d82695bfe82f48fb132e2cdb3fd66fa3ccc316e8213",
+      "source": "scifact"
+    },
+    {
+      "id": "scifact:696006",
+      "revision": "7772439e716950e700b70235eabb4f6da48b57ef87244ee5c2ee057ebcbb6c02",
+      "source": "scifact"
+    },
+    {
+      "id": "scifact:718601",
+      "revision": "d420913bb194749761050af4f8887e9108fe9116af44652cda42dde169593931",
+      "source": "scifact"
+    },
+    {
+      "id": "scifact:778436",
+      "revision": "89e6042b5abd90c8f0bacba275757050878ac6c417f4cd3b638cce837ff06376",
+      "source": "scifact"
+    },
+    {
+      "id": "scifact:790598",
+      "revision": "52e828c54957fa18e01fa9ec0c4860f48279a36641983461e172ae7c9e87d241",
+      "source": "scifact"
+    },
+    {
+      "id": "scifact:797114",
+      "revision": "d61c48493f12ffbc78d471d66a5544ff4e2d18b8dadef3c6de45d3defa33a36e",
+      "source": "scifact"
+    },
+    {
+      "id": "scifact:803312",
+      "revision": "675d956a7e0fa18da629c86b7051615780c46103eb686f9f1dc504c73dc9f791",
+      "source": "scifact"
+    },
+    {
+      "id": "scifact:810480",
+      "revision": "ab38c7b8c63e0a21a8833003dc40df940257d9b4624e362426d51248a7ee50a8",
+      "source": "scifact"
+    },
+    {
+      "id": "scifact:825728",
+      "revision": "b623f942922d6d8ac6d4c97bd4b59dda7dd4b51f00aebe863b68564805703e92",
+      "source": "scifact"
+    },
+    {
+      "id": "scifact:919007",
+      "revision": "556037b890e6c4f958971edc135d585d444b2636c56d15e1251a204e02f0a95b",
+      "source": "scifact"
+    },
+    {
+      "id": "scifact:946756",
+      "revision": "f6624023c231582d966ed406213b3af93a2f82adbf08aa0f3d85fb0bbeeb7152",
+      "source": "scifact"
+    },
+    {
+      "id": "scifact:950306",
+      "revision": "8112dc9ab78fed0c6c9a874a257d16e748f86686e2b6b56a1501c3afaa66368f",
+      "source": "scifact"
+    },
+    {
+      "id": "scifact:952111",
+      "revision": "2ca66cae748ff8082c57347eb5f52d6fddc765f10d38f1614afd442b83f99123",
+      "source": "scifact"
+    },
+    {
+      "id": "scifact:991137",
+      "revision": "dc2631fab180d75b8427276f016813730a800eb1b9e67c0152102878f67e3166",
+      "source": "scifact"
+    },
+    {
+      "id": "scifact:1031534",
+      "revision": "8fa89bb4c840341810d39068c8477738c13d9aadd2e7aeffb38ba42b8f83f564",
+      "source": "scifact"
+    },
+    {
+      "id": "scifact:1032372",
+      "revision": "0cbdf9760a236b5cb5a6c1b66a00a537952687305dd726e721f901f60e8a4afe",
+      "source": "scifact"
+    },
+    {
+      "id": "scifact:1067605",
+      "revision": "2c4ac8b65f3534e9604b7744ff9395fc2a60c1c7a26fdf323257177f61dfe3fc",
+      "source": "scifact"
+    },
+    {
+      "id": "scifact:1103795",
+      "revision": "de74c33a712720d5b55e2b666c923fb3bf48411e74a1afb91caab24c798ba4c8",
+      "source": "scifact"
+    },
+    {
+      "id": "scifact:1122198",
+      "revision": "d3263cf70568c826dbeaf027fe9e9a41865a574d430eba12e191a22cfbc61a49",
+      "source": "scifact"
+    },
+    {
+      "id": "scifact:1148122",
+      "revision": "6ef73c0b9f7b61dbadf197c66f84d8406dbbe0eeb64d408e39aaf41c806f65d0",
+      "source": "scifact"
+    },
+    {
+      "id": "scifact:1173667",
+      "revision": "4b28d0f46da5aae41ec4351bafc503ecf955a21b94cbee955f2ee46e9de6dfbf",
+      "source": "scifact"
+    },
+    {
+      "id": "scifact:1220287",
+      "revision": "bd097453f8f575cf28e62c2347a7b9999014706c8e6526c8768815d8f260eb6a",
+      "source": "scifact"
+    },
+    {
+      "id": "scifact:1227277",
+      "revision": "d21a0b9d6789ae4f7c4eb8d66f9ae546ae0283b6e03d7693655f60a62f7db91f",
+      "source": "scifact"
+    },
+    {
+      "id": "scifact:1259359",
+      "revision": "60420bdb155cae8e08d2cd45153432053faad4f8a81c973f0a24b352cdddba35",
+      "source": "scifact"
+    },
+    {
+      "id": "scifact:1283401",
+      "revision": "fb4e8e5e1fbc530c5a126c55d656fe4594240758f586c9264bbb3ae3886d8a9b",
+      "source": "scifact"
+    },
+    {
+      "id": "scifact:1320137",
+      "revision": "95ee606af1138224d827d9b349cb570234397f52b931cec1e4c3bd9d02cad319",
+      "source": "scifact"
+    },
+    {
+      "id": "scifact:1322614",
+      "revision": "1cfba05bc106fdc6c7f32a8e127bd97071c6c92b3fad282bbf89dde41b733ddb",
+      "source": "scifact"
+    },
+    {
+      "id": "scifact:1371440",
+      "revision": "f1b5b80ae0eab7a658e0b36bdf1c37ae173965ca91fb7145f8bd9c4eb4d98494",
+      "source": "scifact"
+    },
+    {
+      "id": "scifact:1379127",
+      "revision": "afd8673d340ee8b4e5d30b6477a843ab592caeceead1b1667b9f4804ad51c335",
+      "source": "scifact"
+    },
+    {
+      "id": "scifact:1381673",
+      "revision": "ced5247f5292c12ad68fc69897afb8396034bb9b8ad98ddd14e6abcaa6356bd5",
+      "source": "scifact"
+    },
+    {
+      "id": "scifact:1386103",
+      "revision": "1d6ffd510e7334e10e449a117b51911161b21f1eab339ae79bf999b80d9218c9",
+      "source": "scifact"
+    },
+    {
+      "id": "scifact:1387654",
+      "revision": "53530f08758c2fd24f50e69b9dcc1bbd300f7f4c50be06d7fadc603c8e4eed7e",
+      "source": "scifact"
+    },
+    {
+      "id": "scifact:1388704",
+      "revision": "a5d0fd7e5cf8db653c015b0903bad7e121801519b12792d57c7f811b33625fbe",
+      "source": "scifact"
+    },
+    {
+      "id": "scifact:1389264",
+      "revision": "7bc949c0288ce73d4c281ece198d81738107776b08bda2d091dc707a47af409b",
+      "source": "scifact"
+    },
+    {
+      "id": "scifact:1398021",
+      "revision": "f85a2646f644c091853ff34ca6f1eca146effeae9d05447a934c624fbeb246dd",
+      "source": "scifact"
+    },
+    {
+      "id": "scifact:1428830",
+      "revision": "7c48ef94076ccd6dd53d8b0f81ab9345861efe847da96af3c1e1d9bbb64caae5",
+      "source": "scifact"
+    },
+    {
+      "id": "xnli-support:a99546657eee50ad4c35abf8f680742ad6d039586e59f804cf270d7921abfa8d",
+      "revision": "a99546657eee50ad4c35abf8f680742ad6d039586e59f804cf270d7921abfa8d",
+      "source": "xnli",
+      "native_row_id": "xnli:en:test:1"
+    },
+    {
+      "id": "xnli-support:3be7954c986f561420472b1592ad50f09c3bf73ba7c645fb3fa3f67618cc0d14",
+      "revision": "3be7954c986f561420472b1592ad50f09c3bf73ba7c645fb3fa3f67618cc0d14",
+      "source": "xnli",
+      "native_row_id": "xnli:en:test:4"
+    },
+    {
+      "id": "xnli-support:6f51e7510fe4a8cbf6b7ee87388be20089836648d37ae00e41842f27949b7ea3",
+      "revision": "6f51e7510fe4a8cbf6b7ee87388be20089836648d37ae00e41842f27949b7ea3",
+      "source": "xnli",
+      "native_row_id": "xnli:en:test:7"
+    },
+    {
+      "id": "xnli-support:c9629d0e5861346392de612dbbba833a50d613a3d740b4af0a685c0c9b8a4536",
+      "revision": "c9629d0e5861346392de612dbbba833a50d613a3d740b4af0a685c0c9b8a4536",
+      "source": "xnli",
+      "native_row_id": "xnli:en:test:10"
+    },
+    {
+      "id": "xnli-support:395a472094ef23e81b5fb36fea0661e46f31051d062232af27d0a23fef73c12c",
+      "revision": "395a472094ef23e81b5fb36fea0661e46f31051d062232af27d0a23fef73c12c",
+      "source": "xnli",
+      "native_row_id": "xnli:en:test:13"
+    },
+    {
+      "id": "xnli-support:f228b9ea08022b6c97b8c0c2cd68b8d1a558297ba21013c82e349f3820595b5f",
+      "revision": "f228b9ea08022b6c97b8c0c2cd68b8d1a558297ba21013c82e349f3820595b5f",
+      "source": "xnli",
+      "native_row_id": "xnli:en:test:17"
+    },
+    {
+      "id": "xnli-support:682309e9ded6803838433a24a9f6594739a639fd35a3a275c95618753aaf3cbb",
+      "revision": "682309e9ded6803838433a24a9f6594739a639fd35a3a275c95618753aaf3cbb",
+      "source": "xnli",
+      "native_row_id": "xnli:en:test:19"
+    },
+    {
+      "id": "xnli-support:2ce90c09cb0316de94c7669daa18c25881dda6509d4e5a42560263b5762a200b",
+      "revision": "2ce90c09cb0316de94c7669daa18c25881dda6509d4e5a42560263b5762a200b",
+      "source": "xnli",
+      "native_row_id": "xnli:en:test:21"
+    }
+  ],
+  "configuration": {
+    "worker_limits": {
+      "bge-m3": {
+        "timeout_s": 600,
+        "max_rss_bytes": 4294967296
+      }
+    },
+    "threads": 2,
+    "corpus_encoding": "once per model; subsequent queries use the same isolated in-memory index",
+    "truncation": "none; full passages/queries must fit both pinned tokenizers"
+  },
+  "runs": {
+    "bge-m3": {
+      "job": {
+        "status": "failed",
+        "failure_code": "backend_failed",
+        "failure_type": "OutOfMemoryException",
+        "operation": "retrieval-batch",
+        "elapsed_seconds": 170.3730324670032,
+        "peak_process_tree_rss_bytes": 3471790080,
+        "resource_limits": {
+          "timeout_s": 600,
+          "rss_bytes": 4294967296,
+          "threads": 2
+        },
+        "execution": "isolated-local-process",
+        "hosted_inference_used": false,
+        "remote_processing_used": false
+      }
+    }
+  },
+  "limitations": [
+    "Eight queries per direction on a selected 104-document mixed corpus; not full public benchmark scores",
+    "Cross-language labels derive from human NLI entailment and professional translations; measure supporting-evidence retrieval, not unrestricted search relevance",
+    "Unjudged passages count as nonrelevant; relevance judgments are incomplete",
+    "Public benchmark training contamination is not ruled out",
+    "No new Noesis human collection or legal/Berlin task-readiness certificate",
+    "Local non-commercial dataset evaluation; original data licenses remain authoritative"
+  ],
+  "decision": "Keep evaluated backends opt-in; a bounded supporting-evidence diagnostic does not justify replacing production defaults or selecting a heavier model. Reindex into a separate space for evaluation and discard it to roll back."
+}

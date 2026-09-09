@@ -1,0 +1,134 @@
+{
+  "source_url": "https://gesetze.berlin.de/jportal/bsbeAizDownload/Verf_BE.zip?doc.id=jlr-NNLBE000047B0&doc.part=X&_=%2FVerf_BE.zip",
+  "source_sha256": "b701bc5b07cb78c22a9db24b39c74a15f7a896ea2b333a3002e6c41f8610fb8a",
+  "locator": {
+    "kind": "xml-path",
+    "path": "/textdaten[1]/p[1]",
+    "id": null,
+    "official_norm_id": "jlr-NNLBE000047B0NN00000000002",
+    "norm_label": "Eingangsformel"
+  },
+  "selection": "First complete paragraph containing Abgeordnetenhaus, shorter than 2000 characters",
+  "label_origin": "No independent labels; native source-span and missing-field diagnostic only",
+  "job": {
+    "status": "completed",
+    "result": {
+      "contract": "noesis-extractor-spans-v1",
+      "source_id": "jlr-NNLBE000047B0NN00000000002",
+      "source_revision": "b701bc5b07cb78c22a9db24b39c74a15f7a896ea2b333a3002e6c41f8610fb8a",
+      "language": "de",
+      "model": "fastino/gliner2-multi-v1",
+      "model_revision": "c6296e25603e4d31f68ef8a9f4edb73421d1e45a",
+      "entities": [
+        {
+          "label": "authority",
+          "text": "Abgeordnetenhaus von Berlin",
+          "start": 4,
+          "end": 31,
+          "confidence": 0.981188952922821,
+          "confidence_is_correctness": false
+        },
+        {
+          "label": "legal_reference",
+          "text": "Verfassung",
+          "start": 61,
+          "end": 71,
+          "confidence": 0.5132731795310974,
+          "confidence_is_correctness": false
+        }
+      ],
+      "unsupported": [],
+      "relations": [
+        {
+          "label": "applies",
+          "native_label": "applies: Authority applies an explicitly named legal provision",
+          "head": {
+            "text": "Abgeordnetenhaus von Berlin",
+            "start": 4,
+            "end": 31,
+            "confidence": 0.934773325920105,
+            "confidence_is_correctness": false
+          },
+          "tail": {
+            "text": "Verfassung",
+            "start": 61,
+            "end": 71,
+            "confidence": 0.8340506553649902,
+            "confidence_is_correctness": false
+          },
+          "support_verified": false
+        }
+      ],
+      "structures": {
+        "notice": [
+          {
+            "authority": {
+              "text": "Abgeordnetenhaus von Berlin",
+              "start": 4,
+              "end": 31,
+              "confidence": 0.9702222943305969,
+              "confidence_is_correctness": false
+            },
+            "legal_references": [],
+            "date": {
+              "text": "8. Juni 1995",
+              "start": 39,
+              "end": 51,
+              "confidence": 0.9799872040748596,
+              "confidence_is_correctness": false
+            }
+          }
+        ]
+      },
+      "missing_fields": [
+        {
+          "structure": "notice",
+          "record": 0,
+          "field": "legal_references"
+        }
+      ],
+      "missing_structures": [],
+      "threshold": 0.5,
+      "support_verified": false,
+      "schema_sha256": "1dba0640657bf61aee05928d69895bb2ef251547c34fc07d74b922491662c576",
+      "schema": {
+        "entities": {
+          "authority": "Berlin public authority",
+          "legal_reference": "Explicit law or section reference"
+        },
+        "relations": {
+          "applies": "Authority applies an explicitly named legal provision"
+        },
+        "structures": {
+          "notice": {
+            "authority": {
+              "dtype": "str",
+              "description": "Issuing authority"
+            },
+            "legal_references": {
+              "dtype": "list",
+              "description": "Law and section references"
+            },
+            "date": {
+              "dtype": "str",
+              "description": "Date stated in notice"
+            }
+          }
+        }
+      },
+      "source_text_sha256": "8284fdb43f65c6a0aa410f5e838080c09958eefaddfd989bda838eff8148d86a",
+      "structured_contract": "noesis-gliner-structured-spans-v1"
+    },
+    "operation": "gliner2",
+    "elapsed_seconds": 8.943773919003434,
+    "peak_process_tree_rss_bytes": 3164884992,
+    "resource_limits": {
+      "timeout_s": 120,
+      "rss_bytes": 4294967296,
+      "threads": 2
+    },
+    "execution": "isolated-local-process",
+    "hosted_inference_used": false,
+    "remote_processing_used": false
+  }
+}

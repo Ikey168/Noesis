@@ -1,0 +1,742 @@
+{
+  "contract": "noesis-native-ocr-comparison-v1",
+  "fixture": {
+    "license": "CC0-1.0",
+    "provenance": "Authored regression probes, not independently annotated real documents.",
+    "sha256": "b24bff21e6a173eb32f2e5c92cc78935422657bab9ddee7eb747f33f95cf0bd7",
+    "cases": [
+      {
+        "case": "german-english",
+        "page": 1,
+        "text": "Berliner Verwaltung: Beispielbescheid\nDie Frist endet am 15. September 2026.\nThis English abstract describes an authored test.",
+        "regions": [
+          {
+            "text": "Berliner Verwaltung: Beispielbescheid",
+            "bbox_pixels": [
+              104.16666412353516,
+              135.31248474121094,
+              593.699951171875,
+              175.38748168945312
+            ]
+          },
+          {
+            "text": "Die Frist endet am 15. September 2026.",
+            "bbox_pixels": [
+              104.16666412353516,
+              208.22915649414062,
+              622.9249267578125,
+              248.3041534423828
+            ]
+          },
+          {
+            "text": "This English abstract describes an authored test.",
+            "bbox_pixels": [
+              104.16666412353516,
+              281.14581298828125,
+              734.779052734375,
+              321.2208251953125
+            ]
+          }
+        ]
+      },
+      {
+        "case": "table",
+        "page": 2,
+        "text": "Jahr     Berlin     Hamburg\n2024     120        95\n2025     130        98\nTabelle: frei erfundene Zahlen.",
+        "regions": [
+          {
+            "text": "Jahr     Berlin     Hamburg",
+            "bbox_pixels": [
+              104.16666412353516,
+              135.31248474121094,
+              436.4624938964844,
+              175.38748168945312
+            ]
+          },
+          {
+            "text": "2024     120        95",
+            "bbox_pixels": [
+              104.16666412353516,
+              208.22915649414062,
+              355.52496337890625,
+              248.3041534423828
+            ]
+          },
+          {
+            "text": "2025     130        98",
+            "bbox_pixels": [
+              104.16666412353516,
+              281.14581298828125,
+              355.52496337890625,
+              321.2208251953125
+            ]
+          },
+          {
+            "text": "Tabelle: frei erfundene Zahlen.",
+            "bbox_pixels": [
+              104.16666412353516,
+              354.0624694824219,
+              501.3583068847656,
+              394.1374816894531
+            ]
+          }
+        ]
+      },
+      {
+        "case": "rotated",
+        "page": 3,
+        "text": "Gedrehte Seite: deutsche Forschung\nDie gemessene Anzahl ist 42.\nRotation must preserve source coordinates.",
+        "regions": [
+          {
+            "text": "Gedrehte Seite: deutsche Forschung",
+            "bbox_pixels": [
+              1578.7791748046875,
+              104.16666412353516,
+              1618.8541259765625,
+              580.8082885742188
+            ]
+          },
+          {
+            "text": "Die gemessene Anzahl ist 42.",
+            "bbox_pixels": [
+              1505.862548828125,
+              104.16666412353516,
+              1545.9373779296875,
+              489.9832763671875
+            ]
+          },
+          {
+            "text": "Rotation must preserve source coordinates.",
+            "bbox_pixels": [
+              1432.9456787109375,
+              104.16666412353516,
+              1473.020751953125,
+              668.2791137695312
+            ]
+          }
+        ]
+      },
+      {
+        "case": "low-quality",
+        "page": 4,
+        "text": "Unscharfer Scan: \u00f6ffentliche Forschung\nDie Pr\u00fcfung bleibt ausdr\u00fccklich erforderlich.\nNoisy scans may omit important words.",
+        "regions": [
+          {
+            "text": "Unscharfer Scan: \u00f6ffentliche Forschung",
+            "bbox_pixels": [
+              104.16666412353516,
+              135.31248474121094,
+              616.4207153320312,
+              175.38748168945312
+            ]
+          },
+          {
+            "text": "Die Pr\u00fcfung bleibt ausdr\u00fccklich erforderlich.",
+            "bbox_pixels": [
+              104.16666412353516,
+              208.22915649414062,
+              668.2498779296875,
+              248.3041534423828
+            ]
+          },
+          {
+            "text": "Noisy scans may omit important words.",
+            "bbox_pixels": [
+              104.16666412353516,
+              281.14581298828125,
+              611.4624633789062,
+              321.2208251953125
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "runs": {
+    "ocr-tesseract": {
+      "job": {
+        "status": "completed",
+        "result": {
+          "backend": "existing-book-ocr-tesseract",
+          "tesseract_version": "5.5.2",
+          "version": "0.3.13",
+          "source_sha256": "b24bff21e6a173eb32f2e5c92cc78935422657bab9ddee7eb747f33f95cf0bd7",
+          "page_count": 4,
+          "text": "Berliner Verwaltung: Beispielbescheid\nDie Frist endet am 15. September 2026.\n\nThis English abstract describes an authored test.\n\nJahr Berlin Hamburg\n2024 120 95\n2025 130 98\n\nTabelle: frei erfundene Zahlen.\n\nGedrehte Seite: deutsche Forschung\nDie gemessene Anzahl ist 42.\n\nRotation must preserve source coordinates.\n\nUnscharfer Scan: offentliche Forschung\nDie Prifung bleibt ausdriicklich erforderlich.\n\nNolsy scans may omit important words,",
+          "configuration": "existing default English OCR; pdf2image default rendering",
+          "locator_status": "existing baseline does not return page/bounding-box locators",
+          "original_modified": false
+        },
+        "operation": "ocr-tesseract",
+        "elapsed_seconds": 2.0566673840003205,
+        "peak_process_tree_rss_bytes": 281505792,
+        "resource_limits": {
+          "timeout_s": 120,
+          "rss_bytes": 3221225472,
+          "threads": 2
+        },
+        "execution": "isolated-local-process",
+        "hosted_inference_used": false,
+        "remote_processing_used": false
+      },
+      "metrics": {
+        "character_error_rate": 0.013888888888888888,
+        "word_error_rate": 0.0847457627118644,
+        "character_edits": 6,
+        "word_edits": 5,
+        "normalization": "collapse whitespace for both outputs and authored reference"
+      }
+    },
+    "paddleocr": {
+      "job": {
+        "status": "completed",
+        "result": {
+          "source_sha256": "b24bff21e6a173eb32f2e5c92cc78935422657bab9ddee7eb747f33f95cf0bd7",
+          "pages": [
+            {
+              "backend": "paddleocr",
+              "version": "3.7.0",
+              "runtime_versions": {
+                "paddlepaddle": "3.3.1",
+                "paddlex": "3.7.2"
+              },
+              "models": [
+                {
+                  "kind": "paddle-det",
+                  "model": "PaddlePaddle/PP-OCRv5_mobile_det",
+                  "revision": "0d63e78e2b680928f6b1747d76a08db6e645efb7",
+                  "license": "apache-2.0"
+                },
+                {
+                  "kind": "paddle-latin",
+                  "model": "PaddlePaddle/latin_PP-OCRv5_mobile_rec",
+                  "revision": "ab2cd5cc5fa6309be2e5acdfe66eca2c2c127d57",
+                  "license": "apache-2.0"
+                }
+              ],
+              "configuration": {
+                "device": "cpu",
+                "enable_mkldnn": false,
+                "orientation_correction": false
+              },
+              "page_receipt": {
+                "source_sha256": "b24bff21e6a173eb32f2e5c92cc78935422657bab9ddee7eb747f33f95cf0bd7",
+                "page": 1,
+                "page_count": 4,
+                "width_px": 1240,
+                "height_px": 1755,
+                "dpi": 150,
+                "rotation_degrees": 0,
+                "cropbox": [
+                  0.0,
+                  0.0,
+                  595.0,
+                  842.0
+                ],
+                "render_sha256": "3866a997e2455fa52cdcd7262a597aeade3c4427238e9e9794d6c7c804e2495b",
+                "coordinate_frame": "rendered-page top-left pixels; not raw PDF user-space",
+                "rendering_engine": "pymupdf:1.28.2"
+              },
+              "regions": [
+                {
+                  "index": 0,
+                  "text": "Berliner Verwaltung: Beispielbescheid",
+                  "confidence": 0.9909372329711914,
+                  "bbox_pixels": [
+                    101.0,
+                    138.0,
+                    595.0,
+                    177.0
+                  ],
+                  "page": 1,
+                  "uncertain": false
+                },
+                {
+                  "index": 1,
+                  "text": "Die Frist endet am 15. September 2026.",
+                  "confidence": 0.9845906496047974,
+                  "bbox_pixels": [
+                    103.0,
+                    213.0,
+                    624.0,
+                    247.0
+                  ],
+                  "page": 1,
+                  "uncertain": false
+                },
+                {
+                  "index": 2,
+                  "text": "This English abstract describes an authored test.",
+                  "confidence": 0.9974260926246643,
+                  "bbox_pixels": [
+                    101.0,
+                    283.0,
+                    736.0,
+                    322.0
+                  ],
+                  "page": 1,
+                  "uncertain": false
+                }
+              ],
+              "text": "Berliner Verwaltung: Beispielbescheid\nDie Frist endet am 15. September 2026.\nThis English abstract describes an authored test.",
+              "unrecognized_detection_count": 0,
+              "region_order": "native backend reading-order proposal",
+              "table_structure": null,
+              "table_structure_status": "not_produced_by_plain_ocr",
+              "correctness_verified": false
+            },
+            {
+              "backend": "paddleocr",
+              "version": "3.7.0",
+              "runtime_versions": {
+                "paddlepaddle": "3.3.1",
+                "paddlex": "3.7.2"
+              },
+              "models": [
+                {
+                  "kind": "paddle-det",
+                  "model": "PaddlePaddle/PP-OCRv5_mobile_det",
+                  "revision": "0d63e78e2b680928f6b1747d76a08db6e645efb7",
+                  "license": "apache-2.0"
+                },
+                {
+                  "kind": "paddle-latin",
+                  "model": "PaddlePaddle/latin_PP-OCRv5_mobile_rec",
+                  "revision": "ab2cd5cc5fa6309be2e5acdfe66eca2c2c127d57",
+                  "license": "apache-2.0"
+                }
+              ],
+              "configuration": {
+                "device": "cpu",
+                "enable_mkldnn": false,
+                "orientation_correction": false
+              },
+              "page_receipt": {
+                "source_sha256": "b24bff21e6a173eb32f2e5c92cc78935422657bab9ddee7eb747f33f95cf0bd7",
+                "page": 2,
+                "page_count": 4,
+                "width_px": 1240,
+                "height_px": 1755,
+                "dpi": 150,
+                "rotation_degrees": 0,
+                "cropbox": [
+                  0.0,
+                  0.0,
+                  595.0,
+                  842.0
+                ],
+                "render_sha256": "8a9797a283fe082f0a7ee93e924cacb9cd37f61f3fbc1473b3ece5c424d32cd6",
+                "coordinate_frame": "rendered-page top-left pixels; not raw PDF user-space",
+                "rendering_engine": "pymupdf:1.28.2"
+              },
+              "regions": [
+                {
+                  "index": 0,
+                  "text": "Jahr",
+                  "confidence": 0.9919172525405884,
+                  "bbox_pixels": [
+                    99.0,
+                    139.0,
+                    208.0,
+                    174.0
+                  ],
+                  "page": 2,
+                  "uncertain": false
+                },
+                {
+                  "index": 1,
+                  "text": "Berlin",
+                  "confidence": 0.9897363185882568,
+                  "bbox_pixels": [
+                    192.0,
+                    136.0,
+                    286.0,
+                    175.0
+                  ],
+                  "page": 2,
+                  "uncertain": false
+                },
+                {
+                  "index": 2,
+                  "text": "nHamburg",
+                  "confidence": 0.9397368431091309,
+                  "bbox_pixels": [
+                    266.0,
+                    136.0,
+                    439.0,
+                    178.0
+                  ],
+                  "page": 2,
+                  "uncertain": false
+                },
+                {
+                  "index": 3,
+                  "text": "2024",
+                  "confidence": 0.9992865920066833,
+                  "bbox_pixels": [
+                    100.0,
+                    212.0,
+                    177.0,
+                    246.0
+                  ],
+                  "page": 2,
+                  "uncertain": false
+                },
+                {
+                  "index": 4,
+                  "text": "120",
+                  "confidence": 0.9999672770500183,
+                  "bbox_pixels": [
+                    199.0,
+                    210.0,
+                    264.0,
+                    248.0
+                  ],
+                  "page": 2,
+                  "uncertain": false
+                },
+                {
+                  "index": 5,
+                  "text": "95",
+                  "confidence": 0.9999868869781494,
+                  "bbox_pixels": [
+                    315.0,
+                    209.0,
+                    362.0,
+                    249.0
+                  ],
+                  "page": 2,
+                  "uncertain": false
+                },
+                {
+                  "index": 6,
+                  "text": "2025",
+                  "confidence": 0.9999920129776001,
+                  "bbox_pixels": [
+                    99.0,
+                    281.0,
+                    177.0,
+                    321.0
+                  ],
+                  "page": 2,
+                  "uncertain": false
+                },
+                {
+                  "index": 7,
+                  "text": "130",
+                  "confidence": 0.9999659061431885,
+                  "bbox_pixels": [
+                    180.0,
+                    282.0,
+                    265.0,
+                    322.0
+                  ],
+                  "page": 2,
+                  "uncertain": false
+                },
+                {
+                  "index": 8,
+                  "text": "98",
+                  "confidence": 0.999983012676239,
+                  "bbox_pixels": [
+                    315.0,
+                    283.0,
+                    362.0,
+                    321.0
+                  ],
+                  "page": 2,
+                  "uncertain": false
+                },
+                {
+                  "index": 9,
+                  "text": "Tabelle: frei erfundene Zahlen.",
+                  "confidence": 0.9989460706710815,
+                  "bbox_pixels": [
+                    102.0,
+                    357.0,
+                    502.0,
+                    391.0
+                  ],
+                  "page": 2,
+                  "uncertain": false
+                }
+              ],
+              "text": "Jahr\nBerlin\nnHamburg\n2024\n120\n95\n2025\n130\n98\nTabelle: frei erfundene Zahlen.",
+              "unrecognized_detection_count": 0,
+              "region_order": "native backend reading-order proposal",
+              "table_structure": null,
+              "table_structure_status": "not_produced_by_plain_ocr",
+              "correctness_verified": false
+            },
+            {
+              "backend": "paddleocr",
+              "version": "3.7.0",
+              "runtime_versions": {
+                "paddlepaddle": "3.3.1",
+                "paddlex": "3.7.2"
+              },
+              "models": [
+                {
+                  "kind": "paddle-det",
+                  "model": "PaddlePaddle/PP-OCRv5_mobile_det",
+                  "revision": "0d63e78e2b680928f6b1747d76a08db6e645efb7",
+                  "license": "apache-2.0"
+                },
+                {
+                  "kind": "paddle-latin",
+                  "model": "PaddlePaddle/latin_PP-OCRv5_mobile_rec",
+                  "revision": "ab2cd5cc5fa6309be2e5acdfe66eca2c2c127d57",
+                  "license": "apache-2.0"
+                }
+              ],
+              "configuration": {
+                "device": "cpu",
+                "enable_mkldnn": false,
+                "orientation_correction": false
+              },
+              "page_receipt": {
+                "source_sha256": "b24bff21e6a173eb32f2e5c92cc78935422657bab9ddee7eb747f33f95cf0bd7",
+                "page": 3,
+                "page_count": 4,
+                "width_px": 1755,
+                "height_px": 1240,
+                "dpi": 150,
+                "rotation_degrees": 90,
+                "cropbox": [
+                  0.0,
+                  0.0,
+                  595.0,
+                  842.0
+                ],
+                "render_sha256": "af5128e1e5568b3a5be8b8349b6f5c529521c0110227c1daffb8cca832046740",
+                "coordinate_frame": "rendered-page top-left pixels; not raw PDF user-space",
+                "rendering_engine": "pymupdf:1.28.2"
+              },
+              "regions": [
+                {
+                  "index": 0,
+                  "text": "Rotation must preserve source coordinates.",
+                  "confidence": 0.9990279674530029,
+                  "bbox_pixels": [
+                    1433.0,
+                    98.0,
+                    1468.0,
+                    672.0
+                  ],
+                  "page": 3,
+                  "uncertain": false
+                },
+                {
+                  "index": 1,
+                  "text": "Die gemessene Anzahl ist 42.",
+                  "confidence": 0.9923429489135742,
+                  "bbox_pixels": [
+                    1503.0,
+                    97.0,
+                    1543.0,
+                    491.0
+                  ],
+                  "page": 3,
+                  "uncertain": false
+                },
+                {
+                  "index": 2,
+                  "text": "Gedrehte Seite: deutsche Forschung",
+                  "confidence": 0.9894129633903503,
+                  "bbox_pixels": [
+                    1575.0,
+                    95.0,
+                    1619.0,
+                    585.0
+                  ],
+                  "page": 3,
+                  "uncertain": false
+                }
+              ],
+              "text": "Rotation must preserve source coordinates.\nDie gemessene Anzahl ist 42.\nGedrehte Seite: deutsche Forschung",
+              "unrecognized_detection_count": 0,
+              "region_order": "native backend reading-order proposal",
+              "table_structure": null,
+              "table_structure_status": "not_produced_by_plain_ocr",
+              "correctness_verified": false
+            },
+            {
+              "backend": "paddleocr",
+              "version": "3.7.0",
+              "runtime_versions": {
+                "paddlepaddle": "3.3.1",
+                "paddlex": "3.7.2"
+              },
+              "models": [
+                {
+                  "kind": "paddle-det",
+                  "model": "PaddlePaddle/PP-OCRv5_mobile_det",
+                  "revision": "0d63e78e2b680928f6b1747d76a08db6e645efb7",
+                  "license": "apache-2.0"
+                },
+                {
+                  "kind": "paddle-latin",
+                  "model": "PaddlePaddle/latin_PP-OCRv5_mobile_rec",
+                  "revision": "ab2cd5cc5fa6309be2e5acdfe66eca2c2c127d57",
+                  "license": "apache-2.0"
+                }
+              ],
+              "configuration": {
+                "device": "cpu",
+                "enable_mkldnn": false,
+                "orientation_correction": false
+              },
+              "page_receipt": {
+                "source_sha256": "b24bff21e6a173eb32f2e5c92cc78935422657bab9ddee7eb747f33f95cf0bd7",
+                "page": 4,
+                "page_count": 4,
+                "width_px": 1240,
+                "height_px": 1755,
+                "dpi": 150,
+                "rotation_degrees": 0,
+                "cropbox": [
+                  0.0,
+                  0.0,
+                  595.0,
+                  842.0
+                ],
+                "render_sha256": "ffdf382267247ca0dc5ff2acbae159db4a1b60388577791dceed92a9120d17a9",
+                "coordinate_frame": "rendered-page top-left pixels; not raw PDF user-space",
+                "rendering_engine": "pymupdf:1.28.2"
+              },
+              "regions": [
+                {
+                  "index": 0,
+                  "text": "Unscharfer Scan: \u00f6ffentliche Forschung",
+                  "confidence": 0.997916042804718,
+                  "bbox_pixels": [
+                    98.0,
+                    129.0,
+                    621.0,
+                    179.0
+                  ],
+                  "page": 4,
+                  "uncertain": false
+                },
+                {
+                  "index": 1,
+                  "text": "Die Pr\u00fcfung bleibt ausdr\u00fccklich erforderlich.",
+                  "confidence": 0.9948262572288513,
+                  "bbox_pixels": [
+                    101.0,
+                    212.0,
+                    668.0,
+                    246.0
+                  ],
+                  "page": 4,
+                  "uncertain": false
+                },
+                {
+                  "index": 2,
+                  "text": "Noisy scans may omit important words.",
+                  "confidence": 0.976809024810791,
+                  "bbox_pixels": [
+                    101.0,
+                    285.0,
+                    616.0,
+                    319.0
+                  ],
+                  "page": 4,
+                  "uncertain": false
+                }
+              ],
+              "text": "Unscharfer Scan: \u00f6ffentliche Forschung\nDie Pr\u00fcfung bleibt ausdr\u00fccklich erforderlich.\nNoisy scans may omit important words.",
+              "unrecognized_detection_count": 0,
+              "region_order": "native backend reading-order proposal",
+              "table_structure": null,
+              "table_structure_status": "not_produced_by_plain_ocr",
+              "correctness_verified": false
+            }
+          ],
+          "coverage": "all-pages",
+          "status": "completed",
+          "complete": true,
+          "original_modified": false
+        },
+        "operation": "paddleocr",
+        "elapsed_seconds": 11.879731218003144,
+        "peak_process_tree_rss_bytes": 1276207104,
+        "resource_limits": {
+          "timeout_s": 120,
+          "rss_bytes": 3221225472,
+          "threads": 2
+        },
+        "execution": "isolated-local-process",
+        "hosted_inference_used": false,
+        "remote_processing_used": false
+      },
+      "metrics": {
+        "character_error_rate": 0.1597222222222222,
+        "word_error_rate": 0.1864406779661017,
+        "character_edits": 69,
+        "word_edits": 11,
+        "normalization": "collapse whitespace for both outputs and authored reference"
+      },
+      "pages": [
+        {
+          "case": "german-english",
+          "metrics": {
+            "character_error_rate": 0.0,
+            "word_error_rate": 0.0,
+            "character_edits": 0,
+            "word_edits": 0,
+            "normalization": "collapse whitespace for both outputs and authored reference"
+          },
+          "exact_region_recall": 1.0,
+          "matched_region_order_correct": true,
+          "mean_bbox_iou_for_exact_matches": 0.8879798973871259,
+          "table_structure_status": "not_produced_by_plain_ocr"
+        },
+        {
+          "case": "table",
+          "metrics": {
+            "character_error_rate": 0.013333333333333334,
+            "word_error_rate": 0.07692307692307693,
+            "character_edits": 1,
+            "word_edits": 1,
+            "normalization": "collapse whitespace for both outputs and authored reference"
+          },
+          "exact_region_recall": 0.25,
+          "matched_region_order_correct": true,
+          "mean_bbox_iou_for_exact_matches": 0.8433499666171997,
+          "table_structure_status": "not_produced_by_plain_ocr"
+        },
+        {
+          "case": "rotated",
+          "metrics": {
+            "character_error_rate": 0.6415094339622641,
+            "word_error_rate": 0.7142857142857143,
+            "character_edits": 68,
+            "word_edits": 10,
+            "normalization": "collapse whitespace for both outputs and authored reference"
+          },
+          "exact_region_recall": 1.0,
+          "matched_region_order_correct": false,
+          "mean_bbox_iou_for_exact_matches": 0.8647731073812084,
+          "table_structure_status": "not_produced_by_plain_ocr"
+        },
+        {
+          "case": "low-quality",
+          "metrics": {
+            "character_error_rate": 0.0,
+            "word_error_rate": 0.0,
+            "character_edits": 0,
+            "word_edits": 0,
+            "normalization": "collapse whitespace for both outputs and authored reference"
+          },
+          "exact_region_recall": 1.0,
+          "matched_region_order_correct": true,
+          "mean_bbox_iou_for_exact_matches": 0.8222206362660857,
+          "table_structure_status": "not_produced_by_plain_ocr"
+        }
+      ]
+    }
+  },
+  "original_unchanged": true,
+  "decision": "defer default adoption; authored probes do not establish real-domain quality, and plain OCR does not reconstruct table structure"
+}

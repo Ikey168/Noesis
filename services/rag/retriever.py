@@ -405,6 +405,9 @@ class HybridRetriever:
         rerank_candidates = []
         for candidate in candidates:
             rerank_candidates.append({
+                'id': candidate.id,
+                'doc_id': candidate.doc_id,
+                'chunk_id': candidate.chunk_id,
                 'title': candidate.title,
                 'content': candidate.content,
                 'source': candidate.source,

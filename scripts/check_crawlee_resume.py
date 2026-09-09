@@ -6,9 +6,8 @@ from datetime import timedelta
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import importlib.metadata
 import json
+import multiprocessing
 from pathlib import Path
-import subprocess
-import sys
 import tempfile
 import threading
 
@@ -40,6 +39,11 @@ async def worker(storage, urls, limit):
 
     await crawler.run(urls, purge_request_queue=False)
     return completed
+
+
+def worker_process(storage, urls, limit, out):
+    """Run one persisted-queue step in a fresh forked process."""
+    out.write_text(json.dumps(asyncio.run(worker(storage, urls, limit))))
 
 
 def main():
@@ -80,21 +84,21 @@ def main():
             root = Path(directory)
             for index in range(3):
                 out = root / f"{index}.json"
-                command = [
-                    sys.executable,
-                    __file__,
-                    "--storage",
-                    str(root / "queue"),
-                    "--out",
-                    str(out),
-                    "--limit",
-                    str(index + 1),
-                ]
-                if index == 0:
-                    command += ["--urls", base + "/first", base + "/second"]
-                subprocess.run(
-                    command, check=True, timeout=45, stdout=subprocess.DEVNULL
+                urls = [base + "/first", base + "/second"] if index == 0 else []
+                process = multiprocessing.get_context("fork").Process(
+                    target=worker_process,
+                    args=(root / "queue", urls, index + 1, out),
                 )
+                process.start()
+                process.join(45)
+                if process.is_alive():
+                    process.kill()
+                    process.join()
+                    raise TimeoutError("Crawlee resume worker exceeded 45 seconds")
+                if process.exitcode != 0 or not out.exists():
+                    raise RuntimeError(
+                        f"Crawlee resume worker failed with exit code {process.exitcode}"
+                    )
                 runs.append(json.loads(out.read_text()))
         assert [len(run) for run in runs] == [1, 1, 0], runs
         assert counts.get("/first") == counts.get("/second") == 1, counts

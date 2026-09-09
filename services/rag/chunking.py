@@ -106,7 +106,7 @@ class TextChunker:
     - Offset tracking for reconstruction
     """
     
-    def __init__(self, config: Optional[ChunkConfig] = None, *, sentence_segmenter=None):
+    def __init__(self, config: Optional[ChunkConfig] = None, *, sentence_segmenter=None, segmenter=None):
         """
         Initialize text chunker.
         
@@ -114,6 +114,9 @@ class TextChunker:
             config: Chunking configuration
         """
         self.config = config or ChunkConfig()
+        if sentence_segmenter is not None and segmenter is not None:
+            raise ValueError("provide only one sentence segmenter")
+        self.segmenter = segmenter
         self.sentence_segmenter = sentence_segmenter
         if self.config.max_chars <= 0 or self.config.overlap_chars < 0 or self.config.min_chunk_chars < 0:
             raise ValueError("chunk bounds must be positive/nonnegative")
@@ -242,8 +245,9 @@ class TextChunker:
         return [text[start:end] for start, end in self._sentence_spans(text)]
 
     def _sentence_spans(self, text: str) -> List[Tuple[int, int]]:
-        if self.sentence_segmenter is not None:
-            spans = list(self.sentence_segmenter(text))
+        if self.sentence_segmenter is not None or self.segmenter is not None:
+            spans = ([(row["start"], row["end"]) for row in self.segmenter.segment(text)]
+                     if self.segmenter is not None else list(self.sentence_segmenter(text)))
             previous = 0
             for start, end in spans:
                 if not 0 <= previous <= start < end <= len(text) or text[previous:start].strip():

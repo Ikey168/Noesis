@@ -1,0 +1,216 @@
+{
+  "date": "2026-09-08",
+  "closed_in_this_implementation_pass": [
+    1347,
+    1385,
+    1386,
+    1387,
+    1389,
+    1481,
+    1487
+  ],
+  "remaining_open": [
+    {
+      "number": 1521,
+      "title": "Evaluate Label Studio exchange for independent evidence annotation",
+      "url": "https://github.com/Ikey168/Noesis/issues/1521"
+    },
+    {
+      "number": 1520,
+      "title": "Evaluate Outlines for schema-constrained report revision proposals",
+      "url": "https://github.com/Ikey168/Noesis/issues/1520"
+    },
+    {
+      "number": 1514,
+      "title": "Evaluate WhisperX forced alignment for word-level evidence timestamps",
+      "url": "https://github.com/Ikey168/Noesis/issues/1514"
+    },
+    {
+      "number": 1510,
+      "title": "Benchmark Lingua for short and mixed-language research evidence",
+      "url": "https://github.com/Ikey168/Noesis/issues/1510"
+    },
+    {
+      "number": 1509,
+      "title": "Benchmark wtpsplit/SaT for German and multilingual sentence segmentation",
+      "url": "https://github.com/Ikey168/Noesis/issues/1509"
+    },
+    {
+      "number": 1508,
+      "title": "Benchmark LightOnOCR-2-1B on scanned German administrative documents",
+      "url": "https://github.com/Ikey168/Noesis/issues/1508"
+    },
+    {
+      "number": 1507,
+      "title": "Evaluate multilingual mDeBERTa NLI for German evidence support and contradiction",
+      "url": "https://github.com/Ikey168/Noesis/issues/1507"
+    },
+    {
+      "number": 1506,
+      "title": "Evaluate Qwen3-Reranker-0.6B with a dedicated multilingual scoring adapter",
+      "url": "https://github.com/Ikey168/Noesis/issues/1506"
+    },
+    {
+      "number": 1505,
+      "title": "Benchmark BGE-M3 dense, sparse and multi-vector retrieval",
+      "url": "https://github.com/Ikey168/Noesis/issues/1505"
+    },
+    {
+      "number": 1504,
+      "title": "Benchmark multilingual-e5-small for lower-cost German/English retrieval",
+      "url": "https://github.com/Ikey168/Noesis/issues/1504"
+    },
+    {
+      "number": 1500,
+      "title": "Evaluate Phoenix tracing against existing MLflow and observability",
+      "url": "https://github.com/Ikey168/Noesis/issues/1500"
+    },
+    {
+      "number": 1499,
+      "title": "Evaluate Ragas alongside existing retrieval and answer-support metrics",
+      "url": "https://github.com/Ikey168/Noesis/issues/1499"
+    },
+    {
+      "number": 1496,
+      "title": "Benchmark PaddleOCR for scanned German and multilingual evidence",
+      "url": "https://github.com/Ikey168/Noesis/issues/1496"
+    },
+    {
+      "number": 1494,
+      "title": "Evaluate Presidio for traceable redaction of derived research outputs",
+      "url": "https://github.com/Ikey168/Noesis/issues/1494"
+    },
+    {
+      "number": 1493,
+      "title": "Benchmark GLiNER2-multi-v1 as a domain-specific extraction backend",
+      "url": "https://github.com/Ikey168/Noesis/issues/1493"
+    },
+    {
+      "number": 1492,
+      "title": "Benchmark Splink for reviewable multi-attribute entity resolution",
+      "url": "https://github.com/Ikey168/Noesis/issues/1492"
+    },
+    {
+      "number": 1490,
+      "title": "Evaluate Jina Reader as a bounded web extraction fallback",
+      "url": "https://github.com/Ikey168/Noesis/issues/1490"
+    },
+    {
+      "number": 1489,
+      "title": "Benchmark Tavily discovery against existing search acquisition",
+      "url": "https://github.com/Ikey168/Noesis/issues/1489"
+    },
+    {
+      "number": 1488,
+      "title": "Benchmark Exa discovery against existing search acquisition",
+      "url": "https://github.com/Ikey168/Noesis/issues/1488"
+    },
+    {
+      "number": 1486,
+      "title": "Ingest EMA public medicine metadata and linked regulatory documents",
+      "url": "https://github.com/Ikey168/Noesis/issues/1486"
+    },
+    {
+      "number": 1484,
+      "title": "Add reviewable EU-focused OpenSanctions entity matches",
+      "url": "https://github.com/Ikey168/Noesis/issues/1484"
+    },
+    {
+      "number": 1483,
+      "title": "Add EU/German company enrichment through OpenCorporates",
+      "url": "https://github.com/Ikey168/Noesis/issues/1483"
+    },
+    {
+      "number": 1482,
+      "title": "Add Berlin legal texts and decisions through documented public access",
+      "url": "https://github.com/Ikey168/Noesis/issues/1482"
+    },
+    {
+      "number": 1480,
+      "title": "Extend EUR-Lex with CELLAR legal texts and case-law relationships",
+      "url": "https://github.com/Ikey168/Noesis/issues/1480"
+    },
+    {
+      "number": 1479,
+      "title": "Ingest German Clinical Trials Register DRKS exports",
+      "url": "https://github.com/Ikey168/Noesis/issues/1479"
+    },
+    {
+      "number": 1478,
+      "title": "Acquire EU/EEA clinical trial evidence from CTIS public records",
+      "url": "https://github.com/Ikey168/Noesis/issues/1478"
+    },
+    {
+      "number": 1471,
+      "title": "Acquire OpenAlex PDFs and TEI XML through the existing paper pipeline",
+      "url": "https://github.com/Ikey168/Noesis/issues/1471"
+    },
+    {
+      "number": 1469,
+      "title": "[Tracking] API, library and MCP integration roadmap for EU/Germany/Berlin",
+      "url": "https://github.com/Ikey168/Noesis/issues/1469"
+    },
+    {
+      "number": 1458,
+      "title": "Export reviewed corrections as evaluation/training candidates",
+      "url": "https://github.com/Ikey168/Noesis/issues/1458"
+    },
+    {
+      "number": 1444,
+      "title": "Improve and calibrate frame classification",
+      "url": "https://github.com/Ikey168/Noesis/issues/1444"
+    },
+    {
+      "number": 1443,
+      "title": "Improve and calibrate stance classification",
+      "url": "https://github.com/Ikey168/Noesis/issues/1443"
+    },
+    {
+      "number": 1427,
+      "title": "Evaluate whether answers are supported by their cited evidence",
+      "url": "https://github.com/Ikey168/Noesis/issues/1427"
+    },
+    {
+      "number": 1426,
+      "title": "Benchmark the existing hybrid retrieval and reranking paths",
+      "url": "https://github.com/Ikey168/Noesis/issues/1426"
+    },
+    {
+      "number": 1420,
+      "title": "Collect the missing independent human evaluation set",
+      "url": "https://github.com/Ikey168/Noesis/issues/1420"
+    },
+    {
+      "number": 1406,
+      "title": "[Tracking] Unified evidence review inbox",
+      "url": "https://github.com/Ikey168/Noesis/issues/1406"
+    },
+    {
+      "number": 1401,
+      "title": "[Tracking] Query deadlines, retrieval relevance, and evidence-supported answers",
+      "url": "https://github.com/Ikey168/Noesis/issues/1401"
+    },
+    {
+      "number": 1399,
+      "title": "[Tracking] Revision-safe extraction, enrichment, and model evaluation",
+      "url": "https://github.com/Ikey168/Noesis/issues/1399"
+    },
+    {
+      "number": 1391,
+      "title": "Expose Guardian API collection through domain source packs",
+      "url": "https://github.com/Ikey168/Noesis/issues/1391"
+    },
+    {
+      "number": 1348,
+      "title": "[Tracking] Connect the existing Guardian API collector to domain source packs and incremental ingestion",
+      "url": "https://github.com/Ikey168/Noesis/issues/1348"
+    }
+  ],
+  "remaining_open_count": 39,
+  "broad_validation": "1544 passed, 12 skipped, 19 warnings across ingestion/kb/evaluation before final CLI/hosted/streaming additions",
+  "latest_focused_validation": "75 passed across provider/regional/PDF/hosted/CLI; subsequent regional streaming suite 37 passed (overlapping)",
+  "source_code_committed_or_pushed": false,
+  "firecrawl_credit_usage": 1,
+  "new_vendor_subscription_or_credit_purchase": false,
+  "last_validation": "37 provider/court/snapshot tests passed after final changes; no new scoped lint violations; snapshots.py retains 18 pre-existing typing violations"
+}

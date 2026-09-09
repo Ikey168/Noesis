@@ -1,0 +1,21 @@
+{
+  "contract": "noesis-browser-public-baseline-v1",
+  "source_url": "https://www.berlin.de/",
+  "backend": "existing-playwright-benchmark",
+  "original_http_bytes": false,
+  "status": "completed",
+  "rendered_bytes": 45890,
+  "contains_berlin": true,
+  "acquisition_metadata": {
+    "source_url": "https://www.berlin.de/",
+    "final_url": "https://www.berlin.de/",
+    "backend": "playwright",
+    "observed_at_ms": 1788885753293,
+    "sha256": "8872bb8c08e0414545bf55533461972d4685edfd2f57c873db0e7fd10b996f48",
+    "representation": "browser-rendered-html",
+    "original_wire_bytes": false,
+    "native": null
+  },
+  "elapsed_seconds": 1.7533500580029795,
+  "peak_parent_rss_kib": 34012
+}

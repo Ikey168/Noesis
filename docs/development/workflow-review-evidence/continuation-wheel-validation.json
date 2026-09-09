@@ -1,0 +1,26 @@
+{
+  "wheel": "/tmp/noesis-continuation-wheel-ue1t5ii7/dist/noesis_evidence-0.1.0-py3-none-any.whl",
+  "sha256": "34c4522d5b39f1395b7844bb12841e1f04c7c16ea402738757ec8e2382980b8c",
+  "verified_modules": [
+    "src/evaluation/runtime_outcomes.py",
+    "src/evaluation/gliner_schema.py",
+    "src/evaluation/runtime_jobs.py",
+    "src/evaluation/media_backends.py",
+    "src/evaluation/benchmark_runtime.py",
+    "src/kb/entity_analysis_inputs.py",
+    "src/kb/optional_runtime.py",
+    "src/kb/mcp_research.py",
+    "src/ingestion/pdf_evaluation.py",
+    "src/noesis_cli/optional.py"
+  ],
+  "smoke": {
+    "doctor": "passed",
+    "analysis_missing_dependency_exit": 3,
+    "backend_status": "unavailable",
+    "artifact_count": 0,
+    "replay": "passed",
+    "python_network_attempts": 0,
+    "outside_checkout": true
+  },
+  "no_release_or_install_performed": true
+}

@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "noesis-citation-alert-v1",
+  "type": "object",
+  "required": [
+    "contract",
+    "event_id",
+    "category",
+    "before",
+    "after",
+    "actions",
+    "acknowledged"
+  ],
+  "properties": {
+    "contract": {
+      "const": "noesis-citation-alert-v1"
+    },
+    "event_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "category": {
+      "enum": [
+        "revised",
+        "withdrawn",
+        "notice",
+        "unavailable",
+        "recovered"
+      ]
+    },
+    "before": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "after": {
+      "type": "object"
+    },
+    "actions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "tool"
+        ]
+      }
+    },
+    "acknowledged": {
+      "type": "boolean"
+    }
+  },
+  "additionalProperties": true
+}

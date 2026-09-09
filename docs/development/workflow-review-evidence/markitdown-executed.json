@@ -1,0 +1,114 @@
+{
+  "contract": "noesis-markitdown-evaluation-v1",
+  "package": {
+    "distribution": "markitdown",
+    "version": "0.1.7"
+  },
+  "corpus": "authored German/English bounded office-format regression fixtures",
+  "label_origin": "authored-fixture-not-independent-human",
+  "runs": [
+    {
+      "fixture": "german_english_table.docx",
+      "format": "docx",
+      "sha256": "c839778b4e927a624b1ef6192843eb2e9fe4f21658df70ad407869588e0febe6",
+      "bytes": 36730,
+      "baseline": {
+        "status": "completed",
+        "extractor": "python-docx",
+        "token_recall": 0.625,
+        "table_token_recall": 0.25,
+        "elapsed_seconds": 0.08608195900160354,
+        "peak_tracemalloc_bytes": 6170254,
+        "metadata": {
+          "extractor": "python-docx",
+          "title": "Noesis MarkItDown Fixture",
+          "author": "Noesis"
+        }
+      },
+      "markitdown": {
+        "status": "completed",
+        "version": "0.1.7",
+        "token_recall": 1.0,
+        "table_token_recall": 1.0,
+        "elapsed_seconds": 2.0968915250014106,
+        "peak_tracemalloc_bytes": 80842743,
+        "locator_fidelity": "approximate/markdown-only",
+        "precise_locators": false,
+        "original_sha256": "c839778b4e927a624b1ef6192843eb2e9fe4f21658df70ad407869588e0febe6"
+      }
+    },
+    {
+      "fixture": "german_english_table.xlsx",
+      "format": "xlsx",
+      "sha256": "8a474d65c0e8ab3ad57a9a2f083018dc494ba7a5c3ca422ce1a347495521b25d",
+      "bytes": 4905,
+      "baseline": {
+        "status": "unsupported",
+        "extractor": null,
+        "token_recall": 0.0,
+        "table_token_recall": 0.0,
+        "elapsed_seconds": null,
+        "peak_tracemalloc_bytes": null,
+        "metadata": {
+          "reason": "no dedicated upload parser for this format"
+        }
+      },
+      "markitdown": {
+        "status": "completed",
+        "version": "0.1.7",
+        "token_recall": 1.0,
+        "table_token_recall": 1.0,
+        "elapsed_seconds": 0.05326851200152305,
+        "peak_tracemalloc_bytes": 740664,
+        "locator_fidelity": "approximate/markdown-only",
+        "precise_locators": false,
+        "original_sha256": "8a474d65c0e8ab3ad57a9a2f083018dc494ba7a5c3ca422ce1a347495521b25d"
+      }
+    },
+    {
+      "fixture": "german_english_slide.pptx",
+      "format": "pptx",
+      "sha256": "1b1da74e3cfd7deba28d944b9af5a5a594498972f858ef02dd8f2d560e17617f",
+      "bytes": 28383,
+      "baseline": {
+        "status": "unsupported",
+        "extractor": null,
+        "token_recall": 0.0,
+        "table_token_recall": null,
+        "elapsed_seconds": null,
+        "peak_tracemalloc_bytes": null,
+        "metadata": {
+          "reason": "no dedicated upload parser for this format"
+        }
+      },
+      "markitdown": {
+        "status": "completed",
+        "version": "0.1.7",
+        "token_recall": 1.0,
+        "table_token_recall": null,
+        "elapsed_seconds": 0.05616661699968972,
+        "peak_tracemalloc_bytes": 422996,
+        "locator_fidelity": "approximate/markdown-only",
+        "precise_locators": false,
+        "original_sha256": "1b1da74e3cfd7deba28d944b9af5a5a594498972f858ef02dd8f2d560e17617f"
+      }
+    }
+  ],
+  "malformed_docx": {
+    "status": "failed",
+    "backend": "markitdown",
+    "original_sha256": "8b4ef86a4907f2d2822bfd041b640ceb821c49a0f0d072c824960f1ce6dd70e2",
+    "failure_type": "invalid_docx_container"
+  },
+  "decisions": {
+    "docx": "defer default replacement; MarkItDown retains the fixture table but exact source locators remain unavailable",
+    "xlsx": "adopt as optional fallback candidate; current upload parser has no dedicated XLSX path and the candidate retained all expected fixture cells",
+    "pptx": "adopt as optional fallback candidate; current upload parser has no dedicated PPTX path and the candidate retained all expected fixture text"
+  },
+  "production_default_changed": false,
+  "limitations": [
+    "The corpus is an authored regression corpus rather than independent human evaluation.",
+    "tracemalloc measures Python allocations rather than total process RSS.",
+    "Markdown output preserves only approximate source location, so cited extraction still requires the original bytes."
+  ]
+}

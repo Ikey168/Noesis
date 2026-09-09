@@ -1,0 +1,19 @@
+{
+  "schema": "noesis-pandera-evaluation-v1",
+  "pandera_version": "0.33.1",
+  "fixture": "synthetic German CSV; EU/German shape, no human labels",
+  "rows": 1000,
+  "native": {
+    "elapsed_ms": 396.8578749918379,
+    "status": "completed",
+    "inserted": 1000
+  },
+  "pandera": {
+    "elapsed_ms": 168.2418120035436,
+    "status": "validated",
+    "errors": 0,
+    "coercions": 1000
+  },
+  "peak_rss_kib": 203592,
+  "decision": "defer production replacement: candidate adds richer checks and locators but is slower and retains a separate optional receipt path"
+}

@@ -347,16 +347,24 @@ class DerivedRevisionStore:
         max_chars = int(self.embedding_configuration.get("max_chars", 4000))
         if not 1 <= max_chars <= 100000:
             raise DerivedRevisionError("invalid_embedding_configuration", "max_chars must be in [1,100000]")
+        optional_space = getattr(getattr(self.embedding_provider, "backend", self.embedding_provider), "space_id", None)
+        if optional_space:
+            return {"model": model, "dimensions": dimensions, "synthetic": False,
+                    "tokenization": {"policy": "token-bounded-no-truncation", "max_chars": max_chars,
+                                     "identity": self.embedding_provider.tokenizer_identity()},
+                    "configuration_hash": _digest([self.embedding_configuration, optional_space])}
         return {"model": model, "dimensions": dimensions, "synthetic": False,
                 "tokenization": {"policy": "character-prefix", "max_chars": max_chars,
                                  "revision": self.embedding_configuration.get("tokenizer_revision", "provider-default")},
                 "configuration_hash": _digest(self.embedding_configuration)}
 
-    def _vector_projection(self, text):
+    def _vector_projection(self, text, *, query=False):
         identity = self._embedding_identity()
         if self.fixture_mode:
             return {**identity, "vector": _vector(text)}
-        matrix = list(islice(iter(self.embedding_provider.embed_texts([text[:identity["tokenization"]["max_chars"]]])), 2))
+        encoder = getattr(self.embedding_provider, "embed_queries", self.embedding_provider.embed_texts) if query else self.embedding_provider.embed_texts
+        value = text if identity["tokenization"]["policy"] == "token-bounded-no-truncation" else text[:identity["tokenization"]["max_chars"]]
+        matrix = list(islice(iter(encoder([value])), 2))
         if len(matrix) != 1:
             raise DerivedRevisionError("invalid_embedding", "provider must return exactly one vector")
         vector = [float(value) for value in matrix[0]]
@@ -369,7 +377,7 @@ class DerivedRevisionStore:
             raise DerivedRevisionError("unauthorized", "semantic search requires current namespace read access")
         if self.fixture_mode:
             raise DerivedRevisionError("unsupported_semantics", "fixture hash vectors are not semantic search")
-        projection = self._vector_projection(query)
+        projection = self._vector_projection(query, query=True)
         vector = projection["vector"]
         if not any(vector):
             raise DerivedRevisionError("invalid_embedding", "query embedding has zero norm")

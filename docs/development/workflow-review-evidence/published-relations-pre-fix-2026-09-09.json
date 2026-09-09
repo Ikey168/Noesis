@@ -1,0 +1,37 @@
+{
+  "contract": "noesis-published-relation-comparison-v1",
+  "source": {
+    "url": "https://raw.githubusercontent.com/mainlp/CrossRE/a58885fa760559d2dc9e176e730fe731f020d6f3/crossre_data/politics-test.json",
+    "revision": "a58885fa760559d2dc9e176e730fe731f020d6f3",
+    "sha256": "95e2432cd6aac170f17019ec96aea60bd2674a7a8583ce4d7d8aaf3c37e0d441",
+    "size_bytes": 331510,
+    "source": "Bassignana and Plank (2022), CrossRE",
+    "license": "Repository GPL-3.0; underlying CrossNER source rights remain applicable. Raw dataset not redistributed.",
+    "label_origin": "published-human-annotation"
+  },
+  "job": {
+    "status": "failed",
+    "failure_code": "invalid_model_output",
+    "failure_type": "BackendError",
+    "operation": "ner-benchmark",
+    "elapsed_seconds": 8.045426676995703,
+    "peak_process_tree_rss_bytes": 3178074112,
+    "resource_limits": {
+      "timeout_s": 600,
+      "rss_bytes": 4294967296,
+      "threads": 2
+    },
+    "execution": "isolated-local-process",
+    "hosted_inference_used": false,
+    "remote_processing_used": false
+  },
+  "selection": "First ten positive politics test sentences at most forty tokens with both native flags false; all fifteen relation labels supplied for every sentence",
+  "limitations": [
+    "Small English-only positive selection; not a German relation evaluation",
+    "Native hyphenated relation names map reversibly to underscore schema identifiers",
+    "Source explanation/flags are preserved; no label-presence oracle or gold entity spans provided to inference",
+    "Source tokens joined with spaces; original article whitespace unavailable",
+    "No relation score is interpreted as evidence truth; public training contamination unknown"
+  ],
+  "decision": "Defer relation adoption; judge independently from entity extraction."
+}

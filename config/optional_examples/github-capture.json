@@ -1,0 +1,15 @@
+{
+  "kind": "github_capture",
+  "namespace": "research",
+  "observation": "noesis-issue-001",
+  "network_approved": true,
+  "endpoint": "https://api.githubcopilot.com/mcp/",
+  "repositories": [
+    "Ikey168/Noesis"
+  ],
+  "parameters": {
+    "repository": "Ikey168/Noesis",
+    "record_kind": "issue",
+    "number": 1463
+  }
+}

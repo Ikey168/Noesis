@@ -1,0 +1,74 @@
+{
+  "contract": "noesis-minhash-reuse-fixture-v1",
+  "label_origin": "authored-regression-exact-similarity-and-provenance",
+  "development": [
+    {
+      "record_id": "dev-original",
+      "revision": "r1",
+      "text": "Berlin publishes a detailed housing policy report with evidence about rents permits and residents",
+      "provenance_links": []
+    },
+    {
+      "record_id": "dev-syndicated",
+      "revision": "r1",
+      "text": "Berlin publishes a detailed housing policy report with evidence about rents permits and residents",
+      "provenance_links": []
+    },
+    {
+      "record_id": "dev-partial",
+      "revision": "r1",
+      "text": "Local context introduces the report Berlin publishes a detailed housing policy report with evidence about rents permits and residents followed by commentary",
+      "provenance_links": []
+    },
+    {
+      "record_id": "dev-boilerplate",
+      "revision": "r1",
+      "text": "Berlin publishes a detailed football report with evidence about tickets attendance goals and residents",
+      "provenance_links": []
+    },
+    {
+      "record_id": "dev-revision",
+      "revision": "r2",
+      "text": "The corrected notice withdraws the earlier housing conclusion after revised administrative data",
+      "provenance_links": ["dev-original"]
+    }
+  ],
+  "test": [
+    {
+      "record_id": "test-original",
+      "revision": "r1",
+      "text": "German research evidence documents an energy subsidy decision for Berlin households and small companies",
+      "provenance_links": []
+    },
+    {
+      "record_id": "test-syndicated",
+      "revision": "r1",
+      "text": "German research evidence documents an energy subsidy decision for Berlin households and small companies",
+      "provenance_links": []
+    },
+    {
+      "record_id": "test-partial",
+      "revision": "r1",
+      "text": "Introduction and source note German research evidence documents an energy subsidy decision for Berlin households and small companies with an additional quoted paragraph",
+      "provenance_links": []
+    },
+    {
+      "record_id": "test-boilerplate",
+      "revision": "r1",
+      "text": "German research evidence documents a museum exhibition announcement for Berlin households and visiting companies",
+      "provenance_links": []
+    },
+    {
+      "record_id": "test-revision",
+      "revision": "r2",
+      "text": "A later correction replaces the energy subsidy amount and invalidates the prior numerical statement",
+      "provenance_links": ["test-original"]
+    },
+    {
+      "record_id": "test-unrelated",
+      "revision": "r1",
+      "text": "A scientific paper studies multilingual sentence segmentation under noisy optical character recognition",
+      "provenance_links": []
+    }
+  ]
+}

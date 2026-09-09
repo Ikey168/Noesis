@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import importlib.util
 import json
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -192,7 +193,7 @@ def test_migration_is_idempotent_and_survives_restart(tmp_path):
     reopened.close()
     replay = subprocess.run(
         [
-            sys.executable,
+            shutil.which("python3") or shutil.which("python") or sys.executable,
             str(REPO_ROOT / "scripts/replay_claim_watches.py"),
             "--db-path",
             str(database),

@@ -1,0 +1,26 @@
+{
+  "entities": {
+    "authority": "Funding authority",
+    "funding_programme": "Named EU funding programme",
+    "organisation": "Beneficiary organisation"
+  },
+  "relations": {
+    "funds": "Funding authority explicitly funds an organisation or programme"
+  },
+  "structures": {
+    "award": {
+      "programme": {
+        "dtype": "str",
+        "description": "Funding programme"
+      },
+      "beneficiary": {
+        "dtype": "str",
+        "description": "Beneficiary name"
+      },
+      "amount": {
+        "dtype": "str",
+        "description": "Explicit award amount including currency"
+      }
+    }
+  }
+}

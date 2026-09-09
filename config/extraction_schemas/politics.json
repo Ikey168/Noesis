@@ -1,0 +1,13 @@
+{
+  "entities": {
+    "country": "Named country or sovereign state",
+    "election": "Named election or referendum",
+    "event": "Named political or historical event",
+    "location": "Named geographical location other than a country",
+    "misc": "Other named entity outside the specified categories",
+    "organisation": "Named organisation other than a political party",
+    "person": "Named person other than a politician",
+    "politicalparty": "Named political party",
+    "politician": "Named politician or political office holder"
+  }
+}

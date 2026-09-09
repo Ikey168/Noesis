@@ -1,0 +1,214 @@
+{
+  "case_count": 8,
+  "contract": "noesis-fuzzy-resolution-benchmark-v1",
+  "decision": "defer",
+  "decision_reason": "no recall advantage over SequenceMatcher at zero false merges",
+  "identity_safeguards": [
+    "exact identifiers retain precedence",
+    "entity types remain isolated",
+    "ambiguous people remain reviewable rather than fuzzy-auto-merged",
+    "fuzzy scores are candidate evidence, not identity truth"
+  ],
+  "limitations": [
+    "The bundled corpus is an authored regression benchmark, not independent human adjudication.",
+    "tracemalloc measures Python allocations, not total process RSS."
+  ],
+  "production_default_changed": false,
+  "results": {
+    "rapidfuzz-ratio": {
+      "latency_ns_per_pair": 2760016.25,
+      "latency_ns_total": 22080130,
+      "peak_tracemalloc_bytes": 738508,
+      "rows": [
+        {
+          "id": "org-de-umlaut",
+          "same_entity": true,
+          "score": 0.9090909090909091
+        },
+        {
+          "id": "org-suffix",
+          "same_entity": true,
+          "score": 1.0
+        },
+        {
+          "id": "org-spacing",
+          "same_entity": true,
+          "score": 0.923076923076923
+        },
+        {
+          "id": "person-initial",
+          "same_entity": true,
+          "score": 0.6956521739130435
+        },
+        {
+          "id": "person-hard-negative",
+          "same_entity": false,
+          "score": 0.8
+        },
+        {
+          "id": "org-hard-negative",
+          "same_entity": false,
+          "score": 0.7441860465116279
+        },
+        {
+          "id": "org-hard-negative-short",
+          "same_entity": false,
+          "score": 0.8571428571428572
+        },
+        {
+          "id": "person-hard-negative-initial",
+          "same_entity": false,
+          "score": 0.875
+        }
+      ],
+      "selected_zero_false_merge_threshold": {
+        "candidate_recall": 0.75,
+        "candidates": 3,
+        "false_merge_rate": 0.0,
+        "threshold": 0.88
+      },
+      "threshold_curve": [
+        {
+          "candidate_recall": 0.75,
+          "candidates": 7,
+          "false_merge_rate": 1.0,
+          "threshold": 0.7
+        },
+        {
+          "candidate_recall": 0.75,
+          "candidates": 6,
+          "false_merge_rate": 0.75,
+          "threshold": 0.75
+        },
+        {
+          "candidate_recall": 0.75,
+          "candidates": 6,
+          "false_merge_rate": 0.75,
+          "threshold": 0.8
+        },
+        {
+          "candidate_recall": 0.75,
+          "candidates": 5,
+          "false_merge_rate": 0.5,
+          "threshold": 0.85
+        },
+        {
+          "candidate_recall": 0.75,
+          "candidates": 3,
+          "false_merge_rate": 0.0,
+          "threshold": 0.88
+        },
+        {
+          "candidate_recall": 0.75,
+          "candidates": 3,
+          "false_merge_rate": 0.0,
+          "threshold": 0.9
+        },
+        {
+          "candidate_recall": 0.25,
+          "candidates": 1,
+          "false_merge_rate": 0.0,
+          "threshold": 0.95
+        }
+      ]
+    },
+    "sequence-matcher": {
+      "latency_ns_per_pair": 99225.375,
+      "latency_ns_total": 793803,
+      "peak_tracemalloc_bytes": 4757,
+      "rows": [
+        {
+          "id": "org-de-umlaut",
+          "same_entity": true,
+          "score": 0.9090909090909091
+        },
+        {
+          "id": "org-suffix",
+          "same_entity": true,
+          "score": 1.0
+        },
+        {
+          "id": "org-spacing",
+          "same_entity": true,
+          "score": 0.9230769230769231
+        },
+        {
+          "id": "person-initial",
+          "same_entity": true,
+          "score": 0.6956521739130435
+        },
+        {
+          "id": "person-hard-negative",
+          "same_entity": false,
+          "score": 0.8
+        },
+        {
+          "id": "org-hard-negative",
+          "same_entity": false,
+          "score": 0.7441860465116279
+        },
+        {
+          "id": "org-hard-negative-short",
+          "same_entity": false,
+          "score": 0.8571428571428571
+        },
+        {
+          "id": "person-hard-negative-initial",
+          "same_entity": false,
+          "score": 0.875
+        }
+      ],
+      "selected_zero_false_merge_threshold": {
+        "candidate_recall": 0.75,
+        "candidates": 3,
+        "false_merge_rate": 0.0,
+        "threshold": 0.88
+      },
+      "threshold_curve": [
+        {
+          "candidate_recall": 0.75,
+          "candidates": 7,
+          "false_merge_rate": 1.0,
+          "threshold": 0.7
+        },
+        {
+          "candidate_recall": 0.75,
+          "candidates": 6,
+          "false_merge_rate": 0.75,
+          "threshold": 0.75
+        },
+        {
+          "candidate_recall": 0.75,
+          "candidates": 6,
+          "false_merge_rate": 0.75,
+          "threshold": 0.8
+        },
+        {
+          "candidate_recall": 0.75,
+          "candidates": 5,
+          "false_merge_rate": 0.5,
+          "threshold": 0.85
+        },
+        {
+          "candidate_recall": 0.75,
+          "candidates": 3,
+          "false_merge_rate": 0.0,
+          "threshold": 0.88
+        },
+        {
+          "candidate_recall": 0.75,
+          "candidates": 3,
+          "false_merge_rate": 0.0,
+          "threshold": 0.9
+        },
+        {
+          "candidate_recall": 0.25,
+          "candidates": 1,
+          "false_merge_rate": 0.0,
+          "threshold": 0.95
+        }
+      ]
+    }
+  },
+  "thresholds_reused_between_metrics": false
+}

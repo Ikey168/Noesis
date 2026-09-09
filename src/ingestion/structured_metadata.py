@@ -96,6 +96,16 @@ def extract_metadata(html, url=None):
             if "@graph" in value:
                 walk(value["@graph"], locator + "/@graph")
 
+    # Parse the source JSON-LD directly as well as the optional extruct output.
+    # Some extruct versions flatten/normalize @graph members in ways that can
+    # lose the URL identity we use to prefer the article matching the fetched
+    # page. Direct parsing preserves that identity while extruct still supplies
+    # its broader syntax support and diagnostics.
+    for i, script in enumerate(soup.select('script[type="application/ld+json"]')):
+        try:
+            walk(json.loads(script.string or script.get_text()), f"json-ld-source/{i}")
+        except (ValueError, TypeError):
+            pass
     walk(structured.get("json-ld", []), "json-ld")
     for i, meta in enumerate(soup.select("meta[property],meta[name]")):
         key = meta.get("property") or meta.get("name")

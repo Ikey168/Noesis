@@ -20,6 +20,7 @@ from typing import Any
 from src.ingestion.corrections import (
     CORRECTION_NOTICE,
     RETRACTION,
+    SILENT_SUBSTANTIVE,
     TAKEDOWN,
     UNCHANGED,
     classify_change,
@@ -243,6 +244,15 @@ class DocumentRevisionStore:
                     self._stage(result, run_id, pack_id, source_id, observed_at)
                 return result
             diff = classify_change(prior[3], payload.get("content"))
+            if (
+                metadata.get("regional_contract") == "noesis-native-regional-v1"
+                and metadata.get("registry_status_is_source_lifecycle") is False
+                and diff.change_class in {RETRACTION, TAKEDOWN, CORRECTION_NOTICE}
+            ):
+                # A withdrawn trial, revoked medicine or a legal text discussing
+                # a retraction is still active source evidence. Only an explicit
+                # document lifecycle operation can withdraw these records.
+                diff.change_class = SILENT_SUBSTANTIVE
             revision += 1
             if lifecycle == "deleted":
                 change_kind = "deleted"

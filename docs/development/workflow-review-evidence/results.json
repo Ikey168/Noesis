@@ -1,0 +1,197 @@
+{
+  "reviewed_commit": "0bf70327",
+  "date": "2026-09-05",
+  "observations": [
+    {
+      "probe": "document_identity",
+      "result": {
+        "content_ref_only": {
+          "inserted": 1,
+          "duplicate": 1,
+          "invalid": 0
+        },
+        "separate_sources_same_text": {
+          "inserted": 1,
+          "duplicate": 1
+        }
+      }
+    },
+    {
+      "probe": "stale_derivatives",
+      "result": {
+        "first_enriched": 1,
+        "after_revision_enriched": 0,
+        "first_embedded": 1,
+        "after_revision_or_model_change_embedded": 0,
+        "stored_embedding": {
+          "model": "model-a",
+          "dim": 2,
+          "vector": [
+            27.0,
+            1.0
+          ]
+        },
+        "stored_sentiment": "positive"
+      }
+    },
+    {
+      "probe": "ambiguous_entities",
+      "result": {
+        "distinct_full_names": true,
+        "surname_first_order": "John Smith",
+        "surname_reversed_order": "Jane Smith"
+      }
+    },
+    {
+      "probe": "query_deadline",
+      "result": {
+        "budget_ms": 20,
+        "wall_ms": 260,
+        "failures": [
+          {
+            "source": "slow",
+            "error": {
+              "code": "source_timeout",
+              "message": "total query deadline exhausted"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "probe": "watermark_crash",
+      "result": {
+        "first_status": "failed",
+        "resumed_status": "completed",
+        "resumed_watermark": null,
+        "completed_stages": [
+          "ingest",
+          "extract",
+          "resolve",
+          "index",
+          "query",
+          "subscribe",
+          "export"
+        ]
+      }
+    },
+    {
+      "probe": "chunk_offsets",
+      "result": [
+        {
+          "start": 0,
+          "end": 74,
+          "matches_original": true,
+          "text": "Repeated introduction with the same first fifty characters. First finding."
+        },
+        {
+          "start": 0,
+          "end": 75,
+          "matches_original": false,
+          "text": "Repeated introduction with the same first fifty characters. Second finding."
+        }
+      ]
+    },
+    {
+      "probe": "mining_failure",
+      "result": {
+        "status": "complete",
+        "failed": 1,
+        "claims_remaining": 0,
+        "evidence_remaining": 0
+      }
+    },
+    {
+      "probe": "subscription_coverage",
+      "result": {
+        "changed_coverage_replay_status": "replayed",
+        "stored_coverage": {
+          "complete": true
+        }
+      }
+    },
+    {
+      "probe": "package_closure",
+      "result": {
+        "remaining_members": [
+          "root"
+        ],
+        "root_dependencies": [
+          "source"
+        ],
+        "verification": {
+          "contract": "noesis-research-package-verification-v1",
+          "valid": true,
+          "content_hash": "1bcd5c9bc5d6d3331e909b2ba01ba3c750a3fb2b43318f543511146b217b6ae9",
+          "actual_hash": "1bcd5c9bc5d6d3331e909b2ba01ba3c750a3fb2b43318f543511146b217b6ae9",
+          "member_failures": [],
+          "missing_members": [],
+          "signature_status": "absent",
+          "key_id": null,
+          "key_version": null,
+          "offline": true
+        }
+      }
+    },
+    {
+      "probe": "archive_io",
+      "result": {
+        "archive_status": "archived",
+        "archive_file_exists": false,
+        "restore_status": "restored",
+        "restored_atomically": true
+      }
+    },
+    {
+      "probe": "membership_revision",
+      "result": {
+        "first_pass": {
+          "run_id": "kb-membership-529e756c0faf",
+          "domains": {
+            "economics": {
+              "source": 0,
+              "keyword": 1,
+              "embedding": 0,
+              "scanned": 1
+            }
+          }
+        },
+        "revised_pass": {
+          "run_id": "kb-membership-87e33686703d",
+          "domains": {
+            "economics": {
+              "source": 0,
+              "keyword": 0,
+              "embedding": 0,
+              "scanned": 0
+            }
+          }
+        },
+        "remaining_domains": [
+          [
+            "economics"
+          ]
+        ]
+      }
+    },
+    {
+      "probe": "checkpoint_truncation",
+      "result": {
+        "input_records": 3,
+        "limit": 2,
+        "result": {
+          "contract": "noesis-retention-checkpoint-v1",
+          "checkpoint_id": "retention-checkpoint:4965ff67d50089250bc911db",
+          "namespace": "research",
+          "generation_start": 1,
+          "generation_end": 3,
+          "schema_version": "1",
+          "content_hash": "4965ff67d50089250bc911dbd1848aaccdcebd44436f683b8d1cd3a5b8da683f",
+          "record_count": 2,
+          "tombstone_count": 0,
+          "status": "complete"
+        }
+      }
+    }
+  ]
+}

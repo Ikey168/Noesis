@@ -1,0 +1,46 @@
+{
+  "date": "2026-09-08",
+  "repository": "Ikey168/Noesis",
+  "open_issues_at_review": 58,
+  "closed_this_pass": [],
+  "ready_for_closure": [
+    1463,
+    1405,
+    1364
+  ],
+  "closure_attempt": {
+    "issue": 1463,
+    "graphql": "Resource not accessible by personal access token",
+    "rest_status": 403,
+    "rest_message": "Resource not accessible by personal access token"
+  },
+  "implementation_location": "local uncommitted checkout; no push performed",
+  "validation": {
+    "passed": 64,
+    "warnings": 1,
+    "scope": [
+      "tests/unit/kb/test_report_updates.py",
+      "tests/unit/kb/test_authored_reports.py",
+      "tests/unit/tools/test_report_updates_mcp.py",
+      "tests/unit/tools/test_authored_reports_mcp.py",
+      "tests/unit/ingestion/test_hosted_acquisition.py",
+      "tests/unit/evaluation/test_runtime_jobs.py",
+      "tests/unit/ingestion/test_pdf_evaluation_metrics.py",
+      "tests/unit/ingestion/test_regional_workflow.py",
+      "tests/unit/ingestion/test_regional_providers.py",
+      "tests/unit/ingestion/test_regional_review.py",
+      "tests/unit/ingestion/test_pdf_runtime_contracts.py"
+    ],
+    "scoped_ruff": "passed",
+    "git_diff_check": "passed",
+    "full_repository_suite": "not run"
+  },
+  "file_sha256": {
+    "src/ingestion/regional_providers.py": "794f4a342d7804b7adb1a0eea85af7b5a5e3f906dc54859184747696d41602a7",
+    "src/ingestion/regional_workflow.py": "97e0115997361b1a4c07a0a0b4c9b539eb3f4fa2cb7d63a0cfb2711ce516a495",
+    "tests/unit/ingestion/test_regional_workflow.py": "abe00d30f919eac5f27dd53574a764145b623069003de5dc1f7088a1c605e185"
+  },
+  "pdf_baseline": "pdf-baseline-closure-review-2026-09-08.json",
+  "completion_certified": false,
+  "remaining": "Other issue-specific acceptance remains open or unverified. Independent human datasets and selected deployment/provider configurations were requested but not supplied. No synthetic labels count as human evaluation."
+}

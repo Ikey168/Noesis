@@ -55,8 +55,19 @@ def test_parse_text_strips_and_reports_encoding():
 # Markdown
 # --------------------------------------------------------------------------- #
 
-def test_markdown_heuristic_fallback_when_lib_absent():
-    # `markdown` library is not installed in this env -> heuristic branch.
+def test_markdown_heuristic_fallback_when_lib_absent(monkeypatch):
+    # Exercise the fallback deterministically even when another optional extra
+    # installed Markdown into the developer environment.
+    import builtins
+
+    original_import = builtins.__import__
+
+    def without_markdown(name, *args, **kwargs):
+        if name == "markdown":
+            raise ImportError("markdown intentionally unavailable for fallback test")
+        return original_import(name, *args, **kwargs)
+
+    monkeypatch.setattr(builtins, "__import__", without_markdown)
     md = (
         "# Big Title\n\n"
         "Some **bold** and `code` and a [link](http://x) plus ![img](http://y).\n"

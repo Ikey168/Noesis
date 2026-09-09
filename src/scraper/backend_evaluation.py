@@ -1,11 +1,37 @@
 """Evaluation-only adapters. No production backend is selected automatically."""
 
 import asyncio
-import os
+import hashlib
+import time
 
 
 class AcquiredHTML(str):
     """HTML with evaluation-only acquisition diagnostics."""
+
+
+def captured_html(html, url, backend, *, final_url=None, markdown=None, native=None):
+    if not isinstance(html, str) or len(html.encode()) > 2_000_000:
+        raise ValueError("bounded captured HTML required")
+    result = AcquiredHTML(html)
+    result.acquisition_metadata = {
+        "source_url": url,
+        "final_url": final_url or url,
+        "backend": backend,
+        "observed_at_ms": int(time.time() * 1000),
+        "sha256": hashlib.sha256(html.encode()).hexdigest(),
+        "representation": "transport-decoded-http-body"
+        if backend == "scrapy"
+        else "browser-rendered-html",
+        "original_wire_bytes": False,
+        "native": native,
+    }
+    result.markdown = markdown
+    return result
+
+
+def _require_success_status(status):
+    if type(status) is not int or not 200 <= status < 300:
+        raise ValueError("acquisition returned non-success HTTP status")
 
 
 async def browser_fetch(url, backend):
@@ -16,9 +42,12 @@ async def browser_fetch(url, backend):
             browser = await p.chromium.launch()
             try:
                 page = await browser.new_page()
-                await page.goto(url, timeout=10000)
+                response = await page.goto(url, timeout=10000)
+                _require_success_status(response.status if response else None)
                 await page.wait_for_selector("article", timeout=1000)
-                return await page.content()
+                return captured_html(
+                    await page.content(), url, backend, final_url=page.url
+                )
             finally:
                 await browser.close()
     if backend == "crawl4ai":
@@ -35,7 +64,15 @@ async def browser_fetch(url, backend):
             )
             if not result.success:
                 raise ValueError("Crawl4AI acquisition failed")
-            return result.html
+            _require_success_status(result.status_code)
+            markdown = getattr(result.markdown, "raw_markdown", result.markdown)
+            return captured_html(
+                result.html,
+                url,
+                backend,
+                final_url=getattr(result, "redirected_url", None) or result.url,
+                markdown=markdown,
+            )
     if backend == "crawlee-adaptive":
         from datetime import timedelta
 
@@ -79,8 +116,8 @@ async def browser_fetch(url, backend):
         await crawler.run([url])
         if not results:
             raise ValueError("Adaptive crawler returned no page")
-        html = AcquiredHTML(results[-1])
-        html.acquisition_metadata = {
+        html = captured_html(results[-1], url, backend)
+        html.acquisition_metadata["native"] = {
             key: getattr(crawler.statistics.state, key)
             for key in (
                 "http_only_request_handler_runs",
@@ -88,6 +125,17 @@ async def browser_fetch(url, backend):
                 "rendering_type_mispredictions",
             )
         }
+        # Adaptive HTML is serialized by its static parser in either mode.
+        # Keep the transport selection separate from that representation.
+        html.acquisition_metadata["representation"] = "static-parser-serialized-html"
+        stats = html.acquisition_metadata["native"]
+        html.acquisition_metadata["acquisition_mode"] = (
+            "browser"
+            if stats["browser_request_handler_runs"]
+            else "http"
+            if stats["http_only_request_handler_runs"]
+            else "unknown"
+        )
         html.acquisition_metadata["selection_policy"] = (
             "deterministic static-first fallback probe; not learned predictor evaluation"
         )
@@ -110,8 +158,16 @@ async def browser_fetch(url, backend):
 
         @crawler.router.default_handler
         async def handle(context):
+            _require_success_status(context.response.status)
             await context.page.wait_for_selector("article", timeout=1000)
-            results.append(await context.page.content())
+            results.append(
+                captured_html(
+                    await context.page.content(),
+                    url,
+                    backend,
+                    final_url=context.page.url,
+                )
+            )
 
         await crawler.run([url])
         if not results:
@@ -120,10 +176,41 @@ async def browser_fetch(url, backend):
     raise ValueError("unknown browser backend")
 
 
-def fetch_backend(url, backend):
+def fetch_backend(
+    url,
+    backend,
+    *,
+    hosted_client=None,
+    observation=None,
+    allowed_source_hosts=(),
+    public_url_approved=False,
+):
+    if backend in {"zyte", "firecrawl"}:
+        if (
+            hosted_client is None
+            or not observation
+            or hosted_client.http.provider != backend
+        ):
+            raise ValueError(
+                "hosted benchmarking requires an explicit client, observation and preconfigured request/spend limits"
+            )
+        result = hosted_client.scrape(
+            url,
+            observation,
+            allowed_source_hosts=allowed_source_hosts,
+            public_url_approved=public_url_approved,
+        )
+        html = AcquiredHTML(result["html"])
+        html.acquisition_metadata = {
+            key: value
+            for key, value in result.items()
+            if key not in {"html", "markdown"}
+        }
+        html.markdown = result.get("markdown")
+        return html
     if backend in ("playwright", "crawl4ai", "crawlee", "crawlee-adaptive"):
         return asyncio.run(browser_fetch(url, backend))
-    if backend in ("scrapy", "zyte"):
+    if backend == "scrapy":
         settings = {
             "LOG_ENABLED": False,
             "ROBOTSTXT_OBEY": True,
@@ -132,15 +219,6 @@ def fetch_backend(url, backend):
             "RETRY_ENABLED": False,
             "CONCURRENT_REQUESTS": 1,
         }
-        if backend == "zyte":
-            key = os.environ.get("NOESIS_ZYTE_API_KEY")
-            if not key:
-                raise ValueError("Zyte credential absent")
-            settings.update(
-                ADDONS={"scrapy_zyte_api.Addon": 500},
-                ZYTE_API_KEY=key,
-                ZYTE_API_TRANSPARENT_MODE=False,
-            )
         import scrapy
         from scrapy.crawler import CrawlerProcess
 
@@ -153,13 +231,24 @@ def fetch_backend(url, backend):
                 yield scrapy.Request(
                     url,
                     callback=self.parse,
-                    meta={"zyte_api": {"httpResponseBody": True}}
-                    if backend == "zyte"
-                    else {},
+                    meta={},
                 )
 
             def parse(self, response):
-                results.append(response.text)
+                results.append(
+                    captured_html(
+                        response.text,
+                        url,
+                        backend,
+                        final_url=response.url,
+                        native={
+                            "status": response.status,
+                            "response_body_sha256": hashlib.sha256(
+                                response.body
+                            ).hexdigest(),
+                        },
+                    )
+                )
 
         process = CrawlerProcess(settings)
         process.crawl(BenchmarkSpider)
@@ -167,18 +256,4 @@ def fetch_backend(url, backend):
         if not results:
             raise ValueError("Scrapy returned no page")
         return results[0]
-    import httpx
-
-    if backend == "firecrawl":
-        key = os.environ.get("NOESIS_FIRECRAWL_API_KEY")
-        if not key:
-            raise ValueError("Firecrawl credential absent")
-        response = httpx.post(
-            "https://api.firecrawl.dev/v2/scrape",
-            headers={"Authorization": "Bearer " + key},
-            json={"url": url, "formats": ["rawHtml"]},
-            timeout=20,
-        )
-        response.raise_for_status()
-        return response.json()["data"]["rawHtml"]
     raise ValueError("unknown backend")

@@ -1,0 +1,339 @@
+{
+  "contract": "noesis-presidio-evaluation-v1",
+  "package": {
+    "presidio-analyzer": "2.2.364",
+    "spacy": "3.8.16",
+    "de_core_news_sm": "3.8.0",
+    "en_core_web_sm": "3.8.0"
+  },
+  "configuration": {
+    "languages": [
+      "de",
+      "en"
+    ],
+    "entities": [
+      "PERSON",
+      "LOCATION",
+      "EMAIL_ADDRESS",
+      "PHONE_NUMBER",
+      "IBAN_CODE"
+    ],
+    "score_threshold": 0.5,
+    "policy_version": "presidio-derived-redaction-v1",
+    "execution": "local-only"
+  },
+  "label_origin": "authored-regression-labels-not-independent-human",
+  "startup_seconds": 1.381013170001097,
+  "peak_rss_kib": 292052,
+  "runs": [
+    {
+      "id": "de-address-identifiers",
+      "language": "de",
+      "elapsed_seconds": 0.06615702499766485,
+      "expected": [
+        [
+          0,
+          10,
+          "PERSON"
+        ],
+        [
+          24,
+          39,
+          "LOCATION"
+        ],
+        [
+          50,
+          56,
+          "LOCATION"
+        ],
+        [
+          65,
+          87,
+          "EMAIL_ADDRESS"
+        ],
+        [
+          94,
+          116,
+          "IBAN_CODE"
+        ]
+      ],
+      "detected": [
+        {
+          "start": 0,
+          "end": 10,
+          "entity_type": "PERSON",
+          "score": 0.85,
+          "text": "Max Müller",
+          "recognition_metadata": {
+            "recognizer_name": "SpacyRecognizer",
+            "recognizer_identifier": "SpacyRecognizer_140571022215888"
+          }
+        },
+        {
+          "start": 24,
+          "end": 39,
+          "entity_type": "LOCATION",
+          "score": 0.85,
+          "text": "Invalidenstraße",
+          "recognition_metadata": {
+            "recognizer_name": "SpacyRecognizer",
+            "recognizer_identifier": "SpacyRecognizer_140571022215888"
+          }
+        },
+        {
+          "start": 50,
+          "end": 56,
+          "entity_type": "LOCATION",
+          "score": 0.85,
+          "text": "Berlin",
+          "recognition_metadata": {
+            "recognizer_name": "SpacyRecognizer",
+            "recognizer_identifier": "SpacyRecognizer_140571022215888"
+          }
+        },
+        {
+          "start": 65,
+          "end": 87,
+          "entity_type": "EMAIL_ADDRESS",
+          "score": 1.0,
+          "text": "max.mueller@example.de",
+          "recognition_metadata": {
+            "recognizer_name": "EmailRecognizer",
+            "recognizer_identifier": "EmailRecognizer_140571022218912"
+          }
+        },
+        {
+          "start": 94,
+          "end": 116,
+          "entity_type": "IBAN_CODE",
+          "score": 1.0,
+          "text": "DE89370400440532013000",
+          "recognition_metadata": {
+            "recognizer_name": "IbanRecognizer",
+            "recognizer_identifier": "IbanRecognizer_140571022219248"
+          }
+        }
+      ],
+      "metrics": {
+        "true_positives": 5,
+        "false_positives": 0,
+        "false_negatives": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      },
+      "original_unchanged": true,
+      "detected_removed_text_leaked_to_metadata": false,
+      "artifact_traceable_by_hash": true
+    },
+    {
+      "id": "de-phone-name",
+      "language": "de",
+      "elapsed_seconds": 0.004645389999495819,
+      "expected": [
+        [
+          9,
+          21,
+          "PERSON"
+        ],
+        [
+          23,
+          29,
+          "LOCATION"
+        ],
+        [
+          39,
+          54,
+          "PHONE_NUMBER"
+        ],
+        [
+          63,
+          87,
+          "EMAIL_ADDRESS"
+        ]
+      ],
+      "detected": [
+        {
+          "start": 9,
+          "end": 21,
+          "entity_type": "PERSON",
+          "score": 0.85,
+          "text": "Anna Schmidt",
+          "recognition_metadata": {
+            "recognizer_name": "SpacyRecognizer",
+            "recognizer_identifier": "SpacyRecognizer_140571022215888"
+          }
+        },
+        {
+          "start": 23,
+          "end": 29,
+          "entity_type": "LOCATION",
+          "score": 0.85,
+          "text": "Berlin",
+          "recognition_metadata": {
+            "recognizer_name": "SpacyRecognizer",
+            "recognizer_identifier": "SpacyRecognizer_140571022215888"
+          }
+        },
+        {
+          "start": 31,
+          "end": 38,
+          "entity_type": "LOCATION",
+          "score": 0.85,
+          "text": "Telefon",
+          "recognition_metadata": {
+            "recognizer_name": "SpacyRecognizer",
+            "recognizer_identifier": "SpacyRecognizer_140571022215888"
+          }
+        },
+        {
+          "start": 63,
+          "end": 87,
+          "entity_type": "EMAIL_ADDRESS",
+          "score": 1.0,
+          "text": "anna.schmidt@example.org",
+          "recognition_metadata": {
+            "recognizer_name": "EmailRecognizer",
+            "recognizer_identifier": "EmailRecognizer_140571022218912"
+          }
+        }
+      ],
+      "metrics": {
+        "true_positives": 3,
+        "false_positives": 1,
+        "false_negatives": 1,
+        "precision": 0.75,
+        "recall": 0.75,
+        "f1": 0.75
+      },
+      "original_unchanged": true,
+      "detected_removed_text_leaked_to_metadata": false,
+      "artifact_traceable_by_hash": true
+    },
+    {
+      "id": "en-name-address",
+      "language": "en",
+      "elapsed_seconds": 0.007293240996659733,
+      "expected": [
+        [
+          0,
+          10,
+          "PERSON"
+        ],
+        [
+          22,
+          34,
+          "LOCATION"
+        ],
+        [
+          38,
+          44,
+          "LOCATION"
+        ],
+        [
+          52,
+          74,
+          "EMAIL_ADDRESS"
+        ],
+        [
+          84,
+          100,
+          "PHONE_NUMBER"
+        ]
+      ],
+      "detected": [
+        {
+          "start": 0,
+          "end": 10,
+          "entity_type": "PERSON",
+          "score": 0.85,
+          "text": "Jane Smith",
+          "recognition_metadata": {
+            "recognizer_name": "SpacyRecognizer",
+            "recognizer_identifier": "SpacyRecognizer_140571080680912"
+          }
+        },
+        {
+          "start": 38,
+          "end": 44,
+          "entity_type": "LOCATION",
+          "score": 0.85,
+          "text": "London",
+          "recognition_metadata": {
+            "recognizer_name": "SpacyRecognizer",
+            "recognizer_identifier": "SpacyRecognizer_140571080680912"
+          }
+        },
+        {
+          "start": 52,
+          "end": 74,
+          "entity_type": "EMAIL_ADDRESS",
+          "score": 1.0,
+          "text": "jane.smith@example.com",
+          "recognition_metadata": {
+            "recognizer_name": "EmailRecognizer",
+            "recognizer_identifier": "EmailRecognizer_140571075759632"
+          }
+        }
+      ],
+      "metrics": {
+        "true_positives": 3,
+        "false_positives": 0,
+        "false_negatives": 2,
+        "precision": 1.0,
+        "recall": 0.6,
+        "f1": 0.7499999999999999
+      },
+      "original_unchanged": true,
+      "detected_removed_text_leaked_to_metadata": false,
+      "artifact_traceable_by_hash": true
+    },
+    {
+      "id": "hard-negative-public-facts",
+      "language": "en",
+      "elapsed_seconds": 0.0053936350013827905,
+      "expected": [],
+      "detected": [
+        {
+          "start": 4,
+          "end": 10,
+          "entity_type": "LOCATION",
+          "score": 0.85,
+          "text": "Berlin",
+          "recognition_metadata": {
+            "recognizer_name": "SpacyRecognizer",
+            "recognizer_identifier": "SpacyRecognizer_140571080680912"
+          }
+        }
+      ],
+      "metrics": {
+        "true_positives": 0,
+        "false_positives": 1,
+        "false_negatives": 0,
+        "precision": 0.0,
+        "recall": 1.0,
+        "f1": 0.0
+      },
+      "original_unchanged": true,
+      "detected_removed_text_leaked_to_metadata": false,
+      "artifact_traceable_by_hash": true
+    }
+  ],
+  "aggregate_exact_span_metrics": {
+    "true_positives": 11,
+    "false_positives": 2,
+    "false_negatives": 3,
+    "precision": 0.8461538461538461,
+    "recall": 0.7857142857142857,
+    "f1": 0.8148148148148148
+  },
+  "all_originals_unchanged": true,
+  "no_detected_removed_text_leaked_to_metadata": true,
+  "production_default_changed": false,
+  "decision": "adopt as an opt-in local derived-redaction stage for supported German/English entities; retain review because small spaCy models produce entity-boundary and hard-negative errors",
+  "limitations": [
+    "Labels are authored regression expectations, not independent human annotation.",
+    "Small spaCy models are evaluated here; language/model changes require a new policy version and benchmark.",
+    "Presidio detection reduces disclosure risk but cannot guarantee complete PII removal."
+  ]
+}

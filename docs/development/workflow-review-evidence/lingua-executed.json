@@ -1,0 +1,290 @@
+{
+  "contract": "noesis-lingua-evaluation-v1",
+  "package": {
+    "lingua-language-detector": "2.2.0",
+    "langdetect": "1.0.9-source-package"
+  },
+  "configured_languages": [
+    "de",
+    "en"
+  ],
+  "label_origin": "authored-regression-labels-not-independent-human",
+  "development_thresholds": [
+    {
+      "threshold": 0.55,
+      "lingua_accuracy": 1.0,
+      "lingua_abstention_rate": 0.0,
+      "langdetect_accuracy": 0.8333333333333334,
+      "langdetect_abstention_rate": 0.0
+    },
+    {
+      "threshold": 0.65,
+      "lingua_accuracy": 0.8333333333333334,
+      "lingua_abstention_rate": 0.16666666666666666,
+      "langdetect_accuracy": 0.8333333333333334,
+      "langdetect_abstention_rate": 0.0
+    },
+    {
+      "threshold": 0.75,
+      "lingua_accuracy": 0.8333333333333334,
+      "lingua_abstention_rate": 0.16666666666666666,
+      "langdetect_accuracy": 0.8333333333333334,
+      "langdetect_abstention_rate": 0.16666666666666666
+    },
+    {
+      "threshold": 0.85,
+      "lingua_accuracy": 0.8333333333333334,
+      "lingua_abstention_rate": 0.16666666666666666,
+      "langdetect_accuracy": 0.8333333333333334,
+      "langdetect_abstention_rate": 0.16666666666666666
+    },
+    {
+      "threshold": 0.95,
+      "lingua_accuracy": 0.8333333333333334,
+      "lingua_abstention_rate": 0.16666666666666666,
+      "langdetect_accuracy": 0.8333333333333334,
+      "langdetect_abstention_rate": 0.16666666666666666
+    }
+  ],
+  "selected_confidence_threshold": 0.55,
+  "test": {
+    "segments": 8,
+    "lingua_accuracy": 1.0,
+    "langdetect_accuracy": 0.875,
+    "lingua_abstention_rate": 0.0,
+    "langdetect_abstention_rate": 0.0,
+    "lingua_seconds": 0.00269005200243555,
+    "langdetect_seconds": 0.032772180002211826,
+    "rows": [
+      {
+        "id": "de-title",
+        "expected": [
+          {
+            "start": 0,
+            "end": 30,
+            "language": "de"
+          }
+        ],
+        "lingua": [
+          {
+            "start": 0,
+            "end": 30,
+            "text": "Förderung für Berliner Schulen",
+            "language": "de",
+            "confidence": 1.0,
+            "uncertain": false
+          }
+        ],
+        "langdetect": [
+          {
+            "start": 0,
+            "end": 30,
+            "language": "de",
+            "confidence": 0.9999980110474421,
+            "uncertain": false
+          }
+        ],
+        "offsets_reconstruct_input": true
+      },
+      {
+        "id": "en-title",
+        "expected": [
+          {
+            "start": 0,
+            "end": 27,
+            "language": "en"
+          }
+        ],
+        "lingua": [
+          {
+            "start": 0,
+            "end": 27,
+            "text": "Evidence for Berlin schools",
+            "language": "en",
+            "confidence": 0.9473482431945728,
+            "uncertain": false
+          }
+        ],
+        "langdetect": [
+          {
+            "start": 0,
+            "end": 27,
+            "language": "en",
+            "confidence": 0.7142834015752036,
+            "uncertain": false
+          }
+        ],
+        "offsets_reconstruct_input": true
+      },
+      {
+        "id": "mixed-abstract",
+        "expected": [
+          {
+            "start": 0,
+            "end": 48,
+            "language": "de"
+          },
+          {
+            "start": 49,
+            "end": 95,
+            "language": "en"
+          }
+        ],
+        "lingua": [
+          {
+            "start": 0,
+            "end": 48,
+            "text": "Die Studie untersucht deutsche Verwaltungsdaten.",
+            "language": "de",
+            "confidence": 0.9999522436254267,
+            "uncertain": false
+          },
+          {
+            "start": 49,
+            "end": 95,
+            "text": "The abstract summarizes the empirical results.",
+            "language": "en",
+            "confidence": 0.994997753604309,
+            "uncertain": false
+          }
+        ],
+        "langdetect": [
+          {
+            "start": 0,
+            "end": 48,
+            "language": "de",
+            "confidence": 0.9999964830953693,
+            "uncertain": false
+          },
+          {
+            "start": 49,
+            "end": 95,
+            "language": "en",
+            "confidence": 0.9999981481131167,
+            "uncertain": false
+          }
+        ],
+        "offsets_reconstruct_input": true
+      },
+      {
+        "id": "mixed-quote",
+        "expected": [
+          {
+            "start": 0,
+            "end": 47,
+            "language": "de"
+          },
+          {
+            "start": 48,
+            "end": 89,
+            "language": "en"
+          }
+        ],
+        "lingua": [
+          {
+            "start": 0,
+            "end": 47,
+            "text": "Die Senatorin sagte: Die Zahlen sind belastbar.",
+            "language": "de",
+            "confidence": 0.9981118922546808,
+            "uncertain": false
+          },
+          {
+            "start": 48,
+            "end": 89,
+            "text": "The report then quotes an English expert.",
+            "language": "en",
+            "confidence": 0.7984503474388983,
+            "uncertain": false
+          }
+        ],
+        "langdetect": [
+          {
+            "start": 0,
+            "end": 47,
+            "language": "af",
+            "confidence": 0.9999951415168817,
+            "uncertain": false
+          },
+          {
+            "start": 48,
+            "end": 89,
+            "language": "en",
+            "confidence": 0.9999955578329857,
+            "uncertain": false
+          }
+        ],
+        "offsets_reconstruct_input": true
+      },
+      {
+        "id": "ocr-de",
+        "expected": [
+          {
+            "start": 0,
+            "end": 61,
+            "language": "de"
+          }
+        ],
+        "lingua": [
+          {
+            "start": 0,
+            "end": 61,
+            "text": "D1e Behörde veroffentl1cht neue Z4hlen uber Berliner Schulen.",
+            "language": "de",
+            "confidence": 0.9999427894227447,
+            "uncertain": false
+          }
+        ],
+        "langdetect": [
+          {
+            "start": 0,
+            "end": 61,
+            "language": "de",
+            "confidence": 0.999997211190762,
+            "uncertain": false
+          }
+        ],
+        "offsets_reconstruct_input": true
+      },
+      {
+        "id": "ocr-en",
+        "expected": [
+          {
+            "start": 0,
+            "end": 58,
+            "language": "en"
+          }
+        ],
+        "lingua": [
+          {
+            "start": 0,
+            "end": 58,
+            "text": "Th3 author1ty pub1ishes new ev1dence about Berlin schoo1s.",
+            "language": "en",
+            "confidence": 0.9843616655553489,
+            "uncertain": false
+          }
+        ],
+        "langdetect": [
+          {
+            "start": 0,
+            "end": 58,
+            "language": "en",
+            "confidence": 0.9999976316754249,
+            "uncertain": false
+          }
+        ],
+        "offsets_reconstruct_input": true
+      }
+    ]
+  },
+  "peak_rss_kib": 95100,
+  "coordinate_system": "normalized-input-char-offset-v1",
+  "production_default_changed": false,
+  "decision": "defer production-default change; the Lingua path provides useful confidence, abstention and mixed-language offsets, but #1510 still requires independently human-labelled language/span evaluation",
+  "limitations": [
+    "Fixture labels are authored regression labels rather than the independent human labels required by issue #1510.",
+    "Only German and English are enabled in this evaluation; changing the language set changes confidence values.",
+    "RSS is process-wide and includes both detector libraries loaded for comparison."
+  ]
+}

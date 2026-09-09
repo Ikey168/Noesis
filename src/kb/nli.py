@@ -157,4 +157,7 @@ class TransformersNLI:
 
 def get_nli_backend(model_name: Optional[str] = None):
     """Return the pinned pretrained backend, failing closed when unavailable."""
+    if model_name == "MoritzLaurer/mDeBERTa-v3-base-mnli-xnli":
+        from src.evaluation.mining_runtime import MultilingualNLI
+        return MultilingualNLI()
     return TransformersNLI(model_name)

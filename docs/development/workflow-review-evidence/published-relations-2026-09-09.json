@@ -1,0 +1,1428 @@
+{
+  "contract": "noesis-published-relation-comparison-v1",
+  "source": {
+    "url": "https://raw.githubusercontent.com/mainlp/CrossRE/a58885fa760559d2dc9e176e730fe731f020d6f3/crossre_data/politics-test.json",
+    "revision": "a58885fa760559d2dc9e176e730fe731f020d6f3",
+    "sha256": "95e2432cd6aac170f17019ec96aea60bd2674a7a8583ce4d7d8aaf3c37e0d441",
+    "size_bytes": 331510,
+    "source": "Bassignana and Plank (2022), CrossRE",
+    "license": "Repository GPL-3.0; underlying CrossNER source rights remain applicable. Raw dataset not redistributed.",
+    "label_origin": "published-human-annotation"
+  },
+  "job": {
+    "status": "completed",
+    "result": {
+      "backend": "gliner2",
+      "model": {
+        "kind": "gliner2",
+        "model": "fastino/gliner2-multi-v1",
+        "revision": "c6296e25603e4d31f68ef8a9f4edb73421d1e45a",
+        "license": "apache-2.0"
+      },
+      "model_load_s": 5.885630536999088,
+      "rows": [
+        {
+          "id": "politics-test-2",
+          "source_revision": "17e124638f5d7ad0f2c64f5c081cce0f641c6928144a3fd68b8b7de04f50d20b",
+          "language": "en",
+          "source": "CrossRE politics test",
+          "label_origin": "published-human-annotation",
+          "expected": [
+            {
+              "label": "role",
+              "head": {
+                "start": 0,
+                "end": 7
+              },
+              "tail": {
+                "start": 17,
+                "end": 22
+              },
+              "native_label": "role",
+              "native_flags": [
+                false,
+                false
+              ],
+              "native_explanation": ""
+            },
+            {
+              "label": "temporal",
+              "head": {
+                "start": 0,
+                "end": 7
+              },
+              "tail": {
+                "start": 62,
+                "end": 124
+              },
+              "native_label": "temporal",
+              "native_flags": [
+                false,
+                false
+              ],
+              "native_explanation": ""
+            },
+            {
+              "label": "role",
+              "head": {
+                "start": 0,
+                "end": 7
+              },
+              "tail": {
+                "start": 137,
+                "end": 146
+              },
+              "native_label": "role",
+              "native_flags": [
+                false,
+                false
+              ],
+              "native_explanation": ""
+            },
+            {
+              "label": "role",
+              "head": {
+                "start": 0,
+                "end": 7
+              },
+              "tail": {
+                "start": 152,
+                "end": 168
+              },
+              "native_label": "role",
+              "native_flags": [
+                false,
+                false
+              ],
+              "native_explanation": ""
+            },
+            {
+              "label": "temporal",
+              "head": {
+                "start": 137,
+                "end": 146
+              },
+              "tail": {
+                "start": 62,
+                "end": 124
+              },
+              "native_label": "temporal",
+              "native_flags": [
+                false,
+                false
+              ],
+              "native_explanation": ""
+            },
+            {
+              "label": "temporal",
+              "head": {
+                "start": 152,
+                "end": 168
+              },
+              "tail": {
+                "start": 62,
+                "end": 124
+              },
+              "native_label": "temporal",
+              "native_flags": [
+                false,
+                false
+              ],
+              "native_explanation": ""
+            }
+          ],
+          "relation_schema": {
+            "artifact": "artifact relation from the first named entity to the second",
+            "compare": "compare relation from the first named entity to the second",
+            "general_affiliation": "general affiliation relation from the first named entity to the second",
+            "named": "named relation from the first named entity to the second",
+            "opposite": "opposite relation from the first named entity to the second",
+            "origin": "origin relation from the first named entity to the second",
+            "part_of": "part of relation from the first named entity to the second",
+            "physical": "physical relation from the first named entity to the second",
+            "related_to": "related to relation from the first named entity to the second",
+            "role": "role relation from the first named entity to the second",
+            "social": "social relation from the first named entity to the second",
+            "temporal": "temporal relation from the first named entity to the second",
+            "topic": "topic relation from the first named entity to the second",
+            "type_of": "type of relation from the first named entity to the second",
+            "win_defeat": "win defeat relation from the first named entity to the second"
+          },
+          "predicted": [
+            {
+              "label": "opposite",
+              "native_label": "opposite: opposite relation from the first named entity to the second",
+              "head": {
+                "text": "Buell",
+                "start": 17,
+                "end": 22,
+                "confidence": 0.5347782373428345,
+                "confidence_is_correctness": false
+              },
+              "tail": {
+                "text": "William Rosecrans",
+                "start": 28,
+                "end": 45,
+                "confidence": 0.7304672002792358,
+                "confidence_is_correctness": false
+              },
+              "support_verified": false
+            }
+          ],
+          "elapsed_s": 0.8448771080002189,
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0,
+            "correct": 0,
+            "predicted": 1,
+            "expected": 6
+          }
+        },
+        {
+          "id": "politics-test-3",
+          "source_revision": "aa681e16e7d2bb6f5c82b154cf745ce3a0fa8a666cfeb8df0df71477379f69f9",
+          "language": "en",
+          "source": "CrossRE politics test",
+          "label_origin": "published-human-annotation",
+          "expected": [
+            {
+              "label": "role",
+              "head": {
+                "start": 46,
+                "end": 58
+              },
+              "tail": {
+                "start": 62,
+                "end": 70
+              },
+              "native_label": "role",
+              "native_flags": [
+                false,
+                false
+              ],
+              "native_explanation": "plays_character"
+            },
+            {
+              "label": "origin",
+              "head": {
+                "start": 62,
+                "end": 70
+              },
+              "tail": {
+                "start": 46,
+                "end": 58
+              },
+              "native_label": "origin",
+              "native_flags": [
+                false,
+                false
+              ],
+              "native_explanation": "plays_character"
+            },
+            {
+              "label": "role",
+              "head": {
+                "start": 73,
+                "end": 83
+              },
+              "tail": {
+                "start": 104,
+                "end": 112
+              },
+              "native_label": "role",
+              "native_flags": [
+                false,
+                false
+              ],
+              "native_explanation": "plays_character"
+            },
+            {
+              "label": "origin",
+              "head": {
+                "start": 104,
+                "end": 112
+              },
+              "tail": {
+                "start": 73,
+                "end": 83
+              },
+              "native_label": "origin",
+              "native_flags": [
+                false,
+                false
+              ],
+              "native_explanation": "plays_character"
+            },
+            {
+              "label": "role",
+              "head": {
+                "start": 119,
+                "end": 131
+              },
+              "tail": {
+                "start": 135,
+                "end": 140
+              },
+              "native_label": "role",
+              "native_flags": [
+                false,
+                false
+              ],
+              "native_explanation": "plays_character"
+            },
+            {
+              "label": "origin",
+              "head": {
+                "start": 135,
+                "end": 140
+              },
+              "tail": {
+                "start": 119,
+                "end": 131
+              },
+              "native_label": "origin",
+              "native_flags": [
+                false,
+                false
+              ],
+              "native_explanation": "plays_character"
+            }
+          ],
+          "relation_schema": {
+            "artifact": "artifact relation from the first named entity to the second",
+            "compare": "compare relation from the first named entity to the second",
+            "general_affiliation": "general affiliation relation from the first named entity to the second",
+            "named": "named relation from the first named entity to the second",
+            "opposite": "opposite relation from the first named entity to the second",
+            "origin": "origin relation from the first named entity to the second",
+            "part_of": "part of relation from the first named entity to the second",
+            "physical": "physical relation from the first named entity to the second",
+            "related_to": "related to relation from the first named entity to the second",
+            "role": "role relation from the first named entity to the second",
+            "social": "social relation from the first named entity to the second",
+            "temporal": "temporal relation from the first named entity to the second",
+            "topic": "topic relation from the first named entity to the second",
+            "type_of": "type of relation from the first named entity to the second",
+            "win_defeat": "win defeat relation from the first named entity to the second"
+          },
+          "predicted": [],
+          "elapsed_s": 0.7614412450056989,
+          "metrics": {
+            "precision": 0,
+            "recall": 0.0,
+            "f1": 0,
+            "correct": 0,
+            "predicted": 0,
+            "expected": 6
+          }
+        },
+        {
+          "id": "politics-test-5",
+          "source_revision": "20b38b2096a63e6c36f1e4ae35b6b6c7a0c9ead5da1db51c68f0494e967ed8aa",
+          "language": "en",
+          "source": "CrossRE politics test",
+          "label_origin": "published-human-annotation",
+          "expected": [
+            {
+              "label": "physical",
+              "head": {
+                "start": 0,
+                "end": 8
+              },
+              "tail": {
+                "start": 47,
+                "end": 75
+              },
+              "native_label": "physical",
+              "native_flags": [
+                false,
+                false
+              ],
+              "native_explanation": ""
+            },
+            {
+              "label": "role",
+              "head": {
+                "start": 0,
+                "end": 8
+              },
+              "tail": {
+                "start": 47,
+                "end": 75
+              },
+              "native_label": "role",
+              "native_flags": [
+                false,
+                false
+              ],
+              "native_explanation": ""
+            },
+            {
+              "label": "related_to",
+              "head": {
+                "start": 0,
+                "end": 8
+              },
+              "tail": {
+                "start": 112,
+                "end": 133
+              },
+              "native_label": "related-to",
+              "native_flags": [
+                false,
+                false
+              ],
+              "native_explanation": ""
+            },
+            {
+              "label": "physical",
+              "head": {
+                "start": 0,
+                "end": 8
+              },
+              "tail": {
+                "start": 141,
+                "end": 156
+              },
+              "native_label": "physical",
+              "native_flags": [
+                false,
+                false
+              ],
+              "native_explanation": ""
+            },
+            {
+              "label": "physical",
+              "head": {
+                "start": 47,
+                "end": 75
+              },
+              "tail": {
+                "start": 79,
+                "end": 85
+              },
+              "native_label": "physical",
+              "native_flags": [
+                false,
+                false
+              ],
+              "native_explanation": ""
+            }
+          ],
+          "relation_schema": {
+            "artifact": "artifact relation from the first named entity to the second",
+            "compare": "compare relation from the first named entity to the second",
+            "general_affiliation": "general affiliation relation from the first named entity to the second",
+            "named": "named relation from the first named entity to the second",
+            "opposite": "opposite relation from the first named entity to the second",
+            "origin": "origin relation from the first named entity to the second",
+            "part_of": "part of relation from the first named entity to the second",
+            "physical": "physical relation from the first named entity to the second",
+            "related_to": "related to relation from the first named entity to the second",
+            "role": "role relation from the first named entity to the second",
+            "social": "social relation from the first named entity to the second",
+            "temporal": "temporal relation from the first named entity to the second",
+            "topic": "topic relation from the first named entity to the second",
+            "type_of": "type of relation from the first named entity to the second",
+            "win_defeat": "win defeat relation from the first named entity to the second"
+          },
+          "predicted": [],
+          "elapsed_s": 0.7511165300093126,
+          "metrics": {
+            "precision": 0,
+            "recall": 0.0,
+            "f1": 0,
+            "correct": 0,
+            "predicted": 0,
+            "expected": 5
+          }
+        },
+        {
+          "id": "politics-test-6",
+          "source_revision": "5890d5cfc78bca26ec47c962aad37a76576f4320a7c9498114084554c607ad49",
+          "language": "en",
+          "source": "CrossRE politics test",
+          "label_origin": "published-human-annotation",
+          "expected": [
+            {
+              "label": "social",
+              "head": {
+                "start": 0,
+                "end": 14
+              },
+              "tail": {
+                "start": 20,
+                "end": 28
+              },
+              "native_label": "social",
+              "native_flags": [
+                false,
+                false
+              ],
+              "native_explanation": ""
+            },
+            {
+              "label": "social",
+              "head": {
+                "start": 0,
+                "end": 14
+              },
+              "tail": {
+                "start": 37,
+                "end": 54
+              },
+              "native_label": "social",
+              "native_flags": [
+                false,
+                false
+              ],
+              "native_explanation": ""
+            },
+            {
+              "label": "social",
+              "head": {
+                "start": 0,
+                "end": 14
+              },
+              "tail": {
+                "start": 81,
+                "end": 99
+              },
+              "native_label": "social",
+              "native_flags": [
+                false,
+                false
+              ],
+              "native_explanation": ""
+            },
+            {
+              "label": "social",
+              "head": {
+                "start": 0,
+                "end": 14
+              },
+              "tail": {
+                "start": 126,
+                "end": 144
+              },
+              "native_label": "social",
+              "native_flags": [
+                false,
+                false
+              ],
+              "native_explanation": ""
+            },
+            {
+              "label": "social",
+              "head": {
+                "start": 20,
+                "end": 28
+              },
+              "tail": {
+                "start": 37,
+                "end": 54
+              },
+              "native_label": "social",
+              "native_flags": [
+                false,
+                false
+              ],
+              "native_explanation": ""
+            },
+            {
+              "label": "social",
+              "head": {
+                "start": 20,
+                "end": 28
+              },
+              "tail": {
+                "start": 81,
+                "end": 99
+              },
+              "native_label": "social",
+              "native_flags": [
+                false,
+                false
+              ],
+              "native_explanation": ""
+            },
+            {
+              "label": "social",
+              "head": {
+                "start": 20,
+                "end": 28
+              },
+              "tail": {
+                "start": 126,
+                "end": 144
+              },
+              "native_label": "social",
+              "native_flags": [
+                false,
+                false
+              ],
+              "native_explanation": ""
+            }
+          ],
+          "relation_schema": {
+            "artifact": "artifact relation from the first named entity to the second",
+            "compare": "compare relation from the first named entity to the second",
+            "general_affiliation": "general affiliation relation from the first named entity to the second",
+            "named": "named relation from the first named entity to the second",
+            "opposite": "opposite relation from the first named entity to the second",
+            "origin": "origin relation from the first named entity to the second",
+            "part_of": "part of relation from the first named entity to the second",
+            "physical": "physical relation from the first named entity to the second",
+            "related_to": "related to relation from the first named entity to the second",
+            "role": "role relation from the first named entity to the second",
+            "social": "social relation from the first named entity to the second",
+            "temporal": "temporal relation from the first named entity to the second",
+            "topic": "topic relation from the first named entity to the second",
+            "type_of": "type of relation from the first named entity to the second",
+            "win_defeat": "win defeat relation from the first named entity to the second"
+          },
+          "predicted": [],
+          "elapsed_s": 0.7192062789981719,
+          "metrics": {
+            "precision": 0,
+            "recall": 0.0,
+            "f1": 0,
+            "correct": 0,
+            "predicted": 0,
+            "expected": 7
+          }
+        },
+        {
+          "id": "politics-test-7",
+          "source_revision": "c1d3d46443e14eb11afb4011cbac6ef04f55873962fbffb5f38ae33f9cc29666",
+          "language": "en",
+          "source": "CrossRE politics test",
+          "label_origin": "published-human-annotation",
+          "expected": [
+            {
+              "label": "related_to",
+              "head": {
+                "start": 15,
+                "end": 25
+              },
+              "tail": {
+                "start": 51,
+                "end": 59
+              },
+              "native_label": "related-to",
+              "native_flags": [
+                false,
+                false
+              ],
+              "native_explanation": ""
+            },
+            {
+              "label": "physical",
+              "head": {
+                "start": 51,
+                "end": 59
+              },
+              "tail": {
+                "start": 100,
+                "end": 111
+              },
+              "native_label": "physical",
+              "native_flags": [
+                false,
+                false
+              ],
+              "native_explanation": ""
+            },
+            {
+              "label": "physical",
+              "head": {
+                "start": 51,
+                "end": 59
+              },
+              "tail": {
+                "start": 125,
+                "end": 133
+              },
+              "native_label": "physical",
+              "native_flags": [
+                false,
+                false
+              ],
+              "native_explanation": ""
+            }
+          ],
+          "relation_schema": {
+            "artifact": "artifact relation from the first named entity to the second",
+            "compare": "compare relation from the first named entity to the second",
+            "general_affiliation": "general affiliation relation from the first named entity to the second",
+            "named": "named relation from the first named entity to the second",
+            "opposite": "opposite relation from the first named entity to the second",
+            "origin": "origin relation from the first named entity to the second",
+            "part_of": "part of relation from the first named entity to the second",
+            "physical": "physical relation from the first named entity to the second",
+            "related_to": "related to relation from the first named entity to the second",
+            "role": "role relation from the first named entity to the second",
+            "social": "social relation from the first named entity to the second",
+            "temporal": "temporal relation from the first named entity to the second",
+            "topic": "topic relation from the first named entity to the second",
+            "type_of": "type of relation from the first named entity to the second",
+            "win_defeat": "win defeat relation from the first named entity to the second"
+          },
+          "predicted": [],
+          "elapsed_s": 0.8352387909981189,
+          "metrics": {
+            "precision": 0,
+            "recall": 0.0,
+            "f1": 0,
+            "correct": 0,
+            "predicted": 0,
+            "expected": 3
+          }
+        },
+        {
+          "id": "politics-test-8",
+          "source_revision": "7d30099b3b515913f0f568e9ae5cf2883779b045e2ba01d42238744c87ba2be8",
+          "language": "en",
+          "source": "CrossRE politics test",
+          "label_origin": "published-human-annotation",
+          "expected": [
+            {
+              "label": "part_of",
+              "head": {
+                "start": 58,
+                "end": 70
+              },
+              "tail": {
+                "start": 8,
+                "end": 13
+              },
+              "native_label": "part-of",
+              "native_flags": [
+                false,
+                false
+              ],
+              "native_explanation": ""
+            },
+            {
+              "label": "physical",
+              "head": {
+                "start": 58,
+                "end": 70
+              },
+              "tail": {
+                "start": 35,
+                "end": 47
+              },
+              "native_label": "physical",
+              "native_flags": [
+                false,
+                false
+              ],
+              "native_explanation": ""
+            },
+            {
+              "label": "physical",
+              "head": {
+                "start": 58,
+                "end": 70
+              },
+              "tail": {
+                "start": 74,
+                "end": 81
+              },
+              "native_label": "physical",
+              "native_flags": [
+                false,
+                false
+              ],
+              "native_explanation": ""
+            },
+            {
+              "label": "physical",
+              "head": {
+                "start": 107,
+                "end": 117
+              },
+              "tail": {
+                "start": 58,
+                "end": 70
+              },
+              "native_label": "physical",
+              "native_flags": [
+                false,
+                false
+              ],
+              "native_explanation": "east_of"
+            },
+            {
+              "label": "physical",
+              "head": {
+                "start": 107,
+                "end": 117
+              },
+              "tail": {
+                "start": 121,
+                "end": 127
+              },
+              "native_label": "physical",
+              "native_flags": [
+                false,
+                false
+              ],
+              "native_explanation": ""
+            },
+            {
+              "label": "physical",
+              "head": {
+                "start": 121,
+                "end": 127
+              },
+              "tail": {
+                "start": 142,
+                "end": 161
+              },
+              "native_label": "physical",
+              "native_flags": [
+                false,
+                false
+              ],
+              "native_explanation": ""
+            }
+          ],
+          "relation_schema": {
+            "artifact": "artifact relation from the first named entity to the second",
+            "compare": "compare relation from the first named entity to the second",
+            "general_affiliation": "general affiliation relation from the first named entity to the second",
+            "named": "named relation from the first named entity to the second",
+            "opposite": "opposite relation from the first named entity to the second",
+            "origin": "origin relation from the first named entity to the second",
+            "part_of": "part of relation from the first named entity to the second",
+            "physical": "physical relation from the first named entity to the second",
+            "related_to": "related to relation from the first named entity to the second",
+            "role": "role relation from the first named entity to the second",
+            "social": "social relation from the first named entity to the second",
+            "temporal": "temporal relation from the first named entity to the second",
+            "topic": "topic relation from the first named entity to the second",
+            "type_of": "type of relation from the first named entity to the second",
+            "win_defeat": "win defeat relation from the first named entity to the second"
+          },
+          "predicted": [
+            {
+              "label": "origin",
+              "native_label": "origin: origin relation from the first named entity to the second",
+              "head": {
+                "text": "Nanda Empire",
+                "start": 58,
+                "end": 70,
+                "confidence": 0.6158304214477539,
+                "confidence_is_correctness": false
+              },
+              "tail": {
+                "text": "Porus ' kingdom",
+                "start": 8,
+                "end": 23,
+                "confidence": 0.6139419674873352,
+                "confidence_is_correctness": false
+              },
+              "support_verified": false
+            },
+            {
+              "label": "part_of",
+              "native_label": "part_of: part of relation from the first named entity to the second",
+              "head": {
+                "text": "Nanda Empire",
+                "start": 58,
+                "end": 70,
+                "confidence": 0.6297556161880493,
+                "confidence_is_correctness": false
+              },
+              "tail": {
+                "text": "Porus ' kingdom",
+                "start": 8,
+                "end": 23,
+                "confidence": 0.6351075768470764,
+                "confidence_is_correctness": false
+              },
+              "support_verified": false
+            },
+            {
+              "label": "part_of",
+              "native_label": "part_of: part of relation from the first named entity to the second",
+              "head": {
+                "text": "Gangaridai of Bengal region",
+                "start": 107,
+                "end": 134,
+                "confidence": 0.6267701387405396,
+                "confidence_is_correctness": false
+              },
+              "tail": {
+                "text": "Porus ' kingdom",
+                "start": 8,
+                "end": 23,
+                "confidence": 0.612061619758606,
+                "confidence_is_correctness": false
+              },
+              "support_verified": false
+            },
+            {
+              "label": "related_to",
+              "native_label": "related_to: related to relation from the first named entity to the second",
+              "head": {
+                "text": "Nanda Empire",
+                "start": 58,
+                "end": 70,
+                "confidence": 0.5193396806716919,
+                "confidence_is_correctness": false
+              },
+              "tail": {
+                "text": "Porus ' kingdom",
+                "start": 8,
+                "end": 23,
+                "confidence": 0.5526490211486816,
+                "confidence_is_correctness": false
+              },
+              "support_verified": false
+            }
+          ],
+          "elapsed_s": 0.8887080279964721,
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0,
+            "correct": 0,
+            "predicted": 4,
+            "expected": 6
+          }
+        },
+        {
+          "id": "politics-test-11",
+          "source_revision": "d99cadb0e9de7085064675fe2e92d2bbdf75b66bff469b38398749439ae2068c",
+          "language": "en",
+          "source": "CrossRE politics test",
+          "label_origin": "published-human-annotation",
+          "expected": [
+            {
+              "label": "physical",
+              "head": {
+                "start": 0,
+                "end": 4
+              },
+              "tail": {
+                "start": 26,
+                "end": 38
+              },
+              "native_label": "physical",
+              "native_flags": [
+                false,
+                false
+              ],
+              "native_explanation": ""
+            },
+            {
+              "label": "physical",
+              "head": {
+                "start": 0,
+                "end": 4
+              },
+              "tail": {
+                "start": 75,
+                "end": 87
+              },
+              "native_label": "physical",
+              "native_flags": [
+                false,
+                false
+              ],
+              "native_explanation": ""
+            },
+            {
+              "label": "physical",
+              "head": {
+                "start": 0,
+                "end": 4
+              },
+              "tail": {
+                "start": 138,
+                "end": 142
+              },
+              "native_label": "physical",
+              "native_flags": [
+                false,
+                false
+              ],
+              "native_explanation": ""
+            },
+            {
+              "label": "physical",
+              "head": {
+                "start": 0,
+                "end": 4
+              },
+              "tail": {
+                "start": 155,
+                "end": 163
+              },
+              "native_label": "physical",
+              "native_flags": [
+                false,
+                false
+              ],
+              "native_explanation": ""
+            },
+            {
+              "label": "physical",
+              "head": {
+                "start": 0,
+                "end": 4
+              },
+              "tail": {
+                "start": 184,
+                "end": 190
+              },
+              "native_label": "physical",
+              "native_flags": [
+                false,
+                false
+              ],
+              "native_explanation": ""
+            },
+            {
+              "label": "named",
+              "head": {
+                "start": 49,
+                "end": 70
+              },
+              "tail": {
+                "start": 26,
+                "end": 38
+              },
+              "native_label": "named",
+              "native_flags": [
+                false,
+                false
+              ],
+              "native_explanation": ""
+            },
+            {
+              "label": "named",
+              "head": {
+                "start": 98,
+                "end": 122
+              },
+              "tail": {
+                "start": 75,
+                "end": 87
+              },
+              "native_label": "named",
+              "native_flags": [
+                false,
+                false
+              ],
+              "native_explanation": ""
+            }
+          ],
+          "relation_schema": {
+            "artifact": "artifact relation from the first named entity to the second",
+            "compare": "compare relation from the first named entity to the second",
+            "general_affiliation": "general affiliation relation from the first named entity to the second",
+            "named": "named relation from the first named entity to the second",
+            "opposite": "opposite relation from the first named entity to the second",
+            "origin": "origin relation from the first named entity to the second",
+            "part_of": "part of relation from the first named entity to the second",
+            "physical": "physical relation from the first named entity to the second",
+            "related_to": "related to relation from the first named entity to the second",
+            "role": "role relation from the first named entity to the second",
+            "social": "social relation from the first named entity to the second",
+            "temporal": "temporal relation from the first named entity to the second",
+            "topic": "topic relation from the first named entity to the second",
+            "type_of": "type of relation from the first named entity to the second",
+            "win_defeat": "win defeat relation from the first named entity to the second"
+          },
+          "predicted": [],
+          "elapsed_s": 0.9405063719896134,
+          "metrics": {
+            "precision": 0,
+            "recall": 0.0,
+            "f1": 0,
+            "correct": 0,
+            "predicted": 0,
+            "expected": 7
+          }
+        },
+        {
+          "id": "politics-test-12",
+          "source_revision": "6f06eb7fe1cc9213dadb26cd51477d2e81c45a980e43d834a884a978f8de311e",
+          "language": "en",
+          "source": "CrossRE politics test",
+          "label_origin": "published-human-annotation",
+          "expected": [
+            {
+              "label": "role",
+              "head": {
+                "start": 14,
+                "end": 32
+              },
+              "tail": {
+                "start": 42,
+                "end": 55
+              },
+              "native_label": "role",
+              "native_flags": [
+                false,
+                false
+              ],
+              "native_explanation": ""
+            },
+            {
+              "label": "temporal",
+              "head": {
+                "start": 14,
+                "end": 32
+              },
+              "tail": {
+                "start": 42,
+                "end": 55
+              },
+              "native_label": "temporal",
+              "native_flags": [
+                false,
+                false
+              ],
+              "native_explanation": ""
+            },
+            {
+              "label": "social",
+              "head": {
+                "start": 42,
+                "end": 55
+              },
+              "tail": {
+                "start": 84,
+                "end": 99
+              },
+              "native_label": "social",
+              "native_flags": [
+                false,
+                false
+              ],
+              "native_explanation": ""
+            }
+          ],
+          "relation_schema": {
+            "artifact": "artifact relation from the first named entity to the second",
+            "compare": "compare relation from the first named entity to the second",
+            "general_affiliation": "general affiliation relation from the first named entity to the second",
+            "named": "named relation from the first named entity to the second",
+            "opposite": "opposite relation from the first named entity to the second",
+            "origin": "origin relation from the first named entity to the second",
+            "part_of": "part of relation from the first named entity to the second",
+            "physical": "physical relation from the first named entity to the second",
+            "related_to": "related to relation from the first named entity to the second",
+            "role": "role relation from the first named entity to the second",
+            "social": "social relation from the first named entity to the second",
+            "temporal": "temporal relation from the first named entity to the second",
+            "topic": "topic relation from the first named entity to the second",
+            "type_of": "type of relation from the first named entity to the second",
+            "win_defeat": "win defeat relation from the first named entity to the second"
+          },
+          "predicted": [
+            {
+              "label": "named",
+              "native_label": "named: named relation from the first named entity to the second",
+              "head": {
+                "text": "Aram Sargsyan",
+                "start": 42,
+                "end": 55,
+                "confidence": 0.7223540544509888,
+                "confidence_is_correctness": false
+              },
+              "tail": {
+                "text": "Prime Minister",
+                "start": 105,
+                "end": 119,
+                "confidence": 0.5279458165168762,
+                "confidence_is_correctness": false
+              },
+              "support_verified": false
+            },
+            {
+              "label": "origin",
+              "native_label": "origin: origin relation from the first named entity to the second",
+              "head": {
+                "text": "Aram Sargsyan",
+                "start": 42,
+                "end": 55,
+                "confidence": 0.5998232364654541,
+                "confidence_is_correctness": false
+              },
+              "tail": {
+                "text": "Prime Minister",
+                "start": 105,
+                "end": 119,
+                "confidence": 0.5306528210639954,
+                "confidence_is_correctness": false
+              },
+              "support_verified": false
+            },
+            {
+              "label": "role",
+              "native_label": "role: role relation from the first named entity to the second",
+              "head": {
+                "text": "Aram Sargsyan",
+                "start": 42,
+                "end": 55,
+                "confidence": 0.7268990278244019,
+                "confidence_is_correctness": false
+              },
+              "tail": {
+                "text": "Prime Minister",
+                "start": 105,
+                "end": 119,
+                "confidence": 0.6379157900810242,
+                "confidence_is_correctness": false
+              },
+              "support_verified": false
+            }
+          ],
+          "elapsed_s": 0.7666672820050735,
+          "metrics": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0,
+            "correct": 0,
+            "predicted": 3,
+            "expected": 3
+          }
+        },
+        {
+          "id": "politics-test-13",
+          "source_revision": "245f9f05973e67ffe0ed7107d8e46b083aafc05378c6195ec3d97fb0c48c8b20",
+          "language": "en",
+          "source": "CrossRE politics test",
+          "label_origin": "published-human-annotation",
+          "expected": [
+            {
+              "label": "part_of",
+              "head": {
+                "start": 72,
+                "end": 87
+              },
+              "tail": {
+                "start": 44,
+                "end": 64
+              },
+              "native_label": "part-of",
+              "native_flags": [
+                false,
+                false
+              ],
+              "native_explanation": ""
+            },
+            {
+              "label": "part_of",
+              "head": {
+                "start": 90,
+                "end": 97
+              },
+              "tail": {
+                "start": 44,
+                "end": 64
+              },
+              "native_label": "part-of",
+              "native_flags": [
+                false,
+                false
+              ],
+              "native_explanation": ""
+            },
+            {
+              "label": "part_of",
+              "head": {
+                "start": 104,
+                "end": 120
+              },
+              "tail": {
+                "start": 44,
+                "end": 64
+              },
+              "native_label": "part-of",
+              "native_flags": [
+                false,
+                false
+              ],
+              "native_explanation": ""
+            }
+          ],
+          "relation_schema": {
+            "artifact": "artifact relation from the first named entity to the second",
+            "compare": "compare relation from the first named entity to the second",
+            "general_affiliation": "general affiliation relation from the first named entity to the second",
+            "named": "named relation from the first named entity to the second",
+            "opposite": "opposite relation from the first named entity to the second",
+            "origin": "origin relation from the first named entity to the second",
+            "part_of": "part of relation from the first named entity to the second",
+            "physical": "physical relation from the first named entity to the second",
+            "related_to": "related to relation from the first named entity to the second",
+            "role": "role relation from the first named entity to the second",
+            "social": "social relation from the first named entity to the second",
+            "temporal": "temporal relation from the first named entity to the second",
+            "topic": "topic relation from the first named entity to the second",
+            "type_of": "type of relation from the first named entity to the second",
+            "win_defeat": "win defeat relation from the first named entity to the second"
+          },
+          "predicted": [
+            {
+              "label": "origin",
+              "native_label": "origin: origin relation from the first named entity to the second",
+              "head": {
+                "text": "Solomon Islands",
+                "start": 72,
+                "end": 87,
+                "confidence": 0.5544627904891968,
+                "confidence_is_correctness": false
+              },
+              "tail": {
+                "text": "Melanesian countries",
+                "start": 44,
+                "end": 64,
+                "confidence": 0.5193700790405273,
+                "confidence_is_correctness": false
+              },
+              "support_verified": false
+            },
+            {
+              "label": "part_of",
+              "native_label": "part_of: part of relation from the first named entity to the second",
+              "head": {
+                "text": "Solomon Islands",
+                "start": 72,
+                "end": 87,
+                "confidence": 0.6737667322158813,
+                "confidence_is_correctness": false
+              },
+              "tail": {
+                "text": "Melanesian countries",
+                "start": 44,
+                "end": 64,
+                "confidence": 0.5657264590263367,
+                "confidence_is_correctness": false
+              },
+              "support_verified": false
+            }
+          ],
+          "elapsed_s": 0.7417688459972851,
+          "metrics": {
+            "precision": 0.5,
+            "recall": 0.3333333333333333,
+            "f1": 0.4,
+            "correct": 1,
+            "predicted": 2,
+            "expected": 3
+          }
+        },
+        {
+          "id": "politics-test-14",
+          "source_revision": "cda88be6f8785d6403f14bed75857569f1baf81daeaf7787b9437b0a56688d1a",
+          "language": "en",
+          "source": "CrossRE politics test",
+          "label_origin": "published-human-annotation",
+          "expected": [
+            {
+              "label": "physical",
+              "head": {
+                "start": 26,
+                "end": 37
+              },
+              "tail": {
+                "start": 43,
+                "end": 50
+              },
+              "native_label": "physical",
+              "native_flags": [
+                false,
+                false
+              ],
+              "native_explanation": ""
+            },
+            {
+              "label": "named",
+              "head": {
+                "start": 65,
+                "end": 70
+              },
+              "tail": {
+                "start": 43,
+                "end": 50
+              },
+              "native_label": "named",
+              "native_flags": [
+                false,
+                false
+              ],
+              "native_explanation": ""
+            }
+          ],
+          "relation_schema": {
+            "artifact": "artifact relation from the first named entity to the second",
+            "compare": "compare relation from the first named entity to the second",
+            "general_affiliation": "general affiliation relation from the first named entity to the second",
+            "named": "named relation from the first named entity to the second",
+            "opposite": "opposite relation from the first named entity to the second",
+            "origin": "origin relation from the first named entity to the second",
+            "part_of": "part of relation from the first named entity to the second",
+            "physical": "physical relation from the first named entity to the second",
+            "related_to": "related to relation from the first named entity to the second",
+            "role": "role relation from the first named entity to the second",
+            "social": "social relation from the first named entity to the second",
+            "temporal": "temporal relation from the first named entity to the second",
+            "topic": "topic relation from the first named entity to the second",
+            "type_of": "type of relation from the first named entity to the second",
+            "win_defeat": "win defeat relation from the first named entity to the second"
+          },
+          "predicted": [],
+          "elapsed_s": 0.7885791609878652,
+          "metrics": {
+            "precision": 0,
+            "recall": 0.0,
+            "f1": 0,
+            "correct": 0,
+            "predicted": 0,
+            "expected": 2
+          }
+        }
+      ],
+      "span_coordinate_system": "Unicode character offsets in space-joined original published tokens",
+      "default_changed": false,
+      "confidence_is_correctness": false
+    },
+    "operation": "ner-benchmark",
+    "elapsed_seconds": 15.832905613002367,
+    "peak_process_tree_rss_bytes": 3170762752,
+    "resource_limits": {
+      "timeout_s": 600,
+      "rss_bytes": 4294967296,
+      "threads": 2
+    },
+    "execution": "isolated-local-process",
+    "hosted_inference_used": false,
+    "remote_processing_used": false
+  },
+  "selection": "First ten positive politics test sentences at most forty tokens with both native flags false; all fifteen relation labels supplied for every sentence",
+  "limitations": [
+    "Small English-only positive selection; not a German relation evaluation",
+    "Native hyphenated relation names map reversibly to underscore schema identifiers",
+    "Source explanation/flags are preserved; no label-presence oracle or gold entity spans provided to inference",
+    "Source tokens joined with spaces; original article whitespace unavailable",
+    "No relation score is interpreted as evidence truth; public training contamination unknown"
+  ],
+  "decision": "Defer relation adoption; judge independently from entity extraction.",
+  "summary": {
+    "precision": 0.1,
+    "recall": 0.020833333333333332,
+    "f1": 0.034482758620689655,
+    "correct": 1,
+    "predicted": 10,
+    "expected": 48
+  }
+}

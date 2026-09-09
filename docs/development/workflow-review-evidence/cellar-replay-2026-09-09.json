@@ -1,0 +1,43 @@
+{
+  "contract": "noesis-cellar-replay-review-v1",
+  "replays": [
+    {
+      "observation": "32016R0679DEU",
+      "replayed": true
+    },
+    {
+      "observation": "32016R0679ENG",
+      "replayed": true
+    },
+    {
+      "observation": "62014CJ0362DEU",
+      "replayed": true
+    },
+    {
+      "observation": "62014CJ0362ENG",
+      "replayed": true
+    },
+    {
+      "observation": "de",
+      "replayed": true
+    },
+    {
+      "observation": "en",
+      "replayed": true
+    }
+  ],
+  "texts": [
+    {
+      "language": "de",
+      "source_url": "https://publications.europa.eu/resource/cellar/3e485e15-11bd-11e6-ba9a-01aa75ed71a1.0004.01/DOC_1",
+      "sections": 1704,
+      "characters": 410384
+    },
+    {
+      "language": "en",
+      "source_url": "https://publications.europa.eu/resource/cellar/ba3ad846-6e01-11e6-8829-01aa75ed71a1.0001.02/DOC_1",
+      "sections": 288,
+      "characters": 90915
+    }
+  ]
+}

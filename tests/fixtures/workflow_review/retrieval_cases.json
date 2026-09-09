@@ -1,0 +1,27 @@
+[
+  {
+    "id": "berlin-law-30-results",
+    "k": 30,
+    "judgment_origin": "fixture-only",
+    "judgments": {"law-a": 3, "law-b": 2, "law-c": 1},
+    "runs": {
+      "lexical": {
+        "ids": ["law-b", "noise-1", "law-a", "law-c"],
+        "status": "complete",
+        "sources": [{"source": "lexical", "status": "complete", "count": 4}],
+        "latency_ms": 2.0,
+        "cost": {"status": "not_metered"}
+      },
+      "fusion": {
+        "ids": ["law-a", "law-b", "law-c"],
+        "status": "partial",
+        "sources": [
+          {"source": "lexical", "status": "complete", "count": 3},
+          {"source": "vector", "status": "failed", "error_type": "FixtureFailure"}
+        ],
+        "latency_ms": 3.0,
+        "cost": {"status": "not_metered"}
+      }
+    }
+  }
+]

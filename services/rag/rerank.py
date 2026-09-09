@@ -7,6 +7,7 @@ to improve the final ranking of retrieval candidates.
 """
 
 import logging
+import math
 import os
 import time
 from typing import Dict, List, Optional, Any, Union, Tuple
@@ -194,6 +195,12 @@ class CrossEncoderReranker:
         # Convert to list if numpy array
         if HAS_NUMPY and isinstance(scores, np.ndarray):
             scores = scores.tolist()
+
+        if len(scores) != len(query_doc_pairs) or any(
+            not isinstance(score, (int, float)) or not math.isfinite(score)
+            for score in scores
+        ):
+            raise ValueError("Cross-encoder must return one finite score per candidate")
         
         return scores
     
@@ -284,6 +291,11 @@ def get_reranker(
     device: Optional[str] = None
 ) -> CrossEncoderReranker:
     """Factory function to get a reranker instance."""
+    if model_name == "Qwen/Qwen3-Reranker-0.6B":
+        from .qwen_rerank import BoundedQwenReranker
+        if device not in (None, "cpu"):
+            raise ValueError("the bounded Qwen worker currently supports CPU execution")
+        return BoundedQwenReranker()
     return CrossEncoderReranker(model_name, device)
 
 
@@ -307,5 +319,5 @@ def rerank_candidates(
     Returns:
         List of reranked results
     """
-    reranker = CrossEncoderReranker(model_name)
+    reranker = get_reranker(model_name)
     return reranker.rerank(query, candidates, top_k, score_fusion)

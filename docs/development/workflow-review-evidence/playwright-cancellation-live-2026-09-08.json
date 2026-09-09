@@ -1,0 +1,9 @@
+{
+  "contract": "noesis-browser-cancellation-native-v1",
+  "inflight_wait_started": true,
+  "status": "cancelled",
+  "elapsed_seconds": 1.2814698930014856,
+  "cleanup_status": "browser_close_completed",
+  "documents_published": 0,
+  "transport_thread_closed": true
+}

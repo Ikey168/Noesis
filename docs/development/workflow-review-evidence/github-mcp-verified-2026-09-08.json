@@ -1,0 +1,117 @@
+{
+  "contract": "noesis-mcp-live-evaluation-v1",
+  "kind": "github",
+  "endpoint": "https://api.githubcopilot.com/mcp/",
+  "database": "/tmp/noesis-mcp-live-evaluation.duckdb",
+  "observation": "live-1788885579183192028",
+  "write_operations_on_source": false,
+  "server_version": "github-mcp-server/remote-3ec14fdb2e4c747a3b2846e8c8f0d92fe7bd39f0",
+  "allowed_tools": [
+    "issue_read",
+    "pull_request_read"
+  ],
+  "capture": {
+    "contract": "noesis-source-result-v1",
+    "source": "github-research",
+    "items": [
+      {
+        "id": "github:429696fa581d656f52129f4ab6ea8c10",
+        "type": "issue",
+        "value": {
+          "url": "https://github.com/Ikey168/Noesis/issues/1463",
+          "revision": "fc0afbcb8e4c2a7b9d1120b07a4c6b81737263425ba623600e3786371a3fd847",
+          "native_id": "https://github.com/Ikey168/Noesis/issues/1463"
+        },
+        "snapshot": {
+          "url": "https://github.com/Ikey168/Noesis/issues/1463",
+          "final_url": "https://github.com/Ikey168/Noesis/issues/1463",
+          "fetched_at": 1788885582529,
+          "digest": "ef14d332475c7c95e384a0c326f318e114d0eb1fac506612874fc45e9a6a105f",
+          "content_type": "application/json",
+          "bytes": 2920
+        }
+      }
+    ],
+    "cursor": null,
+    "coverage": {
+      "complete": true,
+      "returned": 1
+    },
+    "score_semantics": "none",
+    "temporal_support": "captured-revisions",
+    "warnings": [
+      "Remote pagination is not atomic; captured revisions are immutable."
+    ],
+    "provenance": {
+      "source_id": "github-research",
+      "source_kind": "mcp",
+      "source_version": "1.0.0",
+      "capability_hash": "637d78ff9e1845f311034cbb64034ecaeaedbd519536ada663ab2475d19acc27",
+      "query_hash": "1db7257da53daa5058ab707e7f0ec9afdce52f6009cefbf9def25faca4b27cee",
+      "observed_at_ms": 1788885582589,
+      "freshness": {
+        "kind": "unknown"
+      },
+      "consistency": "snapshot"
+    },
+    "latency_ms": 1913.944
+  },
+  "transport_thread_closed": true,
+  "offline_replay": {
+    "contract": "noesis-source-result-v1",
+    "coverage": {
+      "complete": true,
+      "returned": 1
+    },
+    "cursor": null,
+    "items": [
+      {
+        "id": "github:429696fa581d656f52129f4ab6ea8c10",
+        "snapshot": {
+          "bytes": 2920,
+          "content_type": "application/json",
+          "digest": "ef14d332475c7c95e384a0c326f318e114d0eb1fac506612874fc45e9a6a105f",
+          "fetched_at": 1788885582529,
+          "final_url": "https://github.com/Ikey168/Noesis/issues/1463",
+          "url": "https://github.com/Ikey168/Noesis/issues/1463"
+        },
+        "type": "issue",
+        "value": {
+          "native_id": "https://github.com/Ikey168/Noesis/issues/1463",
+          "revision": "fc0afbcb8e4c2a7b9d1120b07a4c6b81737263425ba623600e3786371a3fd847",
+          "url": "https://github.com/Ikey168/Noesis/issues/1463"
+        }
+      }
+    ],
+    "latency_ms": 1913.944,
+    "provenance": {
+      "capability_hash": "637d78ff9e1845f311034cbb64034ecaeaedbd519536ada663ab2475d19acc27",
+      "consistency": "snapshot",
+      "freshness": {
+        "kind": "unknown"
+      },
+      "observed_at_ms": 1788885582589,
+      "query_hash": "1db7257da53daa5058ab707e7f0ec9afdce52f6009cefbf9def25faca4b27cee",
+      "source_id": "github-research",
+      "source_kind": "mcp",
+      "source_version": "1.0.0"
+    },
+    "score_semantics": "none",
+    "source": "github-research",
+    "temporal_support": "captured-revisions",
+    "warnings": [
+      "Remote pagination is not atomic; captured revisions are immutable."
+    ],
+    "replayed": true
+  },
+  "replay_verified": true,
+  "captured_documents": [
+    {
+      "document_id": "github:429696fa581d656f52129f4ab6ea8c10",
+      "url": "https://github.com/Ikey168/Noesis/issues/1463",
+      "content": "Parent: #1405\nReview task: NF-06\nPriority: P2\nType: feature\nDepends on: #1457 (NF-05), #1427 (QA-03)\n\nGenerate proposed edits only for affected sections, with evidence-backed explanations and conflict handling for concurrent author edits.\n\n**User outcome:** \u201cShow which conclusions in last month's report need revisiting after this correction.\u201d The user gets a focused proposed revision and can inspect exactly why it changed.\n\n**Existing foundation:** `src/kb/artifacts.py`, `claim_timelines.py`, `change_briefs.py`, `citation_preservation.py`, and `research_packages.py`. Change briefs already summarize supplied before/after states. The proposed addition is an authored report whose sections and assertions have durable dependency links and a revision workflow.\n\nAcceptance criteria:\n\n- [ ] users accept/reject individual proposals; accepted changes create a versioned report, while earlier reports remain reproducible.\n- [ ] Export the updated report and bibliography without automatically publishing it externally.\n\nCode and evidence pointers (reviewed revision):\n\n- [src/kb/artifacts.py](https://github.com/Ikey168/Noesis/blob/0bf70327/src/kb/artifacts.py)\n- [src/kb/change_briefs.py](https://github.com/Ikey168/Noesis/blob/0bf70327/src/kb/change_briefs.py)\n- [src/kb/citation_preservation.py](https://github.com/Ikey168/Noesis/blob/0bf70327/src/kb/citation_preservation.py)\n- [src/kb/claim_timelines.py](https://github.com/Ikey168/Noesis/blob/0bf70327/src/kb/claim_timelines.py)\n- [src/kb/research_packages.py](https://github.com/Ikey168/Noesis/blob/0bf70327/src/kb/research_packages.py)\n\nValidation: exercise the acceptance scenarios through the supported public contract/API, including relevant replay, access, and unavailable-input cases. Preserve evidence identity and explicit uncertainty; do not count synthetic fixtures as real-world validation.\n\n<!-- noesis-review-task:NF-06 -->\n"
+    }
+  ],
+  "elapsed_seconds": 3.80228707799688,
+  "evidence_semantics": "Live captured MCP representations; neither original HTTP response bytes nor independent human quality judgments."
+}

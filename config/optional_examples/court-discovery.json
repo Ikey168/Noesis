@@ -1,0 +1,17 @@
+{
+  "kind": "regional",
+  "namespace": "law",
+  "provider": "german-courts",
+  "operation": "court_index",
+  "observation": "court-index-001",
+  "network_approved": true,
+  "budget": {
+    "budget_id": "court-index-public-001",
+    "max_requests": 1,
+    "max_usd_micros": 0,
+    "max_bytes": 25000000,
+    "account_ref": "public",
+    "reuse_notice": "REPLACE_WITH_APPROVED_REUSE_POLICY"
+  },
+  "parameters": {}
+}

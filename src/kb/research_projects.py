@@ -137,7 +137,7 @@ class ResearchProjectStore:
         raise exc
 
     def create(self, namespace, request_key, *, questions, success_criteria, scope, budget,
-               principal_id, scopes):
+               principal_id, scopes, origin=None):
         if not isinstance(namespace, str) or not namespace or not request_key:
             raise ResearchProjectError("invalid_project", "namespace and request_key are required")
         if not isinstance(scope, dict) or set(scope) != {"domains", "namespaces"}:
@@ -152,6 +152,8 @@ class ResearchProjectStore:
                  "budget": _cost(budget), "spent": _cost({}), "links": [], "status": "active",
                  "question_revision": 1, "revision": 1, "retention_policy": "references-only"}
         self._authorize(state, principal_id, scopes, write=True)
+        if origin is not None:
+            state["template_origin"] = json.loads(_json(origin))
         digest = _hash(state)
         prior = self.conn.execute("SELECT request_hash FROM research_projects WHERE project_id=?", [state["project_id"]]).fetchone()
         if prior:

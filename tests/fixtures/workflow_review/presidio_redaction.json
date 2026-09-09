@@ -1,0 +1,47 @@
+{
+  "contract": "noesis-presidio-redaction-fixture-v1",
+  "label_origin": "authored-regression-labels-not-independent-human",
+  "cases": [
+    {
+      "id": "de-address-identifiers",
+      "language": "de",
+      "text": "Max Müller wohnt in der Invalidenstraße 42, 10115 Berlin. E-Mail max.mueller@example.de, IBAN DE89370400440532013000.",
+      "expected": [
+        {"text": "Max Müller", "entity_type": "PERSON"},
+        {"text": "Invalidenstraße", "entity_type": "LOCATION"},
+        {"text": "Berlin", "entity_type": "LOCATION"},
+        {"text": "max.mueller@example.de", "entity_type": "EMAIL_ADDRESS"},
+        {"text": "DE89370400440532013000", "entity_type": "IBAN_CODE"}
+      ]
+    },
+    {
+      "id": "de-phone-name",
+      "language": "de",
+      "text": "Kontakt: Anna Schmidt, Berlin, Telefon +49 30 12345678, E-Mail anna.schmidt@example.org.",
+      "expected": [
+        {"text": "Anna Schmidt", "entity_type": "PERSON"},
+        {"text": "Berlin", "entity_type": "LOCATION"},
+        {"text": "+49 30 12345678", "entity_type": "PHONE_NUMBER"},
+        {"text": "anna.schmidt@example.org", "entity_type": "EMAIL_ADDRESS"}
+      ]
+    },
+    {
+      "id": "en-name-address",
+      "language": "en",
+      "text": "Jane Smith lives near Baker Street in London. Email jane.smith@example.com and call +44 20 7946 0958.",
+      "expected": [
+        {"text": "Jane Smith", "entity_type": "PERSON"},
+        {"text": "Baker Street", "entity_type": "LOCATION"},
+        {"text": "London", "entity_type": "LOCATION"},
+        {"text": "jane.smith@example.com", "entity_type": "EMAIL_ADDRESS"},
+        {"text": "+44 20 7946 0958", "entity_type": "PHONE_NUMBER"}
+      ]
+    },
+    {
+      "id": "hard-negative-public-facts",
+      "language": "en",
+      "text": "The Berlin policy report discusses housing permits, public budgets and aggregate statistics without personal contact data.",
+      "expected": []
+    }
+  ]
+}

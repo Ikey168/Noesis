@@ -1,0 +1,21 @@
+{
+  "kind": "analysis",
+  "namespace": "research",
+  "run_id": "gliner-001",
+  "backend": "gliner2",
+  "sources": [
+    {
+      "document_id": "REPLACE_DOCUMENT_ID",
+      "revision_id": "REPLACE_COMMITTED_REVISION_ID"
+    }
+  ],
+  "parameters": {
+    "labels": [
+      "person",
+      "organization"
+    ],
+    "language": "de"
+  },
+  "timeout_s": 60,
+  "max_rss_bytes": 4294967296
+}

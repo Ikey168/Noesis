@@ -1,0 +1,89 @@
+{
+  "contract": "noesis-remaining-issue-validation-v1",
+  "recorded_at": "2026-09-08T02:05:45.192194+00:00",
+  "github_open_issues": 58,
+  "github_issues_closed": false,
+  "full_backlog_complete": false,
+  "regression": {
+    "passed": 1560,
+    "skipped": 4,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 129.788,
+    "command": "PYTHONPATH=.eval-packages:. .venv/bin/python -m pytest tests/unit/ingestion tests/unit/kb tests/unit/evaluation tests/unit/noesis_cli tests/rag/test_normalization.py tests/unit/services/rag/test_lingua_normalization.py tests/knowledge_graph/test_entity_resolution.py -q",
+    "skip_details": [
+      {
+        "test": "::tests.unit.ingestion.connectors.media.test_diarizer_coverage",
+        "reason": "collection skipped"
+      },
+      {
+        "test": "tests.unit.ingestion.connectors.book.test_book_pdf_parser_coverage::test_parse_with_pdfminer_on_real_pdf",
+        "reason": "could not import 'pdfminer': No module named 'pdfminer'"
+      },
+      {
+        "test": "tests.unit.ingestion.connectors.book.test_book_pdf_parser_coverage::test_parse_with_pdfminer_empty_returns_none",
+        "reason": "could not import 'pdfminer': No module named 'pdfminer'"
+      },
+      {
+        "test": "tests.unit.evaluation.test_ragas_metrics::test_native_ragas_metrics_do_not_require_a_hosted_judge",
+        "reason": "could not import 'ragas': No module named 'langchain_community.chat_models.vertexai'"
+      }
+    ]
+  },
+  "environment_change": "Installed repository-pinned rapidfuzz==3.14.3 into .venv; preceding run had two missing-dependency failures",
+  "scoped_ruff": "passed",
+  "git_diff_check": "passed",
+  "wheel": {
+    "path": "/tmp/noesis-sept8-dist/noesis_evidence-0.1.0-py3-none-any.whl",
+    "outside_checkout_doctor": "passed",
+    "regional_review_present": true,
+    "network_calls": 0
+  },
+  "native_single_pdf": {
+    "status": "completed",
+    "runtime_receipt": {
+      "status": "completed",
+      "operation": "pdf-pymupdf",
+      "elapsed_seconds": 0.5448435829894152,
+      "peak_process_tree_rss_bytes": 71376896,
+      "resource_limits": {
+        "timeout_s": 30.0,
+        "rss_bytes": 4294967296,
+        "threads": 2
+      },
+      "execution": "isolated-local-process",
+      "hosted_inference_used": false,
+      "remote_processing_used": false
+    }
+  },
+  "source_hashes": {
+    "src/ingestion/regional_review.py": "2008fbf24f48ccfa1713f7bbe659fb4dd408baa2c0dddbafb465f77ca30871ab",
+    "src/ingestion/regional_providers.py": "bc15f4b9ee2a8c77f995e6e101456d2c3cda5e5655e61cef33c5e9c76c9e2c0b",
+    "src/ingestion/regional_workflow.py": "36acf0c1a93658bb591180a550ca715448fed5cb93df2a0e0a5badb843fe77ac",
+    "src/ingestion/hosted_acquisition.py": "c1ab38341b12a4f8f3d563095fd415257715792852bbac193ba2f7ff4699cea9",
+    "src/ingestion/provider_execution.py": "948a381e14d6fc72fbbc702d7f291674692567daffc74b6f586e636e6833f05b",
+    "src/ingestion/revisions.py": "51fc0f55548b192b9dab58f826a5596a7ff0fcde5a7c8c1021d804492bed1c52",
+    "src/noesis_cli/optional.py": "ea68e8a7f9d005509faa2cbc2996374a701ad9f317aa2d3aea35b5718e3f3224",
+    "scripts/evaluate_pdf_backends.py": "4af303cb4062b07111edb06b3d01fb31e9be89afafabab9c0824ab73dbf45189",
+    "tests/unit/ingestion/test_regional_review.py": "74955bc8194f9334249e3d039086e47f6510478e7cb069f42c09bc5a17a76645",
+    "tests/unit/ingestion/test_regional_providers.py": "5c4ed332d450391969fc74d9d85937278f63a2c5f588b154b7933ed8b5a80af6",
+    "tests/unit/ingestion/test_hosted_acquisition.py": "2a8153e5bad12ec41af40de4f037734c2897ebaad36f76fbf8cdaecf13c4aae1",
+    "tests/unit/evaluation/test_pdf_benchmark_cli.py": "769ac6a8a88236b11babb934dd65ab27da42bb4084a61b39016cd5a268410a48",
+    "tests/unit/noesis_cli/test_optional.py": "2cb76a1432eadeaf76b4728cf38b9835b3f10fb68186f1d6f1862fdcc04bd73d"
+  },
+  "log_sha256": "ac122b28695980d75b03f9b662f785205eeee051e9408ccb50ed443b9a0f1fa3",
+  "junit_sha256": "e1f755b2f3e51d4a8af835c43809c9a6ae145073e8a507bc2048995a390406f3",
+  "independent_human_data_collected": false,
+  "paid_calls": false,
+  "committed_or_pushed": false,
+  "ragas_compatible_profile": {
+    "command": "PYTHONPATH=.eval-ragas-compat:.eval-packages:. .venv/bin/python -m pytest tests/unit/evaluation/test_ragas_metrics.py -q",
+    "passed": 2,
+    "skipped": 0,
+    "failures": 0,
+    "native_execution": true,
+    "human_quality_evaluation": false,
+    "log_sha256": "6c1ebd027a228d60b1f795f04740d5bd5d3800aaebce5fb493e96e636775a646",
+    "semantics": "Separate compatible-profile run; overlaps the broad suite and is not added to its count."
+  }
+}

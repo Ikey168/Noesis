@@ -1,0 +1,1762 @@
+{
+  "corpus": "authored local static/JS/pagination/lazy/error/source-edit fixtures; not production anti-bot or independent fidelity evaluation",
+  "cost_accounting": "local backends are recorded as zero provider cost; hosted backend cost remains unavailable until an authorized credentialed run with an explicit ceiling",
+  "versions": {
+    "scrapy": "2.18.0",
+    "playwright": "1.62.0",
+    "crawl4ai": "0.9.3",
+    "crawlee": "1.10.0",
+    "trafilatura": null
+  },
+  "runs": [
+    {
+      "backend": "scrapy",
+      "fixture": "/static",
+      "fixture_sha256": "160997301734ffad4f86644b44068918f60da6998cb49a55ad60bde899bcb60a",
+      "status": "completed",
+      "snapshot_sha256": "160997301734ffad4f86644b44068918f60da6998cb49a55ad60bde899bcb60a",
+      "acquisition_metadata": null,
+      "extraction_metadata": {
+        "extractor": "extruct+html-metadata",
+        "version": null,
+        "snapshot_sha256": "160997301734ffad4f86644b44068918f60da6998cb49a55ad60bde899bcb60a",
+        "selected": {
+          "title": {
+            "field": "title",
+            "value": "Fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4,
+            "selection_reason": "matching article URL, then article entity, metadata, canonical link, visible heading; locator breaks ties"
+          }
+        },
+        "candidates": [
+          {
+            "field": "title",
+            "value": "Fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4
+          }
+        ],
+        "diagnostics": [
+          {
+            "reason": "optional_extruct_unavailable"
+          }
+        ],
+        "canonical_identity_authoritative": false,
+        "body_extractor": {
+          "name": "bs4-heuristic",
+          "version": "4.15.0",
+          "locator": "extracted-body; exact source spans unavailable"
+        }
+      },
+      "elapsed_seconds": 0.4954245009976148,
+      "peak_parent_rss_kib": 78872,
+      "expected_body_recall": 1.0,
+      "false_body_on_empty": null
+    },
+    {
+      "backend": "scrapy",
+      "fixture": "/delayed",
+      "fixture_sha256": "a2c42009bff802eb3d204ab7f3f2a811f38e300430f65289b5efe7a70e3809ce",
+      "status": "completed",
+      "snapshot_sha256": "a2c42009bff802eb3d204ab7f3f2a811f38e300430f65289b5efe7a70e3809ce",
+      "acquisition_metadata": null,
+      "extraction_metadata": null,
+      "elapsed_seconds": 0.3271975830029987,
+      "peak_parent_rss_kib": 79772,
+      "expected_body_recall": 0.0,
+      "false_body_on_empty": null
+    },
+    {
+      "backend": "scrapy",
+      "fixture": "/pagination-1",
+      "fixture_sha256": "2dcc801c6b7c7d059b4e1aeb32f98e7ce82ef5d3039e7dc7cb379c889136060b",
+      "status": "completed",
+      "snapshot_sha256": "2dcc801c6b7c7d059b4e1aeb32f98e7ce82ef5d3039e7dc7cb379c889136060b",
+      "acquisition_metadata": null,
+      "extraction_metadata": {
+        "extractor": "extruct+html-metadata",
+        "version": null,
+        "snapshot_sha256": "2dcc801c6b7c7d059b4e1aeb32f98e7ce82ef5d3039e7dc7cb379c889136060b",
+        "selected": {
+          "title": {
+            "field": "title",
+            "value": "Page one",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4,
+            "selection_reason": "matching article URL, then article entity, metadata, canonical link, visible heading; locator breaks ties"
+          }
+        },
+        "candidates": [
+          {
+            "field": "title",
+            "value": "Page one",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4
+          }
+        ],
+        "diagnostics": [
+          {
+            "reason": "optional_extruct_unavailable"
+          }
+        ],
+        "canonical_identity_authoritative": false,
+        "body_extractor": {
+          "name": "bs4-heuristic",
+          "version": "4.15.0",
+          "locator": "extracted-body; exact source spans unavailable"
+        }
+      },
+      "elapsed_seconds": 0.31045215299673146,
+      "peak_parent_rss_kib": 79592,
+      "expected_body_recall": 1.0,
+      "false_body_on_empty": null
+    },
+    {
+      "backend": "scrapy",
+      "fixture": "/pagination-2",
+      "fixture_sha256": "63cd97ae0186fb4a860aeadc6054546efb0aa19fb6d628b2fa31456cf051c3a7",
+      "status": "completed",
+      "snapshot_sha256": "63cd97ae0186fb4a860aeadc6054546efb0aa19fb6d628b2fa31456cf051c3a7",
+      "acquisition_metadata": null,
+      "extraction_metadata": {
+        "extractor": "extruct+html-metadata",
+        "version": null,
+        "snapshot_sha256": "63cd97ae0186fb4a860aeadc6054546efb0aa19fb6d628b2fa31456cf051c3a7",
+        "selected": {
+          "title": {
+            "field": "title",
+            "value": "Page two",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4,
+            "selection_reason": "matching article URL, then article entity, metadata, canonical link, visible heading; locator breaks ties"
+          }
+        },
+        "candidates": [
+          {
+            "field": "title",
+            "value": "Page two",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4
+          }
+        ],
+        "diagnostics": [
+          {
+            "reason": "optional_extruct_unavailable"
+          }
+        ],
+        "canonical_identity_authoritative": false,
+        "body_extractor": {
+          "name": "bs4-heuristic",
+          "version": "4.15.0",
+          "locator": "extracted-body; exact source spans unavailable"
+        }
+      },
+      "elapsed_seconds": 0.36307216900240746,
+      "peak_parent_rss_kib": 79916,
+      "expected_body_recall": 1.0,
+      "false_body_on_empty": null
+    },
+    {
+      "backend": "scrapy",
+      "fixture": "/lazy",
+      "fixture_sha256": "c741b421002aae6d683f952374212411f6395c63fdea8e482ef0dc2b9dce8ad7",
+      "status": "completed",
+      "snapshot_sha256": "c741b421002aae6d683f952374212411f6395c63fdea8e482ef0dc2b9dce8ad7",
+      "acquisition_metadata": null,
+      "extraction_metadata": null,
+      "elapsed_seconds": 0.3621003500011284,
+      "peak_parent_rss_kib": 79776,
+      "expected_body_recall": 0.0,
+      "false_body_on_empty": null
+    },
+    {
+      "backend": "scrapy",
+      "fixture": "/edited-before",
+      "fixture_sha256": "21c9b5a8855b8b03ded303dcf4c2a03ef37f65af16eea04bbf3d53d13510cf8b",
+      "status": "completed",
+      "snapshot_sha256": "21c9b5a8855b8b03ded303dcf4c2a03ef37f65af16eea04bbf3d53d13510cf8b",
+      "acquisition_metadata": null,
+      "extraction_metadata": {
+        "extractor": "extruct+html-metadata",
+        "version": null,
+        "snapshot_sha256": "21c9b5a8855b8b03ded303dcf4c2a03ef37f65af16eea04bbf3d53d13510cf8b",
+        "selected": {
+          "title": {
+            "field": "title",
+            "value": "Edit fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4,
+            "selection_reason": "matching article URL, then article entity, metadata, canonical link, visible heading; locator breaks ties"
+          }
+        },
+        "candidates": [
+          {
+            "field": "title",
+            "value": "Edit fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4
+          }
+        ],
+        "diagnostics": [
+          {
+            "reason": "optional_extruct_unavailable"
+          }
+        ],
+        "canonical_identity_authoritative": false,
+        "body_extractor": {
+          "name": "bs4-heuristic",
+          "version": "4.15.0",
+          "locator": "extracted-body; exact source spans unavailable"
+        }
+      },
+      "elapsed_seconds": 0.39956089000042994,
+      "peak_parent_rss_kib": 80016,
+      "expected_body_recall": 1.0,
+      "false_body_on_empty": null
+    },
+    {
+      "backend": "scrapy",
+      "fixture": "/edited-after",
+      "fixture_sha256": "6dea5fd67a4d647a23ab6839918f6eca45444740a3898d4071c2ff66c7dbe9f4",
+      "status": "completed",
+      "snapshot_sha256": "6dea5fd67a4d647a23ab6839918f6eca45444740a3898d4071c2ff66c7dbe9f4",
+      "acquisition_metadata": null,
+      "extraction_metadata": {
+        "extractor": "extruct+html-metadata",
+        "version": null,
+        "snapshot_sha256": "6dea5fd67a4d647a23ab6839918f6eca45444740a3898d4071c2ff66c7dbe9f4",
+        "selected": {
+          "title": {
+            "field": "title",
+            "value": "Edit fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4,
+            "selection_reason": "matching article URL, then article entity, metadata, canonical link, visible heading; locator breaks ties"
+          }
+        },
+        "candidates": [
+          {
+            "field": "title",
+            "value": "Edit fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4
+          }
+        ],
+        "diagnostics": [
+          {
+            "reason": "optional_extruct_unavailable"
+          }
+        ],
+        "canonical_identity_authoritative": false,
+        "body_extractor": {
+          "name": "bs4-heuristic",
+          "version": "4.15.0",
+          "locator": "extracted-body; exact source spans unavailable"
+        }
+      },
+      "elapsed_seconds": 0.5152141100006702,
+      "peak_parent_rss_kib": 79712,
+      "expected_body_recall": 1.0,
+      "false_body_on_empty": null
+    },
+    {
+      "backend": "scrapy",
+      "fixture": "/missing",
+      "fixture_sha256": "4dae6a1dc9f6385419aab724626d2488c3e4116eca0e772092d3304a48165cb7",
+      "status": "completed",
+      "snapshot_sha256": "4dae6a1dc9f6385419aab724626d2488c3e4116eca0e772092d3304a48165cb7",
+      "acquisition_metadata": null,
+      "extraction_metadata": null,
+      "elapsed_seconds": 0.4138896689983085,
+      "peak_parent_rss_kib": 79560,
+      "expected_body_recall": null,
+      "false_body_on_empty": false
+    },
+    {
+      "backend": "playwright",
+      "fixture": "/static",
+      "fixture_sha256": "160997301734ffad4f86644b44068918f60da6998cb49a55ad60bde899bcb60a",
+      "status": "completed",
+      "snapshot_sha256": "d6816e957d53ebdd47b31f3efe4a772d146132712798cbf0a6aeeb2d2fcf208b",
+      "acquisition_metadata": null,
+      "extraction_metadata": {
+        "extractor": "extruct+html-metadata",
+        "version": null,
+        "snapshot_sha256": "d6816e957d53ebdd47b31f3efe4a772d146132712798cbf0a6aeeb2d2fcf208b",
+        "selected": {
+          "title": {
+            "field": "title",
+            "value": "Fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4,
+            "selection_reason": "matching article URL, then article entity, metadata, canonical link, visible heading; locator breaks ties"
+          }
+        },
+        "candidates": [
+          {
+            "field": "title",
+            "value": "Fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4
+          }
+        ],
+        "diagnostics": [
+          {
+            "reason": "optional_extruct_unavailable"
+          }
+        ],
+        "canonical_identity_authoritative": false,
+        "body_extractor": {
+          "name": "bs4-heuristic",
+          "version": "4.15.0",
+          "locator": "extracted-body; exact source spans unavailable"
+        }
+      },
+      "elapsed_seconds": 0.7657667790008418,
+      "peak_parent_rss_kib": 46372,
+      "expected_body_recall": 1.0,
+      "false_body_on_empty": null
+    },
+    {
+      "backend": "playwright",
+      "fixture": "/delayed",
+      "fixture_sha256": "a2c42009bff802eb3d204ab7f3f2a811f38e300430f65289b5efe7a70e3809ce",
+      "status": "completed",
+      "snapshot_sha256": "d6816e957d53ebdd47b31f3efe4a772d146132712798cbf0a6aeeb2d2fcf208b",
+      "acquisition_metadata": null,
+      "extraction_metadata": {
+        "extractor": "extruct+html-metadata",
+        "version": null,
+        "snapshot_sha256": "d6816e957d53ebdd47b31f3efe4a772d146132712798cbf0a6aeeb2d2fcf208b",
+        "selected": {
+          "title": {
+            "field": "title",
+            "value": "Fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4,
+            "selection_reason": "matching article URL, then article entity, metadata, canonical link, visible heading; locator breaks ties"
+          }
+        },
+        "candidates": [
+          {
+            "field": "title",
+            "value": "Fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4
+          }
+        ],
+        "diagnostics": [
+          {
+            "reason": "optional_extruct_unavailable"
+          }
+        ],
+        "canonical_identity_authoritative": false,
+        "body_extractor": {
+          "name": "bs4-heuristic",
+          "version": "4.15.0",
+          "locator": "extracted-body; exact source spans unavailable"
+        }
+      },
+      "elapsed_seconds": 0.7348371109983418,
+      "peak_parent_rss_kib": 46588,
+      "expected_body_recall": 1.0,
+      "false_body_on_empty": null
+    },
+    {
+      "backend": "playwright",
+      "fixture": "/pagination-1",
+      "fixture_sha256": "2dcc801c6b7c7d059b4e1aeb32f98e7ce82ef5d3039e7dc7cb379c889136060b",
+      "status": "completed",
+      "snapshot_sha256": "f6693f8ee4faf8c5feacff4f375b1861eea656c6a4b9e4cf651dd6f0175cf3d3",
+      "acquisition_metadata": null,
+      "extraction_metadata": {
+        "extractor": "extruct+html-metadata",
+        "version": null,
+        "snapshot_sha256": "f6693f8ee4faf8c5feacff4f375b1861eea656c6a4b9e4cf651dd6f0175cf3d3",
+        "selected": {
+          "title": {
+            "field": "title",
+            "value": "Page one",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4,
+            "selection_reason": "matching article URL, then article entity, metadata, canonical link, visible heading; locator breaks ties"
+          }
+        },
+        "candidates": [
+          {
+            "field": "title",
+            "value": "Page one",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4
+          }
+        ],
+        "diagnostics": [
+          {
+            "reason": "optional_extruct_unavailable"
+          }
+        ],
+        "canonical_identity_authoritative": false,
+        "body_extractor": {
+          "name": "bs4-heuristic",
+          "version": "4.15.0",
+          "locator": "extracted-body; exact source spans unavailable"
+        }
+      },
+      "elapsed_seconds": 0.6923621530004311,
+      "peak_parent_rss_kib": 46156,
+      "expected_body_recall": 1.0,
+      "false_body_on_empty": null
+    },
+    {
+      "backend": "playwright",
+      "fixture": "/pagination-2",
+      "fixture_sha256": "63cd97ae0186fb4a860aeadc6054546efb0aa19fb6d628b2fa31456cf051c3a7",
+      "status": "completed",
+      "snapshot_sha256": "5fc39c1dd4813b77aa2d27341dc6c95bde3b783bb78eabad01306b495eb40a20",
+      "acquisition_metadata": null,
+      "extraction_metadata": {
+        "extractor": "extruct+html-metadata",
+        "version": null,
+        "snapshot_sha256": "5fc39c1dd4813b77aa2d27341dc6c95bde3b783bb78eabad01306b495eb40a20",
+        "selected": {
+          "title": {
+            "field": "title",
+            "value": "Page two",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4,
+            "selection_reason": "matching article URL, then article entity, metadata, canonical link, visible heading; locator breaks ties"
+          }
+        },
+        "candidates": [
+          {
+            "field": "title",
+            "value": "Page two",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4
+          }
+        ],
+        "diagnostics": [
+          {
+            "reason": "optional_extruct_unavailable"
+          }
+        ],
+        "canonical_identity_authoritative": false,
+        "body_extractor": {
+          "name": "bs4-heuristic",
+          "version": "4.15.0",
+          "locator": "extracted-body; exact source spans unavailable"
+        }
+      },
+      "elapsed_seconds": 0.9296638999985589,
+      "peak_parent_rss_kib": 46612,
+      "expected_body_recall": 1.0,
+      "false_body_on_empty": null
+    },
+    {
+      "backend": "playwright",
+      "fixture": "/lazy",
+      "fixture_sha256": "c741b421002aae6d683f952374212411f6395c63fdea8e482ef0dc2b9dce8ad7",
+      "status": "completed",
+      "snapshot_sha256": "ab43841dbc04c34650c81b8fc527b0150c22358fe6fd0be75766ec90523ee755",
+      "acquisition_metadata": null,
+      "extraction_metadata": {
+        "extractor": "extruct+html-metadata",
+        "version": null,
+        "snapshot_sha256": "ab43841dbc04c34650c81b8fc527b0150c22358fe6fd0be75766ec90523ee755",
+        "selected": {
+          "title": {
+            "field": "title",
+            "value": "Lazy",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4,
+            "selection_reason": "matching article URL, then article entity, metadata, canonical link, visible heading; locator breaks ties"
+          }
+        },
+        "candidates": [
+          {
+            "field": "title",
+            "value": "Lazy",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4
+          }
+        ],
+        "diagnostics": [
+          {
+            "reason": "optional_extruct_unavailable"
+          }
+        ],
+        "canonical_identity_authoritative": false,
+        "body_extractor": {
+          "name": "bs4-heuristic",
+          "version": "4.15.0",
+          "locator": "extracted-body; exact source spans unavailable"
+        }
+      },
+      "elapsed_seconds": 0.9676597899997432,
+      "peak_parent_rss_kib": 46384,
+      "expected_body_recall": 1.0,
+      "false_body_on_empty": null
+    },
+    {
+      "backend": "playwright",
+      "fixture": "/edited-before",
+      "fixture_sha256": "21c9b5a8855b8b03ded303dcf4c2a03ef37f65af16eea04bbf3d53d13510cf8b",
+      "status": "completed",
+      "snapshot_sha256": "c75dd6e8d6b991496ea93fd63a6af26b7d6b2d884f47f11e9621278ee0835497",
+      "acquisition_metadata": null,
+      "extraction_metadata": {
+        "extractor": "extruct+html-metadata",
+        "version": null,
+        "snapshot_sha256": "c75dd6e8d6b991496ea93fd63a6af26b7d6b2d884f47f11e9621278ee0835497",
+        "selected": {
+          "title": {
+            "field": "title",
+            "value": "Edit fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4,
+            "selection_reason": "matching article URL, then article entity, metadata, canonical link, visible heading; locator breaks ties"
+          }
+        },
+        "candidates": [
+          {
+            "field": "title",
+            "value": "Edit fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4
+          }
+        ],
+        "diagnostics": [
+          {
+            "reason": "optional_extruct_unavailable"
+          }
+        ],
+        "canonical_identity_authoritative": false,
+        "body_extractor": {
+          "name": "bs4-heuristic",
+          "version": "4.15.0",
+          "locator": "extracted-body; exact source spans unavailable"
+        }
+      },
+      "elapsed_seconds": 0.6098602080019191,
+      "peak_parent_rss_kib": 46584,
+      "expected_body_recall": 1.0,
+      "false_body_on_empty": null
+    },
+    {
+      "backend": "playwright",
+      "fixture": "/edited-after",
+      "fixture_sha256": "6dea5fd67a4d647a23ab6839918f6eca45444740a3898d4071c2ff66c7dbe9f4",
+      "status": "completed",
+      "snapshot_sha256": "b6277ed3695c626b4d64fc70050205abf44f41b44431a3c9bd3185758855423d",
+      "acquisition_metadata": null,
+      "extraction_metadata": {
+        "extractor": "extruct+html-metadata",
+        "version": null,
+        "snapshot_sha256": "b6277ed3695c626b4d64fc70050205abf44f41b44431a3c9bd3185758855423d",
+        "selected": {
+          "title": {
+            "field": "title",
+            "value": "Edit fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4,
+            "selection_reason": "matching article URL, then article entity, metadata, canonical link, visible heading; locator breaks ties"
+          }
+        },
+        "candidates": [
+          {
+            "field": "title",
+            "value": "Edit fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4
+          }
+        ],
+        "diagnostics": [
+          {
+            "reason": "optional_extruct_unavailable"
+          }
+        ],
+        "canonical_identity_authoritative": false,
+        "body_extractor": {
+          "name": "bs4-heuristic",
+          "version": "4.15.0",
+          "locator": "extracted-body; exact source spans unavailable"
+        }
+      },
+      "elapsed_seconds": 0.5039332460000878,
+      "peak_parent_rss_kib": 46784,
+      "expected_body_recall": 1.0,
+      "false_body_on_empty": null
+    },
+    {
+      "backend": "playwright",
+      "fixture": "/missing",
+      "fixture_sha256": "4dae6a1dc9f6385419aab724626d2488c3e4116eca0e772092d3304a48165cb7",
+      "status": "failed",
+      "failure_type": "TimeoutError",
+      "failure": "Page.wait_for_selector: Timeout 1000ms exceeded.\nCall log:\n  - waiting for locator(\"article\") to be visible\n",
+      "elapsed_seconds": 1.3776138739995076,
+      "peak_parent_rss_kib": 35052,
+      "expected_body_recall": null,
+      "false_body_on_empty": false
+    },
+    {
+      "backend": "crawl4ai",
+      "fixture": "/static",
+      "fixture_sha256": "160997301734ffad4f86644b44068918f60da6998cb49a55ad60bde899bcb60a",
+      "status": "completed",
+      "snapshot_sha256": "d6816e957d53ebdd47b31f3efe4a772d146132712798cbf0a6aeeb2d2fcf208b",
+      "acquisition_metadata": null,
+      "extraction_metadata": {
+        "extractor": "extruct+html-metadata",
+        "version": null,
+        "snapshot_sha256": "d6816e957d53ebdd47b31f3efe4a772d146132712798cbf0a6aeeb2d2fcf208b",
+        "selected": {
+          "title": {
+            "field": "title",
+            "value": "Fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4,
+            "selection_reason": "matching article URL, then article entity, metadata, canonical link, visible heading; locator breaks ties"
+          }
+        },
+        "candidates": [
+          {
+            "field": "title",
+            "value": "Fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4
+          }
+        ],
+        "diagnostics": [
+          {
+            "reason": "optional_extruct_unavailable"
+          }
+        ],
+        "canonical_identity_authoritative": false,
+        "body_extractor": {
+          "name": "bs4-heuristic",
+          "version": "4.15.0",
+          "locator": "extracted-body; exact source spans unavailable"
+        }
+      },
+      "elapsed_seconds": 1.5018156719997933,
+      "peak_parent_rss_kib": 131508,
+      "expected_body_recall": 1.0,
+      "false_body_on_empty": null
+    },
+    {
+      "backend": "crawl4ai",
+      "fixture": "/delayed",
+      "fixture_sha256": "a2c42009bff802eb3d204ab7f3f2a811f38e300430f65289b5efe7a70e3809ce",
+      "status": "completed",
+      "snapshot_sha256": "d6816e957d53ebdd47b31f3efe4a772d146132712798cbf0a6aeeb2d2fcf208b",
+      "acquisition_metadata": null,
+      "extraction_metadata": {
+        "extractor": "extruct+html-metadata",
+        "version": null,
+        "snapshot_sha256": "d6816e957d53ebdd47b31f3efe4a772d146132712798cbf0a6aeeb2d2fcf208b",
+        "selected": {
+          "title": {
+            "field": "title",
+            "value": "Fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4,
+            "selection_reason": "matching article URL, then article entity, metadata, canonical link, visible heading; locator breaks ties"
+          }
+        },
+        "candidates": [
+          {
+            "field": "title",
+            "value": "Fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4
+          }
+        ],
+        "diagnostics": [
+          {
+            "reason": "optional_extruct_unavailable"
+          }
+        ],
+        "canonical_identity_authoritative": false,
+        "body_extractor": {
+          "name": "bs4-heuristic",
+          "version": "4.15.0",
+          "locator": "extracted-body; exact source spans unavailable"
+        }
+      },
+      "elapsed_seconds": 1.4196503369967104,
+      "peak_parent_rss_kib": 132900,
+      "expected_body_recall": 1.0,
+      "false_body_on_empty": null
+    },
+    {
+      "backend": "crawl4ai",
+      "fixture": "/pagination-1",
+      "fixture_sha256": "2dcc801c6b7c7d059b4e1aeb32f98e7ce82ef5d3039e7dc7cb379c889136060b",
+      "status": "completed",
+      "snapshot_sha256": "f6693f8ee4faf8c5feacff4f375b1861eea656c6a4b9e4cf651dd6f0175cf3d3",
+      "acquisition_metadata": null,
+      "extraction_metadata": {
+        "extractor": "extruct+html-metadata",
+        "version": null,
+        "snapshot_sha256": "f6693f8ee4faf8c5feacff4f375b1861eea656c6a4b9e4cf651dd6f0175cf3d3",
+        "selected": {
+          "title": {
+            "field": "title",
+            "value": "Page one",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4,
+            "selection_reason": "matching article URL, then article entity, metadata, canonical link, visible heading; locator breaks ties"
+          }
+        },
+        "candidates": [
+          {
+            "field": "title",
+            "value": "Page one",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4
+          }
+        ],
+        "diagnostics": [
+          {
+            "reason": "optional_extruct_unavailable"
+          }
+        ],
+        "canonical_identity_authoritative": false,
+        "body_extractor": {
+          "name": "bs4-heuristic",
+          "version": "4.15.0",
+          "locator": "extracted-body; exact source spans unavailable"
+        }
+      },
+      "elapsed_seconds": 1.4437695029992028,
+      "peak_parent_rss_kib": 132812,
+      "expected_body_recall": 1.0,
+      "false_body_on_empty": null
+    },
+    {
+      "backend": "crawl4ai",
+      "fixture": "/pagination-2",
+      "fixture_sha256": "63cd97ae0186fb4a860aeadc6054546efb0aa19fb6d628b2fa31456cf051c3a7",
+      "status": "completed",
+      "snapshot_sha256": "5fc39c1dd4813b77aa2d27341dc6c95bde3b783bb78eabad01306b495eb40a20",
+      "acquisition_metadata": null,
+      "extraction_metadata": {
+        "extractor": "extruct+html-metadata",
+        "version": null,
+        "snapshot_sha256": "5fc39c1dd4813b77aa2d27341dc6c95bde3b783bb78eabad01306b495eb40a20",
+        "selected": {
+          "title": {
+            "field": "title",
+            "value": "Page two",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4,
+            "selection_reason": "matching article URL, then article entity, metadata, canonical link, visible heading; locator breaks ties"
+          }
+        },
+        "candidates": [
+          {
+            "field": "title",
+            "value": "Page two",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4
+          }
+        ],
+        "diagnostics": [
+          {
+            "reason": "optional_extruct_unavailable"
+          }
+        ],
+        "canonical_identity_authoritative": false,
+        "body_extractor": {
+          "name": "bs4-heuristic",
+          "version": "4.15.0",
+          "locator": "extracted-body; exact source spans unavailable"
+        }
+      },
+      "elapsed_seconds": 1.7835141219984507,
+      "peak_parent_rss_kib": 132452,
+      "expected_body_recall": 1.0,
+      "false_body_on_empty": null
+    },
+    {
+      "backend": "crawl4ai",
+      "fixture": "/lazy",
+      "fixture_sha256": "c741b421002aae6d683f952374212411f6395c63fdea8e482ef0dc2b9dce8ad7",
+      "status": "completed",
+      "snapshot_sha256": "ab43841dbc04c34650c81b8fc527b0150c22358fe6fd0be75766ec90523ee755",
+      "acquisition_metadata": null,
+      "extraction_metadata": {
+        "extractor": "extruct+html-metadata",
+        "version": null,
+        "snapshot_sha256": "ab43841dbc04c34650c81b8fc527b0150c22358fe6fd0be75766ec90523ee755",
+        "selected": {
+          "title": {
+            "field": "title",
+            "value": "Lazy",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4,
+            "selection_reason": "matching article URL, then article entity, metadata, canonical link, visible heading; locator breaks ties"
+          }
+        },
+        "candidates": [
+          {
+            "field": "title",
+            "value": "Lazy",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4
+          }
+        ],
+        "diagnostics": [
+          {
+            "reason": "optional_extruct_unavailable"
+          }
+        ],
+        "canonical_identity_authoritative": false,
+        "body_extractor": {
+          "name": "bs4-heuristic",
+          "version": "4.15.0",
+          "locator": "extracted-body; exact source spans unavailable"
+        }
+      },
+      "elapsed_seconds": 1.868208826999762,
+      "peak_parent_rss_kib": 132620,
+      "expected_body_recall": 1.0,
+      "false_body_on_empty": null
+    },
+    {
+      "backend": "crawl4ai",
+      "fixture": "/edited-before",
+      "fixture_sha256": "21c9b5a8855b8b03ded303dcf4c2a03ef37f65af16eea04bbf3d53d13510cf8b",
+      "status": "completed",
+      "snapshot_sha256": "c75dd6e8d6b991496ea93fd63a6af26b7d6b2d884f47f11e9621278ee0835497",
+      "acquisition_metadata": null,
+      "extraction_metadata": {
+        "extractor": "extruct+html-metadata",
+        "version": null,
+        "snapshot_sha256": "c75dd6e8d6b991496ea93fd63a6af26b7d6b2d884f47f11e9621278ee0835497",
+        "selected": {
+          "title": {
+            "field": "title",
+            "value": "Edit fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4,
+            "selection_reason": "matching article URL, then article entity, metadata, canonical link, visible heading; locator breaks ties"
+          }
+        },
+        "candidates": [
+          {
+            "field": "title",
+            "value": "Edit fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4
+          }
+        ],
+        "diagnostics": [
+          {
+            "reason": "optional_extruct_unavailable"
+          }
+        ],
+        "canonical_identity_authoritative": false,
+        "body_extractor": {
+          "name": "bs4-heuristic",
+          "version": "4.15.0",
+          "locator": "extracted-body; exact source spans unavailable"
+        }
+      },
+      "elapsed_seconds": 1.504257000000507,
+      "peak_parent_rss_kib": 132788,
+      "expected_body_recall": 1.0,
+      "false_body_on_empty": null
+    },
+    {
+      "backend": "crawl4ai",
+      "fixture": "/edited-after",
+      "fixture_sha256": "6dea5fd67a4d647a23ab6839918f6eca45444740a3898d4071c2ff66c7dbe9f4",
+      "status": "completed",
+      "snapshot_sha256": "b6277ed3695c626b4d64fc70050205abf44f41b44431a3c9bd3185758855423d",
+      "acquisition_metadata": null,
+      "extraction_metadata": {
+        "extractor": "extruct+html-metadata",
+        "version": null,
+        "snapshot_sha256": "b6277ed3695c626b4d64fc70050205abf44f41b44431a3c9bd3185758855423d",
+        "selected": {
+          "title": {
+            "field": "title",
+            "value": "Edit fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4,
+            "selection_reason": "matching article URL, then article entity, metadata, canonical link, visible heading; locator breaks ties"
+          }
+        },
+        "candidates": [
+          {
+            "field": "title",
+            "value": "Edit fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4
+          }
+        ],
+        "diagnostics": [
+          {
+            "reason": "optional_extruct_unavailable"
+          }
+        ],
+        "canonical_identity_authoritative": false,
+        "body_extractor": {
+          "name": "bs4-heuristic",
+          "version": "4.15.0",
+          "locator": "extracted-body; exact source spans unavailable"
+        }
+      },
+      "elapsed_seconds": 1.9395469239971135,
+      "peak_parent_rss_kib": 132592,
+      "expected_body_recall": 1.0,
+      "false_body_on_empty": null
+    },
+    {
+      "backend": "crawl4ai",
+      "fixture": "/missing",
+      "fixture_sha256": "4dae6a1dc9f6385419aab724626d2488c3e4116eca0e772092d3304a48165cb7",
+      "status": "failed",
+      "failure_type": "ValueError",
+      "failure": "Crawl4AI acquisition failed",
+      "elapsed_seconds": 11.850272833999043,
+      "peak_parent_rss_kib": 132572,
+      "expected_body_recall": null,
+      "false_body_on_empty": false
+    },
+    {
+      "backend": "crawlee",
+      "fixture": "/static",
+      "fixture_sha256": "160997301734ffad4f86644b44068918f60da6998cb49a55ad60bde899bcb60a",
+      "status": "completed",
+      "snapshot_sha256": "d6816e957d53ebdd47b31f3efe4a772d146132712798cbf0a6aeeb2d2fcf208b",
+      "acquisition_metadata": null,
+      "extraction_metadata": {
+        "extractor": "extruct+html-metadata",
+        "version": null,
+        "snapshot_sha256": "d6816e957d53ebdd47b31f3efe4a772d146132712798cbf0a6aeeb2d2fcf208b",
+        "selected": {
+          "title": {
+            "field": "title",
+            "value": "Fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4,
+            "selection_reason": "matching article URL, then article entity, metadata, canonical link, visible heading; locator breaks ties"
+          }
+        },
+        "candidates": [
+          {
+            "field": "title",
+            "value": "Fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4
+          }
+        ],
+        "diagnostics": [
+          {
+            "reason": "optional_extruct_unavailable"
+          }
+        ],
+        "canonical_identity_authoritative": false,
+        "body_extractor": {
+          "name": "bs4-heuristic",
+          "version": "4.15.0",
+          "locator": "extracted-body; exact source spans unavailable"
+        }
+      },
+      "elapsed_seconds": 4.337039715999708,
+      "peak_parent_rss_kib": 269000,
+      "expected_body_recall": 1.0,
+      "false_body_on_empty": null
+    },
+    {
+      "backend": "crawlee",
+      "fixture": "/delayed",
+      "fixture_sha256": "a2c42009bff802eb3d204ab7f3f2a811f38e300430f65289b5efe7a70e3809ce",
+      "status": "completed",
+      "snapshot_sha256": "d6816e957d53ebdd47b31f3efe4a772d146132712798cbf0a6aeeb2d2fcf208b",
+      "acquisition_metadata": null,
+      "extraction_metadata": {
+        "extractor": "extruct+html-metadata",
+        "version": null,
+        "snapshot_sha256": "d6816e957d53ebdd47b31f3efe4a772d146132712798cbf0a6aeeb2d2fcf208b",
+        "selected": {
+          "title": {
+            "field": "title",
+            "value": "Fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4,
+            "selection_reason": "matching article URL, then article entity, metadata, canonical link, visible heading; locator breaks ties"
+          }
+        },
+        "candidates": [
+          {
+            "field": "title",
+            "value": "Fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4
+          }
+        ],
+        "diagnostics": [
+          {
+            "reason": "optional_extruct_unavailable"
+          }
+        ],
+        "canonical_identity_authoritative": false,
+        "body_extractor": {
+          "name": "bs4-heuristic",
+          "version": "4.15.0",
+          "locator": "extracted-body; exact source spans unavailable"
+        }
+      },
+      "elapsed_seconds": 3.45972973699827,
+      "peak_parent_rss_kib": 271420,
+      "expected_body_recall": 1.0,
+      "false_body_on_empty": null
+    },
+    {
+      "backend": "crawlee",
+      "fixture": "/pagination-1",
+      "fixture_sha256": "2dcc801c6b7c7d059b4e1aeb32f98e7ce82ef5d3039e7dc7cb379c889136060b",
+      "status": "completed",
+      "snapshot_sha256": "f6693f8ee4faf8c5feacff4f375b1861eea656c6a4b9e4cf651dd6f0175cf3d3",
+      "acquisition_metadata": null,
+      "extraction_metadata": {
+        "extractor": "extruct+html-metadata",
+        "version": null,
+        "snapshot_sha256": "f6693f8ee4faf8c5feacff4f375b1861eea656c6a4b9e4cf651dd6f0175cf3d3",
+        "selected": {
+          "title": {
+            "field": "title",
+            "value": "Page one",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4,
+            "selection_reason": "matching article URL, then article entity, metadata, canonical link, visible heading; locator breaks ties"
+          }
+        },
+        "candidates": [
+          {
+            "field": "title",
+            "value": "Page one",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4
+          }
+        ],
+        "diagnostics": [
+          {
+            "reason": "optional_extruct_unavailable"
+          }
+        ],
+        "canonical_identity_authoritative": false,
+        "body_extractor": {
+          "name": "bs4-heuristic",
+          "version": "4.15.0",
+          "locator": "extracted-body; exact source spans unavailable"
+        }
+      },
+      "elapsed_seconds": 3.866452433001541,
+      "peak_parent_rss_kib": 271348,
+      "expected_body_recall": 1.0,
+      "false_body_on_empty": null
+    },
+    {
+      "backend": "crawlee",
+      "fixture": "/pagination-2",
+      "fixture_sha256": "63cd97ae0186fb4a860aeadc6054546efb0aa19fb6d628b2fa31456cf051c3a7",
+      "status": "completed",
+      "snapshot_sha256": "5fc39c1dd4813b77aa2d27341dc6c95bde3b783bb78eabad01306b495eb40a20",
+      "acquisition_metadata": null,
+      "extraction_metadata": {
+        "extractor": "extruct+html-metadata",
+        "version": null,
+        "snapshot_sha256": "5fc39c1dd4813b77aa2d27341dc6c95bde3b783bb78eabad01306b495eb40a20",
+        "selected": {
+          "title": {
+            "field": "title",
+            "value": "Page two",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4,
+            "selection_reason": "matching article URL, then article entity, metadata, canonical link, visible heading; locator breaks ties"
+          }
+        },
+        "candidates": [
+          {
+            "field": "title",
+            "value": "Page two",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4
+          }
+        ],
+        "diagnostics": [
+          {
+            "reason": "optional_extruct_unavailable"
+          }
+        ],
+        "canonical_identity_authoritative": false,
+        "body_extractor": {
+          "name": "bs4-heuristic",
+          "version": "4.15.0",
+          "locator": "extracted-body; exact source spans unavailable"
+        }
+      },
+      "elapsed_seconds": 3.6040677330020117,
+      "peak_parent_rss_kib": 272068,
+      "expected_body_recall": 1.0,
+      "false_body_on_empty": null
+    },
+    {
+      "backend": "crawlee",
+      "fixture": "/lazy",
+      "fixture_sha256": "c741b421002aae6d683f952374212411f6395c63fdea8e482ef0dc2b9dce8ad7",
+      "status": "completed",
+      "snapshot_sha256": "ab43841dbc04c34650c81b8fc527b0150c22358fe6fd0be75766ec90523ee755",
+      "acquisition_metadata": null,
+      "extraction_metadata": {
+        "extractor": "extruct+html-metadata",
+        "version": null,
+        "snapshot_sha256": "ab43841dbc04c34650c81b8fc527b0150c22358fe6fd0be75766ec90523ee755",
+        "selected": {
+          "title": {
+            "field": "title",
+            "value": "Lazy",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4,
+            "selection_reason": "matching article URL, then article entity, metadata, canonical link, visible heading; locator breaks ties"
+          }
+        },
+        "candidates": [
+          {
+            "field": "title",
+            "value": "Lazy",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4
+          }
+        ],
+        "diagnostics": [
+          {
+            "reason": "optional_extruct_unavailable"
+          }
+        ],
+        "canonical_identity_authoritative": false,
+        "body_extractor": {
+          "name": "bs4-heuristic",
+          "version": "4.15.0",
+          "locator": "extracted-body; exact source spans unavailable"
+        }
+      },
+      "elapsed_seconds": 4.030980776999058,
+      "peak_parent_rss_kib": 272036,
+      "expected_body_recall": 1.0,
+      "false_body_on_empty": null
+    },
+    {
+      "backend": "crawlee",
+      "fixture": "/edited-before",
+      "fixture_sha256": "21c9b5a8855b8b03ded303dcf4c2a03ef37f65af16eea04bbf3d53d13510cf8b",
+      "status": "completed",
+      "snapshot_sha256": "c75dd6e8d6b991496ea93fd63a6af26b7d6b2d884f47f11e9621278ee0835497",
+      "acquisition_metadata": null,
+      "extraction_metadata": {
+        "extractor": "extruct+html-metadata",
+        "version": null,
+        "snapshot_sha256": "c75dd6e8d6b991496ea93fd63a6af26b7d6b2d884f47f11e9621278ee0835497",
+        "selected": {
+          "title": {
+            "field": "title",
+            "value": "Edit fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4,
+            "selection_reason": "matching article URL, then article entity, metadata, canonical link, visible heading; locator breaks ties"
+          }
+        },
+        "candidates": [
+          {
+            "field": "title",
+            "value": "Edit fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4
+          }
+        ],
+        "diagnostics": [
+          {
+            "reason": "optional_extruct_unavailable"
+          }
+        ],
+        "canonical_identity_authoritative": false,
+        "body_extractor": {
+          "name": "bs4-heuristic",
+          "version": "4.15.0",
+          "locator": "extracted-body; exact source spans unavailable"
+        }
+      },
+      "elapsed_seconds": 3.7932842150003125,
+      "peak_parent_rss_kib": 271900,
+      "expected_body_recall": 1.0,
+      "false_body_on_empty": null
+    },
+    {
+      "backend": "crawlee",
+      "fixture": "/edited-after",
+      "fixture_sha256": "6dea5fd67a4d647a23ab6839918f6eca45444740a3898d4071c2ff66c7dbe9f4",
+      "status": "completed",
+      "snapshot_sha256": "b6277ed3695c626b4d64fc70050205abf44f41b44431a3c9bd3185758855423d",
+      "acquisition_metadata": null,
+      "extraction_metadata": {
+        "extractor": "extruct+html-metadata",
+        "version": null,
+        "snapshot_sha256": "b6277ed3695c626b4d64fc70050205abf44f41b44431a3c9bd3185758855423d",
+        "selected": {
+          "title": {
+            "field": "title",
+            "value": "Edit fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4,
+            "selection_reason": "matching article URL, then article entity, metadata, canonical link, visible heading; locator breaks ties"
+          }
+        },
+        "candidates": [
+          {
+            "field": "title",
+            "value": "Edit fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4
+          }
+        ],
+        "diagnostics": [
+          {
+            "reason": "optional_extruct_unavailable"
+          }
+        ],
+        "canonical_identity_authoritative": false,
+        "body_extractor": {
+          "name": "bs4-heuristic",
+          "version": "4.15.0",
+          "locator": "extracted-body; exact source spans unavailable"
+        }
+      },
+      "elapsed_seconds": 3.1913415089984483,
+      "peak_parent_rss_kib": 271448,
+      "expected_body_recall": 1.0,
+      "false_body_on_empty": null
+    },
+    {
+      "backend": "crawlee",
+      "fixture": "/missing",
+      "fixture_sha256": "4dae6a1dc9f6385419aab724626d2488c3e4116eca0e772092d3304a48165cb7",
+      "status": "failed",
+      "failure_type": "ValueError",
+      "failure": "Crawlee returned no page",
+      "elapsed_seconds": 4.306427602998156,
+      "peak_parent_rss_kib": 271884,
+      "expected_body_recall": null,
+      "false_body_on_empty": false
+    },
+    {
+      "backend": "crawlee-adaptive",
+      "fixture": "/static",
+      "fixture_sha256": "160997301734ffad4f86644b44068918f60da6998cb49a55ad60bde899bcb60a",
+      "status": "completed",
+      "snapshot_sha256": "e7674dbd36751df69155cb6cd631fb7af2c9d1b2b8cbfc75fb8d20c554abaa4a",
+      "acquisition_metadata": {
+        "http_only_request_handler_runs": 1,
+        "browser_request_handler_runs": 0,
+        "rendering_type_mispredictions": 0,
+        "selection_policy": "deterministic static-first fallback probe; not learned predictor evaluation"
+      },
+      "extraction_metadata": {
+        "extractor": "extruct+html-metadata",
+        "version": null,
+        "snapshot_sha256": "e7674dbd36751df69155cb6cd631fb7af2c9d1b2b8cbfc75fb8d20c554abaa4a",
+        "selected": {
+          "title": {
+            "field": "title",
+            "value": "Fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4,
+            "selection_reason": "matching article URL, then article entity, metadata, canonical link, visible heading; locator breaks ties"
+          }
+        },
+        "candidates": [
+          {
+            "field": "title",
+            "value": "Fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4
+          }
+        ],
+        "diagnostics": [
+          {
+            "reason": "optional_extruct_unavailable"
+          }
+        ],
+        "canonical_identity_authoritative": false,
+        "body_extractor": {
+          "name": "bs4-heuristic",
+          "version": "4.15.0",
+          "locator": "extracted-body; exact source spans unavailable"
+        }
+      },
+      "elapsed_seconds": 2.9927617469984398,
+      "peak_parent_rss_kib": 298520,
+      "expected_body_recall": 1.0,
+      "false_body_on_empty": null
+    },
+    {
+      "backend": "crawlee-adaptive",
+      "fixture": "/delayed",
+      "fixture_sha256": "a2c42009bff802eb3d204ab7f3f2a811f38e300430f65289b5efe7a70e3809ce",
+      "status": "completed",
+      "snapshot_sha256": "d6816e957d53ebdd47b31f3efe4a772d146132712798cbf0a6aeeb2d2fcf208b",
+      "acquisition_metadata": {
+        "http_only_request_handler_runs": 1,
+        "browser_request_handler_runs": 1,
+        "rendering_type_mispredictions": 0,
+        "selection_policy": "deterministic static-first fallback probe; not learned predictor evaluation"
+      },
+      "extraction_metadata": {
+        "extractor": "extruct+html-metadata",
+        "version": null,
+        "snapshot_sha256": "d6816e957d53ebdd47b31f3efe4a772d146132712798cbf0a6aeeb2d2fcf208b",
+        "selected": {
+          "title": {
+            "field": "title",
+            "value": "Fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4,
+            "selection_reason": "matching article URL, then article entity, metadata, canonical link, visible heading; locator breaks ties"
+          }
+        },
+        "candidates": [
+          {
+            "field": "title",
+            "value": "Fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4
+          }
+        ],
+        "diagnostics": [
+          {
+            "reason": "optional_extruct_unavailable"
+          }
+        ],
+        "canonical_identity_authoritative": false,
+        "body_extractor": {
+          "name": "bs4-heuristic",
+          "version": "4.15.0",
+          "locator": "extracted-body; exact source spans unavailable"
+        }
+      },
+      "elapsed_seconds": 3.158402807002858,
+      "peak_parent_rss_kib": 302204,
+      "expected_body_recall": 1.0,
+      "false_body_on_empty": null
+    },
+    {
+      "backend": "crawlee-adaptive",
+      "fixture": "/pagination-1",
+      "fixture_sha256": "2dcc801c6b7c7d059b4e1aeb32f98e7ce82ef5d3039e7dc7cb379c889136060b",
+      "status": "completed",
+      "snapshot_sha256": "0dbe267ea51c086720a2a24f473149cb20c8e27137255f58d955783f7cc003a3",
+      "acquisition_metadata": {
+        "http_only_request_handler_runs": 1,
+        "browser_request_handler_runs": 0,
+        "rendering_type_mispredictions": 0,
+        "selection_policy": "deterministic static-first fallback probe; not learned predictor evaluation"
+      },
+      "extraction_metadata": {
+        "extractor": "extruct+html-metadata",
+        "version": null,
+        "snapshot_sha256": "0dbe267ea51c086720a2a24f473149cb20c8e27137255f58d955783f7cc003a3",
+        "selected": {
+          "title": {
+            "field": "title",
+            "value": "Page one",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4,
+            "selection_reason": "matching article URL, then article entity, metadata, canonical link, visible heading; locator breaks ties"
+          }
+        },
+        "candidates": [
+          {
+            "field": "title",
+            "value": "Page one",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4
+          }
+        ],
+        "diagnostics": [
+          {
+            "reason": "optional_extruct_unavailable"
+          }
+        ],
+        "canonical_identity_authoritative": false,
+        "body_extractor": {
+          "name": "bs4-heuristic",
+          "version": "4.15.0",
+          "locator": "extracted-body; exact source spans unavailable"
+        }
+      },
+      "elapsed_seconds": 3.1606347269989783,
+      "peak_parent_rss_kib": 298056,
+      "expected_body_recall": 1.0,
+      "false_body_on_empty": null
+    },
+    {
+      "backend": "crawlee-adaptive",
+      "fixture": "/pagination-2",
+      "fixture_sha256": "63cd97ae0186fb4a860aeadc6054546efb0aa19fb6d628b2fa31456cf051c3a7",
+      "status": "completed",
+      "snapshot_sha256": "140fc5297f0a317564483a82b356a68487efecab07c79f8468cbdd8f393e6700",
+      "acquisition_metadata": {
+        "http_only_request_handler_runs": 1,
+        "browser_request_handler_runs": 0,
+        "rendering_type_mispredictions": 0,
+        "selection_policy": "deterministic static-first fallback probe; not learned predictor evaluation"
+      },
+      "extraction_metadata": {
+        "extractor": "extruct+html-metadata",
+        "version": null,
+        "snapshot_sha256": "140fc5297f0a317564483a82b356a68487efecab07c79f8468cbdd8f393e6700",
+        "selected": {
+          "title": {
+            "field": "title",
+            "value": "Page two",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4,
+            "selection_reason": "matching article URL, then article entity, metadata, canonical link, visible heading; locator breaks ties"
+          }
+        },
+        "candidates": [
+          {
+            "field": "title",
+            "value": "Page two",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4
+          }
+        ],
+        "diagnostics": [
+          {
+            "reason": "optional_extruct_unavailable"
+          }
+        ],
+        "canonical_identity_authoritative": false,
+        "body_extractor": {
+          "name": "bs4-heuristic",
+          "version": "4.15.0",
+          "locator": "extracted-body; exact source spans unavailable"
+        }
+      },
+      "elapsed_seconds": 2.9587426819998655,
+      "peak_parent_rss_kib": 298500,
+      "expected_body_recall": 1.0,
+      "false_body_on_empty": null
+    },
+    {
+      "backend": "crawlee-adaptive",
+      "fixture": "/lazy",
+      "fixture_sha256": "c741b421002aae6d683f952374212411f6395c63fdea8e482ef0dc2b9dce8ad7",
+      "status": "completed",
+      "snapshot_sha256": "ab43841dbc04c34650c81b8fc527b0150c22358fe6fd0be75766ec90523ee755",
+      "acquisition_metadata": {
+        "http_only_request_handler_runs": 1,
+        "browser_request_handler_runs": 1,
+        "rendering_type_mispredictions": 0,
+        "selection_policy": "deterministic static-first fallback probe; not learned predictor evaluation"
+      },
+      "extraction_metadata": {
+        "extractor": "extruct+html-metadata",
+        "version": null,
+        "snapshot_sha256": "ab43841dbc04c34650c81b8fc527b0150c22358fe6fd0be75766ec90523ee755",
+        "selected": {
+          "title": {
+            "field": "title",
+            "value": "Lazy",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4,
+            "selection_reason": "matching article URL, then article entity, metadata, canonical link, visible heading; locator breaks ties"
+          }
+        },
+        "candidates": [
+          {
+            "field": "title",
+            "value": "Lazy",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4
+          }
+        ],
+        "diagnostics": [
+          {
+            "reason": "optional_extruct_unavailable"
+          }
+        ],
+        "canonical_identity_authoritative": false,
+        "body_extractor": {
+          "name": "bs4-heuristic",
+          "version": "4.15.0",
+          "locator": "extracted-body; exact source spans unavailable"
+        }
+      },
+      "elapsed_seconds": 3.702952223000466,
+      "peak_parent_rss_kib": 302532,
+      "expected_body_recall": 1.0,
+      "false_body_on_empty": null
+    },
+    {
+      "backend": "crawlee-adaptive",
+      "fixture": "/edited-before",
+      "fixture_sha256": "21c9b5a8855b8b03ded303dcf4c2a03ef37f65af16eea04bbf3d53d13510cf8b",
+      "status": "completed",
+      "snapshot_sha256": "8ec8292b35fbabb8e4aa4a09465c3c40f93aef17e88df17676f98b1d5b2fb4fb",
+      "acquisition_metadata": {
+        "http_only_request_handler_runs": 1,
+        "browser_request_handler_runs": 0,
+        "rendering_type_mispredictions": 0,
+        "selection_policy": "deterministic static-first fallback probe; not learned predictor evaluation"
+      },
+      "extraction_metadata": {
+        "extractor": "extruct+html-metadata",
+        "version": null,
+        "snapshot_sha256": "8ec8292b35fbabb8e4aa4a09465c3c40f93aef17e88df17676f98b1d5b2fb4fb",
+        "selected": {
+          "title": {
+            "field": "title",
+            "value": "Edit fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4,
+            "selection_reason": "matching article URL, then article entity, metadata, canonical link, visible heading; locator breaks ties"
+          }
+        },
+        "candidates": [
+          {
+            "field": "title",
+            "value": "Edit fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4
+          }
+        ],
+        "diagnostics": [
+          {
+            "reason": "optional_extruct_unavailable"
+          }
+        ],
+        "canonical_identity_authoritative": false,
+        "body_extractor": {
+          "name": "bs4-heuristic",
+          "version": "4.15.0",
+          "locator": "extracted-body; exact source spans unavailable"
+        }
+      },
+      "elapsed_seconds": 1.9671111520001432,
+      "peak_parent_rss_kib": 298312,
+      "expected_body_recall": 1.0,
+      "false_body_on_empty": null
+    },
+    {
+      "backend": "crawlee-adaptive",
+      "fixture": "/edited-after",
+      "fixture_sha256": "6dea5fd67a4d647a23ab6839918f6eca45444740a3898d4071c2ff66c7dbe9f4",
+      "status": "completed",
+      "snapshot_sha256": "d95d1d26f503c1ea59b25094df978204e2dbac60558c2f75de4fba4377b26288",
+      "acquisition_metadata": {
+        "http_only_request_handler_runs": 1,
+        "browser_request_handler_runs": 0,
+        "rendering_type_mispredictions": 0,
+        "selection_policy": "deterministic static-first fallback probe; not learned predictor evaluation"
+      },
+      "extraction_metadata": {
+        "extractor": "extruct+html-metadata",
+        "version": null,
+        "snapshot_sha256": "d95d1d26f503c1ea59b25094df978204e2dbac60558c2f75de4fba4377b26288",
+        "selected": {
+          "title": {
+            "field": "title",
+            "value": "Edit fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4,
+            "selection_reason": "matching article URL, then article entity, metadata, canonical link, visible heading; locator breaks ties"
+          }
+        },
+        "candidates": [
+          {
+            "field": "title",
+            "value": "Edit fixture",
+            "origin": "visible-html",
+            "locator": "h1[0]",
+            "rank": 4
+          }
+        ],
+        "diagnostics": [
+          {
+            "reason": "optional_extruct_unavailable"
+          }
+        ],
+        "canonical_identity_authoritative": false,
+        "body_extractor": {
+          "name": "bs4-heuristic",
+          "version": "4.15.0",
+          "locator": "extracted-body; exact source spans unavailable"
+        }
+      },
+      "elapsed_seconds": 1.774145146999217,
+      "peak_parent_rss_kib": 298336,
+      "expected_body_recall": 1.0,
+      "false_body_on_empty": null
+    },
+    {
+      "backend": "crawlee-adaptive",
+      "fixture": "/missing",
+      "fixture_sha256": "4dae6a1dc9f6385419aab724626d2488c3e4116eca0e772092d3304a48165cb7",
+      "status": "failed",
+      "failure_type": "ValueError",
+      "failure": "Adaptive crawler returned no page",
+      "elapsed_seconds": 4.484869645999424,
+      "peak_parent_rss_kib": 302432,
+      "expected_body_recall": null,
+      "false_body_on_empty": false
+    },
+    {
+      "backend": "zyte",
+      "status": "not_run",
+      "reason": "remote services cannot access local corpus; credentialed public-corpus evaluation and explicit price ceiling required"
+    },
+    {
+      "backend": "firecrawl",
+      "status": "not_run",
+      "reason": "remote services cannot access local corpus; credentialed public-corpus evaluation and explicit price ceiling required"
+    }
+  ],
+  "summaries": {
+    "scrapy": {
+      "fixtures": 8,
+      "completed": 8,
+      "completion_rate": 1.0,
+      "p50_elapsed_seconds": 0.3813165295014187,
+      "p95_elapsed_seconds": 0.5152141100006702,
+      "max_peak_parent_rss_kib": 80016,
+      "live_cost": 0
+    },
+    "playwright": {
+      "fixtures": 8,
+      "completed": 7,
+      "completion_rate": 0.875,
+      "p50_elapsed_seconds": 0.7348371109983418,
+      "p95_elapsed_seconds": 0.9676597899997432,
+      "max_peak_parent_rss_kib": 46784,
+      "live_cost": 0
+    },
+    "crawl4ai": {
+      "fixtures": 8,
+      "completed": 7,
+      "completion_rate": 0.875,
+      "p50_elapsed_seconds": 1.504257000000507,
+      "p95_elapsed_seconds": 1.9395469239971135,
+      "max_peak_parent_rss_kib": 132900,
+      "live_cost": 0
+    },
+    "crawlee": {
+      "fixtures": 8,
+      "completed": 7,
+      "completion_rate": 0.875,
+      "p50_elapsed_seconds": 3.7932842150003125,
+      "p95_elapsed_seconds": 4.337039715999708,
+      "max_peak_parent_rss_kib": 272068,
+      "live_cost": 0
+    },
+    "crawlee-adaptive": {
+      "fixtures": 8,
+      "completed": 7,
+      "completion_rate": 0.875,
+      "p50_elapsed_seconds": 2.9927617469984398,
+      "p95_elapsed_seconds": 3.702952223000466,
+      "max_peak_parent_rss_kib": 302532,
+      "live_cost": 0
+    },
+    "zyte": {
+      "fixtures": 0,
+      "completed": 0,
+      "completion_rate": null,
+      "p50_elapsed_seconds": null,
+      "p95_elapsed_seconds": null,
+      "max_peak_parent_rss_kib": null,
+      "live_cost": "unavailable"
+    },
+    "firecrawl": {
+      "fixtures": 0,
+      "completed": 0,
+      "completion_rate": null,
+      "p50_elapsed_seconds": null,
+      "p95_elapsed_seconds": null,
+      "max_peak_parent_rss_kib": null,
+      "live_cost": "unavailable"
+    }
+  },
+  "decision": "retain repaired production stack; defer optional backend adoption pending representative corpus, restart/deadline/resource checks and credentialed cost measurements"
+}

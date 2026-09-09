@@ -237,3 +237,66 @@ def fetch_models(
     summary["lock_path"] = str(write_lock(lock, lock_path))
     summary["warnings"] = verify_pins(lock_path)
     return summary
+
+
+# Evaluation candidates are opt-in; production PINS and default fetching are unchanged.
+# Immutable revisions resolved from upstream metadata on 2026-09-07.
+OPTIONAL_PINS = {
+    "minilm-reranker": ("cross-encoder/ms-marco-MiniLM-L6-v2", "233902d25c440f23af6f7d6e94d2946bac0bee0a", "apache-2.0"),
+    "minilm": ("sentence-transformers/all-MiniLM-L6-v2", "1110a243fdf4706b3f48f1d95db1a4f5529b4d41", "apache-2.0"),
+    "align-en": ("facebook/wav2vec2-base-960h", "22aad52d435eb6dbaf354bdad9b0da84ce7d6156", "apache-2.0"),
+    "align-de": ("jonatasgrosman/wav2vec2-large-xlsr-53-german", "4b8a02957378d0f2da2ef74091156b032c485a89", "apache-2.0"),
+    "paddle-det": ("PaddlePaddle/PP-OCRv5_mobile_det", "0d63e78e2b680928f6b1747d76a08db6e645efb7", "apache-2.0"),
+    "paddle-latin": ("PaddlePaddle/latin_PP-OCRv5_mobile_rec", "ab2cd5cc5fa6309be2e5acdfe66eca2c2c127d57", "apache-2.0"),
+    "e5": ("intfloat/multilingual-e5-small", "614241f622f53c4eeff9890bdc4f31cfecc418b3", "mit"),
+    "bge-m3": ("BAAI/bge-m3", "5617a9f61b028005a4858fdac845db406aefb181", "mit"),
+    "qwen3-reranker": ("Qwen/Qwen3-Reranker-0.6B", "e61197ed45024b0ed8a2d74b80b4d909f1255473", "apache-2.0"),
+    "mdeberta": ("MoritzLaurer/mDeBERTa-v3-base-mnli-xnli", "8adb042d524ecd5c26d3e3ba0e3fbcf7e2d0864c", "mit"),
+    "gliner2": ("fastino/gliner2-multi-v1", "c6296e25603e4d31f68ef8a9f4edb73421d1e45a", "apache-2.0"),
+    "lightonocr": ("lightonai/LightOnOCR-2-1B", "c97bd377f04481830395218fa8951df9deaba756", "apache-2.0"),
+    "sat": ("segment-any-text/sat-3l-sm", "137da054051ad9f1eac42025f758db4ac9f22535", "mit"),
+    "proposal": ("HuggingFaceTB/SmolLM2-135M-Instruct", "12fd25f77366fa6b3b4b768ec3050bf629380bac", "apache-2.0"),
+}
+
+
+def optional_model_spec(kind: str) -> dict:
+    """An immutable optional pin; no environment-mutable branches."""
+    model, revision, license_id = OPTIONAL_PINS[kind]
+    return {"kind": kind, "model": model, "revision": revision, "license": license_id}
+
+
+def optional_model_path(kind: str, *, download: bool = False, max_download_bytes: int = 4_000_000_000):
+    """Resolve cached weights, or explicitly fetch under a previewed byte ceiling."""
+    try:
+        from huggingface_hub import HfApi, snapshot_download
+    except ImportError:
+        if download:
+            raise
+        return None
+    spec = optional_model_spec(kind)
+    patterns = ["config.json", "*token*.json", "*processor*.json", "vocab.json", "vocab.txt", "merges.txt",
+                "*.safetensors", "pytorch_model*.bin", "*.model", "1_Pooling/config.json",
+                "encoder_config/config.json", "modules.json", "config_sentence_transformers.json",
+                "sentence_bert_config.json", "colbert_linear.pt", "sparse_linear.pt",
+                "inference.pdiparams", "inference.json", "inference.yml"]
+    if download:
+        from fnmatch import fnmatch
+        info = HfApi().model_info(spec["model"], revision=spec["revision"], files_metadata=True)
+        sizes = [f.size for f in info.siblings if any(fnmatch(f.rfilename, p) for p in patterns)]
+        if not sizes or any(size is None for size in sizes) or sum(sizes) > max_download_bytes:
+            raise ValueError("model download exceeds its explicit byte ceiling or has unknown sizes")
+    try:
+        path = Path(snapshot_download(repo_id=spec["model"], revision=spec["revision"],
+                                      local_files_only=not download, allow_patterns=patterns))
+    except Exception:
+        if download:
+            raise
+        return None
+    if path.name != spec["revision"] or not any(path.glob("*.safetensors")) and not any(path.glob("pytorch_model*.bin")) and not (path / "inference.pdiparams").is_file():
+        return None
+    if download:
+        lock = read_lock()
+        lock["optional:" + kind] = {"model": spec["model"], "requested_revision": spec["revision"],
+                                    "resolved_revision": spec["revision"], "serves": ["opt-in evaluation"]}
+        write_lock(lock)
+    return path

@@ -1,0 +1,19 @@
+{
+  "contract": "noesis-language-detection-fixture-v1",
+  "label_origin": "authored-regression-labels-not-independent-human",
+  "development": [
+    {"id": "de-short", "text": "Berliner Haushaltsplan", "segments": [{"text": "Berliner Haushaltsplan", "language": "de"}]},
+    {"id": "en-short", "text": "Berlin budget report", "segments": [{"text": "Berlin budget report", "language": "en"}]},
+    {"id": "de-long", "text": "Die Berliner Behörde veröffentlicht neue Daten über Wohnungen und Genehmigungen.", "segments": [{"text": "Die Berliner Behörde veröffentlicht neue Daten über Wohnungen und Genehmigungen.", "language": "de"}]},
+    {"id": "en-long", "text": "The Berlin authority publishes new data about housing permits and residents.", "segments": [{"text": "The Berlin authority publishes new data about housing permits and residents.", "language": "en"}]},
+    {"id": "mixed", "text": "Die Behörde veröffentlicht neue Daten. The English abstract explains the method.", "segments": [{"text": "Die Behörde veröffentlicht neue Daten.", "language": "de"}, {"text": "The English abstract explains the method.", "language": "en"}]}
+  ],
+  "test": [
+    {"id": "de-title", "text": "Förderung für Berliner Schulen", "segments": [{"text": "Förderung für Berliner Schulen", "language": "de"}]},
+    {"id": "en-title", "text": "Evidence for Berlin schools", "segments": [{"text": "Evidence for Berlin schools", "language": "en"}]},
+    {"id": "mixed-abstract", "text": "Die Studie untersucht deutsche Verwaltungsdaten. The abstract summarizes the empirical results.", "segments": [{"text": "Die Studie untersucht deutsche Verwaltungsdaten.", "language": "de"}, {"text": "The abstract summarizes the empirical results.", "language": "en"}]},
+    {"id": "mixed-quote", "text": "Die Senatorin sagte: Die Zahlen sind belastbar. The report then quotes an English expert.", "segments": [{"text": "Die Senatorin sagte: Die Zahlen sind belastbar.", "language": "de"}, {"text": "The report then quotes an English expert.", "language": "en"}]},
+    {"id": "ocr-de", "text": "D1e Behörde veroffentl1cht neue Z4hlen uber Berliner Schulen.", "segments": [{"text": "D1e Behörde veroffentl1cht neue Z4hlen uber Berliner Schulen.", "language": "de"}]},
+    {"id": "ocr-en", "text": "Th3 author1ty pub1ishes new ev1dence about Berlin schoo1s.", "segments": [{"text": "Th3 author1ty pub1ishes new ev1dence about Berlin schoo1s.", "language": "en"}]}
+  ]
+}

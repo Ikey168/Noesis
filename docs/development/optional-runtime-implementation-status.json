@@ -1,0 +1,1535 @@
+{
+  "contract": "noesis-implementation-handoff-v1",
+  "date": "2026-09-07",
+  "branch": "feat/workflow-review-implementation",
+  "inventory": {
+    "open": 58,
+    "leaf_tasks": 50,
+    "tracking_parents": 8
+  },
+  "entry_point": "noesis-optional / python -m src.noesis_cli.optional",
+  "issues": [
+    {
+      "issue": 1340,
+      "title": "[Tracking] Benchmark Docling and GROBID as optional structured document parsers",
+      "kind": "tracking",
+      "github_state_at_inventory": "open",
+      "implementation": "Tracking parent, not a standalone runtime task",
+      "entry_points": [],
+      "tests": [],
+      "remaining_acceptance": [],
+      "implementation_evidence_semantics": "Executable code paths/tests are listed; this is not an acceptance, quality or closure certificate.",
+      "continuation_verification": "not_individually_reaudited_in_this_pass",
+      "closure_readiness": "closed_on_GitHub_after_local_acceptance_review",
+      "latest_acceptance_review": "backlog-execution-review.md"
+    },
+    {
+      "issue": 1347,
+      "title": "[Tracking] Benchmark optional crawl backends against the repaired Scrapy and Playwright pipeline",
+      "kind": "tracking",
+      "github_state_at_inventory": "open",
+      "implementation": "Tracking parent, not a standalone runtime task",
+      "entry_points": [],
+      "tests": [],
+      "remaining_acceptance": [],
+      "implementation_evidence_semantics": "Executable code paths/tests are listed; this is not an acceptance, quality or closure certificate.",
+      "continuation_verification": "not_individually_reaudited_in_this_pass",
+      "closure_readiness": "closed_on_GitHub_after_local_acceptance_review",
+      "latest_acceptance_review": "scraping-backend-acceptance-review.md"
+    },
+    {
+      "issue": 1348,
+      "title": "[Tracking] Connect the existing Guardian API collector to domain source packs and incremental ingestion",
+      "kind": "tracking",
+      "github_state_at_inventory": "open",
+      "implementation": "Tracking parent, not a standalone runtime task",
+      "entry_points": [],
+      "tests": [],
+      "remaining_acceptance": [
+        "All child issue acceptance and dependent human/live evidence must be reviewed before closure."
+      ],
+      "implementation_evidence_semantics": "Executable code paths/tests are listed; this is not an acceptance, quality or closure certificate.",
+      "continuation_verification": "not_individually_reaudited_in_this_pass",
+      "closure_readiness": "closed_as_not_planned_by_user_scope_change",
+      "github_state_current": "closed",
+      "github_state_reason_current": "not_planned",
+      "follow_up_document": "further-evaluations-and-access.md",
+      "remaining_acceptance_disposition": "Deferred to follow-up document; requirements are preserved, not passed",
+      "latest_acceptance_review": "further-evaluations-and-access.md"
+    },
+    {
+      "issue": 1364,
+      "title": "Build a structured-PDF evaluation corpus and PyMuPDF baseline",
+      "kind": "leaf",
+      "github_state_at_inventory": "open",
+      "implementation": "Native PDF parsing, coordinate/reference/table normalization and process-bounded comparative benchmark",
+      "entry_points": [
+        "src/ingestion/pdf_evaluation.py",
+        "scripts/evaluate_pdf_backends.py"
+      ],
+      "tests": [
+        "tests/unit/ingestion/test_pdf_evaluation_metrics.py",
+        "tests/unit/evaluation/test_runtime_jobs.py",
+        "tests/unit/ingestion/test_pdf_runtime_contracts.py"
+      ],
+      "remaining_acceptance": [],
+      "implementation_evidence_semantics": "Executable code paths/tests are listed; this is not an acceptance, quality or closure certificate.",
+      "continuation_verification": "scoped_execution_paths_verified_not_all_acceptance",
+      "verification_2026_09_08": "Single-backend PDF CLI now invokes the bounded worker; native PyMuPDF execution passed.",
+      "closure_readiness": "closed_on_GitHub_after_local_acceptance_review",
+      "acceptance_scope_note": "Issue requests a redistributable annotated corpus and measured baseline, not independent human quality certification or optional parser execution. Five CC0 authored PDFs span every requested category; current measured output is pdf-baseline-closure-review-2026-09-08.json. Real scientific parser comparisons remain separate #1365/#1366 work.",
+      "latest_acceptance_review": "backlog-execution-review.md"
+    },
+    {
+      "issue": 1365,
+      "title": "Evaluate Docling against the structured-PDF baseline",
+      "kind": "leaf",
+      "github_state_at_inventory": "open",
+      "implementation": "Native PDF parsing, coordinate/reference/table normalization and process-bounded comparative benchmark",
+      "entry_points": [
+        "src/ingestion/pdf_evaluation.py",
+        "scripts/evaluate_pdf_backends.py"
+      ],
+      "tests": [
+        "tests/unit/ingestion/test_pdf_evaluation_metrics.py",
+        "tests/unit/evaluation/test_runtime_jobs.py",
+        "tests/unit/ingestion/test_pdf_runtime_contracts.py"
+      ],
+      "remaining_acceptance": [],
+      "implementation_evidence_semantics": "Executable code paths/tests are listed; this is not an acceptance, quality or closure certificate.",
+      "continuation_verification": "scoped_execution_paths_verified_not_all_acceptance",
+      "verification_2026_09_08": "Single-backend PDF CLI preserves partial/unavailable/failure states; native Docling acceptance still outstanding.",
+      "closure_readiness": "closed_on_GitHub_after_local_acceptance_review",
+      "latest_acceptance_review": "backlog-execution-review.md"
+    },
+    {
+      "issue": 1366,
+      "title": "Evaluate GROBID for scientific sections and citation references",
+      "kind": "leaf",
+      "github_state_at_inventory": "open",
+      "implementation": "Native PDF parsing, coordinate/reference/table normalization and process-bounded comparative benchmark",
+      "entry_points": [
+        "src/ingestion/pdf_evaluation.py",
+        "scripts/evaluate_pdf_backends.py"
+      ],
+      "tests": [
+        "tests/unit/ingestion/test_pdf_evaluation_metrics.py",
+        "tests/unit/evaluation/test_runtime_jobs.py",
+        "tests/unit/ingestion/test_pdf_runtime_contracts.py"
+      ],
+      "remaining_acceptance": [],
+      "implementation_evidence_semantics": "Executable code paths/tests are listed; this is not an acceptance, quality or closure certificate.",
+      "continuation_verification": "scoped_execution_paths_verified_not_all_acceptance",
+      "verification_2026_09_08": "Single-backend PDF CLI invokes bounded GROBID operation; deployment acceptance still outstanding.",
+      "closure_readiness": "closed_on_GitHub_after_local_acceptance_review",
+      "latest_acceptance_review": "backlog-execution-review.md"
+    },
+    {
+      "issue": 1385,
+      "title": "Build a reproducible scraping backend benchmark",
+      "kind": "leaf",
+      "github_state_at_inventory": "open",
+      "implementation": "Native scraper adapters, preserved capture artifacts, bounded benchmark workers and explicit durable hosted reservations",
+      "entry_points": [
+        "src/scraper/backend_evaluation.py",
+        "src/scraper/benchmark_worker.py",
+        "src/scraper/zyte_worker.py",
+        "src/ingestion/hosted_acquisition.py",
+        "scripts/benchmark_scraping_backends.py",
+        "scripts/check_crawlee_resume.py"
+      ],
+      "tests": [
+        "tests/unit/ingestion/test_hosted_acquisition.py",
+        "tests/unit/evaluation/test_runtime_jobs.py"
+      ],
+      "remaining_acceptance": [],
+      "implementation_evidence_semantics": "Executable code paths/tests are listed; this is not an acceptance, quality or closure certificate.",
+      "continuation_verification": "not_individually_reaudited_in_this_pass",
+      "closure_readiness": "closed_on_GitHub_after_local_acceptance_review",
+      "latest_acceptance_review": "scraping-backend-acceptance-review.md"
+    },
+    {
+      "issue": 1386,
+      "title": "Evaluate Crawl4AI on the scraping benchmark",
+      "kind": "leaf",
+      "github_state_at_inventory": "open",
+      "implementation": "Native scraper adapters, preserved capture artifacts, bounded benchmark workers and explicit durable hosted reservations",
+      "entry_points": [
+        "src/scraper/backend_evaluation.py",
+        "src/scraper/benchmark_worker.py",
+        "src/scraper/zyte_worker.py",
+        "src/ingestion/hosted_acquisition.py",
+        "scripts/benchmark_scraping_backends.py",
+        "scripts/check_crawlee_resume.py"
+      ],
+      "tests": [
+        "tests/unit/ingestion/test_hosted_acquisition.py",
+        "tests/unit/evaluation/test_runtime_jobs.py"
+      ],
+      "remaining_acceptance": [],
+      "implementation_evidence_semantics": "Executable code paths/tests are listed; this is not an acceptance, quality or closure certificate.",
+      "continuation_verification": "not_individually_reaudited_in_this_pass",
+      "closure_readiness": "closed_on_GitHub_after_local_acceptance_review",
+      "latest_acceptance_review": "scraping-backend-acceptance-review.md"
+    },
+    {
+      "issue": 1387,
+      "title": "Evaluate Crawlee Python for resumable adaptive crawling",
+      "kind": "leaf",
+      "github_state_at_inventory": "open",
+      "implementation": "Native scraper adapters, preserved capture artifacts, bounded benchmark workers and explicit durable hosted reservations",
+      "entry_points": [
+        "src/scraper/backend_evaluation.py",
+        "src/scraper/benchmark_worker.py",
+        "src/scraper/zyte_worker.py",
+        "src/ingestion/hosted_acquisition.py",
+        "scripts/benchmark_scraping_backends.py",
+        "scripts/check_crawlee_resume.py"
+      ],
+      "tests": [
+        "tests/unit/ingestion/test_hosted_acquisition.py",
+        "tests/unit/evaluation/test_runtime_jobs.py"
+      ],
+      "remaining_acceptance": [],
+      "implementation_evidence_semantics": "Executable code paths/tests are listed; this is not an acceptance, quality or closure certificate.",
+      "continuation_verification": "not_individually_reaudited_in_this_pass",
+      "closure_readiness": "closed_on_GitHub_after_local_acceptance_review",
+      "latest_acceptance_review": "scraping-backend-acceptance-review.md"
+    },
+    {
+      "issue": 1388,
+      "title": "Evaluate Zyte API through the existing Scrapy integration boundary",
+      "kind": "leaf",
+      "github_state_at_inventory": "open",
+      "implementation": "Native scraper adapters, preserved capture artifacts, bounded benchmark workers and explicit durable hosted reservations",
+      "entry_points": [
+        "src/scraper/backend_evaluation.py",
+        "src/scraper/benchmark_worker.py",
+        "src/scraper/zyte_worker.py",
+        "src/ingestion/hosted_acquisition.py",
+        "scripts/benchmark_scraping_backends.py",
+        "scripts/check_crawlee_resume.py"
+      ],
+      "tests": [
+        "tests/unit/ingestion/test_hosted_acquisition.py",
+        "tests/unit/evaluation/test_runtime_jobs.py"
+      ],
+      "remaining_acceptance": [],
+      "implementation_evidence_semantics": "Executable code paths/tests are listed; this is not an acceptance, quality or closure certificate.",
+      "continuation_verification": "not_individually_reaudited_in_this_pass",
+      "closure_readiness": "closed_on_GitHub_after_local_acceptance_review",
+      "latest_acceptance_review": "backlog-execution-review.md"
+    },
+    {
+      "issue": 1389,
+      "title": "Evaluate Firecrawl as an optional scrape API backend",
+      "kind": "leaf",
+      "github_state_at_inventory": "open",
+      "implementation": "Native scraper adapters, preserved capture artifacts, bounded benchmark workers and explicit durable hosted reservations",
+      "entry_points": [
+        "src/scraper/backend_evaluation.py",
+        "src/scraper/benchmark_worker.py",
+        "src/scraper/zyte_worker.py",
+        "src/ingestion/hosted_acquisition.py",
+        "scripts/benchmark_scraping_backends.py",
+        "scripts/check_crawlee_resume.py"
+      ],
+      "tests": [
+        "tests/unit/ingestion/test_hosted_acquisition.py",
+        "tests/unit/evaluation/test_runtime_jobs.py"
+      ],
+      "remaining_acceptance": [],
+      "implementation_evidence_semantics": "Executable code paths/tests are listed; this is not an acceptance, quality or closure certificate.",
+      "continuation_verification": "not_individually_reaudited_in_this_pass",
+      "closure_readiness": "closed_on_GitHub_after_local_acceptance_review",
+      "latest_acceptance_review": "scraping-backend-acceptance-review.md"
+    },
+    {
+      "issue": 1391,
+      "title": "Expose Guardian API collection through domain source packs",
+      "kind": "leaf",
+      "github_state_at_inventory": "open",
+      "implementation": "Existing maintained Guardian native runtime/source-pack integration retained and regression-tested",
+      "entry_points": [
+        "src/ingestion/guardian_api.py",
+        "src/ingestion/source_pack_runtime.py",
+        "config/source_packs/guardian.json"
+      ],
+      "tests": [
+        "tests/unit/ingestion/test_guardian_api.py"
+      ],
+      "remaining_acceptance": [
+        "Authorized credentialed live/access-license check."
+      ],
+      "implementation_evidence_semantics": "Executable code paths/tests are listed; this is not an acceptance, quality or closure certificate.",
+      "continuation_verification": "not_individually_reaudited_in_this_pass",
+      "closure_readiness": "closed_as_not_planned_by_user_scope_change",
+      "github_state_current": "closed",
+      "github_state_reason_current": "not_planned",
+      "follow_up_document": "further-evaluations-and-access.md",
+      "remaining_acceptance_disposition": "Deferred to follow-up document; requirements are preserved, not passed",
+      "latest_acceptance_review": "further-evaluations-and-access.md"
+    },
+    {
+      "issue": 1399,
+      "title": "[Tracking] Revision-safe extraction, enrichment, and model evaluation",
+      "kind": "tracking",
+      "github_state_at_inventory": "open",
+      "implementation": "Tracking parent, not a standalone runtime task",
+      "entry_points": [],
+      "tests": [],
+      "remaining_acceptance": [
+        "All child issue acceptance and dependent human/live evidence must be reviewed before closure."
+      ],
+      "implementation_evidence_semantics": "Executable code paths/tests are listed; this is not an acceptance, quality or closure certificate.",
+      "continuation_verification": "not_individually_reaudited_in_this_pass",
+      "closure_readiness": "closed_as_not_planned_by_user_scope_change",
+      "github_state_current": "closed",
+      "github_state_reason_current": "not_planned",
+      "follow_up_document": "further-evaluations-and-access.md",
+      "remaining_acceptance_disposition": "Deferred to follow-up document; requirements are preserved, not passed",
+      "latest_acceptance_review": "further-evaluations-and-access.md"
+    },
+    {
+      "issue": 1401,
+      "title": "[Tracking] Query deadlines, retrieval relevance, and evidence-supported answers",
+      "kind": "tracking",
+      "github_state_at_inventory": "open",
+      "implementation": "Tracking parent, not a standalone runtime task",
+      "entry_points": [],
+      "tests": [],
+      "remaining_acceptance": [
+        "All child issue acceptance and dependent human/live evidence must be reviewed before closure."
+      ],
+      "implementation_evidence_semantics": "Executable code paths/tests are listed; this is not an acceptance, quality or closure certificate.",
+      "continuation_verification": "not_individually_reaudited_in_this_pass",
+      "closure_readiness": "closed_as_not_planned_by_user_scope_change",
+      "github_state_current": "closed",
+      "github_state_reason_current": "not_planned",
+      "follow_up_document": "further-evaluations-and-access.md",
+      "remaining_acceptance_disposition": "Deferred to follow-up document; requirements are preserved, not passed",
+      "latest_acceptance_review": "further-evaluations-and-access.md"
+    },
+    {
+      "issue": 1405,
+      "title": "[Tracking] Living research reports",
+      "kind": "tracking",
+      "github_state_at_inventory": "open",
+      "implementation": "Tracking parent, not a standalone runtime task",
+      "entry_points": [],
+      "tests": [],
+      "remaining_acceptance": [],
+      "implementation_evidence_semantics": "Executable code paths/tests are listed; this is not an acceptance, quality or closure certificate.",
+      "continuation_verification": "not_individually_reaudited_in_this_pass",
+      "closure_readiness": "closed_on_GitHub_after_local_acceptance_review",
+      "verification_latest": "14 report store/public MCP tests passed; #1447 and #1457 confirmed CLOSED.",
+      "latest_acceptance_review": "backlog-execution-review.md"
+    },
+    {
+      "issue": 1406,
+      "title": "[Tracking] Unified evidence review inbox",
+      "kind": "tracking",
+      "github_state_at_inventory": "open",
+      "implementation": "Tracking parent, not a standalone runtime task",
+      "entry_points": [],
+      "tests": [],
+      "remaining_acceptance": [
+        "All child issue acceptance and dependent human/live evidence must be reviewed before closure."
+      ],
+      "implementation_evidence_semantics": "Executable code paths/tests are listed; this is not an acceptance, quality or closure certificate.",
+      "continuation_verification": "not_individually_reaudited_in_this_pass",
+      "closure_readiness": "closed_as_not_planned_by_user_scope_change",
+      "github_state_current": "closed",
+      "github_state_reason_current": "not_planned",
+      "follow_up_document": "further-evaluations-and-access.md",
+      "remaining_acceptance_disposition": "Deferred to follow-up document; requirements are preserved, not passed",
+      "latest_acceptance_review": "further-evaluations-and-access.md"
+    },
+    {
+      "issue": 1420,
+      "title": "Collect the missing independent human evaluation set",
+      "kind": "leaf",
+      "github_state_at_inventory": "open",
+      "implementation": "Independent annotation workflow and native Label Studio exchange; not a claim of human collection",
+      "entry_points": [
+        "src/kb/annotation_exchange.py",
+        "src/kb/review_inbox.py",
+        "scripts/human_annotation.py"
+      ],
+      "tests": [
+        "tests/unit/kb/test_annotation_exchange.py",
+        "tests/unit/kb/test_review_inbox.py"
+      ],
+      "remaining_acceptance": [
+        "500\u20131000 real sentences independently annotated by two humans, agreement/adjudication and frozen test release."
+      ],
+      "implementation_evidence_semantics": "Executable code paths/tests are listed; this is not an acceptance, quality or closure certificate.",
+      "continuation_verification": "not_individually_reaudited_in_this_pass",
+      "closure_readiness": "closed_as_not_planned_by_user_scope_change",
+      "github_state_current": "closed",
+      "github_state_reason_current": "not_planned",
+      "follow_up_document": "further-evaluations-and-access.md",
+      "remaining_acceptance_disposition": "Deferred to follow-up document; requirements are preserved, not passed",
+      "latest_acceptance_review": "further-evaluations-and-access.md"
+    },
+    {
+      "issue": 1426,
+      "title": "Benchmark the existing hybrid retrieval and reranking paths",
+      "kind": "leaf",
+      "github_state_at_inventory": "open",
+      "implementation": "Frozen retrieval metrics plus native MiniLM/E5/BGE index and Qwen reranking benchmark execution",
+      "entry_points": [
+        "src/kb/retrieval_eval.py",
+        "src/evaluation/benchmark_runtime.py",
+        "services/rag/retriever.py"
+      ],
+      "tests": [
+        "tests/unit/kb/test_retrieval_eval.py",
+        "tests/unit/evaluation/test_benchmark_runtime.py"
+      ],
+      "remaining_acceptance": [],
+      "implementation_evidence_semantics": "Executable code paths/tests are listed; this is not an acceptance, quality or closure certificate.",
+      "continuation_verification": "not_individually_reaudited_in_this_pass",
+      "closure_readiness": "completed-and-closed",
+      "latest_acceptance_review": "backlog-execution-2026-09-09.md"
+    },
+    {
+      "issue": 1427,
+      "title": "Evaluate whether answers are supported by their cited evidence",
+      "kind": "leaf",
+      "github_state_at_inventory": "open",
+      "implementation": "Evidence-support evaluation and complete-context NLI with explicit unavailable/partial states",
+      "entry_points": [
+        "src/kb/nli.py",
+        "src/kb/nli_evidence.py",
+        "src/evaluation/mining_runtime.py",
+        "src/evaluation/benchmark_runtime.py"
+      ],
+      "tests": [
+        "tests/unit/kb/test_nli_evidence.py",
+        "tests/unit/evaluation/test_mining_runtime.py"
+      ],
+      "remaining_acceptance": [
+        "Human audit subset and independent relevance/support evaluation."
+      ],
+      "implementation_evidence_semantics": "Executable code paths/tests are listed; this is not an acceptance, quality or closure certificate.",
+      "continuation_verification": "not_individually_reaudited_in_this_pass",
+      "closure_readiness": "closed_as_not_planned_by_user_scope_change",
+      "github_state_current": "closed",
+      "github_state_reason_current": "not_planned",
+      "follow_up_document": "further-evaluations-and-access.md",
+      "remaining_acceptance_disposition": "Deferred to follow-up document; requirements are preserved, not passed",
+      "latest_acceptance_review": "further-evaluations-and-access.md"
+    },
+    {
+      "issue": 1443,
+      "title": "Improve and calibrate stance classification",
+      "kind": "leaf",
+      "github_state_at_inventory": "open",
+      "implementation": "Native multilingual stance/frame inference, validation-only calibration and frozen policy application",
+      "entry_points": [
+        "src/evaluation/mining_runtime.py",
+        "src/argument_mining/models.py",
+        "src/argument_mining/frames.py",
+        "src/kb/optional_runtime.py"
+      ],
+      "tests": [
+        "tests/unit/evaluation/test_mining_runtime.py"
+      ],
+      "remaining_acceptance": [
+        "Validate task readiness against the missing independent #1420 set; do not infer live accuracy from the existing benchmark."
+      ],
+      "implementation_evidence_semantics": "Executable code paths/tests are listed; this is not an acceptance, quality or closure certificate.",
+      "continuation_verification": "not_individually_reaudited_in_this_pass",
+      "closure_readiness": "closed_as_not_planned_by_user_scope_change",
+      "github_state_current": "closed",
+      "github_state_reason_current": "not_planned",
+      "follow_up_document": "further-evaluations-and-access.md",
+      "remaining_acceptance_disposition": "Deferred to follow-up document; requirements are preserved, not passed",
+      "latest_acceptance_review": "further-evaluations-and-access.md"
+    },
+    {
+      "issue": 1444,
+      "title": "Improve and calibrate frame classification",
+      "kind": "leaf",
+      "github_state_at_inventory": "open",
+      "implementation": "Native multilingual stance/frame inference, validation-only calibration and frozen policy application",
+      "entry_points": [
+        "src/evaluation/mining_runtime.py",
+        "src/argument_mining/models.py",
+        "src/argument_mining/frames.py",
+        "src/kb/optional_runtime.py"
+      ],
+      "tests": [
+        "tests/unit/evaluation/test_mining_runtime.py"
+      ],
+      "remaining_acceptance": [
+        "Validate task readiness against the missing independent #1420 set; do not infer live accuracy from the existing benchmark."
+      ],
+      "implementation_evidence_semantics": "Executable code paths/tests are listed; this is not an acceptance, quality or closure certificate.",
+      "continuation_verification": "not_individually_reaudited_in_this_pass",
+      "closure_readiness": "closed_as_not_planned_by_user_scope_change",
+      "github_state_current": "closed",
+      "github_state_reason_current": "not_planned",
+      "follow_up_document": "further-evaluations-and-access.md",
+      "remaining_acceptance_disposition": "Deferred to follow-up document; requirements are preserved, not passed",
+      "latest_acceptance_review": "further-evaluations-and-access.md"
+    },
+    {
+      "issue": 1458,
+      "title": "Export reviewed corrections as evaluation/training candidates",
+      "kind": "leaf",
+      "github_state_at_inventory": "open",
+      "implementation": "Existing reviewed dataset releases extended with native annotation details, disagreement and source-revision safeguards",
+      "entry_points": [
+        "src/kb/review_datasets.py",
+        "src/kb/annotation_exchange.py"
+      ],
+      "tests": [
+        "tests/unit/kb/test_review_datasets.py",
+        "tests/unit/kb/test_annotation_exchange.py"
+      ],
+      "remaining_acceptance": [
+        "Actual reviewer effort and validated held-out error reduction, separate from self-reported fixture effort."
+      ],
+      "implementation_evidence_semantics": "Executable code paths/tests are listed; this is not an acceptance, quality or closure certificate.",
+      "continuation_verification": "not_individually_reaudited_in_this_pass",
+      "closure_readiness": "closed_as_not_planned_by_user_scope_change",
+      "github_state_current": "closed",
+      "github_state_reason_current": "not_planned",
+      "follow_up_document": "further-evaluations-and-access.md",
+      "remaining_acceptance_disposition": "Deferred to follow-up document; requirements are preserved, not passed",
+      "latest_acceptance_review": "further-evaluations-and-access.md"
+    },
+    {
+      "issue": 1463,
+      "title": "Draft and review report revisions",
+      "kind": "leaf",
+      "github_state_at_inventory": "open",
+      "implementation": "Versioned per-assertion accept/reject, native Outlines proposal generation and renewed dependency checks",
+      "entry_points": [
+        "src/kb/report_updates.py",
+        "src/evaluation/report_generation.py"
+      ],
+      "tests": [
+        "tests/unit/kb/test_report_updates.py",
+        "tests/unit/evaluation/test_report_generation.py"
+      ],
+      "remaining_acceptance": [],
+      "implementation_evidence_semantics": "Executable code paths/tests are listed; this is not an acceptance, quality or closure certificate.",
+      "continuation_verification": "actual_feature_criteria_exercised_in_test_report_updates",
+      "acceptance_scope_note": "Individual accept/reject, versioned report history, reproducible prior revisions and report/bibliography export are exercised by test_report_updates.py. Independent model-quality datasets from other evaluation issues are not added to this scope.",
+      "closure_readiness": "closed_on_GitHub_after_local_acceptance_review",
+      "verification_latest": "14 report store/public MCP tests passed; #1447 and #1457 confirmed CLOSED.",
+      "latest_acceptance_review": "backlog-execution-review.md"
+    },
+    {
+      "issue": 1469,
+      "title": "[Tracking] API, library and MCP integration roadmap for EU/Germany/Berlin",
+      "kind": "tracking",
+      "github_state_at_inventory": "open",
+      "implementation": "Tracking parent, not a standalone runtime task",
+      "entry_points": [],
+      "tests": [],
+      "remaining_acceptance": [
+        "All child issue acceptance and dependent human/live evidence must be reviewed before closure."
+      ],
+      "implementation_evidence_semantics": "Executable code paths/tests are listed; this is not an acceptance, quality or closure certificate.",
+      "continuation_verification": "not_individually_reaudited_in_this_pass",
+      "closure_readiness": "closed_as_not_planned_by_user_scope_change",
+      "github_state_current": "closed",
+      "github_state_reason_current": "not_planned",
+      "follow_up_document": "further-evaluations-and-access.md",
+      "remaining_acceptance_disposition": "Deferred to follow-up document; requirements are preserved, not passed",
+      "latest_acceptance_review": "further-evaluations-and-access.md"
+    },
+    {
+      "issue": 1471,
+      "title": "Acquire OpenAlex PDFs and TEI XML through the existing paper pipeline",
+      "kind": "leaf",
+      "github_state_at_inventory": "open",
+      "implementation": "Native per-format OpenAlex content acquisition, TEI/PDF storage and restart-safe reservations",
+      "entry_points": [
+        "src/ingestion/hosted_acquisition.py"
+      ],
+      "tests": [
+        "tests/unit/ingestion/test_hosted_acquisition.py"
+      ],
+      "remaining_acceptance": [
+        "Authorized metered provider execution and invoice/coverage validation; a source license field is not independent permission certification."
+      ],
+      "implementation_evidence_semantics": "Executable code paths/tests are listed; this is not an acceptance, quality or closure certificate.",
+      "continuation_verification": "not_individually_reaudited_in_this_pass",
+      "verification_2026_09_08": "Persisted OpenAlex outcomes prevent old-replay source rollback and conflicting work metadata; exact revision references and atomic publication added.",
+      "closure_readiness": "closed_as_not_planned_by_user_scope_change",
+      "github_state_current": "closed",
+      "github_state_reason_current": "not_planned",
+      "follow_up_document": "further-evaluations-and-access.md",
+      "remaining_acceptance_disposition": "Deferred to follow-up document; requirements are preserved, not passed",
+      "latest_acceptance_review": "further-evaluations-and-access.md"
+    },
+    {
+      "issue": 1478,
+      "title": "Acquire EU/EEA clinical trial evidence from CTIS public records",
+      "kind": "leaf",
+      "github_state_at_inventory": "open",
+      "implementation": "Native provider-specific bounded acquisition or explicit validated export import through document/snapshot/revision storage",
+      "entry_points": [
+        "src/ingestion/regional_providers.py",
+        "src/ingestion/regional_workflow.py",
+        "src/ingestion/provider_execution.py",
+        "src/noesis_cli/optional.py",
+        "src/ingestion/regional_review.py"
+      ],
+      "tests": [
+        "tests/unit/ingestion/test_regional_providers.py",
+        "tests/unit/ingestion/test_regional_workflow.py",
+        "tests/unit/ingestion/test_provider_execution.py",
+        "tests/unit/noesis_cli/test_optional.py",
+        "tests/unit/ingestion/test_regional_review.py"
+      ],
+      "remaining_acceptance": [],
+      "implementation_evidence_semantics": "Executable code paths/tests are listed; this is not an acceptance, quality or closure certificate.",
+      "continuation_verification": "not_individually_reaudited_in_this_pass",
+      "verification_2026_09_08": "Captured explicit CTIS links can enter the existing review inbox with frozen source revisions; status changes remain active source evidence.",
+      "publication_verification_latest": "Regional document/revision/observation/workflow publication is one transaction; injected post-receipt failures roll back and replay safely for acquisition and export import.",
+      "closure_readiness": "closed_on_GitHub_after_local_acceptance_review",
+      "latest_acceptance_review": "backlog-execution-2026-09-09.md"
+    },
+    {
+      "issue": 1479,
+      "title": "Ingest German Clinical Trials Register DRKS exports",
+      "kind": "leaf",
+      "github_state_at_inventory": "open",
+      "implementation": "Native provider-specific bounded acquisition or explicit validated export import through document/snapshot/revision storage",
+      "entry_points": [
+        "src/ingestion/regional_providers.py",
+        "src/ingestion/regional_workflow.py",
+        "src/ingestion/provider_execution.py",
+        "src/noesis_cli/optional.py",
+        "src/ingestion/regional_review.py"
+      ],
+      "tests": [
+        "tests/unit/ingestion/test_regional_providers.py",
+        "tests/unit/ingestion/test_regional_workflow.py",
+        "tests/unit/ingestion/test_provider_execution.py",
+        "tests/unit/noesis_cli/test_optional.py",
+        "tests/unit/ingestion/test_regional_review.py"
+      ],
+      "remaining_acceptance": [],
+      "implementation_evidence_semantics": "Executable code paths/tests are listed; this is not an acceptance, quality or closure certificate.",
+      "continuation_verification": "not_individually_reaudited_in_this_pass",
+      "verification_2026_09_08": "Captured DRKS/CTIS/publication identifiers can enter independent review; immutable replay, no automatic merge, and transactional document batches tested.",
+      "publication_verification_latest": "Regional document/revision/observation/workflow publication is one transaction; injected post-receipt failures roll back and replay safely for acquisition and export import.",
+      "closure_readiness": "closed_on_GitHub_after_local_acceptance_review",
+      "latest_acceptance_review": "backlog-execution-2026-09-09.md"
+    },
+    {
+      "issue": 1480,
+      "title": "Extend EUR-Lex with CELLAR legal texts and case-law relationships",
+      "kind": "leaf",
+      "github_state_at_inventory": "open",
+      "implementation": "Native provider-specific bounded acquisition or explicit validated export import through document/snapshot/revision storage",
+      "entry_points": [
+        "src/ingestion/regional_providers.py",
+        "src/ingestion/regional_workflow.py",
+        "src/ingestion/provider_execution.py",
+        "src/noesis_cli/optional.py"
+      ],
+      "tests": [
+        "tests/unit/ingestion/test_regional_providers.py",
+        "tests/unit/ingestion/test_regional_workflow.py",
+        "tests/unit/ingestion/test_provider_execution.py",
+        "tests/unit/noesis_cli/test_optional.py"
+      ],
+      "remaining_acceptance": [],
+      "implementation_evidence_semantics": "Executable code paths/tests are listed; this is not an acceptance, quality or closure certificate.",
+      "continuation_verification": "not_individually_reaudited_in_this_pass",
+      "verification_2026_09_08": "Added the previously unselected official ELI/ECLI predicates, all native grouped bindings and bounded-page relationship coverage.",
+      "publication_verification_latest": "Regional document/revision/observation/workflow publication is one transaction; injected post-receipt failures roll back and replay safely for acquisition and export import.",
+      "closure_readiness": "closed_on_GitHub_after_local_acceptance_review",
+      "latest_acceptance_review": "backlog-execution-2026-09-09.md"
+    },
+    {
+      "issue": 1481,
+      "title": "Acquire German federal court decisions from Rechtsprechung im Internet",
+      "kind": "leaf",
+      "github_state_at_inventory": "open",
+      "implementation": "Native provider-specific bounded acquisition or explicit validated export import through document/snapshot/revision storage",
+      "entry_points": [
+        "src/ingestion/regional_providers.py",
+        "src/ingestion/regional_workflow.py",
+        "src/ingestion/provider_execution.py",
+        "src/noesis_cli/optional.py"
+      ],
+      "tests": [
+        "tests/unit/ingestion/test_regional_providers.py",
+        "tests/unit/ingestion/test_regional_workflow.py",
+        "tests/unit/ingestion/test_provider_execution.py",
+        "tests/unit/noesis_cli/test_optional.py"
+      ],
+      "remaining_acceptance": [],
+      "implementation_evidence_semantics": "Executable code paths/tests are listed; this is not an acceptance, quality or closure certificate.",
+      "continuation_verification": "not_individually_reaudited_in_this_pass",
+      "verification_2026_09_08": "Official court index exceeded the default live byte limit; explicit bounded larger index support added, but the larger live attempt failed at transport.",
+      "publication_verification_latest": "Regional document/revision/observation/workflow publication is one transaction; injected post-receipt failures roll back and replay safely for acquisition and export import.",
+      "verification_latest": "23.3 MB official index captured and streamed; BVerwG/BGH decisions ingested with corrected paragraph/metadata occurrence preservation; updates and offline replay verified.",
+      "closure_readiness": "closed_on_GitHub_after_local_acceptance_review",
+      "latest_acceptance_review": "backlog-execution-review.md"
+    },
+    {
+      "issue": 1482,
+      "title": "Add Berlin legal texts and decisions through documented public access",
+      "kind": "leaf",
+      "github_state_at_inventory": "open",
+      "implementation": "Native provider-specific bounded acquisition or explicit validated export import through document/snapshot/revision storage",
+      "entry_points": [
+        "src/ingestion/regional_providers.py",
+        "src/ingestion/regional_workflow.py",
+        "src/ingestion/provider_execution.py",
+        "src/noesis_cli/optional.py"
+      ],
+      "tests": [
+        "tests/unit/ingestion/test_regional_providers.py",
+        "tests/unit/ingestion/test_regional_workflow.py",
+        "tests/unit/ingestion/test_provider_execution.py",
+        "tests/unit/noesis_cli/test_optional.py"
+      ],
+      "remaining_acceptance": [],
+      "implementation_evidence_semantics": "Executable code paths/tests are listed; this is not an acceptance, quality or closure certificate.",
+      "continuation_verification": "not_individually_reaudited_in_this_pass",
+      "publication_verification_latest": "Regional document/revision/observation/workflow publication is one transaction; injected post-receipt failures roll back and replay safely for acquisition and export import.",
+      "verification_latest": "Berlin PDF import/acquisition now uses digest-bound 100-page/120-second/1-GiB worker; failed/incomplete parsing and HTML at a PDF URL never publish evidence.",
+      "closure_readiness": "closed_on_GitHub_after_local_acceptance_review",
+      "latest_acceptance_review": "backlog-execution-2026-09-09.md"
+    },
+    {
+      "issue": 1483,
+      "title": "Add EU/German company enrichment through OpenCorporates",
+      "kind": "leaf",
+      "github_state_at_inventory": "open",
+      "implementation": "Native provider-specific bounded acquisition or explicit validated export import through document/snapshot/revision storage",
+      "entry_points": [
+        "src/ingestion/regional_providers.py",
+        "src/ingestion/regional_workflow.py",
+        "src/ingestion/provider_execution.py",
+        "src/noesis_cli/optional.py"
+      ],
+      "tests": [
+        "tests/unit/ingestion/test_regional_providers.py",
+        "tests/unit/ingestion/test_regional_workflow.py",
+        "tests/unit/ingestion/test_provider_execution.py",
+        "tests/unit/noesis_cli/test_optional.py"
+      ],
+      "remaining_acceptance": [
+        "Current German/EU/Berlin OpenCorporates native company lookup/search under an appropriately licensed account; validate historical records, similar names and coverage."
+      ],
+      "implementation_evidence_semantics": "Executable code paths/tests are listed; this is not an acceptance, quality or closure certificate.",
+      "continuation_verification": "not_individually_reaudited_in_this_pass",
+      "publication_verification_latest": "Regional document/revision/observation/workflow publication is one transaction; injected post-receipt failures roll back and replay safely for acquisition and export import.",
+      "closure_readiness": "closed_as_not_planned_by_user_scope_change",
+      "github_state_current": "closed",
+      "github_state_reason_current": "not_planned",
+      "follow_up_document": "further-evaluations-and-access.md",
+      "remaining_acceptance_disposition": "Deferred to follow-up document; requirements are preserved, not passed",
+      "latest_acceptance_review": "further-evaluations-and-access.md"
+    },
+    {
+      "issue": 1484,
+      "title": "Add reviewable EU-focused OpenSanctions entity matches",
+      "kind": "leaf",
+      "github_state_at_inventory": "open",
+      "implementation": "Native provider-specific bounded acquisition or explicit validated export import through document/snapshot/revision storage",
+      "entry_points": [
+        "src/ingestion/regional_providers.py",
+        "src/ingestion/regional_workflow.py",
+        "src/ingestion/provider_execution.py",
+        "src/noesis_cli/optional.py",
+        "src/ingestion/regional_review.py"
+      ],
+      "tests": [
+        "tests/unit/ingestion/test_regional_providers.py",
+        "tests/unit/ingestion/test_regional_workflow.py",
+        "tests/unit/ingestion/test_provider_execution.py",
+        "tests/unit/noesis_cli/test_optional.py",
+        "tests/unit/ingestion/test_regional_review.py"
+      ],
+      "remaining_acceptance": [],
+      "implementation_evidence_semantics": "Executable code paths/tests are listed; this is not an acceptance, quality or closure certificate.",
+      "continuation_verification": "not_individually_reaudited_in_this_pass",
+      "verification_2026_09_08": "Captured OpenSanctions results can enter existing entity review with explicit coordinator entity assignment, source references and no automatic merge.",
+      "publication_verification_latest": "Regional document/revision/observation/workflow publication is one transaction; injected post-receipt failures roll back and replay safely for acquisition and export import.",
+      "closure_readiness": "closed_on_GitHub_after_local_acceptance_review",
+      "latest_acceptance_review": "backlog-execution-2026-09-09.md"
+    },
+    {
+      "issue": 1486,
+      "title": "Ingest EMA public medicine metadata and linked regulatory documents",
+      "kind": "leaf",
+      "github_state_at_inventory": "open",
+      "implementation": "Native provider-specific bounded acquisition or explicit validated export import through document/snapshot/revision storage",
+      "entry_points": [
+        "src/ingestion/regional_providers.py",
+        "src/ingestion/regional_workflow.py",
+        "src/ingestion/provider_execution.py",
+        "src/noesis_cli/optional.py"
+      ],
+      "tests": [
+        "tests/unit/ingestion/test_regional_providers.py",
+        "tests/unit/ingestion/test_regional_workflow.py",
+        "tests/unit/ingestion/test_provider_execution.py",
+        "tests/unit/noesis_cli/test_optional.py"
+      ],
+      "remaining_acceptance": [],
+      "implementation_evidence_semantics": "Executable code paths/tests are listed; this is not an acceptance, quality or closure certificate.",
+      "continuation_verification": "not_individually_reaudited_in_this_pass",
+      "verification_2026_09_08": "One actual public EMA record ingested and replayed offline; broader coverage and status/document evaluation remains distinct.",
+      "verification_latest": "Linked PDFs use digest-bound bounded PyMuPDF worker; incomplete parses publish no evidence; retries reuse captures. Native PDF parsed twice with identical versioned records and separate timing receipts.",
+      "publication_verification_latest": "Regional document/revision/observation/workflow publication is one transaction; injected post-receipt failures roll back and replay safely for acquisition and export import.",
+      "closure_readiness": "closed_on_GitHub_after_local_acceptance_review",
+      "latest_acceptance_review": "backlog-execution-2026-09-09.md"
+    },
+    {
+      "issue": 1487,
+      "title": "Ingest BfArM German medicine safety letters and updates",
+      "kind": "leaf",
+      "github_state_at_inventory": "open",
+      "implementation": "Native provider-specific bounded acquisition or explicit validated export import through document/snapshot/revision storage",
+      "entry_points": [
+        "src/ingestion/regional_providers.py",
+        "src/ingestion/regional_workflow.py",
+        "src/ingestion/provider_execution.py",
+        "src/noesis_cli/optional.py"
+      ],
+      "tests": [
+        "tests/unit/ingestion/test_regional_providers.py",
+        "tests/unit/ingestion/test_regional_workflow.py",
+        "tests/unit/ingestion/test_provider_execution.py",
+        "tests/unit/noesis_cli/test_optional.py"
+      ],
+      "remaining_acceptance": [],
+      "implementation_evidence_semantics": "Executable code paths/tests are listed; this is not an acceptance, quality or closure certificate.",
+      "continuation_verification": "not_individually_reaudited_in_this_pass",
+      "verification_2026_09_08": "Two actual public BfArM notices ingested and replayed offline; duplicate feed entries and conflicting identities tested.",
+      "verification_latest": "Actual query-preserving PDF acquisition and replay passed; corrected PDF, failed download, agency scope and unknown named-product tests passed.",
+      "publication_verification_latest": "Regional document/revision/observation/workflow publication is one transaction; injected post-receipt failures roll back and replay safely for acquisition and export import.",
+      "closure_readiness": "closed_on_GitHub_after_local_acceptance_review",
+      "latest_acceptance_review": "backlog-execution-review.md"
+    },
+    {
+      "issue": 1488,
+      "title": "Benchmark Exa discovery against existing search acquisition",
+      "kind": "leaf",
+      "github_state_at_inventory": "open",
+      "implementation": "Native Exa/Tavily/Jina request formats, durable budgets and original-source acquisition/lineage",
+      "entry_points": [
+        "src/ingestion/hosted_acquisition.py",
+        "src/ingestion/discovery_acquisition.py"
+      ],
+      "tests": [
+        "tests/unit/ingestion/test_hosted_acquisition.py",
+        "tests/unit/ingestion/test_discovery_acquisition.py"
+      ],
+      "remaining_acceptance": [
+        "Authorized common-query/page live comparison, judged relevance/fidelity and actual provider cost."
+      ],
+      "implementation_evidence_semantics": "Executable code paths/tests are listed; this is not an acceptance, quality or closure certificate.",
+      "continuation_verification": "not_individually_reaudited_in_this_pass",
+      "closure_readiness": "closed_as_not_planned_by_user_scope_change",
+      "github_state_current": "closed",
+      "github_state_reason_current": "not_planned",
+      "follow_up_document": "further-evaluations-and-access.md",
+      "remaining_acceptance_disposition": "Deferred to follow-up document; requirements are preserved, not passed",
+      "latest_acceptance_review": "further-evaluations-and-access.md"
+    },
+    {
+      "issue": 1489,
+      "title": "Benchmark Tavily discovery against existing search acquisition",
+      "kind": "leaf",
+      "github_state_at_inventory": "open",
+      "implementation": "Native Exa/Tavily/Jina request formats, durable budgets and original-source acquisition/lineage",
+      "entry_points": [
+        "src/ingestion/hosted_acquisition.py",
+        "src/ingestion/discovery_acquisition.py"
+      ],
+      "tests": [
+        "tests/unit/ingestion/test_hosted_acquisition.py",
+        "tests/unit/ingestion/test_discovery_acquisition.py"
+      ],
+      "remaining_acceptance": [
+        "Authorized common-query/page live comparison, judged relevance/fidelity and actual provider cost."
+      ],
+      "implementation_evidence_semantics": "Executable code paths/tests are listed; this is not an acceptance, quality or closure certificate.",
+      "continuation_verification": "not_individually_reaudited_in_this_pass",
+      "closure_readiness": "closed_as_not_planned_by_user_scope_change",
+      "github_state_current": "closed",
+      "github_state_reason_current": "not_planned",
+      "follow_up_document": "further-evaluations-and-access.md",
+      "remaining_acceptance_disposition": "Deferred to follow-up document; requirements are preserved, not passed",
+      "latest_acceptance_review": "further-evaluations-and-access.md"
+    },
+    {
+      "issue": 1490,
+      "title": "Evaluate Jina Reader as a bounded web extraction fallback",
+      "kind": "leaf",
+      "github_state_at_inventory": "open",
+      "implementation": "Native Exa/Tavily/Jina request formats, durable budgets and original-source acquisition/lineage",
+      "entry_points": [
+        "src/ingestion/hosted_acquisition.py",
+        "src/ingestion/discovery_acquisition.py"
+      ],
+      "tests": [
+        "tests/unit/ingestion/test_hosted_acquisition.py",
+        "tests/unit/ingestion/test_discovery_acquisition.py"
+      ],
+      "remaining_acceptance": [],
+      "implementation_evidence_semantics": "Executable code paths/tests are listed; this is not an acceptance, quality or closure certificate.",
+      "continuation_verification": "not_individually_reaudited_in_this_pass",
+      "closure_readiness": "closed_on_GitHub_after_local_acceptance_review",
+      "latest_acceptance_review": "backlog-execution-2026-09-09.md"
+    },
+    {
+      "issue": 1492,
+      "title": "Benchmark Splink for reviewable multi-attribute entity resolution",
+      "kind": "leaf",
+      "github_state_at_inventory": "open",
+      "implementation": "Actual native Splink/RapidFuzz candidate scoring with identifier/type precedence and explicit existing review-inbox routing",
+      "entry_points": [
+        "src/evaluation/entity_backends.py",
+        "src/kb/optional_runtime.py",
+        "src/kb/entity_analysis_inputs.py"
+      ],
+      "tests": [
+        "tests/unit/evaluation/test_entity_backends.py",
+        "tests/unit/kb/test_optional_runtime.py",
+        "tests/unit/kb/test_entity_analysis_binding.py"
+      ],
+      "remaining_acceptance": [
+        "Larger adjudicated held-out entity corpus, calibrated operational thresholds and reviewer utility."
+      ],
+      "implementation_evidence_semantics": "Executable code paths/tests are listed; this is not an acceptance, quality or closure certificate.",
+      "continuation_verification": "scoped_execution_paths_verified_not_all_acceptance",
+      "closure_readiness": "closed_as_not_planned_by_user_scope_change",
+      "github_state_current": "closed",
+      "github_state_reason_current": "not_planned",
+      "follow_up_document": "further-evaluations-and-access.md",
+      "remaining_acceptance_disposition": "Deferred to follow-up document; requirements are preserved, not passed",
+      "latest_acceptance_review": "further-evaluations-and-access.md"
+    },
+    {
+      "issue": 1493,
+      "title": "Benchmark GLiNER2-multi-v1 as a domain-specific extraction backend",
+      "kind": "leaf",
+      "github_state_at_inventory": "open",
+      "implementation": "Native pinned GLiNER2 extraction with exact Unicode spans and source-bound artifact publication",
+      "entry_points": [
+        "src/evaluation/model_backends.py",
+        "src/kb/optional_runtime.py",
+        "src/evaluation/benchmark_runtime.py",
+        "src/evaluation/gliner_schema.py",
+        "config/extraction_schemas/",
+        "src/evaluation/published_ner.py",
+        "src/evaluation/published_relations.py",
+        "scripts/evaluate_gliner_berlin.py"
+      ],
+      "tests": [
+        "tests/unit/evaluation/test_model_backends.py",
+        "tests/unit/kb/test_optional_runtime.py",
+        "tests/unit/evaluation/test_gliner_schema.py",
+        "tests/unit/evaluation/test_published_ner.py"
+      ],
+      "remaining_acceptance": [],
+      "implementation_evidence_semantics": "Native DE/EN published entity and separate EN relation evaluation completed; defer adoption. Structured fields have source-span/missing-field diagnostics, not independent domain quality labels.",
+      "continuation_verification": "completed-and-closed",
+      "native_execution_note": "Native GLiNER2 2.0.0 completed with transformers 4.57.6 under Python 3.12; exact top-level empty relation aliases repaired and replay-tested.",
+      "verification_2026_09_08": "Actual post-fix offline GLiNER worker completed entities, relations and structured fields on authored German input; this is not independent quality validation.",
+      "closure_readiness": "closed_on_GitHub_after_local_acceptance_review",
+      "latest_acceptance_review": "backlog-execution-2026-09-09.md"
+    },
+    {
+      "issue": 1494,
+      "title": "Evaluate Presidio for traceable redaction of derived research outputs",
+      "kind": "leaf",
+      "github_state_at_inventory": "open",
+      "implementation": "Native Presidio local redaction, overlap union and fail-closed language handling; no sensitive-text hash in public decisions",
+      "entry_points": [
+        "src/evaluation/presidio_redaction.py",
+        "src/kb/optional_runtime.py"
+      ],
+      "tests": [
+        "tests/unit/evaluation/test_presidio_redaction.py",
+        "tests/unit/kb/test_optional_runtime.py"
+      ],
+      "remaining_acceptance": [],
+      "implementation_evidence_semantics": "Executable code paths/tests are listed; this is not an acceptance, quality or closure certificate.",
+      "continuation_verification": "scoped_execution_paths_verified_not_all_acceptance",
+      "closure_readiness": "closed_on_GitHub_after_local_acceptance_review",
+      "latest_acceptance_review": "backlog-execution-2026-09-09.md"
+    },
+    {
+      "issue": 1495,
+      "title": "Evaluate MarkItDown as an optional document conversion fallback",
+      "kind": "leaf",
+      "github_state_at_inventory": "open",
+      "implementation": "Native selected-format MarkItDown conversion, original identity and bounded malformed Office rejection",
+      "entry_points": [
+        "src/ingestion/roadmap_integrations.py",
+        "scripts/evaluate_markitdown.py"
+      ],
+      "tests": [
+        "tests/unit/ingestion/test_roadmap_integrations.py"
+      ],
+      "remaining_acceptance": [],
+      "implementation_evidence_semantics": "Executable code paths/tests are listed; this is not an acceptance, quality or closure certificate.",
+      "continuation_verification": "not_individually_reaudited_in_this_pass",
+      "closure_readiness": "closed_on_GitHub_after_local_acceptance_review",
+      "latest_acceptance_review": "backlog-execution-review.md"
+    },
+    {
+      "issue": 1496,
+      "title": "Benchmark PaddleOCR for scanned German and multilingual evidence",
+      "kind": "leaf",
+      "github_state_at_inventory": "open",
+      "implementation": "Native bounded PaddleOCR/LightOnOCR/WhisperX jobs bound to captured binaries/transcripts and exact source identity",
+      "entry_points": [
+        "src/evaluation/media_backends.py",
+        "src/kb/optional_runtime.py",
+        "src/evaluation/benchmark_runtime.py"
+      ],
+      "tests": [
+        "tests/unit/evaluation/test_media_backends.py",
+        "tests/unit/kb/test_optional_runtime.py"
+      ],
+      "remaining_acceptance": [],
+      "implementation_evidence_semantics": "Executable code paths/tests are listed; this is not an acceptance, quality or closure certificate.",
+      "continuation_verification": "not_individually_reaudited_in_this_pass",
+      "closure_readiness": "closed_on_GitHub_after_local_acceptance_review",
+      "latest_acceptance_review": "backlog-execution-2026-09-09.md"
+    },
+    {
+      "issue": 1499,
+      "title": "Evaluate Ragas alongside existing retrieval and answer-support metrics",
+      "kind": "leaf",
+      "github_state_at_inventory": "open",
+      "implementation": "Native selected Ragas ID/text metrics over frozen question/retrieval/answer records, no implicit hosted judge",
+      "entry_points": [
+        "src/evaluation/ragas_metrics.py",
+        "src/kb/optional_runtime.py"
+      ],
+      "tests": [
+        "tests/unit/evaluation/test_ragas_metrics.py",
+        "tests/unit/evaluation/test_execution_outcomes.py"
+      ],
+      "remaining_acceptance": [
+        "Independent human metric comparison and disagreement review. ID/text overlap is not entailment."
+      ],
+      "implementation_evidence_semantics": "Executable code paths/tests are listed; this is not an acceptance, quality or closure certificate.",
+      "continuation_verification": "scoped_execution_paths_verified_not_all_acceptance",
+      "closure_readiness": "closed_as_not_planned_by_user_scope_change",
+      "github_state_current": "closed",
+      "github_state_reason_current": "not_planned",
+      "follow_up_document": "further-evaluations-and-access.md",
+      "remaining_acceptance_disposition": "Deferred to follow-up document; requirements are preserved, not passed",
+      "latest_acceptance_review": "further-evaluations-and-access.md"
+    },
+    {
+      "issue": 1500,
+      "title": "Evaluate Phoenix tracing against existing MLflow and observability",
+      "kind": "leaf",
+      "github_state_at_inventory": "open",
+      "implementation": "Native opt-in local OTLP exporter wired to analysis lifecycle, independent tracer provider and privacy-minimal correlation",
+      "entry_points": [
+        "src/evaluation/observability.py",
+        "src/kb/optional_runtime.py",
+        "src/noesis_cli/optional.py"
+      ],
+      "tests": [
+        "tests/unit/evaluation/test_observability.py",
+        "tests/unit/evaluation/test_execution_outcomes.py"
+      ],
+      "remaining_acceptance": [],
+      "implementation_evidence_semantics": "Executable code paths/tests are listed; this is not an acceptance, quality or closure certificate.",
+      "continuation_verification": "scoped_execution_paths_verified_not_all_acceptance",
+      "verification_latest": "Actual local Phoenix 20.8.0 OTLP round-trip, retention policy readback, private-field exclusion and failure reporting verified. Comparative MLflow deployment/debugging utility remains outstanding.",
+      "closure_readiness": "closed_on_GitHub_after_local_acceptance_review",
+      "latest_acceptance_review": "backlog-execution-2026-09-09.md"
+    },
+    {
+      "issue": 1501,
+      "title": "Connect GitHub MCP research records through existing federation",
+      "kind": "leaf",
+      "github_state_at_inventory": "open",
+      "implementation": "Persistent native SDK MCP session and scoped GitHub/browser capture through existing remote federation and standard evidence stores",
+      "entry_points": [
+        "src/kb/mcp_transport.py",
+        "src/kb/mcp_research.py",
+        "src/noesis_cli/optional.py"
+      ],
+      "tests": [
+        "tests/unit/kb/test_mcp_transport.py",
+        "tests/unit/kb/test_mcp_research.py"
+      ],
+      "remaining_acceptance": [],
+      "implementation_evidence_semantics": "Executable code paths/tests are listed; this is not an acceptance, quality or closure certificate.",
+      "continuation_verification": "not_individually_reaudited_in_this_pass",
+      "closure_readiness": "closed_on_GitHub_after_local_acceptance_review",
+      "latest_acceptance_review": "backlog-execution-review.md"
+    },
+    {
+      "issue": 1503,
+      "title": "Evaluate Playwright MCP for interactive evidence acquisition",
+      "kind": "leaf",
+      "github_state_at_inventory": "open",
+      "implementation": "Persistent native SDK MCP session and scoped GitHub/browser capture through existing remote federation and standard evidence stores",
+      "entry_points": [
+        "src/kb/mcp_transport.py",
+        "src/kb/mcp_research.py",
+        "src/noesis_cli/optional.py"
+      ],
+      "tests": [
+        "tests/unit/kb/test_mcp_transport.py",
+        "tests/unit/kb/test_mcp_research.py"
+      ],
+      "remaining_acceptance": [],
+      "implementation_evidence_semantics": "Executable code paths/tests are listed; this is not an acceptance, quality or closure certificate.",
+      "continuation_verification": "scoped_execution_paths_verified_not_all_acceptance",
+      "closure_readiness": "closed_on_GitHub_after_local_acceptance_review",
+      "latest_acceptance_review": "backlog-execution-review.md"
+    },
+    {
+      "issue": 1504,
+      "title": "Benchmark multilingual-e5-small for lower-cost German/English retrieval",
+      "kind": "leaf",
+      "github_state_at_inventory": "open",
+      "implementation": "Native pinned E5/BGE-M3/Qwen3 providers, isolated model spaces and dedicated yes/no reranking with comparative execution harness",
+      "entry_points": [
+        "src/evaluation/model_backends.py",
+        "src/evaluation/benchmark_runtime.py",
+        "services/embeddings/provider.py",
+        "services/rag/qwen_rerank.py",
+        "src/kb/optional_runtime.py"
+      ],
+      "tests": [
+        "tests/unit/evaluation/test_model_backends.py",
+        "tests/unit/evaluation/test_benchmark_runtime.py"
+      ],
+      "remaining_acceptance": [],
+      "implementation_evidence_semantics": "Executable code paths/tests are listed; this is not an acceptance, quality or closure certificate.",
+      "continuation_verification": "scoped_execution_paths_verified_not_all_acceptance",
+      "latest_native_evidence": "workflow-review-evidence/published-retrieval-2026-09-09.json",
+      "closure_readiness": "completed-and-closed",
+      "latest_acceptance_review": "backlog-execution-2026-09-09.md"
+    },
+    {
+      "issue": 1505,
+      "title": "Benchmark BGE-M3 dense, sparse and multi-vector retrieval",
+      "kind": "leaf",
+      "github_state_at_inventory": "open",
+      "implementation": "Native pinned E5/BGE-M3/Qwen3 providers, isolated model spaces and dedicated yes/no reranking with comparative execution harness",
+      "entry_points": [
+        "src/evaluation/model_backends.py",
+        "src/evaluation/benchmark_runtime.py",
+        "services/embeddings/provider.py",
+        "services/rag/qwen_rerank.py",
+        "src/kb/optional_runtime.py"
+      ],
+      "tests": [
+        "tests/unit/evaluation/test_model_backends.py",
+        "tests/unit/evaluation/test_benchmark_runtime.py"
+      ],
+      "remaining_acceptance": [],
+      "implementation_evidence_semantics": "Executable code paths/tests are listed; this is not an acceptance, quality or closure certificate.",
+      "continuation_verification": "scoped_execution_paths_verified_not_all_acceptance",
+      "closure_readiness": "completed-and-closed",
+      "latest_acceptance_review": "backlog-execution-2026-09-09.md"
+    },
+    {
+      "issue": 1506,
+      "title": "Evaluate Qwen3-Reranker-0.6B with a dedicated multilingual scoring adapter",
+      "kind": "leaf",
+      "github_state_at_inventory": "open",
+      "implementation": "Native pinned E5/BGE-M3/Qwen3 providers, isolated model spaces and dedicated yes/no reranking with comparative execution harness",
+      "entry_points": [
+        "src/evaluation/model_backends.py",
+        "src/evaluation/benchmark_runtime.py",
+        "services/embeddings/provider.py",
+        "services/rag/qwen_rerank.py",
+        "src/kb/optional_runtime.py"
+      ],
+      "tests": [
+        "tests/unit/evaluation/test_model_backends.py",
+        "tests/unit/evaluation/test_benchmark_runtime.py"
+      ],
+      "remaining_acceptance": [],
+      "implementation_evidence_semantics": "Executable code paths/tests are listed; this is not an acceptance, quality or closure certificate.",
+      "continuation_verification": "not_individually_reaudited_in_this_pass",
+      "closure_readiness": "completed-and-closed",
+      "latest_acceptance_review": "backlog-execution-2026-09-09.md"
+    },
+    {
+      "issue": 1507,
+      "title": "Evaluate multilingual mDeBERTa NLI for German evidence support and contradiction",
+      "kind": "leaf",
+      "github_state_at_inventory": "open",
+      "implementation": "Pinned native mDeBERTa inference with verified label/pair order, complete evidence windows and separate stance/frame tasks",
+      "entry_points": [
+        "src/evaluation/mining_runtime.py",
+        "src/kb/nli.py",
+        "src/kb/optional_runtime.py"
+      ],
+      "tests": [
+        "tests/unit/evaluation/test_mining_runtime.py",
+        "tests/unit/kb/test_nli_evidence.py"
+      ],
+      "remaining_acceptance": [
+        "Literal quotation challenge coverage and language-identified German stance/frame comparison remain outstanding."
+      ],
+      "implementation_evidence_semantics": "Executable code paths/tests are listed; this is not an acceptance, quality or closure certificate.",
+      "continuation_verification": "not_individually_reaudited_in_this_pass",
+      "latest_acceptance_review": "further-evaluations-and-access.md",
+      "closure_readiness": "closed_as_not_planned_by_user_scope_change",
+      "github_state_current": "closed",
+      "github_state_reason_current": "not_planned",
+      "follow_up_document": "further-evaluations-and-access.md",
+      "remaining_acceptance_disposition": "Deferred to follow-up document; requirements are preserved, not passed"
+    },
+    {
+      "issue": 1508,
+      "title": "Benchmark LightOnOCR-2-1B on scanned German administrative documents",
+      "kind": "leaf",
+      "github_state_at_inventory": "open",
+      "implementation": "Native bounded PaddleOCR/LightOnOCR/WhisperX jobs bound to captured binaries/transcripts and exact source identity",
+      "entry_points": [
+        "src/evaluation/media_backends.py",
+        "src/kb/optional_runtime.py",
+        "src/evaluation/benchmark_runtime.py"
+      ],
+      "tests": [
+        "tests/unit/evaluation/test_media_backends.py",
+        "tests/unit/kb/test_optional_runtime.py",
+        "tests/unit/evaluation/test_execution_outcomes.py"
+      ],
+      "remaining_acceptance": [
+        "Execute pinned LightOnOCR on independently labeled German administrative scans against the same PDF/OCR and PaddleOCR baselines; report quality and resource comparison."
+      ],
+      "implementation_evidence_semantics": "Executable code paths/tests are listed; this is not an acceptance, quality or closure certificate.",
+      "continuation_verification": "scoped_execution_paths_verified_not_all_acceptance",
+      "closure_readiness": "closed_as_not_planned_by_user_scope_change",
+      "github_state_current": "closed",
+      "github_state_reason_current": "not_planned",
+      "follow_up_document": "further-evaluations-and-access.md",
+      "remaining_acceptance_disposition": "Deferred to follow-up document; requirements are preserved, not passed",
+      "latest_acceptance_review": "further-evaluations-and-access.md"
+    },
+    {
+      "issue": 1509,
+      "title": "Benchmark wtpsplit/SaT for German and multilingual sentence segmentation",
+      "kind": "leaf",
+      "github_state_at_inventory": "open",
+      "implementation": "Native SaT segmenter preserving exact source offsets, existing chunker selection and executable boundary evaluation",
+      "entry_points": [
+        "src/evaluation/model_backends.py",
+        "services/rag/chunking.py",
+        "src/evaluation/benchmark_runtime.py"
+      ],
+      "tests": [
+        "tests/unit/evaluation/test_model_backends.py"
+      ],
+      "remaining_acceptance": [
+        "Representative independent sentence boundaries and downstream retrieval/claim-span comparison with properly configured German baselines."
+      ],
+      "implementation_evidence_semantics": "Executable code paths/tests are listed; this is not an acceptance, quality or closure certificate.",
+      "continuation_verification": "not_individually_reaudited_in_this_pass",
+      "closure_readiness": "closed_as_not_planned_by_user_scope_change",
+      "github_state_current": "closed",
+      "github_state_reason_current": "not_planned",
+      "follow_up_document": "further-evaluations-and-access.md",
+      "remaining_acceptance_disposition": "Deferred to follow-up document; requirements are preserved, not passed",
+      "latest_acceptance_review": "further-evaluations-and-access.md"
+    },
+    {
+      "issue": 1510,
+      "title": "Benchmark Lingua for short and mixed-language research evidence",
+      "kind": "leaf",
+      "github_state_at_inventory": "open",
+      "implementation": "Native optional Lingua normalized-source language segments with explicit uncertainty and exact offsets",
+      "entry_points": [
+        "services/rag/language_detection.py",
+        "services/rag/normalization.py",
+        "scripts/evaluate_lingua.py"
+      ],
+      "tests": [
+        "tests/unit/services/rag/test_lingua_normalization.py"
+      ],
+      "remaining_acceptance": [
+        "Independent language/span labels; authored-fixture execution does not establish production multilingual accuracy."
+      ],
+      "implementation_evidence_semantics": "Executable code paths/tests are listed; this is not an acceptance, quality or closure certificate.",
+      "continuation_verification": "not_individually_reaudited_in_this_pass",
+      "closure_readiness": "closed_as_not_planned_by_user_scope_change",
+      "github_state_current": "closed",
+      "github_state_reason_current": "not_planned",
+      "follow_up_document": "further-evaluations-and-access.md",
+      "remaining_acceptance_disposition": "Deferred to follow-up document; requirements are preserved, not passed",
+      "latest_acceptance_review": "further-evaluations-and-access.md"
+    },
+    {
+      "issue": 1511,
+      "title": "Benchmark RapidFuzz for entity-resolution candidate scoring",
+      "kind": "leaf",
+      "github_state_at_inventory": "open",
+      "implementation": "Actual native Splink/RapidFuzz candidate scoring with identifier/type precedence and explicit existing review-inbox routing",
+      "entry_points": [
+        "src/evaluation/entity_backends.py",
+        "src/kb/optional_runtime.py",
+        "src/kb/entity_analysis_inputs.py"
+      ],
+      "tests": [
+        "tests/unit/evaluation/test_entity_backends.py",
+        "tests/unit/kb/test_optional_runtime.py",
+        "tests/unit/kb/test_entity_analysis_binding.py"
+      ],
+      "remaining_acceptance": [],
+      "implementation_evidence_semantics": "Executable code paths/tests are listed; this is not an acceptance, quality or closure certificate.",
+      "continuation_verification": "scoped_execution_paths_verified_not_all_acceptance",
+      "closure_readiness": "closed_on_GitHub_after_local_acceptance_review",
+      "latest_acceptance_review": "backlog-execution-review.md"
+    },
+    {
+      "issue": 1512,
+      "title": "Evaluate datasketch MinHash LSH for scalable text-reuse candidate discovery",
+      "kind": "leaf",
+      "github_state_at_inventory": "open",
+      "implementation": "Native versioned MinHash LSH, exact similarity and bidirectional mandatory provenance candidates, persistence/update/delete/rebuild",
+      "entry_points": [
+        "src/evaluation/minhash_reuse.py",
+        "scripts/evaluate_minhash_reuse.py"
+      ],
+      "tests": [
+        "tests/unit/evaluation/test_minhash_reuse.py"
+      ],
+      "remaining_acceptance": [],
+      "implementation_evidence_semantics": "Executable code paths/tests are listed; this is not an acceptance, quality or closure certificate.",
+      "continuation_verification": "not_individually_reaudited_in_this_pass",
+      "closure_readiness": "closed_on_GitHub_after_local_acceptance_review",
+      "latest_acceptance_review": "backlog-execution-review.md"
+    },
+    {
+      "issue": 1514,
+      "title": "Evaluate WhisperX forced alignment for word-level evidence timestamps",
+      "kind": "leaf",
+      "github_state_at_inventory": "open",
+      "implementation": "Native bounded PaddleOCR/LightOnOCR/WhisperX jobs bound to captured binaries/transcripts and exact source identity",
+      "entry_points": [
+        "src/evaluation/media_backends.py",
+        "src/kb/optional_runtime.py",
+        "src/evaluation/benchmark_runtime.py"
+      ],
+      "tests": [
+        "tests/unit/evaluation/test_media_backends.py",
+        "tests/unit/kb/test_optional_runtime.py",
+        "tests/unit/evaluation/test_execution_outcomes.py"
+      ],
+      "remaining_acceptance": [
+        "Execute pinned WhisperX on manually aligned German/English audio including names, numbers, overlap and noise; measure word-boundary error, coverage and citation seek accuracy."
+      ],
+      "implementation_evidence_semantics": "Executable code paths/tests are listed; this is not an acceptance, quality or closure certificate.",
+      "continuation_verification": "scoped_execution_paths_verified_not_all_acceptance",
+      "closure_readiness": "closed_as_not_planned_by_user_scope_change",
+      "github_state_current": "closed",
+      "github_state_reason_current": "not_planned",
+      "follow_up_document": "further-evaluations-and-access.md",
+      "remaining_acceptance_disposition": "Deferred to follow-up document; requirements are preserved, not passed",
+      "latest_acceptance_review": "further-evaluations-and-access.md"
+    },
+    {
+      "issue": 1520,
+      "title": "Evaluate Outlines for schema-constrained report revision proposals",
+      "kind": "leaf",
+      "github_state_at_inventory": "open",
+      "implementation": "Actual Outlines constrained generator receiving captured evidence and revalidated report/evidence revisions",
+      "entry_points": [
+        "src/evaluation/report_generation.py",
+        "src/kb/report_updates.py"
+      ],
+      "tests": [
+        "tests/unit/evaluation/test_report_generation.py"
+      ],
+      "remaining_acceptance": [],
+      "implementation_evidence_semantics": "Executable code paths/tests are listed; this is not an acceptance, quality or closure certificate.",
+      "continuation_verification": "not_individually_reaudited_in_this_pass",
+      "closure_readiness": "completed-and-closed",
+      "latest_acceptance_review": "backlog-execution-2026-09-09.md"
+    },
+    {
+      "issue": 1521,
+      "title": "Evaluate Label Studio exchange for independent evidence annotation",
+      "kind": "leaf",
+      "github_state_at_inventory": "open",
+      "implementation": "Native Label Studio JSON export/import integrated with existing assignments, votes, dispute handling and dataset releases",
+      "entry_points": [
+        "src/kb/annotation_exchange.py",
+        "src/kb/review_inbox.py",
+        "src/kb/review_datasets.py"
+      ],
+      "tests": [
+        "tests/unit/kb/test_annotation_exchange.py"
+      ],
+      "remaining_acceptance": [
+        "Selected Label Studio deployment/edition, genuinely independent pilot, measured annotator time/agreement and actual human collection."
+      ],
+      "implementation_evidence_semantics": "Executable code paths/tests are listed; this is not an acceptance, quality or closure certificate.",
+      "continuation_verification": "not_individually_reaudited_in_this_pass",
+      "closure_readiness": "closed_as_not_planned_by_user_scope_change",
+      "github_state_current": "closed",
+      "github_state_reason_current": "not_planned",
+      "follow_up_document": "further-evaluations-and-access.md",
+      "remaining_acceptance_disposition": "Deferred to follow-up document; requirements are preserved, not passed",
+      "latest_acceptance_review": "further-evaluations-and-access.md"
+    }
+  ],
+  "code_committed_or_pushed_by_this_continuation": false,
+  "issues_closed_by_this_continuation": [
+    1340,
+    1347,
+    1364,
+    1365,
+    1366,
+    1385,
+    1386,
+    1387,
+    1388,
+    1389,
+    1405,
+    1426,
+    1463,
+    1478,
+    1479,
+    1480,
+    1481,
+    1482,
+    1484,
+    1486,
+    1487,
+    1490,
+    1494,
+    1495,
+    1496,
+    1500,
+    1501,
+    1503,
+    1504,
+    1505,
+    1506,
+    1511,
+    1512,
+    1520
+  ],
+  "independent_human_evaluation_collected": false,
+  "paid_provider_calls_performed": true,
+  "current_audit": "docs/development/execution-path-audit.md",
+  "completion_certified": false,
+  "audit_semantics": "File mappings are not implementation certificates. Scoped repaired paths and real executions are distinguished from unreviewed issue criteria and external acceptance.",
+  "latest_validation": "docs/development/workflow-review-evidence/backlog-validation-2026-09-09.json",
+  "latest_closure_review": "backlog-execution-2026-09-09.md",
+  "latest_acceptance_review": "backlog-execution-2026-09-09.md",
+  "locally_ready_for_closure": [],
+  "latest_github_closure_evidence": "workflow-review-evidence/github-closures-2026-09-09.json",
+  "remaining_open_issue_count": 39,
+  "hosted_credit_usage": {
+    "provider": "firecrawl",
+    "reported_credits": 1,
+    "new_purchase": false,
+    "dollar_invoice_available": false
+  },
+  "latest_implementation_review": "workflow-review-evidence/open-issue-implementation-2026-09-08.json",
+  "latest_review_date": "2026-09-09",
+  "latest_github_inventory": {
+    "date": "2026-09-09",
+    "open": 0,
+    "open_issue_numbers": [],
+    "closed_in_september_9_continuation": [
+      1426,
+      1478,
+      1479,
+      1480,
+      1482,
+      1484,
+      1486,
+      1490,
+      1493,
+      1494,
+      1496,
+      1500,
+      1504,
+      1505,
+      1506,
+      1520
+    ],
+    "closed_as_deferred_non_implementation": [
+      1348,
+      1391,
+      1399,
+      1401,
+      1406,
+      1420,
+      1427,
+      1443,
+      1444,
+      1458,
+      1469,
+      1471,
+      1483,
+      1488,
+      1489,
+      1492,
+      1499,
+      1507,
+      1508,
+      1509,
+      1510,
+      1514,
+      1521
+    ]
+  },
+  "latest_broad_validation": {
+    "command": ".venv/bin/python -m pytest tests/unit/ingestion tests/unit/kb tests/unit/evaluation -q",
+    "passed": 1598,
+    "skipped": 13,
+    "warnings": 19,
+    "seconds": 96.96,
+    "date": "2026-09-09"
+  },
+  "current_scope_disposition": {
+    "date": "2026-09-09",
+    "open_issues": 0,
+    "deferred_non_implementation_issues": [
+      1348,
+      1391,
+      1399,
+      1401,
+      1406,
+      1420,
+      1427,
+      1443,
+      1444,
+      1458,
+      1469,
+      1471,
+      1483,
+      1488,
+      1489,
+      1492,
+      1499,
+      1507,
+      1508,
+      1509,
+      1510,
+      1514,
+      1521
+    ],
+    "follow_up_document": "further-evaluations-and-access.md",
+    "evaluation_acceptance_complete": false,
+    "code_committed_or_pushed": false
+  }
+}

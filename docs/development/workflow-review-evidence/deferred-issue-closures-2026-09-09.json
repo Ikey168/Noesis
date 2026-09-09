@@ -1,0 +1,198 @@
+{
+  "date": "2026-09-09",
+  "repository": "Ikey168/Noesis",
+  "reason": "NOT_PLANNED",
+  "disposition": "User-directed transfer of outstanding non-implementation work to docs/development/further-evaluations-and-access.md",
+  "evaluation_acceptance_complete": false,
+  "code_committed_or_pushed": false,
+  "closed": [
+    {
+      "closedAt": "2026-09-09T03:31:32Z",
+      "number": 1391,
+      "state": "CLOSED",
+      "stateReason": "NOT_PLANNED",
+      "title": "Expose Guardian API collection through domain source packs",
+      "url": "https://github.com/Ikey168/Noesis/issues/1391"
+    },
+    {
+      "closedAt": "2026-09-09T03:31:34Z",
+      "number": 1420,
+      "state": "CLOSED",
+      "stateReason": "NOT_PLANNED",
+      "title": "Collect the missing independent human evaluation set",
+      "url": "https://github.com/Ikey168/Noesis/issues/1420"
+    },
+    {
+      "closedAt": "2026-09-09T03:31:35Z",
+      "number": 1427,
+      "state": "CLOSED",
+      "stateReason": "NOT_PLANNED",
+      "title": "Evaluate whether answers are supported by their cited evidence",
+      "url": "https://github.com/Ikey168/Noesis/issues/1427"
+    },
+    {
+      "closedAt": "2026-09-09T03:31:37Z",
+      "number": 1443,
+      "state": "CLOSED",
+      "stateReason": "NOT_PLANNED",
+      "title": "Improve and calibrate stance classification",
+      "url": "https://github.com/Ikey168/Noesis/issues/1443"
+    },
+    {
+      "closedAt": "2026-09-09T03:31:39Z",
+      "number": 1444,
+      "state": "CLOSED",
+      "stateReason": "NOT_PLANNED",
+      "title": "Improve and calibrate frame classification",
+      "url": "https://github.com/Ikey168/Noesis/issues/1444"
+    },
+    {
+      "closedAt": "2026-09-09T03:31:40Z",
+      "number": 1458,
+      "state": "CLOSED",
+      "stateReason": "NOT_PLANNED",
+      "title": "Export reviewed corrections as evaluation/training candidates",
+      "url": "https://github.com/Ikey168/Noesis/issues/1458"
+    },
+    {
+      "closedAt": "2026-09-09T03:31:44Z",
+      "number": 1471,
+      "state": "CLOSED",
+      "stateReason": "NOT_PLANNED",
+      "title": "Acquire OpenAlex PDFs and TEI XML through the existing paper pipeline",
+      "url": "https://github.com/Ikey168/Noesis/issues/1471"
+    },
+    {
+      "closedAt": "2026-09-09T03:31:45Z",
+      "number": 1483,
+      "state": "CLOSED",
+      "stateReason": "NOT_PLANNED",
+      "title": "Add EU/German company enrichment through OpenCorporates",
+      "url": "https://github.com/Ikey168/Noesis/issues/1483"
+    },
+    {
+      "closedAt": "2026-09-09T03:31:46Z",
+      "number": 1488,
+      "state": "CLOSED",
+      "stateReason": "NOT_PLANNED",
+      "title": "Benchmark Exa discovery against existing search acquisition",
+      "url": "https://github.com/Ikey168/Noesis/issues/1488"
+    },
+    {
+      "closedAt": "2026-09-09T03:31:48Z",
+      "number": 1489,
+      "state": "CLOSED",
+      "stateReason": "NOT_PLANNED",
+      "title": "Benchmark Tavily discovery against existing search acquisition",
+      "url": "https://github.com/Ikey168/Noesis/issues/1489"
+    },
+    {
+      "closedAt": "2026-09-09T03:31:50Z",
+      "number": 1492,
+      "state": "CLOSED",
+      "stateReason": "NOT_PLANNED",
+      "title": "Benchmark Splink for reviewable multi-attribute entity resolution",
+      "url": "https://github.com/Ikey168/Noesis/issues/1492"
+    },
+    {
+      "closedAt": "2026-09-09T03:31:51Z",
+      "number": 1499,
+      "state": "CLOSED",
+      "stateReason": "NOT_PLANNED",
+      "title": "Evaluate Ragas alongside existing retrieval and answer-support metrics",
+      "url": "https://github.com/Ikey168/Noesis/issues/1499"
+    },
+    {
+      "closedAt": "2026-09-09T03:31:53Z",
+      "number": 1507,
+      "state": "CLOSED",
+      "stateReason": "NOT_PLANNED",
+      "title": "Evaluate multilingual mDeBERTa NLI for German evidence support and contradiction",
+      "url": "https://github.com/Ikey168/Noesis/issues/1507"
+    },
+    {
+      "closedAt": "2026-09-09T03:31:56Z",
+      "number": 1508,
+      "state": "CLOSED",
+      "stateReason": "NOT_PLANNED",
+      "title": "Benchmark LightOnOCR-2-1B on scanned German administrative documents",
+      "url": "https://github.com/Ikey168/Noesis/issues/1508"
+    },
+    {
+      "closedAt": "2026-09-09T03:31:58Z",
+      "number": 1509,
+      "state": "CLOSED",
+      "stateReason": "NOT_PLANNED",
+      "title": "Benchmark wtpsplit/SaT for German and multilingual sentence segmentation",
+      "url": "https://github.com/Ikey168/Noesis/issues/1509"
+    },
+    {
+      "closedAt": "2026-09-09T03:31:59Z",
+      "number": 1510,
+      "state": "CLOSED",
+      "stateReason": "NOT_PLANNED",
+      "title": "Benchmark Lingua for short and mixed-language research evidence",
+      "url": "https://github.com/Ikey168/Noesis/issues/1510"
+    },
+    {
+      "closedAt": "2026-09-09T03:32:01Z",
+      "number": 1514,
+      "state": "CLOSED",
+      "stateReason": "NOT_PLANNED",
+      "title": "Evaluate WhisperX forced alignment for word-level evidence timestamps",
+      "url": "https://github.com/Ikey168/Noesis/issues/1514"
+    },
+    {
+      "closedAt": "2026-09-09T03:32:02Z",
+      "number": 1521,
+      "state": "CLOSED",
+      "stateReason": "NOT_PLANNED",
+      "title": "Evaluate Label Studio exchange for independent evidence annotation",
+      "url": "https://github.com/Ikey168/Noesis/issues/1521"
+    },
+    {
+      "closedAt": "2026-09-09T03:32:03Z",
+      "number": 1348,
+      "state": "CLOSED",
+      "stateReason": "NOT_PLANNED",
+      "title": "[Tracking] Connect the existing Guardian API collector to domain source packs and incremental ingestion",
+      "url": "https://github.com/Ikey168/Noesis/issues/1348"
+    },
+    {
+      "closedAt": "2026-09-09T03:32:05Z",
+      "number": 1399,
+      "state": "CLOSED",
+      "stateReason": "NOT_PLANNED",
+      "title": "[Tracking] Revision-safe extraction, enrichment, and model evaluation",
+      "url": "https://github.com/Ikey168/Noesis/issues/1399"
+    },
+    {
+      "closedAt": "2026-09-09T03:32:06Z",
+      "number": 1401,
+      "state": "CLOSED",
+      "stateReason": "NOT_PLANNED",
+      "title": "[Tracking] Query deadlines, retrieval relevance, and evidence-supported answers",
+      "url": "https://github.com/Ikey168/Noesis/issues/1401"
+    },
+    {
+      "closedAt": "2026-09-09T03:32:08Z",
+      "number": 1406,
+      "state": "CLOSED",
+      "stateReason": "NOT_PLANNED",
+      "title": "[Tracking] Unified evidence review inbox",
+      "url": "https://github.com/Ikey168/Noesis/issues/1406"
+    },
+    {
+      "closedAt": "2026-09-09T03:32:10Z",
+      "number": 1469,
+      "state": "CLOSED",
+      "stateReason": "NOT_PLANNED",
+      "title": "[Tracking] API, library and MCP integration roadmap for EU/Germany/Berlin",
+      "url": "https://github.com/Ikey168/Noesis/issues/1469"
+    }
+  ],
+  "failures": [],
+  "remaining_open": [],
+  "remaining_open_count": 0,
+  "implementation_issue_queue_closed": true
+}

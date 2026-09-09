@@ -1,0 +1,152 @@
+{
+  "license": "CC0-1.0",
+  "provenance": "Authored regression probes, not independently annotated real documents.",
+  "sha256": "b24bff21e6a173eb32f2e5c92cc78935422657bab9ddee7eb747f33f95cf0bd7",
+  "cases": [
+    {
+      "case": "german-english",
+      "page": 1,
+      "text": "Berliner Verwaltung: Beispielbescheid\nDie Frist endet am 15. September 2026.\nThis English abstract describes an authored test.",
+      "regions": [
+        {
+          "text": "Berliner Verwaltung: Beispielbescheid",
+          "bbox_pixels": [
+            104.16666412353516,
+            135.31248474121094,
+            593.699951171875,
+            175.38748168945312
+          ]
+        },
+        {
+          "text": "Die Frist endet am 15. September 2026.",
+          "bbox_pixels": [
+            104.16666412353516,
+            208.22915649414062,
+            622.9249267578125,
+            248.3041534423828
+          ]
+        },
+        {
+          "text": "This English abstract describes an authored test.",
+          "bbox_pixels": [
+            104.16666412353516,
+            281.14581298828125,
+            734.779052734375,
+            321.2208251953125
+          ]
+        }
+      ]
+    },
+    {
+      "case": "table",
+      "page": 2,
+      "text": "Jahr     Berlin     Hamburg\n2024     120        95\n2025     130        98\nTabelle: frei erfundene Zahlen.",
+      "regions": [
+        {
+          "text": "Jahr     Berlin     Hamburg",
+          "bbox_pixels": [
+            104.16666412353516,
+            135.31248474121094,
+            436.4624938964844,
+            175.38748168945312
+          ]
+        },
+        {
+          "text": "2024     120        95",
+          "bbox_pixels": [
+            104.16666412353516,
+            208.22915649414062,
+            355.52496337890625,
+            248.3041534423828
+          ]
+        },
+        {
+          "text": "2025     130        98",
+          "bbox_pixels": [
+            104.16666412353516,
+            281.14581298828125,
+            355.52496337890625,
+            321.2208251953125
+          ]
+        },
+        {
+          "text": "Tabelle: frei erfundene Zahlen.",
+          "bbox_pixels": [
+            104.16666412353516,
+            354.0624694824219,
+            501.3583068847656,
+            394.1374816894531
+          ]
+        }
+      ]
+    },
+    {
+      "case": "rotated",
+      "page": 3,
+      "text": "Gedrehte Seite: deutsche Forschung\nDie gemessene Anzahl ist 42.\nRotation must preserve source coordinates.",
+      "regions": [
+        {
+          "text": "Gedrehte Seite: deutsche Forschung",
+          "bbox_pixels": [
+            1578.7791748046875,
+            104.16666412353516,
+            1618.8541259765625,
+            580.8082885742188
+          ]
+        },
+        {
+          "text": "Die gemessene Anzahl ist 42.",
+          "bbox_pixels": [
+            1505.862548828125,
+            104.16666412353516,
+            1545.9373779296875,
+            489.9832763671875
+          ]
+        },
+        {
+          "text": "Rotation must preserve source coordinates.",
+          "bbox_pixels": [
+            1432.9456787109375,
+            104.16666412353516,
+            1473.020751953125,
+            668.2791137695312
+          ]
+        }
+      ]
+    },
+    {
+      "case": "low-quality",
+      "page": 4,
+      "text": "Unscharfer Scan: \u00f6ffentliche Forschung\nDie Pr\u00fcfung bleibt ausdr\u00fccklich erforderlich.\nNoisy scans may omit important words.",
+      "regions": [
+        {
+          "text": "Unscharfer Scan: \u00f6ffentliche Forschung",
+          "bbox_pixels": [
+            104.16666412353516,
+            135.31248474121094,
+            616.4207153320312,
+            175.38748168945312
+          ]
+        },
+        {
+          "text": "Die Pr\u00fcfung bleibt ausdr\u00fccklich erforderlich.",
+          "bbox_pixels": [
+            104.16666412353516,
+            208.22915649414062,
+            668.2498779296875,
+            248.3041534423828
+          ]
+        },
+        {
+          "text": "Noisy scans may omit important words.",
+          "bbox_pixels": [
+            104.16666412353516,
+            281.14581298828125,
+            611.4624633789062,
+            321.2208251953125
+          ]
+        }
+      ]
+    }
+  ]
+}
