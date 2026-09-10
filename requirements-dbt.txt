@@ -4,4 +4,4 @@ dbt-duckdb>=1.9.0,<2.0.0
 dbt-snowflake>=1.9.0,<2.0.0
 
 # MetricFlow for semantic layer
-dbt-metricflow>=0.5.0,<1.0.0
+dbt-metricflow>=0.14.0,<1.0.0
