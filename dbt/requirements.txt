@@ -9,5 +9,5 @@ thrift>=0.16.0
 sasl>=0.3.1
 
 # Optional: For enhanced functionality
-sqlparse>=0.4.0
+sqlparse>=0.6.0
 pydantic>=1.10.0
