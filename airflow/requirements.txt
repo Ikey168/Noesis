@@ -9,7 +9,7 @@ apache-airflow-providers-apache-spark==6.3.1
 apache-airflow-providers-amazon==9.34.0
 apache-airflow-providers-http==6.0.5
 apache-airflow-providers-openlineage==2.20.0
-openlineage-python==1.52.0
+openlineage-python==1.53.0
 pandas==3.0.5
 PyYAML==6.0.3
 mlflow-skinny==3.15.0
