@@ -812,7 +812,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 432,
+      "tool_count": 441,
       "tools": [
         "noesis-knowledge-engine.accept_citation_repair",
         "noesis-knowledge-engine.accept_dataset_join",
@@ -863,6 +863,7 @@
         "noesis-knowledge-engine.capture_claim_timeline_state",
         "noesis-knowledge-engine.classify_epistemic_statement",
         "noesis-knowledge-engine.close_research_snapshot",
+        "noesis-knowledge-engine.command_intake_mode",
         "noesis-knowledge-engine.compare_change_briefs",
         "noesis-knowledge-engine.compare_claim_sources",
         "noesis-knowledge-engine.compare_cross_language_claims",
@@ -911,6 +912,7 @@
         "noesis-knowledge-engine.detect_claim_successors",
         "noesis-knowledge-engine.diff_claim_timeline_states",
         "noesis-knowledge-engine.diff_event_revisions",
+        "noesis-knowledge-engine.discover_intake_modes",
         "noesis-knowledge-engine.discover_quantitative_metrics",
         "noesis-knowledge-engine.discover_research_gaps",
         "noesis-knowledge-engine.document_generation_delta",
@@ -942,7 +944,9 @@
         "noesis-knowledge-engine.export_change_briefs",
         "noesis-knowledge-engine.export_entity_identity_history",
         "noesis-knowledge-engine.export_hypothesis_workspace",
+        "noesis-knowledge-engine.export_intake_mode",
         "noesis-knowledge-engine.export_investigation_comparison",
+        "noesis-knowledge-engine.export_modulo_intake_handoff",
         "noesis-knowledge-engine.export_preserved_citations",
         "noesis-knowledge-engine.export_research_analysis",
         "noesis-knowledge-engine.export_research_analysis_package",
@@ -1001,6 +1005,7 @@
         "noesis-knowledge-engine.inspect_decision_condition_watch",
         "noesis-knowledge-engine.inspect_effective_access_view",
         "noesis-knowledge-engine.inspect_entity_change_impact",
+        "noesis-knowledge-engine.inspect_intake_mode",
         "noesis-knowledge-engine.inspect_investigation_comparison",
         "noesis-knowledge-engine.inspect_investigation_template",
         "noesis-knowledge-engine.inspect_maintenance_generation",
@@ -1037,6 +1042,7 @@
         "noesis-knowledge-engine.list_expiring_evidence",
         "noesis-knowledge-engine.list_extractors",
         "noesis-knowledge-engine.list_geospatial_geometries",
+        "noesis-knowledge-engine.list_intake_modes",
         "noesis-knowledge-engine.list_investigation_templates",
         "noesis-knowledge-engine.list_maintenance_due_work",
         "noesis-knowledge-engine.list_maintenance_jobs",
@@ -1193,6 +1199,7 @@
         "noesis-knowledge-engine.revise_source_identity",
         "noesis-knowledge-engine.revoke_access_share_grant",
         "noesis-knowledge-engine.rollback_research_package_import",
+        "noesis-knowledge-engine.route_intake_mode",
         "noesis-knowledge-engine.run_anomaly_detector",
         "noesis-knowledge-engine.run_maintenance_drain",
         "noesis-knowledge-engine.run_maintenance_once",
@@ -1228,6 +1235,7 @@
         "noesis-knowledge-engine.source_pack_runtime_coverage",
         "noesis-knowledge-engine.source_relationship_path",
         "noesis-knowledge-engine.split_source_alias",
+        "noesis-knowledge-engine.start_intake_mode",
         "noesis-knowledge-engine.store_geospatial_geometry",
         "noesis-knowledge-engine.submit_review_inbox_annotation",
         "noesis-knowledge-engine.subscribe_cited_evidence",
@@ -1243,6 +1251,7 @@
         "noesis-knowledge-engine.validate_research_package_manifest",
         "noesis-knowledge-engine.validate_research_recipe",
         "noesis-knowledge-engine.validate_source_pack",
+        "noesis-knowledge-engine.verify_intake_mode_export",
         "noesis-knowledge-engine.verify_preserved_citation",
         "noesis-knowledge-engine.verify_research_package",
         "noesis-knowledge-engine.verify_retention_checkpoint"
@@ -1252,7 +1261,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 432
+      "visible_tool_count": 441
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -1263,12 +1272,12 @@
     },
     "servers": 29,
     "states": {
-      "available": 81,
+      "available": 84,
       "degraded": 155,
       "disabled": 3,
-      "unauthorized": 437
+      "unauthorized": 443
     },
-    "tools": 676
+    "tools": 685
   },
   "tools": [
     {
@@ -16508,6 +16517,67 @@
       "version": "1"
     },
     {
+      "cost_class": "medium",
+      "description": "Record mode evidence, pause, resume, complete, or cancel with safe replay.",
+      "id": "noesis-knowledge-engine.command_intake_mode",
+      "input_schema": {
+        "properties": {
+          "action": {
+            "type": "string"
+          },
+          "command_key": {
+            "type": "string"
+          },
+          "expected_revision": {
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "payload": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "session_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "session_id",
+          "command_key",
+          "expected_revision",
+          "action"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "command_intake_mode",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:intake:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "low",
       "description": "Compare classifications, materiality, scores, and uncertainty.",
       "id": "noesis-knowledge-engine.compare_change_briefs",
@@ -19220,6 +19290,28 @@
     },
     {
       "cost_class": "low",
+      "description": "List the ten workflow intents and their session budgets and completion inputs.",
+      "id": "noesis-knowledge-engine.discover_intake_modes",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "discover_intake_modes",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [],
+      "required_scopes": [],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Discover metrics by canonical name, synonym, or provider mapping.",
       "id": "noesis-knowledge-engine.discover_quantitative_metrics",
       "input_schema": {
@@ -20657,6 +20749,43 @@
     },
     {
       "cost_class": "low",
+      "description": "Export the revision chain and digest with current linked access checks.",
+      "id": "noesis-knowledge-engine.export_intake_mode",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "session_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "session_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "export_intake_mode",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:intake:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Export an authorized structured comparison and deterministic report Markdown.",
       "id": "noesis-knowledge-engine.export_investigation_comparison",
       "input_schema": {
@@ -20688,6 +20817,43 @@
       "required_scopes": [
         "knowledge:projects:read",
         "knowledge:recipes:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Project current Noesis and Modulo object links for a scoped bridge handoff.",
+      "id": "noesis-knowledge-engine.export_modulo_intake_handoff",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "session_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "session_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "export_modulo_intake_handoff",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:intake:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -23353,6 +23519,54 @@
     },
     {
       "cost_class": "low",
+      "description": "Inspect current progress or an exact prior revision under current access.",
+      "id": "noesis-knowledge-engine.inspect_intake_mode",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "revision": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "session_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "session_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "inspect_intake_mode",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:intake:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Reopen an immutable comparison and report current historical availability.",
       "id": "noesis-knowledge-engine.inspect_investigation_comparison",
       "input_schema": {
@@ -25041,6 +25255,58 @@
       ],
       "required_scopes": [
         "knowledge:geospatial:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Page through accessible sessions, including interrupted work.",
+      "id": "noesis-knowledge-engine.list_intake_modes",
+      "input_schema": {
+        "properties": {
+          "limit": {
+            "default": 50,
+            "type": "integer"
+          },
+          "mode": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "offset": {
+            "default": 0,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_intake_modes",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:intake:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -34716,6 +34982,49 @@
       "version": "1"
     },
     {
+      "cost_class": "low",
+      "description": "Suggest a mode from ten intent questions, with an explicit user override.",
+      "id": "noesis-knowledge-engine.route_intake_mode",
+      "input_schema": {
+        "properties": {
+          "answers": {
+            "additionalProperties": {
+              "type": "boolean"
+            },
+            "type": "object"
+          },
+          "override": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "answers"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "route_intake_mode",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [],
+      "required_scopes": [],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
       "cost_class": "medium",
       "description": "Run a bounded, cancellable, deterministic anomaly detector.",
       "id": "noesis-knowledge-engine.run_anomaly_detector",
@@ -36619,6 +36928,101 @@
     },
     {
       "cost_class": "medium",
+      "description": "Start or replay an owner-scoped mode session, optionally linked to a prior mode.",
+      "id": "noesis-knowledge-engine.start_intake_mode",
+      "input_schema": {
+        "properties": {
+          "duration_minutes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "inputs": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "intent": {
+            "type": "string"
+          },
+          "mode": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "origin": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "request_key": {
+            "type": "string"
+          },
+          "workspace_links": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "mode",
+          "request_key",
+          "intent"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "start_intake_mode",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:intake:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Store an immutable point, line, or polygon with time and source context.",
       "id": "noesis-knowledge-engine.store_geospatial_geometry",
       "input_schema": {
@@ -37371,6 +37775,36 @@
       "required_scopes": [
         "knowledge:read"
       ],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Check an exported session revision chain and digest offline.",
+      "id": "noesis-knowledge-engine.verify_intake_mode_export",
+      "input_schema": {
+        "properties": {
+          "bundle": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "bundle"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "verify_intake_mode_export",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [],
+      "required_scopes": [],
       "server": "noesis-knowledge-engine",
       "state": "available",
       "version": "1"

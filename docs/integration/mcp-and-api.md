@@ -107,6 +107,16 @@ python tools/statistics_mcp/server.py
   rather than silently serving unauthenticated. Unset means open — intended
   only for the localhost default.
 
+For caller-scoped Information Intake sessions on `noesis-knowledge-engine`,
+set `NOESIS_MCP_AUTH_TOKENS_FILE` instead of the shared token. The file is a
+private (mode `0600`) JSON object whose keys are 32-character-or-longer bearer
+tokens and whose values contain a unique `client_id` and a nonempty `scopes`
+list. For example, an intake writer needs `knowledge:intake:write` and
+`namespace:research:write`; reads need the corresponding read scopes. The
+[intake mode guide](../subsystems/intake-modes.md) describes the session
+contract and remaining integration limits. Do not configure both token env
+variables.
+
 An HTTP client entry then looks like:
 
 ```jsonc
