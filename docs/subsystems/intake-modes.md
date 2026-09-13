@@ -50,7 +50,7 @@ The same envelope works for each mode. Modulo can link an Awareness item, Explor
 | Exploration | A recorded time-box end or escalation reason; an empty trail is valid |
 | Deep Research | Versioned evidence-card, concept, claim-ledger, brief, mental-model, and map references; known/uncertain/unresolved text; Definition of Done review |
 | Decision Support | Selected option, rationale, and a versioned decision reference |
-| Problem-Solving | An explicit verified flag and verification description |
+| Problem-Solving | An explicit verified flag and verification description; typed trails require a latest passed observed check |
 | Creation | A created-artifact reference and every declared acceptance check marked true |
 | Externalization | A procedure reference and rehearsal or execution description |
 | Internalization | At least one dated, recorded unaided demonstrated attempt with an answer |
@@ -73,8 +73,8 @@ Completion of [Noesis #1583](https://github.com/Ikey168/Noesis/issues/1583) stil
 | [#1570](https://github.com/Ikey168/Noesis/issues/1570) Awareness | Add direct newsletter inputs, authorized Modulo plugin round trips, and live daily-cadence outcome evidence. |
 | [#1571](https://github.com/Ikey168/Noesis/issues/1571) Exploration | Validate suggestion quality and Modulo device/restart workflow with representative live use. |
 | [#1572](https://github.com/Ikey168/Noesis/issues/1572) Deep Research | Compose the existing project, acquisition, evidence, claim, brief, and map systems into a bounded run with a reviewed Definition of Done. |
-| [#1573](https://github.com/Ikey168/Noesis/issues/1573) Decision Support | Connect the existing decision store to bounded intake evidence and user choice/return links. |
-| [#1574](https://github.com/Ikey168/Noesis/issues/1574) Problem-Solving | Add a troubleshooting trail with authorized execution and observed verification receipts. |
+| [#1573](https://github.com/Ikey168/Noesis/issues/1573) Decision Support | Add decision-bounded evidence collection, full comparative tradeoffs, Modulo task links, and changed-source review UI. |
+| [#1574](https://github.com/Ikey168/Noesis/issues/1574) Problem-Solving | Connect bounded authorized execution, verified receipts, playbook promotion, and direct Modulo task launch to the typed trail. |
 | [#1575](https://github.com/Ikey168/Noesis/issues/1575) Creation | Connect authoring/build adapters, review, accepted output, and release authorization. |
 | [#1576](https://github.com/Ikey168/Noesis/issues/1576) Externalization | Build native versioned playbooks and guided/executable procedure runs. |
 | [#1577](https://github.com/Ikey168/Noesis/issues/1577) Internalization | Build native practice scheduling, unaided attempts, correction propagation, and Modulo practice-plugin state migration. |
