@@ -19,6 +19,7 @@ from src.kb.intake_practice import (
     verify_practice_export as verify_practice_export_bundle,
 )
 from src.kb.intake_problem import IntakeProblemStore
+from src.kb.intake_readiness import preflight as preflight_intake
 
 INTAKE_WRITES = {
     "start_intake_mode",
@@ -60,6 +61,7 @@ INTAKE_WRITES = {
 }
 INTAKE_READS = {
     "discover_intake_modes",
+    "preflight_intake_mode",
     "route_intake_mode",
     "inspect_intake_mode",
     "list_intake_modes",
@@ -197,6 +199,17 @@ def register(mcp, safe, context):
     def discover_intake_modes() -> dict:
         """List the ten workflow intents and their session budgets and completion inputs."""
         return discover_modes()
+
+    @mcp.tool()
+    def preflight_intake_mode(namespace: str, mode: str | None = None) -> dict:
+        """Check caller scopes, native entry points, and known live-readiness gaps."""
+        return safe(
+            lambda conn: preflight_intake(
+                conn, namespace, mode=mode,
+                principal_id=context()[0], scopes=context()[1],
+            ),
+            required_scope="knowledge:intake:read",
+        )
 
     @mcp.tool()
     def route_intake_mode(
