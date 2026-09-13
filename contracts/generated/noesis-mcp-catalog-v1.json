@@ -812,7 +812,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 494,
+      "tool_count": 495,
       "tools": [
         "noesis-knowledge-engine.accept_citation_repair",
         "noesis-knowledge-engine.accept_dataset_join",
@@ -1315,7 +1315,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 494
+      "visible_tool_count": 495
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -1329,9 +1329,9 @@
       "available": 85,
       "degraded": 155,
       "disabled": 3,
-      "unauthorized": 495
+      "unauthorized": 496
     },
-    "tools": 738
+    "tools": 739
   },
   "tools": [
     {

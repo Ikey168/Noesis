@@ -24,6 +24,11 @@ def test_readiness_distinguishes_scopes_subscriptions_and_unknown_live_state():
                             principal_id="alice", scopes=scopes)["modes"][0]
     assert exploration["fetch_scope_available"] is False
     assert any("knowledge:intake:fetch" in blocker for blocker in exploration["blockers"])
+    research = preflight(conn, "research", mode="Deep Research",
+                         principal_id="alice", scopes=scopes)["modes"][0]
+    assert "start_intake_research_topic" in research["native_tools"]
+    assert "knowledge:projects:write" in research["missing_scopes"]
+    assert research["native_start_possible"] is False
     with pytest.raises(IntakeError, match="namespace access"):
         preflight(conn, "archive", principal_id="alice", scopes=scopes)
     with pytest.raises(IntakeError, match="ten modes"):
