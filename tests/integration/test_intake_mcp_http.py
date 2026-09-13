@@ -93,6 +93,21 @@ def test_http_tokens_isolate_intake_sessions(tmp_path):
             },
         )
         assert created["owner"] == "alice"
+        subscribed = await _tool(
+            url,
+            "a" * 32,
+            "subscribe_intake_feed",
+            {
+                "namespace": "research",
+                "url": "https://example.org/rss",
+                "name": "Example",
+            },
+        )
+        assert subscribed["subscription_id"].startswith("subscription:")
+        bob_subscriptions = await _tool(
+            url, "b" * 32, "list_intake_feed_subscriptions", {"namespace": "research"}
+        )
+        assert bob_subscriptions["subscriptions"] == []
         denied = await _tool(
             url,
             "b" * 32,

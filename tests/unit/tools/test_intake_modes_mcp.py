@@ -77,3 +77,74 @@ def test_intake_public_tools_and_access(tmp_path, monkeypatch):
     assert _required_scopes(
         "knowledge_engine_mcp", "read", "export_modulo_intake_handoff"
     ) == ["knowledge:intake:read"]
+
+
+def test_awareness_mcp_uses_persistent_feed_inbox(tmp_path, monkeypatch):
+    from src.kb import intake_inbox
+
+    path = str(tmp_path / "inbox.duckdb")
+    scopes = {
+        "knowledge:intake:read",
+        "knowledge:intake:write",
+        "knowledge:intake:fetch",
+        "namespace:research:read",
+        "namespace:research:write",
+    }
+    monkeypatch.setattr(server, "_context", lambda: ("alice", scopes))
+    monkeypatch.setattr(
+        server,
+        "_connection",
+        lambda *, read_only: duckdb.connect(path, read_only=read_only),
+    )
+    monkeypatch.setattr(
+        intake_inbox,
+        "_fetch_public_feed",
+        lambda _: (
+            b'<rss version="2.0"><channel><item><title>One</title><link>https://example.org/one</link></item></channel></rss>'
+        ),
+    )
+    tools = asyncio.run(server.mcp.get_tools())
+    subscription = tools["subscribe_intake_feed"].fn(
+        namespace="research", url="https://example.org/rss", name="Example"
+    )
+    assert subscription["subscription_id"].startswith("subscription:")
+    assert (
+        tools["refresh_intake_feed_inbox"].fn(namespace="research")["results"][0][
+            "created"
+        ]
+        == 1
+    )
+    page = tools["list_intake_feed_inbox"].fn(namespace="research")
+    assert page["remaining_unprocessed"] == 1
+    item_id = page["items"][0]["item_id"]
+    session = tools["start_awareness_from_inbox"].fn(
+        namespace="research", request_key="today"
+    )
+    triaged = tools["triage_awareness_item"].fn(
+        namespace="research",
+        session_id=session["session_id"],
+        item_id=item_id,
+        command_key="discard-one",
+        expected_revision=1,
+        decision="discard",
+    )
+    assert triaged["data"]["decisions"][item_id] == "discard"
+    assert (
+        tools["list_intake_feed_inbox"].fn(namespace="research")[
+            "remaining_unprocessed"
+        ]
+        == 0
+    )
+    assert (
+        tools["command_intake_mode"].fn(
+            namespace="research",
+            session_id=session["session_id"],
+            command_key="finish",
+            expected_revision=2,
+            action="complete",
+        )["status"]
+        == "completed"
+    )
+    assert _required_scopes(
+        "knowledge_engine_mcp", "write", "refresh_intake_feed_inbox"
+    ) == ["knowledge:intake:write", "knowledge:intake:fetch"]
