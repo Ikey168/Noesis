@@ -96,6 +96,16 @@ def test_http_tokens_isolate_intake_sessions(tmp_path):
             },
         )
         assert created["owner"] == "alice"
+        readiness = await _tool(url, "a" * 32, "preflight_intake_mode", {
+            "namespace": "research", "mode": "Exploration",
+        })
+        assert readiness["contract"] == "noesis-intake-readiness-v1"
+        assert readiness["modes"][0]["native_start_possible"] is True
+        assert readiness["modes"][0]["complete_journey_ready"] is False
+        denied_readiness = await _tool(url, "a" * 32, "preflight_intake_mode", {
+            "namespace": "archive",
+        })
+        assert denied_readiness["error"]["code"] == "unauthorized"
         uri = AnyUrl(f"noesis://intake/research/{created['session_id']}")
         pack = await _tool(url, "a" * 32, "create_practice_pack", {
             "namespace": "research", "request_key": "alice-pack", "title": "Recall index repair",

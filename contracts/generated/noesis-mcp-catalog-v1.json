@@ -812,7 +812,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 493,
+      "tool_count": 494,
       "tools": [
         "noesis-knowledge-engine.accept_citation_repair",
         "noesis-knowledge-engine.accept_dataset_join",
@@ -1094,6 +1094,7 @@
         "noesis-knowledge-engine.plan_retention_gc",
         "noesis-knowledge-engine.poll_cited_evidence_alerts",
         "noesis-knowledge-engine.poll_decision_condition_watch",
+        "noesis-knowledge-engine.preflight_intake_mode",
         "noesis-knowledge-engine.preflight_source_pack_run",
         "noesis-knowledge-engine.preview_anomaly_baseline",
         "noesis-knowledge-engine.preview_artifact_invalidation",
@@ -1313,7 +1314,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 493
+      "visible_tool_count": 494
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -1327,9 +1328,9 @@
       "available": 85,
       "degraded": 155,
       "disabled": 3,
-      "unauthorized": 494
+      "unauthorized": 495
     },
-    "tools": 737
+    "tools": 738
   },
   "tools": [
     {
@@ -27748,6 +27749,50 @@
         "knowledge:briefs:read",
         "knowledge:briefs:write",
         "knowledge:briefs:deliver"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Check caller scopes, native entry points, and known live-readiness gaps.",
+      "id": "noesis-knowledge-engine.preflight_intake_mode",
+      "input_schema": {
+        "properties": {
+          "mode": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "preflight_intake_mode",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:intake:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
