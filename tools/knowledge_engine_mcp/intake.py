@@ -75,18 +75,20 @@ INTAKE_READS = {
 
 
 def register(mcp, safe, context):
-    def resource_session(namespace: str, session_id: str, revision: int | None = None) -> str:
-        value = safe(
-            lambda conn: IntakeStore(conn, initialize=False).inspect(
-                namespace, session_id, revision=revision,
-                principal_id=context()[0], scopes=context()[1],
-            ),
-            required_scope="knowledge:intake:read",
-        )
+    def resource_json(reader) -> str:
+        value = safe(reader, required_scope="knowledge:intake:read")
         if value.get("ok") is False:
             error = value["error"]
             raise IntakeError(error["code"], error["message"])
         return json.dumps(value, sort_keys=True, ensure_ascii=False)
+
+    def resource_session(namespace: str, session_id: str, revision: int | None = None) -> str:
+        return resource_json(
+            lambda conn: IntakeStore(conn, initialize=False).inspect(
+                namespace, session_id, revision=revision,
+                principal_id=context()[0], scopes=context()[1],
+            )
+        )
 
     @mcp.resource("noesis://intake/{namespace}/{session_id}", mime_type="application/json")
     def intake_session_resource(namespace: str, session_id: str) -> str:
@@ -100,6 +102,67 @@ def register(mcp, safe, context):
     def intake_session_revision_resource(namespace: str, session_id: str, revision: int) -> str:
         """Read an exact intake session revision under current access."""
         return resource_session(namespace, session_id, revision)
+
+    @mcp.resource("noesis://intake/playbooks/{namespace}/{playbook_id}", mime_type="application/json")
+    def intake_playbook_resource(namespace: str, playbook_id: str) -> str:
+        """Read the current draft playbook and reported rehearsal status."""
+        return resource_json(lambda conn: IntakePlaybookStore(conn, initialize=False).inspect(
+            namespace, playbook_id, principal_id=context()[0], scopes=context()[1],
+        ))
+
+    @mcp.resource(
+        "noesis://intake/playbooks/{namespace}/{playbook_id}/revisions/{revision}",
+        mime_type="application/json",
+    )
+    def intake_playbook_revision_resource(namespace: str, playbook_id: str, revision: int) -> str:
+        """Read an exact playbook revision after a fresh access check."""
+        return resource_json(lambda conn: IntakePlaybookStore(conn, initialize=False).inspect(
+            namespace, playbook_id, revision=revision,
+            principal_id=context()[0], scopes=context()[1],
+        ))
+
+    @mcp.resource("noesis://intake/playbook-runs/{namespace}/{run_id}", mime_type="application/json")
+    def guided_playbook_run_resource(namespace: str, run_id: str) -> str:
+        """Read the current guided run and its reported observations."""
+        return resource_json(lambda conn: IntakePlaybookStore(conn, initialize=False).inspect_run(
+            namespace, run_id, principal_id=context()[0], scopes=context()[1],
+        ))
+
+    @mcp.resource("noesis://intake/practice/{namespace}/{pack_id}", mime_type="application/json")
+    def practice_pack_resource(namespace: str, pack_id: str) -> str:
+        """Read a current author-supplied retrieval pack under current access."""
+        return resource_json(lambda conn: IntakePracticeStore(conn, initialize=False).inspect_pack(
+            namespace, pack_id, principal_id=context()[0], scopes=context()[1],
+        ))
+
+    @mcp.resource(
+        "noesis://intake/practice/{namespace}/{pack_id}/revisions/{revision}",
+        mime_type="application/json",
+    )
+    def practice_pack_revision_resource(namespace: str, pack_id: str, revision: int) -> str:
+        """Read an exact retrieval-pack revision after a fresh access check."""
+        return resource_json(lambda conn: IntakePracticeStore(conn, initialize=False).inspect_pack(
+            namespace, pack_id, revision=revision,
+            principal_id=context()[0], scopes=context()[1],
+        ))
+
+    @mcp.resource("noesis://intake/practice-reviews/{namespace}/{review_id}", mime_type="application/json")
+    def practice_review_resource(namespace: str, review_id: str) -> str:
+        """Read review progress without revealing the answer before a recorded attempt."""
+        return resource_json(lambda conn: IntakePracticeStore(conn, initialize=False).inspect_review(
+            namespace, review_id, principal_id=context()[0], scopes=context()[1],
+        ))
+
+    @mcp.resource(
+        "noesis://intake/practice-reviews/{namespace}/{review_id}/revisions/{revision}",
+        mime_type="application/json",
+    )
+    def practice_review_revision_resource(namespace: str, review_id: str, revision: int) -> str:
+        """Read an exact review revision with its original reveal state."""
+        return resource_json(lambda conn: IntakePracticeStore(conn, initialize=False).inspect_review(
+            namespace, review_id, revision=revision,
+            principal_id=context()[0], scopes=context()[1],
+        ))
 
     @mcp.prompt(name="start-information-intake")
     def start_information_intake(mode: str, namespace: str, intent: str) -> str:
