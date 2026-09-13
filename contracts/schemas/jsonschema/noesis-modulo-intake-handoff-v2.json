@@ -1,0 +1,281 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "noesis-modulo-intake-handoff-v2",
+  "title": "Scoped Noesis to Modulo intake handoff with recorded progress",
+  "type": "object",
+  "required": [
+    "contract",
+    "scope",
+    "correlation_key",
+    "session",
+    "transition",
+    "modulo_links",
+    "noesis_references",
+    "access_state",
+    "as_of_ms"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "contract": {
+      "const": "noesis-modulo-intake-handoff-v2"
+    },
+    "scope": {
+      "type": "object",
+      "required": [
+        "namespace",
+        "owner"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "namespace": {
+          "type": "string",
+          "minLength": 1
+        },
+        "owner": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "correlation_key": {
+      "type": "string",
+      "pattern": "^intake:[0-9a-f]{32}$"
+    },
+    "session": {
+      "type": "object",
+      "required": [
+        "id",
+        "revision",
+        "mode",
+        "status",
+        "created_at_ms",
+        "updated_at_ms",
+        "intent",
+        "duration_minutes",
+        "elapsed_ms",
+        "remaining_minutes",
+        "unmet_recorded_checks",
+        "validation_state"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^intake:[0-9a-f]{32}$"
+        },
+        "revision": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "mode": {
+          "enum": [
+            "Awareness",
+            "Exploration",
+            "Deep Research",
+            "Decision Support",
+            "Problem-Solving",
+            "Creation",
+            "Externalization",
+            "Internalization",
+            "Iteration",
+            "Maintenance"
+          ]
+        },
+        "status": {
+          "enum": [
+            "active",
+            "paused",
+            "completed",
+            "cancelled"
+          ]
+        },
+        "created_at_ms": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "updated_at_ms": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "intent": {
+          "type": "string",
+          "minLength": 1
+        },
+        "duration_minutes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1440
+        },
+        "elapsed_ms": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "remaining_minutes": {
+          "type": "number",
+          "minimum": 0
+        },
+        "unmet_recorded_checks": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "validation_state": {
+          "const": "recorded_only"
+        }
+      }
+    },
+    "transition": {
+      "type": "object",
+      "required": [
+        "origin",
+        "at_ms"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "origin": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object",
+              "required": [
+                "session_id",
+                "revision",
+                "mode",
+                "reason"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "session_id": {
+                  "type": "string"
+                },
+                "revision": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "mode": {
+                  "type": "string"
+                },
+                "reason": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            }
+          ]
+        },
+        "at_ms": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "modulo_links": {
+      "type": "array",
+      "maxItems": 20,
+      "items": {
+        "type": "object",
+        "required": [
+          "system",
+          "workspace_id",
+          "kind",
+          "id",
+          "version"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "system": {
+            "const": "modulo"
+          },
+          "workspace_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "kind": {
+            "enum": [
+              "intake_item",
+              "session",
+              "artifact",
+              "project",
+              "note",
+              "task"
+            ]
+          },
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      }
+    },
+    "noesis_references": {
+      "type": "array",
+      "maxItems": 1000,
+      "items": {
+        "type": "object",
+        "required": [
+          "kind",
+          "id",
+          "namespace",
+          "version"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "type": "string",
+            "minLength": 1
+          },
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "namespace": {
+            "type": "string",
+            "minLength": 1
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "locator": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "url": {
+                "type": "string"
+              },
+              "page": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "start": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "end": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "section": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "access_state": {
+      "const": "current"
+    },
+    "as_of_ms": {
+      "type": "integer",
+      "minimum": 0
+    }
+  }
+}

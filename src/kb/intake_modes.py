@@ -390,7 +390,8 @@ class IntakeStore:
         return json.loads(row[0])
 
     def _visible(
-        self, state: dict[str, Any], scopes: set[str], *, live: bool = True
+        self, state: dict[str, Any], scopes: set[str], *, live: bool = True,
+        as_of_ms: int | None = None,
     ) -> dict[str, Any]:
         value = json.loads(_json(state))
         value["validation_state"] = "recorded_only"
@@ -400,7 +401,9 @@ class IntakeStore:
             and value["status"] == "active"
             and value.get("active_since_ms") is not None
         ):
-            value["elapsed_ms"] += max(0, self.now() - value["active_since_ms"])
+            value["elapsed_ms"] += max(
+                0, (self.now() if as_of_ms is None else as_of_ms) - value["active_since_ms"]
+            )
         value["remaining_minutes"] = max(
             0, (value["duration_minutes"] * 60_000 - value["elapsed_ms"]) / 60_000
         )
@@ -678,13 +681,16 @@ class IntakeStore:
             )
 
     def modulo_handoff(
-        self, namespace: str, session_id: str, *, principal_id: str, scopes: set[str]
+        self, namespace: str, session_id: str, *, principal_id: str, scopes: set[str],
+        contract_version: str = "v1",
     ) -> dict[str, Any]:
         """Export a current-access bridge projection without copying source content."""
+        if contract_version not in {"v1", "v2"}:
+            raise IntakeError("invalid_contract_version", "select v1 or v2 handoff contract")
         state = self._state(namespace, session_id)
         self._authorize_full_read(state, principal_id, scopes)
-        return {
-            "contract": "noesis-modulo-intake-handoff-v1",
+        handoff = {
+            "contract": f"noesis-modulo-intake-handoff-{contract_version}",
             "scope": {"namespace": state["namespace"], "owner": state["owner"]},
             "correlation_key": state["session_id"],
             "session": {
@@ -703,6 +709,19 @@ class IntakeStore:
             "noesis_references": state["references"],
             "access_state": "current",
         }
+        if contract_version == "v2":
+            as_of_ms = self.now()
+            visible = self._visible(state, scopes, as_of_ms=as_of_ms)
+            handoff["session"].update({
+                "intent": visible["intent"],
+                "duration_minutes": visible["duration_minutes"],
+                "elapsed_ms": visible["elapsed_ms"],
+                "remaining_minutes": visible["remaining_minutes"],
+                "unmet_recorded_checks": visible["unmet_completion_checks"],
+                "validation_state": visible["validation_state"],
+            })
+            handoff["as_of_ms"] = as_of_ms
+        return handoff
 
     def command(
         self,

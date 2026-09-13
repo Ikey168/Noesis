@@ -21603,10 +21603,14 @@
     },
     {
       "cost_class": "low",
-      "description": "Project current Noesis and Modulo object links for a scoped bridge handoff.",
+      "description": "Project scoped bridge links; v2 also reports recorded session progress.",
       "id": "noesis-knowledge-engine.export_modulo_intake_handoff",
       "input_schema": {
         "properties": {
+          "contract_version": {
+            "default": "v1",
+            "type": "string"
+          },
           "namespace": {
             "type": "string"
           },

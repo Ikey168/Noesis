@@ -31,6 +31,14 @@ HANDOFF_VALIDATOR = Draft202012Validator(
         ).read_text()
     )
 )
+HANDOFF_V2_VALIDATOR = Draft202012Validator(
+    json.loads(
+        (
+            Path(__file__).resolve().parents[3]
+            / "contracts/schemas/jsonschema/noesis-modulo-intake-handoff-v2.json"
+        ).read_text()
+    )
+)
 
 
 def _ref(kind, namespace="research"):
@@ -261,9 +269,29 @@ def test_handoff_replay_active_limit_and_access_revocation(tmp_path):
         "research", exploration["session_id"], principal_id="alice", scopes=SCOPES
     )
     HANDOFF_VALIDATOR.validate(handoff)
+    assert "intent" not in handoff["session"]
     assert handoff["correlation_key"] == exploration["session_id"]
     assert handoff["transition"]["origin"]["reason"] == "Signal worth exploring"
     assert handoff["modulo_links"] == awareness["workspace_links"]
+    progress = store.modulo_handoff(
+        "research", exploration["session_id"], principal_id="alice", scopes=SCOPES,
+        contract_version="v2",
+    )
+    HANDOFF_V2_VALIDATOR.validate(progress)
+    assert progress["session"]["intent"] == "Follow curiosity"
+    assert progress["session"]["duration_minutes"] == exploration["duration_minutes"]
+    assert progress["session"]["elapsed_ms"] == max(
+        0, progress["as_of_ms"] - exploration["active_since_ms"]
+    )
+    assert progress["session"]["unmet_recorded_checks"] == ["timebox_or_escalation"]
+    assert progress["session"]["validation_state"] == "recorded_only"
+    assert progress["noesis_references"] == handoff["noesis_references"]
+    with pytest.raises(IntakeError) as version_error:
+        store.modulo_handoff(
+            "research", exploration["session_id"], principal_id="alice", scopes=SCOPES,
+            contract_version="v3",
+        )
+    assert version_error.value.code == "invalid_contract_version"
     store.command(
         "research",
         awareness["session_id"],

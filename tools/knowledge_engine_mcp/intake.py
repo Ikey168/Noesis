@@ -329,14 +329,17 @@ def register(mcp, safe, context):
         )
 
     @mcp.tool()
-    def export_modulo_intake_handoff(namespace: str, session_id: str) -> dict:
-        """Project current Noesis and Modulo object links for a scoped bridge handoff."""
+    def export_modulo_intake_handoff(
+        namespace: str, session_id: str, contract_version: str = "v1"
+    ) -> dict:
+        """Project scoped bridge links; v2 also reports recorded session progress."""
         return safe(
             lambda conn: IntakeStore(conn, initialize=False).modulo_handoff(
                 namespace,
                 session_id,
                 principal_id=context()[0],
                 scopes=context()[1],
+                contract_version=contract_version,
             ),
             required_scope="knowledge:intake:read",
         )
