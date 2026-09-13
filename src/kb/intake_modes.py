@@ -275,6 +275,22 @@ def _completion(state: dict[str, Any]) -> list[str]:
             require(filled(key), key)
         require(has_ref("revised_artifact"), "reference:revised_artifact")
     elif mode == "Maintenance":
+        if state["inputs"].get("maintenance_contract") == "noesis-intake-maintenance-review-v1":
+            findings = state["inputs"].get("findings", [])
+            reviews = data.get("maintenance_reviews", {})
+            require(
+                isinstance(reviews, dict)
+                and all(item["id"] in reviews for item in findings),
+                "all_findings_reviewed_or_deferred",
+            )
+            assessment = data.get("health_assessment")
+            require(
+                isinstance(assessment, dict)
+                and assessment.get("acceptable") is True
+                and bool(assessment.get("criteria"))
+                and bool(assessment.get("observation")),
+                "reviewed_health_criteria",
+            )
         checks = data.get("checklist")
         require(
             isinstance(checks, dict)
@@ -738,6 +754,16 @@ class IntakeStore:
                     raise IntakeError(
                         "typed_record_required",
                         "use record_problem_step for a typed troubleshooting trail",
+                    )
+                if (
+                    state["mode"] == "Maintenance"
+                    and state["inputs"].get("maintenance_contract")
+                    == "noesis-intake-maintenance-review-v1"
+                    and record_hook is None
+                ):
+                    raise IntakeError(
+                        "typed_record_required",
+                        "use record_maintenance_finding or assess_maintenance_health",
                     )
                 if set(payload) - {"data", "references"} or not payload:
                     raise IntakeError(

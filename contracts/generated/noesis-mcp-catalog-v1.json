@@ -812,7 +812,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 484,
+      "tool_count": 488,
       "tools": [
         "noesis-knowledge-engine.accept_citation_repair",
         "noesis-knowledge-engine.accept_dataset_join",
@@ -840,6 +840,7 @@
         "noesis-knowledge-engine.assess_epistemic_statement",
         "noesis-knowledge-engine.assess_evidence_freshness",
         "noesis-knowledge-engine.assess_knowledge_quality",
+        "noesis-knowledge-engine.assess_maintenance_health",
         "noesis-knowledge-engine.assess_media_authenticity",
         "noesis-knowledge-engine.assess_methodology_limitation",
         "noesis-knowledge-engine.assess_quantitative_comparability",
@@ -1121,6 +1122,7 @@
         "noesis-knowledge-engine.record_entity_identity_decision",
         "noesis-knowledge-engine.record_geospatial_resolution",
         "noesis-knowledge-engine.record_language_text",
+        "noesis-knowledge-engine.record_maintenance_finding",
         "noesis-knowledge-engine.record_media_transformation",
         "noesis-knowledge-engine.record_multilingual_alias",
         "noesis-knowledge-engine.record_problem_step",
@@ -1239,6 +1241,7 @@
         "noesis-knowledge-engine.run_research_recipe",
         "noesis-knowledge-engine.run_source_pack_execution",
         "noesis-knowledge-engine.save_intake_feed_signal_rule",
+        "noesis-knowledge-engine.scan_intake_maintenance",
         "noesis-knowledge-engine.score_binary_forecasts",
         "noesis-knowledge-engine.screen_review_candidate",
         "noesis-knowledge-engine.search_datasets",
@@ -1270,6 +1273,7 @@
         "noesis-knowledge-engine.start_awareness_from_inbox",
         "noesis-knowledge-engine.start_guided_playbook_run",
         "noesis-knowledge-engine.start_intake_creation",
+        "noesis-knowledge-engine.start_intake_maintenance",
         "noesis-knowledge-engine.start_intake_mode",
         "noesis-knowledge-engine.start_practice_review",
         "noesis-knowledge-engine.start_problem_session",
@@ -1304,7 +1308,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 484
+      "visible_tool_count": 488
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -1318,9 +1322,9 @@
       "available": 85,
       "degraded": 155,
       "disabled": 3,
-      "unauthorized": 485
+      "unauthorized": 489
     },
-    "tools": 728
+    "tools": 732
   },
   "tools": [
     {
@@ -15016,6 +15020,63 @@
       ],
       "required_scopes": [
         "knowledge:quality:calculate"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Record a caller-reviewed health criterion before session completion.",
+      "id": "noesis-knowledge-engine.assess_maintenance_health",
+      "input_schema": {
+        "properties": {
+          "acceptable": {
+            "type": "boolean"
+          },
+          "command_key": {
+            "type": "string"
+          },
+          "criteria": {
+            "type": "string"
+          },
+          "expected_revision": {
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "observation": {
+            "type": "string"
+          },
+          "session_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "session_id",
+          "command_key",
+          "expected_revision",
+          "acceptable",
+          "criteria",
+          "observation"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "assess_maintenance_health",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:intake:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -29413,6 +29474,63 @@
     },
     {
       "cost_class": "medium",
+      "description": "Record a reported review disposition; this does not execute a repair.",
+      "id": "noesis-knowledge-engine.record_maintenance_finding",
+      "input_schema": {
+        "properties": {
+          "action": {
+            "type": "string"
+          },
+          "command_key": {
+            "type": "string"
+          },
+          "expected_revision": {
+            "type": "integer"
+          },
+          "finding_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "observation": {
+            "type": "string"
+          },
+          "session_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "session_id",
+          "command_key",
+          "expected_revision",
+          "finding_id",
+          "action",
+          "observation"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "record_maintenance_finding",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:intake:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Record crops, edits, mirrors, and recompression as provenance edges.",
       "id": "noesis-knowledge-engine.record_media_transformation",
       "input_schema": {
@@ -37181,6 +37299,39 @@
       "version": "1"
     },
     {
+      "cost_class": "low",
+      "description": "Explain current overdue practice, old drafts, and stale accepted reports.",
+      "id": "noesis-knowledge-engine.scan_intake_maintenance",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "scan_intake_maintenance",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:intake:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "high",
       "description": "Score a specified cohort with Brier scores, reliability intervals, baseline, and exclusions.",
       "id": "noesis-knowledge-engine.score_binary_forecasts",
@@ -38857,6 +39008,51 @@
       "latency_class": "interactive",
       "mutability": "write",
       "name": "start_intake_creation",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:intake:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Snapshot a bounded, explainable 30\u201360 minute Maintenance review.",
+      "id": "noesis-knowledge-engine.start_intake_maintenance",
+      "input_schema": {
+        "properties": {
+          "duration_minutes": {
+            "default": 45,
+            "type": "integer"
+          },
+          "intent": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "request_key": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "request_key",
+          "intent"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "start_intake_maintenance",
       "output_schema": {
         "additionalProperties": true,
         "type": "object"

@@ -49,6 +49,9 @@ INTAKE_WRITES = {
     "command_practice_review",
     "start_intake_creation",
     "command_intake_creation",
+    "start_intake_maintenance",
+    "record_maintenance_finding",
+    "assess_maintenance_health",
 }
 INTAKE_READS = {
     "discover_intake_modes",
@@ -75,6 +78,7 @@ INTAKE_READS = {
     "inspect_practice_review",
     "inspect_intake_creation",
     "export_intake_creation",
+    "scan_intake_maintenance",
 }
 
 

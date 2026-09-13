@@ -391,6 +391,8 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
         "command_practice_review",
         "start_intake_creation", "inspect_intake_creation",
         "command_intake_creation", "export_intake_creation",
+        "scan_intake_maintenance", "start_intake_maintenance",
+        "record_maintenance_finding", "assess_maintenance_health",
     }:
         if tool_name in {"discover_intake_modes", "route_intake_mode", "verify_intake_mode_export", "verify_practice_export"}:
             return []
