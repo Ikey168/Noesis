@@ -117,6 +117,12 @@ def test_feed_scope_and_unsafe_source(tmp_path):
             scopes=SCOPES,
         )
     assert unsafe.value.code == "unsafe_feed_url"
+    with pytest.raises(IntakeError) as secret:
+        inbox.subscribe(
+            "research", "https://example.org/rss?token=hidden", "Secret", "rss_atom",
+            principal_id="alice", scopes=SCOPES,
+        )
+    assert secret.value.code == "unsafe_feed_url"
     with pytest.raises(IntakeError) as denied:
         inbox.subscribe(
             "research",

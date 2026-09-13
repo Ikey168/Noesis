@@ -7,6 +7,7 @@ import time
 from typing import Any
 from urllib.parse import urlsplit
 
+from src.ingestion.provider_execution import ProviderError, _safe_url
 from src.ingestion.source_packs import SourcePackError, _validate_endpoint
 from src.kb.intake_modes import (
     DECISIONS,
@@ -74,7 +75,8 @@ def _safe_feed_url(value: str) -> str:
         parsed = urlsplit(url)
         if parsed.fragment or parsed.port not in (None, 443):
             raise ValueError("fragment or nonstandard port")
-    except (ValueError, AttributeError, SourcePackError) as exc:
+        _safe_url(url, {parsed.hostname.casefold()})
+    except (ValueError, AttributeError, SourcePackError, ProviderError) as exc:
         raise IntakeError(
             "unsafe_feed_url", "feed URL must be public credential-free HTTPS"
         ) from exc
