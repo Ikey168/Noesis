@@ -117,6 +117,23 @@ list. For example, an intake writer needs `knowledge:intake:write` and
 contract and remaining integration limits. Do not configure both token env
 variables.
 
+Modulo's Information Intake connector uses the **Knowledge Engine** MCP server.
+Launch that server with its own private caller map and warehouse path:
+
+```bash
+NOESIS_DB_PATH=/path/to/warehouse.duckdb \
+NOESIS_MCP_TRANSPORT=http \
+NOESIS_MCP_HTTP_HOST=127.0.0.1 \
+NOESIS_MCP_HTTP_PORT=8129 \
+NOESIS_MCP_AUTH_TOKENS_FILE=/path/to/private-callers.json \
+python tools/knowledge_engine_mcp/server.py
+```
+
+Point Modulo's `NOESIS_INTAKE_MCP_URL` at `http://127.0.0.1:8129/mcp` when both
+services share the host, and give its server-only credentials file the matching
+per-user bearer tokens. The `noesis serve --surface kb-mcp` command starts the
+separate `noesis-kb-v1` MCP server; it does not expose the intake tools.
+
 An HTTP client entry then looks like:
 
 ```jsonc
