@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "noesis-intake-research-progress-v1",
+  "title": "Access-checked paired Deep Research progress",
+  "type": "object",
+  "required": ["contract", "session", "project", "bundle", "loops", "blockers", "limitations"],
+  "additionalProperties": false,
+  "properties": {
+    "contract": {"const": "noesis-intake-research-progress-v1"},
+    "session": {
+      "type": "object",
+      "required": ["id", "revision", "status", "unmet_completion_checks"],
+      "properties": {
+        "id": {"type": "string"},
+        "revision": {"type": "integer", "minimum": 1},
+        "status": {"type": "string"},
+        "unmet_completion_checks": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "project": {
+      "type": "object",
+      "required": ["id", "revision", "question_revision", "status", "questions", "success_criteria", "budget", "spent", "source_status"],
+      "properties": {
+        "id": {"type": "string"},
+        "revision": {"type": "integer", "minimum": 1},
+        "question_revision": {"type": "integer", "minimum": 1},
+        "status": {"type": "string"},
+        "questions": {"type": "array", "items": {"type": "string"}},
+        "success_criteria": {"type": "array", "items": {"type": "string"}},
+        "budget": {"type": "object"},
+        "spent": {"type": "object"},
+        "source_status": {"type": "array", "items": {"type": "object"}}
+      }
+    },
+    "bundle": {
+      "type": ["object", "null"],
+      "required": ["id", "revision", "checks"],
+      "properties": {
+        "id": {"type": "string"},
+        "revision": {"type": ["integer", "null"]},
+        "checks": {"type": "object", "required": ["ready", "source_status", "independent_hosts"]}
+      }
+    },
+    "loops": {
+      "type": "array", "maxItems": 20,
+      "items": {
+        "type": "object",
+        "required": ["loop_id", "status", "stop_reason", "coverage", "required_independent_sources_per_domain", "completed_iterations", "result_count", "actions"],
+        "properties": {
+          "loop_id": {"type": "string"},
+          "status": {"type": "string"},
+          "stop_reason": {"type": ["string", "null"]},
+          "coverage": {"type": "object", "additionalProperties": {"type": "integer", "minimum": 0}},
+          "required_independent_sources_per_domain": {"type": "integer", "minimum": 1},
+          "completed_iterations": {"type": "integer", "minimum": 0},
+          "result_count": {"type": "integer", "minimum": 0},
+          "actions": {"type": "array", "maxItems": 100, "items": {"type": "object"}}
+        }
+      }
+    },
+    "blockers": {"type": "array", "items": {"type": "string"}},
+    "limitations": {"type": "array", "items": {"type": "string"}}
+  }
+}
