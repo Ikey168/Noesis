@@ -3,7 +3,9 @@
 import duckdb
 import pytest
 
-from src.kb.intake_modes import IntakeError
+from src.kb.intake_exploration import IntakeExplorationStore
+from src.kb.intake_maintenance import IntakeMaintenanceStore
+from src.kb.intake_modes import IntakeError, IntakeStore
 from src.kb.intake_practice import IntakePracticeStore, verify_practice_export
 
 SCOPES = {
@@ -17,6 +19,54 @@ CARDS = [{
     "references": [{"kind": "concept", "id": "concept:index-worker",
                     "namespace": "research", "version": 2}],
 }]
+
+
+def test_corrected_intake_source_pauses_practice_until_card_revision():
+    conn = duckdb.connect(":memory:")
+    kwargs = {"principal_id": "alice", "scopes": SCOPES}
+    intake = IntakeStore(conn, now=lambda: 1_000)
+    exploration = IntakeExplorationStore(conn, now=lambda: 1_000)
+    session = intake.create("research", "Exploration", "source", intent="Capture", **kwargs)
+    first = exploration.capture(
+        "research", session["session_id"], "first", expected_revision=1,
+        url="https://example.org/study", title="Study", content="Old conclusion",
+        saved=True, **kwargs,
+    )
+    ref = first["references"][0]
+    cards = [{**CARDS[0], "references": [ref]}]
+    practice = IntakePracticeStore(conn, now=lambda: 1_000)
+    pack = practice.create_pack("research", "source-pack", "Study", cards, **kwargs)
+    review = practice.start_review("research", pack["pack_id"], "card-1", "old-review", **kwargs)
+    assert practice.due("research", **kwargs)["cards"][0]["reviewable"]
+
+    corrected = exploration.capture(
+        "research", session["session_id"], "corrected", expected_revision=2,
+        url="https://example.org/study", title="Corrected study", content="New conclusion",
+        saved=True, **kwargs,
+    )
+    due = practice.due("research", **kwargs)["cards"][0]
+    assert due["source_status"] == "superseded"
+    assert not due["reviewable"]
+    with pytest.raises(IntakeError) as stale:
+        practice.start_review("research", pack["pack_id"], "card-1", "new-review", **kwargs)
+    assert stale.value.code == "stale_practice_source"
+    with pytest.raises(IntakeError) as paused:
+        practice.command_review("research", review["review_id"], "attempt", 1, "attempt",
+                                {"answer": "Old conclusion", "assisted": False}, **kwargs)
+    assert paused.value.code == "stale_practice_source"
+    findings = IntakeMaintenanceStore(conn, now=lambda: 1_000).scan("research", **kwargs)["findings"]
+    assert any(item["reason"] == "superseded_practice_source" and
+               item["target"]["id"] == pack["pack_id"] for item in findings)
+
+    revised = practice.revise_pack(
+        "research", pack["pack_id"], "updated", 1, "Study", [{**cards[0],
+        "answer": "New conclusion", "references": [corrected["references"][-1]]}],
+        list(practice.inspect_pack("research", pack["pack_id"], **kwargs)["interval_days"]),
+        **kwargs,
+    )
+    assert revised["revision"] == 2
+    assert practice.due("research", **kwargs)["cards"][0]["source_status"] == "current"
+    assert practice.start_review("research", pack["pack_id"], "card-1", "new-review", **kwargs)["status"] == "active"
 
 
 def test_practice_attempt_before_reveal_and_restart_replay(tmp_path):
