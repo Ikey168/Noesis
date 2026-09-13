@@ -137,7 +137,7 @@ class ResearchProjectStore:
         raise exc
 
     def create(self, namespace, request_key, *, questions, success_criteria, scope, budget,
-               principal_id, scopes, origin=None):
+               principal_id, scopes, origin=None, _within_transaction=False):
         if not isinstance(namespace, str) or not namespace or not request_key:
             raise ResearchProjectError("invalid_project", "namespace and request_key are required")
         if not isinstance(scope, dict) or set(scope) != {"domains", "namespaces"}:
@@ -163,13 +163,17 @@ class ResearchProjectStore:
             self._authorize(current, principal_id, scopes, write=True)
             return {**current, "idempotent": True}
         state["updated_at_ms"] = self.now()
-        self.conn.execute("BEGIN TRANSACTION")
+        if not _within_transaction:
+            self.conn.execute("BEGIN TRANSACTION")
         try:
             self.conn.execute("INSERT INTO research_projects VALUES (?,?,?,?,1)", [state["project_id"], namespace, principal_id, digest])
             self.conn.execute("INSERT INTO research_project_revisions VALUES (?,1,?,?)", [state["project_id"], _json(state), state["updated_at_ms"]])
-            self.conn.execute("COMMIT")
+            if not _within_transaction:
+                self.conn.execute("COMMIT")
         except Exception as exc:
-            self._abort(exc)
+            if not _within_transaction:
+                self._abort(exc)
+            raise
         return {**state, "idempotent": False}
 
     def inspect(self, namespace, project_id, *, principal_id, scopes, revision=None):

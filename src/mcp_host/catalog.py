@@ -393,6 +393,7 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
         "command_intake_creation", "export_intake_creation",
         "scan_intake_maintenance", "start_intake_maintenance",
         "record_maintenance_finding", "assess_maintenance_health",
+        "start_intake_research_topic",
         "start_intake_iteration", "record_intake_iteration_outcome",
         "propose_intake_playbook_revision", "accept_intake_playbook_revision",
         "review_intake_iteration_stability",
@@ -402,6 +403,8 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
             return []
         if tool_name == "refresh_intake_feed_inbox":
             return ["knowledge:intake:write", "knowledge:intake:fetch"]
+        if tool_name == "start_intake_research_topic":
+            return ["knowledge:intake:write", "knowledge:projects:write"]
         if tool_name in {"promote_problem_playbook", "command_guided_playbook_run"}:
             return ["knowledge:intake:read", "knowledge:intake:write"]
         return ["knowledge:intake:write" if mutability == "write" else "knowledge:intake:read"]

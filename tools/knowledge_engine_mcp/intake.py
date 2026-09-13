@@ -23,6 +23,7 @@ from src.kb.intake_readiness import preflight as preflight_intake
 
 INTAKE_WRITES = {
     "start_intake_mode",
+    "start_intake_research_topic",
     "command_intake_mode",
     "subscribe_intake_feed",
     "refresh_intake_feed_inbox",
@@ -226,6 +227,29 @@ def register(mcp, safe, context):
                     "message": str(exc),
                 },
             }
+
+    @mcp.tool()
+    def start_intake_research_topic(
+        namespace: str, request_key: str,
+        questions: list[str], success_criteria: list[str],
+        scope: dict, budget: dict,
+        origin: dict | None = None,
+        references: list[dict] | None = None,
+        workspace_links: list[dict] | None = None,
+    ) -> dict:
+        """Atomically start a Deep Research session and owner-scoped project."""
+        from src.kb.intake_research_topic import start_research_topic
+
+        return safe(
+            lambda conn: start_research_topic(
+                conn, namespace, request_key, questions=questions,
+                success_criteria=success_criteria, scope=scope, budget=budget,
+                origin=origin, references=references or [],
+                workspace_links=workspace_links,
+                principal_id=context()[0], scopes=context()[1],
+            ),
+            write=True, required_scope="knowledge:intake:write",
+        )
 
     @mcp.tool()
     def start_intake_mode(

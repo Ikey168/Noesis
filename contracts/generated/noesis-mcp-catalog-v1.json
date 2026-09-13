@@ -812,7 +812,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 494,
+      "tool_count": 495,
       "tools": [
         "noesis-knowledge-engine.accept_citation_repair",
         "noesis-knowledge-engine.accept_dataset_join",
@@ -1281,6 +1281,7 @@
         "noesis-knowledge-engine.start_intake_iteration",
         "noesis-knowledge-engine.start_intake_maintenance",
         "noesis-knowledge-engine.start_intake_mode",
+        "noesis-knowledge-engine.start_intake_research_topic",
         "noesis-knowledge-engine.start_practice_review",
         "noesis-knowledge-engine.start_problem_session",
         "noesis-knowledge-engine.store_geospatial_geometry",
@@ -1314,7 +1315,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 494
+      "visible_tool_count": 495
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -1328,9 +1329,9 @@
       "available": 85,
       "degraded": 155,
       "disabled": 3,
-      "unauthorized": 495
+      "unauthorized": 496
     },
-    "tools": 738
+    "tools": 739
   },
   "tools": [
     {
@@ -39546,6 +39547,110 @@
       ],
       "required_scopes": [
         "knowledge:intake:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Atomically start a Deep Research session and owner-scoped project.",
+      "id": "noesis-knowledge-engine.start_intake_research_topic",
+      "input_schema": {
+        "properties": {
+          "budget": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "origin": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "questions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "references": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "request_key": {
+            "type": "string"
+          },
+          "scope": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "success_criteria": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "workspace_links": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "request_key",
+          "questions",
+          "success_criteria",
+          "scope",
+          "budget"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "start_intake_research_topic",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:intake:write",
+        "knowledge:projects:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",

@@ -17,9 +17,10 @@ NATIVE_TOOLS = {
     "Iteration": ["start_intake_iteration", "record_intake_iteration_outcome",
                   "accept_intake_playbook_revision"],
     "Maintenance": ["scan_intake_maintenance", "start_intake_maintenance"],
-    "Deep Research": [],
+    "Deep Research": ["start_intake_research_topic", "inspect_research_project"],
 }
 MODE_SCOPES = {
+    "Deep Research": ["knowledge:projects:read", "knowledge:projects:write"],
     "Decision Support": ["knowledge:decisions:read", "knowledge:decisions:write"],
     "Creation": ["knowledge:reports:read"],
 }
