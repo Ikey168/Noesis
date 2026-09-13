@@ -603,6 +603,7 @@ def register(mcp, safe, context):
         expected_revision: int,
         decision: str,
         saved: bool = False,
+        expected_candidate_version: int | None = None,
     ) -> dict:
         """Durably dismiss or follow one current Exploration source suggestion."""
         return safe(
@@ -614,6 +615,7 @@ def register(mcp, safe, context):
                 expected_revision=expected_revision,
                 decision=decision,
                 saved=saved,
+                expected_candidate_version=expected_candidate_version,
                 principal_id=context()[0],
                 scopes=context()[1],
             ),

@@ -235,6 +235,7 @@ def test_exploration_capture_over_mcp(tmp_path, monkeypatch):
         expected_revision=2,
         decision="follow",
         saved=True,
+        expected_candidate_version=related[0]["candidate"]["reference"]["version"],
     )
     assert (
         acted["data"]["trail"][-1]["source_id"] == related[0]["candidate"]["source_id"]

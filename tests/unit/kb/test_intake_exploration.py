@@ -529,3 +529,140 @@ def test_escalated_feed_item_keeps_identity_in_exploration(tmp_path):
         scopes=SCOPES,
     )["idempotent"]
     conn.close()
+
+
+def test_feed_visit_anchors_related_sources_without_recapture(tmp_path):
+    conn = duckdb.connect(str(tmp_path / "feed-related.duckdb"))
+    inbox = IntakeInboxStore(conn)
+    subscription = inbox.subscribe(
+        "research",
+        "https://example.org/rss",
+        "Reading",
+        "rss_atom",
+        principal_id="alice",
+        scopes=SCOPES,
+    )
+    inbox.ingest(
+        "research",
+        subscription["subscription_id"],
+        [
+            {
+                "url": "https://example.org/a",
+                "title": "Urban climate adaptation",
+                "content": "Cities compare urban climate adaptation methods",
+            },
+            {
+                "url": "https://example.net/b",
+                "title": "Urban climate methods",
+                "content": "Urban adaptation methods for cities",
+            },
+        ],
+        principal_id="alice",
+        scopes=SCOPES,
+    )
+    items = inbox.list("research", principal_id="alice", scopes=SCOPES)["items"]
+    anchor_id = next(
+        item["item_id"] for item in items if item["original_url"].endswith("/a")
+    )
+    candidate_id = next(
+        item["item_id"] for item in items if item["original_url"].endswith("/b")
+    )
+    session = IntakeStore(conn).create(
+        "research",
+        "Exploration",
+        "from-feed",
+        intent="Follow a signal",
+        principal_id="alice",
+        scopes=SCOPES,
+    )
+    store = IntakeExplorationStore(conn)
+    visited = store.link_feed_item(
+        "research",
+        session["session_id"],
+        anchor_id,
+        "visit",
+        expected_revision=1,
+        principal_id="alice",
+        scopes=SCOPES,
+    )
+    assert visited["data"]["trail"][0]["source_id"] == anchor_id
+    # Revise the feed item after the visit; the suggestion must cite v1.
+    inbox.ingest(
+        "research",
+        subscription["subscription_id"],
+        [
+            {
+                "url": "https://example.org/a",
+                "title": "Unrelated music theory",
+                "content": "Harmony counterpoint melody rhythm",
+            },
+        ],
+        principal_id="alice",
+        scopes=SCOPES,
+    )
+    suggestions = store.related_sources(
+        "research",
+        session["session_id"],
+        principal_id="alice",
+        scopes=SCOPES,
+    )["suggestions"]
+    feed_suggestion = next(
+        suggestion
+        for suggestion in suggestions
+        if suggestion["candidate"]["source_id"] == candidate_id
+    )
+    assert feed_suggestion["anchor"]["reference"]["kind"] == "intake_feed_item"
+    assert feed_suggestion["anchor"]["reference"]["version"] == 1
+    assert feed_suggestion["candidate"]["reference"]["kind"] == "intake_feed_item"
+    inbox.ingest(
+        "research",
+        subscription["subscription_id"],
+        [
+            {
+                "url": "https://example.net/b",
+                "title": "Urban climate methods updated",
+                "content": "Urban adaptation methods for cities revised",
+            },
+        ],
+        principal_id="alice",
+        scopes=SCOPES,
+    )
+    with pytest.raises(IntakeError) as stale:
+        store.decide_related_source(
+            "research",
+            session["session_id"],
+            feed_suggestion["suggestion_id"],
+            "follow-stale",
+            expected_revision=2,
+            decision="follow",
+            saved=True,
+            expected_candidate_version=1,
+            principal_id="alice",
+            scopes=SCOPES,
+        )
+    assert stale.value.code == "suggestion_stale"
+    feed_suggestion = next(
+        suggestion
+        for suggestion in store.related_sources(
+            "research",
+            session["session_id"],
+            principal_id="alice",
+            scopes=SCOPES,
+        )["suggestions"]
+        if suggestion["candidate"]["source_id"] == candidate_id
+    )
+    followed = store.decide_related_source(
+        "research",
+        session["session_id"],
+        feed_suggestion["suggestion_id"],
+        "follow-feed",
+        expected_revision=2,
+        decision="follow",
+        saved=True,
+        expected_candidate_version=feed_suggestion["candidate"]["reference"]["version"],
+        principal_id="alice",
+        scopes=SCOPES,
+    )
+    assert followed["data"]["trail"][-1]["source_id"] == candidate_id
+    assert feed_suggestion["candidate"]["reference"] in followed["references"]
+    conn.close()
