@@ -92,6 +92,34 @@ def _intervals(values: Any) -> list[int]:
     return values
 
 
+def practice_source_status(conn: Any, card: dict, owner: str) -> str:
+    """Check only authoritative intake snapshots; opaque references stay unassessed."""
+    checked = False
+    for ref in card["references"]:
+        kind = ref["kind"]
+        if kind == "exploration_source":
+            table, identity, version = "intake_exploration_sources", "source_id", "version"
+        elif kind == "intake_feed_item":
+            table, identity, version = "intake_inbox_items", "item_id", "source_version"
+        else:
+            continue
+        checked = True
+        if not conn.execute(
+            "SELECT 1 FROM information_schema.tables WHERE table_schema='main' AND table_name=?",
+            [table],
+        ).fetchone():
+            return "unavailable"
+        row = conn.execute(
+            f"SELECT {version} FROM {table} WHERE namespace=? AND owner=? AND {identity}=?",
+            [ref["namespace"], owner, ref["id"]],
+        ).fetchone()
+        if row is None:
+            return "unavailable"
+        if int(row[0]) != ref["version"]:
+            return "superseded"
+    return "current" if checked else "not_checked"
+
+
 def verify_practice_export(bundle: Any) -> dict:
     """Check integrity and revision order; this does not authenticate the exporter."""
     if not isinstance(bundle, dict):
@@ -330,12 +358,15 @@ class IntakePracticeStore:
         for pack_id, card_id, due_at, stage, passes in rows:
             pack = self.inspect_pack(namespace, pack_id, principal_id=principal_id, scopes=scopes)
             card = next(card for card in pack["cards"] if card["id"] == card_id)
+            source_status = practice_source_status(self.conn, card, principal_id)
             result.append({"pack_id": pack_id, "pack_revision": pack["revision"],
                            "card_id": card_id, "kind": card["kind"],
                            "prompt": card["prompt"], "references": card["references"],
                            "due_at_ms": due_at, "overdue_ms": max(0, now - due_at),
                            "overdue": now > due_at,
-                           "stage": stage, "self_reported_unassisted_passes": passes})
+                           "stage": stage, "self_reported_unassisted_passes": passes,
+                           "source_status": source_status,
+                           "reviewable": source_status not in {"superseded", "unavailable"}})
         return {"cards": result, "as_of_ms": now}
 
     def _public_review(
@@ -347,7 +378,8 @@ class IntakePracticeStore:
         card = next(card for card in pack["cards"] if card["id"] == review["card_id"])
         result = {**review, "prompt": card["prompt"], "kind": card["kind"],
                   "references": card["references"],
-                  "mastery_criterion": card["mastery_criterion"]}
+                  "mastery_criterion": card["mastery_criterion"],
+                  "source_status": practice_source_status(self.conn, card, principal_id)}
         if review["status"] in {"revealed", "assessed"}:
             result["answer"] = card["answer"]
             result["answer_status"] = card["answer_status"]
@@ -372,8 +404,11 @@ class IntakePracticeStore:
                                           scopes=scopes, write=True), "idempotent": True}
         pack = self._pack(namespace, pack_id)
         self._access(pack, principal_id, scopes, write=True)
-        if card_id not in {card["id"] for card in pack["cards"]}:
+        card = next((card for card in pack["cards"] if card["id"] == card_id), None)
+        if card is None:
             raise IntakeError("card_not_found", "card is not in the current pack")
+        if practice_source_status(self.conn, card, principal_id) in {"superseded", "unavailable"}:
+            raise IntakeError("stale_practice_source", "revise the card after its intake source changes")
         review = {"contract": CONTRACT, "review_id": review_id,
                   "namespace": namespace, "owner": principal_id,
                   "pack_id": pack_id, "pack_revision": pack["revision"],
@@ -436,6 +471,10 @@ class IntakePracticeStore:
                                               scopes=scopes, write=True), "idempotent": True}
             if review["revision"] != expected_revision:
                 raise IntakeError("revision_conflict", "review changed; inspect before retry")
+            pack = self._pack(namespace, review["pack_id"], review["pack_revision"])
+            card = next(card for card in pack["cards"] if card["id"] == review["card_id"])
+            if practice_source_status(self.conn, card, principal_id) in {"superseded", "unavailable"}:
+                raise IntakeError("stale_practice_source", "revise the card after its intake source changes")
             if action == "attempt":
                 if review["status"] != "active" or set(payload) != {"answer", "assisted"}:
                     raise IntakeError("invalid_status", "record one answer before reveal")

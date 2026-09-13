@@ -14,7 +14,7 @@ from src.kb.authored_reports import AuthoredReportStore, ReportError
 from src.kb.intake_creation import IntakeCreationStore
 from src.kb.intake_modes import IntakeError, IntakeStore, _hash, _text
 from src.kb.intake_playbooks import IntakePlaybookStore
-from src.kb.intake_practice import IntakePracticeStore
+from src.kb.intake_practice import IntakePracticeStore, practice_source_status
 from src.kb.research_projects import ResearchProjectError, ResearchProjectStore
 
 CONTRACT = "noesis-intake-maintenance-review-v1"
@@ -56,6 +56,33 @@ class IntakeMaintenanceStore:
             if len(findings) > MAX_FINDINGS:
                 raise IntakeError("maintenance_queue_too_large", "review one namespace or a narrower set of artifacts")
 
+        practice_scan_limited = False
+        if _has_table(self.conn, "intake_practice_packs"):
+            rows = self.conn.execute(
+                "SELECT pack_id,revision FROM intake_practice_packs "
+                "WHERE namespace=? AND owner=? ORDER BY pack_id LIMIT 501",
+                [namespace, principal_id],
+            ).fetchall()
+            practice_scan_limited = len(rows) > 500
+            practice = IntakePracticeStore(self.conn, initialize=False, now=self.now)
+            for pack_id, revision in rows[:500]:
+                try:
+                    pack = practice.inspect_pack(namespace, pack_id,
+                                                 principal_id=principal_id, scopes=scopes)
+                except IntakeError as exc:
+                    if exc.code != "unauthorized":
+                        raise
+                    continue
+                for card in pack["cards"]:
+                    source_status = practice_source_status(self.conn, card, principal_id)
+                    if source_status not in {"superseded", "unavailable"}:
+                        continue
+                    add("practice_pack", pack_id, int(revision),
+                        "superseded_practice_source" if source_status == "superseded" else "unavailable_practice_source",
+                        "revise_practice_pack" if source_status == "superseded" else "restore_or_replace_source",
+                        f"Practice card {card['id']} cites an intake source that is {source_status}; review the answer before another attempt",
+                        card["id"])
+
         if _has_table(self.conn, "intake_practice_progress"):
             rows = self.conn.execute(
                 "SELECT p.pack_id,p.revision,g.card_id,g.due_at_ms "
@@ -78,6 +105,9 @@ class IntakeMaintenanceStore:
                     continue
                 card = next((item for item in pack["cards"] if item["id"] == card_id), None)
                 if card is None:
+                    continue
+                source_status = practice_source_status(self.conn, card, principal_id)
+                if source_status in {"superseded", "unavailable"}:
                     continue
                 add("practice_pack", pack_id, int(revision), "overdue_practice",
                     "review_or_defer", f"{card['kind']} card {card_id} due at {int(due_at)}",
@@ -206,14 +236,16 @@ class IntakeMaintenanceStore:
             "review", "Review the configured system-health criteria")
         findings.sort(key=lambda item: (item["reason"], item["target"]["id"]))
         limitations = ["Reported repair actions are not execution receipts",
-                       "Source-pack failures and dependency impact are not yet composed"]
+                       "Source-pack failures and broader dependency impact are not yet composed"]
         if not research_covered:
             limitations.append("Pinned research sources need knowledge:projects:read to scan")
         elif research_scope_limited:
             limitations.append("Some research projects were outside current namespace or domain scope")
+        if practice_scan_limited:
+            limitations.append("Practice source scan was limited to 500 packs")
         return {"contract": CONTRACT, "namespace": namespace, "owner": principal_id,
                 "as_of_ms": now_ms, "findings": findings,
-                "coverage": ["overdue_practice", "old_draft_playbook",
+                "coverage": ["overdue_practice", "practice_intake_source_revisions", "old_draft_playbook",
                              "failed_guided_rehearsal", "stale_created_report",
                              *(["pinned_research_sources"] if research_covered else [])],
                 "limitations": limitations}
