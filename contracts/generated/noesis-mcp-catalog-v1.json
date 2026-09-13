@@ -812,7 +812,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 471,
+      "tool_count": 480,
       "tools": [
         "noesis-knowledge-engine.accept_citation_repair",
         "noesis-knowledge-engine.accept_dataset_join",
@@ -868,6 +868,7 @@
         "noesis-knowledge-engine.close_research_snapshot",
         "noesis-knowledge-engine.command_guided_playbook_run",
         "noesis-knowledge-engine.command_intake_mode",
+        "noesis-knowledge-engine.command_practice_review",
         "noesis-knowledge-engine.compare_change_briefs",
         "noesis-knowledge-engine.compare_claim_sources",
         "noesis-knowledge-engine.compare_cross_language_claims",
@@ -892,6 +893,7 @@
         "noesis-knowledge-engine.create_investigation_comparison",
         "noesis-knowledge-engine.create_investigation_template",
         "noesis-knowledge-engine.create_persistent_research_loop",
+        "noesis-knowledge-engine.create_practice_pack",
         "noesis-knowledge-engine.create_research_decision",
         "noesis-knowledge-engine.create_research_package_manifest",
         "noesis-knowledge-engine.create_research_project",
@@ -953,6 +955,7 @@
         "noesis-knowledge-engine.export_intake_mode",
         "noesis-knowledge-engine.export_investigation_comparison",
         "noesis-knowledge-engine.export_modulo_intake_handoff",
+        "noesis-knowledge-engine.export_practice_pack",
         "noesis-knowledge-engine.export_preserved_citations",
         "noesis-knowledge-engine.export_research_analysis",
         "noesis-knowledge-engine.export_research_analysis_package",
@@ -1022,6 +1025,8 @@
         "noesis-knowledge-engine.inspect_maintenance_job",
         "noesis-knowledge-engine.inspect_media_provenance",
         "noesis-knowledge-engine.inspect_persistent_research_loop",
+        "noesis-knowledge-engine.inspect_practice_pack",
+        "noesis-knowledge-engine.inspect_practice_review",
         "noesis-knowledge-engine.inspect_quality_health",
         "noesis-knowledge-engine.inspect_reference_workflow",
         "noesis-knowledge-engine.inspect_research_analysis",
@@ -1047,6 +1052,7 @@
         "noesis-knowledge-engine.link_study_artifact",
         "noesis-knowledge-engine.list_change_briefs",
         "noesis-knowledge-engine.list_decision_review_tasks",
+        "noesis-knowledge-engine.list_due_practice",
         "noesis-knowledge-engine.list_epistemic_taxonomies",
         "noesis-knowledge-engine.list_event_accounts",
         "noesis-knowledge-engine.list_expiring_evidence",
@@ -1214,6 +1220,7 @@
         "noesis-knowledge-engine.revise_hypothesis_workspace",
         "noesis-knowledge-engine.revise_intake_playbook",
         "noesis-knowledge-engine.revise_investigation_template",
+        "noesis-knowledge-engine.revise_practice_pack",
         "noesis-knowledge-engine.revise_quantitative_metric",
         "noesis-knowledge-engine.revise_research_decision",
         "noesis-knowledge-engine.revise_research_project",
@@ -1260,6 +1267,7 @@
         "noesis-knowledge-engine.start_awareness_from_inbox",
         "noesis-knowledge-engine.start_guided_playbook_run",
         "noesis-knowledge-engine.start_intake_mode",
+        "noesis-knowledge-engine.start_practice_review",
         "noesis-knowledge-engine.start_problem_session",
         "noesis-knowledge-engine.store_geospatial_geometry",
         "noesis-knowledge-engine.submit_review_inbox_annotation",
@@ -1281,6 +1289,7 @@
         "noesis-knowledge-engine.validate_research_recipe",
         "noesis-knowledge-engine.validate_source_pack",
         "noesis-knowledge-engine.verify_intake_mode_export",
+        "noesis-knowledge-engine.verify_practice_export",
         "noesis-knowledge-engine.verify_preserved_citation",
         "noesis-knowledge-engine.verify_research_package",
         "noesis-knowledge-engine.verify_retention_checkpoint",
@@ -1291,7 +1300,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 471
+      "visible_tool_count": 480
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -1302,12 +1311,12 @@
     },
     "servers": 29,
     "states": {
-      "available": 84,
+      "available": 85,
       "degraded": 155,
       "disabled": 3,
-      "unauthorized": 473
+      "unauthorized": 481
     },
-    "tools": 715
+    "tools": 724
   },
   "tools": [
     {
@@ -16857,6 +16866,67 @@
       "version": "1"
     },
     {
+      "cost_class": "medium",
+      "description": "Record attempt, reveal answer, then self-assess with safe command replay.",
+      "id": "noesis-knowledge-engine.command_practice_review",
+      "input_schema": {
+        "properties": {
+          "action": {
+            "type": "string"
+          },
+          "command_key": {
+            "type": "string"
+          },
+          "expected_revision": {
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "payload": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "review_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "review_id",
+          "command_key",
+          "expected_revision",
+          "action"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "command_practice_review",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:intake:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "low",
       "description": "Compare classifications, materiality, scores, and uncertainty.",
       "id": "noesis-knowledge-engine.compare_change_briefs",
@@ -18181,6 +18251,69 @@
         "knowledge:recipes:write",
         "knowledge:gaps:read",
         "knowledge:source-planner:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Create a reviewable, author-supplied retrieval pack from versioned references.",
+      "id": "noesis-knowledge-engine.create_practice_pack",
+      "input_schema": {
+        "properties": {
+          "cards": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "interval_days": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "integer"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "request_key": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "request_key",
+          "title",
+          "cards"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "create_practice_pack",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:intake:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -21233,6 +21366,43 @@
       "latency_class": "interactive",
       "mutability": "read",
       "name": "export_modulo_intake_handoff",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:intake:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Export all pack and review revisions plus current schedule with a digest.",
+      "id": "noesis-knowledge-engine.export_practice_pack",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "pack_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "pack_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "export_practice_pack",
       "output_schema": {
         "additionalProperties": true,
         "type": "object"
@@ -24365,6 +24535,102 @@
     },
     {
       "cost_class": "low",
+      "description": "Inspect an editable pack revision with its author-supplied answers.",
+      "id": "noesis-knowledge-engine.inspect_practice_pack",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "pack_id": {
+            "type": "string"
+          },
+          "revision": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "pack_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "inspect_practice_pack",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:intake:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Inspect a review; answer appears only after a recorded reveal.",
+      "id": "noesis-knowledge-engine.inspect_practice_review",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "review_id": {
+            "type": "string"
+          },
+          "revision": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "review_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "inspect_practice_review",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:intake:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Report coverage gaps and degraded inputs without deleting assessments.",
       "id": "noesis-knowledge-engine.inspect_quality_health",
       "input_schema": {
@@ -25610,6 +25876,43 @@
       ],
       "required_scopes": [
         "knowledge:decisions:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "List due and overdue prompts without revealing answers.",
+      "id": "noesis-knowledge-engine.list_due_practice",
+      "input_schema": {
+        "properties": {
+          "limit": {
+            "default": 50,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_due_practice",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:intake:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -35813,6 +36116,70 @@
     },
     {
       "cost_class": "medium",
+      "description": "Revise a pack without rewriting prior attempts or historical answers.",
+      "id": "noesis-knowledge-engine.revise_practice_pack",
+      "input_schema": {
+        "properties": {
+          "cards": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "edit_key": {
+            "type": "string"
+          },
+          "expected_revision": {
+            "type": "integer"
+          },
+          "interval_days": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "pack_id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "pack_id",
+          "edit_key",
+          "expected_revision",
+          "title",
+          "cards",
+          "interval_days"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "revise_practice_pack",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:intake:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Append an immutable metric schema or methodology revision.",
       "id": "noesis-knowledge-engine.revise_quantitative_metric",
       "input_schema": {
@@ -38377,6 +38744,51 @@
     },
     {
       "cost_class": "medium",
+      "description": "Start a version-pinned review with its answer initially hidden.",
+      "id": "noesis-knowledge-engine.start_practice_review",
+      "input_schema": {
+        "properties": {
+          "card_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "pack_id": {
+            "type": "string"
+          },
+          "request_key": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "pack_id",
+          "card_id",
+          "request_key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "start_practice_review",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:intake:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Start a typed, resumable troubleshooting session with an observable goal.",
       "id": "noesis-knowledge-engine.start_problem_session",
       "input_schema": {
@@ -39444,6 +39856,38 @@
       },
       "reason": null,
       "required_data": [],
+      "required_scopes": [],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Check an exported practice bundle's digest and revision chains offline.",
+      "id": "noesis-knowledge-engine.verify_practice_export",
+      "input_schema": {
+        "properties": {
+          "bundle": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "bundle"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "verify_practice_export",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
       "required_scopes": [],
       "server": "noesis-knowledge-engine",
       "state": "available",

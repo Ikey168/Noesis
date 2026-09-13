@@ -38,6 +38,16 @@ An Exploration session can start with `start_intake_mode` and no research object
 
 `start_guided_playbook_run` pins a playbook revision and environment. `command_guided_playbook_run` records each step's observed pass/fail result in order, permits a failed step to be retried after recovery, and requires a final observed verification before completing the run. Pause/resume and command replay are durable; `inspect_guided_playbook_run` resumes after restart. `inspect_intake_playbook` reports how many completed guided runs the caller has recorded against that exact revision. These are **caller-reported rehearsals**, not independent execution receipts or proof that a procedure is generally trusted. Noesis does not run external actions through these tools. Scoped automation, Modulo Blueprint round trips, authoritative source resolution, and real-world acceptance remain open under [#1576](https://github.com/Ikey168/Noesis/issues/1576).
 
+## Native retrieval practice
+
+`create_practice_pack` creates a versioned author-reviewed pack of 1–100 recall, procedure, or explanation cards. Each card has a prompt, an author-supplied answer, a textual mastery criterion, and 1–20 versioned source or concept references. Answers are labeled `author_supplied_unverified`; creating a pack does not validate them. `revise_practice_pack` uses an optimistic revision and stable edit key, retains historical answers and attempts, and resets the current card schedule so changed material becomes due again. A pack can choose 1–20 strictly increasing review intervals in days (default: 1, 3, 7, 14, 30, 60, 120).
+
+`list_due_practice` returns current due or overdue prompts without answers. `start_practice_review` pins the pack revision; `command_practice_review` requires a recorded caller-reported answer before answer reveal, then a self-assessment. Assisted attempts are labeled and cannot advance the unassisted schedule. A passed unassisted self-assessment advances to the next configured interval; a failed or assisted result returns the card to the first interval. Review commands use expected revisions and stable keys; `inspect_practice_review` returns historical state after restart and withholds the answer until a reveal was recorded. The practice history is distinct from procedural execution and no self-rating is reported as independently demonstrated mastery.
+
+`export_practice_pack` provides the complete pack revision chain, review revision chains, current schedule, and a SHA-256 integrity digest. `verify_practice_export` checks that digest and revision order offline; it does not authenticate the exporter or independently validate the answers. Current owner, namespace, and referenced-namespace access is checked before export.
+
+This is a native Noesis practice core, not the complete Internalization mode. Automatic pack generation from current evidence, source correction propagation, Modulo practice-plugin migration and UI, human-assessed mastery, and live acceptance remain open under [#1577](https://github.com/Ikey168/Noesis/issues/1577).
+
 ## Modulo handoff projection
 
 `export_modulo_intake_handoff` returns [`noesis-modulo-intake-handoff-v1`](../../contracts/schemas/jsonschema/noesis-modulo-intake-handoff-v1.json) for the latest session revision. It includes the namespace and owner, a stable session-derived correlation key, the current mode/status/revision and timestamps, the prior session/reason for a transition, versioned Modulo return links, and versioned Noesis references with any source locators. An example for Awareness → Exploration is:
@@ -83,7 +93,7 @@ Completion of [Noesis #1583](https://github.com/Ikey168/Noesis/issues/1583) stil
 | [#1574](https://github.com/Ikey168/Noesis/issues/1574) Problem-Solving | Connect bounded authorized execution, verified receipts, and direct Modulo task launch to the typed trail and draft playbook promotion. |
 | [#1575](https://github.com/Ikey168/Noesis/issues/1575) Creation | Connect authoring/build adapters, review, accepted output, and release authorization. |
 | [#1576](https://github.com/Ikey168/Noesis/issues/1576) Externalization | Build native versioned playbooks and guided/executable procedure runs. |
-| [#1577](https://github.com/Ikey168/Noesis/issues/1577) Internalization | Build native practice scheduling, unaided attempts, correction propagation, and Modulo practice-plugin state migration. |
+| [#1577](https://github.com/Ikey168/Noesis/issues/1577) Internalization | Connect native practice packs, scheduled attempts, and portable export to correction propagation, Modulo practice-plugin migration, and human-assessed acceptance. |
 | [#1578](https://github.com/Ikey168/Noesis/issues/1578) Iteration | Link observed outcomes and accepted revisions into authoritative artifact history. |
 | [#1579](https://github.com/Ikey168/Noesis/issues/1579) Maintenance | Compose cross-mode staleness and failure queues with impact previews and recoverable actions. |
 | [#1580](https://github.com/Ikey168/Noesis/issues/1580) Workflow foundations | Verify every handoff against authoritative objects and current access; add all required transition semantics. |

@@ -14,6 +14,10 @@ from src.kb.intake_modes import (
     verify_export,
 )
 from src.kb.intake_playbooks import IntakePlaybookStore
+from src.kb.intake_practice import IntakePracticeStore
+from src.kb.intake_practice import (
+    verify_practice_export as verify_practice_export_bundle,
+)
 from src.kb.intake_problem import IntakeProblemStore
 
 INTAKE_WRITES = {
@@ -39,6 +43,10 @@ INTAKE_WRITES = {
     "revise_intake_playbook",
     "start_guided_playbook_run",
     "command_guided_playbook_run",
+    "create_practice_pack",
+    "revise_practice_pack",
+    "start_practice_review",
+    "command_practice_review",
 }
 INTAKE_READS = {
     "discover_intake_modes",
@@ -58,6 +66,11 @@ INTAKE_READS = {
     "suggest_exploration_sources",
     "inspect_intake_playbook",
     "inspect_guided_playbook_run",
+    "inspect_practice_pack",
+    "export_practice_pack",
+    "verify_practice_export",
+    "list_due_practice",
+    "inspect_practice_review",
 }
 
 
@@ -414,6 +427,113 @@ def register(mcp, safe, context):
             lambda conn: IntakePlaybookStore(conn).command_run(
                 namespace, run_id, command_key,
                 expected_revision=expected_revision, action=action, payload=payload,
+                principal_id=context()[0], scopes=context()[1],
+            ),
+            write=True, required_scope="knowledge:intake:write",
+        )
+
+    @mcp.tool()
+    def create_practice_pack(
+        namespace: str, request_key: str, title: str, cards: list[dict],
+        interval_days: list[int] | None = None,
+    ) -> dict:
+        """Create a reviewable, author-supplied retrieval pack from versioned references."""
+        return safe(
+            lambda conn: IntakePracticeStore(conn).create_pack(
+                namespace, request_key, title, cards, interval_days=interval_days,
+                principal_id=context()[0], scopes=context()[1],
+            ),
+            write=True, required_scope="knowledge:intake:write",
+        )
+
+    @mcp.tool()
+    def inspect_practice_pack(
+        namespace: str, pack_id: str, revision: int | None = None
+    ) -> dict:
+        """Inspect an editable pack revision with its author-supplied answers."""
+        return safe(
+            lambda conn: IntakePracticeStore(conn, initialize=False).inspect_pack(
+                namespace, pack_id, revision=revision,
+                principal_id=context()[0], scopes=context()[1],
+            ),
+            required_scope="knowledge:intake:read",
+        )
+
+    @mcp.tool()
+    def export_practice_pack(namespace: str, pack_id: str) -> dict:
+        """Export all pack and review revisions plus current schedule with a digest."""
+        return safe(
+            lambda conn: IntakePracticeStore(conn, initialize=False).export_pack(
+                namespace, pack_id, principal_id=context()[0], scopes=context()[1],
+            ),
+            required_scope="knowledge:intake:read",
+        )
+
+    @mcp.tool()
+    def verify_practice_export(bundle: dict) -> dict:
+        """Check an exported practice bundle's digest and revision chains offline."""
+        return verify_practice_export_bundle(bundle)
+
+    @mcp.tool()
+    def revise_practice_pack(
+        namespace: str, pack_id: str, edit_key: str, expected_revision: int,
+        title: str, cards: list[dict], interval_days: list[int],
+    ) -> dict:
+        """Revise a pack without rewriting prior attempts or historical answers."""
+        return safe(
+            lambda conn: IntakePracticeStore(conn).revise_pack(
+                namespace, pack_id, edit_key, expected_revision, title, cards,
+                interval_days,
+                principal_id=context()[0], scopes=context()[1],
+            ),
+            write=True, required_scope="knowledge:intake:write",
+        )
+
+    @mcp.tool()
+    def list_due_practice(namespace: str, limit: int = 50) -> dict:
+        """List due and overdue prompts without revealing answers."""
+        return safe(
+            lambda conn: IntakePracticeStore(conn, initialize=False).due(
+                namespace, limit=limit, principal_id=context()[0], scopes=context()[1],
+            ),
+            required_scope="knowledge:intake:read",
+        )
+
+    @mcp.tool()
+    def start_practice_review(
+        namespace: str, pack_id: str, card_id: str, request_key: str,
+    ) -> dict:
+        """Start a version-pinned review with its answer initially hidden."""
+        return safe(
+            lambda conn: IntakePracticeStore(conn).start_review(
+                namespace, pack_id, card_id, request_key,
+                principal_id=context()[0], scopes=context()[1],
+            ),
+            write=True, required_scope="knowledge:intake:write",
+        )
+
+    @mcp.tool()
+    def inspect_practice_review(
+        namespace: str, review_id: str, revision: int | None = None,
+    ) -> dict:
+        """Inspect a review; answer appears only after a recorded reveal."""
+        return safe(
+            lambda conn: IntakePracticeStore(conn, initialize=False).inspect_review(
+                namespace, review_id, revision=revision,
+                principal_id=context()[0], scopes=context()[1],
+            ),
+            required_scope="knowledge:intake:read",
+        )
+
+    @mcp.tool()
+    def command_practice_review(
+        namespace: str, review_id: str, command_key: str,
+        expected_revision: int, action: str, payload: dict | None = None,
+    ) -> dict:
+        """Record attempt, reveal answer, then self-assess with safe command replay."""
+        return safe(
+            lambda conn: IntakePracticeStore(conn).command_review(
+                namespace, review_id, command_key, expected_revision, action, payload,
                 principal_id=context()[0], scopes=context()[1],
             ),
             write=True, required_scope="knowledge:intake:write",
