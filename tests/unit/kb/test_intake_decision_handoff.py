@@ -26,6 +26,21 @@ def test_standalone_choice_completes_linked_mode_once_and_preserves_origin():
     decision = DecisionStore(conn).create("r", "choice", content, **AUTH)
     reference = {"kind": "decision", "id": decision["decision_id"],
         "namespace": "r", "version": decision["revision"]}
+    forged = intake.create("r", "Decision Support", "forged-decision", intent="Renew?", **AUTH)
+    intake.command("r", forged["session_id"], "forged-record", expected_revision=1,
+        action="record", payload={"data": {"selected_option": "no", "rationale": "No current use"},
+                                  "references": [{"kind": "decision", "id": "decision:missing",
+                                                  "namespace": "r", "version": 1}]}, **AUTH)
+    with pytest.raises(IntakeError, match="current owned Decision Record"):
+        intake.command("r", forged["session_id"], "forged-complete", expected_revision=2,
+            action="complete", payload=None, **AUTH)
+    mismatched = intake.create("r", "Decision Support", "mismatched-decision", intent="Renew?", **AUTH)
+    intake.command("r", mismatched["session_id"], "mismatched-record", expected_revision=1,
+        action="record", payload={"data": {"selected_option": "yes", "rationale": "No current use"},
+                                  "references": [reference]}, **AUTH)
+    with pytest.raises(IntakeError, match="current owned Decision Record"):
+        intake.command("r", mismatched["session_id"], "mismatched-complete", expected_revision=2,
+            action="complete", payload=None, **AUTH)
     link = {"system": "modulo", "workspace_id": "personal", "kind": "artifact",
         "id": "decision.abc", "version": 1}
     args = {"intent": "Renew?", "origin": {"session_id": parent["session_id"],
@@ -53,3 +68,11 @@ def test_standalone_choice_completes_linked_mode_once_and_preserves_origin():
     assert handoff["modulo_links"] == [link]
     with pytest.raises(IntakeError, match="current owner"):
         intake.modulo_handoff("r", session["session_id"], principal_id="bob", scopes=AUTH["scopes"])
+    DecisionStore(conn).revise("r", decision["decision_id"], 1, content, **AUTH)
+    stale = intake.create("r", "Decision Support", "stale-decision", intent="Renew?", **AUTH)
+    intake.command("r", stale["session_id"], "stale-record", expected_revision=1,
+        action="record", payload={"data": {"selected_option": "no", "rationale": "No current use"},
+                                  "references": [reference]}, **AUTH)
+    with pytest.raises(IntakeError, match="current owned Decision Record"):
+        intake.command("r", stale["session_id"], "stale-complete", expected_revision=2,
+            action="complete", payload=None, **AUTH)

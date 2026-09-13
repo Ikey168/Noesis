@@ -901,6 +901,33 @@ class IntakeStore:
                             or bundle["revision"] != refs[0]["version"]
                             or not bundle["checks"]["ready"]):
                         raise IntakeError("incomplete_mode", "current project-bound research bundle is not ready")
+                if state["mode"] == "Decision Support":
+                    from src.kb.decisions import DecisionError, DecisionStore
+
+                    if not self.conn.execute(
+                        "SELECT 1 FROM information_schema.tables "
+                        "WHERE table_schema='main' AND table_name='research_decisions'"
+                    ).fetchone():
+                        raise IntakeError("incomplete_mode", "a current owned Decision Record is required")
+                    decisions = DecisionStore(self.conn, initialize=False)
+                    matched = []
+                    for ref in state["references"]:
+                        if ref["kind"] != "decision" or ref["namespace"] != namespace:
+                            continue
+                        try:
+                            decision = decisions.inspect(
+                                namespace, ref["id"], principal_id=principal_id, scopes=scopes,
+                            )
+                        except DecisionError as exc:
+                            if exc.code == "decision_unavailable":
+                                continue
+                            raise
+                        if (decision["revision"] == ref["version"]
+                                and decision["content"]["selected_action"] == state["data"]["selected_option"]
+                                and decision["content"]["rationale"] == state["data"]["rationale"]):
+                            matched.append(ref["id"])
+                    if len(set(matched)) != 1:
+                        raise IntakeError("incomplete_mode", "one current owned Decision Record must match the selected option and rationale")
                 state["status"] = "completed"
                 state["active_since_ms"] = None
             else:

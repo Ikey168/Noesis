@@ -5,11 +5,14 @@ import duckdb
 import pytest
 from jsonschema import Draft202012Validator
 
+from src.kb.decisions import DecisionStore
 from src.kb.intake_modes import MODES, IntakeError, IntakeStore
 
 SCOPES = {
     "knowledge:intake:read",
     "knowledge:intake:write",
+    "knowledge:decisions:read",
+    "knowledge:decisions:write",
     "namespace:research:read",
     "namespace:research:write",
 }
@@ -118,6 +121,20 @@ def test_mode_requires_recorded_outcome_and_survives_reopen(
     path = str(tmp_path / "intake.duckdb")
     conn = duckdb.connect(path)
     store = IntakeStore(conn)
+    if mode == "Decision Support":
+        decision = DecisionStore(conn).create("research", "choice", {
+            "project": None,
+            "decision_context": {"question": "Choose?", "stakes": "Small",
+                                 "required_confidence": "Moderate",
+                                 "stop_condition": "Choice recorded", "uncertainty": "Unknowns",
+                                 "missing_inputs": [], "deadline_at_ms": None},
+            "options": [{"id": "A", "description": "Option A"},
+                        {"id": "B", "description": "Option B"}],
+            "constraints": [], "assumptions": [], "observations": [], "preferences": [],
+            "selected_action": "A", "rationale": "Best fit", "review_conditions": [],
+        }, principal_id="alice", scopes=SCOPES)
+        refs = [{"kind": "decision", "id": decision["decision_id"],
+                 "namespace": "research", "version": decision["revision"]}]
     state = store.create(
         "research",
         mode,
