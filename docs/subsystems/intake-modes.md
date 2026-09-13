@@ -8,6 +8,8 @@ The session response follows [`noesis-intake-session-v1`](../../contracts/schema
 
 Use `discover_intake_modes`, `route_intake_mode`, `start_intake_mode`, `inspect_intake_mode`, `list_intake_modes`, `command_intake_mode`, `export_intake_mode`, `verify_intake_mode_export`, and `export_modulo_intake_handoff` on the existing Knowledge Engine MCP server. Routing applies the ten intent questions in priority order and accepts an explicit user override. A session has an owner and namespace, a mode-specific time budget, a revision, optional origin session, versioned references, a command history, and a status. `command_intake_mode` supports `record`, `pause`, `resume`, `complete`, and `cancel`. It requires a fresh `expected_revision` and a stable `command_key`; replay of the same command returns the original revision, while reuse with a different action or payload fails. `start_intake_mode` likewise requires a stable `request_key`.
 
+MCP clients can discover the `noesis://intake/{namespace}/{session_id}` resource template for a current session and `noesis://intake/{namespace}/{session_id}/revisions/{revision}` for an exact historical revision. Reading either rechecks the same current intake scope, namespace, and owner access as `inspect_intake_mode`; a denied read is an MCP error. The `start-information-intake` prompt accepts a mode, namespace, and intent, then guides clients to discover requirements and use a stable request key. Prompt discovery conveys no private session data and does not establish service or data readiness. HTTP resource/prompt discovery and a denied cross-owner read are covered by the transport test.
+
 Readers need `knowledge:intake:read` and `namespace:<name>:read`; writers need `knowledge:intake:write` and `namespace:<name>:write`. The owner is checked on each non-operator call. For HTTP, configure `NOESIS_MCP_AUTH_TOKENS_FILE` as a private JSON object mapping bearer tokens to `{ "client_id": "user-id", "scopes": [...] }`; each token must be at least 32 characters and each client ID unique. Intake tools take the authenticated client ID and scopes from the request. Unauthenticated HTTP intake calls and the legacy shared token with no scopes cannot mutate sessions. Stdio retains the configured local principal and scopes. A reference to another namespace requires current read access to that namespace. Revoked references and derived session data are redacted on inspection, and completion/export fails while linked access is missing. An export includes every session revision and a SHA-256 digest for portable integrity checks; the digest alone does not authenticate the exporter.
 
 The request identity is read through FastMCP's [access-token context](https://gofastmcp.com/v2/servers/context#access-tokens). The token file is a local integration option, not a substitute for a managed identity provider in a shared deployment.
@@ -48,7 +50,7 @@ The same envelope works for each mode. Modulo can link an Awareness item, Explor
 | Exploration | A recorded time-box end or escalation reason; an empty trail is valid |
 | Deep Research | Versioned evidence-card, concept, claim-ledger, brief, mental-model, and map references; known/uncertain/unresolved text; Definition of Done review |
 | Decision Support | Selected option, rationale, and a versioned decision reference |
-| Problem-Solving | An explicit verified flag and verification description |
+| Problem-Solving | An explicit verified flag and verification description; typed trails require a latest passed observed check |
 | Creation | A created-artifact reference and every declared acceptance check marked true |
 | Externalization | A procedure reference and rehearsal or execution description |
 | Internalization | At least one dated, recorded unaided demonstrated attempt with an answer |
@@ -71,8 +73,8 @@ Completion of [Noesis #1583](https://github.com/Ikey168/Noesis/issues/1583) stil
 | [#1570](https://github.com/Ikey168/Noesis/issues/1570) Awareness | Add direct newsletter inputs, authorized Modulo plugin round trips, and live daily-cadence outcome evidence. |
 | [#1571](https://github.com/Ikey168/Noesis/issues/1571) Exploration | Validate suggestion quality and Modulo device/restart workflow with representative live use. |
 | [#1572](https://github.com/Ikey168/Noesis/issues/1572) Deep Research | Compose the existing project, acquisition, evidence, claim, brief, and map systems into a bounded run with a reviewed Definition of Done. |
-| [#1573](https://github.com/Ikey168/Noesis/issues/1573) Decision Support | Connect the existing decision store to bounded intake evidence and user choice/return links. |
-| [#1574](https://github.com/Ikey168/Noesis/issues/1574) Problem-Solving | Add a troubleshooting trail with authorized execution and observed verification receipts. |
+| [#1573](https://github.com/Ikey168/Noesis/issues/1573) Decision Support | Add decision-bounded evidence collection, full comparative tradeoffs, Modulo task links, and changed-source review UI. |
+| [#1574](https://github.com/Ikey168/Noesis/issues/1574) Problem-Solving | Connect bounded authorized execution, verified receipts, playbook promotion, and direct Modulo task launch to the typed trail. |
 | [#1575](https://github.com/Ikey168/Noesis/issues/1575) Creation | Connect authoring/build adapters, review, accepted output, and release authorization. |
 | [#1576](https://github.com/Ikey168/Noesis/issues/1576) Externalization | Build native versioned playbooks and guided/executable procedure runs. |
 | [#1577](https://github.com/Ikey168/Noesis/issues/1577) Internalization | Build native practice scheduling, unaided attempts, correction propagation, and Modulo practice-plugin state migration. |
