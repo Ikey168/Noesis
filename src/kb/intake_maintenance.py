@@ -15,6 +15,7 @@ from src.kb.intake_creation import IntakeCreationStore
 from src.kb.intake_modes import IntakeError, IntakeStore, _hash, _text
 from src.kb.intake_playbooks import IntakePlaybookStore
 from src.kb.intake_practice import IntakePracticeStore
+from src.kb.research_projects import ResearchProjectError, ResearchProjectStore
 
 CONTRACT = "noesis-intake-maintenance-review-v1"
 MONTH_MS = 30 * 86_400_000
@@ -164,15 +165,58 @@ class IntakeMaintenanceStore:
                     add("creation_project", project_id, int(revision), "stale_created_report",
                         "review_new_revision", "The authored report changed after project acceptance")
 
+        research_covered = "operator" in scopes or "knowledge:projects:read" in scopes
+        research_scope_limited = False
+        if research_covered and _has_table(self.conn, "research_projects"):
+            rows = self.conn.execute(
+                "SELECT project_id FROM research_projects WHERE namespace=? AND owner=? "
+                "ORDER BY project_id", [namespace, principal_id],
+            ).fetchall()
+            projects = ResearchProjectStore(self.conn, initialize=False, now=self.now)
+            for (project_id,) in rows:
+                try:
+                    project = projects.inspect(
+                        namespace, project_id, principal_id=principal_id, scopes=scopes,
+                    )
+                except ResearchProjectError as exc:
+                    if exc.code != "unauthorized":
+                        raise
+                    # Project scope may include another namespace or domain.
+                    # Do not reveal that project's ID through a lesser-scoped queue.
+                    research_scope_limited = True
+                    continue
+                for link, availability in zip(
+                    project["links"], project["reference_availability"], strict=True,
+                ):
+                    if link["kind"] != "intake_source" or availability["status"] not in {
+                        "superseded", "unavailable",
+                    }:
+                        continue
+                    stale = availability["status"] == "superseded"
+                    add(
+                        "research_project", project_id, project["revision"],
+                        "superseded_research_source" if stale else "unavailable_research_source",
+                        "review_new_revision" if stale else "restore_or_replace_source",
+                        f"Pinned intake source {link['id']} revision {link['revision']} "
+                        f"is {availability['status']}; review the project source link",
+                        f"{link['id']}:{link['revision']}",
+                    )
+
         add("maintenance_review", "routine-health", 1, "routine_health_check",
             "review", "Review the configured system-health criteria")
         findings.sort(key=lambda item: (item["reason"], item["target"]["id"]))
+        limitations = ["Reported repair actions are not execution receipts",
+                       "Source-pack failures and dependency impact are not yet composed"]
+        if not research_covered:
+            limitations.append("Pinned research sources need knowledge:projects:read to scan")
+        elif research_scope_limited:
+            limitations.append("Some research projects were outside current namespace or domain scope")
         return {"contract": CONTRACT, "namespace": namespace, "owner": principal_id,
                 "as_of_ms": now_ms, "findings": findings,
                 "coverage": ["overdue_practice", "old_draft_playbook",
-                             "failed_guided_rehearsal", "stale_created_report"],
-                "limitations": ["Reported repair actions are not execution receipts",
-                                "Source-pack failures and dependency impact are not yet composed"]}
+                             "failed_guided_rehearsal", "stale_created_report",
+                             *(["pinned_research_sources"] if research_covered else [])],
+                "limitations": limitations}
 
     def start(
         self, namespace: str, request_key: str, *, intent: str,

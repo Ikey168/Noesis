@@ -1,15 +1,19 @@
 """Maintenance findings are explainable; a recorded fix is not executed proof."""
 
+import json
+
 import duckdb
 import pytest
 
 from src.kb.authored_reports import AuthoredReportStore
 from src.kb.intake_creation import IntakeCreationStore
+from src.kb.intake_exploration import IntakeExplorationStore
 from src.kb.intake_maintenance import IntakeMaintenanceStore
 from src.kb.intake_modes import IntakeError, IntakeStore
 from src.kb.intake_playbooks import IntakePlaybookStore
 from src.kb.intake_practice import IntakePracticeStore
 from src.kb.intake_problem import IntakeProblemStore
+from src.kb.intake_research_topic import start_research_topic
 
 DAY = 86_400_000
 SCOPES = {
@@ -153,3 +157,69 @@ def test_maintenance_flags_a_finished_creation_after_its_report_changes():
     )["findings"]
     assert any(item["reason"] == "stale_created_report"
                and item["target"]["id"] == project_id for item in findings)
+
+
+def test_maintenance_reviews_corrected_research_sources_without_leaking_other_projects():
+    conn = duckdb.connect(":memory:")
+    scopes = SCOPES | {"knowledge:projects:read", "knowledge:projects:write"}
+    kwargs = {"principal_id": "alice", "scopes": scopes}
+    exploration = IntakeExplorationStore(conn, now=lambda: 1000)
+    visited = IntakeStore(conn, now=lambda: 1000).create(
+        "research", "Exploration", "source-session", intent="Save evidence", **kwargs,
+    )
+    first = exploration.capture(
+        "research", visited["session_id"], "first", expected_revision=1,
+        url="https://example.org/study", title="Study", content="First version",
+        saved=True, **kwargs,
+    )
+    ref = first["references"][0]
+    topic = start_research_topic(
+        conn, "research", "topic", questions=["What changed?"],
+        success_criteria=["List supported and unresolved points"],
+        scope={"domains": [], "namespaces": ["research"]},
+        budget={"requests": 5, "tokens": 1000},
+        origin=None, references=[ref], workspace_links=None, **kwargs,
+    )
+    maintenance = IntakeMaintenanceStore(conn, now=lambda: 2000)
+    assert [finding["reason"] for finding in maintenance.scan(
+        "research", **kwargs,
+    )["findings"]] == ["routine_health_check"]
+
+    exploration.capture(
+        "research", visited["session_id"], "corrected", expected_revision=2,
+        url="https://example.org/study", title="Corrected study",
+        content="Corrected version", saved=True, **kwargs,
+    )
+    queue = maintenance.scan("research", **kwargs)
+    finding = next(item for item in queue["findings"]
+                   if item["reason"] == "superseded_research_source")
+    assert finding["target"] == {
+        "kind": "research_project", "id": topic["project"]["project_id"],
+        "namespace": "research", "version": 1,
+    }
+    assert ref["id"] in finding["detail"]
+    assert "Corrected version" not in json.dumps(queue)
+    assert "pinned_research_sources" in queue["coverage"]
+    session = maintenance.start("research", "review-correction", intent="Review sources", **kwargs)
+    assert finding in session["inputs"]["findings"]
+    assert finding["target"] in session["references"]
+
+    without_project_scope = maintenance.scan(
+        "research", principal_id="alice", scopes=SCOPES,
+    )
+    assert [item["reason"] for item in without_project_scope["findings"]] == ["routine_health_check"]
+    assert "pinned_research_sources" not in without_project_scope["coverage"]
+    assert "knowledge:projects:read" in " ".join(without_project_scope["limitations"])
+    assert [item["reason"] for item in maintenance.scan(
+        "research", principal_id="bob", scopes=scopes,
+    )["findings"]] == ["routine_health_check"]
+
+    conn.execute(
+        "DELETE FROM intake_exploration_source_revisions "
+        "WHERE namespace=? AND owner=? AND source_id=? AND version=1",
+        ["research", "alice", ref["id"]],
+    )
+    missing = maintenance.scan("research", **kwargs)
+    assert any(item["reason"] == "unavailable_research_source"
+               and item["target"]["id"] == topic["project"]["project_id"]
+               for item in missing["findings"])
