@@ -56,23 +56,25 @@ Deep Research permits three active or paused topics per owner by default across 
 
 ## Current limits
 
-The ledger and MCP tools implement the common session, handoff, history, access, and recorded-exit layer. The roadmap's remaining work includes mailbox/Miniflux adapters, browser capture, actual Research Flow composition, native playbook/practice engines, data migration, and the Modulo connector. The token map gives the Knowledge Engine server's shared context a distinct caller identity when the token carries scopes. The full server still needs an authorization audit before exposure as a general multi-tenant Modulo gateway. The current daily-brief Blueprint node is a read-only input, not a triage workflow.
+The ledger and MCP tools implement the common session, handoff, history, access, and recorded-exit layer. The roadmap's remaining work includes direct newsletter inputs, provenance-backed Exploration suggestions, actual Research Flow composition, native playbook/practice engines, Modulo plugin-state migration, and the Modulo connector. The token map gives the Knowledge Engine server's shared context a distinct caller identity when the token carries scopes. The full server still needs an authorization audit before exposure as a general multi-tenant Modulo gateway. The current daily-brief Blueprint node is a read-only input, not a triage workflow.
 
 Completion of [Noesis #1583](https://github.com/Ikey168/Noesis/issues/1583) still requires the full set of actual MCP transport journeys, representative live-source results, migration rehearsal, and user-assessed outcomes. The current stdio and HTTP tests cover session transport, replay, and isolation; they do not close any of the ten mode issues.
 
 | Issue | Remaining acceptance work |
 | --- | --- |
-| [#1570](https://github.com/Ikey168/Noesis/issues/1570) Awareness | Add mailbox/Miniflux adapters, authorized Modulo round trips, and live daily-cadence outcome evidence. |
+| [#1570](https://github.com/Ikey168/Noesis/issues/1570) Awareness | Add direct newsletter inputs, authorized Modulo plugin round trips, and live daily-cadence outcome evidence. |
 | [#1571](https://github.com/Ikey168/Noesis/issues/1571) Exploration | Add provenance-backed suggestions and dismissal/follow actions, dedicated source annotations, and live quality acceptance. |
 | [#1572](https://github.com/Ikey168/Noesis/issues/1572) Deep Research | Compose the existing project, acquisition, evidence, claim, brief, and map systems into a bounded run with a reviewed Definition of Done. |
 | [#1573](https://github.com/Ikey168/Noesis/issues/1573) Decision Support | Connect the existing decision store to bounded intake evidence and user choice/return links. |
 | [#1574](https://github.com/Ikey168/Noesis/issues/1574) Problem-Solving | Add a troubleshooting trail with authorized execution and observed verification receipts. |
 | [#1575](https://github.com/Ikey168/Noesis/issues/1575) Creation | Connect authoring/build adapters, review, accepted output, and release authorization. |
 | [#1576](https://github.com/Ikey168/Noesis/issues/1576) Externalization | Build native versioned playbooks and guided/executable procedure runs. |
-| [#1577](https://github.com/Ikey168/Noesis/issues/1577) Internalization | Build native practice scheduling, unaided attempts, correction propagation, and Anki interchange. |
+| [#1577](https://github.com/Ikey168/Noesis/issues/1577) Internalization | Build native practice scheduling, unaided attempts, correction propagation, and Modulo practice-plugin state migration. |
 | [#1578](https://github.com/Ikey168/Noesis/issues/1578) Iteration | Link observed outcomes and accepted revisions into authoritative artifact history. |
 | [#1579](https://github.com/Ikey168/Noesis/issues/1579) Maintenance | Compose cross-mode staleness and failure queues with impact previews and recoverable actions. |
 | [#1580](https://github.com/Ikey168/Noesis/issues/1580) Workflow foundations | Verify every handoff against authoritative objects and current access; add all required transition semantics. |
-| [#1581](https://github.com/Ikey168/Noesis/issues/1581) Migration | Implement and rehearse Miniflux, Wallabag, Notion export, Anki, and Modulo intake migrations. |
+| [#1581](https://github.com/Ikey168/Noesis/issues/1581) Migration | Implement and rehearse migration from Modulo intake and practice plugins into durable plugin state and Noesis references; external app exports are out of scope. |
 | [#1582](https://github.com/Ikey168/Noesis/issues/1582) MCP foundations | Add resource/prompt discovery, full preflight and service readiness, per-caller audit across all subsystems, and durable unattended delivery. |
 | [#1583](https://github.com/Ikey168/Noesis/issues/1583) Acceptance | Run complete cross-mode journeys, live-source tests, real migration, and user-assessed outcomes. |
+
+The migration source is Modulo plugin state and existing browser-local intake records, as directed for [#1581](https://github.com/Ikey168/Noesis/issues/1581). Miniflux, Wallabag, Notion, and Anki exports are not part of this roadmap.
