@@ -97,6 +97,19 @@ def test_http_tokens_isolate_intake_sessions(tmp_path):
         )
         assert created["owner"] == "alice"
         uri = AnyUrl(f"noesis://intake/research/{created['session_id']}")
+        pack = await _tool(url, "a" * 32, "create_practice_pack", {
+            "namespace": "research", "request_key": "alice-pack", "title": "Recall index repair",
+            "cards": [{"kind": "recall", "prompt": "What stopped indexing?",
+                       "answer": "The index worker", "mastery_criterion": "Name the worker",
+                       "references": [{"kind": "concept", "id": "concept:worker",
+                                       "namespace": "research", "version": 1}]}],
+        })
+        review = await _tool(url, "a" * 32, "start_practice_review", {
+            "namespace": "research", "pack_id": pack["pack_id"],
+            "card_id": "card-1", "request_key": "alice-review",
+        })
+        pack_uri = AnyUrl(f"noesis://intake/practice/research/{pack['pack_id']}")
+        review_uri = AnyUrl(f"noesis://intake/practice-reviews/research/{review['review_id']}")
         async with (
             httpx.AsyncClient(headers={"Authorization": "Bearer " + "a" * 32}) as http_client,
             streamable_http_client(url, http_client=http_client) as (reader, writer, _),
@@ -105,8 +118,16 @@ def test_http_tokens_isolate_intake_sessions(tmp_path):
             await client.initialize()
             templates = await client.list_resource_templates()
             assert any("{session_id}" in str(item.uriTemplate) for item in templates.resourceTemplates)
+            assert any("playbooks/{namespace}/{playbook_id}" in str(item.uriTemplate)
+                       for item in templates.resourceTemplates)
+            assert any("practice-reviews/{namespace}/{review_id}" in str(item.uriTemplate)
+                       for item in templates.resourceTemplates)
             resource = await client.read_resource(uri)
             assert json.loads(resource.contents[0].text)["owner"] == "alice"
+            pack_resource = await client.read_resource(pack_uri)
+            assert json.loads(pack_resource.contents[0].text)["cards"][0]["answer"] == "The index worker"
+            review_resource = await client.read_resource(review_uri)
+            assert "answer" not in json.loads(review_resource.contents[0].text)
             prompts = await client.list_prompts()
             assert "start-information-intake" in {item.name for item in prompts.prompts}
             prompt = await client.get_prompt("start-information-intake", {
@@ -121,6 +142,33 @@ def test_http_tokens_isolate_intake_sessions(tmp_path):
             await client.initialize()
             with pytest.raises(McpError, match="current owner"):
                 await client.read_resource(uri)
+            with pytest.raises(McpError, match="current owner"):
+                await client.read_resource(pack_uri)
+            with pytest.raises(McpError, match="current owner"):
+                await client.read_resource(review_uri)
+        attempted = await _tool(url, "a" * 32, "command_practice_review", {
+            "namespace": "research", "review_id": review["review_id"],
+            "command_key": "alice-attempt", "expected_revision": 1,
+            "action": "attempt", "payload": {"answer": "A worker", "assisted": False},
+        })
+        assert "answer" not in attempted
+        await _tool(url, "a" * 32, "command_practice_review", {
+            "namespace": "research", "review_id": review["review_id"],
+            "command_key": "alice-reveal", "expected_revision": 2,
+            "action": "reveal", "payload": {},
+        })
+        async with (
+            httpx.AsyncClient(headers={"Authorization": "Bearer " + "a" * 32}) as http_client,
+            streamable_http_client(url, http_client=http_client) as (reader, writer, _),
+            ClientSession(reader, writer) as client,
+        ):
+            await client.initialize()
+            current_review = await client.read_resource(review_uri)
+            assert json.loads(current_review.contents[0].text)["answer"] == "The index worker"
+            before_reveal = await client.read_resource(AnyUrl(
+                f"noesis://intake/practice-reviews/research/{review['review_id']}/revisions/2"
+            ))
+            assert "answer" not in json.loads(before_reveal.contents[0].text)
         subscribed = await _tool(
             url,
             "a" * 32,
