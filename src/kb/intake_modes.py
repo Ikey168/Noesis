@@ -215,18 +215,21 @@ def _completion(state: dict[str, Any]) -> list[str]:
             "timebox_or_escalation",
         )
     elif mode == "Deep Research":
-        for kind in (
-            "evidence_card",
-            "concept",
-            "claim_ledger",
-            "brief",
-            "mental_model",
-            "map",
-        ):
-            require(has_ref(kind), f"reference:{kind}")
-        for key in ("known", "uncertain", "unresolved"):
-            require(filled(key), key)
-        require(data.get("definition_of_done_met") is True, "definition_of_done_review")
+        if state["inputs"].get("research_project_id"):
+            require(has_ref("research_bundle"), "reference:research_bundle")
+        else:
+            for kind in (
+                "evidence_card",
+                "concept",
+                "claim_ledger",
+                "brief",
+                "mental_model",
+                "map",
+            ):
+                require(has_ref(kind), f"reference:{kind}")
+            for key in ("known", "uncertain", "unresolved"):
+                require(filled(key), key)
+            require(data.get("definition_of_done_met") is True, "definition_of_done_review")
     elif mode == "Decision Support":
         require(filled("selected_option"), "selected_option")
         require(filled("rationale"), "rationale")
@@ -885,6 +888,19 @@ class IntakeStore:
                         "incomplete_mode",
                         "unmet completion checks: " + ", ".join(unmet),
                     )
+                if state["mode"] == "Deep Research" and state["inputs"].get("research_project_id"):
+                    from src.kb.intake_research_bundle import IntakeResearchBundleStore
+
+                    refs = [ref for ref in state["references"] if ref["kind"] == "research_bundle"]
+                    if len(refs) != 1 or refs[0]["namespace"] != namespace:
+                        raise IntakeError("incomplete_mode", "exactly one local research bundle is required")
+                    bundle = IntakeResearchBundleStore(self.conn, initialize=False).inspect(
+                        namespace, refs[0]["id"], principal_id=principal_id, scopes=scopes,
+                    )
+                    if (bundle["project_id"] != state["inputs"]["research_project_id"]
+                            or bundle["revision"] != refs[0]["version"]
+                            or not bundle["checks"]["ready"]):
+                        raise IntakeError("incomplete_mode", "current project-bound research bundle is not ready")
                 state["status"] = "completed"
                 state["active_since_ms"] = None
             else:

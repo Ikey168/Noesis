@@ -230,6 +230,9 @@ def _mutability(name: str) -> str:
     from tools.knowledge_engine_mcp.intake import INTAKE_WRITES
     if name in INTAKE_WRITES:
         return "write"
+    from tools.knowledge_engine_mcp.research_intake import RESEARCH_INTAKE_WRITES
+    if name in RESEARCH_INTAKE_WRITES:
+        return "write"
     from tools.knowledge_engine_mcp.investigations import (
         ALERT_WRITES,
         COMPARISON_WRITES,
@@ -398,9 +401,13 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
         "propose_intake_playbook_revision", "accept_intake_playbook_revision",
         "review_intake_iteration_stability",
         "preflight_intake_mode",
+        "save_intake_research_bundle", "inspect_intake_research_bundle",
+        "export_intake_research_bundle", "verify_intake_research_bundle_export",
     }:
-        if tool_name in {"discover_intake_modes", "route_intake_mode", "verify_intake_mode_export", "verify_practice_export"}:
+        if tool_name in {"discover_intake_modes", "route_intake_mode", "verify_intake_mode_export", "verify_practice_export", "verify_intake_research_bundle_export"}:
             return []
+        if tool_name == "save_intake_research_bundle":
+            return ["knowledge:intake:write", "knowledge:projects:write"]
         if tool_name == "refresh_intake_feed_inbox":
             return ["knowledge:intake:write", "knowledge:intake:fetch"]
         if tool_name == "start_intake_research_topic":

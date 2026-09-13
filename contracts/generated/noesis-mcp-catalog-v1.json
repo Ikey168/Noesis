@@ -812,7 +812,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 495,
+      "tool_count": 499,
       "tools": [
         "noesis-knowledge-engine.accept_citation_repair",
         "noesis-knowledge-engine.accept_dataset_join",
@@ -957,6 +957,7 @@
         "noesis-knowledge-engine.export_hypothesis_workspace",
         "noesis-knowledge-engine.export_intake_creation",
         "noesis-knowledge-engine.export_intake_mode",
+        "noesis-knowledge-engine.export_intake_research_bundle",
         "noesis-knowledge-engine.export_investigation_comparison",
         "noesis-knowledge-engine.export_modulo_intake_handoff",
         "noesis-knowledge-engine.export_practice_pack",
@@ -1024,6 +1025,7 @@
         "noesis-knowledge-engine.inspect_intake_feed_item",
         "noesis-knowledge-engine.inspect_intake_mode",
         "noesis-knowledge-engine.inspect_intake_playbook",
+        "noesis-knowledge-engine.inspect_intake_research_bundle",
         "noesis-knowledge-engine.inspect_investigation_comparison",
         "noesis-knowledge-engine.inspect_investigation_template",
         "noesis-knowledge-engine.inspect_maintenance_generation",
@@ -1246,6 +1248,7 @@
         "noesis-knowledge-engine.run_research_recipe",
         "noesis-knowledge-engine.run_source_pack_execution",
         "noesis-knowledge-engine.save_intake_feed_signal_rule",
+        "noesis-knowledge-engine.save_intake_research_bundle",
         "noesis-knowledge-engine.scan_intake_maintenance",
         "noesis-knowledge-engine.score_binary_forecasts",
         "noesis-knowledge-engine.screen_review_candidate",
@@ -1304,6 +1307,7 @@
         "noesis-knowledge-engine.validate_research_recipe",
         "noesis-knowledge-engine.validate_source_pack",
         "noesis-knowledge-engine.verify_intake_mode_export",
+        "noesis-knowledge-engine.verify_intake_research_bundle_export",
         "noesis-knowledge-engine.verify_practice_export",
         "noesis-knowledge-engine.verify_preserved_citation",
         "noesis-knowledge-engine.verify_research_package",
@@ -1315,7 +1319,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 495
+      "visible_tool_count": 499
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -1326,12 +1330,12 @@
     },
     "servers": 29,
     "states": {
-      "available": 85,
+      "available": 86,
       "degraded": 155,
       "disabled": 3,
-      "unauthorized": 496
+      "unauthorized": 499
     },
-    "tools": 739
+    "tools": 743
   },
   "tools": [
     {
@@ -21522,6 +21526,43 @@
       "version": "1"
     },
     {
+      "cost_class": "medium",
+      "description": "Export the revision chain while current access to every cited source remains valid.",
+      "id": "noesis-knowledge-engine.export_intake_research_bundle",
+      "input_schema": {
+        "properties": {
+          "bundle_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "bundle_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "export_intake_research_bundle",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:intake:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "low",
       "description": "Export an authorized structured comparison and deterministic report Markdown.",
       "id": "noesis-knowledge-engine.export_investigation_comparison",
@@ -24551,6 +24592,54 @@
       "latency_class": "interactive",
       "mutability": "read",
       "name": "inspect_intake_playbook",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:intake:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Inspect an exact synthesis revision and recheck cited sources and project access.",
+      "id": "noesis-knowledge-engine.inspect_intake_research_bundle",
+      "input_schema": {
+        "properties": {
+          "bundle_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "revision": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "bundle_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "inspect_intake_research_bundle",
       "output_schema": {
         "additionalProperties": true,
         "type": "object"
@@ -37605,6 +37694,64 @@
       "version": "1"
     },
     {
+      "cost_class": "medium",
+      "description": "Save a versioned research synthesis with exact citations to pinned project sources.",
+      "id": "noesis-knowledge-engine.save_intake_research_bundle",
+      "input_schema": {
+        "properties": {
+          "command_key": {
+            "type": "string"
+          },
+          "document": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "expected_revision": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "project_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "project_id",
+          "command_key",
+          "document"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "save_intake_research_bundle",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:intake:write",
+        "knowledge:projects:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "low",
       "description": "Explain current overdue practice, old drafts, and stale accepted reports.",
       "id": "noesis-knowledge-engine.scan_intake_maintenance",
@@ -40770,6 +40917,38 @@
       },
       "reason": null,
       "required_data": [],
+      "required_scopes": [],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Verify the exported revision chain digest offline.",
+      "id": "noesis-knowledge-engine.verify_intake_research_bundle_export",
+      "input_schema": {
+        "properties": {
+          "bundle": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "bundle"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "verify_intake_research_bundle_export",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
       "required_scopes": [],
       "server": "noesis-knowledge-engine",
       "state": "available",
