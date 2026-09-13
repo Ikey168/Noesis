@@ -7,6 +7,7 @@ from src.kb.intake_research_bundle import (
     IntakeResearchBundleStore,
     verify_research_bundle_export,
 )
+from src.kb.intake_research_progress import inspect_research_progress
 
 RESEARCH_INTAKE_WRITES = {"save_intake_research_bundle"}
 
@@ -16,6 +17,17 @@ def register(mcp, safe, context):
         return safe(
             lambda conn: IntakeResearchBundleStore(conn, initialize=False).inspect(
                 namespace, bundle_id, revision=revision,
+                principal_id=context()[0], scopes=context()[1],
+            ),
+            required_scope="knowledge:intake:read",
+        )
+
+    @mcp.tool()
+    def inspect_intake_research_progress(namespace: str, session_id: str) -> dict:
+        """Read a paired topic's project, loop stage receipts, coverage, blockers, and bundle readiness."""
+        return safe(
+            lambda conn: inspect_research_progress(
+                conn, namespace, session_id,
                 principal_id=context()[0], scopes=context()[1],
             ),
             required_scope="knowledge:intake:read",

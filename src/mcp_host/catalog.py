@@ -403,11 +403,14 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
         "preflight_intake_mode",
         "save_intake_research_bundle", "inspect_intake_research_bundle",
         "export_intake_research_bundle", "verify_intake_research_bundle_export",
+        "inspect_intake_research_progress",
     }:
         if tool_name in {"discover_intake_modes", "route_intake_mode", "verify_intake_mode_export", "verify_practice_export", "verify_intake_research_bundle_export"}:
             return []
         if tool_name == "save_intake_research_bundle":
             return ["knowledge:intake:write", "knowledge:projects:write"]
+        if tool_name == "inspect_intake_research_progress":
+            return ["knowledge:intake:read", "knowledge:projects:read"]
         if tool_name == "refresh_intake_feed_inbox":
             return ["knowledge:intake:write", "knowledge:intake:fetch"]
         if tool_name == "start_intake_research_topic":

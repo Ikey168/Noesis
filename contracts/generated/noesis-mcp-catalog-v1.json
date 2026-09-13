@@ -812,7 +812,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 499,
+      "tool_count": 500,
       "tools": [
         "noesis-knowledge-engine.accept_citation_repair",
         "noesis-knowledge-engine.accept_dataset_join",
@@ -1026,6 +1026,7 @@
         "noesis-knowledge-engine.inspect_intake_mode",
         "noesis-knowledge-engine.inspect_intake_playbook",
         "noesis-knowledge-engine.inspect_intake_research_bundle",
+        "noesis-knowledge-engine.inspect_intake_research_progress",
         "noesis-knowledge-engine.inspect_investigation_comparison",
         "noesis-knowledge-engine.inspect_investigation_template",
         "noesis-knowledge-engine.inspect_maintenance_generation",
@@ -1319,7 +1320,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 499
+      "visible_tool_count": 500
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -1333,9 +1334,9 @@
       "available": 86,
       "degraded": 155,
       "disabled": 3,
-      "unauthorized": 499
+      "unauthorized": 500
     },
-    "tools": 743
+    "tools": 744
   },
   "tools": [
     {
@@ -24650,6 +24651,44 @@
       ],
       "required_scopes": [
         "knowledge:intake:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Read a paired topic's project, loop stage receipts, coverage, blockers, and bundle readiness.",
+      "id": "noesis-knowledge-engine.inspect_intake_research_progress",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "session_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "session_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "inspect_intake_research_progress",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:intake:read",
+        "knowledge:projects:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
