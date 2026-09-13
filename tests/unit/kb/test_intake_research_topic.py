@@ -143,6 +143,20 @@ def test_research_topic_rejects_another_owners_saved_source():
 def test_research_topic_pins_feed_revision():
     conn = duckdb.connect(":memory:")
     inbox = IntakeInboxStore(conn)
+    other_subscription = inbox.subscribe(
+        "research", "https://example.org/feed", "Example", "rss_atom",
+        principal_id="bob", scopes=SCOPES,
+    )
+    inbox.ingest(
+        "research", other_subscription["subscription_id"],
+        [{"url": "https://example.org/story", "title": "Story", "content": "Bob's copy"}],
+        principal_id="bob", scopes=SCOPES,
+    )
+    inbox.ingest(
+        "research", other_subscription["subscription_id"],
+        [{"url": "https://example.org/story", "title": "Story", "content": "Bob's revision"}],
+        principal_id="bob", scopes=SCOPES,
+    )
     subscription = inbox.subscribe(
         "research", "https://example.org/feed", "Example", "rss_atom",
         principal_id="alice", scopes=SCOPES,
@@ -153,14 +167,18 @@ def test_research_topic_pins_feed_revision():
         principal_id="alice", scopes=SCOPES,
     )
     ref = inbox.list("research", principal_id="alice", scopes=SCOPES)["items"][0]["reference"]
+    assert inbox.list("research", principal_id="bob", scopes=SCOPES)["items"][0]["item_id"] == ref["id"]
     started = _start(conn, "feed-topic", references=[ref])
     assert started["project"]["links"][0]["id"] == ref["id"]
+    store = ResearchProjectStore(conn, initialize=False)
+    assert store.inspect("research", started["project"]["project_id"],
+                         principal_id="alice", scopes=SCOPES)["reference_availability"][0]["status"] == "current"
     inbox.ingest(
         "research", subscription["subscription_id"],
         [{"url": "https://example.org/story", "title": "Story", "content": "Corrected"}],
         principal_id="alice", scopes=SCOPES,
     )
-    availability = ResearchProjectStore(conn, initialize=False).inspect(
+    availability = store.inspect(
         "research", started["project"]["project_id"],
         principal_id="alice", scopes=SCOPES,
     )["reference_availability"][0]

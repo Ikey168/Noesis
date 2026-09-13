@@ -218,23 +218,22 @@ class ResearchProjectStore:
                     "SELECT 1 FROM information_schema.tables WHERE table_name=?", [table],
                 ).fetchone()
                 row = self.conn.execute(
-                    f"SELECT owner,{version} FROM {table} WHERE namespace=? AND {identity}=?",
-                    [link.get("namespace", namespace), link["id"]],
+                    f"SELECT {version} FROM {table} WHERE namespace=? AND owner=? "
+                    f"AND {identity}=?",
+                    [link.get("namespace", namespace), state["owner"], link["id"]],
                 ).fetchone() if exists else None
                 if row is None:
                     status = "unavailable"
-                elif row[0] != principal_id and "operator" not in scopes:
-                    status = "inaccessible"
                 else:
                     historical = self.conn.execute(
                         f"SELECT 1 FROM {revisions} WHERE namespace=? AND owner=? "
                         f"AND {identity}=? AND {version}=?",
-                        [link.get("namespace", namespace), row[0], link["id"], link["revision"]],
+                        [link.get("namespace", namespace), state["owner"], link["id"], link["revision"]],
                     ).fetchone()
                     verified = historical is not None
                     status = (
                         "unavailable" if not verified else
-                        "current" if row[1] == link["revision"] else "superseded"
+                        "current" if row[0] == link["revision"] else "superseded"
                     )
             item = {"kind": link["kind"], "id": link["id"], "status": status,
                     "generation_verified": False}
