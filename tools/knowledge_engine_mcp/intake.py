@@ -19,6 +19,7 @@ INTAKE_WRITES = {
     "save_intake_feed_signal_rule",
     "capture_exploration_page",
     "visit_exploration_feed_item",
+    "annotate_exploration_source",
 }
 INTAKE_READS = {
     "discover_intake_modes",
@@ -550,4 +551,27 @@ def register(mcp, safe, context):
                 scopes=context()[1],
             ),
             required_scope="knowledge:intake:read",
+        )
+
+    @mcp.tool()
+    def annotate_exploration_source(
+        namespace: str,
+        source_id: str,
+        request_key: str,
+        body: str,
+        locator: dict | None = None,
+    ) -> dict:
+        """Attach an idempotent note to a specific Exploration source version."""
+        return safe(
+            lambda conn: IntakeExplorationStore(conn).annotate_source(
+                namespace,
+                source_id,
+                request_key,
+                body,
+                locator=locator,
+                principal_id=context()[0],
+                scopes=context()[1],
+            ),
+            write=True,
+            required_scope="knowledge:intake:write",
         )

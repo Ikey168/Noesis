@@ -189,6 +189,55 @@ def test_fetch_replay_avoids_network_and_rejects_unsafe_urls(tmp_path):
     conn.close()
 
 
+def test_annotations_follow_source_versions_and_owner(tmp_path):
+    conn = duckdb.connect(str(tmp_path / "annotations.duckdb"))
+    session = IntakeStore(conn).create(
+        "research", "Exploration", "notes", intent="Browse",
+        principal_id="alice", scopes=SCOPES,
+    )
+    store = IntakeExplorationStore(conn)
+    first = store.capture(
+        "research", session["session_id"], "page-v1", expected_revision=1,
+        url="https://example.org/topic", title="Topic", content="Original",
+        principal_id="alice", scopes=SCOPES,
+    )
+    source_id = first["references"][0]["id"]
+    note = store.annotate_source(
+        "research", source_id, "note-1", "Check this claim",
+        locator={"section": "Methods"}, principal_id="alice", scopes=SCOPES,
+    )
+    assert note["source_version"] == 1
+    assert note["reference"]["kind"] == "exploration_annotation"
+    assert store.annotate_source(
+        "research", source_id, "note-1", "Check this claim",
+        locator={"section": "Methods"}, principal_id="alice", scopes=SCOPES,
+    )["idempotent"] is True
+    with pytest.raises(IntakeError) as conflict:
+        store.annotate_source(
+            "research", source_id, "note-1", "Changed",
+            principal_id="alice", scopes=SCOPES,
+        )
+    assert conflict.value.code == "idempotency_conflict"
+    store.capture(
+        "research", session["session_id"], "page-v2", expected_revision=2,
+        url="https://example.org/topic", title="Topic", content="Corrected",
+        principal_id="alice", scopes=SCOPES,
+    )
+    assert store.inspect_source(
+        "research", source_id, principal_id="alice", scopes=SCOPES,
+    )["annotations"] == []
+    assert store.inspect_source(
+        "research", source_id, version=1, principal_id="alice", scopes=SCOPES,
+    )["annotations"][0]["annotation_id"] == note["annotation_id"]
+    with pytest.raises(IntakeError) as hidden:
+        store.annotate_source(
+            "research", source_id, "steal", "Mine",
+            principal_id="bob", scopes=SCOPES,
+        )
+    assert hidden.value.code == "source_not_found"
+    conn.close()
+
+
 def test_escalated_feed_item_keeps_identity_in_exploration(tmp_path):
     conn = duckdb.connect(str(tmp_path / "explore.duckdb"))
     inbox = IntakeInboxStore(conn)

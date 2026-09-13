@@ -178,6 +178,14 @@ def test_exploration_capture_over_mcp(tmp_path, monkeypatch):
     )
     assert source["acquisition"] == "caller_supplied"
     assert source["content"] == "Caller-provided readable content"
+    note = tools["annotate_exploration_source"].fn(
+        namespace="research", source_id=source_id, request_key="note-one",
+        body="Read more", locator={"section": "Introduction"},
+    )
+    assert note["source_version"] == source["version"]
+    assert tools["inspect_exploration_source"].fn(
+        namespace="research", source_id=source_id,
+    )["annotations"][0]["annotation_id"] == note["annotation_id"]
     denied = tools["capture_exploration_page"].fn(
         namespace="research", session_id=started["session_id"],
         command_key="fetch", expected_revision=2,

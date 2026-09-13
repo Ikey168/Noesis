@@ -379,7 +379,7 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
         "save_intake_feed_signal_rule", "list_intake_feed_signal_rules",
         "preview_intake_feed_signal_rule",
         "capture_exploration_page", "visit_exploration_feed_item",
-        "inspect_exploration_source",
+        "inspect_exploration_source", "annotate_exploration_source",
     }:
         if tool_name in {"discover_intake_modes", "route_intake_mode", "verify_intake_mode_export"}:
             return []
