@@ -49,7 +49,7 @@ jobs:
           pip install \
             pytest pytest-asyncio \
             duckdb jsonschema \
-            Pillow numpy pandas scikit-learn \
+            Pillow PyMuPDF numpy pandas scikit-learn \
             fastapi httpx uvicorn \
             aiofiles psutil requests \
             fastavro beautifulsoup4 lxml \

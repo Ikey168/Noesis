@@ -1,0 +1,155 @@
+"""Per-caller isolation over the real Streamable HTTP MCP transport."""
+
+import asyncio
+import json
+import os
+import socket
+import subprocess
+import sys
+from pathlib import Path
+
+import httpx
+from mcp import ClientSession
+from mcp.client.streamable_http import streamable_http_client
+
+ROOT = Path(__file__).resolve().parents[2]
+
+
+async def _tool(url, token, name, arguments):
+    async with (
+        httpx.AsyncClient(headers={"Authorization": "Bearer " + token}) as http_client,
+        streamable_http_client(url, http_client=http_client) as (reader, writer, _),
+        ClientSession(reader, writer) as client,
+    ):
+        await client.initialize()
+        result = await client.call_tool(name, arguments)
+        assert not result.isError, result
+        return result.structuredContent
+
+
+def test_http_tokens_isolate_intake_sessions(tmp_path):
+    tokens = tmp_path / "tokens.json"
+    scopes = [
+        "knowledge:intake:read",
+        "knowledge:intake:write",
+        "namespace:research:read",
+        "namespace:research:write",
+    ]
+    tokens.write_text(
+        json.dumps(
+            {
+                "a" * 32: {"client_id": "alice", "scopes": scopes},
+                "b" * 32: {"client_id": "bob", "scopes": scopes},
+            }
+        )
+    )
+    tokens.chmod(0o600)
+    with socket.socket() as sock:
+        sock.bind(("127.0.0.1", 0))
+        port = sock.getsockname()[1]
+    env = dict(os.environ)
+    env.pop("NOESIS_MCP_AUTH_TOKEN", None)
+    env.pop("NEURONEWS_MCP_AUTH_TOKEN", None)
+    env.update(
+        {
+            "NOESIS_MCP_TRANSPORT": "http",
+            "NOESIS_MCP_HTTP_HOST": "127.0.0.1",
+            "NOESIS_MCP_HTTP_PORT": str(port),
+            "NOESIS_MCP_AUTH_TOKENS_FILE": str(tokens),
+            "NOESIS_DB_PATH": str(tmp_path / "intake.duckdb"),
+            "NOESIS_MCP_PRINCIPAL": "unsafe-env-operator",
+            "NOESIS_MCP_SCOPES": "operator",
+        }
+    )
+    process = subprocess.Popen(
+        [sys.executable, "tools/knowledge_engine_mcp/server.py"],
+        cwd=ROOT,
+        env=env,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+    )
+
+    async def journey():
+        for _ in range(100):
+            if process.poll() is not None:
+                raise AssertionError("MCP HTTP server exited before readiness")
+            try:
+                with socket.create_connection(("127.0.0.1", port), timeout=0.1):
+                    break
+            except OSError:
+                await asyncio.sleep(0.1)
+        else:
+            raise AssertionError("MCP HTTP server did not become ready")
+        url = f"http://127.0.0.1:{port}/mcp"
+        created = await _tool(
+            url,
+            "a" * 32,
+            "start_intake_mode",
+            {
+                "namespace": "research",
+                "mode": "Exploration",
+                "request_key": "alice-trail",
+                "intent": "Browse",
+            },
+        )
+        assert created["owner"] == "alice"
+        denied = await _tool(
+            url,
+            "b" * 32,
+            "inspect_intake_mode",
+            {
+                "namespace": "research",
+                "session_id": created["session_id"],
+            },
+        )
+        assert denied["error"]["code"] == "unauthorized"
+        handoff = await _tool(
+            url,
+            "a" * 32,
+            "export_modulo_intake_handoff",
+            {"namespace": "research", "session_id": created["session_id"]},
+        )
+        assert handoff["scope"]["owner"] == "alice"
+        denied_handoff = await _tool(
+            url,
+            "b" * 32,
+            "export_modulo_intake_handoff",
+            {"namespace": "research", "session_id": created["session_id"]},
+        )
+        assert denied_handoff["error"]["code"] == "unauthorized"
+        bob = await _tool(
+            url,
+            "b" * 32,
+            "start_intake_mode",
+            {
+                "namespace": "research",
+                "mode": "Exploration",
+                "request_key": "bob-trail",
+                "intent": "Browse",
+            },
+        )
+        assert bob["owner"] == "bob" and bob["session_id"] != created["session_id"]
+        listed = await _tool(
+            url, "a" * 32, "list_intake_modes", {"namespace": "research"}
+        )
+        assert [session["owner"] for session in listed["sessions"]] == ["alice"]
+        unrelated = await _tool(
+            url,
+            "b" * 32,
+            "create_research_project",
+            {
+                "namespace": "research",
+                "request_key": "unauthorized",
+                "questions": ["Why?"],
+                "success_criteria": ["Evidence"],
+                "scope": {"domains": [], "namespaces": ["research"]},
+                "budget": {},
+            },
+        )
+        assert unrelated["error"]["code"] == "unauthorized"
+
+    try:
+        asyncio.run(journey())
+    finally:
+        process.terminate()
+        process.wait(timeout=5)

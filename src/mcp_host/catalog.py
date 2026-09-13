@@ -227,6 +227,9 @@ async def _inspect_server(
 
 
 def _mutability(name: str) -> str:
+    from tools.knowledge_engine_mcp.intake import INTAKE_WRITES
+    if name in INTAKE_WRITES:
+        return "write"
     from tools.knowledge_engine_mcp.investigations import (
         ALERT_WRITES,
         COMPARISON_WRITES,
@@ -301,6 +304,8 @@ def _required_data(server_stem: str, tool_name: str) -> list[str]:
     if server_stem == "memory_mcp":
         return ["knowledge-memory-store"]
     if server_stem == "knowledge_engine_mcp":
+        if tool_name in {"discover_intake_modes", "route_intake_mode", "verify_intake_mode_export"}:
+            return []
         if tool_name == "create_persistent_research_loop":
             return ["knowledge:projects:read", "knowledge:projects:write", "knowledge:recipes:write", "knowledge:gaps:read", "knowledge:source-planner:read"]
         if tool_name == "inspect_persistent_research_loop":
@@ -360,6 +365,14 @@ def _required_data(server_stem: str, tool_name: str) -> list[str]:
 
 
 def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[str]:
+    if server_stem == "knowledge_engine_mcp" and tool_name in {
+        "discover_intake_modes", "route_intake_mode", "verify_intake_mode_export",
+        "inspect_intake_mode", "list_intake_modes", "export_intake_mode",
+        "export_modulo_intake_handoff", "start_intake_mode", "command_intake_mode",
+    }:
+        if tool_name in {"discover_intake_modes", "route_intake_mode", "verify_intake_mode_export"}:
+            return []
+        return ["knowledge:intake:write" if mutability == "write" else "knowledge:intake:read"]
     if server_stem == "transactions_mcp":
         if tool_name.startswith("commit_"):
             return ["knowledge:transaction:commit"]

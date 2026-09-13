@@ -21,7 +21,13 @@ _MAINTENANCE_CANCELLATIONS: dict[str, threading.Event] = {}
 
 
 def _context() -> tuple[str, set[str]]:
+    from fastmcp.server.dependencies import get_access_token
+
     from src.config.env import resolve_env
+
+    token = get_access_token()
+    if token is not None and token.scopes:
+        return str(token.client_id or ""), set(token.scopes)
 
     principal = (resolve_env("MCP_PRINCIPAL", "local-reader") or "").strip()
     raw = resolve_env("MCP_SCOPES", "knowledge:read") or ""
@@ -38,10 +44,10 @@ def _connection(*, read_only: bool):
     )
 
 
-def _safe(operation, *, write: bool = False, required_scope: str | None = None):
+def _safe(operation, *, write: bool = False, required_scope: str | None = None, caller=None):
     conn = None
     try:
-        scopes = _context()[1]
+        scopes = (caller or _context)()[1]
         if required_scope and required_scope not in scopes and "operator" not in scopes:
             return {
                 "ok": False,
@@ -99,6 +105,13 @@ def knowledge_engine_capabilities() -> dict:
             "noesis-derived-object-lineage-v1",
             "noesis-research-snapshot-v1",
             "noesis-research-project-v1",
+            "noesis-intake-modes-v1",
+            "noesis-intake-route-v1",
+            "noesis-intake-session-v1",
+            "noesis-intake-session-page-v1",
+            "noesis-intake-session-export-v1",
+            "noesis-intake-session-export-verification-v1",
+            "noesis-modulo-intake-handoff-v1",
             "noesis-research-snapshot-token-v1",
             "noesis-epistemic-taxonomy-v1",
             "noesis-epistemic-assessment-v1",
@@ -296,6 +309,7 @@ def knowledge_engine_capabilities() -> dict:
             "deterministic-change-brief-export",
             "versioned-declarative-research-recipes",
             "checkpointed-resumable-recipe-runs",
+            "recorded-only-ten-mode-session-ledger",
             "secret-safe-per-step-policy-gates",
             "snapshot-and-tool-version-pinned-replay",
             "multidimensional-auditable-quality",
@@ -8804,6 +8818,28 @@ from tools.knowledge_engine_mcp.investigations import (
 )
 
 register_investigation_tools(mcp, _safe, lambda: _context())
+
+from tools.knowledge_engine_mcp.intake import register as register_intake_tools
+
+
+def _intake_context() -> tuple[str, set[str]]:
+    from fastmcp.server.dependencies import get_access_token
+
+    from src.config.env import resolve_env
+
+    token = get_access_token()
+    if token is not None:
+        return str(token.client_id or ""), set(token.scopes or [])
+    if (resolve_env("MCP_TRANSPORT", "stdio") or "stdio").lower() == "http":
+        return "", set()
+    return _context()
+
+
+def _intake_safe(operation, *, write: bool = False, required_scope: str | None = None):
+    return _safe(operation, write=write, required_scope=required_scope, caller=_intake_context)
+
+
+register_intake_tools(mcp, _intake_safe, _intake_context)
 
 
 if __name__ == "__main__":

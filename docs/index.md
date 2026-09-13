@@ -129,6 +129,8 @@ For the project overview and local setup, start with the
 - [MCP + API](integration/mcp-and-api.md) — server list, stdio/HTTP transport,
   auth, and worked examples
 - [MCP server notes](integration/mcp-server.md) — the standalone MCP server
+- [Information intake modes](subsystems/intake-modes.md) — durable ten-mode
+  sessions, Modulo links, caller-scoped access, and outstanding native workflows
 - [Portable evidence bundles](../contracts/noesis-evidence-bundle-v1.md) —
   content-addressed answer, claim, integrity, and receipt exports with offline
   verification
