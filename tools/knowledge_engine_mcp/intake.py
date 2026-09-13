@@ -1,5 +1,6 @@
 """Ten-mode session tools on the supported Knowledge Engine MCP server."""
 
+from src.kb.intake_exploration import IntakeExplorationStore
 from src.kb.intake_inbox import IntakeInboxStore
 from src.kb.intake_modes import IntakeStore, discover_modes, route_mode, verify_export
 
@@ -16,6 +17,8 @@ INTAKE_WRITES = {
     "annotate_intake_feed_item",
     "promote_awareness_item",
     "save_intake_feed_signal_rule",
+    "capture_exploration_page",
+    "visit_exploration_feed_item",
 }
 INTAKE_READS = {
     "discover_intake_modes",
@@ -31,6 +34,7 @@ INTAKE_READS = {
     "preview_intake_feed_signals",
     "list_intake_feed_signal_rules",
     "preview_intake_feed_signal_rule",
+    "inspect_exploration_source",
 }
 
 
@@ -466,4 +470,82 @@ def register(mcp, safe, context):
             ),
             write=True,
             required_scope="knowledge:intake:write",
+        )
+
+    @mcp.tool()
+    def capture_exploration_page(
+        namespace: str,
+        session_id: str,
+        command_key: str,
+        expected_revision: int,
+        url: str,
+        title: str,
+        note: str = "",
+        saved: bool = False,
+        content: str | None = None,
+        fetch_readable: bool = False,
+    ) -> dict:
+        """Visit or save a public page in Exploration; live extraction needs intake fetch scope."""
+        return safe(
+            lambda conn: IntakeExplorationStore(conn).capture(
+                namespace,
+                session_id,
+                command_key,
+                expected_revision=expected_revision,
+                url=url,
+                title=title,
+                note=note,
+                saved=saved,
+                content=content,
+                fetch_readable=fetch_readable,
+                principal_id=context()[0],
+                scopes=context()[1],
+            ),
+            write=True,
+            required_scope="knowledge:intake:write",
+        )
+
+    @mcp.tool()
+    def visit_exploration_feed_item(
+        namespace: str,
+        session_id: str,
+        item_id: str,
+        command_key: str,
+        expected_revision: int,
+        note: str = "",
+        saved: bool = False,
+    ) -> dict:
+        """Add a feed item to an Exploration trail without recapturing its source."""
+        return safe(
+            lambda conn: IntakeExplorationStore(conn).link_feed_item(
+                namespace,
+                session_id,
+                item_id,
+                command_key,
+                expected_revision=expected_revision,
+                note=note,
+                saved=saved,
+                principal_id=context()[0],
+                scopes=context()[1],
+            ),
+            write=True,
+            required_scope="knowledge:intake:write",
+        )
+
+    @mcp.tool()
+    def inspect_exploration_source(
+        namespace: str,
+        source_id: str,
+        version: int | None = None,
+    ) -> dict:
+        """Inspect a current or historical readable Exploration source snapshot."""
+        return safe(
+            lambda conn: IntakeExplorationStore(conn, initialize=False).inspect_source(
+                namespace,
+                source_id,
+                version=version,
+                principal_id=context()[0],
+                scopes=context()[1],
+            ),
+            required_scope="knowledge:intake:read",
         )

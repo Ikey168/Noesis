@@ -20,6 +20,10 @@ The Knowledge Engine MCP server now exposes `subscribe_intake_feed`, `list_intak
 
 The inbox preserves a source item's stable ID, original URL, publication time, content revision history, and annotations independently from read and triage state. Saved signal rules are owner-scoped and versioned; previews explain case-insensitive keyword matches without changing read or decision state. Refreshing the same item does not reset a decision. Listing or inspecting an item does not mark it read. `start_awareness_from_inbox` snapshots at most 1000 unprocessed items into a 1–15 minute session. `triage_awareness_item` and `triage_awareness_batch` commit decisions to both the inbox and session in one transaction; a command replay returns the original revision. `promote_awareness_item` requires an explicit escalate decision and carries exact source and annotation references into Exploration, Deep Research, or Problem-Solving. Other Awareness work still uses the recorded-only session contract.
 
+## Native Exploration capture (in progress)
+
+An Exploration session can start with `start_intake_mode` and no research objective or output. `capture_exploration_page` records a visited or saved HTTPS URL, a user note, and optionally caller-supplied readable text. Set `fetch_readable=true` with `knowledge:intake:fetch` to acquire a public HTML or plain-text page through a bounded, no-proxy, no-redirect transport; extracted text records its acquisition method. Caller-supplied text remains labeled as such. Source snapshots keep stable IDs and historical versions, available through `inspect_exploration_source`. A command replay does not refetch the page. `visit_exploration_feed_item` adds an Awareness source to the trail without recapturing it or changing its source identity. A session can pause and resume through `command_intake_mode`; its completion still follows the recorded time box or an explicit escalation reason. Related-source suggestions, dismissal/follow actions, and live quality acceptance remain to be implemented.
+
 ## Modulo handoff projection
 
 `export_modulo_intake_handoff` returns [`noesis-modulo-intake-handoff-v1`](../../contracts/schemas/jsonschema/noesis-modulo-intake-handoff-v1.json) for the latest session revision. It includes the namespace and owner, a stable session-derived correlation key, the current mode/status/revision and timestamps, the prior session/reason for a transition, versioned Modulo return links, and versioned Noesis references with any source locators. An example for Awareness → Exploration is:
@@ -59,7 +63,7 @@ Completion of [Noesis #1583](https://github.com/Ikey168/Noesis/issues/1583) stil
 | Issue | Remaining acceptance work |
 | --- | --- |
 | [#1570](https://github.com/Ikey168/Noesis/issues/1570) Awareness | Add mailbox/Miniflux adapters, authorized Modulo round trips, and live daily-cadence outcome evidence. |
-| [#1571](https://github.com/Ikey168/Noesis/issues/1571) Exploration | Capture browser trails, readable source versions, annotations, and provenance-backed suggestions. |
+| [#1571](https://github.com/Ikey168/Noesis/issues/1571) Exploration | Add provenance-backed suggestions and dismissal/follow actions, dedicated source annotations, and live quality acceptance. |
 | [#1572](https://github.com/Ikey168/Noesis/issues/1572) Deep Research | Compose the existing project, acquisition, evidence, claim, brief, and map systems into a bounded run with a reviewed Definition of Done. |
 | [#1573](https://github.com/Ikey168/Noesis/issues/1573) Decision Support | Connect the existing decision store to bounded intake evidence and user choice/return links. |
 | [#1574](https://github.com/Ikey168/Noesis/issues/1574) Problem-Solving | Add a troubleshooting trail with authorized execution and observed verification receipts. |
