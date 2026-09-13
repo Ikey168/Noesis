@@ -47,7 +47,10 @@ previous actions, preferences, and project baselines remain intact. Calls requir
 current decision read/write scope, ownership, and namespace access. A linked
 project also requires current project read access. Revocation applies to
 historical decisions too. Review conditions are
-recorded declarations; automatic alert routing is a separate integration.
+recorded declarations. `create_decision_condition_watch` can pin an exact source
+revision, assumption dependency, or quantitative threshold to a standalone
+decision, subject to current evidence access. A changed source creates a durable
+review task; it does not silently change the user's chosen option.
 
 `calculate_decision_sensitivity` accepts a decision revision, nonnegative criterion
 weights, an input utility map for every option, up to 100 weight scenarios, and

@@ -13533,13 +13533,11 @@
       "required_data": [
         "knowledge:decisions:read",
         "knowledge:decisions:write",
-        "knowledge:projects:read",
         "knowledge:briefs:deliver"
       ],
       "required_scopes": [
         "knowledge:decisions:read",
         "knowledge:decisions:write",
-        "knowledge:projects:read",
         "knowledge:briefs:deliver"
       ],
       "server": "noesis-knowledge-engine",
@@ -17686,13 +17684,11 @@
       "reason": "required scope is not granted",
       "required_data": [
         "knowledge:decisions:read",
-        "knowledge:decisions:write",
-        "knowledge:projects:read"
+        "knowledge:decisions:write"
       ],
       "required_scopes": [
         "knowledge:decisions:read",
-        "knowledge:decisions:write",
-        "knowledge:projects:read"
+        "knowledge:decisions:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -23732,12 +23728,10 @@
       },
       "reason": "required scope is not granted",
       "required_data": [
-        "knowledge:decisions:read",
-        "knowledge:projects:read"
+        "knowledge:decisions:read"
       ],
       "required_scopes": [
-        "knowledge:decisions:read",
-        "knowledge:projects:read"
+        "knowledge:decisions:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -25457,12 +25451,10 @@
       },
       "reason": "required scope is not granted",
       "required_data": [
-        "knowledge:decisions:read",
-        "knowledge:projects:read"
+        "knowledge:decisions:read"
       ],
       "required_scopes": [
-        "knowledge:decisions:read",
-        "knowledge:projects:read"
+        "knowledge:decisions:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -27027,7 +27019,6 @@
       "required_data": [
         "knowledge:decisions:read",
         "knowledge:decisions:write",
-        "knowledge:projects:read",
         "knowledge:briefs:read",
         "knowledge:briefs:write",
         "knowledge:briefs:deliver"
@@ -27035,7 +27026,6 @@
       "required_scopes": [
         "knowledge:decisions:read",
         "knowledge:decisions:write",
-        "knowledge:projects:read",
         "knowledge:briefs:read",
         "knowledge:briefs:write",
         "knowledge:briefs:deliver"
