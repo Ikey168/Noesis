@@ -812,7 +812,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 460,
+      "tool_count": 461,
       "tools": [
         "noesis-knowledge-engine.accept_citation_repair",
         "noesis-knowledge-engine.accept_dataset_join",
@@ -829,6 +829,7 @@
         "noesis-knowledge-engine.align_cross_language_claims",
         "noesis-knowledge-engine.amend_review_protocol",
         "noesis-knowledge-engine.annotate_evidence_freshness",
+        "noesis-knowledge-engine.annotate_exploration_source",
         "noesis-knowledge-engine.annotate_intake_feed_item",
         "noesis-knowledge-engine.anomaly_alert_history",
         "noesis-knowledge-engine.archive_investigation_template",
@@ -1280,7 +1281,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 460
+      "visible_tool_count": 461
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -1294,9 +1295,9 @@
       "available": 84,
       "degraded": 155,
       "disabled": 3,
-      "unauthorized": 462
+      "unauthorized": 463
     },
-    "tools": 704
+    "tools": 705
   },
   "tools": [
     {
@@ -14283,6 +14284,63 @@
       ],
       "required_scopes": [
         "knowledge:freshness:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Attach an idempotent note to a specific Exploration source version.",
+      "id": "noesis-knowledge-engine.annotate_exploration_source",
+      "input_schema": {
+        "properties": {
+          "body": {
+            "type": "string"
+          },
+          "locator": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "request_key": {
+            "type": "string"
+          },
+          "source_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "source_id",
+          "request_key",
+          "body"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "annotate_exploration_source",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:intake:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",

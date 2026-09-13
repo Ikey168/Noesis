@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
+import json
 import time
 from typing import Any
 from urllib.parse import urlsplit
+
+import duckdb
 
 from src.ingestion.provider_execution import (
     ProviderError,
@@ -14,7 +17,7 @@ from src.ingestion.provider_execution import (
 )
 from src.ingestion.source_packs import SourcePackError, _validate_endpoint
 from src.kb.intake_inbox import IntakeInboxStore
-from src.kb.intake_modes import IntakeError, IntakeStore, _hash, _text
+from src.kb.intake_modes import IntakeError, IntakeStore, _bounded, _hash, _json, _text
 
 _DDL = """
 CREATE TABLE IF NOT EXISTS intake_exploration_sources(
@@ -30,6 +33,12 @@ CREATE TABLE IF NOT EXISTS intake_exploration_source_revisions(
  content TEXT NOT NULL, acquisition TEXT NOT NULL, extractor TEXT,
  recorded_at_ms BIGINT NOT NULL,
  PRIMARY KEY(namespace,owner,source_id,version)
+);
+CREATE TABLE IF NOT EXISTS intake_exploration_annotations(
+ namespace TEXT NOT NULL, owner TEXT NOT NULL, source_id TEXT NOT NULL,
+ annotation_id TEXT NOT NULL, source_version BIGINT NOT NULL,
+ body TEXT NOT NULL, locator_json TEXT NOT NULL, created_at_ms BIGINT NOT NULL,
+ PRIMARY KEY(namespace,owner,annotation_id)
 );
 """
 
@@ -332,6 +341,7 @@ class IntakeExplorationStore:
             if historical is None:
                 raise IntakeError("revision_not_found", "source version is unavailable")
             row = (*historical[:6], row[6], historical[6])
+        annotations = self._annotations(namespace, principal_id, source_id)
         return {
             "contract": "noesis-exploration-source-v1",
             "source_id": source_id,
@@ -343,6 +353,10 @@ class IntakeExplorationStore:
             "extractor": row[5],
             "first_seen_ms": row[6],
             "last_seen_ms": row[7],
+            "annotations": [
+                annotation for annotation in annotations
+                if annotation["source_version"] == row[0]
+            ],
             "reference": {
                 "kind": "exploration_source",
                 "id": source_id,
@@ -351,6 +365,98 @@ class IntakeExplorationStore:
                 "locator": {"url": row[1]},
             },
         }
+
+    def _annotations(
+        self, namespace: str, owner: str, source_id: str
+    ) -> list[dict[str, Any]]:
+        try:
+            rows = self.conn.execute(
+                "SELECT annotation_id,source_version,body,locator_json,created_at_ms "
+                "FROM intake_exploration_annotations WHERE namespace=? AND owner=? "
+                "AND source_id=? ORDER BY created_at_ms,annotation_id",
+                [namespace, owner, source_id],
+            ).fetchall()
+        except duckdb.CatalogException as exc:
+            if "intake_exploration_annotations" not in str(exc):
+                raise
+            # Existing read-only stores gain this table on their first write.
+            return []
+        return [
+            {
+                "annotation_id": row[0],
+                "source_id": source_id,
+                "source_version": row[1],
+                "body": row[2],
+                "locator": json.loads(row[3]),
+                "created_at_ms": row[4],
+                "reference": {
+                    "kind": "exploration_annotation",
+                    "id": row[0],
+                    "namespace": namespace,
+                    "version": 1,
+                },
+            }
+            for row in rows
+        ]
+
+    def annotate_source(
+        self,
+        namespace: str,
+        source_id: str,
+        request_key: str,
+        body: str,
+        *,
+        locator: dict[str, Any] | None = None,
+        principal_id: str,
+        scopes: set[str],
+    ) -> dict[str, Any]:
+        """Attach an immutable note to the current authoritative source version."""
+        IntakeStore._authorize(
+            {"namespace": namespace, "owner": principal_id},
+            principal_id,
+            scopes,
+            write=True,
+        )
+        request_key = _text(request_key, "request_key", limit=256)
+        body = _text(body, "annotation body", limit=10_000)
+        locator = _bounded(locator or {}, limit=4096)
+        if not isinstance(locator, dict) or set(locator) - {"start", "end", "section"}:
+            raise IntakeError("invalid_locator", "annotation locator has unsupported fields")
+        source = self.inspect_source(
+            namespace, source_id, principal_id=principal_id, scopes=scopes
+        )
+        annotation_id = "explore-note:" + _hash(
+            [namespace, principal_id, source_id, request_key]
+        )[:32]
+        existing = self.conn.execute(
+            "SELECT source_version,body,locator_json FROM intake_exploration_annotations "
+            "WHERE namespace=? AND owner=? AND annotation_id=?",
+            [namespace, principal_id, annotation_id],
+        ).fetchone()
+        if existing:
+            if existing[1] != body or json.loads(existing[2]) != locator:
+                raise IntakeError(
+                    "idempotency_conflict", "request_key identifies another annotation"
+                )
+        else:
+            count = self.conn.execute(
+                "SELECT count(*) FROM intake_exploration_annotations "
+                "WHERE namespace=? AND owner=? AND source_id=?",
+                [namespace, principal_id, source_id],
+            ).fetchone()[0]
+            if count >= 100:
+                raise IntakeError("annotation_limit", "source annotation limit reached")
+            self.conn.execute(
+                "INSERT INTO intake_exploration_annotations VALUES (?,?,?,?,?,?,?,?)",
+                [namespace, principal_id, source_id, annotation_id, source["version"],
+                 body, _json(locator), self.now()],
+            )
+        note = next(
+            annotation for annotation in self._annotations(namespace, principal_id, source_id)
+            if annotation["annotation_id"] == annotation_id
+        )
+        return {"contract": "noesis-exploration-annotation-v1", **note,
+                "idempotent": existing is not None}
 
     def link_feed_item(
         self,
