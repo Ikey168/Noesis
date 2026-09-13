@@ -713,6 +713,7 @@ class IntakeStore:
         principal_id: str,
         scopes: set[str],
         record_hook=None,
+        _within_transaction: bool = False,
     ) -> dict[str, Any]:
         command_key = _text(command_key, "command_key", limit=256)
         if type(expected_revision) is not int or expected_revision < 1:
@@ -723,7 +724,8 @@ class IntakeStore:
         if not isinstance(payload, dict):
             raise IntakeError("invalid_input", "command payload must be an object")
         digest = _hash([action, payload])
-        self.conn.execute("BEGIN")
+        if not _within_transaction:
+            self.conn.execute("BEGIN")
         try:
             state = self._state(namespace, session_id)
             self._authorize(state, principal_id, scopes, write=True)
@@ -738,7 +740,8 @@ class IntakeStore:
                         "command_key identifies another operation",
                     )
                 recorded = self._state(namespace, session_id, int(replay[1]))
-                self.conn.execute("COMMIT")
+                if not _within_transaction:
+                    self.conn.execute("COMMIT")
                 return {
                     **self._visible(recorded, scopes, live=False),
                     "idempotent": True,
@@ -920,9 +923,11 @@ class IntakeStore:
                 "INSERT INTO intake_session_commands VALUES (?,?,?,?)",
                 [session_id, command_key, digest, state["revision"]],
             )
-            self.conn.execute("COMMIT")
+            if not _within_transaction:
+                self.conn.execute("COMMIT")
         except Exception:
-            self.conn.execute("ROLLBACK")
+            if not _within_transaction:
+                self.conn.execute("ROLLBACK")
             raise
         return {**self._visible(state, scopes), "idempotent": False}
 
