@@ -4,6 +4,8 @@ The `noesis-knowledge-engine` MCP server exposes a durable session ledger for th
 
 The session response follows [`noesis-intake-session-v1`](../../contracts/schemas/jsonschema/noesis-intake-session-v1.json). The schema covers current and historical revisions, including redacted references after access revocation.
 
+[The acceptance matrix](intake-acceptance-matrix.md) separates current native operations from Modulo handoffs, deterministic checks, live evidence, and user-assessed outcomes for every mode.
+
 ## Supported contract
 
 Use `discover_intake_modes`, `route_intake_mode`, `start_intake_mode`, `inspect_intake_mode`, `list_intake_modes`, `command_intake_mode`, `export_intake_mode`, `verify_intake_mode_export`, and `export_modulo_intake_handoff` on the existing Knowledge Engine MCP server. Routing applies the ten intent questions in priority order and accepts an explicit user override. A session has an owner and namespace, a mode-specific time budget, a revision, optional origin session, versioned references, a command history, and a status. `command_intake_mode` supports `record`, `pause`, `resume`, `complete`, and `cancel`. It requires a fresh `expected_revision` and a stable `command_key`; replay of the same command returns the original revision, while reuse with a different action or payload fails. `start_intake_mode` likewise requires a stable `request_key`.
