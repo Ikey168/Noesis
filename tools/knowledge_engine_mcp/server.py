@@ -108,6 +108,8 @@ def knowledge_engine_capabilities() -> dict:
             "noesis-intake-modes-v1",
             "noesis-intake-route-v1",
             "noesis-intake-session-v1",
+            "noesis-intake-playbook-v1",
+            "noesis-intake-playbook-run-v1",
             "noesis-intake-session-page-v1",
             "noesis-intake-session-export-v1",
             "noesis-intake-session-export-verification-v1",
