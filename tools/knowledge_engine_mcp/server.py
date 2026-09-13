@@ -114,6 +114,7 @@ def knowledge_engine_capabilities() -> dict:
             "noesis-intake-session-export-v1",
             "noesis-intake-session-export-verification-v1",
             "noesis-modulo-intake-handoff-v1",
+            "noesis-modulo-intake-handoff-v2",
             "noesis-intake-subscriptions-v1",
             "noesis-intake-feed-item-v1",
             "noesis-intake-feed-page-v1",

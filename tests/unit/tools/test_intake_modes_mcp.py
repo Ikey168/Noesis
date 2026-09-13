@@ -63,6 +63,9 @@ def test_intake_public_tools_and_access(tmp_path, monkeypatch):
         tools["export_modulo_intake_handoff"].fn(**identity)["session"]["id"]
         == created["session_id"]
     )
+    v2 = tools["export_modulo_intake_handoff"].fn(**identity, contract_version="v2")
+    assert v2["contract"] == "noesis-modulo-intake-handoff-v2"
+    assert v2["session"]["unmet_recorded_checks"] == []
     scopes.remove("namespace:research:read")
     assert (
         tools["inspect_intake_mode"].fn(**identity)["error"]["code"] == "unauthorized"

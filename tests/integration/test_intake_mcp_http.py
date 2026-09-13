@@ -211,6 +211,18 @@ def test_http_tokens_isolate_intake_sessions(tmp_path):
             {"namespace": "research", "session_id": created["session_id"]},
         )
         assert handoff["scope"]["owner"] == "alice"
+        handoff_v2 = await _tool(
+            url,
+            "a" * 32,
+            "export_modulo_intake_handoff",
+            {"namespace": "research", "session_id": created["session_id"],
+             "contract_version": "v2"},
+        )
+        assert handoff_v2["contract"] == "noesis-modulo-intake-handoff-v2"
+        assert handoff_v2["session"]["intent"] == "Browse"
+        assert handoff_v2["session"]["unmet_recorded_checks"] == [
+            "timebox_or_escalation"
+        ]
         denied_handoff = await _tool(
             url,
             "b" * 32,
@@ -218,6 +230,14 @@ def test_http_tokens_isolate_intake_sessions(tmp_path):
             {"namespace": "research", "session_id": created["session_id"]},
         )
         assert denied_handoff["error"]["code"] == "unauthorized"
+        denied_v2 = await _tool(
+            url,
+            "b" * 32,
+            "export_modulo_intake_handoff",
+            {"namespace": "research", "session_id": created["session_id"],
+             "contract_version": "v2"},
+        )
+        assert denied_v2["error"]["code"] == "unauthorized"
         bob = await _tool(
             url,
             "b" * 32,
