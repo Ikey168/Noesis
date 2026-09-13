@@ -1,6 +1,10 @@
 """A research handoff cannot leave half a topic after a rejected start."""
 
+import json
+from pathlib import Path
+
 import duckdb
+import jsonschema
 import pytest
 
 from src.kb.intake_exploration import IntakeExplorationStore
@@ -89,6 +93,10 @@ def test_research_topic_pins_owned_source_and_reports_correction(tmp_path):
     ref = first["references"][0]
     started = _start(conn, "source-topic", references=[ref])
     project = started["project"]
+    schema = json.loads(Path(
+        "contracts/schemas/jsonschema/noesis-research-project-v1.json"
+    ).read_text())
+    jsonschema.validate(project, schema)
     assert project["links"] == [{
         "kind": "intake_source", "id": ref["id"], "namespace": "research",
         "revision": 1, "question_revision": 1,

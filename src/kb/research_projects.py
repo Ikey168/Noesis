@@ -76,9 +76,14 @@ def _links(values):
                 "invalid_links", "source, evidence and snapshot references require a revision or generation"
             )
         if link["kind"] == "intake_source" and (
-            not link["id"].startswith(("feed:", "explore:")) or "revision" not in link
+            not link["id"].startswith(("feed:", "explore:"))
+            or not link.get("namespace")
+            or type(link.get("revision")) is not int
+            or link["revision"] < 1
         ):
-            raise ResearchProjectError("invalid_links", "intake source needs a feed or exploration ID and revision")
+            raise ResearchProjectError(
+                "invalid_links", "intake source needs a namespace, feed or exploration ID, and positive revision"
+            )
         for key in ("generation", "revision", "question_revision"):
             if key in link and (type(link[key]) is not int or link[key] < 0):
                 raise ResearchProjectError("invalid_links", f"{key} must be a nonnegative integer")
