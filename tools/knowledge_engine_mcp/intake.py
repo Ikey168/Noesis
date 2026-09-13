@@ -52,6 +52,11 @@ INTAKE_WRITES = {
     "start_intake_maintenance",
     "record_maintenance_finding",
     "assess_maintenance_health",
+    "start_intake_iteration",
+    "record_intake_iteration_outcome",
+    "propose_intake_playbook_revision",
+    "accept_intake_playbook_revision",
+    "review_intake_iteration_stability",
 }
 INTAKE_READS = {
     "discover_intake_modes",

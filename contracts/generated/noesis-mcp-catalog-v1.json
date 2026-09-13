@@ -812,10 +812,11 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 488,
+      "tool_count": 493,
       "tools": [
         "noesis-knowledge-engine.accept_citation_repair",
         "noesis-knowledge-engine.accept_dataset_join",
+        "noesis-knowledge-engine.accept_intake_playbook_revision",
         "noesis-knowledge-engine.accept_source_pack_license",
         "noesis-knowledge-engine.acknowledge_change_brief_delivery",
         "noesis-knowledge-engine.acknowledge_cited_evidence_alert",
@@ -1112,6 +1113,7 @@
         "noesis-knowledge-engine.propagate_evidence_freshness",
         "noesis-knowledge-engine.propose_authored_report_edit",
         "noesis-knowledge-engine.propose_forecast_resolution",
+        "noesis-knowledge-engine.propose_intake_playbook_revision",
         "noesis-knowledge-engine.publish_entity_change_rebuild",
         "noesis-knowledge-engine.query_geospatial_event_map",
         "noesis-knowledge-engine.query_knowledge",
@@ -1121,6 +1123,7 @@
         "noesis-knowledge-engine.record_citation_health",
         "noesis-knowledge-engine.record_entity_identity_decision",
         "noesis-knowledge-engine.record_geospatial_resolution",
+        "noesis-knowledge-engine.record_intake_iteration_outcome",
         "noesis-knowledge-engine.record_language_text",
         "noesis-knowledge-engine.record_maintenance_finding",
         "noesis-knowledge-engine.record_media_transformation",
@@ -1214,6 +1217,7 @@
         "noesis-knowledge-engine.review_epistemic_status",
         "noesis-knowledge-engine.review_evidence_freshness_override",
         "noesis-knowledge-engine.review_geospatial_resolution",
+        "noesis-knowledge-engine.review_intake_iteration_stability",
         "noesis-knowledge-engine.review_multilingual_alias",
         "noesis-knowledge-engine.review_quality_override",
         "noesis-knowledge-engine.review_study_field",
@@ -1273,6 +1277,7 @@
         "noesis-knowledge-engine.start_awareness_from_inbox",
         "noesis-knowledge-engine.start_guided_playbook_run",
         "noesis-knowledge-engine.start_intake_creation",
+        "noesis-knowledge-engine.start_intake_iteration",
         "noesis-knowledge-engine.start_intake_maintenance",
         "noesis-knowledge-engine.start_intake_mode",
         "noesis-knowledge-engine.start_practice_review",
@@ -1308,7 +1313,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 488
+      "visible_tool_count": 493
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -1322,9 +1327,9 @@
       "available": 85,
       "degraded": 155,
       "disabled": 3,
-      "unauthorized": 489
+      "unauthorized": 494
     },
-    "tools": 732
+    "tools": 737
   },
   "tools": [
     {
@@ -13392,6 +13397,51 @@
       ],
       "required_scopes": [
         "knowledge:dataset:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Accept the proposal into playbook history with an iteration receipt.",
+      "id": "noesis-knowledge-engine.accept_intake_playbook_revision",
+      "input_schema": {
+        "properties": {
+          "command_key": {
+            "type": "string"
+          },
+          "expected_revision": {
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "session_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "session_id",
+          "command_key",
+          "expected_revision"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "accept_intake_playbook_revision",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:intake:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -28830,6 +28880,86 @@
     },
     {
       "cost_class": "medium",
+      "description": "Save a reviewable proposed playbook change after measuring an outcome.",
+      "id": "noesis-knowledge-engine.propose_intake_playbook_revision",
+      "input_schema": {
+        "properties": {
+          "before_after_rationale": {
+            "type": "string"
+          },
+          "command_key": {
+            "type": "string"
+          },
+          "environment": {
+            "type": "string"
+          },
+          "expected_revision": {
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "prerequisites": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "session_id": {
+            "type": "string"
+          },
+          "source_rationale": {
+            "type": "string"
+          },
+          "steps": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "title": {
+            "type": "string"
+          },
+          "verification": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "session_id",
+          "command_key",
+          "expected_revision",
+          "title",
+          "prerequisites",
+          "environment",
+          "steps",
+          "verification",
+          "source_rationale",
+          "before_after_rationale"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_intake_playbook_revision",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:intake:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Atomically publish a successful selective downstream rebuild.",
       "id": "noesis-knowledge-engine.publish_entity_change_rebuild",
       "input_schema": {
@@ -29368,6 +29498,83 @@
       ],
       "required_scopes": [
         "knowledge:geospatial:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Record caller-observed measurements, uncertainty, and evidence links.",
+      "id": "noesis-knowledge-engine.record_intake_iteration_outcome",
+      "input_schema": {
+        "properties": {
+          "command_key": {
+            "type": "string"
+          },
+          "evidence": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "expected_revision": {
+            "type": "integer"
+          },
+          "external_causes": {
+            "type": "string"
+          },
+          "learning": {
+            "type": "string"
+          },
+          "measurements": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "observed": {
+            "type": "string"
+          },
+          "session_id": {
+            "type": "string"
+          },
+          "uncertainty": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "session_id",
+          "command_key",
+          "expected_revision",
+          "observed",
+          "learning",
+          "measurements",
+          "uncertainty",
+          "external_causes",
+          "evidence"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "record_intake_iteration_outcome",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:intake:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -35744,6 +35951,59 @@
     },
     {
       "cost_class": "medium",
+      "description": "Record caller review of the cycle's declared stability criteria.",
+      "id": "noesis-knowledge-engine.review_intake_iteration_stability",
+      "input_schema": {
+        "properties": {
+          "command_key": {
+            "type": "string"
+          },
+          "expected_revision": {
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "observation": {
+            "type": "string"
+          },
+          "session_id": {
+            "type": "string"
+          },
+          "stable": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "namespace",
+          "session_id",
+          "command_key",
+          "expected_revision",
+          "stable",
+          "observation"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_intake_iteration_stability",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:intake:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Accept, reject, or preserve ambiguity for an alias decision.",
       "id": "noesis-knowledge-engine.review_multilingual_alias",
       "input_schema": {
@@ -39008,6 +39268,74 @@
       "latency_class": "interactive",
       "mutability": "write",
       "name": "start_intake_creation",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:intake:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Start a version-pinned, measured cycle on a Noesis playbook.",
+      "id": "noesis-knowledge-engine.start_intake_iteration",
+      "input_schema": {
+        "properties": {
+          "expected": {
+            "type": "string"
+          },
+          "expected_revision": {
+            "type": "integer"
+          },
+          "intent": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "origin_session_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "playbook_id": {
+            "type": "string"
+          },
+          "request_key": {
+            "type": "string"
+          },
+          "stability_criteria": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "request_key",
+          "playbook_id",
+          "expected_revision",
+          "expected",
+          "stability_criteria",
+          "intent"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "start_intake_iteration",
       "output_schema": {
         "additionalProperties": true,
         "type": "object"
