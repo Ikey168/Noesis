@@ -8860,6 +8860,12 @@ from tools.knowledge_engine_mcp.creation import (
 
 register_intake_creation_tools(mcp, _intake_safe, _intake_context)
 
+from tools.knowledge_engine_mcp.maintenance_intake import (
+    register as register_intake_maintenance_tools,
+)
+
+register_intake_maintenance_tools(mcp, _intake_safe, _intake_context)
+
 
 if __name__ == "__main__":
     from src.mcp_host.transport import run_server
