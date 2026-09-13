@@ -271,6 +271,18 @@ def _completion(state: dict[str, Any]) -> list[str]:
             "unaided_demonstration",
         )
     elif mode == "Iteration":
+        if state["inputs"].get("iteration_contract") == "noesis-intake-iteration-playbook-v1":
+            require(isinstance(data.get("outcome"), dict), "measured_outcome")
+            require(isinstance(data.get("proposal"), dict), "reviewed_proposal")
+            accepted = data.get("accepted_revision")
+            require(
+                isinstance(accepted, dict)
+                and accepted.get("id") == state["inputs"]["playbook"]["id"]
+                and type(accepted.get("revision")) is int
+                and accepted["revision"] > state["inputs"]["playbook"]["version"],
+                "accepted_playbook_revision",
+            )
+            require(bool(data.get("stability_review")), "stability_review")
         for key in ("expected", "observed", "learning"):
             require(filled(key), key)
         require(has_ref("revised_artifact"), "reference:revised_artifact")
@@ -764,6 +776,16 @@ class IntakeStore:
                     raise IntakeError(
                         "typed_record_required",
                         "use record_maintenance_finding or assess_maintenance_health",
+                    )
+                if (
+                    state["mode"] == "Iteration"
+                    and state["inputs"].get("iteration_contract")
+                    == "noesis-intake-iteration-playbook-v1"
+                    and record_hook is None
+                ):
+                    raise IntakeError(
+                        "typed_record_required",
+                        "use the typed Iteration outcome, proposal, and acceptance tools",
                     )
                 if set(payload) - {"data", "references"} or not payload:
                     raise IntakeError(

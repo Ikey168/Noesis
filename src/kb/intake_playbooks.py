@@ -208,6 +208,7 @@ class IntakePlaybookStore:
         expected_revision: int, title: str, prerequisites: list[str],
         environment: str, steps: list[dict], verification: str,
         source_rationale: str, principal_id: str, scopes: set[str],
+        iteration_receipt: dict | None = None,
     ) -> dict:
         edit_key = _text(edit_key, "edit_key", limit=256)
         if type(expected_revision) is not int or expected_revision < 1:
@@ -220,7 +221,11 @@ class IntakePlaybookStore:
             "verification": _text(verification, "verification", limit=2000),
             "source_rationale": _text(source_rationale, "source rationale", limit=5000),
         }
-        digest = _hash(patch)
+        if iteration_receipt is not None:
+            if not isinstance(iteration_receipt, dict) or iteration_receipt.get("contract") != "noesis-intake-iteration-playbook-v1":
+                raise IntakeError("invalid_iteration", "a versioned iteration receipt is required")
+            iteration_receipt = _bounded(iteration_receipt)
+        digest = _hash([patch, iteration_receipt]) if iteration_receipt is not None else _hash(patch)
         self.conn.execute("BEGIN")
         try:
             current = self._playbook(namespace, playbook_id)
@@ -240,6 +245,12 @@ class IntakePlaybookStore:
                 raise IntakeError("revision_conflict", "playbook changed; inspect before editing")
             value = {**current, **patch, "revision": current["revision"] + 1,
                      "trust_state": "draft", "updated_at_ms": self.now()}
+            if iteration_receipt is not None:
+                value["iteration_history"] = [
+                    *current.get("iteration_history", []), iteration_receipt,
+                ]
+                if len(value["iteration_history"]) > 100:
+                    raise IntakeError("iteration_limit", "playbook has 100 iteration receipts")
             _bounded(value)
             changed = self.conn.execute(
                 "UPDATE intake_playbooks SET revision=?,content_json=? "
