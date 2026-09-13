@@ -148,3 +148,39 @@ def test_awareness_mcp_uses_persistent_feed_inbox(tmp_path, monkeypatch):
     assert _required_scopes(
         "knowledge_engine_mcp", "write", "refresh_intake_feed_inbox"
     ) == ["knowledge:intake:write", "knowledge:intake:fetch"]
+
+
+def test_exploration_capture_over_mcp(tmp_path, monkeypatch):
+    path = str(tmp_path / "exploration.duckdb")
+    scopes = {
+        "knowledge:intake:read", "knowledge:intake:write",
+        "namespace:research:read", "namespace:research:write",
+    }
+    monkeypatch.setattr(server, "_context", lambda: ("alice", scopes))
+    monkeypatch.setattr(
+        server, "_connection",
+        lambda *, read_only: duckdb.connect(path, read_only=read_only),
+    )
+    tools = asyncio.run(server.mcp.get_tools())
+    started = tools["start_intake_mode"].fn(
+        namespace="research", mode="Exploration", request_key="curious", intent="Explore",
+    )
+    captured = tools["capture_exploration_page"].fn(
+        namespace="research", session_id=started["session_id"],
+        command_key="page-one", expected_revision=1,
+        url="https://example.org/article", title="Article", note="Interesting",
+        saved=True, content="Caller-provided readable content",
+    )
+    assert captured["data"]["trail"][0]["saved"] is True
+    source_id = captured["references"][0]["id"]
+    source = tools["inspect_exploration_source"].fn(
+        namespace="research", source_id=source_id,
+    )
+    assert source["acquisition"] == "caller_supplied"
+    assert source["content"] == "Caller-provided readable content"
+    denied = tools["capture_exploration_page"].fn(
+        namespace="research", session_id=started["session_id"],
+        command_key="fetch", expected_revision=2,
+        url="https://example.org/other", title="Other", fetch_readable=True,
+    )
+    assert denied["error"]["code"] == "unauthorized"
