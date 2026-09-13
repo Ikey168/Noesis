@@ -153,42 +153,99 @@ def test_awareness_mcp_uses_persistent_feed_inbox(tmp_path, monkeypatch):
 def test_exploration_capture_over_mcp(tmp_path, monkeypatch):
     path = str(tmp_path / "exploration.duckdb")
     scopes = {
-        "knowledge:intake:read", "knowledge:intake:write",
-        "namespace:research:read", "namespace:research:write",
+        "knowledge:intake:read",
+        "knowledge:intake:write",
+        "namespace:research:read",
+        "namespace:research:write",
     }
     monkeypatch.setattr(server, "_context", lambda: ("alice", scopes))
     monkeypatch.setattr(
-        server, "_connection",
+        server,
+        "_connection",
         lambda *, read_only: duckdb.connect(path, read_only=read_only),
     )
     tools = asyncio.run(server.mcp.get_tools())
     started = tools["start_intake_mode"].fn(
-        namespace="research", mode="Exploration", request_key="curious", intent="Explore",
+        namespace="research",
+        mode="Exploration",
+        request_key="curious",
+        intent="Explore",
     )
     captured = tools["capture_exploration_page"].fn(
-        namespace="research", session_id=started["session_id"],
-        command_key="page-one", expected_revision=1,
-        url="https://example.org/article", title="Article", note="Interesting",
-        saved=True, content="Caller-provided readable content",
+        namespace="research",
+        session_id=started["session_id"],
+        command_key="page-one",
+        expected_revision=1,
+        url="https://example.org/article",
+        title="Article",
+        note="Interesting",
+        saved=True,
+        content="Caller-provided readable content",
     )
     assert captured["data"]["trail"][0]["saved"] is True
     source_id = captured["references"][0]["id"]
     source = tools["inspect_exploration_source"].fn(
-        namespace="research", source_id=source_id,
+        namespace="research",
+        source_id=source_id,
     )
     assert source["acquisition"] == "caller_supplied"
     assert source["content"] == "Caller-provided readable content"
     note = tools["annotate_exploration_source"].fn(
-        namespace="research", source_id=source_id, request_key="note-one",
-        body="Read more", locator={"section": "Introduction"},
+        namespace="research",
+        source_id=source_id,
+        request_key="note-one",
+        body="Read more",
+        locator={"section": "Introduction"},
     )
     assert note["source_version"] == source["version"]
-    assert tools["inspect_exploration_source"].fn(
-        namespace="research", source_id=source_id,
-    )["annotations"][0]["annotation_id"] == note["annotation_id"]
+    assert (
+        tools["inspect_exploration_source"].fn(
+            namespace="research",
+            source_id=source_id,
+        )["annotations"][0]["annotation_id"]
+        == note["annotation_id"]
+    )
+    library = tools["start_intake_mode"].fn(
+        namespace="research",
+        mode="Exploration",
+        request_key="library",
+        intent="Save reading",
+    )
+    tools["capture_exploration_page"].fn(
+        namespace="research",
+        session_id=library["session_id"],
+        command_key="related",
+        expected_revision=1,
+        url="https://example.net/related",
+        title="Readable article content",
+        content="Readable article content for further reading",
+    )
+    related_page = tools["suggest_exploration_sources"].fn(
+        namespace="research",
+        session_id=started["session_id"],
+    )
+    assert "suggestions" in related_page, related_page
+    related = related_page["suggestions"]
+    assert len(related) == 1
+    acted = tools["decide_exploration_suggestion"].fn(
+        namespace="research",
+        session_id=started["session_id"],
+        suggestion_id=related[0]["suggestion_id"],
+        command_key="follow",
+        expected_revision=2,
+        decision="follow",
+        saved=True,
+    )
+    assert (
+        acted["data"]["trail"][-1]["source_id"] == related[0]["candidate"]["source_id"]
+    )
     denied = tools["capture_exploration_page"].fn(
-        namespace="research", session_id=started["session_id"],
-        command_key="fetch", expected_revision=2,
-        url="https://example.org/other", title="Other", fetch_readable=True,
+        namespace="research",
+        session_id=started["session_id"],
+        command_key="fetch",
+        expected_revision=3,
+        url="https://example.org/other",
+        title="Other",
+        fetch_readable=True,
     )
     assert denied["error"]["code"] == "unauthorized"

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 import time
 from typing import Any
 from urllib.parse import urlsplit
@@ -41,6 +42,47 @@ CREATE TABLE IF NOT EXISTS intake_exploration_annotations(
  PRIMARY KEY(namespace,owner,annotation_id)
 );
 """
+
+_COMMON_TERMS = {
+    "about",
+    "after",
+    "also",
+    "article",
+    "based",
+    "before",
+    "between",
+    "could",
+    "from",
+    "have",
+    "into",
+    "more",
+    "other",
+    "their",
+    "there",
+    "these",
+    "this",
+    "those",
+    "through",
+    "using",
+    "what",
+    "when",
+    "where",
+    "which",
+    "while",
+    "with",
+    "would",
+}
+
+
+def _terms(title: str, content: str) -> set[str]:
+    """Bounded, transparent lexical signal; it is not a semantic similarity claim."""
+    return {
+        term
+        for term in re.findall(
+            r"[a-z][a-z0-9]{3,}", (title + " " + content[:20_000]).casefold()
+        )
+        if term not in _COMMON_TERMS
+    }
 
 
 def _capture_url(value: str) -> str:
@@ -354,7 +396,8 @@ class IntakeExplorationStore:
             "first_seen_ms": row[6],
             "last_seen_ms": row[7],
             "annotations": [
-                annotation for annotation in annotations
+                annotation
+                for annotation in annotations
                 if annotation["source_version"] == row[0]
             ],
             "reference": {
@@ -421,13 +464,16 @@ class IntakeExplorationStore:
         body = _text(body, "annotation body", limit=10_000)
         locator = _bounded(locator or {}, limit=4096)
         if not isinstance(locator, dict) or set(locator) - {"start", "end", "section"}:
-            raise IntakeError("invalid_locator", "annotation locator has unsupported fields")
+            raise IntakeError(
+                "invalid_locator", "annotation locator has unsupported fields"
+            )
         source = self.inspect_source(
             namespace, source_id, principal_id=principal_id, scopes=scopes
         )
-        annotation_id = "explore-note:" + _hash(
-            [namespace, principal_id, source_id, request_key]
-        )[:32]
+        annotation_id = (
+            "explore-note:"
+            + _hash([namespace, principal_id, source_id, request_key])[:32]
+        )
         existing = self.conn.execute(
             "SELECT source_version,body,locator_json FROM intake_exploration_annotations "
             "WHERE namespace=? AND owner=? AND annotation_id=?",
@@ -448,15 +494,27 @@ class IntakeExplorationStore:
                 raise IntakeError("annotation_limit", "source annotation limit reached")
             self.conn.execute(
                 "INSERT INTO intake_exploration_annotations VALUES (?,?,?,?,?,?,?,?)",
-                [namespace, principal_id, source_id, annotation_id, source["version"],
-                 body, _json(locator), self.now()],
+                [
+                    namespace,
+                    principal_id,
+                    source_id,
+                    annotation_id,
+                    source["version"],
+                    body,
+                    _json(locator),
+                    self.now(),
+                ],
             )
         note = next(
-            annotation for annotation in self._annotations(namespace, principal_id, source_id)
+            annotation
+            for annotation in self._annotations(namespace, principal_id, source_id)
             if annotation["annotation_id"] == annotation_id
         )
-        return {"contract": "noesis-exploration-annotation-v1", **note,
-                "idempotent": existing is not None}
+        return {
+            "contract": "noesis-exploration-annotation-v1",
+            **note,
+            "idempotent": existing is not None,
+        }
 
     def link_feed_item(
         self,
@@ -545,4 +603,249 @@ class IntakeExplorationStore:
             principal_id=principal_id,
             scopes=scopes,
             record_hook=append_visit,
+        )
+
+    def related_sources(
+        self,
+        namespace: str,
+        session_id: str,
+        *,
+        principal_id: str,
+        scopes: set[str],
+        limit: int = 20,
+    ) -> dict[str, Any]:
+        """Suggest owner-visible captured pages using explainable term overlap."""
+        if type(limit) is not int or not 1 <= limit <= 20:
+            raise IntakeError("invalid_limit", "limit must be between 1 and 20")
+        state = IntakeStore(self.conn, initialize=False).inspect(
+            namespace, session_id, principal_id=principal_id, scopes=scopes
+        )
+        if state["mode"] != "Exploration":
+            raise IntakeError("invalid_mode", "related sources require Exploration")
+        trail = state["data"].get("trail", [])
+        if not isinstance(trail, list):
+            raise IntakeError("invalid_trail", "Exploration trail must be a list")
+        visited = {visit.get("source_id") for visit in trail if isinstance(visit, dict)}
+        actions = state["data"].get("suggestion_actions", {})
+        if not isinstance(actions, dict):
+            actions = {}
+        handled_targets = {
+            action["candidate"].get("id")
+            for action in actions.values()
+            if isinstance(action, dict) and isinstance(action.get("candidate"), dict)
+        }
+        rows = self.conn.execute(
+            "SELECT source_id,version,url,title,content FROM intake_exploration_sources "
+            "WHERE namespace=? AND owner=? ORDER BY last_seen_ms DESC,source_id LIMIT 500",
+            [namespace, principal_id],
+        ).fetchall()
+        anchors = []
+        for visit in reversed(trail):
+            if not isinstance(visit, dict) or not str(
+                visit.get("source_id", "")
+            ).startswith("explore:"):
+                continue
+            source = self.conn.execute(
+                "SELECT source_id,version,url,title,content FROM "
+                "intake_exploration_source_revisions WHERE namespace=? AND owner=? "
+                "AND source_id=? AND version=?",
+                [namespace, principal_id, visit["source_id"], visit.get("version")],
+            ).fetchone()
+            if source and source not in anchors:
+                anchors.append(source)
+            if len(anchors) >= 20:
+                break
+        candidates = []
+        for source in rows:
+            if source[0] in visited or source[0] in handled_targets:
+                continue
+            candidate_terms = _terms(source[3], source[4])
+            for anchor in anchors:
+                shared = sorted(candidate_terms & _terms(anchor[3], anchor[4]))
+                if len(shared) < 2:
+                    continue
+                suggestion_id = (
+                    "explore-related:"
+                    + _hash(
+                        [namespace, principal_id, session_id, anchor[0], source[0]]
+                    )[:32]
+                )
+                if suggestion_id in actions:
+                    continue
+                cross_domain = (
+                    urlsplit(anchor[2]).hostname != urlsplit(source[2]).hostname
+                )
+                candidates.append(
+                    {
+                        "suggestion_id": suggestion_id,
+                        "method": "lexical_overlap_v1",
+                        "cross_domain": cross_domain,
+                        "shared_terms": shared[:12],
+                        "shared_term_count": len(shared),
+                        "anchor": {
+                            "source_id": anchor[0],
+                            "title": anchor[3],
+                            "url": anchor[2],
+                            "reference": {
+                                "kind": "exploration_source",
+                                "id": anchor[0],
+                                "namespace": namespace,
+                                "version": anchor[1],
+                                "locator": {"url": anchor[2]},
+                            },
+                        },
+                        "candidate": {
+                            "source_id": source[0],
+                            "title": source[3],
+                            "url": source[2],
+                            "reference": {
+                                "kind": "exploration_source",
+                                "id": source[0],
+                                "namespace": namespace,
+                                "version": source[1],
+                                "locator": {"url": source[2]},
+                            },
+                        },
+                    }
+                )
+        candidates.sort(
+            key=lambda item: (
+                -item["shared_term_count"],
+                -int(item["cross_domain"]),
+                item["candidate"]["source_id"],
+                item["anchor"]["source_id"],
+            )
+        )
+        return {
+            "contract": "noesis-exploration-suggestions-v1",
+            "session_id": session_id,
+            "method": "lexical_overlap_v1",
+            "candidate_scan_limit": 500,
+            "suggestions": candidates[:limit],
+        }
+
+    def decide_related_source(
+        self,
+        namespace: str,
+        session_id: str,
+        suggestion_id: str,
+        command_key: str,
+        *,
+        expected_revision: int,
+        decision: str,
+        saved: bool = False,
+        principal_id: str,
+        scopes: set[str],
+    ) -> dict[str, Any]:
+        """Dismiss or follow a current suggestion in the durable Exploration trail."""
+        suggestion_id = _text(suggestion_id, "suggestion_id", limit=128)
+        if decision not in {"dismiss", "follow"} or type(saved) is not bool:
+            raise IntakeError(
+                "invalid_decision",
+                "choose dismiss or follow with a boolean saved state",
+            )
+        if saved and decision != "follow":
+            raise IntakeError("invalid_decision", "only a followed source can be saved")
+        store = IntakeStore(self.conn)
+        state = store.inspect(
+            namespace, session_id, principal_id=principal_id, scopes=scopes
+        )
+        if state["mode"] != "Exploration":
+            raise IntakeError("invalid_mode", "related sources require Exploration")
+        payload = {
+            "data": {
+                "suggestion_action_request": {
+                    "suggestion_id": suggestion_id,
+                    "decision": decision,
+                    "saved": saved,
+                }
+            }
+        }
+        prior = self.conn.execute(
+            "SELECT revision FROM intake_session_commands WHERE session_id=? AND command_key=?",
+            [session_id, command_key],
+        ).fetchone()
+        if prior:
+            return store.command(
+                namespace,
+                session_id,
+                command_key,
+                expected_revision=expected_revision,
+                action="record",
+                payload=payload,
+                principal_id=principal_id,
+                scopes=scopes,
+            )
+        suggestions = self.related_sources(
+            namespace,
+            session_id,
+            principal_id=principal_id,
+            scopes=scopes,
+        )["suggestions"]
+        suggestion = next(
+            (item for item in suggestions if item["suggestion_id"] == suggestion_id),
+            None,
+        )
+        if suggestion is None:
+            raise IntakeError(
+                "suggestion_not_found", "inspect current suggestions before deciding"
+            )
+
+        def record_decision(updated: dict[str, Any], _payload: dict[str, Any]) -> None:
+            target = suggestion["candidate"]
+            current = self.conn.execute(
+                "SELECT version FROM intake_exploration_sources "
+                "WHERE namespace=? AND owner=? AND source_id=?",
+                [namespace, principal_id, target["source_id"]],
+            ).fetchone()
+            if not current or current[0] != target["reference"]["version"]:
+                raise IntakeError(
+                    "suggestion_stale", "inspect updated source suggestions"
+                )
+            actions = updated["data"].get("suggestion_actions", {})
+            if len(actions) >= 1000:
+                raise IntakeError(
+                    "suggestion_limit", "session suggestion action limit reached"
+                )
+            actions[suggestion_id] = {
+                "decision": decision,
+                "at_ms": self.now(),
+                "anchor": suggestion["anchor"]["reference"],
+                "candidate": target["reference"],
+                "shared_terms": suggestion["shared_terms"],
+            }
+            updated["data"]["suggestion_actions"] = actions
+            if decision == "follow":
+                trail = updated["data"].get("trail", [])
+                if len(trail) >= 1000:
+                    raise IntakeError(
+                        "trail_limit", "Exploration trail exceeds 1000 visits"
+                    )
+                updated["data"]["trail"] = [
+                    *trail,
+                    {
+                        "visit_id": "visit:" + _hash([session_id, command_key])[:32],
+                        "source_id": target["source_id"],
+                        "url": target["url"],
+                        "title": target["title"],
+                        "version": target["reference"]["version"],
+                        "saved": saved,
+                        "note": "",
+                        "discovered_via": suggestion_id,
+                        "visited_at_ms": self.now(),
+                    },
+                ]
+                if target["reference"] not in updated["references"]:
+                    updated["references"].append(target["reference"])
+
+        return store.command(
+            namespace,
+            session_id,
+            command_key,
+            expected_revision=expected_revision,
+            action="record",
+            payload=payload,
+            principal_id=principal_id,
+            scopes=scopes,
+            record_hook=record_decision,
         )

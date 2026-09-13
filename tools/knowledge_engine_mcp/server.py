@@ -122,6 +122,7 @@ def knowledge_engine_capabilities() -> dict:
             "noesis-intake-signal-rules-v1",
             "noesis-exploration-source-v1",
             "noesis-exploration-annotation-v1",
+            "noesis-exploration-suggestions-v1",
             "noesis-research-snapshot-token-v1",
             "noesis-epistemic-taxonomy-v1",
             "noesis-epistemic-assessment-v1",
