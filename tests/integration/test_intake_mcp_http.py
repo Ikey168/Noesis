@@ -9,8 +9,11 @@ import sys
 from pathlib import Path
 
 import httpx
+import pytest
 from mcp import ClientSession
 from mcp.client.streamable_http import streamable_http_client
+from mcp.shared.exceptions import McpError
+from pydantic import AnyUrl
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -93,6 +96,31 @@ def test_http_tokens_isolate_intake_sessions(tmp_path):
             },
         )
         assert created["owner"] == "alice"
+        uri = AnyUrl(f"noesis://intake/research/{created['session_id']}")
+        async with (
+            httpx.AsyncClient(headers={"Authorization": "Bearer " + "a" * 32}) as http_client,
+            streamable_http_client(url, http_client=http_client) as (reader, writer, _),
+            ClientSession(reader, writer) as client,
+        ):
+            await client.initialize()
+            templates = await client.list_resource_templates()
+            assert any("{session_id}" in str(item.uriTemplate) for item in templates.resourceTemplates)
+            resource = await client.read_resource(uri)
+            assert json.loads(resource.contents[0].text)["owner"] == "alice"
+            prompts = await client.list_prompts()
+            assert "start-information-intake" in {item.name for item in prompts.prompts}
+            prompt = await client.get_prompt("start-information-intake", {
+                "mode": "Exploration", "namespace": "research", "intent": "Browse",
+            })
+            assert "discover_intake_modes" in prompt.messages[0].content.text
+        async with (
+            httpx.AsyncClient(headers={"Authorization": "Bearer " + "b" * 32}) as http_client,
+            streamable_http_client(url, http_client=http_client) as (reader, writer, _),
+            ClientSession(reader, writer) as client,
+        ):
+            await client.initialize()
+            with pytest.raises(McpError, match="current owner"):
+                await client.read_resource(uri)
         subscribed = await _tool(
             url,
             "a" * 32,

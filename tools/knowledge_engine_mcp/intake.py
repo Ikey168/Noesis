@@ -1,8 +1,18 @@
 """Ten-mode session tools on the supported Knowledge Engine MCP server."""
 
+import json
+
 from src.kb.intake_exploration import IntakeExplorationStore
 from src.kb.intake_inbox import IntakeInboxStore
-from src.kb.intake_modes import IntakeStore, discover_modes, route_mode, verify_export
+from src.kb.intake_modes import (
+    MODES,
+    IntakeError,
+    IntakeStore,
+    _text,
+    discover_modes,
+    route_mode,
+    verify_export,
+)
 from src.kb.intake_problem import IntakeProblemStore
 
 INTAKE_WRITES = {
@@ -45,6 +55,48 @@ INTAKE_READS = {
 
 
 def register(mcp, safe, context):
+    def resource_session(namespace: str, session_id: str, revision: int | None = None) -> str:
+        value = safe(
+            lambda conn: IntakeStore(conn, initialize=False).inspect(
+                namespace, session_id, revision=revision,
+                principal_id=context()[0], scopes=context()[1],
+            ),
+            required_scope="knowledge:intake:read",
+        )
+        if value.get("ok") is False:
+            error = value["error"]
+            raise IntakeError(error["code"], error["message"])
+        return json.dumps(value, sort_keys=True, ensure_ascii=False)
+
+    @mcp.resource("noesis://intake/{namespace}/{session_id}", mime_type="application/json")
+    def intake_session_resource(namespace: str, session_id: str) -> str:
+        """Read the latest owner-scoped intake session with current access checks."""
+        return resource_session(namespace, session_id)
+
+    @mcp.resource(
+        "noesis://intake/{namespace}/{session_id}/revisions/{revision}",
+        mime_type="application/json",
+    )
+    def intake_session_revision_resource(namespace: str, session_id: str, revision: int) -> str:
+        """Read an exact intake session revision under current access."""
+        return resource_session(namespace, session_id, revision)
+
+    @mcp.prompt(name="start-information-intake")
+    def start_information_intake(mode: str, namespace: str, intent: str) -> str:
+        """Guide a bounded intake start through discovery and explicit user intent."""
+        if mode not in MODES:
+            raise IntakeError("invalid_mode", "select one of the ten intake modes")
+        namespace = _text(namespace, "namespace", limit=128)
+        intent = _text(intent, "intent")
+        return (
+            f"The user wants {mode} in Noesis namespace {namespace!r}: {intent}\n"
+            "Call discover_intake_modes to inspect required inputs and time budget. "
+            "Check current access and service readiness before mutation. "
+            "Ask for missing mode-specific inputs, then start the session with a stable request_key. "
+            "Keep source and Modulo references versioned, inspect the returned session, "
+            "and do not treat a recorded completion flag as live outcome evidence."
+        )
+
     @mcp.tool()
     def discover_intake_modes() -> dict:
         """List the ten workflow intents and their session budgets and completion inputs."""
