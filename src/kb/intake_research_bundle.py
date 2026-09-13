@@ -172,6 +172,8 @@ class IntakeResearchBundleStore:
                     raise IntakeError("invalid_bundle", f"{section} item needs text and cited cards")
                 _text(item["text"], section)
                 _ids(item["card_ids"], f"{section} card_ids", set(cards))
+                if section == "known" and not item["card_ids"]:
+                    raise IntakeError("invalid_bundle", "known point needs a cited card")
         reviews = _list(document["definition_of_done"], "definition_of_done")
         if len(reviews) != len(project["success_criteria"]):
             raise IntakeError("invalid_bundle", "review must cover each project success criterion")

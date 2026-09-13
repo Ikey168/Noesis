@@ -93,6 +93,13 @@ def test_bundle_requires_exact_pinned_spans_and_gates_research_completion(tmp_pa
                    principal_id="alice", scopes=SCOPES)
     assert insufficient.value.code == "insufficient_independence"
 
+    uncited = copy.deepcopy(document)
+    uncited["known"][0]["card_ids"] = []
+    with pytest.raises(IntakeError) as missing_citation:
+        store.save("research", project_id, "uncited-known", uncited,
+                   principal_id="alice", scopes=SCOPES)
+    assert missing_citation.value.code == "invalid_bundle"
+
     saved = store.save("research", project_id, "first", document,
                        principal_id="alice", scopes=SCOPES)
     schema = json.loads((Path(__file__).resolve().parents[3] /
