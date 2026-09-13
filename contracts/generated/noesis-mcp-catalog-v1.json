@@ -812,7 +812,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 465,
+      "tool_count": 471,
       "tools": [
         "noesis-knowledge-engine.accept_citation_repair",
         "noesis-knowledge-engine.accept_dataset_join",
@@ -866,6 +866,7 @@
         "noesis-knowledge-engine.capture_exploration_page",
         "noesis-knowledge-engine.classify_epistemic_statement",
         "noesis-knowledge-engine.close_research_snapshot",
+        "noesis-knowledge-engine.command_guided_playbook_run",
         "noesis-knowledge-engine.command_intake_mode",
         "noesis-knowledge-engine.compare_change_briefs",
         "noesis-knowledge-engine.compare_claim_sources",
@@ -1011,8 +1012,10 @@
         "noesis-knowledge-engine.inspect_effective_access_view",
         "noesis-knowledge-engine.inspect_entity_change_impact",
         "noesis-knowledge-engine.inspect_exploration_source",
+        "noesis-knowledge-engine.inspect_guided_playbook_run",
         "noesis-knowledge-engine.inspect_intake_feed_item",
         "noesis-knowledge-engine.inspect_intake_mode",
+        "noesis-knowledge-engine.inspect_intake_playbook",
         "noesis-knowledge-engine.inspect_investigation_comparison",
         "noesis-knowledge-engine.inspect_investigation_template",
         "noesis-knowledge-engine.inspect_maintenance_generation",
@@ -1095,6 +1098,7 @@
         "noesis-knowledge-engine.preview_source_acquisition_plan",
         "noesis-knowledge-engine.prioritize_research_gaps",
         "noesis-knowledge-engine.promote_awareness_item",
+        "noesis-knowledge-engine.promote_problem_playbook",
         "noesis-knowledge-engine.propagate_evidence_freshness",
         "noesis-knowledge-engine.propose_authored_report_edit",
         "noesis-knowledge-engine.propose_forecast_resolution",
@@ -1208,6 +1212,7 @@
         "noesis-knowledge-engine.revise_event_record",
         "noesis-knowledge-engine.revise_geospatial_place",
         "noesis-knowledge-engine.revise_hypothesis_workspace",
+        "noesis-knowledge-engine.revise_intake_playbook",
         "noesis-knowledge-engine.revise_investigation_template",
         "noesis-knowledge-engine.revise_quantitative_metric",
         "noesis-knowledge-engine.revise_research_decision",
@@ -1253,6 +1258,7 @@
         "noesis-knowledge-engine.source_relationship_path",
         "noesis-knowledge-engine.split_source_alias",
         "noesis-knowledge-engine.start_awareness_from_inbox",
+        "noesis-knowledge-engine.start_guided_playbook_run",
         "noesis-knowledge-engine.start_intake_mode",
         "noesis-knowledge-engine.start_problem_session",
         "noesis-knowledge-engine.store_geospatial_geometry",
@@ -1285,7 +1291,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 465
+      "visible_tool_count": 471
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -1299,9 +1305,9 @@
       "available": 84,
       "degraded": 155,
       "disabled": 3,
-      "unauthorized": 467
+      "unauthorized": 473
     },
-    "tools": 709
+    "tools": 715
   },
   "tools": [
     {
@@ -16729,6 +16735,68 @@
     },
     {
       "cost_class": "medium",
+      "description": "Record a guided step or verification, or pause/resume, with safe replay.",
+      "id": "noesis-knowledge-engine.command_guided_playbook_run",
+      "input_schema": {
+        "properties": {
+          "action": {
+            "type": "string"
+          },
+          "command_key": {
+            "type": "string"
+          },
+          "expected_revision": {
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "payload": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "run_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "run_id",
+          "command_key",
+          "expected_revision",
+          "action"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "command_guided_playbook_run",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:intake:read",
+        "knowledge:intake:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Record mode evidence, pause, resume, complete, or cancel with safe replay.",
       "id": "noesis-knowledge-engine.command_intake_mode",
       "input_schema": {
@@ -23886,6 +23954,43 @@
     },
     {
       "cost_class": "low",
+      "description": "Inspect a guided run and its failed or passed observations.",
+      "id": "noesis-knowledge-engine.inspect_guided_playbook_run",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "run_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "run_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "inspect_guided_playbook_run",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:intake:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Read a source snapshot and its independent read/triage state.",
       "id": "noesis-knowledge-engine.inspect_intake_feed_item",
       "input_schema": {
@@ -23965,6 +24070,54 @@
       "latency_class": "interactive",
       "mutability": "read",
       "name": "inspect_intake_mode",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:intake:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Read a playbook revision and its reported rehearsal count under current access.",
+      "id": "noesis-knowledge-engine.inspect_intake_playbook",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "playbook_id": {
+            "type": "string"
+          },
+          "revision": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "playbook_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "inspect_intake_playbook",
       "output_schema": {
         "additionalProperties": true,
         "type": "object"
@@ -27930,6 +28083,94 @@
         "knowledge-engine-runtime"
       ],
       "required_scopes": [
+        "knowledge:intake:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Create a draft playbook from a completed, verified typed problem.",
+      "id": "noesis-knowledge-engine.promote_problem_playbook",
+      "input_schema": {
+        "properties": {
+          "concept_references": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "environment": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "prerequisites": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "problem_session_id": {
+            "type": "string"
+          },
+          "request_key": {
+            "type": "string"
+          },
+          "source_rationale": {
+            "type": "string"
+          },
+          "steps": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "title": {
+            "type": "string"
+          },
+          "verification": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "problem_session_id",
+          "request_key",
+          "title",
+          "prerequisites",
+          "environment",
+          "steps",
+          "verification",
+          "source_rationale"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "promote_problem_playbook",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:intake:read",
         "knowledge:intake:write"
       ],
       "server": "noesis-knowledge-engine",
@@ -35449,6 +35690,82 @@
     },
     {
       "cost_class": "medium",
+      "description": "Revise a playbook with an expected version and a stable replay key.",
+      "id": "noesis-knowledge-engine.revise_intake_playbook",
+      "input_schema": {
+        "properties": {
+          "edit_key": {
+            "type": "string"
+          },
+          "environment": {
+            "type": "string"
+          },
+          "expected_revision": {
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "playbook_id": {
+            "type": "string"
+          },
+          "prerequisites": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "source_rationale": {
+            "type": "string"
+          },
+          "steps": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "title": {
+            "type": "string"
+          },
+          "verification": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "playbook_id",
+          "edit_key",
+          "expected_revision",
+          "title",
+          "prerequisites",
+          "environment",
+          "steps",
+          "verification",
+          "source_rationale"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "revise_intake_playbook",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:intake:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Append a template revision without changing existing projects.",
       "id": "noesis-knowledge-engine.revise_investigation_template",
       "input_schema": {
@@ -37884,6 +38201,55 @@
       "latency_class": "interactive",
       "mutability": "write",
       "name": "start_awareness_from_inbox",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:intake:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Start or replay a guided run pinned to one playbook revision.",
+      "id": "noesis-knowledge-engine.start_guided_playbook_run",
+      "input_schema": {
+        "properties": {
+          "environment": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "playbook_id": {
+            "type": "string"
+          },
+          "playbook_revision": {
+            "type": "integer"
+          },
+          "request_key": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "playbook_id",
+          "request_key",
+          "playbook_revision",
+          "environment"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "start_guided_playbook_run",
       "output_schema": {
         "additionalProperties": true,
         "type": "object"

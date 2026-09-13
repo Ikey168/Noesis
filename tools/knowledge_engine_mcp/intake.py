@@ -13,6 +13,7 @@ from src.kb.intake_modes import (
     route_mode,
     verify_export,
 )
+from src.kb.intake_playbooks import IntakePlaybookStore
 from src.kb.intake_problem import IntakeProblemStore
 
 INTAKE_WRITES = {
@@ -34,6 +35,10 @@ INTAKE_WRITES = {
     "decide_exploration_suggestion",
     "start_problem_session",
     "record_problem_step",
+    "promote_problem_playbook",
+    "revise_intake_playbook",
+    "start_guided_playbook_run",
+    "command_guided_playbook_run",
 }
 INTAKE_READS = {
     "discover_intake_modes",
@@ -51,6 +56,8 @@ INTAKE_READS = {
     "preview_intake_feed_signal_rule",
     "inspect_exploration_source",
     "suggest_exploration_sources",
+    "inspect_intake_playbook",
+    "inspect_guided_playbook_run",
 }
 
 
@@ -300,6 +307,116 @@ def register(mcp, safe, context):
             ),
             write=True,
             required_scope="knowledge:intake:write",
+        )
+
+    @mcp.tool()
+    def promote_problem_playbook(
+        namespace: str,
+        problem_session_id: str,
+        request_key: str,
+        title: str,
+        prerequisites: list[str],
+        environment: str,
+        steps: list[dict],
+        verification: str,
+        source_rationale: str,
+        concept_references: list[dict] | None = None,
+    ) -> dict:
+        """Create a draft playbook from a completed, verified typed problem."""
+        return safe(
+            lambda conn: IntakePlaybookStore(conn).promote_problem(
+                namespace, problem_session_id, request_key, title=title,
+                prerequisites=prerequisites, environment=environment, steps=steps,
+                verification=verification, source_rationale=source_rationale,
+                concept_references=concept_references,
+                principal_id=context()[0], scopes=context()[1],
+            ),
+            write=True, required_scope="knowledge:intake:write",
+        )
+
+    @mcp.tool()
+    def inspect_intake_playbook(
+        namespace: str, playbook_id: str, revision: int | None = None
+    ) -> dict:
+        """Read a playbook revision and its reported rehearsal count under current access."""
+        return safe(
+            lambda conn: IntakePlaybookStore(conn, initialize=False).inspect(
+                namespace, playbook_id, revision=revision,
+                principal_id=context()[0], scopes=context()[1],
+            ),
+            required_scope="knowledge:intake:read",
+        )
+
+    @mcp.tool()
+    def revise_intake_playbook(
+        namespace: str,
+        playbook_id: str,
+        edit_key: str,
+        expected_revision: int,
+        title: str,
+        prerequisites: list[str],
+        environment: str,
+        steps: list[dict],
+        verification: str,
+        source_rationale: str,
+    ) -> dict:
+        """Revise a playbook with an expected version and a stable replay key."""
+        return safe(
+            lambda conn: IntakePlaybookStore(conn).revise(
+                namespace, playbook_id, edit_key,
+                expected_revision=expected_revision, title=title,
+                prerequisites=prerequisites, environment=environment, steps=steps,
+                verification=verification, source_rationale=source_rationale,
+                principal_id=context()[0], scopes=context()[1],
+            ),
+            write=True, required_scope="knowledge:intake:write",
+        )
+
+    @mcp.tool()
+    def start_guided_playbook_run(
+        namespace: str,
+        playbook_id: str,
+        request_key: str,
+        playbook_revision: int,
+        environment: str,
+    ) -> dict:
+        """Start or replay a guided run pinned to one playbook revision."""
+        return safe(
+            lambda conn: IntakePlaybookStore(conn).start_run(
+                namespace, playbook_id, request_key,
+                playbook_revision=playbook_revision, environment=environment,
+                principal_id=context()[0], scopes=context()[1],
+            ),
+            write=True, required_scope="knowledge:intake:write",
+        )
+
+    @mcp.tool()
+    def inspect_guided_playbook_run(namespace: str, run_id: str) -> dict:
+        """Inspect a guided run and its failed or passed observations."""
+        return safe(
+            lambda conn: IntakePlaybookStore(conn, initialize=False).inspect_run(
+                namespace, run_id, principal_id=context()[0], scopes=context()[1]
+            ),
+            required_scope="knowledge:intake:read",
+        )
+
+    @mcp.tool()
+    def command_guided_playbook_run(
+        namespace: str,
+        run_id: str,
+        command_key: str,
+        expected_revision: int,
+        action: str,
+        payload: dict | None = None,
+    ) -> dict:
+        """Record a guided step or verification, or pause/resume, with safe replay."""
+        return safe(
+            lambda conn: IntakePlaybookStore(conn).command_run(
+                namespace, run_id, command_key,
+                expected_revision=expected_revision, action=action, payload=payload,
+                principal_id=context()[0], scopes=context()[1],
+            ),
+            write=True, required_scope="knowledge:intake:write",
         )
 
     @mcp.tool()

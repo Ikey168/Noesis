@@ -382,11 +382,16 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
         "inspect_exploration_source", "annotate_exploration_source",
         "suggest_exploration_sources", "decide_exploration_suggestion",
         "start_problem_session", "record_problem_step",
+        "promote_problem_playbook", "inspect_intake_playbook", "revise_intake_playbook",
+        "start_guided_playbook_run", "inspect_guided_playbook_run",
+        "command_guided_playbook_run",
     }:
         if tool_name in {"discover_intake_modes", "route_intake_mode", "verify_intake_mode_export"}:
             return []
         if tool_name == "refresh_intake_feed_inbox":
             return ["knowledge:intake:write", "knowledge:intake:fetch"]
+        if tool_name in {"promote_problem_playbook", "command_guided_playbook_run"}:
+            return ["knowledge:intake:read", "knowledge:intake:write"]
         return ["knowledge:intake:write" if mutability == "write" else "knowledge:intake:read"]
     if server_stem == "transactions_mcp":
         if tool_name.startswith("commit_"):
