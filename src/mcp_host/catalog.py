@@ -385,8 +385,12 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
         "promote_problem_playbook", "inspect_intake_playbook", "revise_intake_playbook",
         "start_guided_playbook_run", "inspect_guided_playbook_run",
         "command_guided_playbook_run",
+        "create_practice_pack", "inspect_practice_pack", "revise_practice_pack",
+        "export_practice_pack", "verify_practice_export",
+        "list_due_practice", "start_practice_review", "inspect_practice_review",
+        "command_practice_review",
     }:
-        if tool_name in {"discover_intake_modes", "route_intake_mode", "verify_intake_mode_export"}:
+        if tool_name in {"discover_intake_modes", "route_intake_mode", "verify_intake_mode_export", "verify_practice_export"}:
             return []
         if tool_name == "refresh_intake_feed_inbox":
             return ["knowledge:intake:write", "knowledge:intake:fetch"]
