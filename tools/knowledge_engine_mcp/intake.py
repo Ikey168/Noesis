@@ -454,6 +454,7 @@ def register(mcp, safe, context):
         target_mode: str,
         reason: str,
         intent: str,
+        workspace_links: list[dict] | None = None,
     ) -> dict:
         """Promote an escalated item with its source and annotation references."""
         return safe(
@@ -465,6 +466,7 @@ def register(mcp, safe, context):
                 target_mode=target_mode,
                 reason=reason,
                 intent=intent,
+                workspace_links=workspace_links,
                 principal_id=context()[0],
                 scopes=context()[1],
             ),
