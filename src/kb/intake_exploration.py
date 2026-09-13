@@ -614,7 +614,7 @@ class IntakeExplorationStore:
         scopes: set[str],
         limit: int = 20,
     ) -> dict[str, Any]:
-        """Suggest owner-visible captured pages using explainable term overlap."""
+        """Suggest owner-visible captured pages and feed items by term overlap."""
         if type(limit) is not int or not 1 <= limit <= 20:
             raise IntakeError("invalid_limit", "limit must be between 1 and 20")
         state = IntakeStore(self.conn, initialize=False).inspect(
@@ -634,34 +634,74 @@ class IntakeExplorationStore:
             for action in actions.values()
             if isinstance(action, dict) and isinstance(action.get("candidate"), dict)
         }
-        rows = self.conn.execute(
+        captured_rows = self.conn.execute(
             "SELECT source_id,version,url,title,content FROM intake_exploration_sources "
             "WHERE namespace=? AND owner=? ORDER BY last_seen_ms DESC,source_id LIMIT 500",
             [namespace, principal_id],
         ).fetchall()
+        try:
+            feed_rows = self.conn.execute(
+                "SELECT item_id,source_version,original_url,title,content FROM "
+                "intake_inbox_items WHERE namespace=? AND owner=? "
+                "ORDER BY last_seen_ms DESC,item_id LIMIT 500",
+                [namespace, principal_id],
+            ).fetchall()
+        except duckdb.CatalogException as exc:
+            if "intake_inbox_items" not in str(exc):
+                raise
+            feed_rows = []
+        rows = [(*row, "exploration_source") for row in captured_rows]
+        rows.extend((*row, "intake_feed_item") for row in feed_rows)
         anchors = []
         for visit in reversed(trail):
-            if not isinstance(visit, dict) or not str(
-                visit.get("source_id", "")
-            ).startswith("explore:"):
+            if not isinstance(visit, dict):
                 continue
-            source = self.conn.execute(
-                "SELECT source_id,version,url,title,content FROM "
-                "intake_exploration_source_revisions WHERE namespace=? AND owner=? "
-                "AND source_id=? AND version=?",
-                [namespace, principal_id, visit["source_id"], visit.get("version")],
-            ).fetchone()
+            source_id = visit.get("source_id", "")
+            if isinstance(source_id, str) and source_id.startswith("explore:"):
+                historical = self.conn.execute(
+                    "SELECT source_id,version,url,title,content FROM "
+                    "intake_exploration_source_revisions WHERE namespace=? AND owner=? "
+                    "AND source_id=? AND version=?",
+                    [namespace, principal_id, source_id, visit.get("version")],
+                ).fetchone()
+                source = (*historical, "exploration_source") if historical else None
+            elif isinstance(source_id, str) and source_id.startswith("feed:"):
+                try:
+                    feed = IntakeInboxStore(self.conn, initialize=False).inspect(
+                        namespace,
+                        source_id,
+                        revision=visit.get("version"),
+                        principal_id=principal_id,
+                        scopes=scopes,
+                    )
+                except IntakeError as exc:
+                    if exc.code not in {"item_not_found", "revision_not_found"}:
+                        raise
+                    continue
+                source = (
+                    source_id,
+                    feed["source_version"],
+                    feed["original_url"],
+                    feed["title"],
+                    feed["content"],
+                    "intake_feed_item",
+                )
+            else:
+                continue
             if source and source not in anchors:
                 anchors.append(source)
             if len(anchors) >= 20:
                 break
         candidates = []
+        anchor_terms = [(anchor, _terms(anchor[3], anchor[4])) for anchor in anchors]
         for source in rows:
             if source[0] in visited or source[0] in handled_targets:
                 continue
             candidate_terms = _terms(source[3], source[4])
-            for anchor in anchors:
-                shared = sorted(candidate_terms & _terms(anchor[3], anchor[4]))
+            for anchor, terms in anchor_terms:
+                if source[2] == anchor[2]:
+                    continue
+                shared = sorted(candidate_terms & terms)
                 if len(shared) < 2:
                     continue
                 suggestion_id = (
@@ -687,7 +727,7 @@ class IntakeExplorationStore:
                             "title": anchor[3],
                             "url": anchor[2],
                             "reference": {
-                                "kind": "exploration_source",
+                                "kind": anchor[5],
                                 "id": anchor[0],
                                 "namespace": namespace,
                                 "version": anchor[1],
@@ -699,7 +739,7 @@ class IntakeExplorationStore:
                             "title": source[3],
                             "url": source[2],
                             "reference": {
-                                "kind": "exploration_source",
+                                "kind": source[5],
                                 "id": source[0],
                                 "namespace": namespace,
                                 "version": source[1],
@@ -720,7 +760,7 @@ class IntakeExplorationStore:
             "contract": "noesis-exploration-suggestions-v1",
             "session_id": session_id,
             "method": "lexical_overlap_v1",
-            "candidate_scan_limit": 500,
+            "candidate_scan_limit": 1000,
             "suggestions": candidates[:limit],
         }
 
@@ -734,6 +774,7 @@ class IntakeExplorationStore:
         expected_revision: int,
         decision: str,
         saved: bool = False,
+        expected_candidate_version: int | None = None,
         principal_id: str,
         scopes: set[str],
     ) -> dict[str, Any]:
@@ -746,6 +787,11 @@ class IntakeExplorationStore:
             )
         if saved and decision != "follow":
             raise IntakeError("invalid_decision", "only a followed source can be saved")
+        if expected_candidate_version is not None and (
+            type(expected_candidate_version) is not int
+            or expected_candidate_version < 1
+        ):
+            raise IntakeError("invalid_revision", "candidate version must be positive")
         store = IntakeStore(self.conn)
         state = store.inspect(
             namespace, session_id, principal_id=principal_id, scopes=scopes
@@ -758,6 +804,7 @@ class IntakeExplorationStore:
                     "suggestion_id": suggestion_id,
                     "decision": decision,
                     "saved": saved,
+                    "expected_candidate_version": expected_candidate_version,
                 }
             }
         }
@@ -790,12 +837,29 @@ class IntakeExplorationStore:
             raise IntakeError(
                 "suggestion_not_found", "inspect current suggestions before deciding"
             )
+        if (
+            expected_candidate_version is not None
+            and suggestion["candidate"]["reference"]["version"]
+            != expected_candidate_version
+        ):
+            raise IntakeError("suggestion_stale", "inspect updated source suggestions")
 
         def record_decision(updated: dict[str, Any], _payload: dict[str, Any]) -> None:
             target = suggestion["candidate"]
+            source_table = (
+                "intake_inbox_items"
+                if target["reference"]["kind"] == "intake_feed_item"
+                else "intake_exploration_sources"
+            )
+            version_column = (
+                "source_version" if source_table == "intake_inbox_items" else "version"
+            )
+            id_column = (
+                "item_id" if source_table == "intake_inbox_items" else "source_id"
+            )
             current = self.conn.execute(
-                "SELECT version FROM intake_exploration_sources "
-                "WHERE namespace=? AND owner=? AND source_id=?",
+                f"SELECT {version_column} FROM {source_table} "
+                f"WHERE namespace=? AND owner=? AND {id_column}=?",
                 [namespace, principal_id, target["source_id"]],
             ).fetchone()
             if not current or current[0] != target["reference"]["version"]:

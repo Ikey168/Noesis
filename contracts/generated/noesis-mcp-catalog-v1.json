@@ -18747,6 +18747,17 @@
           "decision": {
             "type": "string"
           },
+          "expected_candidate_version": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
           "expected_revision": {
             "type": "integer"
           },
