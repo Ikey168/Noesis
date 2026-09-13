@@ -52,6 +52,12 @@ An Exploration session can start with `start_intake_mode` and no research object
 
 This is a native Noesis practice core, not the complete Internalization mode. Automatic pack generation from current evidence, source correction propagation, Modulo practice-plugin migration and UI, human-assessed mastery, and live acceptance remain open under [#1577](https://github.com/Ikey168/Noesis/issues/1577).
 
+## Creation projects over authored reports
+
+`start_intake_creation` records an owner-scoped project with purpose, audience, a supported artifact type (`post`, `documentation`, or `teaching_material`), declared acceptance criteria, versioned research/decision inputs, and optional Modulo workspace links. Unsupported artifact types return an explicit error; this adapter does not build software or publish material. `command_intake_creation` attaches an existing Noesis authored report by its current ID/revision, records a pass/fail review against every criterion with author notes, finishes only after all checks pass, and can reopen the project. Every command needs an expected project revision and a stable key; a replay returns the same historical result. A newer report revision makes the attached snapshot stale and blocks finishing or exporting until it is reattached and reviewed. `inspect_intake_creation` exposes current or historical project state.
+
+The authored report remains the authoritative draft, assertion, citation, and revision store. `export_intake_creation` returns its Markdown/report export alongside the project's revision chain and an integrity digest; it is available only after an author-reported accepted review. The export explicitly says `publication_authorized: false`. A reported pass is not independent proof that an artifact meets its purpose or that its evidence is correct. Modulo creation editing, non-report build adapters, a verified external review, handoff to maintenance/practice, and live user acceptance remain open under [#1575](https://github.com/Ikey168/Noesis/issues/1575).
+
 ## Modulo handoff projection
 
 `export_modulo_intake_handoff` returns [`noesis-modulo-intake-handoff-v1`](../../contracts/schemas/jsonschema/noesis-modulo-intake-handoff-v1.json) for the latest session revision. It includes the namespace and owner, a stable session-derived correlation key, the current mode/status/revision and timestamps, the prior session/reason for a transition, versioned Modulo return links, and versioned Noesis references with any source locators. An example for Awareness → Exploration is:

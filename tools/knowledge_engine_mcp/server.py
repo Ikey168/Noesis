@@ -8854,6 +8854,12 @@ def _intake_safe(operation, *, write: bool = False, required_scope: str | None =
 
 register_intake_tools(mcp, _intake_safe, _intake_context)
 
+from tools.knowledge_engine_mcp.creation import (
+    register as register_intake_creation_tools,
+)
+
+register_intake_creation_tools(mcp, _intake_safe, _intake_context)
+
 
 if __name__ == "__main__":
     from src.mcp_host.transport import run_server

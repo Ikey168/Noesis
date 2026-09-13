@@ -47,6 +47,8 @@ INTAKE_WRITES = {
     "revise_practice_pack",
     "start_practice_review",
     "command_practice_review",
+    "start_intake_creation",
+    "command_intake_creation",
 }
 INTAKE_READS = {
     "discover_intake_modes",
@@ -71,6 +73,8 @@ INTAKE_READS = {
     "verify_practice_export",
     "list_due_practice",
     "inspect_practice_review",
+    "inspect_intake_creation",
+    "export_intake_creation",
 }
 
 
