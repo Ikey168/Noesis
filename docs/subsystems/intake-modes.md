@@ -14,6 +14,12 @@ The request identity is read through FastMCP's [access-token context](https://go
 
 For a transition, call `start_intake_mode` with an `origin` containing the previous `session_id` and a reason. The new session retains the prior mode and revision in its origin record. An optional `workspace_links` list carries versioned, opaque Modulo workspace/item/project/note/task IDs for return navigation. Do not copy source content into the session: attach a `{kind, id, namespace, version, locator?}` reference to the authoritative object. The session ledger does not validate that an arbitrary referenced object exists or a Modulo link is currently accessible, so callers must resolve IDs through the authoritative subsystem before relying on them.
 
+## Native Awareness inbox (in progress)
+
+The Knowledge Engine MCP server now exposes `subscribe_intake_feed`, `list_intake_feed_subscriptions`, `refresh_intake_feed_inbox`, `list_intake_feed_inbox`, `inspect_intake_feed_item`, `preview_intake_feed_signals`, `save_intake_feed_signal_rule`, `list_intake_feed_signal_rules`, `preview_intake_feed_signal_rule`, `mark_intake_feed_read`, `decide_intake_feed_item`, `annotate_intake_feed_item`, `start_awareness_from_inbox`, `triage_awareness_item`, `triage_awareness_batch`, and `promote_awareness_item`. A feed subscription is owned by one caller and namespace; its URL must be public, credential-free HTTPS. `refresh_intake_feed_inbox` additionally requires `knowledge:intake:fetch` and fetches at most 50 configured feeds with up to 100 entries each. It uses the existing RSS/Atom parser and a bounded network transport without implicit redirects or proxy credentials. A `newsletter_feed` is a newsletter that explicitly offers RSS/Atom; mailbox ingestion is not implemented.
+
+The inbox preserves a source item's stable ID, original URL, publication time, content revision history, and annotations independently from read and triage state. Saved signal rules are owner-scoped and versioned; previews explain case-insensitive keyword matches without changing read or decision state. Refreshing the same item does not reset a decision. Listing or inspecting an item does not mark it read. `start_awareness_from_inbox` snapshots at most 1000 unprocessed items into a 1–15 minute session. `triage_awareness_item` and `triage_awareness_batch` commit decisions to both the inbox and session in one transaction; a command replay returns the original revision. `promote_awareness_item` requires an explicit escalate decision and carries exact source and annotation references into Exploration, Deep Research, or Problem-Solving. Other Awareness work still uses the recorded-only session contract.
+
 ## Modulo handoff projection
 
 `export_modulo_intake_handoff` returns [`noesis-modulo-intake-handoff-v1`](../../contracts/schemas/jsonschema/noesis-modulo-intake-handoff-v1.json) for the latest session revision. It includes the namespace and owner, a stable session-derived correlation key, the current mode/status/revision and timestamps, the prior session/reason for a transition, versioned Modulo return links, and versioned Noesis references with any source locators. An example for Awareness → Exploration is:
@@ -28,7 +34,7 @@ The same envelope works for each mode. Modulo can link an Awareness item, Explor
 
 | Mode | Session completion requires |
 | --- | --- |
-| Awareness | A bounded queue of feed item IDs, each explicitly assigned watch, escalate, schedule, or discard |
+| Awareness | A bounded queue of feed item IDs, each explicitly assigned watch, escalate, schedule, discard, archive, or flag |
 | Exploration | A recorded time-box end or escalation reason; an empty trail is valid |
 | Deep Research | Versioned evidence-card, concept, claim-ledger, brief, mental-model, and map references; known/uncertain/unresolved text; Definition of Done review |
 | Decision Support | Selected option, rationale, and a versioned decision reference |
@@ -46,13 +52,13 @@ Deep Research permits three active or paused topics per owner by default across 
 
 ## Current limits
 
-The ledger and MCP tools implement the common session, handoff, history, access, and recorded-exit layer. The roadmap's remaining work includes a persistent feed inbox and Miniflux/newsletter adapters, browser capture and annotations, actual Research Flow composition, native playbook/practice engines, data migration, and the Modulo connector. The token map gives the Knowledge Engine server's shared context a distinct caller identity when the token carries scopes. The full server still needs an authorization audit before exposure as a general multi-tenant Modulo gateway. The current daily-brief Blueprint node is a read-only input, not a triage workflow.
+The ledger and MCP tools implement the common session, handoff, history, access, and recorded-exit layer. The roadmap's remaining work includes mailbox/Miniflux adapters, browser capture, actual Research Flow composition, native playbook/practice engines, data migration, and the Modulo connector. The token map gives the Knowledge Engine server's shared context a distinct caller identity when the token carries scopes. The full server still needs an authorization audit before exposure as a general multi-tenant Modulo gateway. The current daily-brief Blueprint node is a read-only input, not a triage workflow.
 
 Completion of [Noesis #1583](https://github.com/Ikey168/Noesis/issues/1583) still requires the full set of actual MCP transport journeys, representative live-source results, migration rehearsal, and user-assessed outcomes. The current stdio and HTTP tests cover session transport, replay, and isolation; they do not close any of the ten mode issues.
 
 | Issue | Remaining acceptance work |
 | --- | --- |
-| [#1570](https://github.com/Ikey168/Noesis/issues/1570) Awareness | Persist a real per-user feed/newsletter inbox and read/triage state; connect decisions to the session queue. |
+| [#1570](https://github.com/Ikey168/Noesis/issues/1570) Awareness | Add mailbox/Miniflux adapters, authorized Modulo round trips, and live daily-cadence outcome evidence. |
 | [#1571](https://github.com/Ikey168/Noesis/issues/1571) Exploration | Capture browser trails, readable source versions, annotations, and provenance-backed suggestions. |
 | [#1572](https://github.com/Ikey168/Noesis/issues/1572) Deep Research | Compose the existing project, acquisition, evidence, claim, brief, and map systems into a bounded run with a reviewed Definition of Done. |
 | [#1573](https://github.com/Ikey168/Noesis/issues/1573) Decision Support | Connect the existing decision store to bounded intake evidence and user choice/return links. |

@@ -54,7 +54,7 @@ ROUTING_QUESTIONS = (
     ("iterating", "Iteration"),
     ("maintenance", "Maintenance"),
 )
-DECISIONS = {"watch", "escalate", "schedule", "discard"}
+DECISIONS = {"watch", "escalate", "schedule", "discard", "archive", "flag"}
 STATUSES = {"active", "paused", "completed", "cancelled"}
 _REF_FIELDS = {"kind", "id", "namespace", "version", "locator"}
 _WORKSPACE_KINDS = {"intake_item", "session", "artifact", "project", "note", "task"}
@@ -394,6 +394,7 @@ class IntakeStore:
         duration_minutes: int | None = None,
         origin: dict[str, Any] | None = None,
         workspace_links: list[dict[str, Any]] | None = None,
+        references: list[dict[str, Any]] | None = None,
         principal_id: str,
         scopes: set[str],
     ) -> dict[str, Any]:
@@ -405,6 +406,17 @@ class IntakeStore:
         inputs = _bounded(inputs or {})
         supplied_workspace_links = workspace_links is not None
         workspace_links = _workspace_links(workspace_links or [])
+        if references is not None and (
+            not isinstance(references, list) or len(references) > 1000
+        ):
+            raise IntakeError(
+                "invalid_reference", "at most 1000 initial references are allowed"
+            )
+        initial_references = []
+        for raw in references or []:
+            ref = _reference(raw, namespace, scopes)
+            if ref not in initial_references:
+                initial_references.append(ref)
         if not isinstance(inputs, dict):
             raise IntakeError("invalid_input", "inputs must be an object")
         if mode == "Awareness":
@@ -441,7 +453,7 @@ class IntakeStore:
             "status": "active",
             "revision": 1,
             "data": {},
-            "references": [],
+            "references": initial_references,
             "history": [],
         }
         self._authorize(state, principal_id, scopes, write=True)
@@ -463,23 +475,24 @@ class IntakeStore:
             }
             if not supplied_workspace_links:
                 state["workspace_links"] = list(parent.get("workspace_links", []))
-        digest = _hash(
-            {
-                **{
-                    k: state[k]
-                    for k in (
-                        "namespace",
-                        "owner",
-                        "mode",
-                        "intent",
-                        "inputs",
-                        "duration_minutes",
-                        "workspace_links",
-                    )
-                },
-                "origin": origin_request,
-            }
-        )
+        request = {
+            **{
+                k: state[k]
+                for k in (
+                    "namespace",
+                    "owner",
+                    "mode",
+                    "intent",
+                    "inputs",
+                    "duration_minutes",
+                    "workspace_links",
+                )
+            },
+            "origin": origin_request,
+        }
+        if references is not None:
+            request["references"] = initial_references
+        digest = _hash(request)
         existing = self.conn.execute(
             "SELECT request_hash FROM intake_sessions WHERE session_id=?",
             [state["session_id"]],
@@ -656,6 +669,7 @@ class IntakeStore:
         payload: dict[str, Any] | None,
         principal_id: str,
         scopes: set[str],
+        record_hook=None,
     ) -> dict[str, Any]:
         command_key = _text(command_key, "command_key", limit=256)
         if type(expected_revision) is not int or expected_revision < 1:
@@ -763,6 +777,8 @@ class IntakeStore:
                     raise IntakeError(
                         "invalid_reference", "session reference limit exceeded"
                     )
+                if record_hook is not None:
+                    record_hook(state, payload)
             elif action == "pause":
                 if state["status"] != "active":
                     raise IntakeError(

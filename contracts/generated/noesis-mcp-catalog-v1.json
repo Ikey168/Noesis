@@ -812,7 +812,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 441,
+      "tool_count": 457,
       "tools": [
         "noesis-knowledge-engine.accept_citation_repair",
         "noesis-knowledge-engine.accept_dataset_join",
@@ -829,6 +829,7 @@
         "noesis-knowledge-engine.align_cross_language_claims",
         "noesis-knowledge-engine.amend_review_protocol",
         "noesis-knowledge-engine.annotate_evidence_freshness",
+        "noesis-knowledge-engine.annotate_intake_feed_item",
         "noesis-knowledge-engine.anomaly_alert_history",
         "noesis-knowledge-engine.archive_investigation_template",
         "noesis-knowledge-engine.archive_knowledge_checkpoint",
@@ -897,6 +898,7 @@
         "noesis-knowledge-engine.create_source_acquisition_plan",
         "noesis-knowledge-engine.create_source_research_objective",
         "noesis-knowledge-engine.decide_authored_report_edit",
+        "noesis-knowledge-engine.decide_intake_feed_item",
         "noesis-knowledge-engine.decide_source_alias",
         "noesis-knowledge-engine.decrypt_research_package",
         "noesis-knowledge-engine.delete_source_identity",
@@ -1005,6 +1007,7 @@
         "noesis-knowledge-engine.inspect_decision_condition_watch",
         "noesis-knowledge-engine.inspect_effective_access_view",
         "noesis-knowledge-engine.inspect_entity_change_impact",
+        "noesis-knowledge-engine.inspect_intake_feed_item",
         "noesis-knowledge-engine.inspect_intake_mode",
         "noesis-knowledge-engine.inspect_investigation_comparison",
         "noesis-knowledge-engine.inspect_investigation_template",
@@ -1042,6 +1045,9 @@
         "noesis-knowledge-engine.list_expiring_evidence",
         "noesis-knowledge-engine.list_extractors",
         "noesis-knowledge-engine.list_geospatial_geometries",
+        "noesis-knowledge-engine.list_intake_feed_inbox",
+        "noesis-knowledge-engine.list_intake_feed_signal_rules",
+        "noesis-knowledge-engine.list_intake_feed_subscriptions",
         "noesis-knowledge-engine.list_intake_modes",
         "noesis-knowledge-engine.list_investigation_templates",
         "noesis-knowledge-engine.list_maintenance_due_work",
@@ -1061,6 +1067,7 @@
         "noesis-knowledge-engine.lookup_source_identity",
         "noesis-knowledge-engine.maintenance_generation_lineage",
         "noesis-knowledge-engine.maintenance_health",
+        "noesis-knowledge-engine.mark_intake_feed_read",
         "noesis-knowledge-engine.merge_canonical_events",
         "noesis-knowledge-engine.multilingual_search",
         "noesis-knowledge-engine.pause_maintenance_schedule",
@@ -1076,11 +1083,14 @@
         "noesis-knowledge-engine.preview_dataset_join",
         "noesis-knowledge-engine.preview_entity_merge",
         "noesis-knowledge-engine.preview_entity_split",
+        "noesis-knowledge-engine.preview_intake_feed_signal_rule",
+        "noesis-knowledge-engine.preview_intake_feed_signals",
         "noesis-knowledge-engine.preview_investigation_template",
         "noesis-knowledge-engine.preview_research_recipe",
         "noesis-knowledge-engine.preview_semantic_change",
         "noesis-knowledge-engine.preview_source_acquisition_plan",
         "noesis-knowledge-engine.prioritize_research_gaps",
+        "noesis-knowledge-engine.promote_awareness_item",
         "noesis-knowledge-engine.propagate_evidence_freshness",
         "noesis-knowledge-engine.propose_authored_report_edit",
         "noesis-knowledge-engine.propose_forecast_resolution",
@@ -1103,6 +1113,7 @@
         "noesis-knowledge-engine.record_translation",
         "noesis-knowledge-engine.recover_research_analysis_run",
         "noesis-knowledge-engine.recover_stale_maintenance_jobs",
+        "noesis-knowledge-engine.refresh_intake_feed_inbox",
         "noesis-knowledge-engine.register_access_bound_object",
         "noesis-knowledge-engine.register_access_view_policy",
         "noesis-knowledge-engine.register_anomaly_watch",
@@ -1207,6 +1218,7 @@
         "noesis-knowledge-engine.run_reference_workflow",
         "noesis-knowledge-engine.run_research_recipe",
         "noesis-knowledge-engine.run_source_pack_execution",
+        "noesis-knowledge-engine.save_intake_feed_signal_rule",
         "noesis-knowledge-engine.score_binary_forecasts",
         "noesis-knowledge-engine.screen_review_candidate",
         "noesis-knowledge-engine.search_datasets",
@@ -1235,14 +1247,18 @@
         "noesis-knowledge-engine.source_pack_runtime_coverage",
         "noesis-knowledge-engine.source_relationship_path",
         "noesis-knowledge-engine.split_source_alias",
+        "noesis-knowledge-engine.start_awareness_from_inbox",
         "noesis-knowledge-engine.start_intake_mode",
         "noesis-knowledge-engine.store_geospatial_geometry",
         "noesis-knowledge-engine.submit_review_inbox_annotation",
         "noesis-knowledge-engine.subscribe_cited_evidence",
+        "noesis-knowledge-engine.subscribe_intake_feed",
         "noesis-knowledge-engine.suggest_dataset_joins",
         "noesis-knowledge-engine.sync_zotero_library",
         "noesis-knowledge-engine.transform_quantitative_frequency",
         "noesis-knowledge-engine.transition_anomaly_alert",
+        "noesis-knowledge-engine.triage_awareness_batch",
+        "noesis-knowledge-engine.triage_awareness_item",
         "noesis-knowledge-engine.undo_entity_identity_change",
         "noesis-knowledge-engine.unified_query_capabilities",
         "noesis-knowledge-engine.update_research_gap_status",
@@ -1261,7 +1277,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 441
+      "visible_tool_count": 457
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -1275,9 +1291,9 @@
       "available": 84,
       "degraded": 155,
       "disabled": 3,
-      "unauthorized": 443
+      "unauthorized": 459
     },
-    "tools": 685
+    "tools": 701
   },
   "tools": [
     {
@@ -14270,6 +14286,63 @@
       "version": "1"
     },
     {
+      "cost_class": "medium",
+      "description": "Attach an immutable user annotation to the retained feed source.",
+      "id": "noesis-knowledge-engine.annotate_intake_feed_item",
+      "input_schema": {
+        "properties": {
+          "body": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "locator": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "request_key": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "item_id",
+          "request_key",
+          "body"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "annotate_intake_feed_item",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:intake:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "low",
       "description": "List bounded, paginated alert delivery and recovery history.",
       "id": "noesis-knowledge-engine.anomaly_alert_history",
@@ -18518,6 +18591,51 @@
       "required_scopes": [
         "knowledge:reports:read",
         "knowledge:reports:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Record watch, escalate, schedule, or discard without resetting read state.",
+      "id": "noesis-knowledge-engine.decide_intake_feed_item",
+      "input_schema": {
+        "properties": {
+          "command_key": {
+            "type": "string"
+          },
+          "decision": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "item_id",
+          "command_key",
+          "decision"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "decide_intake_feed_item",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:intake:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -23519,6 +23637,54 @@
     },
     {
       "cost_class": "low",
+      "description": "Read a source snapshot and its independent read/triage state.",
+      "id": "noesis-knowledge-engine.inspect_intake_feed_item",
+      "input_schema": {
+        "properties": {
+          "item_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "revision": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "item_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "inspect_intake_feed_item",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:intake:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Inspect current progress or an exact prior revision under current access.",
       "id": "noesis-knowledge-engine.inspect_intake_mode",
       "input_schema": {
@@ -25262,6 +25428,117 @@
     },
     {
       "cost_class": "low",
+      "description": "Page persistent feed items without marking unseen entries processed.",
+      "id": "noesis-knowledge-engine.list_intake_feed_inbox",
+      "input_schema": {
+        "properties": {
+          "limit": {
+            "default": 50,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "offset": {
+            "default": 0,
+            "type": "integer"
+          },
+          "only_unprocessed": {
+            "default": false,
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_intake_feed_inbox",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:intake:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "List this caller's saved inbox signal rules.",
+      "id": "noesis-knowledge-engine.list_intake_feed_signal_rules",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_intake_feed_signal_rules",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:intake:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "List this caller's configured intake feed inputs.",
+      "id": "noesis-knowledge-engine.list_intake_feed_subscriptions",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_intake_feed_subscriptions",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:intake:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Page through accessible sessions, including interrupted work.",
       "id": "noesis-knowledge-engine.list_intake_modes",
       "input_schema": {
@@ -26100,6 +26377,51 @@
       "version": "1"
     },
     {
+      "cost_class": "medium",
+      "description": "Set or clear read state with a durable idempotency key.",
+      "id": "noesis-knowledge-engine.mark_intake_feed_read",
+      "input_schema": {
+        "properties": {
+          "command_key": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "read": {
+            "default": true,
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "namespace",
+          "item_id",
+          "command_key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "mark_intake_feed_read",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:intake:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "low",
       "description": "Merge explicitly selected events into one reversible canonical revision.",
       "id": "noesis-knowledge-engine.merge_canonical_events",
@@ -26841,6 +27163,99 @@
     },
     {
       "cost_class": "low",
+      "description": "Explain matches for a saved rule without changing inbox state.",
+      "id": "noesis-knowledge-engine.preview_intake_feed_signal_rule",
+      "input_schema": {
+        "properties": {
+          "limit": {
+            "default": 50,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "only_unprocessed": {
+            "default": true,
+            "type": "boolean"
+          },
+          "rule_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "rule_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "preview_intake_feed_signal_rule",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:intake:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Explain title/content keyword matches without changing read or triage state.",
+      "id": "noesis-knowledge-engine.preview_intake_feed_signals",
+      "input_schema": {
+        "properties": {
+          "limit": {
+            "default": 50,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "only_unprocessed": {
+            "default": true,
+            "type": "boolean"
+          },
+          "terms": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "namespace",
+          "terms"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "preview_intake_feed_signals",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:intake:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Preview questions, report outline and pinned source readiness without acquisition.",
       "id": "noesis-knowledge-engine.preview_investigation_template",
       "input_schema": {
@@ -27200,6 +27615,63 @@
       ],
       "required_scopes": [
         "knowledge:gaps:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Promote an escalated item with its source and annotation references.",
+      "id": "noesis-knowledge-engine.promote_awareness_item",
+      "input_schema": {
+        "properties": {
+          "awareness_session_id": {
+            "type": "string"
+          },
+          "intent": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "request_key": {
+            "type": "string"
+          },
+          "target_mode": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "awareness_session_id",
+          "item_id",
+          "request_key",
+          "target_mode",
+          "reason",
+          "intent"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "promote_awareness_item",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:intake:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -28694,6 +29166,44 @@
       ],
       "required_scopes": [
         "knowledge:maintenance:admin"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Fetch configured feeds with bounded network scope and retain read/triage state.",
+      "id": "noesis-knowledge-engine.refresh_intake_feed_inbox",
+      "input_schema": {
+        "properties": {
+          "limit_per_feed": {
+            "default": 50,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "refresh_intake_feed_inbox",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:intake:write",
+        "knowledge:intake:fetch"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -35434,6 +35944,50 @@
       "version": "1"
     },
     {
+      "cost_class": "medium",
+      "description": "Save or update a caller-owned, versioned keyword signal rule.",
+      "id": "noesis-knowledge-engine.save_intake_feed_signal_rule",
+      "input_schema": {
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "terms": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "namespace",
+          "name",
+          "terms"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "save_intake_feed_signal_rule",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:intake:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "high",
       "description": "Score a specified cohort with Brier scores, reliability intervals, baseline, and exclusions.",
       "id": "noesis-knowledge-engine.score_binary_forecasts",
@@ -36928,6 +37482,66 @@
     },
     {
       "cost_class": "medium",
+      "description": "Start or replay a bounded Awareness queue from unprocessed inbox items.",
+      "id": "noesis-knowledge-engine.start_awareness_from_inbox",
+      "input_schema": {
+        "properties": {
+          "duration_minutes": {
+            "default": 15,
+            "type": "integer"
+          },
+          "intent": {
+            "default": "Daily feed triage",
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "request_key": {
+            "type": "string"
+          },
+          "workspace_links": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "request_key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "start_awareness_from_inbox",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:intake:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Start or replay an owner-scoped mode session, optionally linked to a prior mode.",
       "id": "noesis-knowledge-engine.start_intake_mode",
       "input_schema": {
@@ -36969,6 +37583,21 @@
               {
                 "additionalProperties": true,
                 "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "references": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
               },
               {
                 "type": "null"
@@ -37257,6 +37886,51 @@
       "version": "1"
     },
     {
+      "cost_class": "medium",
+      "description": "Register a public HTTPS RSS/Atom or newsletter feed for this caller.",
+      "id": "noesis-knowledge-engine.subscribe_intake_feed",
+      "input_schema": {
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "source_kind": {
+            "default": "rss_atom",
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "url",
+          "name"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "subscribe_intake_feed",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:intake:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "low",
       "description": "Suggest join keys from names, semantic roles, and shared code lists.",
       "id": "noesis-knowledge-engine.suggest_dataset_joins",
@@ -37462,6 +38136,111 @@
       ],
       "required_scopes": [
         "knowledge:anomalies:deliver"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Atomically triage 1\u2013100 queued items and record one session revision.",
+      "id": "noesis-knowledge-engine.triage_awareness_batch",
+      "input_schema": {
+        "properties": {
+          "command_key": {
+            "type": "string"
+          },
+          "decisions": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "expected_revision": {
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "session_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "session_id",
+          "decisions",
+          "command_key",
+          "expected_revision"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "triage_awareness_batch",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:intake:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Atomically record one item decision in the inbox and Awareness session.",
+      "id": "noesis-knowledge-engine.triage_awareness_item",
+      "input_schema": {
+        "properties": {
+          "command_key": {
+            "type": "string"
+          },
+          "decision": {
+            "type": "string"
+          },
+          "expected_revision": {
+            "type": "integer"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "session_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "session_id",
+          "item_id",
+          "command_key",
+          "expected_revision",
+          "decision"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "triage_awareness_item",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:intake:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",

@@ -369,9 +369,20 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
         "discover_intake_modes", "route_intake_mode", "verify_intake_mode_export",
         "inspect_intake_mode", "list_intake_modes", "export_intake_mode",
         "export_modulo_intake_handoff", "start_intake_mode", "command_intake_mode",
+        "subscribe_intake_feed", "list_intake_feed_subscriptions",
+        "refresh_intake_feed_inbox", "list_intake_feed_inbox",
+        "inspect_intake_feed_item", "mark_intake_feed_read", "decide_intake_feed_item",
+        "start_awareness_from_inbox", "triage_awareness_item",
+        "triage_awareness_batch",
+        "annotate_intake_feed_item", "promote_awareness_item",
+        "preview_intake_feed_signals",
+        "save_intake_feed_signal_rule", "list_intake_feed_signal_rules",
+        "preview_intake_feed_signal_rule",
     }:
         if tool_name in {"discover_intake_modes", "route_intake_mode", "verify_intake_mode_export"}:
             return []
+        if tool_name == "refresh_intake_feed_inbox":
+            return ["knowledge:intake:write", "knowledge:intake:fetch"]
         return ["knowledge:intake:write" if mutability == "write" else "knowledge:intake:read"]
     if server_stem == "transactions_mcp":
         if tool_name.startswith("commit_"):
