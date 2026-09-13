@@ -3,6 +3,7 @@
 from src.kb.intake_exploration import IntakeExplorationStore
 from src.kb.intake_inbox import IntakeInboxStore
 from src.kb.intake_modes import IntakeStore, discover_modes, route_mode, verify_export
+from src.kb.intake_problem import IntakeProblemStore
 
 INTAKE_WRITES = {
     "start_intake_mode",
@@ -21,6 +22,8 @@ INTAKE_WRITES = {
     "visit_exploration_feed_item",
     "annotate_exploration_source",
     "decide_exploration_suggestion",
+    "start_problem_session",
+    "record_problem_step",
 }
 INTAKE_READS = {
     "discover_intake_modes",
@@ -176,6 +179,70 @@ def register(mcp, safe, context):
                 expected_revision=expected_revision,
                 action=action,
                 payload=payload,
+                principal_id=context()[0],
+                scopes=context()[1],
+            ),
+            write=True,
+            required_scope="knowledge:intake:write",
+        )
+
+    @mcp.tool()
+    def start_problem_session(
+        namespace: str,
+        request_key: str,
+        symptom: str,
+        environment: str,
+        urgency: str,
+        success_check: str,
+        origin: dict | None = None,
+        workspace_links: list[dict] | None = None,
+        references: list[dict] | None = None,
+    ) -> dict:
+        """Start a typed, resumable troubleshooting session with an observable goal."""
+        return safe(
+            lambda conn: IntakeProblemStore(conn).start(
+                namespace,
+                request_key,
+                symptom=symptom,
+                environment=environment,
+                urgency=urgency,
+                success_check=success_check,
+                origin=origin,
+                workspace_links=workspace_links,
+                references=references,
+                principal_id=context()[0],
+                scopes=context()[1],
+            ),
+            write=True,
+            required_scope="knowledge:intake:write",
+        )
+
+    @mcp.tool()
+    def record_problem_step(
+        namespace: str,
+        session_id: str,
+        command_key: str,
+        expected_revision: int,
+        kind: str,
+        summary: str,
+        observation: str | None = None,
+        next_action: str | None = None,
+        passed: bool | None = None,
+        references: list[dict] | None = None,
+    ) -> dict:
+        """Record a proposal, reported attempt, or observed check with safe replay."""
+        return safe(
+            lambda conn: IntakeProblemStore(conn).record_step(
+                namespace,
+                session_id,
+                command_key,
+                expected_revision=expected_revision,
+                kind=kind,
+                summary=summary,
+                observation=observation,
+                next_action=next_action,
+                passed=passed,
+                references=references,
                 principal_id=context()[0],
                 scopes=context()[1],
             ),

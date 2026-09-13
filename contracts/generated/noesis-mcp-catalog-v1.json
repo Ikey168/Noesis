@@ -812,7 +812,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 463,
+      "tool_count": 465,
       "tools": [
         "noesis-knowledge-engine.accept_citation_repair",
         "noesis-knowledge-engine.accept_dataset_join",
@@ -1110,6 +1110,7 @@
         "noesis-knowledge-engine.record_language_text",
         "noesis-knowledge-engine.record_media_transformation",
         "noesis-knowledge-engine.record_multilingual_alias",
+        "noesis-knowledge-engine.record_problem_step",
         "noesis-knowledge-engine.record_quantitative_observation",
         "noesis-knowledge-engine.record_quantitative_series_break",
         "noesis-knowledge-engine.record_research_coverage",
@@ -1253,6 +1254,7 @@
         "noesis-knowledge-engine.split_source_alias",
         "noesis-knowledge-engine.start_awareness_from_inbox",
         "noesis-knowledge-engine.start_intake_mode",
+        "noesis-knowledge-engine.start_problem_session",
         "noesis-knowledge-engine.store_geospatial_geometry",
         "noesis-knowledge-engine.submit_review_inbox_annotation",
         "noesis-knowledge-engine.subscribe_cited_evidence",
@@ -1283,7 +1285,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 463
+      "visible_tool_count": 465
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -1297,9 +1299,9 @@
       "available": 84,
       "degraded": 155,
       "disabled": 3,
-      "unauthorized": 465
+      "unauthorized": 467
     },
-    "tools": 707
+    "tools": 709
   },
   "tools": [
     {
@@ -28864,6 +28866,107 @@
     },
     {
       "cost_class": "medium",
+      "description": "Record a proposal, reported attempt, or observed check with safe replay.",
+      "id": "noesis-knowledge-engine.record_problem_step",
+      "input_schema": {
+        "properties": {
+          "command_key": {
+            "type": "string"
+          },
+          "expected_revision": {
+            "type": "integer"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "next_action": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "observation": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "passed": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "references": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "session_id": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "session_id",
+          "command_key",
+          "expected_revision",
+          "kind",
+          "summary"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "record_problem_step",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:intake:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Record a provenance-rich observation without replacing earlier vintages.",
       "id": "noesis-knowledge-engine.record_quantitative_observation",
       "input_schema": {
@@ -37891,6 +37994,101 @@
       "latency_class": "interactive",
       "mutability": "write",
       "name": "start_intake_mode",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:intake:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Start a typed, resumable troubleshooting session with an observable goal.",
+      "id": "noesis-knowledge-engine.start_problem_session",
+      "input_schema": {
+        "properties": {
+          "environment": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "origin": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "references": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "request_key": {
+            "type": "string"
+          },
+          "success_check": {
+            "type": "string"
+          },
+          "symptom": {
+            "type": "string"
+          },
+          "urgency": {
+            "type": "string"
+          },
+          "workspace_links": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "request_key",
+          "symptom",
+          "environment",
+          "urgency",
+          "success_check"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "start_problem_session",
       "output_schema": {
         "additionalProperties": true,
         "type": "object"

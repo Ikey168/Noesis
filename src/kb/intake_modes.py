@@ -234,6 +234,17 @@ def _completion(state: dict[str, Any]) -> list[str]:
     elif mode == "Problem-Solving":
         require(data.get("verified") is True, "verified_fix")
         require(filled("verification"), "verification")
+        if state["inputs"].get("problem_contract") == "noesis-problem-trail-v1":
+            trail = data.get("problem_trail", [])
+            require(
+                isinstance(trail, list)
+                and bool(trail)
+                and isinstance(trail[-1], dict)
+                and trail[-1].get("kind") == "verification"
+                and trail[-1].get("passed") is True
+                and bool(trail[-1].get("observation")),
+                "latest_observed_success_check",
+            )
     elif mode == "Creation":
         require(has_ref("created_artifact"), "reference:created_artifact")
         checks = data.get("acceptance_checks")
@@ -717,6 +728,16 @@ class IntakeStore:
                 if state["status"] != "active":
                     raise IntakeError(
                         "paused_session", "resume before recording progress"
+                    )
+                if (
+                    state["mode"] == "Problem-Solving"
+                    and state["inputs"].get("problem_contract")
+                    == "noesis-problem-trail-v1"
+                    and record_hook is None
+                ):
+                    raise IntakeError(
+                        "typed_record_required",
+                        "use record_problem_step for a typed troubleshooting trail",
                     )
                 if set(payload) - {"data", "references"} or not payload:
                     raise IntakeError(
