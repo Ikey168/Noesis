@@ -69,3 +69,11 @@ stored receipt. Missing positive-weight inputs leave an option unranked; they do
 not become zero. Inputs must already have comparable scales and direction.
 This is a weighted utility calculation, not a causal model or an automatic choice.
 The selected action remains the author's decision.
+
+A Decision Support intake session can cite a standalone decision with
+`{"kind":"decision","id":"decision:<id>","namespace":"<namespace>","version":1}`.
+Start the session with `start_intake_mode`, record `selected_option` and `rationale`
+through `command_intake_mode`, and complete it independently of an open research
+session. A Modulo caller can add its versioned artifact link and an Exploration or
+Deep Research `origin`. The deterministic handoff fixture verifies command replay,
+history, and current-owner access; it does not establish user decision quality.
