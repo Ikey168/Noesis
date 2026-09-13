@@ -719,7 +719,7 @@ def _serve_report(config, args: argparse.Namespace) -> dict[str, Any]:
     port = args.port or (config.api_port if args.surface == "api" else config.mcp_port)
     transport = "http" if args.surface == "api" else args.transport
     token_set = (
-        bool(os.environ.get("NOESIS_MCP_AUTH_TOKEN"))
+        bool(os.environ.get("NOESIS_MCP_AUTH_TOKEN") or os.environ.get("NOESIS_MCP_AUTH_TOKENS_FILE"))
         if args.surface == "kb-mcp"
         else False
     )
