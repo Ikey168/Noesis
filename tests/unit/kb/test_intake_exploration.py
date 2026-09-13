@@ -104,15 +104,27 @@ def test_lightweight_capture_versions_and_replay(tmp_path):
         == "Corrected version"
     )
     later = store.capture(
-        "research", session["session_id"], "visit-three", expected_revision=3,
-        url="https://example.org/a", title="Article A", saved=False,
-        principal_id="alice", scopes=SCOPES,
+        "research",
+        session["session_id"],
+        "visit-three",
+        expected_revision=3,
+        url="https://example.org/a",
+        title="Article A",
+        saved=False,
+        principal_id="alice",
+        scopes=SCOPES,
     )
     assert later["data"]["trail"][-1]["snapshot_preserved"] is True
     assert later["data"]["trail"][-1]["version"] == 2
-    assert store.inspect_source(
-        "research", source_id, principal_id="alice", scopes=SCOPES,
-    )["content"] == "Corrected version"
+    assert (
+        store.inspect_source(
+            "research",
+            source_id,
+            principal_id="alice",
+            scopes=SCOPES,
+        )["content"]
+        == "Corrected version"
+    )
     with pytest.raises(IntakeError) as hidden:
         store.inspect_source("research", source_id, principal_id="bob", scopes=SCOPES)
     assert hidden.value.code == "source_not_found"
@@ -192,49 +204,254 @@ def test_fetch_replay_avoids_network_and_rejects_unsafe_urls(tmp_path):
 def test_annotations_follow_source_versions_and_owner(tmp_path):
     conn = duckdb.connect(str(tmp_path / "annotations.duckdb"))
     session = IntakeStore(conn).create(
-        "research", "Exploration", "notes", intent="Browse",
-        principal_id="alice", scopes=SCOPES,
+        "research",
+        "Exploration",
+        "notes",
+        intent="Browse",
+        principal_id="alice",
+        scopes=SCOPES,
     )
     store = IntakeExplorationStore(conn)
     first = store.capture(
-        "research", session["session_id"], "page-v1", expected_revision=1,
-        url="https://example.org/topic", title="Topic", content="Original",
-        principal_id="alice", scopes=SCOPES,
+        "research",
+        session["session_id"],
+        "page-v1",
+        expected_revision=1,
+        url="https://example.org/topic",
+        title="Topic",
+        content="Original",
+        principal_id="alice",
+        scopes=SCOPES,
     )
     source_id = first["references"][0]["id"]
     note = store.annotate_source(
-        "research", source_id, "note-1", "Check this claim",
-        locator={"section": "Methods"}, principal_id="alice", scopes=SCOPES,
+        "research",
+        source_id,
+        "note-1",
+        "Check this claim",
+        locator={"section": "Methods"},
+        principal_id="alice",
+        scopes=SCOPES,
     )
     assert note["source_version"] == 1
     assert note["reference"]["kind"] == "exploration_annotation"
-    assert store.annotate_source(
-        "research", source_id, "note-1", "Check this claim",
-        locator={"section": "Methods"}, principal_id="alice", scopes=SCOPES,
-    )["idempotent"] is True
+    assert (
+        store.annotate_source(
+            "research",
+            source_id,
+            "note-1",
+            "Check this claim",
+            locator={"section": "Methods"},
+            principal_id="alice",
+            scopes=SCOPES,
+        )["idempotent"]
+        is True
+    )
     with pytest.raises(IntakeError) as conflict:
         store.annotate_source(
-            "research", source_id, "note-1", "Changed",
-            principal_id="alice", scopes=SCOPES,
+            "research",
+            source_id,
+            "note-1",
+            "Changed",
+            principal_id="alice",
+            scopes=SCOPES,
         )
     assert conflict.value.code == "idempotency_conflict"
     store.capture(
-        "research", session["session_id"], "page-v2", expected_revision=2,
-        url="https://example.org/topic", title="Topic", content="Corrected",
-        principal_id="alice", scopes=SCOPES,
+        "research",
+        session["session_id"],
+        "page-v2",
+        expected_revision=2,
+        url="https://example.org/topic",
+        title="Topic",
+        content="Corrected",
+        principal_id="alice",
+        scopes=SCOPES,
     )
-    assert store.inspect_source(
-        "research", source_id, principal_id="alice", scopes=SCOPES,
-    )["annotations"] == []
-    assert store.inspect_source(
-        "research", source_id, version=1, principal_id="alice", scopes=SCOPES,
-    )["annotations"][0]["annotation_id"] == note["annotation_id"]
+    assert (
+        store.inspect_source(
+            "research",
+            source_id,
+            principal_id="alice",
+            scopes=SCOPES,
+        )["annotations"]
+        == []
+    )
+    assert (
+        store.inspect_source(
+            "research",
+            source_id,
+            version=1,
+            principal_id="alice",
+            scopes=SCOPES,
+        )["annotations"][0]["annotation_id"]
+        == note["annotation_id"]
+    )
     with pytest.raises(IntakeError) as hidden:
         store.annotate_source(
-            "research", source_id, "steal", "Mine",
-            principal_id="bob", scopes=SCOPES,
+            "research",
+            source_id,
+            "steal",
+            "Mine",
+            principal_id="bob",
+            scopes=SCOPES,
         )
     assert hidden.value.code == "source_not_found"
+    conn.close()
+
+
+def test_related_source_provenance_follow_dismiss_and_replay(tmp_path):
+    path = str(tmp_path / "related.duckdb")
+    conn = duckdb.connect(path)
+    ledger = IntakeStore(conn)
+    store = IntakeExplorationStore(conn)
+    library = ledger.create(
+        "research",
+        "Exploration",
+        "library",
+        intent="Keep sources",
+        principal_id="alice",
+        scopes=SCOPES,
+    )
+    for revision, (key, url, title) in enumerate(
+        [
+            ("first", "https://example.net/heat", "Urban heat adaptation methods"),
+            ("second", "https://example.com/heat", "Urban heat adaptation policies"),
+        ],
+        start=1,
+    ):
+        store.capture(
+            "research",
+            library["session_id"],
+            key,
+            expected_revision=revision,
+            url=url,
+            title=title,
+            content="Urban heat adaptation in cities",
+            principal_id="alice",
+            scopes=SCOPES,
+        )
+    exploration = ledger.create(
+        "research",
+        "Exploration",
+        "current",
+        intent="Explore climate",
+        principal_id="alice",
+        scopes=SCOPES,
+    )
+    current = store.capture(
+        "research",
+        exploration["session_id"],
+        "anchor",
+        expected_revision=1,
+        url="https://example.org/climate",
+        title="Urban climate heat adaptation",
+        content="Cities compare adaptation methods and policies",
+        principal_id="alice",
+        scopes=SCOPES,
+    )
+    # A later correction must not rewrite the terms or version of this visit.
+    store.capture(
+        "research",
+        library["session_id"],
+        "correct-anchor",
+        expected_revision=3,
+        url="https://example.org/climate",
+        title="Unrelated music theory",
+        content="Harmony counterpoint rhythm melody",
+        principal_id="alice",
+        scopes=SCOPES,
+    )
+    session_id = exploration["session_id"]
+    suggestions = store.related_sources(
+        "research",
+        session_id,
+        principal_id="alice",
+        scopes=SCOPES,
+    )["suggestions"]
+    assert len(suggestions) == 2
+    assert suggestions[0]["method"] == "lexical_overlap_v1"
+    assert suggestions[0]["cross_domain"] is True
+    assert "adaptation" in suggestions[0]["shared_terms"]
+    assert suggestions[0]["anchor"]["reference"]["id"] == current["references"][0]["id"]
+    dismissed = store.decide_related_source(
+        "research",
+        session_id,
+        suggestions[0]["suggestion_id"],
+        "skip",
+        expected_revision=2,
+        decision="dismiss",
+        principal_id="alice",
+        scopes=SCOPES,
+    )
+    assert len(dismissed["data"]["trail"]) == 1
+    assert (
+        store.decide_related_source(
+            "research",
+            session_id,
+            suggestions[0]["suggestion_id"],
+            "skip",
+            expected_revision=2,
+            decision="dismiss",
+            principal_id="alice",
+            scopes=SCOPES,
+        )["idempotent"]
+        is True
+    )
+    remaining = store.related_sources(
+        "research",
+        session_id,
+        principal_id="alice",
+        scopes=SCOPES,
+    )["suggestions"]
+    assert len(remaining) == 1
+    followed = store.decide_related_source(
+        "research",
+        session_id,
+        remaining[0]["suggestion_id"],
+        "follow",
+        expected_revision=3,
+        decision="follow",
+        saved=True,
+        principal_id="alice",
+        scopes=SCOPES,
+    )
+    assert (
+        followed["data"]["trail"][-1]["source_id"]
+        == remaining[0]["candidate"]["source_id"]
+    )
+    assert followed["data"]["trail"][-1]["saved"] is True
+    assert remaining[0]["candidate"]["reference"] in followed["references"]
+    assert (
+        store.related_sources(
+            "research",
+            session_id,
+            principal_id="alice",
+            scopes=SCOPES,
+        )["suggestions"]
+        == []
+    )
+    conn.close()
+    conn = duckdb.connect(path)
+    assert (
+        len(
+            IntakeStore(conn).inspect(
+                "research",
+                session_id,
+                principal_id="alice",
+                scopes=SCOPES,
+            )["data"]["suggestion_actions"]
+        )
+        == 2
+    )
+    with pytest.raises(IntakeError) as hidden:
+        IntakeExplorationStore(conn, initialize=False).related_sources(
+            "research",
+            session_id,
+            principal_id="bob",
+            scopes=SCOPES,
+        )
+    assert hidden.value.code == "unauthorized"
     conn.close()
 
 

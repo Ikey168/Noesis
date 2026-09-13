@@ -20,6 +20,7 @@ INTAKE_WRITES = {
     "capture_exploration_page",
     "visit_exploration_feed_item",
     "annotate_exploration_source",
+    "decide_exploration_suggestion",
 }
 INTAKE_READS = {
     "discover_intake_modes",
@@ -36,6 +37,7 @@ INTAKE_READS = {
     "list_intake_feed_signal_rules",
     "preview_intake_feed_signal_rule",
     "inspect_exploration_source",
+    "suggest_exploration_sources",
 }
 
 
@@ -569,6 +571,49 @@ def register(mcp, safe, context):
                 request_key,
                 body,
                 locator=locator,
+                principal_id=context()[0],
+                scopes=context()[1],
+            ),
+            write=True,
+            required_scope="knowledge:intake:write",
+        )
+
+    @mcp.tool()
+    def suggest_exploration_sources(
+        namespace: str, session_id: str, limit: int = 20
+    ) -> dict:
+        """Find owner-visible captured pages sharing inspectable terms with the trail."""
+        return safe(
+            lambda conn: IntakeExplorationStore(conn, initialize=False).related_sources(
+                namespace,
+                session_id,
+                limit=limit,
+                principal_id=context()[0],
+                scopes=context()[1],
+            ),
+            required_scope="knowledge:intake:read",
+        )
+
+    @mcp.tool()
+    def decide_exploration_suggestion(
+        namespace: str,
+        session_id: str,
+        suggestion_id: str,
+        command_key: str,
+        expected_revision: int,
+        decision: str,
+        saved: bool = False,
+    ) -> dict:
+        """Durably dismiss or follow one current Exploration source suggestion."""
+        return safe(
+            lambda conn: IntakeExplorationStore(conn).decide_related_source(
+                namespace,
+                session_id,
+                suggestion_id,
+                command_key,
+                expected_revision=expected_revision,
+                decision=decision,
+                saved=saved,
                 principal_id=context()[0],
                 scopes=context()[1],
             ),

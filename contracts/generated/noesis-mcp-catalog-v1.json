@@ -812,7 +812,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 461,
+      "tool_count": 463,
       "tools": [
         "noesis-knowledge-engine.accept_citation_repair",
         "noesis-knowledge-engine.accept_dataset_join",
@@ -900,6 +900,7 @@
         "noesis-knowledge-engine.create_source_acquisition_plan",
         "noesis-knowledge-engine.create_source_research_objective",
         "noesis-knowledge-engine.decide_authored_report_edit",
+        "noesis-knowledge-engine.decide_exploration_suggestion",
         "noesis-knowledge-engine.decide_intake_feed_item",
         "noesis-knowledge-engine.decide_source_alias",
         "noesis-knowledge-engine.decrypt_research_package",
@@ -1257,6 +1258,7 @@
         "noesis-knowledge-engine.subscribe_cited_evidence",
         "noesis-knowledge-engine.subscribe_intake_feed",
         "noesis-knowledge-engine.suggest_dataset_joins",
+        "noesis-knowledge-engine.suggest_exploration_sources",
         "noesis-knowledge-engine.sync_zotero_library",
         "noesis-knowledge-engine.transform_quantitative_frequency",
         "noesis-knowledge-engine.transition_anomaly_alert",
@@ -1281,7 +1283,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 461
+      "visible_tool_count": 463
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -1295,9 +1297,9 @@
       "available": 84,
       "degraded": 155,
       "disabled": 3,
-      "unauthorized": 463
+      "unauthorized": 465
     },
-    "tools": 705
+    "tools": 707
   },
   "tools": [
     {
@@ -18728,6 +18730,63 @@
       "required_scopes": [
         "knowledge:reports:read",
         "knowledge:reports:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Durably dismiss or follow one current Exploration source suggestion.",
+      "id": "noesis-knowledge-engine.decide_exploration_suggestion",
+      "input_schema": {
+        "properties": {
+          "command_key": {
+            "type": "string"
+          },
+          "decision": {
+            "type": "string"
+          },
+          "expected_revision": {
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "saved": {
+            "default": false,
+            "type": "boolean"
+          },
+          "session_id": {
+            "type": "string"
+          },
+          "suggestion_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "session_id",
+          "suggestion_id",
+          "command_key",
+          "expected_revision",
+          "decision"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "decide_exploration_suggestion",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:intake:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -38170,6 +38229,47 @@
       ],
       "required_scopes": [
         "knowledge:dataset:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Find owner-visible captured pages sharing inspectable terms with the trail.",
+      "id": "noesis-knowledge-engine.suggest_exploration_sources",
+      "input_schema": {
+        "properties": {
+          "limit": {
+            "default": 20,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "session_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "session_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "suggest_exploration_sources",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:intake:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
