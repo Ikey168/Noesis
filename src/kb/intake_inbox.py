@@ -957,6 +957,7 @@ class IntakeInboxStore:
         target_mode: str,
         reason: str,
         intent: str,
+        workspace_links: list[dict[str, Any]] | None = None,
         principal_id: str,
         scopes: set[str],
     ) -> dict[str, Any]:
@@ -987,6 +988,10 @@ class IntakeInboxStore:
                 or existing["origin"]["reason"] != reason
                 or existing["intent"] != intent
                 or existing["inputs"].get("feed_item_id") != item_id
+                or (
+                    workspace_links is not None
+                    and existing["workspace_links"] != workspace_links
+                )
             ):
                 raise IntakeError(
                     "idempotency_conflict", "request_key identifies another transition"
@@ -1021,6 +1026,7 @@ class IntakeInboxStore:
             inputs={"feed_item_id": item_id},
             origin={"session_id": awareness_session_id, "reason": reason},
             references=references,
+            workspace_links=workspace_links,
             principal_id=principal_id,
             scopes=scopes,
         )
@@ -1057,7 +1063,8 @@ class IntakeInboxStore:
     ) -> dict[str, Any]:
         if decision not in DECISIONS:
             raise IntakeError(
-                "invalid_decision", "choose watch, escalate, schedule, discard, archive, or flag"
+                "invalid_decision",
+                "choose watch, escalate, schedule, discard, archive, or flag",
             )
         return self._command(
             namespace,

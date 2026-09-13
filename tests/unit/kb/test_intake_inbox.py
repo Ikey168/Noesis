@@ -2,7 +2,7 @@ import duckdb
 import pytest
 
 from src.kb.intake_inbox import IntakeInboxStore
-from src.kb.intake_modes import IntakeError
+from src.kb.intake_modes import IntakeError, IntakeStore
 
 SCOPES = {
     "knowledge:intake:read",
@@ -413,6 +413,10 @@ def test_escalation_preserves_source_and_annotation_identity(tmp_path):
         principal_id="alice",
         scopes=SCOPES,
     )
+    workspace_link = {
+        "system": "modulo", "workspace_id": "personal", "kind": "intake_item",
+        "id": "feed-one", "version": 1,
+    }
     exploration = inbox.promote_awareness_item(
         "research",
         awareness["session_id"],
@@ -421,10 +425,15 @@ def test_escalation_preserves_source_and_annotation_identity(tmp_path):
         target_mode="Exploration",
         reason="Follow up",
         intent="Explore",
+        workspace_links=[workspace_link],
         principal_id="alice",
         scopes=SCOPES,
     )
     assert exploration["origin"]["session_id"] == awareness["session_id"]
+    assert exploration["workspace_links"] == [workspace_link]
+    assert IntakeStore(conn).modulo_handoff(
+        "research", exploration["session_id"], principal_id="alice", scopes=SCOPES,
+    )["modulo_links"] == [workspace_link]
     assert {ref["kind"] for ref in exploration["references"]} == {
         "intake_feed_item",
         "intake_annotation",
@@ -460,6 +469,7 @@ def test_escalation_preserves_source_and_annotation_identity(tmp_path):
         target_mode="Exploration",
         reason="Follow up",
         intent="Explore",
+        workspace_links=[workspace_link],
         principal_id="alice",
         scopes=SCOPES,
     )["idempotent"]
