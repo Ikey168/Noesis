@@ -1281,6 +1281,7 @@
         "noesis-knowledge-engine.start_intake_iteration",
         "noesis-knowledge-engine.start_intake_maintenance",
         "noesis-knowledge-engine.start_intake_mode",
+        "noesis-knowledge-engine.start_intake_research_topic",
         "noesis-knowledge-engine.start_practice_review",
         "noesis-knowledge-engine.start_problem_session",
         "noesis-knowledge-engine.store_geospatial_geometry",
@@ -1575,7 +1576,7 @@
     },
     {
       "cost_class": "medium",
-      "description": "Run semantic-similarity conflict detection on stored claims (#112).\n\nPairs claims within the same topic window, computes bag-of-words cosine\nsimilarity, and stores conflicts (similarity \u2265 0.65 with opposing stance\nsignals) in ``claim_conflicts``.  Use ``query_conflicts()`` to read results.\n\nArgs:\n    limit:      max claims to scan (capped at 1000).\n    date_range: ISO date (YYYY-MM-DD); skip claims older than this.",
+      "description": "Run semantic-similarity conflict detection on stored claims (#112).\n\nPairs claims within the same topic window, computes bag-of-words cosine\nsimilarity, and stores conflicts (similarity ≥ 0.65 with opposing stance\nsignals) in ``claim_conflicts``.  Use ``query_conflicts()`` to read results.\n\nArgs:\n    limit:      max claims to scan (capped at 1000).\n    date_range: ISO date (YYYY-MM-DD); skip claims older than this.",
       "id": "noesis-pipeline.compute_conflicts",
       "input_schema": {
         "properties": {
@@ -1663,7 +1664,7 @@
     },
     {
       "cost_class": "high",
-      "description": "Cluster-shaped coverage summary: articles grouped by category with\nvolume, distinct-source count and latest publish time. This is a plain\nwarehouse aggregation, not the API's event-clustering pipeline \u2014 it\nanswers \"where is coverage concentrated\" for planners and inspection.\n\nArgs:\n    days: Look-back window in days (default 7).",
+      "description": "Cluster-shaped coverage summary: articles grouped by category with\nvolume, distinct-source count and latest publish time. This is a plain\nwarehouse aggregation, not the API's event-clustering pipeline — it\nanswers \"where is coverage concentrated\" for planners and inspection.\n\nArgs:\n    days: Look-back window in days (default 7).",
       "id": "noesis-pipeline.coverage_clusters",
       "input_schema": {
         "properties": {
@@ -2099,7 +2100,7 @@
     },
     {
       "cost_class": "low",
-      "description": "Newest articles as compact summaries (title, source, date, sentiment\nlabel) \u2014 never full content.\n\nArgs:\n    topic: Substring match against the title (ILIKE).\n    limit: Max rows (default 10, max 20).",
+      "description": "Newest articles as compact summaries (title, source, date, sentiment\nlabel) — never full content.\n\nArgs:\n    topic: Substring match against the title (ILIKE).\n    limit: Max rows (default 10, max 20).",
       "id": "noesis-pipeline.latest_articles",
       "input_schema": {
         "properties": {
@@ -2320,7 +2321,7 @@
     },
     {
       "cost_class": "medium",
-      "description": "Query ``claim_conflicts`` for semantic similarity conflict pairs (#112).\n\nReturns compact summaries \u2014 claim text truncated to 100 chars each.\nPopulate the table first with ``compute_conflicts()``.\n\nArgs:\n    topic:         ILIKE filter on topic label.\n    source_type:   filter where source_type_a OR source_type_b matches.\n    conflict_type: exact filter \u2014 direct | implied.\n    limit:         max rows (capped at 25).",
+      "description": "Query ``claim_conflicts`` for semantic similarity conflict pairs (#112).\n\nReturns compact summaries — claim text truncated to 100 chars each.\nPopulate the table first with ``compute_conflicts()``.\n\nArgs:\n    topic:         ILIKE filter on topic label.\n    source_type:   filter where source_type_a OR source_type_b matches.\n    conflict_type: exact filter — direct | implied.\n    limit:         max rows (capped at 25).",
       "id": "noesis-pipeline.query_conflicts",
       "input_schema": {
         "properties": {
@@ -2392,7 +2393,7 @@
     },
     {
       "cost_class": "medium",
-      "description": "Query ``position_updates`` for follow-through events (#111).\n\nReturns compact update summaries (evidence truncated to 120 chars).\nFilter by position, actor name, topic, or update_type\n(reaffirmed / reversed / updated / no_signal).\n\nArgs:\n    position_id: exact position ID to look up.\n    actor:       ILIKE filter on the actor name (joined from policy_positions).\n    topic:       ILIKE filter on topic (joined from policy_positions).\n    update_type: exact filter \u2014 reaffirmed | reversed | updated | no_signal.\n    limit:       max rows (capped at 25).",
+      "description": "Query ``position_updates`` for follow-through events (#111).\n\nReturns compact update summaries (evidence truncated to 120 chars).\nFilter by position, actor name, topic, or update_type\n(reaffirmed / reversed / updated / no_signal).\n\nArgs:\n    position_id: exact position ID to look up.\n    actor:       ILIKE filter on the actor name (joined from policy_positions).\n    topic:       ILIKE filter on topic (joined from policy_positions).\n    update_type: exact filter — reaffirmed | reversed | updated | no_signal.\n    limit:       max rows (capped at 25).",
       "id": "noesis-pipeline.query_position_updates",
       "input_schema": {
         "properties": {
@@ -2467,7 +2468,7 @@
     },
     {
       "cost_class": "medium",
-      "description": "Query the ``policy_positions`` table for actor policy commitments (#110).\n\nReturns compact position summaries \u2014 never full content payloads.\nUse ``run_stage(\"positions\", input_ref=<id>)`` to first populate the table\nfor a specific document.\n\nArgs:\n    actor:       ILIKE filter on the actor name (e.g. \"government\", \"Johnson\").\n    topic:       ILIKE filter on topic (e.g. \"economy\", \"healthcare\", \"law\").\n    source_type: Exact filter on source type (news/blog/paper/transcript/book/note).\n    limit:       Max rows to return (capped at 25).",
+      "description": "Query the ``policy_positions`` table for actor policy commitments (#110).\n\nReturns compact position summaries — never full content payloads.\nUse ``run_stage(\"positions\", input_ref=<id>)`` to first populate the table\nfor a specific document.\n\nArgs:\n    actor:       ILIKE filter on the actor name (e.g. \"government\", \"Johnson\").\n    topic:       ILIKE filter on topic (e.g. \"economy\", \"healthcare\", \"law\").\n    source_type: Exact filter on source type (news/blog/paper/transcript/book/note).\n    limit:       Max rows to return (capped at 25).",
       "id": "noesis-pipeline.query_positions",
       "input_schema": {
         "properties": {
@@ -2587,7 +2588,7 @@
     },
     {
       "cost_class": "high",
-      "description": "Run a single pipeline stage against a fixture/source and return a\nsummary or diff.\n\nStages:\n  fetch     input_ref = source name. Fetch+parse, return article refs\n            (id, title, sentiment) \u2014 no write.\n  sentiment input_ref = raw text, OR an article id present in the warehouse.\n            Returns {score, label}.\n  store     input_ref = source name. Fetch that source, then DIFF against\n            the warehouse: which ids are new vs already present. Read-only\n            by default; pass apply=true to actually insert (requires the\n            warehouse to be free \u2014 DuckDB single-writer).\n  ingest    input_ref = source name (or omit for all sources). Full\n            fetch->store. Read-only diff unless apply=true.\n  positions input_ref = article/document id already in the warehouse.\n            Runs position extraction and writes results to policy_positions.\n            Use query_positions() to read them back.\n\nArgs:\n    stage: one of fetch | sentiment | store | ingest.\n    input_ref: source name, text, or article id depending on the stage.\n    sample: max articles per feed for fetch/store/ingest (1-25).\n    apply: actually write to the warehouse (store/ingest only).",
+      "description": "Run a single pipeline stage against a fixture/source and return a\nsummary or diff.\n\nStages:\n  fetch     input_ref = source name. Fetch+parse, return article refs\n            (id, title, sentiment) — no write.\n  sentiment input_ref = raw text, OR an article id present in the warehouse.\n            Returns {score, label}.\n  store     input_ref = source name. Fetch that source, then DIFF against\n            the warehouse: which ids are new vs already present. Read-only\n            by default; pass apply=true to actually insert (requires the\n            warehouse to be free — DuckDB single-writer).\n  ingest    input_ref = source name (or omit for all sources). Full\n            fetch->store. Read-only diff unless apply=true.\n  positions input_ref = article/document id already in the warehouse.\n            Runs position extraction and writes results to policy_positions.\n            Use query_positions() to read them back.\n\nArgs:\n    stage: one of fetch | sentiment | store | ingest.\n    input_ref: source name, text, or article id depending on the stage.\n    sample: max articles per feed for fetch/store/ingest (1-25).\n    apply: actually write to the warehouse (store/ingest only).",
       "id": "noesis-pipeline.run_stage",
       "input_schema": {
         "properties": {
@@ -2959,7 +2960,7 @@
     },
     {
       "cost_class": "low",
-      "description": "A short summary of one document \u2014 the stored summary if the batch has run,\nelse an extractive summary computed on the fly from its content.\n\nArgs:\n    document_id: the document to summarize.",
+      "description": "A short summary of one document — the stored summary if the batch has run,\nelse an extractive summary computed on the fly from its content.\n\nArgs:\n    document_id: the document to summarize.",
       "id": "noesis-pipeline.summarize_document",
       "input_schema": {
         "properties": {
@@ -3025,7 +3026,7 @@
     },
     {
       "cost_class": "low",
-      "description": "Unsupervised topics over the document embeddings \u2014 clusters of similar\ndocuments, each labelled with its salient terms. Requires the corpus to be\nembedded (run trigger_embed_documents first).\n\nArgs:\n    min_similarity: cosine threshold for grouping documents into a topic.\n    min_cluster_size: drop topics smaller than this many documents.",
+      "description": "Unsupervised topics over the document embeddings — clusters of similar\ndocuments, each labelled with its salient terms. Requires the corpus to be\nembedded (run trigger_embed_documents first).\n\nArgs:\n    min_similarity: cosine threshold for grouping documents into a topic.\n    min_cluster_size: drop topics smaller than this many documents.",
       "id": "noesis-pipeline.topic_model",
       "input_schema": {
         "properties": {
@@ -3060,7 +3061,7 @@
     },
     {
       "cost_class": "low",
-      "description": "Trace an article id across the pipeline's stores: the DuckDB warehouse,\nthe Postgres/pgvector store, and S3/MinIO. Returns a presence summary and a\ntruncated warehouse row \u2014 never the full content.\n\nArgs:\n    id: the article id (warehouse ids are a url hash; seed ids look like\n        \"art-0001\"). Use run_stage(\"fetch\", ...) to discover ids.",
+      "description": "Trace an article id across the pipeline's stores: the DuckDB warehouse,\nthe Postgres/pgvector store, and S3/MinIO. Returns a presence summary and a\ntruncated warehouse row — never the full content.\n\nArgs:\n    id: the article id (warehouse ids are a url hash; seed ids look like\n        \"art-0001\"). Use run_stage(\"fetch\", ...) to discover ids.",
       "id": "noesis-pipeline.trace_article",
       "input_schema": {
         "properties": {
@@ -3119,7 +3120,7 @@
     },
     {
       "cost_class": "high",
-      "description": "Run the anomaly-detection batch fit and persist ``analytics_anomalies``\n(RW). Logs the fit to MLflow when available. Idempotent \u2014 re-running\noverwrites each (topic, metric, window) row.\n\nArgs:\n    threshold: robust-z magnitude above which a window is flagged.",
+      "description": "Run the anomaly-detection batch fit and persist ``analytics_anomalies``\n(RW). Logs the fit to MLflow when available. Idempotent — re-running\noverwrites each (topic, metric, window) row.\n\nArgs:\n    threshold: robust-z magnitude above which a window is flagged.",
       "id": "noesis-pipeline.trigger_detect_anomalies",
       "input_schema": {
         "properties": {
@@ -3342,7 +3343,7 @@
     },
     {
       "cost_class": "low",
-      "description": "Validate a stage-output sample against its contract and return a compact\npass/fail + drift report. This is the governed boundary check: \"does this\noutput still satisfy the contract the next stage expects?\"\n\nArgs:\n    stage: stage alias or contract id (see list_contracts / get_contract).\n    sample: the output to check \u2014 an inline object, a path to a JSON file,\n        or a named example under contracts/examples/ (e.g.\n        \"valid-full-article\", \"invalid-missing-url\").\n\nReturns per-schema verdicts. A stage's output is checked against its JSON\nSchema (authoritative jsonschema validation + field drift) and, when the\nstage's pipeline contract is Avro (e.g. article-ingest, sentiment), a\nstructural Avro check too. `agree` flags when the two disagree \u2014 which is\nitself a contract bug (e.g. timestamp type drift between Avro and JSON\nSchema).\n\nArgs:\n    stage: stage alias or contract id (see list_contracts / get_contract).\n    sample: the output to check \u2014 an inline object, a path to a JSON file,\n        or a named example under contracts/examples/ (e.g.\n        \"valid-full-article\", \"invalid-missing-url\").",
+      "description": "Validate a stage-output sample against its contract and return a compact\npass/fail + drift report. This is the governed boundary check: \"does this\noutput still satisfy the contract the next stage expects?\"\n\nArgs:\n    stage: stage alias or contract id (see list_contracts / get_contract).\n    sample: the output to check — an inline object, a path to a JSON file,\n        or a named example under contracts/examples/ (e.g.\n        \"valid-full-article\", \"invalid-missing-url\").\n\nReturns per-schema verdicts. A stage's output is checked against its JSON\nSchema (authoritative jsonschema validation + field drift) and, when the\nstage's pipeline contract is Avro (e.g. article-ingest, sentiment), a\nstructural Avro check too. `agree` flags when the two disagree — which is\nitself a contract bug (e.g. timestamp type drift between Avro and JSON\nSchema).\n\nArgs:\n    stage: stage alias or contract id (see list_contracts / get_contract).\n    sample: the output to check — an inline object, a path to a JSON file,\n        or a named example under contracts/examples/ (e.g.\n        \"valid-full-article\", \"invalid-missing-url\").",
       "id": "noesis-contracts.validate",
       "input_schema": {
         "properties": {
@@ -3456,7 +3457,7 @@
     },
     {
       "cost_class": "low",
-      "description": "The reachable set from a node \u2014 \"what breaks if I change this\"\n(downstream) or \"what feeds this\" (upstream). Walks the lineage edges and\nreturns the jobs and datasets reached.\n\nArgs:\n    node: \"dataset:<name>\", \"job:<name>\", a full nodeId, or a bare name.\n    direction: \"downstream\" (consumers) or \"upstream\" (producers).\n    namespace: defaults to $MARQUEZ_NAMESPACE.",
+      "description": "The reachable set from a node — \"what breaks if I change this\"\n(downstream) or \"what feeds this\" (upstream). Walks the lineage edges and\nreturns the jobs and datasets reached.\n\nArgs:\n    node: \"dataset:<name>\", \"job:<name>\", a full nodeId, or a bare name.\n    direction: \"downstream\" (consumers) or \"upstream\" (producers).\n    namespace: defaults to $MARQUEZ_NAMESPACE.",
       "id": "noesis-lineage.impact",
       "input_schema": {
         "properties": {
@@ -3504,7 +3505,7 @@
     },
     {
       "cost_class": "low",
-      "description": "Return a compact lineage graph around a node: the nodes (datasets/jobs)\nand the directed edges between them, up to `depth` hops \u2014 not the full\nMarquez facet payload.\n\nArgs:\n    node: \"dataset:<name>\", \"job:<name>\", a full nodeId, or a bare name.\n    depth: hops to traverse (1-5).\n    namespace: defaults to $MARQUEZ_NAMESPACE.",
+      "description": "Return a compact lineage graph around a node: the nodes (datasets/jobs)\nand the directed edges between them, up to `depth` hops — not the full\nMarquez facet payload.\n\nArgs:\n    node: \"dataset:<name>\", \"job:<name>\", a full nodeId, or a bare name.\n    depth: hops to traverse (1-5).\n    namespace: defaults to $MARQUEZ_NAMESPACE.",
       "id": "noesis-lineage.lineage",
       "input_schema": {
         "properties": {
@@ -3620,7 +3621,7 @@
     },
     {
       "cost_class": "medium",
-      "description": "Recent runs of a job with their states and timings \u2014 did the stage run,\nand did it fail?\n\nArgs:\n    job: the job name (e.g. \"nlp.sentiment\"), or \"job:<name>\".\n    namespace: defaults to $MARQUEZ_NAMESPACE.\n    limit: how many recent runs (1-20).",
+      "description": "Recent runs of a job with their states and timings — did the stage run,\nand did it fail?\n\nArgs:\n    job: the job name (e.g. \"nlp.sentiment\"), or \"job:<name>\".\n    namespace: defaults to $MARQUEZ_NAMESPACE.\n    limit: how many recent runs (1-20).",
       "id": "noesis-lineage.run_history",
       "input_schema": {
         "properties": {
@@ -3668,7 +3669,7 @@
     },
     {
       "cost_class": "low",
-      "description": "Return the handler signature and parameter list for one API endpoint.\n\nUseful before adding a new query parameter \u2014 confirms what already exists\nwithout reading the full route file.\n\nArgs:\n    path: the URL path, e.g. \"/api/v1/arguments/frames\".\n          Partial suffix match works (e.g. \"arguments/frames\").",
+      "description": "Return the handler signature and parameter list for one API endpoint.\n\nUseful before adding a new query parameter — confirms what already exists\nwithout reading the full route file.\n\nArgs:\n    path: the URL path, e.g. \"/api/v1/arguments/frames\".\n          Partial suffix match works (e.g. \"arguments/frames\").",
       "id": "noesis-schema.get_route",
       "input_schema": {
         "properties": {
@@ -3734,7 +3735,7 @@
     },
     {
       "cost_class": "low",
-      "description": "List every API endpoint across all route files.\n\nReturns verb, full path, handler name, and source file for each route.\nUse get_route(path) to see parameter details for one endpoint.\n\nArgs:\n    verb:   optional filter \u2014 \"GET\", \"POST\", etc.\n    prefix: optional path prefix filter \u2014 e.g. \"/api/v1/arguments\"",
+      "description": "List every API endpoint across all route files.\n\nReturns verb, full path, handler name, and source file for each route.\nUse get_route(path) to see parameter details for one endpoint.\n\nArgs:\n    verb:   optional filter — \"GET\", \"POST\", etc.\n    prefix: optional path prefix filter — e.g. \"/api/v1/arguments\"",
       "id": "noesis-schema.list_routes",
       "input_schema": {
         "properties": {
@@ -3862,7 +3863,7 @@
     },
     {
       "cost_class": "high",
-      "description": "Trigger a live ingestion run against all subscribed feeds.\n\nFetches the latest posts and optionally runs entity extraction.\nDoes NOT write to the warehouse database.\n\nArgs:\n    limit_per_feed:   Max posts to ingest per feed (default 20).\n    fetch_full_text:  Follow article URLs for full-body extraction\n                      (slower \u2014 one HTTP request per post).\n    extract_entities: Run AdvancedEntityExtractor + KG ingestion\n                      (requires spaCy; silently skipped if unavailable).\n    feed_urls:        JSON array of URL strings to ingest instead of all\n                      subscriptions, e.g. ``'[\"https://example.com/rss\"]'``.\n\nReturns:\n    feeds_fetched        - number of feeds processed\n    documents_ingested   - total posts parsed\n    entities_extracted   - KG entities stored (0 if extract_entities=False)\n    relationships_extracted\n    errors               - list of per-feed error messages",
+      "description": "Trigger a live ingestion run against all subscribed feeds.\n\nFetches the latest posts and optionally runs entity extraction.\nDoes NOT write to the warehouse database.\n\nArgs:\n    limit_per_feed:   Max posts to ingest per feed (default 20).\n    fetch_full_text:  Follow article URLs for full-body extraction\n                      (slower — one HTTP request per post).\n    extract_entities: Run AdvancedEntityExtractor + KG ingestion\n                      (requires spaCy; silently skipped if unavailable).\n    feed_urls:        JSON array of URL strings to ingest instead of all\n                      subscriptions, e.g. ``'[\"https://example.com/rss\"]'``.\n\nReturns:\n    feeds_fetched        - number of feeds processed\n    documents_ingested   - total posts parsed\n    entities_extracted   - KG entities stored (0 if extract_entities=False)\n    relationships_extracted\n    errors               - list of per-feed error messages",
       "id": "noesis-blog-feeds.ingest_feeds",
       "input_schema": {
         "properties": {
@@ -4228,7 +4229,7 @@
     },
     {
       "cost_class": "medium",
-      "description": "Run domain-pack enrichers against a document dict and return their outputs.\n\nUseful for testing an enricher against sample content without wiring it into\na full pipeline run. Heavy ML deps (torch, transformers, \u2026) are imported\nlazily by each enricher; if a dep is missing the enricher returns None and\nis listed under ``skipped``.\n\nArgs:\n    document: A dict with at least ``document_id``, ``source_type``, and\n              ``content`` fields (mirrors the Document dataclass).\n              Example::\n                {\n                  \"document_id\": \"test-001\",\n                  \"source_type\": \"news\",\n                  \"content\": \"Breaking news: markets surge...\"\n                }\n    pack: Optional pack name to restrict enrichment to one pack.\n          If omitted, enrichers from ALL enabled packs run.\n\nReturns:\n    results   - {enricher_name: output_dict} for enrichers that returned a result\n    skipped   - [enricher_name, ...] for enrichers that returned None\n    errors    - [enricher_name, ...] if the Enricher.run() exception handler fired\n    document_preview - the input document with content truncated for display\n    source_type - the source_type used for applies_to filtering",
+      "description": "Run domain-pack enrichers against a document dict and return their outputs.\n\nUseful for testing an enricher against sample content without wiring it into\na full pipeline run. Heavy ML deps (torch, transformers, …) are imported\nlazily by each enricher; if a dep is missing the enricher returns None and\nis listed under ``skipped``.\n\nArgs:\n    document: A dict with at least ``document_id``, ``source_type``, and\n              ``content`` fields (mirrors the Document dataclass).\n              Example::\n                {\n                  \"document_id\": \"test-001\",\n                  \"source_type\": \"news\",\n                  \"content\": \"Breaking news: markets surge...\"\n                }\n    pack: Optional pack name to restrict enrichment to one pack.\n          If omitted, enrichers from ALL enabled packs run.\n\nReturns:\n    results   - {enricher_name: output_dict} for enrichers that returned a result\n    skipped   - [enricher_name, ...] for enrichers that returned None\n    errors    - [enricher_name, ...] if the Enricher.run() exception handler fired\n    document_preview - the input document with content truncated for display\n    source_type - the source_type used for applies_to filtering",
       "id": "noesis-domain-packs.run_enrichers",
       "input_schema": {
         "properties": {
@@ -5867,7 +5868,7 @@
     },
     {
       "cost_class": "low",
-      "description": "Return dataset statistics from stats.json.\n\nInstant \u2014 reads a small JSON file, never loads Parquet.\nReturns total count, per-source-type breakdown, split sizes, label\ndistributions, the explicitly simulated noise diagnostic, and criteria.",
+      "description": "Return dataset statistics from stats.json.\n\nInstant — reads a small JSON file, never loads Parquet.\nReturns total count, per-source-type breakdown, split sizes, label\ndistributions, the explicitly simulated noise diagnostic, and criteria.",
       "id": "noesis-dataset.get_stats",
       "input_schema": {
         "properties": {},
@@ -5893,7 +5894,7 @@
     },
     {
       "cost_class": "low",
-      "description": "Return label counts and percentages for a given task.\n\nArgs:\n    task:  One of \"claims\", \"stance\", \"frames\".\n    split: Optional filter \u2014 \"train\", \"val\", or \"test\". Omit for all splits.\n\nReturns a compact dict with counts, percentages, and total rows examined.\nReads only the label and split columns from Parquet \u2014 minimal I/O.",
+      "description": "Return label counts and percentages for a given task.\n\nArgs:\n    task:  One of \"claims\", \"stance\", \"frames\".\n    split: Optional filter — \"train\", \"val\", or \"test\". Omit for all splits.\n\nReturns a compact dict with counts, percentages, and total rows examined.\nReads only the label and split columns from Parquet — minimal I/O.",
       "id": "noesis-dataset.label_distribution",
       "input_schema": {
         "properties": {
@@ -5937,7 +5938,7 @@
     },
     {
       "cost_class": "low",
-      "description": "Sample N examples from a task dataset with optional filters.\n\nArgs:\n    task:        One of \"claims\", \"stance\", \"frames\".\n    n:           Number of examples to return (max 20).\n    split:       Optional filter \u2014 \"train\", \"val\", or \"test\".\n    source_type: Optional content-type filter (news/blog/paper/transcript/book/note).\n    label:       Optional label filter.\n                 - claims: \"0\" or \"1\"\n                 - stance: \"supportive\" / \"critical\" / \"neutral\" / \"ambiguous\"\n                 - frames: frame name \u2014 returns examples that include that frame\n\nReturns compact example summaries (id, source_type, text preview, label).\nText is truncated to 120 characters to keep responses concise.",
+      "description": "Sample N examples from a task dataset with optional filters.\n\nArgs:\n    task:        One of \"claims\", \"stance\", \"frames\".\n    n:           Number of examples to return (max 20).\n    split:       Optional filter — \"train\", \"val\", or \"test\".\n    source_type: Optional content-type filter (news/blog/paper/transcript/book/note).\n    label:       Optional label filter.\n                 - claims: \"0\" or \"1\"\n                 - stance: \"supportive\" / \"critical\" / \"neutral\" / \"ambiguous\"\n                 - frames: frame name — returns examples that include that frame\n\nReturns compact example summaries (id, source_type, text preview, label).\nText is truncated to 120 characters to keep responses concise.",
       "id": "noesis-dataset.sample_examples",
       "input_schema": {
         "properties": {
@@ -6630,7 +6631,7 @@
     },
     {
       "cost_class": "low",
-      "description": "Evidence pairs from ``claim_evidence`` \u2014 one claim referencing another.\n\nUnlike ``query_conflicts`` (pipeline_mcp) which reads the *semantic*\nconflict table, this reads the raw evidence-link table populated by the\nfact-check and cross-reference pipeline stages.\n\nArgs:\n    claim_id: Filter to pairs where this is the primary claim_id.\n    relation: Filter by relation type (e.g. 'contradicts', 'supports',\n              'is_cited_by').\n    limit:    Max rows (default 30, max 100).\n\nReturns a list of dicts: {evidence_id, claim_id, relation,\nevidence_source_type, similarity_score, evidence_preview, found_at}.",
+      "description": "Evidence pairs from ``claim_evidence`` — one claim referencing another.\n\nUnlike ``query_conflicts`` (pipeline_mcp) which reads the *semantic*\nconflict table, this reads the raw evidence-link table populated by the\nfact-check and cross-reference pipeline stages.\n\nArgs:\n    claim_id: Filter to pairs where this is the primary claim_id.\n    relation: Filter by relation type (e.g. 'contradicts', 'supports',\n              'is_cited_by').\n    limit:    Max rows (default 30, max 100).\n\nReturns a list of dicts: {evidence_id, claim_id, relation,\nevidence_source_type, similarity_score, evidence_preview, found_at}.",
       "id": "noesis-arguments.claim_evidence_pairs",
       "input_schema": {
         "properties": {
@@ -6749,7 +6750,7 @@
     },
     {
       "cost_class": "low",
-      "description": "Read the latest argument-mining benchmark results from ``docs/benchmark_results.json``.\n\nReturns the stored JSON without running any inference \u2014 instant and read-only.\nRun ``python scripts/benchmark_models.py`` to refresh the results first.\n\nArgs:\n    model: Filter to a single model: \"claim_detector\" | \"stance_classifier\" |\n           \"frame_classifier\".  Omit to return all three plus IAA and cross-dataset.\n\nReturns dict with keys: evaluated_at, claim_detector, stance_classifier,\nframe_classifier, iaa, cross_dataset (or the single requested model's sub-dict).",
+      "description": "Read the latest argument-mining benchmark results from ``docs/benchmark_results.json``.\n\nReturns the stored JSON without running any inference — instant and read-only.\nRun ``python scripts/benchmark_models.py`` to refresh the results first.\n\nArgs:\n    model: Filter to a single model: \"claim_detector\" | \"stance_classifier\" |\n           \"frame_classifier\".  Omit to return all three plus IAA and cross-dataset.\n\nReturns dict with keys: evaluated_at, claim_detector, stance_classifier,\nframe_classifier, iaa, cross_dataset (or the single requested model's sub-dict).",
       "id": "noesis-arguments.get_benchmark_results",
       "input_schema": {
         "properties": {
@@ -7056,7 +7057,7 @@
     },
     {
       "cost_class": "high",
-      "description": "Return stored outlet cluster assignments with PCA 2D coordinates.\n\nEach record includes source, cluster_id, descriptive cluster_label,\npca_x/pca_y scatter coordinates, dominant_frame, and doc_count.\n\nRun ``trigger_outlet_clustering()`` first if the table is empty.\n\nArgs:\n    source_type: Filter by content type (news|blog|paper|transcript\u2026).\n    cluster_id:  Filter to one cluster.\n    limit:       Max rows (default 50).",
+      "description": "Return stored outlet cluster assignments with PCA 2D coordinates.\n\nEach record includes source, cluster_id, descriptive cluster_label,\npca_x/pca_y scatter coordinates, dominant_frame, and doc_count.\n\nRun ``trigger_outlet_clustering()`` first if the table is empty.\n\nArgs:\n    source_type: Filter by content type (news|blog|paper|transcript…).\n    cluster_id:  Filter to one cluster.\n    limit:       Max rows (default 50).",
       "id": "noesis-arguments.list_outlet_clusters",
       "input_schema": {
         "properties": {
@@ -7117,7 +7118,7 @@
     },
     {
       "cost_class": "low",
-      "description": "Return latest weekly transparency scores for all outlets.\n\nEach record includes frame_diversity, attribution_rate, stance_neutrality,\ncomposite_score, doc_count, claim_count, and score_date.\n\nArgs:\n    source_type: Filter by content type (news|blog|paper|transcript\u2026).\n    sort_by:     composite_score|frame_diversity|attribution_rate|stance_neutrality.\n    limit:       Max rows (default 30).",
+      "description": "Return latest weekly transparency scores for all outlets.\n\nEach record includes frame_diversity, attribution_rate, stance_neutrality,\ncomposite_score, doc_count, claim_count, and score_date.\n\nArgs:\n    source_type: Filter by content type (news|blog|paper|transcript…).\n    sort_by:     composite_score|frame_diversity|attribution_rate|stance_neutrality.\n    limit:       Max rows (default 30).",
       "id": "noesis-arguments.list_outlet_scores",
       "input_schema": {
         "properties": {
@@ -7490,7 +7491,7 @@
     },
     {
       "cost_class": "high",
-      "description": "Extract actors for news_articles documents not yet in ``document_actors``.\n\nCalls ``run_actor_batch`` from ``src.argument_mining.metadata``.\nSafe to call repeatedly \u2014 already-processed documents are skipped.\n\nArgs:\n    limit: Max documents per call (default 200).\n\nReturns {\"processed\": int, \"actors\": int, \"skipped\": int}.",
+      "description": "Extract actors for news_articles documents not yet in ``document_actors``.\n\nCalls ``run_actor_batch`` from ``src.argument_mining.metadata``.\nSafe to call repeatedly — already-processed documents are skipped.\n\nArgs:\n    limit: Max documents per call (default 200).\n\nReturns {\"processed\": int, \"actors\": int, \"skipped\": int}.",
       "id": "noesis-arguments.trigger_actor_batch",
       "input_schema": {
         "properties": {
@@ -7521,7 +7522,7 @@
     },
     {
       "cost_class": "high",
-      "description": "Run the attribution classifier over unclassified claims (``attributed IS NULL``).\n\nCalls ``run_attribution_batch`` from ``src.argument_mining.attribution``.\nSafe to call repeatedly \u2014 already-classified rows are skipped.\n\nArgs:\n    limit: Max claims to classify per call (default 500).\n\nReturns {\"updated\": int, \"skipped\": int}.",
+      "description": "Run the attribution classifier over unclassified claims (``attributed IS NULL``).\n\nCalls ``run_attribution_batch`` from ``src.argument_mining.attribution``.\nSafe to call repeatedly — already-classified rows are skipped.\n\nArgs:\n    limit: Max claims to classify per call (default 500).\n\nReturns {\"updated\": int, \"skipped\": int}.",
       "id": "noesis-arguments.trigger_attribution_batch",
       "input_schema": {
         "properties": {
@@ -7552,7 +7553,7 @@
     },
     {
       "cost_class": "high",
-      "description": "Embed news outlets as 7-dim frame vectors, run k-means + hierarchical\nclustering (k_min..k_max), pick best k by silhouette score, project to\n2D via PCA, and persist results to ``outlet_clusters``.\n\nSafe to call repeatedly \u2014 each call overwrites the previous run.\n\nArgs:\n    date_range: Frame aggregation window: 7d|30d|90d|180d|365d (default \"90d\").\n    k_min:      Minimum k to try (default 2).\n    k_max:      Maximum k to try (default 8).\n\nReturns {\"n_outlets\", \"k\", \"method\", \"silhouette\", \"computed_at\"}.",
+      "description": "Embed news outlets as 7-dim frame vectors, run k-means + hierarchical\nclustering (k_min..k_max), pick best k by silhouette score, project to\n2D via PCA, and persist results to ``outlet_clusters``.\n\nSafe to call repeatedly — each call overwrites the previous run.\n\nArgs:\n    date_range: Frame aggregation window: 7d|30d|90d|180d|365d (default \"90d\").\n    k_min:      Minimum k to try (default 2).\n    k_max:      Maximum k to try (default 8).\n\nReturns {\"n_outlets\", \"k\", \"method\", \"silhouette\", \"computed_at\"}.",
       "id": "noesis-arguments.trigger_outlet_clustering",
       "input_schema": {
         "properties": {
@@ -7591,7 +7592,7 @@
     },
     {
       "cost_class": "high",
-      "description": "Compute weekly transparency scores for all outlets and persist to ``outlet_scores``.\n\nIdempotent \u2014 re-running in the same ISO week overwrites that week's row.\n\nScores three dimensions per outlet:\n  - frame_diversity:   Shannon entropy of 7-frame distribution / log(7)\n  - attribution_rate:  % claims with attributed=True\n  - stance_neutrality: entropy of stance distribution / log(4)\n  - composite_score:   mean of the three\n\nArgs:\n    date_range: Data window: 7d|14d|30d|90d|180d|365d (default \"90d\").\n\nReturns {\"outlets_scored\", \"score_date\", \"top_outlet\", \"top_composite\"}.",
+      "description": "Compute weekly transparency scores for all outlets and persist to ``outlet_scores``.\n\nIdempotent — re-running in the same ISO week overwrites that week's row.\n\nScores three dimensions per outlet:\n  - frame_diversity:   Shannon entropy of 7-frame distribution / log(7)\n  - attribution_rate:  % claims with attributed=True\n  - stance_neutrality: entropy of stance distribution / log(4)\n  - composite_score:   mean of the three\n\nArgs:\n    date_range: Data window: 7d|14d|30d|90d|180d|365d (default \"90d\").\n\nReturns {\"outlets_scored\", \"score_date\", \"top_outlet\", \"top_composite\"}.",
       "id": "noesis-arguments.trigger_outlet_scoring",
       "input_schema": {
         "properties": {
@@ -7698,7 +7699,7 @@
     },
     {
       "cost_class": "low",
-      "description": "Return entities ranked by how many new MENTIONS triples they received in\nthe last ``window_minutes`` minutes.\n\nA high ``new_connections`` count signals a topic that many recently\ningested documents reference \u2014 i.e. an actively evolving topic.\n\nArgs:\n    window_minutes:  Look-back window in minutes (default 60).\n    top_n:           Maximum number of results (default 15).",
+      "description": "Return entities ranked by how many new MENTIONS triples they received in\nthe last ``window_minutes`` minutes.\n\nA high ``new_connections`` count signals a topic that many recently\ningested documents reference — i.e. an actively evolving topic.\n\nArgs:\n    window_minutes:  Look-back window in minutes (default 60).\n    top_n:           Maximum number of results (default 15).",
       "id": "noesis-kg.evolving_topics",
       "input_schema": {
         "properties": {
@@ -7886,7 +7887,7 @@
     },
     {
       "cost_class": "high",
-      "description": "Community detection (label propagation) over the KG co-mention graph,\nfor colouring the entity graph. Accepts an optional ``kg`` namespace\n(Track P) \u2014 the default graph is used until namespacing lands.",
+      "description": "Community detection (label propagation) over the KG co-mention graph,\nfor colouring the entity graph. Accepts an optional ``kg`` namespace\n(Track P) — the default graph is used until namespacing lands.",
       "id": "noesis-kg.kg_communities",
       "input_schema": {
         "properties": {
@@ -8077,7 +8078,7 @@
     },
     {
       "cost_class": "low",
-      "description": "List nodes in the live KG store.\n\nArgs:\n    entity_type:  Filter by type (Person, Organization, Concept, \u2026).\n                  Omit to list all types.\n    name_filter:  Case-insensitive substring filter on node name.\n    limit:        Max results (default 50).\n\nReturns a list of {node_id, type, name, alias_count, property_count}.\nUse get_entity(node_id) for full details.",
+      "description": "List nodes in the live KG store.\n\nArgs:\n    entity_type:  Filter by type (Person, Organization, Concept, …).\n                  Omit to list all types.\n    name_filter:  Case-insensitive substring filter on node name.\n    limit:        Max results (default 50).\n\nReturns a list of {node_id, type, name, alias_count, property_count}.\nUse get_entity(node_id) for full details.",
       "id": "noesis-kg.list_entities",
       "input_schema": {
         "properties": {
@@ -8214,7 +8215,7 @@
     },
     {
       "cost_class": "low",
-      "description": "List unique source names in the analytics warehouse with article counts\nand average sentiment.\n\nArgs:\n    days:         Look-back window in days (default 90).\n    source_type:  Optional \u2014 not stored in news_articles; used to filter\n                  the outlet_scores join if provided.\n\nReturns list of {source, article_count, avg_sentiment, category}.",
+      "description": "List unique source names in the analytics warehouse with article counts\nand average sentiment.\n\nArgs:\n    days:         Look-back window in days (default 90).\n    source_type:  Optional — not stored in news_articles; used to filter\n                  the outlet_scores join if provided.\n\nReturns list of {source, article_count, avg_sentiment, category}.",
       "id": "noesis-sources.list_sources",
       "input_schema": {
         "properties": {
@@ -8392,7 +8393,7 @@
     },
     {
       "cost_class": "low",
-      "description": "Check whether a secret is resolvable \u2014 never returns the value itself.\n\nArgs:\n    service:  Keyring service name (e.g. ``\"noesis\"``).\n    key:      Secret key (e.g. ``\"BACKUP_KEY\"``).\n\nReturns: ``{resolvable: bool, source: \"keyring\" | \"env_var\" | \"not_found\"}``.",
+      "description": "Check whether a secret is resolvable — never returns the value itself.\n\nArgs:\n    service:  Keyring service name (e.g. ``\"noesis\"``).\n    key:      Secret key (e.g. ``\"BACKUP_KEY\"``).\n\nReturns: ``{resolvable: bool, source: \"keyring\" | \"env_var\" | \"not_found\"}``.",
       "id": "noesis-security.check_secret",
       "input_schema": {
         "properties": {
@@ -8551,7 +8552,7 @@
     },
     {
       "cost_class": "low",
-      "description": "Return a live psutil reading \u2014 does NOT touch the database.\n\nUse this for a quick health check without caring about history.\nReturns a dict mapping metric_name \u2192 {value, unit}.",
+      "description": "Return a live psutil reading — does NOT touch the database.\n\nUse this for a quick health check without caring about history.\nReturns a dict mapping metric_name → {value, unit}.",
       "id": "noesis-monitoring.current_metrics",
       "input_schema": {
         "properties": {},
@@ -8666,7 +8667,7 @@
     },
     {
       "cost_class": "high",
-      "description": "Collect one metric sample right now and persist it to DuckDB.\n\nReturns the six metric rows that were collected.\nUseful when you want an immediate reading outside the 60-second collection\ncycle \u2014 e.g. before and after running a heavy pipeline stage.",
+      "description": "Collect one metric sample right now and persist it to DuckDB.\n\nReturns the six metric rows that were collected.\nUseful when you want an immediate reading outside the 60-second collection\ncycle — e.g. before and after running a heavy pipeline stage.",
       "id": "noesis-monitoring.trigger_sample",
       "input_schema": {
         "properties": {},
@@ -9160,7 +9161,7 @@
     },
     {
       "cost_class": "low",
-      "description": "Corpus stats, freshness, sources, backing, embedding model \u2014\nso a consumer can honestly say when coverage is thin.",
+      "description": "Corpus stats, freshness, sources, backing, embedding model —\nso a consumer can honestly say when coverage is thin.",
       "id": "noesis-kb.kb_coverage",
       "input_schema": {
         "properties": {
@@ -17682,7 +17683,7 @@
     },
     {
       "cost_class": "medium",
-      "description": "Attach ranked plausible\u2014not proven\u2014knowledge and source changes.",
+      "description": "Attach ranked plausible—not proven—knowledge and source changes.",
       "id": "noesis-knowledge-engine.correlate_knowledge_anomaly",
       "input_schema": {
         "properties": {
@@ -39398,7 +39399,7 @@
     },
     {
       "cost_class": "medium",
-      "description": "Snapshot a bounded, explainable 30\u201360 minute Maintenance review.",
+      "description": "Snapshot a bounded, explainable 30–60 minute Maintenance review.",
       "id": "noesis-knowledge-engine.start_intake_maintenance",
       "input_schema": {
         "properties": {
@@ -39546,6 +39547,110 @@
       ],
       "required_scopes": [
         "knowledge:intake:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Atomically start a Deep Research session and owner-scoped project.",
+      "id": "noesis-knowledge-engine.start_intake_research_topic",
+      "input_schema": {
+        "properties": {
+          "budget": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "origin": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "questions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "references": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "request_key": {
+            "type": "string"
+          },
+          "scope": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "success_criteria": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "workspace_links": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "request_key",
+          "questions",
+          "success_criteria",
+          "scope",
+          "budget"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "start_intake_research_topic",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:intake:write",
+        "knowledge:projects:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -40225,7 +40330,7 @@
     },
     {
       "cost_class": "medium",
-      "description": "Atomically triage 1\u2013100 queued items and record one session revision.",
+      "description": "Atomically triage 1–100 queued items and record one session revision.",
       "id": "noesis-knowledge-engine.triage_awareness_batch",
       "input_schema": {
         "properties": {

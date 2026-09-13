@@ -436,6 +436,7 @@ class IntakeStore:
         references: list[dict[str, Any]] | None = None,
         principal_id: str,
         scopes: set[str],
+        _within_transaction: bool = False,
     ) -> dict[str, Any]:
         namespace = _text(namespace, "namespace", limit=128)
         request_key = _text(request_key, "request_key", limit=256)
@@ -558,7 +559,8 @@ class IntakeStore:
         state["created_at_ms"] = state["updated_at_ms"] = self.now()
         state["active_since_ms"] = state["created_at_ms"]
         state["elapsed_ms"] = 0
-        self.conn.execute("BEGIN")
+        if not _within_transaction:
+            self.conn.execute("BEGIN")
         try:
             self.conn.execute(
                 "INSERT INTO intake_sessions VALUES (?,?,?,?,?,?,?,?)",
@@ -577,9 +579,11 @@ class IntakeStore:
                 "INSERT INTO intake_session_revisions VALUES (?,?,?,?)",
                 [state["session_id"], 1, _json(state), state["created_at_ms"]],
             )
-            self.conn.execute("COMMIT")
+            if not _within_transaction:
+                self.conn.execute("COMMIT")
         except Exception:
-            self.conn.execute("ROLLBACK")
+            if not _within_transaction:
+                self.conn.execute("ROLLBACK")
             raise
         return {**self._visible(state, scopes), "idempotent": False}
 
