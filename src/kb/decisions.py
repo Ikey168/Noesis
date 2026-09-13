@@ -46,13 +46,27 @@ def _number(value):
 
 def _content(content):
     fields = {"project", "options", "constraints", "assumptions", "observations", "preferences", "selected_action", "rationale", "review_conditions"}
-    if not isinstance(content, dict) or set(content) != fields:
+    if not isinstance(content, dict) or set(content) not in (fields, fields | {"decision_context"}):
         raise DecisionError("invalid_decision", "explicit project, options, constraints, assumptions, observations, preferences, action, rationale and review conditions are required")
     project = content["project"]
-    if not isinstance(project, dict) or set(project) != {"id", "namespace", "revision"} or type(project["revision"]) is not int or project["revision"] < 1:
+    if project is not None and (not isinstance(project, dict) or set(project) != {"id", "namespace", "revision"} or type(project["revision"]) is not int or project["revision"] < 1):
         raise DecisionError("invalid_decision", "project requires an explicit stable id, namespace and revision")
-    _text(project["id"])
-    _text(project["namespace"])
+    if project is not None:
+        _text(project["id"])
+        _text(project["namespace"])
+    context = content.get("decision_context")
+    if project is None and context is None:
+        raise DecisionError("invalid_decision", "a standalone decision needs decision_context")
+    if context is not None:
+        required = {"question", "stakes", "required_confidence", "stop_condition", "uncertainty", "missing_inputs", "deadline_at_ms"}
+        if not isinstance(context, dict) or set(context) != required:
+            raise DecisionError("invalid_decision", "decision_context requires question, stakes, confidence, stop condition, uncertainty, missing inputs and deadline")
+        for field in ("question", "stakes", "required_confidence", "stop_condition", "uncertainty"):
+            _text(context[field])
+        _strings(context["missing_inputs"], "missing_inputs")
+        deadline = context["deadline_at_ms"]
+        if deadline is not None and (type(deadline) is not int or deadline < 0):
+            raise DecisionError("invalid_decision", "deadline_at_ms must be a nonnegative Unix millisecond timestamp or null")
     options = content["options"]
     if not isinstance(options, list) or not 2 <= len(options) <= 100:
         raise DecisionError("invalid_decision", "record two to 100 alternatives")
@@ -92,11 +106,12 @@ class DecisionStore:
         if "operator" not in scopes and f"namespace:{ns}:write" not in scopes and (write or f"namespace:{ns}:read" not in scopes):
             raise DecisionError("unauthorized", "current decision namespace access is required")
         project = state["content"]["project"]
-        baseline = ResearchProjectStore(self.conn, initialize=False).inspect(project["namespace"], project["id"], revision=project["revision"], principal_id=principal_id, scopes=scopes)
+        baseline = ResearchProjectStore(self.conn, initialize=False).inspect(project["namespace"], project["id"], revision=project["revision"], principal_id=principal_id, scopes=scopes) if project is not None else None
         for link in state["content"]["observations"]:
             ns = link.get("namespace", state["namespace"])
-            if ns not in {baseline["namespace"], *baseline["scope"]["namespaces"]}:
-                raise DecisionError("scope_mismatch", "observation is outside the pinned project's namespace scope")
+            allowed = ({baseline["namespace"], *baseline["scope"]["namespaces"]} if baseline is not None else {state["namespace"]})
+            if ns not in allowed:
+                raise DecisionError("scope_mismatch", "observation is outside the decision's namespace scope")
         return baseline
 
     def _state(self, namespace, decision_id, revision=None):
@@ -122,8 +137,9 @@ class DecisionStore:
         raise exc
 
     def create(self, namespace, request_key, content, *, principal_id, scopes):
-        state = {"contract": "noesis-decision-v1", "decision_id": "decision:" + _hash([_text(namespace), principal_id, _text(request_key)])[:32],
-                 "namespace": namespace, "owner": principal_id, "revision": 1, "content": _content(content)}
+        validated = _content(content)
+        state = {"contract": "noesis-decision-v2" if "decision_context" in validated else "noesis-decision-v1", "decision_id": "decision:" + _hash([_text(namespace), principal_id, _text(request_key)])[:32],
+                 "namespace": namespace, "owner": principal_id, "revision": 1, "content": validated}
         self._authorize(state, principal_id, scopes, write=True)
         digest = _hash(state)
         prior = self.conn.execute("SELECT request_hash FROM research_decisions WHERE decision_id=?", [state["decision_id"]]).fetchone()
@@ -150,6 +166,8 @@ class DecisionStore:
             state = self._state(namespace, decision_id)
             self._authorize(state, principal_id, scopes, write=True)
             state.update(content=content, decided_at_ms=self.now())
+            if "decision_context" in content:
+                state["contract"] = "noesis-decision-v2"
             self._authorize(state, principal_id, scopes, write=True)
             row = self.conn.execute("UPDATE research_decisions SET revision=revision+1 WHERE decision_id=? AND revision=? RETURNING revision", [decision_id, expected_revision]).fetchone()
             if not row:

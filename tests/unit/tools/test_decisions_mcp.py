@@ -26,4 +26,24 @@ def test_decision_public_tools(tmp_path, monkeypatch):
     assert tools["revise_research_decision"].fn(**identity, expected_revision=1, content=content)["revision"] == 2
     assert tools["inspect_research_decision"].fn(**identity, revision=1)["content"]["rationale"] == "Simpler"
     assert _mutability("calculate_decision_sensitivity") == "write"
-    assert _required_scopes("knowledge_engine_mcp", "write", "calculate_decision_sensitivity") == ["knowledge:decisions:write", "knowledge:projects:read"]
+    assert _required_scopes("knowledge_engine_mcp", "write", "calculate_decision_sensitivity") == ["knowledge:decisions:write"]
+
+
+def test_standalone_decision_public_tools_without_project_scope(tmp_path, monkeypatch):
+    path = str(tmp_path / "standalone.duckdb")
+    scopes = {"knowledge:decisions:read", "knowledge:decisions:write", "namespace:r:write"}
+    monkeypatch.setattr(server, "_context", lambda: ("alice", scopes))
+    monkeypatch.setattr(server, "_connection", lambda *, read_only: duckdb.connect(path, read_only=read_only))
+    tools = asyncio.run(server.mcp.get_tools())
+    content = {"project": None, "decision_context": {
+        "question": "Proceed?", "stakes": "One week", "required_confidence": "Moderate",
+        "stop_condition": "Cost is known", "uncertainty": "Outcome uncertain",
+        "missing_inputs": [], "deadline_at_ms": None},
+        "options": [{"id": "yes", "description": "Proceed"}, {"id": "no", "description": "Wait"}],
+        "constraints": [], "assumptions": [], "observations": [], "preferences": [],
+        "selected_action": "no", "rationale": "Wait for cost", "review_conditions": []}
+    decision = tools["create_research_decision"].fn(namespace="r", request_key="choice", content=content)
+    identity = {"namespace": "r", "decision_id": decision["decision_id"]}
+    assert decision["contract"] == "noesis-decision-v2"
+    assert tools["inspect_research_decision"].fn(**identity)["content"]["selected_action"] == "no"
+    assert _required_scopes("knowledge_engine_mcp", "write", "create_research_decision") == ["knowledge:decisions:write"]

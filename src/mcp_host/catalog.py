@@ -471,9 +471,9 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
         if tool_name in {"inspect_binary_forecast", "propose_forecast_resolution", "score_binary_forecasts"}:
             return ["knowledge:forecasts:read"]
         if tool_name in {"create_research_decision", "revise_research_decision", "calculate_decision_sensitivity"}:
-            return ["knowledge:decisions:write", "knowledge:projects:read"]
+            return ["knowledge:decisions:write"]
         if tool_name == "inspect_research_decision":
-            return ["knowledge:decisions:read", "knowledge:projects:read"]
+            return ["knowledge:decisions:read"]
         if tool_name in {"create_review_protocol", "amend_review_protocol", "add_review_candidate", "screen_review_candidate", "adjudicate_review_candidate", "extract_review_field", "review_study_field"}:
             return ["knowledge:reviews:write"]
         if tool_name in {"inspect_review_protocol", "export_systematic_review", "list_review_candidates", "inspect_review_candidate"}:

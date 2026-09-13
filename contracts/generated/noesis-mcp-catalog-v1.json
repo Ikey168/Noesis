@@ -15833,8 +15833,7 @@
         "knowledge-engine-runtime"
       ],
       "required_scopes": [
-        "knowledge:decisions:write",
-        "knowledge:projects:read"
+        "knowledge:decisions:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -18157,8 +18156,7 @@
         "knowledge-engine-runtime"
       ],
       "required_scopes": [
-        "knowledge:decisions:write",
-        "knowledge:projects:read"
+        "knowledge:decisions:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -24413,8 +24411,7 @@
         "knowledge-engine-runtime"
       ],
       "required_scopes": [
-        "knowledge:decisions:read",
-        "knowledge:projects:read"
+        "knowledge:decisions:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -35490,8 +35487,7 @@
         "knowledge-engine-runtime"
       ],
       "required_scopes": [
-        "knowledge:decisions:write",
-        "knowledge:projects:read"
+        "knowledge:decisions:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
