@@ -3,6 +3,8 @@
 import duckdb
 import pytest
 
+from src.kb.intake_exploration import IntakeExplorationStore
+from src.kb.intake_inbox import IntakeInboxStore
 from src.kb.intake_modes import IntakeError, IntakeStore
 from src.kb.intake_research_topic import start_research_topic
 from src.kb.research_projects import ResearchProjectStore
@@ -14,14 +16,14 @@ SCOPES = {
 }
 
 
-def _start(conn, key, owner="alice", scopes=SCOPES):
+def _start(conn, key, owner="alice", scopes=SCOPES, references=None):
     return start_research_topic(
         conn, "research", key,
         questions=["What explains the indexing delay?"],
         success_criteria=["Identify supported and unresolved causes"],
         scope={"domains": [], "namespaces": ["research"]},
         budget={"requests": 5, "tokens": 10000, "usd_micros": 0},
-        origin=None, references=[], workspace_links=None,
+        origin=None, references=references or [], workspace_links=None,
         principal_id=owner, scopes=scopes,
     )
 
@@ -70,3 +72,97 @@ def test_research_topic_requires_both_project_and_intake_scopes():
     assert getattr(denied.value, "code", None) == "unauthorized"
     assert conn.execute("SELECT count(*) FROM research_projects").fetchone()[0] == 0
     assert conn.execute("SELECT count(*) FROM intake_sessions").fetchone()[0] == 0
+
+
+def test_research_topic_pins_owned_source_and_reports_correction(tmp_path):
+    conn = duckdb.connect(str(tmp_path / "source-handoff.duckdb"))
+    exploration = IntakeExplorationStore(conn)
+    session = IntakeStore(conn).create(
+        "research", "Exploration", "saved-source", intent="Find sources",
+        principal_id="alice", scopes=SCOPES,
+    )
+    first = exploration.capture(
+        "research", session["session_id"], "capture-one", expected_revision=1,
+        url="https://example.org/research", title="Original", content="Original text",
+        saved=True, principal_id="alice", scopes=SCOPES,
+    )
+    ref = first["references"][0]
+    started = _start(conn, "source-topic", references=[ref])
+    project = started["project"]
+    assert project["links"] == [{
+        "kind": "intake_source", "id": ref["id"], "namespace": "research",
+        "revision": 1, "question_revision": 1,
+    }]
+    store = ResearchProjectStore(conn, initialize=False)
+    availability = store.inspect("research", project["project_id"],
+                                 principal_id="alice", scopes=SCOPES)["reference_availability"]
+    assert availability[0]["status"] == "current"
+    assert availability[0]["revision_verified"]
+
+    exploration.capture(
+        "research", session["session_id"], "capture-two", expected_revision=2,
+        url="https://example.org/research", title="Corrected", content="Corrected text",
+        saved=True, principal_id="alice", scopes=SCOPES,
+    )
+    assert store.inspect("research", project["project_id"],
+                         principal_id="alice", scopes=SCOPES)["reference_availability"][0]["status"] == "superseded"
+    assert _start(conn, "source-topic", references=[ref])["idempotent"]
+    assert conn.execute("SELECT count(*) FROM research_projects").fetchone()[0] == 1
+
+
+def test_research_topic_rejects_nonexistent_source_without_half_handoff():
+    conn = duckdb.connect(":memory:")
+    with pytest.raises(IntakeError) as missing:
+        _start(conn, "missing-source", references=[{
+            "kind": "exploration_source", "id": "explore:missing",
+            "namespace": "research", "version": 1,
+        }])
+    assert missing.value.code == "source_not_found"
+    assert conn.execute("SELECT count(*) FROM research_projects").fetchone()[0] == 0
+    assert conn.execute("SELECT count(*) FROM intake_sessions").fetchone()[0] == 0
+
+
+def test_research_topic_rejects_another_owners_saved_source():
+    conn = duckdb.connect(":memory:")
+    session = IntakeStore(conn).create(
+        "research", "Exploration", "bob-source", intent="Save",
+        principal_id="bob", scopes=SCOPES,
+    )
+    captured = IntakeExplorationStore(conn).capture(
+        "research", session["session_id"], "save", expected_revision=1,
+        url="https://example.org/bob", title="Bob's source", saved=True,
+        principal_id="bob", scopes=SCOPES,
+    )
+    with pytest.raises(IntakeError) as denied:
+        _start(conn, "alice-topic", references=captured["references"])
+    assert denied.value.code == "source_not_found"
+    assert conn.execute("SELECT count(*) FROM research_projects").fetchone()[0] == 0
+    assert conn.execute("SELECT count(*) FROM intake_sessions").fetchone()[0] == 1
+
+
+def test_research_topic_pins_feed_revision():
+    conn = duckdb.connect(":memory:")
+    inbox = IntakeInboxStore(conn)
+    subscription = inbox.subscribe(
+        "research", "https://example.org/feed", "Example", "rss_atom",
+        principal_id="alice", scopes=SCOPES,
+    )
+    inbox.ingest(
+        "research", subscription["subscription_id"],
+        [{"url": "https://example.org/story", "title": "Story", "content": "First"}],
+        principal_id="alice", scopes=SCOPES,
+    )
+    ref = inbox.list("research", principal_id="alice", scopes=SCOPES)["items"][0]["reference"]
+    started = _start(conn, "feed-topic", references=[ref])
+    assert started["project"]["links"][0]["id"] == ref["id"]
+    inbox.ingest(
+        "research", subscription["subscription_id"],
+        [{"url": "https://example.org/story", "title": "Story", "content": "Corrected"}],
+        principal_id="alice", scopes=SCOPES,
+    )
+    availability = ResearchProjectStore(conn, initialize=False).inspect(
+        "research", started["project"]["project_id"],
+        principal_id="alice", scopes=SCOPES,
+    )["reference_availability"][0]
+    assert availability["status"] == "superseded"
+    assert availability["revision_verified"]
