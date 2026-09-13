@@ -56,10 +56,18 @@ def test_maintenance_snapshot_replay_and_typed_completion(tmp_path):
         steps=[{"action": "Restart worker", "expected_result": "Item visible",
                 "recovery": "Inspect logs"}], verification="New item visible",
         source_rationale="Observed repair", **kwargs)
+    runs = IntakePlaybookStore(conn, now=lambda: 1000)
+    run = runs.start_run("research", playbook["playbook_id"], "rehearsal",
+                         playbook_revision=1, environment="Desktop", **kwargs)
+    runs.command_run("research", run["run_id"], "failed-step",
+                     expected_revision=1, action="step",
+                     payload={"step_id": "step-1", "passed": False,
+                              "observation": "Item still missing"}, **kwargs)
     maintenance = IntakeMaintenanceStore(conn, now=lambda: 31 * DAY)
     queue = maintenance.scan("research", **kwargs)
     assert {item["reason"] for item in queue["findings"]} == {
-        "overdue_practice", "old_draft_playbook", "routine_health_check",
+        "overdue_practice", "old_draft_playbook", "failed_guided_rehearsal",
+        "routine_health_check",
     }
     assert all("answer" not in item for item in queue["findings"])
     session = maintenance.start("research", "monthly", intent="Review system health",

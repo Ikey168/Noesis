@@ -106,6 +106,38 @@ class IntakeMaintenanceStore:
                 add("playbook", playbook_id, int(revision), "old_draft_playbook",
                     "rehearse_or_archive", "Draft procedure has not been revised for at least 30 days")
 
+        if _has_table(self.conn, "intake_playbook_runs"):
+            rows = self.conn.execute(
+                "SELECT run_id,revision,content_json FROM intake_playbook_runs "
+                "WHERE namespace=? AND owner=? ORDER BY run_id",
+                [namespace, principal_id],
+            ).fetchall()
+            playbooks = IntakePlaybookStore(self.conn, initialize=False, now=self.now)
+            for run_id, revision, raw in rows:
+                stored = json.loads(raw)
+                observations = stored.get("observations", [])
+                last_step_failed = bool(observations) and observations[-1].get("passed") is False
+                verification = stored.get("verification")
+                last_check_failed = isinstance(verification, dict) and verification.get("passed") is False
+                if stored.get("status") not in {"active", "paused"} or not (
+                    last_step_failed or last_check_failed
+                ):
+                    continue
+                try:
+                    playbooks.inspect_run(namespace, run_id,
+                                          principal_id=principal_id, scopes=scopes)
+                except IntakeError as exc:
+                    if exc.code != "unauthorized":
+                        raise
+                    add("guided_playbook_run", run_id, int(revision),
+                        "rehearsal_source_access_unavailable", "restore_access",
+                        "A failed guided rehearsal references inaccessible source material")
+                    continue
+                stage = "final check" if last_check_failed else "step"
+                add("guided_playbook_run", run_id, int(revision),
+                    "failed_guided_rehearsal", "retry_or_revise",
+                    f"The latest caller-reported {stage} failed; inspect the run before retrying")
+
         if _has_table(self.conn, "intake_creation_projects"):
             rows = self.conn.execute(
                 "SELECT project_id,revision,content_json FROM intake_creation_projects "
@@ -137,7 +169,8 @@ class IntakeMaintenanceStore:
         findings.sort(key=lambda item: (item["reason"], item["target"]["id"]))
         return {"contract": CONTRACT, "namespace": namespace, "owner": principal_id,
                 "as_of_ms": now_ms, "findings": findings,
-                "coverage": ["overdue_practice", "old_draft_playbook", "stale_created_report"],
+                "coverage": ["overdue_practice", "old_draft_playbook",
+                             "failed_guided_rehearsal", "stale_created_report"],
                 "limitations": ["Reported repair actions are not execution receipts",
                                 "Source-pack failures and dependency impact are not yet composed"]}
 
