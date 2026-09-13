@@ -162,36 +162,45 @@ class IntakeIterationStore:
                             "proposal_sha256": _hash(proposal),
                             "proposal_recorded_at_ms": proposal["proposed_at_ms"]})
         content = proposal["content"]
-        revised = IntakePlaybookStore(self.conn, now=self.now).revise(
-            namespace, target["id"], "iteration:" + command_key,
-            expected_revision=target["version"],
-            title=content["title"], prerequisites=content["prerequisites"],
-            environment=content["environment"],
-            steps=[{key: step[key] for key in ("action", "expected_result", "recovery")}
-                   for step in content["steps"]],
-            verification=content["verification"],
-            source_rationale=content["source_rationale"],
-            iteration_receipt=receipt, principal_id=principal_id, scopes=scopes,
-        )
-        accepted = {"id": target["id"], "revision": revised["revision"],
-                    "proposal_sha256": receipt["proposal_sha256"]}
-        ref = {"kind": "revised_artifact", "id": target["id"],
-               "namespace": namespace, "version": revised["revision"]}
+        self.conn.execute("BEGIN")
+        try:
+            revised = IntakePlaybookStore(self.conn, now=self.now).revise(
+                namespace, target["id"], "iteration:" + command_key,
+                expected_revision=target["version"],
+                title=content["title"], prerequisites=content["prerequisites"],
+                environment=content["environment"],
+                steps=[{key: step[key] for key in ("action", "expected_result", "recovery")}
+                       for step in content["steps"]],
+                verification=content["verification"],
+                source_rationale=content["source_rationale"],
+                iteration_receipt=receipt, principal_id=principal_id, scopes=scopes,
+                _within_transaction=True,
+            )
+            accepted = {"id": target["id"], "revision": revised["revision"],
+                        "proposal_sha256": receipt["proposal_sha256"]}
+            ref = {"kind": "revised_artifact", "id": target["id"],
+                   "namespace": namespace, "version": revised["revision"]}
 
-        def apply(current: dict, _payload: dict) -> None:
-            self._typed(current)
-            if _hash(current["data"].get("proposal")) != receipt["proposal_sha256"]:
-                raise IntakeError("revision_conflict", "proposal changed while accepting; inspect")
-            current["data"].update({"accepted_revision": accepted,
-                                    "proposal": {**proposal, "review_state": "accepted"}})
-            current["data"].pop("iteration_command", None)
+            def apply(current: dict, _payload: dict) -> None:
+                self._typed(current)
+                if _hash(current["data"].get("proposal")) != receipt["proposal_sha256"]:
+                    raise IntakeError("revision_conflict", "proposal changed while accepting; inspect")
+                current["data"].update({"accepted_revision": accepted,
+                                        "proposal": {**proposal, "review_state": "accepted"}})
+                current["data"].pop("iteration_command", None)
 
-        return ledger.command(
-            namespace, session_id, command_key, expected_revision=expected_revision,
-            action="record", payload={"data": {"iteration_command": accepted},
-                                      "references": [ref]},
-            principal_id=principal_id, scopes=scopes, record_hook=apply,
-        )
+            result = ledger.command(
+                namespace, session_id, command_key, expected_revision=expected_revision,
+                action="record", payload={"data": {"iteration_command": accepted},
+                                          "references": [ref]},
+                principal_id=principal_id, scopes=scopes, record_hook=apply,
+                _within_transaction=True,
+            )
+            self.conn.execute("COMMIT")
+        except Exception:
+            self.conn.execute("ROLLBACK")
+            raise
+        return result
 
     def review_stability(
         self, namespace: str, session_id: str, command_key: str, *,

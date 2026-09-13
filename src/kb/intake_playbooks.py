@@ -209,6 +209,7 @@ class IntakePlaybookStore:
         environment: str, steps: list[dict], verification: str,
         source_rationale: str, principal_id: str, scopes: set[str],
         iteration_receipt: dict | None = None,
+        _within_transaction: bool = False,
     ) -> dict:
         edit_key = _text(edit_key, "edit_key", limit=256)
         if type(expected_revision) is not int or expected_revision < 1:
@@ -226,7 +227,8 @@ class IntakePlaybookStore:
                 raise IntakeError("invalid_iteration", "a versioned iteration receipt is required")
             iteration_receipt = _bounded(iteration_receipt)
         digest = _hash([patch, iteration_receipt]) if iteration_receipt is not None else _hash(patch)
-        self.conn.execute("BEGIN")
+        if not _within_transaction:
+            self.conn.execute("BEGIN")
         try:
             current = self._playbook(namespace, playbook_id)
             self._authorize(current, principal_id, scopes, write=True)
@@ -239,7 +241,8 @@ class IntakePlaybookStore:
                     raise IntakeError("idempotency_conflict", "edit_key identifies another revision")
                 value = self._playbook(namespace, playbook_id, int(replay[1]))
                 self._authorize(value, principal_id, scopes)
-                self.conn.execute("COMMIT")
+                if not _within_transaction:
+                    self.conn.execute("COMMIT")
                 return {**value, "idempotent": True}
             if current["revision"] != expected_revision:
                 raise IntakeError("revision_conflict", "playbook changed; inspect before editing")
@@ -267,9 +270,11 @@ class IntakePlaybookStore:
                 "INSERT INTO intake_playbook_edits VALUES (?,?,?,?)",
                 [playbook_id, edit_key, digest, value["revision"]],
             )
-            self.conn.execute("COMMIT")
+            if not _within_transaction:
+                self.conn.execute("COMMIT")
         except Exception:
-            self.conn.execute("ROLLBACK")
+            if not _within_transaction:
+                self.conn.execute("ROLLBACK")
             raise
         return {**value, "idempotent": False}
 

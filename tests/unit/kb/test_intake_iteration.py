@@ -63,18 +63,20 @@ def test_iteration_accepts_measured_playbook_revision_and_reopens_new_cycle(monk
     original_command = IntakeStore.command
     interrupted = False
 
-    def lose_response_once(self, namespace, session_id, command_key, **options):
+    def fail_session_write_once(self, namespace, session_id, command_key, **options):
         nonlocal interrupted
         if command_key == "accept" and not interrupted:
             interrupted = True
-            raise IntakeError("interrupted", "simulate a lost result after playbook revision")
+            raise IntakeError("interrupted", "simulate a failed session write")
         return original_command(self, namespace, session_id, command_key, **options)
 
-    monkeypatch.setattr(IntakeStore, "command", lose_response_once)
-    with pytest.raises(IntakeError, match="simulate a lost result"):
+    monkeypatch.setattr(IntakeStore, "command", fail_session_write_once)
+    with pytest.raises(IntakeError, match="simulate a failed session write"):
         store.accept("research", session["session_id"], "accept",
                      expected_revision=proposed["revision"], **kwargs)
-    assert playbooks.inspect("research", playbook["playbook_id"], **kwargs)["revision"] == 2
+    assert playbooks.inspect("research", playbook["playbook_id"], **kwargs)["revision"] == 1
+    assert IntakeStore(conn, now=lambda: 2000).inspect(
+        "research", session["session_id"], **kwargs)["revision"] == proposed["revision"]
     accepted = store.accept("research", session["session_id"], "accept",
                             expected_revision=proposed["revision"], **kwargs)
     assert accepted["data"]["accepted_revision"]["revision"] == 2
