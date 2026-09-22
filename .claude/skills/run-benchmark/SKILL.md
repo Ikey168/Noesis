@@ -1,8 +1,13 @@
+---
+name: run-benchmark
+description: Run the argument-mining benchmark evaluation via scripts/benchmark_models.py and update docs/subsystems/argument-mining-benchmarks.md. Scores ClaimDetector binary F1 and StanceClassifier against the test splits, supports a 2% F1 regression gate versus the previous checkpoint, and can include the external FEVER, LIAR, and AVeriTeC datasets. Use when evaluating a newly trained checkpoint, gating a model change against regressions, or refreshing the recorded benchmark numbers.
+---
+
 # run-benchmark skill
 
 Run the argument-mining benchmark evaluation and update `docs/subsystems/argument-mining-benchmarks.md`.
 
-**All paths relative to repo root** (`/home/Ikey/NeuroNews`).
+**All paths are relative to the repo root.**
 
 ## Quick usage
 
