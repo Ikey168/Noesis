@@ -26,6 +26,7 @@ from src.ingestion.connectors import filings_connector  # noqa: E402,F401
 from src.ingestion.connectors import legislative  # noqa: E402,F401
 from src.ingestion.connectors import manifest  # noqa: E402,F401
 from src.ingestion.connectors import political_official  # noqa: E402,F401
+from src.ingestion.connectors import scholarly  # noqa: E402,F401
 from src.domains.technical import git_connector  # noqa: E402,F401
 from src.domains.technical import registries  # noqa: E402,F401
 from src.domains.technical import specifications  # noqa: E402,F401
