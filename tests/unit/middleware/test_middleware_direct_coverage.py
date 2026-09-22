@@ -268,7 +268,7 @@ class TestServicesMiddlewareCore:
     def test_metrics_middleware(self):
         """Test metrics middleware."""
         try:
-            from services.api.middleware.metrics import RAGMetricsMiddleware
+            from legacy.services.api.middleware.metrics import RAGMetricsMiddleware
             
             app = Mock()
             middleware = RAGMetricsMiddleware(app)
@@ -282,7 +282,7 @@ class TestServicesMiddlewareCore:
     def test_sliding_window_rate_limiter(self):
         """Test sliding window rate limiter."""
         try:
-            from services.api.middleware.ratelimit import SlidingWindowRateLimiter
+            from legacy.services.api.middleware.ratelimit import SlidingWindowRateLimiter
             
             app = Mock()
             limiter = SlidingWindowRateLimiter(app)
@@ -304,8 +304,8 @@ class TestMiddlewareCoverage:
             "/home/user/Noesis/src/api/middleware/auth_middleware.py",
             "/home/user/Noesis/src/api/auth/api_key_middleware.py",
             "/home/user/Noesis/src/api/rbac/rbac_middleware.py",
-            "/home/user/Noesis/services/api/middleware/metrics.py",
-            "/home/user/Noesis/services/api/middleware/ratelimit.py",
+            "/home/user/Noesis/legacy/services/api/middleware/metrics.py",
+            "/home/user/Noesis/legacy/services/api/middleware/ratelimit.py",
         ]
         
         existing_files = []

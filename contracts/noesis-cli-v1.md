@@ -23,7 +23,8 @@ Resolution order is `--config`, `NOESIS_CONFIG`, the deprecated
 - `brief --domains A,B --since TIME --budget N`;
 - `watch create|list|poll|pause|resume|delete|scan|replay` and `watches`;
 - `export answer|claim|integrity` and `verify BUNDLE`;
-- `serve --surface api|kb-mcp`.
+- `sync [--daemon] [--interval SECONDS] [--max-items N] [--dry-run]`;
+- `serve --surface mcp|api|kb-mcp` (`mcp` is the default).
 
 Every JSON-producing command except the compatibility-preserved Evidence
 Bundle verifier uses this envelope:
@@ -40,6 +41,9 @@ Bundle verifier uses this envelope:
 Canonical contract results are nested unchanged under `data`. Errors replace
 `data` with `{code, message, repair?}`. JSON stdout never contains progress
 text. The verifier retains its established `VerificationResult` JSON exactly.
+For `sync --daemon --json`, stdout is a JSON Lines stream: one complete
+`noesis-cli-v1` envelope per sync pass followed by a final `sync.daemon`
+envelope on graceful shutdown.
 
 Exit codes are stable: `0` success, `1` failed verification/diagnostic,
 `2` incomplete bundle or argument parsing, `3` configuration, `4` missing
@@ -56,8 +60,21 @@ interactive terminal or passing `--yes`, including noninteractive use.
 
 Ingestion uses the unified `DocumentStore` and membership pass. Document ids
 and content hashes make interrupted retries idempotent. URL fetching occurs
-only when the operator explicitly supplies an HTTP(S) URL. Doctor performs no
-network access and never prints credential values.
+only when the operator explicitly supplies an HTTP(S) URL.
+
+`noesis sync` performs one bounded synchronization pass. It fetches only
+explicitly enabled inbox/feed subscriptions, promotes new or changed retained
+feed revisions through the same production `ingest → extract → resolve →
+index` path, refreshes domain membership, commits a consolidation watermark,
+runs the current principal's watches, and only recovers/inspects maintenance
+state. It does not start Deep Research, execute queued source-pack maintenance
+jobs, or initiate paid acquisition. Durable run receipts and per-feed revision
+checkpoints make restart retries idempotent. `--dry-run` performs no network
+fetches and creates no sync tables. `sync --daemon` holds a single-instance
+advisory lock, handles SIGINT/SIGTERM gracefully, and uses bounded exponential
+backoff between degraded passes.
+
+Doctor performs no network access and never prints credential values.
 
 ## Compatibility policy
 

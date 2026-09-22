@@ -1,38 +1,74 @@
-# Noesis MCP servers
+# Noesis MCP gateway
 
-There is no monolithic or phantom `noesis_mcp` server. The public knowledge
-contract is `tools/kb_mcp/server.py`; specialist capabilities are separate
-least-privilege servers listed in [mcp-and-api.md](mcp-and-api.md) and declared
-in the repository's `.mcp.json`.
+Noesis has one **default MCP endpoint** for agents and interactive clients:
 
-Run the KB server over local stdio:
-
-```bash
-python tools/kb_mcp/server.py
+```text
+http://127.0.0.1:8100/mcp
 ```
 
-It exposes domain discovery, scoped search/documents/claims/entities, diffs,
-coverage, integrity envelopes, and the daily brief through `noesis-kb-v1`.
-Its additive cross-domain tools search, answer, and inspect equivalence links
-over explicit or all-authorized domain scopes through
-`noesis-cross-domain-v1`; private domains remain grant-gated.
-`kb_temporal` adds bitemporal snapshots and history through
-`noesis-temporal-v1`, with independent valid/observation clocks, source-time
-precision and provenance, typed revision transitions, and stable cursors.
-All successful responses carry the versioned contract envelope. Query-only KB
-and KG servers open the configured DuckDB file read-only when they run as a
-standalone process.
-
-For Streamable HTTP, opt in explicitly:
+Start it with:
 
 ```bash
-NOESIS_MCP_TRANSPORT=http \
-NOESIS_MCP_HTTP_HOST=127.0.0.1 \
-NOESIS_MCP_HTTP_PORT=8100 \
+noesis serve
+```
+
+The default server is `tools/noesis_mcp/server.py` (`noesis`). It intentionally
+exposes a compact daily-driver surface instead of every internal capability:
+
+- `domains`
+- `add`
+- `search`
+- `ask`
+- `brief`
+- `documents`
+- `claims`
+- `inspect_source`
+- `coverage`
+- `watch`
+- `inbox`
+- `explore`
+- `research`
+- `export`
+
+The gateway routes into the existing KB, production ingestion, Information
+Intake, and evidence-bundle implementations; it does not maintain a second copy
+of those semantics. Its intake workflow tools act as the configured workspace
+principal. Use the specialist Knowledge Engine MCP for per-caller identities
+and granular multi-tenant intake scopes.
+
+## Specialist servers
+
+The existing `tools/*_mcp/server.py` servers remain available for advanced or
+least-privilege deployments. For example:
+
+```bash
+python tools/statistics_mcp/server.py
+python tools/knowledge_engine_mcp/server.py
+noesis serve --surface kb-mcp
+```
+
+They are not required for the ordinary Noesis workflow and are not mounted into
+the default gateway automatically.
+
+## Transports
+
+`noesis serve` defaults to Streamable HTTP on loopback. For a local spawned
+process, stdio is also available:
+
+```bash
+noesis serve --transport stdio
+```
+
+For remote access, bind deliberately and configure authentication:
+
+```bash
 NOESIS_MCP_AUTH_TOKEN='replace-me' \
-python tools/kb_mcp/server.py
+noesis serve --host 0.0.0.0 --port 8110
 ```
 
-stdio remains the default. Do not bind outside loopback without authentication,
-TLS termination, and network access controls. Each specialist server has its
-own process and port; there is no implicit all-powerful gateway.
+The resulting endpoint is `http://HOST:PORT/mcp`. Authentication remains
+fail-closed when a token is configured. Do not expose an unauthenticated MCP
+server beyond loopback.
+
+The specialist KB contract remains `noesis-kb-v1`; the gateway uses
+`noesis-gateway-v1` only for gateway-specific envelopes and errors.

@@ -1,4 +1,8 @@
-# Argument Mining Model Benchmarks
+# Dedicated Argument Mining Fallback Benchmarks
+
+> These results cover Noesis's dedicated local fallback classifiers. When
+> `TYPESAFE_API_KEY` is configured, Jev is the primary claim/stance/frame
+> decision backend. No Jev benchmark result is asserted by this document.
 
 > Generated: 2026-09-03T15:41:43.486475+00:00
 > Dataset: held-out test split (claim n=1076, stance n=1076, frame n=1076)

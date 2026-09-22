@@ -76,6 +76,37 @@
   "namespaces": [],
   "servers": [
     {
+      "aliases": [],
+      "kind": "noesis",
+      "name": "noesis",
+      "pack": null,
+      "reason": null,
+      "state": "degraded",
+      "tool_count": 14,
+      "tools": [
+        "noesis.add",
+        "noesis.ask",
+        "noesis.brief",
+        "noesis.claims",
+        "noesis.coverage",
+        "noesis.documents",
+        "noesis.domains",
+        "noesis.explore",
+        "noesis.export",
+        "noesis.inbox",
+        "noesis.inspect_source",
+        "noesis.research",
+        "noesis.search",
+        "noesis.watch"
+      ],
+      "transports": [
+        "stdio",
+        "streamable-http"
+      ],
+      "version": "1",
+      "visible_tool_count": 14
+    },
+    {
       "kind": "external",
       "name": "memory",
       "reason": "external server tools are not shipped by Noesis",
@@ -1292,16 +1323,1035 @@
     "omitted": {
       "unauthorized": 1
     },
-    "servers": 29,
+    "servers": 30,
     "states": {
       "available": 84,
-      "degraded": 155,
+      "degraded": 169,
       "disabled": 3,
       "unauthorized": 465
     },
-    "tools": 707
+    "tools": 721
   },
   "tools": [
+    {
+      "cost_class": "medium",
+      "description": "Add one local file or HTTP(S) URL and process it through extract/index.",
+      "id": "noesis.add",
+      "input_schema": {
+        "properties": {
+          "domain": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "language": {
+            "default": "en",
+            "type": "string"
+          },
+          "source": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "source"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "add",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "backend or data readiness is incomplete",
+      "required_data": [
+        "warehouse"
+      ],
+      "required_scopes": [
+        "operator"
+      ],
+      "server": "noesis",
+      "state": "degraded",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Answer from Noesis evidence with statement-level citations.",
+      "id": "noesis.ask",
+      "input_schema": {
+        "properties": {
+          "domain": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "limit": {
+            "default": 5,
+            "type": "integer"
+          },
+          "minimum_relevance": {
+            "default": 0.34,
+            "type": "number"
+          },
+          "question": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "question"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "ask",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "backend or data readiness is incomplete",
+      "required_data": [
+        "warehouse"
+      ],
+      "required_scopes": [
+        "knowledge:read"
+      ],
+      "server": "noesis",
+      "state": "degraded",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Build a cited change brief across the requested knowledge domains.",
+      "id": "noesis.brief",
+      "input_schema": {
+        "properties": {
+          "budget": {
+            "default": 15,
+            "type": "integer"
+          },
+          "domains": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "since": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "brief",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "backend or data readiness is incomplete",
+      "required_data": [
+        "warehouse"
+      ],
+      "required_scopes": [
+        "knowledge:read"
+      ],
+      "server": "noesis",
+      "state": "degraded",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "List clustered claims with citations and contradiction metadata.",
+      "id": "noesis.claims",
+      "input_schema": {
+        "properties": {
+          "domain": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "limit": {
+            "default": 50,
+            "type": "integer"
+          },
+          "since": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "claims",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "backend or data readiness is incomplete",
+      "required_data": [
+        "warehouse"
+      ],
+      "required_scopes": [
+        "knowledge:read"
+      ],
+      "server": "noesis",
+      "state": "degraded",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Report source, freshness, backing, and corpus coverage for a domain.",
+      "id": "noesis.coverage",
+      "input_schema": {
+        "properties": {
+          "domain": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "coverage",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "backend or data readiness is incomplete",
+      "required_data": [
+        "warehouse"
+      ],
+      "required_scopes": [
+        "knowledge:read"
+      ],
+      "server": "noesis",
+      "state": "degraded",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "List domain documents, newest ingestion first.",
+      "id": "noesis.documents",
+      "input_schema": {
+        "properties": {
+          "domain": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "limit": {
+            "default": 50,
+            "type": "integer"
+          },
+          "since": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "documents",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "backend or data readiness is incomplete",
+      "required_data": [
+        "warehouse"
+      ],
+      "required_scopes": [
+        "knowledge:read"
+      ],
+      "server": "noesis",
+      "state": "degraded",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "List configured knowledge domains and their backing types.",
+      "id": "noesis.domains",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "domains",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "backend or data readiness is incomplete",
+      "required_data": [
+        "warehouse"
+      ],
+      "required_scopes": [
+        "knowledge:read"
+      ],
+      "server": "noesis",
+      "state": "degraded",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Start or continue an Exploration trail and inspect related-source suggestions.",
+      "id": "noesis.explore",
+      "input_schema": {
+        "properties": {
+          "action": {
+            "default": "list",
+            "type": "string"
+          },
+          "command_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "content": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "decision": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "domain": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "expected_revision": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "fetch_readable": {
+            "default": false,
+            "type": "boolean"
+          },
+          "intent": {
+            "default": "Explore related evidence",
+            "type": "string"
+          },
+          "limit": {
+            "default": 20,
+            "type": "integer"
+          },
+          "note": {
+            "default": "",
+            "type": "string"
+          },
+          "request_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "saved": {
+            "default": false,
+            "type": "boolean"
+          },
+          "session_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "suggestion_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "explore",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "backend or data readiness is incomplete",
+      "required_data": [
+        "warehouse"
+      ],
+      "required_scopes": [
+        "operator"
+      ],
+      "server": "noesis",
+      "state": "degraded",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Return an answer, claim, or integrity Evidence Bundle inline.",
+      "id": "noesis.export",
+      "input_schema": {
+        "properties": {
+          "claim_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "document_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "domain": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "include_private": {
+            "default": false,
+            "type": "boolean"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "question": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "kind"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "export",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "backend or data readiness is incomplete",
+      "required_data": [
+        "warehouse"
+      ],
+      "required_scopes": [
+        "knowledge:read"
+      ],
+      "server": "noesis",
+      "state": "degraded",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Review, refresh, subscribe, or triage the owner-scoped Awareness inbox.",
+      "id": "noesis.inbox",
+      "input_schema": {
+        "properties": {
+          "action": {
+            "default": "list",
+            "type": "string"
+          },
+          "command_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "decision": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "domain": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "expected_revision": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "intent": {
+            "default": "Review new information",
+            "type": "string"
+          },
+          "item_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "limit": {
+            "default": 50,
+            "type": "integer"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "only_unprocessed": {
+            "default": true,
+            "type": "boolean"
+          },
+          "request_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "session_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "source_kind": {
+            "default": "rss_atom",
+            "type": "string"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "inbox",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "backend or data readiness is incomplete",
+      "required_data": [
+        "warehouse"
+      ],
+      "required_scopes": [
+        "operator"
+      ],
+      "server": "noesis",
+      "state": "degraded",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Inspect one visible document together with its integrity evidence.",
+      "id": "noesis.inspect_source",
+      "input_schema": {
+        "properties": {
+          "document_id": {
+            "type": "string"
+          },
+          "domain": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "document_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "inspect_source",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "backend or data readiness is incomplete",
+      "required_data": [
+        "warehouse"
+      ],
+      "required_scopes": [
+        "knowledge:read"
+      ],
+      "server": "noesis",
+      "state": "degraded",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Manage bounded Deep Research workflow sessions over Noesis evidence.",
+      "id": "noesis.research",
+      "input_schema": {
+        "properties": {
+          "action": {
+            "default": "list",
+            "type": "string"
+          },
+          "command_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "domain": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "expected_revision": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "limit": {
+            "default": 50,
+            "type": "integer"
+          },
+          "question": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "request_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "session_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "research",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "backend or data readiness is incomplete",
+      "required_data": [
+        "warehouse"
+      ],
+      "required_scopes": [
+        "operator"
+      ],
+      "server": "noesis",
+      "state": "degraded",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Search the selected/default domain and return cited document rows.",
+      "id": "noesis.search",
+      "input_schema": {
+        "properties": {
+          "domain": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "limit": {
+            "default": 20,
+            "type": "integer"
+          },
+          "query": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "search",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "backend or data readiness is incomplete",
+      "required_data": [
+        "warehouse"
+      ],
+      "required_scopes": [
+        "knowledge:read"
+      ],
+      "server": "noesis",
+      "state": "degraded",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Create/list/poll/pause/resume/delete a durable evidence watch.",
+      "id": "noesis.watch",
+      "input_schema": {
+        "properties": {
+          "action": {
+            "default": "list",
+            "type": "string"
+          },
+          "confirm": {
+            "default": false,
+            "type": "boolean"
+          },
+          "cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "domain": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "event_types": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "limit": {
+            "default": 50,
+            "type": "integer"
+          },
+          "selector_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "selector_value": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "stale_after_ms": {
+            "default": 86400000,
+            "type": "integer"
+          },
+          "watch_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "watch",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "backend or data readiness is incomplete",
+      "required_data": [
+        "warehouse"
+      ],
+      "required_scopes": [
+        "operator"
+      ],
+      "server": "noesis",
+      "state": "degraded",
+      "version": "1"
+    },
     {
       "cost_class": "low",
       "description": "Headline warehouse counts: total articles, articles in the window,\ndistinct sources, and per-category counts.\n\nArgs:\n    days: Look-back window in days (default 7).",

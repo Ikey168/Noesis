@@ -1,0 +1,1 @@
+"""Legacy application entry points."""

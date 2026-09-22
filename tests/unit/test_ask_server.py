@@ -1,7 +1,7 @@
 """
 In-process tests for the FastAPI ``/ask`` route.
 
-The route lives in ``services.api.routes.ask`` and depends on a RAG service
+The route lives in ``legacy.services.api.routes.ask`` and depends on a RAG service
 obtained via the ``get_rag_service`` dependency. These tests build a small
 FastAPI app that mounts the real router, override ``get_rag_service`` with an
 ``AsyncMock`` so no real embedding model / LLM is required, and drive the app
@@ -19,8 +19,8 @@ try:
     import httpx
     from httpx import ASGITransport
     from fastapi import FastAPI
-    from services.api.routes.ask import router as ask_router
-    from services.api.routes import ask as ask_module
+    from legacy.services.api.routes.ask import router as ask_router
+    from legacy.services.api.routes import ask as ask_module
 except ImportError as _e:  # stale or optional dependency
     pytest.skip("module import failed: {0}".format(_e), allow_module_level=True)
 

@@ -9,11 +9,9 @@ import os
 import re
 import sys
 import tempfile
-import time
 from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
-from urllib.parse import urlparse
 
 from . import CLI_CONTRACT, __version__
 from .config import ConfigError, initialize, load_config, open_warehouse
@@ -183,8 +181,15 @@ def build_parser() -> argparse.ArgumentParser:
     verify.add_argument("--schema", type=Path)
     _json_flag(verify)
 
-    serve = sub.add_parser("serve", help="start a supported REST or MCP surface")
-    serve.add_argument("--surface", choices=("api", "kb-mcp"), default="api")
+    sync = sub.add_parser("sync", help="synchronize subscribed sources, indexes, watches, and maintenance state")
+    sync.add_argument("--daemon", action="store_true", help="run persistently until interrupted")
+    sync.add_argument("--interval", type=float, default=300.0, help="daemon interval in seconds (default: 300)")
+    sync.add_argument("--max-items", type=int, default=200, help="max new/updated feed items per pass")
+    sync.add_argument("--dry-run", action="store_true", help="report planned work without fetching or writing")
+    _json_flag(sync)
+
+    serve = sub.add_parser("serve", help="start the default MCP gateway, REST API, or specialist KB MCP")
+    serve.add_argument("--surface", choices=("mcp", "api", "kb-mcp"), default="mcp")
     serve.add_argument("--host")
     serve.add_argument("--port", type=int)
     serve.add_argument("--transport", choices=("stdio", "http"), default="http")
@@ -342,116 +347,47 @@ def _command_doctor(args: argparse.Namespace) -> int:
     return 1 if report["required_failures"] else 0
 
 
-def _url_document(source: str, language: str):
-    parsed = urlparse(source)
-    if parsed.scheme not in {"http", "https"} or not parsed.netloc:
-        raise CLIError("bad_source", "URL ingestion supports only HTTP(S) URLs")
-    from urllib.request import Request, urlopen
-
-    try:
-        with urlopen(
-            Request(source, headers={"User-Agent": "Noesis/0.1"}), timeout=20
-        ) as response:
-            content = response.read(16 * 1024 * 1024 + 1)
-            content_type = response.headers.get_content_type()
-    except Exception as exc:
-        raise CLIError(
-            "fetch_failed", f"could not fetch URL: {type(exc).__name__}: {exc}"
-        ) from exc
-    if len(content) > 16 * 1024 * 1024:
-        raise CLIError("source_too_large", "URL response exceeds the 16 MiB CLI limit")
-    from services.ingest.common.document_model import Document
-    from src.ingestion.connectors.upload.detectors import detect_format
-    from src.ingestion.connectors.upload.parsers import extract_text
-
-    fmt = (
-        "html"
-        if content_type in {"text/html", "application/xhtml+xml"}
-        else detect_format(content, parsed.path)
-    )
-    text, metadata = extract_text(content, fmt)
-    if not text.strip():
-        repair = metadata.get("error") if isinstance(metadata, dict) else None
-        raise CLIError(
-            "parse_failed", "URL produced no extractable text", repair=repair
-        )
-    title = str(
-        metadata.get("title") or parsed.path.rsplit("/", 1)[-1] or parsed.netloc
-    )
-    return Document(
-        document_id="web:" + hashlib.sha256(source.encode()).hexdigest()[:24],
-        source_type="web",
-        language=language,
-        ingested_at=int(time.time() * 1000),
-        source_id=parsed.netloc.casefold(),
-        url=source,
-        title=title,
-        content=text,
-        metadata={**metadata, "source_url": source},
-    )
-
-
 def _command_ingest(args: argparse.Namespace) -> int:
     config = _runtime(args)
-    registry = _registry(config)
-    registry.get(args.domain)
-    source = args.source
-    if urlparse(source).scheme in {"http", "https"}:
-        documents = [_url_document(source, args.language)]
-    else:
-        path = Path(source).expanduser().resolve()
-        if not path.is_file():
-            raise CLIError("source_not_found", f"file not found: {path}")
-        from src.ingestion.connectors.upload.connector import UploadConnector
+    from src.gateway import GatewayError, add_source
 
-        connector = UploadConnector(default_language=args.language)
-        documents = []
-        for ref in connector.discover(path):
-            documents.extend(connector.parse(connector.fetch(ref)))
-        if not documents:
-            raise CLIError(
-                "parse_failed",
-                f"{path} produced no extractable text",
-                repair='install "noesis-evidence[media]" for PDF/media formats',
-            )
-    private = _is_private(config, args.domain)
-    for document in documents:
-        tags = list(document.metadata.get("tags") or [])
-        document.metadata["tags"] = sorted(
-            set([*tags, args.domain] + (["private"] if private else []))
-        )
-        document.source_id = document.source_id or (
-            "local-upload" if document.source_type == "note" else None
-        )
-    conn = open_warehouse(config)
     try:
-        from src.database.local_warehouse_seed import ensure_schema
-        from src.ingestion.document_store import DocumentStore
-        from src.kb.membership import run_membership_pass
+        data = add_source(
+            config,
+            args.source,
+            domain=args.domain,
+            language=args.language,
+        )
+    except GatewayError as exc:
+        raise CLIError(exc.code, str(exc), repair=exc.repair) from exc
 
-        ensure_schema(conn)
-        summary = DocumentStore(conn).upsert(documents)
-        membership = run_membership_pass(conn, registry)
-    finally:
-        conn.close()
-    data = {
-        "domain": args.domain,
-        "source": source,
-        "documents": [document.document_id for document in documents],
-        "upsert": summary.as_dict(),
-        "membership": membership["domains"].get(args.domain, {}),
-        "retry_safe": True,
-    }
+    summary = data["upsert"]
+    processing = data["processing"]
     if args.as_json:
         _print_json(_envelope("ingest", data))
     else:
         print(
-            f"Ingested {summary.inserted}; duplicates {summary.duplicate}; "
-            f"invalid {summary.invalid}; domain {args.domain}"
+            f"Ingested {summary.get('inserted', 0)}; "
+            f"duplicates {summary.get('duplicate', 0)}; "
+            f"invalid {summary.get('invalid', 0)}; domain {data['domain']}"
         )
+        print(
+            f"Processed through index watermark {processing.get('watermark')}; "
+            f"claims {processing.get('claims_indexed', 0)}"
+        )
+        if processing.get("warnings"):
+            print(
+                "Processing warnings: "
+                + ", ".join(
+                    str(item.get("code") or item)
+                    if isinstance(item, dict)
+                    else str(item)
+                    for item in processing["warnings"]
+                )
+            )
         for document_id in data["documents"]:
             print(f"- {document_id}")
-    return 0 if not summary.invalid else EXIT_OPERATION
+    return 0 if not summary.get("invalid", 0) else EXIT_OPERATION
 
 
 def _command_ask(args: argparse.Namespace) -> int:
@@ -719,16 +655,26 @@ def _serve_report(config, args: argparse.Namespace) -> dict[str, Any]:
     port = args.port or (config.api_port if args.surface == "api" else config.mcp_port)
     transport = "http" if args.surface == "api" else args.transport
     token_set = (
-        bool(os.environ.get("NOESIS_MCP_AUTH_TOKEN"))
-        if args.surface == "kb-mcp"
+        bool(
+            os.environ.get("NOESIS_MCP_AUTH_TOKEN")
+            or os.environ.get("NOESIS_MCP_AUTH_TOKENS_FILE")
+        )
+        if args.surface in {"mcp", "kb-mcp"}
         else False
+    )
+    address = "stdio" if transport == "stdio" else f"http://{host}:{port}"
+    endpoint = (
+        address
+        if transport == "stdio" or args.surface == "api"
+        else f"{address}/mcp"
     )
     return {
         "surface": args.surface,
         "transport": transport,
         "host": None if transport == "stdio" else host,
         "port": None if transport == "stdio" else port,
-        "address": "stdio" if transport == "stdio" else f"http://{host}:{port}",
+        "address": address,
+        "endpoint": endpoint,
         "auth": "bearer-token"
         if token_set
         else ("application-policy" if args.surface == "api" else "none"),
@@ -738,13 +684,97 @@ def _serve_report(config, args: argparse.Namespace) -> dict[str, Any]:
     }
 
 
+def _sync_line(result: dict[str, Any]) -> str:
+    stages = result.get("stages") or {}
+    ingest = stages.get("ingest") or {}
+    refresh = stages.get("refresh") or {}
+    domains = refresh.get("domains") or []
+    failed_feeds = sum(int(row.get("feeds_failed", 0)) for row in domains if isinstance(row, dict))
+    return (
+        f"{result.get('run_id', 'sync-plan')}: {result.get('status')} "
+        f"(synced={ingest.get('synced_items', 0)}, "
+        f"backlog={ingest.get('backlog_items', 0)}, "
+        f"feed_failures={failed_feeds})"
+    )
+
+
+def _command_sync(args: argparse.Namespace) -> int:
+    config = _runtime(args)
+    from src.sync_runtime import SyncError, run_daemon, sync_once
+
+    try:
+        if not args.daemon:
+            result = sync_once(
+                config,
+                max_items=args.max_items,
+                dry_run=args.dry_run,
+            )
+            if args.as_json:
+                _print_json(_envelope("sync", result))
+            else:
+                print(_sync_line(result))
+            return 0 if result.get("status") in {"complete", "planned"} else EXIT_OPERATION
+
+        import signal
+        import threading
+
+        stop_event = threading.Event()
+
+        def request_stop(_signum, _frame):
+            stop_event.set()
+
+        previous = {}
+        for signum in (signal.SIGINT, signal.SIGTERM):
+            previous[signum] = signal.getsignal(signum)
+            signal.signal(signum, request_stop)
+
+        def emit(result: dict[str, Any]) -> None:
+            if args.as_json:
+                print(
+                    json.dumps(
+                        _envelope("sync", result),
+                        sort_keys=True,
+                        ensure_ascii=False,
+                    ),
+                    flush=True,
+                )
+            else:
+                print(_sync_line(result), flush=True)
+
+        try:
+            summary = run_daemon(
+                config,
+                interval_seconds=args.interval,
+                max_items=args.max_items,
+                dry_run=args.dry_run,
+                stop_event=stop_event,
+                emit=emit,
+            )
+        finally:
+            for signum, handler in previous.items():
+                signal.signal(signum, handler)
+
+        if args.as_json:
+            print(
+                json.dumps(
+                    _envelope("sync.daemon", summary),
+                    sort_keys=True,
+                    ensure_ascii=False,
+                ),
+                flush=True,
+            )
+        return 0
+    except SyncError as exc:
+        raise CLIError(exc.code, str(exc)) from exc
+
+
 def _command_serve(args: argparse.Namespace) -> int:
     config = _runtime(args)
     report = _serve_report(config, args)
     if (
         args.as_json
         and not args.dry_run
-        and args.surface == "kb-mcp"
+        and args.surface in {"mcp", "kb-mcp"}
         and args.transport == "stdio"
     ):
         raise CLIError(
@@ -755,6 +785,7 @@ def _command_serve(args: argparse.Namespace) -> int:
     if args.dry_run:
         _print_json(_envelope("serve", report))
         return 0
+    os.environ["NOESIS_CONFIG"] = str(config.path)
     os.environ["NOESIS_DB_PATH"] = str(config.warehouse)
     os.environ["NOESIS_DOMAINS_CONFIG"] = str(config.domains)
     if args.surface == "api":
@@ -779,7 +810,11 @@ def _command_serve(args: argparse.Namespace) -> int:
         return 0
     try:
         from src.mcp_host.transport import run_server
-        from tools.kb_mcp.server import mcp
+
+        if args.surface == "mcp":
+            from tools.noesis_mcp.server import mcp
+        else:
+            from tools.kb_mcp.server import mcp
     except ImportError as exc:
         raise CLIError(
             "missing_dependency",
@@ -791,7 +826,7 @@ def _command_serve(args: argparse.Namespace) -> int:
         _print_json(_envelope("serve", report))
     else:
         print(
-            f"Starting {report['surface']} at {report['address']} "
+            f"Starting {report['surface']} at {report['endpoint']} "
             f"(auth: {report['auth']})",
             file=sys.stderr,
         )
@@ -824,6 +859,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             return _command_verify(args)
         if args.command == "namespace":
             return _command_namespace(args)
+        if args.command == "sync":
+            return _command_sync(args)
         if args.command == "serve":
             return _command_serve(args)
         parser.error(f"unknown command {args.command}")

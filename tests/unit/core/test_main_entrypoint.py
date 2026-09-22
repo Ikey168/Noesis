@@ -1,4 +1,4 @@
-"""Tests for src/main.py and the legacy src/scraper.py facade."""
+"""Tests for legacy/src/main.py and the legacy src/scraper.py facade."""
 
 import importlib.util
 import json
@@ -12,12 +12,12 @@ SRC = os.path.join(os.path.dirname(__file__), "..", "..", "..", "src")
 if SRC not in sys.path:
     sys.path.insert(0, SRC)
 
-import src.main as main_module  # noqa: E402
+import legacy.src.main as main_module  # noqa: E402
 
 
 def _load_legacy_scraper():
     """Load src/scraper.py, which is shadowed by the scraper package."""
-    path = os.path.join(SRC, "scraper.py")
+    path = os.path.join(os.path.dirname(SRC), "legacy", "src", "scraper.py")
     spec = importlib.util.spec_from_file_location("legacy_scraper_facade", path)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)

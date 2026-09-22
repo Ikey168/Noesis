@@ -290,3 +290,6 @@ data/tls/server.key
 data/tls/server.crt
 data/backups/*.enc
 artifacts/figures/
+/.noesis/
+*.http.sqlite
+/artifacts/

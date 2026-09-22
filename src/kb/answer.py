@@ -82,9 +82,69 @@ def _relevance(question_tokens: set[str], text: str) -> float:
     return round(0.8 * query_coverage + 0.2 * candidate_precision, 6)
 
 
+def _best_document_passage(question: str, document: Mapping[str, Any]) -> str:
+    """Select one deterministic body sentence for a document-only answer."""
+
+    title = str(document.get("title") or "").strip()
+    content = str(document.get("content") or "").strip()
+    if title and content.casefold().startswith(title.casefold()):
+        remainder = content[len(title) :].lstrip(" \t\r\n:-—")
+        if remainder:
+            content = remainder
+    if not content:
+        return title or "Untitled source document"
+
+    sentences = [
+        item.strip()
+        for item in re.split(r"(?<=[.!?])\s+", content)
+        if item.strip()
+    ]
+    if not sentences:
+        return content
+
+    question_tokens = _tokens(question)
+    ranked = [
+        (_relevance(question_tokens, sentence), index, sentence)
+        for index, sentence in enumerate(sentences)
+    ]
+    best_score, _index, best_sentence = max(
+        ranked, key=lambda item: (item[0], -item[1])
+    )
+    title_score = _relevance(question_tokens, title)
+    if title_score >= best_score:
+        return sentences[0]
+    return best_sentence
+
+
 def _stable_id(question: str, kind: str, identity: str) -> str:
     source = f"{question.strip().casefold()}|{kind}|{identity}"
     return "stmt:" + hashlib.sha256(source.encode("utf-8")).hexdigest()[:16]
+
+
+def _hydrate_document(document: Mapping[str, Any], backing: Any) -> dict[str, Any]:
+    """Load canonical body text when a backing's list surface omits it."""
+
+    result = dict(document)
+    if str(result.get("content") or "").strip():
+        return result
+    document_id = result.get("document_id")
+    if not document_id:
+        return result
+    try:
+        with backing._lock():
+            row = backing.conn.execute(
+                "SELECT content, title, source_id, url FROM documents "
+                "WHERE document_id=?",
+                [str(document_id)],
+            ).fetchone()
+    except Exception:  # noqa: BLE001 - namespace/legacy backings may not use this table
+        return result
+    if row:
+        result["content"] = row[0]
+        result["title"] = result.get("title") or row[1]
+        result["source_id"] = result.get("source_id") or row[2]
+        result["url"] = result.get("url") or row[3]
+    return result
 
 
 def _document_map(
@@ -324,10 +384,11 @@ def _document_statement(
         if "private" in {str(tag).casefold() for tag in backing.definition.tags}
         else "public"
     )
+    passage = _best_document_passage(question, document)
     locator = _locator(
         document,
         {document_id: document},
-        excerpt=document.get("title"),
+        excerpt=passage,
         visibility=visibility,
     )
     supporting = [locator]
@@ -336,7 +397,7 @@ def _document_statement(
     return {
         "id": _stable_id(question, "document", document_id),
         "claim_id": None,
-        "text": str(document.get("title") or "Untitled source document"),
+        "text": passage,
         "verdict": "supported" if cited else "unverifiable",
         "supporting_evidence": supporting,
         "contradicting_evidence": [],
@@ -351,7 +412,7 @@ def _document_statement(
             backing, supporting, {document_id: document}
         ),
         "n": 1,
-        "method": "extractive selection of a source-document title",
+        "method": "extractive selection of a relevant source-document passage",
         "assumptions": list(ASSUMPTIONS),
     }
 
@@ -427,7 +488,10 @@ def build_answer(
     """Build a ``noesis-answer-v1`` payload from one resolved backing."""
     question = question.strip()
     question_tokens = _tokens(question)
-    documents = backing.documents(limit=500)
+    documents = [
+        _hydrate_document(document, backing)
+        for document in backing.documents(limit=500)
+    ]
     documents_by_id = _document_map(documents)
     clusters = backing.claims(limit=500)
     visibility = (
@@ -440,11 +504,25 @@ def build_answer(
     ranked_claims = []
     for cluster in clusters:
         representative = cluster.get("representative") or {}
-        score = _relevance(question_tokens, str(representative.get("claim_text") or ""))
+        claim_text = str(representative.get("claim_text") or "")
+        score = _relevance(question_tokens, claim_text)
+        document = documents_by_id.get(str(representative.get("document_id") or ""))
+        if document is not None:
+            title_score = _relevance(
+                question_tokens, str(document.get("title") or "")
+            )
+            lead = _best_document_passage(question, document)
+            if claim_text.strip() == lead.strip() and title_score > score:
+                score = round(title_score * 0.95, 6)
         if score > 0.0 and score >= minimum_relevance:
             identity = str(cluster.get("cluster_id") or representative.get("claim_id"))
             ranked_claims.append((score, identity, cluster))
     ranked_claims.sort(key=lambda item: (-item[0], item[1]))
+    if ranked_claims:
+        relative_floor = max(minimum_relevance, ranked_claims[0][0] * 0.6)
+        ranked_claims = [
+            item for item in ranked_claims if item[0] >= relative_floor
+        ]
 
     selected: list[tuple[str, float, str, Mapping[str, Any]]] = [
         ("claim", score, identity, cluster)

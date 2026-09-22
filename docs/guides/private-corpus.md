@@ -1,8 +1,10 @@
 # Private corpus quickstart
 
-Noesis can index a personal corpus without RSS, cloud storage, or an external
-model API. The supplied `private` domain has no feeds; only files you explicitly
-ingest receive its `private` membership tag.
+Noesis can index a personal corpus without RSS or cloud storage. For a strictly
+local workflow with no external model API calls, leave `TYPESAFE_API_KEY` unset
+or set `NOESIS_JEV_ENABLED=false`; Noesis then uses its dedicated local
+classifiers. The supplied `private` domain has no feeds; only files you
+explicitly ingest receive its `private` membership tag.
 
 ```bash
 python -m venv .venv

@@ -26,10 +26,10 @@ def test_embedding_provider_import():
 
 
 def test_rag_answer_service_import():
-    """services.rag.answer.RAGAnswerService imports (requires mlflow)."""
+    """legacy.services.rag.answer.RAGAnswerService imports (requires mlflow)."""
     pytest.importorskip("mlflow", reason="RAG answer service requires mlflow")
 
-    from services.rag.answer import RAGAnswerService
+    from legacy.services.rag.answer import RAGAnswerService
 
     assert isinstance(RAGAnswerService, type)
 
@@ -44,8 +44,8 @@ def test_mlflow_tracking_import():
 
 
 def test_api_ask_routes_import():
-    """services.api.routes.ask public symbols import."""
-    from services.api.routes.ask import AskRequest, ask_question, get_rag_service
+    """legacy.services.api.routes.ask public symbols import."""
+    from legacy.services.api.routes.ask import AskRequest, ask_question, get_rag_service
 
     assert isinstance(AskRequest, type)
     assert callable(ask_question)

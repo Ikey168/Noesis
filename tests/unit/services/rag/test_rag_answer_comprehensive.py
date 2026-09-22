@@ -24,11 +24,11 @@ def test_rag_answer_service_initialization():
     """Test RAG answer service initialization with various configurations."""
     try:
         # Mock the dependencies
-        with patch('services.rag.answer.EmbeddingProvider') as mock_provider:
+        with patch('legacy.services.rag.answer.EmbeddingProvider') as mock_provider:
             mock_provider.return_value = Mock()
             
             # Import after mocking dependencies
-            from services.rag.answer import RAGAnswerService
+            from legacy.services.rag.answer import RAGAnswerService
             
             # Test default initialization
             service = RAGAnswerService()
@@ -73,10 +73,10 @@ def test_rag_answer_service_initialization():
 def test_rag_answer_service_metrics_reset():
     """Test metrics reset functionality."""
     try:
-        with patch('services.rag.answer.EmbeddingProvider') as mock_provider:
+        with patch('legacy.services.rag.answer.EmbeddingProvider') as mock_provider:
             mock_provider.return_value = Mock()
             
-            from services.rag.answer import RAGAnswerService
+            from legacy.services.rag.answer import RAGAnswerService
             
             service = RAGAnswerService()
             
@@ -104,15 +104,15 @@ async def test_rag_answer_question_basic():
     """Test basic question answering functionality."""
     try:
         # Mock all dependencies
-        with patch('services.rag.answer.EmbeddingProvider') as mock_provider, \
-             patch('services.rag.answer.mlrun') as mock_mlrun, \
-             patch('services.rag.answer.mlflow') as mock_mlflow:
+        with patch('legacy.services.rag.answer.EmbeddingProvider') as mock_provider, \
+             patch('legacy.services.rag.answer.mlrun') as mock_mlrun, \
+             patch('legacy.services.rag.answer.mlflow') as mock_mlflow:
             
             mock_provider.return_value = Mock()
             mock_mlrun.return_value.__enter__ = Mock(return_value=Mock())
             mock_mlrun.return_value.__exit__ = Mock(return_value=None)
             
-            from services.rag.answer import RAGAnswerService
+            from legacy.services.rag.answer import RAGAnswerService
             
             service = RAGAnswerService()
             
@@ -142,10 +142,10 @@ async def test_rag_answer_question_basic():
 def test_rag_answer_service_error_handling():
     """Test error handling in RAG answer service."""
     try:
-        with patch('services.rag.answer.EmbeddingProvider') as mock_provider:
+        with patch('legacy.services.rag.answer.EmbeddingProvider') as mock_provider:
             mock_provider.return_value = Mock()
             
-            from services.rag.answer import RAGAnswerService
+            from legacy.services.rag.answer import RAGAnswerService
             
             service = RAGAnswerService()
             
@@ -166,10 +166,10 @@ def test_rag_answer_service_error_handling():
 def test_rag_answer_service_configuration():
     """Test various configuration scenarios."""
     try:
-        with patch('services.rag.answer.EmbeddingProvider') as mock_provider:
+        with patch('legacy.services.rag.answer.EmbeddingProvider') as mock_provider:
             mock_provider.return_value = Mock()
             
-            from services.rag.answer import RAGAnswerService
+            from legacy.services.rag.answer import RAGAnswerService
             
             # Test with different k values
             for k in [1, 5, 10, 20]:
@@ -195,10 +195,10 @@ def test_rag_answer_service_configuration():
 def test_rag_answer_service_metrics_structure():
     """Test the structure and types of metrics."""
     try:
-        with patch('services.rag.answer.EmbeddingProvider') as mock_provider:
+        with patch('legacy.services.rag.answer.EmbeddingProvider') as mock_provider:
             mock_provider.return_value = Mock()
             
-            from services.rag.answer import RAGAnswerService
+            from legacy.services.rag.answer import RAGAnswerService
             
             service = RAGAnswerService()
             
@@ -227,10 +227,10 @@ def test_rag_answer_service_metrics_structure():
 def test_rag_answer_service_artifacts_structure():
     """Test the structure of artifacts storage."""
     try:
-        with patch('services.rag.answer.EmbeddingProvider') as mock_provider:
+        with patch('legacy.services.rag.answer.EmbeddingProvider') as mock_provider:
             mock_provider.return_value = Mock()
             
-            from services.rag.answer import RAGAnswerService
+            from legacy.services.rag.answer import RAGAnswerService
             
             service = RAGAnswerService()
             
@@ -255,15 +255,15 @@ def test_rag_answer_service_artifacts_structure():
 async def test_rag_answer_service_with_filters():
     """Test question answering with various filters."""
     try:
-        with patch('services.rag.answer.EmbeddingProvider') as mock_provider, \
-             patch('services.rag.answer.mlrun') as mock_mlrun, \
-             patch('services.rag.answer.mlflow') as mock_mlflow:
+        with patch('legacy.services.rag.answer.EmbeddingProvider') as mock_provider, \
+             patch('legacy.services.rag.answer.mlrun') as mock_mlrun, \
+             patch('legacy.services.rag.answer.mlflow') as mock_mlflow:
             
             mock_provider.return_value = Mock()
             mock_mlrun.return_value.__enter__ = Mock(return_value=Mock())
             mock_mlrun.return_value.__exit__ = Mock(return_value=None)
             
-            from services.rag.answer import RAGAnswerService
+            from legacy.services.rag.answer import RAGAnswerService
             
             service = RAGAnswerService()
             

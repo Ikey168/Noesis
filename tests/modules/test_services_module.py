@@ -118,9 +118,9 @@ class TestServicesAPI:
     def test_services_api_coverage(self):
         """Test services API components"""
         try:
-            from services.api import cache
-            from services.api import main
-            from services.api import validation
+            from legacy.services.api import cache
+            from legacy.services.api import main
+            from legacy.services.api import validation
             
             assert cache is not None
             assert main is not None
@@ -131,8 +131,8 @@ class TestServicesAPI:
     def test_services_api_middleware_coverage(self):
         """Test services API middleware"""
         try:
-            from services.api.middleware import metrics
-            from services.api.middleware import ratelimit
+            from legacy.services.api.middleware import metrics
+            from legacy.services.api.middleware import ratelimit
             
             assert metrics is not None
             assert ratelimit is not None
@@ -142,7 +142,7 @@ class TestServicesAPI:
     def test_services_api_routes_coverage(self):
         """Test services API routes"""
         try:
-            from services.api.routes import ask
+            from legacy.services.api.routes import ask
             assert ask is not None
         except Exception:
             pass

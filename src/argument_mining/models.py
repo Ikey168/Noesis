@@ -423,6 +423,189 @@ class StanceClassifier:
         return results
 
 
+class JevPrimaryClaimDetector(ClaimDetector):
+    """Jev-first claim detection with the dedicated classifier as fallback."""
+
+    def __init__(self, *, client=None, fallback_factory=None) -> None:
+        from src.integrations.typesafe_jev import JevClient
+
+        self._jev = client or JevClient()
+        self._fallback_factory = fallback_factory or ClaimDetector
+        self._fallback = None
+        self._last_prediction_mode = f"jev:{self._jev.config.model}"
+
+    def _fallback_detector(self) -> ClaimDetector:
+        if self._fallback is None:
+            self._fallback = self._fallback_factory()
+        return self._fallback
+
+    @property
+    def prediction_mode(self) -> str:
+        return self._last_prediction_mode
+
+    def predict(self, document: Document) -> List[ClaimPrediction]:
+        from src.integrations.typesafe_jev import JevError, noul_question
+
+        if document.source_type == "transcript" and document.content:
+            from dataclasses import replace as dc_replace
+
+            document = dc_replace(
+                document, content=normalize_transcript_text(document.content)
+            )
+        sentences = sentences_from_document(document)
+        if not sentences:
+            return []
+        state = {
+            "source_type": document.source_type,
+            "sentences": [
+                {"index": index, "text": sentence}
+                for index, sentence in enumerate(sentences)
+            ],
+        }
+        questions = {
+            f"claim_{index}": noul_question(
+                (
+                    f"Evaluate only sentence index {index}. Does it state a factual "
+                    "or empirically checkable claim that could be supported or "
+                    "contradicted by evidence?"
+                ),
+                true=(
+                    "The sentence asserts a factual/checkable proposition, including "
+                    "reported or attributed factual assertions."
+                ),
+                false=(
+                    "The sentence is only a question, command, opinion, fragment, "
+                    "rhetorical language, or non-assertive background."
+                ),
+            )
+            for index in range(len(sentences))
+        }
+        try:
+            response = self._jev.system_one(state=state, questions=questions)
+            probabilities = [
+                float(response["answers"][f"claim_{index}"]["noul"])
+                for index in range(len(sentences))
+            ]
+            margin = self._jev.config.noul_margin
+            if any(abs(probability - 0.5) < margin for probability in probabilities):
+                raise JevError("low_confidence", "Jev claim decision was uncertain")
+        except (JevError, KeyError, TypeError, ValueError) as exc:
+            logger.warning(
+                "Jev claim classification unavailable; using dedicated fallback (%s)",
+                type(exc).__name__,
+            )
+            fallback = self._fallback_detector()
+            self._last_prediction_mode = fallback.prediction_mode
+            return fallback.predict(document)
+
+        self._last_prediction_mode = f"jev:{self._jev.last_model}"
+        return [
+            ClaimPrediction(
+                text=sentence,
+                sentence_idx=index,
+                is_claim=probability >= 0.5,
+                confidence=round(
+                    probability if probability >= 0.5 else 1.0 - probability, 4
+                ),
+            )
+            for index, (sentence, probability) in enumerate(
+                zip(sentences, probabilities)
+            )
+        ]
+
+
+class JevPrimaryStanceClassifier(StanceClassifier):
+    """Jev-first stance classification with the dedicated classifier as fallback."""
+
+    def __init__(self, *, client=None, fallback_factory=None) -> None:
+        from src.integrations.typesafe_jev import JevClient
+
+        self._jev = client or JevClient()
+        self._fallback_factory = fallback_factory or StanceClassifier
+        self._fallback = None
+        self._last_prediction_mode = f"jev:{self._jev.config.model}"
+
+    def _fallback_classifier(self) -> StanceClassifier:
+        if self._fallback is None:
+            self._fallback = self._fallback_factory()
+        return self._fallback
+
+    @property
+    def prediction_mode(self) -> str:
+        return self._last_prediction_mode
+
+    def predict(self, document: Document, topic: str) -> List[StancePrediction]:
+        from src.integrations.typesafe_jev import JevError, choice_question
+
+        sentences = sentences_from_document(document)
+        if not sentences:
+            return []
+        criteria = {
+            "supportive": (
+                "The sentence supports, endorses, or argues in favor of the topic."
+            ),
+            "critical": (
+                "The sentence criticizes, opposes, or argues against the topic."
+            ),
+            "neutral": (
+                "The sentence reports or describes the topic without a clear stance."
+            ),
+            "ambiguous": (
+                "The sentence's stance toward the topic is genuinely unclear or mixed."
+            ),
+        }
+        state = {
+            "topic": topic,
+            "sentences": [
+                {"index": index, "text": sentence}
+                for index, sentence in enumerate(sentences)
+            ],
+        }
+        questions = {
+            f"stance_{index}": choice_question(
+                (
+                    f"Evaluate only sentence index {index}. What stance does it take "
+                    "toward the topic in state.topic?"
+                ),
+                criteria,
+            )
+            for index in range(len(sentences))
+        }
+        try:
+            response = self._jev.system_one(state=state, questions=questions)
+            answers = [
+                response["answers"][f"stance_{index}"]
+                for index in range(len(sentences))
+            ]
+            threshold = self._jev.config.choice_confidence
+            if any(
+                answer.get("choice") not in criteria
+                or float(answer.get("confidence", -1.0)) < threshold
+                for answer in answers
+            ):
+                raise JevError("low_confidence", "Jev stance decision was uncertain")
+        except (JevError, KeyError, TypeError, ValueError) as exc:
+            logger.warning(
+                "Jev stance classification unavailable; using dedicated fallback (%s)",
+                type(exc).__name__,
+            )
+            fallback = self._fallback_classifier()
+            self._last_prediction_mode = fallback.prediction_mode
+            return fallback.predict(document, topic)
+
+        self._last_prediction_mode = f"jev:{self._jev.last_model}"
+        return [
+            StancePrediction(
+                text=sentence,
+                sentence_idx=index,
+                topic=topic,
+                stance=str(answer["choice"]),
+                confidence=round(float(answer["confidence"]), 4),
+            )
+            for index, (sentence, answer) in enumerate(zip(sentences, answers))
+        ]
+
+
 # ---------------------------------------------------------------------------
 # Module-level singletons (lazy-initialised)
 # ---------------------------------------------------------------------------
@@ -434,14 +617,26 @@ _stance_classifier: Optional[StanceClassifier] = None
 def get_claim_detector() -> ClaimDetector:
     global _claim_detector
     if _claim_detector is None:
-        _claim_detector = ClaimDetector()
+        from src.integrations.typesafe_jev import JevClient
+
+        _claim_detector = (
+            JevPrimaryClaimDetector()
+            if JevClient.configured()
+            else ClaimDetector()
+        )
     return _claim_detector
 
 
 def get_stance_classifier() -> StanceClassifier:
     global _stance_classifier
     if _stance_classifier is None:
-        _stance_classifier = StanceClassifier()
+        from src.integrations.typesafe_jev import JevClient
+
+        _stance_classifier = (
+            JevPrimaryStanceClassifier()
+            if JevClient.configured()
+            else StanceClassifier()
+        )
     return _stance_classifier
 
 

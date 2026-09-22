@@ -9,7 +9,7 @@ The evaluation framework provides comprehensive assessment of RAG system perform
 ## Evaluation Dataset
 
 ### Format
-The evaluation dataset is stored in `evals/qa_dev.jsonl` in JSON Lines format, with each line containing:
+The evaluation dataset is stored in `legacy/evals/qa_dev.jsonl` in JSON Lines format, with each line containing:
 
 ```json
 {
@@ -130,33 +130,33 @@ Average number of citations returned per query.
 
 Run evaluation with default configuration:
 ```bash
-python evals/run_eval.py --config baseline
+python legacy/evals/run_eval.py --config baseline
 ```
 
 ### Configuration Comparison
 
 Compare multiple predefined configurations:
 ```bash
-python evals/run_eval.py --compare
+python legacy/evals/run_eval.py --compare
 ```
 
 ### Custom Configuration
 
 Use custom parameters:
 ```bash
-python evals/run_eval.py --custom --k 10 --fusion true --rerank false --semantic-weight 0.8
+python legacy/evals/run_eval.py --custom --k 10 --fusion true --rerank false --semantic-weight 0.8
 ```
 
 ### Output Options
 
 Save results to specific CSV file:
 ```bash
-python evals/run_eval.py --config baseline --output results.csv
+python legacy/evals/run_eval.py --config baseline --output results.csv
 ```
 
 Sample dataset for quick testing:
 ```bash
-python evals/run_eval.py --config baseline --sample 10
+python legacy/evals/run_eval.py --config baseline --sample 10
 ```
 
 ## Output Format
@@ -204,7 +204,7 @@ When MLflow is available, the framework logs:
 ### Common Issues
 
 1. **Import Errors**: Ensure all dependencies are installed and you're running from project root
-2. **Dataset Not Found**: Check that `evals/qa_dev.jsonl` exists
+2. **Dataset Not Found**: Check that `legacy/evals/qa_dev.jsonl` exists
 3. **MLflow Errors**: MLflow logging is optional; evaluation continues without it
 4. **Memory Issues**: Use `--sample` flag to limit dataset size
 
@@ -224,7 +224,7 @@ Extend `_calculate_retrieval_metrics()` and `_calculate_answer_metrics()` method
 Add new entries to the `create_predefined_configs()` function.
 
 ### Dataset Expansion
-Add new examples to `evals/qa_dev.jsonl` following the established format.
+Add new examples to `legacy/evals/qa_dev.jsonl` following the established format.
 
 ### Integration with CI/CD
 Use `--sample` flag for quick validation in continuous integration pipelines.

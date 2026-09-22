@@ -13,10 +13,10 @@ import time
 import pytest
 from fastapi.testclient import TestClient
 
-import services.api.middleware.ratelimit as ratelimit_mod
-import services.api.routes.ask as ask_mod
-from services.api.main import app, query_cache
-from services.api.routes.ask import get_rag_service
+import legacy.services.api.middleware.ratelimit as ratelimit_mod
+import legacy.services.api.routes.ask as ask_mod
+from legacy.services.api.main import app, query_cache
+from legacy.services.api.routes.ask import get_rag_service
 
 client = TestClient(app)
 

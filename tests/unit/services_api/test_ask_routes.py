@@ -1,4 +1,4 @@
-"""Smoke tests for services/api/routes/ask.py."""
+"""Smoke tests for legacy/services/api/routes/ask.py."""
 import os, sys
 from unittest.mock import AsyncMock, MagicMock
 import pytest
@@ -9,7 +9,7 @@ if ROOT not in sys.path:
 pytest.importorskip("fastapi")
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
-import services.api.routes.ask as mod
+import legacy.services.api.routes.ask as mod
 
 
 @pytest.fixture

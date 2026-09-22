@@ -12,7 +12,7 @@ Whitelisted directories (fetching is expected behaviour there):
   - src/ingestion/
   - src/nlp/
   - src/scraper/
-  - src/scraper.py
+  - legacy/src/scraper.py
 
 Exit 0 → clean. Exit 1 → potential telemetry calls found.
 

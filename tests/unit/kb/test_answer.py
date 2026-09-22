@@ -272,6 +272,54 @@ def test_no_match_returns_explicit_unverifiable_refusal(corpus):
     assert evaluate_answer(payload)["passed"] is True
 
 
+def test_document_only_answer_uses_body_passage_not_title(tmp_path):
+    conn = duckdb.connect()
+    config_path = tmp_path / "domains.yml"
+    config_path.write_text(
+        """
+version: 1
+domains:
+  - name: local
+    backing: corpus-view
+    embedding_model: fake-embed
+    tags: [local, private]
+"""
+    )
+    ensure_schema(conn)
+    DocumentStore(conn).upsert(
+        [
+            {
+                "document_id": "moon-mission",
+                "source_type": "note",
+                "source_id": "local-upload",
+                "language": "en",
+                "ingested_at": 100,
+                "url": "file:///moon-mission.md",
+                "title": "Moon mission result",
+                "content": (
+                    "Moon mission result The Selene demonstrator returned its first "
+                    "rock sample on 4 August. The sample container remained sealed "
+                    "throughout recovery, according to the mission log."
+                ),
+                "metadata": {"tags": ["local", "private"]},
+            }
+        ]
+    )
+    run_membership_pass(conn, load_registry(config_path))
+
+    payload = contract.kb_answer(
+        "local",
+        "What was the mission result?",
+        conn=conn,
+        config_path=config_path,
+    )
+    statement = payload["data"]["statements"][0]
+    expected = "The Selene demonstrator returned its first rock sample on 4 August."
+    assert statement["text"] == expected
+    assert statement["supporting_evidence"][0]["excerpt"] == expected
+    assert payload["data"]["rendered"].startswith(f"- {expected} — supported;")
+
+
 def test_contradicting_evidence_is_separate_and_changes_verdict(tmp_path):
     conn = duckdb.connect()
     config_path = tmp_path / "domains.yml"

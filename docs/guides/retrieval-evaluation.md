@@ -8,7 +8,7 @@ Consumer mapping from the implementation review:
 |---|---|
 | Python `HybridRetriever` and `hybrid_search` | PostgreSQL lexical/vector adapters with optional cross-encoder; no production API/MCP importer was found |
 | Knowledge-engine MCP `query_knowledge` | `src.kb.unified_query`, scoped warehouse/adapter query with its own coverage/deadline contract |
-| `/ask` API | `services.rag.answer.RAGAnswerService`, a separate implementation; its 20-result request limit does not configure `HybridRetriever` |
+| `/ask` API | `legacy.services.rag.answer.RAGAnswerService`, a separate implementation; its 20-result request limit does not configure `HybridRetriever` |
 
 Do not infer that a benchmark of one path validates the others. The changes here do not redirect `/ask` or the knowledge-engine query engine.
 

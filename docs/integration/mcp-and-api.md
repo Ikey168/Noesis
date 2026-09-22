@@ -1,15 +1,27 @@
 # Integrating Noesis via MCP + API
 
-Noesis is a **capability plane**: a set of MCP tool servers and a REST API. It
-has no bespoke UI — you drive it from your own client, an agent host (Claude
-Desktop, another agent), or another service. This guide covers the MCP server
-list, the REST API surface, auth, and example calls.
+Noesis is a **capability plane** with one default MCP gateway, specialist MCP
+servers, and a REST API. It has no bespoke UI — you drive it from your own
+client, an agent host (Claude Desktop, another agent), or another service. Most
+clients should connect only to the default `noesis` gateway; specialist servers
+remain available for advanced workflows.
 
 ## MCP servers
 
-Every subsystem is a [FastMCP](https://github.com/jlowin/fastmcp) server under
-`tools/<name>_mcp/server.py`, declared in [`.mcp.json`](../../.mcp.json). Each runs
-standalone over stdio:
+The default agent-facing server is `tools/noesis_mcp/server.py`. It exposes a
+small daily-driver surface: `domains`, `add`, `search`, `ask`, `brief`,
+`documents`, `claims`, `inspect_source`, `coverage`, `watch`, `inbox`,
+`explore`, `research`, and `export`. Start it with:
+
+```bash
+noesis serve
+# Streamable HTTP: http://127.0.0.1:8100/mcp
+```
+
+Every subsystem also remains available as a specialist
+[FastMCP](https://github.com/jlowin/fastmcp) server under
+`tools/<name>_mcp/server.py`, declared in [`.mcp.json`](../../.mcp.json).
+Specialist servers can run standalone over stdio:
 
 ```bash
 python tools/statistics_mcp/server.py     # one server, stdio transport
@@ -17,6 +29,7 @@ python tools/statistics_mcp/server.py     # one server, stdio transport
 
 | Server | Module | What it exposes |
 |---|---|---|
+| `noesis` | `tools/noesis_mcp` | Default curated gateway: add/search/ask/brief/source inspection/watches/inbox/exploration/research/export |
 | `noesis-pipeline` | `tools/pipeline_mcp` | Documents, articles, trending, clusters, sentiment; figures, corrections, geo, speaker balance |
 | `noesis-arguments` | `tools/argument_mcp` | Claims, stances, frames, positions, outlet scoring/clustering |
 | `noesis-kg` | `tools/kg_mcp` | Knowledge-graph entities, relations, communities, centrality |
@@ -51,20 +64,25 @@ config:
 ```jsonc
 {
   "mcpServers": {
-    "noesis-statistics": {
+    "noesis": {
       "command": "python",
-      "args": ["tools/statistics_mcp/server.py"],
-      "env": { "NOESIS_DB_PATH": "/path/to/noesis.duckdb" }
+      "args": ["tools/noesis_mcp/server.py"],
+      "env": { "NOESIS_CONFIG": "/path/to/.noesis/config.json" }
     }
   }
 }
 ```
 
-The full set is in [`.mcp.json`](../../.mcp.json) — copy the entries you need.
+The full set is in [`.mcp.json`](../../.mcp.json). Start with the single
+`noesis` entry; add specialist entries only when a workflow needs their
+advanced tools.
 
 ### Capability discovery
 
-Call `noesis-catalog.capability_catalog` before planning. It is generated from
+The default gateway has a fixed, intentionally small tool list, so ordinary
+clients do not need a separate discovery server. For advanced workflows that
+attach specialist servers, call `noesis-catalog.capability_catalog` before
+planning. It is generated from
 the registered FastMCP tools and includes their input/output schemas, scopes,
 mutability, cost/latency classes, required data, and readiness. Its public MCP
 surface omits operator mutations, disabled or empty capabilities, and private
@@ -90,25 +108,26 @@ server also runs over **Streamable HTTP**, opt-in via env vars
 (`src/mcp_host/transport.py`):
 
 ```bash
-NOESIS_MCP_TRANSPORT=http \
-NOESIS_MCP_HTTP_HOST=0.0.0.0 \
-NOESIS_MCP_HTTP_PORT=8110 \
 NOESIS_MCP_AUTH_TOKEN=your-shared-secret \
-python tools/statistics_mcp/server.py
+noesis serve --host 0.0.0.0 --port 8110
 ```
 
-- **stdio stays the default**; nothing changes for spawned-process setups.
-- **One port per server** — there is no bundled gateway; pick a port range
-  (e.g. 8100–8115) and run the servers you need. The default bind is
-  `127.0.0.1`, so exposure beyond localhost is a deliberate choice.
+- Raw specialist server scripts still default to stdio for spawned-process
+  setups. `noesis serve` defaults to the curated gateway over Streamable HTTP.
+- The default gateway needs only one endpoint: `http://127.0.0.1:8100/mcp`.
+  Specialist servers may still use separate ports when explicitly deployed.
+  The default bind is `127.0.0.1`, so exposure beyond localhost is deliberate.
 - **Auth is fail-closed.** With `NOESIS_MCP_AUTH_TOKEN` set, every HTTP
   request must present the token as a Bearer credential; if the installed
   fastmcp offers no supported token verifier, the server **refuses to start**
   rather than silently serving unauthenticated. Unset means open — intended
   only for the localhost default.
 
-For caller-scoped Information Intake sessions on `noesis-knowledge-engine`,
-set `NOESIS_MCP_AUTH_TOKENS_FILE` instead of the shared token. The file is a
+The default gateway's `inbox`, `explore`, and `research` tools operate as the
+workspace principal from `.noesis/config.json`, which is appropriate for the
+single-user/local daily-driver endpoint. For caller-scoped or multi-tenant
+Information Intake sessions, use the specialist `noesis-knowledge-engine`
+server and set `NOESIS_MCP_AUTH_TOKENS_FILE` instead of the shared token. The file is a
 private (mode `0600`) JSON object whose keys are 32-character-or-longer bearer
 tokens and whose values contain a unique `client_id` and a nonempty `scopes`
 list. For example, an intake writer needs `knowledge:intake:write` and
@@ -122,7 +141,7 @@ An HTTP client entry then looks like:
 ```jsonc
 {
   "mcpServers": {
-    "noesis-statistics": {
+    "noesis": {
       "url": "http://noesis-host:8110/mcp",
       "headers": { "Authorization": "Bearer your-shared-secret" }
     }

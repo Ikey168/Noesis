@@ -236,7 +236,7 @@ class TestRealRAGServices:
             'services.rag.retriever',
             'services.rag.rerank',
             'services.rag.vector',
-            'services.rag.answer',
+            'legacy.services.rag.answer',
             'services.rag.filters',
             'services.rag.diversify',
             'services.rag.lexical',

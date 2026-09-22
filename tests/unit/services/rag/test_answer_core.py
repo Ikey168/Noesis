@@ -1,4 +1,4 @@
-"""Tests for core logic of services/rag/answer.py."""
+"""Tests for core logic of legacy/services/rag/answer.py."""
 
 import os
 import sys
@@ -10,7 +10,7 @@ ROOT = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..")
 if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 
-from services.rag.answer import RAGAnswerService  # noqa: E402
+from legacy.services.rag.answer import RAGAnswerService  # noqa: E402
 
 
 @pytest.fixture

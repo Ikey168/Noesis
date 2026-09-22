@@ -227,7 +227,7 @@ def generate_run_commands(
 
     # Command to run the scraper from the main application
     main_cmd = (
-        f"AWS_PROFILE={profile_name} python src/main.py --scrape "
+        f"AWS_PROFILE={profile_name} python legacy/src/main.py --scrape "
         f"--s3 --s3-bucket {s3_bucket} --s3-prefix {s3_prefix} "
         f"--cloudwatch --cloudwatch-log-group {cloudwatch_log_group} "
         f"--cloudwatch-log-stream-prefix {cloudwatch_log_stream_prefix} "

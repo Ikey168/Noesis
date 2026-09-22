@@ -79,7 +79,7 @@ HEALTHCHECK --interval=60s --timeout=30s --start-period=60s --retries=3 \
     CMD python -c "import requests; import sys; sys.exit(0)" || exit 1
 
 # Default command for development
-CMD ["python", "src/main.py", "--scrape"]
+CMD ["python", "-m", "src.scraper.run"]
 
 # Production stage
 FROM base as production
@@ -103,7 +103,7 @@ HEALTHCHECK --interval=60s --timeout=30s --start-period=60s --retries=3 \
     CMD python -c "import sys; sys.exit(0)" || exit 1
 
 # Command for production (scraper service)
-CMD ["python", "src/main.py", "--scrape", "--output", "/app/data/news_articles.json"]
+CMD ["python", "-m", "src.scraper.run", "--output", "/app/data/news_articles.json"]
 
 # Scheduler stage for periodic scraping
 FROM production as scheduler
@@ -113,7 +113,7 @@ USER root
 RUN apt-get update && apt-get install -y cron && rm -rf /var/lib/apt/lists/*
 
 # Add cron job for periodic scraping (every hour)
-RUN echo "0 * * * * neuronews cd /app && python src/main.py --scrape --output /app/data/news_articles.json >> /app/logs/scraper.log 2>&1" > /etc/cron.d/neuronews-scraper
+RUN echo "0 * * * * neuronews cd /app && python -m src.scraper.run --output /app/data/news_articles.json >> /app/logs/scraper.log 2>&1" > /etc/cron.d/neuronews-scraper
 RUN chmod 0644 /etc/cron.d/neuronews-scraper
 RUN crontab /etc/cron.d/neuronews-scraper
 

@@ -322,7 +322,7 @@ M7 unlocks the optional-news architecture; M8–M11 add coverage; M12 finishes t
 
 - Contract tests for `document-ingest-v1` mirroring existing `contracts/tests/` + valid/invalid examples.
 - Connector unit tests with recorded fixtures (one real arXiv paper, one PubMed record).
-- Golden-set RAG eval (`evals/`) extended with paper Q&A pairs.
+- Golden-set RAG eval (`legacy/evals/`, retired) extended with paper Q&A pairs.
 - Adapter round-trip test: `ArticleIngest` ⇄ `Document` lossless for news fields.
 
 ---

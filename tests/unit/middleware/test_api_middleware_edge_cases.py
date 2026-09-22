@@ -173,12 +173,12 @@ class TestMiddlewareErrorHandling:
     @pytest.mark.asyncio
     async def test_metrics_middleware_prometheus_failure(self, mock_call_next):
         """Test metrics middleware when Prometheus collection fails."""
-        from services.api.middleware.metrics import RAGMetricsMiddleware
+        from legacy.services.api.middleware.metrics import RAGMetricsMiddleware
         
         app = Mock(spec=FastAPI)
         
         # Mock metrics collector to fail
-        with patch('services.api.middleware.metrics.metrics_collector') as mock_collector:
+        with patch('legacy.services.api.middleware.metrics.metrics_collector') as mock_collector:
             mock_collector.increment_request_count.side_effect = Exception("Prometheus error")
             
             middleware = RAGMetricsMiddleware(app)
@@ -270,13 +270,13 @@ class TestMiddlewareEdgeCases:
     @pytest.mark.asyncio
     async def test_sliding_window_rate_limiter_edge_times(self):
         """Test sliding window rate limiter at edge time conditions."""
-        from services.api.middleware import ratelimit
-        from services.api.middleware.ratelimit import SlidingWindowRateLimiter
+        from legacy.services.api.middleware import ratelimit
+        from legacy.services.api.middleware.ratelimit import SlidingWindowRateLimiter
 
         app = Mock(spec=FastAPI)
 
         # Force the in-memory backend (no Redis).
-        with patch('services.api.middleware.ratelimit.REDIS_AVAILABLE', False):
+        with patch('legacy.services.api.middleware.ratelimit.REDIS_AVAILABLE', False):
             limiter = SlidingWindowRateLimiter(app)
             assert limiter.use_redis is False
 
@@ -465,14 +465,14 @@ class TestMiddlewareConcurrency:
     async def test_middleware_chain_concurrent_requests(self):
         """Test middleware chain with concurrent requests."""
         from src.api.middleware.auth_middleware import AuditLogMiddleware
-        from services.api.middleware.ratelimit import SlidingWindowRateLimiter
+        from legacy.services.api.middleware.ratelimit import SlidingWindowRateLimiter
         
         app = Mock(spec=FastAPI)
         
         # Create middleware chain
         audit_middleware = AuditLogMiddleware(app)
         
-        with patch('services.api.middleware.ratelimit.REDIS_AVAILABLE', False):
+        with patch('legacy.services.api.middleware.ratelimit.REDIS_AVAILABLE', False):
             rate_limiter = SlidingWindowRateLimiter(app)
         
         async def final_handler(request):
@@ -532,11 +532,11 @@ class TestMiddlewareConfiguration:
     
     def test_metrics_middleware_custom_configuration(self):
         """Test metrics middleware with custom configuration."""
-        from services.api.middleware.metrics import RAGMetricsMiddleware
+        from legacy.services.api.middleware.metrics import RAGMetricsMiddleware
         
         app = Mock(spec=FastAPI)
         
-        with patch('services.api.middleware.metrics.metrics_collector'):
+        with patch('legacy.services.api.middleware.metrics.metrics_collector'):
             # Test with various configuration options
             middleware1 = RAGMetricsMiddleware(app, track_all_endpoints=True)
             assert middleware1.track_all_endpoints is True
@@ -676,7 +676,7 @@ if __name__ == "__main__":
         __file__,
         "-v",
         "--cov=src.api.middleware",
-        "--cov=services.api.middleware", 
+        "--cov=legacy.services.api.middleware",
         "--cov=src.api.auth.api_key_middleware",
         "--cov=src.api.rbac.rbac_middleware",
         "--cov-report=term-missing"

@@ -227,6 +227,10 @@ async def _inspect_server(
 
 
 def _mutability(name: str) -> str:
+    if name in {"add", "watch", "inbox", "explore", "research"}:
+        # The default gateway deliberately exposes compact mixed-action tools.
+        # Classify the whole tool conservatively when any supported action mutates.
+        return "write"
     from tools.knowledge_engine_mcp.intake import INTAKE_WRITES
     if name in INTAKE_WRITES:
         return "write"
@@ -1201,7 +1205,7 @@ async def build_catalog(
         registered_project_paths.add(path.resolve())
         runtime_name, discovered, import_error = await _inspect_server(path)
         stem = path.parent.name
-        if not canonical.startswith("noesis-"):
+        if canonical != "noesis" and not canonical.startswith("noesis-"):
             conformance_errors.append(f"non-canonical registration: {canonical}")
         if runtime_name and runtime_name != canonical:
             conformance_errors.append(

@@ -1,4 +1,4 @@
-"""Focused unit tests for services/rag/answer.py (RAGAnswerService).
+"""Focused unit tests for legacy/services/rag/answer.py (RAGAnswerService).
 
 These tests exercise the orchestration helpers and the full answer_question
 pipeline with mocked embeddings provider and MLflow tracking so that no real
@@ -17,7 +17,7 @@ import pytest
 ROOT = os.path.join(os.path.dirname(__file__), "..", "..", "..")
 sys.path.insert(0, ROOT)
 
-from services.rag.answer import RAGAnswerService  # noqa: E402
+from legacy.services.rag.answer import RAGAnswerService  # noqa: E402
 
 
 def make_service(**kwargs):
@@ -274,7 +274,7 @@ async def test_extract_citations_caps_at_five(service):
 @pytest.fixture
 def patched_mlflow(monkeypatch):
     """Replace mlrun context manager and the mlflow module used inside answer."""
-    import services.rag.answer as answer_mod
+    import legacy.services.rag.answer as answer_mod
 
     @contextmanager
     def fake_mlrun(*args, **kwargs):

@@ -1,9 +1,18 @@
 import duckdb
 import pytest
 
-from src.kb.derived_revisions import DerivedRevisionStore, DerivedRevisionError, maintenance_observations
-from src.kb.workflows import WorkflowStore, reference_manifest, production_handlers
+from src.kb.derived_revisions import (
+    DerivedRevisionError,
+    DerivedRevisionStore,
+    maintenance_observations,
+)
 from src.kb.unified_query import MaintainedSemanticQueryAdapter
+from src.kb.workflows import (
+    WorkflowStore,
+    production_handlers,
+    production_ingest_manifest,
+    reference_manifest,
+)
 
 
 class TestSemanticProvider:
@@ -45,9 +54,14 @@ def test_plain_text_uses_argument_mining_and_preserves_source_revision(monkeypat
     assert output["provenance"]["input_revision"] == source_revision
     assert output["output"]["value"]["source_locator"]["end"] == len(document()["content"])
     assert "argument-mining-text" in output["provenance"]["extractor_id"]
+    stored_claim = conn.execute(
+        "SELECT claim_text, prediction_mode FROM argument_claims WHERE document_id='d1'"
+    ).fetchone()
+    assert stored_claim == (document()["content"], "test-model")
+    assert result["state"]["argument_claims"]["claims_indexed"] == 1
     derived = DerivedRevisionStore(conn, embedding_provider=TestSemanticProvider())
-    receipt = derived.apply_generation("research", 1, maintenance_observations(result["state"]["documents"], result["state"]["extraction"]),
-                                       [{"document_id": "d1", "change_kind": "added"}])
+    derived.apply_generation("research", 1, maintenance_observations(result["state"]["documents"], result["state"]["extraction"]),
+                             [{"document_id": "d1", "change_kind": "added"}])
     derived.publish_generation("research", 1)
     adapter = MaintainedSemanticQueryAdapter(conn, "research", embedding_provider=TestSemanticProvider())
     answer = adapter.query({"query": "rates", "limit": 10}, scopes={"operator"})
@@ -81,6 +95,53 @@ def test_vectors_are_provider_backed_and_mixed_spaces_fail_atomically():
     with pytest.raises(DerivedRevisionError, match="embedding space"):
         store.semantic_search("research", "rates", scopes={"operator"})
     assert conn.execute("SELECT count(*) FROM derived_object_generations").fetchone()[0] == 1
+
+
+def test_reprocessing_removes_stale_answer_claims():
+    class OneClaim:
+        def extract(self, value):
+            doc = value["document"]
+            return [
+                {
+                    "output_type": "claim",
+                    "value": {
+                        "claim_id": "claim:d1",
+                        "statement": doc["content"],
+                        "document_id": "d1",
+                        "source_type": "news",
+                        "prediction_mode": "test-model",
+                    },
+                }
+            ]
+
+    class NoClaims:
+        def extract(self, _value):
+            return []
+
+    conn = duckdb.connect()
+    manifest = production_ingest_manifest("research", "research")
+    first = WorkflowStore(conn).execute(
+        manifest,
+        production_handlers(conn, extractor_implementation=OneClaim()),
+        {"documents": [document()]},
+        run_key="stale-claim-v1",
+    )
+    assert first["state"]["argument_claims"]["claims_indexed"] == 1
+    assert conn.execute(
+        "SELECT count(*) FROM argument_claims WHERE document_id='d1'"
+    ).fetchone()[0] == 1
+
+    changed = {**document(), "content": "Background material only."}
+    second = WorkflowStore(conn).execute(
+        manifest,
+        production_handlers(conn, extractor_implementation=NoClaims()),
+        {"documents": [changed]},
+        run_key="stale-claim-v2",
+    )
+    assert second["state"]["argument_claims"]["claims_indexed"] == 0
+    assert conn.execute(
+        "SELECT count(*) FROM argument_claims WHERE document_id='d1'"
+    ).fetchone()[0] == 0
 
 
 def test_hash_backend_requires_fixture_mode():

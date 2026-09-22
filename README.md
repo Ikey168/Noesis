@@ -58,13 +58,17 @@ surface. The full design lives in the
 - **Argument mining.** Detects claims, classifies stances, identifies frames
   (economic, security, humanitarian, legal, political, scientific, other),
   extracts actor and entity mentions, and tracks how policy positions evolve.
+  When `TYPESAFE_API_KEY` is configured, TypeSafe Jev is the primary decision
+  backend for claims, stances, and frames; pinned dedicated classifiers remain
+  lazy, automatic fallbacks for unavailable or uncertain Jev decisions.
 - **Fact-check and corroboration.** Links claims to verdicts, scores
   corroboration by independent-source count, flags unsourced assertions, and
   keeps a contradiction ledger of where the public record disagrees with itself.
 - **Private corpus, local first.** Applies the same claim, contradiction,
   provenance, and diff surfaces to PDFs, DOCX, email, books, filings, notes,
-  and transcripts without uploading them to a hosted service. See the
-  [private-corpus quickstart](docs/guides/private-corpus.md).
+  and transcripts. Set `NOESIS_JEV_ENABLED=false` (or leave the TypeSafe key
+  unset) for a strictly local path with no hosted classification calls. See
+  the [private-corpus quickstart](docs/guides/private-corpus.md).
 - **Integrity ledger.** Unifies cited snapshots, silent corrections, image
   reuse, C2PA content credentials, and prose-versus-figure checks behind one
   MCP/REST/KB surface.
@@ -116,7 +120,7 @@ surface. The full design lives in the
 |---|---|
 | Backend | FastAPI, uvicorn |
 | Analytics warehouse | DuckDB (local file, single-writer) |
-| Argument mining | Pinned ClaimBuster and DeBERTa NLI models, distilbert, scikit-learn, spaCy |
+| Argument mining | TypeSafe Jev when configured; pinned ClaimBuster/DeBERTa NLI dedicated fallbacks |
 | Scraping | Scrapy, Playwright, Selenium |
 | Orchestration | Apache Airflow |
 | MLOps | MLflow |
@@ -147,6 +151,7 @@ stand up new knowledge graphs at runtime.
 
 | Server | Focus |
 |---|---|
+| `noesis` | **Default gateway** — add, search, ask, brief, inspect sources/claims, watches, coverage, evidence export |
 | `noesis-catalog` | Permission- and readiness-filtered discovery across every registered capability |
 | `noesis-pipeline` | Connectors, ingestion stages, article stats, and analytics |
 | `noesis-arguments` | Claims, stances, frames, actors, outlet clustering and scoring |
@@ -209,18 +214,46 @@ noesis export answer \
 noesis verify answer.bundle.json
 ```
 
+`noesis ingest` runs the bounded `ingest → extract → resolve → index` workflow
+automatically. With `TYPESAFE_API_KEY` set, Jev is tried first for claim
+classification; uncertain or unavailable Jev decisions fall back to cached
+pinned local models. If neither classifier is available, document indexing still
+commits with explicit degraded coverage and `noesis ask` retains its cited
+passage fallback. No model is downloaded implicitly.
+
 See the [CLI guide](docs/guides/cli.md) for Claim Watches, JSON output, server
 launchers, configuration, and optional dependency groups.
 
-### 4. Run a supported server surface
+### 4. Keep subscribed knowledge current
+
+```bash
+noesis sync                       # one bounded pass
+noesis sync --daemon              # persistent loop, every 5 minutes by default
+noesis sync --daemon --interval 60
+```
+
+`sync` fetches only explicitly enabled subscriptions, pushes new or changed
+feed revisions through the same production indexing workflow, refreshes domain
+membership, advances watches, and performs safe maintenance recovery/health
+checks. It does not launch Deep Research, execute source-pack jobs, or initiate
+paid acquisition. Run `noesis sync --dry-run --json` to inspect the next pass
+without network access or sync-state writes.
+
+### 5. Run the default MCP endpoint
 
 ```bash
 python -m pip install -e ".[server]"
-noesis serve --surface api
-# or: noesis serve --surface kb-mcp --transport http
+noesis serve
 ```
 
-### 5. Run tests
+The default Streamable HTTP endpoint is `http://127.0.0.1:8100/mcp` and exposes
+the curated daily-driver gateway: add, search, ask, briefs, source/claim
+inspection, watches, inbox triage, exploration, research sessions, coverage,
+and evidence export. Specialist MCP servers and
+the REST API remain available explicitly with `--surface kb-mcp` or
+`--surface api`.
+
+### 6. Run tests
 
 ```bash
 pytest                                        # unit and integration tests
@@ -286,7 +319,11 @@ corpus.
 
 ---
 
-## Model benchmarks (current defaults)
+## Dedicated fallback model benchmarks
+
+When Jev is configured it is the primary claim/stance/frame decision backend.
+The table below intentionally reports only the separately evaluated dedicated
+fallback models; it is not a benchmark of Jev.
 
 | Model | F1 | Notes |
 |---|---|---|
@@ -297,8 +334,9 @@ corpus.
 See [docs/subsystems/argument-mining-benchmarks.md](docs/subsystems/argument-mining-benchmarks.md) for the full breakdown
 by source type, length, external dataset, and per-class metrics. The
 internal six-source test set is synthetic and is labelled as such; it is not a
-substitute for the pending human evaluation. Run `make models` before inference;
-when weights are absent the pipeline fails closed with an actionable error.
+substitute for the pending human evaluation. Run `make models` to provision the
+dedicated fallback weights. If Jev is unavailable and those fallback weights are
+also absent, model-backed classification fails closed with an actionable error.
 
 ---
 

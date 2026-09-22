@@ -10,8 +10,9 @@ the first HTTP-capable server established):
 * ``NOESIS_MCP_TRANSPORT`` — ``stdio`` (default) or ``http``.
 * ``NOESIS_MCP_HTTP_HOST`` — bind host, default ``127.0.0.1`` (localhost-only
   unless the operator deliberately widens it).
-* ``NOESIS_MCP_HTTP_PORT`` — bind port, default ``8100``. Each server gets its
-  own port; there is no shared default topology.
+* ``NOESIS_MCP_HTTP_PORT`` — bind port, default ``8100``. The supported
+  ``noesis serve`` path uses this for the single curated gateway endpoint;
+  specialist servers may still bind separate ports when explicitly deployed.
 * ``NOESIS_MCP_AUTH_TOKEN`` — when set, every HTTP request must present the
   token as a Bearer credential. **Fail-closed**: if the installed fastmcp
   version offers no supported token-verification API, startup *raises* rather
