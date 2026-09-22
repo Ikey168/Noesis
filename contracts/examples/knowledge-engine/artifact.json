@@ -1,0 +1,1 @@
+{"logical_id":"chunk:doc-1:0","namespace":"research","kind":"chunk","content":{"text":"Result"},"configuration":{"chunk_size":500},"producer":{"name":"text-chunker","version":"2.0.0"},"dependencies":[{"dependency_id":"source:doc-1","kind":"source","content_hash":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}],"lineage_complete":true}

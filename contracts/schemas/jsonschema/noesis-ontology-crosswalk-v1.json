@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/schemas/noesis-ontology-crosswalk-v1.json",
+  "title": "Noesis sourced ontology concept crosswalk",
+  "type": "object",
+  "required": ["contract", "source", "target", "mappings", "generation", "observed_at_ms"],
+  "properties": {
+    "contract": {"const": "noesis-ontology-crosswalk-v1"},
+    "source": {"$ref": "#/$defs/reference"},
+    "target": {"$ref": "#/$defs/reference"},
+    "mappings": {"type": "array", "minItems": 1, "items": {"type": "object", "required": ["kind", "source", "target", "confidence", "local_extension", "evidence", "conditions"], "properties": {"kind": {"enum": ["equivalent", "broader", "narrower", "related", "incompatible"]}, "source": {"type": "string"}, "target": {"type": "string"}, "confidence": {"type": "number", "minimum": 0, "maximum": 1}, "local_extension": {"type": "boolean"}, "evidence": {"type": "array", "items": {"type": "object"}}, "conditions": {"type": "array", "items": {"type": "object"}}}, "additionalProperties": false}},
+    "generation": {"type": "integer", "minimum": 0},
+    "observed_at_ms": {"type": "integer", "minimum": 0}
+  },
+  "$defs": {"reference": {"type": "object", "required": ["kind", "name", "version"], "properties": {"kind": {"const": "ontology"}, "name": {"type": "string"}, "version": {"type": "string"}}, "additionalProperties": false}},
+  "additionalProperties": false
+}

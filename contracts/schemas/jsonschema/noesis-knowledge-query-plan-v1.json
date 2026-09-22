@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/schemas/noesis-knowledge-query-plan-v1.json",
+  "title": "Noesis unified knowledge query plan",
+  "type": "object",
+  "required": ["contract", "request", "catalog_hash", "nodes", "selected_sources", "omitted", "budget", "plan_hash"],
+  "properties": {
+    "contract": {"const": "noesis-knowledge-query-plan-v1"},
+    "request": {"type": "object"},
+    "catalog_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "nodes": {"type": "array", "items": {"type": "object", "required": ["node_id", "depends_on"]}},
+    "selected_sources": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "omitted": {"type": "array", "items": {"type": "object"}},
+    "budget": {"type": "object"},
+    "deterministic_order": {"const": true},
+    "policy_decisions": {"type": "object"},
+    "plan_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  },
+  "additionalProperties": false
+}

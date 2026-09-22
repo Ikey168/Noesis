@@ -1,0 +1,17 @@
+{
+  "contract": "noesis-knowledge-subscription-v1",
+  "subscription_id": "subscription:6fd7196ba660695ac33918b5",
+  "version": 1,
+  "owner_principal": "researcher",
+  "namespace": "research",
+  "domain": "scientific",
+  "query": {"operation": "search", "text": "replication"},
+  "filters": {"since": "2025-01-01"},
+  "cadence": {"trigger": "watermark"},
+  "delivery": {"kind": "poll"},
+  "status": "active",
+  "expires_at_ms": null,
+  "created_at_ms": 1000,
+  "updated_at_ms": 1000,
+  "last_watermark": null
+}

@@ -19,6 +19,7 @@ from typing import Any, Callable, Dict, List, Optional
 
 from src.ingestion.document_store import DocumentStore
 from src.ingestion.enrichment_store import EnrichmentStore
+from src.ingestion.processing_versions import ProcessingVersions, configuration_hash, document_input_hash
 
 Analyzer = Callable[[Dict[str, Any]], Dict[str, Any]]
 
@@ -82,37 +83,57 @@ def enrich_documents(
     conn,
     analyzer: Optional[Analyzer] = None,
     limit: Optional[int] = None,
+    *,
+    analyzer_version: str | None = None,
+    configuration: dict | None = None,
 ) -> int:
-    """Enrich documents that have no enrichment yet; return how many were enriched.
+    """Refresh missing or stale enrichment, preserving prior output on failure.
 
-    Reads ``documents`` LEFT JOIN ``document_enrichments`` for the un-enriched
-    rows, runs ``analyzer`` (default: lexicon sentiment + keyword topics), and
-    upserts the result into ``document_enrichments``. Idempotent: an already-
-    enriched document is skipped, so re-running only fills the gaps.
+    Custom analyzers should declare an explicit immutable analyzer_version and
+    all result-affecting configuration. Unversioned callables run each time;
+    guessing their identity from a function name would silently skip changes.
     """
+    version = analyzer_version or ("lexicon-keywords-v1" if analyzer is None else getattr(analyzer, "version", None))
     analyzer = analyzer or default_analyzer
     DocumentStore(conn)          # ensure documents table
     store = EnrichmentStore(conn)  # ensure document_enrichments table
+    versions = ProcessingVersions(conn)
+    config_hash = configuration_hash({"analyzer": version, "configuration": configuration or {}})
+    input_sql = document_input_hash()
 
     query = (
-        "SELECT d.document_id, d.title, d.content FROM documents d "
+        f"SELECT d.document_id, d.title, d.content, {input_sql} FROM documents d "
         "LEFT JOIN document_enrichments e ON e.document_id = d.document_id "
-        "WHERE e.document_id IS NULL ORDER BY d.ingested_at DESC"
+        "LEFT JOIN document_processing_versions p ON p.document_id=d.document_id AND p.stage='enrichment' "
+        f"WHERE (? OR e.document_id IS NULL OR p.input_hash IS DISTINCT FROM {input_sql} "
+        "OR p.configuration_hash IS DISTINCT FROM ?) ORDER BY d.ingested_at DESC"
     )
-    params: List[Any] = []
+    params: List[Any] = [version is None, config_hash]
     if limit is not None:
         query += " LIMIT ?"
         params.append(limit)
 
     rows = conn.execute(query, params).fetchall()
     enriched = 0
-    for document_id, title, content in rows:
+    for document_id, title, content, input_hash in rows:
         result = analyzer({"document_id": document_id, "title": title, "content": content})
-        store.upsert(
-            document_id,
-            sentiment_score=result.get("sentiment_score"),
-            sentiment_label=result.get("sentiment_label"),
-            topics=result.get("topics"),
-        )
+        conn.execute("BEGIN")
+        try:
+            # An injected/network analyzer may have yielded while the source changed.
+            current = conn.execute(f"SELECT {input_sql} FROM documents d WHERE document_id=?", [document_id]).fetchone()
+            if current is None or current[0] != input_hash:
+                conn.execute("ROLLBACK")
+                continue
+            store.upsert(
+                document_id,
+                sentiment_score=result.get("sentiment_score"),
+                sentiment_label=result.get("sentiment_label"),
+                topics=result.get("topics"),
+            )
+            versions.record(document_id, "enrichment", input_hash, config_hash)
+            conn.execute("COMMIT")
+        except Exception:
+            conn.execute("ROLLBACK")
+            raise
         enriched += 1
     return enriched

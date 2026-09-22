@@ -18,6 +18,7 @@ wins per document).
 from __future__ import annotations
 
 import json
+import math
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 _SCHEMA = """
@@ -52,6 +53,9 @@ class EmbeddingStore:
     ) -> None:
         """Insert or replace the embedding for ``document_id`` (last write wins)."""
         vec = [float(x) for x in vector]
+        declared_dim = int(dim if dim is not None else len(vec))
+        if not model or declared_dim <= 0 or len(vec) != declared_dim or not all(math.isfinite(x) for x in vec):
+            raise ValueError("embedding must match a positive dimension and contain finite values")
         self.conn.execute(
             """
             INSERT INTO document_embeddings (document_id, model, dim, vector, updated_at)
@@ -62,7 +66,7 @@ class EmbeddingStore:
                 vector     = excluded.vector,
                 updated_at = excluded.updated_at
             """,
-            [document_id, model, int(dim if dim is not None else len(vec)),
+            [document_id, model, declared_dim,
              json.dumps(vec), updated_at],
         )
 

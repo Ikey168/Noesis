@@ -1,0 +1,7 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema", "$id": "https://noesis.local/schemas/noesis-dataset-slice-v1.json", "title": "Noesis bounded dataset slice", "type": "object",
+  "required": ["contract", "namespace", "release_id", "table_id", "items", "next_offset", "result_hash"],
+  "properties": {
+    "contract": {"const": "noesis-dataset-slice-v1"}, "namespace": {"type": "string"}, "release_id": {"type": "string"}, "table_id": {"type": "string"}, "items": {"type": "array", "items": {"type": "object"}}, "next_offset": {"type": ["integer", "null"]}, "result_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }, "additionalProperties": false
+}

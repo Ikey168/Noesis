@@ -2,7 +2,10 @@
 Playwright-based spider for JavaScript-heavy news sites.
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
+import json
+import asyncio
+from ..article_links import scoped_url
 
 import scrapy
 from scrapy.http import Request
@@ -18,12 +21,42 @@ class PlaywrightNewsSpider(scrapy.Spider):
     name = "playwright_news"
     allowed_domains = [url.split("/")[2] for url in SCRAPING_SOURCES]
 
+    readiness_timeout_ms = 10000
+
+    @classmethod
+    def from_crawler(cls, crawler, *args, **kwargs):
+        spider = super().from_crawler(crawler, *args, **kwargs)
+        spider.readiness_timeout_ms = max(1, min(60000, crawler.settings.getint('PLAYWRIGHT_CONTENT_TIMEOUT', 10000)))
+        return spider
+
+    async def start(self):
+        for request in self.start_requests():
+            yield request
+
+    async def close_page(self, page):
+        try:
+            await asyncio.wait_for(page.close(), timeout=5)
+        except Exception:
+            if getattr(self, 'crawler', None):
+                self.crawler.stats.inc_value('browser/cleanup_failed')
+            raise
+
+    async def close_failed_page(self, failure):
+        if getattr(self, 'crawler', None):
+            self.crawler.stats.inc_value('browser/request_failed')
+            if 'Timeout' in type(failure.value).__name__:
+                self.crawler.stats.inc_value('browser/readiness_or_navigation_timeout')
+        page = failure.request.meta.get('playwright_page')
+        if page is not None:
+            await self.close_page(page)
+
     def start_requests(self):
         """Generate initial requests for each source URL."""
         for url in SCRAPING_SOURCES:
             yield Request(
                 url=url,
                 callback=self.parse,
+                errback=self.close_failed_page,
                 meta={
                     "playwright": True,
                     "playwright_include_page": True,
@@ -31,9 +64,9 @@ class PlaywrightNewsSpider(scrapy.Spider):
                         PageMethod(
                             "wait_for_selector",
                             "article, .article, .content, .news-item, .story",
+                            timeout=self.readiness_timeout_ms,
                         ),
-                        # Wait a bit for JavaScript to execute
-                        PageMethod("wait_for_timeout", 2000),
+
                     ],
                 },
             )
@@ -61,12 +94,11 @@ class PlaywrightNewsSpider(scrapy.Spider):
             for selector in link_selectors:
                 links = await page.query_selector_all(selector)
                 for link in links:
-                    href = await link.get_attribute("hre")
+                    href = await link.get_attribute("href")
                     if href:
                         # Convert relative URLs to absolute
-                        if href.startswith("/"):
-                            href = response.urljoin(href)
-                        article_links.append(href)
+                        href = scoped_url(response.url, href)
+                        article_links.append(href) if href else None
 
             # If no links found with specific selectors, try a more generic
             # approach
@@ -74,7 +106,7 @@ class PlaywrightNewsSpider(scrapy.Spider):
                 # Get all links
                 all_links = await page.query_selector_all("a")
                 for link in all_links:
-                    href = await link.get_attribute("hre")
+                    href = await link.get_attribute("href")
                     if href:
                         # Filter for likely article URLs
                         if any(
@@ -82,9 +114,8 @@ class PlaywrightNewsSpider(scrapy.Spider):
                             for keyword in ["/article/", "/news/", "/story/", "/post/"]
                         ):
                             # Convert relative URLs to absolute
-                            if href.startswith("/"):
-                                href = response.urljoin(href)
-                            article_links.append(href)
+                            href = scoped_url(response.url, href)
+                            article_links.append(href) if href else None
 
             # Remove duplicates while preserving order
             article_links = list(dict.fromkeys(article_links))
@@ -96,19 +127,20 @@ class PlaywrightNewsSpider(scrapy.Spider):
                 yield Request(
                     url=article_url,
                     callback=self.parse_article,
+                    errback=self.close_failed_page,
                     meta={
                         "playwright": True,
                         "playwright_include_page": True,
                         "playwright_page_methods": [
                             PageMethod(
-                                "wait_for_selector", "article, .article, .content, p"
+                                "wait_for_selector", "article, .article, .content, p", timeout=self.readiness_timeout_ms
                             ),
-                            PageMethod("wait_for_timeout", 2000),
+
                         ],
                     },
                 )
         finally:
-            await page.close()
+            await self.close_page(page)
 
     async def parse_article(self, response):
         """Parse a news article page using Playwright."""
@@ -195,8 +227,9 @@ class PlaywrightNewsSpider(scrapy.Spider):
                     break
 
             if "published_date" not in item:
-                # If no date found, use current time
-                item["published_date"] = datetime.now().isoformat()
+                item["published_date"] = None
+            item["scraped_date"] = datetime.now(timezone.utc).isoformat()
+            item["acquisition_provenance_json"] = json.dumps(response.meta.get("acquisition_provenance", {}), sort_keys=True)
 
             # Extract source (domain name)
             item["source"] = response.url.split("/")[2]
@@ -267,4 +300,4 @@ class PlaywrightNewsSpider(scrapy.Spider):
 
             return item
         finally:
-            await page.close()
+            await self.close_page(page)

@@ -1,0 +1,14 @@
+{
+  "contract": "noesis-schema-crosswalk-v1",
+  "name": "scientific-to-canonical",
+  "semantic_version": "1.0.0",
+  "source": {"kind": "ontology", "name": "scientific", "version": "^1.0.0"},
+  "target": {"kind": "ontology", "name": "canonical-entity-relation", "version": "1.0.0"},
+  "direction": "forward",
+  "confidence": 0.96,
+  "conditions": [{"study_design_known": true}],
+  "mappings": [{"kind": "type", "source": "experiment", "target": "Method", "lossy": false}],
+  "owner": "research-pack",
+  "provenance": {"kind": "builtin", "source": "scientific vocabulary"},
+  "actor": {"principal_id": "registry-admin", "kind": "user"}
+}

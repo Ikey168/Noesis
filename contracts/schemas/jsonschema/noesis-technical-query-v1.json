@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/schemas/noesis-technical-query-v1.json",
+  "title": "Noesis Technical Research v1",
+  "type": "object",
+  "required": [
+    "contract", "query", "results", "citations", "assumptions", "cycles", "coverage"
+  ],
+  "properties": {
+    "contract": {"const": "noesis-technical-research-v1"},
+    "query": {"type": "object"},
+    "results": {"type": "array"},
+    "citations": {"type": "array"},
+    "assumptions": {"type": "array", "items": {"type": "string"}},
+    "cycles": {"type": "array", "items": {"type": "string"}},
+    "coverage": {
+      "type": "object",
+      "required": ["incomplete", "conflicting_lockfiles", "result_count"],
+      "properties": {
+        "incomplete": {"type": "boolean"},
+        "conflicting_lockfiles": {"type": "boolean"},
+        "result_count": {"type": "integer", "minimum": 0}
+      }
+    }
+  },
+  "additionalProperties": false
+}

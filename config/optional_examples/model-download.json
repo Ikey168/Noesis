@@ -1,0 +1,6 @@
+{
+  "kind": "model_download",
+  "model": "e5",
+  "download_approved": true,
+  "max_download_bytes": 500000000
+}

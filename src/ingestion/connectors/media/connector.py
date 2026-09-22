@@ -19,6 +19,7 @@ Usage::
 from __future__ import annotations
 
 import urllib.request
+import json
 from pathlib import Path
 from typing import Any, Iterable, List, Optional
 
@@ -141,6 +142,7 @@ class MediaConnector(Connector):
         diarize: bool = False,
         frame_sampler: Optional[Any] = None,
         ocr: Optional[Any] = None,
+        aligner: Optional[Any] = None,
     ) -> None:
         self._model_size = model_size
         self._language = language
@@ -150,6 +152,7 @@ class MediaConnector(Connector):
         # the real ffmpeg/tesseract backends lazily at parse time".
         self._frame_sampler = frame_sampler
         self._ocr = ocr
+        self._aligner = aligner
 
     def discover(self, query: Optional[Any] = None) -> Iterable[SourceRef]:
         if query is None:
@@ -204,6 +207,12 @@ class MediaConnector(Connector):
             meta.speakers = sorted({s.speaker for s in meta.segments if s.speaker})
 
         documents = media_metadata_to_documents(meta, raw.fetched_at)
+        if self._aligner is not None:
+            alignments = self._aligner(content, meta.segments)
+            if len(alignments) != len(documents):
+                raise ValueError("alignment must preserve segment/document count")
+            for document, alignment in zip(documents, alignments):
+                document.metadata["word_alignment_json"] = json.dumps(alignment, ensure_ascii=False, sort_keys=True)
         documents.extend(
             self._keyframe_documents(content, locator, title, file_ext, raw.fetched_at)
         )

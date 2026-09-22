@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<style xmlns="http://purl.org/net/xbiblio/csl" version="1.0" class="in-text">
+  <info>
+    <title>Noesis author-date v1</title>
+    <id>https://github.com/Ikey168/Noesis/styles/author-date-v1</id>
+    <updated>2026-09-06T00:00:00+00:00</updated>
+  </info>
+  <locale xml:lang="de-DE"><terms><term name="page" form="short">S.</term></terms></locale>
+  <locale xml:lang="en-US"><terms><term name="page" form="short">p.</term></terms></locale>
+  <macro name="author"><names variable="author"><name form="short" and="text"/></names></macro>
+  <macro name="year"><date variable="issued"><date-part name="year"/></date></macro>
+  <citation><layout prefix="(" suffix=")" delimiter="; "><group delimiter=", "><text macro="author"/><text macro="year"/><group delimiter=" "><label variable="locator" form="short"/><text variable="locator"/></group></group></layout></citation>
+  <bibliography><layout suffix="."><group delimiter=". "><text macro="author"/><text macro="year"/><text variable="title"/><text variable="container-title"/><text variable="publisher"/><text variable="DOI" prefix="doi:"/></group></layout></bibliography>
+</style>

@@ -1,0 +1,9 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema", "$id": "https://noesis.local/schemas/noesis-claim-timeline-v1.json",
+  "title": "Noesis snapshot-consistent claim timeline", "type": "object",
+  "required": ["contract", "namespace", "root_claim_id", "as_of_ms", "generation", "items", "edges", "next_cursor", "timeline_hash"],
+  "properties": {
+    "contract": {"const": "noesis-claim-timeline-v1"}, "namespace": {"type": "string"}, "root_claim_id": {"type": "string"}, "as_of_ms": {"type": ["integer", "null"]}, "generation": {"type": ["integer", "null"]},
+    "items": {"type": "array", "items": {"type": "object"}}, "edges": {"type": "array", "items": {"type": "object"}}, "next_cursor": {"type": ["string", "null"]}, "timeline_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }, "additionalProperties": false
+}

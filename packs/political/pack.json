@@ -1,0 +1,52 @@
+{
+  "pack_format": "noesis-pack-v1",
+  "name": "political",
+  "version": "1.0.0",
+  "description": "Official political knowledge with scoped identity and bitemporal research queries.",
+  "source_types": ["note", "web"],
+  "ui_flags": {},
+  "panels": [],
+  "planner_keywords": {
+    "actors": ["officeholder", "party", "institution"],
+    "events": ["election", "proposal", "vote", "regulation"]
+  },
+  "enrichers": [
+    {
+      "name": "political-keyword",
+      "kind": "keyword_tag",
+      "description": "Tag explicitly political official records.",
+      "source_types": ["note", "web"],
+      "params": {
+        "field": "title",
+        "label": "political",
+        "keywords": ["election", "proposal", "vote", "regulation", "executive order"]
+      }
+    }
+  ],
+  "provisioning_templates": [],
+  "capabilities": [
+    "official-source-manifests",
+    "scoped-entity-resolution",
+    "bitemporal-office-terms",
+    "proposal-vote-lifecycle",
+    "political-research-queries"
+  ],
+  "schema_versions": {
+    "source": "1.0.0",
+    "model": "1.0.0",
+    "research": "1.0.0"
+  },
+  "ontology_extensions": {
+    "extends": "noesis-canonical-entity-relation-ontology",
+    "object_types": [
+      "election", "institution", "instrument", "jurisdiction", "office",
+      "office_term", "party", "person", "proposal", "vote"
+    ],
+    "relation_types": [
+      "adopted_as", "contests", "corrects", "holds_office", "in_jurisdiction",
+      "institutional_position", "member_of_party", "part_of", "proposal_amends",
+      "proposal_sponsored_by", "roll_call_on", "succeeds", "term_for_office",
+      "term_holder", "vote_cast_by"
+    ]
+  }
+}

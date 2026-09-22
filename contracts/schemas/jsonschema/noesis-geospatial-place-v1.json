@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/schemas/noesis-geospatial-place-v1.json",
+  "title": "Noesis immutable place revision",
+  "type": "object",
+  "required": ["contract", "place_id", "namespace", "revision_id", "revision", "predecessor_revision_id", "canonical_name", "place_type", "names", "parent_ids", "source_ids", "generation", "valid_from_ms", "valid_to_ms", "observed_at_ms", "producer", "policy", "provenance", "principal_id", "input_hash", "created_at_ms"],
+  "properties": {
+    "contract": {"const": "noesis-geospatial-place-v1"},
+    "place_id": {"type": "string", "pattern": "^place:"},
+    "namespace": {"type": "string", "minLength": 1},
+    "revision_id": {"type": "string", "pattern": "^place-revision:"},
+    "revision": {"type": "integer", "minimum": 1},
+    "predecessor_revision_id": {"type": ["string", "null"]},
+    "canonical_name": {"type": "string", "minLength": 1},
+    "place_type": {"type": "string", "minLength": 1},
+    "names": {"type": "array", "items": {"type": "object", "required": ["value"]}, "minItems": 1},
+    "parent_ids": {"type": "array", "items": {"type": "string"}},
+    "source_ids": {"type": "object", "additionalProperties": {"type": "string"}},
+    "generation": {"type": "integer", "minimum": 0},
+    "valid_from_ms": {"type": ["integer", "null"]},
+    "valid_to_ms": {"type": ["integer", "null"]},
+    "observed_at_ms": {"type": "integer", "minimum": 0},
+    "producer": {"type": "object", "required": ["name", "version"]},
+    "policy": {"type": "object"},
+    "provenance": {"type": "object"},
+    "principal_id": {"type": "string"},
+    "input_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "created_at_ms": {"type": "integer", "minimum": 0},
+    "idempotent": {"type": "boolean"},
+    "history": {"type": "array", "items": {"type": "object"}}
+  },
+  "additionalProperties": false
+}

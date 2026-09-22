@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema", "$id": "https://noesis.local/schemas/noesis-research-coverage-v1.json",
+  "title": "Noesis research coverage observation", "type": "object",
+  "required": ["contract", "observation_id", "namespace", "object_kind", "object_id", "dimension", "dimension_key", "coverage_known", "supports", "signals", "generation", "observed_at_ms", "producer", "policy", "provenance", "input_hash", "created_at_ms", "idempotent"],
+  "properties": {
+    "contract": {"const": "noesis-research-coverage-v1"}, "observation_id": {"type": "string"}, "namespace": {"type": "string"},
+    "object_kind": {"enum": ["claim", "entity", "event", "time-range", "geography", "methodology"]}, "object_id": {"type": "string"},
+    "dimension": {"type": "object"}, "dimension_key": {"type": "string", "pattern": "^[0-9a-f]{64}$"}, "coverage_known": {"type": "boolean"},
+    "supports": {"type": "array", "items": {"type": "object"}}, "signals": {"type": "object"}, "generation": {"type": "integer"},
+    "valid_from_ms": {"type": ["integer", "null"]}, "valid_to_ms": {"type": ["integer", "null"]}, "observed_at_ms": {"type": "integer"},
+    "producer": {"type": "object"}, "policy": {"type": "object"}, "provenance": {"type": "object"}, "input_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "created_at_ms": {"type": "integer"}, "idempotent": {"type": "boolean"}
+  }, "additionalProperties": false
+}

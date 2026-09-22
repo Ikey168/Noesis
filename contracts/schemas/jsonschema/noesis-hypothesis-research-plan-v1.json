@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/schemas/noesis-hypothesis-research-plan-v1.json",
+  "title": "Noesis resumable hypothesis research plan",
+  "type": "object",
+  "required": ["contract", "plan_id", "workspace_id", "namespace", "workspace_revision_id", "steps", "cursor", "results", "gaps", "status", "budget_used", "plan_hash", "principal_id", "created_at_ms", "updated_at_ms"],
+  "properties": {
+    "contract": {"const": "noesis-hypothesis-research-plan-v1"},
+    "plan_id": {"type": "string", "pattern": "^hypothesis-plan:"},
+    "workspace_id": {"type": "string", "pattern": "^hypothesis-workspace:"},
+    "namespace": {"type": "string", "minLength": 1},
+    "workspace_revision_id": {"type": "string", "pattern": "^hypothesis-revision:"},
+    "steps": {"type": "array", "maxItems": 100, "items": {"type": "object"}},
+    "cursor": {"type": "integer", "minimum": 0},
+    "results": {"type": "array", "items": {"type": "object"}},
+    "gaps": {"type": "array", "items": {"type": "object"}},
+    "status": {"enum": ["ready", "running", "paused", "cancelled", "complete"]},
+    "budget_used": {"type": "number", "minimum": 0},
+    "plan_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "principal_id": {"type": "string"},
+    "created_at_ms": {"type": "integer", "minimum": 0},
+    "updated_at_ms": {"type": "integer", "minimum": 0},
+    "idempotent": {"type": "boolean"}
+  },
+  "additionalProperties": false
+}

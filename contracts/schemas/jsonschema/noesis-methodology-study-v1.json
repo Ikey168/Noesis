@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/schemas/noesis-methodology-study-v1.json",
+  "title": "Noesis methodology study",
+  "type": "object",
+  "required": ["contract", "namespace", "study_id", "study_revision_id", "external_id", "version", "title", "design", "population", "interventions", "comparators", "outcomes", "datasets", "samples", "instruments", "analysis_plans", "generation", "valid_time", "observed_at_ms", "producer", "policy", "provenance"],
+  "properties": {
+    "contract": {"const": "noesis-methodology-study-v1"}, "namespace": {"type": "string", "minLength": 1}, "study_id": {"type": "string"}, "study_revision_id": {"type": "string"}, "external_id": {"type": "string"}, "version": {"type": "string"}, "title": {"type": "string"},
+    "design": {"type": "object", "required": ["type"]}, "population": {"type": "object"}, "interventions": {"type": "array", "items": {"type": "object"}}, "comparators": {"type": "array", "items": {"type": "object"}}, "outcomes": {"type": "array", "items": {"type": "object"}}, "datasets": {"type": "array", "items": {"type": "object"}}, "samples": {"type": "array", "items": {"type": "object"}}, "instruments": {"type": "array", "items": {"type": "object"}}, "analysis_plans": {"type": "array", "items": {"type": "object"}},
+    "generation": {"type": "integer", "minimum": 0}, "valid_time": {"type": "object"}, "observed_at_ms": {"type": "integer"}, "producer": {"type": "object"}, "policy": {"type": "object"}, "provenance": {"type": "object"}, "predecessor_revision_id": {"type": ["string", "null"]}, "idempotent": {"type": "boolean"}
+  }, "additionalProperties": false
+}

@@ -1,5 +1,11 @@
 # Ingestion connectors
 
+Declarative REST/OpenAPI sources use `rest.DeclarativeAPIConnector`. They accept
+only allowlisted HTTPS hosts and GET operations, enforce explicit pagination,
+rate, timeout, and byte limits, keep secret headers out of provenance, and map
+responses to `Document`, `DatasetSeries`, or a registered schema. The transport
+and DNS resolver are injectable for offline conformance tests.
+
 Connectors normalize arbitrary sources into `document-ingest-v1` `Document`
 records (see `services/ingest/common/document_model.py`) behind one interface, so
 the rest of the pipeline does not care whether a document came from a news feed,
@@ -60,6 +66,10 @@ class MyConnector(Connector):
 | `note` | `upload/` | Local PDF, DOCX, mail, HTML, Markdown, text, and pasted notes. |
 | `filings` (`note`) | `filings_connector.py` | Regulatory filing documents. |
 | `legislative` | `legislative.py` | JSON, JSONL, or CSV roll-call records; configured with `NOESIS_LEGISLATIVE_SOURCES`. |
+| `political-official` (`note`) | `political_official.py` | Fail-closed official executive, regulatory, electoral, and parliamentary manifests. Offline fixtures are the default; live reachability is doubly opt-in. |
+| `package-registry` (`web`) | `src/domains/technical/registries.py` | Fixture-first PyPI, npm, Maven Central, crates.io, and Go module records; live access requires `NOESIS_TECHNICAL_LIVE=1` and is rate-limited. |
+| `git-repository` (`note`) | `src/domains/technical/git_connector.py` | Incremental local/authenticated-remote Git snapshots with revision/path/author provenance and redacted credentials. |
+| `technical-specification` (`web`) | `src/domains/technical/specifications.py` | Versioned standards/specifications chunked at exact section anchors with status, normative references, amendments, and supersession. |
 
 The legislative connector maps each vote to a cited `note` document whose
 metadata retains actor, bill, topic, date, normalized position, external id,

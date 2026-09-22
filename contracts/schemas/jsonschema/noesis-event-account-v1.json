@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/schemas/noesis-event-account-v1.json",
+  "title": "Noesis competing event attribute account",
+  "type": "object",
+  "required": ["contract", "account_id", "account_revision_id", "event_id", "namespace", "revision", "attribute_type", "value", "role", "confidence", "uncertainty", "evidence", "valid_from_ms", "valid_to_ms", "observed_at_ms", "lifecycle", "principal_id", "input_hash", "created_at_ms"],
+  "properties": {
+    "contract": {"const": "noesis-event-account-v1"},
+    "account_id": {"type": "string", "pattern": "^event-account:"},
+    "account_revision_id": {"type": "string", "pattern": "^event-account-revision:"},
+    "event_id": {"type": "string", "pattern": "^event:"},
+    "namespace": {"type": "string"},
+    "revision": {"type": "integer", "minimum": 1},
+    "attribute_type": {"enum": ["participant", "location", "time", "quantity", "cause", "consequence"]},
+    "value": {},
+    "role": {"type": ["string", "null"]},
+    "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+    "uncertainty": {"type": "number", "minimum": 0, "maximum": 1},
+    "evidence": {"type": "array", "items": {"type": "object"}},
+    "valid_from_ms": {"type": ["integer", "null"]},
+    "valid_to_ms": {"type": ["integer", "null"]},
+    "observed_at_ms": {"type": "integer", "minimum": 0},
+    "lifecycle": {"enum": ["active", "retracted"]},
+    "principal_id": {"type": "string"},
+    "input_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "created_at_ms": {"type": "integer", "minimum": 0},
+    "idempotent": {"type": "boolean"}
+  },
+  "additionalProperties": false
+}

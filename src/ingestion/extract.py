@@ -22,7 +22,7 @@ selector-extracted from generic-extracted content.
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field, replace
 from typing import Optional
 
 # Minimum characters for extracted text to be considered a real article body.
@@ -53,6 +53,8 @@ class ExtractResult:
     method: str            # trafilatura | readability | bs4-heuristic
     confidence: float      # coarse tier, see _CONFIDENCE
     title: Optional[str] = None
+    score_semantics: str = "heuristic_method_tier_not_probability"
+    metadata: dict = field(default_factory=dict)
 
 
 def extract_article(html, url: Optional[str] = None) -> Optional[ExtractResult]:
@@ -66,15 +68,19 @@ def extract_article(html, url: Optional[str] = None) -> Optional[ExtractResult]:
         return None
     text_html = html.decode("utf-8", errors="replace") if isinstance(html, bytes) else html
 
-    result = _try_trafilatura(text_html, url)
-    if result is not None:
-        return result
-
-    result = _try_readability(text_html)
-    if result is not None:
-        return result
-
-    return _try_bs4_heuristic(text_html)
+    result = _try_trafilatura(text_html, url) or _try_readability(text_html) or _try_bs4_heuristic(text_html)
+    if result is None:
+        return None
+    from src.ingestion.structured_metadata import extract_metadata
+    import importlib.metadata
+    distribution = {'trafilatura':'trafilatura','readability':'readability-lxml','bs4-heuristic':'beautifulsoup4'}[result.method]
+    try:
+        version = importlib.metadata.version(distribution)
+    except importlib.metadata.PackageNotFoundError:
+        version = 'unavailable'
+    metadata = extract_metadata(text_html, url)
+    metadata['body_extractor'] = {'name':result.method,'version':version,'locator':'extracted-body; exact source spans unavailable'}
+    return replace(result, metadata=metadata)
 
 
 def _try_trafilatura(html: str, url: Optional[str]) -> Optional[ExtractResult]:

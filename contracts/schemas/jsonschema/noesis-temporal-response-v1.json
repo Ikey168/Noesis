@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/contracts/noesis-temporal-response-v1.json",
+  "title": "Noesis Temporal Response v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["contract", "domain", "as_of_ms", "data"],
+  "properties": {
+    "contract": {"const": "noesis-kb-v1"},
+    "domain": {"type": "string", "minLength": 1},
+    "as_of_ms": {"type": "integer", "minimum": 0},
+    "data": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["temporal_contract", "query_mode", "temporal_basis", "items", "page", "n"],
+      "properties": {
+        "temporal_contract": {"const": "noesis-temporal-v1"},
+        "query_mode": {"enum": ["snapshot", "history"]},
+        "temporal_basis": {
+          "type": "object",
+          "required": ["requested", "effective", "precedence", "valid_interval_boundary", "observation_boundary", "backing", "domain", "coverage_limitations", "unknown_valid_time_excluded", "migration_projection"]
+        },
+        "items": {"type": "array", "items": {"type": "object"}},
+        "page": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["limit", "returned", "next_cursor"],
+          "properties": {
+            "limit": {"type": "integer", "minimum": 1, "maximum": 100},
+            "returned": {"type": "integer", "minimum": 0},
+            "next_cursor": {"type": ["string", "null"]}
+          }
+        },
+        "n": {"type": "integer", "minimum": 0, "maximum": 100}
+      }
+    }
+  }
+}

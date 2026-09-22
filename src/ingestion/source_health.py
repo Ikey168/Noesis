@@ -91,6 +91,14 @@ class SourceHealthTracker:
     # Recording
     # ------------------------------------------------------------------ #
 
+    def record_unchanged(self, source_id, now_ms=None):
+        state = self._sources.setdefault(source_id, {'runs':deque(maxlen=HISTORY), 'bad_streak':0, 'empty_streak':0, 'last_run_ms':None})
+        state['last_run_ms'] = self._now(now_ms)
+        state['last_unchanged_ms'] = state['last_run_ms']
+        if self._path:
+            self._save()
+        return self.status(source_id)
+
     def record_run(
         self,
         source_id: str,
@@ -242,6 +250,7 @@ class SourceHealthTracker:
                 "bad_streak": state["bad_streak"],
                 "empty_streak": state["empty_streak"],
                 "last_run_ms": state["last_run_ms"],
+                "last_unchanged_ms": state.get("last_unchanged_ms"),
             })
         return out
 
@@ -267,6 +276,7 @@ class SourceHealthTracker:
                     "bad_streak": int(state.get("bad_streak", 0)),
                     "empty_streak": int(state.get("empty_streak", 0)),
                     "last_run_ms": state.get("last_run_ms"),
+                    "last_unchanged_ms": state.get("last_unchanged_ms"),
                 }
         except (OSError, ValueError) as exc:
             logger.warning("source-health: could not load state (%s); starting fresh", exc)

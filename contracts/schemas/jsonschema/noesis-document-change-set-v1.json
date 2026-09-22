@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/schemas/noesis-document-change-set-v1.json",
+  "title": "Noesis committed document change set",
+  "type": "object",
+  "required": ["contract", "pack_id", "watermark", "run_id", "status", "item_count", "counts", "change_hash", "committed_at_ms"],
+  "properties": {
+    "contract": {"const": "noesis-document-change-set-v1"},
+    "pack_id": {"type": "string"},
+    "watermark": {"type": "integer", "minimum": 1},
+    "run_id": {"type": "string"},
+    "status": {"const": "committed"},
+    "item_count": {"type": "integer", "minimum": 0},
+    "counts": {"type": "object", "additionalProperties": {"type": "integer", "minimum": 0}},
+    "change_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "committed_at_ms": {"type": "integer", "minimum": 0}
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/schemas/noesis-research-snapshot-v1.json",
+  "title": "Noesis research snapshot session",
+  "type": "object",
+  "required": ["contract", "session_id", "principal_id", "scopes", "selection", "vector", "vector_hash", "status", "created_at_ms", "expires_at_ms", "maximum_expires_at_ms"],
+  "properties": {
+    "contract": {"const": "noesis-research-snapshot-v1"},
+    "session_id": {"type": "string", "pattern": "^research-snapshot:"},
+    "principal_id": {"type": "string"},
+    "scopes": {"type": "array", "items": {"type": "string"}},
+    "selection": {"type": "object"},
+    "vector": {"type": "object", "required": ["packs", "namespaces", "schemas", "federated", "domains", "omissions"]},
+    "vector_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "status": {"enum": ["active", "expired", "closed"]},
+    "created_at_ms": {"type": "integer"},
+    "expires_at_ms": {"type": "integer"},
+    "maximum_expires_at_ms": {"type": "integer"},
+    "closed_at_ms": {"type": ["integer", "null"]}
+  },
+  "additionalProperties": false
+}

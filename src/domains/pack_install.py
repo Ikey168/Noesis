@@ -92,6 +92,9 @@ def install_manifest(manifest: PackManifest) -> Dict[str, Any]:
         source_types=list(manifest.source_types),
         enrichers=enrichers,
         ui_flags=dict(manifest.ui_flags),
+        capabilities=list(manifest.capabilities),
+        schema_versions=dict(manifest.schema_versions),
+        ontology_extensions=dict(manifest.ontology_extensions),
     )
     domain_registry.register_pack(pack)
     domain_registry.enable_pack(manifest.name)
@@ -107,6 +110,8 @@ def install_manifest(manifest: PackManifest) -> Dict[str, Any]:
         "panels": [p["type"] for p in manifest.panels],
         "keywords": {f: list(w) for f, w in manifest.planner_keywords.items()},
         "templates": template_names,
+        "capabilities": list(manifest.capabilities),
+        "schema_versions": dict(manifest.schema_versions),
     }
     return {
         "name": manifest.name,
@@ -116,6 +121,8 @@ def install_manifest(manifest: PackManifest) -> Dict[str, Any]:
         "ui_flags": dict(manifest.ui_flags),
         "planner_facets": sorted(manifest.planner_keywords.keys()),
         "templates": template_names,
+        "capabilities": list(manifest.capabilities),
+        "schema_versions": dict(manifest.schema_versions),
     }
 
 

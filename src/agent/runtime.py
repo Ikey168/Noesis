@@ -3,9 +3,9 @@ Agent host runtime over the MCP surface (M10.1).
 
 An agent drives Noesis by calling tools across two planes:
 
-* **provisioning** (``neuronews-provisioning``) - deploy/attach/ingest/teardown a
+* **provisioning** (``noesis-provisioning``) - deploy/attach/ingest/teardown a
   namespaced KG,
-* **osint** (``neuronews-osint``) - corroboration, dossiers, relationship paths,
+* **osint** (``noesis-osint``) - corroboration, dossiers, relationship paths,
   timelines, provenance traces,
 
 This runtime is the disciplined gate between an agent and those planes. Reusing
@@ -38,8 +38,8 @@ PLANE_OSINT = "osint"
 
 # The MCP server backing each plane.
 _PLANE_SERVERS = {
-    PLANE_PROVISIONING: "neuronews-provisioning",
-    PLANE_OSINT: "neuronews-osint",
+    PLANE_PROVISIONING: "noesis-provisioning",
+    PLANE_OSINT: "noesis-osint",
 }
 
 _PROVISIONING_TOOLS = frozenset({

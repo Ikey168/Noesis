@@ -1,0 +1,14 @@
+{
+  "contract": "noesis-knowledge-package-manifest-v1",
+  "format_version": "1.0.0",
+  "namespace": "research",
+  "mode": "metadata-only",
+  "filters": {},
+  "dependency_closure": true,
+  "components": [],
+  "component_counts": {"attachment": 0, "chunk": 0, "document": 0, "embedding": 0, "index": 0, "object": 0, "provenance": 0, "relation": 0, "schema": 0},
+  "dependencies": [],
+  "omissions": [],
+  "compatibility": {"minimum_reader": "1.0.0", "schema_policy": "validate-before-import"},
+  "content_hash": "66633a6006da07102f96c248f544c23cd13f1ac6b1af631cf3677d1300f32c06"
+}

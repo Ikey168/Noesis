@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/contracts/noesis-human-eval-v1.json",
+  "title": "Noesis Human Evaluation v1 artifacts",
+  "oneOf": [
+    {"$ref": "#/definitions/manifest"},
+    {"$ref": "#/definitions/modelEvaluation"},
+    {"$ref": "#/definitions/collectionStatus"}
+  ],
+  "definitions": {
+    "manifest": {
+      "type": "object",
+      "required": [
+        "protocol", "sampler", "status", "seed", "pilot", "n_items",
+        "slice_counts", "exclusions", "immutable_dataset_sha256",
+        "predictions_exposed", "synthetic_data", "privacy"
+      ],
+      "properties": {
+        "protocol": {"const": "noesis-human-eval-v1"},
+        "sampler": {"const": "stratified-sentence-v1"},
+        "status": {
+          "enum": ["pilot_awaiting_annotations", "awaiting_two_independent_annotators"]
+        },
+        "seed": {"type": "integer"},
+        "pilot": {"type": "boolean"},
+        "n_items": {"type": "integer", "minimum": 12, "maximum": 1000},
+        "slice_counts": {"type": "object"},
+        "exclusions": {"type": "object"},
+        "immutable_dataset_sha256": {"$ref": "#/definitions/sha256"},
+        "predictions_exposed": {"const": false},
+        "synthetic_data": {"const": false},
+        "privacy": {"type": "object"}
+      }
+    },
+    "modelEvaluation": {
+      "type": "object",
+      "required": [
+        "contract", "model_id", "gold_sha256", "predictions_sha256",
+        "n_gold", "n_test", "tasks", "slices", "human_and_synthetic_separated"
+      ],
+      "properties": {
+        "contract": {"const": "noesis-human-eval-results-v1"},
+        "model_id": {"type": "string", "minLength": 1},
+        "gold_sha256": {"$ref": "#/definitions/sha256"},
+        "predictions_sha256": {"$ref": "#/definitions/sha256"},
+        "n_gold": {"type": "integer", "minimum": 1},
+        "n_test": {"type": "integer", "minimum": 1},
+        "tasks": {
+          "type": "object",
+          "required": ["claim", "stance", "frame"]
+        },
+        "slices": {"type": "object"},
+        "human_and_synthetic_separated": {"const": true}
+      }
+    },
+    "collectionStatus": {
+      "type": "object",
+      "required": ["status", "synthetic_data", "required_next_step"],
+      "properties": {
+        "status": {"const": "not_collected"},
+        "synthetic_data": {"const": false},
+        "required_next_step": {"type": "string", "minLength": 1}
+      }
+    },
+    "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+  }
+}

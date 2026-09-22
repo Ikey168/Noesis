@@ -1,0 +1,43 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/contracts/noesis-knowledge-workflow-v1.json",
+  "type": "object",
+  "required": ["workflow_id", "version", "namespace", "domains", "capabilities", "stages"],
+  "properties": {
+    "contract": {"const": "noesis-knowledge-workflow-v1"},
+    "workflow_id": {"type": "string", "minLength": 1},
+    "version": {"type": "string", "minLength": 1},
+    "namespace": {"type": "string", "minLength": 1},
+    "domains": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+    "capabilities": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+    "stages": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["name", "capability", "input_contract", "output_contract", "resources"],
+        "properties": {
+          "name": {"enum": ["ingest", "extract", "resolve", "index", "query", "subscribe", "export"]},
+          "capability": {"type": "string"},
+          "input_contract": {"type": "string"},
+          "output_contract": {"type": "string"},
+          "resources": {
+            "type": "object",
+            "required": ["timeout_ms", "max_items", "max_bytes"],
+            "properties": {
+              "timeout_ms": {"type": "integer", "minimum": 1, "maximum": 3600000},
+              "max_items": {"type": "integer", "minimum": 1, "maximum": 1000000},
+              "max_bytes": {"type": "integer", "minimum": 1, "maximum": 1000000000}
+            },
+            "additionalProperties": false
+          },
+          "policy": {"type": "object"},
+          "ordinal": {"type": "integer", "minimum": 0}
+        },
+        "additionalProperties": false
+      }
+    },
+    "manifest_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  },
+  "additionalProperties": false
+}

@@ -109,6 +109,7 @@ def _link_entries(
             continue
         entries.append(
             {
+                "relation": relation,
                 "claim_a": {"claim_id": claim_a, "domain": domain_a, "text": text_a,
                             "document_id": doc_a, "source": source_a, "url": url_a,
                             "cited": bool(doc_a)},
@@ -298,7 +299,18 @@ def compute_corpus_diff(
 
     claim_ids = _domain_claim_ids(conn, domain)
     contradictions = _link_entries(conn, domain, "contradicts", since_ms, claim_ids)
-    superseded = _link_entries(conn, domain, "supersedes", since_ms, claim_ids)
+    superseded = sorted(
+        (
+            entry
+            for relation in ("supersedes", "corrects", "retracts")
+            for entry in _link_entries(conn, domain, relation, since_ms, claim_ids)
+        ),
+        key=lambda entry: (
+            entry["created_at_ms"],
+            entry["relation"],
+            entry["claim_a"]["claim_id"],
+        ),
+    )
     integrity_ids = [row[0] for row in conn.execute(
         """SELECT d.document_id FROM documents d JOIN document_domains m
            ON m.document_id=d.document_id AND m.domain=?
@@ -399,8 +411,19 @@ def compute_namespace_diff(
     contradictions = _link_entries(
         conn, definition.name, "contradicts", since_ms, native_ids
     )
-    superseded = _link_entries(
-        conn, definition.name, "supersedes", since_ms, native_ids
+    superseded = sorted(
+        (
+            entry
+            for relation in ("supersedes", "corrects", "retracts")
+            for entry in _link_entries(
+                conn, definition.name, relation, since_ms, native_ids
+            )
+        ),
+        key=lambda entry: (
+            entry["created_at_ms"],
+            entry["relation"],
+            entry["claim_a"]["claim_id"],
+        ),
     )
 
     return {

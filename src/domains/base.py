@@ -66,6 +66,9 @@ class DomainPack:
             ``movers`` (suggestion rows: {label, intent, change?}) and
             ``ticker`` ({label, items}). Exceptions are swallowed by the
             collector — a pack's telemetry must never break the canvas.
+        capabilities: Stable machine-readable feature names.
+        schema_versions: Contract name to semantic-version mapping.
+        ontology_extensions: Domain vocabulary mapped onto canonical objects.
     """
 
     name: str
@@ -75,3 +78,6 @@ class DomainPack:
     route_modules: List[str] = field(default_factory=list)
     ui_flags: Dict[str, bool] = field(default_factory=dict)
     telemetry: Optional[Callable[[], Dict[str, Any]]] = None
+    capabilities: List[str] = field(default_factory=list)
+    schema_versions: Dict[str, str] = field(default_factory=dict)
+    ontology_extensions: Dict[str, Any] = field(default_factory=dict)

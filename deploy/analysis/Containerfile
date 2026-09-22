@@ -1,0 +1,8 @@
+FROM docker.io/library/python@sha256:2fe5997d249a808b8eeea52c58a1dbffbba28754dc11699ef5c029f2d818ce79
+COPY requirements.lock /requirements.lock
+RUN pip install --no-cache-dir -r /requirements.lock \
+    && python -m pip freeze > /environment.txt \
+    && useradd --uid 1000 --create-home noesis
+USER 1000:1000
+WORKDIR /work
+ENV JUPYTER_RUNTIME_DIR=/tmp/jupyter IPYTHONDIR=/tmp/ipython

@@ -45,7 +45,8 @@
         "integrity_changed",
         "quantitative_verdict_changed",
         "coverage_stale",
-        "source_delivery_failed"
+        "source_delivery_failed",
+        "guidance_stale"
       ]
     },
     "watch": {

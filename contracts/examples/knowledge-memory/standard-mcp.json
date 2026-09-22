@@ -1,0 +1,4 @@
+{
+  "entities": [{"name": "project-noesis", "entityType": "semantic", "observations": ["Noesis is a general knowledge engine."]}],
+  "relations": [{"from": "project-noesis", "relationType": "uses", "to": "MCP"}]
+}

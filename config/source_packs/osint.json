@@ -1,0 +1,26 @@
+{
+  "pack_id": "bounded-public-osint",
+  "version": "1.0.0",
+  "description": "Public-web discovery, historical snapshots, registry facts, and broad events under review policy.",
+  "domains": ["osint"],
+  "defaults": {
+    "connector": "declarative-rest",
+    "scope": "public non-person-targeted records",
+    "update_cadence": "hourly",
+    "temporal_semantics": "fetch-and-archive-observation",
+    "mapping": {"target_schema": "osint-observation-v1", "version": "1.0.0"},
+    "extractor_versions": ["osint-public-record:1.0.0"],
+    "schedule": {"kind": "interval", "interval_s": 3600},
+    "budgets": {"timeout_ms": 10000, "max_results": 100, "max_bytes": 5000000, "max_pages": 3},
+    "auth": {"kind": "none"},
+    "fixture": {"path": "tests/fixtures/source_packs/osint.json", "sha256": "db80a96e536d4e1643d5aa0c74d9d1d6e4c8ea4d9fa1c1c62782d93096e696d9", "expected_output_hash": "d4436ac2efbdc8929b79220e6e97b60fac27b1deedb46807c13d9f02bb1c3fb0"},
+    "health": {"required": false, "max_staleness_s": 86400},
+    "policy": {"review_gate": "osint", "deny_person_identification": true, "respect_robots_and_terms": true}
+  },
+  "sources": [
+    {"source_id": "bbc-world-rss", "connector": "blog", "endpoint": "https://feeds.bbci.co.uk/news/world/rss.xml", "publisher": "BBC", "scope": "public world-news discovery", "license": {"id": "bbc-terms", "terms_url": "https://www.bbc.co.uk/usingthebbc/terms/", "redistribution": "link-and-metadata-only"}, "operations": ["incremental", "canonical-url"]},
+    {"source_id": "internet-archive-cdx", "endpoint": "https://web.archive.org/cdx/search/cdx", "publisher": "Internet Archive", "scope": "public historical URL snapshots", "license": {"id": "internet-archive-terms", "terms_url": "https://archive.org/about/terms.php", "redistribution": "locator-only"}, "operations": ["url-history", "archive-time"]},
+    {"source_id": "rdap-domain", "endpoint": "https://rdap.org/domain", "publisher": "RDAP bootstrap service", "scope": "public domain-registration data", "license": {"id": "rdap-provider-terms", "terms_url": "https://about.rdap.org/", "redistribution": "provider-specific"}, "operations": ["domain", "registration-event"]},
+    {"source_id": "gdelt-doc", "endpoint": "https://api.gdeltproject.org/api/v2/doc/doc", "publisher": "GDELT Project", "scope": "public global event and media index", "license": {"id": "gdelt-terms", "terms_url": "https://www.gdeltproject.org/about.html", "redistribution": "attribution-required"}, "operations": ["search", "time-range", "source-country"]}
+  ]
+}

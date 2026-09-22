@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/schemas/noesis-derived-object-lineage-v1.json",
+  "title": "Noesis derived-object lineage",
+  "type": "object",
+  "required": ["contract", "revision_id", "namespace", "logical_id", "generation", "sources", "projections", "complete"],
+  "properties": {
+    "contract": {"const": "noesis-derived-object-lineage-v1"},
+    "revision_id": {"type": "string", "pattern": "^derived-revision:"},
+    "namespace": {"type": "string"},
+    "logical_id": {"type": "string"},
+    "predecessor_revision_id": {"type": ["string", "null"]},
+    "generation": {"type": "integer", "minimum": 1},
+    "sources": {"type": "array", "items": {"type": "object"}},
+    "projections": {"type": "array", "items": {"type": "object"}},
+    "complete": {"const": true}
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,42 @@
+{
+  "pack_format": "noesis-pack-v1",
+  "name": "technology",
+  "version": "1.0.0",
+  "description": "Version-aware software, repository, standards, dependency, and advisory knowledge.",
+  "source_types": ["web", "note"],
+  "ui_flags": {},
+  "panels": [],
+  "planner_keywords": {
+    "overview": ["package", "dependency", "version", "release", "repository"],
+    "claims": ["advisory", "vulnerability", "affected", "fixed"],
+    "library": ["standard", "specification", "normative", "implements"]
+  },
+  "enrichers": [],
+  "provisioning_templates": [],
+  "capabilities": [
+    "canonical-package-coordinates",
+    "incremental-git-ingestion",
+    "section-addressable-specifications",
+    "osv-cve-advisories",
+    "dependency-compatibility-graph",
+    "temporal-technical-queries"
+  ],
+  "schema_versions": {
+    "technical-model": "1.0.0",
+    "technical-research": "1.0.0"
+  },
+  "ontology_extensions": {
+    "extends": "noesis-canonical-entity-relation-ontology",
+    "reuses": ["noesis-temporal-v1", "noesis-evidence-bundle-v1"],
+    "object_types": [
+      "advisory", "commit", "dependency", "implementation", "package",
+      "release", "repository", "specification", "standard", "version",
+      "vulnerability"
+    ],
+    "relation_types": [
+      "affected_by", "alias_of", "breaking_change", "contains", "depends_on",
+      "fixed_in", "fork_of", "implements", "optional_dependency", "released_as",
+      "renamed_from", "supersedes", "vendored_from"
+    ]
+  }
+}

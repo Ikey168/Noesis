@@ -1,0 +1,33 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/schemas/noesis-technical-object-v1.json",
+  "title": "Noesis Technical Object v1",
+  "type": "object",
+  "required": [
+    "technical_contract", "object_id", "object_type", "canonical_name",
+    "observed_at_ms", "metadata", "provenance"
+  ],
+  "properties": {
+    "technical_contract": {"const": "noesis-technical-model-v1"},
+    "object_id": {"type": "string", "minLength": 1},
+    "object_type": {
+      "enum": [
+        "repository", "commit", "release", "package", "version", "dependency",
+        "advisory", "vulnerability", "standard", "specification", "implementation"
+      ]
+    },
+    "coordinate": {"type": ["string", "null"]},
+    "canonical_name": {"type": "string", "minLength": 1},
+    "version": {"type": ["string", "null"]},
+    "immutable_id": {"type": ["string", "null"]},
+    "status": {"type": ["string", "null"]},
+    "published_at_ms": {"type": ["integer", "null"], "minimum": 0},
+    "modified_at_ms": {"type": ["integer", "null"], "minimum": 0},
+    "observed_at_ms": {"type": "integer", "minimum": 0},
+    "source_url": {"type": ["string", "null"]},
+    "source_document_id": {"type": ["string", "null"]},
+    "metadata": {"type": "object"},
+    "provenance": {"type": "object"}
+  },
+  "additionalProperties": false
+}

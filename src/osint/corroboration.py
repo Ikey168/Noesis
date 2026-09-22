@@ -1,8 +1,9 @@
 """
 ``corroborate(claim_id)`` - the core OSINT primitive (R10 #611).
 
-How many *independent* sources support or contradict a claim, and how good are
-those sources. Pure composition of three layers Noesis already builds:
+How many probable reporting origins support or contradict a claim, and how
+good their publications are. Pure composition of three layers Noesis already
+builds:
 
 * the claim itself (``argument_claims``) and its carrying source,
 * the RAG evidence links (``claim_evidence``: SUPPORTS / CONTRADICTS to other
@@ -12,13 +13,14 @@ those sources. Pure composition of three layers Noesis already builds:
 
 each source weighted by its credibility (``outlet_scores.composite_score``).
 
-The output is deliberately **not** a single confidence number: it is the count
-of independent supporting and contradicting sources, each with its own
-credibility, plus credibility-weighted tallies. A claim with only its own
-source is flagged ``single_sourced`` so the panel can mark it clearly rather
-than implying corroboration that does not exist.
+The output is deliberately **not** a single confidence number: it separates
+publication counts from probable reporting origins, exposes unresolved
+lineage, and retains per-publication credibility plus weighted tallies. A
+claim with only its own source is flagged ``single_sourced`` so the panel can
+mark it clearly rather than implying corroboration that does not exist.
 
-Honesty-wrapped (``n`` = number of independent corroborating sources).
+Honesty-wrapped (``n`` = number of probable corroborating origins, or distinct
+sources under the explicitly named fallback).
 Stdlib-only; the connection is injected read-only.
 """
 
@@ -30,9 +32,10 @@ from src.analytics.conformal import calibrated_envelope_fields, conformal_interv
 from src.analytics.honesty import analytic_envelope, interval
 from src.osint import common
 
-METHOD = "independent-source corroboration over RAG evidence and conflict edges"
+METHOD = "origin-aware corroboration over RAG evidence and conflict edges"
 ASSUMPTIONS = [
-    "independence is by distinct source (outlet); two claims from one source count once",
+    "probable reporting origins replace outlet counts when lineage is available",
+    "warehouses without lineage fall back explicitly to distinct normalized sources",
     "source credibility is the latest outlet transparency composite (0.5 when unscored)",
     "absence of evidence is not evidence: a single-sourced claim is flagged, not scored",
     "reads only already-ingested public documents; no crawling or targeting",
@@ -51,7 +54,7 @@ def _support_contradict_from_evidence(
         rows = conn.execute(
             f"""
             SELECT e.relation, e.evidence_source_type, e.similarity_score,
-                   a.source
+                   a.source, e.evidence_document_id
             FROM claim_evidence e
             LEFT JOIN {citation_tbl} a ON e.evidence_document_id = a.id
             WHERE e.claim_id = ?
@@ -61,13 +64,14 @@ def _support_contradict_from_evidence(
         ).fetchall()
     else:
         rows = conn.execute(
-            "SELECT relation, evidence_source_type, similarity_score, NULL "
+            "SELECT relation, evidence_source_type, similarity_score, NULL,"
+            " evidence_document_id "
             "FROM claim_evidence WHERE claim_id = ? "
             "AND lower(relation) IN ('supports', 'contradicts')",
             [claim_id],
         ).fetchall()
     out = []
-    for relation, source_type, sim, source in rows:
+    for relation, source_type, sim, source, document_id in rows:
         out.append(
             {
                 "relation": relation.lower(),
@@ -75,6 +79,7 @@ def _support_contradict_from_evidence(
                 "source_type": source_type,
                 "similarity": float(sim) if sim is not None else None,
                 "via": "evidence",
+                "document_id": document_id,
             }
         )
     return out
@@ -108,6 +113,7 @@ def _contradict_from_conflicts(conn, claim_id: str) -> List[Dict[str, Any]]:
                 "similarity": None,
                 "via": "conflict",
                 "claim_id": oid,
+                "document_id": info.get("document_id"),
             }
         )
     return out
@@ -156,12 +162,28 @@ def corroborate(conn, claim_id: str) -> Dict[str, Any]:
     support_sources = common.dedupe_sources(support)
     contradict_sources = common.dedupe_sources(contradict)
 
+    from src.osint.independence import origin_summary
+
+    support_independence = origin_summary(
+        conn,
+        [entry.get("document_id") for entry in support],
+        sources=[entry.get("source") for entry in support],
+    )
+    contradict_independence = origin_summary(
+        conn,
+        [entry.get("document_id") for entry in contradict],
+        sources=[entry.get("source") for entry in contradict],
+    )
+
     def _weighted(sources: List[str]) -> float:
         return round(
             sum(common.credibility_or_default(cred.get(s)) for s in sources), 3
         )
 
-    independent_total = len(set(support_sources) | set(contradict_sources))
+    independent_total = (
+        support_independence["independent_source_count"]
+        + contradict_independence["independent_source_count"]
+    )
     single_sourced = independent_total == 0
 
     # M7.2: a *calibrated* corroboration-strength range instead of a bare
@@ -198,8 +220,21 @@ def corroborate(conn, claim_id: str) -> Dict[str, Any]:
         },
         support=_collapse(support, cred),
         contradict=_collapse(contradict, cred),
-        independent_support_count=len(support_sources),
-        independent_contradict_count=len(contradict_sources),
+        independent_support_count=support_independence["independent_source_count"],
+        independent_contradict_count=contradict_independence["independent_source_count"],
+        publication_support_count=support_independence["publication_count"],
+        publication_contradict_count=contradict_independence["publication_count"],
+        probable_origin_support_count=support_independence["probable_origin_count"],
+        probable_origin_contradict_count=contradict_independence["probable_origin_count"],
+        unresolved_support_count=support_independence["unresolved_count"],
+        unresolved_contradict_count=contradict_independence["unresolved_count"],
+        independence={
+            "n": independent_total,
+            "support": support_independence,
+            "contradict": contradict_independence,
+            "method": support_independence["method"],
+            "assumptions": support_independence["assumptions"],
+        },
         weighted_support=_weighted(support_sources),
         weighted_contradict=_weighted(contradict_sources),
         single_sourced=single_sourced,

@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/schemas/noesis-hypothesis-export-v1.json",
+  "title": "Noesis deterministic hypothesis workspace export",
+  "type": "object",
+  "required": ["contract", "namespace", "workspace_id", "workspace_history", "evidence", "research_plans", "omissions", "audit", "export_hash"],
+  "properties": {
+    "contract": {"const": "noesis-hypothesis-export-v1"},
+    "namespace": {"type": "string", "minLength": 1},
+    "workspace_id": {"type": "string", "pattern": "^hypothesis-workspace:"},
+    "workspace_history": {"type": "array", "items": {"type": "object"}},
+    "evidence": {"type": "array", "items": {"type": "object"}},
+    "research_plans": {"type": "array", "items": {"type": "object"}},
+    "omissions": {"type": "object", "required": ["inaccessible_evidence_revisions"]},
+    "audit": {"type": "array", "items": {"type": "object"}},
+    "export_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  },
+  "additionalProperties": false
+}

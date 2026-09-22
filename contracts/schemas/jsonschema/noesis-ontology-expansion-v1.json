@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/schemas/noesis-ontology-expansion-v1.json",
+  "title": "Noesis bounded ontology query expansion",
+  "type": "object",
+  "required": ["contract", "start", "relationships", "max_depth", "max_terms", "terms", "truncated", "ambiguous", "conflicts", "aggregations", "expansion_hash"],
+  "properties": {
+    "contract": {"const": "noesis-ontology-expansion-v1"},
+    "start": {"type": "object"},
+    "relationships": {"type": "array", "items": {"type": "string"}},
+    "max_depth": {"type": "integer", "minimum": 0, "maximum": 6},
+    "max_terms": {"type": "integer", "minimum": 1, "maximum": 200},
+    "terms": {"type": "array", "items": {"type": "object", "required": ["ontology_module_id", "concept_id", "score", "path"]}},
+    "truncated": {"type": "boolean"},
+    "ambiguous": {"type": "boolean"},
+    "conflicts": {"type": "array", "items": {"type": "object"}},
+    "aggregations": {"type": "array", "items": {"type": "object", "required": ["ontology", "count"]}},
+    "expansion_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  },
+  "additionalProperties": false
+}

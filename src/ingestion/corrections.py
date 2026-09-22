@@ -133,6 +133,9 @@ def record_revision(conn, document_id: str, content: Optional[str], fetched_at: 
             "INSERT INTO document_revisions VALUES (?, 0, ?, ?, ?, ?)",
             [document_id, new_hash, content, UNCHANGED, fetched_at],
         )
+        from src.kb.temporal import record_revision_time
+
+        record_revision_time(conn, document_id, fetched_at, UNCHANGED)
         return {"document_id": document_id, "revision": 0, "change_class": UNCHANGED}
     prev_rev, prev_content = row
     diff = classify_change(prev_content, content)
@@ -143,6 +146,9 @@ def record_revision(conn, document_id: str, content: Optional[str], fetched_at: 
         "INSERT INTO document_revisions VALUES (?, ?, ?, ?, ?, ?)",
         [document_id, revision, new_hash, content, diff.change_class, fetched_at],
     )
+    from src.kb.temporal import record_revision_time
+
+    record_revision_time(conn, document_id, fetched_at, diff.change_class)
     return {
         "document_id": document_id,
         "revision": revision,

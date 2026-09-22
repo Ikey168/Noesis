@@ -1,0 +1,14 @@
+{
+  "contract": "noesis-schema-crosswalk-v1",
+  "name": "political-to-canonical",
+  "semantic_version": "1.0.0",
+  "source": {"kind": "ontology", "name": "political", "version": "^1.0.0"},
+  "target": {"kind": "ontology", "name": "canonical-entity-relation", "version": "1.0.0"},
+  "direction": "forward",
+  "confidence": 0.98,
+  "conditions": [{"jurisdiction_required": true}],
+  "mappings": [{"kind": "type", "source": "office-holder", "target": "Person", "lossy": true}],
+  "owner": "political-pack",
+  "provenance": {"kind": "builtin", "source": "political domain pack"},
+  "actor": {"principal_id": "registry-admin", "kind": "user"}
+}

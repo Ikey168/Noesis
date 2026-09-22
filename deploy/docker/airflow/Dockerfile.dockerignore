@@ -1,0 +1,25 @@
+# Keep build context limited to the application and Airflow runtime.
+**
+!pyproject.toml
+!README.md
+!LICENSE
+!MANIFEST.in
+!src/
+!src/**
+!services/
+!services/**
+!tools/
+!tools/**
+!contracts/
+!contracts/**
+!config/
+!config/**
+!configs/
+!configs/**
+!airflow/
+!airflow/**
+**/__pycache__
+**/*.pyc
+**/.env*
+airflow/logs/
+airflow/data/

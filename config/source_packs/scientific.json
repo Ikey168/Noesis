@@ -1,0 +1,24 @@
+{
+  "pack_id": "primary-scientific-evidence",
+  "version": "1.0.0",
+  "description": "Primary literature, preprints, datasets, methods, and correction status.",
+  "domains": ["scientific"],
+  "defaults": {
+    "connector": "declarative-rest",
+    "scope": "global primary scientific metadata and open content",
+    "update_cadence": "daily",
+    "temporal_semantics": "publication-version-correction-observation",
+    "mapping": {"target_schema": "scientific-work-v1", "version": "1.0.0"},
+    "extractor_versions": ["scientific-evidence:1.0.0"],
+    "schedule": {"kind": "interval", "interval_s": 86400},
+    "budgets": {"timeout_ms": 15000, "max_results": 100, "max_bytes": 10000000, "max_pages": 5},
+    "auth": {"kind": "optional-secret", "secret_ref": "NOESIS_SCIENCE_CONTACT"},
+    "fixture": {"path": "tests/fixtures/source_packs/scientific.json", "sha256": "31c42278b184eb3bbbf3e33c5d3c4d5cb8e2ab4f3bc34c62377a1d28eec7aa29", "expected_output_hash": "fe86137565126e4bf55edd0cac5c5216e5d7805f567a2304f4e62cba74e31947"},
+    "health": {"required": true, "max_staleness_s": 172800}
+  },
+  "sources": [
+    {"source_id": "europe-pmc", "endpoint": "https://www.ebi.ac.uk/europepmc/webservices/rest/search", "publisher": "Europe PMC", "scope": "life-science publications and correction status", "license": {"id": "europe-pmc-terms", "terms_url": "https://europepmc.org/terms", "redistribution": "content-specific"}, "operations": ["identifier", "topic", "author", "date-range", "publication-type"]},
+    {"source_id": "arxiv-api", "connector": "paper", "endpoint": "https://export.arxiv.org/api/query", "publisher": "arXiv", "scope": "multidisciplinary preprints", "license": {"id": "arxiv-api-terms", "terms_url": "https://info.arxiv.org/help/api/tou.html", "redistribution": "item-specific"}, "operations": ["identifier", "topic", "author", "date-range", "version"]},
+    {"source_id": "datacite-dois", "endpoint": "https://api.datacite.org/dois", "publisher": "DataCite", "scope": "research datasets and persistent identifiers", "license": {"id": "cc0-metadata", "terms_url": "https://support.datacite.org/docs/datacite-metadata-license", "redistribution": "cc0-metadata"}, "operations": ["doi", "topic", "author", "date-range", "version"]}
+  ]
+}

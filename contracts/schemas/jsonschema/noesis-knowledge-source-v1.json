@@ -1,0 +1,35 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/contracts/noesis-knowledge-source-v1.json",
+  "title": "Noesis read-only knowledge source",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["contract", "source_id", "kind", "version", "capabilities", "schemas", "limits", "pagination", "freshness", "authorization_scopes", "consistency", "score_semantics", "temporal_support", "failure_behavior", "capability_hash"],
+  "properties": {
+    "contract": {"const": "noesis-knowledge-source-v1"},
+    "source_id": {"type": "string", "minLength": 1},
+    "kind": {"enum": ["sql", "vector", "graph", "mcp", "fake"]},
+    "version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
+    "capabilities": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "schemas": {"type": "object"},
+    "limits": {
+      "type": "object",
+      "required": ["max_results", "timeout_ms", "max_bytes"],
+      "properties": {
+        "max_results": {"type": "integer", "minimum": 1},
+        "timeout_ms": {"type": "integer", "minimum": 1},
+        "max_bytes": {"type": "integer", "minimum": 1},
+        "max_cost": {"type": "integer", "minimum": 1}
+      },
+      "additionalProperties": false
+    },
+    "pagination": {"type": "object"},
+    "freshness": {"type": "object"},
+    "authorization_scopes": {"type": "array", "items": {"type": "string"}},
+    "consistency": {"type": "string", "minLength": 1},
+    "score_semantics": {"type": "string", "minLength": 1},
+    "temporal_support": {"type": "string", "minLength": 1},
+    "failure_behavior": {"type": "string", "minLength": 1},
+    "capability_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+  }
+}

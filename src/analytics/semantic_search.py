@@ -44,15 +44,25 @@ def _normalise(mat: np.ndarray) -> np.ndarray:
     return mat / norms
 
 
-def _load_matrix(conn, model: Optional[str]):
+def _load_matrix(
+    conn, model: Optional[str], document_ids: Optional[List[str]] = None
+):
+    clauses = []
+    params: List[Any] = []
     if model is not None:
-        rows = conn.execute(
-            "SELECT document_id, vector FROM document_embeddings WHERE model = ?", [model]
-        ).fetchall()
-    else:
-        rows = conn.execute(
-            "SELECT document_id, vector FROM document_embeddings"
-        ).fetchall()
+        clauses.append("(model = ? OR ends_with(model, ':' || ?))")
+        params.extend([model, model])
+    if document_ids is not None:
+        if not document_ids:
+            return [], np.empty((0, 0))
+        placeholders = ", ".join("?" for _ in document_ids)
+        clauses.append(f"document_id IN ({placeholders})")
+        params.extend(document_ids)
+    where = " WHERE " + " AND ".join(clauses) if clauses else ""
+    rows = conn.execute(
+        "SELECT document_id, vector FROM document_embeddings" + where,
+        params,
+    ).fetchall()
     ids = [r[0] for r in rows]
     if not ids:
         return ids, np.empty((0, 0))
@@ -102,17 +112,27 @@ def _hits(conn, ids, sims, order, top_k, exclude=None):
 
 def semantic_search(
     conn, query: str, top_k: int = 10, provider: Optional[Any] = None,
-    model: Optional[str] = None,
+    model: Optional[str] = None, document_ids: Optional[List[str]] = None,
 ) -> Dict[str, Any]:
     """Documents most semantically similar to ``query``.
 
     Embeds ``query`` with ``provider`` (default: env-configured) and ranks the
     stored document vectors by cosine similarity. ``model`` filters the sink to
-    one embedding space (recommended when several were indexed)."""
+    one embedding space (recommended when several were indexed).
+    ``document_ids`` constrains the candidate set before ranking, which lets
+    domain and namespace backings preserve their authorization boundary."""
+    if conn.execute("SELECT 1 FROM information_schema.tables WHERE table_name='document_chunk_embeddings'").fetchone():
+        from src.ingestion.chunk_embeddings import search_document_chunks
+        if provider is None:
+            from services.embeddings.provider import get_embedding_provider
+            provider = get_embedding_provider()
+        if model and provider.name() != model and not provider.name().endswith(":" + model):
+            return {"results": [], "count": 0, "error": "query provider differs from requested model", "code": "model_mismatch", "coverage": {"complete": False}}
+        return search_document_chunks(conn, query, provider, top_k=top_k, document_ids=document_ids)
     if not _has_embeddings(conn):
         return {"results": [], "count": 0, "query": query,
-                "note": "no embeddings indexed; run embed_documents first"}
-    ids, mat = _load_matrix(conn, model)
+                "note": "no embeddings indexed; run embed_documents first", "coverage": {"complete": False}}
+    ids, mat = _load_matrix(conn, model, document_ids)
     if not ids:
         return {"results": [], "count": 0, "query": query,
                 "note": "no embeddings indexed; run embed_documents first"}
@@ -121,7 +141,7 @@ def semantic_search(
         from services.embeddings.provider import get_embedding_provider
 
         provider = get_embedding_provider()
-    qvec = np.asarray(provider.embed_texts([query])[0], dtype=np.float64)
+    qvec = np.asarray(getattr(provider, "embed_queries", provider.embed_texts)([query])[0], dtype=np.float64)
     if qvec.shape[0] != mat.shape[1]:
         return {"error": "query/corpus embedding dimensions differ; index and "
                          "query with the same model", "code": "dim_mismatch",
@@ -130,7 +150,8 @@ def semantic_search(
     sims = _normalise(mat) @ (qvec / (np.linalg.norm(qvec) or 1.0))
     order = np.argsort(-sims)
     return {"results": _hits(conn, ids, sims, order, top_k), "count": min(top_k, len(ids)),
-            "query": query, "model": model, "method": "cosine over document embeddings"}
+            "query": query, "model": model, "method": "cosine over document embeddings",
+            "coverage": {"complete": True, "full_document": False}}
 
 
 def similar_documents(

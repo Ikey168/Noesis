@@ -396,6 +396,7 @@ def _load_domain_packs():
         from src.domains.registry import load_config
         import src.domains.news  # noqa: F401 — triggers register_pack(NewsDomainPack)
         import src.domains.research  # noqa: F401 — triggers register_pack(ResearchDomainPack)
+        import src.domains.technical  # noqa: F401 — registers TechnicalDomainPack
         load_config()
     except Exception:
         import logging
@@ -479,13 +480,13 @@ def configure_error_handlers_if_available(app):
 def _dev_mode_enabled() -> bool:
     """Whether to skip heavy security middleware for local development.
 
-    Set NEURONEWS_DEV_MODE=true to disable the WAF, rate limiting, API-key and
+    Set NOESIS_DEV_MODE=true to disable the WAF, rate limiting, API-key and
     RBAC middlewares so the local frontend can talk to the API without
     authentication or throttling. Defaults to off (production-safe).
     """
-    import os
+    from src.config.env import resolve_env
 
-    return os.getenv("NEURONEWS_DEV_MODE", "false").strip().lower() in (
+    return (resolve_env("DEV_MODE", "false") or "false").strip().lower() in (
         "1",
         "true",
         "yes",

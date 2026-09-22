@@ -7,6 +7,7 @@ to improve the final ranking of retrieval candidates.
 """
 
 import logging
+import math
 import os
 import time
 from typing import Dict, List, Optional, Any, Union, Tuple
@@ -58,7 +59,8 @@ class CrossEncoderReranker:
         self,
         model_name: str = "cross-encoder/ms-marco-MiniLM-L-6-v2",
         device: Optional[str] = None,
-        max_length: int = 512
+        max_length: int = 512,
+        scorer=None,
     ):
         """
         Initialize the cross-encoder reranker.
@@ -71,9 +73,10 @@ class CrossEncoderReranker:
         self.model_name = model_name
         self.device = device
         self.max_length = max_length
-        self.model = None
-        self.is_enabled = self._check_reranking_enabled()
-        
+        self.model = scorer
+        self.is_enabled = scorer is not None or self._check_reranking_enabled()
+        if scorer is not None:
+            return
         if self.is_enabled and HAS_SENTENCE_TRANSFORMERS:
             self._load_model()
         elif self.is_enabled:
@@ -86,7 +89,11 @@ class CrossEncoderReranker:
     def _load_model(self):
         """Load the cross-encoder model."""
         try:
-            self.model = CrossEncoder(self.model_name, device=self.device, max_length=self.max_length)
+            if self.model_name == "Qwen/Qwen3-Reranker-0.6B":
+                from src.integrations.models import QwenReranker
+                self.model = QwenReranker(device=self.device or "cpu", max_tokens=self.max_length)
+            else:
+                self.model = CrossEncoder(self.model_name, device=self.device, max_length=self.max_length)
             logger.info(f"Loaded cross-encoder model: {self.model_name}")
         except Exception as e:
             logger.error(f"Failed to load cross-encoder model {self.model_name}: {e}")
@@ -98,7 +105,8 @@ class CrossEncoderReranker:
         candidates: List[Dict[str, Any]],
         top_k: Optional[int] = None,
         score_fusion: str = "weighted",
-        fusion_weight: float = 0.7
+        fusion_weight: float = 0.7,
+        require_model: bool = False,
     ) -> List[RerankResult]:
         """
         Rerank retrieval candidates using cross-encoder scoring.
@@ -113,6 +121,8 @@ class CrossEncoderReranker:
         Returns:
             List of reranked results with updated scores
         """
+        if require_model and (not self.is_enabled or self.model is None):
+            raise RuntimeError('Configured cross-encoder model is unavailable')
         if not self.is_enabled:
             logger.info("Reranking disabled. Returning original candidates.")
             return self._fallback_rerank(candidates, top_k)
@@ -169,6 +179,8 @@ class CrossEncoderReranker:
             return rerank_results
             
         except Exception as e:
+            if require_model:
+                raise
             logger.error(f"Reranking failed: {e}. Using fallback.")
             return self._fallback_rerank(candidates, top_k)
     
@@ -183,6 +195,12 @@ class CrossEncoderReranker:
         # Convert to list if numpy array
         if HAS_NUMPY and isinstance(scores, np.ndarray):
             scores = scores.tolist()
+
+        if len(scores) != len(query_doc_pairs) or any(
+            not isinstance(score, (int, float)) or not math.isfinite(score)
+            for score in scores
+        ):
+            raise ValueError("Cross-encoder must return one finite score per candidate")
         
         return scores
     
@@ -273,6 +291,11 @@ def get_reranker(
     device: Optional[str] = None
 ) -> CrossEncoderReranker:
     """Factory function to get a reranker instance."""
+    if model_name == "Qwen/Qwen3-Reranker-0.6B":
+        from .qwen_rerank import BoundedQwenReranker
+        if device not in (None, "cpu"):
+            raise ValueError("the bounded Qwen worker currently supports CPU execution")
+        return BoundedQwenReranker()
     return CrossEncoderReranker(model_name, device)
 
 
@@ -296,5 +319,5 @@ def rerank_candidates(
     Returns:
         List of reranked results
     """
-    reranker = CrossEncoderReranker(model_name)
+    reranker = get_reranker(model_name)
     return reranker.rerank(query, candidates, top_k, score_fusion)

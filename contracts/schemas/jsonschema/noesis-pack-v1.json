@@ -127,6 +127,21 @@
           "backend": {"type": "string", "enum": ["table-prefix", "attached", "postgres"]}
         }
       }
+    },
+    "capabilities": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1}
+    },
+    "schema_versions": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string",
+        "pattern": "^\\d+\\.\\d+\\.\\d+$"
+      }
+    },
+    "ontology_extensions": {
+      "type": "object",
+      "description": "Domain-specific entity and relation vocabulary mapped onto canonical objects."
     }
   }
 }

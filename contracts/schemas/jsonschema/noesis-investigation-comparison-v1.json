@@ -1,0 +1,164 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "noesis-investigation-comparison-v1",
+  "type": "object",
+  "required": [
+    "contract",
+    "comparison_id",
+    "namespace",
+    "owner",
+    "producer",
+    "left",
+    "right",
+    "source_changes",
+    "finding_changes",
+    "contradiction_changes",
+    "question_changes",
+    "scope_compatible",
+    "coverage_comparable",
+    "winner"
+  ],
+  "properties": {
+    "contract": {
+      "const": "noesis-investigation-comparison-v1"
+    },
+    "comparison_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "namespace": {
+      "type": "string",
+      "minLength": 1
+    },
+    "owner": {
+      "type": "string",
+      "minLength": 1
+    },
+    "producer": {
+      "type": "string",
+      "minLength": 1
+    },
+    "left": {
+      "type": "object",
+      "required": [
+        "selector",
+        "run",
+        "generations",
+        "assessment"
+      ],
+      "properties": {
+        "selector": {
+          "type": "object",
+          "required": [
+            "project_id",
+            "project_revision",
+            "run_id",
+            "generations"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "project_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "project_revision": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "run_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "generations": {
+              "type": "object",
+              "minProperties": 1,
+              "maxProperties": 100,
+              "additionalProperties": {
+                "type": "integer",
+                "minimum": 1
+              }
+            }
+          }
+        }
+      }
+    },
+    "right": {
+      "type": "object",
+      "required": [
+        "selector",
+        "run",
+        "generations",
+        "assessment"
+      ],
+      "properties": {
+        "selector": {
+          "type": "object",
+          "required": [
+            "project_id",
+            "project_revision",
+            "run_id",
+            "generations"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "project_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "project_revision": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "run_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "generations": {
+              "type": "object",
+              "minProperties": 1,
+              "maxProperties": 100,
+              "additionalProperties": {
+                "type": "integer",
+                "minimum": 1
+              }
+            }
+          }
+        }
+      }
+    },
+    "source_changes": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "finding_changes": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "contradiction_changes": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "question_changes": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "scope_compatible": {
+      "type": "boolean"
+    },
+    "coverage_comparable": {
+      "type": "boolean"
+    },
+    "winner": {
+      "type": "null"
+    }
+  },
+  "additionalProperties": true
+}

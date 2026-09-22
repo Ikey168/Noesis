@@ -21,7 +21,7 @@ METHOD = "deterministic token-overlap evidence planning with extractive renderin
 ASSUMPTIONS = [
     "token overlap is a relevance heuristic and does not establish factual truth",
     "a citation proves where a statement appeared, not that the statement is true",
-    "source independence is currently distinct source identity, not reporting origin",
+    "reporting-origin lineage is used when available and otherwise falls back to source identity",
     "contradicted means relevant conflicting evidence exists, not that Noesis adjudicated truth",
 ]
 
@@ -140,29 +140,18 @@ def _dedupe_locators(
     return found
 
 
-def _independence(evidence: Iterable[Mapping[str, Any]]) -> dict[str, Any]:
+def _independence(
+    evidence: Iterable[Mapping[str, Any]], conn: Any = None
+) -> dict[str, Any]:
     rows = list(evidence)
-    sources = {
-        str(row.get("source")).strip().casefold()
-        for row in rows
-        if row.get("cited") and row.get("source") not in {None, "", "unknown"}
-    }
-    unresolved = sum(
-        1
-        for row in rows
-        if row.get("cited") and row.get("source") in {None, "", "unknown"}
+    cited = [row for row in rows if row.get("cited")]
+    from src.osint.independence import origin_summary
+
+    return origin_summary(
+        conn,
+        [row.get("document_id") for row in cited],
+        sources=[row.get("source") for row in cited],
     )
-    return {
-        "n": len(rows),
-        "publication_count": sum(1 for row in rows if row.get("cited")),
-        "independent_source_count": len(sources),
-        "unresolved_count": unresolved,
-        "method": "distinct-source",
-        "assumptions": [
-            "documents with the same normalized source identity count once",
-            "syndication and common reporting origin are not yet inferred",
-        ],
-    }
 
 
 def _citation_index(
@@ -293,7 +282,7 @@ def _claim_statement(
     else:
         verdict = "unverifiable"
 
-    independence = _independence(supporting)
+    independence = _independence(supporting, backing.conn)
     confidence = representative.get("confidence")
     if not isinstance(confidence, (int, float)) or isinstance(confidence, bool):
         confidence = None
@@ -342,7 +331,7 @@ def _document_statement(
         visibility=visibility,
     )
     supporting = [locator]
-    independence = _independence(supporting)
+    independence = _independence(supporting, backing.conn)
     cited = locator.get("cited") is True
     return {
         "id": _stable_id(question, "document", document_id),
@@ -379,9 +368,15 @@ def _refusal_statement(question: str) -> dict[str, Any]:
         "corroboration": {
             "n": 0,
             "publication_count": 0,
+            "probable_origin_count": 0,
             "independent_source_count": 0,
+            "known_independent_count": 0,
+            "likely_dependent_count": 0,
             "unresolved_count": 0,
-            "method": "distinct-source",
+            "dependency_evidence": [],
+            "method": "distinct-source-fallback-v1",
+            "method_version": None,
+            "lineage_available": False,
             "assumptions": ["no relevant candidate passed the evidence-plan threshold"],
         },
         "prediction_mode": PREDICTION_MODE,

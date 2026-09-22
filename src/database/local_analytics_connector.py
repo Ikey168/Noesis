@@ -18,7 +18,7 @@ The connector mirrors the small surface the routes use:
 routes expect (``row[0]``, ``row[1]`` …). ``%s`` placeholders (psycopg2 /
 Snowflake style) are translated to DuckDB's ``?`` automatically.
 
-The database file lives at ``$NEURONEWS_DB_PATH`` (default
+The database file lives at ``$NOESIS_DB_PATH`` (legacy ``NEURONEWS_DB_PATH``; default
 ``<repo>/data/neuronews.duckdb``) and is seeded with realistic sample news
 articles on first use, so the API serves real rows out of the box with no
 external services.

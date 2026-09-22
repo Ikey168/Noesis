@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/contracts/noesis-political-research-v1.json",
+  "title": "Noesis political research response v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["political_contract", "query", "as_of", "results", "n", "coverage", "uncertainty", "evidence_independence", "temporal", "composed_contracts"],
+  "properties": {
+    "political_contract": {"const": "noesis-political-research-v1"},
+    "query": {
+      "type": "object",
+      "required": ["type", "jurisdiction", "at_ms", "observed_before_ms"],
+      "properties": {
+        "type": {"enum": ["officeholder_at_date", "proposal_lifecycle", "vote_records", "institutional_positions", "policy_changes"]},
+        "jurisdiction": {"type": "string", "minLength": 1},
+        "at_ms": {"type": ["integer", "null"]},
+        "observed_before_ms": {"type": "integer"}
+      }
+    },
+    "as_of": {
+      "type": "object",
+      "required": ["valid_at_ms", "observed_before_ms"],
+      "properties": {
+        "valid_at_ms": {"type": ["integer", "null"]},
+        "observed_before_ms": {"type": "integer"}
+      }
+    },
+    "results": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["evidence"],
+        "properties": {
+          "evidence": {
+            "type": ["object", "null"],
+            "properties": {
+              "document_id": {"type": ["string", "null"]},
+              "source_id": {"type": ["string", "null"]},
+              "url": {"type": ["string", "null"]},
+              "locator_available": {"type": "boolean"}
+            }
+          }
+        }
+      }
+    },
+    "n": {"type": "integer", "minimum": 0},
+    "coverage": {
+      "type": "object",
+      "required": ["domain", "official_sources"],
+      "properties": {
+        "domain": {"type": "object"},
+        "official_sources": {
+          "type": "object",
+          "required": ["jurisdiction", "declared_manifest_sources", "represented_sources", "missing_declared_sources", "manifest_count"]
+        }
+      }
+    },
+    "uncertainty": {
+      "type": "object",
+      "required": ["status", "reasons"],
+      "properties": {
+        "status": {"enum": ["supported", "partial", "unsupported"]},
+        "reasons": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "evidence_independence": {"type": "object"},
+    "temporal": {"type": "object", "required": ["contract", "basis", "matching_assertions"]},
+    "composed_contracts": {"type": "array", "minItems": 4, "items": {"type": "string"}}
+  }
+}

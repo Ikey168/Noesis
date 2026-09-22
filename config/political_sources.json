@@ -1,0 +1,65 @@
+{
+  "contract": "noesis-political-source-v1",
+  "sources": [
+    {
+      "source_id": "us-federal-register-executive",
+      "source_class": "executive",
+      "jurisdiction": "US",
+      "issuing_institution": "Office of the Federal Register",
+      "document_types": ["executive_order", "presidential_document"],
+      "identifier_fields": ["document_number", "executive_order_number"],
+      "license": "US-government-public-domain",
+      "terms_url": "https://www.federalregister.gov/policy/legal-status",
+      "update_cadence": "daily",
+      "canonical_url": "https://www.federalregister.gov/api/v1/documents.json?conditions%5Btype%5D%5B%5D=PRESDOCU",
+      "parser": "political-records-v1",
+      "fixture_path": "tests/fixtures/political/us-executive.json",
+      "live": {"enabled": false, "max_requests": 1, "requires_api_key": false}
+    },
+    {
+      "source_id": "eu-eurlex-regulatory",
+      "source_class": "regulatory",
+      "jurisdiction": "EU",
+      "issuing_institution": "Publications Office of the European Union",
+      "document_types": ["regulation", "directive", "decision"],
+      "identifier_fields": ["celex", "eli"],
+      "license": "EU-reuse-notice",
+      "terms_url": "https://eur-lex.europa.eu/content/legal-notice/legal-notice.html",
+      "update_cadence": "daily",
+      "canonical_url": "https://eur-lex.europa.eu/content/help/data-reuse/webservice.html?locale=en",
+      "parser": "political-records-v1",
+      "fixture_path": "tests/fixtures/political/eu-regulatory.json",
+      "live": {"enabled": false, "max_requests": 1, "requires_api_key": true, "api_key_env": "NOESIS_EURLEX_API_KEY"}
+    },
+    {
+      "source_id": "ca-elections-results",
+      "source_class": "electoral",
+      "jurisdiction": "CA",
+      "issuing_institution": "Elections Canada",
+      "document_types": ["election_result", "candidate_result"],
+      "identifier_fields": ["event_number", "district_number"],
+      "license": "Elections-Canada-terms",
+      "terms_url": "https://www.elections.ca/content.aspx?section=res&dir=rep/off&document=index&lang=e",
+      "update_cadence": "per-event",
+      "canonical_url": "https://www.elections.ca/content.aspx?section=res&dir=rep/off&document=index&lang=e",
+      "parser": "political-records-v1",
+      "fixture_path": "tests/fixtures/political/ca-election.json",
+      "live": {"enabled": false, "max_requests": 1, "requires_api_key": false}
+    },
+    {
+      "source_id": "de-bundestag-dip",
+      "source_class": "parliamentary",
+      "jurisdiction": "DE",
+      "issuing_institution": "Deutscher Bundestag",
+      "document_types": ["proposal", "amendment", "roll_call", "plenary_record"],
+      "identifier_fields": ["id", "drucksache_nummer", "vorgang_id"],
+      "license": "Bundestag-open-data-terms",
+      "terms_url": "https://www.bundestag.de/services/opendata",
+      "update_cadence": "daily",
+      "canonical_url": "https://search.dip.bundestag.de/api/v1/swagger-ui/",
+      "parser": "political-records-v1",
+      "fixture_path": "tests/fixtures/political/de-parliament.json",
+      "live": {"enabled": false, "max_requests": 1, "requires_api_key": true, "api_key_env": "NOESIS_BUNDESTAG_API_KEY"}
+    }
+  ]
+}

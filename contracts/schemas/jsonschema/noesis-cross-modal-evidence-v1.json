@@ -1,0 +1,4 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema","$id":"https://noesis.local/schemas/noesis-cross-modal-evidence-v1.json","title":"Noesis cross-modal evidence link","type":"object","required":["contract","namespace","link_id","observation_id","asset_id","target_type","target_id","relation","stance","confidence","verification_status","conflict_group"],
+  "properties":{"contract":{"const":"noesis-cross-modal-evidence-v1"},"namespace":{"type":"string"},"link_id":{"type":"string"},"observation_id":{"type":"string"},"asset_id":{"type":"string"},"target_type":{"enum":["claim","entity","event","source"]},"target_id":{"type":"string"},"relation":{"type":"string"},"stance":{"enum":["supports","contradicts","mentions","context"]},"confidence":{"type":"number","minimum":0,"maximum":1},"verification_status":{"const":"unverified-extraction"},"conflict_group":{"type":["string","null"]},"idempotent":{"type":"boolean"}},"additionalProperties":false
+}

@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/schemas/noesis-source-pack-run-request-v1.json",
+  "title": "Noesis source-pack run request",
+  "type": "object",
+  "required": ["contract", "pack_id", "run_key", "operation", "mode", "source_ids", "parameters", "network", "redistribute", "required_sources", "backfill", "budgets", "request_hash"],
+  "properties": {
+    "contract": {"const": "noesis-source-pack-run-request-v1"},
+    "pack_id": {"type": "string", "minLength": 1},
+    "run_key": {"type": "string", "minLength": 1},
+    "operation": {"type": "string", "minLength": 1},
+    "mode": {"enum": ["incremental", "backfill"]},
+    "source_ids": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "parameters": {"type": "object"},
+    "network": {"enum": ["disabled", "live"]},
+    "redistribute": {"type": "boolean"},
+    "required_sources": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "backfill": {"type": "object", "properties": {"cursor": {"type": ["string", "null"]}, "from_ms": {"type": "integer", "minimum": 0}, "to_ms": {"type": "integer", "minimum": 0}}, "additionalProperties": false},
+    "budgets": {"type": "object", "required": ["max_pages", "max_results", "max_bytes", "timeout_ms", "concurrency", "retries"], "properties": {"max_pages": {"type": "integer", "minimum": 1, "maximum": 100}, "max_results": {"type": "integer", "minimum": 1, "maximum": 100000}, "max_bytes": {"type": "integer", "minimum": 1, "maximum": 100000000}, "timeout_ms": {"type": "integer", "minimum": 1, "maximum": 120000}, "concurrency": {"type": "integer", "minimum": 1, "maximum": 16}, "retries": {"type": "integer", "minimum": 0, "maximum": 3}}, "additionalProperties": false},
+    "request_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  },
+  "additionalProperties": false
+}

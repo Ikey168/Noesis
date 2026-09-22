@@ -2,7 +2,7 @@
 Local file logging extension for Scrapy.
 
 Replaces the deprecated AWS CloudWatch Logs extension with rotating local
-log files written under NEURONEWS_LOG_DIR (default ./logs).
+log files written under NOESIS_LOG_DIR (default ./logs).
 """
 
 import logging

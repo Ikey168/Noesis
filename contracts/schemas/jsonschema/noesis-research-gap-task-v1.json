@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema", "$id": "https://noesis.local/schemas/noesis-research-gap-task-v1.json",
+  "title": "Noesis bounded research gap task", "type": "object",
+  "required": ["contract", "task_id", "namespace", "gap_id", "policy_id", "rank", "score", "estimated_cost", "suggestion", "status", "plan_hash"],
+  "properties": {
+    "contract": {"const": "noesis-research-gap-task-v1"}, "task_id": {"type": "string"}, "namespace": {"type": "string"}, "gap_id": {"type": "string"},
+    "policy_id": {"type": "string"}, "rank": {"type": "integer", "minimum": 1}, "score": {"type": "number"}, "score_components": {"type": "object"},
+    "estimated_cost": {"type": "number", "minimum": 0}, "suggestion": {"type": "object"}, "status": {"enum": ["proposed", "accepted", "running", "completed", "blocked", "cancelled"]},
+    "plan_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"}, "principal_id": {"type": "string"}, "created_at_ms": {"type": "integer"}, "idempotent": {"type": "boolean"}
+  }, "additionalProperties": false
+}

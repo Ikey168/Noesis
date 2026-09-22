@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/schemas/noesis-ontology-export-v1.json",
+  "title": "Noesis deterministic ontology alignment export",
+  "type": "object",
+  "required": ["contract", "modules", "content_hash"],
+  "properties": {
+    "contract": {"const": "noesis-ontology-export-v1"},
+    "modules": {"type": "array", "items": {"type": "object"}},
+    "content_hash": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}
+  },
+  "additionalProperties": false
+}

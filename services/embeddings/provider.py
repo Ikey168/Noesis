@@ -87,6 +87,14 @@ class EmbeddingProvider:
         
     def _create_backend(self, provider: str, model_name: Optional[str], **kwargs) -> EmbeddingBackend:
         """Create the appropriate backend instance."""
+        if provider in {"e5", "bge-m3"}:
+            from src.argument_mining.model_registry import optional_model_spec
+            from src.evaluation.model_backends import BGEBackend, E5Backend
+            spec = optional_model_spec(provider)
+            short = "multilingual-e5-small" if provider == "e5" else "bge-m3"
+            if model_name not in (None, spec["model"], short + ":" + spec["revision"]):
+                raise ValueError("model name differs from the selected optional registry pin")
+            return (E5Backend if provider == "e5" else BGEBackend)(**kwargs)
         if provider == "local":
             from .backends.local_sentence_transformers import LocalSentenceTransformersBackend
             return LocalSentenceTransformersBackend(
@@ -141,6 +149,13 @@ class EmbeddingProvider:
         
         return np.vstack(all_embeddings) if all_embeddings else np.empty((0, self.dim()))
     
+    def embed_queries(self, texts: List[str]) -> np.ndarray:
+        """Use the backend query policy; documents retain embed_texts semantics."""
+        encode = getattr(self.backend, "embed_queries", self.backend.embed_texts)
+        if not texts:
+            return np.empty((0, self.dim()))
+        return np.vstack([encode(texts[i:i+self.batch_size]) for i in range(0, len(texts), self.batch_size)])
+
     def dim(self) -> int:
         """Return the embedding dimension."""
         return self.backend.dim()
@@ -148,6 +163,25 @@ class EmbeddingProvider:
     def name(self) -> str:
         """Return the provider name."""
         return f"{self.provider_name}:{self.backend.name()}"
+
+    def count_tokens(self, text: str) -> int:
+        """Count the actual backend tokenizer input, including special tokens."""
+        counter = getattr(self.backend, "count_tokens", None)
+        if counter is None:
+            raise NotImplementedError("embedding backend must declare token counting for full-document indexing")
+        return counter(text)
+
+    def token_limit(self) -> int:
+        method = getattr(self.backend, "token_limit", None)
+        if method is None:
+            raise NotImplementedError("embedding backend must declare its input token limit")
+        return method()
+
+    def tokenizer_identity(self) -> dict:
+        method = getattr(self.backend, "tokenizer_identity", None)
+        if method is None:
+            raise NotImplementedError("embedding backend must declare tokenizer identity")
+        return method()
 
 
 def get_embedding_provider(

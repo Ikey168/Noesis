@@ -1,0 +1,52 @@
+{
+  "pack_format": "noesis-pack-v1",
+  "name": "economics",
+  "version": "1.0.0",
+  "description": "Vintaged quantitative knowledge with canonical indicators and cited comparisons.",
+  "source_types": ["news", "web", "note"],
+  "ui_flags": {},
+  "panels": [],
+  "planner_keywords": {
+    "trend": ["indicator", "observation", "revision", "vintage"],
+    "claims": ["release", "filing", "policy", "economy"]
+  },
+  "enrichers": [
+    {
+      "name": "economic-keyword",
+      "kind": "keyword_tag",
+      "description": "Tag explicitly economic source records.",
+      "source_types": ["news", "web", "note"],
+      "params": {
+        "field": "title",
+        "label": "economics",
+        "keywords": ["inflation", "employment", "gross domestic product", "filing", "interest rate"]
+      }
+    }
+  ],
+  "provisioning_templates": [],
+  "capabilities": [
+    "canonical-economic-indicators",
+    "explicit-measurement-dimensions",
+    "release-vintage-history",
+    "bitemporal-economic-observations",
+    "cited-economic-comparisons",
+    "claim-observation-links"
+  ],
+  "schema_versions": {
+    "dataset-series": "1.0.0",
+    "model": "1.0.0",
+    "research": "1.0.0"
+  },
+  "ontology_extensions": {
+    "extends": "noesis-canonical-entity-relation-ontology",
+    "reuses": ["dataset-series-v1", "noesis-temporal-v1", "noesis-evidence-bundle-v1"],
+    "object_types": [
+      "company", "geography", "indicator", "institution", "instrument",
+      "observation", "policy", "release", "sector", "vintage"
+    ],
+    "relation_types": [
+      "applies_to", "associated_with", "challenges", "issued_by", "measures",
+      "observation_of", "released_by", "reported_by", "revision_of", "supports"
+    ]
+  }
+}

@@ -63,6 +63,14 @@ def build_local_caller(conn, clock: Optional[Callable[[], Any]] = None):
 
         if tool == "corroborate":
             return corroborate(conn, a["claim_id"])
+        if tool == "origin_signals":
+            from src.osint.independence import document_signals
+
+            return document_signals(conn, a["document_id"])
+        if tool == "evidence_origin_graph":
+            from src.osint.independence import origin_graph
+
+            return origin_graph(conn, a.get("document_ids"))
         if tool == "source_reliability":
             return source_reliability(conn, a["source"])
         if tool == "contradiction_scan":
@@ -84,10 +92,13 @@ def build_local_caller(conn, clock: Optional[Callable[[], Any]] = None):
         raise RuntimeError(f"no local backend for osint tool {tool!r}")
 
     def caller(server: str, tool: str, arguments: Dict[str, Any]) -> Any:
+        from src.mcp_host.config import resolve_server_name
+
         args = arguments or {}
-        if server == "neuronews-provisioning":
+        server = resolve_server_name(server)
+        if server == "noesis-provisioning":
             return _provisioning(tool, args)
-        if server == "neuronews-osint":
+        if server == "noesis-osint":
             return _osint(tool, args)
         raise RuntimeError(f"no local backend for server {server!r}")
 

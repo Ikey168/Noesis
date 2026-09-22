@@ -1,0 +1,9 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema", "$id": "https://noesis.local/schemas/noesis-tabular-ingestion-receipt-v1.json", "title": "Noesis bounded tabular ingestion receipt", "type": "object",
+  "required": ["contract", "receipt_id", "namespace", "release_id", "table_id", "partition_id", "format", "status", "counts", "input_hash", "output_hash", "truncated"],
+  "properties": {
+    "contract": {"const": "noesis-tabular-ingestion-receipt-v1"}, "receipt_id": {"type": "string"}, "namespace": {"type": "string"}, "release_id": {"type": "string"}, "table_id": {"type": "string"}, "partition_id": {"type": ["string", "null"]},
+    "format": {"enum": ["csv", "json", "jsonl", "parquet", "tabular-api"]}, "status": {"enum": ["completed", "partial", "cancelled"]}, "counts": {"type": "object"},
+    "input_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"}, "output_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"}, "truncated": {"type": "boolean"}, "schema_drift": {"type": "array", "items": {"type": "string"}}, "idempotent": {"type": "boolean"}
+  }, "additionalProperties": false
+}

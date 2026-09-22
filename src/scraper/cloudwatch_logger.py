@@ -14,10 +14,12 @@ from enum import Enum
 from logging.handlers import RotatingFileHandler
 from typing import List, Optional
 
+from src.config.env import resolve_env
+
 
 def _get_log_dir() -> str:
-    """Return the local log directory (env NEURONEWS_LOG_DIR, default ./logs)."""
-    log_dir = os.environ.get("NEURONEWS_LOG_DIR", "./logs")
+    """Return the local log directory (env NOESIS_LOG_DIR, default ./logs)."""
+    log_dir = resolve_env("LOG_DIR", "./logs") or "./logs"
     os.makedirs(log_dir, exist_ok=True)
     return log_dir
 

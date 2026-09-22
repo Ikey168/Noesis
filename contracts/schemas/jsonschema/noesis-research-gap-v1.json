@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema", "$id": "https://noesis.local/schemas/noesis-research-gap-v1.json",
+  "title": "Noesis research gap", "type": "object",
+  "required": ["contract", "gap_id", "namespace", "object_kind", "object_id", "dimension_key", "dimension", "gap_type", "gap_revision_id", "revision", "status", "policy_id", "observation_id", "detail", "explanation", "generation", "observed_at_ms", "producer", "policy", "provenance", "content_hash", "created_at_ms"],
+  "properties": {
+    "contract": {"const": "noesis-research-gap-v1"}, "gap_id": {"type": "string"}, "namespace": {"type": "string"},
+    "object_kind": {"enum": ["claim", "entity", "event", "time-range", "geography", "methodology"]}, "object_id": {"type": "string"},
+    "dimension_key": {"type": "string", "pattern": "^[0-9a-f]{64}$"}, "dimension": {"type": "object"}, "gap_type": {"type": "string"},
+    "gap_revision_id": {"type": "string"}, "revision": {"type": "integer", "minimum": 1}, "predecessor_revision_id": {"type": ["string", "null"]},
+    "status": {"enum": ["open", "in-progress", "resolved", "dismissed"]}, "policy_id": {"type": "string"}, "observation_id": {"type": "string"},
+    "detail": {"type": "object"}, "explanation": {"type": "object"}, "generation": {"type": "integer"},
+    "valid_from_ms": {"type": ["integer", "null"]}, "valid_to_ms": {"type": ["integer", "null"]}, "observed_at_ms": {"type": "integer"},
+    "producer": {"type": "object"}, "policy": {"type": "object"}, "provenance": {"type": "object"}, "principal_id": {"type": "string"},
+    "content_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"}, "created_at_ms": {"type": "integer"}, "idempotent": {"type": "boolean"}
+  }, "additionalProperties": false
+}

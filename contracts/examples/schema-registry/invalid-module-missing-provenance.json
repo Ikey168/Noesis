@@ -1,0 +1,11 @@
+{
+  "contract": "noesis-schema-module-v1",
+  "name": "invalid-record",
+  "kind": "schema",
+  "semantic_version": "1.0.0",
+  "content": {"type": "object"},
+  "owner": "research-platform",
+  "dependencies": [],
+  "compatibility_policy": "backward",
+  "actor": {"principal_id": "registry-admin", "kind": "user"}
+}

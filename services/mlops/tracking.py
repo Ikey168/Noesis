@@ -18,6 +18,8 @@ import mlflow.tracking
 from datetime import datetime
 import warnings
 
+from src.config.env import resolve_env
+
 
 # Standard experiment names (Issue #220)
 STANDARD_EXPERIMENTS = {
@@ -139,7 +141,7 @@ def _get_git_info() -> Dict[str, str]:
 def _get_environment() -> str:
     """Determine the current environment (dev/staging/prod)."""
     # Check explicit environment variable first
-    env = os.environ.get("NEURONEWS_ENV")
+    env = resolve_env("ENV")
     if env and validate_environment(env):
         return env
     
@@ -254,12 +256,12 @@ def mlrun(name: str, experiment: Optional[str] = None, tags: Optional[Dict[str, 
     }
     
     # Add pipeline tag if specified in environment
-    pipeline = os.environ.get("NEURONEWS_PIPELINE")
+    pipeline = resolve_env("PIPELINE")
     if pipeline:
         standard_tags["pipeline"] = pipeline
     
     # Add data_version from environment if not in custom tags
-    data_version = os.environ.get("NEURONEWS_DATA_VERSION")
+    data_version = resolve_env("DATA_VERSION")
     if data_version and (not tags or "data_version" not in tags):
         standard_tags["data_version"] = data_version
     
@@ -277,7 +279,7 @@ def mlrun(name: str, experiment: Optional[str] = None, tags: Optional[Dict[str, 
                 f"Missing required tags: {missing_list}. "
                 f"Required tags: {REQUIRED_TAGS}. "
                 f"Set missing tags in the tags parameter or environment variables "
-                f"(NEURONEWS_PIPELINE, NEURONEWS_DATA_VERSION)."
+                f"(NOESIS_PIPELINE, NOESIS_DATA_VERSION)."
             )
         
         # Validate environment value
@@ -285,7 +287,7 @@ def mlrun(name: str, experiment: Optional[str] = None, tags: Optional[Dict[str, 
             raise ValueError(
                 f"Invalid environment '{final_tags['env']}'. "
                 f"Valid environments: {VALID_ENVIRONMENTS}. "
-                f"Set NEURONEWS_ENV environment variable."
+                f"Set NOESIS_ENV environment variable."
             )
     
     # Start MLflow run

@@ -86,6 +86,394 @@ def kb_search(
     return _envelope(domain, backing.search(query, limit=int(limit)))
 
 
+def _cross_domain_call(
+    operation,
+    *,
+    domains: Optional[List[str]],
+    all_authorized: bool,
+    principal_id: Optional[str],
+    include_private: bool,
+    limit: int,
+    per_domain_limit: int,
+    conn=None,
+    config_path=None,
+    **kwargs,
+) -> Dict[str, Any]:
+    """Resolve one authorized multi-domain scope and invoke ``operation``."""
+    from src.kb.cross_domain import CrossDomainError, resolve_scope
+
+    try:
+        registry = _registry(config_path)
+        resolved, scope = resolve_scope(
+            registry,
+            conn=conn,
+            domains=domains,
+            all_authorized=all_authorized,
+            principal_id=principal_id,
+            include_private=include_private,
+            limit=limit,
+            per_domain_limit=per_domain_limit,
+        )
+        return _envelope("cross-domain", operation(resolved, scope, **kwargs))
+    except CrossDomainError as exc:
+        raise KBContractError(exc.code, str(exc)) from exc
+
+
+def kb_search_domains(
+    query: str,
+    domains: Optional[List[str]] = None,
+    all_authorized: bool = False,
+    limit: int = 20,
+    per_domain_limit: int = 20,
+    principal_id: Optional[str] = None,
+    include_private: bool = False,
+    conn=None,
+    config_path=None,
+) -> Dict[str, Any]:
+    """Search an explicit domain set or all domains authorized to a principal."""
+    from src.kb.cross_domain import search_across
+
+    return _cross_domain_call(
+        search_across,
+        domains=domains,
+        all_authorized=all_authorized,
+        principal_id=principal_id,
+        include_private=include_private,
+        limit=limit,
+        per_domain_limit=per_domain_limit,
+        conn=conn,
+        config_path=config_path,
+        query=query,
+    )
+
+
+def kb_answer_domains(
+    question: str,
+    domains: Optional[List[str]] = None,
+    all_authorized: bool = False,
+    limit: int = 5,
+    per_domain_limit: int = 5,
+    minimum_relevance: float = 0.34,
+    principal_id: Optional[str] = None,
+    include_private: bool = False,
+    conn=None,
+    config_path=None,
+) -> Dict[str, Any]:
+    """Build one cited Answer v1 response from several authorized domains."""
+    from src.kb.cross_domain import answer_across
+
+    try:
+        answer_limit = int(limit)
+        answer_per_domain_limit = int(per_domain_limit)
+    except (TypeError, ValueError) as exc:
+        raise KBContractError(
+            "bad_request", "limit and per_domain_limit must be integers"
+        ) from exc
+    if not 1 <= answer_limit <= 20 or not 1 <= answer_per_domain_limit <= 20:
+        raise KBContractError(
+            "bad_request", "answer limits must be between 1 and 20"
+        )
+    return _cross_domain_call(
+        answer_across,
+        domains=domains,
+        all_authorized=all_authorized,
+        principal_id=principal_id,
+        include_private=include_private,
+        limit=answer_limit,
+        per_domain_limit=answer_per_domain_limit,
+        conn=conn,
+        config_path=config_path,
+        question=question,
+        minimum_relevance=minimum_relevance,
+    )
+
+
+def kb_cross_links(
+    domains: Optional[List[str]] = None,
+    all_authorized: bool = False,
+    kind: Optional[str] = None,
+    relation: Optional[str] = None,
+    limit: int = 100,
+    principal_id: Optional[str] = None,
+    include_private: bool = False,
+    conn=None,
+    config_path=None,
+) -> Dict[str, Any]:
+    """Inspect reversible entity equivalences and claim links across domains."""
+    from src.kb.cross_domain import links_across
+
+    return _cross_domain_call(
+        links_across,
+        domains=domains,
+        all_authorized=all_authorized,
+        principal_id=principal_id,
+        include_private=include_private,
+        limit=limit,
+        per_domain_limit=limit,
+        conn=conn,
+        config_path=config_path,
+        kind=kind,
+        relation=relation,
+    )
+
+
+def kb_temporal(
+    domain: str,
+    assertion_kind: Optional[str] = None,
+    assertion_id: Optional[str] = None,
+    as_of: Any = None,
+    valid_at: Any = None,
+    observed_before: Any = None,
+    history: bool = False,
+    include_retracted: bool = False,
+    limit: int = 50,
+    cursor: Optional[str] = None,
+    principal_id: Optional[str] = None,
+    include_private: bool = False,
+    conn=None,
+    config_path=None,
+) -> Dict[str, Any]:
+    """Query one authorized domain on independent valid and observation axes."""
+
+    from src.kb.cross_domain import CrossDomainError, resolve_scope
+    from src.kb.temporal import TemporalError, query_temporal
+
+    try:
+        resolved, _scope = resolve_scope(
+            _registry(config_path),
+            conn=conn,
+            domains=[domain],
+            principal_id=principal_id,
+            include_private=include_private,
+            limit=limit,
+            per_domain_limit=limit,
+        )
+        payload = query_temporal(
+            resolved[0][1],
+            assertion_kind=assertion_kind,
+            assertion_id=assertion_id,
+            as_of=as_of,
+            valid_at=valid_at,
+            observed_before=observed_before,
+            history=history,
+            include_retracted=include_retracted,
+            limit=limit,
+            cursor=cursor,
+        )
+        return _envelope(domain, payload)
+    except (CrossDomainError, TemporalError) as exc:
+        raise KBContractError(exc.code, str(exc)) from exc
+
+
+def kb_political(
+    domain: str,
+    query_type: str,
+    jurisdiction: str,
+    at: Any = None,
+    observed_before: Any = None,
+    office_id: Optional[str] = None,
+    proposal_id: Optional[str] = None,
+    actor_id: Optional[str] = None,
+    institution_id: Optional[str] = None,
+    limit: int = 50,
+    principal_id: Optional[str] = None,
+    include_private: bool = False,
+    conn=None,
+    config_path=None,
+) -> Dict[str, Any]:
+    """Run a cited political query inside one authorized KB domain."""
+
+    from src.domains.political.queries import PoliticalQueryError, political_research
+    from src.kb.cross_domain import CrossDomainError, resolve_scope
+    from src.kb.temporal import TemporalError
+
+    try:
+        resolved, _scope = resolve_scope(
+            _registry(config_path),
+            conn=conn,
+            domains=[domain],
+            principal_id=principal_id,
+            include_private=include_private,
+            limit=limit,
+            per_domain_limit=limit,
+        )
+        payload = political_research(
+            resolved[0][1],
+            query_type=query_type,
+            jurisdiction=jurisdiction,
+            at=at,
+            observed_before=observed_before,
+            office_id=office_id,
+            proposal_id=proposal_id,
+            actor_id=actor_id,
+            institution_id=institution_id,
+            limit=limit,
+        )
+        return _envelope(domain, payload)
+    except (CrossDomainError, PoliticalQueryError, TemporalError) as exc:
+        raise KBContractError(exc.code, str(exc)) from exc
+
+
+def kb_economic(
+    domain: str,
+    query_type: str,
+    series_ids: Optional[list[str]] = None,
+    indicator_id: Optional[str] = None,
+    claim_id: Optional[str] = None,
+    period_from: Optional[str] = None,
+    period_to: Optional[str] = None,
+    observed_before: Any = None,
+    comparison_mode: str = "same_scope",
+    include_bundle: bool = False,
+    limit: int = 100,
+    principal_id: Optional[str] = None,
+    include_private: bool = False,
+    conn=None,
+    config_path=None,
+) -> Dict[str, Any]:
+    """Run a cited economic query inside one authorized KB domain."""
+
+    from src.domains.economic.queries import EconomicQueryError, economic_research
+    from src.kb.cross_domain import CrossDomainError, resolve_scope
+    from src.kb.temporal import TemporalError
+
+    try:
+        resolved, _scope = resolve_scope(
+            _registry(config_path),
+            conn=conn,
+            domains=[domain],
+            principal_id=principal_id,
+            include_private=include_private,
+            limit=limit,
+            per_domain_limit=limit,
+        )
+        payload = economic_research(
+            resolved[0][1],
+            query_type=query_type,
+            series_ids=series_ids,
+            indicator_id=indicator_id,
+            claim_id=claim_id,
+            period_from=period_from,
+            period_to=period_to,
+            observed_before=observed_before,
+            comparison_mode=comparison_mode,
+            include_bundle=include_bundle,
+            limit=limit,
+        )
+        return _envelope(domain, payload)
+    except (CrossDomainError, EconomicQueryError, TemporalError) as exc:
+        raise KBContractError(exc.code, str(exc)) from exc
+
+
+def kb_technical(
+    domain: str,
+    query_type: str,
+    coordinate: Optional[str] = None,
+    version: Optional[str] = None,
+    target_id: Optional[str] = None,
+    include_optional: bool = False,
+    max_depth: int = 8,
+    observed_before: Any = None,
+    limit: int = 100,
+    principal_id: Optional[str] = None,
+    include_private: bool = False,
+    conn=None,
+    config_path=None,
+) -> Dict[str, Any]:
+    """Run a cited package, advisory, specification, or dependency query."""
+
+    from src.domains.technical.queries import TechnicalQueryError, technical_research
+    from src.kb.cross_domain import CrossDomainError, resolve_scope
+
+    try:
+        resolved, _scope = resolve_scope(
+            _registry(config_path),
+            conn=conn,
+            domains=[domain],
+            principal_id=principal_id,
+            include_private=include_private,
+            limit=limit,
+            per_domain_limit=limit,
+        )
+        payload = technical_research(
+            resolved[0][1],
+            query_type=query_type,
+            coordinate=coordinate,
+            version=version,
+            target_id=target_id,
+            include_optional=include_optional,
+            max_depth=max_depth,
+            observed_before=observed_before,
+            limit=limit,
+        )
+        return _envelope(domain, payload)
+    except (CrossDomainError, TechnicalQueryError) as exc:
+        raise KBContractError(exc.code, str(exc)) from exc
+
+
+def kb_context(
+    task: str,
+    token_budget: int,
+    query: Optional[str] = None,
+    domains: Optional[list[str]] = None,
+    namespace_scope: Optional[list[str]] = None,
+    all_authorized: bool = False,
+    evidence_policy: Optional[dict[str, Any]] = None,
+    recency_after_ms: Optional[int] = None,
+    diversity: Optional[dict[str, Any]] = None,
+    required_object_types: Optional[list[str]] = None,
+    allowed_surfaces: Optional[list[str]] = None,
+    max_candidates: int = 200,
+    principal_id: Optional[str] = None,
+    include_private: bool = False,
+    conn=None,
+    config_path=None,
+) -> Dict[str, Any]:
+    """Assemble cited multi-surface context under an explicit token budget."""
+
+    from src.kb.context import ContextAssemblyError, ContextRequest, assemble_context
+    from src.kb.cross_domain import CrossDomainError, resolve_scope
+
+    explicit = [*(domains or []), *(namespace_scope or [])]
+    try:
+        request = ContextRequest.from_value(
+            {
+                "task": task,
+                "query": query or task,
+                "domains": domains or [],
+                "namespace_scope": namespace_scope or [],
+                "all_authorized": all_authorized,
+                "token_budget": token_budget,
+                "evidence_policy": evidence_policy,
+                "recency_after_ms": recency_after_ms,
+                "diversity": diversity,
+                "required_object_types": required_object_types or [],
+                "allowed_surfaces": allowed_surfaces,
+                "max_candidates": max_candidates,
+            }
+        )
+        if len(explicit) != len(set(explicit)):
+            raise ContextAssemblyError(
+                "bad_request", "domain and namespace scopes must not overlap"
+            )
+        resolved, scope = resolve_scope(
+            _registry(config_path),
+            conn=conn,
+            domains=explicit if explicit else None,
+            all_authorized=all_authorized,
+            principal_id=principal_id,
+            include_private=include_private,
+            limit=min(int(max_candidates), 100),
+            per_domain_limit=min(int(max_candidates), 100),
+        )
+        return _envelope(
+            "context",
+            assemble_context(resolved, request, scope_receipt=scope),
+        )
+    except (CrossDomainError, ContextAssemblyError) as exc:
+        raise KBContractError(exc.code, str(exc)) from exc
+
+
 def kb_answer(
     domain: str,
     question: str,
@@ -130,6 +518,31 @@ def kb_answer(
             minimum_relevance=minimum_relevance,
         ),
     )
+
+
+def kb_corroborate(
+    domain: str,
+    claim_id: str,
+    conn=None,
+    config_path=None,
+) -> Dict[str, Any]:
+    """Origin-aware corroboration for one claim visible in the domain."""
+    if not isinstance(claim_id, str) or not claim_id.strip():
+        raise KBContractError("bad_request", "claim_id must be non-empty")
+    backing = _backing(domain, conn, config_path)
+    visible = {
+        str(citation.get("claim_id"))
+        for cluster in backing.claims(limit=100_000)
+        for citation in cluster.get("citations", [])
+        if citation.get("claim_id")
+    }
+    if claim_id not in visible:
+        raise KBContractError(
+            "not_found", f"claim {claim_id!r} is not a member of domain {domain!r}"
+        )
+    from src.osint.corroboration import corroborate
+
+    return _envelope(domain, corroborate(backing.conn, claim_id))
 
 
 def _watch_connection(conn=None):
@@ -310,6 +723,66 @@ def watch_observability(conn=None) -> Dict[str, Any]:
     from src.kb.watches import watch_metrics
 
     return _envelope(None, watch_metrics(_watch_connection(conn)))
+
+
+def policy_monitor_status(
+    principal_id: Optional[str] = None,
+    include_private: bool = False,
+    conn=None,
+    fixture_path=None,
+) -> Dict[str, Any]:
+    """Read the fictional policy scenario through its privacy-safe contract.
+
+    The public response is built only from public domain membership. Private
+    guidance is compared only after both an authenticated principal and an
+    explicit domain grant are present.
+    """
+    from src.policy_monitor import PolicyMonitorError, authorized_view, public_view
+
+    connection = _watch_connection(conn)
+    kwargs = {"fixture_path": fixture_path} if fixture_path is not None else {}
+    try:
+        if include_private:
+            if not principal_id:
+                raise KBContractError(
+                    "unauthorized", "private policy status requires a principal"
+                )
+            payload = authorized_view(connection, principal_id, **kwargs)
+        else:
+            payload = public_view(connection, **kwargs)
+    except PolicyMonitorError as exc:
+        raise KBContractError("unauthorized", str(exc)) from exc
+    except (KeyError, IndexError) as exc:
+        raise KBContractError(
+            "not_found", "the policy monitor scenario has not been provisioned"
+        ) from exc
+    return _envelope("clean-heat-public", payload)
+
+
+def policy_monitor_bundle(
+    principal_id: Optional[str] = None,
+    include_private: bool = False,
+    conn=None,
+    fixture_path=None,
+) -> Dict[str, Any]:
+    """Export a verifiable public bundle, or an explicitly authorized private one."""
+    from src.policy_monitor import PolicyMonitorError, export_policy_bundle
+
+    kwargs = {"fixture_path": fixture_path} if fixture_path is not None else {}
+    try:
+        payload = export_policy_bundle(
+            _watch_connection(conn),
+            principal_id=principal_id,
+            include_private=bool(include_private),
+            **kwargs,
+        )
+    except PolicyMonitorError as exc:
+        raise KBContractError("unauthorized", str(exc)) from exc
+    except (KeyError, IndexError) as exc:
+        raise KBContractError(
+            "not_found", "the policy monitor scenario has not been provisioned"
+        ) from exc
+    return _envelope("clean-heat-public", payload)
 
 
 def kb_documents(

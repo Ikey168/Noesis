@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/contracts/noesis-political-object-v1.json",
+  "title": "Noesis political ontology extension v1",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["political_contract", "object_id", "object_type", "canonical_name", "attributes", "status", "revision"],
+  "properties": {
+    "political_contract": {"const": "noesis-political-model-v1"},
+    "object_id": {"type": "string", "minLength": 1},
+    "object_type": {"enum": ["jurisdiction", "institution", "person", "office", "office_term", "party", "election", "proposal", "vote", "instrument"]},
+    "canonical_name": {"type": "string", "minLength": 1},
+    "jurisdiction_id": {"type": ["string", "null"]},
+    "parent_id": {"type": ["string", "null"]},
+    "attributes": {"type": "object"},
+    "status": {"type": "string", "minLength": 1},
+    "revision": {"type": "integer", "minimum": 1}
+  }
+}

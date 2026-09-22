@@ -34,6 +34,10 @@ def paper_metadata_to_document(meta: PaperMetadata, ingested_at: int) -> Documen
     """
     metadata = {
         "arxiv_id": meta.arxiv_id,
+        "version_id": meta.version_id,
+        "work_identifier": "doi:"+meta.doi.lower() if meta.doi else "arxiv:"+str(meta.arxiv_id),
+        "content_coverage": "abstract-only" if meta.abstract else "metadata-only",
+        "full_text_acquisition": "unavailable",
         "doi": meta.doi,
         "primary_category": meta.primary_category,
         "categories": list(meta.categories),
@@ -70,13 +74,21 @@ class PaperConnector(Connector):
         arxiv_client: Optional[ArxivClient] = None,
         references_provider: Optional[ReferencesProvider] = None,
         http_get=None,
+        full_text_acquirer=None,
+        oa_resolver=None,
     ):
         self._arxiv = arxiv_client or ArxivClient(http_get=http_get)
         self._references = references_provider
+        self._full_text_acquirer = full_text_acquirer
+        self._oa_resolver = oa_resolver
 
     def discover(self, query: Optional[Union[str, Iterable[str]]] = None) -> Iterable[SourceRef]:
         """Yield a SourceRef per arXiv id. ``query`` is an id or list of ids."""
         if query is None:
+            return
+        if isinstance(query, dict):
+            for paper in self._arxiv.search(query):
+                yield SourceRef(locator=paper.version_id or paper.arxiv_id, metadata={'arxiv_id':paper.arxiv_id,'version_id':paper.version_id,'discovery_objective':dict(query)})
             return
         ids = [query] if isinstance(query, str) else list(query)
         for arxiv_id in ids:
@@ -97,7 +109,27 @@ class PaperConnector(Connector):
         for meta in parse_atom(content):
             if self._references is not None:
                 meta.references = self._references.references_for(meta)
-            documents.append(paper_metadata_to_document(meta, raw.fetched_at))
+            document=paper_metadata_to_document(meta, raw.fetched_at)
+            full_text_url=meta.pdf_url
+            if self._full_text_acquirer is not None and not full_text_url and self._oa_resolver is not None and meta.doi:
+                try:
+                    locations=self._oa_resolver(meta.doi)
+                    if locations:
+                        chosen=locations[0]
+                        full_text_url=chosen['url']
+                        document.metadata['full_text_version']=chosen.get('version')
+                        document.metadata['full_text_license']=chosen.get('license')
+                except Exception:
+                    document.metadata['full_text_acquisition']='failed'
+            if self._full_text_acquirer is not None and full_text_url:
+                acquired=self._full_text_acquirer.acquire(full_text_url.replace('http://','https://',1))
+                document.metadata['full_text_acquisition']=acquired['outcome']
+                if acquired['outcome']=='full-text':
+                    import json
+                    document.content=acquired['text']
+                    document.metadata['content_coverage']='full-text'
+                    document.metadata['full_text_provenance_json']=json.dumps({k:v for k,v in acquired.items() if k!='text'},sort_keys=True)
+            documents.append(document)
         return documents
 
     # ---- metadata + knowledge graph ------------------------------------ #

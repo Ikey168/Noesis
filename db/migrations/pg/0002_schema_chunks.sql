@@ -193,7 +193,7 @@ CREATE INDEX IF NOT EXISTS idx_document_stats_source ON document_stats(source);
 CREATE INDEX IF NOT EXISTS idx_document_stats_published_date ON document_stats(published_date DESC);
 
 -- Create view for search performance analytics
-CREATE VIEW IF NOT EXISTS search_analytics AS
+CREATE OR REPLACE VIEW search_analytics AS
 SELECT 
     DATE(created_at) as search_date,
     query_type,
@@ -285,6 +285,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS update_documents_updated_at ON documents;
 CREATE TRIGGER update_documents_updated_at 
     BEFORE UPDATE ON documents 
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();

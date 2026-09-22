@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/schemas/noesis-knowledge-query-result-v1.json",
+  "title": "Noesis unified knowledge query result",
+  "type": "object",
+  "required": ["contract", "status", "query_id", "result_hash", "committed_watermark", "plan", "items", "memory_context", "memory_policy", "execution_receipt", "context", "failures", "coverage", "dropped_candidates", "contradictions", "page", "replay_hash", "replay_instructions"],
+  "properties": {
+    "contract": {"const": "noesis-knowledge-query-result-v1"},
+    "status": {"enum": ["complete", "partial", "cancelled"]},
+    "query_id": {"type": "string"},
+    "result_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "committed_watermark": {"type": ["string", "null"]},
+    "plan": {"type": "object"},
+    "items": {"type": "array", "items": {"type": "object", "required": ["identity", "evidence", "citations", "score"]}},
+    "memory_context": {"type": "array", "items": {"type": "object"}},
+    "memory_policy": {"type": "object", "properties": {"counts_as_evidence": {"const": false}, "counts_as_corroboration": {"const": false}}},
+    "execution_receipt": {"type": "object"},
+    "context": {"type": "object"},
+    "failures": {"type": "array", "items": {"type": "object"}},
+    "coverage": {"type": "object"},
+    "dropped_candidates": {"type": "array", "items": {"type": "object"}},
+    "contradictions": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "page": {"type": "object"},
+    "timings_ms": {"type": "object"},
+    "latency_ms": {"type": "number", "minimum": 0},
+    "replay_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+    ,"replay_instructions": {"type": "object"}
+  },
+  "additionalProperties": false
+}

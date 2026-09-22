@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/schemas/noesis-source-alias-decision-v1.json",
+  "title": "Noesis reversible source alias decision",
+  "type": "object",
+  "required": ["contract", "decision_id", "namespace", "alias_type", "normalized_alias", "language", "source_id", "action", "confidence", "reason", "provenance", "reviewer_id", "predecessor_decision_id", "created_at_ms"],
+  "properties": {
+    "contract": {"const": "noesis-source-alias-decision-v1"},
+    "decision_id": {"type": "string", "pattern": "^source-alias-decision:"},
+    "namespace": {"type": "string"},
+    "alias_type": {"enum": ["url", "domain", "handle", "identifier", "name"]},
+    "normalized_alias": {"type": "string"},
+    "language": {"type": "string"},
+    "source_id": {"type": "string", "pattern": "^source-identity:"},
+    "action": {"enum": ["link", "split"]},
+    "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+    "reason": {"type": "string", "minLength": 10},
+    "provenance": {"type": "object"},
+    "reviewer_id": {"type": "string"},
+    "predecessor_decision_id": {"type": ["string", "null"]},
+    "created_at_ms": {"type": "integer", "minimum": 0},
+    "idempotent": {"type": "boolean"}
+  },
+  "additionalProperties": false
+}

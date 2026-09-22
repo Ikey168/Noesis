@@ -1,0 +1,10 @@
+{
+  "browser": {
+    "browserName": "chromium",
+    "isolated": true,
+    "launchOptions": {"headless": true},
+    "contextOptions": {"acceptDownloads": false, "serviceWorkers": "block"}
+  },
+  "timeouts": {"action": 5000, "navigation": 15000},
+  "outputMaxSize": 16000000
+}

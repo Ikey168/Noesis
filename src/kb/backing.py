@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import json
 from datetime import datetime, timezone
+from functools import lru_cache
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 if TYPE_CHECKING:  # pragma: no cover - import cycle guard, typing only
@@ -36,6 +37,21 @@ def _since_to_epoch_ms(since: str) -> int:
     if parsed.tzinfo is None:
         parsed = parsed.replace(tzinfo=timezone.utc)
     return int(parsed.timestamp() * 1000)
+
+
+@lru_cache(maxsize=16)
+def _provider_for_embedding_model(model: str):
+    """Resolve provider-prefixed ids; legacy bare model ids mean local."""
+
+    provider_name, separator, model_name = str(model or "").partition(":")
+    from services.embeddings.provider import get_embedding_provider
+
+    if provider_name not in {"hashing", "local", "openai", "e5", "bge-m3"}:
+        return get_embedding_provider(provider="local", model_name=str(model))
+    return get_embedding_provider(
+        provider=provider_name,
+        model_name=model_name if separator else None,
+    )
 
 
 class DomainBacking:
@@ -102,6 +118,10 @@ class DomainBacking:
     def search(self, query: str, limit: int = 20) -> List[Dict[str, Any]]:
         """Semantic + lexical search scoped to this domain."""
         raise self._not_implemented("search")
+
+    def semantic_search(self, query: str, limit: int = 20) -> List[Dict[str, Any]]:
+        """Semantic search constrained to documents visible in this domain."""
+        raise self._not_implemented("semantic_search")
 
     def claims(
         self,
@@ -291,6 +311,35 @@ class CorpusViewBacking(DomainBacking):
             " ORDER BY COALESCE(ingested_at, 0) DESC LIMIT ?",
             [pattern, pattern, int(limit)],
         )
+
+    def semantic_search(self, query: str, limit: int = 20) -> List[Dict[str, Any]]:
+        """Embedding search constrained before ranking to domain members."""
+        from src.analytics.semantic_search import semantic_search
+
+        view = self._view()
+        with self._lock():
+            document_ids = [
+                str(row[0])
+                for row in self.conn.execute(
+                    f"SELECT document_id FROM {view} ORDER BY document_id"
+                ).fetchall()
+            ]
+            payload = semantic_search(
+                self.conn,
+                query,
+                top_k=int(limit),
+                provider=_provider_for_embedding_model(
+                    self.definition.embedding_model
+                ),
+                model=self.definition.embedding_model,
+                document_ids=document_ids,
+            )
+        self._last_semantic_coverage = payload.get("coverage", {})
+        self._last_semantic_error = payload.get("code") if payload.get("error") else None
+        return [
+            {**row, "retrieval_method": "semantic"}
+            for row in payload.get("results") or ()
+        ]
 
     def entities(self, name: Optional[str] = None) -> List[Dict[str, Any]]:
         """Canonical entities mentioned in this domain, aliases folded.
@@ -498,6 +547,35 @@ class NamespaceBacking(DomainBacking):
             for row in rows
         ]
 
+    def semantic_search(self, query: str, limit: int = 20) -> List[Dict[str, Any]]:
+        """Embedding search constrained before ranking to namespace documents."""
+        from src.analytics.semantic_search import semantic_search
+
+        documents = self._tables()["documents"]
+        with self._lock():
+            document_ids = [
+                str(row[0])
+                for row in self.conn.execute(
+                    f"SELECT id FROM {documents} ORDER BY id"
+                ).fetchall()
+            ]
+            payload = semantic_search(
+                self.conn,
+                query,
+                top_k=int(limit),
+                provider=_provider_for_embedding_model(
+                    self.definition.embedding_model
+                ),
+                model=self.definition.embedding_model,
+                document_ids=document_ids,
+            )
+        self._last_semantic_coverage = payload.get("coverage", {})
+        self._last_semantic_error = payload.get("code") if payload.get("error") else None
+        return [
+            {**row, "retrieval_method": "semantic"}
+            for row in payload.get("results") or ()
+        ]
+
     def claims(
         self,
         since: Optional[str] = None,
@@ -512,14 +590,21 @@ class NamespaceBacking(DomainBacking):
         tables = self._tables()
         with self._lock():
             rows = self.conn.execute(
-                f"SELECT claim_id, claim_text, verdict, document_id"
-                f" FROM {tables['claims']} ORDER BY claim_id LIMIT ?",
+                f"SELECT c.claim_id, c.claim_text, c.verdict, c.document_id, d.source"
+                f" FROM {tables['claims']} c LEFT JOIN {tables['documents']} d"
+                " ON d.id = c.document_id ORDER BY c.claim_id LIMIT ?",
                 [int(limit)],
             ).fetchall()
             links = self.conn.execute(
                 "SELECT claim_a, claim_b, relation, confidence, prediction_mode"
-                " FROM claim_links WHERE relation IN ('supports', 'contradicts')"
+                " FROM claim_links WHERE relation IN "
+                "('supports', 'contradicts', 'supersedes', 'corrects', 'retracts')"
             ).fetchall() if self._link_table_exists() else []
+        superseded = {
+            claim_b
+            for _claim_a, claim_b, relation, _confidence, _mode in links
+            if relation in {"supersedes", "corrects", "retracts"}
+        }
         by_claim: Dict[str, List[Dict[str, Any]]] = {}
         for claim_a, claim_b, relation, confidence, mode in links:
             by_claim.setdefault(claim_a, []).append(
@@ -531,8 +616,16 @@ class NamespaceBacking(DomainBacking):
                  "confidence": confidence, "prediction_mode": mode}
             )
         clusters = []
-        for claim_id, text, verdict, document_id in rows:
+        from src.osint.independence import origin_summary
+
+        for claim_id, text, verdict, document_id, source in rows:
             related = by_claim.get(claim_id, [])
+            is_superseded = claim_id in superseded
+            independence = origin_summary(
+                self.conn,
+                [document_id],
+                sources=[source],
+            )
             clusters.append(
                 {
                     "cluster_id": f"cl-{claim_id}",
@@ -541,19 +634,25 @@ class NamespaceBacking(DomainBacking):
                         "claim_text": text,
                         "document_id": document_id,
                         "verdict": verdict,
-                        "superseded": False,
+                        "superseded": is_superseded,
                     },
                     "citations": [
                         {"claim_id": claim_id, "claim_text": text,
-                         "document_id": document_id, "verdict": verdict,
-                         "superseded": False}
+                         "document_id": document_id, "source": source,
+                         "verdict": verdict,
+                         "superseded": is_superseded}
                     ],
-                    "corroboration": 1,
+                    "corroboration": independence["independent_source_count"],
+                    "independence": independence,
                     "contradictions": [
                         link for link in related if link["relation"] == "contradicts"
                     ],
                     "supports": [
                         link for link in related if link["relation"] == "supports"
+                    ],
+                    "transitions": [
+                        link for link in related
+                        if link["relation"] in {"supersedes", "corrects", "retracts"}
                     ],
                     "size": 1,
                 }
@@ -573,7 +672,34 @@ class NamespaceBacking(DomainBacking):
                 " ORDER BY mentions DESC NULLS LAST",
                 params,
             ).fetchall()
-        return [{"entity": row[0], "mentions": row[1]} for row in rows]
+        # Resolve namespace-native surface forms through the shared canonical
+        # alias table when possible.  Returning the same entity shape as a
+        # corpus view lets cross-domain consumers link identities without
+        # learning which backing served them.
+        from src.kb.entities import normalize_surface, resolve
+
+        results = []
+        for surface, mentions in rows:
+            try:
+                resolution = resolve(self.conn, str(surface))
+            except Exception:  # canonical tables may not exist in a thin namespace
+                resolution = None
+            canonical_id = (
+                resolution["canonical_id"]
+                if resolution
+                else f"raw:{normalize_surface(str(surface))}"
+            )
+            results.append(
+                {
+                    "canonical_id": canonical_id,
+                    "name": (
+                        resolution["preferred_name"] if resolution else str(surface)
+                    ),
+                    "mentions": int(mentions or 0),
+                    "aliases": [str(surface)],
+                }
+            )
+        return results
 
     def diff(self, since: str) -> Dict[str, Any]:
         """Namespace change feed — same shape as corpus diffs, honest gaps

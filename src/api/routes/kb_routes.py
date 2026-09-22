@@ -27,6 +27,10 @@ _STATUS = {
     "bad_request": 400,
     "bad_selector": 400,
     "bad_since": 400,
+    "bad_time": 400,
+    "malformed_time": 400,
+    "impossible_interval": 400,
+    "bad_cursor": 400,
     "confirmation_required": 400,
     "cursor_stale": 409,
     "watermark_conflict": 409,
@@ -50,6 +54,98 @@ class WatchScanRequest(BaseModel):
 class WatchReplayRequest(BaseModel):
     from_watermark: int = Field(gt=0)
     to_watermark: int = Field(gt=0)
+
+
+class CrossDomainSearchRequest(BaseModel):
+    query: str = Field(min_length=1, max_length=5000)
+    domains: Optional[list[str]] = None
+    all_authorized: bool = False
+    limit: int = Field(default=20, ge=1, le=100)
+    per_domain_limit: int = Field(default=20, ge=1, le=100)
+
+
+class CrossDomainAnswerRequest(BaseModel):
+    question: str = Field(min_length=1, max_length=5000)
+    domains: Optional[list[str]] = None
+    all_authorized: bool = False
+    limit: int = Field(default=5, ge=1, le=20)
+    per_domain_limit: int = Field(default=5, ge=1, le=20)
+    minimum_relevance: float = Field(default=0.34, ge=0, le=1)
+
+
+class CrossDomainLinksRequest(BaseModel):
+    domains: Optional[list[str]] = None
+    all_authorized: bool = False
+    kind: Optional[str] = None
+    relation: Optional[str] = None
+    limit: int = Field(default=100, ge=1, le=100)
+
+
+class TemporalQueryRequest(BaseModel):
+    domain: str = Field(min_length=1)
+    assertion_kind: Optional[str] = None
+    assertion_id: Optional[str] = None
+    as_of: Optional[int | str] = None
+    valid_at: Optional[int | str] = None
+    observed_before: Optional[int | str] = None
+    history: bool = False
+    include_retracted: bool = False
+    limit: int = Field(default=50, ge=1, le=100)
+    cursor: Optional[str] = None
+
+
+class PoliticalQueryRequest(BaseModel):
+    domain: str = Field(min_length=1)
+    query_type: str = Field(min_length=1)
+    jurisdiction: str = Field(min_length=1)
+    at: Optional[int | str] = None
+    observed_before: Optional[int | str] = None
+    office_id: Optional[str] = None
+    proposal_id: Optional[str] = None
+    actor_id: Optional[str] = None
+    institution_id: Optional[str] = None
+    limit: int = Field(default=50, ge=1, le=100)
+
+
+class EconomicQueryRequest(BaseModel):
+    domain: str = Field(min_length=1)
+    query_type: str = Field(min_length=1)
+    series_ids: Optional[list[str]] = None
+    indicator_id: Optional[str] = None
+    claim_id: Optional[str] = None
+    period_from: Optional[str] = None
+    period_to: Optional[str] = None
+    observed_before: Optional[int | str] = None
+    comparison_mode: str = "same_scope"
+    include_bundle: bool = False
+    limit: int = Field(default=100, ge=1, le=1000)
+
+
+class TechnicalQueryRequest(BaseModel):
+    domain: str = Field(min_length=1)
+    query_type: str = Field(min_length=1)
+    coordinate: Optional[str] = None
+    version: Optional[str] = None
+    target_id: Optional[str] = None
+    include_optional: bool = False
+    max_depth: int = Field(default=8, ge=1, le=32)
+    observed_before: Optional[int | str] = None
+    limit: int = Field(default=100, ge=1, le=1000)
+
+
+class ContextAssemblyRequest(BaseModel):
+    task: str = Field(min_length=1, max_length=5000)
+    token_budget: int = Field(ge=1, le=1_000_000)
+    query: Optional[str] = Field(default=None, max_length=5000)
+    domains: Optional[list[str]] = None
+    namespace_scope: Optional[list[str]] = None
+    all_authorized: bool = False
+    evidence_policy: Optional[dict] = None
+    recency_after_ms: Optional[int] = Field(default=None, ge=0)
+    diversity: Optional[dict] = None
+    required_object_types: Optional[list[str]] = None
+    allowed_surfaces: Optional[list[str]] = None
+    max_candidates: int = Field(default=200, ge=1, le=5000)
 
 
 def _watch_principal(current_user: dict) -> str:
@@ -90,6 +186,339 @@ async def brief(
         else None
     )
     return _run(contract.kb_brief, domain_list, since, budget)
+
+
+@router.get("/policy-monitor")
+def policy_monitor_public():
+    """Cited public status with no redaction markers or hidden-corpus counts."""
+    return _run(contract.policy_monitor_status)
+
+
+@router.get("/policy-monitor/private")
+def policy_monitor_private(current_user: dict = Depends(require_auth)):
+    """Compare private guidance only for an explicitly granted principal."""
+    return _run(
+        contract.policy_monitor_status,
+        _watch_principal(current_user),
+        True,
+    )
+
+
+@router.get("/policy-monitor/bundle")
+def policy_monitor_public_bundle():
+    """Export the default public-only verifiable evidence bundle."""
+    return _run(contract.policy_monitor_bundle)
+
+
+@router.post("/cross-domain/search")
+def cross_domain_search(request: CrossDomainSearchRequest):
+    """Search explicit or all public domains with rank-fusion provenance."""
+    return _run(
+        contract.kb_search_domains,
+        request.query,
+        request.domains,
+        request.all_authorized,
+        request.limit,
+        request.per_domain_limit,
+    )
+
+
+@router.post("/cross-domain/answer")
+def cross_domain_answer(request: CrossDomainAnswerRequest):
+    """Build one cited answer from an explicit or all-public domain scope."""
+    return _run(
+        contract.kb_answer_domains,
+        request.question,
+        request.domains,
+        request.all_authorized,
+        request.limit,
+        request.per_domain_limit,
+        request.minimum_relevance,
+    )
+
+
+@router.post("/cross-domain/links")
+def cross_domain_links(request: CrossDomainLinksRequest):
+    """Inspect public entity equivalences and cross-domain claim links."""
+    return _run(
+        contract.kb_cross_links,
+        request.domains,
+        request.all_authorized,
+        request.kind,
+        request.relation,
+        request.limit,
+    )
+
+
+@router.post("/cross-domain/private/search")
+def private_cross_domain_search(
+    request: CrossDomainSearchRequest,
+    current_user: dict = Depends(require_auth),
+):
+    return _run(
+        contract.kb_search_domains,
+        request.query,
+        request.domains,
+        request.all_authorized,
+        request.limit,
+        request.per_domain_limit,
+        _watch_principal(current_user),
+        True,
+    )
+
+
+@router.post("/cross-domain/private/answer")
+def private_cross_domain_answer(
+    request: CrossDomainAnswerRequest,
+    current_user: dict = Depends(require_auth),
+):
+    return _run(
+        contract.kb_answer_domains,
+        request.question,
+        request.domains,
+        request.all_authorized,
+        request.limit,
+        request.per_domain_limit,
+        request.minimum_relevance,
+        _watch_principal(current_user),
+        True,
+    )
+
+
+@router.post("/cross-domain/private/links")
+def private_cross_domain_links(
+    request: CrossDomainLinksRequest,
+    current_user: dict = Depends(require_auth),
+):
+    return _run(
+        contract.kb_cross_links,
+        request.domains,
+        request.all_authorized,
+        request.kind,
+        request.relation,
+        request.limit,
+        _watch_principal(current_user),
+        True,
+    )
+
+
+@router.post("/temporal")
+def temporal_query(request: TemporalQueryRequest):
+    """Query public domain history with independent valid/system-time axes."""
+    return _run(
+        contract.kb_temporal,
+        request.domain,
+        request.assertion_kind,
+        request.assertion_id,
+        request.as_of,
+        request.valid_at,
+        request.observed_before,
+        request.history,
+        request.include_retracted,
+        request.limit,
+        request.cursor,
+    )
+
+
+@router.post("/temporal/private")
+def private_temporal_query(
+    request: TemporalQueryRequest,
+    current_user: dict = Depends(require_auth),
+):
+    """Query grant-authorized private history without leaking other domains."""
+    return _run(
+        contract.kb_temporal,
+        request.domain,
+        request.assertion_kind,
+        request.assertion_id,
+        request.as_of,
+        request.valid_at,
+        request.observed_before,
+        request.history,
+        request.include_retracted,
+        request.limit,
+        request.cursor,
+        _watch_principal(current_user),
+        True,
+    )
+
+
+@router.post("/political")
+def political_query(request: PoliticalQueryRequest):
+    """Run a public cited political-research query."""
+    return _run(
+        contract.kb_political,
+        request.domain,
+        request.query_type,
+        request.jurisdiction,
+        request.at,
+        request.observed_before,
+        request.office_id,
+        request.proposal_id,
+        request.actor_id,
+        request.institution_id,
+        request.limit,
+    )
+
+
+@router.post("/political/private")
+def private_political_query(
+    request: PoliticalQueryRequest,
+    current_user: dict = Depends(require_auth),
+):
+    """Run the same query against a grant-authorized private domain."""
+    return _run(
+        contract.kb_political,
+        request.domain,
+        request.query_type,
+        request.jurisdiction,
+        request.at,
+        request.observed_before,
+        request.office_id,
+        request.proposal_id,
+        request.actor_id,
+        request.institution_id,
+        request.limit,
+        _watch_principal(current_user),
+        True,
+    )
+
+
+@router.post("/economic")
+def economic_query(request: EconomicQueryRequest):
+    """Run a public cited economic trend, comparison, vintage, or claim query."""
+    return _run(
+        contract.kb_economic,
+        request.domain,
+        request.query_type,
+        request.series_ids,
+        request.indicator_id,
+        request.claim_id,
+        request.period_from,
+        request.period_to,
+        request.observed_before,
+        request.comparison_mode,
+        request.include_bundle,
+        request.limit,
+    )
+
+
+@router.post("/economic/private")
+def private_economic_query(
+    request: EconomicQueryRequest,
+    current_user: dict = Depends(require_auth),
+):
+    """Run the same query against a grant-authorized private domain."""
+    return _run(
+        contract.kb_economic,
+        request.domain,
+        request.query_type,
+        request.series_ids,
+        request.indicator_id,
+        request.claim_id,
+        request.period_from,
+        request.period_to,
+        request.observed_before,
+        request.comparison_mode,
+        request.include_bundle,
+        request.limit,
+        _watch_principal(current_user),
+        True,
+    )
+
+
+@router.post("/technical")
+def technical_query(request: TechnicalQueryRequest):
+    """Run a public cited technical-knowledge graph query."""
+    return _run(
+        contract.kb_technical,
+        request.domain,
+        request.query_type,
+        request.coordinate,
+        request.version,
+        request.target_id,
+        request.include_optional,
+        request.max_depth,
+        request.observed_before,
+        request.limit,
+    )
+
+
+@router.post("/technical/private")
+def private_technical_query(
+    request: TechnicalQueryRequest,
+    current_user: dict = Depends(require_auth),
+):
+    """Run the same query against a grant-authorized private domain."""
+    return _run(
+        contract.kb_technical,
+        request.domain,
+        request.query_type,
+        request.coordinate,
+        request.version,
+        request.target_id,
+        request.include_optional,
+        request.max_depth,
+        request.observed_before,
+        request.limit,
+        _watch_principal(current_user),
+        True,
+    )
+
+
+@router.post("/context")
+def assemble_public_context(request: ContextAssemblyRequest):
+    """Assemble cited context from public domains and namespaces."""
+    return _run(
+        contract.kb_context,
+        request.task,
+        request.token_budget,
+        request.query,
+        request.domains,
+        request.namespace_scope,
+        request.all_authorized,
+        request.evidence_policy,
+        request.recency_after_ms,
+        request.diversity,
+        request.required_object_types,
+        request.allowed_surfaces,
+        request.max_candidates,
+    )
+
+
+@router.post("/context/private")
+def assemble_private_context(
+    request: ContextAssemblyRequest,
+    current_user: dict = Depends(require_auth),
+):
+    """Assemble context with explicit grant-authorized private scope."""
+    return _run(
+        contract.kb_context,
+        request.task,
+        request.token_budget,
+        request.query,
+        request.domains,
+        request.namespace_scope,
+        request.all_authorized,
+        request.evidence_policy,
+        request.recency_after_ms,
+        request.diversity,
+        request.required_object_types,
+        request.allowed_surfaces,
+        request.max_candidates,
+        _watch_principal(current_user),
+        True,
+    )
+
+
+@router.get("/policy-monitor/private/bundle")
+def policy_monitor_private_bundle(current_user: dict = Depends(require_auth)):
+    """Export private evidence only for an explicitly granted principal."""
+    return _run(
+        contract.policy_monitor_bundle,
+        _watch_principal(current_user),
+        True,
+    )
 
 
 @router.post("/watches")
@@ -218,6 +647,12 @@ def answer(
 ):
     """Structured offline answer; ``q`` is the question to evidence-plan."""
     return _run(contract.kb_answer, domain, q, limit, minimum_relevance)
+
+
+@router.get("/{domain}/claims/{claim_id}/corroboration")
+def corroboration(domain: str, claim_id: str):
+    """Origin-aware publication, probable-origin, and unresolved counts."""
+    return _run(contract.kb_corroborate, domain, claim_id)
 
 
 @router.get("/{domain}/documents")

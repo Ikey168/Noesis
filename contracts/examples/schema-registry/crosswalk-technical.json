@@ -1,0 +1,14 @@
+{
+  "contract": "noesis-schema-crosswalk-v1",
+  "name": "technical-to-canonical",
+  "semantic_version": "1.0.0",
+  "source": {"kind": "ontology", "name": "technical", "version": "^1.0.0"},
+  "target": {"kind": "ontology", "name": "canonical-entity-relation", "version": "1.0.0"},
+  "direction": "bidirectional",
+  "confidence": 0.97,
+  "conditions": [{"package_coordinates_required": true}],
+  "mappings": [{"kind": "relation", "source": "depends-on", "target": "PART_OF", "lossy": true}],
+  "owner": "technical-pack",
+  "provenance": {"kind": "builtin", "source": "technical domain pack"},
+  "actor": {"principal_id": "registry-admin", "kind": "user"}
+}

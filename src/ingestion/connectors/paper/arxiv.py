@@ -9,6 +9,8 @@ supply recorded responses instead of hitting the network.
 from __future__ import annotations
 
 import re
+import time
+from urllib.parse import urlencode
 from datetime import datetime, timezone
 from typing import Callable, List, Optional
 import xml.etree.ElementTree as ET
@@ -18,7 +20,7 @@ from src.ingestion.connectors.paper.models import PaperMetadata
 _ATOM = "{http://www.w3.org/2005/Atom}"
 _ARXIV = "{http://arxiv.org/schemas/atom}"
 
-ARXIV_API = "http://export.arxiv.org/api/query"
+ARXIV_API = "https://export.arxiv.org/api/query"
 USER_AGENT = "NeuroNewsBot/1.0 (+https://github.com/Ikey168/NeuroNews)"
 HTTP_TIMEOUT = 20
 
@@ -82,6 +84,8 @@ def parse_atom(xml_bytes: bytes) -> List[PaperMetadata]:
         papers.append(
             PaperMetadata(
                 title=title,
+                version_id=raw_id.rsplit("/abs/",1)[-1] if "/abs/" in raw_id else None,
+                updated=_parse_date(entry.findtext(f"{_ATOM}updated")),
                 arxiv_id=arxiv_id,
                 doi=doi.strip() if doi else None,
                 authors=authors,
@@ -103,8 +107,47 @@ class ArxivClient:
         self._api_url = api_url
 
     def fetch_by_id(self, arxiv_id: str) -> bytes:
-        url = f"{self._api_url}?id_list={_strip_version(arxiv_id)}&max_results=1"
+        url = self._api_url + "?" + urlencode({"id_list":arxiv_id.strip(), "max_results":1})
         return self._http_get(url)
+
+    def search(self, objective, *, sleep=time.sleep):
+        limit = int(objective.get('limit', 20))
+        pages = int(objective.get('max_pages', 3))
+        page_size = int(objective.get('page_size', 20))
+        if not 1 <= limit <= 1000 or not 1 <= pages <= 10 or not 1 <= page_size <= 100:
+            raise ValueError('arXiv discovery budget exceeded')
+        terms = []
+        for field, prefix in [('topic','all'), ('author','au')]:
+            value = objective.get(field)
+            if value:
+                if not isinstance(value,str) or len(value)>1000 or '"' in value:
+                    raise ValueError('invalid arXiv search term')
+                terms.append(prefix + ':"' + value + '"')
+        if objective.get('from_date') or objective.get('to_date'):
+            start = str(objective.get('from_date','1900-01-01')).replace('-','')
+            end = str(objective.get('to_date','2999-12-31')).replace('-','')
+            if not re.fullmatch(r'\d{8}',start) or not re.fullmatch(r'\d{8}',end) or start>end:
+                raise ValueError('invalid arXiv date interval')
+            terms.append('submittedDate:[' + start + '0000 TO ' + end + '2359]')
+        if not terms:
+            raise ValueError('explicit scholarly search objective required')
+        seen = set()
+        start = int(objective.get('start',0))
+        if start<0 or start>10000:raise ValueError('invalid arXiv start')
+        for page in range(pages):
+            if page:sleep(3)
+            size = min(page_size,limit-len(seen))
+            params={'search_query':' AND '.join(terms),'start':start,'max_results':size,'sortBy':'submittedDate','sortOrder':'descending'}
+            papers=parse_atom(self._http_get(self._api_url+'?'+urlencode(params)))
+            if len(papers)>size:raise ValueError('arXiv page exceeded result budget')
+            for paper in papers:
+                identity=paper.version_id or paper.arxiv_id
+                if not identity:raise ValueError('arXiv result missing identifier')
+                if identity not in seen:
+                    seen.add(identity)
+                    yield paper
+            if len(papers)<size or len(seen)>=limit:return
+            start += size
 
     def get_metadata(self, arxiv_id: str) -> PaperMetadata:
         papers = parse_atom(self.fetch_by_id(arxiv_id))

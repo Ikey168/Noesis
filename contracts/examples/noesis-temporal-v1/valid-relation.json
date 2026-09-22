@@ -1,0 +1,18 @@
+{
+  "temporal_id": "ta:3333333333333333333333333333",
+  "assertion_kind": "relation",
+  "assertion_id": "claim:new:corrects:claim:old",
+  "valid_from_ms": 1782950400000,
+  "valid_to_ms": null,
+  "observed_at_ms": 1782950400000,
+  "ingested_at_ms": 1782950400000,
+  "retracted_at_ms": null,
+  "valid_time_precision": "millisecond",
+  "valid_time_approximate": false,
+  "source_reported": true,
+  "inferred": false,
+  "source_document_id": "correction:1",
+  "visibility": "public",
+  "payload": {"relation": "corrects", "from": "claim:new", "to": "claim:old"},
+  "temporal_provenance": {"method": "source correction notice"}
+}

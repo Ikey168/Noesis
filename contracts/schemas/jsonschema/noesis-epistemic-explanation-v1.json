@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/schemas/noesis-epistemic-explanation-v1.json",
+  "title": "Noesis epistemic assessment explanation",
+  "type": "object",
+  "required": ["contract", "assessment_id", "machine_status", "effective_status", "assessment_state", "confidence", "uncertainty", "classification", "evidence_factors", "override", "transitions", "source_revision_id", "generation", "valid_time", "observed_at_ms", "producer", "policy", "limitations"],
+  "properties": {
+    "contract": {"const": "noesis-epistemic-explanation-v1"},
+    "assessment_id": {"type": "string", "pattern": "^epistemic-assessment:"},
+    "machine_status": {"type": "string", "minLength": 1},
+    "effective_status": {"type": "string", "minLength": 1},
+    "assessment_state": {"enum": ["supported", "contested", "insufficient"]},
+    "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+    "uncertainty": {"type": "number", "minimum": 0, "maximum": 1},
+    "classification": {"type": "object"},
+    "evidence_factors": {"type": "object"},
+    "override": {"type": ["object", "null"]},
+    "transitions": {"type": "array", "items": {"type": "object"}},
+    "source_revision_id": {"type": ["string", "null"]},
+    "generation": {"type": "integer", "minimum": 0},
+    "valid_time": {"type": "object", "required": ["from_ms", "to_ms"]},
+    "observed_at_ms": {"type": "integer", "minimum": 0},
+    "producer": {"type": "object"},
+    "policy": {"type": "object"},
+    "limitations": {"type": "array", "items": {"type": "string"}, "minItems": 1}
+  },
+  "additionalProperties": false
+}

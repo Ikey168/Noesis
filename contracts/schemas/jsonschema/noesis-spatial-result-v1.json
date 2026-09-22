@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/schemas/noesis-spatial-result-v1.json",
+  "title": "Noesis bounded spatial result or calculation receipt",
+  "type": "object",
+  "required": ["contract", "operation"],
+  "properties": {
+    "contract": {"const": "noesis-spatial-result-v1"},
+    "operation": {"type": "string"},
+    "receipt_id": {"type": "string", "pattern": "^spatial-receipt:"},
+    "namespace": {"type": "string"},
+    "request": {"type": "object"},
+    "result": {"type": "object"},
+    "input_ids": {"type": "array", "items": {"type": "string"}},
+    "algorithm": {"type": "string"},
+    "calculation_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "principal_id": {"type": "string"},
+    "created_at_ms": {"type": "integer", "minimum": 0},
+    "idempotent": {"type": "boolean"},
+    "items": {"type": "array"},
+    "count": {"type": "integer", "minimum": 0},
+    "next_cursor": {"type": ["string", "null"]},
+    "filters_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  },
+  "additionalProperties": false
+}

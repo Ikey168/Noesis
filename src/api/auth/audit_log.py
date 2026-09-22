@@ -3,7 +3,7 @@ Security audit logging for authentication and authorization events.
 
 Replaces the deprecated AWS CloudWatch / CloudWatch Logs integration: security
 audit events and security metrics are appended as newline-delimited JSON to
-local files under NEURONEWS_LOG_DIR (default ./logs):
+local files under NOESIS_LOG_DIR (default ./logs):
 
   - audit_log.jsonl      one JSON object per security event
   - audit_metrics.jsonl  one JSON object per emitted security metric
@@ -19,14 +19,16 @@ from typing import Any, Dict, Optional
 
 from fastapi import Request
 
+from src.config.env import resolve_env
+
 # Configure logger
 logger = logging.getLogger("security_audit")
 logger.setLevel(logging.INFO)
 
 
 def _get_log_dir() -> str:
-    """Return the local log directory (env NEURONEWS_LOG_DIR, default ./logs)."""
-    log_dir = os.environ.get("NEURONEWS_LOG_DIR", "./logs")
+    """Return the local log directory (env NOESIS_LOG_DIR, default ./logs)."""
+    log_dir = resolve_env("LOG_DIR", "./logs") or "./logs"
     os.makedirs(log_dir, exist_ok=True)
     return log_dir
 

@@ -11,10 +11,12 @@ import re
 from datetime import datetime
 from logging.handlers import RotatingFileHandler
 
+from src.config.env import resolve_env
+
 
 def _get_log_dir() -> str:
-    """Return the local log directory (env NEURONEWS_LOG_DIR, default ./logs)."""
-    log_dir = os.environ.get("NEURONEWS_LOG_DIR", "./logs")
+    """Return the local log directory (env NOESIS_LOG_DIR, default ./logs)."""
+    log_dir = resolve_env("LOG_DIR", "./logs") or "./logs"
     os.makedirs(log_dir, exist_ok=True)
     return log_dir
 
@@ -33,7 +35,7 @@ class LocalFileLoggingHandler(logging.Handler):
     A logging handler that writes logs to a rotating local file.
 
     One file is created per log group/stream combination under the directory
-    given by the NEURONEWS_LOG_DIR environment variable (default ./logs).
+    given by the NOESIS_LOG_DIR environment variable (default ./logs).
     """
 
     def __init__(

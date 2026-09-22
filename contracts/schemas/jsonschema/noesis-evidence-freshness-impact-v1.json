@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/schemas/noesis-evidence-freshness-impact-v1.json",
+  "title": "Noesis propagated evidence freshness impact",
+  "type": "object",
+  "required": ["contract", "impact_id", "namespace", "consumer_kind", "consumer_id", "state", "evidence_states", "ranking_factor", "reason", "assessment_hash"],
+  "properties": {
+    "contract": {"const": "noesis-evidence-freshness-impact-v1"}, "impact_id": {"type": "string"}, "namespace": {"type": "string"},
+    "consumer_kind": {"enum": ["claim", "answer", "brief", "watch", "search", "assessment"]}, "consumer_id": {"type": "string"},
+    "state": {"enum": ["current", "mixed-age", "unsupported-currently"]}, "evidence_states": {"type": "array", "items": {"type": "object"}},
+    "ranking_factor": {"type": "number", "minimum": 0, "maximum": 1}, "reason": {"type": "string"},
+    "assessment_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"}, "created_at_ms": {"type": "integer"}, "idempotent": {"type": "boolean"}
+  },
+  "additionalProperties": false
+}

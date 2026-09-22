@@ -1,0 +1,115 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/contracts/noesis-evidence-independence-v1.json",
+  "title": "Noesis Evidence Independence Graph v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "method",
+    "method_version",
+    "origins",
+    "links",
+    "publication_count",
+    "probable_origin_count",
+    "unresolved_count",
+    "n",
+    "assumptions"
+  ],
+  "properties": {
+    "method": {"const": "deterministic evidence-independence graph"},
+    "method_version": {"const": "origin-inference-v1"},
+    "origins": {
+      "type": "array",
+      "items": {"$ref": "#/definitions/origin"}
+    },
+    "links": {
+      "type": "array",
+      "items": {"$ref": "#/definitions/link"}
+    },
+    "publication_count": {"type": "integer", "minimum": 0},
+    "probable_origin_count": {"type": "integer", "minimum": 0},
+    "unresolved_count": {"type": "integer", "minimum": 0},
+    "n": {"type": "integer", "minimum": 0},
+    "assumptions": {"type": "array", "items": {"type": "string"}}
+  },
+  "definitions": {
+    "interval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value", "lo", "hi", "level"],
+      "properties": {
+        "value": {"type": "number", "minimum": 0, "maximum": 1},
+        "lo": {"type": "number", "minimum": 0, "maximum": 1},
+        "hi": {"type": "number", "minimum": 0, "maximum": 1},
+        "level": {"type": "number", "exclusiveMinimum": 0, "maximum": 1}
+      }
+    },
+    "origin": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "origin_id",
+        "origin_state",
+        "representative_document_id",
+        "member_count",
+        "n",
+        "method",
+        "method_version",
+        "assumptions"
+      ],
+      "properties": {
+        "origin_id": {"type": "string", "pattern": "^origin:[a-f0-9]{24}$"},
+        "origin_state": {"enum": ["known", "probable"]},
+        "representative_document_id": {"type": "string", "minLength": 1},
+        "member_count": {"type": "integer", "minimum": 1},
+        "n": {"type": "integer", "minimum": 1},
+        "method": {"const": "deterministic evidence-independence graph"},
+        "method_version": {"const": "origin-inference-v1"},
+        "assumptions": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "link": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "document_id",
+        "origin_id",
+        "relation_state",
+        "confidence",
+        "reason_codes",
+        "decisive_signals",
+        "as_of_ms",
+        "run_id",
+        "n",
+        "method",
+        "method_version",
+        "assumptions"
+      ],
+      "properties": {
+        "document_id": {"type": "string", "minLength": 1},
+        "origin_id": {
+          "anyOf": [
+            {"type": "string", "pattern": "^origin:[a-f0-9]{24}$"},
+            {"type": "null"}
+          ]
+        },
+        "relation_state": {
+          "enum": ["known_independent", "likely_dependent", "unknown"]
+        },
+        "confidence": {"$ref": "#/definitions/interval"},
+        "reason_codes": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"type": "string", "minLength": 1}
+        },
+        "decisive_signals": {"type": "object"},
+        "as_of_ms": {"type": "integer", "minimum": 0},
+        "run_id": {"type": "string", "minLength": 1},
+        "n": {"const": 1},
+        "method": {"const": "deterministic evidence-independence graph"},
+        "method_version": {"const": "origin-inference-v1"},
+        "assumptions": {"type": "array", "items": {"type": "string"}}
+      }
+    }
+  }
+}

@@ -9,16 +9,16 @@ Usage::
 
     from src.security.keyring_store import get_secret, set_secret
 
-    passphrase = get_secret("neuronews", "BACKUP_KEY")
-    set_secret("neuronews", "BACKUP_KEY", "my-strong-passphrase")
+    passphrase = get_secret("noesis", "BACKUP_KEY")
+    set_secret("noesis", "BACKUP_KEY", "my-strong-passphrase")
 
 Environment-variable fallback:
     If the ``keyring`` library is not importable, or if the backend raises
     ``NoKeyringError`` / ``KeyringLocked``, the value is read from / written
-    to an env var named ``NEURONEWS_{KEY.upper()}``.
+    to an env var named ``NOESIS_{KEY.upper()}``.
 
-    Example: ``get_secret("neuronews", "DB_KEY")`` falls back to
-    ``os.getenv("NEURONEWS_DB_KEY")``.
+    Example: ``get_secret("noesis", "DB_KEY")`` falls back to
+    ``NOESIS_DB_KEY`` and then its deprecated ``NEURONEWS_DB_KEY`` alias.
 """
 from __future__ import annotations
 
@@ -54,7 +54,7 @@ def _try_keyring():
 
 def _env_key(service: str, key: str) -> str:
     """Derive the env-var name from service + key."""
-    # Convention: NEURONEWS_DB_KEY, NEURONEWS_BACKUP_KEY, …
+    # Convention: NOESIS_DB_KEY, NOESIS_BACKUP_KEY, …
     prefix = service.upper().replace("-", "_")
     suffix = key.upper().replace("-", "_")
     return f"{prefix}_{suffix}"
@@ -85,6 +85,10 @@ def get_secret(service: str, key: str) -> Optional[str]:
         except Exception as exc:
             logger.debug("keyring.get_password failed (%s); trying env var", exc)
 
+    if service.casefold() == "noesis":
+        from src.config.env import resolve_env
+
+        return resolve_env(key)
     return os.getenv(_env_key(service, key))
 
 

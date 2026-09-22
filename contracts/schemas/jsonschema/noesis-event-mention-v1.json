@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/schemas/noesis-event-mention-v1.json",
+  "title": "Noesis clustered event mention",
+  "type": "object",
+  "required": ["contract", "mention_id", "event_id", "document_revision_id", "language", "original_text", "normalized", "features", "classifier", "confidence", "alternatives", "lifecycle"],
+  "properties": {
+    "contract": {"const": "noesis-event-mention-v1"},
+    "mention_id": {"type": "string", "pattern": "^event-mention:"},
+    "event_id": {"type": "string", "pattern": "^event:"},
+    "document_revision_id": {"type": "string"},
+    "language": {"type": "string"},
+    "original_text": {"type": "string"},
+    "normalized": {"type": "object"},
+    "features": {"type": "object"},
+    "classifier": {"type": "object", "required": ["kind", "name", "version"]},
+    "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+    "alternatives": {"type": "array", "items": {"type": "object"}},
+    "lifecycle": {"enum": ["active", "retracted"]},
+    "idempotent": {"type": "boolean"}
+  },
+  "additionalProperties": false
+}

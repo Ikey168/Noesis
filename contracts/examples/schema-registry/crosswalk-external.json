@@ -1,0 +1,14 @@
+{
+  "contract": "noesis-schema-crosswalk-v1",
+  "name": "schemaorg-to-canonical",
+  "semantic_version": "1.0.0",
+  "source": {"kind": "vocabulary", "name": "schema.org", "version": "^28.0.0"},
+  "target": {"kind": "ontology", "name": "canonical-entity-relation", "version": "1.0.0"},
+  "direction": "forward",
+  "confidence": 0.93,
+  "conditions": [{"context": "https://schema.org"}],
+  "mappings": [{"kind": "type", "source": "ScholarlyArticle", "target": "Document", "lossy": true}],
+  "owner": "integration-team",
+  "provenance": {"kind": "imported", "source": "schema.org vocabulary", "uri": "https://schema.org"},
+  "actor": {"principal_id": "registry-admin", "kind": "user"}
+}

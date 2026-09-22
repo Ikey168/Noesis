@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/schemas/noesis-derived-object-generation-delta-v1.json",
+  "title": "Noesis derived-object generation delta",
+  "type": "object",
+  "required": ["contract", "namespace", "from_generation", "to_generation", "changes", "counts", "item_count", "page_count", "delta_hash", "next_cursor"],
+  "properties": {
+    "contract": {"const": "noesis-derived-object-generation-delta-v1"},
+    "namespace": {"type": "string", "minLength": 1},
+    "from_generation": {"type": "integer", "minimum": 1},
+    "to_generation": {"type": "integer", "minimum": 1},
+    "changes": {"type": "array", "items": {"type": "object", "required": ["generation", "change_id", "logical_id", "object_type", "change_kind", "revision_id"]}},
+    "counts": {"type": "object", "additionalProperties": {"type": "integer", "minimum": 0}},
+    "item_count": {"type": "integer", "minimum": 0},
+    "page_count": {"type": "integer", "minimum": 0},
+    "delta_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "next_cursor": {"type": ["string", "null"]}
+  },
+  "additionalProperties": false
+}

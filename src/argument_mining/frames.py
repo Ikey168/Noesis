@@ -69,14 +69,16 @@ class FrameClassifier:
     }
     NLI_DEFAULT_THRESHOLD = 0.45
 
-    def __init__(self, model_dir: Optional[Path] = None, nli: Optional[Any] = None) -> None:
+    def __init__(self, model_dir: Optional[Path] = None, nli: Optional[Any] = None, *, calibration=None) -> None:
         _reject_removed_backend("NOESIS_FRAMES_BACKEND", "frame classification")
         self._model_dir = model_dir or _FRAME_MODEL_DIR
         self._pipeline = None
         self._nli = nli
-        self._try_load()
-        if self._pipeline is None and self._nli is None:
-            self._try_load_nli()
+        self._calibrated = calibration
+        if calibration is None:
+            self._try_load()
+            if self._pipeline is None and self._nli is None:
+                self._try_load_nli()
 
     def _try_load_nli(self) -> None:
         """Use pinned zero-shot NLI by default when its weights are cached."""
@@ -111,6 +113,8 @@ class FrameClassifier:
         """Return the active trained-model provenance."""
         if self._pipeline is not None:
             return f"model:{self._model_dir.name}"
+        if self._calibrated is not None:
+            return "calibrated:" + self._calibrated.policy["policy_sha256"]
         if self._nli is not None:
             return self._nli.prediction_mode
         raise RuntimeError("frame classifier has no active model backend")
@@ -129,6 +133,11 @@ class FrameClassifier:
                 frames={f: 0.0 for f in FRAME_LABELS},
                 dominant="other",
             )
+        if self._calibrated is not None:
+            result = self._calibrated.predict(text)
+            selected = {label: result["scores"][label] for label in result["labels"]}
+            return FramePrediction(document_id=document.document_id, source_type=document.source_type,
+                                   frames=selected, dominant=max(selected, key=selected.get) if selected else "unsupported")
         if self._pipeline is not None:
             return self._predict_model(document, text)
         if self._nli is not None:

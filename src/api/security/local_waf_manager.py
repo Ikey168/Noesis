@@ -3,7 +3,7 @@
 A fully in-process replacement for the former AWS WAF integration. It performs
 request inspection locally (SQL injection / XSS detection, geofencing and
 rate-limit configuration) and persists security events, metrics and the
-"web ACL" configuration to local files under ``NEURONEWS_LOG_DIR`` (default
+"web ACL" configuration to local files under ``NOESIS_LOG_DIR`` (default
 ``./logs``). No AWS account, boto3 or network access is required.
 """
 
@@ -15,12 +15,14 @@ from datetime import datetime, timezone
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
+from src.config.env import resolve_env
+
 logger = logging.getLogger(__name__)
 
 
 def _log_dir() -> str:
     """Return the local directory used to persist WAF state."""
-    path = os.environ.get("NEURONEWS_LOG_DIR", "./logs")
+    path = resolve_env("LOG_DIR", "./logs") or "./logs"
     os.makedirs(path, exist_ok=True)
     return path
 

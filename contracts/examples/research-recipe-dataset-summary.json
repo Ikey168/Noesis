@@ -1,0 +1,9 @@
+{
+  "recipe_id": "dataset-summary",
+  "version": "1",
+  "namespace": "scientific",
+  "inputs": {"query": {"type": "string", "required": true}},
+  "steps": [{"id": "search", "tool": "search_datasets", "depends_on": [], "input_schema": "query-v1", "output_schema": "dataset-search-v1", "required_scopes": ["knowledge:dataset:read"], "network": false}],
+  "outputs": {"datasets": "search"},
+  "compatibility": {"noesis": ">=1"}
+}

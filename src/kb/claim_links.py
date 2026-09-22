@@ -8,9 +8,9 @@ rewriting them (link-don't-merge; the merged reading experience is computed
 from clusters at presentation time, #966).
 
 Relations: ``duplicate`` (symmetric, canonical id order), ``supports`` /
-``contradicts`` (directed, premise → hypothesis), and ``supersedes``
-(directed, newer → older duplicate across a time gap; cluster-level
-supersedence lands with #966).
+``contradicts`` (directed, premise → hypothesis), and the directed temporal
+transitions ``supersedes`` / ``corrects`` / ``retracts`` (newer → older for
+the same identified source).
 
 Mechanics:
 
@@ -44,6 +44,7 @@ import uuid
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 from src.kb.nli import CONTRADICTION, ENTAILMENT, get_nli_backend
+from src.kb.temporal import classify_temporal_relation
 
 _LINKS_SCHEMA = """
 CREATE TABLE IF NOT EXISTS claim_links (
@@ -87,7 +88,14 @@ _STOP = {
     "at", "from", "said", "says",
 }
 
-RELATIONS = ("duplicate", "supports", "contradicts", "supersedes")
+RELATIONS = (
+    "duplicate",
+    "supports",
+    "contradicts",
+    "supersedes",
+    "corrects",
+    "retracts",
+)
 
 
 def ensure_claim_link_schema(conn) -> None:
@@ -381,6 +389,10 @@ def _link_pair(
 
     forward = nli.classify(text_a, text_b)
     backward = nli.classify(text_b, text_a)
+    source_a, change_a = _claim_temporal_context(conn, claim_a)
+    source_b, change_b = _claim_temporal_context(conn, claim_b)
+    same_source = bool(source_a and source_a == source_b)
+    newer_change = change_a if ingested_a > ingested_b else change_b
 
     # Duplicate: high similarity + mutual entailment.
     if (
@@ -396,9 +408,16 @@ def _link_pair(
             )
             if wrote:
                 summary["links"]["duplicate"] += 1
-            if (
-                ingested_a and ingested_b
-                and abs(ingested_a - ingested_b) >= supersede_gap_ms
+            transition = classify_temporal_relation(
+                "supersedes",
+                same_source=same_source,
+                observed_a_ms=ingested_a,
+                observed_b_ms=ingested_b,
+                newer_change_class=newer_change,
+            )
+            if same_source and ingested_a and ingested_b and (
+                abs(ingested_a - ingested_b) >= supersede_gap_ms
+                or transition in {"corrects", "retracts"}
             ):
                 newer, older = (
                     ((domain_a, claim_a), (domain_b, claim_b))
@@ -406,10 +425,10 @@ def _link_pair(
                     else ((domain_b, claim_b), (domain_a, claim_a))
                 )
                 if _upsert_link(
-                    conn, newer, older, "supersedes", similarity,
+                    conn, newer, older, transition, similarity,
                     f"{method}+temporal", mode, confidence, model_version, run_id,
                 ):
-                    summary["links"]["supersedes"] += 1
+                    summary["links"][transition] += 1
             return
 
     # Directed supports/contradicts: keep the stronger direction.
@@ -427,11 +446,49 @@ def _link_pair(
     if result.confidence < min_link_confidence:
         return
     relation = "supports" if result.label == ENTAILMENT else "contradicts"
+    relation = classify_temporal_relation(
+        relation,
+        same_source=same_source,
+        observed_a_ms=ingested_a,
+        observed_b_ms=ingested_b,
+        newer_change_class=newer_change,
+    )
+    if relation in {"corrects", "retracts", "supersedes"}:
+        premise, hypothesis = (
+            ((domain_a, claim_a), (domain_b, claim_b))
+            if ingested_a > ingested_b
+            else ((domain_b, claim_b), (domain_a, claim_a))
+        )
     if _upsert_link(
         conn, premise, hypothesis, relation, similarity, method, mode,
         result.confidence, model_version, run_id,
     ):
         summary["links"][relation] += 1
+
+
+def _claim_temporal_context(conn, claim_id: str) -> tuple[str, str | None]:
+    """Return source identity and latest source-declared revision class."""
+
+    row = conn.execute(
+        "SELECT COALESCE(d.source_id, ''), c.document_id "
+        "FROM argument_claims c LEFT JOIN documents d ON d.document_id = c.document_id "
+        "WHERE c.claim_id = ?",
+        [claim_id],
+    ).fetchone()
+    if row is None:
+        return "", None
+    change = None
+    exists = conn.execute(
+        "SELECT 1 FROM information_schema.tables WHERE table_name = 'document_revisions'"
+    ).fetchone()
+    if exists is not None:
+        revision = conn.execute(
+            "SELECT change_class FROM document_revisions WHERE document_id = ? "
+            "ORDER BY revision DESC LIMIT 1",
+            [row[1]],
+        ).fetchone()
+        change = revision[0] if revision else None
+    return str(row[0]), change
 
 
 def run_cross_backing_link_pass(

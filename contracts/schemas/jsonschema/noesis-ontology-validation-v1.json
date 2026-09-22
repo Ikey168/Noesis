@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/schemas/noesis-ontology-validation-v1.json",
+  "title": "Noesis ontology validation result",
+  "type": "object",
+  "required": ["contract", "namespace", "object_id", "object_kind", "ontology_module_id", "concept_id", "value", "source_native", "errors", "valid", "status", "input_hash", "quarantine_id"],
+  "properties": {
+    "contract": {"const": "noesis-ontology-validation-v1"},
+    "namespace": {"type": "string"},
+    "object_id": {"type": "string"},
+    "object_kind": {"enum": ["entity", "relation", "event", "metric", "claim"]},
+    "ontology_module_id": {"type": "string", "pattern": "^ontology:"},
+    "concept_id": {"type": "string"},
+    "value": {"type": "object"},
+    "source_native": {"type": "object"},
+    "errors": {"type": "array", "items": {"type": "object"}},
+    "valid": {"type": "boolean"},
+    "status": {"enum": ["valid", "invalid", "quarantined"]},
+    "input_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "quarantine_id": {"type": ["string", "null"]},
+    "idempotent": {"type": "boolean"}
+  },
+  "additionalProperties": false
+}

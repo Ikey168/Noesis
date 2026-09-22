@@ -1,0 +1,6 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema", "$id": "https://noesis.local/schemas/noesis-methodology-comparison-v1.json", "title": "Noesis methodology comparison or strength explanation", "type": "object",
+  "required": ["contract", "namespace"],
+  "properties": {"contract": {"const": "noesis-methodology-comparison-v1"}, "namespace": {"type": "string"}, "study_ids": {"type": "array", "items": {"type": "string"}}, "differences": {"type": "array", "items": {"type": "object"}}, "comparison_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"}, "study_id": {"type": "string"}, "strength": {"enum": ["unknown", "qualified"]}, "signals": {"type": "object"}, "explanation": {"type": "string"}, "explanation_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"}}, "additionalProperties": false,
+  "oneOf": [{"required": ["study_ids", "differences", "comparison_hash"]}, {"required": ["study_id", "strength", "signals", "explanation", "explanation_hash"]}]
+}

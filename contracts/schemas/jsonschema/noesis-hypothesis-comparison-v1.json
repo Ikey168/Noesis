@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/schemas/noesis-hypothesis-comparison-v1.json",
+  "title": "Noesis evidence-honest hypothesis comparison",
+  "type": "object",
+  "required": ["contract", "workspace_id", "workspace_revision_id", "method", "results", "ranking", "tie", "sensitivity", "inaccessible_evidence_count", "limitations", "comparison_hash"],
+  "properties": {
+    "contract": {"const": "noesis-hypothesis-comparison-v1"},
+    "workspace_id": {"type": "string", "pattern": "^hypothesis-workspace:"},
+    "workspace_revision_id": {"type": "string", "pattern": "^hypothesis-revision:"},
+    "method": {"enum": ["qualitative", "weighted"]},
+    "results": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["hypothesis_id", "assessment", "score", "interval", "support", "contradiction", "ambiguity", "independent_groups", "prior"],
+        "properties": {
+          "hypothesis_id": {"type": "string"},
+          "assessment": {"enum": ["favored", "disfavored", "mixed", "insufficient"]},
+          "score": {"type": ["number", "null"], "minimum": -1, "maximum": 1},
+          "interval": {"type": "array", "prefixItems": [{"type": "number"}, {"type": "number"}], "minItems": 2, "maxItems": 2},
+          "support": {"type": "number", "minimum": 0},
+          "contradiction": {"type": "number", "minimum": 0},
+          "ambiguity": {"type": "number", "minimum": 0},
+          "independent_groups": {"type": "integer", "minimum": 0},
+          "prior": {"type": ["number", "null"], "minimum": 0, "maximum": 1}
+        },
+        "additionalProperties": false
+      }
+    },
+    "ranking": {"type": "array", "items": {"type": "string"}},
+    "tie": {"type": "boolean"},
+    "sensitivity": {"type": "number", "minimum": 0, "maximum": 1},
+    "inaccessible_evidence_count": {"type": "integer", "minimum": 0},
+    "limitations": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+    "comparison_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  },
+  "additionalProperties": false
+}

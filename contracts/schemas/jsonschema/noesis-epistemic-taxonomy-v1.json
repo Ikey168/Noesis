@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/schemas/noesis-epistemic-taxonomy-v1.json",
+  "title": "Noesis versioned epistemic taxonomy",
+  "type": "object",
+  "required": ["contract", "taxonomy_id", "name", "semantic_version", "definitions", "content_hash", "domain", "supersedes_taxonomy_id"],
+  "properties": {
+    "contract": {"const": "noesis-epistemic-taxonomy-v1"},
+    "taxonomy_id": {"type": "string", "pattern": "^epistemic-taxonomy:"},
+    "name": {"type": "string", "minLength": 1},
+    "semantic_version": {"type": "string", "minLength": 1},
+    "definitions": {
+      "type": "object",
+      "required": ["fact", "report", "allegation", "estimate", "forecast", "opinion", "hypothesis", "normative", "unknown"],
+      "additionalProperties": {"type": "string", "minLength": 1}
+    },
+    "content_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "domain": {"type": "string", "minLength": 1},
+    "supersedes_taxonomy_id": {"type": ["string", "null"]}
+  },
+  "additionalProperties": false
+}

@@ -94,9 +94,10 @@ AUTOTHROTTLE_DEBUG = config["debug"]
 
 # Enable showing throttling stats for every response received
 HTTPCACHE_ENABLED = True
-HTTPCACHE_EXPIRATION_SECS = 0
+HTTPCACHE_EXPIRATION_SECS = max(1, min(86400, int(os.environ.get("NOESIS_CACHE_MAX_AGE", "300"))))
+HTTPCACHE_POLICY = "scrapy.extensions.httpcache.RFC2616Policy"
 HTTPCACHE_DIR = "httpcache"
-HTTPCACHE_IGNORE_HTTP_CODES = []
+HTTPCACHE_IGNORE_HTTP_CODES = [429, 500, 502, 503, 504]
 HTTPCACHE_STORAGE = "scrapy.extensions.httpcache.FilesystemCacheStorage"
 
 # Playwright settings for JavaScript-heavy pages
@@ -118,3 +119,16 @@ PLAYWRIGHT_DEFAULT_NAVIGATION_TIMEOUT = 30 * 1000  # 30 seconds
 # Custom settings
 SCRAPING_SOURCES = config["scraping"]["sources"]
 SCRAPING_INTERVAL = config["scraping"]["interval_minutes"]
+
+# The download handler owns contexts; callbacks and errbacks own included pages.
+PLAYWRIGHT_MAX_CONTEXTS = max(1, min(8, int(os.environ.get("NOESIS_BROWSER_CONTEXTS", "2"))))
+PLAYWRIGHT_MAX_PAGES_PER_CONTEXT = max(1, min(16, int(os.environ.get("NOESIS_BROWSER_PAGES", "4"))))
+PLAYWRIGHT_CONTENT_TIMEOUT = 10000
+
+NOESIS_OFFLINE_REPLAY = os.environ.get('NOESIS_OFFLINE_REPLAY', '0') == '1'
+if NOESIS_OFFLINE_REPLAY:
+    HTTPCACHE_EXPIRATION_SECS = 0
+DOWNLOADER_MIDDLEWARES = {
+    'scrapy.downloadermiddlewares.httpcache.HttpCacheMiddleware': None,
+    'src.scraper.cache_provenance.ProvenanceCacheMiddleware': 900,
+}

@@ -1,0 +1,26 @@
+{
+  "pack_id": "technical-software-knowledge",
+  "version": "1.0.0",
+  "description": "Repositories, packages, standards, dependencies, and vulnerability advisories.",
+  "domains": ["technical"],
+  "defaults": {
+    "connector": "declarative-rest",
+    "scope": "public software and standards metadata",
+    "update_cadence": "daily",
+    "temporal_semantics": "release-commit-advisory-observation",
+    "mapping": {"target_schema": "technical-record-v1", "version": "1.0.0"},
+    "extractor_versions": ["technical-normalizer:1.0.0"],
+    "schedule": {"kind": "interval", "interval_s": 86400},
+    "budgets": {"timeout_ms": 15000, "max_results": 250, "max_bytes": 10000000, "max_pages": 5},
+    "auth": {"kind": "none"},
+    "fixture": {"path": "tests/fixtures/source_packs/technical.json", "sha256": "12102f682e1e5388d7f96a7d2e8b0e9e6d2120b9ee6536811d37dbfec5fabfef", "expected_output_hash": "034d8af4fdec074e03f909e0577ebcd600b1c1c9e3aebf05ecb51780b20151e9"},
+    "health": {"required": true, "max_staleness_s": 172800}
+  },
+  "sources": [
+    {"source_id": "git-cpython", "connector": "git", "endpoint": "https://github.com/python/cpython.git", "publisher": "Python Software Foundation", "scope": "CPython repository history", "license": {"id": "psf-license", "terms_url": "https://github.com/python/cpython/blob/main/LICENSE", "redistribution": "license-governed"}, "operations": ["commit", "tag", "incremental"]},
+    {"source_id": "pypi-json", "connector": "package-registry", "endpoint": "https://pypi.org/pypi", "publisher": "Python Package Index", "scope": "Python packages", "license": {"id": "pypi-terms", "terms_url": "https://policies.python.org/pypi.org/Terms-of-Service/", "redistribution": "package-specific"}, "operations": ["package", "release", "yanked"]},
+    {"source_id": "npm-registry", "connector": "package-registry", "endpoint": "https://registry.npmjs.org", "publisher": "npm, Inc.", "scope": "npm packages", "license": {"id": "npm-terms", "terms_url": "https://docs.npmjs.com/policies/terms", "redistribution": "package-specific"}, "operations": ["package", "release", "deprecated"]},
+    {"source_id": "osv-api", "endpoint": "https://api.osv.dev/v1", "publisher": "Open Source Vulnerabilities", "scope": "open-source vulnerability advisories", "license": {"id": "osv-data-license", "terms_url": "https://google.github.io/osv.dev/data/", "redistribution": "source-specific"}, "operations": ["package", "commit", "advisory", "modified-since"]},
+    {"source_id": "rfc-editor", "connector": "web", "endpoint": "https://www.rfc-editor.org/rfc", "publisher": "RFC Editor", "scope": "IETF RFC documents", "license": {"id": "ietf-trust-terms", "terms_url": "https://trustee.ietf.org/documents/trust-legal-provisions/", "redistribution": "terms-governed"}, "operations": ["rfc", "section", "obsoletes", "updated-by"]}
+  ]
+}

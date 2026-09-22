@@ -56,6 +56,8 @@ class PaperMetadata:
     published: Optional[datetime] = None
     pdf_url: Optional[str] = None
     references: List[Reference] = field(default_factory=list)
+    version_id: Optional[str] = None
+    updated: Optional[datetime] = None
 
     @property
     def document_id(self) -> str:

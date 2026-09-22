@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema", "$id": "https://noesis.local/schemas/noesis-source-plan-receipt-v1.json",
+  "title": "Noesis source plan execution receipt", "type": "object",
+  "required": ["contract", "run_id", "namespace", "plan_id", "status", "steps", "failures", "budget", "checkpointed", "adaptive_replanned", "adaptive_replan_required", "receipt_hash"],
+  "properties": {
+    "contract": {"const": "noesis-source-plan-receipt-v1"}, "run_id": {"type": "string"}, "namespace": {"type": "string"}, "plan_id": {"type": "string"},
+    "status": {"enum": ["completed", "partial", "failed", "cancelled"]}, "steps": {"type": "array", "items": {"type": "object"}}, "failures": {"type": "array", "items": {"type": "object"}},
+    "budget": {"type": "object"}, "checkpointed": {"const": true}, "adaptive_replanned": {"type": "boolean"}, "adaptive_replan_required": {"type": "boolean"},
+    "receipt_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"}, "idempotent": {"type": "boolean"}
+  }, "additionalProperties": false
+}

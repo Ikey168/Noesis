@@ -128,23 +128,20 @@ class VectorSearchService:
             with self.connection.cursor(cursor_factory=RealDictCursor) as cursor:
                 # Build the SQL query with filters
                 where_conditions = []
-                params = [query_embedding, filters.min_similarity, k]
-                param_idx = 3
+                params = [query_embedding, query_embedding, filters.min_similarity]
                 
                 if filters.source:
-                    where_conditions.append(f"d.source = ${param_idx + 1}")
+                    where_conditions.append("d.source = %s")
                     params.append(filters.source)
-                    param_idx += 1
                 
                 if filters.date_from:
-                    where_conditions.append(f"d.published_at >= ${param_idx + 1}")
+                    where_conditions.append("d.published_at >= %s")
                     params.append(filters.date_from)
-                    param_idx += 1
                     
                 if filters.date_to:
-                    where_conditions.append(f"d.published_at <= ${param_idx + 1}")
+                    where_conditions.append("d.published_at <= %s")
                     params.append(filters.date_to)
-                    param_idx += 1
+                params.append(k)
                 
                 where_clause = ""
                 if where_conditions:
@@ -153,24 +150,24 @@ class VectorSearchService:
                 # Execute vector similarity search
                 query = f"""
                     SELECT 
-                        d.id,
-                        d.doc_id,
+                        c.id,
+                        COALESCE(c.doc_id, d.article_id) AS doc_id,
                         c.chunk_id,
                         d.title,
                         c.content,
                         d.source,
                         d.url,
                         d.published_at,
-                        vector_ops.cosine_similarity(e.embedding, $1::vector) as similarity_score,
+                        vector_ops.cosine_similarity(e.embedding, %s::vector) as similarity_score,
                         c.word_count,
                         c.char_count
                     FROM embeddings e
                     JOIN chunks c ON e.chunk_id = c.id
                     JOIN documents d ON c.document_id = d.id
-                    WHERE vector_ops.cosine_similarity(e.embedding, $1::vector) >= $2
+                    WHERE vector_ops.cosine_similarity(e.embedding, %s::vector) >= %s
                     {where_clause}
                     ORDER BY similarity_score DESC
-                    LIMIT $3
+                    LIMIT %s
                 """
                 
                 cursor.execute(query, params)

@@ -1,0 +1,10 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema", "$id": "https://noesis.local/schemas/noesis-research-gap-report-v1.json",
+  "title": "Noesis research gap report", "type": "object",
+  "required": ["contract", "namespace", "status", "items", "report_hash"],
+  "properties": {
+    "contract": {"const": "noesis-research-gap-report-v1"}, "namespace": {"type": "string"}, "status": {"enum": ["completed", "cancelled"]},
+    "policy_id": {"type": ["string", "null"]}, "items": {"type": "array", "items": {"type": "object"}}, "scanned": {"type": "integer", "minimum": 0},
+    "next_cursor": {"type": ["string", "null"]}, "report_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }, "additionalProperties": false
+}

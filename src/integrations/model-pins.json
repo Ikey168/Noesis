@@ -1,0 +1,42 @@
+{
+  "intfloat/multilingual-e5-small": {
+    "revision": "614241f622f53c4eeff9890bdc4f31cfecc418b3",
+    "license": "mit",
+    "status": "evaluation-only"
+  },
+  "BAAI/bge-m3": {
+    "revision": "5617a9f61b028005a4858fdac845db406aefb181",
+    "license": "mit",
+    "status": "evaluation-only"
+  },
+  "Qwen/Qwen3-Reranker-0.6B": {
+    "revision": "e61197ed45024b0ed8a2d74b80b4d909f1255473",
+    "license": "apache-2.0",
+    "status": "evaluation-only"
+  },
+  "MoritzLaurer/mDeBERTa-v3-base-mnli-xnli": {
+    "revision": "8adb042d524ecd5c26d3e3ba0e3fbcf7e2d0864c",
+    "license": "mit",
+    "status": "evaluation-only"
+  },
+  "fastino/gliner2-multi-v1": {
+    "revision": "c6296e25603e4d31f68ef8a9f4edb73421d1e45a",
+    "license": "apache-2.0",
+    "status": "evaluation-only"
+  },
+  "lightonai/LightOnOCR-2-1B": {
+    "revision": "c97bd377f04481830395218fa8951df9deaba756",
+    "license": "apache-2.0",
+    "status": "evaluation-only"
+  },
+  "segment-any-text/sat-3l-sm": {
+    "revision": "137da054051ad9f1eac42025f758db4ac9f22535",
+    "license": "mit",
+    "status": "evaluation-only"
+  },
+  "FacebookAI/xlm-roberta-base": {
+    "revision": "e73636d4f797dec63c3081bb6ed5c7b0bb3f2089",
+    "license": "mit",
+    "status": "evaluation-only"
+  }
+}

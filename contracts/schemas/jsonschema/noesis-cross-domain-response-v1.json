@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/contracts/noesis-cross-domain-response-v1.json",
+  "title": "Noesis Cross-domain Response v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["contract", "domain", "as_of_ms", "data"],
+  "properties": {
+    "contract": {"const": "noesis-kb-v1"},
+    "domain": {"const": "cross-domain"},
+    "as_of_ms": {"type": "integer", "minimum": 0},
+    "data": {
+      "type": "object",
+      "required": ["cross_domain_contract", "operation", "scope", "partial_failures", "n"],
+      "properties": {
+        "cross_domain_contract": {"const": "noesis-cross-domain-v1"},
+        "operation": {"enum": ["search", "answer", "links"]},
+        "scope": {"$ref": "#/definitions/scope"},
+        "partial_failures": {
+          "type": "array",
+          "items": {"$ref": "#/definitions/failure"}
+        },
+        "n": {"type": "integer", "minimum": 0},
+        "query": {"type": "string"},
+        "results": {"type": "array", "items": {"type": "object"}},
+        "links": {"type": "array", "items": {"type": "object"}},
+        "answer_contract": {"const": "noesis-answer-v1"},
+        "question": {"type": "string"},
+        "answer_status": {"enum": ["answered", "partial", "refused"]},
+        "statements": {"type": "array", "items": {"type": "object"}},
+        "rendered": {"type": "string"},
+        "refusal": {"type": ["object", "null"]},
+        "partial_reasons": {"type": "array", "items": {"type": "string"}},
+        "evidence_plan": {"type": "object"},
+        "method": {"type": "string"},
+        "assumptions": {"type": "array", "items": {"type": "string"}},
+        "prediction_mode": {"type": "string"}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"operation": {"const": "search"}}},
+          "then": {"required": ["query", "results"]}
+        },
+        {
+          "if": {"properties": {"operation": {"const": "answer"}}},
+          "then": {
+            "required": ["answer_contract", "question", "answer_status", "statements", "rendered", "refusal", "partial_reasons", "evidence_plan", "method", "assumptions", "prediction_mode"]
+          }
+        },
+        {
+          "if": {"properties": {"operation": {"const": "links"}}},
+          "then": {"required": ["links"]}
+        }
+      ]
+    }
+  },
+  "definitions": {
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode", "requested_domains", "selected_domains", "excluded_domains", "global_limit", "per_domain_limit", "embedding_models", "embedding_models_compatible", "ranking", "domains"],
+      "properties": {
+        "mode": {"enum": ["explicit", "all_authorized"]},
+        "requested_domains": {
+          "type": ["array", "null"],
+          "items": {"type": "string"},
+          "uniqueItems": true
+        },
+        "selected_domains": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "excluded_domains": {"type": "array", "items": {"type": "object"}},
+        "global_limit": {"type": "integer", "minimum": 1},
+        "per_domain_limit": {"type": "integer", "minimum": 1},
+        "embedding_models": {"type": "object", "additionalProperties": {"type": "string"}},
+        "embedding_models_compatible": {"type": "boolean"},
+        "ranking": {"type": "object"},
+        "domains": {"type": "array", "items": {"type": "object"}}
+      }
+    },
+    "failure": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["domain", "backing", "code", "message"],
+      "properties": {
+        "domain": {"type": "string"},
+        "backing": {"enum": ["corpus-view", "namespace"]},
+        "code": {"const": "domain_unavailable"},
+        "message": {"type": "string"}
+      }
+    }
+  }
+}

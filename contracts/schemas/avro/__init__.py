@@ -1,0 +1,1 @@
+"""Packaged Avro contracts."""

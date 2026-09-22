@@ -1,0 +1,11 @@
+{
+  "component": "knowledge-subscriptions",
+  "from_version": 0,
+  "to_version": 1,
+  "mapping": {
+    "watch.selector": "query",
+    "watch.principal_id": "owner_principal",
+    "watch.domain": "namespace"
+  },
+  "lossy_fields": ["claim-watch event taxonomy"]
+}

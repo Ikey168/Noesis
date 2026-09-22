@@ -19,7 +19,9 @@ A selector contains exactly one `type` and `value`. Supported types are
 - `integrity_changed`;
 - `quantitative_verdict_changed`;
 - `coverage_stale`;
-- `source_delivery_failed`.
+- `source_delivery_failed`;
+- `guidance_stale` (private watch only, when authorized guidance conflicts
+  with a newer public record).
 
 Every event is immutable and includes its reason code, explanation, complete
 before/after snapshots, committed consolidation watermark, observation time,
