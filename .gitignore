@@ -290,3 +290,5 @@ data/tls/server.key
 data/tls/server.crt
 data/backups/*.enc
 artifacts/figures/
+\n# Local Noesis runtime database and machine configuration
+.noesis/

@@ -106,7 +106,14 @@ def diagnose(config_path: Path | None = None) -> dict[str, Any]:
                 )
             )
 
-    if _available('playwright'):
+    # Keep the executable probe tied to the real installed module rather than
+    # the injectable capability function. Tests can model optional Python
+    # packages without accidentally claiming that a browser binary exists.
+    try:
+        playwright_installed = importlib.util.find_spec("playwright") is not None
+    except (ImportError, ModuleNotFoundError, ValueError):
+        playwright_installed = False
+    if playwright_installed:
         import subprocess
         import sys
         try:
