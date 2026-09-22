@@ -1,6 +1,6 @@
 ---
 name: intake-mode
-description: Run an information-intake-mode session in Noesis — the ten information workflow modes (Awareness, Exploration, Deep Research, Decision Support, Problem-Solving, Creation, Externalization, Internalization, Iteration, Maintenance). Use when the user wants to route a task to the right intake mode, start/pause/resume/complete a mode session, record evidence against a time budget, or export a session (incl. a Modulo handoff). Drives the noesis-intake MCP (discover/route/start/command/export), contract noesis-intake-session-v1.
+description: Run an information-intake-mode session in Noesis — the ten information workflow modes (Awareness, Exploration, Deep Research, Decision Support, Problem-Solving, Creation, Externalization, Internalization, Iteration, Maintenance). Use when the user wants to route a task to the right intake mode, start/pause/resume/complete a mode session, record evidence against a time budget, or export a session (incl. a Modulo handoff). Drives the noesis-knowledge-engine MCP (discover/route/start/command/export), contract noesis-intake-session-v1.
 ---
 
 # Information intake mode sessions
@@ -9,8 +9,8 @@ Noesis models information work as **ten intake modes**, each a bounded session
 with a time budget, an owner+namespace, a monotonic `revision`, a command
 history, and a status. The session ledger (contract `noesis-intake-session-v1`)
 is a coordination layer over existing Noesis stores — it holds **references**,
-never copied source content. Tools live on the **`noesis-intake`** MCP server
-(`mcp__noesis-intake__*`).
+never copied source content. Tools live on the **`noesis-knowledge-engine`** MCP server
+(`mcp__noesis-knowledge-engine__*`).
 
 ## The ten modes (default / min / max minutes)
 
