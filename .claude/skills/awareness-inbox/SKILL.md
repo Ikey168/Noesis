@@ -1,13 +1,13 @@
 ---
 name: awareness-inbox
-description: Run the Noesis Awareness intake mode end to end — subscribe RSS/Atom/newsletter feeds, refresh the inbox, triage items against a bounded Awareness session, and promote escalated items into another intake mode (Deep Research, Decision Support, …). Use when the user wants to stay current on a stream, process a feed inbox, or route a noteworthy item into deeper work. Drives the noesis-intake MCP feed/awareness tools.
+description: Run the Noesis Awareness intake mode end to end — subscribe RSS/Atom/newsletter feeds, refresh the inbox, triage items against a bounded Awareness session, and promote escalated items into another intake mode (Deep Research, Decision Support, …). Use when the user wants to stay current on a stream, process a feed inbox, or route a noteworthy item into deeper work. Drives the noesis-knowledge-engine MCP feed/awareness tools.
 ---
 
 # Awareness inbox (native workflow)
 
 Awareness is the one intake mode with a full **native workflow**: a durable feed
-inbox feeding time-boxed Awareness sessions. Tools live on the **`noesis-intake`**
-MCP server (`mcp__noesis-intake__*`). Awareness has a tight budget (**15 min**,
+inbox feeding time-boxed Awareness sessions. Tools live on the **`noesis-knowledge-engine`**
+MCP server (`mcp__noesis-knowledge-engine__*`). Awareness has a tight budget (**15 min**,
 max 15) — it is triage, not deep work; promote anything that needs more.
 
 ## 1. Subscribe feeds
