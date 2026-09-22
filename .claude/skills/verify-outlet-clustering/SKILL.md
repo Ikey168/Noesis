@@ -1,9 +1,14 @@
+---
+name: verify-outlet-clustering
+description: Smoke-test the outlet editorial-framing cluster pipeline without a running API server or a populated warehouse. Runs on synthetic vectors by default and reports outlet count, method, and silhouette score per k; the --live flag clusters real document_frames from the warehouse instead. Use when changing the clustering implementation, tuning k or the clustering method, or confirming the pipeline works before relying on outlet cluster labels.
+---
+
 # verify-outlet-clustering skill
 
 Smoke-tests the outlet editorial-framing cluster pipeline (#115) without
 needing a running API server or a populated warehouse.
 
-**All paths relative to repo root** (`/home/Ikey/NeuroNews`).
+**All paths are relative to the repo root.**
 
 ## Usage
 
