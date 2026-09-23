@@ -3,7 +3,7 @@
   "$id": "noesis-intake-research-progress-v1",
   "title": "Access-checked paired Deep Research progress",
   "type": "object",
-  "required": ["contract", "session", "project", "bundle", "loops", "blockers", "limitations"],
+  "required": ["contract", "session", "project", "bundle", "loops", "blockers", "limitations", "assessment"],
   "additionalProperties": false,
   "properties": {
     "contract": {"const": "noesis-intake-research-progress-v1"},
@@ -38,7 +38,19 @@
       "properties": {
         "id": {"type": "string"},
         "revision": {"type": ["integer", "null"]},
-        "checks": {"type": "object", "required": ["ready", "source_status", "independent_hosts"]}
+        "checks": {"type": "object", "required": ["ready", "source_status", "independent_hosts", "reasons"]},
+        "definition_of_done": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["criterion", "met", "cited_card_count"],
+            "properties": {
+              "criterion": {"type": "string"},
+              "met": {"type": "boolean"},
+              "cited_card_count": {"type": "integer", "minimum": 0}
+            }
+          }
+        }
       }
     },
     "loops": {
@@ -59,6 +71,55 @@
       }
     },
     "blockers": {"type": "array", "items": {"type": "string"}},
-    "limitations": {"type": "array", "items": {"type": "string"}}
+    "limitations": {"type": "array", "items": {"type": "string"}},
+    "assessment": {"$ref": "#/$defs/assessment"}
+  },
+  "$defs": {
+    "assessment": {
+      "type": "object",
+      "required": [
+        "ready", "bundle_ready", "required_stage_ids", "stage_receipt_count",
+        "completed_stage_receipt_count", "definition_of_done", "blockers",
+        "limitations", "substantive_support_verified"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "ready": {"type": "boolean"},
+        "bundle_ready": {"type": "boolean"},
+        "required_stage_ids": {"type": "array", "items": {"type": "string"}},
+        "stage_receipt_count": {"type": "integer", "minimum": 0},
+        "completed_stage_receipt_count": {"type": "integer", "minimum": 0},
+        "definition_of_done": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["criterion", "status", "reviewed", "recorded_met", "cited_card_count"],
+            "additionalProperties": false,
+            "properties": {
+              "criterion": {"type": "string"},
+              "status": {"enum": ["met", "not_met", "unreviewed", "needs_review"]},
+              "reviewed": {"type": "boolean"},
+              "recorded_met": {"type": "boolean"},
+              "cited_card_count": {"type": "integer", "minimum": 0}
+            }
+          }
+        },
+        "blockers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["code", "target", "next_action"],
+            "additionalProperties": false,
+            "properties": {
+              "code": {"type": "string", "minLength": 1},
+              "target": {"type": "object", "minProperties": 1},
+              "next_action": {"type": "string", "minLength": 1}
+            }
+          }
+        },
+        "limitations": {"type": "array", "items": {"type": "string"}},
+        "substantive_support_verified": {"const": false}
+      }
+    }
   }
 }

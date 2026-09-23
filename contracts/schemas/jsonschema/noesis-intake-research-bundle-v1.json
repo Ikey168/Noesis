@@ -30,7 +30,7 @@
         "definition_of_done": {"type": "array", "maxItems": 100, "items": {"$ref": "#/$defs/review"}}
       }
     },
-    "checks": {"type": "object", "required": ["ready", "source_status", "independent_hosts"], "additionalProperties": false, "properties": {"ready": {"type": "boolean"}, "source_status": {"type": "object", "additionalProperties": {"enum": ["current", "superseded"]}}, "independent_hosts": {"type": "integer", "minimum": 0}}},
+    "checks": {"type": "object", "required": ["ready", "source_status", "independent_hosts", "reasons"], "additionalProperties": false, "properties": {"ready": {"type": "boolean"}, "source_status": {"type": "object", "additionalProperties": {"enum": ["current", "superseded"]}}, "independent_hosts": {"type": "integer", "minimum": 0}, "reasons": {"type": "array", "uniqueItems": true, "items": {"type": "string"}}}},
     "updated_at_ms": {"type": "integer", "minimum": 0},
     "idempotent": {"type": "boolean"}
   },

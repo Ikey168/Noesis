@@ -22,9 +22,11 @@ from __future__ import annotations
 
 import ipaddress
 import json
+import re
 import socket
-import time
+from html import unescape
 import urllib.parse
+import urllib.error
 import urllib.request
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
@@ -100,6 +102,7 @@ class ScholarlySource:
     id_path: str = "id"
     title_path: str = "title"
     abstract_path: Optional[str] = None
+    abstract_inverted_index_path: Optional[str] = None
     authors_path: Optional[str] = None
     author_name_key: Optional[str] = None  # when authors are objects
     date_path: str = "published"
@@ -107,9 +110,13 @@ class ScholarlySource:
     url_path: Optional[str] = None
     pdf_path: Optional[str] = None
     venue_path: Optional[str] = None
+    references_path: Optional[str] = None
+    reference_id_path: Optional[str] = None
+    citation_count_path: Optional[str] = None
     language_path: Optional[str] = None
     default_language: str = "en"
     requires_env: Optional[str] = None  # env var holding an API key, if any
+    optional_env: Optional[str] = None  # use a key when available, allow keyless requests
     api_key_header: Optional[str] = None  # send key in this header ...
     api_key_prefix: str = ""              # ... with this prefix (e.g. "Bearer ")
     api_key_query: Optional[str] = None   # ... or as this query parameter
@@ -146,6 +153,31 @@ def _get(record: Any, path: Optional[str], default: Any = None) -> Any:
         if current is None:
             return default
     return current
+
+
+def _abstract_from_inverted_index(value: Any) -> Optional[str]:
+    """Restore the word order of an OpenAlex abstract, when one is supplied."""
+    if not isinstance(value, Mapping):
+        return None
+    positions: dict[int, str] = {}
+    for word, offsets in value.items():
+        if not isinstance(word, str) or not isinstance(offsets, list):
+            return None
+        for offset in offsets:
+            if type(offset) is not int or offset < 0 or offset > 20_000:
+                return None
+            positions[offset] = word
+    if not positions or max(positions) + 1 != len(positions):
+        return None
+    return " ".join(positions[index] for index in range(len(positions)))
+
+
+def _clean_abstract(value: Any) -> Optional[str]:
+    if not isinstance(value, str):
+        return None
+    plain = re.sub(r"<[^>]*>", " ", value)
+    plain = " ".join(unescape(unescape(plain)).split())
+    return plain or None
 
 
 def _to_millis(value: Any) -> Optional[int]:
@@ -185,6 +217,39 @@ def _millis_bounds(query: ScholarlyQuery) -> tuple[Optional[int], Optional[int]]
         if hi is not None:
             hi += 86_400_000 - 1  # inclusive end-of-day
     return lo, hi
+
+
+def _date_precision(value: Any) -> str:
+    if isinstance(value, list):
+        parts = value[0] if value and isinstance(value[0], list) else value
+        n = sum(part is not None for part in parts)
+        if n >= 3:
+            return "day"
+        if n == 2:
+            return "month"
+        return "year" if n == 1 else "unknown"
+    text = str(value or "")
+    if len(text) == 4 and text.isdigit():
+        return "year"
+    if len(text) == 7 and text[4] in "-/":
+        return "month"
+    return "day" if text else "unknown"
+
+
+def _publication_end_ms(start_ms: int, precision: str) -> int:
+    if precision == "day":
+        return (start_ms // 86_400_000 + 1) * 86_400_000 - 1
+    if precision in {"year", "month"}:
+        start = datetime.fromtimestamp(start_ms / 1000, timezone.utc)
+        year, month = start.year, start.month
+        if precision == "year":
+            year, month = year + 1, 1
+        elif month == 12:
+            year, month = year + 1, 1
+        else:
+            month += 1
+        return int(datetime(year, month, 1, tzinfo=timezone.utc).timestamp() * 1000) - 1
+    return start_ms
 
 
 def _assert_public_https(url: str, allowed_host: str,
@@ -246,7 +311,8 @@ class ScholarlyConnector(Connector):
         import os
 
         source = self.SOURCE
-        key = self._api_key or (os.getenv(source.requires_env) if source.requires_env else None)
+        key_env = source.requires_env or source.optional_env
+        key = self._api_key or (os.getenv(key_env) if key_env else None)
         if source.requires_env and not key:
             raise PermanentFetchError(
                 f"{source.name} needs {source.requires_env}; skipping (set the key to enable)"
@@ -259,7 +325,18 @@ class ScholarlyConnector(Connector):
             sep = "&" if "?" in url else "?"
             url = f"{url}{sep}{source.api_key_query}={enc(key)}"
         _assert_public_https(url, source.allowed_host, self._resolver)
-        payload = self._http_get(url, headers)
+        try:
+            payload = self._http_get(url, headers)
+        except urllib.error.HTTPError as exc:
+            if exc.code == 429:
+                hint = (
+                    f"; configure {key_env} for a dedicated quota"
+                    if key_env and not key else ""
+                )
+                raise PermanentFetchError(
+                    f"{source.name} rate limited this request (HTTP 429){hint}"
+                ) from exc
+            raise PermanentFetchError(f"{source.name} returned HTTP {exc.code}") from exc
         return RawDocument(ref=ref, content=payload, content_type="application/json")
 
     def parse(self, raw: RawDocument) -> List[Document]:
@@ -285,7 +362,8 @@ class ScholarlyConnector(Connector):
             if document is None:
                 continue
             published = document.created_at
-            if lo is not None and (published is None or published < lo):
+            precision = document.metadata.get("publication_date_precision", "unknown")
+            if lo is not None and (published is None or _publication_end_ms(published, precision) < lo):
                 continue
             if hi is not None and (published is None or published > hi):
                 continue
@@ -312,19 +390,41 @@ class ScholarlyConnector(Connector):
         abstract = _get(record, source.abstract_path or "")
         if isinstance(abstract, list):
             abstract = " ".join(str(x) for x in abstract)
+        if not abstract and source.abstract_inverted_index_path:
+            abstract = _abstract_from_inverted_index(
+                _get(record, source.abstract_inverted_index_path)
+            )
+        abstract = _clean_abstract(abstract)
         url = _get(record, source.url_path or "") or (
             f"https://doi.org/{str(doi).replace('https://doi.org/', '')}" if doi else None)
         pdf_url = _get(record, source.pdf_path or "")
         venue = _get(record, source.venue_path or "")
+        if isinstance(venue, list):
+            venue = next((str(item).strip() for item in venue if str(item).strip()), None)
         language = _get(record, source.language_path or "") or source.default_language
+        raw_references = _get(record, source.references_path or "")
+        references = []
+        if isinstance(raw_references, list):
+            for item in raw_references:
+                identifier = (
+                    _get(item, source.reference_id_path)
+                    if isinstance(item, Mapping) else item
+                )
+                if identifier:
+                    references.append(str(identifier).strip())
+        citation_count = _get(record, source.citation_count_path or "")
 
+        raw_date = _get(record, source.date_path)
         metadata = {
             "source_api": source.name,
             "work_identifier": work_id,
             "doi": (str(doi).replace("https://doi.org/", "") if doi else None),
             "venue": venue,
+            "references": references or None,
+            "citations": citation_count if type(citation_count) is int and citation_count >= 0 else None,
             "content_coverage": "abstract-only" if abstract else "metadata-only",
             "external_id": str(raw_id),
+            "publication_date_precision": _date_precision(raw_date),
         }
         metadata = {k: v for k, v in metadata.items() if v not in (None, "", [])}
 
@@ -335,11 +435,11 @@ class ScholarlyConnector(Connector):
             ingested_at=fetched_at,
             source_id=source.name,
             url=str(url) if url else None,
-            title=str(title),
+            title=unescape(unescape(str(title))),
             content=str(abstract) if abstract else None,
             content_ref=str(pdf_url) if pdf_url else None,
             authors=authors,
-            created_at=_to_millis(_get(record, source.date_path)),
+            created_at=_to_millis(raw_date),
             metadata=metadata,
         )
 
@@ -367,7 +467,10 @@ def _extract_authors(record: Mapping[str, Any], source: ScholarlySource) -> List
 def _document_id(source_name: str, raw_id: str, doi: Any) -> str:
     import hashlib
 
-    basis = ("doi:" + str(doi).lower() if doi else f"{source_name}:{raw_id}")
+    normalized_doi = str(doi).strip().lower() if doi else ""
+    for prefix in ("https://doi.org/", "http://doi.org/", "https://dx.doi.org/", "http://dx.doi.org/"):
+        normalized_doi = normalized_doi.removeprefix(prefix)
+    basis = "doi:" + normalized_doi if normalized_doi else f"{source_name}:{raw_id}"
     return "paper:" + hashlib.sha1(basis.encode("utf-8")).hexdigest()[:24]
 
 

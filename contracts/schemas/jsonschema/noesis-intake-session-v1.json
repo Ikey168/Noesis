@@ -32,7 +32,7 @@
   },
   "additionalProperties": false,
   "$defs": {
-    "reference": {"type": "object", "required": ["kind", "id", "namespace", "version"], "additionalProperties": false, "properties": {"kind": {"type": "string", "minLength": 1}, "id": {"type": "string", "minLength": 1}, "namespace": {"type": "string", "minLength": 1}, "version": {"type": "integer", "minimum": 1}, "locator": {"type": "object", "additionalProperties": false, "properties": {"url": {"type": "string"}, "page": {"type": "integer", "minimum": 0}, "start": {"type": "integer", "minimum": 0}, "end": {"type": "integer", "minimum": 0}, "section": {"type": "string"}}}}},
+    "reference": {"type": "object", "required": ["kind", "id", "namespace", "version"], "additionalProperties": false, "properties": {"kind": {"type": "string", "minLength": 1}, "id": {"type": "string", "minLength": 1}, "namespace": {"type": "string", "minLength": 1}, "version": {"type": "integer", "minimum": 0}, "locator": {"type": "object", "additionalProperties": false, "properties": {"url": {"type": "string"}, "page": {"type": "integer", "minimum": 0}, "start": {"type": "integer", "minimum": 0}, "end": {"type": "integer", "minimum": 0}, "section": {"type": "string"}}}}, "allOf": [{"if": {"properties": {"kind": {"const": "document"}}, "required": ["kind"]}, "else": {"properties": {"version": {"minimum": 1}}}}]},
     "workspaceLink": {"type": "object", "required": ["system", "workspace_id", "kind", "id", "version"], "additionalProperties": false, "properties": {"system": {"const": "modulo"}, "workspace_id": {"type": "string", "minLength": 1}, "kind": {"enum": ["intake_item", "session", "artifact", "project", "note", "task"]}, "id": {"type": "string", "minLength": 1}, "version": {"type": "integer", "minimum": 1}}}
   }
 }

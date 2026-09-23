@@ -228,6 +228,12 @@
       "command": "python3",
       "args": ["tools/knowledge_engine_mcp/server.py"],
       "env": {}
+    },
+    "noesis-research-workflow": {
+      "type": "stdio",
+      "command": "python3",
+      "args": ["tools/knowledge_engine_mcp/server.py"],
+      "env": {"NOESIS_MCP_TOOL_PROFILE": "research"}
     }
   },
   "compatibilityAliases": {

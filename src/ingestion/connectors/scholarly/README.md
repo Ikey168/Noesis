@@ -21,8 +21,8 @@ Add a source by appending a `ScholarlySource` spec + a one-line subclass in
 
 | name | host | key | notes |
 |------|------|-----|-------|
-| `openalex` | api.openalex.org | — | broadest coverage |
-| `crossref` | api.crossref.org | — | journal-article DOI metadata |
+| `openalex` | api.openalex.org | `OPENALEX_API_KEY` (optional) | broad coverage; indexed abstracts are restored when supplied; keyless requests can exhaust the shared quota |
+| `crossref` | api.crossref.org | — | relevance-ranked DOI metadata across work types |
 | `semantic_scholar` | api.semanticscholar.org | `SEMANTIC_SCHOLAR_API_KEY` (optional) | abstracts; keyless works at a lower rate limit |
 | `europepmc` | www.ebi.ac.uk | — | biomedical / life sciences |
 | `pubmed` | eutils.ncbi.nlm.nih.gov | `NCBI_API_KEY` (optional) | E-utilities esearch→esummary; metadata-only |
@@ -35,7 +35,18 @@ Add a source by appending a `ScholarlySource` spec + a one-line subclass in
 | `plos` | api.plos.org | — | PLOS journals |
 | `zenodo` | zenodo.org | — | research outputs / datasets |
 
-Network safety: credential-free HTTPS only, per-source host allowlist, and the
+Network safety: HTTPS URLs contain no embedded credentials, per-source host allowlist, and the
 resolved address must be public (no SSRF). Set `NOESIS_SCHOLARLY_CONTACT` (a
 contact email) to be polite to the APIs' rate limits. `http_get` and the DNS
 resolver are injectable for offline tests.
+
+The pipeline MCP `harvest_scholarly` tool previews by default. Review the
+returned titles, then pass their IDs as `selected_document_ids` with
+`apply=true` to store publication-dated `paper` documents in the `papers`
+domain and update membership. Provider errors, including HTTP 429, are returned
+explicitly. The preview filters records whose title and abstract do not match
+the topic, reports how many were filtered, and flags possible duplicate titles.
+`metadata_only_count` identifies papers that cannot support explanatory answers.
+Paper abstracts can supply cited extractive passages to the KB, marked partial
+because they have not been independently validated as claims. Citation and
+venue panels report missing inputs rather than treating missing data as zero.

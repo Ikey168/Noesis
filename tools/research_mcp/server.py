@@ -55,6 +55,8 @@ def _warehouse_ro():
                         "papers": {"type": "integer"},
                         "credibility": INTERVAL_SCHEMA,
                         "components": {"type": "object"},
+                        "status": {"enum": ["scored", "insufficient_data"]},
+                        "missing": {"type": "array", "items": {"type": "string"}},
                     },
                 },
             },
@@ -63,8 +65,8 @@ def _warehouse_ro():
 )
 def venues() -> dict:
     """Per-venue credibility over the ingested paper corpus, reusing the
-    transparency-scoring machinery. Each venue carries a credibility interval
-    and its component scores.
+    transparency-scoring machinery. A venue with sufficient inputs carries a
+    credibility interval; otherwise its missing inputs are reported.
     """
     try:
         con = _warehouse_ro()

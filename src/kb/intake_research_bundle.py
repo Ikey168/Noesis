@@ -184,13 +184,26 @@ class IntakeResearchBundleStore:
             _ids(review["card_ids"], "review card_ids", set(cards))
             if review["met"] and not review["card_ids"]:
                 raise IntakeError("invalid_bundle", "met criterion needs cited cards")
-        ready = bool(cards and document["claims"] and document["concepts"])
-        ready &= all(document[s]["text"] for s in ("brief", "mental_model", "map"))
-        ready &= bool(document["known"] and document["uncertain"] and document["unresolved"])
-        ready &= all(review["met"] for review in reviews)
-        ready &= all(status == "current" for status in source_status.values())
-        return document, {"ready": bool(ready), "source_status": source_status,
-                          "independent_hosts": len(set(source_hosts.values()))}
+        reasons = []
+        if not cards:
+            reasons.append("evidence_cards_missing")
+        if not document["claims"]:
+            reasons.append("claims_missing")
+        if not document["concepts"]:
+            reasons.append("concepts_missing")
+        for section in ("brief", "mental_model", "map"):
+            if not document[section]["text"]:
+                reasons.append(section + "_missing")
+        for section in ("known", "uncertain", "unresolved"):
+            if not document[section]:
+                reasons.append(section + "_missing")
+        if any(not review["met"] for review in reviews):
+            reasons.append("definition_of_done_unmet")
+        if any(status != "current" for status in source_status.values()):
+            reasons.append("source_revision_superseded")
+        return document, {"ready": not reasons, "source_status": source_status,
+                          "independent_hosts": len(set(source_hosts.values())),
+                          "reasons": sorted(set(reasons))}
 
     def save(self, namespace, project_id, command_key, document, *,
              principal_id, scopes, expected_revision=None):
@@ -245,8 +258,12 @@ class IntakeResearchBundleStore:
         project = self._project(namespace, current["project_id"], principal_id, scopes)
         state = self._state(namespace, bundle_id, revision) if revision is not None else current
         document, checks = self._validate(project, state["document"], principal_id, scopes)
-        checks["ready"] &= (state["question_revision"] == project["question_revision"]
-                            and state["project_revision"] == project["revision"])
+        if state["question_revision"] != project["question_revision"]:
+            checks["reasons"].append("project_question_revision_changed")
+        if state["project_revision"] != project["revision"]:
+            checks["reasons"].append("project_revision_changed")
+        checks["reasons"] = sorted(set(checks["reasons"]))
+        checks["ready"] &= not checks["reasons"]
         return {**state, "document": document, "checks": checks}
 
     def export(self, namespace, bundle_id, *, principal_id, scopes):

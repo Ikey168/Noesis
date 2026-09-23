@@ -1,8 +1,8 @@
 """Deterministic, extractive answers over a resolved knowledge-domain backing.
 
-The engine deliberately does not generate prose.  It selects already-extracted
-claims (or, when no claims exist, document titles), preserves their evidence,
-and renders only those statements.  That makes the offline path reproducible
+The engine deliberately does not generate prose. It selects already-extracted
+claims, bounded paper passages, or document titles for questions asking which
+sources exist, and renders only those statements. That makes the offline path reproducible
 and prevents an optional language model from introducing uncited facts.
 """
 
@@ -60,6 +60,28 @@ _STOPWORDS = {
     "why",
     "with",
 }
+_SOURCE_QUESTION_TERMS = {
+    "article", "articles", "document", "documents", "paper", "papers",
+    "publication", "publications", "source", "sources", "studies", "study",
+}
+
+
+def _asks_for_sources(question: str) -> bool:
+    words = re.findall(r"[^\W_]+", question.casefold(), flags=re.UNICODE)
+    if not words:
+        return False
+    if words[0] == "which" and len(words) > 1:
+        return words[1] in _SOURCE_QUESTION_TERMS
+    if words[0] == "what" and len(words) > 2:
+        return words[1] in _SOURCE_QUESTION_TERMS and words[2] in {
+            "address", "cover", "discuss", "examine", "mention", "study",
+        }
+    if words[0] in {"list", "show", "find", "identify", "name"}:
+        rest = words[1:]
+        while rest and rest[0] in {"me", "the", "any", "some"}:
+            rest = rest[1:]
+        return bool(rest and rest[0] in _SOURCE_QUESTION_TERMS)
+    return False
 
 
 def _tokens(value: str) -> set[str]:
@@ -356,11 +378,46 @@ def _document_statement(
     }
 
 
+def _paper_passage_statement(
+    question: str, document: Mapping[str, Any], passage: str, backing: Any
+) -> dict[str, Any]:
+    document_id = str(document.get("document_id"))
+    visibility = (
+        "private"
+        if "private" in {str(tag).casefold() for tag in backing.definition.tags}
+        else "public"
+    )
+    locator = _locator(
+        document, {document_id: document}, excerpt=passage, visibility=visibility
+    )
+    supporting = [locator]
+    independence = _independence(supporting, backing.conn)
+    return {
+        "id": _stable_id(question, "paper-passage", f"{document_id}:{passage}"),
+        "claim_id": None,
+        "text": passage,
+        "verdict": "supported" if locator.get("cited") else "unverifiable",
+        "supporting_evidence": supporting,
+        "contradicting_evidence": [],
+        "citation_state": render_state(independence["independent_source_count"]),
+        "corroboration": independence,
+        "prediction_mode": PREDICTION_MODE,
+        "confidence": None,
+        "confidence_scope": "not_available",
+        "interval": None,
+        "quantitative_check": None,
+        "integrity": _integrity_evidence(backing, supporting, {document_id: document}),
+        "n": 1,
+        "method": "extractive selection of a paper passage; no independent claim validation",
+        "assumptions": list(ASSUMPTIONS),
+    }
+
+
 def _refusal_statement(question: str) -> dict[str, Any]:
     return {
         "id": _stable_id(question, "refusal", "insufficient-evidence"),
         "claim_id": None,
-        "text": "No relevant evidence was found in the selected domain.",
+        "text": "No answerable evidence was found in the selected domain.",
         "verdict": "unverifiable",
         "supporting_evidence": [],
         "contradicting_evidence": [],
@@ -427,7 +484,11 @@ def build_answer(
     """Build a ``noesis-answer-v1`` payload from one resolved backing."""
     question = question.strip()
     question_tokens = _tokens(question)
-    documents = backing.documents(limit=500)
+    documents = (
+        backing.answer_documents(limit=500)
+        if hasattr(backing, "answer_documents")
+        else backing.documents(limit=500)
+    )
     documents_by_id = _document_map(documents)
     clusters = backing.claims(limit=500)
     visibility = (
@@ -451,7 +512,32 @@ def build_answer(
         for score, identity, cluster in ranked_claims[:limit]
     ]
     eligible_count = len(ranked_claims)
-    if not selected:
+    if not selected and not _asks_for_sources(question):
+        ranked_passages = []
+        for document in documents:
+            if document.get("source_type") != "paper" or not document.get("content"):
+                continue
+            sentences = re.split(r"(?<=[.!?])\s+|\n+", str(document["content"]))
+            for position, sentence in enumerate(sentences):
+                sentence = " ".join(sentence.split()).strip()
+                if not 20 <= len(sentence) <= 1800:
+                    continue
+                if not (question_tokens & _tokens(sentence)):
+                    continue
+                score = _relevance(question_tokens, sentence)
+                if score >= minimum_relevance:
+                    ranked_passages.append(
+                        (score, str(document.get("document_id") or ""), position, document, sentence)
+                    )
+        ranked_passages.sort(key=lambda item: (-item[0], item[1], item[2]))
+        eligible_count = len(ranked_passages)
+        selected = [
+            ("paper_passage", score, f"{identity}:{position}", (document, sentence))
+            for score, identity, position, document, sentence in ranked_passages[:limit]
+        ]
+    # A matching document title establishes that a source exists. It cannot
+    # answer an explanatory or factual question about that source's subject.
+    if not selected and _asks_for_sources(question):
         ranked_documents = []
         for document in documents:
             text = " ".join(
@@ -477,14 +563,19 @@ def build_answer(
                     question, candidate, documents_by_id, claim_index, backing
                 )
             )
-        else:
+        elif kind == "document":
             statements.append(_document_statement(question, candidate, backing))
+        else:
+            document, passage = candidate
+            statements.append(_paper_passage_statement(question, document, passage, backing))
 
     refused = not statements
     if refused:
         statements = [_refusal_statement(question)]
     partial_reasons = []
     if not refused:
+        if any(item[0] == "paper_passage" for item in selected):
+            partial_reasons.append("paper_passages_are_source_statements_not_validated_claims")
         if any(statement["verdict"] == "unverifiable" for statement in statements):
             partial_reasons.append("one_or_more_statements_unverifiable")
         if any(
@@ -508,7 +599,7 @@ def build_answer(
         "refusal": (
             {
                 "code": "insufficient_evidence",
-                "message": "No relevant evidence passed the deterministic relevance threshold.",
+                "message": "No answerable evidence passed the deterministic relevance threshold.",
             }
             if refused
             else None

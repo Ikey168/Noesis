@@ -277,6 +277,30 @@ class CorpusViewBacking(DomainBacking):
             params,
         )
 
+    def answer_documents(self, limit: int = 500) -> List[Dict[str, Any]]:
+        """Include bounded paper text for cited extractive answers.
+
+        The ordinary documents endpoint remains metadata-only. Reading through
+        the domain view keeps the answer inside its authorized membership.
+        """
+        documents = self.documents(limit=limit)
+        paper_ids = [row["document_id"] for row in documents if row.get("source_type") == "paper"]
+        if not paper_ids:
+            return documents
+        placeholders = ", ".join("?" for _ in paper_ids)
+        view = self._view()
+        with self._lock():
+            rows = self.conn.execute(
+                f"SELECT document_id, LEFT(content, 16000) FROM {view} "
+                f"WHERE document_id IN ({placeholders}) AND source_type = 'paper'",
+                paper_ids,
+            ).fetchall()
+        content = dict(rows)
+        for row in documents:
+            if row["document_id"] in content:
+                row["content"] = content[row["document_id"]]
+        return documents
+
     def claims(
         self,
         since: Optional[str] = None,
@@ -436,6 +460,11 @@ class CorpusViewBacking(DomainBacking):
                     " GROUP BY source_id ORDER BY COUNT(*) DESC LIMIT 25"
                 ).fetchall()
             ]
+            paper_total, paper_with_content = self.conn.execute(
+                f"SELECT COUNT(*), COUNT(*) FILTER "
+                f"(WHERE NULLIF(TRIM(content), '') IS NOT NULL) "
+                f"FROM {view} WHERE source_type = 'paper'"
+            ).fetchone()
         payload.update(
             {
                 "ready": True,
@@ -444,6 +473,11 @@ class CorpusViewBacking(DomainBacking):
                 "last_ingested_ms": last_ingested,
                 "assignment_methods": methods,
                 "sources": sources,
+                "paper_evidence": {
+                    "papers": int(paper_total or 0),
+                    "with_text": int(paper_with_content or 0),
+                    "metadata_only": int((paper_total or 0) - (paper_with_content or 0)),
+                },
             }
         )
         return payload

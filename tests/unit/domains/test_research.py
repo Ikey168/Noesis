@@ -1,7 +1,5 @@
 """Unit tests for the research domain pack (R7 / Track N1)."""
 
-import pytest
-
 from src.analytics.honesty import validate_analytic_output
 from src.domains.research.analytics import (
     citation_graph,
@@ -32,8 +30,8 @@ def test_citation_enricher_counts_refs_and_citations():
     assert out["citations"] == 42
     assert out["reference_count"] == 3
     assert out["refs"] == "p1,p2,p3"
-    # References-only falls back to a ref count.
-    assert citation_enricher({"metadata": {"references": ["a"]}})["citations"] == 1
+    # A reference list does not establish how many later works cited this paper.
+    assert citation_enricher({"metadata": {"references": ["a"]}})["citations"] is None
     assert citation_enricher({"metadata": {}}) is None
 
 
@@ -137,3 +135,30 @@ def test_literature_claims_scopes_to_papers(seed, conn):
 
 def test_literature_claims_no_layer(conn):
     assert literature_claims(conn) == {"claims": [], "note": "no claim layer available"}
+
+
+def test_current_paper_store_reports_missing_metrics_and_resolves_doi_edges(conn):
+    from src.ingestion.document_store import DocumentStore
+
+    DocumentStore(conn).upsert([
+        {
+            "document_id": "paper:a", "source_type": "paper", "source_id": "crossref",
+            "language": "en", "ingested_at": 1, "title": "Setun architecture",
+            "metadata": {"venue": "Computing History", "doi": "10.1000/a", "concept": "computing"},
+        },
+        {
+            "document_id": "paper:b", "source_type": "paper", "source_id": "crossref",
+            "language": "en", "ingested_at": 2, "title": "Setun software",
+            "metadata": {"venue": "Computing History", "doi": "10.1000/b",
+                         "references": ["10.1000/a"], "citations": 2},
+        },
+    ])
+    graph = citation_graph(conn, topic="Setun")
+    assert graph["edge_count"] == 1
+    assert graph["edges"] == [{"from": "paper:b", "to": "paper:a"}]
+    assert graph["citation_count_data_count"] == 1
+
+    scores = venue_credibility(conn)
+    assert scores["venues"][0]["status"] == "insufficient_data"
+    assert "claim_attribution" in scores["venues"][0]["missing"]
+    assert "credibility" not in scores["venues"][0]
