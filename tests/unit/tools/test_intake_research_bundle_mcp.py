@@ -51,6 +51,22 @@ def test_research_bundle_mcp_discovery_and_scopes(tmp_path, monkeypatch):
     assert progress["blockers"] == ["research_bundle_unready"]
     assert progress["loops"] == []
     assert "no_accessible_research_loop_receipts" in progress["limitations"]
+    assessment = tools["assess_intake_research_progress"].fn(
+        namespace="research", session_id=started["session"]["session_id"],
+        command_key="review-1",
+    )
+    assert assessment["contract"] == "noesis-intake-research-assessment-v1"
+    assert not assessment["assessment"]["ready"]
+    assert "research_loop_missing" in {
+        blocker["code"] for blocker in assessment["assessment"]["blockers"]
+    }
+    assert tools["assess_intake_research_progress"].fn(
+        namespace="research", session_id=started["session"]["session_id"],
+        command_key="review-1",
+    )["idempotent"]
+    assert tools["inspect_intake_research_assessment"].fn(
+        namespace="research", assessment_id=assessment["assessment_id"],
+    )["assessment_id"] == assessment["assessment_id"]
     with duckdb.connect(path) as conn:
         ResearchLoopStore(conn)
         loop_id = "research-loop:fixture"
@@ -94,10 +110,17 @@ def test_research_bundle_mcp_discovery_and_scopes(tmp_path, monkeypatch):
     exported = tools["export_intake_research_bundle"].fn(**identity)
     assert tools["verify_intake_research_bundle_export"].fn(exported)["valid"]
     assert _mutability("save_intake_research_bundle") == "write"
+    assert _mutability("assess_intake_research_progress") == "write"
     assert _required_scopes("knowledge_engine_mcp", "write", "save_intake_research_bundle") == [
         "knowledge:intake:write", "knowledge:projects:write",
     ]
     assert _required_scopes("knowledge_engine_mcp", "read", "inspect_intake_research_progress") == [
+        "knowledge:intake:read", "knowledge:projects:read",
+    ]
+    assert _required_scopes("knowledge_engine_mcp", "write", "assess_intake_research_progress") == [
+        "knowledge:intake:write", "knowledge:projects:read",
+    ]
+    assert _required_scopes("knowledge_engine_mcp", "read", "inspect_intake_research_assessment") == [
         "knowledge:intake:read", "knowledge:projects:read",
     ]
     scopes.remove("knowledge:projects:read")

@@ -12,19 +12,17 @@ from __future__ import annotations
 
 import json
 import os
-import urllib.parse
 from datetime import datetime, timedelta, timezone
-from typing import Any, Iterable, List, Mapping, Optional, Union
+from typing import Any, Iterable, List, Mapping, Union
 
 from services.ingest.common.document_model import Document
-from src.ingestion.connectors.base import PermanentFetchError, RawDocument, SourceRef
+from src.ingestion.connectors.base import RawDocument, SourceRef
 from src.ingestion.connectors.registry import register_connector
 from src.ingestion.connectors.scholarly.base import (
     DEFAULT_LIMIT,
     ScholarlyConnector,
     ScholarlyQuery,
     ScholarlySource,
-    _get,
     _to_millis,
     enc,
 )
@@ -46,11 +44,12 @@ OPENALEX = ScholarlySource(
     build_url=lambda q: (
         "https://api.openalex.org/works?search=" + enc(q.topic)
         + "&filter=from_publication_date:%s,to_publication_date:%s" % _win(q)
-        + "&per-page=%d&sort=publication_date:desc" % q.limit
+        + "&per_page=%d" % min(q.limit, 100)
     ),
     results_path="results",
     id_path="id",
     title_path="display_name",
+    abstract_inverted_index_path="abstract_inverted_index",
     authors_path="authorships",
     author_name_key="author.display_name",
     date_path="publication_date",
@@ -58,16 +57,21 @@ OPENALEX = ScholarlySource(
     url_path="id",
     pdf_path="open_access.oa_url",
     venue_path="primary_location.source.display_name",
+    references_path="referenced_works",
+    citation_count_path="cited_by_count",
     language_path="language",
+    optional_env="OPENALEX_API_KEY",
+    api_key_header="Authorization",
+    api_key_prefix="Bearer ",
 )
 
 CROSSREF = ScholarlySource(
     name="crossref",
     allowed_host="api.crossref.org",
     build_url=lambda q: (
-        "https://api.crossref.org/works?query=" + enc(q.topic)
-        + "&filter=from-pub-date:%s,until-pub-date:%s,type:journal-article" % _win(q)
-        + "&rows=%d&sort=published&order=desc" % q.limit
+        "https://api.crossref.org/works?query.bibliographic=" + enc(q.topic)
+        + "&filter=from-pub-date:%s,until-pub-date:%s" % _win(q)
+        + "&rows=%d&sort=score&order=desc" % q.limit
     ),
     results_path="message.items",
     id_path="DOI",
@@ -78,6 +82,9 @@ CROSSREF = ScholarlySource(
     doi_path="DOI",
     url_path="URL",
     venue_path="container-title",
+    references_path="reference",
+    reference_id_path="DOI",
+    citation_count_path="is-referenced-by-count",
 )
 
 SEMANTIC_SCHOLAR = ScholarlySource(
@@ -85,7 +92,7 @@ SEMANTIC_SCHOLAR = ScholarlySource(
     allowed_host="api.semanticscholar.org",
     build_url=lambda q: (
         "https://api.semanticscholar.org/graph/v1/paper/search?query=" + enc(q.topic)
-        + "&fields=title,abstract,authors,externalIds,url,venue,publicationDate,openAccessPdf"
+        + "&fields=title,abstract,authors,externalIds,url,venue,publicationDate,openAccessPdf,citationCount"
         + "&publicationDateOrYear=%s:%s" % _win(q)
         + "&limit=%d" % min(q.limit, 100)
     ),
@@ -100,11 +107,10 @@ SEMANTIC_SCHOLAR = ScholarlySource(
     url_path="url",
     pdf_path="openAccessPdf.url",
     venue_path="venue",
-    requires_env="SEMANTIC_SCHOLAR_API_KEY",  # optional but strongly rate-limited without
+    citation_count_path="citationCount",
+    optional_env="SEMANTIC_SCHOLAR_API_KEY",
     api_key_header="x-api-key",
 )
-# S2 works without a key (lower rate limit); drop the hard requirement.
-SEMANTIC_SCHOLAR.requires_env = None
 
 EUROPE_PMC = ScholarlySource(
     name="europepmc",
@@ -130,7 +136,7 @@ DOAJ = ScholarlySource(
     allowed_host="doaj.org",
     build_url=lambda q: (
         "https://doaj.org/api/search/articles/" + enc(q.topic)
-        + "?pageSize=%d&sort=created_date:desc" % min(q.limit, 100)
+        + "?pageSize=%d" % min(q.limit, 100)
     ),
     results_path="results",
     id_path="id",
@@ -167,7 +173,7 @@ HAL = ScholarlySource(
         "https://api.archives-ouvertes.fr/search/?q=" + enc(q.topic)
         + "&fq=" + enc("producedDate_s:[%sT00:00:00Z TO %sT23:59:59Z]" % _win(q))
         + "&fl=" + enc("title_s,abstract_s,authFullName_s,doiId_s,uri_s,producedDate_s,journalTitle_s")
-        + "&sort=" + enc("producedDate_s desc") + "&rows=%d&wt=json" % min(q.limit, 100)
+        + "&rows=%d&wt=json" % min(q.limit, 100)
     ),
     results_path="response.docs",
     id_path="uri_s",
@@ -187,7 +193,7 @@ PLOS = ScholarlySource(
         "https://api.plos.org/search?q=" + enc("everything:%s" % q.topic)
         + "&fq=" + enc("publication_date:[%sT00:00:00Z TO %sT23:59:59Z]" % _win(q))
         + "&fl=" + enc("id,title_display,abstract,author_display,publication_date,journal")
-        + "&sort=" + enc("publication_date desc") + "&rows=%d&wt=json" % min(q.limit, 100)
+        + "&rows=%d&wt=json" % min(q.limit, 100)
     ),
     results_path="response.docs",
     id_path="id",
@@ -205,7 +211,7 @@ ZENODO = ScholarlySource(
     build_url=lambda q: (
         "https://zenodo.org/api/records?q="
         + enc("%s AND publication_date:[%s TO %s]" % (q.topic, *_win(q)))
-        + "&size=%d&sort=mostrecent" % min(q.limit, 100)
+        + "&size=%d&sort=bestmatch" % min(q.limit, 25)
     ),
     results_path="hits.hits",
     id_path="id",

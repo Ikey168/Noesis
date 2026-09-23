@@ -32,6 +32,8 @@ def venue_enricher(document: Any) -> Optional[Dict[str, Any]]:
     booktitle), title-casing and trimming."""
     meta = _metadata(document)
     raw = meta.get("venue") or meta.get("journal") or meta.get("booktitle")
+    if isinstance(raw, list):
+        raw = next((item for item in raw if isinstance(item, str) and item.strip()), None)
     if not isinstance(raw, str) or not raw.strip():
         return None
     return {"venue": raw.strip(), "enricher": "venue"}
@@ -45,13 +47,13 @@ def citation_enricher(document: Any) -> Optional[Dict[str, Any]]:
     ref_ids: List[str] = []
     if isinstance(refs, list):
         ref_ids = [str(r) for r in refs if r]
-    citations = meta.get("citations") or meta.get("cited_by")
-    if not isinstance(citations, int):
-        citations = len(ref_ids) if ref_ids else 0
-    if not ref_ids and not citations:
+    citations = meta.get("citations", meta.get("cited_by"))
+    if type(citations) is not int or citations < 0:
+        citations = None
+    if not ref_ids and citations is None:
         return None
     return {
-        "citations": int(citations),
+        "citations": citations,
         "refs": ",".join(ref_ids),
         "reference_count": len(ref_ids),
         "enricher": "citation",
@@ -70,7 +72,7 @@ def concept_enricher(document: Any) -> Optional[Dict[str, Any]]:
     from src.analytics.text import tokenize
 
     title = _field(document, "title", "") or ""
-    abstract = _metadata(document).get("abstract", "") or ""
+    abstract = _field(document, "content", "") or _metadata(document).get("abstract", "") or ""
     tokens = [t for t in tokenize(f"{title} {title} {abstract}") if t not in _CONCEPT_STOP]
     if not tokens:
         return None

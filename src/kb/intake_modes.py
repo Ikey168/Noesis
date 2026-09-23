@@ -122,9 +122,10 @@ def _reference(value: Any, namespace: str, scopes: set[str]) -> dict[str, Any]:
     identity = _text(value.get("id"), "reference id", limit=512)
     ns = _text(value.get("namespace", namespace), "reference namespace", limit=128)
     version = value.get("version")
-    if type(version) is not int or version < 1:
+    if type(version) is not int or version < (0 if kind == "document" else 1):
         raise IntakeError(
-            "invalid_reference", "reference needs a positive authoritative version"
+            "invalid_reference",
+            "reference needs its authoritative version; document revisions may start at 0, other versions must be positive",
         )
     if (
         ns != namespace

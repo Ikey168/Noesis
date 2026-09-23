@@ -23,6 +23,7 @@ Stdlib-only maths (reuses :mod:`src.analytics`).
 from __future__ import annotations
 
 import math
+import json
 from typing import Any, Dict, List, Optional
 
 from src.analytics.honesty import analytic_envelope, interval
@@ -58,6 +59,57 @@ def _entropy(counts: List[int]) -> float:
     return ent / max_ent if max_ent > _EPS else 0.0
 
 
+def _paper_records(conn) -> List[Dict[str, Any]]:
+    """Read both the current document store and the older research fixture."""
+    if not _table_exists(conn, "documents"):
+        return []
+    columns = {
+        row[0] for row in conn.execute(
+            "SELECT column_name FROM information_schema.columns WHERE table_name = 'documents'"
+        ).fetchall()
+    }
+    if {"document_id", "metadata"} <= columns:
+        rows = conn.execute(
+            "SELECT document_id, title, metadata FROM documents WHERE source_type = 'paper'"
+        ).fetchall()
+        papers = []
+        for identity, title, raw_metadata in rows:
+            try:
+                metadata = json.loads(raw_metadata) if isinstance(raw_metadata, str) else raw_metadata or {}
+            except (TypeError, ValueError):
+                metadata = {}
+            if not isinstance(metadata, dict):
+                metadata = {}
+            venue = metadata.get("venue")
+            if isinstance(venue, list):
+                venue = next((item for item in venue if isinstance(item, str) and item.strip()), None)
+            citations = metadata.get("citations")
+            if type(citations) is not int or citations < 0:
+                citations = None
+            references = metadata.get("references")
+            if not isinstance(references, list):
+                references = []
+            papers.append({
+                "id": identity, "title": title or "", "venue": venue,
+                "concept": metadata.get("concept"), "citations": citations,
+                "references": [str(item) for item in references if item],
+                "doi": metadata.get("doi"), "external_id": metadata.get("external_id"),
+            })
+        return papers
+    if {"id", "venue", "concept", "citations", "refs"} <= columns:
+        rows = conn.execute(
+            "SELECT id, title, venue, concept, citations, refs FROM documents "
+            "WHERE source_type = 'paper'"
+        ).fetchall()
+        return [
+            {"id": identity, "title": title or "", "venue": venue, "concept": concept,
+             "citations": citations, "references": (refs or "").split(",") if refs else [],
+             "doi": None, "external_id": None}
+            for identity, title, venue, concept, citations, refs in rows
+        ]
+    return []
+
+
 def venue_credibility(conn) -> Dict[str, Any]:
     """Per-venue credibility over the paper corpus (generalized transparency)."""
     if not _table_exists(conn, "documents"):
@@ -65,62 +117,72 @@ def venue_credibility(conn) -> Dict[str, Any]:
             n=0, method=VENUE_METHOD, assumptions=VENUE_ASSUMPTIONS,
             venues=[], note="no document corpus ingested",
         )
-    rows = conn.execute(
-        """
-        SELECT venue,
-               COUNT(*) AS papers,
-               AVG(COALESCE(citations, 0)) AS avg_citations,
-               MAX(COALESCE(citations, 0)) AS max_citations
-        FROM documents
-        WHERE source_type = 'paper' AND venue IS NOT NULL
-        GROUP BY venue
-        ORDER BY papers DESC
-        """
-    ).fetchall()
-    corpus_max = max((r[3] for r in rows), default=0) or 1
+    papers = _paper_records(conn)
+    by_venue: Dict[str, List[Dict[str, Any]]] = {}
+    for paper in papers:
+        if isinstance(paper["venue"], str) and paper["venue"].strip():
+            by_venue.setdefault(paper["venue"].strip(), []).append(paper)
+    corpus_max = max((paper["citations"] or 0 for paper in papers if paper["citations"] is not None), default=0) or 1
 
     # Attribution rate per venue from the shared claim layer, when present.
     attribution: Dict[str, float] = {}
     if _table_exists(conn, "argument_claims"):
         try:
+            id_col = "document_id" if "document_id" in {
+                row[0] for row in conn.execute(
+                    "SELECT column_name FROM information_schema.columns WHERE table_name = 'documents'"
+                ).fetchall()
+            } else "id"
             arows = conn.execute(
-                """
-                SELECT d.venue,
-                       AVG(CASE WHEN c.attributed THEN 1.0 ELSE 0.0 END)
-                FROM argument_claims c
-                JOIN documents d ON c.document_id = d.id
-                WHERE d.source_type = 'paper' AND d.venue IS NOT NULL
-                GROUP BY d.venue
-                """
+                f"SELECT c.document_id, AVG(CASE WHEN c.attributed THEN 1.0 ELSE 0.0 END) "
+                f"FROM argument_claims c JOIN documents d ON c.document_id = d.{id_col} "
+                "WHERE d.source_type = 'paper' GROUP BY c.document_id"
             ).fetchall()
-            attribution = {r[0]: float(r[1] or 0.0) for r in arows}
+            by_id = {paper["id"]: paper["venue"] for paper in papers}
+            values: Dict[str, List[float]] = {}
+            for identity, rate in arows:
+                venue = by_id.get(identity)
+                if venue:
+                    values.setdefault(venue, []).append(float(rate or 0.0))
+            attribution = {venue: sum(items) / len(items) for venue, items in values.items()}
         except Exception:
             attribution = {}
 
     # Concept-diversity input: paper counts per (venue) topic bucket.
     concept_counts: Dict[str, List[int]] = {}
-    try:
-        crows = conn.execute(
-            "SELECT venue, COALESCE(concept, 'other'), COUNT(*) FROM documents "
-            "WHERE source_type = 'paper' AND venue IS NOT NULL GROUP BY 1, 2"
-        ).fetchall()
-        for venue, _concept, count in crows:
-            concept_counts.setdefault(venue, []).append(int(count))
-    except Exception:
-        concept_counts = {}
+    for venue, items in by_venue.items():
+        counts: Dict[str, int] = {}
+        for paper in items:
+            if paper["concept"]:
+                key = str(paper["concept"])
+                counts[key] = counts.get(key, 0) + 1
+        concept_counts[venue] = list(counts.values())
 
     venues = []
-    for venue, papers, avg_cit, _max_cit in rows:
-        diversity = _entropy(concept_counts.get(venue, [papers]))
+    for venue, items in by_venue.items():
+        count = len(items)
+        citations = [item["citations"] for item in items if item["citations"] is not None]
+        if not concept_counts[venue] or not citations or venue not in attribution:
+            venues.append({
+                "venue": venue, "papers": count, "status": "insufficient_data",
+                "missing": [name for name, ready in (
+                    ("concepts", bool(concept_counts[venue])),
+                    ("citation_counts", bool(citations)),
+                    ("claim_attribution", venue in attribution),
+                ) if not ready],
+            })
+            continue
+        diversity = _entropy(concept_counts[venue])
         attr = attribution.get(venue, 0.0)
-        impact = min(1.0, (avg_cit or 0.0) / (corpus_max or 1))
+        impact = min(1.0, (sum(citations) / len(citations)) / corpus_max)
         composite = (diversity + attr + impact) / 3.0
         # Interval width shrinks with the venue's paper count (more evidence).
-        half = 0.25 / math.sqrt(max(1, papers))
+        half = 0.25 / math.sqrt(max(1, count))
         venues.append(
             {
                 "venue": venue,
-                "papers": int(papers),
+                "papers": count,
+                "status": "scored",
                 "credibility": interval(
                     composite, max(0.0, composite - half), min(1.0, composite + half)
                 ),
@@ -131,9 +193,9 @@ def venue_credibility(conn) -> Dict[str, Any]:
                 },
             }
         )
-    venues.sort(key=lambda v: -v["credibility"]["value"])
+    venues.sort(key=lambda v: (v["status"] != "scored", -v.get("credibility", {}).get("value", 0), v["venue"]))
     return analytic_envelope(
-        n=sum(r[1] for r in rows),
+        n=sum(len(items) for items in by_venue.values()),
         method=VENUE_METHOD,
         assumptions=VENUE_ASSUMPTIONS,
         venue_count=len(venues),
@@ -147,30 +209,38 @@ def citation_graph(conn, topic: Optional[str] = None, limit: int = 40) -> Dict[s
     persisted as a ``references`` column (comma-separated ids)."""
     if not _table_exists(conn, "documents"):
         return {"nodes": [], "edges": [], "note": "no document corpus ingested"}
-    where = ["source_type = 'paper'"]
-    params: List[Any] = []
-    if topic:
-        where.append("(concept = ? OR title ILIKE ?)")
-        params.extend([topic, f"%{topic}%"])
-    params.append(limit)
-    rows = conn.execute(
-        f"SELECT id, title, venue, COALESCE(citations, 0), COALESCE(refs, '') "
-        f"FROM documents WHERE {' AND '.join(where)} "
-        f"ORDER BY COALESCE(citations, 0) DESC LIMIT ?",
-        params,
-    ).fetchall()
-    ids = {r[0] for r in rows}
+    all_papers = _paper_records(conn)
+    aliases = {}
+    for paper in all_papers:
+        for alias in (paper["id"], paper.get("doi"), paper.get("external_id")):
+            if alias:
+                aliases[str(alias).lower().removeprefix("https://doi.org/")] = paper["id"]
+    rows = [
+        paper for paper in all_papers
+        if not topic or topic.casefold() in paper["title"].casefold()
+        or topic.casefold() == str(paper["concept"] or "").casefold()
+    ]
+    rows.sort(key=lambda paper: (-(paper["citations"] or 0), paper["id"]))
+    rows = rows[:limit]
+    ids = {row["id"] for row in rows}
     nodes = [
-        {"id": r[0], "title": r[1], "venue": r[2], "citations": int(r[3])}
-        for r in rows
+        {"id": row["id"], "title": row["title"], "venue": row["venue"], "citations": row["citations"]}
+        for row in rows
     ]
     edges = []
-    for r in rows:
-        for ref in (r[4] or "").split(","):
-            ref = ref.strip()
-            if ref and ref in ids:
-                edges.append({"from": r[0], "to": ref})
-    return {"nodes": nodes, "edges": edges, "node_count": len(nodes), "edge_count": len(edges)}
+    for row in rows:
+        for ref in row["references"]:
+            target = aliases.get(str(ref).lower().removeprefix("https://doi.org/"))
+            if target in ids and target != row["id"]:
+                edges.append({"from": row["id"], "to": target})
+    result = {
+        "nodes": nodes, "edges": edges, "node_count": len(nodes), "edge_count": len(edges),
+        "reference_data_count": sum(bool(row["references"]) for row in rows),
+        "citation_count_data_count": sum(row["citations"] is not None for row in rows),
+    }
+    if rows and not result["reference_data_count"]:
+        result["note"] = "no reference lists were supplied for these papers; zero edges is not evidence of no influence"
+    return result
 
 
 def literature_claims(conn, topic: Optional[str] = None, limit: int = 30) -> Dict[str, Any]:
@@ -198,4 +268,7 @@ def literature_claims(conn, topic: Optional[str] = None, limit: int = 30) -> Dic
         }
         for r in rows
     ]
-    return {"claims": claims, "count": len(claims), "topic": topic}
+    result = {"claims": claims, "count": len(claims), "topic": topic}
+    if not claims:
+        result["note"] = "no extracted paper claims in the selected corpus; no disagreement assessment is available"
+    return result

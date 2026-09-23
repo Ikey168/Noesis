@@ -471,6 +471,19 @@ def test_pause_conflicts_and_reference_access(tmp_path):
     conn.close()
 
 
+def test_initial_document_revision_zero_is_a_valid_intake_reference():
+    from src.kb.intake_modes import _reference
+
+    ref = {"kind": "document", "id": "paper:first", "namespace": "research", "version": 0}
+    assert _reference(ref, "research", SCOPES) == ref
+    reference_validator = Draft202012Validator(VALIDATOR.schema["$defs"]["reference"])
+    reference_validator.validate(ref)
+    with pytest.raises(IntakeError) as invalid:
+        _reference({**ref, "kind": "claim_ledger"}, "research", SCOPES)
+    assert invalid.value.code == "invalid_reference"
+    assert not reference_validator.is_valid({**ref, "kind": "claim_ledger"})
+
+
 def test_mode_catalog_is_complete():
     from src.kb.intake_modes import discover_modes, route_mode
 

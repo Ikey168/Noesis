@@ -12,12 +12,16 @@ from src.kb.intake_research_bundle import (
     IntakeResearchBundleStore,
     verify_research_bundle_export,
 )
+from src.kb.intake_research_progress import (
+    ResearchProgressAssessmentStore,
+    inspect_research_progress,
+)
 from src.kb.intake_research_topic import start_research_topic
 
 SCOPES = {
     "knowledge:intake:read", "knowledge:intake:write",
     "knowledge:projects:read", "knowledge:projects:write",
-    "namespace:research:read", "namespace:research:write",
+    "knowledge:recipes:read", "namespace:research:read", "namespace:research:write",
 }
 
 
@@ -155,3 +159,101 @@ def test_bundle_completion_and_owner_access():
     completed = intake.command("research", session_id, "finish", expected_revision=2,
                                action="complete", payload=None, principal_id="alice", scopes=SCOPES)
     assert completed["status"] == "completed"
+
+
+def test_research_progress_assessment_is_durable_and_replays_its_snapshot(tmp_path):
+    conn = duckdb.connect(str(tmp_path / "research-assessment.duckdb"))
+    started, document, _, _ = _fixture(conn)
+    saved = IntakeResearchBundleStore(conn).save(
+        "research", started["project"]["project_id"], "save", document,
+        principal_id="alice", scopes=SCOPES,
+    )
+    session_id = started["session"]["session_id"]
+    store = ResearchProgressAssessmentStore(conn, now=lambda: 1234)
+    assessed = store.assess("research", session_id, "first-review",
+                            principal_id="alice", scopes=SCOPES)
+    schema = json.loads((Path(__file__).resolve().parents[3] /
+                         "contracts/schemas/jsonschema/noesis-intake-research-assessment-v1.json").read_text())
+    jsonschema.validate(assessed, schema)
+    assert assessed["assessment"]["bundle_ready"]
+    assert assessed["assessment"]["definition_of_done"] == [{
+        "criterion": "Explain with independent evidence", "status": "met",
+        "reviewed": True, "recorded_met": True, "cited_card_count": 2,
+    }]
+    assert "research_loop_missing" in {item["code"] for item in assessed["assessment"]["blockers"]}
+    assert not assessed["assessment"]["ready"]
+
+    IntakeStore(conn, initialize=False).command(
+        "research", session_id, "link-bundle", expected_revision=1, action="record",
+        payload={"references": [{"kind": "research_bundle", "id": saved["bundle_id"],
+                                  "namespace": "research", "version": 1}]},
+        principal_id="alice", scopes=SCOPES,
+    )
+    conn.close()
+
+    with duckdb.connect(str(tmp_path / "research-assessment.duckdb")) as reopened:
+        replayed = ResearchProgressAssessmentStore(reopened, initialize=False).assess(
+            "research", session_id, "first-review", principal_id="alice", scopes=SCOPES,
+        )
+        inspected = ResearchProgressAssessmentStore(reopened, initialize=False).inspect(
+            "research", assessed["assessment_id"], principal_id="alice", scopes=SCOPES,
+        )
+    assert replayed["idempotent"]
+    assert replayed["input_hash"] == assessed["input_hash"]
+    assert replayed["snapshot"]["session"]["revision"] == 1
+    assert inspected["assessment_id"] == assessed["assessment_id"]
+
+
+def test_progress_assessment_joins_failed_recipe_receipts_and_coverage():
+    from src.kb.research_loops import ResearchLoopStore
+
+    conn = duckdb.connect(":memory:")
+    started, _, _, _ = _fixture(conn)
+    project_id = started["project"]["project_id"]
+    project = started["project"]
+    ResearchLoopStore(conn)
+    loop_id = "research-loop:blocked-fixture"
+    action = {"gap_namespace": "research", "plan_namespace": "research",
+              "domain": "study", "recipe_revision_id": "recipe:blocked-fixture"}
+    definition = {"project_id": project_id, "namespace": "research", "owner": "alice",
+                  "question_revision": project["question_revision"], "actions": [action],
+                  "limits": {"independent_sources_per_domain": 2}}
+    state = {"coverage": {"study": ["source-a"]}, "stop_reason": "provider_unavailable",
+             "completed_iterations": 0, "results": 0}
+    conn.execute("INSERT INTO research_loops VALUES (?,?,?,?,'blocked',false,?,NULL)",
+                 [loop_id, "research", project_id, json.dumps(definition), json.dumps(state)])
+    conn.execute("INSERT INTO research_loop_actions VALUES (?,0,1,'blocked',NULL)", [loop_id])
+    run_id = "recipe-run:blocked-fixture"
+    conn.execute(
+        "INSERT INTO research_recipe_runs "
+        "(run_id,namespace,recipe_revision_id,run_key,input_hash,status,cancel_requested,"
+        "state_json,error_json,receipt_json,principal_id,started_at_ms,updated_at_ms) "
+        "VALUES (?,?,?,?,?,'blocked',false,'{}',NULL,NULL,?,1,2)",
+        [run_id, "research", action["recipe_revision_id"], f"{loop_id}:0", "input", "alice"],
+    )
+    conn.execute(
+        "INSERT INTO research_recipe_checkpoints "
+        "(checkpoint_id,run_id,step_id,ordinal,status,attempt,input_hash,output_hash,"
+        "output_json,error_json,tool_version,started_at_ms,completed_at_ms) "
+        "VALUES ('checkpoint:acquire',?,'acquire',0,'failed',1,'input',NULL,NULL,?,'v1',1,NULL)",
+        [run_id, json.dumps({"code": "provider_unavailable"})],
+    )
+    progress = inspect_research_progress(
+        conn, "research", started["session"]["session_id"],
+        principal_id="alice", scopes=SCOPES,
+    )
+    assert progress["loops"][0]["actions"][0]["recipe_run_status"] == "blocked"
+    assert progress["loops"][0]["actions"][0]["stages"][0]["error_code"] == "provider_unavailable"
+
+    assessed = ResearchProgressAssessmentStore(conn).assess(
+        "research", started["session"]["session_id"], "blocked-review",
+        principal_id="alice", scopes=SCOPES,
+    )
+    blockers = assessed["assessment"]["blockers"]
+    assert assessed["assessment"]["stage_receipt_count"] == 3
+    assert assessed["assessment"]["completed_stage_receipt_count"] == 0
+    assert any(item["code"] == "research_loop_blocked" for item in blockers)
+    assert any(item["code"] == "source_coverage_incomplete" for item in blockers)
+    assert any(item["code"] == "research_stage_incomplete"
+               and item["target"]["error_code"] == "provider_unavailable" for item in blockers)
+    assert sum(item["code"] == "research_stage_receipt_missing" for item in blockers) == 2

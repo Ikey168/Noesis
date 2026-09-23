@@ -272,6 +272,101 @@ def test_no_match_returns_explicit_unverifiable_refusal(corpus):
     assert evaluate_answer(payload)["passed"] is True
 
 
+def test_metadata_only_paper_does_not_answer_explanatory_question(tmp_path):
+    conn = duckdb.connect()
+    config_path = tmp_path / "domains.yml"
+    config_path.write_text("""
+version: 1
+domains:
+  - name: papers
+    backing: corpus-view
+    embedding_model: fake-embed
+    tags: [papers]
+    keywords: [setun]
+""")
+    ensure_schema(conn)
+    DocumentStore(conn).upsert([{
+        "document_id": "paper:setun",
+        "source_type": "paper",
+        "source_id": "crossref",
+        "language": "en",
+        "ingested_at": 100,
+        "url": "https://doi.org/10.1007/978-3-642-22816-2_10",
+        "title": "Ternary Computers: The Setun and the Setun 70",
+        "metadata": {"tags": ["papers"]},
+    }])
+    run_membership_pass(conn, load_registry(config_path))
+
+    explanation = contract.kb_answer(
+        "papers", "Why did the Setun ternary computer fade from use?",
+        conn=conn, config_path=config_path,
+    )["data"]
+    assert explanation["answer_status"] == "refused"
+    assert explanation["statements"][0]["verdict"] == "unverifiable"
+
+    about = contract.kb_answer(
+        "papers", "What do the papers say about the Setun ternary computer?",
+        conn=conn, config_path=config_path,
+    )["data"]
+    assert about["answer_status"] == "refused"
+    assert contract.kb_answer(
+        "papers", "What papers say about the Setun ternary computer?",
+        conn=conn, config_path=config_path,
+    )["data"]["answer_status"] == "refused"
+
+    discovery = contract.kb_answer(
+        "papers", "Which papers discuss the Setun ternary computer?",
+        conn=conn, config_path=config_path,
+    )["data"]
+    assert discovery["answer_status"] == "answered"
+    assert discovery["statements"][0]["text"] == "Ternary Computers: The Setun and the Setun 70"
+
+
+def test_paper_abstract_can_supply_a_cited_passage_without_claim_extraction(tmp_path):
+    conn = duckdb.connect()
+    config_path = tmp_path / "domains.yml"
+    config_path.write_text("""
+version: 1
+domains:
+  - name: papers
+    backing: corpus-view
+    embedding_model: fake-embed
+    tags: [papers]
+    keywords: [bios]
+""")
+    ensure_schema(conn)
+    DocumentStore(conn).upsert([{
+        "document_id": "paper:bios3",
+        "source_type": "paper",
+        "source_id": "crossref",
+        "language": "en",
+        "ingested_at": 100,
+        "url": "https://example.org/paper/bios3",
+        "title": "BIOS-3 gas exchange experiments",
+        "content": "The BIOS-3 experiments observed elevated carbon dioxide in the crew compartment. Further work is needed to explain the mechanism.",
+        "metadata": {"tags": ["papers"], "content_coverage": "abstract-only"},
+    }])
+    run_membership_pass(conn, load_registry(config_path))
+
+    response = contract.kb_answer(
+        "papers", "What did the BIOS-3 experiments observe about carbon dioxide?",
+        conn=conn, config_path=config_path,
+    )
+    payload = response["data"]
+    assert payload["answer_status"] == "partial"
+    assert payload["partial_reasons"] == [
+        "paper_passages_are_source_statements_not_validated_claims"
+    ]
+    statement = payload["statements"][0]
+    assert statement["text"] == "The BIOS-3 experiments observed elevated carbon dioxide in the crew compartment."
+    assert statement["supporting_evidence"][0]["document_id"] == "paper:bios3"
+    assert statement["supporting_evidence"][0]["excerpt"] == statement["text"]
+    evaluation = evaluate_answer(response)
+    assert evaluation["passed"] is True, evaluation["violations"]
+    bundle = export_answer(response, inputs={"domain": "papers"}, created_at_ms=0)
+    assert verify_bundle(bundle).status == "valid"
+
+
 def test_contradicting_evidence_is_separate_and_changes_verdict(tmp_path):
     conn = duckdb.connect()
     config_path = tmp_path / "domains.yml"

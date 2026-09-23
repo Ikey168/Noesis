@@ -8881,6 +8881,12 @@ register_intake_iteration_tools(mcp, _intake_safe, _intake_context)
 
 
 if __name__ == "__main__":
+    import asyncio
+
+    from src.config.env import resolve_env
     from src.mcp_host.transport import run_server
+    from tools.knowledge_engine_mcp.profiles import apply_tool_profile
+
+    asyncio.run(apply_tool_profile(mcp, resolve_env("MCP_TOOL_PROFILE", "all") or "all"))
 
     run_server(mcp)
