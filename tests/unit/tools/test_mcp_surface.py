@@ -59,6 +59,16 @@ READ_SMOKES = {
 # invoked against an isolated warehouse below, but are excluded from the
 # read-only checksum assertion.
 DOCUMENTED_WRITES = {
+    # KB reads lazily materialize domain membership and document revisions,
+    # and tools/kb_mcp/server.py now releases the shared DuckDB handle after
+    # each call, so those materializations reach disk.  Watches persist state.
+    *{("kb_mcp", name) for name in (
+        "kb_search", "kb_answer", "kb_temporal", "kb_corroborate", "kb_documents",
+        "kb_claims", "kb_entities", "kb_contradictions", "kb_diff", "kb_brief",
+        "kb_coverage", "kb_integrity", "policy_monitor_status", "policy_monitor_bundle",
+        "watch_list", "watch_poll", "watch_pause", "watch_resume", "watch_delete",
+        "watch_scan", "watch_replay", "watch_metrics",
+    )},
     # Market tools persist calculation/run receipts; tools/market_mcp/server.py
     # declares each of these operations as a write.
     ("market_mcp", "build_market_company_dossier"),

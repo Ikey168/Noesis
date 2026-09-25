@@ -294,3 +294,4 @@ artifacts/figures/
 # Local runtime state and frontend dependencies
 node_modules/
 config/*.sqlite
+.claude/worktrees/
