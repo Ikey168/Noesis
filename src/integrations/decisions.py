@@ -8,9 +8,9 @@ from __future__ import annotations
 
 import json
 import math
+from collections.abc import Mapping
 from dataclasses import dataclass, field
-from typing import Any, Mapping
-
+from typing import Any
 
 CONTRACT = "noesis-typed-decision-v1"
 KINDS = frozenset({"choice", "score", "noul"})
@@ -488,9 +488,9 @@ def parse_answers(
             legend = raw_answer.get("legend")
             if not isinstance(legend, Mapping) or set(legend) != expected:
                 raise DecisionError("schema_drift", f"score legend mismatch for {key}")
-            if list(
+            if [
                 legend[str(index)] for index in range(len(question.criteria))
-            ) != list(question.criteria):
+            ] != list(question.criteria):
                 raise DecisionError(
                     "schema_drift", f"score legend differs from rubric for {key}"
                 )

@@ -1,7 +1,6 @@
 """MCP controls for residual knowledge-engine ingestion and derivation capabilities."""
 
 # Registration imports appear after the authorization helpers they use.
-# ruff: noqa: E402
 
 from __future__ import annotations
 
@@ -69,7 +68,7 @@ def _safe(operation, *, write: bool = False, required_scope: str | None = None, 
             }
         conn = _connection(read_only=not write)
         return operation(conn)
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         return {
             "ok": False,
             "error": {
@@ -9056,7 +9055,6 @@ from tools.knowledge_engine_mcp.systematic_review_decisions import (
 register_review_screening_decision_tools(mcp, _safe, lambda: _context())
 
 from tools.knowledge_engine_mcp.decisions import register as register_decision_tools
-
 from tools.knowledge_engine_mcp.intake import register as register_intake_tools
 
 
@@ -9145,7 +9143,7 @@ from tools.knowledge_engine_mcp.playbook_search import (
 
 register_playbook_search_tools(mcp, _intake_safe, _intake_context)
 
-from tools.knowledge_engine_mcp.skills import (  # noqa: E402
+from tools.knowledge_engine_mcp.skills import (
     register as register_skill_tools,
 )
 
@@ -9183,6 +9181,10 @@ from tools.knowledge_engine_mcp.iteration_intake import (
 )
 
 register_intake_iteration_tools(mcp, _intake_safe, _intake_context)
+
+from tools.knowledge_engine_mcp.funding import register as register_funding_tools
+
+register_funding_tools(mcp, _intake_safe, _intake_context)
 
 
 if __name__ == "__main__":

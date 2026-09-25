@@ -34,7 +34,7 @@
       "properties": {"tokens": {"type": "integer", "minimum": 0}, "requests": {"type": "integer", "minimum": 0}, "usd_micros": {"type": "integer", "minimum": 0}}},
     "link": {"type": "object", "required": ["kind", "id"], "additionalProperties": false,
       "properties": {
-        "kind": {"enum": ["plan", "run", "hypothesis", "evidence", "snapshot", "finding", "intake_source"]},
+        "kind": {"enum": ["plan", "run", "hypothesis", "evidence", "snapshot", "finding", "intake_source", "funding_opportunity", "funding_profile", "funding_shortlist"]},
         "id": {"type": "string", "minLength": 1}, "namespace": {"type": "string", "minLength": 1},
         "generation": {"type": "integer", "minimum": 0}, "revision": {"type": "integer", "minimum": 0},
         "question_revision": {"type": "integer", "minimum": 0},
@@ -45,6 +45,7 @@
       },
       "allOf": [
         {"if": {"properties": {"kind": {"enum": ["snapshot", "evidence"]}}}, "then": {"anyOf": [{"required": ["generation"]}, {"required": ["revision"]}]}},
+        {"if": {"properties": {"kind": {"enum": ["funding_opportunity", "funding_profile", "funding_shortlist"]}}}, "then": {"required": ["namespace", "revision"], "properties": {"revision": {"minimum": 1}}}},
         {"if": {"properties": {"kind": {"const": "intake_source"}}}, "then": {"required": ["namespace", "revision"], "properties": {"revision": {"minimum": 1}, "id": {"pattern": "^(feed|explore):"}}}}
       ]
     }

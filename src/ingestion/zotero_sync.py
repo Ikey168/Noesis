@@ -53,7 +53,9 @@ class ZoteroReadClient:
         except ImportError:
             raise ZoteroSyncError("provider_unavailable", "install Noesis's bibliography extra for Pyzotero support") from None
         deadline, remaining_bytes = time.monotonic() + timeout_seconds, [max_bytes]
-        endpoint = "https://api.zotero.org" if mode == "web" else "http://localhost:23119/api"
+        # pyzotero releases differ in how they spell the loopback host.
+        endpoints = ("https://api.zotero.org",) if mode == "web" else (
+            "http://localhost:23119/api", "http://127.0.0.1:23119/api")
         headers = {"Zotero-API-Version": "3"}
         if api_key:
             headers["Zotero-API-Key"] = api_key
@@ -62,7 +64,7 @@ class ZoteroReadClient:
 
         class BoundedClient:
             def get(self, url, *, params=None, headers=None, **kwargs):
-                if not str(url).startswith(endpoint + "/") and str(url) != endpoint:
+                if not any(str(url) == endpoint or str(url).startswith(endpoint + "/") for endpoint in endpoints):
                     raise ZoteroSyncError("unexpected_endpoint", "Zotero reads cannot follow an external endpoint")
                 remaining = deadline - time.monotonic()
                 if remaining <= 0:
@@ -77,6 +79,12 @@ class ZoteroReadClient:
                     if 300 <= response.status_code < 400:
                         raise ZoteroSyncError("unexpected_redirect", "attachment and external redirects are not followed")
                     return http.Response(response.status_code, headers=response.headers, content=bytes(data), request=response.request)
+
+            def request(self, method, url, **kwargs):
+                # pyzotero >=1.15.2 sends every call through request(); only reads are allowed.
+                if str(method).upper() != "GET":
+                    raise ZoteroSyncError("write_forbidden", "Zotero synchronization is read-only")
+                return self.get(url, **kwargs)
 
             def close(self):
                 transport.close()
