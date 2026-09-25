@@ -21,11 +21,13 @@ SUPPORTED_CONNECTORS = frozenset(
         "dataset",
         "declarative-rest",
         "filings",
+        "geojson",
         "git",
         "manifest",
         "package-registry",
         "paper",
         "web",
+        "wfs",
     }
 )
 AUTH_KINDS = frozenset({"none", "optional-secret", "required-secret"})
@@ -728,6 +730,10 @@ class SourcePackConformance:
         for source in pack["sources"]:
             fixture = self._fixture(source)
             runner = (runners or {}).get(source["connector"])
+            if runner is None and fixture.get("native_pages"):
+                from src.ingestion.wfs_api import replay_native_fixture
+
+                runner = replay_native_fixture
             normalized = list(
                 runner(source, fixture) if runner else fixture.get("normalized") or []
             )

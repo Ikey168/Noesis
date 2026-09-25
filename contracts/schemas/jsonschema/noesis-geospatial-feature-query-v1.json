@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/schemas/noesis-geospatial-feature-query-v1.json",
+  "title": "Noesis points-inside-boundary query result",
+  "type": "object",
+  "required": [
+    "contract",
+    "status",
+    "resolution",
+    "members",
+    "receipt"
+  ],
+  "properties": {
+    "contract": {
+      "const": "noesis-geospatial-feature-query-v1"
+    },
+    "status": {
+      "enum": [
+        "complete",
+        "coverage_incomplete",
+        "needs_review",
+        "not_found"
+      ]
+    },
+    "resolution": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "description": "Boundary name resolution; needs_review lists candidates and selects none."
+    },
+    "boundary": {
+      "type": "object"
+    },
+    "collection": {
+      "type": "string"
+    },
+    "coverage": {
+      "type": "object"
+    },
+    "semantics": {
+      "type": "string"
+    },
+    "total_members": {
+      "type": "integer"
+    },
+    "members": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "feature_id",
+          "native_id",
+          "geometry_id",
+          "revision_id",
+          "provenance",
+          "precision"
+        ]
+      }
+    },
+    "truncated": {
+      "type": "boolean"
+    },
+    "receipt": {
+      "type": [
+        "object",
+        "null"
+      ]
+    }
+  }
+}

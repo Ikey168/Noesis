@@ -69,6 +69,19 @@ SAFE_ERROR_CODES = frozenset(
     }
 )
 
+def _geospatial_projector(conn: Any) -> Any:
+    from src.kb.geospatial_features import GeospatialFeatureProjector
+
+    return GeospatialFeatureProjector(conn)
+
+
+# Mapping target schemas whose records are also projected into a domain store.
+# A projector receives each committed page before its checkpoint advances and
+# the source outcome afterwards, so replayed pages must project idempotently.
+PROJECTORS: dict[str, Callable[[Any], Any]] = {
+    "noesis-geospatial-feature-v1": _geospatial_projector,
+}
+
 _DDL = """
 CREATE TABLE IF NOT EXISTS source_pack_license_acceptance (
   pack_id TEXT NOT NULL, source_id TEXT NOT NULL, license_id TEXT NOT NULL,
@@ -661,7 +674,13 @@ class RuntimeAdapterFactory:
     def __init__(
         self, builders: Mapping[str, Callable[..., RuntimeSourceAdapter]] | None = None
     ) -> None:
-        self.builders = {kind: HTTPSPageAdapter for kind in SUPPORTED_CONNECTORS}
+        from src.ingestion.geojson_features import GeoJsonFeatureAdapter
+        from src.ingestion.wfs_api import WfsFeatureAdapter
+
+        self.builders: dict[str, Callable[..., Any]] = {
+            kind: HTTPSPageAdapter for kind in SUPPORTED_CONNECTORS
+        }
+        self.builders.update({"geojson": GeoJsonFeatureAdapter, "wfs": WfsFeatureAdapter})
         self.builders.update(dict(builders or {}))
 
     def compile(
@@ -683,7 +702,7 @@ class RuntimeAdapterFactory:
                 "manifest_drift", "source declaration changed after installation"
             )
         builder = self.builders[kind]
-        if builder is HTTPSPageAdapter:
+        if builder is HTTPSPageAdapter or getattr(builder, "accepts_transport", False):
             return builder(source, transport=transport, secret=secret)
         return builder(source)
 
@@ -709,6 +728,7 @@ class SourcePackRuntime:
             ensure_runtime_schema(conn)
         self.documents = document_store or (DocumentStore(conn) if initialize else None)
         self._cancel: dict[str, threading.Event] = {}
+        self.projectors: dict[str, Any] = {}
 
     def _manifest(self, pack_id: str) -> tuple[dict[str, Any], bool]:
         row = self.conn.execute(
@@ -889,13 +909,30 @@ class SourcePackRuntime:
 
         manifest, _ = self._manifest(pack_id)
         conformance = SourcePackConformance(root)
-        result = {}
+        result: dict[str, RuntimeSourceAdapter] = {}
         for source in manifest["sources"]:
             fixture = conformance._fixture(source)  # validated path and content hash
+            if fixture.get("native_pages") and source["connector"] in {"wfs", "geojson"}:
+                # Replay captured native envelopes through the real adapter.
+                from src.ingestion.wfs_api import fixture_transport
+
+                result[source["source_id"]] = self.factory.compile(
+                    source, transport=fixture_transport(fixture["native_pages"])
+                )
+                continue
             result[source["source_id"]] = FixturePageAdapter(
                 source, [list(fixture.get("normalized") or [])]
             )
         return result
+
+    def _projector(self, source: Mapping[str, Any]) -> Any:
+        """Durable projection for mappings that own a store beyond documents."""
+
+        schema = str(dict(source.get("mapping") or {}).get("target_schema") or "")
+        if schema not in self.projectors:
+            factory = PROJECTORS.get(schema)
+            self.projectors[schema] = factory(self.conn) if factory else None
+        return self.projectors[schema]
 
     def _normalize(
         self,
@@ -907,6 +944,12 @@ class SourcePackRuntime:
         observed_at_ms: int,
     ) -> dict[str, Any]:
         record = _redact(record)
+        if record.get("rejection"):
+            # Decoders report features without stable identity or supported
+            # geometry explicitly; they are quarantined, never dropped.
+            raise SourcePackError(
+                "mapping_failed", str(dict(record["rejection"]).get("code") or "rejected")
+            )
         raw_id = (
             record.get("document_id")
             or record.get("id")
@@ -1411,6 +1454,19 @@ class SourcePackRuntime:
                                 self.now(),
                             )
                             counts["quarantined"] += 1
+                    projector = self._projector(source)
+                    if projector is not None:
+                        # Before the checkpoint: a crash replays this page and
+                        # the projector deduplicates by source revision.
+                        projector.project_page(
+                            run_id=run_id,
+                            manifest=manifest,
+                            source=source,
+                            records=page.records,
+                            documents=documents,
+                            page_receipt=dict(page.receipt or {}),
+                            principal_id=principal_id,
+                        )
                     chain = _digest(
                         [chain, [_digest(record) for record in page.records]]
                     )
@@ -1467,6 +1523,18 @@ class SourcePackRuntime:
                 circuit = self._circuit(
                     manifest["pack_id"], source["source_id"], source_error, self.now()
                 )
+                projector = self._projector(source)
+                projection = (
+                    None
+                    if projector is None
+                    else projector.finish_source(
+                        run_id=run_id,
+                        manifest=manifest,
+                        source=source,
+                        status=status,
+                        principal_id=principal_id,
+                    )
+                )
                 receipt = {
                     "source_id": source["source_id"],
                     "status": status,
@@ -1482,6 +1550,7 @@ class SourcePackRuntime:
                     "retries": retries,
                     "circuit": circuit,
                     "adapter": description,
+                    **({"projection": projection} if projection is not None else {}),
                 }
                 source_receipts.append(receipt)
                 if source_error:

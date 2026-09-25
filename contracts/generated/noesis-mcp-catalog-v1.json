@@ -895,7 +895,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 627,
+      "tool_count": 635,
       "tools": [
         "noesis-knowledge-engine.accept_awareness_jev_suggestion",
         "noesis-knowledge-engine.accept_citation_repair",
@@ -1136,6 +1136,7 @@
         "noesis-knowledge-engine.get_source_capability",
         "noesis-knowledge-engine.get_study_replication_graph",
         "noesis-knowledge-engine.handoff_intake_creation",
+        "noesis-knowledge-engine.import_geospatial_features",
         "noesis-knowledge-engine.import_modulo_flashcards",
         "noesis-knowledge-engine.import_research_package",
         "noesis-knowledge-engine.import_technical_inventory",
@@ -1157,6 +1158,9 @@
         "noesis-knowledge-engine.inspect_entity_change_impact",
         "noesis-knowledge-engine.inspect_event_dossier",
         "noesis-knowledge-engine.inspect_exploration_source",
+        "noesis-knowledge-engine.inspect_geospatial_feature",
+        "noesis-knowledge-engine.inspect_geospatial_feature_coverage",
+        "noesis-knowledge-engine.inspect_geospatial_pack_readiness",
         "noesis-knowledge-engine.inspect_guided_playbook_run",
         "noesis-knowledge-engine.inspect_hosted_typed_decision",
         "noesis-knowledge-engine.inspect_intake_creation",
@@ -1287,6 +1291,7 @@
         "noesis-knowledge-engine.propose_problem_action",
         "noesis-knowledge-engine.publish_entity_change_rebuild",
         "noesis-knowledge-engine.query_geospatial_event_map",
+        "noesis-knowledge-engine.query_geospatial_features_within",
         "noesis-knowledge-engine.query_knowledge",
         "noesis-knowledge-engine.queue_jev_entity_merge_review",
         "noesis-knowledge-engine.rank_by_quality",
@@ -1354,6 +1359,7 @@
         "noesis-knowledge-engine.replay_document_generation_delta",
         "noesis-knowledge-engine.replay_event_record",
         "noesis-knowledge-engine.replay_evidence_freshness_assessment",
+        "noesis-knowledge-engine.replay_geospatial_feature_query",
         "noesis-knowledge-engine.replay_hypothesis_workspace",
         "noesis-knowledge-engine.replay_knowledge_query",
         "noesis-knowledge-engine.replay_maintenance_generation",
@@ -1374,6 +1380,7 @@
         "noesis-knowledge-engine.resolve_binary_forecast",
         "noesis-knowledge-engine.resolve_entity_history",
         "noesis-knowledge-engine.resolve_event_report",
+        "noesis-knowledge-engine.resolve_geospatial_boundary",
         "noesis-knowledge-engine.resolve_geospatial_candidates",
         "noesis-knowledge-engine.resolve_research_package_closure",
         "noesis-knowledge-engine.resolve_review_inbox_task",
@@ -1385,6 +1392,7 @@
         "noesis-knowledge-engine.retract_event_account",
         "noesis-knowledge-engine.retract_hypothesis_evidence",
         "noesis-knowledge-engine.retract_source_relationship",
+        "noesis-knowledge-engine.retry_geospatial_feature_projection",
         "noesis-knowledge-engine.retry_maintenance_job",
         "noesis-knowledge-engine.retry_source_pack_quarantine",
         "noesis-knowledge-engine.reverse_event_merge",
@@ -1530,7 +1538,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 627
+      "visible_tool_count": 635
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -1543,9 +1551,9 @@
     "states": {
       "available": 90,
       "degraded": 158,
-      "unauthorized": 685
+      "unauthorized": 693
     },
-    "tools": 933
+    "tools": 941
   },
   "tools": [
     {
@@ -31293,6 +31301,131 @@
     },
     {
       "cost_class": "medium",
+      "description": "Import one bounded GeoJSON FeatureCollection into a caller namespace.\n\nPass the collection inline or as a path under NOESIS_GEOSPATIAL_IMPORT_ROOT.\nFeatures without IDs or with unsupported geometry are reported, not dropped;\nonly snapshot=\"complete\" lets absent features be marked removed.",
+      "id": "noesis-knowledge-engine.import_geospatial_features",
+      "input_schema": {
+        "properties": {
+          "attribution": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "axis_order": {
+            "default": "east_north",
+            "type": "string"
+          },
+          "collection": {
+            "type": "string"
+          },
+          "feature_collection": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "id_property": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "max_features": {
+            "default": 10000,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "precision": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "provider": {
+            "type": "string"
+          },
+          "snapshot": {
+            "default": "partial",
+            "type": "string"
+          },
+          "source_crs": {
+            "type": "string"
+          },
+          "title_property": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "provider",
+          "collection",
+          "source_crs"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "import_geospatial_features",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:geospatial:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Create a native pack while retaining exact plugin IDs, history and unmapped schedule data.",
       "id": "noesis-knowledge-engine.import_modulo_flashcards",
       "input_schema": {
@@ -32297,6 +32430,115 @@
       ],
       "required_scopes": [
         "knowledge:intake:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Show a feature's current revision, history, provenance and snapshot state.",
+      "id": "noesis-knowledge-engine.inspect_geospatial_feature",
+      "input_schema": {
+        "properties": {
+          "feature_id": {
+            "type": "string"
+          },
+          "include_history": {
+            "default": true,
+            "type": "boolean"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "feature_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "inspect_geospatial_feature",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:geospatial:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Report a collection's active/removed counts and snapshot completeness.",
+      "id": "noesis-knowledge-engine.inspect_geospatial_feature_coverage",
+      "input_schema": {
+        "properties": {
+          "collection": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "collection"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "inspect_geospatial_feature_coverage",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:geospatial:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Report optional spatial dependencies, pack state and accepted source terms.",
+      "id": "noesis-knowledge-engine.inspect_geospatial_pack_readiness",
+      "input_schema": {
+        "properties": {
+          "pack_id": {
+            "default": "geospatial-berlin",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "inspect_geospatial_pack_readiness",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:geospatial:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -38651,6 +38893,80 @@
     },
     {
       "cost_class": "medium",
+      "description": "List point features inside one boundary with source evidence and a receipt.\n\nMembership is exact ring parity on stored WGS84 geometry; an ambiguous\nboundary name returns candidates instead of choosing one.",
+      "id": "noesis-knowledge-engine.query_geospatial_features_within",
+      "input_schema": {
+        "properties": {
+          "boundary_collection": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "boundary_feature_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "boundary_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "collection": {
+            "type": "string"
+          },
+          "limit": {
+            "default": 1000,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "collection"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "query_geospatial_features_within",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:geospatial:calculate"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Query authorized local knowledge with evidence-preserving unified results.",
       "id": "noesis-knowledge-engine.query_knowledge",
       "input_schema": {
@@ -44065,6 +44381,43 @@
       "version": "1"
     },
     {
+      "cost_class": "medium",
+      "description": "Recompute a points-within receipt from its pinned geometry revisions.",
+      "id": "noesis-knowledge-engine.replay_geospatial_feature_query",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "receipt_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "receipt_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "replay_geospatial_feature_query",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:geospatial:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "low",
       "description": "Replay a hypothesis export and verify deterministic reconstruction.",
       "id": "noesis-knowledge-engine.replay_hypothesis_workspace",
@@ -44863,6 +45216,54 @@
     },
     {
       "cost_class": "low",
+      "description": "Match a boundary by name; more than one match stays unresolved for review.",
+      "id": "noesis-knowledge-engine.resolve_geospatial_boundary",
+      "input_schema": {
+        "properties": {
+          "collection": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "name": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "name"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "resolve_geospatial_boundary",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:geospatial:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Resolve text against offline place candidates without hiding ambiguity.",
       "id": "noesis-knowledge-engine.resolve_geospatial_candidates",
       "input_schema": {
@@ -45393,6 +45794,39 @@
       ],
       "required_scopes": [
         "knowledge:source-identity:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Re-project features whose projection failed, from their retained records.",
+      "id": "noesis-knowledge-engine.retry_geospatial_feature_projection",
+      "input_schema": {
+        "properties": {
+          "run_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "run_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "retry_geospatial_feature_projection",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:geospatial:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",

@@ -268,6 +268,10 @@ async def _inspect_server(
 
 
 def _mutability(name: str) -> str:
+    from tools.knowledge_engine_mcp.geospatial_features import GEOSPATIAL_FEATURE_WRITES
+
+    if name in GEOSPATIAL_FEATURE_WRITES:
+        return "write"
     from tools.knowledge_engine_mcp.intake import INTAKE_WRITES
 
     if name in INTAKE_WRITES:
@@ -1587,6 +1591,12 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
             "replay_claim_evolution",
         }:
             return ["knowledge:claim-timeline:read"]
+        from tools.knowledge_engine_mcp.geospatial_features import (
+            GEOSPATIAL_FEATURE_SCOPES,
+        )
+
+        if tool_name in GEOSPATIAL_FEATURE_SCOPES:
+            return list(GEOSPATIAL_FEATURE_SCOPES[tool_name])
         if tool_name == "review_geospatial_resolution":
             return ["knowledge:geospatial:review"]
         if tool_name == "calculate_spatial_relation":

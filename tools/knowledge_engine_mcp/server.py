@@ -9031,6 +9031,12 @@ from tools.knowledge_engine_mcp import event_dossiers
 
 event_dossiers.register(mcp, _safe, lambda: _context())
 
+from tools.knowledge_engine_mcp.geospatial_features import (
+    register as register_geospatial_feature_tools,
+)
+
+register_geospatial_feature_tools(mcp, _safe, lambda: _context())
+
 from tools.knowledge_engine_mcp.openreview_rounds import (
     register as register_openreview_round_tools,
 )

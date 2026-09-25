@@ -121,7 +121,37 @@
       ]
     },
     "policy": {
-      "type": "object"
+      "type": "object",
+      "properties": {
+        "precision": {
+          "type": "object",
+          "required": [
+            "status",
+            "value_m",
+            "basis"
+          ],
+          "properties": {
+            "status": {
+              "enum": [
+                "declared",
+                "unknown"
+              ]
+            },
+            "value_m": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "minimum": 0
+            },
+            "basis": {
+              "type": "string"
+            }
+          },
+          "description": "Positional precision. When status is unknown, value_m is null and any stored precision_m of 0 is not a claim."
+        }
+      },
+      "description": "Producer policy. Optional precision (backward-compatible extension) distinguishes declared precision from unknown."
     },
     "principal_id": {
       "type": "string"
