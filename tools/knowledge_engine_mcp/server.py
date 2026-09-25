@@ -68,7 +68,7 @@ def _safe(operation, *, write: bool = False, required_scope: str | None = None, 
             }
         conn = _connection(read_only=not write)
         return operation(conn)
-    except Exception as exc:
+    except Exception as exc:  # noqa: BLE001
         return {
             "ok": False,
             "error": {
