@@ -8879,6 +8879,10 @@ from tools.knowledge_engine_mcp.iteration_intake import (
 
 register_intake_iteration_tools(mcp, _intake_safe, _intake_context)
 
+from tools.knowledge_engine_mcp.funding import register as register_funding_tools  # noqa: E402
+
+register_funding_tools(mcp, _intake_safe, _intake_context)
+
 
 if __name__ == "__main__":
     from src.mcp_host.transport import run_server
