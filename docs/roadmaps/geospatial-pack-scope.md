@@ -1,7 +1,8 @@
 # Geospatial pack scope
 
-Status: proposed scope, 2026-09-25. This document specifies work; it does not
-claim a shipped pack or validated live source integration.
+Status: implemented 2026-09-25. See the [geospatial pack guide](../guides/geospatial-pack.md).
+Offline acceptance and a dated bounded live run against both Berlin layers are
+recorded separately (`config/geospatial/acceptance/live-berlin.json`).
 
 ## GitHub implementation issues
 
@@ -13,16 +14,16 @@ no duplicate implementation issues were added. Related Products work is tracked
 in [#1706](https://github.com/Ikey168/Noesis/issues/1706). Share reusable runtime
 improvements without coupling the two packs' delivery or acceptance.
 
-- [ ] [#1696](https://github.com/Ikey168/Noesis/issues/1696) — Select and pin two Berlin vector source contracts.
-- [ ] [#1697](https://github.com/Ikey168/Noesis/issues/1697) — Add bounded GeoJSON acquisition and import.
-- [ ] [#1698](https://github.com/Ikey168/Noesis/issues/1698) — Implement the native WFS adapter.
-- [ ] [#1699](https://github.com/Ikey168/Noesis/issues/1699) — Define provenance-preserving spatial normalization.
-- [ ] [#1700](https://github.com/Ikey168/Noesis/issues/1700) — Project acquired revisions into the spatial store.
-- [ ] [#1701](https://github.com/Ikey168/Noesis/issues/1701) — Implement safe snapshot refresh and removal semantics.
-- [ ] [#1702](https://github.com/Ikey168/Noesis/issues/1702) — Package capabilities and the Berlin source profile.
-- [ ] [#1703](https://github.com/Ikey168/Noesis/issues/1703) — Expose source-aware query workflows.
-- [ ] [#1704](https://github.com/Ikey168/Noesis/issues/1704) — Add end-to-end offline acceptance coverage.
-- [ ] [#1705](https://github.com/Ikey168/Noesis/issues/1705) — Validate live Berlin layers and publish the demo.
+- [x] [#1696](https://github.com/Ikey168/Noesis/issues/1696) — Select and pin two Berlin vector source contracts.
+- [x] [#1697](https://github.com/Ikey168/Noesis/issues/1697) — Add bounded GeoJSON acquisition and import.
+- [x] [#1698](https://github.com/Ikey168/Noesis/issues/1698) — Implement the native WFS adapter.
+- [x] [#1699](https://github.com/Ikey168/Noesis/issues/1699) — Define provenance-preserving spatial normalization.
+- [x] [#1700](https://github.com/Ikey168/Noesis/issues/1700) — Project acquired revisions into the spatial store.
+- [x] [#1701](https://github.com/Ikey168/Noesis/issues/1701) — Implement safe snapshot refresh and removal semantics.
+- [x] [#1702](https://github.com/Ikey168/Noesis/issues/1702) — Package capabilities and the Berlin source profile.
+- [x] [#1703](https://github.com/Ikey168/Noesis/issues/1703) — Expose source-aware query workflows.
+- [x] [#1704](https://github.com/Ikey168/Noesis/issues/1704) — Add end-to-end offline acceptance coverage.
+- [x] [#1705](https://github.com/Ikey168/Noesis/issues/1705) — Validate live Berlin layers and publish the demo.
 
 ## Outcome
 

@@ -36,7 +36,7 @@ from src.kb.geospatial import (
     WRITE_SCOPE,
     GeospatialError,
     GeospatialStore,
-    _contains,
+    _point_in_ring,
     _require,
     _validate_geometry,
 )
@@ -879,11 +879,34 @@ class GeospatialFeatureStore:
 
     @staticmethod
     def _membership(boundary: Mapping[str, Any], candidates: Sequence[Mapping[str, Any]]) -> list[str]:
-        return sorted(
-            item["geometry_id"]
-            for item in candidates
-            if _contains(boundary["geometry"], item["geometry"]["coordinates"], 0)
-        )
+        """Exact ring parity, identical to ``_contains`` at zero tolerance.
+
+        The boundary is validated once and each part gets a bounding-box
+        prefilter, instead of revalidating the full boundary per point.
+        """
+
+        kind, coordinates = _validate_geometry(boundary["geometry"])
+        if kind not in {"Polygon", "MultiPolygon"}:
+            raise GeospatialError("invalid_boundary", "boundary must be a Polygon or MultiPolygon")
+        polygons = [coordinates] if kind == "Polygon" else coordinates
+        parts = [
+            (
+                min(x for x, _ in polygon[0]), min(y for _, y in polygon[0]),
+                max(x for x, _ in polygon[0]), max(y for _, y in polygon[0]),
+                polygon,
+            )
+            for polygon in polygons
+        ]
+        members = []
+        for item in candidates:
+            x, y = item["geometry"]["coordinates"]
+            for west, south, east, north, polygon in parts:
+                if (west <= x <= east and south <= y <= north
+                        and _point_in_ring([x, y], polygon[0])
+                        and not any(_point_in_ring([x, y], ring) for ring in polygon[1:])):
+                    members.append(item["geometry_id"])
+                    break
+        return sorted(members)
 
     def within(
         self,
