@@ -233,6 +233,9 @@ def _mutability(name: str) -> str:
     from tools.knowledge_engine_mcp.research_intake import RESEARCH_INTAKE_WRITES
     if name in RESEARCH_INTAKE_WRITES:
         return "write"
+    from tools.knowledge_engine_mcp.funding import FUNDING_WRITES
+    if name in FUNDING_WRITES:
+        return "write"
     from tools.knowledge_engine_mcp.investigations import (
         ALERT_WRITES,
         COMPARISON_WRITES,
@@ -368,6 +371,9 @@ def _required_data(server_stem: str, tool_name: str) -> list[str]:
 
 
 def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[str]:
+    from tools.knowledge_engine_mcp.funding import FUNDING_TOOLS, required_scopes
+    if server_stem == "knowledge_engine_mcp" and tool_name in FUNDING_TOOLS:
+        return required_scopes(tool_name, mutability)
     if server_stem == "knowledge_engine_mcp" and tool_name in {
         "discover_intake_modes", "route_intake_mode", "verify_intake_mode_export",
         "inspect_intake_mode", "list_intake_modes", "export_intake_mode",

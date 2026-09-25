@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "noesis-funding-shortlist-v1",
+  "title": "Explained funding shortlist",
+  "description": "Buckets keep hard eligibility separate from fit. match_score is a weighted mean of known criteria in [0,1], never a probability of funding.",
+  "type": "object",
+  "required": ["contract", "shortlist_id", "namespace", "profile_id", "profile_revision", "as_of_ms", "weights",
+               "score_semantics", "eligibility_semantics", "items", "buckets", "sensitivity", "unknown_profile_facts", "providers"],
+  "properties": {
+    "contract": {"const": "noesis-funding-shortlist-v1"},
+    "shortlist_id": {"type": "string"},
+    "profile_revision": {"type": "integer", "minimum": 1},
+    "weights": {"type": "object", "additionalProperties": {"type": "number", "minimum": 0}},
+    "buckets": {"type": "object", "required": ["apply_now", "consider", "watch", "excluded"]},
+    "items": {"type": "array", "items": {"type": "object",
+      "required": ["opportunity_id", "revision", "title", "provider", "record_kind", "source_url", "state", "state_reasons",
+                   "verdict", "disqualifiers", "clarifications", "bucket", "match_score", "score_coverage", "criteria",
+                   "unknown_criteria", "effort", "instrument_kinds", "source_freshness"],
+      "properties": {
+        "bucket": {"enum": ["apply_now", "consider", "watch", "excluded"]},
+        "verdict": {"enum": ["eligible", "ineligible", "needs_clarification"]},
+        "match_score": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+        "criteria": {"type": "object", "additionalProperties": {"type": "object", "required": ["score", "reasons", "weight"]}}
+      }}}
+  }
+}

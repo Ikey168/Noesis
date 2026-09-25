@@ -11,8 +11,11 @@ READ_SCOPE = "knowledge:projects:read"
 WRITE_SCOPE = "knowledge:projects:write"
 _KINDS = {
     "plan", "run", "hypothesis", "evidence", "snapshot", "finding",
-    "intake_source",
+    "intake_source", "funding_opportunity", "funding_profile", "funding_shortlist",
 }
+# Funding references pin an exact revision so a call amendment or profile
+# change is visible as a superseded link, never silently followed.
+_FUNDING_KINDS = {"funding_opportunity", "funding_profile", "funding_shortlist"}
 _COSTS = {"tokens", "requests", "usd_micros"}
 _DDL = """
 CREATE TABLE IF NOT EXISTS research_projects(
@@ -74,6 +77,12 @@ def _links(values):
                 and "generation" not in link and "revision" not in link):
             raise ResearchProjectError(
                 "invalid_links", "source, evidence and snapshot references require a revision or generation"
+            )
+        if link["kind"] in _FUNDING_KINDS and (
+            not link.get("namespace") or type(link.get("revision")) is not int or link["revision"] < 1
+        ):
+            raise ResearchProjectError(
+                "invalid_links", "funding references need a namespace and positive revision"
             )
         if link["kind"] == "intake_source" and (
             not link["id"].startswith(("feed:", "explore:"))
