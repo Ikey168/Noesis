@@ -10,8 +10,7 @@
     "bundle",
     "loops",
     "blockers",
-    "limitations",
-    "assessment"
+    "limitations"
   ],
   "additionalProperties": false,
   "properties": {

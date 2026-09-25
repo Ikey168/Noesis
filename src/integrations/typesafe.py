@@ -7,19 +7,18 @@ import math
 import re
 import time
 from collections.abc import Callable
+from datetime import UTC
 from email.utils import parsedate_to_datetime
-from datetime import timezone
 from typing import Any
 
 from src.integrations.decisions import (
     DecisionAnswer,
     DecisionError,
+    DecisionQuestion,
     DecisionReceipt,
     DecisionRequest,
-    DecisionQuestion,
     parse_answers,
 )
-
 
 ENDPOINT = "https://api.typesafe.ai/v1/systemone"
 MAX_RESPONSE_BYTES = 2_000_000
@@ -32,25 +31,24 @@ def _http_transport(
 
     with httpx.Client(
         trust_env=False, follow_redirects=False, timeout=timeout_s
-    ) as client:
-        with client.stream(
-            "POST",
-            ENDPOINT,
-            json=body,
-            headers={
-                "Authorization": f"Bearer {api_key}",
-                "Content-Type": "application/json",
-            },
-        ) as response:
-            chunks, size = [], 0
-            for chunk in response.iter_bytes():
-                size += len(chunk)
-                if size > MAX_RESPONSE_BYTES:
-                    raise DecisionError(
-                        "response_limit", "provider response exceeds byte budget"
-                    )
-                chunks.append(chunk)
-            return response.status_code, dict(response.headers), b"".join(chunks)
+    ) as client, client.stream(
+        "POST",
+        ENDPOINT,
+        json=body,
+        headers={
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json",
+        },
+    ) as response:
+        chunks, size = [], 0
+        for chunk in response.iter_bytes():
+            size += len(chunk)
+            if size > MAX_RESPONSE_BYTES:
+                raise DecisionError(
+                    "response_limit", "provider response exceeds byte budget"
+                )
+            chunks.append(chunk)
+        return response.status_code, dict(response.headers), b"".join(chunks)
 
 
 def _retry_after(headers: dict[str, str], now: float) -> float | None:
@@ -64,7 +62,7 @@ def _retry_after(headers: dict[str, str], now: float) -> float | None:
         try:
             target = parsedate_to_datetime(value)
             if target.tzinfo is None:
-                target = target.replace(tzinfo=timezone.utc)
+                target = target.replace(tzinfo=UTC)
             return max(0.0, target.timestamp() - now)
         except (TypeError, ValueError, OverflowError):
             return None

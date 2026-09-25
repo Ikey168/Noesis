@@ -895,7 +895,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 635,
+      "tool_count": 661,
       "tools": [
         "noesis-knowledge-engine.accept_awareness_jev_suggestion",
         "noesis-knowledge-engine.accept_citation_repair",
@@ -910,6 +910,7 @@
         "noesis-knowledge-engine.acknowledge_change_brief_delivery",
         "noesis-knowledge-engine.acknowledge_cited_evidence_alert",
         "noesis-knowledge-engine.acknowledge_decision_review_task",
+        "noesis-knowledge-engine.acquire_funding_source",
         "noesis-knowledge-engine.acquire_opencitations",
         "noesis-knowledge-engine.add_paper_family_member",
         "noesis-knowledge-engine.add_review_candidate",
@@ -931,6 +932,7 @@
         "noesis-knowledge-engine.assess_authored_report_changes",
         "noesis-knowledge-engine.assess_epistemic_statement",
         "noesis-knowledge-engine.assess_evidence_freshness",
+        "noesis-knowledge-engine.assess_funding_eligibility",
         "noesis-knowledge-engine.assess_intake_research_progress",
         "noesis-knowledge-engine.assess_intake_skill",
         "noesis-knowledge-engine.assess_knowledge_quality",
@@ -947,6 +949,7 @@
         "noesis-knowledge-engine.begin_research_snapshot",
         "noesis-knowledge-engine.branch_hypothesis_workspace",
         "noesis-knowledge-engine.branch_research_project",
+        "noesis-knowledge-engine.build_funding_shortlist",
         "noesis-knowledge-engine.build_intake_creation_artifact",
         "noesis-knowledge-engine.build_research_package",
         "noesis-knowledge-engine.build_review_annotation_dataset",
@@ -1002,6 +1005,9 @@
         "noesis-knowledge-engine.create_event_dossier",
         "noesis-knowledge-engine.create_event_dossier_report",
         "noesis-knowledge-engine.create_event_record",
+        "noesis-knowledge-engine.create_funding_monitor",
+        "noesis-knowledge-engine.create_funding_profile",
+        "noesis-knowledge-engine.create_funding_workspace",
         "noesis-knowledge-engine.create_hypothesis_research_plan",
         "noesis-knowledge-engine.create_hypothesis_workspace",
         "noesis-knowledge-engine.create_intake_skill",
@@ -1046,6 +1052,7 @@
         "noesis-knowledge-engine.document_revision",
         "noesis-knowledge-engine.document_revision_health",
         "noesis-knowledge-engine.document_revision_history",
+        "noesis-knowledge-engine.draft_funding_application",
         "noesis-knowledge-engine.draft_intake_practice_pack",
         "noesis-knowledge-engine.encrypt_research_package",
         "noesis-knowledge-engine.evaluate_cited_evidence_subscription",
@@ -1078,6 +1085,7 @@
         "noesis-knowledge-engine.export_economic_release_comparison",
         "noesis-knowledge-engine.export_entity_identity_history",
         "noesis-knowledge-engine.export_event_dossier_comparison",
+        "noesis-knowledge-engine.export_funding_application_draft",
         "noesis-knowledge-engine.export_hypothesis_workspace",
         "noesis-knowledge-engine.export_intake_creation",
         "noesis-knowledge-engine.export_intake_mode",
@@ -1101,6 +1109,9 @@
         "noesis-knowledge-engine.extract_review_field",
         "noesis-knowledge-engine.fetch_declarative_api",
         "noesis-knowledge-engine.filter_access_bound_query",
+        "noesis-knowledge-engine.funding_bundle_status",
+        "noesis-knowledge-engine.funding_opportunity_history",
+        "noesis-knowledge-engine.funding_provider_contracts",
         "noesis-knowledge-engine.generate_change_brief",
         "noesis-knowledge-engine.get_access_view_audit",
         "noesis-knowledge-engine.get_change_brief",
@@ -1158,6 +1169,10 @@
         "noesis-knowledge-engine.inspect_entity_change_impact",
         "noesis-knowledge-engine.inspect_event_dossier",
         "noesis-knowledge-engine.inspect_exploration_source",
+        "noesis-knowledge-engine.inspect_funding_opportunity",
+        "noesis-knowledge-engine.inspect_funding_profile",
+        "noesis-knowledge-engine.inspect_funding_shortlist",
+        "noesis-knowledge-engine.inspect_funding_workspace",
         "noesis-knowledge-engine.inspect_geospatial_feature",
         "noesis-knowledge-engine.inspect_geospatial_feature_coverage",
         "noesis-knowledge-engine.inspect_geospatial_pack_readiness",
@@ -1223,6 +1238,7 @@
         "noesis-knowledge-engine.list_event_accounts",
         "noesis-knowledge-engine.list_expiring_evidence",
         "noesis-knowledge-engine.list_extractors",
+        "noesis-knowledge-engine.list_funding_opportunities",
         "noesis-knowledge-engine.list_geospatial_geometries",
         "noesis-knowledge-engine.list_intake_feed_inbox",
         "noesis-knowledge-engine.list_intake_feed_signal_rules",
@@ -1256,6 +1272,7 @@
         "noesis-knowledge-engine.plan_retention_gc",
         "noesis-knowledge-engine.poll_cited_evidence_alerts",
         "noesis-knowledge-engine.poll_decision_condition_watch",
+        "noesis-knowledge-engine.poll_funding_monitor",
         "noesis-knowledge-engine.preflight_intake_mode",
         "noesis-knowledge-engine.preflight_source_pack_run",
         "noesis-knowledge-engine.preview_anomaly_baseline",
@@ -1283,6 +1300,7 @@
         "noesis-knowledge-engine.propagate_evidence_freshness",
         "noesis-knowledge-engine.propose_authored_report_edit",
         "noesis-knowledge-engine.propose_forecast_resolution",
+        "noesis-knowledge-engine.propose_funding_rule_interpretation",
         "noesis-knowledge-engine.propose_intake_concept_revision",
         "noesis-knowledge-engine.propose_intake_decision_revision",
         "noesis-knowledge-engine.propose_intake_modulo_note_revision",
@@ -1301,6 +1319,7 @@
         "noesis-knowledge-engine.record_citation_health",
         "noesis-knowledge-engine.record_decision_evidence",
         "noesis-knowledge-engine.record_entity_identity_decision",
+        "noesis-knowledge-engine.record_funding_workspace_outcome",
         "noesis-knowledge-engine.record_geospatial_resolution",
         "noesis-knowledge-engine.record_intake_iteration_outcome",
         "noesis-knowledge-engine.record_language_text",
@@ -1315,6 +1334,7 @@
         "noesis-knowledge-engine.record_translation",
         "noesis-knowledge-engine.recover_research_analysis_run",
         "noesis-knowledge-engine.recover_stale_maintenance_jobs",
+        "noesis-knowledge-engine.refresh_funding_workspace",
         "noesis-knowledge-engine.refresh_intake_feed_inbox",
         "noesis-knowledge-engine.register_access_bound_object",
         "noesis-knowledge-engine.register_access_view_policy",
@@ -1400,6 +1420,7 @@
         "noesis-knowledge-engine.review_cross_language_alignment",
         "noesis-knowledge-engine.review_epistemic_status",
         "noesis-knowledge-engine.review_evidence_freshness_override",
+        "noesis-knowledge-engine.review_funding_rule_interpretation",
         "noesis-knowledge-engine.review_geospatial_resolution",
         "noesis-knowledge-engine.review_intake_iteration_stability",
         "noesis-knowledge-engine.review_multilingual_alias",
@@ -1429,6 +1450,7 @@
         "noesis-knowledge-engine.route_intake_iteration_gap",
         "noesis-knowledge-engine.route_intake_mode",
         "noesis-knowledge-engine.run_anomaly_detector",
+        "noesis-knowledge-engine.run_funding_monitor",
         "noesis-knowledge-engine.run_hosted_typed_decision",
         "noesis-knowledge-engine.run_maintenance_drain",
         "noesis-knowledge-engine.run_maintenance_once",
@@ -1453,6 +1475,7 @@
         "noesis-knowledge-engine.search_multimodal_assets",
         "noesis-knowledge-engine.select_paper_family_citation",
         "noesis-knowledge-engine.set_cited_evidence_subscription_status",
+        "noesis-knowledge-engine.set_funding_bundle_enabled",
         "noesis-knowledge-engine.set_maintenance_schedule_paused",
         "noesis-knowledge-engine.set_research_package_trust_policy",
         "noesis-knowledge-engine.set_source_pack_enabled",
@@ -1519,6 +1542,8 @@
         "noesis-knowledge-engine.triage_awareness_item",
         "noesis-knowledge-engine.undo_entity_identity_change",
         "noesis-knowledge-engine.unified_query_capabilities",
+        "noesis-knowledge-engine.update_funding_profile",
+        "noesis-knowledge-engine.update_funding_workspace_items",
         "noesis-knowledge-engine.update_research_gap_status",
         "noesis-knowledge-engine.validate_api_connector_manifest",
         "noesis-knowledge-engine.validate_knowledge_workflow",
@@ -1531,14 +1556,15 @@
         "noesis-knowledge-engine.verify_preserved_citation",
         "noesis-knowledge-engine.verify_research_package",
         "noesis-knowledge-engine.verify_retention_checkpoint",
-        "noesis-knowledge-engine.visit_exploration_feed_item"
+        "noesis-knowledge-engine.visit_exploration_feed_item",
+        "noesis-knowledge-engine.withdraw_funding_profile"
       ],
       "transports": [
         "stdio",
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 635
+      "visible_tool_count": 661
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -1549,11 +1575,11 @@
     },
     "servers": 30,
     "states": {
-      "available": 90,
+      "available": 92,
       "degraded": 158,
-      "unauthorized": 693
+      "unauthorized": 717
     },
-    "tools": 941
+    "tools": 967
   },
   "tools": [
     {
@@ -6230,6 +6256,7 @@
       "mutability": "read",
       "name": "get_schema",
       "output_schema": {
+        "description": "Generic wrapper for non-object return types.",
         "properties": {
           "result": {
             "type": "string"
@@ -12805,6 +12832,7 @@
       "mutability": "read",
       "name": "emerging_connections",
       "output_schema": {
+        "description": "Generic wrapper for non-object return types.",
         "properties": {
           "result": {
             "items": {},
@@ -12849,6 +12877,7 @@
       "mutability": "read",
       "name": "evolving_topics",
       "output_schema": {
+        "description": "Generic wrapper for non-object return types.",
         "properties": {
           "result": {
             "items": {},
@@ -13212,6 +13241,7 @@
       "mutability": "read",
       "name": "list_corrections",
       "output_schema": {
+        "description": "Generic wrapper for non-object return types.",
         "properties": {
           "result": {
             "items": {},
@@ -13274,6 +13304,7 @@
       "mutability": "read",
       "name": "list_entities",
       "output_schema": {
+        "description": "Generic wrapper for non-object return types.",
         "properties": {
           "result": {
             "items": {},
@@ -13399,6 +13430,7 @@
       "mutability": "read",
       "name": "list_sources",
       "output_schema": {
+        "description": "Generic wrapper for non-object return types.",
         "properties": {
           "result": {
             "items": {},
@@ -13450,6 +13482,7 @@
       "mutability": "read",
       "name": "list_trustworthiness",
       "output_schema": {
+        "description": "Generic wrapper for non-object return types.",
         "properties": {
           "result": {
             "items": {},
@@ -13497,6 +13530,7 @@
       "mutability": "read",
       "name": "outlet_clusters",
       "output_schema": {
+        "description": "Generic wrapper for non-object return types.",
         "properties": {
           "result": {
             "items": {},
@@ -13607,6 +13641,7 @@
       "mutability": "read",
       "name": "list_backups",
       "output_schema": {
+        "description": "Generic wrapper for non-object return types.",
         "properties": {
           "result": {
             "items": {},
@@ -13654,6 +13689,7 @@
       "mutability": "read",
       "name": "list_tls_certs",
       "output_schema": {
+        "description": "Generic wrapper for non-object return types.",
         "properties": {
           "result": {
             "items": {},
@@ -13768,6 +13804,7 @@
       "mutability": "read",
       "name": "get_metrics",
       "output_schema": {
+        "description": "Generic wrapper for non-object return types.",
         "properties": {
           "result": {
             "items": {},
@@ -19043,6 +19080,61 @@
     },
     {
       "cost_class": "medium",
+      "description": "Bounded live acquisition of one explicitly selected provider page, topic or search.",
+      "id": "noesis-knowledge-engine.acquire_funding_source",
+      "input_schema": {
+        "properties": {
+          "budget_id": {
+            "type": "string"
+          },
+          "max_requests": {
+            "default": 10,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "observation": {
+            "type": "string"
+          },
+          "reuse_notice": {
+            "type": "string"
+          },
+          "selection": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "namespace",
+          "selection",
+          "observation",
+          "budget_id",
+          "reuse_notice"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "acquire_funding_source",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:funding:write",
+        "knowledge:ingestion:execute"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Capture an OpenCitations response or resume its bounded, persistent graph import.",
       "id": "noesis-knowledge-engine.acquire_opencitations",
       "input_schema": {
@@ -20480,6 +20572,47 @@
     },
     {
       "cost_class": "medium",
+      "description": "Requirements assessment with rule citations, unknowns and fact dependencies (not a funder decision).",
+      "id": "noesis-knowledge-engine.assess_funding_eligibility",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "opportunity_id": {
+            "type": "string"
+          },
+          "profile_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "profile_id",
+          "opportunity_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "assess_funding_eligibility",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:funding:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Persist a replayable workflow and Definition of Done assessment for a paired topic.",
       "id": "noesis-knowledge-engine.assess_intake_research_progress",
       "input_schema": {
@@ -21588,6 +21721,69 @@
       ],
       "required_scopes": [
         "knowledge:projects:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Explained shortlist: buckets, match score (not a probability), unknowns and sensitivity.",
+      "id": "noesis-knowledge-engine.build_funding_shortlist",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "profile_id": {
+            "type": "string"
+          },
+          "providers": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "weights": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "profile_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "build_funding_shortlist",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:funding:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -24723,6 +24919,169 @@
     },
     {
       "cost_class": "medium",
+      "description": "Watch new calls, rule/eligibility changes and deadlines via a knowledge subscription.",
+      "id": "noesis-knowledge-engine.create_funding_monitor",
+      "input_schema": {
+        "properties": {
+          "delivery": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "local_time": {
+            "default": "08:00",
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "profile_id": {
+            "type": "string"
+          },
+          "providers": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "request_key": {
+            "type": "string"
+          },
+          "timezone": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "profile_id",
+          "request_key",
+          "providers"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "create_funding_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:funding:write",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Create a private, owner-scoped applicant/project profile with no default facts.",
+      "id": "noesis-knowledge-engine.create_funding_profile",
+      "input_schema": {
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "request_key": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "request_key",
+          "label"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "create_funding_profile",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:funding:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Start application preparation as a research project with a requirement checklist.",
+      "id": "noesis-knowledge-engine.create_funding_workspace",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "opportunity_id": {
+            "type": "string"
+          },
+          "request_key": {
+            "type": "string"
+          },
+          "shortlist_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "request_key",
+          "shortlist_id",
+          "opportunity_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "create_funding_workspace",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:funding:write",
+        "knowledge:projects:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Create bounded checks for a workspace's discriminating predictions.",
       "id": "noesis-knowledge-engine.create_hypothesis_research_plan",
       "input_schema": {
@@ -27263,6 +27622,63 @@
       "version": "1"
     },
     {
+      "cost_class": "medium",
+      "description": "Editable cited draft from owner-reviewed facts; gaps stay explicitly unanswered.",
+      "id": "noesis-knowledge-engine.draft_funding_application",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "questions": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "request_key": {
+            "type": "string"
+          },
+          "workspace_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "workspace_id",
+          "request_key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "draft_funding_application",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:funding:write",
+        "knowledge:reports:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "low",
       "description": "Draft prompts from current intake sources or selected Research Bundle items; author review is required.",
       "id": "noesis-knowledge-engine.draft_intake_practice_pack",
@@ -28735,6 +29151,55 @@
     },
     {
       "cost_class": "low",
+      "description": "Export a draft revision after re-checking current access; includes edit provenance.",
+      "id": "noesis-knowledge-engine.export_funding_application_draft",
+      "input_schema": {
+        "properties": {
+          "draft_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "revision": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "draft_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "export_funding_application_draft",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:funding:read",
+        "knowledge:reports:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Export complete accessible workspace lineage with a deterministic hash.",
       "id": "noesis-knowledge-engine.export_hypothesis_workspace",
       "input_schema": {
@@ -29797,6 +30262,100 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Declared contributions plus actual ready/fixture-only/unavailable state per provider and entry point.",
+      "id": "noesis-knowledge-engine.funding_bundle_status",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "funding_bundle_status",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:funding:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Revision history with classified amendments.",
+      "id": "noesis-knowledge-engine.funding_opportunity_history",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "opportunity_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "opportunity_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "funding_opportunity_history",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:funding:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Per-provider access contracts, coverage limits and live-verification state.",
+      "id": "noesis-knowledge-engine.funding_provider_contracts",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "funding_provider_contracts",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
       "version": "1"
     },
     {
@@ -32430,6 +32989,187 @@
       ],
       "required_scopes": [
         "knowledge:intake:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "One opportunity revision with cited requirements, deadlines and financial terms.",
+      "id": "noesis-knowledge-engine.inspect_funding_opportunity",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "opportunity_id": {
+            "type": "string"
+          },
+          "revision": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "opportunity_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "inspect_funding_opportunity",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:funding:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Owner-only profile view with unknown and unreviewed facts listed.",
+      "id": "noesis-knowledge-engine.inspect_funding_profile",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "profile_id": {
+            "type": "string"
+          },
+          "revision": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "profile_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "inspect_funding_profile",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:funding:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "A stored shortlist and whether call amendments have invalidated it.",
+      "id": "noesis-knowledge-engine.inspect_funding_shortlist",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "shortlist_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "shortlist_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "inspect_funding_shortlist",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:funding:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Checklist progress, stale items and the call's current status.",
+      "id": "noesis-knowledge-engine.inspect_funding_workspace",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "revision": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "workspace_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "workspace_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "inspect_funding_workspace",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:funding:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -35420,6 +36160,67 @@
     },
     {
       "cost_class": "low",
+      "description": "Current opportunities with derived status, freshness, conflicts and links.",
+      "id": "noesis-knowledge-engine.list_funding_opportunities",
+      "input_schema": {
+        "properties": {
+          "kinds": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "providers": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_funding_opportunities",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:funding:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "List a place's geometries valid at a requested time.",
       "id": "noesis-knowledge-engine.list_geospatial_geometries",
       "input_schema": {
@@ -36881,6 +37682,48 @@
         "knowledge:briefs:read",
         "knowledge:briefs:write",
         "knowledge:briefs:deliver"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Poll monitor events after a cursor.",
+      "id": "noesis-knowledge-engine.poll_funding_monitor",
+      "input_schema": {
+        "properties": {
+          "cursor": {
+            "default": "",
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "subscription_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "poll_funding_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:funding:read",
+        "knowledge:subscriptions:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -38426,6 +39269,56 @@
       "version": "1"
     },
     {
+      "cost_class": "medium",
+      "description": "Propose a versioned machine rule for a free-text requirement; applies only after review.",
+      "id": "noesis-knowledge-engine.propose_funding_rule_interpretation",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "note": {
+            "type": "string"
+          },
+          "opportunity_id": {
+            "type": "string"
+          },
+          "requirement_id": {
+            "type": "string"
+          },
+          "rule": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "namespace",
+          "opportunity_id",
+          "requirement_id",
+          "rule",
+          "note"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_funding_rule_interpretation",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:funding:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "low",
       "description": "Save a complete cited Research Bundle concept proposal for review.",
       "id": "noesis-knowledge-engine.propose_intake_concept_revision",
@@ -39467,6 +40360,67 @@
       ],
       "required_scopes": [
         "knowledge:entity-history:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Record prepared / user-reported submitted / provider-confirmed. Never submits anything.",
+      "id": "noesis-knowledge-engine.record_funding_workspace_outcome",
+      "input_schema": {
+        "properties": {
+          "command_key": {
+            "type": "string"
+          },
+          "evidence": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "expected_revision": {
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "outcome": {
+            "type": "string"
+          },
+          "workspace_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "workspace_id",
+          "command_key",
+          "expected_revision",
+          "outcome"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "record_funding_workspace_outcome",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:funding:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -40592,6 +41546,52 @@
       ],
       "required_scopes": [
         "knowledge:maintenance:admin"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Adopt the current call revision, keep preparation and flag changed requirements.",
+      "id": "noesis-knowledge-engine.refresh_funding_workspace",
+      "input_schema": {
+        "properties": {
+          "command_key": {
+            "type": "string"
+          },
+          "expected_revision": {
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "workspace_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "workspace_id",
+          "command_key",
+          "expected_revision"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "refresh_funding_workspace",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:funding:write",
+        "knowledge:projects:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -46154,6 +47154,51 @@
     },
     {
       "cost_class": "medium",
+      "description": "Approve or reject another principal's interpretation.",
+      "id": "noesis-knowledge-engine.review_funding_rule_interpretation",
+      "input_schema": {
+        "properties": {
+          "approve": {
+            "type": "boolean"
+          },
+          "interpretation_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "revision": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "namespace",
+          "interpretation_id",
+          "revision",
+          "approve"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_funding_rule_interpretation",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:funding:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Append a reversible accept, reject, or defer review decision.",
       "id": "noesis-knowledge-engine.review_geospatial_resolution",
       "input_schema": {
@@ -47872,6 +48917,48 @@
     },
     {
       "cost_class": "medium",
+      "description": "Evaluate a monitor at a committed watermark; replaying a watermark creates no new events.",
+      "id": "noesis-knowledge-engine.run_funding_monitor",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "subscription_id": {
+            "type": "string"
+          },
+          "watermark": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "namespace",
+          "subscription_id",
+          "watermark"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "run_funding_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:funding:write",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Evaluate source-bound questions through the optional hosted provider.",
       "id": "noesis-knowledge-engine.run_hosted_typed_decision",
       "input_schema": {
@@ -49346,6 +50433,43 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Enable/disable Funding & Grants for a namespace without affecting shared providers or Research.",
+      "id": "noesis-knowledge-engine.set_funding_bundle_enabled",
+      "input_schema": {
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "enabled"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "set_funding_bundle_enabled",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "operator"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
       "version": "1"
     },
     {
@@ -53518,6 +54642,167 @@
     },
     {
       "cost_class": "medium",
+      "description": "Owner-reviewed fact changes; proposals stay unknown until reviewed.",
+      "id": "noesis-knowledge-engine.update_funding_profile",
+      "input_schema": {
+        "properties": {
+          "clear_facts": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "command_key": {
+            "type": "string"
+          },
+          "expected_revision": {
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "profile_id": {
+            "type": "string"
+          },
+          "propose_facts": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "reject": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "review": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "set_facts": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "profile_id",
+          "command_key",
+          "expected_revision"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "update_funding_profile",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:funding:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Owner-reviewed checklist status updates.",
+      "id": "noesis-knowledge-engine.update_funding_workspace_items",
+      "input_schema": {
+        "properties": {
+          "command_key": {
+            "type": "string"
+          },
+          "expected_revision": {
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "updates": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "workspace_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "workspace_id",
+          "command_key",
+          "expected_revision",
+          "updates"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "update_funding_workspace_items",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:funding:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Review, progress, resolve, or dismiss a gap with explicit evidence.",
       "id": "noesis-knowledge-engine.update_research_gap_status",
       "input_schema": {
@@ -54100,6 +55385,43 @@
       ],
       "required_scopes": [
         "knowledge:intake:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Withdraw a profile; it and every view pinned to it become unreadable.",
+      "id": "noesis-knowledge-engine.withdraw_funding_profile",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "profile_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "profile_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "withdraw_funding_profile",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:funding:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",

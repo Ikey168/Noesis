@@ -280,6 +280,9 @@ def _mutability(name: str) -> str:
 
     if name in RESEARCH_INTAKE_WRITES:
         return "write"
+    from tools.knowledge_engine_mcp.funding import FUNDING_WRITES
+    if name in FUNDING_WRITES:
+        return "write"
     from tools.knowledge_engine_mcp.investigations import (
         ALERT_WRITES,
         COMPARISON_WRITES,
@@ -769,6 +772,9 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
         }
         if tool_name in market_scopes:
             return market_scopes[tool_name]
+    from tools.knowledge_engine_mcp.funding import FUNDING_TOOLS, required_scopes
+    if server_stem == "knowledge_engine_mcp" and tool_name in FUNDING_TOOLS:
+        return required_scopes(tool_name, mutability)
     if server_stem == "knowledge_engine_mcp" and tool_name in {
         "suggest_jev_claim_presence",
         "suggest_jev_checkworthiness",
