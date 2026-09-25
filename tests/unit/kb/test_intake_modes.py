@@ -39,10 +39,111 @@ HANDOFF_V2_VALIDATOR = Draft202012Validator(
         ).read_text()
     )
 )
+HANDOFF_V3_VALIDATOR = Draft202012Validator(
+    json.loads(
+        (
+            Path(__file__).resolve().parents[3]
+            / "contracts/schemas/jsonschema/noesis-modulo-intake-handoff-v3.json"
+        ).read_text()
+    )
+)
 
 
 def _ref(kind, namespace="research"):
     return {"kind": kind, "id": f"{kind}:1", "namespace": namespace, "version": 1}
+
+
+def test_initial_document_revision_is_a_valid_intake_reference():
+    conn = duckdb.connect(":memory:")
+    store = IntakeStore(conn)
+    ref = {"kind": "document", "id": "paper:1", "namespace": "research", "version": 0}
+    state = store.create(
+        "research", "Deep Research", "revision-zero-paper", intent="Review paper",
+        references=[ref], principal_id="alice", scopes=SCOPES,
+    )
+    assert state["references"] == [ref]
+    VALIDATOR.validate(state)
+    conn.close()
+
+
+def test_plugin_aware_v3_handoff_preserves_versioned_identity_and_references():
+    conn = duckdb.connect(":memory:")
+    store = IntakeStore(conn, now=lambda: 1_000)
+    plugin_link = {
+        "workspace_id": "work", "account_id": "alice-account",
+        "plugin_id": "feeds-reading-inbox", "collection": "items",
+        "record_id": "item-7", "authoritative_version": 4,
+        "representation": "linked_projection", "authority": "modulo",
+        "source_locator": {"url": "https://example.org/item/7"},
+    }
+    source = _ref("source")
+    first = store.create(
+        "research", "Awareness", "v3-first", intent="Scan a feed",
+        inputs={"feed_item_ids": ["item-7"]}, plugin_links=[plugin_link],
+        references=[source], cadence={"interval_days": 1, "anchor_at_ms": 1_000},
+        principal_id="alice", scopes=SCOPES,
+    )
+    VALIDATOR.validate(first)
+    second = store.create(
+        "research", "Exploration", "v3-second", intent="Explore item",
+        origin={"session_id": first["session_id"], "reason": "A new question"},
+        principal_id="alice", scopes=SCOPES,
+    )
+    assert second["plugin_links"] == [plugin_link]
+    assert second["references"] == [source]
+    handoff = store.modulo_handoff(
+        "research", second["session_id"], contract_version="v3",
+        principal_id="alice", scopes=SCOPES,
+    )
+    HANDOFF_V3_VALIDATOR.validate(handoff)
+    assert handoff["plugin_links"][0]["authoritative_version"] == 4
+    assert handoff["plugin_access_state"] == "not_checked_by_noesis"
+    assert handoff["access_state"] == "current_intake_namespace_only"
+    assert handoff["noesis_references"] == [source]
+    assert handoff["transition_id"].startswith("intake-transition:")
+    assert store.create(
+        "research", "Exploration", "v3-second", intent="Explore item",
+        origin={"session_id": first["session_id"], "reason": "A new question"},
+        principal_id="alice", scopes=SCOPES,
+    )["idempotent"]
+    with pytest.raises(IntakeError) as revoked:
+        store.modulo_handoff(
+            "research", second["session_id"], contract_version="v3",
+            principal_id="alice", scopes=SCOPES - {"namespace:research:read"},
+        )
+    assert revoked.value.code == "unauthorized"
+    with pytest.raises(IntakeError) as bad_link:
+        store.create(
+            "research", "Creation", "bad-plugin-link", intent="Draft",
+            plugin_links=[{**plugin_link, "authoritative_version": 0}],
+            principal_id="alice", scopes=SCOPES,
+        )
+    assert bad_link.value.code == "invalid_plugin_link"
+
+
+def test_v3_document_link_rechecks_current_document_scope():
+    conn = duckdb.connect(":memory:")
+    store = IntakeStore(conn)
+    link = {
+        "workspace_id": "personal", "account_id": "alice-account",
+        "plugin_id": "reading-annotations", "collection": "annotations",
+        "record_id": "annotation-1", "authoritative_version": 2,
+        "representation": "linked_projection", "authority": "noesis",
+        "noesis_reference": {"kind": "document", "id": "doc-1",
+                             "namespace": "research", "version": 3},
+    }
+    full = SCOPES | {"document:doc-1:read"}
+    created = store.create("research", "Deep Research", "document-link",
+                           intent="Review source", plugin_links=[link],
+                           principal_id="alice", scopes=full)
+    assert store.modulo_handoff(
+        "research", created["session_id"], contract_version="v3",
+        principal_id="alice", scopes=full)["plugin_links"][0]["record_id"] == "annotation-1"
+    with pytest.raises(IntakeError) as denied:
+        store.modulo_handoff(
+            "research", created["session_id"], contract_version="v3",
+            principal_id="alice", scopes=SCOPES)
+    assert denied.value.code == "unauthorized"
 
 
 CASES = [
@@ -289,7 +390,7 @@ def test_handoff_replay_active_limit_and_access_revocation(tmp_path):
     with pytest.raises(IntakeError) as version_error:
         store.modulo_handoff(
             "research", exploration["session_id"], principal_id="alice", scopes=SCOPES,
-            contract_version="v3",
+            contract_version="v4",
         )
     assert version_error.value.code == "invalid_contract_version"
     store.command(
@@ -554,6 +655,36 @@ def test_active_research_limit_is_configurable():
             intent="Investigate",
             principal_id="alice",
             scopes=SCOPES,
+        )
+    assert blocked.value.code == "active_topic_limit"
+    conn.close()
+
+
+def test_paused_research_topic_frees_active_slot():
+    conn = duckdb.connect(":memory:")
+    store = IntakeStore(conn, active_research_limit=1)
+    first = store.create(
+        "research", "Deep Research", "topic-1", intent="Investigate",
+        principal_id="alice", scopes=SCOPES,
+    )
+    store.command(
+        "research", first["session_id"], command_key="pause-topic-1",
+        expected_revision=first["revision"], action="pause", payload=None,
+        principal_id="alice", scopes=SCOPES,
+    )
+    second = store.create(
+        "research", "Deep Research", "topic-2", intent="Investigate",
+        principal_id="alice", scopes=SCOPES,
+    )
+    assert second["status"] == "active"
+    assert store.inspect(
+        "research", first["session_id"], principal_id="alice", scopes=SCOPES,
+    )["status"] == "paused"
+    with pytest.raises(IntakeError) as blocked:
+        store.command(
+            "research", first["session_id"], command_key="resume-topic-1",
+            expected_revision=first["revision"] + 1, action="resume", payload=None,
+            principal_id="alice", scopes=SCOPES,
         )
     assert blocked.value.code == "active_topic_limit"
     conn.close()

@@ -1,0 +1,33 @@
+{
+  "contract": "noesis-market-company-dashboard-v1",
+  "namespace": "market:fixture",
+  "subject_listing_id": "listing:subject",
+  "selection": {
+    "explicit_peer_listing_ids": ["listing:peer"],
+    "universe_id": null,
+    "universe_as_of_ms": null,
+    "industry_code": "GICS-451020",
+    "common_currency": "USD",
+    "currency_conversion": "not_applied",
+    "period_alignment": "source_periods_preserved; formulas enforce comparability"
+  },
+  "as_of": {
+    "start_ms": 1767601800000,
+    "end_ms": 1768206600000,
+    "publicly_available_by_ms": 1771057800000,
+    "acquired_by_ms": 1771057801000
+  },
+  "panels": [
+    {"role": "subject", "selection": {"source": "requested", "listing_id": "listing:subject"}},
+    {"role": "peer", "selection": {"source": "explicit", "listing_id": "listing:peer"}}
+  ],
+  "peer_count": 1,
+  "exclusions": [],
+  "freshness": {"source_ref_count": 0, "source_refs": [], "input_revision_ids": []},
+  "drilldown": {"source_revisions": [], "formula_revisions": [], "source_cutoffs": {}},
+  "limitations": [
+    "No FX conversion is performed; peers with a different currency are excluded.",
+    "Source-reported periods remain distinct; incompatible metric inputs are unavailable rather than coerced.",
+    "A local fixture dashboard does not establish live provider coverage or licensing."
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/contracts/noesis-awareness-decision-suggestion-v1.json",
+  "title": "Version-bound Awareness triage suggestion",
+  "type": "object",
+  "required": ["contract", "status", "task", "session_id", "session_revision", "run_id", "item_id", "source_reference", "comparison_references", "suggested_decision", "relevance", "urgency", "novelty", "reason_codes", "source_excerpt", "decision_run"],
+  "properties": {
+    "contract": {"const": "noesis-awareness-decision-suggestion-v1"},
+    "status": {"enum": ["suggested", "unavailable"]},
+    "task": {"const": "awareness-triage-v1"},
+    "session_id": {"type": "string", "minLength": 1},
+    "session_revision": {"type": "integer", "minimum": 1},
+    "run_id": {"type": "string", "minLength": 1},
+    "item_id": {"type": "string", "minLength": 1},
+    "source_reference": {"type": "object"},
+    "comparison_references": {"type": "array", "maxItems": 5, "items": {"type": "object"}},
+    "suggested_decision": {"type": ["string", "null"], "enum": ["watch", "escalate", "schedule", "discard", "archive", "flag", null]},
+    "relevance": {"type": ["object", "null"]},
+    "urgency": {"type": ["object", "null"]},
+    "novelty": {"type": "object"},
+    "reason_codes": {"type": "array", "items": {"type": "string"}},
+    "source_excerpt": {"type": "object", "required": ["field", "start", "end", "text"], "properties": {"field": {"enum": ["title", "content"]}, "start": {"type": "integer", "minimum": 0}, "end": {"type": "integer", "minimum": 0}, "text": {"type": "string"}}, "additionalProperties": false},
+    "decision_run": {"type": ["object", "null"]}
+  },
+  "allOf": [
+    {"if": {"properties": {"status": {"const": "suggested"}}, "required": ["status"]}, "then": {"properties": {"suggested_decision": {"type": "string"}}}},
+    {"if": {"properties": {"status": {"const": "unavailable"}}, "required": ["status"]}, "then": {"properties": {"suggested_decision": {"type": "null"}}}}
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,43 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/schemas/noesis-market-asof-export-v1.json",
+  "title": "Noesis market as-of provenance export v1",
+  "type": "object",
+  "required": ["contract", "namespace", "snapshot_id", "manifest_hash", "external", "source_payloads_included", "rights_decisions", "snapshot"],
+  "properties": {
+    "contract": {"const": "noesis-market-asof-export-v1"},
+    "namespace": {"type": "string", "minLength": 1},
+    "snapshot_id": {"type": "string", "minLength": 1},
+    "manifest_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "external": {"type": "boolean"},
+    "source_payloads_included": {"const": false},
+    "rights_decisions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["source_ref_id", "entitlement_id", "license_id", "policy_revision_id", "operation", "allowed", "retention_expires_at_ms"],
+        "properties": {
+          "source_ref_id": {"type": "string", "minLength": 1},
+          "entitlement_id": {"type": "string", "minLength": 1},
+          "license_id": {"type": "string", "minLength": 1},
+          "policy_revision_id": {"type": "string", "minLength": 1},
+          "operation": {"const": "export"},
+          "allowed": {"const": true},
+          "retention_expires_at_ms": {"type": ["integer", "null"], "minimum": 0}
+        },
+        "additionalProperties": false
+      }
+    },
+    "snapshot": {
+      "type": "object",
+      "required": ["contract", "snapshot_id", "manifest_hash"],
+      "properties": {
+        "contract": {"const": "noesis-market-asof-snapshot-v1"},
+        "snapshot_id": {"type": "string", "minLength": 1},
+        "manifest_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": false
+}

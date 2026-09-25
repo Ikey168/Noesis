@@ -56,6 +56,46 @@ MUTATION_PREFIXES = (
 )
 MUTATION_NAMES = frozenset(
     {
+        "suggest_awareness_with_jev",
+        "suggest_jev_task",
+        "accept_awareness_jev_suggestion",
+        "configure_jev_task_rollout",
+        "save_legislative_dossier",
+        "save_openreview_round_set",
+        "save_coverage_assessment",
+        "suggest_systematic_review_screening",
+        "preview_modulo_intake_migration",
+        "import_modulo_flashcards",
+        "suggest_jev_methodology_record",
+        "suggest_jev_entity_identity",
+        "suggest_jev_source_identity",
+        "accept_jev_source_alias_review",
+        "queue_jev_entity_merge_review",
+        "revise_jev_intake_intent",
+        "suggest_jev_intake_route",
+        "suggest_jev_epistemic_kind",
+        "suggest_jev_review_priority",
+        "suggest_jev_revision_significance",
+        "suggest_jev_source_relevance",
+        "suggest_jev_claim_presence",
+        "suggest_jev_checkworthiness",
+        "suggest_jev_sentiment",
+        "suggest_jev_attribution",
+        "suggest_jev_stance",
+        "suggest_jev_frames",
+        "suggest_jev_shortlist_rerank",
+        "suggest_jev_answer_support",
+        "suggest_jev_claim_relation",
+        "route_intake_iteration_gap",
+        "handoff_intake_creation",
+        "apply_source_pack_upgrade",
+        "revise_event_dossier",
+        "compare_economic_release_snapshots",
+        "correct_paper_family_relation",
+        "review_paper_family_relation",
+        "remove_paper_family_member",
+        "review_paper_family_notice_target",
+        "select_paper_family_citation",
         "kg_attach_pipeline",
         "kg_attach_sources",
         "kg_deploy",
@@ -71,6 +111,7 @@ MUTATION_NAMES = frozenset(
         "cancel_source_pack_run",
         "cancel_maintenance_job",
         "install_source_pack",
+        "import_technical_inventory",
         "retry_source_pack_quarantine",
         "retry_maintenance_job",
         "pause_maintenance_schedule",
@@ -228,9 +269,11 @@ async def _inspect_server(
 
 def _mutability(name: str) -> str:
     from tools.knowledge_engine_mcp.intake import INTAKE_WRITES
+
     if name in INTAKE_WRITES:
         return "write"
     from tools.knowledge_engine_mcp.research_intake import RESEARCH_INTAKE_WRITES
+
     if name in RESEARCH_INTAKE_WRITES:
         return "write"
     from tools.knowledge_engine_mcp.investigations import (
@@ -238,33 +281,113 @@ def _mutability(name: str) -> str:
         COMPARISON_WRITES,
         TEMPLATE_WRITES,
     )
+
     if name in TEMPLATE_WRITES | ALERT_WRITES | COMPARISON_WRITES:
         return "write"
-    if name in {"run_persistent_research_loop", "cancel_persistent_research_loop", "resume_persistent_research_loop"}:
+    if name in {
+        "run_persistent_research_loop",
+        "cancel_persistent_research_loop",
+        "resume_persistent_research_loop",
+    }:
         return "write"
     if name in {"reserve_research_project_budget", "settle_research_project_budget"}:
         return "write"
     if name in {"poll_decision_condition_watch", "acknowledge_decision_review_task"}:
         return "write"
-    if name in {"assign_review_inbox_task", "submit_review_inbox_annotation", "resolve_review_inbox_task", "build_review_annotation_dataset", "release_review_annotation_dataset"}:
+    if name in {
+        "assign_review_inbox_task",
+        "submit_review_inbox_annotation",
+        "resolve_review_inbox_task",
+        "build_review_annotation_dataset",
+        "release_review_annotation_dataset",
+    }:
         return "write"
-    if name in {"assess_authored_report_changes", "propose_authored_report_edit", "decide_authored_report_edit"}:
+    if name in {
+        "assess_authored_report_changes",
+        "propose_authored_report_edit",
+        "decide_authored_report_edit",
+    }:
         return "write"
-    if name in {"register_research_analysis", "execute_research_analysis", "cancel_research_analysis_run", "recover_research_analysis_run"}:
+    if name in {
+        "register_research_analysis",
+        "execute_research_analysis",
+        "cancel_research_analysis_run",
+        "recover_research_analysis_run",
+    }:
         return "write"
     if name == "sync_zotero_library":
         return "write"
-    if name in {"amend_review_protocol", "screen_review_candidate", "adjudicate_review_candidate", "extract_review_field", "review_study_field"}:
+    if name in {
+        "amend_review_protocol",
+        "screen_review_candidate",
+        "adjudicate_review_candidate",
+        "extract_review_field",
+        "review_study_field",
+    }:
         return "write"
-    if name in {"revise_research_decision", "calculate_decision_sensitivity"}:
+    if name in {"revise_research_decision", "record_decision_evidence", "calculate_decision_sensitivity"}:
         return "write"
     if name in {"revise_binary_forecast", "resolve_binary_forecast"}:
         return "write"
     if name in {"revise_authored_report", "reopen_authored_report"}:
         return "write"
-    if name in {"claim_subscription_deliveries", "acknowledge_subscription_delivery", "fail_subscription_delivery", "redrive_subscription_delivery"}:
+    if name in {
+        "claim_subscription_deliveries",
+        "acknowledge_subscription_delivery",
+        "fail_subscription_delivery",
+        "redrive_subscription_delivery",
+    }:
         return "write"
-    if name in {"branch_research_project", "revise_research_project", "archive_research_project", "record_research_project_expenditure"}:
+    if name in {
+        "get_company_research_dashboard",
+        "save_market_screener_query",
+        "screen_market_universe",
+        "get_economic_market_dashboard",
+        "save_market_alert_watch",
+        "run_market_alerts",
+        "deliver_market_alert",
+        "market_event_study",
+        "market_factor_analysis",
+        "market_backtest",
+        "market_walk_forward",
+        "market_portfolio",
+        "market_risk_report",
+        "save_market_materials",
+        "build_market_company_dossier",
+        "build_market_industry_model",
+        "calculate_market_sizing",
+        "record_market_driver_hypotheses",
+        "save_market_thesis",
+        "review_market_thesis",
+        "generate_market_brief",
+        "deliver_market_brief",
+        "market_acceptance_journey",
+        "review_market_acceptance_journey",
+        "schedule_market_brief",
+        "run_market_brief_schedules",
+        "record_market_operations_measurements",
+        "save_market_budget",
+        "consume_market_budget",
+        "record_market_recovery_drill",
+        "create_market_backup",
+        "restore_market_backup",
+        "prune_market_operations_audit",
+        "save_market_runbook",
+        "record_market_repair",
+        "run_market_fixed_income",
+        "run_market_fx_commodity",
+        "run_market_derivatives",
+        "run_market_digital_asset",
+        "run_market_intraday_replay",
+        "run_market_international_coverage",
+    }:
+        return "write"
+    if name in {
+        "branch_research_project",
+        "revise_research_project",
+        "archive_research_project",
+        "record_research_project_expenditure",
+    }:
         return "write"
     if name in MUTATION_NAMES or name.startswith(MUTATION_PREFIXES):
         return "write"
@@ -292,6 +415,121 @@ def _cost(name: str, mutability: str) -> tuple[str, str]:
 
 
 def _required_data(server_stem: str, tool_name: str) -> list[str]:
+    if server_stem == "market_mcp":
+        if tool_name == "market_readiness":
+            return ["market-instrument-store"]
+        if tool_name == "lookup_market_instrument":
+            return ["market-instrument-store", "market-entitlement-store"]
+        if tool_name == "get_market_price_history":
+            return ["market-price-store", "market-entitlement-store"]
+        if tool_name == "get_market_financial_statements":
+            return ["market-financial-fact-store", "market-entitlement-store"]
+        if tool_name == "inspect_economic_release_snapshot":
+            return ["economic-release-store"]
+        if tool_name == "calculate_market_price_metrics":
+            return [
+                "market-price-store",
+                "market-action-store",
+                "market-entitlement-store",
+            ]
+        if tool_name == "calculate_market_fact_metrics":
+            return [
+                "market-instrument-store",
+                "market-financial-fact-store",
+                "market-entitlement-store",
+            ]
+        if tool_name == "get_company_research_dashboard":
+            return [
+                "market-instrument-store",
+                "market-price-store",
+                "market-financial-fact-store",
+                "market-action-store",
+                "market-entitlement-store",
+            ]
+        if tool_name in {"save_market_screener_query", "screen_market_universe"}:
+            return [
+                "market-instrument-store",
+                "market-price-store",
+                "market-financial-fact-store",
+                "market-entitlement-store",
+                "market-screener-store",
+            ]
+        if tool_name in {"inspect_market_screener_run", "export_market_screener_run"}:
+            return [
+                "market-screener-store",
+                "market-entitlement-store",
+            ]
+        if tool_name in {
+            "run_market_event_study",
+            "run_market_factor_analysis",
+            "run_market_backtest",
+            "run_market_walk_forward",
+            "record_market_portfolio",
+            "run_market_risk_report",
+            "inspect_market_quantitative_run",
+            "export_market_quantitative_run",
+        }:
+            return ["market-quantitative-store", "market-entitlement-store"]
+        if tool_name in {
+            "save_market_materials",
+            "build_market_company_dossier",
+            "build_market_industry_model",
+            "calculate_market_sizing",
+            "record_market_driver_hypotheses",
+            "save_market_thesis",
+            "review_market_thesis",
+            "generate_market_brief",
+            "deliver_market_brief",
+            "export_market_brief",
+            "export_market_brief_evidence_bundle",
+            "market_acceptance_journey",
+            "review_market_acceptance_journey",
+            "inspect_market_research_artifact",
+            "schedule_market_brief",
+            "run_market_brief_schedules",
+        }:
+            return ["market-research-store", "market-entitlement-store"]
+        if tool_name in {
+            "record_market_operations_measurements",
+            "evaluate_market_slos",
+            "market_provider_health",
+            "save_market_budget",
+            "consume_market_budget",
+            "record_market_recovery_drill",
+            "create_market_backup",
+            "restore_market_backup",
+            "prune_market_operations_audit",
+            "save_market_runbook",
+            "record_market_repair",
+        }:
+            return ["market-operations-store"]
+        if tool_name in {
+            "run_market_fixed_income",
+            "run_market_fx_commodity",
+            "run_market_derivatives",
+            "run_market_digital_asset",
+            "run_market_intraday_replay",
+            "run_market_international_coverage",
+            "inspect_market_specialized_run",
+            "export_market_specialized_run",
+        }:
+            return ["market-specialized-store", "market-entitlement-store"]
+        if tool_name == "get_economic_market_dashboard":
+            return [
+                "economic-release-store",
+                "market-instrument-store",
+                "market-price-store",
+            ]
+        if tool_name in {
+            "save_market_alert_watch",
+            "inspect_market_alert_watch",
+            "run_market_alerts",
+            "inspect_market_alert_run",
+            "deliver_market_alert",
+            "market_alert_history",
+        }:
+            return ["market-alert-store", "market-entitlement-store"]
+        return ["market-instrument-store"]
     if server_stem == "catalog_mcp":
         return ["mcp-registration", "domain-registry"]
     if server_stem == "transactions_mcp":
@@ -307,23 +545,65 @@ def _required_data(server_stem: str, tool_name: str) -> list[str]:
     if server_stem == "memory_mcp":
         return ["knowledge-memory-store"]
     if server_stem == "knowledge_engine_mcp":
-        if tool_name in {"discover_intake_modes", "route_intake_mode", "verify_intake_mode_export"}:
+        if tool_name in {
+            "discover_intake_modes",
+            "route_intake_mode",
+            "verify_intake_mode_export",
+        }:
             return []
         if tool_name == "create_persistent_research_loop":
-            return ["knowledge:projects:read", "knowledge:projects:write", "knowledge:recipes:write", "knowledge:gaps:read", "knowledge:source-planner:read"]
+            return [
+                "knowledge:projects:read",
+                "knowledge:projects:write",
+                "knowledge:recipes:write",
+                "knowledge:gaps:read",
+                "knowledge:source-planner:read",
+            ]
         if tool_name == "inspect_persistent_research_loop":
             return ["knowledge:projects:read"]
         if tool_name == "run_persistent_research_loop":
-            return ["knowledge:projects:read", "knowledge:projects:write", "knowledge:projects:execute", "knowledge:recipes:execute", "knowledge:source-planner:read", "knowledge:source-planner:execute", "knowledge:gaps:write", "knowledge:read"]
-        if tool_name in {"cancel_persistent_research_loop", "resume_persistent_research_loop"}:
+            return [
+                "knowledge:projects:read",
+                "knowledge:projects:write",
+                "knowledge:projects:execute",
+                "knowledge:recipes:execute",
+                "knowledge:source-planner:read",
+                "knowledge:source-planner:execute",
+                "knowledge:gaps:write",
+                "knowledge:read",
+            ]
+        if tool_name in {
+            "cancel_persistent_research_loop",
+            "resume_persistent_research_loop",
+        }:
             return ["knowledge:projects:read", "knowledge:projects:write"]
-        if tool_name in {"reserve_research_project_budget", "settle_research_project_budget"}:
+        if tool_name in {
+            "reserve_research_project_budget",
+            "settle_research_project_budget",
+        }:
             return ["knowledge:projects:write"]
         if tool_name == "inspect_research_project_budget":
             return ["knowledge:projects:read"]
-        if tool_name in {"create_decision_condition_watch", "poll_decision_condition_watch", "acknowledge_decision_review_task"}:
-            return ["knowledge:decisions:read", "knowledge:decisions:write"] + (["knowledge:briefs:read", "knowledge:briefs:write", "knowledge:briefs:deliver"] if tool_name == "poll_decision_condition_watch" else ["knowledge:briefs:deliver"] if tool_name == "acknowledge_decision_review_task" else [])
-        if tool_name in {"inspect_decision_condition_watch", "list_decision_review_tasks"}:
+        if tool_name in {
+            "create_decision_condition_watch",
+            "poll_decision_condition_watch",
+            "acknowledge_decision_review_task",
+        }:
+            return ["knowledge:decisions:read", "knowledge:decisions:write"] + (
+                [
+                    "knowledge:briefs:read",
+                    "knowledge:briefs:write",
+                    "knowledge:briefs:deliver",
+                ]
+                if tool_name == "poll_decision_condition_watch"
+                else ["knowledge:briefs:deliver"]
+                if tool_name == "acknowledge_decision_review_task"
+                else []
+            )
+        if tool_name in {
+            "inspect_decision_condition_watch",
+            "list_decision_review_tasks",
+        }:
             return ["knowledge:decisions:read"]
         if tool_name in {"create_review_inbox_task", "assign_review_inbox_task"}:
             return ["knowledge:inbox:read", "knowledge:inbox:write"]
@@ -331,18 +611,44 @@ def _required_data(server_stem: str, tool_name: str) -> list[str]:
             return ["knowledge:inbox:read"]
         if tool_name in {"submit_review_inbox_annotation", "resolve_review_inbox_task"}:
             return ["knowledge:inbox:read", "knowledge:inbox:review"]
-        if tool_name in {"build_review_annotation_dataset", "release_review_annotation_dataset", "export_review_annotation_dataset", "evaluate_review_annotation_predictions"}:
+        if tool_name in {
+            "build_review_annotation_dataset",
+            "release_review_annotation_dataset",
+            "export_review_annotation_dataset",
+            "evaluate_review_annotation_predictions",
+        }:
             return ["knowledge:inbox:read", "knowledge:inbox:datasets"]
-        if tool_name in {"assess_authored_report_changes", "propose_authored_report_edit", "decide_authored_report_edit"}:
+        if tool_name in {
+            "assess_authored_report_changes",
+            "propose_authored_report_edit",
+            "decide_authored_report_edit",
+        }:
             return ["knowledge:reports:read", "knowledge:reports:write"]
         if tool_name == "inspect_authored_report_edit":
             return ["knowledge:reports:read"]
         if tool_name == "register_research_analysis":
             return ["knowledge:analysis:write", "knowledge:dataset:read"]
-        if tool_name in {"execute_research_analysis", "cancel_research_analysis_run", "recover_research_analysis_run"}:
-            return ["knowledge:analysis:read", "knowledge:analysis:execute", "knowledge:dataset:read"]
-        if tool_name in {"inspect_research_analysis", "list_research_analysis_runs", "inspect_research_analysis_run", "export_research_analysis", "compare_research_analysis_runs", "export_research_analysis_package"}:
-            return ["knowledge:analysis:read", "knowledge:dataset:read"] + (["knowledge:packages:read"] if tool_name.endswith("_package") else [])
+        if tool_name in {
+            "execute_research_analysis",
+            "cancel_research_analysis_run",
+            "recover_research_analysis_run",
+        }:
+            return [
+                "knowledge:analysis:read",
+                "knowledge:analysis:execute",
+                "knowledge:dataset:read",
+            ]
+        if tool_name in {
+            "inspect_research_analysis",
+            "list_research_analysis_runs",
+            "inspect_research_analysis_run",
+            "export_research_analysis",
+            "compare_research_analysis_runs",
+            "export_research_analysis_package",
+        }:
+            return ["knowledge:analysis:read", "knowledge:dataset:read"] + (
+                ["knowledge:packages:read"] if tool_name.endswith("_package") else []
+            )
         return ["knowledge-engine-runtime"]
     if server_stem == "contract_mcp":
         return ["contract-schemas"]
@@ -368,56 +674,368 @@ def _required_data(server_stem: str, tool_name: str) -> list[str]:
 
 
 def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[str]:
+    if server_stem == "market_mcp":
+        market_scopes = {
+            "market_readiness": ["market:instruments:read"],
+            "lookup_market_instrument": ["market:instruments:read"],
+            "get_market_price_history": ["market:prices:read"],
+            "get_market_financial_statements": ["market:financial-facts:read"],
+            "inspect_economic_release_snapshot": ["knowledge:economic:read"],
+            "calculate_market_price_metrics": [
+                "knowledge:quantitative:calculate",
+                "market:prices:read",
+            ],
+            "calculate_market_fact_metrics": [
+                "knowledge:quantitative:calculate",
+                "market:instruments:read",
+                "market:financial-facts:read",
+            ],
+            "get_company_research_dashboard": [
+                "knowledge:quantitative:calculate",
+                "market:instruments:read",
+                "market:prices:read",
+                "market:financial-facts:read",
+            ],
+            "save_market_screener_query": [
+                "market:screeners:write",
+            ],
+            "screen_market_universe": [
+                "market:screeners:write",
+                "market:instruments:read",
+                "market:prices:read",
+                "market:financial-facts:read",
+            ],
+            "inspect_market_screener_run": ["market:screeners:read"],
+            "export_market_screener_run": ["market:screeners:read"],
+            "get_economic_market_dashboard": [
+                "knowledge:economic:write",
+                "knowledge:economic:read",
+                "market:instruments:read",
+                "market:prices:read",
+            ],
+            "save_market_alert_watch": ["market:alerts:write"],
+            "inspect_market_alert_watch": ["market:alerts:read"],
+            "run_market_alerts": ["market:alerts:execute"],
+            "inspect_market_alert_run": ["market:alerts:read"],
+            "deliver_market_alert": ["market:alerts:deliver"],
+            "market_alert_history": ["market:alerts:read"],
+            "run_market_event_study": ["knowledge:quantitative:calculate"],
+            "run_market_factor_analysis": ["knowledge:quantitative:calculate"],
+            "run_market_backtest": ["knowledge:quantitative:calculate"],
+            "run_market_walk_forward": ["knowledge:quantitative:calculate"],
+            "record_market_portfolio": ["knowledge:quantitative:calculate"],
+            "run_market_risk_report": ["knowledge:quantitative:calculate"],
+            "inspect_market_quantitative_run": ["knowledge:quantitative:read"],
+            "export_market_quantitative_run": ["knowledge:quantitative:read"],
+            "save_market_materials": ["market:research:write"],
+            "build_market_company_dossier": ["market:research:write"],
+            "build_market_industry_model": ["market:research:write"],
+            "calculate_market_sizing": ["market:research:write"],
+            "record_market_driver_hypotheses": ["market:research:write"],
+            "save_market_thesis": ["market:research:write"],
+            "review_market_thesis": ["market:research:write"],
+            "generate_market_brief": ["market:research:write"],
+            "deliver_market_brief": ["market:research:write"],
+            "export_market_brief": ["market:research:read"],
+            "export_market_brief_evidence_bundle": ["market:research:read"],
+            "market_acceptance_journey": ["market:research:write"],
+            "review_market_acceptance_journey": ["market:research:write"],
+            "inspect_market_research_artifact": ["market:research:read"],
+            "schedule_market_brief": ["market:research:write"],
+            "run_market_brief_schedules": ["market:research:write"],
+            "record_market_operations_measurements": ["market:operations:write"],
+            "evaluate_market_slos": ["market:operations:read"],
+            "market_provider_health": ["market:operations:read"],
+            "save_market_budget": ["market:operations:write"],
+            "consume_market_budget": ["market:operations:execute"],
+            "record_market_recovery_drill": ["market:operations:write"],
+            "create_market_backup": ["market:operations:write"],
+            "restore_market_backup": ["market:operations:execute"],
+            "prune_market_operations_audit": ["market:operations:execute"],
+            "save_market_runbook": ["market:operations:write"],
+            "record_market_repair": ["market:operations:write"],
+            "run_market_fixed_income": ["market:specialized:write"],
+            "run_market_fx_commodity": ["market:specialized:write"],
+            "run_market_derivatives": ["market:specialized:write"],
+            "run_market_digital_asset": ["market:specialized:write"],
+            "run_market_intraday_replay": ["market:specialized:write"],
+            "run_market_international_coverage": ["market:specialized:write"],
+            "inspect_market_specialized_run": ["market:specialized:read"],
+            "export_market_specialized_run": ["market:specialized:read"],
+        }
+        if tool_name in market_scopes:
+            return market_scopes[tool_name]
     if server_stem == "knowledge_engine_mcp" and tool_name in {
-        "discover_intake_modes", "route_intake_mode", "verify_intake_mode_export",
-        "inspect_intake_mode", "list_intake_modes", "export_intake_mode",
-        "export_modulo_intake_handoff", "start_intake_mode", "command_intake_mode",
-        "subscribe_intake_feed", "list_intake_feed_subscriptions",
-        "refresh_intake_feed_inbox", "list_intake_feed_inbox",
-        "inspect_intake_feed_item", "mark_intake_feed_read", "decide_intake_feed_item",
-        "start_awareness_from_inbox", "triage_awareness_item",
+        "suggest_jev_claim_presence",
+        "suggest_jev_checkworthiness",
+        "suggest_jev_sentiment",
+        "suggest_jev_attribution",
+        "suggest_jev_stance",
+        "suggest_jev_frames",
+        "suggest_jev_shortlist_rerank",
+        "suggest_jev_answer_support",
+        "suggest_jev_claim_relation",
+        "suggest_jev_epistemic_kind",
+    }:
+        return ["knowledge:decision:execute"]
+    if server_stem == "knowledge_engine_mcp" and tool_name == "suggest_jev_source_relevance":
+        return ["knowledge:decision:execute"]
+    if server_stem == "knowledge_engine_mcp" and tool_name == "inspect_decision_comparative_matrix":
+        return ["knowledge:decisions:read"]
+    if server_stem == "knowledge_engine_mcp" and tool_name == "suggest_jev_revision_significance":
+        return ["knowledge:decision:execute"]
+    if server_stem == "knowledge_engine_mcp" and tool_name in {
+        "suggest_jev_review_priority", "inspect_jev_review_priority",
+    }:
+        return ["knowledge:decision:execute"] if mutability == "write" else ["knowledge:inbox:read"]
+    if server_stem == "knowledge_engine_mcp" and tool_name in {
+        "register_jev_intake_intent", "revise_jev_intake_intent",
+        "inspect_jev_intake_intent", "suggest_jev_intake_route",
+    }:
+        return {
+            "register_jev_intake_intent": ["knowledge:intake:write"],
+            "revise_jev_intake_intent": ["knowledge:intake:write"],
+            "inspect_jev_intake_intent": ["knowledge:intake:read"],
+            "suggest_jev_intake_route": ["knowledge:decision:execute"],
+        }[tool_name]
+    if server_stem == "knowledge_engine_mcp" and tool_name in {
+        "suggest_jev_methodology_record", "suggest_jev_entity_identity",
+        "suggest_jev_source_identity", "accept_jev_source_alias_review",
+        "queue_jev_entity_merge_review",
+    }:
+        return {
+            "suggest_jev_methodology_record": ["knowledge:decision:execute"],
+            "suggest_jev_entity_identity": ["knowledge:decision:execute"],
+            "suggest_jev_source_identity": ["knowledge:decision:execute"],
+            "accept_jev_source_alias_review": ["knowledge:source-identity:review"],
+            "queue_jev_entity_merge_review": ["knowledge:entity-history:review"],
+        }[tool_name]
+    if server_stem == "knowledge_engine_mcp" and tool_name in {
+        "suggest_systematic_review_screening",
+        "inspect_systematic_review_screening_suggestion",
+    }:
+        return ["knowledge:decision:execute"] if mutability == "write" else ["knowledge:reviews:read"]
+    if server_stem == "knowledge_engine_mcp" and tool_name in {
+        "save_coverage_assessment", "inspect_coverage_assessment",
+        "compare_coverage_assessments", "export_coverage_comparison",
+    }:
+        return ["knowledge:coverage:write" if mutability == "write" else "knowledge:coverage:read"]
+    if server_stem == "knowledge_engine_mcp" and tool_name in {
+        "preview_source_pack_upgrade_impact", "apply_source_pack_upgrade",
+        "inspect_source_pack_upgrade_receipt",
+    }:
+        return ["operator"] if tool_name != "preview_source_pack_upgrade_impact" else ["knowledge:read"]
+    if server_stem == "knowledge_engine_mcp" and tool_name in {
+        "save_openreview_round_set", "inspect_openreview_round_set",
+        "inspect_openreview_round", "compare_openreview_rounds",
+        "export_openreview_round_comparison", "openreview_concern_review_target",
+        "assess_openreview_concern",
+    }:
+        return ["knowledge:openreview:write" if mutability == "write" else "knowledge:openreview:read"]
+    if server_stem == "knowledge_engine_mcp" and tool_name in {
+        "create_event_dossier", "revise_event_dossier", "inspect_event_dossier",
+        "event_dossier_timeline", "compare_event_dossier_revisions",
+        "export_event_dossier_comparison", "create_event_dossier_report",
+    }:
+        action = "write" if mutability == "write" else "read"
+        return [f"knowledge:event-dossier:{action}", f"knowledge:event:{action}"]
+    if server_stem == "knowledge_engine_mcp" and tool_name in {
+        "create_paper_family", "inspect_paper_family", "add_paper_family_member",
+        "correct_paper_family_relation",
+        "review_paper_family_relation", "remove_paper_family_member",
+        "attach_paper_family_notice", "review_paper_family_notice_target",
+        "select_paper_family_citation", "compare_paper_family_members",
+        "export_paper_family",
+    }:
+        if tool_name.startswith("review_paper_family_"):
+            return ["knowledge:paper-family:review"]
+        return ["knowledge:paper-family:write" if mutability == "write" else "knowledge:paper-family:read"]
+    if server_stem == "knowledge_engine_mcp" and tool_name in {
+        "create_economic_release_snapshot", "inspect_economic_release_snapshot",
+        "compare_economic_release_snapshots", "inspect_economic_release_comparison",
+        "create_economic_comparison_report", "export_economic_release_comparison",
+    }:
+        return ["knowledge:economic:write" if mutability == "write" else "knowledge:economic:read"]
+    if server_stem == "knowledge_engine_mcp" and tool_name in {
+        "save_legislative_dossier", "inspect_legislative_dossier",
+        "legislative_dossier_timeline", "compare_legislative_dossier",
+        "export_legislative_dossier_changes", "legislative_dossier_dependencies",
+    }:
+        return ["knowledge:political:dossier:write" if mutability == "write" else "knowledge:political:dossier:read"]
+    if server_stem == "knowledge_engine_mcp" and tool_name in {
+        "run_hosted_typed_decision",
+        "inspect_hosted_typed_decision",
+        "suggest_awareness_with_jev",
+        "suggest_jev_task",
+        "accept_awareness_jev_suggestion",
+        "configure_jev_task_rollout",
+        "inspect_jev_task_rollout",
+    }:
+        return {
+            "run_hosted_typed_decision": ["knowledge:decision:execute"],
+            "inspect_hosted_typed_decision": ["knowledge:decision:read"],
+            "suggest_awareness_with_jev": ["knowledge:decision:execute"],
+            "suggest_jev_task": ["knowledge:decision:execute"],
+            "accept_awareness_jev_suggestion": ["knowledge:decision:read", "knowledge:intake:write"],
+            "configure_jev_task_rollout": ["knowledge:decision:configure"],
+            "inspect_jev_task_rollout": ["knowledge:decision:read"],
+        }[tool_name]
+    if server_stem == "knowledge_engine_mcp" and tool_name in {
+        "import_technical_inventory",
+        "inspect_technical_inventory",
+        "assess_technical_inventory_impact",
+        "create_technical_impact_report",
+        "inspect_technical_impact_report",
+        "compare_technical_impact_reports",
+        "export_technical_impact_report",
+    }:
+        return [
+            "knowledge:technical:write"
+            if mutability == "write"
+            else "knowledge:technical:read"
+        ]
+    if server_stem == "knowledge_engine_mcp" and tool_name in {
+        "discover_intake_modes",
+        "discover_intake_workflows",
+        "preview_modulo_intake_migration",
+        "inspect_modulo_intake_migration",
+        "import_modulo_flashcards",
+        "route_intake_mode",
+        "verify_intake_mode_export",
+        "inspect_intake_mode",
+        "list_intake_modes",
+        "export_intake_mode",
+        "export_modulo_intake_handoff",
+        "recheck_modulo_plugin_link",
+        "start_intake_mode",
+        "command_intake_mode",
+        "subscribe_intake_feed",
+        "subscribe_intake_newsletter_input",
+        "ingest_intake_newsletter_message",
+        "list_intake_feed_subscriptions",
+        "refresh_intake_feed_inbox",
+        "list_intake_feed_inbox",
+        "inspect_intake_feed_item",
+        "mark_intake_feed_read",
+        "decide_intake_feed_item",
+        "start_awareness_from_inbox",
+        "triage_awareness_item",
         "triage_awareness_batch",
-        "annotate_intake_feed_item", "promote_awareness_item",
+        "annotate_intake_feed_item",
+        "promote_awareness_item",
         "preview_intake_feed_signals",
-        "save_intake_feed_signal_rule", "list_intake_feed_signal_rules",
+        "save_intake_feed_signal_rule",
+        "list_intake_feed_signal_rules",
         "preview_intake_feed_signal_rule",
-        "capture_exploration_page", "visit_exploration_feed_item",
-        "inspect_exploration_source", "annotate_exploration_source",
-        "suggest_exploration_sources", "decide_exploration_suggestion",
-        "start_problem_session", "record_problem_step",
-        "promote_problem_playbook", "inspect_intake_playbook", "revise_intake_playbook",
-        "start_guided_playbook_run", "inspect_guided_playbook_run",
+        "capture_exploration_page",
+        "visit_exploration_feed_item",
+        "inspect_exploration_source",
+        "annotate_exploration_source",
+        "suggest_exploration_sources",
+        "decide_exploration_suggestion",
+        "start_problem_session",
+        "record_problem_step",
+        "propose_problem_action",
+        "preview_problem_action",
+        "consent_problem_action",
+        "execute_problem_action",
+        "promote_problem_playbook",
+        "inspect_intake_playbook",
+        "search_intake_playbooks",
+        "revise_intake_playbook",
+        "start_guided_playbook_run",
+        "promote_intake_work_procedure",
+        "preview_playbook_step_automation",
+        "execute_playbook_step_automation",
+        "inspect_guided_playbook_run",
         "command_guided_playbook_run",
-        "create_practice_pack", "inspect_practice_pack", "revise_practice_pack",
-        "export_practice_pack", "verify_practice_export",
-        "list_due_practice", "start_practice_review", "inspect_practice_review",
+        "create_practice_pack",
+        "draft_intake_practice_pack",
+        "create_reviewed_intake_practice_pack",
+        "inspect_practice_pack",
+        "revise_practice_pack",
+        "export_practice_pack",
+        "verify_practice_export",
+        "list_due_practice",
+        "start_practice_review",
+        "inspect_practice_review",
         "command_practice_review",
-        "start_intake_creation", "inspect_intake_creation",
-        "command_intake_creation", "export_intake_creation",
-        "scan_intake_maintenance", "start_intake_maintenance",
-        "record_maintenance_finding", "assess_maintenance_health",
+        "start_intake_creation",
+        "handoff_intake_creation",
+        "inspect_intake_creation",
+        "command_intake_creation",
+        "export_intake_creation",
+        "build_intake_creation_artifact",
+        "create_intake_skill",
+        "assess_intake_skill",
+        "revise_intake_skill",
+        "inspect_intake_skill_evidence",
+        "scan_intake_maintenance",
+        "preview_intake_maintenance_impact",
+        "start_intake_maintenance",
+        "record_maintenance_finding",
+        "execute_intake_maintenance_action",
+        "assess_maintenance_health",
         "start_intake_research_topic",
-        "start_intake_iteration", "record_intake_iteration_outcome",
-        "propose_intake_playbook_revision", "accept_intake_playbook_revision",
+        "start_intake_iteration",
+        "start_intake_decision_iteration",
+        "start_intake_report_iteration",
+        "start_intake_concept_iteration",
+        "start_intake_modulo_note_iteration",
+        "route_intake_iteration_gap",
+        "record_intake_iteration_outcome",
+        "propose_intake_playbook_revision",
+        "propose_intake_decision_revision",
+        "propose_intake_report_revision",
+        "propose_intake_concept_revision",
+        "propose_intake_modulo_note_revision",
+        "accept_intake_playbook_revision",
+        "accept_intake_decision_revision",
+        "accept_intake_report_revision",
+        "accept_intake_concept_revision",
+        "accept_intake_modulo_note_revision",
         "review_intake_iteration_stability",
         "preflight_intake_mode",
-        "save_intake_research_bundle", "inspect_intake_research_bundle",
-        "export_intake_research_bundle", "verify_intake_research_bundle_export",
+        "save_intake_research_bundle",
+        "review_research_claim_independence",
+        "inspect_intake_research_bundle",
+        "export_intake_research_bundle",
+        "verify_intake_research_bundle_export",
         "inspect_intake_research_progress",
+        "assess_intake_research_progress",
+        "inspect_intake_research_assessment",
     }:
-        if tool_name in {"discover_intake_modes", "route_intake_mode", "verify_intake_mode_export", "verify_practice_export", "verify_intake_research_bundle_export"}:
+        if tool_name in {
+            "discover_intake_modes",
+            "route_intake_mode",
+            "verify_intake_mode_export",
+            "verify_practice_export",
+            "verify_intake_research_bundle_export",
+        }:
             return []
         if tool_name == "save_intake_research_bundle":
             return ["knowledge:intake:write", "knowledge:projects:write"]
+        if tool_name == "review_research_claim_independence":
+            return ["knowledge:intake:read", "knowledge:intake:review", "knowledge:projects:read"]
         if tool_name == "inspect_intake_research_progress":
+            return ["knowledge:intake:read", "knowledge:projects:read"]
+        if tool_name == "assess_intake_research_progress":
+            return ["knowledge:intake:write", "knowledge:projects:read"]
+        if tool_name == "inspect_intake_research_assessment":
             return ["knowledge:intake:read", "knowledge:projects:read"]
         if tool_name == "refresh_intake_feed_inbox":
             return ["knowledge:intake:write", "knowledge:intake:fetch"]
         if tool_name == "start_intake_research_topic":
             return ["knowledge:intake:write", "knowledge:projects:write"]
+        if tool_name == "assess_intake_skill":
+            return ["knowledge:intake:review"]
         if tool_name in {"promote_problem_playbook", "command_guided_playbook_run"}:
             return ["knowledge:intake:read", "knowledge:intake:write"]
-        return ["knowledge:intake:write" if mutability == "write" else "knowledge:intake:read"]
+        return [
+            "knowledge:intake:write"
+            if mutability == "write"
+            else "knowledge:intake:read"
+        ]
     if server_stem == "transactions_mcp":
         if tool_name.startswith("commit_"):
             return ["knowledge:transaction:commit"]
@@ -441,7 +1059,12 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
     if server_stem == "subscriptions_mcp":
         if tool_name.startswith(("create_", "update_", "pause_", "resume_", "delete_")):
             return ["knowledge:subscriptions:write"]
-        if tool_name in {"claim_subscription_deliveries", "acknowledge_subscription_delivery", "fail_subscription_delivery", "redrive_subscription_delivery"}:
+        if tool_name in {
+            "claim_subscription_deliveries",
+            "acknowledge_subscription_delivery",
+            "fail_subscription_delivery",
+            "redrive_subscription_delivery",
+        }:
             return ["knowledge:subscriptions:deliver"]
         if tool_name.startswith("pending_"):
             return ["knowledge:subscriptions:deliver"]
@@ -460,20 +1083,58 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
         return ["knowledge:memory:read"]
     if server_stem == "knowledge_engine_mcp":
         if tool_name == "create_persistent_research_loop":
-            return ["knowledge:projects:read", "knowledge:projects:write", "knowledge:recipes:write", "knowledge:gaps:read", "knowledge:source-planner:read"]
+            return [
+                "knowledge:projects:read",
+                "knowledge:projects:write",
+                "knowledge:recipes:write",
+                "knowledge:gaps:read",
+                "knowledge:source-planner:read",
+            ]
         if tool_name == "inspect_persistent_research_loop":
             return ["knowledge:projects:read"]
         if tool_name == "run_persistent_research_loop":
-            return ["knowledge:projects:read", "knowledge:projects:write", "knowledge:projects:execute", "knowledge:recipes:execute", "knowledge:source-planner:read", "knowledge:source-planner:execute", "knowledge:gaps:write", "knowledge:read"]
-        if tool_name in {"cancel_persistent_research_loop", "resume_persistent_research_loop"}:
+            return [
+                "knowledge:projects:read",
+                "knowledge:projects:write",
+                "knowledge:projects:execute",
+                "knowledge:recipes:execute",
+                "knowledge:source-planner:read",
+                "knowledge:source-planner:execute",
+                "knowledge:gaps:write",
+                "knowledge:read",
+            ]
+        if tool_name in {
+            "cancel_persistent_research_loop",
+            "resume_persistent_research_loop",
+        }:
             return ["knowledge:projects:read", "knowledge:projects:write"]
-        if tool_name in {"reserve_research_project_budget", "settle_research_project_budget"}:
+        if tool_name in {
+            "reserve_research_project_budget",
+            "settle_research_project_budget",
+        }:
             return ["knowledge:projects:write"]
         if tool_name == "inspect_research_project_budget":
             return ["knowledge:projects:read"]
-        if tool_name in {"create_decision_condition_watch", "poll_decision_condition_watch", "acknowledge_decision_review_task"}:
-            return ["knowledge:decisions:read", "knowledge:decisions:write"] + (["knowledge:briefs:read", "knowledge:briefs:write", "knowledge:briefs:deliver"] if tool_name == "poll_decision_condition_watch" else ["knowledge:briefs:deliver"] if tool_name == "acknowledge_decision_review_task" else [])
-        if tool_name in {"inspect_decision_condition_watch", "list_decision_review_tasks"}:
+        if tool_name in {
+            "create_decision_condition_watch",
+            "poll_decision_condition_watch",
+            "acknowledge_decision_review_task",
+        }:
+            return ["knowledge:decisions:read", "knowledge:decisions:write"] + (
+                [
+                    "knowledge:briefs:read",
+                    "knowledge:briefs:write",
+                    "knowledge:briefs:deliver",
+                ]
+                if tool_name == "poll_decision_condition_watch"
+                else ["knowledge:briefs:deliver"]
+                if tool_name == "acknowledge_decision_review_task"
+                else []
+            )
+        if tool_name in {
+            "inspect_decision_condition_watch",
+            "list_decision_review_tasks",
+        }:
             return ["knowledge:decisions:read"]
         if tool_name in {"create_review_inbox_task", "assign_review_inbox_task"}:
             return ["knowledge:inbox:read", "knowledge:inbox:write"]
@@ -481,39 +1142,99 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
             return ["knowledge:inbox:read"]
         if tool_name in {"submit_review_inbox_annotation", "resolve_review_inbox_task"}:
             return ["knowledge:inbox:read", "knowledge:inbox:review"]
-        if tool_name in {"build_review_annotation_dataset", "release_review_annotation_dataset", "export_review_annotation_dataset", "evaluate_review_annotation_predictions"}:
+        if tool_name in {
+            "build_review_annotation_dataset",
+            "release_review_annotation_dataset",
+            "export_review_annotation_dataset",
+            "evaluate_review_annotation_predictions",
+        }:
             return ["knowledge:inbox:read", "knowledge:inbox:datasets"]
-        if tool_name in {"assess_authored_report_changes", "propose_authored_report_edit", "decide_authored_report_edit"}:
+        if tool_name in {
+            "assess_authored_report_changes",
+            "propose_authored_report_edit",
+            "decide_authored_report_edit",
+        }:
             return ["knowledge:reports:read", "knowledge:reports:write"]
         if tool_name == "inspect_authored_report_edit":
             return ["knowledge:reports:read"]
         if tool_name == "register_research_analysis":
             return ["knowledge:analysis:write", "knowledge:dataset:read"]
-        if tool_name in {"execute_research_analysis", "cancel_research_analysis_run", "recover_research_analysis_run"}:
-            return ["knowledge:analysis:read", "knowledge:analysis:execute", "knowledge:dataset:read"]
-        if tool_name in {"inspect_research_analysis", "list_research_analysis_runs", "inspect_research_analysis_run", "export_research_analysis", "compare_research_analysis_runs", "export_research_analysis_package"}:
-            return ["knowledge:analysis:read", "knowledge:dataset:read"] + (["knowledge:packages:read"] if tool_name.endswith("_package") else [])
-        if tool_name in {"create_authored_report", "revise_authored_report", "reopen_authored_report"}:
+        if tool_name in {
+            "execute_research_analysis",
+            "cancel_research_analysis_run",
+            "recover_research_analysis_run",
+        }:
+            return [
+                "knowledge:analysis:read",
+                "knowledge:analysis:execute",
+                "knowledge:dataset:read",
+            ]
+        if tool_name in {
+            "inspect_research_analysis",
+            "list_research_analysis_runs",
+            "inspect_research_analysis_run",
+            "export_research_analysis",
+            "compare_research_analysis_runs",
+            "export_research_analysis_package",
+        }:
+            return ["knowledge:analysis:read", "knowledge:dataset:read"] + (
+                ["knowledge:packages:read"] if tool_name.endswith("_package") else []
+            )
+        if tool_name in {
+            "create_authored_report",
+            "revise_authored_report",
+            "reopen_authored_report",
+        }:
             return ["knowledge:reports:write"]
         if tool_name in {"inspect_authored_report", "export_authored_report"}:
             return ["knowledge:reports:read"]
-        if tool_name in {"create_binary_forecast", "revise_binary_forecast", "resolve_binary_forecast"}:
+        if tool_name in {
+            "create_binary_forecast",
+            "revise_binary_forecast",
+            "resolve_binary_forecast",
+        }:
             return ["knowledge:forecasts:write"]
-        if tool_name in {"inspect_binary_forecast", "propose_forecast_resolution", "score_binary_forecasts"}:
+        if tool_name in {
+            "inspect_binary_forecast",
+            "propose_forecast_resolution",
+            "score_binary_forecasts",
+        }:
             return ["knowledge:forecasts:read"]
-        if tool_name in {"create_research_decision", "revise_research_decision", "calculate_decision_sensitivity"}:
+        if tool_name in {
+            "create_research_decision",
+            "revise_research_decision",
+            "record_decision_evidence",
+            "calculate_decision_sensitivity",
+        }:
             return ["knowledge:decisions:write"]
         if tool_name == "inspect_research_decision":
             return ["knowledge:decisions:read"]
-        if tool_name in {"create_review_protocol", "amend_review_protocol", "add_review_candidate", "screen_review_candidate", "adjudicate_review_candidate", "extract_review_field", "review_study_field"}:
+        if tool_name in {
+            "create_review_protocol",
+            "amend_review_protocol",
+            "add_review_candidate",
+            "screen_review_candidate",
+            "adjudicate_review_candidate",
+            "extract_review_field",
+            "review_study_field",
+        }:
             return ["knowledge:reviews:write"]
-        if tool_name in {"inspect_review_protocol", "export_systematic_review", "list_review_candidates", "inspect_review_candidate"}:
+        if tool_name in {
+            "inspect_review_protocol",
+            "export_systematic_review",
+            "list_review_candidates",
+            "inspect_review_candidate",
+        }:
             return ["knowledge:reviews:read"]
         if tool_name == "sync_zotero_library":
             return ["knowledge:zotero:sync"]
         if tool_name == "acquire_opencitations":
             return ["knowledge:citation:capture"]
-        if tool_name in {"list_zotero_items", "inspect_zotero_item", "export_zotero_bibliography"}:
+        if tool_name in {
+            "list_zotero_items",
+            "inspect_zotero_item",
+            "export_zotero_bibliography",
+        }:
             return ["knowledge:zotero:read"]
         if tool_name == "set_research_package_trust_policy":
             return ["knowledge:packages:trust"]
@@ -525,21 +1246,36 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
             TEMPLATE_READS,
             TEMPLATE_WRITES,
         )
+
         if tool_name in TEMPLATE_WRITES:
             return ["knowledge:projects:read", "knowledge:projects:write"]
         if tool_name in TEMPLATE_READS:
             return ["knowledge:projects:read"]
         if tool_name in COMPARISON_WRITES:
-            return ["knowledge:projects:read", "knowledge:projects:write", "knowledge:recipes:read"]
+            return [
+                "knowledge:projects:read",
+                "knowledge:projects:write",
+                "knowledge:recipes:read",
+            ]
         if tool_name in COMPARISON_READS:
             return ["knowledge:projects:read", "knowledge:recipes:read"]
         if tool_name in ALERT_WRITES:
             return ["knowledge:subscriptions:read", "knowledge:subscriptions:write"]
         if tool_name in ALERT_READS:
             return ["knowledge:subscriptions:read"]
-        if tool_name in {"branch_research_project", "create_research_project", "revise_research_project", "archive_research_project", "record_research_project_expenditure"}:
+        if tool_name in {
+            "branch_research_project",
+            "create_research_project",
+            "revise_research_project",
+            "archive_research_project",
+            "record_research_project_expenditure",
+        }:
             return ["knowledge:projects:write"]
-        if tool_name in {"compare_research_projects", "inspect_research_project", "list_research_projects"}:
+        if tool_name in {
+            "compare_research_projects",
+            "inspect_research_project",
+            "list_research_projects",
+        }:
             return ["knowledge:projects:read"]
         if tool_name in {
             "create_research_package_manifest",
@@ -1044,6 +1780,40 @@ def _warehouse_rows(conn: Any) -> int | None:
 
 
 def _data_state(required: list[str], conn: Any) -> tuple[str, str | None]:
+    market_tables = {
+        "market-instrument-store": "market_instrument_object_revisions",
+        "market-price-store": "market_price_bar_revisions",
+        "market-financial-fact-store": "market_financial_fact_revisions",
+        "market-action-store": "market_corporate_action_revisions",
+        "market-entitlement-store": "market_entitlement_revisions",
+        "market-screener-store": "market_screener_query_revisions",
+        "market-alert-store": "market_alert_watch_revisions",
+        "market-quantitative-store": "market_quantitative_runs",
+        "market-research-store": "market_research_artifacts",
+        "market-specialized-store": "market_specialized_runs",
+        "economic-release-store": "economic_release_snapshots",
+    }
+    market_required = [item for item in required if item in market_tables]
+    if market_required:
+        states = []
+        for item in market_required:
+            table = market_tables[item]
+            if not _table_exists(conn, table):
+                states.append("unavailable")
+                continue
+            try:
+                count = int(conn.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0])
+            except Exception:  # noqa: BLE001 - readiness probes are best effort
+                states.append("degraded")
+                continue
+            states.append("available" if count else "empty")
+        if "unavailable" in states:
+            return "unavailable", "a required market store is not configured"
+        if "degraded" in states:
+            return "degraded", "market data readiness could not be probed"
+        if "empty" in states:
+            return "empty", "a required market source store has no retained records"
+        return "available", None
     if not set(required) & {
         "argument-dataset",
         "metrics-store",

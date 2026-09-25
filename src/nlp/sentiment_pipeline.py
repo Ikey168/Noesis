@@ -446,3 +446,10 @@ class SentimentPipeline:
         except Exception as e:
             logger.error("Error getting sentiment stats: {0}".format(str(e)))
             raise
+
+
+def suggest_sentiment_with_jev(*args, **kwargs) -> dict:
+    """Explicit source-bound suggestion, separate from pipeline writes/trends."""
+    from src.argument_mining.jev_nlp_adapters import suggest_sentiment
+
+    return suggest_sentiment(*args, **kwargs)

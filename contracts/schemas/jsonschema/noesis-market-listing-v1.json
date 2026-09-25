@@ -1,0 +1,51 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/schemas/noesis-market-listing-v1.json",
+  "title": "Noesis market listing v1",
+  "description": "A security's listing on a venue over an explicit valid-time interval. Symbols and venue assignments can change without changing security identity.",
+  "type": "object",
+  "required": ["contract", "namespace", "owner", "listing_id", "security_id", "revision_id", "revision", "mic", "currency", "status", "valid_from_ms", "valid_to_ms", "ticker_assertions", "source_refs", "recorded_at_ms", "record_hash"],
+  "properties": {
+    "contract": {"const": "noesis-market-listing-v1"},
+    "namespace": {"type": "string", "minLength": 1},
+    "owner": {"type": ["string", "null"]},
+    "listing_id": {"type": "string", "minLength": 1, "description": "Opaque, stable identity for this venue listing."},
+    "security_id": {"type": "string", "minLength": 1},
+    "revision_id": {"type": "string", "minLength": 1},
+    "revision": {"type": "integer", "minimum": 1},
+    "mic": {"type": "string", "pattern": "^[A-Z0-9]{4}$", "description": "ISO 10383 market identifier code."},
+    "currency": {"type": "string", "pattern": "^[A-Z]{3}$"},
+    "timezone": {"type": ["string", "null"], "description": "IANA time zone used for venue session dates, when known."},
+    "status": {"enum": ["active", "inactive", "suspended", "unknown"]},
+    "valid_from_ms": {"type": "integer", "minimum": 0},
+    "valid_to_ms": {"type": ["integer", "null"], "minimum": 0},
+    "ticker_assertions": {"type": "array", "items": {"$ref": "#/definitions/ticker_assertion"}},
+    "source_refs": {"type": "array", "minItems": 1, "items": {"$ref": "#/definitions/source_ref"}},
+    "recorded_at_ms": {"type": "integer", "minimum": 0},
+    "record_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+  },
+  "additionalProperties": false,
+  "definitions": {
+    "source_ref": {
+      "type": "object",
+      "required": ["source_ref_id", "provider", "provider_object_id", "source_revision_id", "public_at_ms", "source_snapshot_id", "source_url", "retrieved_at_ms", "content_hash", "license_id", "entitlement_id"],
+      "properties": {
+        "source_ref_id": {"type": "string", "minLength": 1}, "provider": {"type": "string", "minLength": 1}, "provider_object_id": {"type": "string", "minLength": 1},
+        "source_revision_id": {"type": ["string", "null"]}, "public_at_ms": {"type": ["integer", "null"], "minimum": 0}, "source_snapshot_id": {"type": ["string", "null"]}, "source_url": {"type": ["string", "null"], "format": "uri"},
+        "retrieved_at_ms": {"type": "integer", "minimum": 0}, "content_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "license_id": {"type": "string", "minLength": 1}, "entitlement_id": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
+    },
+    "ticker_assertion": {
+      "type": "object",
+      "required": ["value", "valid_from_ms", "valid_to_ms", "source_ref_id"],
+      "properties": {
+        "value": {"type": "string", "minLength": 1}, "valid_from_ms": {"type": "integer", "minimum": 0},
+        "valid_to_ms": {"type": ["integer", "null"], "minimum": 0},
+        "assertion_status": {"enum": ["active", "retracted"], "default": "active"}, "source_ref_id": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
+    }
+  }
+}

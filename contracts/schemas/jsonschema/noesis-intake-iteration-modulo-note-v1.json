@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/contracts/noesis-intake-iteration-modulo-note-v1.json",
+  "title": "Local candidate Iteration receipt for a Modulo-owned note",
+  "type": "object",
+  "required": [
+    "contract", "session_id", "session_revision", "note_id", "source_revision",
+    "source_snapshot_sha256", "expected", "outcome", "content",
+    "before_after_rationale", "proposal_sha256", "proposal_recorded_at_ms",
+    "plugin_link", "local_only", "modulo_access_state", "writeback_state"
+  ],
+  "properties": {
+    "contract": {"const": "noesis-intake-iteration-modulo-note-v1"},
+    "session_id": {"type": "string", "minLength": 1},
+    "session_revision": {"type": "integer", "minimum": 1},
+    "note_id": {"type": "string", "minLength": 1},
+    "source_revision": {"type": "integer", "minimum": 1},
+    "source_snapshot_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "expected": {"type": "string", "minLength": 1},
+    "outcome": {"type": "object"},
+    "content": {"type": "object", "minProperties": 1},
+    "before_after_rationale": {"type": "string", "minLength": 1},
+    "proposal_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "proposal_recorded_at_ms": {"type": "integer", "minimum": 0},
+    "plugin_link": {"type": "object"},
+    "local_only": {"const": true},
+    "modulo_access_state": {"const": "not_checked_by_noesis"},
+    "writeback_state": {"const": "not_written"}
+  },
+  "additionalProperties": false
+}

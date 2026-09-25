@@ -44,6 +44,7 @@ Contract doc: contracts/noesis-kb-v1.md. Errors return
 
 from __future__ import annotations
 
+import threading
 from typing import Any, Dict, Optional
 
 from fastmcp import FastMCP
@@ -51,17 +52,25 @@ from fastmcp import FastMCP
 from src.mcp_host.transport import run_server
 
 mcp = FastMCP("noesis-kb")
+_CALL_LOCK = threading.Lock()
 
 
 def _run(fn, *args: Any, **kwargs: Any) -> Dict[str, Any]:
     from src.kb.contract import KBContractError
+    from src.database.local_analytics_connector import close_shared_connection
 
-    try:
-        return fn(*args, **kwargs)
-    except KBContractError as exc:
-        return {"error": {"code": exc.code, "message": str(exc)}}
-    except Exception as exc:  # noqa: BLE001 - tool boundary
-        return {"error": {"code": "internal", "message": str(exc)}}
+    # DuckDB allows only one read-write process per file. The KB contract may
+    # open a shared write handle even for reads, so release it before the next
+    # MCP request and keep concurrent requests from closing each other's handle.
+    with _CALL_LOCK:
+        try:
+            return fn(*args, **kwargs)
+        except KBContractError as exc:
+            return {"error": {"code": exc.code, "message": str(exc)}}
+        except Exception as exc:  # noqa: BLE001 - tool boundary
+            return {"error": {"code": "internal", "message": str(exc)}}
+        finally:
+            close_shared_connection()
 
 
 @mcp.tool()

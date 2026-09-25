@@ -113,6 +113,10 @@ CREATE TABLE IF NOT EXISTS economic_vintages (
     revision_of BIGINT,
     source_url TEXT,
     source_document_id TEXT,
+    release_at_basis TEXT NOT NULL DEFAULT 'provider_vintage_fallback',
+    retrieved_at_basis TEXT NOT NULL DEFAULT 'record_as_of_fallback',
+    vintage_basis TEXT NOT NULL DEFAULT 'record_as_of',
+    release_time_status TEXT NOT NULL DEFAULT 'provider_release_time_unknown',
     PRIMARY KEY (domain, series_id, as_of)
 );
 CREATE TABLE IF NOT EXISTS economic_links (
@@ -169,6 +173,22 @@ def _millis(value: Any, field: str, default: int | None = None) -> int:
 
 def ensure_economic_schema(conn: Any) -> None:
     conn.execute(_DDL)
+    vintage_columns = {
+        row[1] for row in conn.execute("PRAGMA table_info('economic_vintages')").fetchall()
+    }
+    for column, default in (
+        ("release_at_basis", "provider_vintage_fallback"),
+        ("retrieved_at_basis", "record_as_of_fallback"),
+        ("vintage_basis", "record_as_of"),
+        ("release_time_status", "provider_release_time_unknown"),
+    ):
+        if column not in vintage_columns:
+            conn.execute(
+                f"ALTER TABLE economic_vintages ADD COLUMN {column} TEXT DEFAULT '{default}'"
+            )
+        conn.execute(
+            f"UPDATE economic_vintages SET {column}='{default}' WHERE {column} IS NULL"
+        )
     conn.execute(
         "CREATE INDEX IF NOT EXISTS idx_economic_indicator_concept ON economic_indicators (domain, concept)"
     )
@@ -372,16 +392,49 @@ def register_series(
         ],
     )
     ObservationStore(conn).upsert(record)
+    release_input = semantics.get("release_at")
+    if release_input is None:
+        release_input = record.metadata.get("provider_release_at_ms")
+    if release_input is None:
+        release_input = record.metadata.get("release_at")
     release_at = _millis(
-        semantics.get("release_at") or record.metadata.get("release_at"),
+        release_input,
         "release_at",
         record.as_of,
     )
+    release_at_basis = (
+        "caller_supplied"
+        if semantics.get("release_at") is not None
+        else "provider_reported"
+        if record.metadata.get("provider_release_at_ms") is not None
+        else "provider_vintage_fallback"
+    )
+    release_time_status = record.metadata.get("provider_release_time_status")
+    if not release_time_status:
+        release_time_status = (
+            "release timestamp supplied by caller"
+            if release_input is not None
+            else "provider release timestamp unavailable; provider vintage used as fallback"
+        )
+    release_time_status = str(release_time_status)[:300]
+    retrieval_input = semantics.get("retrieved_at")
+    if retrieval_input is None:
+        retrieval_input = record.metadata.get("acquired_at_ms")
+    if retrieval_input is None:
+        retrieval_input = record.metadata.get("retrieved_at")
     retrieved_at = _millis(
-        semantics.get("retrieved_at") or record.metadata.get("retrieved_at"),
+        retrieval_input,
         "retrieved_at",
         record.as_of,
     )
+    retrieved_at_basis = (
+        "caller_supplied"
+        if semantics.get("retrieved_at") is not None
+        else "connector_acquisition"
+        if record.metadata.get("acquired_at_ms") is not None
+        else "record_as_of_fallback"
+    )
+    vintage_basis = str(record.metadata.get("vintage_basis") or "record_as_of")[:100]
     if retrieved_at < release_at:
         raise EconomicModelError(
             "bad_time", "retrieved_at cannot precede the declared release_at"
@@ -414,7 +467,9 @@ def register_series(
         "source_document_id"
     )
     conn.execute(
-        "INSERT OR REPLACE INTO economic_vintages VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        "INSERT OR REPLACE INTO economic_vintages "
+        "(domain,series_id,as_of,vintage_id,release_at_ms,retrieved_at_ms,revision_of,source_url,source_document_id,release_at_basis,retrieved_at_basis,vintage_basis,release_time_status) "
+        "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)",
         [
             domain,
             record.series_id,
@@ -425,6 +480,10 @@ def register_series(
             revision_of,
             record.source_url,
             source_document_id,
+            release_at_basis,
+            retrieved_at_basis,
+            vintage_basis,
+            release_time_status,
         ],
     )
     temporal_ids = []
@@ -448,9 +507,14 @@ def register_series(
             "price_basis": indicator["price_basis"],
             "seasonal_adjustment": indicator["seasonal_adjustment"],
             "release_at_ms": release_at,
+            "release_at_basis": release_at_basis,
+            "release_time_status": release_time_status,
             "provider_vintage_ms": record.as_of,
+            "provider_vintage_basis": vintage_basis,
             "vintage_id": vintage_id,
             "revision_of": revision_of,
+            "retrieved_at_ms": retrieved_at,
+            "retrieved_at_basis": retrieved_at_basis,
             "source_url": record.source_url,
         }
         temporal_ids.append(
@@ -477,6 +541,10 @@ def register_series(
                     "release_at_ms": release_at,
                     "provider_vintage_ms": record.as_of,
                     "revision_of": revision_of,
+                    "release_at_basis": release_at_basis,
+                    "release_time_status": release_time_status,
+                    "retrieved_at_basis": retrieved_at_basis,
+                    "vintage_basis": vintage_basis,
                 },
             )
         )
@@ -488,7 +556,11 @@ def register_series(
             "vintage_id": vintage_id,
             "as_of": record.as_of,
             "release_at_ms": release_at,
+            "release_at_basis": release_at_basis,
+            "release_time_status": release_time_status,
             "retrieved_at_ms": retrieved_at,
+            "retrieved_at_basis": retrieved_at_basis,
+            "vintage_basis": vintage_basis,
             "revision_of": revision_of,
         },
         "observations": len(record.observations),

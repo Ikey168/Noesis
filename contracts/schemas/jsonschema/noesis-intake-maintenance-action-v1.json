@@ -1,0 +1,55 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/schemas/noesis-intake-maintenance-action-v1.json",
+  "title": "Noesis executed Maintenance checklist action receipt v1",
+  "type": "object",
+  "required": [
+    "contract",
+    "finding_id",
+    "action",
+    "target",
+    "basis",
+    "preview_hash",
+    "outcome",
+    "affected_at_preview"
+  ],
+  "properties": {
+    "contract": {
+      "const": "noesis-intake-maintenance-action-v1"
+    },
+    "finding_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "action": {
+      "enum": [
+        "refresh",
+        "repair",
+        "archive",
+        "delete"
+      ]
+    },
+    "target": {
+      "type": "object",
+      "required": [
+        "kind",
+        "id"
+      ]
+    },
+    "basis": {
+      "const": "executed"
+    },
+    "preview_hash": {
+      "type": "string",
+      "minLength": 1
+    },
+    "outcome": {
+      "type": "object"
+    },
+    "affected_at_preview": {
+      "type": "integer",
+      "minimum": 0
+    }
+  },
+  "additionalProperties": false
+}

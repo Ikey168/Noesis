@@ -12,6 +12,7 @@ from src.kb.intake_modes import IntakeError, _bounded, _hash, _json, _text
 from src.kb.research_projects import ResearchProjectStore
 
 CONTRACT = "noesis-intake-research-bundle-v1"
+REVIEW_SCOPE = "knowledge:intake:review"
 _DDL = """
 CREATE TABLE IF NOT EXISTS intake_research_bundles(
  bundle_id TEXT PRIMARY KEY, namespace TEXT NOT NULL, owner TEXT NOT NULL,
@@ -23,6 +24,12 @@ CREATE TABLE IF NOT EXISTS intake_research_bundle_revisions(
 CREATE TABLE IF NOT EXISTS intake_research_bundle_commands(
  bundle_id TEXT NOT NULL, command_key TEXT NOT NULL, request_hash TEXT NOT NULL,
  revision BIGINT NOT NULL, PRIMARY KEY(bundle_id,command_key));
+CREATE TABLE IF NOT EXISTS intake_research_independence_reviews(
+ review_id TEXT PRIMARY KEY,namespace TEXT NOT NULL,bundle_id TEXT NOT NULL,
+ bundle_revision BIGINT NOT NULL,claim_id TEXT NOT NULL,reviewer TEXT NOT NULL,
+ command_key TEXT NOT NULL,request_hash TEXT NOT NULL,review_json TEXT NOT NULL,
+ UNIQUE(bundle_id,bundle_revision,claim_id),
+ UNIQUE(bundle_id,reviewer,command_key));
 """
 
 
@@ -89,7 +96,38 @@ class IntakeResearchBundleStore:
             raise IntakeError("invalid_bundle", "card source must be an intake source")
         return source["content"], url, current == revision
 
-    def _validate(self, project, document, principal_id, scopes):
+    def _claim_fingerprint(self, claim, cards):
+        source_pins = []
+        for card_id in claim["supports"]:
+            card = cards[card_id]
+            source_pins.append({
+                "card_id": card_id,
+                "source": card["source"],
+                "quote_hash": _hash(card["quote"]),
+            })
+        claim_content = {key: claim[key] for key in (
+            "id", "statement", "supports", "contradicts", "confidence",
+        )}
+        return _hash({"claim": claim_content, "supporting_source_pins": source_pins})
+
+    def _review_records(self, namespace, bundle_id, revision):
+        try:
+            rows = self.conn.execute(
+                "SELECT claim_id,review_json FROM intake_research_independence_reviews "
+                "WHERE namespace=? AND bundle_id=? AND bundle_revision=?",
+                [namespace, bundle_id, revision],
+            ).fetchall()
+        except Exception as exc:
+            # Older databases do not have the review ledger yet. They remain
+            # unverified until an authorized review is recorded after upgrade.
+            import duckdb
+            if isinstance(exc, duckdb.CatalogException):
+                return {}
+            raise
+        return {claim_id: json.loads(review_json) for claim_id, review_json in rows}
+
+    def _validate(self, project, document, principal_id, scopes, *, review_records=None):
+        review_records = review_records or {}
         if not isinstance(document, dict) or set(document) != {
             "cards", "claims", "concepts", "brief", "mental_model", "map",
             "known", "uncertain", "unresolved", "definition_of_done",
@@ -129,8 +167,14 @@ class IntakeResearchBundleStore:
             cards[identity] = card
             source_hosts[identity] = (urlsplit(url).hostname or url).casefold()
             source_status[identity] = "current" if current else "superseded"
+        independence_reviews = []
+        independence_blocked = False
         for claim in _list(document["claims"], "claims", limit=500):
-            if not isinstance(claim, dict) or set(claim) != {"id", "statement", "supports", "contradicts", "confidence"}:
+            required_claim_fields = {"id", "statement", "supports", "contradicts", "confidence"}
+            if not isinstance(claim, dict) or set(claim) not in (
+                required_claim_fields,
+                required_claim_fields | {"independence_review"},
+            ):
                 raise IntakeError("invalid_bundle", "claim needs statement, card links and confidence")
             _text(claim["id"], "claim id", limit=128)
             _text(claim["statement"], "claim statement")
@@ -140,8 +184,61 @@ class IntakeResearchBundleStore:
                 raise IntakeError("invalid_bundle", "claim needs support distinct from contradiction")
             if claim["confidence"] not in {"low", "medium", "high"}:
                 raise IntakeError("invalid_bundle", "claim confidence must be low, medium or high")
-            if claim["confidence"] == "high" and len({source_hosts[c] for c in supports}) < 2:
-                raise IntakeError("insufficient_independence", "high-confidence claim needs independent source hosts")
+            review = claim.get("independence_review")
+            if review is None:
+                asserted = None
+            else:
+                if not isinstance(review, dict) or set(review) != {"status", "basis", "groups"}:
+                    raise IntakeError("invalid_bundle", "independence assertion needs status, basis, and source groups")
+                asserted = review
+            if asserted is not None:
+                status = asserted["status"]
+                if not isinstance(status, str) or status not in {"independent", "dependent", "uncertain"}:
+                    raise IntakeError("invalid_bundle", "independence review status is invalid")
+                _text(asserted["basis"], "independence review basis")
+                groups = _list(asserted["groups"], "independence groups", limit=100)
+                if not groups:
+                    raise IntakeError("invalid_bundle", "independence review needs source groups")
+                group_ids = set()
+                grouped_cards = []
+                for group in groups:
+                    if not isinstance(group, dict) or set(group) != {"group_id", "card_ids"}:
+                        raise IntakeError("invalid_bundle", "source group needs an ID and supporting card IDs")
+                    group_id = _text(group["group_id"], "independence group ID", limit=128)
+                    if group_id in group_ids:
+                        raise IntakeError("invalid_bundle", "independence group IDs must be unique")
+                    group_ids.add(group_id)
+                    members = _ids(group["card_ids"], "independence group card_ids", set(cards))
+                    if not members or set(members) - set(supports):
+                        raise IntakeError("invalid_bundle", "source groups must contain supporting cards")
+                    grouped_cards.extend(members)
+                if len(grouped_cards) != len(set(grouped_cards)) or set(grouped_cards) != set(supports):
+                    raise IntakeError("invalid_bundle", "source groups must assign each supporting card exactly once")
+                if status == "independent" and len(group_ids) < 2:
+                    raise IntakeError("insufficient_independence", "independent review needs at least two declared reporting-origin groups")
+            verified_review = review_records.get(claim["id"])
+            fingerprint = self._claim_fingerprint(claim, cards)
+            if verified_review is not None and verified_review.get("claim_hash") != fingerprint:
+                verified_review = None
+            verified = verified_review is not None and verified_review.get("status") == "independent"
+            if claim["confidence"] == "high" and not verified:
+                independence_blocked = True
+            effective = verified_review if verified_review is not None else asserted
+            independence_reviews.append({
+                "claim_id": claim["id"],
+                "status": effective["status"] if effective is not None else "unreviewed",
+                "group_count": len(effective["groups"]) if effective is not None else 0,
+                "distinct_host_count": len({source_hosts[c] for c in supports}),
+                **({"basis": effective["basis"]} if effective is not None else {}),
+                "verified": verified,
+                **({
+                    "review_id": verified_review["review_id"],
+                    "reviewer": verified_review["reviewer"],
+                    "method": verified_review["method"],
+                    "reviewed_at_ms": verified_review["reviewed_at_ms"],
+                    "provenance": verified_review["provenance"],
+                } if verified_review is not None else {}),
+            })
         claim_ids = [claim["id"] for claim in document["claims"]]
         if len(claim_ids) != len(set(claim_ids)):
             raise IntakeError("invalid_bundle", "claim IDs must be unique")
@@ -184,28 +281,49 @@ class IntakeResearchBundleStore:
             _ids(review["card_ids"], "review card_ids", set(cards))
             if review["met"] and not review["card_ids"]:
                 raise IntakeError("invalid_bundle", "met criterion needs cited cards")
-        ready = bool(cards and document["claims"] and document["concepts"])
-        ready &= all(document[s]["text"] for s in ("brief", "mental_model", "map"))
-        ready &= bool(document["known"] and document["uncertain"] and document["unresolved"])
-        ready &= all(review["met"] for review in reviews)
-        ready &= all(status == "current" for status in source_status.values())
-        return document, {"ready": bool(ready), "source_status": source_status,
-                          "independent_hosts": len(set(source_hosts.values()))}
+        reasons = []
+        if not cards:
+            reasons.append("evidence_cards_missing")
+        if not document["claims"]:
+            reasons.append("claims_missing")
+        if not document["concepts"]:
+            reasons.append("concepts_missing")
+        for section in ("brief", "mental_model", "map"):
+            if not document[section]["text"]:
+                reasons.append(section + "_missing")
+        for section in ("known", "uncertain", "unresolved"):
+            if not document[section]:
+                reasons.append(section + "_missing")
+        if any(not review["met"] for review in reviews):
+            reasons.append("definition_of_done_unmet")
+        if any(status != "current" for status in source_status.values()):
+            reasons.append("source_revision_superseded")
+        if independence_blocked:
+            reasons.append("source_independence_unverified")
+        return document, {"ready": not reasons, "source_status": source_status,
+                          "independent_hosts": len(set(source_hosts.values())),
+                          "source_independence": independence_reviews,
+                          "reasons": sorted(set(reasons))}
 
     def save(self, namespace, project_id, command_key, document, *,
-             principal_id, scopes, expected_revision=None):
+             principal_id, scopes, expected_revision=None,
+             iteration_receipt=None, _within_transaction=False):
         command_key = _text(command_key, "command_key", limit=256)
         project = self._project(namespace, project_id, principal_id, scopes, write=True)
         document, checks = self._validate(project, document, principal_id, scopes)
         bundle_id = "research-bundle:" + _hash([namespace, project_id])[:32]
         digest = _hash(document)
-        self.conn.execute("BEGIN")
+        if not _within_transaction:
+            self.conn.execute("BEGIN")
         try:
             row = self.conn.execute(
                 "SELECT revision,request_hash FROM intake_research_bundles WHERE bundle_id=?",
                 [bundle_id],
             ).fetchone()
+            history = []
             if row:
+                previous = self._state(namespace, bundle_id)
+                history = list(previous.get("iteration_history", []))
                 replay = self.conn.execute(
                     "SELECT request_hash,revision FROM intake_research_bundle_commands "
                     "WHERE bundle_id=? AND command_key=?", [bundle_id, command_key],
@@ -213,8 +331,12 @@ class IntakeResearchBundleStore:
                 if replay:
                     if replay[0] != digest:
                         raise IntakeError("idempotency_conflict", "command key identifies another bundle revision")
-                    state = self._state(namespace, bundle_id, replay[1])
-                    self.conn.execute("COMMIT")
+                    state = self.inspect(
+                        namespace, bundle_id, principal_id=principal_id,
+                        scopes=scopes, revision=replay[1],
+                    )
+                    if not _within_transaction:
+                        self.conn.execute("COMMIT")
                     return {**state, "idempotent": True}
                 if expected_revision != row[0]:
                     raise IntakeError("revision_conflict", "inspect current bundle revision before saving")
@@ -230,12 +352,144 @@ class IntakeResearchBundleStore:
                      "owner": principal_id, "project_id": project_id, "project_revision": project["revision"],
                      "question_revision": project["question_revision"], "revision": revision,
                      "document": document, "checks": checks, "updated_at_ms": self.now()}
+            if iteration_receipt is not None:
+                receipt = _bounded(iteration_receipt, limit=64_000)
+                history.append(receipt)
+                if len(history) > 500:
+                    raise IntakeError("iteration_history_limit", "bundle iteration history exceeds 500 receipts")
+            if history:
+                state["iteration_history"] = history
+            _bounded(state, limit=4_000_000)
             self.conn.execute("INSERT INTO intake_research_bundle_revisions VALUES (?,?,?,?)",
                               [bundle_id, revision, _json(state), state["updated_at_ms"]])
             self.conn.execute("INSERT INTO intake_research_bundle_commands VALUES (?,?,?,?)",
                               [bundle_id, command_key, digest, revision])
-            self.conn.execute("COMMIT")
+            if not _within_transaction:
+                self.conn.execute("COMMIT")
             return {**state, "idempotent": False}
+        except Exception:
+            if not _within_transaction:
+                self.conn.execute("ROLLBACK")
+            raise
+
+    def review_independence(
+        self, namespace, bundle_id, expected_revision, command_key, claim_id,
+        status, basis, groups, *, principal_id, scopes,
+    ):
+        """Record an authorized, claim-pinned source-origin review."""
+        if "operator" not in scopes and REVIEW_SCOPE not in scopes:
+            raise IntakeError("unauthorized", "knowledge:intake:review is required to verify source independence")
+        command_key = _text(command_key, "command_key", limit=256)
+        claim_id = _text(claim_id, "claim_id", limit=128)
+        basis = _text(basis, "review basis")
+        method = "manual_origin_review"
+        if not isinstance(status, str) or status not in {"independent", "dependent", "uncertain"}:
+            raise IntakeError("invalid_independence_review", "review status must be independent, dependent, or uncertain")
+        if type(expected_revision) is not int or expected_revision < 1:
+            raise IntakeError("invalid_revision", "expected_revision must be positive")
+
+        self.conn.execute("BEGIN")
+        try:
+            current = self._state(namespace, bundle_id)
+            if current["revision"] != expected_revision:
+                raise IntakeError("revision_conflict", "inspect the current bundle before reviewing it")
+            project = self._project(namespace, current["project_id"], principal_id, scopes)
+            claim = next((item for item in current["document"]["claims"]
+                          if item["id"] == claim_id), None)
+            if claim is None:
+                raise IntakeError("claim_not_found", "claim is not present in this bundle revision")
+            temporary = json.loads(_json(current["document"]))
+            temporary_claim = next(item for item in temporary["claims"] if item["id"] == claim_id)
+            temporary_claim["independence_review"] = {
+                "status": status, "basis": basis, "groups": groups,
+            }
+            # Revalidate exact source pins and the reviewer's group assignment
+            # under current source access before recording an attestation.
+            _, _ = self._validate(project, temporary, principal_id, scopes)
+            validated_claim = next(item for item in temporary["claims"] if item["id"] == claim_id)
+            validated_cards = {card["id"]: card for card in temporary["cards"]}
+            claim_hash = self._claim_fingerprint(validated_claim, validated_cards)
+            request = {
+                "namespace": namespace, "bundle_id": bundle_id,
+                "bundle_revision": expected_revision, "claim_id": claim_id,
+                "status": status, "basis": basis, "groups": validated_claim["independence_review"]["groups"],
+                "method": method,
+            }
+            request_hash = _hash(request)
+            prior = self.conn.execute(
+                "SELECT request_hash,review_json FROM intake_research_independence_reviews "
+                "WHERE bundle_id=? AND reviewer=? AND command_key=?",
+                [bundle_id, principal_id, command_key],
+            ).fetchone()
+            if prior:
+                if prior[0] != request_hash:
+                    raise IntakeError("idempotency_conflict", "command key identifies another independence review")
+                review = json.loads(prior[1])
+                inspected = self.inspect(
+                    namespace, bundle_id, principal_id=principal_id, scopes=scopes,
+                    revision=expected_revision,
+                )
+                self.conn.execute("COMMIT")
+                return {"review": review, "bundle": inspected, "idempotent": True}
+            existing = self.conn.execute(
+                "SELECT reviewer FROM intake_research_independence_reviews "
+                "WHERE bundle_id=? AND bundle_revision=? AND claim_id=?",
+                [bundle_id, expected_revision, claim_id],
+            ).fetchone()
+            if existing:
+                raise IntakeError(
+                    "independence_already_reviewed",
+                    "this claim revision already has an authorized review; revise the bundle to reopen review",
+                )
+            reviewed_at_ms = self.now()
+            source_pins = []
+            for group in validated_claim["independence_review"]["groups"]:
+                for member in group["card_ids"]:
+                    card = validated_cards[member]
+                    ref = card["source"]
+                    source_pins.append({
+                        "group_id": group["group_id"],
+                        "card_id": member,
+                        "namespace": ref["namespace"],
+                        "source_id": ref["id"],
+                        "source_version": ref["version"],
+                        "quote_hash": _hash(card["quote"]),
+                    })
+            review = {
+                "contract": "noesis-intake-research-independence-review-v1",
+                "review_id": "research-independence-review:" + _hash([
+                    namespace, bundle_id, expected_revision, claim_id,
+                    principal_id, request_hash,
+                ])[:32],
+                "namespace": namespace,
+                "bundle_id": bundle_id,
+                "bundle_revision": expected_revision,
+                "claim_id": claim_id,
+                "claim_hash": claim_hash,
+                "status": status,
+                "basis": basis,
+                "method": method,
+                "groups": validated_claim["independence_review"]["groups"],
+                "reviewer": principal_id,
+                "reviewed_at_ms": reviewed_at_ms,
+                "provenance": {
+                    "bundle_revision": expected_revision,
+                    "claim_hash": claim_hash,
+                    "source_pins": source_pins,
+                },
+            }
+            self.conn.execute(
+                "INSERT INTO intake_research_independence_reviews VALUES (?,?,?,?,?,?,?,?,?)",
+                [review["review_id"], namespace, bundle_id, expected_revision,
+                 claim_id, principal_id, command_key, request_hash, _json(review)],
+            )
+            inspected = self.inspect(
+                namespace, bundle_id, principal_id=principal_id, scopes=scopes,
+                revision=expected_revision,
+            )
+            result = {"review": review, "bundle": inspected, "idempotent": False}
+            self.conn.execute("COMMIT")
+            return result
         except Exception:
             self.conn.execute("ROLLBACK")
             raise
@@ -244,10 +498,18 @@ class IntakeResearchBundleStore:
         current = self._state(namespace, bundle_id)
         project = self._project(namespace, current["project_id"], principal_id, scopes)
         state = self._state(namespace, bundle_id, revision) if revision is not None else current
-        document, checks = self._validate(project, state["document"], principal_id, scopes)
-        checks["ready"] &= (state["question_revision"] == project["question_revision"]
-                            and state["project_revision"] == project["revision"])
-        return {**state, "document": document, "checks": checks}
+        review_records = self._review_records(namespace, bundle_id, state["revision"])
+        document, checks = self._validate(
+            project, state["document"], principal_id, scopes,
+            review_records=review_records,
+        )
+        if state["question_revision"] != project["question_revision"]:
+            checks["reasons"].append("project_question_revision_changed")
+        if state["project_revision"] != project["revision"]:
+            checks["reasons"].append("project_revision_changed")
+        checks["reasons"] = sorted(set(checks["reasons"]))
+        checks["ready"] &= not checks["reasons"]
+        return {**state, "document": document, "checks": checks, "idempotent": True}
 
     def export(self, namespace, bundle_id, *, principal_id, scopes):
         self.inspect(namespace, bundle_id, principal_id=principal_id, scopes=scopes)
@@ -264,8 +526,22 @@ class IntakeResearchBundleStore:
                         and f"namespace:{ref['namespace']}:read" not in scopes):
                     raise IntakeError("unauthorized", "historical source access is required for export")
                 self._source(ref, principal_id, scopes)
+        try:
+            reviews = self.conn.execute(
+                "SELECT review_json FROM intake_research_independence_reviews "
+                "WHERE namespace=? AND bundle_id=? ORDER BY bundle_revision,claim_id",
+                [namespace, bundle_id],
+            ).fetchall()
+        except Exception as exc:
+            import duckdb
+            if not isinstance(exc, duckdb.CatalogException):
+                raise
+            reviews = []
+        independence_reviews = [json.loads(row[0]) for row in reviews]
+        digest_content = {"revisions": revisions, "independence_reviews": independence_reviews}
         return {"contract": "noesis-intake-research-bundle-export-v1", "bundle_id": bundle_id,
-                "revisions": revisions, "sha256": _hash(revisions)}
+                "revisions": revisions, "independence_reviews": independence_reviews,
+                "sha256": _hash(digest_content)}
 
 
 def verify_research_bundle_export(bundle):
@@ -279,5 +555,12 @@ def verify_research_bundle_export(bundle):
            or item.get("revision") != index
            for index, item in enumerate(revisions, 1)):
         return {"valid": False, "reason": "invalid_revision_chain"}
-    return {"valid": _hash(revisions) == bundle.get("sha256"),
-            "reason": None if _hash(revisions) == bundle.get("sha256") else "digest_mismatch"}
+    reviews = bundle.get("independence_reviews")
+    if reviews is None:
+        digest = _hash(revisions)
+    elif isinstance(reviews, list):
+        digest = _hash({"revisions": revisions, "independence_reviews": reviews})
+    else:
+        return {"valid": False, "reason": "invalid_independence_reviews"}
+    return {"valid": digest == bundle.get("sha256"),
+            "reason": None if digest == bundle.get("sha256") else "digest_mismatch"}

@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "noesis-decision-comparative-matrix-v1",
+  "title": "Revision-pinned decision comparison",
+  "type": "object",
+  "required": ["contract", "decision_id", "decision_revision", "decision_hash", "receipt_id", "question", "stop_condition", "uncertainty", "missing_inputs", "constraints", "assumptions", "observation_refs", "weights", "options", "ordering_with_ties", "scenarios", "selected_action", "rationale", "review_conditions", "limitations"],
+  "additionalProperties": false,
+  "properties": {
+    "contract": {"const": "noesis-decision-comparative-matrix-v1"},
+    "decision_id": {"type": "string"},
+    "decision_revision": {"type": "integer", "minimum": 1},
+    "decision_hash": {"type": "string"},
+    "receipt_id": {"type": "string"},
+    "question": {"type": ["string", "null"]},
+    "stop_condition": {"type": ["string", "null"]},
+    "uncertainty": {"type": ["string", "null"]},
+    "missing_inputs": {"type": "array", "items": {"type": "string"}},
+    "constraints": {"type": "array", "items": {"type": "string"}},
+    "assumptions": {"type": "array", "items": {"type": "string"}},
+    "observation_refs": {"type": "array", "items": {"type": "object"}},
+    "weights": {"type": "object"},
+    "options": {"type": "array", "minItems": 2, "items": {
+      "type": "object",
+      "required": ["id", "description", "declared_utilities", "weighted_score", "missing_inputs", "relative_advantages", "relative_disadvantages", "chosen"],
+      "properties": {
+        "id": {"type": "string"}, "description": {"type": "string"},
+        "declared_utilities": {"type": "object"},
+        "weighted_score": {"type": ["string", "null"]},
+        "missing_inputs": {"type": "array", "items": {"type": "string"}},
+        "relative_advantages": {"type": "array", "items": {"type": "string"}},
+        "relative_disadvantages": {"type": "array", "items": {"type": "string"}},
+        "chosen": {"type": "boolean"}
+      }
+    }},
+    "ordering_with_ties": {"type": "array", "items": {"type": "array", "items": {"type": "string"}}},
+    "scenarios": {"type": "array", "items": {"type": "object"}},
+    "selected_action": {"type": "string"},
+    "rationale": {"type": "string"},
+    "review_conditions": {"type": "array", "items": {"type": "string"}},
+    "limitations": {"type": "array", "items": {"type": "string"}}
+  }
+}

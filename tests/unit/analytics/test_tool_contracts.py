@@ -120,7 +120,8 @@ def test_stripping_uncertainty_fails_the_contract(name, builder, interval_fields
 
 
 def test_honesty_schema_used_by_tools_advertises_fields():
-    # The schema the tools attach via honesty_output_schema requires the fields.
+    # Successful analytic results require the fields; errors are separate.
     schema = honesty_output_schema({"windows": {"type": "array"}})
     for field in REQUIRED_FIELDS:
-        assert field in schema["required"]
+        assert field in schema["anyOf"][0]["required"]
+    assert schema["anyOf"][1]["required"] == ["error"]

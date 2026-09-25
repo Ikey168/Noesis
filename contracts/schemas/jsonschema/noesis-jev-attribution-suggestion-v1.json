@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/contracts/noesis-jev-attribution-suggestion-v1.json",
+  "title": "Source-bound Jev speaker or institution attribution suggestion",
+  "type": "object",
+  "required": ["contract", "status", "accepted", "statement", "statement_locator", "context_locator", "source_binding", "candidates", "raw_choice", "raw_distribution", "suggested_choice", "selected_choice_confidence", "suggested_actor", "authors", "byline", "source_metadata_mutated", "decision_run"],
+  "properties": {
+    "contract": {"const": "noesis-jev-attribution-suggestion-v1"},
+    "status": {"enum": ["suggested", "abstained"]},
+    "accepted": {"const": false},
+    "statement": {"type": "string", "minLength": 1},
+    "statement_locator": {"$ref": "#/$defs/span"},
+    "context_locator": {"$ref": "#/$defs/span"},
+    "source_binding": {"type": "array", "minItems": 1, "items": {"type": "object"}},
+    "candidates": {"type": "array", "minItems": 1, "maxItems": 18, "items": {"type": "object", "required": ["id", "name"], "properties": {"id": {"type": "string", "minLength": 1}, "name": {"type": "string", "minLength": 1}, "role": {"type": "string", "minLength": 1}}, "additionalProperties": true}},
+    "raw_choice": {"type": ["string", "null"]},
+    "raw_distribution": {"type": ["object", "null"], "additionalProperties": {"type": "number", "minimum": 0, "maximum": 1}},
+    "suggested_choice": {"type": ["string", "null"]},
+    "selected_choice_confidence": {"$ref": "#/$defs/probabilityOrNull"},
+    "suggested_actor": {"type": ["object", "null"]},
+    "authors": {"type": "array", "items": {"type": "string"}},
+    "byline": {"type": ["string", "null"]},
+    "source_metadata_mutated": {"const": false},
+    "decision_run": {"type": "object"}
+  },
+  "allOf": [
+    {"if": {"properties": {"status": {"const": "suggested"}}, "required": ["status"]}, "then": {"properties": {"suggested_choice": {"type": "string"}}}},
+    {"if": {"properties": {"raw_choice": {"const": "uncertain"}}, "required": ["raw_choice"]}, "then": {"properties": {"suggested_choice": {"type": "null"}, "status": {"const": "abstained"}}}}
+  ],
+  "$defs": {
+    "probabilityOrNull": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+    "span": {"type": "object", "required": ["start", "end"], "properties": {"start": {"type": "integer", "minimum": 0}, "end": {"type": "integer", "minimum": 1}}, "additionalProperties": false}
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/contracts/noesis-jev-stance-suggestion-v1.json",
+  "title": "Source-bound Jev contextual stance suggestion",
+  "type": "object",
+  "required": ["contract", "status", "accepted", "topic", "sentence_index", "text", "span", "context_span", "source_binding", "raw_probabilities", "vendor_confidence", "candidate", "suggested_stance", "prediction_status", "calibration_policy_sha256", "decision_run"],
+  "properties": {
+    "contract": {"const": "noesis-jev-stance-suggestion-v1"},
+    "status": {"enum": ["suggested", "shadow", "unavailable"]},
+    "accepted": {"const": false},
+    "topic": {"type": "string", "minLength": 1},
+    "sentence_index": {"type": "integer", "minimum": 0},
+    "text": {"type": "string", "minLength": 1},
+    "span": {"$ref": "#/$defs/span"},
+    "context_span": {"$ref": "#/$defs/span"},
+    "source_binding": {"type": "array", "minItems": 1, "items": {"type": "object"}},
+    "raw_probabilities": {"oneOf": [{"type": "null"}, {"type": "object", "required": ["supportive", "critical", "neutral", "ambiguous"], "properties": {"supportive": {"$ref": "#/$defs/probability"}, "critical": {"$ref": "#/$defs/probability"}, "neutral": {"$ref": "#/$defs/probability"}, "ambiguous": {"$ref": "#/$defs/probability"}}, "additionalProperties": false}]},
+    "vendor_confidence": {"$ref": "#/$defs/probabilityOrNull"},
+    "candidate": {"enum": ["supportive", "critical", "neutral", "ambiguous", null]},
+    "suggested_stance": {"enum": ["supportive", "critical", "neutral", "ambiguous", null]},
+    "prediction_status": {"enum": ["suggested", "abstained"]},
+    "calibration_policy_sha256": {"type": ["string", "null"]},
+    "decision_run": {"type": "object"}
+  },
+  "$defs": {
+    "probability": {"type": "number", "minimum": 0, "maximum": 1},
+    "probabilityOrNull": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+    "span": {"type": "object", "required": ["start", "end"], "properties": {"start": {"type": "integer", "minimum": 0}, "end": {"type": "integer", "minimum": 1}}, "additionalProperties": false}
+  },
+  "additionalProperties": false
+}

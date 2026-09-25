@@ -1,0 +1,20 @@
+{
+  "contract": "noesis-market-provider-sample-manifest-v1",
+  "evidence_kind": "live_provider",
+  "provider": "replace-with-provider-id",
+  "recorded_at": null,
+  "authorization": {
+    "status": "credential_blocked",
+    "license_reference": null,
+    "raw_payload_retention": "unknown"
+  },
+  "rights": {
+    "local_retention": "pending",
+    "internal_display": "pending",
+    "external_display": "pending",
+    "derived_data": "pending",
+    "report_export": "pending"
+  },
+  "receipts": [],
+  "instruments": []
+}

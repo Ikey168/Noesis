@@ -1,0 +1,99 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/contracts/noesis-intake-playbook-search-v1.json",
+  "title": "Noesis intake playbook search",
+  "type": "object",
+  "required": [
+    "contract",
+    "namespace",
+    "task",
+    "environment",
+    "matches",
+    "scanned",
+    "limited",
+    "ranking_basis"
+  ],
+  "properties": {
+    "contract": {
+      "const": "noesis-intake-playbook-search-v1"
+    },
+    "namespace": {
+      "type": "string",
+      "minLength": 1
+    },
+    "task": {
+      "type": "string",
+      "minLength": 1
+    },
+    "environment": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "matches": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "playbook_id",
+          "revision",
+          "title",
+          "environment",
+          "trust_state",
+          "concept_references",
+          "relevance_terms"
+        ],
+        "properties": {
+          "playbook_id": {
+            "type": "string"
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "title": {
+            "type": "string"
+          },
+          "environment": {
+            "type": "string"
+          },
+          "trust_state": {
+            "type": "string"
+          },
+          "concept_references": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "relevance_terms": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "artifact_kind": {
+            "enum": [
+              "playbook",
+              "checklist",
+              "template",
+              "default_configuration",
+              "automation_rule"
+            ]
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "scanned": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "limited": {
+      "type": "boolean"
+    },
+    "ranking_basis": {
+      "const": "lexical_overlap_only"
+    }
+  },
+  "additionalProperties": false
+}

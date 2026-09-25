@@ -39,6 +39,13 @@ def schedule_factcheck_job(scheduler: object, hour: int = 2) -> None:
     logger.info("Scheduled nightly fact-check batch at %02d:00 UTC", hour)
 
 
+def suggest_checkworthiness_with_jev(*args, **kwargs) -> dict:
+    """Explicit priority suggestion that does not change the scheduled batch."""
+    from src.argument_mining.jev_nlp_adapters import suggest_checkworthiness
+
+    return suggest_checkworthiness(*args, **kwargs)
+
+
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     summary = run_once()

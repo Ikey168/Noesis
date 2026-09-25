@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/schemas/noesis-decision-task-rollout-v1.json",
+  "title": "Noesis Decision Task Rollout v1",
+  "type": "object",
+  "required": ["contract", "namespace", "task", "mode", "model", "rubric_id", "evaluation_ref", "configured_by", "updated_at_ms"],
+  "properties": {
+    "contract": {"const": "noesis-decision-task-rollout-v1"},
+    "namespace": {"type": "string", "minLength": 1},
+    "task": {"type": "string", "minLength": 1},
+    "mode": {"enum": ["off", "shadow", "suggestion"]},
+    "model": {"type": ["string", "null"]},
+    "rubric_id": {"type": ["string", "null"]},
+    "evaluation_ref": {"type": ["string", "null"]},
+    "configured_by": {"type": ["string", "null"]},
+    "updated_at_ms": {"type": ["integer", "null"], "minimum": 0}
+  },
+  "allOf": [
+    {"if": {"properties": {"mode": {"const": "suggestion"}}}, "then": {"properties": {"evaluation_ref": {"type": "string", "minLength": 1}}}},
+    {"if": {"properties": {"mode": {"enum": ["shadow", "suggestion"]}}}, "then": {"properties": {"model": {"type": "string", "minLength": 1}, "rubric_id": {"type": "string", "minLength": 1}}}}
+  ],
+  "additionalProperties": false
+}

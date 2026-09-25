@@ -14,6 +14,7 @@ from __future__ import annotations
 import json
 from datetime import datetime, timezone
 from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple, Union
+from urllib.parse import urlencode
 
 from services.ingest.common.series_model import Observation, SeriesRecord
 from src.ingestion.connectors.dataset.base import DatasetConnector, RawSeries, SeriesRef
@@ -62,9 +63,23 @@ class WorldBankConnector(DatasetConnector):
 
     provider = "worldbank"
 
-    def __init__(self, http_get: Optional[Callable[[str], str]] = None, per_page: int = 20000):
+    def __init__(
+        self,
+        http_get: Optional[Callable[[str], str]] = None,
+        per_page: int = 20000,
+        max_pages: int = 20,
+        max_observations: int = 100000,
+    ):
+        if type(per_page) is not int or not 1 <= per_page <= 20000:
+            raise ValueError("per_page must be between 1 and 20000")
+        if type(max_pages) is not int or not 1 <= max_pages <= 100:
+            raise ValueError("max_pages must be between 1 and 100")
+        if type(max_observations) is not int or not 1 <= max_observations <= 1000000:
+            raise ValueError("max_observations must be between 1 and 1000000")
         self._http_get = http_get or _default_http_get
         self._per_page = per_page
+        self._max_pages = max_pages
+        self._max_observations = max_observations
 
     def discover(self, query: Optional[Union[IndicatorSpec, Iterable[IndicatorSpec]]] = None) -> Iterable[SeriesRef]:
         """Yield a SeriesRef per (indicator, geography) spec."""
@@ -82,19 +97,61 @@ class WorldBankConnector(DatasetConnector):
                 metadata={"indicator": indicator, "geography": geography},
             )
 
-    def _url(self, indicator: str, geography: str) -> str:
-        return (
-            f"{_API_BASE}/country/{geography}/indicator/{indicator}"
-            f"?format=json&per_page={self._per_page}"
+    def _url(self, indicator: str, geography: str, page: int = 1) -> str:
+        query = urlencode(
+            {"format": "json", "per_page": self._per_page, "page": page}
         )
+        return f"{_API_BASE}/country/{geography}/indicator/{indicator}?{query}"
 
     def fetch(self, ref: SeriesRef) -> RawSeries:
         indicator = ref.metadata["indicator"]
         geography = ref.metadata["geography"]
         url = self._url(indicator, geography)
+        first_content = self._http_get(url)
+        first_payload = json.loads(first_content)
+        if not isinstance(first_payload, list) or len(first_payload) < 2:
+            return RawSeries(
+                ref=ref,
+                content=first_content,
+                content_type="application/json",
+                source_url=url,
+            )
+
+        page_meta = first_payload[0] if isinstance(first_payload[0], dict) else {}
+        try:
+            pages = int(page_meta.get("pages") or 1)
+        except (TypeError, ValueError) as exc:
+            raise ValueError("World Bank pagination metadata is invalid") from exc
+        if pages < 1 or pages > self._max_pages:
+            raise ValueError("World Bank response exceeds the configured page budget")
+        rows = list(first_payload[1] or [])
+        if len(rows) > self._max_observations:
+            raise ValueError("World Bank response exceeds the observation budget")
+        page_urls = [url]
+        for page in range(2, pages + 1):
+            page_url = self._url(indicator, geography, page=page)
+            page_payload = json.loads(self._http_get(page_url))
+            if not isinstance(page_payload, list) or len(page_payload) < 2:
+                raise ValueError("World Bank returned an invalid subsequent page")
+            if page_payload[1] is not None:
+                if not isinstance(page_payload[1], list):
+                    raise ValueError("World Bank returned malformed observations")
+                rows.extend(page_payload[1])
+                if len(rows) > self._max_observations:
+                    raise ValueError("World Bank response exceeds the observation budget")
+            page_urls.append(page_url)
+        ref.metadata["pagination"] = {
+            "page_count": pages,
+            "pages_retrieved": len(page_urls),
+            "total": page_meta.get("total"),
+            "per_page": page_meta.get("per_page"),
+            "complete": len(page_urls) == pages,
+            "source_page_urls": page_urls,
+        }
+        payload = json.dumps([page_meta, rows])
         return RawSeries(
             ref=ref,
-            content=self._http_get(url),
+            content=payload,
             content_type="application/json",
             source_url=url,
         )
@@ -121,12 +178,18 @@ class WorldBankConnector(DatasetConnector):
         as_of = _iso_date_to_millis(page_meta.get("lastupdated")) or raw.fetched_at
 
         observations: List[Observation] = []
+        observation_metadata: Dict[str, Dict[str, Any]] = {}
         for row in rows:
             period = row.get("date")
             if not period:
                 continue
             value = row.get("value")
             observations.append(Observation(period=str(period), value=value))
+            observation_metadata[str(period)] = {
+                "decimal": row.get("decimal"),
+                "obs_status": row.get("obs_status"),
+                "unit": row.get("unit"),
+            }
         # World Bank returns most-recent-first; store ascending by period.
         observations.sort(key=lambda o: o.period)
 
@@ -143,6 +206,23 @@ class WorldBankConnector(DatasetConnector):
                 geography=geography,
                 license=_LICENSE,
                 source_url=raw.source_url,
-                metadata={"indicator": indicator},
+                metadata={
+                    "indicator": indicator,
+                    "provider_code": indicator,
+                    "provider_release_at_ms": None,
+                    "provider_release_time_status": "World Bank indicator response has no release timestamp",
+                    "provider_vintage_ms": as_of,
+                    "vintage_id": f"{indicator}:{geography}@{as_of}",
+                    "vintage_basis": "world_bank_lastupdated"
+                    if page_meta.get("lastupdated")
+                    else "retrieval_time_fallback",
+                    "provider_updated_at_ms": _iso_date_to_millis(
+                        page_meta.get("lastupdated")
+                    ),
+                    "acquired_at_ms": raw.fetched_at,
+                    "pagination": raw.ref.metadata.get("pagination", {}),
+                    "observation_metadata": observation_metadata,
+                    "seasonal_adjustment": "unknown",
+                },
             )
         ]

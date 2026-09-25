@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from urllib.parse import parse_qs, urlsplit
 
 from services.ingest.common.series_model import SeriesRecord
 from src.ingestion.connectors.dataset.eurostat import EurostatConnector, _strides
@@ -52,6 +53,11 @@ def test_harvest_simple_annual_series():
         ("2023", 3.0),
         ("2024", 3.4),
     ]
+    assert rec.metadata["provider_vintage_ms"] == rec.as_of
+    assert rec.metadata["acquired_at_ms"] > rec.as_of
+    assert rec.metadata["provider_release_at_ms"] is None
+    assert rec.metadata["selected_dimensions"]["freq"]["code"] == "A"
+    assert rec.metadata["seasonal_adjustment"] == "unknown"
 
 
 def test_flat_index_with_multiple_dimensions():
@@ -74,6 +80,8 @@ def test_flat_index_with_multiple_dimensions():
     # Picks indic index 0 -> the 10/11/12 slice, not the B slice.
     assert [o.value for o in rec.observations] == [10.0, 11.0, 12.0]
     assert rec.metadata.get("collapsed_dimensions") == {"indic": "Indic A"}
+    assert rec.metadata["unselected_multi_dimensions"] == ["indic"]
+    assert rec.metadata["dimension_coverage"] == "partial"
 
 
 def test_quarterly_period_normalization():
@@ -95,3 +103,26 @@ def test_url_includes_geo_and_format():
     list(conn.harvest({"dataset": "une_rt_a", "geography": "DE", "sex": "T"}))
     assert calls and "une_rt_a" in calls[0]
     assert "geo=DE" in calls[0] and "format=JSON" in calls[0] and "sex=T" in calls[0]
+
+
+def test_filter_values_are_encoded_and_selected_periodicity_is_preserved():
+    calls = []
+    cube = json.loads(json.dumps(SIMPLE_CUBE))
+    cube["id"] = ["s_adj", "freq", "unit", "geo", "time"]
+    cube["size"] = [1, 1, 1, 1, 3]
+    cube["dimension"]["s_adj"] = {
+        "category": {
+            "index": {"SA": 0},
+            "label": {"SA": "Seasonally adjusted data"},
+        }
+    }
+    connector = EurostatConnector(
+        http_get=lambda url: calls.append(url) or json.dumps(cube)
+    )
+    record = list(
+        connector.harvest(
+            {"dataset": "une_rt_a", "geography": "DE", "unit": "PC+SA"}
+        )
+    )[0]
+    assert parse_qs(urlsplit(calls[0]).query)["unit"] == ["PC+SA"]
+    assert record.metadata["seasonal_adjustment"] == "adjusted"

@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/schemas/noesis-technical-impact-report-v1.json",
+  "title": "Pinned technical dependency impact report",
+  "type": "object",
+  "required": ["contract", "report_id", "namespace", "owner", "revision", "inventory_id", "inventory_hash", "offset", "limit", "total", "findings", "source_snapshots", "missing_source_documents", "source_snapshot_hash", "coverage_note", "report_hash", "executed_changes"],
+  "properties": {
+    "contract": {"const": "noesis-technical-impact-report-v1"},
+    "report_id": {"type": "string"}, "namespace": {"type": "string"}, "owner": {"type": "string"},
+    "revision": {"const": 1}, "inventory_id": {"type": "string"},
+    "inventory_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "project_id": {"type": ["string", "null"]},
+    "offset": {"type": "integer", "minimum": 0}, "limit": {"type": "integer", "minimum": 1, "maximum": 100},
+    "total": {"type": "integer", "minimum": 0},
+    "findings": {"type": "array", "maxItems": 100, "items": {"type": "object", "required": ["entry", "classification", "advisories", "upstream_review_candidates"], "properties": {"classification": {"enum": ["affected", "unaffected_under_assessed_ranges", "unknown"]}}}},
+    "source_snapshots": {"type": "array", "maxItems": 500, "items": {"type": "object", "required": ["document_id", "revision_id", "content_hash", "payload_hash"]}},
+    "missing_source_documents": {"type": "array"},
+    "source_snapshot_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "coverage_note": {"type": "string"}, "created_at_ms": {"type": "integer"},
+    "report_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "executed_changes": {"const": false}, "idempotent": {"type": "boolean"}
+  },
+  "additionalProperties": false
+}

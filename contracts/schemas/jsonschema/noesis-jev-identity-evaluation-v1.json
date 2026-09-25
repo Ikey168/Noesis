@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/contracts/noesis-jev-identity-evaluation-v1.json",
+  "title": "Held-out identity candidate evaluation",
+  "type": "object",
+  "required": ["contract", "task", "cases", "accuracy", "false_merges", "false_merge_rate", "misses", "abstention_rate", "by_challenge", "label_origins", "automatic_merge_enabled"],
+  "properties": {
+    "contract": {"const": "noesis-jev-identity-evaluation-v1"},
+    "task": {"enum": ["entity_identity", "source_identity"]},
+    "cases": {"type": "integer", "minimum": 1},
+    "accuracy": {"type": "number", "minimum": 0, "maximum": 1},
+    "false_merges": {"type": "integer", "minimum": 0},
+    "false_merge_rate": {"type": "number", "minimum": 0, "maximum": 1},
+    "misses": {"type": "integer", "minimum": 0},
+    "abstention_rate": {"type": "number", "minimum": 0, "maximum": 1},
+    "by_challenge": {"type": "object"},
+    "label_origins": {"type": "array", "items": {"enum": ["independent-human", "fixture"]}},
+    "automatic_merge_enabled": {"const": false}
+  },
+  "additionalProperties": false
+}

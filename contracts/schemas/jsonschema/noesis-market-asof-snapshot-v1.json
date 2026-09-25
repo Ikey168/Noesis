@@ -1,0 +1,148 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/schemas/noesis-market-asof-snapshot-v1.json",
+  "title": "Noesis cross-domain market as-of snapshot v1",
+  "description": "Immutable point-in-time manifest referencing source revisions from authoritative market, economic and document stores.",
+  "type": "object",
+  "required": [
+    "contract", "snapshot_id", "namespace", "owner", "request_key",
+    "effective_at_ms", "publicly_available_by_ms", "acquired_by_ms",
+    "availability_policy", "gap_policy", "selection", "transformation_selectors",
+    "inputs", "transformations", "gaps", "coverage", "input_hash",
+    "created_at_ms", "request_hash", "manifest_hash"
+  ],
+  "properties": {
+    "contract": {"const": "noesis-market-asof-snapshot-v1"},
+    "snapshot_id": {"type": "string", "minLength": 1},
+    "namespace": {"type": "string", "minLength": 1},
+    "owner": {"type": "string", "minLength": 1},
+    "request_key": {"type": "string", "minLength": 1},
+    "effective_at_ms": {"type": "integer", "minimum": 0},
+    "publicly_available_by_ms": {"type": "integer", "minimum": 0},
+    "acquired_by_ms": {"type": "integer", "minimum": 0},
+    "availability_policy": {"const": "public_and_acquired"},
+    "gap_policy": {"enum": ["fail", "record"]},
+    "selection": {"$ref": "#/definitions/selection"},
+    "transformation_selectors": {
+      "type": "array", "maxItems": 100,
+      "items": {"$ref": "#/definitions/transformation_selector"}
+    },
+    "inputs": {"type": "array", "items": {"$ref": "#/definitions/input"}},
+    "transformations": {"type": "array", "items": {"$ref": "#/definitions/transformation"}},
+    "gaps": {"type": "array", "items": {"$ref": "#/definitions/gap"}},
+    "coverage": {"$ref": "#/definitions/coverage"},
+    "input_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "created_at_ms": {"type": "integer", "minimum": 0},
+    "request_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "manifest_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "idempotent": {"type": "boolean"}
+  },
+  "additionalProperties": false,
+  "definitions": {
+    "selection": {
+      "type": "object",
+      "required": ["listings", "prices", "actions", "financial_facts", "economic_snapshots", "documents"],
+      "properties": {
+        "listings": {"type": "array", "maxItems": 100, "items": {"type": "string", "minLength": 1}},
+        "prices": {"type": "array", "maxItems": 100, "items": {"$ref": "#/definitions/price_selector"}},
+        "actions": {"type": "array", "maxItems": 100, "items": {"$ref": "#/definitions/action_selector"}},
+        "financial_facts": {"type": "array", "maxItems": 100, "items": {"$ref": "#/definitions/fact_selector"}},
+        "economic_snapshots": {"type": "array", "maxItems": 100, "items": {"$ref": "#/definitions/economic_selector"}},
+        "documents": {"type": "array", "maxItems": 100, "items": {"$ref": "#/definitions/document_selector"}}
+      },
+      "additionalProperties": false
+    },
+    "price_selector": {
+      "type": "object", "required": ["listing_id", "interval", "start_ms", "end_ms"],
+      "properties": {
+        "listing_id": {"type": "string", "minLength": 1},
+        "interval": {"enum": ["1m", "5m", "15m", "30m", "1h", "1d", "1w", "1mo"]},
+        "start_ms": {"type": "integer", "minimum": 0},
+        "end_ms": {"type": "integer", "minimum": 1}
+      },
+      "additionalProperties": false
+    },
+    "action_selector": {
+      "type": "object", "required": ["security_id"],
+      "properties": {"security_id": {"type": "string", "minLength": 1}},
+      "additionalProperties": false
+    },
+    "fact_selector": {
+      "type": "object", "required": ["issuer_id"],
+      "properties": {
+        "issuer_id": {"type": "string", "minLength": 1},
+        "taxonomy": {"type": "string", "minLength": 1},
+        "concept": {"type": "string", "minLength": 1},
+        "filing_form": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
+    },
+    "economic_selector": {
+      "type": "object", "required": ["namespace", "snapshot_id"],
+      "properties": {
+        "namespace": {"type": "string", "minLength": 1},
+        "snapshot_id": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
+    },
+    "document_selector": {
+      "type": "object", "required": ["document_id"],
+      "properties": {"document_id": {"type": "string", "minLength": 1}},
+      "additionalProperties": false
+    },
+    "transformation_selector": {
+      "type": "object", "required": ["kind", "calculation_id"],
+      "properties": {
+        "kind": {"enum": ["market_adjustment", "quantitative"]},
+        "calculation_id": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
+    },
+    "input": {
+      "type": "object", "required": ["kind", "object_id"],
+      "properties": {
+        "kind": {"type": "string", "minLength": 1},
+        "object_id": {"type": "string", "minLength": 1},
+        "revision_id": {"type": ["string", "null"]},
+        "record_hash": {"type": ["string", "null"]},
+        "public_at_ms": {"type": ["integer", "null"], "minimum": 0},
+        "retrieved_at_ms": {"type": ["integer", "null"], "minimum": 0}
+      },
+      "additionalProperties": true
+    },
+    "transformation": {
+      "type": "object", "required": ["kind", "calculation_id"],
+      "properties": {
+        "kind": {"enum": ["market_adjustment", "quantitative"]},
+        "calculation_id": {"type": "string", "minLength": 1},
+        "record_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "calculation_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "input_revision_ids": {"type": "array", "items": {"type": "string"}},
+        "input_ids": {"type": "array", "items": {"type": "string"}},
+        "missing_input_revision_ids": {"type": "array", "items": {"type": "string"}},
+        "missing_input_ids": {"type": "array", "items": {"type": "string"}}
+      },
+      "additionalProperties": true
+    },
+    "gap": {
+      "type": "object", "required": ["kind", "object_id", "reason"],
+      "properties": {
+        "kind": {"type": "string", "minLength": 1},
+        "object_id": {"type": "string", "minLength": 1},
+        "reason": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
+    },
+    "coverage": {
+      "type": "object", "required": ["status", "selected_by_kind", "gap_count", "availability_policy", "unproven_price_ranges"],
+      "properties": {
+        "status": {"enum": ["complete", "partial"]},
+        "selected_by_kind": {"type": "object", "additionalProperties": {"type": "integer", "minimum": 0}},
+        "gap_count": {"type": "integer", "minimum": 0},
+        "availability_policy": {"const": "public_and_acquired"},
+        "unproven_price_ranges": {"type": "array", "items": {"type": "string"}}
+      },
+      "additionalProperties": false
+    }
+  }
+}

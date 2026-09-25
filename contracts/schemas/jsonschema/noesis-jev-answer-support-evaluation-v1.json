@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/contracts/noesis-jev-answer-support-evaluation-v1.json",
+  "title": "Held-out citation support evaluation",
+  "type": "object",
+    "required": ["contract", "n", "case_kinds", "coverage_incomplete_cases", "missing_citations", "stale_citations", "methods", "label_origins", "task_ready", "readiness_requires"],
+  "properties": {
+    "contract": {"const": "noesis-jev-answer-support-evaluation-v1"},
+    "n": {"type": "integer", "minimum": 1},
+    "case_kinds": {"type": "array", "uniqueItems": true, "items": {"enum": ["unsupported_citation", "contradiction", "correction", "incomplete_coverage", "appropriate_refusal"]}},
+    "coverage_incomplete_cases": {"type": "integer", "minimum": 0},
+    "missing_citations": {"type": "integer", "minimum": 0},
+    "stale_citations": {"type": "integer", "minimum": 0},
+    "methods": {
+      "type": "object",
+      "required": ["jev", "local_nli"],
+      "properties": {
+        "jev": {"$ref": "#/$defs/method"},
+        "local_nli": {"$ref": "#/$defs/method"}
+      },
+      "additionalProperties": false
+    },
+    "label_origins": {"type": "array", "items": {"enum": ["fixture", "independent-human"]}},
+    "task_ready": {"const": false},
+    "readiness_requires": {"type": "string"}
+  },
+  "$defs": {
+    "method": {
+      "type": "object",
+      "required": ["accuracy_over_all_cases", "coverage", "abstentions", "relevance_accuracy", "relevance_coverage", "relevance_unavailable", "refusal_accuracy", "false_refusals", "missed_refusals", "per_relation"],
+      "properties": {
+        "accuracy_over_all_cases": {"type": "number", "minimum": 0, "maximum": 1},
+        "coverage": {"type": "number", "minimum": 0, "maximum": 1},
+        "abstentions": {"type": "integer", "minimum": 0},
+        "relevance_accuracy": {"type": "number", "minimum": 0, "maximum": 1},
+        "relevance_coverage": {"type": "number", "minimum": 0, "maximum": 1},
+        "relevance_unavailable": {"type": "integer", "minimum": 0},
+        "refusal_accuracy": {"type": "number", "minimum": 0, "maximum": 1},
+        "false_refusals": {"type": "integer", "minimum": 0},
+        "missed_refusals": {"type": "integer", "minimum": 0},
+        "per_relation": {
+          "type": "object",
+          "required": ["entailment", "contradiction", "neutral", "unavailable"],
+          "properties": {
+            "entailment": {"$ref": "#/$defs/rate"},
+            "contradiction": {"$ref": "#/$defs/rate"},
+            "neutral": {"$ref": "#/$defs/rate"},
+            "unavailable": {"$ref": "#/$defs/rate"}
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "rate": {
+      "type": "object",
+      "required": ["predicted", "false", "false_rate"],
+      "properties": {
+        "predicted": {"type": "integer", "minimum": 0},
+        "false": {"type": "integer", "minimum": 0},
+        "false_rate": {"type": ["number", "null"], "minimum": 0, "maximum": 1}
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

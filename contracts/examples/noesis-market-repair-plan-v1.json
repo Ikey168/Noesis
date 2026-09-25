@@ -1,0 +1,24 @@
+{
+  "contract": "noesis-market-repair-plan-v1",
+  "plan_id": "market-repair:demo-week",
+  "namespace": "market:demo",
+  "owner": "analyst:demo",
+  "request_key": "repair-demo-week",
+  "provider": "fixture-only",
+  "listing_id": "listing:demo",
+  "interval": "1d",
+  "start_date": "2026-09-21",
+  "end_date": "2026-09-28",
+  "budget": {
+    "requests_per_minute": 60,
+    "max_requests_per_run": 50,
+    "max_records_per_run": 10000,
+    "max_records_per_page": 500,
+    "max_backfill_days": 3650
+  },
+  "status": "planned",
+  "checkpoint_request_key": "market-quality:market-repair:demo-week",
+  "created_at_ms": 1790208000000,
+  "request_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "result": null
+}

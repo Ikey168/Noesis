@@ -1,0 +1,26 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/schemas/noesis-market-alert-run-v1.json",
+  "type": "object",
+  "required": ["contract", "namespace", "run_id", "watch_id", "watch_version", "owner", "generation", "status", "processed", "triggered", "decisions", "anomaly_ids", "input_hash", "input_snapshot", "cutoffs", "rule_revision_id"],
+  "properties": {
+    "contract": {"const": "noesis-market-alert-run-v1"},
+    "namespace": {"type": "string", "minLength": 1},
+    "run_id": {"type": "string", "minLength": 1},
+    "watch_id": {"type": "string", "minLength": 1},
+    "watch_version": {"type": "integer", "minimum": 1},
+    "owner": {"type": "string", "minLength": 1},
+    "generation": {"type": "integer", "minimum": 0},
+    "status": {"const": "completed"},
+    "processed": {"type": "integer", "minimum": 0, "maximum": 500},
+    "triggered": {"type": "array", "maxItems": 100, "items": {"type": "object"}},
+    "decisions": {"type": "array", "maxItems": 500, "items": {"type": "object"}},
+    "anomaly_ids": {"type": "array", "maxItems": 100, "items": {"type": "string"}},
+    "input_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "input_snapshot": {"type": "array", "maxItems": 500, "items": {"type": "object"}},
+    "cutoffs": {"type": "object", "required": ["as_of_ms", "publicly_available_by_ms", "acquired_by_ms"]},
+    "rule_revision_id": {"type": "string", "minLength": 1},
+    "idempotent": {"type": "boolean"}
+  },
+  "additionalProperties": true
+}

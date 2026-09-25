@@ -4,12 +4,14 @@ import duckdb
 import pytest
 
 from src.kb.intake_modes import IntakeError, IntakeStore
+from src.kb.intake_exploration import IntakeExplorationStore
 from src.kb.intake_playbooks import IntakePlaybookStore
 from src.kb.intake_problem import IntakeProblemStore
 
 SCOPES = {
     "knowledge:intake:read", "knowledge:intake:write",
     "namespace:research:read", "namespace:research:write",
+    "namespace:evidence:read",
 }
 STEPS = [
     {"action": "Inspect index status", "expected_result": "Index is stale",
@@ -17,6 +19,14 @@ STEPS = [
     {"action": "Rebuild index", "expected_result": "Index becomes current",
      "recovery": "Restore prior index and inspect logs"},
 ]
+PLUGIN_LINK = {
+    "workspace_id": "personal", "account_id": "alice",
+    "plugin_id": "executable-runbooks", "collection": "incidents",
+    "record_id": "incident-73", "authoritative_version": 2,
+    "representation": "intentional_snapshot", "authority": "noesis",
+    "noesis_reference": {"kind": "concept", "id": "concept:recovery",
+                         "namespace": "evidence", "version": 1},
+}
 
 
 def _verified_problem(conn):
@@ -24,12 +34,24 @@ def _verified_problem(conn):
     opened = problem.start(
         "research", "incident-1", symptom="Search stale", environment="Desktop 2.7",
         urgency="blocking", success_check="New item appears within a minute",
+        plugin_links=[PLUGIN_LINK],
+        principal_id="alice", scopes=SCOPES,
+    )
+    verification_session = IntakeStore(conn, now=lambda: 1000).create(
+        "research", "Exploration", "playbook-verification-source",
+        intent="Capture verification evidence", principal_id="alice", scopes=SCOPES,
+    )
+    verification_source = IntakeExplorationStore(conn, now=lambda: 1000).capture(
+        "research", verification_session["session_id"], "playbook-verification",
+        expected_revision=1, url="https://example.org/playbook-verification",
+        title="Verification observation", content="Observed the expected result.",
         principal_id="alice", scopes=SCOPES,
     )
     checked = problem.record_step(
         "research", opened["session_id"], "checked", expected_revision=1,
         kind="verification", summary="Search for new item",
         observation="Item appeared after 12 seconds", passed=True,
+        references=verification_source["references"],
         principal_id="alice", scopes=SCOPES,
     )
     IntakeStore(conn).command(
@@ -39,13 +61,13 @@ def _verified_problem(conn):
     return checked["session_id"]
 
 
-def _promote(store, problem_id):
+def _promote(store, problem_id, *, scopes=SCOPES):
     return store.promote_problem(
         "research", problem_id, "playbook-1", title="Refresh stale search",
         prerequisites=[], environment="Desktop 2.7", steps=STEPS,
         verification="New item appears within a minute",
         source_rationale="Derived from the verified troubleshooting session",
-        principal_id="alice", scopes=SCOPES,
+        principal_id="alice", scopes=scopes,
     )
 
 
@@ -59,6 +81,10 @@ def test_problem_playbook_guided_failure_recovery_and_replay(tmp_path):
     created = _promote(store, problem_id)
     assert created["trust_state"] == "draft"
     assert created["origin"]["session_id"] == problem_id
+    assert created["plugin_links"] == [PLUGIN_LINK]
+    with pytest.raises(IntakeError, match="plugin-linked playbook sources"):
+        store.inspect("research", created["playbook_id"], principal_id="alice",
+                      scopes=SCOPES - {"namespace:evidence:read"})
     conn.close()
     reopened = duckdb.connect(path)
     store = IntakePlaybookStore(reopened, now=lambda: 3000)
@@ -149,7 +175,17 @@ def test_problem_playbook_guided_failure_recovery_and_replay(tmp_path):
     )["reported_rehearsal_count"] == 1
     assert store.inspect(
         "research", playbook_id, principal_id="alice", scopes=SCOPES,
-    )["trust_state"] == "draft"
+    )["trust_state"] == "rehearsed_reported"
+    rehearsal = store.inspect(
+        "research", playbook_id, principal_id="alice", scopes=SCOPES,
+    )["trust_evidence"]
+    assert rehearsal == {
+        "run_id": run["run_id"], "run_revision": completed["revision"],
+        "playbook_revision": 2, "environment": "Desktop 2.7 on laptop",
+        "verified_at_ms": completed["verification"]["at_ms"],
+        "observation": "New item appears after 12 seconds",
+        "basis": "caller_reported_guided_rehearsal",
+    }
     store.revise(
         "research", playbook_id, "edit-2", expected_revision=2,
         title="Refresh stale search safely", prerequisites=[],
@@ -158,6 +194,11 @@ def test_problem_playbook_guided_failure_recovery_and_replay(tmp_path):
         source_rationale="Updated environment after a reported rehearsal",
         principal_id="alice", scopes=SCOPES,
     )
+    revised_inspection = store.inspect(
+        "research", playbook_id, principal_id="alice", scopes=SCOPES,
+    )
+    assert revised_inspection["trust_state"] == "draft"
+    assert revised_inspection["trust_evidence"] is None
     assert store.start_run(
         "research", playbook_id, "run-1", playbook_revision=2,
         environment="Desktop 2.7 on laptop", principal_id="alice", scopes=SCOPES,

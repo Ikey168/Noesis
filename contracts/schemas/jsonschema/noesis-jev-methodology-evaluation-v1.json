@@ -1,0 +1,15 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/contracts/noesis-jev-methodology-evaluation-v1.json",
+  "title": "Held-out methodology category evaluation",
+  "type": "object",
+  "required": ["contract", "cases", "fields", "label_origins", "automatic_category_acceptance_enabled"],
+  "properties": {
+    "contract": {"const": "noesis-jev-methodology-evaluation-v1"},
+    "cases": {"type": "integer", "minimum": 1},
+    "fields": {"type": "object", "required": ["study_design", "method", "limitation"]},
+    "label_origins": {"type": "array", "items": {"enum": ["independent-human", "fixture"]}},
+    "automatic_category_acceptance_enabled": {"const": false}
+  },
+  "additionalProperties": false
+}

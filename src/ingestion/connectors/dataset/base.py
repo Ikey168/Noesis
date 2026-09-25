@@ -22,8 +22,10 @@ from __future__ import annotations
 
 import abc
 import logging
+import re
 import time
 from dataclasses import dataclass, field
+from datetime import date, datetime, timezone
 from typing import Any, Dict, Iterable, Iterator, List, Optional, Union
 
 from services.ingest.common.series_model import SeriesRecord
@@ -47,6 +49,36 @@ class RawSeries:
     content_type: Optional[str] = None
     source_url: Optional[str] = None
     fetched_at: int = field(default_factory=lambda: int(time.time() * 1000))
+
+
+_PERIOD_RE = re.compile(r"^(\d{4})(?:-(Q[1-4]|W\d{2}|\d{2})(?:-(\d{2}))?)?$")
+
+
+def _period_lag(period: str, frequency: str, today: date) -> Optional[int]:
+    """Whole periods between an observation period and ``today``.
+
+    Periods use the ``dataset-series-v1`` forms (``2025``, ``2025-Q3``,
+    ``2025-07``, ``2025-07-31``); unrecognized forms return None.
+    """
+
+    match = _PERIOD_RE.match(period)
+    if not match:
+        return None
+    year, middle, day = int(match.group(1)), match.group(2), match.group(3)
+    if frequency == "annual" and middle is None:
+        return today.year - year
+    if frequency == "quarterly" and middle and middle.startswith("Q"):
+        return (today.year - year) * 4 + (today.month - 1) // 3 - (int(middle[1]) - 1)
+    if frequency == "monthly" and middle and middle.isdigit() and day is None:
+        return (today.year - year) * 12 + today.month - int(middle)
+    if frequency in {"daily", "weekly"} and middle and middle.isdigit() and day:
+        try:
+            observed = date(year, int(middle), int(day))
+        except ValueError:
+            return None
+        days = (today - observed).days
+        return days if frequency == "daily" else days // 7
+    return None
 
 
 class DatasetConnector(abc.ABC):
@@ -90,6 +122,153 @@ class DatasetConnector(abc.ABC):
                 continue
             for record in records:
                 yield record
+
+    def harvest_with_report(self, query: Optional[Any] = None) -> Dict[str, Any]:
+        """Harvest a bounded request and report skipped provider inputs.
+
+        ``harvest`` stays backwards compatible and resilient for scheduled
+        jobs.  Callers that need to make a readiness decision should use this
+        method so missing credentials, provider errors, and empty responses
+        are visible instead of being indistinguishable from complete coverage.
+        Error messages and request URLs are deliberately excluded because they
+        may contain credentials or other sensitive query parameters.
+        """
+
+        records: List[SeriesRecord] = []
+        diagnostics: List[Dict[str, str]] = []
+        discovered = 0
+        configured = getattr(self, "configured", True)
+        if configured is False:
+            return {
+                "provider": self.provider,
+                "status": "blocked",
+                "discovered": 0,
+                "records": records,
+                "diagnostics": [
+                    {
+                        "stage": "configuration",
+                        "code": "missing_credentials",
+                    }
+                ],
+            }
+
+        try:
+            refs = iter(self.discover(query))
+        except Exception as exc:  # noqa: BLE001 - summarized in diagnostics
+            diagnostics.append(
+                {"stage": "discover", "code": self._diagnostic_code(exc)}
+            )
+            refs = iter(())
+
+        def safe_refs():
+            try:
+                yield from refs
+            except Exception as exc:  # noqa: BLE001 - generator discovery errors
+                diagnostics.append(
+                    {"stage": "discover", "code": self._diagnostic_code(exc)}
+                )
+
+        for ref in safe_refs():
+            discovered += 1
+            try:
+                raw = self.fetch(ref)
+            except Exception as exc:  # noqa: BLE001 - summarized in diagnostics
+                diagnostics.append(
+                    {
+                        "stage": "fetch",
+                        "locator": ref.locator,
+                        "code": self._diagnostic_code(exc),
+                    }
+                )
+                continue
+            try:
+                parsed = self.parse(raw)
+            except Exception as exc:  # noqa: BLE001 - summarized in diagnostics
+                diagnostics.append(
+                    {
+                        "stage": "parse",
+                        "locator": ref.locator,
+                        "code": self._diagnostic_code(exc),
+                    }
+                )
+                continue
+            if not parsed:
+                diagnostics.append(
+                    {
+                        "stage": "parse",
+                        "locator": ref.locator,
+                        "code": "empty_provider_result",
+                    }
+                )
+            for record in parsed:
+                stale = self._staleness(record, raw.fetched_at)
+                if stale is not None:
+                    diagnostics.append(
+                        {"stage": "coverage", "locator": ref.locator, **stale}
+                    )
+            records.extend(parsed)
+
+        status = (
+            "partial"
+            if diagnostics and records
+            else "unavailable"
+            if diagnostics
+            else "empty"
+            if not records
+            else "available"
+        )
+        return {
+            "provider": self.provider,
+            "status": status,
+            "discovered": discovered,
+            "records": records,
+            "diagnostics": diagnostics,
+        }
+
+    #: Periods an observation may lag its acquisition before the series is
+    #: reported stale. Official statistics publish with a lag; a series that
+    #: stops (a discontinued or rebased dataset) must not look complete.
+    STALE_AFTER_PERIODS = {
+        "daily": 10,
+        "weekly": 5,
+        "monthly": 4,
+        "quarterly": 3,
+        "annual": 2,
+    }
+
+    @classmethod
+    def _staleness(cls, record: SeriesRecord, fetched_at_ms: int) -> Optional[Dict[str, Any]]:
+        """Return a ``stale_series`` diagnostic when the latest period lags."""
+
+        if record.metadata.get("coverage_freshness_applicable", True) is False:
+            return None
+        allowed = cls.STALE_AFTER_PERIODS.get(str(record.frequency))
+        periods = [obs.period for obs in record.observations if obs.value is not None]
+        if allowed is None or not periods:
+            return None
+        acquired = record.metadata.get("acquired_at_ms") or fetched_at_ms
+        try:
+            today = datetime.fromtimestamp(int(acquired) / 1000, tz=timezone.utc).date()
+        except (TypeError, ValueError, OverflowError, OSError):
+            return None
+        lag = _period_lag(max(periods), str(record.frequency), today)
+        if lag is None or lag <= allowed:
+            return None
+        return {
+            "code": "stale_series",
+            "series_id": record.series_id,
+            "last_period": max(periods),
+            "lag_periods": lag,
+            "allowed_lag_periods": allowed,
+        }
+
+    @staticmethod
+    def _diagnostic_code(exc: Exception) -> str:
+        """Return a safe stable error code without exposing provider messages."""
+
+        candidate = getattr(exc, "code", None) or type(exc).__name__
+        code = re.sub(r"[^a-zA-Z0-9_.-]", "_", str(candidate))[:80]
+        return code or "provider_error"
 
     def _on_error(self, stage: str, ref: SeriesRef) -> None:
         logging.getLogger(self.__class__.__module__).warning(

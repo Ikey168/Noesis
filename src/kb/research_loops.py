@@ -216,12 +216,15 @@ class ResearchLoopStore(ResearchProjectStore):
                         return method(*args)
                     except Exception as exc:
                         last_failure.update(code=getattr(exc,'code',type(exc).__name__),message=str(exc)[:500]); raise
-                adapters={'project-acquire':lambda step,s: invoke(runtime.acquire,bounded),
-                    'project-derive':lambda step,s: invoke(runtime.derive,bounded,s['steps']['acquire']),
-                    'project-query':lambda step,s: invoke(runtime.query,bounded,s['steps']['derive'])}
+                adapters={'acquire':lambda step,s: invoke(runtime.acquire,bounded),
+                    'derive':lambda step,s: invoke(runtime.derive,bounded,s['steps']['acquire']),
+                    'query':lambda step,s: invoke(runtime.query,bounded,s['steps']['derive'])}
+                pinned_tools={f'project-{name}':loop['runtime']['implementation']
+                              for name in ('acquire','derive','query')}
                 result=recipes.run(namespace,action['recipe_revision_id'],{},run_key=reservation,adapters=adapters,principal_id=principal_id,scopes=scopes,
-                    network_allowed=True,granted_scopes=scopes,tool_versions={name:loop['runtime']['implementation'] for name in adapters},
-                    cancelled=lambda:cancelled() or self.now()>=deadline)
+                    network_allowed=True,granted_scopes=scopes,tool_versions=pinned_tools,
+                    cancelled=lambda:cancelled() or self.now()>=deadline,
+                    execution_mode='configured-production-runtime',actions_executed=True)
                 outputs=result['outputs']; query=outputs['query']; derived=outputs['derive']
                 if any(v.get('execution_mode')!='production' for v in outputs.values()) or not outputs['acquire'].get('live_acquisition'):
                     raise ResearchLoopRuntimeError('fixture_completion_rejected','prepared fixture outputs cannot complete live research')

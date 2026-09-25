@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/contracts/noesis-intake-iteration-concept-v1.json",
+  "title": "Research Bundle concept Iteration receipt",
+  "type": "object",
+  "required": [
+    "contract", "session_id", "session_revision", "bundle_id", "concept_id",
+    "before_revision", "expected", "outcome", "before_after_rationale",
+    "proposal_sha256", "proposal_recorded_at_ms"
+  ],
+  "properties": {
+    "contract": {"const": "noesis-intake-iteration-concept-v1"},
+    "session_id": {"type": "string", "minLength": 1},
+    "session_revision": {"type": "integer", "minimum": 1},
+    "bundle_id": {"type": "string", "minLength": 1},
+    "concept_id": {"type": "string", "minLength": 1},
+    "before_revision": {"type": "integer", "minimum": 1},
+    "expected": {"type": "string", "minLength": 1},
+    "outcome": {"type": "object"},
+    "before_after_rationale": {"type": "string", "minLength": 1},
+    "proposal_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "proposal_recorded_at_ms": {"type": "integer", "minimum": 0}
+  },
+  "additionalProperties": false
+}

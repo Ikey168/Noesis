@@ -17,6 +17,51 @@ def test_cli_doctor_never_loads_models_or_sends_network(capsys):
     assert payload["network_calls"] == 0
 
 
+def test_cli_hosted_decision_requires_trusted_scope_and_explicit_network(tmp_path):
+    from src.kb.decision_runtime import DecisionRuntimeError
+
+    config, _ = initialize(root=tmp_path / "workspace")
+    request = {
+        "kind": "decision", "namespace": "research", "run_id": "fixture",
+        "task": "fixture-task", "questions": {
+            "decision": {"type": "noul", "instructions": "Relevant?"},
+        },
+        "sources": [{"item_id": "missing", "source_version": 1}],
+        "policy": {"hosted_allowed": True}, "max_cost_usd_micros": 100,
+    }
+    with pytest.raises(DecisionRuntimeError) as unauthorized:
+        run_request(config, request, scopes=set())
+    assert unauthorized.value.code == "unauthorized"
+    with pytest.raises(DecisionRuntimeError) as closed:
+        run_request(
+            config, request,
+            scopes={"knowledge:decision:execute", "namespace:research:write"},
+        )
+    assert closed.value.code == "remote_disabled"
+
+
+def test_cli_task_rollout_is_authorized_and_readable(tmp_path):
+    config, _ = initialize(root=tmp_path / "workspace")
+    request = {
+        "kind": "decision_rollout", "namespace": "research",
+        "task": "jev-stance-v1", "mode": "suggestion",
+        "model": "jev-1.13.0", "rubric_id": "stance-v1",
+        "evaluation_ref": "eval:human:stance-v1",
+    }
+    configured = run_request(
+        config, request,
+        scopes={"knowledge:decision:configure", "namespace:research:write"},
+    )
+    assert configured["mode"] == "suggestion"
+    assert configured["evaluation_ref"] == "eval:human:stance-v1"
+    inspected = run_request(
+        config, {"kind": "decision_rollout_read", "namespace": "research",
+                 "task": "jev-stance-v1"},
+        scopes={"knowledge:decision:read", "namespace:research:read"},
+    )
+    assert inspected["mode"] == "suggestion"
+
+
 def test_cli_native_registry_import_requires_trusted_scopes(
     tmp_path, monkeypatch, capsys
 ):

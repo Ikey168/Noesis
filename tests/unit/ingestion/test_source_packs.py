@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+import asyncio
 import json
 from pathlib import Path
 
@@ -161,6 +162,99 @@ def test_install_enable_upgrade_and_idempotency_are_pack_scoped(conn) -> None:
     with pytest.raises(SourcePackError) as old:
         store.install(downgrade, principal_id="operator")
     assert old.value.code == "version_downgrade"
+
+
+def test_upgrade_preview_is_semantic_read_only_and_version_checked(conn) -> None:
+    store = SourcePackStore(conn)
+    installed = raw("research")
+    store.install(installed, principal_id="operator", now_ms=10)
+    candidate = copy.deepcopy(installed)
+    candidate["version"] = "1.3.0"
+    candidate["domains"].reverse()
+    candidate["sources"].reverse()
+    candidate["sources"] = [
+        source
+        for source in candidate["sources"]
+        if source["source_id"] != "datacite-dois"
+    ]
+    crossref = next(
+        source
+        for source in candidate["sources"]
+        if source["source_id"] == "crossref-works"
+    )
+    crossref["endpoint"] = "https://api.crossref.org/works-v2"
+    crossref["mapping"] = {"target_schema": "scholarly-work-v2", "version": "2.0.0"}
+    crossref["license"]["redistribution"] = "restricted"
+    crossref["auth"] = {"kind": "required-secret", "secret_ref": "NOESIS_CROSSREF_KEY"}
+    added = copy.deepcopy(crossref)
+    added["source_id"] = "crossref-books"
+    candidate["sources"].append(added)
+    preview = store.preview_upgrade(candidate)
+    schema = json.loads(
+        (
+            ROOT
+            / "contracts/schemas/jsonschema/noesis-source-pack-upgrade-preview-v1.json"
+        ).read_text()
+    )
+    assert not list(Draft7Validator(schema).iter_errors(preview))
+    assert preview["contract"] == "noesis-source-pack-upgrade-preview-v1"
+    assert preview["installed_hash"] != preview["candidate_hash"]
+    assert preview["changes"]["sources"]["removed"][0]["source_id"] == "datacite-dois"
+    assert preview["changes"]["sources"]["added"][0]["source_id"] == "crossref-books"
+    changed = preview["changes"]["sources"]["changed"]
+    assert {"endpoint", "mapping", "license", "auth"} <= set(changed[0]["fields"])
+    assert "NOESIS_CROSSREF_KEY" in json.dumps(preview)
+    assert "1.2.0" == store.status("research-discovery")["version"]
+    assert conn.execute("SELECT COUNT(*) FROM source_pack_audit").fetchone() == (1,)
+
+    reordered = copy.deepcopy(installed)
+    reordered["sources"].reverse()
+    reordered["sources"][0]["operations"].reverse()
+    assert store.preview_upgrade(reordered)["idempotent"]
+    assert store.preview_upgrade(candidate)["preview_hash"] == preview["preview_hash"]
+
+    conflicting = copy.deepcopy(installed)
+    conflicting["description"] = "Changed without a new version"
+    with pytest.raises(SourcePackError, match="different content") as error:
+        store.preview_upgrade(conflicting)
+    assert error.value.code == "immutable_version"
+    candidate["version"] = "0.1.0"
+    with pytest.raises(SourcePackError) as error:
+        store.preview_upgrade(candidate)
+    assert error.value.code == "version_downgrade"
+    candidate["version"] = "invalid"
+    with pytest.raises(SourcePackError) as error:
+        store.preview_upgrade(candidate)
+    assert error.value.code == "invalid_version"
+
+
+def test_upgrade_preview_through_mcp_is_read_only_and_scoped(
+    tmp_path, monkeypatch
+) -> None:
+    from tools.knowledge_engine_mcp import server
+
+    path = str(tmp_path / "packs.duckdb")
+    with duckdb.connect(path) as database:
+        SourcePackStore(database).install(raw("research"), principal_id="operator")
+    opened = []
+
+    def connection(*, read_only):
+        opened.append(read_only)
+        return duckdb.connect(path, read_only=read_only)
+
+    scopes = {"knowledge:read"}
+    monkeypatch.setattr(server, "_connection", connection)
+    monkeypatch.setattr(server, "_context", lambda: ("reader", scopes))
+    candidate = raw("research")
+    candidate["version"] = "1.3.0"
+    tools = asyncio.run(server.mcp.get_tools())
+    preview = tools["preview_source_pack_upgrade"].fn(candidate=candidate)
+    assert preview["installed_version"] == "1.2.0"
+    assert opened == [True]
+    scopes.clear()
+    denied = tools["preview_source_pack_upgrade"].fn(candidate=candidate)
+    assert denied["error"]["code"] == "unauthorized"
+    assert opened == [True]
 
 
 def test_secret_readiness_health_redaction_and_domain_coverage(conn) -> None:

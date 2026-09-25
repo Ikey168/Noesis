@@ -1,0 +1,10 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/schemas/noesis-market-factor-analysis-v1.json",
+  "type": "object",
+  "required": ["contract", "namespace", "formula_version", "run_id", "owner", "input_manifest", "factors", "exposure", "sample_size", "limitations"],
+  "properties": {
+    "contract": {"const": "noesis-market-factor-analysis-v1"}, "namespace": {"type": "string"}, "formula_version": {"type": "string"}, "run_id": {"type": "string"}, "owner": {"type": "string"}, "input_manifest": {"type": "object"}, "factors": {"type": "array", "maxItems": 32}, "exposure": {"type": "object"}, "sample_size": {"type": "integer", "minimum": 0}, "limitations": {"type": "array", "items": {"type": "string"}}
+  },
+  "additionalProperties": true
+}

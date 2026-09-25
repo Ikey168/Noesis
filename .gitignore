@@ -290,3 +290,7 @@ data/tls/server.key
 data/tls/server.crt
 data/backups/*.enc
 artifacts/figures/
+
+# Local runtime state and frontend dependencies
+node_modules/
+config/*.sqlite

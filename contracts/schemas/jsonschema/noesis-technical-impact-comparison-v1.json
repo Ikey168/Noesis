@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/schemas/noesis-technical-impact-comparison-v1.json",
+  "title": "Technical impact report comparison",
+  "type": "object",
+  "required": ["contract", "namespace", "left_report_id", "right_report_id", "left_inventory_hash", "right_inventory_hash", "left_source_snapshot_hash", "right_source_snapshot_hash", "changes", "changed_count", "same_inventory", "same_sources"],
+  "properties": {
+    "contract": {"const": "noesis-technical-impact-comparison-v1"},
+    "namespace": {"type": "string"}, "left_report_id": {"type": "string"}, "right_report_id": {"type": "string"},
+    "left_inventory_hash": {"type": "string"}, "right_inventory_hash": {"type": "string"},
+    "left_source_snapshot_hash": {"type": "string"}, "right_source_snapshot_hash": {"type": "string"},
+    "changes": {"type": "array", "items": {"type": "object", "required": ["entry_key", "before", "after", "changed"]}},
+    "changed_count": {"type": "integer", "minimum": 0},
+    "same_inventory": {"type": "boolean"}, "same_sources": {"type": "boolean"}
+  },
+  "additionalProperties": false
+}

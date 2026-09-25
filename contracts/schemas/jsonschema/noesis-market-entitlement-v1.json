@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/schemas/noesis-market-entitlement-v1.json",
+  "title": "Noesis versioned market provider entitlement policy v1",
+  "type": "object",
+  "required": ["contract", "namespace", "entitlement_id", "provider", "license_id", "status", "capabilities", "effective_at_ms", "expires_at_ms", "max_retention_ms", "evidence_ref", "decision_ref", "reviewer_id", "revision", "revision_id", "recorded_at_ms", "record_hash"],
+  "properties": {
+    "contract": {"const": "noesis-market-entitlement-v1"},
+    "namespace": {"type": "string", "minLength": 1},
+    "entitlement_id": {"type": "string", "minLength": 1},
+    "provider": {"type": "string", "minLength": 1},
+    "license_id": {"type": "string", "minLength": 1},
+    "status": {"enum": ["active", "revoked"]},
+    "capabilities": {"type": "array", "uniqueItems": true, "items": {"enum": ["ingest", "read", "display", "retain", "derive", "cache", "evidence", "export", "redistribute"]}},
+    "effective_at_ms": {"type": "integer", "minimum": 0},
+    "expires_at_ms": {"type": ["integer", "null"], "minimum": 0},
+    "max_retention_ms": {"type": ["integer", "null"], "minimum": 1},
+    "evidence_ref": {"type": "string", "minLength": 1},
+    "decision_ref": {"type": "string", "minLength": 1},
+    "reviewer_id": {"type": "string", "minLength": 1},
+    "revision": {"type": "integer", "minimum": 1},
+    "revision_id": {"type": "string", "minLength": 1},
+    "recorded_at_ms": {"type": "integer", "minimum": 0},
+    "record_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "idempotent": {"type": "boolean"}
+  },
+  "additionalProperties": false
+}

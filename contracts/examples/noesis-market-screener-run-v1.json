@@ -1,0 +1,23 @@
+{
+  "contract": "noesis-market-screener-run-v1",
+  "namespace": "market:fixture",
+  "run_id": "market-screener-run:fixture",
+  "query_revision_id": "market-screener-query:screen:technology@1",
+  "criteria": {
+    "filters": [{"field": "price.close", "operator": "gte", "value": 100}],
+    "ranking": {"field": "price.close", "direction": "desc"},
+    "missing_policy": "exclude",
+    "limit": 50
+  },
+  "as_of": {
+    "universe_id": "universe:technology",
+    "as_of_ms": 1771057800000,
+    "start_ms": 1767601800000,
+    "end_ms": 1771057800000,
+    "publicly_available_by_ms": 1771057800000,
+    "acquired_by_ms": 1771057801000
+  },
+  "results": [],
+  "counts": {},
+  "input_snapshot": {"universe_membership_count": 0, "result_count": 0, "historical_membership_applied": true}
+}

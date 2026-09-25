@@ -58,6 +58,8 @@ DECISIONS = {"watch", "escalate", "schedule", "discard", "archive", "flag"}
 STATUSES = {"active", "paused", "completed", "cancelled"}
 _REF_FIELDS = {"kind", "id", "namespace", "version", "locator"}
 _WORKSPACE_KINDS = {"intake_item", "session", "artifact", "project", "note", "task"}
+_PLUGIN_REPRESENTATIONS = {"linked_projection", "intentional_snapshot", "editable_copy"}
+_PLUGIN_AUTHORITY = {"modulo", "noesis"}
 _DDL = """
 CREATE TABLE IF NOT EXISTS intake_sessions (
   session_id TEXT PRIMARY KEY, namespace TEXT NOT NULL, owner TEXT NOT NULL,
@@ -122,9 +124,9 @@ def _reference(value: Any, namespace: str, scopes: set[str]) -> dict[str, Any]:
     identity = _text(value.get("id"), "reference id", limit=512)
     ns = _text(value.get("namespace", namespace), "reference namespace", limit=128)
     version = value.get("version")
-    if type(version) is not int or version < 1:
+    if type(version) is not int or version < 0:
         raise IntakeError(
-            "invalid_reference", "reference needs a positive authoritative version"
+            "invalid_reference", "reference needs a nonnegative authoritative version"
         )
     if (
         ns != namespace
@@ -182,6 +184,71 @@ def _workspace_links(values: Any) -> list[dict[str, Any]]:
         if link not in result:
             result.append(link)
     return result
+
+
+def _plugin_links(values: Any, namespace: str, scopes: set[str]) -> list[dict[str, Any]]:
+    """Keep dedicated-plugin identity separate from the Noesis object identity."""
+    if not isinstance(values, list) or len(values) > 20:
+        raise IntakeError("invalid_plugin_link", "at most twenty plugin links are allowed")
+    result = []
+    remote_ids = set()
+    for value in values:
+        if not isinstance(value, dict) or set(value) - {
+            "workspace_id", "account_id", "plugin_id", "collection", "record_id",
+            "authoritative_version", "noesis_reference", "representation", "authority",
+            "source_locator",
+        } or not {"workspace_id", "account_id", "plugin_id", "collection",
+                   "record_id", "authoritative_version", "representation", "authority"} <= set(value):
+            raise IntakeError("invalid_plugin_link", "complete dedicated-plugin identity required")
+        link = {key: _text(value[key], key, limit=512)
+                for key in ("workspace_id", "account_id", "plugin_id", "collection", "record_id")}
+        if type(value["authoritative_version"]) is not int or value["authoritative_version"] < 1:
+            raise IntakeError("invalid_plugin_link", "authoritative plugin version must be positive")
+        if value["representation"] not in _PLUGIN_REPRESENTATIONS or value["authority"] not in _PLUGIN_AUTHORITY:
+            raise IntakeError("invalid_plugin_link", "representation and field authority must be explicit")
+        remote = tuple(link.values())
+        if remote in remote_ids:
+            raise IntakeError("invalid_plugin_link", "duplicate plugin record identity")
+        remote_ids.add(remote)
+        link.update({
+            "authoritative_version": value["authoritative_version"],
+            "representation": value["representation"], "authority": value["authority"],
+        })
+        if "noesis_reference" in value:
+            link["noesis_reference"] = _reference(value["noesis_reference"], namespace, scopes)
+            ref = link["noesis_reference"]
+            if ref["kind"] == "document" and "operator" not in scopes and f"document:{ref['id']}:read" not in scopes:
+                raise IntakeError("unauthorized", "current document read scope required for plugin link")
+        elif value["authority"] == "noesis":
+            raise IntakeError("invalid_plugin_link", "Noesis-owned link requires an exact Noesis reference")
+        if "source_locator" in value:
+            locator = value["source_locator"]
+            if not isinstance(locator, dict) or set(locator) - {"url", "page", "start", "end", "section"}:
+                raise IntakeError("invalid_plugin_link", "source locator is invalid")
+            link["source_locator"] = _bounded(locator, limit=4096)
+        result.append(link)
+    return result
+
+
+def _cadence(value: Any) -> dict[str, Any] | None:
+    if value is None:
+        return None
+    if not isinstance(value, dict) or set(value) != {"interval_days", "anchor_at_ms"} or (
+        type(value["interval_days"]) is not int or not 1 <= value["interval_days"] <= 3650
+        or type(value["anchor_at_ms"]) is not int or value["anchor_at_ms"] < 0
+    ):
+        raise IntakeError("invalid_cadence", "cadence requires bounded interval and anchor")
+    return dict(value)
+
+
+def _plugin_ref_accessible(link: dict[str, Any], namespace: str, scopes: set[str]) -> bool:
+    ref = link.get("noesis_reference")
+    if not ref or "operator" in scopes:
+        return True
+    return (
+        (ref["namespace"] == namespace or f"namespace:{ref['namespace']}:read" in scopes)
+        and (ref["kind"] != "document" or f"document:{ref['id']}:read" in scopes)
+    )
 
 
 def _completion(state: dict[str, Any]) -> list[str]:
@@ -274,21 +341,77 @@ def _completion(state: dict[str, Any]) -> list[str]:
             "unaided_demonstration",
         )
     elif mode == "Iteration":
-        if state["inputs"].get("iteration_contract") == "noesis-intake-iteration-playbook-v1":
+        iteration_contract = state["inputs"].get("iteration_contract")
+        if iteration_contract in {
+            "noesis-intake-iteration-playbook-v1",
+            "noesis-intake-iteration-decision-v1",
+            "noesis-intake-iteration-report-v1",
+            "noesis-intake-iteration-concept-v1",
+            "noesis-intake-iteration-modulo-note-v1",
+        }:
             require(isinstance(data.get("outcome"), dict), "measured_outcome")
             require(isinstance(data.get("proposal"), dict), "reviewed_proposal")
             accepted = data.get("accepted_revision")
-            require(
-                isinstance(accepted, dict)
-                and accepted.get("id") == state["inputs"]["playbook"]["id"]
-                and type(accepted.get("revision")) is int
-                and accepted["revision"] > state["inputs"]["playbook"]["version"],
-                "accepted_playbook_revision",
+            target_key = (
+                "decision" if iteration_contract == "noesis-intake-iteration-decision-v1"
+                else "report" if iteration_contract == "noesis-intake-iteration-report-v1"
+                else "concept" if iteration_contract == "noesis-intake-iteration-concept-v1"
+                else "modulo_note" if iteration_contract == "noesis-intake-iteration-modulo-note-v1"
+                else "playbook"
             )
+            target = state["inputs"].get(target_key, {})
+            if not isinstance(target, dict):
+                target = {}
+            expected_kind = target_key
+            accepted_id = (
+                target.get("bundle_id") if target_key == "concept"
+                else target.get("id")
+            )
+            accepted_is_newer = isinstance(accepted, dict) and (
+                type(accepted.get("revision")) is int
+                and (
+                    accepted["revision"] > 0
+                    if target_key == "modulo_note"
+                    else accepted["revision"] > target.get("version", 0)
+                )
+            )
+            require(
+                target.get("kind") == expected_kind
+                and target.get("namespace") == state["namespace"]
+                and isinstance(target.get("id"), str)
+                and type(target.get("version")) is int
+                and target["version"] > 0
+                and isinstance(accepted, dict)
+                and accepted.get("id") == accepted_id
+                and accepted_is_newer,
+                "accepted_artifact_revision",
+            )
+            if target_key == "concept":
+                require(
+                    isinstance(accepted, dict)
+                    and accepted.get("concept_id") == target.get("id"),
+                    "accepted_concept_revision",
+                )
+            if target_key == "modulo_note":
+                require(
+                    isinstance(accepted, dict)
+                    and accepted.get("source_revision") == target.get("version")
+                    and accepted.get("local_only") is True
+                    and accepted.get("writeback_state") == "not_written"
+                    and accepted.get("modulo_access_state") == "not_checked_by_noesis",
+                    "accepted_local_modulo_note_candidate",
+                )
             require(bool(data.get("stability_review")), "stability_review")
         for key in ("expected", "observed", "learning"):
             require(filled(key), key)
-        require(has_ref("revised_artifact"), "reference:revised_artifact")
+        require(
+            has_ref("modulo_note_candidate")
+            if iteration_contract == "noesis-intake-iteration-modulo-note-v1"
+            else has_ref("revised_artifact"),
+            "reference:modulo_note_candidate"
+            if iteration_contract == "noesis-intake-iteration-modulo-note-v1"
+            else "reference:revised_artifact",
+        )
     elif mode == "Maintenance":
         if state["inputs"].get("maintenance_contract") == "noesis-intake-maintenance-review-v1":
             findings = state["inputs"].get("findings", [])
@@ -413,6 +536,10 @@ class IntakeStore:
                 and f"namespace:{ref['namespace']}:read" not in scopes
                 for ref in value["references"]
             )
+            inaccessible_plugins = any(
+                not _plugin_ref_accessible(link, state["namespace"], scopes)
+                for link in value.get("plugin_links", [])
+            )
             value["references"] = [
                 ref
                 if ref["namespace"] == state["namespace"]
@@ -420,7 +547,12 @@ class IntakeStore:
                 else {"redacted": True}
                 for ref in value["references"]
             ]
-            if inaccessible:
+            value["plugin_links"] = [
+                link if _plugin_ref_accessible(link, state["namespace"], scopes)
+                else {"redacted": True}
+                for link in value.get("plugin_links", [])
+            ]
+            if inaccessible or inaccessible_plugins:
                 value["data"] = {"redacted": True}
                 value["access_degraded"] = True
         value["unmet_completion_checks"] = (
@@ -439,6 +571,8 @@ class IntakeStore:
         duration_minutes: int | None = None,
         origin: dict[str, Any] | None = None,
         workspace_links: list[dict[str, Any]] | None = None,
+        plugin_links: list[dict[str, Any]] | None = None,
+        cadence: dict[str, Any] | None = None,
         references: list[dict[str, Any]] | None = None,
         principal_id: str,
         scopes: set[str],
@@ -452,6 +586,9 @@ class IntakeStore:
         inputs = _bounded(inputs or {})
         supplied_workspace_links = workspace_links is not None
         workspace_links = _workspace_links(workspace_links or [])
+        supplied_plugin_links = plugin_links is not None
+        plugin_links = _plugin_links(plugin_links or [], namespace, scopes)
+        cadence = _cadence(cadence)
         if references is not None and (
             not isinstance(references, list) or len(references) > 1000
         ):
@@ -496,6 +633,8 @@ class IntakeStore:
             "duration_minutes": minutes,
             "origin": None,
             "workspace_links": workspace_links,
+            "plugin_links": plugin_links,
+            "cadence": cadence,
             "status": "active",
             "revision": 1,
             "data": {},
@@ -512,7 +651,7 @@ class IntakeStore:
             reason = _text(origin.get("reason"), "transition reason")
             origin_request = {"session_id": parent_id, "reason": reason}
             parent = self._state(namespace, parent_id)
-            self._authorize(parent, principal_id, scopes)
+            self._authorize_full_read(parent, principal_id, scopes)
             state["origin"] = {
                 "session_id": parent_id,
                 "revision": parent["revision"],
@@ -521,6 +660,10 @@ class IntakeStore:
             }
             if not supplied_workspace_links:
                 state["workspace_links"] = list(parent.get("workspace_links", []))
+            if not supplied_plugin_links:
+                state["plugin_links"] = list(parent.get("plugin_links", []))
+            if references is None:
+                state["references"] = list(parent["references"])
         request = {
             **{
                 k: state[k]
@@ -532,6 +675,8 @@ class IntakeStore:
                     "inputs",
                     "duration_minutes",
                     "workspace_links",
+                    "plugin_links",
+                    "cadence",
                 )
             },
             "origin": origin_request,
@@ -554,7 +699,7 @@ class IntakeStore:
         if mode == "Deep Research" and "operator" not in scopes:
             count = self.conn.execute(
                 "SELECT count(*) FROM intake_sessions WHERE owner=? "
-                "AND mode='Deep Research' AND status IN ('active','paused')",
+                "AND mode='Deep Research' AND status='active'",
                 [principal_id],
             ).fetchone()[0]
             if count >= self.active_research_limit:
@@ -679,14 +824,17 @@ class IntakeStore:
             raise IntakeError(
                 "unauthorized", "current access to all linked references is required"
             )
+        if any(not _plugin_ref_accessible(link, state["namespace"], scopes)
+               for link in state.get("plugin_links", [])):
+            raise IntakeError("unauthorized", "current access to plugin-linked Noesis references is required")
 
     def modulo_handoff(
         self, namespace: str, session_id: str, *, principal_id: str, scopes: set[str],
         contract_version: str = "v1",
     ) -> dict[str, Any]:
         """Export a current-access bridge projection without copying source content."""
-        if contract_version not in {"v1", "v2"}:
-            raise IntakeError("invalid_contract_version", "select v1 or v2 handoff contract")
+        if contract_version not in {"v1", "v2", "v3"}:
+            raise IntakeError("invalid_contract_version", "select v1, v2 or v3 handoff contract")
         state = self._state(namespace, session_id)
         self._authorize_full_read(state, principal_id, scopes)
         handoff = {
@@ -709,7 +857,7 @@ class IntakeStore:
             "noesis_references": state["references"],
             "access_state": "current",
         }
-        if contract_version == "v2":
+        if contract_version in {"v2", "v3"}:
             as_of_ms = self.now()
             visible = self._visible(state, scopes, as_of_ms=as_of_ms)
             handoff["session"].update({
@@ -721,6 +869,18 @@ class IntakeStore:
                 "validation_state": visible["validation_state"],
             })
             handoff["as_of_ms"] = as_of_ms
+        if contract_version == "v3":
+            handoff["transition_id"] = "intake-transition:" + _hash([
+                state["origin"], state["session_id"], state["created_at_ms"]
+            ])[:24]
+            handoff["plugin_links"] = state.get("plugin_links", [])
+            handoff["cadence"] = state.get("cadence")
+            handoff["plugin_access_state"] = "not_checked_by_noesis"
+            handoff["authority"] = {
+                "modulo": ["workspace", "account", "plugin records", "user edits", "planning"],
+                "noesis": ["acquired sources", "evidence", "claims", "run provenance", "authored artifacts"],
+            }
+            handoff["access_state"] = "current_intake_namespace_only"
         return handoff
 
     def command(
@@ -809,7 +969,13 @@ class IntakeStore:
                 if (
                     state["mode"] == "Iteration"
                     and state["inputs"].get("iteration_contract")
-                    == "noesis-intake-iteration-playbook-v1"
+                    in {
+                        "noesis-intake-iteration-playbook-v1",
+                        "noesis-intake-iteration-decision-v1",
+                        "noesis-intake-iteration-report-v1",
+                        "noesis-intake-iteration-concept-v1",
+                        "noesis-intake-iteration-modulo-note-v1",
+                    }
                     and record_hook is None
                 ):
                     raise IntakeError(
@@ -889,6 +1055,17 @@ class IntakeStore:
                     raise IntakeError(
                         "invalid_status", "only a paused session can resume"
                     )
+                if state["mode"] == "Deep Research" and "operator" not in scopes:
+                    active_count = self.conn.execute(
+                        "SELECT count(*) FROM intake_sessions WHERE owner=? "
+                        "AND mode='Deep Research' AND status='active'",
+                        [principal_id],
+                    ).fetchone()[0]
+                    if active_count >= self.active_research_limit:
+                        raise IntakeError(
+                            "active_topic_limit",
+                            "pause or complete an active research topic first",
+                        )
                 state["status"] = "active"
                 state["active_since_ms"] = now_ms
             elif action == "complete":
@@ -947,6 +1124,136 @@ class IntakeStore:
                             matched.append(ref["id"])
                     if len(set(matched)) != 1:
                         raise IntakeError("incomplete_mode", "one current owned Decision Record must match the selected option and rationale")
+                if (
+                    state["mode"] == "Iteration"
+                    and state["inputs"].get("iteration_contract")
+                    in {
+                        "noesis-intake-iteration-playbook-v1",
+                        "noesis-intake-iteration-decision-v1",
+                    }
+                ):
+                    target_key = (
+                        "decision"
+                        if state["inputs"]["iteration_contract"]
+                        == "noesis-intake-iteration-decision-v1"
+                        else "playbook"
+                    )
+                    target = state["inputs"].get(target_key) or {}
+                    accepted = state["data"].get("accepted_revision") or {}
+                    if target_key == "decision":
+                        from src.kb.decisions import DecisionError, DecisionStore
+
+                        try:
+                            artifact = DecisionStore(self.conn, initialize=False).inspect(
+                                namespace,
+                                target.get("id"),
+                                principal_id=principal_id,
+                                scopes=scopes,
+                            )
+                        except DecisionError as exc:
+                            raise IntakeError(exc.code, str(exc)) from exc
+                    else:
+                        from src.kb.intake_playbooks import IntakePlaybookStore
+
+                        artifact = IntakePlaybookStore(
+                            self.conn, initialize=False,
+                        ).inspect(
+                            namespace,
+                            target.get("id"),
+                            principal_id=principal_id,
+                            scopes=scopes,
+                        )
+                    if (
+                        artifact["revision"] != accepted.get("revision")
+                        or artifact["revision"] <= target.get("version", 0)
+                    ):
+                        raise IntakeError(
+                            "incomplete_mode",
+                            f"the accepted {target_key} revision must still be current",
+                        )
+                if (
+                    state["mode"] == "Iteration"
+                    and state["inputs"].get("iteration_contract")
+                    == "noesis-intake-iteration-report-v1"
+                ):
+                    from src.kb.authored_reports import AuthoredReportStore, ReportError
+
+                    target = state["inputs"].get("report") or {}
+                    accepted = state["data"].get("accepted_revision") or {}
+                    try:
+                        report = AuthoredReportStore(self.conn, initialize=False).inspect(
+                            namespace, target.get("id"),
+                            principal_id=principal_id, scopes=scopes,
+                        )
+                    except ReportError as exc:
+                        raise IntakeError(exc.code, str(exc)) from exc
+                    if (
+                        report["revision"] != accepted.get("revision")
+                        or report["revision"] <= target.get("version", 0)
+                    ):
+                        raise IntakeError(
+                            "incomplete_mode",
+                            "the accepted authored report revision must still be current",
+                        )
+                if (
+                    state["mode"] == "Iteration"
+                    and state["inputs"].get("iteration_contract")
+                    == "noesis-intake-iteration-concept-v1"
+                ):
+                    from src.kb.intake_research_bundle import IntakeResearchBundleStore
+
+                    target = state["inputs"].get("concept") or {}
+                    accepted = state["data"].get("accepted_revision") or {}
+                    bundle = IntakeResearchBundleStore(
+                        self.conn, initialize=False,
+                    ).inspect(
+                        namespace, target.get("bundle_id"),
+                        principal_id=principal_id, scopes=scopes,
+                    )
+                    concept = next((item for item in bundle["document"]["concepts"]
+                                    if item["id"] == target.get("id")), None)
+                    proposal = state["data"].get("proposal") or {}
+                    if (
+                        bundle["revision"] != accepted.get("revision")
+                        or bundle["revision"] <= target.get("version", 0)
+                        or accepted.get("bundle_id") != target.get("bundle_id")
+                        or accepted.get("concept_id") != target.get("id")
+                        or not concept
+                        or concept != proposal.get("concept")
+                    ):
+                        raise IntakeError(
+                            "incomplete_mode",
+                            "the accepted Research Bundle concept revision must still be current",
+                        )
+                if (
+                    state["mode"] == "Iteration"
+                    and state["inputs"].get("iteration_contract")
+                    == "noesis-intake-iteration-modulo-note-v1"
+                ):
+                    target = state["inputs"].get("modulo_note") or {}
+                    accepted = state["data"].get("accepted_revision") or {}
+                    proposal = state["data"].get("proposal") or {}
+                    links = state.get("plugin_links", [])
+                    accepted_command = next((event for event in state["history"]
+                                             if event.get("revision") == accepted.get("session_revision")
+                                             and event.get("command_key") == accepted.get("command_key")), None)
+                    if (
+                        len(links) != 1 or links[0] != target.get("plugin_link")
+                        or _hash(state["inputs"].get("source_snapshot")) != target.get("source_snapshot_sha256")
+                        or _hash({**proposal, "review_state": "proposed"}) != accepted.get("proposal_sha256")
+                        or proposal.get("content") != accepted.get("content")
+                        or accepted.get("id") != target.get("id")
+                        or accepted.get("source_revision") != target.get("version")
+                        or accepted.get("source_snapshot_sha256") != target.get("source_snapshot_sha256")
+                        or accepted.get("local_only") is not True
+                        or accepted.get("modulo_access_state") != "not_checked_by_noesis"
+                        or accepted.get("writeback_state") != "not_written"
+                        or accepted_command is None
+                    ):
+                        raise IntakeError(
+                            "incomplete_mode",
+                            "the accepted local Modulo note candidate or pinned source changed",
+                        )
                 state["status"] = "completed"
                 state["active_since_ms"] = None
             else:

@@ -1,0 +1,1 @@
+{"contract":"noesis-market-budget-v1","namespace":"market:fixture","budget_id":"budget:1","owner":"analyst","period_start_ms":0,"period_end_ms":1000,"max_requests":10,"max_cost_micros":1000,"used_requests":0,"used_cost_micros":0,"status":"active","record_hash":"0000000000000000000000000000000000000000000000000000000000000000"}

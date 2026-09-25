@@ -14,6 +14,7 @@ from urllib.parse import urlparse
 
 SOURCE_PACK_CONTRACT = "noesis-source-pack-v1"
 CONFORMANCE_CONTRACT = "noesis-source-pack-conformance-v1"
+UPGRADE_PREVIEW_CONTRACT = "noesis-source-pack-upgrade-preview-v1"
 SUPPORTED_CONNECTORS = frozenset(
     {
         "blog",
@@ -320,6 +321,62 @@ def load_source_packs(root: Path) -> list[dict[str, Any]]:
     ]
 
 
+def _source_capabilities(source: Mapping[str, Any]) -> dict[str, Any]:
+    """Return declared capabilities, never fixture data or resolved secrets."""
+
+    return {
+        field: source[field]
+        for field in sorted(source)
+        if field not in {"source_id", "source_hash"}
+    }
+
+
+def _semantic_upgrade_diff(
+    installed: Mapping[str, Any], candidate: Mapping[str, Any]
+) -> dict[str, Any]:
+    old = {item["source_id"]: item for item in installed["sources"]}
+    new = {item["source_id"]: item for item in candidate["sources"]}
+    changes = []
+    for source_id in sorted(old.keys() & new.keys()):
+        before = _source_capabilities(old[source_id])
+        after = _source_capabilities(new[source_id])
+        fields = {
+            field: {"before": before[field], "after": after[field]}
+            for field in before
+            if before[field] != after[field]
+        }
+        if fields:
+            changes.append({"source_id": source_id, "fields": fields})
+    old_domains = set(installed["domains"])
+    new_domains = set(candidate["domains"])
+    return {
+        "domains": {
+            "added": sorted(new_domains - old_domains),
+            "removed": sorted(old_domains - new_domains),
+        },
+        "sources": {
+            "added": [
+                {
+                    "source_id": source_id,
+                    "capabilities": _source_capabilities(new[source_id]),
+                }
+                for source_id in sorted(new.keys() - old.keys())
+            ],
+            "removed": [
+                {
+                    "source_id": source_id,
+                    "capabilities": _source_capabilities(old[source_id]),
+                }
+                for source_id in sorted(old.keys() - new.keys())
+            ],
+            "changed": changes,
+        },
+        "description": None
+        if installed["description"] == candidate["description"]
+        else {"before": installed["description"], "after": candidate["description"]},
+    }
+
+
 class SourcePackStore:
     """Install and activate immutable pack versions with an audit trail."""
 
@@ -348,6 +405,51 @@ class SourcePackStore:
                 now_ms,
             ],
         )
+
+    def preview_upgrade(self, candidate: Mapping[str, Any]) -> dict[str, Any]:
+        """Compare a candidate against the current immutable version without writes."""
+
+        value = validate_source_pack(candidate)
+        row = self.conn.execute(
+            "SELECT v.manifest_json,v.manifest_hash FROM source_pack_current c "
+            "JOIN source_pack_versions v ON v.pack_id=c.pack_id AND v.version=c.version "
+            "WHERE c.pack_id=?",
+            [value["pack_id"]],
+        ).fetchone()
+        if row is None:
+            raise SourcePackError("not_found", "source pack is not installed")
+        installed = _load(row[0], {})
+        if _version(value["version"]) < _version(installed["version"]):
+            raise SourcePackError(
+                "version_downgrade", "source packs cannot be downgraded in place"
+            )
+        if (
+            value["version"] == installed["version"]
+            and value["manifest_hash"] != row[1]
+        ):
+            raise SourcePackError(
+                "immutable_version", "installed pack version has different content"
+            )
+        existing = self.conn.execute(
+            "SELECT manifest_hash FROM source_pack_versions WHERE pack_id=? AND version=?",
+            [value["pack_id"], value["version"]],
+        ).fetchone()
+        if existing is not None and existing[0] != value["manifest_hash"]:
+            raise SourcePackError(
+                "immutable_version", "installed pack version has different content"
+            )
+        diff = _semantic_upgrade_diff(installed, value)
+        return {
+            "contract": UPGRADE_PREVIEW_CONTRACT,
+            "pack_id": value["pack_id"],
+            "installed_version": installed["version"],
+            "installed_hash": row[1],
+            "candidate_version": value["version"],
+            "candidate_hash": value["manifest_hash"],
+            "preview_hash": _digest([row[1], value["manifest_hash"], diff]),
+            "changes": diff,
+            "idempotent": value["manifest_hash"] == row[1],
+        }
 
     def install(
         self,
@@ -457,6 +559,7 @@ class SourcePackStore:
             raise SourcePackError("not_found", "source pack is not installed")
         manifest = _load(row[4], {})
         from src.ingestion.provider_readiness import protocol_status
+
         sources = []
         for source in manifest["sources"]:
             auth = source["auth"]

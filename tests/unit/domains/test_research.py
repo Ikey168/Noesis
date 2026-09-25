@@ -1,5 +1,7 @@
 """Unit tests for the research domain pack (R7 / Track N1)."""
 
+import json
+
 import pytest
 
 from src.analytics.honesty import validate_analytic_output
@@ -89,6 +91,32 @@ def test_venue_credibility_no_corpus(conn):
     assert payload["n"] == 0
     assert "note" in payload
     assert validate_analytic_output(payload) == []
+
+
+def test_research_analytics_reads_document_ingest_schema(conn):
+    conn.execute(
+        "CREATE TABLE documents (document_id VARCHAR, source_type VARCHAR, "
+        "title VARCHAR, metadata VARCHAR)"
+    )
+    conn.executemany(
+        "INSERT INTO documents VALUES (?, 'paper', ?, ?)",
+        [
+            ("p1", "Climate study", json.dumps({
+                "journal": "Science", "primary_category": "climate", "citations": 12,
+            })),
+            ("p2", "Energy study", json.dumps({
+                "venue": "Science", "primary_category": "energy", "citations": 4,
+                "reference_ids": ["p1"],
+            })),
+        ],
+    )
+    venues = venue_credibility(conn)
+    assert validate_analytic_output(venues) == []
+    assert venues["n"] == 2
+    assert venues["venues"][0]["venue"] == "Science"
+    graph = citation_graph(conn)
+    assert graph["node_count"] == 2
+    assert {"from": "p2", "to": "p1"} in graph["edges"]
 
 
 # ---------------------------------------------------------------------------

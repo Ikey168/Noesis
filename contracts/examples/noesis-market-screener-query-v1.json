@@ -1,0 +1,16 @@
+{
+  "contract": "noesis-market-screener-query-v1",
+  "namespace": "market:fixture",
+  "query_id": "screen:technology",
+  "revision": 1,
+  "revision_id": "market-screener-query:screen:technology@1",
+  "owner": "analyst:fixture",
+  "criteria": {
+    "filters": [{"field": "price.close", "operator": "gte", "value": 100}],
+    "ranking": {"field": "price.close", "direction": "desc"},
+    "missing_policy": "exclude",
+    "limit": 50
+  },
+  "recorded_at_ms": 1771057800000,
+  "record_hash": "0000000000000000000000000000000000000000000000000000000000000000"
+}

@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/contracts/noesis-investigation-coverage-v1.json",
+  "title": "Pinned investigation coverage assessment",
+  "type": "object",
+  "required": ["contract", "assessment_id", "namespace", "owner", "scope", "denominator", "cells", "sources", "limitations"],
+  "properties": {
+    "contract": {"const": "noesis-investigation-coverage-v1"},
+    "assessment_id": {"type": "string"},
+    "namespace": {"type": "string"},
+    "owner": {"type": "string"},
+    "scope": {"type": "object", "required": ["dates", "geographies", "languages", "topics"]},
+    "denominator": {"type": "integer", "minimum": 1, "maximum": 64},
+    "cells": {
+      "type": "array", "maxItems": 64,
+      "items": {
+        "type": "object",
+        "required": ["cell_id", "date", "geography", "language", "topic", "status", "reasons", "sources", "next_actions"],
+        "properties": {
+          "cell_id": {"type": "string"},
+          "date": {"type": "object"},
+          "geography": {"type": "string"},
+          "language": {"type": "string"},
+          "topic": {"type": "string"},
+          "status": {"enum": ["observed", "empty-successful", "unattempted", "unavailable", "out-of-scope"]},
+          "reasons": {"type": "array", "items": {"type": "string"}},
+          "sources": {"type": "array", "items": {"type": "object"}},
+          "next_actions": {"type": "array", "maxItems": 10, "items": {"type": "object"}}
+        }
+      }
+    },
+    "sources": {"type": "array", "maxItems": 50, "items": {"type": "object"}},
+    "limitations": {"type": "array", "items": {"type": "string"}}
+  }
+}

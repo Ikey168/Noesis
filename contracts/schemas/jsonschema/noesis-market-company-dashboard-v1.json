@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/schemas/noesis-market-company-dashboard-v1.json",
+  "title": "Noesis company research dashboard v1",
+  "description": "A bounded point-in-time company and peer research view whose panels retain source revisions and metric inputs.",
+  "type": "object",
+  "required": ["contract", "namespace", "subject_listing_id", "selection", "as_of", "panels", "peer_count", "exclusions", "freshness", "drilldown", "limitations"],
+  "properties": {
+    "contract": {"const": "noesis-market-company-dashboard-v1"},
+    "namespace": {"type": "string", "minLength": 1},
+    "subject_listing_id": {"type": "string", "minLength": 1},
+    "selection": {"type": "object"},
+    "as_of": {"type": "object"},
+    "panels": {"type": "array", "minItems": 1, "maxItems": 21, "items": {"type": "object"}},
+    "peer_count": {"type": "integer", "minimum": 0, "maximum": 20},
+    "exclusions": {"type": "array", "items": {"type": "object"}},
+    "freshness": {"type": "object"},
+    "drilldown": {"type": "object"},
+    "limitations": {"type": "array", "items": {"type": "string"}}
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,32 @@
+{
+  "contract": "noesis-market-local-operations-benchmark-v1",
+  "evidence_kind": "local_benchmark",
+  "recorded_at": "2026-09-24T17:23:10.897243Z",
+  "target": {
+    "measurement_rows": 1000,
+    "provider": "local-benchmark",
+    "database": "in-memory DuckDB",
+    "concurrency": 1
+  },
+  "observed": {
+    "accepted_rows": 1000,
+    "ingest_elapsed_ms": 6420.178648,
+    "ingest_rows_per_second": 155.75890560483356,
+    "provider_health_query_ms": 5.327379,
+    "provider_health_state": "healthy"
+  },
+  "cost": {
+    "provider_requests": 0,
+    "provider_cost_micros": 0,
+    "infrastructure_cost_status": "not_measured"
+  },
+  "runtime": {
+    "python": "3.14.3",
+    "platform": "Linux-7.0.0-31-generic-x86_64-with-glibc2.39"
+  },
+  "limitations": [
+    "This is a single-process local operations-store benchmark, not production market-data throughput.",
+    "No provider requests are made, so provider cost is zero and infrastructure cost remains unmeasured.",
+    "Production concurrency, retention, backup duration and notification delivery require deployment telemetry."
+  ]
+}

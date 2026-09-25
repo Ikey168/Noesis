@@ -1,0 +1,10 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/schemas/noesis-market-portfolio-v1.json",
+  "type": "object",
+  "required": ["contract", "namespace", "formula_version", "portfolio_id", "version", "as_of_ms", "base_currency", "positions", "cash", "transactions", "reconciliation", "record_hash", "limitations"],
+  "properties": {
+    "contract": {"const": "noesis-market-portfolio-v1"}, "namespace": {"type": "string"}, "formula_version": {"type": "string"}, "portfolio_id": {"type": "string"}, "version": {"type": "integer", "minimum": 1}, "as_of_ms": {"type": "integer", "minimum": 0}, "base_currency": {"type": "string"}, "positions": {"type": "array", "maxItems": 500}, "cash": {"type": "number"}, "transactions": {"type": "array"}, "reconciliation": {"type": "object"}, "record_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"}, "limitations": {"type": "array", "items": {"type": "string"}}
+  },
+  "additionalProperties": true
+}

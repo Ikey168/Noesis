@@ -2,6 +2,7 @@
 
 import hashlib
 import json
+import re
 from urllib.parse import urlencode
 
 
@@ -73,15 +74,15 @@ def records(payload, *, cursor, limit):
             not isinstance(i, str) for i in invitations
         ):
             raise ValueError("invalid OpenReview invitations")
-        kinds = {i.rsplit("/", 1)[-1].lower() for i in invitations}
+        kinds = {re.sub(r"[^a-z0-9]+", "_", i.rsplit("/", 1)[-1].lower()).strip("_") for i in invitations}
         kind = next(
             (
                 label
                 for names, label in [
-                    ({"decision"}, "decision"),
-                    ({"rebuttal", "author_response"}, "rebuttal"),
-                    ({"official_review", "review"}, "review"),
-                    ({"submission", "blind_submission"}, "submission"),
+                    ({"decision", "meta_review", "acceptance_decision"}, "decision"),
+                    ({"rebuttal", "author_response", "author_rebuttal"}, "rebuttal"),
+                    ({"official_review", "review", "peer_review"}, "review"),
+                    ({"submission", "blind_submission", "paper_revision"}, "submission"),
                 ]
                 if kinds & names
             ),
@@ -123,6 +124,11 @@ def records(payload, *, cursor, limit):
                 "ddate",
             )
         }
+        # Provider-native edit/revision handles are optional. Retain them when
+        # present without changing the identity hash of older API responses.
+        for key in ("number", "original", "referent"):
+            if key in note:
+                public_note[key] = note[key]
         public_note["content"] = visible
         revision = hashlib.sha256(
             json.dumps(

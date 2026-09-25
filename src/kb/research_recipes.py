@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 import time
 from collections import deque
 from collections.abc import Callable, Mapping, Sequence
@@ -86,6 +87,20 @@ def _redact(value: Any, secrets: Sequence[str]) -> Any:
         if secret:
             text = text.replace(secret, "[REDACTED]")
     return json.loads(text)
+
+
+def execution_input_digest(value: Any, *, secrets: Sequence[Any] = ()) -> str:
+    """Hash JSON-compatible execution inputs after canonicalization/redaction.
+
+    The public recipe MCP path uses this for caller-supplied output fixtures.
+    Only the digest is persisted, so supplied values cannot be mistaken for
+    executor receipts or leak through run identity metadata.
+    """
+    try:
+        normalized = json.loads(json.dumps(value, allow_nan=False))
+    except (TypeError, ValueError) as exc:
+        raise RecipeError("invalid_execution_inputs", "execution inputs must be finite JSON values") from exc
+    return _digest(_redact(normalized, [str(secret) for secret in secrets if secret is not None]))
 
 
 def validate_recipe(
@@ -340,6 +355,9 @@ class ResearchRecipeStore:
         snapshot_tokens=None,
         cancelled=None,
         fail_after=None,
+        execution_input_hash=None,
+        execution_mode="adapter",
+        actions_executed=True,
     ):
         _require(scopes, EXECUTE_SCOPE)
         tool_versions = dict(tool_versions or {})
@@ -365,12 +383,32 @@ class ResearchRecipeStore:
                 "snapshot_expired", "a pinned research snapshot has expired"
             )
         recipe = self.recipe(namespace, recipe_revision_id, scopes={READ_SCOPE})
+        if not isinstance(adapters, Mapping):
+            raise RecipeError("invalid_adapters", "step adapters must be keyed by recipe step ID")
+        step_ids = {step["id"] for step in recipe["steps"]}
+        if any(not isinstance(key, str) for key in adapters):
+            raise RecipeError("invalid_adapters", "step adapter keys must be strings")
+        unknown_adapters = sorted(set(adapters) - step_ids)
+        if unknown_adapters:
+            raise RecipeError("unknown_adapter", "adapter keys must name recipe step IDs", step_ids=unknown_adapters)
+        if execution_input_hash is not None and (
+            not isinstance(execution_input_hash, str)
+            or re.fullmatch(r"[0-9a-f]{64}", execution_input_hash) is None
+        ):
+            raise RecipeError("invalid_execution_input_hash", "execution input hash must be a SHA-256 hex digest")
+        if not isinstance(execution_mode, str) or not execution_mode or len(execution_mode) > 80:
+            raise RecipeError("invalid_execution_mode", "execution mode must be a bounded non-empty label")
+        if type(actions_executed) is not bool:
+            raise RecipeError("invalid_execution_mode", "actions_executed must be boolean")
         input_hash = _digest(
             [
                 preview["public_parameters"],
                 preview["secret_refs"],
                 snapshots,
                 tool_versions,
+                execution_input_hash,
+                execution_mode,
+                actions_executed,
             ]
         )
         run_id = "recipe-run:" + _digest([recipe_revision_id, run_key, input_hash])[:24]
@@ -410,10 +448,10 @@ class ResearchRecipeStore:
             "inputs": {**preview["public_parameters"], **secret_values},
             "steps": {},
         }
-        completed = {
-            r[0]: _load(r[1], {})
+        checkpoints = {
+            r[0]: (r[1], _load(r[2], {}), _load(r[3], {}))
             for r in self.conn.execute(
-                "SELECT step_id,output_json FROM research_recipe_checkpoints WHERE run_id=? AND status='completed'",
+                "SELECT step_id,status,output_json,error_json FROM research_recipe_checkpoints WHERE run_id=? AND status IN ('completed','omitted')",
                 [run_id],
             ).fetchall()
         }
@@ -421,8 +459,12 @@ class ResearchRecipeStore:
         done = 0
         try:
             for ordinal, step in enumerate(recipe["steps"]):
-                if step["id"] in completed:
-                    state["steps"][step["id"]] = completed[step["id"]]
+                prior_checkpoint = checkpoints.get(step["id"])
+                if prior_checkpoint and prior_checkpoint[0] == "completed":
+                    state["steps"][step["id"]] = prior_checkpoint[1]
+                    continue
+                if prior_checkpoint and prior_checkpoint[0] == "omitted":
+                    omissions.append({"step_id": step["id"], **prior_checkpoint[2]})
                     continue
                 cancel_row = self.conn.execute(
                     "SELECT cancel_requested FROM research_recipe_runs WHERE run_id=?",
@@ -430,11 +472,26 @@ class ResearchRecipeStore:
                 ).fetchone()
                 if cancelled and cancelled() or cancel_row and cancel_row[0]:
                     raise RecipeError("cancelled", "recipe cancelled at a checkpoint")
-                adapter = adapters.get(step["tool"])
+                adapter = adapters.get(step["id"])
                 if adapter is None:
-                    raise RecipeError(
-                        "adapter_unavailable", f"no local adapter for {step['tool']}"
+                    error = {"code": "adapter_unavailable", "message": f"no local adapter for step {step['id']}"}
+                    if not step.get("optional"):
+                        raise RecipeError("adapter_unavailable", error["message"], step_id=step["id"])
+                    attempt = 0
+                    started = self.now()
+                    ih = _digest(_redact(state, secret_text))
+                    completed_at = self.now()
+                    cid = "recipe-checkpoint:" + _digest([run_id, step["id"], ih, "omitted", error])[:24]
+                    self.conn.execute(
+                        "INSERT INTO research_recipe_checkpoints VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(run_id,step_id) DO UPDATE SET status=excluded.status,attempt=excluded.attempt,input_hash=excluded.input_hash,output_hash=NULL,output_json=NULL,error_json=excluded.error_json,tool_version=excluded.tool_version,completed_at_ms=excluded.completed_at_ms",
+                        [cid, run_id, step["id"], ordinal, "omitted", attempt, ih, None, None,
+                         _canonical(error), tool_versions.get(step["tool"], "unknown"), started, completed_at],
                     )
+                    omissions.append({"step_id": step["id"], **error})
+                    done += 1
+                    if fail_after is not None and done >= fail_after:
+                        raise RecipeError("injected_failure", "crash injected after durable checkpoint")
+                    continue
                 attempt = 0
                 error = None
                 output = None
@@ -496,10 +553,13 @@ class ResearchRecipeStore:
                 "recipe_revision_id": recipe_revision_id,
                 "recipe_hash": recipe["recipe_hash"],
                 "status": "completed",
+                "execution_mode": execution_mode,
+                "actions_executed": actions_executed,
                 "public_inputs": preview["public_parameters"],
                 "secret_refs": preview["secret_refs"],
                 "snapshot_tokens": snapshots,
                 "tool_versions": tool_versions,
+                "execution_input_hash": execution_input_hash,
                 "outputs": safe_state["steps"],
                 "omissions": omissions,
                 "output_hash": _digest(safe_state["steps"]),

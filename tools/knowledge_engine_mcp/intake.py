@@ -19,13 +19,29 @@ from src.kb.intake_practice import (
     verify_practice_export as verify_practice_export_bundle,
 )
 from src.kb.intake_problem import IntakeProblemStore
+from src.kb.intake_readiness import discover_workflows
 from src.kb.intake_readiness import preflight as preflight_intake
+
+# Deployment code may inject a provider backed by its credential manager. The
+# MCP tool accepts no credentials and the default remains deny-by-default.
+MODULO_PLUGIN_LINK_PROVIDER = None
+
+
+def configure_modulo_plugin_link_provider(provider) -> None:
+    """Install a server-side per-caller Modulo read provider at startup."""
+    if provider is not None and not callable(getattr(provider, "for_caller", None)):
+        raise TypeError("Modulo plugin link provider must implement for_caller(principal_id)")
+    global MODULO_PLUGIN_LINK_PROVIDER
+    MODULO_PLUGIN_LINK_PROVIDER = provider
+
 
 INTAKE_WRITES = {
     "start_intake_mode",
     "start_intake_research_topic",
     "command_intake_mode",
     "subscribe_intake_feed",
+    "subscribe_intake_newsletter_input",
+    "ingest_intake_newsletter_message",
     "refresh_intake_feed_inbox",
     "mark_intake_feed_read",
     "decide_intake_feed_item",
@@ -41,6 +57,9 @@ INTAKE_WRITES = {
     "decide_exploration_suggestion",
     "start_problem_session",
     "record_problem_step",
+    "propose_problem_action",
+    "consent_problem_action",
+    "execute_problem_action",
     "promote_problem_playbook",
     "revise_intake_playbook",
     "start_guided_playbook_run",
@@ -55,19 +74,27 @@ INTAKE_WRITES = {
     "record_maintenance_finding",
     "assess_maintenance_health",
     "start_intake_iteration",
+    "start_intake_decision_iteration",
+    "start_intake_report_iteration",
     "record_intake_iteration_outcome",
     "propose_intake_playbook_revision",
+    "propose_intake_decision_revision",
+    "propose_intake_report_revision",
     "accept_intake_playbook_revision",
+    "accept_intake_decision_revision",
+    "accept_intake_report_revision",
     "review_intake_iteration_stability",
 }
 INTAKE_READS = {
     "discover_intake_modes",
     "preflight_intake_mode",
+    "discover_intake_workflows",
     "route_intake_mode",
     "inspect_intake_mode",
     "list_intake_modes",
     "export_intake_mode",
     "export_modulo_intake_handoff",
+    "recheck_modulo_plugin_link",
     "verify_intake_mode_export",
     "list_intake_feed_subscriptions",
     "list_intake_feed_inbox",
@@ -78,6 +105,7 @@ INTAKE_READS = {
     "inspect_exploration_source",
     "suggest_exploration_sources",
     "inspect_intake_playbook",
+    "preview_problem_action",
     "inspect_guided_playbook_run",
     "inspect_practice_pack",
     "export_practice_pack",
@@ -88,6 +116,10 @@ INTAKE_READS = {
     "export_intake_creation",
     "scan_intake_maintenance",
 }
+
+# Integrations may inject deployment-owned callables for these two allowlisted
+# action types. The public server starts with no configured executors.
+PROBLEM_ACTION_ADAPTERS = {}
 
 
 def register(mcp, safe, context):
@@ -180,6 +212,70 @@ def register(mcp, safe, context):
             principal_id=context()[0], scopes=context()[1],
         ))
 
+    @mcp.resource("noesis://intake/feed-items/{namespace}/{item_id}", mime_type="application/json")
+    def intake_feed_item_resource(namespace: str, item_id: str) -> str:
+        """Read a feed item's current source snapshot and triage state under current access."""
+        return resource_json(lambda conn: IntakeInboxStore(conn, initialize=False).inspect(
+            namespace, item_id, principal_id=context()[0], scopes=context()[1],
+        ))
+
+    @mcp.resource(
+        "noesis://intake/feed-items/{namespace}/{item_id}/revisions/{revision}",
+        mime_type="application/json",
+    )
+    def intake_feed_item_revision_resource(namespace: str, item_id: str, revision: int) -> str:
+        """Read an exact feed-item source revision after a fresh access check."""
+        return resource_json(lambda conn: IntakeInboxStore(conn, initialize=False).inspect(
+            namespace, item_id, revision=revision, principal_id=context()[0], scopes=context()[1],
+        ))
+
+    @mcp.resource("noesis://intake/exploration-sources/{namespace}/{source_id}", mime_type="application/json")
+    def exploration_source_resource(namespace: str, source_id: str) -> str:
+        """Read the current captured Exploration source, annotations and trail position."""
+        return resource_json(lambda conn: IntakeExplorationStore(conn, initialize=False).inspect_source(
+            namespace, source_id, principal_id=context()[0], scopes=context()[1],
+        ))
+
+    @mcp.resource(
+        "noesis://intake/exploration-sources/{namespace}/{source_id}/versions/{version}",
+        mime_type="application/json",
+    )
+    def exploration_source_version_resource(namespace: str, source_id: str, version: int) -> str:
+        """Read an exact captured source version, e.g. the one a citation pins."""
+        return resource_json(lambda conn: IntakeExplorationStore(conn, initialize=False).inspect_source(
+            namespace, source_id, version=version, principal_id=context()[0], scopes=context()[1],
+        ))
+
+    @mcp.resource("noesis://intake/creations/{namespace}/{project_id}", mime_type="application/json")
+    def creation_project_resource(namespace: str, project_id: str) -> str:
+        """Read a Creation project, its review state and linked report revision."""
+        from src.kb.intake_creation import IntakeCreationStore
+
+        return resource_json(lambda conn: IntakeCreationStore(conn, initialize=False).inspect(
+            namespace, project_id, principal_id=context()[0], scopes=context()[1],
+        ))
+
+    @mcp.resource(
+        "noesis://intake/creations/{namespace}/{project_id}/revisions/{revision}",
+        mime_type="application/json",
+    )
+    def creation_project_revision_resource(namespace: str, project_id: str, revision: int) -> str:
+        """Read an exact Creation project revision after a fresh access check."""
+        from src.kb.intake_creation import IntakeCreationStore
+
+        return resource_json(lambda conn: IntakeCreationStore(conn, initialize=False).inspect(
+            namespace, project_id, revision=revision, principal_id=context()[0], scopes=context()[1],
+        ))
+
+    @mcp.resource("noesis://intake/skills/{namespace}/{skill_id}", mime_type="application/json")
+    def skill_evidence_resource(namespace: str, skill_id: str) -> str:
+        """Read a skill's dated evidence by basis; mastery needs independent assessment."""
+        from src.kb.intake_skills import IntakeSkillStore
+
+        return resource_json(lambda conn: IntakeSkillStore(conn, initialize=False).evidence(
+            namespace, skill_id, principal_id=context()[0], scopes=context()[1],
+        ))
+
     @mcp.prompt(name="start-information-intake")
     def start_information_intake(mode: str, namespace: str, intent: str) -> str:
         """Guide a bounded intake start through discovery and explicit user intent."""
@@ -206,6 +302,17 @@ def register(mcp, safe, context):
         """Check caller scopes, native entry points, and known live-readiness gaps."""
         return safe(
             lambda conn: preflight_intake(
+                conn, namespace, mode=mode,
+                principal_id=context()[0], scopes=context()[1],
+            ),
+            required_scope="knowledge:intake:read",
+        )
+
+    @mcp.tool()
+    def discover_intake_workflows(namespace: str, mode: str | None = None) -> dict:
+        """Find caller-scoped mode inputs, blockers, sessions and legal next commands."""
+        return safe(
+            lambda conn: discover_workflows(
                 conn, namespace, mode=mode,
                 principal_id=context()[0], scopes=context()[1],
             ),
@@ -261,6 +368,8 @@ def register(mcp, safe, context):
         duration_minutes: int | None = None,
         origin: dict | None = None,
         workspace_links: list[dict] | None = None,
+        plugin_links: list[dict] | None = None,
+        cadence: dict | None = None,
         references: list[dict] | None = None,
     ) -> dict:
         """Start or replay an owner-scoped mode session, optionally linked to a prior mode."""
@@ -274,6 +383,8 @@ def register(mcp, safe, context):
                 duration_minutes=duration_minutes,
                 origin=origin,
                 workspace_links=workspace_links,
+                plugin_links=plugin_links,
+                cadence=cadence,
                 references=references,
                 principal_id=context()[0],
                 scopes=context()[1],
@@ -345,6 +456,30 @@ def register(mcp, safe, context):
         )
 
     @mcp.tool()
+    def recheck_modulo_plugin_link(
+        namespace: str,
+        session_id: str,
+        expected_session_revision: int,
+        link_index: int,
+    ) -> dict:
+        """Recheck one stored Modulo link's exact identity and version via the server provider.
+
+        This read returns metadata only. No provider is configured by default;
+        credentials are resolved server-side for the authenticated caller.
+        """
+        from src.kb.modulo_plugin_link_access import ModuloPluginLinkAccessStore
+
+        return safe(
+            lambda conn: ModuloPluginLinkAccessStore(
+                conn, provider=MODULO_PLUGIN_LINK_PROVIDER,
+            ).recheck(
+                namespace, session_id, link_index, expected_session_revision,
+                principal_id=context()[0], scopes=context()[1],
+            ),
+            required_scope="knowledge:intake:read",
+        )
+
+    @mcp.tool()
     def verify_intake_mode_export(bundle: dict) -> dict:
         """Check an exported session revision chain and digest offline."""
         return verify_export(bundle)
@@ -384,6 +519,7 @@ def register(mcp, safe, context):
         success_check: str,
         origin: dict | None = None,
         workspace_links: list[dict] | None = None,
+        plugin_links: list[dict] | None = None,
         references: list[dict] | None = None,
     ) -> dict:
         """Start a typed, resumable troubleshooting session with an observable goal."""
@@ -397,6 +533,7 @@ def register(mcp, safe, context):
                 success_check=success_check,
                 origin=origin,
                 workspace_links=workspace_links,
+                plugin_links=plugin_links,
                 references=references,
                 principal_id=context()[0],
                 scopes=context()[1],
@@ -431,6 +568,95 @@ def register(mcp, safe, context):
                 next_action=next_action,
                 passed=passed,
                 references=references,
+                principal_id=context()[0],
+                scopes=context()[1],
+            ),
+            write=True,
+            required_scope="knowledge:intake:write",
+        )
+
+    @mcp.tool()
+    def propose_problem_action(
+        namespace: str,
+        session_id: str,
+        command_key: str,
+        expected_revision: int,
+        action: str,
+        parameters: dict,
+        rationale: str,
+    ) -> dict:
+        """Record one allowlisted action proposal; this tool never executes it."""
+        return safe(
+            lambda conn: IntakeProblemStore(conn).propose_action(
+                namespace,
+                session_id,
+                command_key,
+                expected_revision=expected_revision,
+                action=action,
+                parameters=parameters,
+                rationale=rationale,
+                principal_id=context()[0],
+                scopes=context()[1],
+            ),
+            write=True,
+            required_scope="knowledge:intake:write",
+        )
+
+    @mcp.tool()
+    def preview_problem_action(namespace: str, session_id: str) -> dict:
+        """Preview the current action and whether its allowlisted adapter is configured."""
+        return safe(
+            lambda conn: IntakeProblemStore(
+                conn, adapters=PROBLEM_ACTION_ADAPTERS, initialize=False,
+            ).preview_action(
+                namespace, session_id, principal_id=context()[0], scopes=context()[1],
+            ),
+            required_scope="knowledge:intake:read",
+        )
+
+    @mcp.tool()
+    def consent_problem_action(
+        namespace: str,
+        session_id: str,
+        command_key: str,
+        expected_revision: int,
+        proposal_id: str,
+        consent: bool,
+    ) -> dict:
+        """Bind explicit owner consent to the exact current action proposal revision."""
+        return safe(
+            lambda conn: IntakeProblemStore(conn).consent_action(
+                namespace,
+                session_id,
+                command_key,
+                expected_revision=expected_revision,
+                proposal_id=proposal_id,
+                consent=consent,
+                principal_id=context()[0],
+                scopes=context()[1],
+            ),
+            write=True,
+            required_scope="knowledge:intake:write",
+        )
+
+    @mcp.tool()
+    def execute_problem_action(
+        namespace: str,
+        session_id: str,
+        expected_revision: int,
+        idempotency_key: str,
+        correlation_id: str,
+    ) -> dict:
+        """Run one consented, allowlisted action once and store its durable receipt."""
+        return safe(
+            lambda conn: IntakeProblemStore(
+                conn, adapters=PROBLEM_ACTION_ADAPTERS,
+            ).execute_action(
+                namespace,
+                session_id,
+                expected_revision=expected_revision,
+                idempotency_key=idempotency_key,
+                correlation_id=correlation_id,
                 principal_id=context()[0],
                 scopes=context()[1],
             ),
@@ -502,6 +728,66 @@ def register(mcp, safe, context):
         )
 
     @mcp.tool()
+    def promote_intake_work_procedure(
+        namespace: str,
+        session_id: str,
+        request_key: str,
+        artifact_kind: str,
+        title: str,
+        prerequisites: list[str],
+        environment: str,
+        steps: list[dict],
+        verification: str,
+        source_rationale: str,
+        template_body: str | None = None,
+        settings: dict | None = None,
+        trigger: str | None = None,
+        concept_references: list[dict] | None = None,
+    ) -> dict:
+        """Externalize completed Problem, Creation, or Research work as a draft playbook, checklist, template, default configuration, or automation rule."""
+        return safe(
+            lambda conn: IntakePlaybookStore(conn).promote_work(
+                namespace, session_id, request_key, artifact_kind=artifact_kind,
+                title=title, prerequisites=prerequisites, environment=environment,
+                steps=steps, verification=verification, source_rationale=source_rationale,
+                template_body=template_body, settings=settings, trigger=trigger,
+                concept_references=concept_references,
+                principal_id=context()[0], scopes=context()[1],
+            ),
+            write=True, required_scope="knowledge:intake:write",
+        )
+
+    @mcp.tool()
+    def preview_playbook_step_automation(namespace: str, run_id: str, step_id: str) -> dict:
+        """Preview an automated guided-run step and whether its configured adapter is available."""
+        return safe(
+            lambda conn: IntakePlaybookStore(
+                conn, initialize=False, adapters=PROBLEM_ACTION_ADAPTERS,
+            ).preview_step_automation(
+                namespace, run_id, step_id, principal_id=context()[0], scopes=context()[1],
+            ),
+            required_scope="knowledge:intake:read",
+        )
+
+    @mcp.tool()
+    def execute_playbook_step_automation(
+        namespace: str, run_id: str, step_id: str, expected_revision: int,
+        preview_hash: str, idempotency_key: str, correlation_id: str,
+    ) -> dict:
+        """Execute the previewed next automated step once and record its adapter receipt."""
+        return safe(
+            lambda conn: IntakePlaybookStore(
+                conn, adapters=PROBLEM_ACTION_ADAPTERS,
+            ).execute_step_automation(
+                namespace, run_id, step_id, expected_revision=expected_revision,
+                preview_hash=preview_hash, idempotency_key=idempotency_key,
+                correlation_id=correlation_id,
+                principal_id=context()[0], scopes=context()[1],
+            ),
+            write=True, required_scope="knowledge:intake:write",
+        )
+
+    @mcp.tool()
     def start_guided_playbook_run(
         namespace: str,
         playbook_id: str,
@@ -552,11 +838,13 @@ def register(mcp, safe, context):
     def create_practice_pack(
         namespace: str, request_key: str, title: str, cards: list[dict],
         interval_days: list[int] | None = None,
+        plugin_links: list[dict] | None = None,
     ) -> dict:
         """Create a reviewable, author-supplied retrieval pack from versioned references."""
         return safe(
             lambda conn: IntakePracticeStore(conn).create_pack(
                 namespace, request_key, title, cards, interval_days=interval_days,
+                plugin_links=plugin_links,
                 principal_id=context()[0], scopes=context()[1],
             ),
             write=True, required_scope="knowledge:intake:write",
@@ -671,6 +959,33 @@ def register(mcp, safe, context):
             ),
             write=True,
             required_scope="knowledge:intake:write",
+        )
+
+    @mcp.tool()
+    def subscribe_intake_newsletter_input(
+        namespace: str, sender: str, name: str,
+    ) -> dict:
+        """Configure one sender for explicit, caller-supplied newsletter intake."""
+        return safe(
+            lambda conn: IntakeInboxStore(conn).subscribe(
+                namespace, "mailto:" + sender, name, "newsletter_input",
+                principal_id=context()[0], scopes=context()[1]),
+            write=True, required_scope="knowledge:intake:write",
+        )
+
+    @mcp.tool()
+    def ingest_intake_newsletter_message(
+        namespace: str, subscription_id: str, message_id: str,
+        sender: str, subject: str, body: str, published_at_ms: int,
+    ) -> dict:
+        """Retain one message with its original Message-ID and publication time."""
+        return safe(
+            lambda conn: IntakeInboxStore(conn).ingest_newsletter_message(
+                namespace, subscription_id, message_id=message_id,
+                sender=sender, subject=subject, body=body,
+                published_at_ms=published_at_ms,
+                principal_id=context()[0], scopes=context()[1]),
+            write=True, required_scope="knowledge:intake:write",
         )
 
     @mcp.tool()

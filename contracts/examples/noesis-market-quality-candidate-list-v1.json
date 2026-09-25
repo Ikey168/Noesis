@@ -1,0 +1,19 @@
+{
+  "contract": "noesis-market-quality-candidate-list-v1",
+  "namespace": "market:demo",
+  "request_key": "market-quality:repair-demo",
+  "items": [
+    {
+      "candidate_id": "market-quality-candidate:demo-invalid-bar",
+      "provider": "fixture-only",
+      "listing_id": "listing:demo",
+      "interval": "1d",
+      "provider_record_id": "fixture:bad-row:1",
+      "record_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "error_code": "currency_mismatch",
+      "status": "quarantined",
+      "created_at_ms": 1790208000000
+    }
+  ],
+  "limit": 100
+}

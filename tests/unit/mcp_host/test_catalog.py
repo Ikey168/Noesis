@@ -32,7 +32,7 @@ def test_catalog_is_generated_from_every_registered_fastmcp_server():
         server for server in catalog["servers"] if server["kind"] == "noesis"
     ]
 
-    assert len(project_servers) == 25
+    assert len(project_servers) == 26
     assert catalog["conformance"] == {
         "passed": True,
         "errors": [],
@@ -52,6 +52,33 @@ def test_catalog_is_generated_from_every_registered_fastmcp_server():
     )
     assert all(tool["output_schema"] for tool in catalog["tools"])
     by_id = {tool["id"]: tool for tool in catalog["tools"]}
+    imported = by_id["noesis-knowledge-engine.import_technical_inventory"]
+    inspected = by_id["noesis-knowledge-engine.inspect_technical_inventory"]
+    assessed = by_id["noesis-knowledge-engine.assess_technical_inventory_impact"]
+    assert (imported["mutability"], imported["required_scopes"]) == (
+        "write",
+        ["knowledge:technical:write"],
+    )
+    assert (inspected["mutability"], inspected["required_scopes"]) == (
+        "read",
+        ["knowledge:technical:read"],
+    )
+    assert (assessed["mutability"], assessed["required_scopes"]) == (
+        "read",
+        ["knowledge:technical:read"],
+    )
+    market_evidence_export = by_id[
+        "noesis-market.export_market_brief_evidence_bundle"
+    ]
+    assert (
+        market_evidence_export["mutability"],
+        market_evidence_export["required_scopes"],
+    ) == ("read", ["market:research:read"])
+    imported_cards = by_id["noesis-knowledge-engine.import_modulo_flashcards"]
+    assert (imported_cards["mutability"], imported_cards["required_scopes"]) == (
+        "write",
+        ["knowledge:intake:write"],
+    )
     for name in (
         "accept_source_pack_license",
         "cancel_source_pack_run",
@@ -68,11 +95,15 @@ def test_catalog_is_generated_from_every_registered_fastmcp_server():
 def test_generated_artifact_conforms_to_versioned_schema():
     artifact = json.loads(CATALOG_ARTIFACT.read_text(encoding="utf-8"))
     schema = json.loads(CATALOG_SCHEMA.read_text(encoding="utf-8"))
+    pack_config = json.loads(
+        (REPO_ROOT / "config/domain_packs.json").read_text(encoding="utf-8")
+    )
     errors = list(Draft7Validator(schema).iter_errors(artifact))
     assert not errors, [error.message for error in errors]
     assert artifact["conformance"]["passed"] is True
     assert artifact == _build(
         granted_scopes={"public", "knowledge:read", "operator"},
+        enabled_pack_names=set(pack_config.get("enabled_packs", [])),
         include_unusable=True,
     )
 

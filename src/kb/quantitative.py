@@ -1107,14 +1107,23 @@ class QuantitativeStore:
         }
         return result
 
-    def convert_physical(self, namespace, value, from_unit, to_unit, *, scopes, principal_id, precision=6):
+    def convert_physical(
+        self, namespace, value, from_unit, to_unit, *, scopes, principal_id, precision=6
+    ):
         """Optional Pint physical conversion, separate from versioned economic units."""
         _require(scopes, CALCULATE_SCOPE)
         from src.integrations.units import convert_physical
+
         evaluated = convert_physical(value, from_unit, to_unit, precision=precision)
-        return self._calculation(namespace, "physical-conversion", evaluated["request"],
-                                 {**evaluated["result"], "producer": evaluated["producer"]},
-                                 input_ids=[], principal_id=principal_id, formula_revision_id=None)
+        return self._calculation(
+            namespace,
+            "physical-conversion",
+            evaluated["request"],
+            {**evaluated["result"], "producer": evaluated["producer"]},
+            input_ids=[],
+            principal_id=principal_id,
+            formula_revision_id=None,
+        )
 
     def convert(
         self,
@@ -1135,17 +1144,25 @@ class QuantitativeStore:
             self._unit(to_unit, namespace),
         )
         if backend not in {"native", "pint"}:
-            raise QuantitativeError("unsupported_backend", "Unknown unit conversion backend")
+            raise QuantitativeError(
+                "unsupported_backend", "Unknown unit conversion backend"
+            )
         if backend == "pint":
             from src.integrations.units import convert_registered
+
             if rate is not None:
-                raise QuantitativeError("unsupported_rate", "Pint cannot interpret exchange-rate evidence")
+                raise QuantitativeError(
+                    "unsupported_rate", "Pint cannot interpret exchange-rate evidence"
+                )
             evaluated = convert_registered(value, source, target, precision=precision)
             return self._calculation(
-                namespace, "conversion", evaluated["request"],
+                namespace,
+                "conversion",
+                evaluated["request"],
                 {**evaluated["result"], "producer": evaluated["producer"]},
                 input_ids=[source["unit_id"], target["unit_id"]],
-                principal_id=principal_id, formula_revision_id=None,
+                principal_id=principal_id,
+                formula_revision_id=None,
             )
         if source["dimension"] != target["dimension"]:
             raise QuantitativeError(
@@ -1232,19 +1249,34 @@ class QuantitativeStore:
             resolved = {}
             for name, item in inputs.items():
                 if not item.get("unit_id"):
-                    raise QuantitativeError("unknown_unit", "Pint formula inputs require explicit unit identities")
+                    raise QuantitativeError(
+                        "unknown_unit",
+                        "Pint formula inputs require explicit unit identities",
+                    )
                 unit = self._unit(item["unit_id"], namespace)
                 if _dimension(item.get("dimension") or {}) != unit["dimension"]:
-                    raise QuantitativeError("dimensional_error", "Input dimension differs from registered unit")
+                    raise QuantitativeError(
+                        "dimensional_error",
+                        "Input dimension differs from registered unit",
+                    )
                 resolved[name] = {**item, "unit_definition": unit}
             target = self._unit(metric["unit_id"], namespace)
-            evaluated = evaluate_registered_formula(expression, resolved, target, precision=precision)
+            evaluated = evaluate_registered_formula(
+                expression, resolved, target, precision=precision
+            )
             return self._calculation(
-                namespace, "formula", {**evaluated["request"], "metric_id": metric_id},
+                namespace,
+                "formula",
+                {**evaluated["request"], "metric_id": metric_id},
                 {**evaluated["result"], "producer": evaluated["producer"]},
-                input_ids=[str(item.get("observation_id") or _digest(item)) for item in inputs.values()]
-                    + [item["unit_definition"]["unit_id"] for item in resolved.values()] + [target["unit_id"]],
-                principal_id=principal_id, formula_revision_id=metric["revision_id"],
+                input_ids=[
+                    str(item.get("observation_id") or _digest(item))
+                    for item in inputs.values()
+                ]
+                + [item["unit_definition"]["unit_id"] for item in resolved.values()]
+                + [target["unit_id"]],
+                principal_id=principal_id,
+                formula_revision_id=metric["revision_id"],
             )
         tree = ast.parse(expression, mode="eval")
         values = {name: _decimal(item["value"], name) for name, item in inputs.items()}
@@ -1291,6 +1323,66 @@ class QuantitativeStore:
             input_ids=input_ids,
             principal_id=principal_id,
             formula_revision_id=metric["revision_id"],
+        )
+
+    def record_domain_calculation(
+        self,
+        namespace: str,
+        operation: str,
+        request: Mapping[str, Any],
+        result: Mapping[str, Any],
+        *,
+        input_ids: Sequence[str],
+        principal_id: str,
+        scopes: set[str],
+        formula_revision_id: str,
+    ) -> dict[str, Any]:
+        """Persist a domain-owned deterministic calculation in the shared ledger.
+
+        Domain services retain responsibility for their typed result and access
+        policy; this method provides the common input lineage, idempotency,
+        rounding metadata, and audit receipt used by the quantitative layer.
+        """
+
+        _require(scopes, CALCULATE_SCOPE)
+        if (
+            not namespace
+            or not principal_id
+            or not operation
+            or not formula_revision_id
+        ):
+            raise QuantitativeError(
+                "invalid_calculation",
+                "namespace, principal, operation, and formula version are required",
+            )
+        if not isinstance(request, Mapping) or not isinstance(result, Mapping):
+            raise QuantitativeError(
+                "invalid_calculation", "request and result must be JSON objects"
+            )
+        if (
+            len(input_ids) > 50_000
+            or len(operation) > 120
+            or len(formula_revision_id) > 200
+        ):
+            raise QuantitativeError(
+                "calculation_too_large",
+                "calculation inputs or identifiers exceed the bound",
+            )
+        try:
+            _canonical(request)
+            _canonical(result)
+        except (TypeError, ValueError) as exc:
+            raise QuantitativeError(
+                "invalid_calculation", "request and result must be JSON-safe"
+            ) from exc
+        return self._calculation(
+            namespace,
+            operation,
+            request,
+            result,
+            input_ids=[str(item) for item in input_ids],
+            principal_id=principal_id,
+            formula_revision_id=formula_revision_id,
         )
 
     def transform_frequency(

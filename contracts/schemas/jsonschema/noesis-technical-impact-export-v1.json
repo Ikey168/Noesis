@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/schemas/noesis-technical-impact-export-v1.json",
+  "title": "Technical impact report evidence export",
+  "type": "object",
+  "required": ["contract", "report_id", "inventory_hash", "source_snapshot_hash", "affected", "unaffected_under_assessed_ranges", "unknown", "bibliography", "authored_report_content", "project_link", "executed_changes", "replay_hash"],
+  "properties": {
+    "contract": {"const": "noesis-technical-impact-export-v1"},
+    "report_id": {"type": "string"}, "inventory_hash": {"type": "string"}, "source_snapshot_hash": {"type": "string"},
+    "affected": {"type": "array"}, "unaffected_under_assessed_ranges": {"type": "array"},
+    "unknown": {"type": "array"}, "bibliography": {"type": "array"},
+    "authored_report_content": {"type": "object"}, "project_link": {"type": "object"},
+    "executed_changes": {"const": false}, "replay_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+  },
+  "additionalProperties": false
+}

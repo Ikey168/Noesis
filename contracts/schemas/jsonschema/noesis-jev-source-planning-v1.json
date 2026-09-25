@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/contracts/noesis-jev-source-planning-v1.json",
+  "title": "Version-bound eligible source relevance advice",
+  "type": "object",
+  "required": ["contract", "status", "objective_id", "eligible_capability_ids", "baseline_plan", "advised_plan", "scores", "accepted", "decision_run"],
+  "properties": {
+    "contract": {"const": "noesis-jev-source-planning-v1"},
+    "status": {"enum": ["suggested", "pending"]},
+    "objective_id": {"type": "string", "minLength": 1},
+    "eligible_capability_ids": {"type": "array", "items": {"type": "string"}},
+    "baseline_plan": {"type": "object"},
+    "advised_plan": {"type": ["object", "null"]},
+    "scores": {"type": "object"},
+    "accepted": {"const": false},
+    "decision_run": {"type": ["object", "null"]}
+  },
+  "additionalProperties": true
+}

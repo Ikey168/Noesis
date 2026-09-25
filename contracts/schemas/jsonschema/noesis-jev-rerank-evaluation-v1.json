@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/contracts/noesis-jev-rerank-evaluation-v1.json",
+  "title": "Jev shortlist reranking evaluation report",
+  "description": "Test-split report schema. Fixture judgments exercise the evaluator but do not demonstrate human-labeled ranking quality.",
+  "type": "object",
+  "required": ["contract", "n", "k", "methods", "accepted_coverage", "p95_latency_ms", "total_retry_inclusive_cost_usd_micros", "label_origins", "task_ready"],
+  "properties": {
+    "contract": {"const": "noesis-jev-rerank-evaluation-v1"},
+    "n": {"type": "integer", "minimum": 1},
+    "k": {"type": "integer", "minimum": 1, "maximum": 30},
+    "methods": {
+      "type": "object",
+      "required": ["fusion", "minilm", "qwen", "jev"],
+      "properties": {
+        "fusion": {"$ref": "#/$defs/metrics"},
+        "minilm": {"$ref": "#/$defs/metrics"},
+        "qwen": {"$ref": "#/$defs/metrics"},
+        "jev": {"$ref": "#/$defs/metrics"}
+      },
+      "additionalProperties": false
+    },
+    "accepted_coverage": {"$ref": "#/$defs/probability"},
+    "p95_latency_ms": {"type": ["number", "null"], "minimum": 0},
+    "total_retry_inclusive_cost_usd_micros": {"type": ["integer", "null"], "minimum": 0},
+    "label_origins": {"type": "array", "items": {"enum": ["independent-human", "fixture"]}},
+    "task_ready": {"const": false}
+  },
+  "$defs": {
+    "probability": {"type": "number", "minimum": 0, "maximum": 1},
+    "metrics": {
+      "type": "object",
+      "required": ["ndcg", "answer_bearing_recall"],
+      "properties": {
+        "ndcg": {"$ref": "#/$defs/probability"},
+        "answer_bearing_recall": {"$ref": "#/$defs/probability"}
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

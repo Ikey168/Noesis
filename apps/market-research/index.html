@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light">
+    <title>Market research workspace · Noesis</title>
+    <link rel="stylesheet" href="/api/v1/market/workspace/assets/styles.css">
+    <script src="/api/v1/market/workspace/assets/app.js" defer></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="/api/v1/market/workspace" aria-label="Noesis market research home">
+        <span class="brand-mark" aria-hidden="true">N</span>
+        <span>NOESIS <span class="brand-divider">/</span> MARKET RESEARCH</span>
+      </a>
+      <div class="topbar-right">
+        <span class="live-dot" aria-hidden="true"></span>
+        <span>Point-in-time workspace</span>
+      </div>
+    </header>
+
+    <main class="shell">
+      <section class="intro">
+        <div>
+          <p class="eyebrow">COMPANY RESEARCH</p>
+          <h1>Research, with the evidence attached.</h1>
+          <p class="intro-copy">Explore price history, filed statements, explainable metrics and dated peers. Every panel carries its own source and availability context.</p>
+        </div>
+        <div id="run-state" class="run-state" role="status" aria-live="polite">
+          <span class="state-icon" aria-hidden="true">↗</span>
+          <span>Connect to a market data namespace to begin.</span>
+        </div>
+      </section>
+
+      <section class="control-card" aria-labelledby="controls-heading">
+        <div class="section-heading compact-heading">
+          <div>
+            <p class="eyebrow">01 / REQUEST</p>
+            <h2 id="controls-heading">Choose a company and a cutoff</h2>
+          </div>
+          <span class="micro-label">Same-origin API · access token stays in this tab</span>
+        </div>
+        <form id="request-form">
+          <div class="lookup-bar">
+            <label class="field">
+              <span>Find a listing by exact ticker</span>
+              <input id="symbol" type="text" maxlength="200" placeholder="e.g. MSFT">
+            </label>
+            <label class="field">
+              <span>Venue MIC <i>optional disambiguator</i></span>
+              <input id="lookup-mic" type="text" maxlength="4" placeholder="e.g. XNAS">
+            </label>
+            <button id="resolve-symbol" class="button button-quiet" type="button">Resolve in instrument master <span aria-hidden="true">↗</span></button>
+            <p id="lookup-status" class="lookup-status" role="status" aria-live="polite">Ticker resolution uses the selected public and acquisition cutoffs.</p>
+            <div id="lookup-candidates" class="lookup-candidates" aria-live="polite"></div>
+          </div>
+          <div class="form-grid">
+            <label class="field field-wide">
+              <span>Bearer token</span>
+              <input id="token" type="password" autocomplete="off" placeholder="Paste an API access token" required>
+              <small>Held only in this tab’s session storage; never sent to another host.</small>
+            </label>
+            <label class="field">
+              <span>Market namespace</span>
+              <input id="namespace" type="text" placeholder="market:default" required>
+            </label>
+            <label class="field">
+              <span>Subject listing ID</span>
+              <input id="listing-id" type="text" placeholder="listing:…" required>
+            </label>
+            <label class="field field-wide">
+              <span>Explicit peer listing IDs <i>optional · comma separated</i></span>
+              <input id="peers" type="text" placeholder="listing:peer-one, listing:peer-two">
+            </label>
+            <label class="field">
+              <span>Universe ID <i>optional</i></span>
+              <input id="universe-id" type="text" placeholder="universe:…">
+            </label>
+            <label class="field">
+              <span>Industry code <i>exact filter</i></span>
+              <input id="industry-code" type="text" placeholder="e.g. TECH">
+            </label>
+            <label class="field">
+              <span>Common currency <i>filter only; no conversion</i></span>
+              <input id="currency" type="text" maxlength="3" placeholder="USD">
+            </label>
+          </div>
+
+          <div class="cutoff-grid">
+            <label class="field"><span>Price window · from</span><input id="start-at" type="date" required></label>
+            <label class="field"><span>Price window · to</span><input id="end-at" type="date" required></label>
+            <label class="field"><span>Public-information cutoff</span><input id="public-cutoff" type="date" required></label>
+            <label class="field"><span>Known/acquired by</span><input id="acquired-cutoff" type="date" required></label>
+          </div>
+          <div class="form-actions">
+            <p>Periods stay as reported. Incompatible inputs are not coerced into a ratio.</p>
+            <div class="action-buttons">
+              <button id="forget-token" class="button button-quiet" type="button">Forget token</button>
+              <button class="button button-primary" type="submit"><span>Build workspace</span><span aria-hidden="true">→</span></button>
+            </div>
+          </div>
+        </form>
+      </section>
+
+      <div id="error-panel" class="error-panel hidden" role="alert"></div>
+      <div id="dashboard" class="dashboard hidden">
+        <section id="overview" class="section-block">
+          <div class="section-heading">
+            <div><p class="eyebrow">02 / OVERVIEW</p><h2>Company and peer set</h2></div>
+            <p id="selection-summary" class="section-note"></p>
+          </div>
+          <div id="company-cards" class="company-grid"></div>
+          <div id="exclusions" class="exclusion-strip"></div>
+        </section>
+
+        <section id="prices" class="section-block">
+          <div class="section-heading">
+            <div><p class="eyebrow">03 / MARKET HISTORY</p><h2>Daily prices</h2></div>
+            <p class="section-note">Select a plotted point or table row to inspect its exact revision.</p>
+          </div>
+          <div id="price-panels" class="panel-stack"></div>
+        </section>
+
+        <section id="statements" class="section-block">
+          <div class="section-heading">
+            <div><p class="eyebrow">04 / FILED EVIDENCE</p><h2>Statements and source revisions</h2></div>
+            <p class="section-note">Conflicts, missing mappings and source gaps remain visible.</p>
+          </div>
+          <div id="statement-panels" class="panel-stack"></div>
+          <div class="metric-builder">
+            <div class="metric-builder-copy">
+              <p class="eyebrow">OPTIONAL · FORMULA REGISTRY</p>
+              <h3>Calculate a sourced ratio</h3>
+              <p>Choose exact fact revisions. The server checks periods, units, authorization and formula compatibility.</p>
+            </div>
+            <form id="metric-form" class="metric-form">
+              <label class="field"><span>Metric name</span><input id="metric-name" type="text" value="custom_ratio" maxlength="80"></label>
+              <label class="field"><span>Formula kind</span><select id="metric-kind"><option value="margin">Margin</option><option value="leverage">Leverage</option><option value="liquidity">Liquidity</option><option value="growth">Year-over-year growth</option><option value="valuation_multiple">Valuation multiple</option></select></label>
+              <label class="field"><span>Numerator fact revision</span><select id="metric-numerator" required><option value="">Load a company first</option></select></label>
+              <label class="field"><span>Denominator fact revision</span><select id="metric-denominator" required><option value="">Load a company first</option></select></label>
+              <button class="button button-dark" type="submit">Calculate with exact inputs <span aria-hidden="true">↗</span></button>
+            </form>
+          </div>
+          <p id="valuation-note" class="valuation-note"></p>
+        </section>
+
+        <section id="events" class="section-block">
+          <div class="section-heading">
+            <div><p class="eyebrow">05 / CORPORATE EVENTS</p><h2>Actions and adjustments</h2></div>
+            <p class="section-note">No price adjustment is inferred without an approved action rule.</p>
+          </div>
+          <div id="event-panels" class="panel-stack"></div>
+        </section>
+
+        <section id="provenance" class="section-block">
+          <div class="section-heading">
+            <div><p class="eyebrow">06 / AUDIT TRAIL</p><h2>Freshness, quality and exclusions</h2></div>
+            <p class="section-note">The request cutoffs and source revisions used are retained below.</p>
+          </div>
+          <div id="audit-content" class="audit-grid"></div>
+        </section>
+      </div>
+
+      <footer class="footer">
+        <span>Noesis Market Research</span>
+        <span>Evidence first · as-of aware · source rights enforced by the API</span>
+      </footer>
+    </main>
+  </body>
+</html>

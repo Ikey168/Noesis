@@ -1,0 +1,51 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/schemas/noesis-market-security-v1.json",
+  "title": "Noesis market security v1",
+  "description": "A stable tradable instrument identity issued by an issuer. Identifiers such as CUSIP, ISIN, FIGI and provider symbols are sourced, dated aliases.",
+  "type": "object",
+  "required": ["contract", "namespace", "owner", "security_id", "issuer_id", "revision_id", "revision", "security_type", "share_class", "denomination_currency", "status", "identifiers", "source_refs", "recorded_at_ms", "record_hash"],
+  "properties": {
+    "contract": {"const": "noesis-market-security-v1"},
+    "namespace": {"type": "string", "minLength": 1},
+    "owner": {"type": ["string", "null"]},
+    "security_id": {"type": "string", "minLength": 1, "description": "Opaque, stable Noesis identifier independent of ticker and listing."},
+    "issuer_id": {"type": "string", "minLength": 1},
+    "revision_id": {"type": "string", "minLength": 1},
+    "revision": {"type": "integer", "minimum": 1},
+    "security_type": {"type": "string", "minLength": 1, "description": "Versioned vocabulary value, such as common_equity, preferred_equity, adr, etf, bond or option."},
+    "share_class": {"type": ["string", "null"]},
+    "denomination_currency": {"type": ["string", "null"], "pattern": "^[A-Z]{3}$"},
+    "industry_code": {"type": ["string", "null"], "minLength": 1, "description": "Source-backed industry classification code, when available."},
+    "status": {"enum": ["active", "inactive", "matured", "cancelled", "unknown"]},
+    "identifiers": {"type": "array", "items": {"$ref": "#/definitions/identifier"}},
+    "source_refs": {"type": "array", "minItems": 1, "items": {"$ref": "#/definitions/source_ref"}},
+    "recorded_at_ms": {"type": "integer", "minimum": 0},
+    "record_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+  },
+  "additionalProperties": false,
+  "definitions": {
+    "source_ref": {
+      "type": "object",
+      "required": ["source_ref_id", "provider", "provider_object_id", "source_revision_id", "public_at_ms", "source_snapshot_id", "source_url", "retrieved_at_ms", "content_hash", "license_id", "entitlement_id"],
+      "properties": {
+        "source_ref_id": {"type": "string", "minLength": 1}, "provider": {"type": "string", "minLength": 1}, "provider_object_id": {"type": "string", "minLength": 1},
+        "source_revision_id": {"type": ["string", "null"]}, "public_at_ms": {"type": ["integer", "null"], "minimum": 0}, "source_snapshot_id": {"type": ["string", "null"]}, "source_url": {"type": ["string", "null"], "format": "uri"},
+        "retrieved_at_ms": {"type": "integer", "minimum": 0}, "content_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "license_id": {"type": "string", "minLength": 1}, "entitlement_id": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
+    },
+    "identifier": {
+      "type": "object",
+      "required": ["scheme", "value", "valid_from_ms", "valid_to_ms", "source_ref_id"],
+      "properties": {
+        "scheme": {"type": "string", "minLength": 1}, "value": {"type": "string", "minLength": 1},
+        "valid_from_ms": {"type": "integer", "minimum": 0}, "valid_to_ms": {"type": ["integer", "null"], "minimum": 0},
+        "assertion_status": {"enum": ["active", "retracted"], "default": "active"},
+        "source_ref_id": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
+    }
+  }
+}

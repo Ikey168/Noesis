@@ -264,8 +264,10 @@ class ResearchProjectStore:
         return {"projects": result}
 
     def revise(self, namespace, project_id, expected_revision, *, principal_id, scopes,
-               questions=None, success_criteria=None, add_links=None, status=None, replace_links=None):
-        self.conn.execute("BEGIN TRANSACTION")
+               questions=None, success_criteria=None, add_links=None, status=None, replace_links=None,
+               _within_transaction=False):
+        if not _within_transaction:
+            self.conn.execute("BEGIN TRANSACTION")
         try:
             state = self._state(namespace, project_id)
             self._authorize(state, principal_id, scopes, write=True)
@@ -292,9 +294,12 @@ class ResearchProjectStore:
                     raise ResearchProjectError("invalid_status", "unsupported project lifecycle state")
                 state["status"] = status
             state = self._append(state, expected_revision)
-            self.conn.execute("COMMIT")
+            if not _within_transaction:
+                self.conn.execute("COMMIT")
             return state
         except Exception as exc:
+            if _within_transaction:
+                raise
             self._abort(exc)
 
     def record_expenditure(self, namespace, project_id, receipt_id, costs, expected_revision, *, principal_id, scopes):

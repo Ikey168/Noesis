@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/contracts/noesis-legislative-timeline-v1.json",
+  "title": "Observation-safe legislative timeline",
+  "type": "object",
+  "required": ["contract", "dossier_id", "revision", "jurisdiction", "entries", "observed_as_of_ms", "total", "legal_effect_state"],
+  "properties": {
+    "contract": {"const": "noesis-legislative-timeline-v1"},
+    "dossier_id": {"type": "string"},
+    "revision": {"type": "integer", "minimum": 1},
+    "jurisdiction": {"enum": ["DE", "EU"]},
+    "observed_as_of_ms": {"type": ["integer", "null"], "minimum": 0},
+    "total": {"type": "integer", "minimum": 0},
+    "legal_effect_state": {"enum": ["unknown", "source_supported_events_only"]},
+    "entries": {
+      "type": "array", "maxItems": 100,
+      "items": {
+        "type": "object",
+        "required": ["event_kind", "date", "published_at", "observed_at_ms", "jurisdiction", "citation", "legal_fact"],
+        "properties": {
+          "event_kind": {"enum": ["proposal", "amendment", "vote", "adoption", "publication", "commencement", "repeal"]},
+          "date": {"type": ["object", "null"]},
+          "published_at": {"type": ["object", "null"]},
+          "observed_at_ms": {"type": "integer", "minimum": 0},
+          "jurisdiction": {"enum": ["DE", "EU"]},
+          "citation": {"type": "object", "required": ["document_id", "revision_id", "url"]},
+          "legal_fact": {"type": "boolean"}
+        }
+      }
+    }
+  }
+}

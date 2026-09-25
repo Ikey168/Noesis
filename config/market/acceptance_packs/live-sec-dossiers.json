@@ -1,0 +1,291 @@
+{
+ "pack_id": "market-live-sec-dossiers-v1",
+ "status": "live_verified",
+ "evidence_kind": "live_provider",
+ "provider": "sec_edgar",
+ "recorded_at": "2026-09-24T21:32:48+00:00",
+ "check": "company_dossier_headline_reconciliation_and_guidance",
+ "universe": [
+  "MSFT",
+  "ORCL",
+  "CRM",
+  "ADBE",
+  "NOW"
+ ],
+ "rows": [
+  {
+   "ticker": "MSFT",
+   "status": "reconciled",
+   "headline_reconciliation": [
+    {
+     "reporting_period": "2025-10-28",
+     "release_value": "77700000000",
+     "filed_value": "77673000000",
+     "tolerance": "50000000",
+     "status": "consistent_at_stated_precision",
+     "filed_derivation": "filed"
+    },
+    {
+     "reporting_period": "2026-01-28",
+     "release_value": "81300000000",
+     "filed_value": "81273000000",
+     "tolerance": "50000000",
+     "status": "consistent_at_stated_precision",
+     "filed_derivation": "filed"
+    },
+    {
+     "reporting_period": "2026-04-29",
+     "release_value": "82900000000",
+     "filed_value": "82886000000",
+     "tolerance": "50000000",
+     "status": "consistent_at_stated_precision",
+     "filed_derivation": "filed"
+    },
+    {
+     "reporting_period": "2026-07-29",
+     "release_value": "90000000000",
+     "filed_value": "90007000000",
+     "tolerance": "50000000",
+     "status": "consistent_at_stated_precision",
+     "filed_derivation": "annual_minus_three_quarters"
+    }
+   ],
+   "guidance_comparisons": [],
+   "management_claims": 1,
+   "gaps": [
+    "prior_quarter_guidance_unavailable",
+    "source_unavailable"
+   ],
+   "dossier_source_gaps": [
+    "pre_event_consensus_missing",
+    "dated_peers_missing"
+   ],
+   "unavailable_sources": [
+    "analyst_consensus",
+    "earnings_call_transcript",
+    "institutional_holdings_13f"
+   ],
+   "dossier_record_hash": "c153310953097dcf87390c02ba1aac179fb101f327a9813e35a830bb3518cea8"
+  },
+  {
+   "ticker": "ORCL",
+   "status": "reconciled",
+   "headline_reconciliation": [
+    {
+     "reporting_period": "2025-12-10",
+     "release_value": "16100000000",
+     "filed_value": "16058000000",
+     "tolerance": "50000000",
+     "status": "consistent_at_stated_precision",
+     "filed_derivation": "filed"
+    },
+    {
+     "reporting_period": "2026-03-10",
+     "release_value": "17200000000",
+     "filed_value": "17190000000",
+     "tolerance": "50000000",
+     "status": "consistent_at_stated_precision",
+     "filed_derivation": "filed"
+    },
+    {
+     "reporting_period": "2026-06-10",
+     "release_value": "19200000000",
+     "filed_value": "19183000000",
+     "tolerance": "50000000",
+     "status": "consistent_at_stated_precision",
+     "filed_derivation": "annual_minus_three_quarters"
+    }
+   ],
+   "guidance_comparisons": [],
+   "management_claims": 16,
+   "gaps": [
+    "headline_revenue_not_found",
+    "prior_quarter_guidance_unavailable",
+    "source_unavailable"
+   ],
+   "dossier_source_gaps": [
+    "pre_event_consensus_missing",
+    "dated_peers_missing"
+   ],
+   "unavailable_sources": [
+    "analyst_consensus",
+    "earnings_call_transcript",
+    "institutional_holdings_13f"
+   ],
+   "dossier_record_hash": "17d66a2a44ec52bb617576a0d251c7054f89fb79a91066e4c17ade8a53f1616e"
+  },
+  {
+   "ticker": "CRM",
+   "status": "reconciled",
+   "headline_reconciliation": [
+    {
+     "reporting_period": "2025-12-03",
+     "release_value": "10300000000",
+     "filed_value": "10259000000",
+     "tolerance": "50000000",
+     "status": "consistent_at_stated_precision",
+     "filed_derivation": "filed"
+    },
+    {
+     "reporting_period": "2026-02-25",
+     "release_value": "11200000000",
+     "filed_value": "11201000000",
+     "tolerance": "50000000",
+     "status": "consistent_at_stated_precision",
+     "filed_derivation": "annual_minus_three_quarters"
+    },
+    {
+     "reporting_period": "2026-05-27",
+     "release_value": "11100000000",
+     "filed_value": "11133000000",
+     "tolerance": "50000000",
+     "status": "consistent_at_stated_precision",
+     "filed_derivation": "filed"
+    },
+    {
+     "reporting_period": "2026-08-26",
+     "release_value": "11300000000",
+     "filed_value": "11345000000",
+     "tolerance": "50000000",
+     "status": "consistent_at_stated_precision",
+     "filed_derivation": "filed"
+    }
+   ],
+   "guidance_comparisons": [
+    {
+     "range": "$11.27 billion to $11.35 billion",
+     "actual": 11345000000.0,
+     "outcome": "within_range"
+    }
+   ],
+   "management_claims": 44,
+   "gaps": [
+    "prior_quarter_guidance_unavailable",
+    "source_unavailable"
+   ],
+   "dossier_source_gaps": [
+    "pre_event_consensus_missing",
+    "dated_peers_missing"
+   ],
+   "unavailable_sources": [
+    "analyst_consensus",
+    "earnings_call_transcript",
+    "institutional_holdings_13f"
+   ],
+   "dossier_record_hash": "841fe129ee5d4478731b7e0bd34a87974001ad6b3b88f7af69145b68adb2ceb1"
+  },
+  {
+   "ticker": "ADBE",
+   "status": "reconciled",
+   "headline_reconciliation": [
+    {
+     "reporting_period": "2025-12-10",
+     "release_value": "6190000000",
+     "filed_value": "6194000000",
+     "tolerance": "5000000",
+     "status": "consistent_at_stated_precision",
+     "filed_derivation": "annual_minus_three_quarters"
+    },
+    {
+     "reporting_period": "2026-03-09",
+     "release_value": "6400000000",
+     "filed_value": "6398000000",
+     "tolerance": "5000000",
+     "status": "consistent_at_stated_precision",
+     "filed_derivation": "filed"
+    },
+    {
+     "reporting_period": "2026-06-08",
+     "release_value": "6620000000",
+     "filed_value": "6618000000",
+     "tolerance": "5000000",
+     "status": "consistent_at_stated_precision",
+     "filed_derivation": "filed"
+    },
+    {
+     "reporting_period": "2026-09-10",
+     "release_value": "6760000000",
+     "filed_value": "6760000000",
+     "tolerance": "5000000",
+     "status": "consistent_at_stated_precision",
+     "filed_derivation": "filed"
+    }
+   ],
+   "guidance_comparisons": [],
+   "management_claims": 2,
+   "gaps": [
+    "prior_quarter_guidance_unavailable",
+    "source_unavailable"
+   ],
+   "dossier_source_gaps": [
+    "pre_event_consensus_missing",
+    "dated_peers_missing"
+   ],
+   "unavailable_sources": [
+    "analyst_consensus",
+    "earnings_call_transcript",
+    "institutional_holdings_13f"
+   ],
+   "dossier_record_hash": "2264ebea22b0b2f53814e742be813ed8b0eecdf47566da8ccfc4b535fe5dbced"
+  },
+  {
+   "ticker": "NOW",
+   "status": "reconciled",
+   "headline_reconciliation": [
+    {
+     "reporting_period": "2025-10-29",
+     "release_value": "3407000000",
+     "filed_value": "3407000000",
+     "tolerance": "500000",
+     "status": "consistent_at_stated_precision",
+     "filed_derivation": "filed"
+    },
+    {
+     "reporting_period": "2026-01-28",
+     "release_value": "3568000000",
+     "filed_value": "3568000000",
+     "tolerance": "500000",
+     "status": "consistent_at_stated_precision",
+     "filed_derivation": "annual_minus_three_quarters"
+    },
+    {
+     "reporting_period": "2026-04-17",
+     "release_value": "3770000000",
+     "filed_value": "3770000000",
+     "tolerance": "500000",
+     "status": "consistent_at_stated_precision",
+     "filed_derivation": "filed"
+    },
+    {
+     "reporting_period": "2026-07-22",
+     "release_value": "3987000000",
+     "filed_value": "3987000000",
+     "tolerance": "500000",
+     "status": "consistent_at_stated_precision",
+     "filed_derivation": "filed"
+    }
+   ],
+   "guidance_comparisons": [],
+   "management_claims": 2,
+   "gaps": [
+    "prior_quarter_guidance_unavailable",
+    "source_unavailable"
+   ],
+   "dossier_source_gaps": [
+    "pre_event_consensus_missing",
+    "dated_peers_missing"
+   ],
+   "unavailable_sources": [
+    "analyst_consensus",
+    "earnings_call_transcript",
+    "institutional_holdings_13f"
+   ],
+   "dossier_record_hash": "423f0feeb6190aa8c6f06d6e0f1fafb429aec99c93001ad907655d439de900a3"
+  }
+ ],
+ "limitations": [
+  "Headline figures are compared with filed quarterly revenue at the precision the release states.",
+  "Guidance comparisons exist only where a release states a quarterly revenue range; consensus is unlicensed and unavailable.",
+  "No analyst usefulness review is implied by this pack."
+ ]
+}
