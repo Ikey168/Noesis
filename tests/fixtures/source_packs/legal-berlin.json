@@ -1,0 +1,47 @@
+{
+ "captured": false,
+ "authored": true,
+ "provider": "gesetze.berlin.de (juris portal)",
+ "note": "Authored fictional Berlin law (historical and current version) and judgment page in the documented juris XML ZIP and rendered-page formats; real Berlin captures are recorded by hash in berlin-native-2026-09-09.json.",
+ "native_pages": [
+  {
+   "request": "/jportal/bsbeAizDownload/FixG_BE_2019.zip?doc.id=jlr-FIXTUREBEG2019&doc.part=X",
+   "status": 200,
+   "headers": {
+    "Content-Type": "application/zip"
+   },
+   "body_encoding": "base64",
+   "body": "UEsDBBQAAAAAAOASOl3byCCJdgMAAHYDAAALAAAAY29udGVudC54bWw8P3htbCB2ZXJzaW9uPSIxLjAiIGVuY29kaW5nPSJVVEYtOCI/Pjxkb2t1bWVudGUgZG9rbnI9Impsci1GSVhUVVJFQkVHMjAxOSI+PG5vcm0gZG9rbnI9Impsci1GSVhUVVJFQkVHMjAxOSI+PG1ldGFkYXRlbj48anVyYWJrPkZpeEcgQkU8L2p1cmFiaz48dGl0ZWw+RmlrdGl2ZXMgQmVybGluZXIgQmVpc3BpZWxnZXNldHo8L3RpdGVsPjxkb2t1bWVudHR5cD5HZXNldHo8L2Rva3VtZW50dHlwPjxhdXNmZXJ0aWd1bmctZGF0dW0+MjAxOS0wNi0wMTwvYXVzZmVydGlndW5nLWRhdHVtPjxndWVsdGlnYWI+MjAxOS0wNy0wMTwvZ3VlbHRpZ2FiPjxndWVsdGlnYmlzPjIwMjUtMTItMzE8L2d1ZWx0aWdiaXM+PGZ1bmRzdGVsbGU+R1ZCbC4gMjAxOSwgMSAoZmlrdGl2KTwvZnVuZHN0ZWxsZT48L21ldGFkYXRlbj48dGV4dGRhdGVuPjxwPkVpbmdhbmdzZm9ybWVsIChmaWt0aXYpLjwvcD48dGFibGUgY2xhc3M9InN0YW5kYW5nYWJlbiI+PHRyPjx0ZD5GYXNzdW5nIGJpcyAzMS4xMi4yMDI1IChmaWt0aXYpPC90ZD48L3RyPjwvdGFibGU+PC90ZXh0ZGF0ZW4+PC9ub3JtPjxub3JtIGRva25yPSJqbHItRklYVFVSRUJFRzIwMTlOTjEiPjxtZXRhZGF0ZW4+PGVuYmV6PsKnIDE8L2VuYmV6PjwvbWV0YWRhdGVuPjx0ZXh0ZGF0ZW4+PHA+RGllc2VzIEdlc2V0eiByZWdlbHQgZWluIGZpa3RpdmVzIEJlaXNwaWVsdmVyZmFocmVuLjwvcD48L3RleHRkYXRlbj48L25vcm0+PG5vcm0gZG9rbnI9Impsci1GSVhUVVJFQkVHMjAxOU5OMiI+PG1ldGFkYXRlbj48ZW5iZXo+wqcgMjwvZW5iZXo+PC9tZXRhZGF0ZW4+PHRleHRkYXRlbj48cD5adXN0w6RuZGlnIGlzdCBkaWUgZmlrdGl2ZSBCZWlzcGllbGJlaMO2cmRlLjwvcD48L3RleHRkYXRlbj48L25vcm0+PC9kb2t1bWVudGU+UEsBAhQDFAAAAAAA4BI6XdvIIIl2AwAAdgMAAAsAAAAAAAAAAAAAAIABAAAAAGNvbnRlbnQueG1sUEsFBgAAAAABAAEAOQAAAJ8DAAAAAA=="
+  },
+  {
+   "request": "/jportal/bsbeAizDownload/FixG_BE.zip?doc.id=jlr-FIXTUREBEG2019&doc.part=X",
+   "status": 200,
+   "headers": {
+    "Content-Type": "application/zip"
+   },
+   "body_encoding": "base64",
+   "body": "UEsDBBQAAAAAAOASOl3aSaXTjwMAAI8DAAALAAAAY29udGVudC54bWw8P3htbCB2ZXJzaW9uPSIxLjAiIGVuY29kaW5nPSJVVEYtOCI/Pjxkb2t1bWVudGUgZG9rbnI9Impsci1GSVhUVVJFQkVHMjAxOSI+PG5vcm0gZG9rbnI9Impsci1GSVhUVVJFQkVHMjAxOSI+PG1ldGFkYXRlbj48anVyYWJrPkZpeEcgQkU8L2p1cmFiaz48dGl0ZWw+RmlrdGl2ZXMgQmVybGluZXIgQmVpc3BpZWxnZXNldHo8L3RpdGVsPjxkb2t1bWVudHR5cD5HZXNldHo8L2Rva3VtZW50dHlwPjxhdXNmZXJ0aWd1bmctZGF0dW0+MjAxOS0wNi0wMTwvYXVzZmVydGlndW5nLWRhdHVtPjxndWVsdGlnYWI+MjAyNi0wMS0wMTwvZ3VlbHRpZ2FiPjxmdW5kc3RlbGxlPkdWQmwuIDIwMTksIDEgKGZpa3Rpdik8L2Z1bmRzdGVsbGU+PC9tZXRhZGF0ZW4+PHRleHRkYXRlbj48cD5FaW5nYW5nc2Zvcm1lbCAoZmlrdGl2KS48L3A+PHRhYmxlIGNsYXNzPSJzdGFuZGFuZ2FiZW4iPjx0cj48dGQ+enVsZXR6dCBnZcOkbmRlcnQgZHVyY2ggZmlrdGl2ZXMgR2VzZXR6IHZvbSAwMS4xMi4yMDI1PC90ZD48L3RyPjwvdGFibGU+PC90ZXh0ZGF0ZW4+PC9ub3JtPjxub3JtIGRva25yPSJqbHItRklYVFVSRUJFRzIwMTlOTjEiPjxtZXRhZGF0ZW4+PGVuYmV6PsKnIDE8L2VuYmV6PjwvbWV0YWRhdGVuPjx0ZXh0ZGF0ZW4+PHA+RGllc2VzIEdlc2V0eiByZWdlbHQgZWluIGZpa3RpdmVzIEJlaXNwaWVsdmVyZmFocmVuLjwvcD48L3RleHRkYXRlbj48L25vcm0+PG5vcm0gZG9rbnI9Impsci1GSVhUVVJFQkVHMjAxOU5OMiI+PG1ldGFkYXRlbj48ZW5iZXo+wqcgMjwvZW5iZXo+PC9tZXRhZGF0ZW4+PHRleHRkYXRlbj48cD5adXN0w6RuZGlnIGlzdCBkaWUgZmlrdGl2ZSBCZWlzcGllbGJlaMO2cmRlOyBzaWUgZW50c2NoZWlkZXQgYmlubmVuIGVpbmVzIE1vbmF0cy48L3A+PC90ZXh0ZGF0ZW4+PC9ub3JtPjwvZG9rdW1lbnRlPlBLAQIUAxQAAAAAAOASOl3aSaXTjwMAAI8DAAALAAAAAAAAAAAAAACAAQAAAABjb250ZW50LnhtbFBLBQYAAAAAAQABADkAAAC4AwAAAAA="
+  },
+  {
+   "request": "/bsbe/document/NJRE000000001",
+   "status": 200,
+   "headers": {
+    "Content-Type": "text/html; charset=utf-8"
+   },
+   "body": "<html><body><table><tr><th>Gericht:</th><td>VG Berlin (fiktiv)</td></tr><tr><th>Entscheidungsdatum:</th><td>15.03.2026</td></tr><tr><th>Aktenzeichen:</th><td>1 K 1/26 (fiktiv)</td></tr><tr><th>ECLI:</th><td>ECLI:DE:VGBE:2026:0315.1K1.26.00</td></tr></table><div class=\"docLayoutText doktyp-juris-r\"><p>Redaktioneller Hinweis (nicht amtlich).</p><h3>Tenor</h3><p>Die Klage wird abgewiesen.</p><h3>Gründe</h3><dl class=\"RspDL\"><dt>1</dt><dd><p>Die Klage ist nach § 2 FixG BE unbegründet.</p></dd></dl></div></body></html>"
+  },
+  {
+   "request": "/jportal/bsbeAizDownload/Missing.zip?doc.id=jlr-FIXTUREMISSING&doc.part=X",
+   "status": 404,
+   "headers": {},
+   "body": null
+  }
+ ],
+ "scenarios": [
+  "historical-and-current-version",
+  "commencement-and-validity-end",
+  "rendered-judgment-with-editorial-text",
+  "gazette-reference",
+  "inaccessible-publication"
+ ]
+}

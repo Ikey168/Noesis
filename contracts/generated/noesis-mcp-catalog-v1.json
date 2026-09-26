@@ -13,6 +13,10 @@
       "state": "disabled"
     },
     {
+      "name": "legal",
+      "state": "disabled"
+    },
+    {
       "name": "market",
       "state": "disabled"
     },
@@ -895,7 +899,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 670,
+      "tool_count": 680,
       "tools": [
         "noesis-knowledge-engine.accept_awareness_jev_suggestion",
         "noesis-knowledge-engine.accept_citation_repair",
@@ -982,6 +986,7 @@
         "noesis-knowledge-engine.compare_event_dossier_revisions",
         "noesis-knowledge-engine.compare_evidence_freshness_policies",
         "noesis-knowledge-engine.compare_hypotheses",
+        "noesis-knowledge-engine.compare_legal_versions",
         "noesis-knowledge-engine.compare_legislative_dossier",
         "noesis-knowledge-engine.compare_openreview_rounds",
         "noesis-knowledge-engine.compare_paper_family_members",
@@ -1135,6 +1140,7 @@
         "noesis-knowledge-engine.get_hypothesis_research_plan",
         "noesis-knowledge-engine.get_hypothesis_workspace",
         "noesis-knowledge-engine.get_knowledge_anomaly",
+        "noesis-knowledge-engine.get_legal_passages",
         "noesis-knowledge-engine.get_methodology_study",
         "noesis-knowledge-engine.get_multimodal_asset",
         "noesis-knowledge-engine.get_multimodal_segment",
@@ -1193,6 +1199,7 @@
         "noesis-knowledge-engine.inspect_jev_intake_intent",
         "noesis-knowledge-engine.inspect_jev_review_priority",
         "noesis-knowledge-engine.inspect_jev_task_rollout",
+        "noesis-knowledge-engine.inspect_legal_work",
         "noesis-knowledge-engine.inspect_legislative_dossier",
         "noesis-knowledge-engine.inspect_maintenance_generation",
         "noesis-knowledge-engine.inspect_maintenance_job",
@@ -1228,11 +1235,16 @@
         "noesis-knowledge-engine.install_source_pack",
         "noesis-knowledge-engine.instantiate_investigation_template",
         "noesis-knowledge-engine.knowledge_engine_capabilities",
+        "noesis-knowledge-engine.legal_readiness",
+        "noesis-knowledge-engine.legal_retrieval_modes",
+        "noesis-knowledge-engine.legal_selection_outcomes",
+        "noesis-knowledge-engine.legal_source_contracts",
         "noesis-knowledge-engine.legislative_dossier_dependencies",
         "noesis-knowledge-engine.legislative_dossier_timeline",
         "noesis-knowledge-engine.link_claim_evolution",
         "noesis-knowledge-engine.link_cross_modal_evidence",
         "noesis-knowledge-engine.link_hypothesis_evidence",
+        "noesis-knowledge-engine.link_legal_dossier",
         "noesis-knowledge-engine.link_study_artifact",
         "noesis-knowledge-engine.list_change_briefs",
         "noesis-knowledge-engine.list_decision_review_tasks",
@@ -1262,6 +1274,7 @@
         "noesis-knowledge-engine.list_source_pack_schedules",
         "noesis-knowledge-engine.list_source_packs",
         "noesis-knowledge-engine.list_zotero_items",
+        "noesis-knowledge-engine.lookup_legal_work",
         "noesis-knowledge-engine.lookup_product_models",
         "noesis-knowledge-engine.lookup_source_identity",
         "noesis-knowledge-engine.maintenance_generation_lineage",
@@ -1482,6 +1495,7 @@
         "noesis-knowledge-engine.search_intake_playbooks",
         "noesis-knowledge-engine.search_methodology_studies",
         "noesis-knowledge-engine.search_multimodal_assets",
+        "noesis-knowledge-engine.select_legal_version_as_of",
         "noesis-knowledge-engine.select_paper_family_citation",
         "noesis-knowledge-engine.set_cited_evidence_subscription_status",
         "noesis-knowledge-engine.set_funding_bundle_enabled",
@@ -1573,7 +1587,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 670
+      "visible_tool_count": 680
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -1584,11 +1598,11 @@
     },
     "servers": 30,
     "states": {
-      "available": 93,
+      "available": 95,
       "degraded": 158,
-      "unauthorized": 725
+      "unauthorized": 733
     },
-    "tools": 976
+    "tools": 986
   },
   "tools": [
     {
@@ -23655,6 +23669,47 @@
     },
     {
       "cost_class": "low",
+      "description": "Passage-level differences between two versions of one work (source change, not legal effect).",
+      "id": "noesis-knowledge-engine.compare_legal_versions",
+      "input_schema": {
+        "properties": {
+          "left_version_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "right_version_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "left_version_id",
+          "right_version_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "compare_legal_versions",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:legal:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Compare exact dossier revisions and their before/after citations.",
       "id": "noesis-knowledge-engine.compare_legislative_dossier",
       "input_schema": {
@@ -31385,6 +31440,69 @@
     },
     {
       "cost_class": "low",
+      "description": "Exact source passages of one version by locator fragment or exact substring, with locators.",
+      "id": "noesis-knowledge-engine.get_legal_passages",
+      "input_schema": {
+        "properties": {
+          "contains": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "limit": {
+            "default": 20,
+            "type": "integer"
+          },
+          "locator": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "version_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "version_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "get_legal_passages",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:legal:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Read the current or an exact study-method revision.",
       "id": "noesis-knowledge-engine.get_methodology_study",
       "input_schema": {
@@ -34025,6 +34143,43 @@
     },
     {
       "cost_class": "low",
+      "description": "A work with its language expressions, versions, sourced dates, citations and procedure links.",
+      "id": "noesis-knowledge-engine.inspect_legal_work",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "work_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "work_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "inspect_legal_work",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:legal:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Inspect one dossier revision with current source access checks.",
       "id": "noesis-knowledge-engine.inspect_legislative_dossier",
       "input_schema": {
@@ -35487,6 +35642,117 @@
     },
     {
       "cost_class": "low",
+      "description": "Per-provider/jurisdiction readiness; planned or uninstalled sources are never listed as ready.",
+      "id": "noesis-knowledge-engine.legal_readiness",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "legal_readiness",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:legal:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Which legal retrieval modes are enabled or deferred, with thresholds and evidence.",
+      "id": "noesis-knowledge-engine.legal_retrieval_modes",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "legal_retrieval_modes",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Per-selection outcomes of one legal acquisition run (returned, not_found).",
+      "id": "noesis-knowledge-engine.legal_selection_outcomes",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "run_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "run_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "legal_selection_outcomes",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:legal:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Per-provider access, identifiers, formats and coverage boundaries (CELLAR, RII, Berlin).",
+      "id": "noesis-knowledge-engine.legal_source_contracts",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "legal_source_contracts",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Return existing project/report links and explicit evidence changes.",
       "id": "noesis-knowledge-engine.legislative_dossier_dependencies",
       "input_schema": {
@@ -35878,6 +36144,55 @@
       ],
       "required_scopes": [
         "knowledge:hypothesis:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Link a political legislative dossier to an enacted legal work, citing the evidence.",
+      "id": "noesis-knowledge-engine.link_legal_dossier",
+      "input_schema": {
+        "properties": {
+          "dossier_id": {
+            "type": "string"
+          },
+          "evidence": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "relation": {
+            "type": "string"
+          },
+          "work_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "dossier_id",
+          "work_id",
+          "relation",
+          "evidence"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "link_legal_dossier",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:legal:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -37257,6 +37572,87 @@
       ],
       "required_scopes": [
         "knowledge:zotero:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Exact CELEX/ELI/ECLI/doknr/docket lookup, or title/citation lookup within one jurisdiction.",
+      "id": "noesis-knowledge-engine.lookup_legal_work",
+      "input_schema": {
+        "properties": {
+          "citation": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "identifier": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "jurisdiction": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "limit": {
+            "default": 20,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "lookup_legal_work",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:legal:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -50725,6 +51121,58 @@
       ],
       "required_scopes": [
         "knowledge:multimodal:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Candidate versions on a date with their sourced evidence; unknown or ambiguous stays so.",
+      "id": "noesis-knowledge-engine.select_legal_version_as_of",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "type": "string"
+          },
+          "language": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "work_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "work_id",
+          "as_of"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "select_legal_version_as_of",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:legal:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",

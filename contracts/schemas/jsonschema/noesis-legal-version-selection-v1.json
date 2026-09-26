@@ -1,0 +1,71 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/schemas/noesis-legal-version-selection-v1.json",
+  "title": "Noesis legal version selection v1",
+  "description": "As-of selection: candidate versions with sourced evidence. Only one applying expression is 'selected'; missing or conflicting evidence stays unknown or ambiguous. Not a legal-effect determination.",
+  "type": "object",
+  "required": [
+    "contract",
+    "work_id",
+    "as_of",
+    "status",
+    "selected_version_id",
+    "candidates",
+    "review_boundary"
+  ],
+  "properties": {
+    "contract": {
+      "const": "noesis-legal-version-selection-v1"
+    },
+    "work_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "as_of": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+    },
+    "status": {
+      "enum": [
+        "selected",
+        "ambiguous",
+        "unknown",
+        "none_applies"
+      ]
+    },
+    "selected_version_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "candidates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "version_id",
+          "state",
+          "evidence"
+        ],
+        "properties": {
+          "state": {
+            "enum": [
+              "applies",
+              "commencement_unknown",
+              "ambiguous_commencement",
+              "not_yet_commenced",
+              "ended",
+              "after_as_of",
+              "date_unknown"
+            ]
+          }
+        }
+      }
+    },
+    "review_boundary": {
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}

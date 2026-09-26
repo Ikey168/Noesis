@@ -9196,6 +9196,10 @@ from tools.knowledge_engine_mcp.products import register as register_product_too
 
 register_product_tools(mcp, _intake_safe, _intake_context)
 
+from tools.knowledge_engine_mcp.legal import register as register_legal_tools
+
+register_legal_tools(mcp, _intake_safe, _intake_context)
+
 
 if __name__ == "__main__":
     from src.mcp_host.transport import run_server

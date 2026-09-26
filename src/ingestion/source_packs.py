@@ -17,7 +17,9 @@ CONFORMANCE_CONTRACT = "noesis-source-pack-conformance-v1"
 UPGRADE_PREVIEW_CONTRACT = "noesis-source-pack-upgrade-preview-v1"
 SUPPORTED_CONNECTORS = frozenset(
     {
+        "berlin-law",
         "blog",
+        "cellar",
         "dataset",
         "declarative-rest",
         "eprel",
@@ -28,6 +30,7 @@ SUPPORTED_CONNECTORS = frozenset(
         "manifest",
         "package-registry",
         "paper",
+        "rii",
         "web",
         "wfs",
     }
@@ -180,6 +183,8 @@ def replay_native_fixture(
 
     if source["connector"] in {"icecat", "eprel"}:
         from src.ingestion.product_sources import replay_native_fixture as replay
+    elif source["connector"] in {"cellar", "rii", "berlin-law"}:
+        from src.ingestion.legal_sources import replay_native_fixture as replay
     else:
         from src.ingestion.wfs_api import replay_native_fixture as replay
     return replay(source, fixture)

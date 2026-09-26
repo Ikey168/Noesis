@@ -82,12 +82,19 @@ def _product_projector(conn: Any) -> Any:
     return ProductProjector(conn)
 
 
+def _legal_projector(conn: Any) -> Any:
+    from src.kb.legal import LegalProjector
+
+    return LegalProjector(conn)
+
+
 # Mapping target schemas whose records are also projected into a domain store.
 # A projector receives each committed page before its checkpoint advances and
 # the source outcome afterwards, so replayed pages must project idempotently.
 PROJECTORS: dict[str, Callable[[Any], Any]] = {
     "noesis-geospatial-feature-v1": _geospatial_projector,
     "noesis-product-record-v1": _product_projector,
+    "noesis-legal-record-v1": _legal_projector,
 }
 
 _DDL = """
@@ -683,6 +690,7 @@ class RuntimeAdapterFactory:
         self, builders: Mapping[str, Callable[..., RuntimeSourceAdapter]] | None = None
     ) -> None:
         from src.ingestion.geojson_features import GeoJsonFeatureAdapter
+        from src.ingestion.legal_sources import ADAPTERS as LEGAL_ADAPTERS
         from src.ingestion.product_sources import ADAPTERS as PRODUCT_ADAPTERS
         from src.ingestion.wfs_api import WfsFeatureAdapter
 
@@ -691,6 +699,7 @@ class RuntimeAdapterFactory:
         }
         self.builders.update({"geojson": GeoJsonFeatureAdapter, "wfs": WfsFeatureAdapter})
         self.builders.update(PRODUCT_ADAPTERS)
+        self.builders.update(LEGAL_ADAPTERS)
         self.builders.update(dict(builders or {}))
 
     def compile(
@@ -958,6 +967,15 @@ class SourcePackRuntime:
 
                 result[source["source_id"]] = self.factory.compile(
                     source, transport=fixture_transport(fixture["native_pages"])
+                )
+                continue
+            if fixture.get("native_pages") and source["connector"] in {"cellar", "rii", "berlin-law"}:
+                from src.ingestion.legal_sources import (
+                    fixture_transport as legal_transport,
+                )
+
+                result[source["source_id"]] = self.factory.compile(
+                    source, transport=legal_transport(fixture["native_pages"])
                 )
                 continue
             if fixture.get("native_pages") and source["connector"] in {"icecat", "eprel"}:

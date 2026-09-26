@@ -1,0 +1,55 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/schemas/noesis-legal-version-comparison-v1.json",
+  "title": "Noesis legal version comparison v1",
+  "description": "Passage-level source differences between two versions of one work; not a legal-effect assessment.",
+  "type": "object",
+  "required": [
+    "contract",
+    "work_id",
+    "left_version_id",
+    "right_version_id",
+    "changes",
+    "notice"
+  ],
+  "properties": {
+    "contract": {
+      "const": "noesis-legal-version-comparison-v1"
+    },
+    "work_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "left_version_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "right_version_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "changes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "locator",
+          "change"
+        ],
+        "properties": {
+          "change": {
+            "enum": [
+              "added",
+              "removed",
+              "changed"
+            ]
+          }
+        }
+      }
+    },
+    "notice": {
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}
