@@ -27,6 +27,7 @@ Existing names need not be renamed to fit an exclusive taxonomy.
 
 This is a bounded inspection of the following implementation surfaces, not a
 claim that every subsystem has been audited.
+The C01 ownership map is in [pack-composition-inventory.md](pack-composition-inventory.md).
 
 | Current surface | Observed behavior | Composition gap or reuse |
 | --- | --- | --- |
