@@ -17,4 +17,4 @@ pyarrow>=10.0.0
 
 # Development and testing
 pytest>=7.0.0
-pytest-spark>=0.6.0
+pytest-spark>=0.8.0
