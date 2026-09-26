@@ -138,6 +138,11 @@ def test_fixture_path_escape_and_drift_are_rejected(tmp_path: Path) -> None:
     assert drift.value.code == "fixture_drift"
 
 
+def _next_minor(version: str) -> str:
+    major, minor, _patch = (int(part) for part in version.split("."))
+    return f"{major}.{minor + 1}.0"
+
+
 def test_install_enable_upgrade_and_idempotency_are_pack_scoped(conn) -> None:
     store = SourcePackStore(conn)
     research = raw("research")
@@ -152,10 +157,10 @@ def test_install_enable_upgrade_and_idempotency_are_pack_scoped(conn) -> None:
     assert store.install(research, principal_id="operator")["idempotent"]
 
     upgrade = copy.deepcopy(research)
-    upgrade["version"] = "1.3.0"
+    upgrade["version"] = _next_minor(research["version"])
     upgrade["description"] += " Upgraded."
     upgraded = store.install(upgrade, principal_id="operator", now_ms=20)
-    assert upgraded["version"] == "1.3.0" and upgraded["enabled"]
+    assert upgraded["version"] == upgrade["version"] and upgraded["enabled"]
     assert conn.execute(
         "SELECT COUNT(*) FROM source_pack_versions WHERE pack_id='research-discovery'"
     ).fetchone() == (2,)
@@ -176,7 +181,7 @@ def test_upgrade_preview_is_semantic_read_only_and_version_checked(conn) -> None
     installed = raw("research")
     store.install(installed, principal_id="operator", now_ms=10)
     candidate = copy.deepcopy(installed)
-    candidate["version"] = "1.3.0"
+    candidate["version"] = _next_minor(installed["version"])
     candidate["domains"].reverse()
     candidate["sources"].reverse()
     candidate["sources"] = [
@@ -211,7 +216,7 @@ def test_upgrade_preview_is_semantic_read_only_and_version_checked(conn) -> None
     changed = preview["changes"]["sources"]["changed"]
     assert {"endpoint", "mapping", "license", "auth"} <= set(changed[0]["fields"])
     assert "NOESIS_CROSSREF_KEY" in json.dumps(preview)
-    assert "1.2.0" == store.status("research-discovery")["version"]
+    assert installed["version"] == store.status("research-discovery")["version"]
     assert conn.execute("SELECT COUNT(*) FROM source_pack_audit").fetchone() == (1,)
 
     reordered = copy.deepcopy(installed)
@@ -253,10 +258,10 @@ def test_upgrade_preview_through_mcp_is_read_only_and_scoped(
     monkeypatch.setattr(server, "_connection", connection)
     monkeypatch.setattr(server, "_context", lambda: ("reader", scopes))
     candidate = raw("research")
-    candidate["version"] = "1.3.0"
+    candidate["version"] = _next_minor(candidate["version"])
     tools = asyncio.run(server.mcp.get_tools())
     preview = tools["preview_source_pack_upgrade"].fn(candidate=candidate)
-    assert preview["installed_version"] == "1.2.0"
+    assert preview["installed_version"] == raw("research")["version"]
     assert opened == [True]
     scopes.clear()
     denied = tools["preview_source_pack_upgrade"].fn(candidate=candidate)
