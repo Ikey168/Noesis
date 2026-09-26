@@ -1,0 +1,19 @@
+{
+  "bound_capabilities": [],
+  "bundles_resolved": [
+    "economics",
+    "energy",
+    "geospatial",
+    "legal",
+    "market",
+    "news",
+    "osint",
+    "political",
+    "products",
+    "science",
+    "technology"
+  ],
+  "composed_tools": [],
+  "disagreements": {},
+  "report": "noesis-composition-shadow-diff"
+}

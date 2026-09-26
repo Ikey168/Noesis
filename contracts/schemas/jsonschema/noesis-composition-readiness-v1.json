@@ -95,7 +95,8 @@
                     "missing_credentials",
                     "disabled_provider",
                     "unverified_live_access",
-                    "failed_execution"
+                    "failed_execution",
+                    "unauthorized"
                   ]
                 },
                 "detail": {

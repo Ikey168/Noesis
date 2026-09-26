@@ -84,6 +84,10 @@
     "conformance": {
       "type": "object",
       "required": ["passed", "errors", "missing_registrations", "stale_registrations"]
+    },
+    "composition": {
+      "type": "object",
+      "description": "Composition explanations; present only when the catalog is built with a resolved plan."
     }
   },
   "definitions": {
@@ -111,7 +115,8 @@
         "latency_class": {"enum": ["interactive", "batch"]},
         "required_data": {"type": "array", "items": {"type": "string"}},
         "state": {"$ref": "#/definitions/state"},
-        "reason": {"type": ["string", "null"]}
+        "reason": {"type": ["string", "null"]},
+        "composition": {"type": "object", "description": "Plan binding owning this tool, when composition-managed."}
       },
       "additionalProperties": false
     }

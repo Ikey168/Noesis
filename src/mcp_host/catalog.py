@@ -1848,7 +1848,15 @@ def _warehouse_rows(conn: Any) -> int | None:
     return None
 
 
-def _data_state(required: list[str], conn: Any) -> tuple[str, str | None]:
+def _data_state(
+    required: list[str], conn: Any, probes: Iterable[Mapping[str, Any]] | None = None
+) -> tuple[str, str | None]:
+    if probes is not None:
+        # Composition-managed tools: prerequisites come from the provider
+        # descriptor's declared readiness probes, not the legacy tables below.
+        from src.composition.readiness import probe_state
+
+        return probe_state(list(probes), conn)
     market_tables = {
         "market-instrument-store": "market_instrument_object_revisions",
         "market-price-store": "market_price_bar_revisions",
@@ -2028,14 +2036,30 @@ async def build_catalog(
     configured_backends: Iterable[str] | None = None,
     host_status: Mapping[str, Any] | None = None,
     include_unusable: bool = True,
+    composition: Any = None,
+    composition_context: Mapping[str, Any] | None = None,
+    shadow_sink: list[dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
-    """Build from real registration and tool discovery, then apply policy."""
+    """Build from real registration and tool discovery, then apply policy.
+
+    ``composition`` is a :class:`src.composition.readiness.CompositionView`.
+    Tools it binds take their pack attribution and data prerequisites from
+    the resolved plan; every other tool keeps the legacy tables. With
+    ``shadow_sink`` set the catalog runs in shadow mode: the returned catalog
+    is exactly the legacy one and each disagreement between legacy and
+    composition state is appended to the sink instead.
+    """
 
     registration_path = Path(mcp_path)
     raw = _read_registration(registration_path)
     root = registration_path.parent
     scopes = set(DEFAULT_SCOPES if granted_scopes is None else granted_scopes)
     packs = _enabled_packs(Path(pack_config), enabled_pack_names)
+    shadow = shadow_sink is not None and composition is not None
+    if composition is not None:
+        from src.composition.adapter import bundle_id
+
+        composed_packs = packs | {bundle_id(name) for name in packs}
     aliases = {
         **LEGACY_SERVER_ALIASES,
         **{
@@ -2104,6 +2128,57 @@ async def build_catalog(
                 backend_ready=backend_ready,
             )
             reason = reason or data_reason
+            binding = (
+                composition.for_tool(f"{canonical}.{tool['name']}")
+                if composition is not None
+                else None
+            )
+            if binding is not None:
+                composed_data = binding.required_data
+                composed_data_state, composed_data_reason = _data_state(
+                    composed_data, conn, binding.probes
+                )
+                composed_state, composed_reason = _state(
+                    authorized=set(required_scopes) <= scopes,
+                    pack_enabled=binding.pack in composed_packs,
+                    # A descriptor probe that finds no store makes the
+                    # operation unavailable rather than silently available.
+                    import_error=import_error
+                    or (
+                        composed_data_reason
+                        if composed_data_state == "unavailable"
+                        else None
+                    ),
+                    host_state=host_state,
+                    data_state=composed_data_state,
+                    backend_ready=backend_ready,
+                )
+                composed_reason = composed_reason or composed_data_reason
+                if shadow:
+                    legacy_view = {"state": state, "required_data": required_data, "pack": pack}
+                    composed_view = {
+                        "state": composed_state,
+                        "required_data": composed_data,
+                        "pack": binding.pack,
+                    }
+                    for field_name in ("state", "required_data", "pack"):
+                        if legacy_view[field_name] != composed_view[field_name]:
+                            shadow_sink.append(
+                                {
+                                    "tool": f"{canonical}.{tool['name']}",
+                                    "bundle": binding.pack,
+                                    "field": field_name,
+                                    "legacy": legacy_view[field_name],
+                                    "composition": composed_view[field_name],
+                                    "reason": composed_reason
+                                    if field_name == "state"
+                                    else None,
+                                }
+                            )
+                    binding = None
+                else:
+                    required_data = composed_data
+                    state, reason = composed_state, composed_reason
             cost, latency = _cost(tool["name"], mutability)
             capability = {
                 "id": f"{canonical}.{tool['name']}",
@@ -2121,6 +2196,8 @@ async def build_catalog(
                 "state": state,
                 "reason": reason,
             }
+            if binding is not None:
+                capability["composition"] = binding.as_catalog_field()
             server_states.append(state)
             if include_unusable or state == "available":
                 server_tools.append(capability["id"])
@@ -2189,7 +2266,11 @@ async def build_catalog(
         {path.parent.name for path in (REPO_ROOT / "src/domains").glob("*/__init__.py")}
         | packs
     )
+    extra: dict[str, Any] = {}
+    if composition is not None and not shadow:
+        extra["composition"] = composition.explain(**dict(composition_context or {}))
     return {
+        **extra,
         "catalog_contract": CATALOG_CONTRACT,
         "catalog_version": CATALOG_VERSION,
         "source": ".mcp.json + registered FastMCP tool discovery",

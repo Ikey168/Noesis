@@ -239,6 +239,17 @@ disabled providers, unverified live access, and failed execution remain distinct
 Dependency diagnostics must not expose inaccessible records, private profiles,
 credential values, or other users' workflow selections.
 
+Implementation (C04): `src/composition/readiness.py` holds the plan-fed
+`CompositionView`, `assess()` (a readiness document per bound operation, derived
+through the catalog's own `_state` priority, adding an `unauthorized` blocker kind)
+and caller-scoped explanations. `build_catalog(composition=...)` attributes bound
+tools to packs and data prerequisites from the plan and descriptors; unbound tools
+keep the legacy tables. `shadow_sink=` returns the legacy catalog unchanged and
+collects disagreements; `scripts/composition_shadow_report.py` regenerates the
+committed report in `tests/fixtures/composition/shadow-report.json`. The resolver
+that produces plans (C03) is `src/composition/resolver.py`. Provider descriptors
+ship with bundles as `packs/<bundle>/providers/*.json`.
+
 ## First composition to prove the design
 
 Use existing OSINT, Research, and Geospatial surfaces before adding a new subject.
