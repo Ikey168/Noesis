@@ -1,0 +1,387 @@
+{
+ "expect_status": "ambiguous",
+ "manifests": [
+  {
+   "aliases": {
+    "capability_labels": {
+     "place-evidence": "spatial.relation"
+    }
+   },
+   "contributes": {
+    "capability_labels": [
+     "place-evidence"
+    ],
+    "profiles": [
+     {
+      "profile_id": "places",
+      "vocabulary": [
+       "place"
+      ]
+     }
+    ]
+   },
+   "description": "Fixture pack consuming the shared spatial capability.",
+   "name": "sample-research",
+   "optional_features": {
+    "geometry-capture": {
+     "description": "Store new geometries"
+    }
+   },
+   "pack_format": "noesis-pack-v2",
+   "references": {
+    "contracts": [
+     {
+      "name": "noesis-spatial-result-v1",
+      "range": "~1.0.0"
+     }
+    ],
+    "source_packs": [
+     {
+      "pack_id": "geospatial-berlin",
+      "range": "^1.0.0"
+     }
+    ]
+   },
+   "requires": [
+    {
+     "capability": "spatial.relation",
+     "effects": [
+      "local-mutation"
+     ],
+     "input_contract": {
+      "name": "noesis-geospatial-geometry-v2",
+      "range": "^2.0.0"
+     },
+     "range": "^1.0.0"
+    },
+    {
+     "capability": "spatial.geometry-store",
+     "feature": "geometry-capture",
+     "range": "^1.0.0"
+    }
+   ],
+   "version": "1.0.0"
+  }
+ ],
+ "providers": [
+  {
+   "capabilities": [
+    {
+     "bindings": [
+      {
+       "id": "noesis-knowledge-engine.calculate_spatial_relation",
+       "kind": "mcp-tool"
+      }
+     ],
+     "capability": "spatial.relation",
+     "effect": "local-mutation",
+     "execution_receipt": true,
+     "idempotent": true,
+     "input_contract": {
+      "name": "noesis-geospatial-geometry-v2",
+      "version": "2.0.0"
+     },
+     "output_contract": {
+      "name": "noesis-spatial-result-v1",
+      "version": "1.0.0"
+     },
+     "readiness": {
+      "probe": "geospatial.local-store",
+      "required_data": [
+       "geospatial-geometries"
+      ]
+     },
+     "record_kinds": [
+      "spatial_receipt"
+     ],
+     "required_context": [
+      "namespace",
+      "principal"
+     ],
+     "required_scopes": [
+      "knowledge:geospatial:calculate"
+     ],
+     "semantics": {
+      "algorithm": "wgs84-stdlib-v1",
+      "crs": "EPSG:4326",
+      "distance_units": "metres",
+      "proximity": "haversine-nearest-stored-vertex",
+      "routing": false
+     },
+     "version": "1.0.0"
+    },
+    {
+     "bindings": [
+      {
+       "id": "noesis-knowledge-engine.store_geospatial_geometry",
+       "kind": "mcp-tool"
+      }
+     ],
+     "capability": "spatial.geometry-store",
+     "effect": "local-mutation",
+     "execution_receipt": false,
+     "idempotent": true,
+     "input_contract": {
+      "name": "noesis-geospatial-geometry-v2",
+      "version": "2.0.0"
+     },
+     "output_contract": {
+      "name": "noesis-geospatial-geometry-v2",
+      "version": "2.0.0"
+     },
+     "readiness": {
+      "probe": "geospatial.local-store"
+     },
+     "record_kinds": [
+      "geometry"
+     ],
+     "required_context": [
+      "namespace",
+      "principal"
+     ],
+     "required_scopes": [
+      "knowledge:geospatial:write"
+     ],
+     "semantics": {
+      "crs": "EPSG:4326",
+      "identity": "content-addressed-geometry"
+     },
+     "version": "1.0.0"
+    },
+    {
+     "bindings": [
+      {
+       "id": "noesis-knowledge-engine.record_geospatial_resolution",
+       "kind": "mcp-tool"
+      }
+     ],
+     "capability": "spatial.resolution-record",
+     "effect": "local-mutation",
+     "execution_receipt": false,
+     "idempotent": true,
+     "input_contract": {
+      "name": "noesis-geocode-resolution-v1",
+      "version": "1.0.0"
+     },
+     "output_contract": {
+      "name": "noesis-geocode-resolution-v1",
+      "version": "1.0.0"
+     },
+     "readiness": {
+      "probe": "geospatial.local-store"
+     },
+     "record_kinds": [
+      "geocode_resolution"
+     ],
+     "required_context": [
+      "namespace",
+      "principal"
+     ],
+     "required_scopes": [
+      "knowledge:geospatial:write"
+     ],
+     "semantics": {
+      "automatic_acceptance": false,
+      "resolution": "reviewable-candidates"
+     },
+     "version": "1.0.0"
+    }
+   ],
+   "contract": "noesis-capability-provider-v1",
+   "description": "The existing Geospatial service: places, geometries, reviewable resolutions and spatial relations in src/kb/geospatial.py, exposed through noesis-knowledge-engine tools.",
+   "implementation": {
+    "identity": "src.kb.geospatial:GeospatialStore",
+    "version": "1.0.0"
+   },
+   "provider_id": "noesis.geospatial",
+   "source_packs": [
+    {
+     "config": "config/source_packs/geospatial.json",
+     "pack_id": "geospatial-berlin",
+     "range": "^1.0.0"
+    }
+   ],
+   "stores": [
+    {
+     "record_kind": "place",
+     "revision_addressing": "immutable",
+     "tables": [
+      "geospatial_places",
+      "geospatial_place_revisions",
+      "geospatial_place_current"
+     ]
+    },
+    {
+     "record_kind": "geometry",
+     "revision_addressing": "immutable",
+     "tables": [
+      "geospatial_geometries"
+     ]
+    },
+    {
+     "record_kind": "geocode_resolution",
+     "revision_addressing": "immutable",
+     "tables": [
+      "geocode_resolutions",
+      "geocode_reviews"
+     ]
+    },
+    {
+     "record_kind": "spatial_receipt",
+     "revision_addressing": "immutable",
+     "tables": [
+      "spatial_receipts"
+     ]
+    }
+   ],
+   "version": "1.0.0"
+  },
+  {
+   "capabilities": [
+    {
+     "bindings": [
+      {
+       "id": "noesis-knowledge-engine.calculate_spatial_relation",
+       "kind": "mcp-tool"
+      }
+     ],
+     "capability": "spatial.relation",
+     "effect": "local-mutation",
+     "execution_receipt": true,
+     "idempotent": true,
+     "input_contract": {
+      "name": "noesis-geospatial-geometry-v2",
+      "version": "2.0.0"
+     },
+     "output_contract": {
+      "name": "noesis-spatial-result-v1",
+      "version": "1.0.0"
+     },
+     "readiness": {
+      "probe": "geospatial.local-store",
+      "required_data": [
+       "geospatial-geometries"
+      ]
+     },
+     "record_kinds": [],
+     "required_context": [
+      "namespace",
+      "principal"
+     ],
+     "required_scopes": [
+      "knowledge:geospatial:calculate"
+     ],
+     "semantics": {
+      "algorithm": "wgs84-stdlib-v1",
+      "crs": "EPSG:4326",
+      "distance_units": "metres",
+      "proximity": "haversine-nearest-stored-vertex",
+      "routing": false
+     },
+     "version": "1.0.0"
+    },
+    {
+     "bindings": [
+      {
+       "id": "noesis-knowledge-engine.store_geospatial_geometry",
+       "kind": "mcp-tool"
+      }
+     ],
+     "capability": "spatial.geometry-store",
+     "effect": "local-mutation",
+     "execution_receipt": false,
+     "idempotent": true,
+     "input_contract": {
+      "name": "noesis-geospatial-geometry-v2",
+      "version": "2.0.0"
+     },
+     "output_contract": {
+      "name": "noesis-geospatial-geometry-v2",
+      "version": "2.0.0"
+     },
+     "readiness": {
+      "probe": "geospatial.local-store"
+     },
+     "record_kinds": [],
+     "required_context": [
+      "namespace",
+      "principal"
+     ],
+     "required_scopes": [
+      "knowledge:geospatial:write"
+     ],
+     "semantics": {
+      "crs": "EPSG:4326",
+      "identity": "content-addressed-geometry"
+     },
+     "version": "1.0.0"
+    },
+    {
+     "bindings": [
+      {
+       "id": "noesis-knowledge-engine.record_geospatial_resolution",
+       "kind": "mcp-tool"
+      }
+     ],
+     "capability": "spatial.resolution-record",
+     "effect": "local-mutation",
+     "execution_receipt": false,
+     "idempotent": true,
+     "input_contract": {
+      "name": "noesis-geocode-resolution-v1",
+      "version": "1.0.0"
+     },
+     "output_contract": {
+      "name": "noesis-geocode-resolution-v1",
+      "version": "1.0.0"
+     },
+     "readiness": {
+      "probe": "geospatial.local-store"
+     },
+     "record_kinds": [],
+     "required_context": [
+      "namespace",
+      "principal"
+     ],
+     "required_scopes": [
+      "knowledge:geospatial:write"
+     ],
+     "semantics": {
+      "automatic_acceptance": false,
+      "resolution": "reviewable-candidates"
+     },
+     "version": "1.0.0"
+    }
+   ],
+   "contract": "noesis-capability-provider-v1",
+   "description": "The existing Geospatial service: places, geometries, reviewable resolutions and spatial relations in src/kb/geospatial.py, exposed through noesis-knowledge-engine tools.",
+   "implementation": {
+    "identity": "src.kb.geospatial:GeospatialStore",
+    "version": "1.0.0"
+   },
+   "provider_id": "example.rival-spatial",
+   "source_packs": [
+    {
+     "config": "config/source_packs/geospatial.json",
+     "pack_id": "geospatial-berlin",
+     "range": "^1.0.0"
+    }
+   ],
+   "stores": [
+    {
+     "record_kind": "rival_geometry",
+     "tables": [
+      "rival_geometries"
+     ]
+    }
+   ],
+   "version": "1.0.0"
+  }
+ ],
+ "roots": [
+  {
+   "name": "sample-research",
+   "range": "^1.0.0"
+  }
+ ]
+}

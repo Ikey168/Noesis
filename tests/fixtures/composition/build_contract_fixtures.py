@@ -109,3 +109,32 @@ r = copy.deepcopy(receipt); del r["idempotency_key"]; r["receipt_hash"] = c.rece
 put("receipt-invalid-no-idempotency-key", "receipt", r, "invalid_receipt", covers=["idempotency"])
 put("receipt-invalid-generation-digest-mismatch", "receipt", receipt, "generation_digest_mismatch", context={"generation_plans": {"1": "sha256:" + "9"*64}}, covers=["generation-consistency"])
 print(len(list(OUT.glob("*.json"))))
+
+# Resolution cases (C03.4): the corpus must resolve or fail as each case states.
+RES = pathlib.Path("tests/fixtures/composition/resolution")
+RES.mkdir(parents=True, exist_ok=True)
+for f in RES.glob("*.json"): f.unlink()
+def case(name, body):
+    (RES / f"{name}.json").write_text(json.dumps(body, indent=1, sort_keys=True) + "\n")
+geo = json.loads(pathlib.Path("config/composition/providers/geospatial.json").read_text())
+consumer = copy.deepcopy(manifest); consumer.pop("planner_keywords", None)
+second = copy.deepcopy(consumer); second["name"] = "sample-osint"; second["aliases"] = {}
+second["contributes"] = {"capability_labels": ["place-evidence"]}; second.pop("aliases")
+case("resolution-two-consumers-one-provider", {"roots": [{"name": "sample-research", "range": "^1.0.0"}, {"name": "sample-osint", "range": "^1.0.0"}],
+     "manifests": [consumer, second], "providers": [geo], "expect_status": "resolved"})
+case("resolution-selected-optional-feature", {"roots": [{"name": "sample-research", "range": "^1.0.0"}],
+     "manifests": [consumer], "providers": [geo], "features": {"sample-research": ["geometry-capture"]}, "expect_status": "resolved"})
+rival = copy.deepcopy(geo); rival["provider_id"] = "example.rival-spatial"
+rival["stores"] = [{"record_kind": "rival_geometry", "tables": ["rival_geometries"]}]
+for cap in rival["capabilities"]: cap["record_kinds"] = []
+case("resolution-ambiguous-providers", {"roots": [{"name": "sample-research", "range": "^1.0.0"}],
+     "manifests": [consumer], "providers": [geo, rival], "expect_status": "ambiguous"})
+case("resolution-explicit-provider-choice", {"roots": [{"name": "sample-research", "range": "^1.0.0"}],
+     "manifests": [consumer], "providers": [geo, rival], "provider_choices": {"spatial.relation": "noesis.geospatial"}, "expect_status": "resolved"})
+planar = copy.deepcopy(consumer); planar["requires"][0]["semantics"] = {"algorithm": "planar-euclidean"}
+case("resolution-semantic-mismatch", {"roots": [{"name": "sample-research", "range": "^1.0.0"}],
+     "manifests": [planar], "providers": [geo], "expect_error": "incompatible_provider"})
+lonely = copy.deepcopy(consumer); lonely["requires"].append({"capability": "spatial.teleport", "range": "^1.0.0"})
+case("resolution-undeclared-binding", {"roots": [{"name": "sample-research", "range": "^1.0.0"}],
+     "manifests": [lonely], "providers": [geo], "expect_error": "undeclared_binding"})
+print(len(list(RES.glob("*.json"))), "resolution cases")

@@ -647,6 +647,38 @@ def provided_capabilities(descriptors: Iterable[Mapping[str, Any]]) -> set[str]:
     return {c["capability"] for d in descriptors for c in d["capabilities"]}
 
 
+def contract_candidates(*, include_domain_packs: bool = True) -> dict[str, list[str]]:
+    """The contract candidate set: name -> available versions.
+
+    Sources, all existing: every JSON Schema file ``noesis-<name>-v<N>.json``
+    (under both its full stem and its short ``<name>``, at ``N.0.0``), the
+    schema-registry builtins, and contracts that code-registered domain packs
+    declare in ``schema_versions``. This function reads files; the resolver
+    itself only receives its result.
+    """
+
+    import re
+
+    found: dict[str, set[str]] = {}
+    for path in SCHEMA_DIR.glob("noesis-*-v*.json"):
+        match = re.fullmatch(r"noesis-(.+)-v(\d+)", path.stem)
+        if not match:
+            continue
+        version = f"{int(match.group(2))}.0.0"
+        found.setdefault(path.stem, set()).add(version)
+        found.setdefault(match.group(1), set()).add(version)
+    for contract, (name, version, _) in CONTRACT_MODULES.items():
+        found.setdefault(name, set()).add(version)
+        found.setdefault(contract, set()).add(version)
+    if include_domain_packs:
+        from src.composition.identifiers import code_registered_packs
+
+        for pack in code_registered_packs().values():
+            for name, version in pack.schema_versions.items():
+                found.setdefault(str(name), set()).add(str(version))
+    return {name: sorted(versions, key=version_key) for name, versions in sorted(found.items())}
+
+
 # --------------------------------------------------------------------------- #
 # C02.4 - resolved composition plan
 # --------------------------------------------------------------------------- #
@@ -789,6 +821,7 @@ __all__ = [
     "builtin_contract_definitions",
     "canonical",
     "canonicalize_plan",
+    "contract_candidates",
     "check_range",
     "declare_contract_dependencies",
     "descriptor_hash",
