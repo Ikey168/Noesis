@@ -18,7 +18,25 @@
         "required": ["source_id", "connector", "endpoint", "publisher", "scope", "license", "update_cadence", "temporal_semantics", "mapping", "extractor_versions", "schedule", "budgets", "auth", "fixture", "health", "operations", "source_hash"],
         "properties": {
           "source_id": {"type": "string", "minLength": 1},
-          "connector": {"enum": ["blog", "dataset", "declarative-rest", "filings", "git", "manifest", "package-registry", "paper", "web"]},
+          "connector": {"enum": ["blog", "dataset", "declarative-rest", "filings", "geojson", "git", "manifest", "package-registry", "paper", "web", "wfs"]},
+          "wfs": {
+            "type": "object",
+            "description": "Pinned WFS 2.0.0 GetFeature contract; required for the wfs connector.",
+            "required": ["version", "type_names", "output_format", "srs_name", "axis_order", "sort_by", "page_size"],
+            "properties": {
+              "version": {"const": "2.0.0"},
+              "type_names": {"type": "string", "minLength": 1},
+              "output_format": {"type": "string", "minLength": 1},
+              "srs_name": {"type": "string", "minLength": 1},
+              "axis_order": {"type": "string", "minLength": 1},
+              "sort_by": {"type": "string", "minLength": 1},
+              "page_size": {"type": "integer", "minimum": 1, "maximum": 10000}
+            }
+          },
+          "geospatial": {
+            "type": "object",
+            "description": "Feature projection settings for wfs/geojson sources (namespace, geometry types, precision, attribution)."
+          },
           "endpoint": {"type": "string", "pattern": "^https://"},
           "publisher": {"type": "string", "minLength": 1},
           "scope": {"type": "string", "minLength": 1},
