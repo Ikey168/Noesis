@@ -34,7 +34,9 @@ PROVIDER_CONTRACT = "noesis-provider-descriptor-v1"
 PLAN_CONTRACT = "noesis-composition-plan-v1"
 READINESS_CONTRACT = "noesis-composition-readiness-v1"
 RECEIPT_CONTRACT = "noesis-composition-activation-receipt-v1"
-CONTRACTS = (MANIFEST_CONTRACT, PROVIDER_CONTRACT, PLAN_CONTRACT, READINESS_CONTRACT, RECEIPT_CONTRACT)
+WORKFLOW_CONTRACT = "noesis-workflow-template-v1"
+CONTRACTS = (MANIFEST_CONTRACT, PROVIDER_CONTRACT, PLAN_CONTRACT, READINESS_CONTRACT, RECEIPT_CONTRACT,
+             WORKFLOW_CONTRACT)
 CONTRACT_VERSION = "1.0.0"
 
 SIDE_EFFECTS = ("read-only", "local-mutation", "acquisition", "external-publication")
@@ -338,12 +340,58 @@ def validate_receipt(document: Any, *, generation_digests: Mapping[str, str] | N
     return issues
 
 
+# ------------------------------------------------------------ C07.1 workflow templates
+
+
+def validate_workflow_template(document: Any) -> list[ContractIssue]:
+    """Schema plus: every step's capability is declared in ``requires``, and steps form a DAG."""
+
+    issues = _schema_issues(WORKFLOW_CONTRACT, document) + _executable_issues(document)
+    if not isinstance(document, Mapping) or issues:
+        return issues
+    declared = {r["capability"] for r in document.get("requires") or []}
+    for index, requirement in enumerate(document.get("requires") or []):
+        if not valid_range(requirement["range"]):
+            issues.append(ContractIssue("invalid_range", f"requires/{index}/range", "range is not explicit"))
+    steps = document.get("steps") or []
+    ids = [s["id"] for s in steps]
+    for step_id in sorted({i for i in ids if ids.count(i) > 1}):
+        issues.append(ContractIssue("duplicate_step", "steps", f"step id {step_id!r} repeats"))
+    for index, step in enumerate(steps):
+        if step["capability"] not in declared:
+            issues.append(ContractIssue("undeclared_capability", f"steps/{index}/capability",
+                                        f"step {step['id']!r} uses {step['capability']!r}, which requires does not declare"))
+        for dependency in step.get("depends_on") or []:
+            if dependency not in ids:
+                issues.append(ContractIssue("unknown_dependency", f"steps/{index}/depends_on",
+                                            f"step {step['id']!r} depends on unknown step {dependency!r}"))
+    if not issues:
+        edges = {s["id"]: list(s.get("depends_on") or []) for s in steps}
+        seen: dict[str, int] = {}
+
+        def cyclic(node: str) -> bool:
+            seen[node] = 1
+            for nxt in edges[node]:
+                if seen.get(nxt) == 1 or (nxt not in seen and cyclic(nxt)):
+                    return True
+            seen[node] = 2
+            return False
+
+        if any(node not in seen and cyclic(node) for node in sorted(edges)):
+            issues.append(ContractIssue("cycle", "steps", "step dependencies form a cycle"))
+    if (not issues and document.get("content_hash")
+            and content_hash(document) != document["content_hash"]):
+        issues.append(ContractIssue("hash_mismatch", "content_hash", "content_hash does not match"))
+    return issues
+
+
 VALIDATORS = {
     MANIFEST_CONTRACT: validate_composition_manifest,
     PROVIDER_CONTRACT: validate_provider_descriptor,
     PLAN_CONTRACT: validate_plan,
     READINESS_CONTRACT: validate_readiness,
     RECEIPT_CONTRACT: validate_receipt,
+    WORKFLOW_CONTRACT: validate_workflow_template,
 }
 
 
@@ -362,6 +410,7 @@ REGISTRY_NAMES = {
     PLAN_CONTRACT: "composition-plan",
     READINESS_CONTRACT: "composition-readiness",
     RECEIPT_CONTRACT: "composition-activation-receipt",
+    WORKFLOW_CONTRACT: "workflow-template",
 }
 
 

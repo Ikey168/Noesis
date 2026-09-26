@@ -272,6 +272,7 @@ def _builtin_definitions() -> list[dict[str, Any]]:
         ("composition-readiness", "noesis-composition-readiness-v1", [("composition-plan", "^1.0.0")]),
         ("composition-activation-receipt", "noesis-composition-activation-receipt-v1",
          [("composition-plan", "^1.0.0")]),
+        ("workflow-template", "noesis-workflow-template-v1", []),
     ]
     composition_modules = [
         {
