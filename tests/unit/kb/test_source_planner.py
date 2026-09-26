@@ -349,9 +349,13 @@ def test_scholarly_objective_discovers_native_ids_and_replays():
             persist=True,
             principal_id="analyst",
         )
-        source = validate_source_pack(
-            json.loads(Path("config/source_packs/research.json").read_text())
-        )["sources"][0]
+        source = next(
+            item
+            for item in validate_source_pack(
+                json.loads(Path("config/source_packs/research.json").read_text())
+            )["sources"]
+            if item["source_id"] == "crossref-works"
+        )
         calls = []
 
         def transport(**kw):
