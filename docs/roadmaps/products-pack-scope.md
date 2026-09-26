@@ -4,6 +4,11 @@ Status: implemented offline, 2026-09-26 (see `docs/guides/products-pack.md`).
 Live acceptance for both providers is outstanding: no credentialed provider
 run or verified cross-provider overlap is claimed.
 
+## Delivery state (audited 2026-09-26)
+
+- Shipped: Shipped offline in `src/kb/products.py` with the `products-displays` source pack. Live acceptance for both providers is outstanding.
+- Composition dependency: record owner `products.core` (`packs/products/providers/products.core.json`). The remaining live acceptance needs none.
+
 Tracking: [#1706](https://github.com/Ikey168/Noesis/issues/1706).
 Related Geospatial pack: [#1695](https://github.com/Ikey168/Noesis/issues/1695).
 Reuse shared runtime improvements without making either pack depend on the

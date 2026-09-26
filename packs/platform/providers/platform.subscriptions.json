@@ -1,0 +1,81 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "platform.subscriptions",
+  "version": "1.0.0",
+  "implementation": {
+    "name": "src.kb.subscriptions",
+    "version": "1.0.0",
+    "server": "noesis-subscriptions"
+  },
+  "capabilities": [
+    {
+      "id": "platform.subscriptions",
+      "contract": {
+        "name": "noesis-knowledge-subscription",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "create-subscription",
+        "inspect-subscription"
+      ],
+      "semantic_constraints": {
+        "delivery": "watermarks, events and outbox"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "create-subscription",
+      "tool": "noesis-subscriptions.create_subscription",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "idempotency_key"
+      },
+      "readiness_probe": "subscriptions",
+      "required_scopes": [
+        "knowledge:subscriptions:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "inspect-subscription",
+      "tool": "noesis-subscriptions.inspect_subscription",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "subscriptions",
+      "required_scopes": [
+        "knowledge:subscriptions:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "knowledge-subscription",
+      "store": "src.kb.subscriptions",
+      "tables": [
+        "knowledge_subscriptions",
+        "knowledge_subscription_events",
+        "knowledge_subscription_outbox",
+        "knowledge_subscription_watermarks"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "subscriptions",
+      "kind": "table-exists",
+      "target": "knowledge_subscriptions"
+    }
+  ]
+}

@@ -26,6 +26,9 @@ DEFAULT_LIMITS = {
     "retries": 1,
 }
 
+DISPATCH_MODE = "composition-dispatch"
+FIXTURE_MODE = "caller-supplied-fixture"
+
 _DDL = """
 CREATE TABLE IF NOT EXISTS research_recipe_revisions(
  recipe_revision_id TEXT PRIMARY KEY,namespace TEXT NOT NULL,recipe_id TEXT NOT NULL,
@@ -358,8 +361,16 @@ class ResearchRecipeStore:
         execution_input_hash=None,
         execution_mode="adapter",
         actions_executed=True,
+        dispatch_attestation=None,
     ):
         _require(scopes, EXECUTE_SCOPE)
+        # Only the composition dispatcher may claim executed actions for a
+        # dispatch-mode run, and fixture runs never claim tool dispatch (C07.5).
+        if execution_mode == DISPATCH_MODE and actions_executed and dispatch_attestation is None:
+            raise RecipeError("dispatch_required",
+                              "dispatch-mode runs report executed actions only through the composition dispatcher")
+        if execution_mode == FIXTURE_MODE and actions_executed:
+            raise RecipeError("invalid_execution_mode", "fixture runs cannot claim executed actions")
         tool_versions = dict(tool_versions or {})
         snapshots = list(snapshot_tokens or [])
         preview = self.preview(
@@ -565,6 +576,10 @@ class ResearchRecipeStore:
                 "output_hash": _digest(safe_state["steps"]),
                 "created_at_ms": self.now(),
             }
+            if dispatch_attestation is not None:
+                # Raises unless every recorded step was invoked through a
+                # registered binding and its result validated.
+                receipt["dispatch"] = dispatch_attestation.verify(sorted(safe_state["steps"]))
             receipt["receipt_hash"] = _digest(receipt)
             self.conn.execute(
                 "UPDATE research_recipe_runs SET status='completed',state_json=?,receipt_json=?,updated_at_ms=? WHERE run_id=?",

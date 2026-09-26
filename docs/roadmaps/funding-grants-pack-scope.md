@@ -1,7 +1,11 @@
 # Funding & Grants pack scope
 
-Status: proposed implementation backlog, 2026-09-25. Planning only; creating
-issues does not implement integrations or submit funding applications.
+Status: implemented, 2026-09-26 (see `docs/subsystems/funding-grants.md`). It never submits applications or contacts funders.
+
+## Delivery state (audited 2026-09-26)
+
+- Shipped: #1762–#1777 are closed; the code is in `src/kb/funding_*.py` and `src/ingestion/funding_providers.py`, with tests in `tests/unit/funding/`. Live provider verification stays per provider (`LIVE_VERIFICATION`).
+- Composition dependency: composed. The manifest `packs/funding-grants/manifest.json` binds `funding.core` plus the shared research-project, authored-report, decision, subscription and intake-session providers. `set_funding_bundle_enabled` is a coordinator selection change once the bundle is cut over.
 
 Tracking: [#1761](https://github.com/Ikey168/Noesis/issues/1761).
 
@@ -14,22 +18,22 @@ source freshness, and application obligations visible.
 
 ## Implementation issues
 
-- [ ] [#1762](https://github.com/Ikey168/Noesis/issues/1762) — Audit funding source contracts and select bounded provider coverage.
-- [ ] [#1763](https://github.com/Ikey168/Noesis/issues/1763) — Define funding programme, call, deadline and financial-term records.
-- [ ] [#1764](https://github.com/Ikey168/Noesis/issues/1764) — Add private applicant and funding-project profiles.
-- [ ] [#1765](https://github.com/Ikey168/Noesis/issues/1765) — Acquire NLnet funds and current application calls.
-- [ ] [#1766](https://github.com/Ikey168/Noesis/issues/1766) — Acquire EU funding calls and authoritative call documents.
-- [ ] [#1767](https://github.com/Ikey168/Noesis/issues/1767) — Acquire German Förderdatenbank programme listings and call references.
-- [ ] [#1768](https://github.com/Ikey168/Noesis/issues/1768) — Acquire EXIST programme and application requirements.
-- [ ] [#1769](https://github.com/Ikey168/Noesis/issues/1769) — Normalize funding opportunities, revisions and application deadlines.
-- [ ] [#1770](https://github.com/Ikey168/Noesis/issues/1770) — Evaluate funding eligibility with cited rules and unknowns.
-- [ ] [#1771](https://github.com/Ikey168/Noesis/issues/1771) — Rank funding opportunities by fit, usable support and effort.
-- [ ] [#1772](https://github.com/Ikey168/Noesis/issues/1772) — Create funding application workspaces and requirement checklists.
-- [ ] [#1773](https://github.com/Ikey168/Noesis/issues/1773) — Draft cited funding applications, milestones and budget plans.
-- [ ] [#1774](https://github.com/Ikey168/Noesis/issues/1774) — Monitor new calls, eligibility changes and funding deadlines.
-- [ ] [#1775](https://github.com/Ikey168/Noesis/issues/1775) — Compose the Funding & Grants bundle with existing workflow capabilities.
-- [ ] [#1776](https://github.com/Ikey168/Noesis/issues/1776) — Add offline funding discovery-to-application acceptance coverage.
-- [ ] [#1777](https://github.com/Ikey168/Noesis/issues/1777) — Validate live funding coverage and publish an explained shortlist demo.
+- [x] [#1762](https://github.com/Ikey168/Noesis/issues/1762) — Audit funding source contracts and select bounded provider coverage.
+- [x] [#1763](https://github.com/Ikey168/Noesis/issues/1763) — Define funding programme, call, deadline and financial-term records.
+- [x] [#1764](https://github.com/Ikey168/Noesis/issues/1764) — Add private applicant and funding-project profiles.
+- [x] [#1765](https://github.com/Ikey168/Noesis/issues/1765) — Acquire NLnet funds and current application calls.
+- [x] [#1766](https://github.com/Ikey168/Noesis/issues/1766) — Acquire EU funding calls and authoritative call documents.
+- [x] [#1767](https://github.com/Ikey168/Noesis/issues/1767) — Acquire German Förderdatenbank programme listings and call references.
+- [x] [#1768](https://github.com/Ikey168/Noesis/issues/1768) — Acquire EXIST programme and application requirements.
+- [x] [#1769](https://github.com/Ikey168/Noesis/issues/1769) — Normalize funding opportunities, revisions and application deadlines.
+- [x] [#1770](https://github.com/Ikey168/Noesis/issues/1770) — Evaluate funding eligibility with cited rules and unknowns.
+- [x] [#1771](https://github.com/Ikey168/Noesis/issues/1771) — Rank funding opportunities by fit, usable support and effort.
+- [x] [#1772](https://github.com/Ikey168/Noesis/issues/1772) — Create funding application workspaces and requirement checklists.
+- [x] [#1773](https://github.com/Ikey168/Noesis/issues/1773) — Draft cited funding applications, milestones and budget plans.
+- [x] [#1774](https://github.com/Ikey168/Noesis/issues/1774) — Monitor new calls, eligibility changes and funding deadlines.
+- [x] [#1775](https://github.com/Ikey168/Noesis/issues/1775) — Compose the Funding & Grants bundle with existing workflow capabilities.
+- [x] [#1776](https://github.com/Ikey168/Noesis/issues/1776) — Add offline funding discovery-to-application acceptance coverage.
+- [x] [#1777](https://github.com/Ikey168/Noesis/issues/1777) — Validate live funding coverage and publish an explained shortlist demo.
 
 Each issue contains acceptance criteria and prerequisite issue references.
 

@@ -1,0 +1,135 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/schemas/noesis-composition-readiness-v1.json",
+  "title": "Noesis composition readiness assessment v1",
+  "description": "Observation of whether each planned operation can run for one caller and namespace at one time. Not part of the immutable plan; blockers have one of six kinds. Carries no credential values or other principals' selections.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "contract",
+    "plan_digest",
+    "context",
+    "observed_at_ms",
+    "operations"
+  ],
+  "properties": {
+    "contract": {
+      "const": "noesis-composition-readiness-v1"
+    },
+    "plan_digest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "context": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "namespace"
+      ],
+      "properties": {
+        "namespace": {
+          "type": "string",
+          "minLength": 1
+        },
+        "principal_ref": {
+          "type": "string"
+        }
+      }
+    },
+    "observed_at_ms": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "operations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "capability",
+          "operation",
+          "provider",
+          "state",
+          "prerequisites",
+          "blockers"
+        ],
+        "properties": {
+          "capability": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z0-9][a-z0-9-]*)+$"
+          },
+          "operation": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z0-9][a-z0-9-]*)*$"
+          },
+          "provider": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z0-9][a-z0-9-]*)*$"
+          },
+          "state": {
+            "enum": [
+              "ready",
+              "degraded",
+              "blocked"
+            ]
+          },
+          "prerequisites": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "blockers": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "kind"
+              ],
+              "properties": {
+                "kind": {
+                  "enum": [
+                    "empty_data",
+                    "inaccessible_data",
+                    "missing_credentials",
+                    "disabled_provider",
+                    "unverified_live_access",
+                    "failed_execution",
+                    "unauthorized",
+                    "aggregate_limit_exhausted"
+                  ]
+                },
+                "detail": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "optional_omissions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "reason"
+              ],
+              "properties": {
+                "feature": {
+                  "type": "string"
+                },
+                "capability": {
+                  "type": "string"
+                },
+                "reason": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

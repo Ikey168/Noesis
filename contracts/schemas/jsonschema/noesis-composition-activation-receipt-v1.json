@@ -1,0 +1,194 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/schemas/noesis-composition-activation-receipt-v1.json",
+  "title": "Noesis composition activation receipt v1",
+  "description": "Durable record of one activation: previous and new generations with their plan digests, affected registrations, referenced source-upgrade receipts, stage outcomes, idempotency key and recovery status.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "contract",
+    "receipt_id",
+    "idempotency_key",
+    "status",
+    "previous_generation",
+    "new_generation",
+    "affected_registrations",
+    "stages",
+    "recovery_status"
+  ],
+  "properties": {
+    "contract": {
+      "const": "noesis-composition-activation-receipt-v1"
+    },
+    "receipt_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "idempotency_key": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "status": {
+      "enum": [
+        "published",
+        "failed",
+        "rolled-back"
+      ]
+    },
+    "previous_generation": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "plan_digest"
+          ],
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "plan_digest": {
+              "type": "string",
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            }
+          }
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "new_generation": {
+      "description": "The generation published, or null when an activation failed before a plan existed.",
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "plan_digest"
+          ],
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "plan_digest": {
+              "type": "string",
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            }
+          }
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "affected_registrations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "kind",
+          "id",
+          "action"
+        ],
+        "properties": {
+          "kind": {
+            "enum": [
+              "pack",
+              "binding",
+              "schedule",
+              "catalog"
+            ]
+          },
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "action": {
+            "enum": [
+              "register",
+              "unregister",
+              "retain",
+              "replace"
+            ]
+          }
+        }
+      }
+    },
+    "source_upgrade_receipts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "pack_id",
+          "apply_key"
+        ],
+        "properties": {
+          "pack_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "apply_key": {
+            "type": "string",
+            "minLength": 1
+          },
+          "receipt_hash": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "stages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "stage",
+          "status"
+        ],
+        "properties": {
+          "stage": {
+            "enum": [
+              "preview",
+              "stage",
+              "verify",
+              "publish",
+              "reconcile"
+            ]
+          },
+          "status": {
+            "enum": [
+              "applied",
+              "failed",
+              "skipped",
+              "unknown"
+            ]
+          },
+          "detail": {
+            "type": "string"
+          }
+        }
+      },
+      "minItems": 1
+    },
+    "recovery_status": {
+      "enum": [
+        "none",
+        "reconciled",
+        "unknown"
+      ]
+    },
+    "created_at_ms": {
+      "type": "integer",
+      "minimum": 0
+    }
+  }
+}

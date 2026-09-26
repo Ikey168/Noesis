@@ -1,7 +1,11 @@
 # Source expansion candidates
 
-Status: proposed, 2026-09-25. These candidates extend existing Noesis
-capabilities where practical; they do not assume four new domain packs.
+Status: implemented offline, 2026-09-26, as extensions of existing capabilities (no new domain packs). Bounded live acceptance is tracked in #1786.
+
+## Delivery state (audited 2026-09-26)
+
+- Shipped: #1747–#1750 are closed. Patents (`src/kb/patents.py`), LEI (`src/kb/lei.py`), standards (`src/kb/standards.py`) and transit (`src/kb/transit.py`) run as source-pack projectors. Bounded live acceptance is tracked in #1786.
+- Composition dependency: record owners `technology.patents`, `market.lei`, `technology.standards` and `geospatial.transit`. The remaining live acceptance (#1786) needs none.
 
 Tracking: [#1746](https://github.com/Ikey168/Noesis/issues/1746).
 
@@ -9,10 +13,10 @@ Tracking: [#1746](https://github.com/Ikey168/Noesis/issues/1746).
 
 ## GitHub implementation issues
 
-- [ ] [#1747](https://github.com/Ikey168/Noesis/issues/1747) — Extend Research and Technical with patent-family and legal-event sources.
-- [ ] [#1748](https://github.com/Ikey168/Noesis/issues/1748) — Extend existing company identity work with official registries and LEI ownership data.
-- [ ] [#1749](https://github.com/Ikey168/Noesis/issues/1749) — Extend the Technical pack with non-software standards and certification evidence.
-- [ ] [#1750](https://github.com/Ikey168/Noesis/issues/1750) — Add bounded public transport operations to Geospatial and an existing source profile.
+- [x] [#1747](https://github.com/Ikey168/Noesis/issues/1747) — Extend Research and Technical with patent-family and legal-event sources.
+- [x] [#1748](https://github.com/Ikey168/Noesis/issues/1748) — Extend existing company identity work with official registries and LEI ownership data.
+- [x] [#1749](https://github.com/Ikey168/Noesis/issues/1749) — Extend the Technical pack with non-software standards and certification evidence.
+- [x] [#1750](https://github.com/Ikey168/Noesis/issues/1750) — Add bounded public transport operations to Geospatial and an existing source profile.
 
 ## Implementation status (2026-09-26)
 

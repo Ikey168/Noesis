@@ -1,0 +1,71 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "market.core",
+  "version": "1.0.0",
+  "implementation": {
+    "name": "src.market",
+    "version": "1.0.0",
+    "server": "noesis-market"
+  },
+  "capabilities": [
+    {
+      "id": "market.instruments",
+      "contract": {
+        "name": "noesis-market-instrument",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "lookup-instrument",
+        "price-history"
+      ],
+      "semantic_constraints": {
+        "entitlement": "per-provider market-data entitlements"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "lookup-instrument",
+      "tool": "noesis-market.lookup_market_instrument",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "instruments",
+      "required_scopes": [
+        "market:instruments:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "price-history",
+      "tool": "noesis-market.get_market_price_history",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "prices",
+      "required_scopes": [
+        "market:prices:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    }
+  ],
+  "stores": [],
+  "readiness_probes": [
+    {
+      "id": "instruments",
+      "kind": "table-exists",
+      "target": "market_instrument_object_revisions"
+    },
+    {
+      "id": "prices",
+      "kind": "table-exists",
+      "target": "market_price_bar_revisions"
+    }
+  ]
+}

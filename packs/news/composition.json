@@ -1,0 +1,28 @@
+{
+  "requires": [
+    {
+      "capability": "news.articles",
+      "contract": "noesis-news-articles",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    }
+  ],
+  "contributes": {
+    "capabilities": [
+      {
+        "id": "news.articles",
+        "provider": "news.core",
+        "contract": {
+          "name": "noesis-news-articles",
+          "version": "1.0.0"
+        }
+      }
+    ],
+    "providers": [
+      {
+        "id": "news.core",
+        "version": "1.0.0"
+      }
+    ]
+  }
+}

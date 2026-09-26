@@ -1,0 +1,103 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "legal.core",
+  "version": "1.0.0",
+  "implementation": {
+    "name": "src.kb.legal",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "legal.works",
+      "contract": {
+        "name": "noesis-legal-record",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "lookup-work",
+        "inspect-work",
+        "passages"
+      ],
+      "semantic_constraints": {
+        "versioning": "work/expression/version as of a date"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "lookup-work",
+      "tool": "noesis-knowledge-engine.lookup_legal_work",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "works",
+      "required_scopes": [
+        "knowledge:legal:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "inspect-work",
+      "tool": "noesis-knowledge-engine.inspect_legal_work",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "works",
+      "required_scopes": [
+        "knowledge:legal:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "passages",
+      "tool": "noesis-knowledge-engine.get_legal_passages",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "works",
+      "required_scopes": [
+        "knowledge:legal:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "legal-work",
+      "store": "src.kb.legal",
+      "tables": [
+        "legal_works",
+        "legal_expressions",
+        "legal_versions",
+        "legal_passages",
+        "legal_citations"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "works",
+      "kind": "table-exists",
+      "target": "legal_works"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "legal-research",
+      "version": "1.0.0",
+      "range": "^1.0.0"
+    }
+  ]
+}

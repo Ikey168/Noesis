@@ -1,0 +1,87 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "geospatial.transit",
+  "version": "1.0.0",
+  "implementation": {
+    "name": "src.kb.transit",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "geospatial.transit-schedules",
+      "contract": {
+        "name": "noesis-transit-feed",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "departures",
+        "stops-in-bbox"
+      ],
+      "semantic_constraints": {
+        "crs": "EPSG:4326",
+        "feed": "versioned GTFS"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "departures",
+      "tool": "noesis-knowledge-engine.transit_departures",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "feeds",
+      "required_scopes": [
+        "knowledge:transit:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "stops-in-bbox",
+      "tool": "noesis-knowledge-engine.transit_stops_in_bbox",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "feeds",
+      "required_scopes": [
+        "knowledge:transit:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "transit-feed",
+      "store": "src.kb.transit",
+      "tables": [
+        "transit_feed_versions",
+        "transit_stops",
+        "transit_route_shapes",
+        "transit_realtime"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "feeds",
+      "kind": "table-exists",
+      "target": "transit_feed_versions"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "geospatial-berlin",
+      "version": "1.1.0",
+      "range": "^1.1.0"
+    }
+  ]
+}

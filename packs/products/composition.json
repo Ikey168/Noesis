@@ -1,0 +1,35 @@
+{
+  "contributes": {
+    "capabilities": [
+      {
+        "id": "products.identities",
+        "provider": "products.core",
+        "contract": {
+          "name": "noesis-product-record",
+          "version": "1.0.0"
+        }
+      }
+    ],
+    "providers": [
+      {
+        "id": "products.core",
+        "version": "1.0.0"
+      }
+    ],
+    "source_packs": [
+      {
+        "pack_id": "products-displays",
+        "version": "1.0.0",
+        "range": "^1.0.0"
+      }
+    ]
+  },
+  "requires": [
+    {
+      "capability": "products.identities",
+      "contract": "noesis-product-record",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    }
+  ]
+}

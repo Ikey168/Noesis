@@ -1,0 +1,28 @@
+{
+  "contributes": {
+    "capabilities": [
+      {
+        "id": "economics.knowledge",
+        "provider": "economics.core",
+        "contract": {
+          "name": "noesis-economic-knowledge",
+          "version": "1.0.0"
+        }
+      }
+    ],
+    "providers": [
+      {
+        "id": "economics.core",
+        "version": "1.0.0"
+      }
+    ]
+  },
+  "requires": [
+    {
+      "capability": "economics.knowledge",
+      "contract": "noesis-economic-knowledge",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    }
+  ]
+}

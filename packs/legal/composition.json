@@ -1,0 +1,35 @@
+{
+  "contributes": {
+    "capabilities": [
+      {
+        "id": "legal.works",
+        "provider": "legal.core",
+        "contract": {
+          "name": "noesis-legal-record",
+          "version": "1.0.0"
+        }
+      }
+    ],
+    "providers": [
+      {
+        "id": "legal.core",
+        "version": "1.0.0"
+      }
+    ],
+    "source_packs": [
+      {
+        "pack_id": "legal-research",
+        "version": "1.0.0",
+        "range": "^1.0.0"
+      }
+    ]
+  },
+  "requires": [
+    {
+      "capability": "legal.works",
+      "contract": "noesis-legal-record",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    }
+  ]
+}

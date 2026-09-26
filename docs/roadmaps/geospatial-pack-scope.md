@@ -4,6 +4,11 @@ Status: implemented 2026-09-25. See the [geospatial pack guide](../guides/geospa
 Offline acceptance and a dated bounded live run against both Berlin layers are
 recorded separately (`config/geospatial/acceptance/live-berlin.json`).
 
+## Delivery state (audited 2026-09-26)
+
+- Shipped: `src/kb/geospatial.py`, `src/kb/geospatial_features.py` and the `geospatial-berlin` source pack, with offline acceptance and a dated live Berlin run recorded.
+- Composition dependency: composed. `geospatial.core` and `geospatial.transit` are proven with OSINT and Research in `tests/unit/composition/test_first_composition.py`.
+
 ## GitHub implementation issues
 
 Tracking: [#1695](https://github.com/Ikey168/Noesis/issues/1695).

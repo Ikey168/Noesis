@@ -1,0 +1,50 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "political.core",
+  "version": "1.0.0",
+  "implementation": {
+    "name": "tools/kb_mcp",
+    "version": "1.0.0",
+    "server": "noesis-kb"
+  },
+  "capabilities": [
+    {
+      "id": "political.knowledge",
+      "contract": {
+        "name": "noesis-political-knowledge",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "query"
+      ],
+      "semantic_constraints": {
+        "scope": "political knowledge-base views"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "query",
+      "tool": "noesis-kb.kb_political",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "documents",
+      "required_scopes": [
+        "knowledge:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    }
+  ],
+  "stores": [],
+  "readiness_probes": [
+    {
+      "id": "documents",
+      "kind": "table-exists",
+      "target": "documents"
+    }
+  ]
+}
