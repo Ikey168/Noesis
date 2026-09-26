@@ -242,8 +242,10 @@ own checks and cannot be inferred from this fixture journey.
 
 ## Incremental delivery plan
 
-These are planning slices, not newly created GitHub issues. Dependencies refer
-to the identifiers in this table.
+These slices are tracked in
+[#1788](https://github.com/Ikey168/Noesis/issues/1788), with one sub-issue per
+slice (C01 #1789 through C09 #1797). Dependencies refer to the identifiers in
+this table.
 
 | Slice | Deliverable and boundary | Depends on | Acceptance |
 | --- | --- | --- | --- |
