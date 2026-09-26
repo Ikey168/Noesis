@@ -640,6 +640,7 @@ def test_six_domain_offline_execution(setup):
         "geospatial",
         "osint",
         "political",
+        "products",
         "research",
         "scientific",
         "technical",

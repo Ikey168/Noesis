@@ -1,0 +1,58 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/schemas/noesis-product-document-v1.json",
+  "title": "Noesis product document v1",
+  "description": "A provider-linked datasheet or product information sheet for one variant, with separate link, permission and retrieval states and content-hash versions.",
+  "type": "object",
+  "required": [
+    "contract",
+    "link_id",
+    "kind",
+    "url",
+    "availability",
+    "versions"
+  ],
+  "properties": {
+    "contract": {
+      "const": "noesis-product-document-v1"
+    },
+    "link_id": {
+      "type": "string",
+      "pattern": "^product-document:"
+    },
+    "kind": {
+      "type": "string",
+      "minLength": 1
+    },
+    "url": {
+      "type": "string",
+      "pattern": "^https://"
+    },
+    "language": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "media_type": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "availability": {
+      "enum": [
+        "linked-not-fetched",
+        "link_only",
+        "not_permitted",
+        "inaccessible",
+        "too_large",
+        "unsupported",
+        "retained"
+      ]
+    },
+    "versions": {
+      "type": "array"
+    }
+  }
+}

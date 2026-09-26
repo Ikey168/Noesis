@@ -25,6 +25,7 @@ from src.ingestion.source_packs import (
     SUPPORTED_CONNECTORS,
     SourcePackConformance,
     SourcePackError,
+    SourcePackStore,
     _canonical,
     _contains_secret,
     _digest,
@@ -75,11 +76,18 @@ def _geospatial_projector(conn: Any) -> Any:
     return GeospatialFeatureProjector(conn)
 
 
+def _product_projector(conn: Any) -> Any:
+    from src.kb.products import ProductProjector
+
+    return ProductProjector(conn)
+
+
 # Mapping target schemas whose records are also projected into a domain store.
 # A projector receives each committed page before its checkpoint advances and
 # the source outcome afterwards, so replayed pages must project idempotently.
 PROJECTORS: dict[str, Callable[[Any], Any]] = {
     "noesis-geospatial-feature-v1": _geospatial_projector,
+    "noesis-product-record-v1": _product_projector,
 }
 
 _DDL = """
@@ -675,12 +683,14 @@ class RuntimeAdapterFactory:
         self, builders: Mapping[str, Callable[..., RuntimeSourceAdapter]] | None = None
     ) -> None:
         from src.ingestion.geojson_features import GeoJsonFeatureAdapter
+        from src.ingestion.product_sources import ADAPTERS as PRODUCT_ADAPTERS
         from src.ingestion.wfs_api import WfsFeatureAdapter
 
         self.builders: dict[str, Callable[..., Any]] = {
             kind: HTTPSPageAdapter for kind in SUPPORTED_CONNECTORS
         }
         self.builders.update({"geojson": GeoJsonFeatureAdapter, "wfs": WfsFeatureAdapter})
+        self.builders.update(PRODUCT_ADAPTERS)
         self.builders.update(dict(builders or {}))
 
     def compile(
@@ -738,6 +748,36 @@ class SourcePackRuntime:
         if not row:
             raise SourcePackError("not_found", "source pack is not installed")
         return _load(row[1], {}), bool(row[0])
+
+    def release_stale_checkpoint(
+        self, pack_id: str, source_id: str, *, principal_id: str
+    ) -> dict[str, Any]:
+        """Drop a checkpoint left by a superseded pack generation (audited).
+
+        A changed manifest (for example a narrowed selection) must start its
+        cursor afresh; checkpoints of the installed generation are never touched.
+        """
+
+        manifest, _ = self._manifest(pack_id)
+        row = self.conn.execute(
+            "SELECT pack_version,manifest_hash,cursor FROM source_pack_checkpoints WHERE pack_id=? AND source_id=?",
+            [pack_id, source_id],
+        ).fetchone()
+        if row is None:
+            return {"released": False, "reason": "no_checkpoint"}
+        if row[0] == manifest["version"] and row[1] == manifest["manifest_hash"]:
+            raise SourcePackError(
+                "checkpoint_current", "checkpoint belongs to the installed generation"
+            )
+        self.conn.execute(
+            "DELETE FROM source_pack_checkpoints WHERE pack_id=? AND source_id=?",
+            [pack_id, source_id],
+        )
+        detail = {"source_id": source_id, "released_version": row[0], "released_manifest_hash": row[1]}
+        SourcePackStore(self.conn, initialize=False)._audit(
+            pack_id, principal_id, "release_stale_checkpoint", detail, self.now()
+        )
+        return {"released": True, **detail}
 
     def accept_license(
         self,
@@ -918,6 +958,16 @@ class SourcePackRuntime:
 
                 result[source["source_id"]] = self.factory.compile(
                     source, transport=fixture_transport(fixture["native_pages"])
+                )
+                continue
+            if fixture.get("native_pages") and source["connector"] in {"icecat", "eprel"}:
+                from src.ingestion.product_sources import (
+                    fixture_transport as product_transport,
+                )
+
+                secret = None if dict(source.get("auth") or {}).get("kind") == "none" else "fixture-credential"
+                result[source["source_id"]] = self.factory.compile(
+                    source, transport=product_transport(fixture["native_pages"]), secret=secret
                 )
                 continue
             result[source["source_id"]] = FixturePageAdapter(

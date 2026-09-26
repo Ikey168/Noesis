@@ -20,9 +20,11 @@ SUPPORTED_CONNECTORS = frozenset(
         "blog",
         "dataset",
         "declarative-rest",
+        "eprel",
         "filings",
         "geojson",
         "git",
+        "icecat",
         "manifest",
         "package-registry",
         "paper",
@@ -169,6 +171,18 @@ def _contains_secret(value: Any, *, parent: str = "") -> bool:
     elif isinstance(value, list):
         return any(_contains_secret(item, parent=parent) for item in value)
     return False
+
+
+def replay_native_fixture(
+    source: Mapping[str, Any], fixture: Mapping[str, Any]
+) -> list[dict[str, Any]]:
+    """Replay captured or authored native envelopes through the connector's real adapter."""
+
+    if source["connector"] in {"icecat", "eprel"}:
+        from src.ingestion.product_sources import replay_native_fixture as replay
+    else:
+        from src.ingestion.wfs_api import replay_native_fixture as replay
+    return replay(source, fixture)
 
 
 def validate_source_pack(
@@ -731,8 +745,6 @@ class SourcePackConformance:
             fixture = self._fixture(source)
             runner = (runners or {}).get(source["connector"])
             if runner is None and fixture.get("native_pages"):
-                from src.ingestion.wfs_api import replay_native_fixture
-
                 runner = replay_native_fixture
             normalized = list(
                 runner(source, fixture) if runner else fixture.get("normalized") or []

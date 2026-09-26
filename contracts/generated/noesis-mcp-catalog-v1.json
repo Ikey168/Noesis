@@ -895,7 +895,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 661,
+      "tool_count": 670,
       "tools": [
         "noesis-knowledge-engine.accept_awareness_jev_suggestion",
         "noesis-knowledge-engine.accept_citation_repair",
@@ -912,6 +912,7 @@
         "noesis-knowledge-engine.acknowledge_decision_review_task",
         "noesis-knowledge-engine.acquire_funding_source",
         "noesis-knowledge-engine.acquire_opencitations",
+        "noesis-knowledge-engine.acquire_product_documents",
         "noesis-knowledge-engine.add_paper_family_member",
         "noesis-knowledge-engine.add_review_candidate",
         "noesis-knowledge-engine.add_source_relationship",
@@ -984,6 +985,7 @@
         "noesis-knowledge-engine.compare_legislative_dossier",
         "noesis-knowledge-engine.compare_openreview_rounds",
         "noesis-knowledge-engine.compare_paper_family_members",
+        "noesis-knowledge-engine.compare_product_models",
         "noesis-knowledge-engine.compare_quality_policies",
         "noesis-knowledge-engine.compare_research_analysis_runs",
         "noesis-knowledge-engine.compare_research_gap_coverage",
@@ -1202,6 +1204,7 @@
         "noesis-knowledge-engine.inspect_persistent_research_loop",
         "noesis-knowledge-engine.inspect_practice_pack",
         "noesis-knowledge-engine.inspect_practice_review",
+        "noesis-knowledge-engine.inspect_product_identity",
         "noesis-knowledge-engine.inspect_quality_health",
         "noesis-knowledge-engine.inspect_reference_workflow",
         "noesis-knowledge-engine.inspect_research_analysis",
@@ -1259,6 +1262,7 @@
         "noesis-knowledge-engine.list_source_pack_schedules",
         "noesis-knowledge-engine.list_source_packs",
         "noesis-knowledge-engine.list_zotero_items",
+        "noesis-knowledge-engine.lookup_product_models",
         "noesis-knowledge-engine.lookup_source_identity",
         "noesis-knowledge-engine.maintenance_generation_lineage",
         "noesis-knowledge-engine.maintenance_health",
@@ -1294,6 +1298,9 @@
         "noesis-knowledge-engine.preview_source_pack_upgrade",
         "noesis-knowledge-engine.preview_source_pack_upgrade_impact",
         "noesis-knowledge-engine.prioritize_research_gaps",
+        "noesis-knowledge-engine.product_provider_contracts",
+        "noesis-knowledge-engine.product_selection_outcomes",
+        "noesis-knowledge-engine.products_readiness",
         "noesis-knowledge-engine.promote_awareness_item",
         "noesis-knowledge-engine.promote_intake_work_procedure",
         "noesis-knowledge-engine.promote_problem_playbook",
@@ -1307,6 +1314,7 @@
         "noesis-knowledge-engine.propose_intake_playbook_revision",
         "noesis-knowledge-engine.propose_intake_report_revision",
         "noesis-knowledge-engine.propose_problem_action",
+        "noesis-knowledge-engine.propose_product_matches",
         "noesis-knowledge-engine.publish_entity_change_rebuild",
         "noesis-knowledge-engine.query_geospatial_event_map",
         "noesis-knowledge-engine.query_geospatial_features_within",
@@ -1426,6 +1434,7 @@
         "noesis-knowledge-engine.review_multilingual_alias",
         "noesis-knowledge-engine.review_paper_family_notice_target",
         "noesis-knowledge-engine.review_paper_family_relation",
+        "noesis-knowledge-engine.review_product_match",
         "noesis-knowledge-engine.review_quality_override",
         "noesis-knowledge-engine.review_research_claim_independence",
         "noesis-knowledge-engine.review_study_field",
@@ -1564,7 +1573,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 661
+      "visible_tool_count": 670
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -1575,11 +1584,11 @@
     },
     "servers": 30,
     "states": {
-      "available": 92,
+      "available": 93,
       "degraded": 158,
-      "unauthorized": 717
+      "unauthorized": 725
     },
-    "tools": 967
+    "tools": 976
   },
   "tools": [
     {
@@ -19198,6 +19207,43 @@
       "version": "1"
     },
     {
+      "cost_class": "medium",
+      "description": "Fetch provider-linked datasheets/information sheets of one variant within the pack's document policy.",
+      "id": "noesis-knowledge-engine.acquire_product_documents",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "variant_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "variant_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "acquire_product_documents",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:products:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "low",
       "description": "Add an explicit provider-linked member or a reviewable inferred candidate.",
       "id": "noesis-knowledge-engine.add_paper_family_member",
@@ -23752,6 +23798,60 @@
       ],
       "required_scopes": [
         "knowledge:paper-family:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Evidence-linked comparison of 2-6 resolved models; only accepted matches merge provider columns.",
+      "id": "noesis-knowledge-engine.compare_product_models",
+      "input_schema": {
+        "properties": {
+          "attributes": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "model_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "model_ids"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "compare_product_models",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:products:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -34438,6 +34538,43 @@
     },
     {
       "cost_class": "low",
+      "description": "A model or variant with revisions, current and superseded assertions, documents, coverage and matches.",
+      "id": "noesis-knowledge-engine.inspect_product_identity",
+      "input_schema": {
+        "properties": {
+          "identity_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "identity_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "inspect_product_identity",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:products:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Report coverage gaps and degraded inputs without deleting assessments.",
       "id": "noesis-knowledge-engine.inspect_quality_health",
       "input_schema": {
@@ -37127,6 +37264,98 @@
     },
     {
       "cost_class": "low",
+      "description": "Find product variants by brand, exact designation, GTIN or text, with identifier conflicts and matches.",
+      "id": "noesis-knowledge-engine.lookup_product_models",
+      "input_schema": {
+        "properties": {
+          "brand": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "designation": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "gtin": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "limit": {
+            "default": 25,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "provider": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "query": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "lookup_product_models",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:products:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Look up the current canonical source revision.",
       "id": "noesis-knowledge-engine.lookup_source_identity",
       "input_schema": {
@@ -38847,6 +39076,93 @@
       "version": "1"
     },
     {
+      "cost_class": "low",
+      "description": "Pinned Open Icecat and EPREL access contracts, catalogue boundaries and live-verification state.",
+      "id": "noesis-knowledge-engine.product_provider_contracts",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "product_provider_contracts",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Per-selector outcomes of one run: returned, not_found or outside_open_catalogue.",
+      "id": "noesis-knowledge-engine.product_selection_outcomes",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "run_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "run_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "product_selection_outcomes",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:products:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Per-provider fixture/live readiness; one ready provider never implies cross-source validation.",
+      "id": "noesis-knowledge-engine.products_readiness",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "products_readiness",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:products:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "medium",
       "description": "Promote an escalated item with its source and annotation references.",
       "id": "noesis-knowledge-engine.promote_awareness_item",
@@ -39667,6 +39983,39 @@
       ],
       "required_scopes": [
         "knowledge:intake:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Deterministic Icecat/EPREL match candidates from identifiers and corroborating attributes; none auto-accepted.",
+      "id": "noesis-knowledge-engine.propose_product_matches",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_product_matches",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:products:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -47464,6 +47813,51 @@
       ],
       "required_scopes": [
         "knowledge:paper-family:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Accept, reject or defer a match candidate; history is append-only and reversible.",
+      "id": "noesis-knowledge-engine.review_product_match",
+      "input_schema": {
+        "properties": {
+          "decision": {
+            "type": "string"
+          },
+          "match_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "match_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_product_match",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:products:review"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",

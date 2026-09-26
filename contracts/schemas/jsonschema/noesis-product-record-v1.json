@@ -1,0 +1,224 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/schemas/noesis-product-record-v1.json",
+  "title": "Noesis product record v1",
+  "description": "One provider product record as acquired (Open Icecat brand content or EPREL supplier registration): native identifiers, attributes with units and JSON-pointer locators, linked documents and declared status. Not independent testing.",
+  "type": "object",
+  "required": [
+    "contract",
+    "provider",
+    "assertion_kind",
+    "provider_record_id",
+    "category",
+    "identifiers",
+    "attributes",
+    "documents",
+    "record_status",
+    "raw_sha256"
+  ],
+  "properties": {
+    "contract": {
+      "const": "noesis-product-record-v1"
+    },
+    "provider": {
+      "enum": [
+        "icecat",
+        "eprel"
+      ]
+    },
+    "assertion_kind": {
+      "enum": [
+        "brand-authorised-content",
+        "supplier-registration"
+      ]
+    },
+    "provider_record_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "provider_revision": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "category": {
+      "type": "object",
+      "required": [
+        "label",
+        "in_pinned_category"
+      ],
+      "properties": {
+        "label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "provider_category_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "in_pinned_category": {
+          "type": "boolean"
+        }
+      }
+    },
+    "brand": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "designation": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "title": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "family": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "identifiers": {
+      "type": "object",
+      "properties": {
+        "mpn": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "gtin": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "value",
+              "state"
+            ],
+            "properties": {
+              "value": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "state": {
+                "enum": [
+                  "absent",
+                  "invalid_format",
+                  "valid",
+                  "invalid_checksum"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "market": {
+      "type": "object"
+    },
+    "lifecycle_claims": {
+      "type": "object"
+    },
+    "attributes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "attribute",
+          "native_name",
+          "locator"
+        ],
+        "properties": {
+          "attribute": {
+            "type": "string",
+            "minLength": 1
+          },
+          "mode": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "native_name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "native_value": {},
+          "native_unit": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "label_scheme": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "locator": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "documents": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "kind",
+          "url",
+          "locator"
+        ],
+        "properties": {
+          "kind": {
+            "type": "string",
+            "minLength": 1
+          },
+          "url": {
+            "type": "string",
+            "pattern": "^https://"
+          },
+          "language": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "media_type": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "locator": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "record_status": {
+      "enum": [
+        "published",
+        "withdrawn"
+      ]
+    },
+    "raw_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    }
+  }
+}

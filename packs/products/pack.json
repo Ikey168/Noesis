@@ -1,0 +1,73 @@
+{
+  "pack_format": "noesis-pack-v1",
+  "name": "products",
+  "version": "1.0.0",
+  "description": "Physical product models (EU-market electronic displays) from Open Icecat and EPREL: provider-scoped identities, source-linked specifications, reviewable cross-provider matches, datasheet links and evidence-linked comparison.",
+  "source_types": ["web"],
+  "ui_flags": {},
+  "panels": [],
+  "planner_keywords": {
+    "entities": ["display", "gtin", "model", "monitor", "mpn", "product", "tv", "variant"],
+    "sources": ["datasheet", "energy label", "eprel", "icecat", "product information sheet"],
+    "overview": ["compare", "comparison", "specification", "specs"]
+  },
+  "enrichers": [],
+  "provisioning_templates": [],
+  "capabilities": [
+    "native-open-icecat-acquisition",
+    "native-eprel-public-api-acquisition",
+    "provider-scoped-product-identities",
+    "unit-normalized-display-attributes",
+    "reviewable-cross-provider-matching",
+    "explicit-withdrawal-refresh-semantics",
+    "provider-linked-document-acquisition",
+    "evidence-linked-model-comparison",
+    "per-provider-readiness"
+  ],
+  "schema_versions": {
+    "product-record": "1.0.0",
+    "product-identity": "1.0.0",
+    "product-match": "1.0.0",
+    "product-comparison": "1.0.0",
+    "product-document": "1.0.0",
+    "source-pack": "1.0.0"
+  },
+  "ontology_extensions": {
+    "extends": "noesis-canonical-entity-relation-ontology",
+    "reuses": [
+      "noesis-product-record-v1",
+      "noesis-product-identity-v1",
+      "noesis-product-match-v1",
+      "noesis-product-comparison-v1",
+      "noesis-product-document-v1"
+    ],
+    "object_types": ["product_family", "product_model", "product_variant", "product_revision", "attribute_assertion", "product_document"],
+    "relation_types": ["variant_of", "member_of_family", "equivalent_model", "asserted_by", "documented_by", "manufactured_by"]
+  },
+  "source_pack": "config/source_packs/products.json",
+  "query_examples": [
+    {
+      "intent": "Find a monitor by its model designation",
+      "tool": "lookup_product_models",
+      "arguments": {"namespace": "global", "brand": "Exampla", "designation": "EX-27Q4"},
+      "semantics": "exact designation ignoring case and separators; one row per provider record, with identifier conflicts and match candidates"
+    },
+    {
+      "intent": "Which Icecat and EPREL records describe the same model",
+      "tool": "propose_product_matches",
+      "arguments": {"namespace": "global"},
+      "semantics": "deterministic candidates from designations and corroborating diagonal/resolution; never merged until a reviewer accepts"
+    },
+    {
+      "intent": "Compare three displays",
+      "tool": "compare_product_models",
+      "arguments": {"namespace": "global", "model_ids": ["<model_id>", "<model_id>", "<model_id>"]},
+      "semantics": "every value cites its record revision and locator; a row compares only on a shared attribute, mode, unit and label scheme"
+    }
+  ],
+  "exclusions": [
+    "prices, stock and retailer feeds", "shopping recommendations and affiliate links", "reviews and ratings",
+    "inferred compatibility", "Full Icecat content", "EPREL supplier-only endpoints",
+    "unrestricted catalogue mirroring", "manufacturer support and manual sources"
+  ]
+}

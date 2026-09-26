@@ -1,0 +1,921 @@
+{
+ "authored": true,
+ "note": "Authored envelopes in the documented provider shape for a fictional brand; not provider captures. Live field names are re-validated by scripts/products_live_check.py.",
+ "license": "fixture authored for Noesis tests",
+ "provider": "Open Icecat",
+ "native_pages": [
+  {
+   "selector": {
+    "brand": "Exampla",
+    "product_code": "EX-27Q4",
+    "label": "27in QHD (matched)"
+   },
+   "status": 200,
+   "body": {
+    "msg": "OK",
+    "data": {
+     "GeneralInfo": {
+      "IcecatId": "90000001",
+      "Brand": "Exampla",
+      "BrandPartCode": "EX-27Q4",
+      "Title": "Exampla ProView Q4 27\" QHD monitor",
+      "ProductFamily": {
+       "Value": "ProView"
+      },
+      "Category": {
+       "CategoryID": "1584",
+       "Name": {
+        "Value": "Monitors"
+       }
+      },
+      "GTIN": [
+       "04012345000016"
+      ],
+      "ProductDataUpdated": "2026-03-02 10:15:00",
+      "ReleaseDate": "2025-02-01"
+     },
+     "FeaturesGroups": [
+      {
+       "FeatureGroup": {
+        "ID": 1
+       },
+       "Features": [
+        {
+         "Feature": {
+          "ID": 1,
+          "Name": {
+           "Value": "Display diagonal"
+          },
+          "Measure": {
+           "Signs": {
+            "_": "cm"
+           }
+          }
+         },
+         "Value": "68.6",
+         "PresentationValue": "68.6 cm (27\")"
+        },
+        {
+         "Feature": {
+          "ID": 2,
+          "Name": {
+           "Value": "Display resolution"
+          }
+         },
+         "Value": "2560 x 1440",
+         "PresentationValue": "2560 x 1440 pixels"
+        },
+        {
+         "Feature": {
+          "ID": 3,
+          "Name": {
+           "Value": "Width (with stand)"
+          },
+          "Measure": {
+           "Signs": {
+            "_": "mm"
+           }
+          }
+         },
+         "Value": "612"
+        },
+        {
+         "Feature": {
+          "ID": 4,
+          "Name": {
+           "Value": "Height (with stand)"
+          },
+          "Measure": {
+           "Signs": {
+            "_": "mm"
+           }
+          }
+         },
+         "Value": "540"
+        },
+        {
+         "Feature": {
+          "ID": 5,
+          "Name": {
+           "Value": "Depth (with stand)"
+          },
+          "Measure": {
+           "Signs": {
+            "_": "mm"
+           }
+          }
+         },
+         "Value": "210"
+        },
+        {
+         "Feature": {
+          "ID": 6,
+          "Name": {
+           "Value": "Power consumption (typical)"
+          },
+          "Measure": {
+           "Signs": {
+            "_": "W"
+           }
+          }
+         },
+         "Value": "25"
+        },
+        {
+         "Feature": {
+          "ID": 7,
+          "Name": {
+           "Value": "Power consumption (SDR) per 1000 hours"
+          },
+          "Measure": {
+           "Signs": {
+            "_": "kWh"
+           }
+          }
+         },
+         "Value": "19"
+        },
+        {
+         "Feature": {
+          "ID": 8,
+          "Name": {
+           "Value": "Energy efficiency class (SDR)"
+          }
+         },
+         "Value": "F"
+        }
+       ]
+      }
+     ],
+     "Multimedia": [
+      {
+       "URL": "https://objects.icecat.biz/objects/mmo_90000001_leaflet.pdf",
+       "ContentType": "application/pdf",
+       "Type": "leaflet",
+       "Description": "Product data sheet",
+       "Language": "EN",
+       "Size": 48213,
+       "Updated": "2026-03-02 10:15:00"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "selector": {
+    "brand": "Exampla",
+    "product_code": "EX-32U8",
+    "label": "32in UHD (matched, conflicting energy)"
+   },
+   "status": 200,
+   "body": {
+    "msg": "OK",
+    "data": {
+     "GeneralInfo": {
+      "IcecatId": "90000002",
+      "Brand": "Exampla",
+      "BrandPartCode": "EX-32U8",
+      "Title": "Exampla ProView U8 32\" UHD monitor",
+      "ProductFamily": {
+       "Value": "ProView"
+      },
+      "Category": {
+       "CategoryID": "1584",
+       "Name": {
+        "Value": "Monitors"
+       }
+      },
+      "GTIN": [
+       "4012345000029"
+      ],
+      "ProductDataUpdated": "2026-03-05 08:00:00",
+      "ReleaseDate": "2025-02-01"
+     },
+     "FeaturesGroups": [
+      {
+       "FeatureGroup": {
+        "ID": 1
+       },
+       "Features": [
+        {
+         "Feature": {
+          "ID": 1,
+          "Name": {
+           "Value": "Display diagonal"
+          },
+          "Measure": {
+           "Signs": {
+            "_": "cm"
+           }
+          }
+         },
+         "Value": "80.0",
+         "PresentationValue": "80.0 cm (31.5\")"
+        },
+        {
+         "Feature": {
+          "ID": 2,
+          "Name": {
+           "Value": "Display resolution"
+          }
+         },
+         "Value": "3840 x 2160",
+         "PresentationValue": "3840 x 2160 pixels"
+        },
+        {
+         "Feature": {
+          "ID": 3,
+          "Name": {
+           "Value": "Width (with stand)"
+          },
+          "Measure": {
+           "Signs": {
+            "_": "mm"
+           }
+          }
+         },
+         "Value": "714"
+        },
+        {
+         "Feature": {
+          "ID": 4,
+          "Name": {
+           "Value": "Height (with stand)"
+          },
+          "Measure": {
+           "Signs": {
+            "_": "mm"
+           }
+          }
+         },
+         "Value": "620"
+        },
+        {
+         "Feature": {
+          "ID": 5,
+          "Name": {
+           "Value": "Depth (with stand)"
+          },
+          "Measure": {
+           "Signs": {
+            "_": "mm"
+           }
+          }
+         },
+         "Value": "230"
+        },
+        {
+         "Feature": {
+          "ID": 6,
+          "Name": {
+           "Value": "Power consumption (typical)"
+          },
+          "Measure": {
+           "Signs": {
+            "_": "W"
+           }
+          }
+         },
+         "Value": "40"
+        },
+        {
+         "Feature": {
+          "ID": 7,
+          "Name": {
+           "Value": "Power consumption (SDR) per 1000 hours"
+          },
+          "Measure": {
+           "Signs": {
+            "_": "kWh"
+           }
+          }
+         },
+         "Value": "34"
+        },
+        {
+         "Feature": {
+          "ID": 8,
+          "Name": {
+           "Value": "Energy efficiency class (SDR)"
+          }
+         },
+         "Value": "G"
+        }
+       ]
+      }
+     ],
+     "Multimedia": [
+      {
+       "URL": "https://objects.icecat.biz/objects/mmo_90000002_leaflet.pdf",
+       "ContentType": "application/pdf",
+       "Type": "leaflet",
+       "Description": "Product data sheet",
+       "Language": "EN",
+       "Size": 48213,
+       "Updated": "2026-03-05 08:00:00"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "selector": {
+    "gtin": "4012345000030",
+    "label": "24in FHD (matched, missing depth)"
+   },
+   "status": 200,
+   "body": {
+    "msg": "OK",
+    "data": {
+     "GeneralInfo": {
+      "IcecatId": "90000003",
+      "Brand": "Exampla",
+      "BrandPartCode": "EX-24F1",
+      "Title": "Exampla Office F1 24\" FHD monitor",
+      "ProductFamily": {
+       "Value": "Office"
+      },
+      "Category": {
+       "CategoryID": "1584",
+       "Name": {
+        "Value": "Monitors"
+       }
+      },
+      "GTIN": [
+       "4012345000030"
+      ],
+      "ProductDataUpdated": "2026-02-20 12:00:00",
+      "ReleaseDate": "2025-02-01"
+     },
+     "FeaturesGroups": [
+      {
+       "FeatureGroup": {
+        "ID": 1
+       },
+       "Features": [
+        {
+         "Feature": {
+          "ID": 1,
+          "Name": {
+           "Value": "Display diagonal"
+          },
+          "Measure": {
+           "Signs": {
+            "_": "cm"
+           }
+          }
+         },
+         "Value": "60.5",
+         "PresentationValue": "60.5 cm (23.8\")"
+        },
+        {
+         "Feature": {
+          "ID": 2,
+          "Name": {
+           "Value": "Display resolution"
+          }
+         },
+         "Value": "1920 x 1080",
+         "PresentationValue": "1920 x 1080 pixels"
+        },
+        {
+         "Feature": {
+          "ID": 3,
+          "Name": {
+           "Value": "Width (with stand)"
+          },
+          "Measure": {
+           "Signs": {
+            "_": "mm"
+           }
+          }
+         },
+         "Value": "540"
+        },
+        {
+         "Feature": {
+          "ID": 4,
+          "Name": {
+           "Value": "Height (with stand)"
+          },
+          "Measure": {
+           "Signs": {
+            "_": "mm"
+           }
+          }
+         },
+         "Value": "410"
+        },
+        {
+         "Feature": {
+          "ID": 6,
+          "Name": {
+           "Value": "Power consumption (typical)"
+          },
+          "Measure": {
+           "Signs": {
+            "_": "W"
+           }
+          }
+         },
+         "Value": "14"
+        },
+        {
+         "Feature": {
+          "ID": 7,
+          "Name": {
+           "Value": "Power consumption (SDR) per 1000 hours"
+          },
+          "Measure": {
+           "Signs": {
+            "_": "kWh"
+           }
+          }
+         },
+         "Value": "12"
+        },
+        {
+         "Feature": {
+          "ID": 8,
+          "Name": {
+           "Value": "Energy efficiency class (SDR)"
+          }
+         },
+         "Value": "E"
+        }
+       ]
+      }
+     ],
+     "Multimedia": [
+      {
+       "URL": "https://objects.icecat.biz/objects/mmo_90000003_leaflet.pdf",
+       "ContentType": "application/pdf",
+       "Type": "leaflet",
+       "Description": "Product data sheet",
+       "Language": "EN",
+       "Size": 48213,
+       "Updated": "2026-02-20 12:00:00"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "selector": {
+    "brand": "Exampla",
+    "product_code": "EX-32U8UK",
+    "label": "UK regional variant (ambiguous)"
+   },
+   "status": 200,
+   "body": {
+    "msg": "OK",
+    "data": {
+     "GeneralInfo": {
+      "IcecatId": "90000004",
+      "Brand": "Exampla",
+      "BrandPartCode": "EX-32U8UK",
+      "Title": "Exampla ProView U8 32\" UHD monitor (UK plug)",
+      "ProductFamily": {
+       "Value": "ProView"
+      },
+      "Category": {
+       "CategoryID": "1584",
+       "Name": {
+        "Value": "Monitors"
+       }
+      },
+      "GTIN": [],
+      "ProductDataUpdated": "2026-03-05 08:00:00",
+      "ReleaseDate": "2025-02-01"
+     },
+     "FeaturesGroups": [
+      {
+       "FeatureGroup": {
+        "ID": 1
+       },
+       "Features": [
+        {
+         "Feature": {
+          "ID": 1,
+          "Name": {
+           "Value": "Display diagonal"
+          },
+          "Measure": {
+           "Signs": {
+            "_": "cm"
+           }
+          }
+         },
+         "Value": "80.0",
+         "PresentationValue": "80.0 cm (31.5\")"
+        },
+        {
+         "Feature": {
+          "ID": 2,
+          "Name": {
+           "Value": "Display resolution"
+          }
+         },
+         "Value": "3840 x 2160",
+         "PresentationValue": "3840 x 2160 pixels"
+        },
+        {
+         "Feature": {
+          "ID": 3,
+          "Name": {
+           "Value": "Width (with stand)"
+          },
+          "Measure": {
+           "Signs": {
+            "_": "mm"
+           }
+          }
+         },
+         "Value": "714"
+        },
+        {
+         "Feature": {
+          "ID": 4,
+          "Name": {
+           "Value": "Height (with stand)"
+          },
+          "Measure": {
+           "Signs": {
+            "_": "mm"
+           }
+          }
+         },
+         "Value": "620"
+        },
+        {
+         "Feature": {
+          "ID": 5,
+          "Name": {
+           "Value": "Depth (with stand)"
+          },
+          "Measure": {
+           "Signs": {
+            "_": "mm"
+           }
+          }
+         },
+         "Value": "230"
+        },
+        {
+         "Feature": {
+          "ID": 6,
+          "Name": {
+           "Value": "Power consumption (typical)"
+          },
+          "Measure": {
+           "Signs": {
+            "_": "W"
+           }
+          }
+         },
+         "Value": "40"
+        },
+        {
+         "Feature": {
+          "ID": 7,
+          "Name": {
+           "Value": "Power consumption (SDR) per 1000 hours"
+          },
+          "Measure": {
+           "Signs": {
+            "_": "kWh"
+           }
+          }
+         },
+         "Value": "34"
+        },
+        {
+         "Feature": {
+          "ID": 8,
+          "Name": {
+           "Value": "Energy efficiency class (SDR)"
+          }
+         },
+         "Value": "G"
+        }
+       ]
+      }
+     ],
+     "Multimedia": []
+    }
+   }
+  },
+  {
+   "selector": {
+    "brand": "Exampla",
+    "product_code": "EX-24F1B",
+    "label": "bundle sharing a GTIN (identifier conflict)"
+   },
+   "status": 200,
+   "body": {
+    "msg": "OK",
+    "data": {
+     "GeneralInfo": {
+      "IcecatId": "90000005",
+      "Brand": "Exampla",
+      "BrandPartCode": "EX-24F1B",
+      "Title": "Exampla Office F1 24\" monitor + webcam bundle",
+      "ProductFamily": {
+       "Value": "Office"
+      },
+      "Category": {
+       "CategoryID": "1584",
+       "Name": {
+        "Value": "Monitors"
+       }
+      },
+      "GTIN": [
+       "4012345000030"
+      ],
+      "ProductDataUpdated": "2026-02-21 12:00:00",
+      "ReleaseDate": "2025-02-01"
+     },
+     "FeaturesGroups": [
+      {
+       "FeatureGroup": {
+        "ID": 1
+       },
+       "Features": [
+        {
+         "Feature": {
+          "ID": 1,
+          "Name": {
+           "Value": "Display diagonal"
+          },
+          "Measure": {
+           "Signs": {
+            "_": "cm"
+           }
+          }
+         },
+         "Value": "60.5",
+         "PresentationValue": "60.5 cm (23.8\")"
+        },
+        {
+         "Feature": {
+          "ID": 2,
+          "Name": {
+           "Value": "Display resolution"
+          }
+         },
+         "Value": "1920 x 1080",
+         "PresentationValue": "1920 x 1080 pixels"
+        },
+        {
+         "Feature": {
+          "ID": 3,
+          "Name": {
+           "Value": "Width (with stand)"
+          },
+          "Measure": {
+           "Signs": {
+            "_": "mm"
+           }
+          }
+         },
+         "Value": "540"
+        },
+        {
+         "Feature": {
+          "ID": 4,
+          "Name": {
+           "Value": "Height (with stand)"
+          },
+          "Measure": {
+           "Signs": {
+            "_": "mm"
+           }
+          }
+         },
+         "Value": "410"
+        },
+        {
+         "Feature": {
+          "ID": 6,
+          "Name": {
+           "Value": "Power consumption (typical)"
+          },
+          "Measure": {
+           "Signs": {
+            "_": "W"
+           }
+          }
+         },
+         "Value": "14"
+        },
+        {
+         "Feature": {
+          "ID": 7,
+          "Name": {
+           "Value": "Power consumption (SDR) per 1000 hours"
+          },
+          "Measure": {
+           "Signs": {
+            "_": "kWh"
+           }
+          }
+         },
+         "Value": "12"
+        },
+        {
+         "Feature": {
+          "ID": 8,
+          "Name": {
+           "Value": "Energy efficiency class (SDR)"
+          }
+         },
+         "Value": "E"
+        }
+       ]
+      }
+     ],
+     "Multimedia": []
+    }
+   }
+  },
+  {
+   "selector": {
+    "brand": "Exampla",
+    "product_code": "EX-34Q4",
+    "label": "same family name, different size"
+   },
+   "status": 200,
+   "body": {
+    "msg": "OK",
+    "data": {
+     "GeneralInfo": {
+      "IcecatId": "90000006",
+      "Brand": "Exampla",
+      "BrandPartCode": "EX-34Q4",
+      "Title": "Exampla ProView Q4 34\" ultrawide monitor",
+      "ProductFamily": {
+       "Value": "ProView"
+      },
+      "Category": {
+       "CategoryID": "1584",
+       "Name": {
+        "Value": "Monitors"
+       }
+      },
+      "GTIN": [],
+      "ProductDataUpdated": "2026-03-01 09:00:00",
+      "ReleaseDate": "2025-02-01"
+     },
+     "FeaturesGroups": [
+      {
+       "FeatureGroup": {
+        "ID": 1
+       },
+       "Features": [
+        {
+         "Feature": {
+          "ID": 1,
+          "Name": {
+           "Value": "Display diagonal"
+          },
+          "Measure": {
+           "Signs": {
+            "_": "cm"
+           }
+          }
+         },
+         "Value": "86.4",
+         "PresentationValue": "86.4 cm (34\")"
+        },
+        {
+         "Feature": {
+          "ID": 2,
+          "Name": {
+           "Value": "Display resolution"
+          }
+         },
+         "Value": "3440 x 1440",
+         "PresentationValue": "3440 x 1440 pixels"
+        },
+        {
+         "Feature": {
+          "ID": 3,
+          "Name": {
+           "Value": "Width (with stand)"
+          },
+          "Measure": {
+           "Signs": {
+            "_": "mm"
+           }
+          }
+         },
+         "Value": "810"
+        },
+        {
+         "Feature": {
+          "ID": 4,
+          "Name": {
+           "Value": "Height (with stand)"
+          },
+          "Measure": {
+           "Signs": {
+            "_": "mm"
+           }
+          }
+         },
+         "Value": "550"
+        },
+        {
+         "Feature": {
+          "ID": 5,
+          "Name": {
+           "Value": "Depth (with stand)"
+          },
+          "Measure": {
+           "Signs": {
+            "_": "mm"
+           }
+          }
+         },
+         "Value": "240"
+        },
+        {
+         "Feature": {
+          "ID": 6,
+          "Name": {
+           "Value": "Power consumption (typical)"
+          },
+          "Measure": {
+           "Signs": {
+            "_": "W"
+           }
+          }
+         },
+         "Value": "35"
+        },
+        {
+         "Feature": {
+          "ID": 7,
+          "Name": {
+           "Value": "Power consumption (SDR) per 1000 hours"
+          },
+          "Measure": {
+           "Signs": {
+            "_": "kWh"
+           }
+          }
+         },
+         "Value": "30"
+        },
+        {
+         "Feature": {
+          "ID": 8,
+          "Name": {
+           "Value": "Energy efficiency class (SDR)"
+          }
+         },
+         "Value": "G"
+        }
+       ]
+      }
+     ],
+     "Multimedia": []
+    }
+   }
+  },
+  {
+   "selector": {
+    "gtin": "4000000000013",
+    "label": "unknown GTIN (not found)"
+   },
+   "status": 404,
+   "body": {
+    "msg": "Error",
+    "Message": "The requested product is not present in the Icecat database"
+   }
+  },
+  {
+   "selector": {
+    "brand": "Othermark",
+    "product_code": "OM-1",
+    "label": "non-sponsoring brand (outside Open Icecat)"
+   },
+   "status": 403,
+   "body": {
+    "msg": "Error",
+    "Message": "Access to Full Icecat product is restricted for this shop"
+   }
+  }
+ ],
+ "scenarios": [
+  "matched-models",
+  "regional-variant",
+  "bundle-gtin-conflict",
+  "same-family-different-size",
+  "missing-attribute",
+  "not-found",
+  "outside-open-catalogue",
+  "leading-zero-gtin",
+  "invalid-gtin-checksum"
+ ]
+}

@@ -102,7 +102,7 @@ def main() -> int:
         len(enqueue["created"]) == len(manifests)
         and len(generations) == len(manifests)
         and domains
-        == ["economic", "geospatial", "osint", "political", "research", "scientific", "technical"]
+        == ["economic", "geospatial", "osint", "political", "products", "research", "scientific", "technical"]
         and statuses == {"complete", "partial"}
         and all(item["matched"] for item in replays)
         and query["items"]

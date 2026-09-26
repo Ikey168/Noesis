@@ -520,7 +520,8 @@ class EprelProductAdapter(_ProductAdapter):
             "id": f"eprel:{group}:{number}",
             "title": f"{record['title'] or 'EPREL model'} (EPREL {number})",
             "language": "en",
-            "updated_at": record["provider_revision"],
+            # versionNumber is an ordinal, not a time; it stays in provider_revision.
+            "published_at": record["lifecycle_claims"]["on_market_start"],
             "url": f"https://eprel.ec.europa.eu/screen/product/{group}/{number}",
             "status": "withdrawn" if record["record_status"] == "withdrawn" else "active",
             "product_record": record,
