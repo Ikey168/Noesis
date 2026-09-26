@@ -156,6 +156,11 @@
           },
           "manifest_hash": {
             "type": "string"
+          },
+          "range": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Accepted source-pack versions; an upgrade outside it is blocked while the plan is active."
           }
         }
       }

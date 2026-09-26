@@ -96,7 +96,8 @@
                     "disabled_provider",
                     "unverified_live_access",
                     "failed_execution",
-                    "unauthorized"
+                    "unauthorized",
+                    "aggregate_limit_exhausted"
                   ]
                 },
                 "detail": {

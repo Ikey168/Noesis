@@ -192,7 +192,88 @@ CREATE TABLE IF NOT EXISTS source_pack_schedules (
   next_run_at_ms BIGINT NOT NULL, last_run_id TEXT, updated_by TEXT NOT NULL,
   updated_at_ms BIGINT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS source_pack_schedule_owners (
+  pack_id TEXT NOT NULL, owner TEXT NOT NULL, added_at_ms BIGINT NOT NULL,
+  PRIMARY KEY(pack_id,owner)
+);
+CREATE TABLE IF NOT EXISTS source_pack_shared_runs (
+  dedup_key TEXT PRIMARY KEY, run_id TEXT NOT NULL, pack_id TEXT NOT NULL,
+  context_hash TEXT NOT NULL, created_at_ms BIGINT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS source_pack_run_consumers (
+  dedup_key TEXT NOT NULL, consumer TEXT NOT NULL, run_id TEXT NOT NULL,
+  receipt_hash TEXT, joined_at_ms BIGINT NOT NULL, PRIMARY KEY(dedup_key,consumer)
+);
+CREATE TABLE IF NOT EXISTS source_pack_account_limits (
+  account TEXT PRIMARY KEY, window_ms BIGINT NOT NULL, max_results BIGINT NOT NULL,
+  max_pages BIGINT NOT NULL, updated_at_ms BIGINT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS source_pack_account_usage (
+  account TEXT NOT NULL, run_id TEXT NOT NULL, results BIGINT NOT NULL,
+  pages BIGINT NOT NULL, at_ms BIGINT NOT NULL, PRIMARY KEY(account,run_id)
+);
 """
+
+SHARED_RUN_CONTRACT = "noesis-source-pack-shared-run-v1"
+AGGREGATE_BLOCKER = "aggregate_limit_exhausted"
+
+
+def claim_schedule_owner(conn: Any, pack_id: str, owner: str, *, now_ms: int) -> list[str]:
+    """Record ``owner`` as an owner of a source-pack schedule (C06.2).
+
+    A schedule created without owners belongs to the legacy path; the first
+    explicit claim records that legacy owner too, so releasing composition
+    owners can never delete a schedule the legacy path still owns.
+    """
+
+    ensure_runtime_schema(conn)
+    row = conn.execute(
+        "SELECT updated_by FROM source_pack_schedules WHERE pack_id=?", [pack_id]
+    ).fetchone()
+    if not row:
+        raise SourcePackError("not_found", "source pack has no schedule")
+    owners = schedule_owners(conn, pack_id)
+    if not owners:
+        conn.execute(
+            "INSERT INTO source_pack_schedule_owners VALUES (?,?,?) ON CONFLICT DO NOTHING",
+            [pack_id, f"legacy:{row[0]}", now_ms],
+        )
+    conn.execute(
+        "INSERT INTO source_pack_schedule_owners VALUES (?,?,?) ON CONFLICT DO NOTHING",
+        [pack_id, owner, now_ms],
+    )
+    return schedule_owners(conn, pack_id)
+
+
+def schedule_owners(conn: Any, pack_id: str) -> list[str]:
+    ensure_runtime_schema(conn)
+    return [
+        row[0]
+        for row in conn.execute(
+            "SELECT owner FROM source_pack_schedule_owners WHERE pack_id=? ORDER BY owner",
+            [pack_id],
+        ).fetchall()
+    ]
+
+
+def release_schedule_owner(conn: Any, pack_id: str, owner: str) -> dict[str, Any]:
+    """Release one owner; the schedule is removed only when no owner remains.
+
+    Schedules with no recorded owners (legacy) are never removed here.
+    """
+
+    ensure_runtime_schema(conn)
+    before = schedule_owners(conn, pack_id)
+    if owner not in before:
+        return {"pack_id": pack_id, "released": False, "owners": before, "schedule_removed": False}
+    conn.execute(
+        "DELETE FROM source_pack_schedule_owners WHERE pack_id=? AND owner=?", [pack_id, owner]
+    )
+    remaining = schedule_owners(conn, pack_id)
+    if not remaining:
+        conn.execute("DELETE FROM source_pack_schedules WHERE pack_id=?", [pack_id])
+    return {"pack_id": pack_id, "released": True, "owners": remaining,
+            "schedule_removed": not remaining}
 
 
 def ensure_runtime_schema(conn: Any) -> None:
@@ -2111,6 +2192,184 @@ class SourcePackRuntime:
             "at_ms": at,
             "schedules": items,
         }
+
+    def set_schedule_owned(
+        self,
+        pack_id: str,
+        schedule: Mapping[str, Any],
+        *,
+        principal_id: str,
+        owner: str,
+        enabled: bool = True,
+    ) -> dict[str, Any]:
+        """Create or update a schedule owned by ``owner`` (a pack or composition root)."""
+
+        result = self.set_schedule(
+            pack_id, schedule, principal_id=principal_id, enabled=enabled
+        )
+        self.conn.execute(
+            "INSERT INTO source_pack_schedule_owners VALUES (?,?,?) ON CONFLICT DO NOTHING",
+            [pack_id, owner, self.now()],
+        )
+        return {**result, "owners": schedule_owners(self.conn, pack_id)}
+
+    # ------------------------------------------------------------ C06.3 / C06.4
+
+    def set_account_limit(
+        self, account: str, *, max_results: int, max_pages: int, window_ms: int
+    ) -> dict[str, Any]:
+        """Aggregate ceiling for one provider account across every consumer's runs."""
+
+        if min(max_results, max_pages, window_ms) < 1:
+            raise SourcePackError("invalid_limit", "account limits must be positive")
+        self.conn.execute(
+            "INSERT OR REPLACE INTO source_pack_account_limits VALUES (?,?,?,?,?)",
+            [account, int(window_ms), int(max_results), int(max_pages), self.now()],
+        )
+        return self.account_status(account)
+
+    def account_status(self, account: str) -> dict[str, Any]:
+        row = self.conn.execute(
+            "SELECT window_ms,max_results,max_pages FROM source_pack_account_limits WHERE account=?",
+            [account],
+        ).fetchone()
+        if not row:
+            return {"account": account, "limited": False, "exhausted": False}
+        since = self.now() - int(row[0])
+        used = self.conn.execute(
+            "SELECT COALESCE(SUM(results),0),COALESCE(SUM(pages),0) FROM source_pack_account_usage "
+            "WHERE account=? AND at_ms>=?",
+            [account, since],
+        ).fetchone()
+        remaining = {"results": max(int(row[1]) - int(used[0]), 0),
+                     "pages": max(int(row[2]) - int(used[1]), 0)}
+        return {"account": account, "limited": True, "window_ms": int(row[0]),
+                "limit": {"results": int(row[1]), "pages": int(row[2])},
+                "used": {"results": int(used[0]), "pages": int(used[1])},
+                "remaining": remaining,
+                "exhausted": remaining["results"] == 0 or remaining["pages"] == 0}
+
+    def dedup_key(
+        self,
+        request: Mapping[str, Any],
+        *,
+        context: Mapping[str, Any],
+        mapping_version: str | None = None,
+    ) -> str:
+        """Source version + query + namespace/access context + mapping (C06.3)."""
+
+        normalized = validate_run_request({**request, "run_key": "dedup"})
+        manifest, _ = self._manifest(normalized["pack_id"])
+        selected = [
+            source for source in manifest["sources"]
+            if not normalized["source_ids"] or source["source_id"] in normalized["source_ids"]
+        ]
+        mapping = mapping_version or [
+            [source["source_id"], source.get("mapping")] for source in selected
+        ]
+        return _digest({
+            "source": [manifest["pack_id"], manifest["version"], manifest["manifest_hash"]],
+            "query": {key: normalized[key] for key in
+                      ("operation", "mode", "source_ids", "parameters", "backfill", "network")},
+            "context": dict(context),
+            "mapping": mapping,
+        })
+
+    def run_shared(
+        self,
+        request: Mapping[str, Any],
+        *,
+        consumer: str,
+        context: Mapping[str, Any],
+        principal_id: str,
+        account: str | None = None,
+        mapping_version: str | None = None,
+        **run_options: Any,
+    ) -> dict[str, Any]:
+        """Run an acquisition once per deduplication key and share it across consumers.
+
+        A second consumer with the same key joins the existing run and gets a
+        reference to the same receipt: no second acquisition, no duplicate
+        ledger. Different access contexts or mappings never share a run. The
+        per-run budget stays authoritative; an account's aggregate limit is an
+        additional ceiling and its exhaustion is a distinct blocker.
+        """
+
+        key = self.dedup_key(request, context=context, mapping_version=mapping_version)
+        now = self.now()
+        existing = self.conn.execute(
+            "SELECT run_id FROM source_pack_shared_runs WHERE dedup_key=?", [key]
+        ).fetchone()
+        if existing:
+            receipt = _load(self.conn.execute(
+                "SELECT receipt_json FROM source_pack_runs WHERE run_id=?", [existing[0]]
+            ).fetchone()[0], {})
+            self.conn.execute(
+                "INSERT INTO source_pack_run_consumers VALUES (?,?,?,?,?) ON CONFLICT DO NOTHING",
+                [key, consumer, existing[0], receipt.get("receipt_hash"), now],
+            )
+            return self._shared_result(key, consumer, existing[0], receipt, joined=True,
+                                       account=account)
+        budgets = {}
+        if account:
+            status = self.account_status(account)
+            if status["exhausted"]:
+                return {"contract": SHARED_RUN_CONTRACT, "dedup_key": key, "consumer": consumer,
+                        "status": "blocked", "run_id": None, "receipt_ref": None,
+                        "blocker": {"kind": AGGREGATE_BLOCKER,
+                                    "detail": f"aggregate limit for account {account} is exhausted"},
+                        "aggregate": status}
+            if status["limited"]:
+                normalized = validate_run_request({**request, "run_key": "budget"})
+                budgets = {
+                    "max_results": min(normalized["budgets"]["max_results"],
+                                       status["remaining"]["results"]),
+                    "max_pages": min(normalized["budgets"]["max_pages"],
+                                     status["remaining"]["pages"]),
+                }
+        receipt = self.run(
+            {**request, **budgets, "run_key": "shared:" + key[:32]},
+            principal_id=principal_id,
+            **run_options,
+        )
+        run_id = receipt["replay"]["run_id"]
+        self.conn.execute(
+            "INSERT INTO source_pack_shared_runs VALUES (?,?,?,?,?) ON CONFLICT DO NOTHING",
+            [key, run_id, receipt.get("pack_id") or request["pack_id"], _digest(dict(context)), now],
+        )
+        self.conn.execute(
+            "INSERT INTO source_pack_run_consumers VALUES (?,?,?,?,?) ON CONFLICT DO NOTHING",
+            [key, consumer, run_id, receipt.get("receipt_hash"), now],
+        )
+        if account:
+            fetched = sum(item["counts"]["fetched"] for item in receipt.get("sources") or [])
+            pages = sum(item["counts"]["pages"] for item in receipt.get("sources") or [])
+            self.conn.execute(
+                "INSERT INTO source_pack_account_usage VALUES (?,?,?,?,?) ON CONFLICT DO NOTHING",
+                [account, run_id, fetched, pages, now],
+            )
+        return self._shared_result(key, consumer, run_id, receipt, joined=False, account=account,
+                                   clamped=budgets)
+
+    def _shared_result(self, key, consumer, run_id, receipt, *, joined, account, clamped=None):
+        consumers = [row[0] for row in self.conn.execute(
+            "SELECT consumer FROM source_pack_run_consumers WHERE dedup_key=? ORDER BY consumer", [key]
+        ).fetchall()]
+        per_run = [
+            {"source_id": item["source_id"], "code": (item.get("failure") or {}).get("code")}
+            for item in receipt.get("sources") or []
+            if (item.get("failure") or {}).get("code") == "budget_exhausted"
+        ]
+        result = {"contract": SHARED_RUN_CONTRACT, "dedup_key": key, "consumer": consumer,
+                  "status": receipt.get("status"), "run_id": run_id, "joined": joined,
+                  "receipt_ref": {"run_id": run_id, "receipt_hash": receipt.get("receipt_hash")},
+                  "consumers": consumers, "blocker": None,
+                  "per_run_budget_blockers": per_run}
+        if account:
+            result["aggregate"] = self.account_status(account)
+            if clamped:
+                result["aggregate"]["clamped_budgets"] = clamped
+        return result
 
     def runtime_coverage(self) -> dict[str, Any]:
         domains: dict[str, dict[str, int]] = {}

@@ -250,6 +250,24 @@ committed report in `tests/fixtures/composition/shadow-report.json`. The resolve
 that produces plans (C03) is `src/composition/resolver.py`. Provider descriptors
 ship with bundles as `packs/<bundle>/providers/*.json`.
 
+Implementation (C05, C06):
+- The lifecycle coordinator is `src/composition/lifecycle.py`; ADR-003 has the
+  tables and the reconciliation boundary.
+- Source upgrade impact previews list active and run-pinned composition plans
+  that pin the source pack. An active plan whose declared source-pack `range`
+  excludes the candidate blocks apply (`composition_incompatible`, naming the
+  plan digest).
+- Source-pack schedules record their owners in `source_pack_schedule_owners`. A
+  shared schedule goes only when its last owner releases it, and legacy
+  schedules are never removed by a composition release.
+- `SourcePackRuntime.run_shared` deduplicates acquisitions. Its key is the
+  source version, the query, the access context and the mapping. Joining
+  consumers reference the same receipt.
+- Account limits in `source_pack_account_limits` add an aggregate ceiling across
+  consumers on top of the per-run budget. Exhaustion is the distinct
+  `aggregate_limit_exhausted` blocker, both in shared-run receipts and in
+  readiness.
+
 ## First composition to prove the design
 
 Use existing OSINT, Research, and Geospatial surfaces before adding a new subject.

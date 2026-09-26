@@ -511,6 +511,7 @@ class CompositionCoordinator:
 
         if not self.deselect(root):
             raise CompositionLifecycleError("not_selected", f"{root!r} is not selected")
+        self.release_source_schedules(root)
         if not self.selections():
             return self._publish_empty(idempotency_key)
         return self.activate(idempotency_key)
@@ -530,6 +531,41 @@ class CompositionCoordinator:
                               for p in ((previous or {}).get("plan") or {}).get("packs", [])],
                              [{"stage": "publish", "status": "skipped", "detail": "no selected root remains"}], [],
                              "none")
+
+    def claim_source_schedules(self, root: str) -> dict[str, list[str]]:
+        """Record ``root`` as an owner of the schedules of the source packs its pack references (C06.2)."""
+
+        from src.ingestion.source_pack_runtime import claim_schedule_owner
+
+        claimed: dict[str, list[str]] = {}
+        for manifest in self.installed("pack"):
+            if manifest["id"] != root:
+                continue
+            for ref in (manifest.get("contributes") or {}).get("source_packs") or []:
+                exists = self._table_has_row("source_pack_schedules", "pack_id", ref["pack_id"])
+                if exists:
+                    claimed[ref["pack_id"]] = claim_schedule_owner(self.conn, ref["pack_id"],
+                                                                   f"composition:{root}", now_ms=self.now())
+        return claimed
+
+    def release_source_schedules(self, root: str) -> list[dict[str, Any]]:
+        """Release ``root``'s schedule ownership; a schedule goes only when no owner remains."""
+
+        from src.ingestion.source_pack_runtime import release_schedule_owner
+
+        if not self._table_exists("source_pack_schedule_owners"):
+            return []
+        rows = self.conn.execute("SELECT pack_id FROM source_pack_schedule_owners WHERE owner=? ORDER BY pack_id",
+                                 [f"composition:{root}"]).fetchall()
+        return [release_schedule_owner(self.conn, pack_id, f"composition:{root}") for (pack_id,) in rows]
+
+    def _table_exists(self, table: str) -> bool:
+        return bool(self.conn.execute("SELECT 1 FROM information_schema.tables WHERE table_name=?",
+                                      [table]).fetchone())
+
+    def _table_has_row(self, table: str, column: str, value: str) -> bool:
+        return self._table_exists(table) and bool(
+            self.conn.execute(f"SELECT 1 FROM {table} WHERE {column}=?", [value]).fetchone())
 
     def shutdown_provider(self, provider_id: str, *, reason: str, principal: str) -> dict[str, Any]:
         """Administrative shutdown: an explicit action with its consequences listed."""

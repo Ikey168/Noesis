@@ -39,7 +39,8 @@ CONTRACT_VERSION = "1.0.0"
 
 SIDE_EFFECTS = ("read-only", "local-mutation", "acquisition", "external-publication")
 BLOCKER_KINDS = ("empty_data", "inaccessible_data", "missing_credentials", "disabled_provider",
-                 "unverified_live_access", "failed_execution", "unauthorized")
+                 "unverified_live_access", "failed_execution", "unauthorized",
+                 "aggregate_limit_exhausted")
 PROBE_KINDS = ("table-exists", "table-rows", "catalog-tool-state", "source-pack-enabled")
 ID_RE = re.compile(r"^[a-z][a-z0-9-]*(?:\.[a-z0-9][a-z0-9-]*)*$")
 CAPABILITY_RE = re.compile(r"^[a-z][a-z0-9-]*(?:\.[a-z0-9][a-z0-9-]*)+$")

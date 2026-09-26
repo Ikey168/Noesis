@@ -220,6 +220,7 @@ def assess(view: CompositionView, *, conn: Any = None, namespace: str = "global"
            enabled_packs: Iterable[str] | None = None, live_verified: Iterable[str] = (),
            failures: Mapping[str, str] | None = None, enabled_source_packs: Iterable[str] | None = None,
            shutdown_providers: Mapping[str, str] | None = None,
+           exhausted_providers: Iterable[str] = (),
            now_ms: Callable[[], int] | None = None) -> dict[str, Any]:
     """Operation-specific readiness under the caller's namespace and grants.
 
@@ -268,6 +269,9 @@ def assess(view: CompositionView, *, conn: Any = None, namespace: str = "global"
         if needs_network and key not in verified:
             blockers.append({"kind": "unverified_live_access",
                              "detail": f"live access for {tool.operation} is offline or not verified"})
+        if tool.provider in set(exhausted_providers) and "network" in tool.required_context:
+            blockers.append({"kind": "aggregate_limit_exhausted",
+                             "detail": f"the shared account limit for {tool.provider} is exhausted"})
         if key in failures:
             blockers.append({"kind": "failed_execution", "detail": str(failures[key])[:200]})
         kinds = {b["kind"] for b in blockers}
@@ -275,7 +279,7 @@ def assess(view: CompositionView, *, conn: Any = None, namespace: str = "global"
             authorized="unauthorized" not in kinds,
             pack_enabled="disabled_provider" not in kinds,
             import_error="blocked" if kinds & {"failed_execution", "inaccessible_data", "missing_credentials",
-                                                "unverified_live_access"} else None,
+                                                "unverified_live_access", "aggregate_limit_exhausted"} else None,
             host_state=None,
             data_state="empty" if "empty_data" in kinds else data_state if data_state == "degraded" else "available",
             backend_ready=True,
