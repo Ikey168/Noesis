@@ -108,8 +108,22 @@ private data, treating conflicting assertions as identical, or publishing it.
 
 ## Proposed contracts and resolution rules
 
-The names below are proposed artifacts, not schemas or endpoints shipped by this
-change. Implementation should define JSON Schema and matching runtime validation.
+The five artifacts below are **specified** (C02): each has a JSON Schema under
+`contracts/schemas/jsonschema/`, a runtime validator in
+`src/composition/contracts.py`, a built-in identity in the schema registry, and
+cases in the shared fixture corpus (`tests/fixtures/composition/corpus.json`).
+
+| Artifact | Contract | Schema-registry identity |
+| --- | --- | --- |
+| Pack composition manifest | `noesis-pack-composition-v1` (a new `pack_format` next to `noesis-pack-v1`) | `schema:pack-composition@1.0.0` |
+| Provider descriptor | `noesis-provider-descriptor-v1` | `schema:provider-descriptor@1.0.0` |
+| Resolved composition | `noesis-composition-plan-v1`, canonical digest `plan_digest()` (sorted keys, arrays as sets, SHA-256, `digest` excluded) | `schema:composition-plan@1.0.0` |
+| Readiness assessment | `noesis-composition-readiness-v1` | `schema:composition-readiness@1.0.0` |
+| Activation receipt | `noesis-composition-activation-receipt-v1` | `schema:composition-activation-receipt@1.0.0` |
+
+Existing v1 bundles are read through a read-only adapter
+(`src/composition/adapter.py`). Anything v1 cannot express is filled with
+defaults listed in `adapter.supplied_defaults`.
 
 1. **Pack composition manifest:** immutable ID/version/hash; contributed modules;
    required capability IDs and contract ranges; optional features; source,

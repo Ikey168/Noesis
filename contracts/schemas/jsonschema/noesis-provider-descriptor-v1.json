@@ -1,0 +1,260 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/schemas/noesis-provider-descriptor-v1.json",
+  "title": "Noesis provider descriptor v1",
+  "description": "The only way an implementation binds to a capability: registered tool bindings, per-operation side-effect class, idempotency and readiness probe, owned stores, and semantic constraints that a contract range alone cannot express. Descriptors never name code.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "contract",
+    "id",
+    "version",
+    "implementation",
+    "capabilities",
+    "operations",
+    "stores",
+    "readiness_probes"
+  ],
+  "properties": {
+    "contract": {
+      "const": "noesis-provider-descriptor-v1"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z0-9][a-z0-9-]*)*$"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$"
+    },
+    "content_hash": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "description": {
+      "type": "string"
+    },
+    "implementation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "version",
+        "server"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$"
+        },
+        "server": {
+          "type": "string",
+          "pattern": "^noesis-[a-z0-9-]+$"
+        }
+      }
+    },
+    "capabilities": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "contract",
+          "operations",
+          "semantic_constraints"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z0-9][a-z0-9-]*)+$"
+          },
+          "contract": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "name",
+              "version"
+            ],
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1
+              },
+              "version": {
+                "type": "string",
+                "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$"
+              }
+            }
+          },
+          "operations": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z0-9][a-z0-9-]*)*$"
+            },
+            "minItems": 1
+          },
+          "semantic_constraints": {
+            "type": "object",
+            "additionalProperties": {
+              "type": [
+                "string",
+                "number",
+                "boolean"
+              ]
+            }
+          }
+        }
+      },
+      "minItems": 1
+    },
+    "operations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "tool",
+          "side_effect",
+          "idempotency",
+          "readiness_probe"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z0-9][a-z0-9-]*)*$"
+          },
+          "tool": {
+            "type": "string",
+            "pattern": "^noesis-[a-z0-9-]+\\.[a-z_][a-z0-9_]*$"
+          },
+          "side_effect": {
+            "enum": [
+              "read-only",
+              "local-mutation",
+              "acquisition",
+              "external-publication"
+            ]
+          },
+          "idempotency": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "supported"
+            ],
+            "properties": {
+              "supported": {
+                "type": "boolean"
+              },
+              "key": {
+                "type": "string"
+              },
+              "receipt": {
+                "type": "string"
+              }
+            }
+          },
+          "readiness_probe": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z0-9][a-z0-9-]*)*$"
+          },
+          "required_scopes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "required_context": {
+            "type": "array",
+            "items": {
+              "enum": [
+                "namespace",
+                "principal",
+                "source_terms",
+                "credentials",
+                "network"
+              ]
+            }
+          },
+          "input_contract": {
+            "type": "string"
+          },
+          "output_contract": {
+            "type": "string"
+          }
+        }
+      },
+      "minItems": 1
+    },
+    "stores": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "record_type",
+          "store"
+        ],
+        "properties": {
+          "record_type": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z0-9][a-z0-9-]*)*$"
+          },
+          "store": {
+            "type": "string",
+            "minLength": 1
+          },
+          "tables": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "revision_addressable": {
+            "type": "boolean"
+          },
+          "namespace_scoped": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "readiness_probes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "kind",
+          "target"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z0-9][a-z0-9-]*)*$"
+          },
+          "kind": {
+            "enum": [
+              "table-exists",
+              "table-rows",
+              "catalog-tool-state",
+              "source-pack-enabled"
+            ]
+          },
+          "target": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "minItems": 1
+    }
+  }
+}

@@ -1,0 +1,2707 @@
+{
+ "cases": [
+  {
+   "contract": "noesis-pack-composition-v1",
+   "document": {
+    "advisory": {
+     "panels": [],
+     "query_examples": [
+      {
+       "intent": "Where was this photographed?"
+      }
+     ]
+    },
+    "compatibility_aliases": {
+     "neuronews-osint": "osint"
+    },
+    "content_hash": "sha256:2d7c666f3bb4372d2a71f6e9da67a7c32be22549249bc8b96c776f434fb46c06",
+    "contributes": {
+     "capabilities": [
+      {
+       "contract": {
+        "name": "noesis-osint-corroboration",
+        "version": "1.0.0"
+       },
+       "id": "osint.origin-aware-corroboration"
+      }
+     ],
+     "workflow_templates": [
+      {
+       "id": "osint.location-investigation",
+       "version": "1.0.0"
+      }
+     ]
+    },
+    "description": "Investigative bundle consuming the shared spatial capability.",
+    "extensions": {
+     "x-review": {
+      "owner": "osint-team"
+     }
+    },
+    "id": "osint",
+    "optional_features": [
+     {
+      "default": false,
+      "id": "imagery",
+      "requires": [
+       {
+        "capability": "osint.media-provenance",
+        "contract": "noesis-media-provenance",
+        "range": ">=1.0.0,<2.0.0"
+       }
+      ]
+     }
+    ],
+    "pack_format": "noesis-pack-composition-v1",
+    "requires": [
+     {
+      "capability": "geospatial.spatial-relation",
+      "contract": "noesis-spatial-relation",
+      "range": "^1.0.0"
+     }
+    ],
+    "version": "1.0.0"
+   },
+   "name": "manifest-valid",
+   "options": {
+    "known_capabilities": [
+     "geospatial.spatial-relation",
+     "osint.media-provenance"
+    ]
+   },
+   "valid": true
+  },
+  {
+   "contract": "noesis-pack-composition-v1",
+   "document": {
+    "advisory": {
+     "panels": [],
+     "query_examples": [
+      {
+       "intent": "Where was this photographed?"
+      }
+     ]
+    },
+    "compatibility_aliases": {
+     "neuronews-osint": "osint",
+     "old-osint": "osint"
+    },
+    "content_hash": "sha256:7578cb50e8fd4db6bdfa0fb7dd0f8e90859e14cc391874b498da681868cc7390",
+    "contributes": {
+     "capabilities": [
+      {
+       "contract": {
+        "name": "noesis-osint-corroboration",
+        "version": "1.0.0"
+       },
+       "id": "osint.origin-aware-corroboration"
+      }
+     ],
+     "workflow_templates": [
+      {
+       "id": "osint.location-investigation",
+       "version": "1.0.0"
+      }
+     ]
+    },
+    "description": "Investigative bundle consuming the shared spatial capability.",
+    "extensions": {
+     "x-review": {
+      "owner": "osint-team"
+     }
+    },
+    "id": "osint",
+    "optional_features": [
+     {
+      "default": false,
+      "id": "imagery",
+      "requires": [
+       {
+        "capability": "osint.media-provenance",
+        "contract": "noesis-media-provenance",
+        "range": ">=1.0.0,<2.0.0"
+       }
+      ]
+     }
+    ],
+    "pack_format": "noesis-pack-composition-v1",
+    "requires": [
+     {
+      "capability": "geospatial.spatial-relation",
+      "contract": "noesis-spatial-relation",
+      "range": "^1.0.0"
+     }
+    ],
+    "version": "1.0.0"
+   },
+   "name": "manifest-alias-valid",
+   "valid": true
+  },
+  {
+   "contract": "noesis-pack-composition-v1",
+   "document": {
+    "advisory": {
+     "panels": [],
+     "query_examples": [
+      {
+       "intent": "Where was this photographed?"
+      }
+     ]
+    },
+    "compatibility_aliases": {
+     "osint": "osint"
+    },
+    "content_hash": "sha256:14a48a7754ec3570798bb08eef69968a8c722d0ba16ba71739fa6aa2122529ac",
+    "contributes": {
+     "capabilities": [
+      {
+       "contract": {
+        "name": "noesis-osint-corroboration",
+        "version": "1.0.0"
+       },
+       "id": "osint.origin-aware-corroboration"
+      }
+     ],
+     "workflow_templates": [
+      {
+       "id": "osint.location-investigation",
+       "version": "1.0.0"
+      }
+     ]
+    },
+    "description": "Investigative bundle consuming the shared spatial capability.",
+    "extensions": {
+     "x-review": {
+      "owner": "osint-team"
+     }
+    },
+    "id": "osint",
+    "optional_features": [
+     {
+      "default": false,
+      "id": "imagery",
+      "requires": [
+       {
+        "capability": "osint.media-provenance",
+        "contract": "noesis-media-provenance",
+        "range": ">=1.0.0,<2.0.0"
+       }
+      ]
+     }
+    ],
+    "pack_format": "noesis-pack-composition-v1",
+    "requires": [
+     {
+      "capability": "geospatial.spatial-relation",
+      "contract": "noesis-spatial-relation",
+      "range": "^1.0.0"
+     }
+    ],
+    "version": "1.0.0"
+   },
+   "expect": "alias_cycle",
+   "name": "manifest-alias-self",
+   "valid": false
+  },
+  {
+   "contract": "noesis-pack-composition-v1",
+   "document": {
+    "advisory": {
+     "panels": [],
+     "query_examples": [
+      {
+       "intent": "Where was this photographed?"
+      }
+     ]
+    },
+    "compatibility_aliases": {
+     "neuronews-osint": "osint"
+    },
+    "content_hash": "sha256:a6c92b8abce212201a723992dda83daa34c0294a4c224aef73281a1a18b6b2b6",
+    "contributes": {
+     "capabilities": [
+      {
+       "contract": {
+        "name": "noesis-osint-corroboration",
+        "version": "1.0.0"
+       },
+       "id": "osint.origin-aware-corroboration"
+      }
+     ],
+     "workflow_templates": [
+      {
+       "id": "osint.location-investigation",
+       "version": "1.0.0"
+      }
+     ]
+    },
+    "description": "Investigative bundle consuming the shared spatial capability.",
+    "extensions": {
+     "x-review": {
+      "owner": "osint-team"
+     }
+    },
+    "id": "osint",
+    "optional_features": [
+     {
+      "default": false,
+      "id": "imagery",
+      "requires": [
+       {
+        "capability": "osint.media-provenance",
+        "contract": "noesis-media-provenance",
+        "range": ">=1.0.0,<2.0.0"
+       }
+      ]
+     }
+    ],
+    "pack_format": "noesis-pack-composition-v1",
+    "requires": [
+     {
+      "capability": "geospatial.spatial-relation",
+      "contract": "noesis-spatial-relation",
+      "range": ">=1.2.0,<2.0.0"
+     }
+    ],
+    "version": "1.0.0"
+   },
+   "name": "manifest-range-comparator-valid",
+   "valid": true
+  },
+  {
+   "contract": "noesis-pack-composition-v1",
+   "document": {
+    "advisory": {
+     "panels": [],
+     "query_examples": [
+      {
+       "intent": "Where was this photographed?"
+      }
+     ]
+    },
+    "compatibility_aliases": {
+     "neuronews-osint": "osint"
+    },
+    "content_hash": "sha256:6c03c31ac57554176e693712707534acae81a64e06aead41106804fad0055873",
+    "contributes": {
+     "capabilities": [
+      {
+       "contract": {
+        "name": "noesis-osint-corroboration",
+        "version": "1.0.0"
+       },
+       "id": "osint.origin-aware-corroboration"
+      }
+     ],
+     "workflow_templates": [
+      {
+       "id": "osint.location-investigation",
+       "version": "1.0.0"
+      }
+     ]
+    },
+    "description": "Investigative bundle consuming the shared spatial capability.",
+    "extensions": {
+     "x-review": {
+      "owner": "osint-team"
+     }
+    },
+    "id": "osint",
+    "optional_features": [
+     {
+      "default": false,
+      "id": "imagery",
+      "requires": [
+       {
+        "capability": "osint.media-provenance",
+        "contract": "noesis-media-provenance",
+        "range": ">=1.0.0,<2.0.0"
+       }
+      ]
+     }
+    ],
+    "pack_format": "noesis-pack-composition-v1",
+    "requires": [
+     {
+      "capability": "geospatial.spatial-relation",
+      "contract": "noesis-spatial-relation",
+      "range": "latest"
+     }
+    ],
+    "version": "1.0.0"
+   },
+   "expect": "invalid_range",
+   "name": "manifest-range-latest",
+   "valid": false
+  },
+  {
+   "contract": "noesis-pack-composition-v1",
+   "document": {
+    "advisory": {
+     "panels": [],
+     "query_examples": [
+      {
+       "intent": "Where was this photographed?"
+      }
+     ]
+    },
+    "compatibility_aliases": {
+     "neuronews-osint": "osint"
+    },
+    "content_hash": "sha256:d7cd96fae3886cb63d13bea22f0e9fad285f1b652bbbd444ac65bf51b4b9d272",
+    "contributes": {
+     "capabilities": [
+      {
+       "contract": {
+        "name": "noesis-osint-corroboration",
+        "version": "1.0.0"
+       },
+       "id": "osint.origin-aware-corroboration"
+      }
+     ],
+     "workflow_templates": [
+      {
+       "id": "osint.location-investigation",
+       "version": "1.0.0"
+      }
+     ]
+    },
+    "description": "Investigative bundle consuming the shared spatial capability.",
+    "extensions": {
+     "x-review": {
+      "owner": "osint-team"
+     }
+    },
+    "id": "osint",
+    "optional_features": [
+     {
+      "default": false,
+      "id": "imagery",
+      "requires": [
+       {
+        "capability": "osint.media-provenance",
+        "contract": "noesis-media-provenance",
+        "range": ">=1.0.0,<2.0.0"
+       }
+      ]
+     }
+    ],
+    "pack_format": "noesis-pack-composition-v1",
+    "requires": [
+     {
+      "capability": "geospatial.spatial-relation",
+      "contract": "noesis-spatial-relation",
+      "range": "1.x"
+     }
+    ],
+    "version": "1.0.0"
+   },
+   "expect": "invalid_range",
+   "name": "manifest-range-malformed",
+   "valid": false
+  },
+  {
+   "contract": "noesis-pack-composition-v1",
+   "document": {
+    "advisory": {
+     "future_hint": {
+      "any": "shape"
+     },
+     "panels": []
+    },
+    "compatibility_aliases": {
+     "neuronews-osint": "osint"
+    },
+    "content_hash": "sha256:1a49a7b54d686018fc09aaea20c5649524049a3b8987402b04e2b9b11427c147",
+    "contributes": {
+     "capabilities": [
+      {
+       "contract": {
+        "name": "noesis-osint-corroboration",
+        "version": "1.0.0"
+       },
+       "id": "osint.origin-aware-corroboration"
+      }
+     ],
+     "workflow_templates": [
+      {
+       "id": "osint.location-investigation",
+       "version": "1.0.0"
+      }
+     ]
+    },
+    "description": "Investigative bundle consuming the shared spatial capability.",
+    "extensions": {
+     "x-review": {
+      "owner": "osint-team"
+     }
+    },
+    "id": "osint",
+    "optional_features": [
+     {
+      "default": false,
+      "id": "imagery",
+      "requires": [
+       {
+        "capability": "osint.media-provenance",
+        "contract": "noesis-media-provenance",
+        "range": ">=1.0.0,<2.0.0"
+       }
+      ]
+     }
+    ],
+    "pack_format": "noesis-pack-composition-v1",
+    "requires": [
+     {
+      "capability": "geospatial.spatial-relation",
+      "contract": "noesis-spatial-relation",
+      "range": "^1.0.0"
+     }
+    ],
+    "version": "1.0.0"
+   },
+   "name": "manifest-unknown-advisory-valid",
+   "valid": true
+  },
+  {
+   "contract": "noesis-pack-composition-v1",
+   "document": {
+    "advisory": {
+     "panels": [],
+     "query_examples": [
+      {
+       "intent": "Where was this photographed?"
+      }
+     ]
+    },
+    "compatibility_aliases": {
+     "neuronews-osint": "osint"
+    },
+    "contributes": {
+     "capabilities": [
+      {
+       "contract": {
+        "name": "noesis-osint-corroboration",
+        "version": "1.0.0"
+       },
+       "id": "osint.origin-aware-corroboration"
+      }
+     ],
+     "workflow_templates": [
+      {
+       "id": "osint.location-investigation",
+       "version": "1.0.0"
+      }
+     ]
+    },
+    "description": "Investigative bundle consuming the shared spatial capability.",
+    "extensions": {
+     "x-review": {
+      "owner": "osint-team"
+     }
+    },
+    "id": "osint",
+    "installer": {
+     "mode": "auto"
+    },
+    "optional_features": [
+     {
+      "default": false,
+      "id": "imagery",
+      "requires": [
+       {
+        "capability": "osint.media-provenance",
+        "contract": "noesis-media-provenance",
+        "range": ">=1.0.0,<2.0.0"
+       }
+      ]
+     }
+    ],
+    "pack_format": "noesis-pack-composition-v1",
+    "requires": [
+     {
+      "capability": "geospatial.spatial-relation",
+      "contract": "noesis-spatial-relation",
+      "range": "^1.0.0"
+     }
+    ],
+    "version": "1.0.0"
+   },
+   "expect": "unknown_field",
+   "name": "manifest-unknown-critical-field",
+   "valid": false
+  },
+  {
+   "contract": "noesis-pack-composition-v1",
+   "document": {
+    "advisory": {
+     "panels": [],
+     "query_examples": [
+      {
+       "intent": "Where was this photographed?"
+      }
+     ]
+    },
+    "compatibility_aliases": {
+     "neuronews-osint": "osint"
+    },
+    "contributes": {
+     "capabilities": [
+      {
+       "contract": {
+        "name": "noesis-osint-corroboration",
+        "version": "1.0.0"
+       },
+       "id": "osint.origin-aware-corroboration"
+      }
+     ],
+     "workflow_templates": [
+      {
+       "id": "osint.location-investigation",
+       "version": "1.0.0"
+      }
+     ]
+    },
+    "description": "Investigative bundle consuming the shared spatial capability.",
+    "extensions": {
+     "x-review": {
+      "owner": "osint-team"
+     }
+    },
+    "id": "osint",
+    "optional_features": [
+     {
+      "default": false,
+      "id": "imagery",
+      "requires": [
+       {
+        "capability": "osint.media-provenance",
+        "contract": "noesis-media-provenance",
+        "range": ">=1.0.0,<2.0.0"
+       }
+      ]
+     }
+    ],
+    "pack_format": "noesis-pack-composition-v1",
+    "requires": [
+     {
+      "capability": "geospatial.unknown-capability",
+      "contract": "noesis-spatial-relation",
+      "range": "^1.0.0"
+     }
+    ],
+    "version": "1.0.0"
+   },
+   "expect": "unknown_capability",
+   "name": "manifest-unknown-required-capability",
+   "options": {
+    "known_capabilities": [
+     "geospatial.spatial-relation",
+     "osint.media-provenance"
+    ]
+   },
+   "valid": false
+  },
+  {
+   "contract": "noesis-pack-composition-v1",
+   "document": {
+    "advisory": {
+     "entrypoint": "src.osint.plugin:install",
+     "panels": [],
+     "query_examples": [
+      {
+       "intent": "Where was this photographed?"
+      }
+     ]
+    },
+    "compatibility_aliases": {
+     "neuronews-osint": "osint"
+    },
+    "contributes": {
+     "capabilities": [
+      {
+       "contract": {
+        "name": "noesis-osint-corroboration",
+        "version": "1.0.0"
+       },
+       "id": "osint.origin-aware-corroboration"
+      }
+     ],
+     "workflow_templates": [
+      {
+       "id": "osint.location-investigation",
+       "version": "1.0.0"
+      }
+     ]
+    },
+    "description": "Investigative bundle consuming the shared spatial capability.",
+    "extensions": {
+     "x-review": {
+      "owner": "osint-team"
+     }
+    },
+    "id": "osint",
+    "optional_features": [
+     {
+      "default": false,
+      "id": "imagery",
+      "requires": [
+       {
+        "capability": "osint.media-provenance",
+        "contract": "noesis-media-provenance",
+        "range": ">=1.0.0,<2.0.0"
+       }
+      ]
+     }
+    ],
+    "pack_format": "noesis-pack-composition-v1",
+    "requires": [
+     {
+      "capability": "geospatial.spatial-relation",
+      "contract": "noesis-spatial-relation",
+      "range": "^1.0.0"
+     }
+    ],
+    "version": "1.0.0"
+   },
+   "expect": "executable_reference",
+   "name": "manifest-executable-reference",
+   "valid": false
+  },
+  {
+   "contract": "noesis-pack-composition-v1",
+   "document": {
+    "advisory": {
+     "panels": [],
+     "query_examples": [
+      {
+       "intent": "Where was this photographed?"
+      }
+     ]
+    },
+    "compatibility_aliases": {
+     "neuronews-osint": "osint"
+    },
+    "content_hash": "sha256:2d7c666f3bb4372d2a71f6e9da67a7c32be22549249bc8b96c776f434fb46c06",
+    "contributes": {
+     "capabilities": [
+      {
+       "contract": {
+        "name": "noesis-osint-corroboration",
+        "version": "1.0.0"
+       },
+       "id": "osint.origin-aware-corroboration"
+      }
+     ],
+     "workflow_templates": [
+      {
+       "id": "osint.location-investigation",
+       "version": "1.0.0"
+      }
+     ]
+    },
+    "description": "edited after sealing",
+    "extensions": {
+     "x-review": {
+      "owner": "osint-team"
+     }
+    },
+    "id": "osint",
+    "optional_features": [
+     {
+      "default": false,
+      "id": "imagery",
+      "requires": [
+       {
+        "capability": "osint.media-provenance",
+        "contract": "noesis-media-provenance",
+        "range": ">=1.0.0,<2.0.0"
+       }
+      ]
+     }
+    ],
+    "pack_format": "noesis-pack-composition-v1",
+    "requires": [
+     {
+      "capability": "geospatial.spatial-relation",
+      "contract": "noesis-spatial-relation",
+      "range": "^1.0.0"
+     }
+    ],
+    "version": "1.0.0"
+   },
+   "expect": "hash_mismatch",
+   "name": "manifest-hash-mismatch",
+   "valid": false
+  },
+  {
+   "contract": "noesis-provider-descriptor-v1",
+   "document": {
+    "capabilities": [
+     {
+      "contract": {
+       "name": "noesis-spatial-relation",
+       "version": "1.0.0"
+      },
+      "id": "geospatial.spatial-relation",
+      "operations": [
+       "calculate-spatial-relation",
+       "store-geometry",
+       "record-resolution"
+      ],
+      "semantic_constraints": {
+       "containment": "precision-aware point-in-polygon",
+       "crs": "EPSG:4326",
+       "distance_units": "meters"
+      }
+     }
+    ],
+    "contract": "noesis-provider-descriptor-v1",
+    "id": "geospatial.core",
+    "implementation": {
+     "name": "noesis-geospatial",
+     "server": "noesis-knowledge-engine",
+     "version": "1.0.0"
+    },
+    "operations": [
+     {
+      "id": "calculate-spatial-relation",
+      "idempotency": {
+       "supported": true
+      },
+      "readiness_probe": "geometries",
+      "required_context": [
+       "namespace"
+      ],
+      "required_scopes": [
+       "knowledge:geospatial:read"
+      ],
+      "side_effect": "read-only",
+      "tool": "noesis-knowledge-engine.calculate_spatial_relation"
+     },
+     {
+      "id": "store-geometry",
+      "idempotency": {
+       "key": "content-derived geometry_id",
+       "supported": true
+      },
+      "readiness_probe": "geometries",
+      "required_context": [
+       "namespace",
+       "principal"
+      ],
+      "required_scopes": [
+       "knowledge:geospatial:write"
+      ],
+      "side_effect": "local-mutation",
+      "tool": "noesis-knowledge-engine.store_geospatial_geometry"
+     },
+     {
+      "id": "record-resolution",
+      "idempotency": {
+       "receipt": "geocode_resolutions",
+       "supported": false
+      },
+      "readiness_probe": "places",
+      "required_context": [
+       "namespace",
+       "principal"
+      ],
+      "required_scopes": [
+       "knowledge:geospatial:write"
+      ],
+      "side_effect": "local-mutation",
+      "tool": "noesis-knowledge-engine.record_geospatial_resolution"
+     }
+    ],
+    "readiness_probes": [
+     {
+      "id": "geometries",
+      "kind": "table-exists",
+      "target": "geospatial_geometries"
+     },
+     {
+      "id": "places",
+      "kind": "table-exists",
+      "target": "geospatial_places"
+     }
+    ],
+    "stores": [
+     {
+      "namespace_scoped": true,
+      "record_type": "place",
+      "revision_addressable": true,
+      "store": "src.kb.geospatial",
+      "tables": [
+       "geospatial_places"
+      ]
+     },
+     {
+      "namespace_scoped": true,
+      "record_type": "geometry",
+      "revision_addressable": true,
+      "store": "src.kb.geospatial",
+      "tables": [
+       "geospatial_geometries"
+      ]
+     }
+    ],
+    "version": "1.0.0"
+   },
+   "name": "provider-valid",
+   "options": {
+    "registered_tools": [
+     "noesis-knowledge-engine.calculate_spatial_relation",
+     "noesis-knowledge-engine.store_geospatial_geometry",
+     "noesis-knowledge-engine.record_geospatial_resolution"
+    ]
+   },
+   "valid": true
+  },
+  {
+   "contract": "noesis-provider-descriptor-v1",
+   "document": {
+    "capabilities": [
+     {
+      "contract": {
+       "name": "noesis-spatial-relation",
+       "version": "1.0.0"
+      },
+      "id": "geospatial.spatial-relation",
+      "operations": [
+       "calculate-spatial-relation",
+       "store-geometry",
+       "record-resolution"
+      ],
+      "semantic_constraints": {
+       "containment": "precision-aware point-in-polygon",
+       "crs": "EPSG:4326",
+       "distance_units": "meters"
+      }
+     }
+    ],
+    "contract": "noesis-provider-descriptor-v1",
+    "id": "geospatial.core",
+    "implementation": {
+     "name": "noesis-geospatial",
+     "server": "noesis-knowledge-engine",
+     "version": "1.0.0"
+    },
+    "operations": [
+     {
+      "id": "calculate-spatial-relation",
+      "idempotency": {
+       "supported": true
+      },
+      "readiness_probe": "geometries",
+      "required_context": [
+       "namespace"
+      ],
+      "required_scopes": [
+       "knowledge:geospatial:read"
+      ],
+      "side_effect": "read-only",
+      "tool": "noesis-knowledge-engine.calculate_spatial_relation"
+     },
+     {
+      "id": "store-geometry",
+      "idempotency": {
+       "key": "content-derived geometry_id",
+       "supported": true
+      },
+      "readiness_probe": "geometries",
+      "required_context": [
+       "namespace",
+       "principal"
+      ],
+      "required_scopes": [
+       "knowledge:geospatial:write"
+      ],
+      "side_effect": "local-mutation",
+      "tool": "noesis-knowledge-engine.store_geospatial_geometry"
+     },
+     {
+      "id": "record-resolution",
+      "idempotency": {
+       "receipt": "geocode_resolutions",
+       "supported": false
+      },
+      "readiness_probe": "places",
+      "required_context": [
+       "namespace",
+       "principal"
+      ],
+      "required_scopes": [
+       "knowledge:geospatial:write"
+      ],
+      "side_effect": "acquisition",
+      "tool": "noesis-knowledge-engine.record_geospatial_resolution"
+     }
+    ],
+    "readiness_probes": [
+     {
+      "id": "geometries",
+      "kind": "table-exists",
+      "target": "geospatial_geometries"
+     },
+     {
+      "id": "places",
+      "kind": "table-exists",
+      "target": "geospatial_places"
+     }
+    ],
+    "stores": [
+     {
+      "namespace_scoped": true,
+      "record_type": "place",
+      "revision_addressable": true,
+      "store": "src.kb.geospatial",
+      "tables": [
+       "geospatial_places"
+      ]
+     },
+     {
+      "namespace_scoped": true,
+      "record_type": "geometry",
+      "revision_addressable": true,
+      "store": "src.kb.geospatial",
+      "tables": [
+       "geospatial_geometries"
+      ]
+     }
+    ],
+    "version": "1.0.0"
+   },
+   "name": "provider-every-side-effect-valid",
+   "options": {
+    "registered_tools": [
+     "noesis-knowledge-engine.calculate_spatial_relation",
+     "noesis-knowledge-engine.store_geospatial_geometry",
+     "noesis-knowledge-engine.record_geospatial_resolution"
+    ]
+   },
+   "valid": true
+  },
+  {
+   "contract": "noesis-provider-descriptor-v1",
+   "document": {
+    "capabilities": [
+     {
+      "contract": {
+       "name": "noesis-spatial-relation",
+       "version": "1.0.0"
+      },
+      "id": "geospatial.spatial-relation",
+      "operations": [
+       "calculate-spatial-relation",
+       "store-geometry",
+       "record-resolution"
+      ],
+      "semantic_constraints": {
+       "containment": "precision-aware point-in-polygon",
+       "crs": "EPSG:4326",
+       "distance_units": "meters"
+      }
+     }
+    ],
+    "contract": "noesis-provider-descriptor-v1",
+    "id": "geospatial.core",
+    "implementation": {
+     "name": "noesis-geospatial",
+     "server": "noesis-knowledge-engine",
+     "version": "1.0.0"
+    },
+    "operations": [
+     {
+      "id": "calculate-spatial-relation",
+      "idempotency": {
+       "supported": true
+      },
+      "readiness_probe": "geometries",
+      "required_context": [
+       "namespace"
+      ],
+      "required_scopes": [
+       "knowledge:geospatial:read"
+      ],
+      "side_effect": "read-only",
+      "tool": "noesis-knowledge-engine.calculate_spatial_relation"
+     },
+     {
+      "id": "store-geometry",
+      "idempotency": {
+       "key": "content-derived geometry_id",
+       "supported": true
+      },
+      "readiness_probe": "geometries",
+      "required_context": [
+       "namespace",
+       "principal"
+      ],
+      "required_scopes": [
+       "knowledge:geospatial:write"
+      ],
+      "side_effect": "local-mutation",
+      "tool": "noesis-knowledge-engine.store_geospatial_geometry"
+     },
+     {
+      "id": "record-resolution",
+      "idempotency": {
+       "receipt": "geocode_resolutions",
+       "supported": false
+      },
+      "readiness_probe": "places",
+      "required_context": [
+       "namespace",
+       "principal"
+      ],
+      "required_scopes": [
+       "knowledge:geospatial:write"
+      ],
+      "side_effect": "external-publication",
+      "tool": "noesis-knowledge-engine.record_geospatial_resolution"
+     }
+    ],
+    "readiness_probes": [
+     {
+      "id": "geometries",
+      "kind": "table-exists",
+      "target": "geospatial_geometries"
+     },
+     {
+      "id": "places",
+      "kind": "table-exists",
+      "target": "geospatial_places"
+     }
+    ],
+    "stores": [
+     {
+      "namespace_scoped": true,
+      "record_type": "place",
+      "revision_addressable": true,
+      "store": "src.kb.geospatial",
+      "tables": [
+       "geospatial_places"
+      ]
+     },
+     {
+      "namespace_scoped": true,
+      "record_type": "geometry",
+      "revision_addressable": true,
+      "store": "src.kb.geospatial",
+      "tables": [
+       "geospatial_geometries"
+      ]
+     }
+    ],
+    "version": "1.0.0"
+   },
+   "name": "provider-external-publication-valid",
+   "options": {
+    "registered_tools": [
+     "noesis-knowledge-engine.calculate_spatial_relation",
+     "noesis-knowledge-engine.store_geospatial_geometry",
+     "noesis-knowledge-engine.record_geospatial_resolution"
+    ]
+   },
+   "valid": true
+  },
+  {
+   "contract": "noesis-provider-descriptor-v1",
+   "document": {
+    "capabilities": [
+     {
+      "contract": {
+       "name": "noesis-spatial-relation",
+       "version": "1.0.0"
+      },
+      "id": "geospatial.spatial-relation",
+      "operations": [
+       "calculate-spatial-relation",
+       "store-geometry",
+       "record-resolution"
+      ],
+      "semantic_constraints": {
+       "containment": "precision-aware point-in-polygon",
+       "crs": "EPSG:4326",
+       "distance_units": "meters"
+      }
+     }
+    ],
+    "contract": "noesis-provider-descriptor-v1",
+    "id": "geospatial.core",
+    "implementation": {
+     "name": "noesis-geospatial",
+     "server": "noesis-knowledge-engine",
+     "version": "1.0.0"
+    },
+    "operations": [
+     {
+      "id": "calculate-spatial-relation",
+      "idempotency": {
+       "supported": true
+      },
+      "readiness_probe": "geometries",
+      "required_context": [
+       "namespace"
+      ],
+      "required_scopes": [
+       "knowledge:geospatial:read"
+      ],
+      "tool": "noesis-knowledge-engine.calculate_spatial_relation"
+     },
+     {
+      "id": "store-geometry",
+      "idempotency": {
+       "key": "content-derived geometry_id",
+       "supported": true
+      },
+      "readiness_probe": "geometries",
+      "required_context": [
+       "namespace",
+       "principal"
+      ],
+      "required_scopes": [
+       "knowledge:geospatial:write"
+      ],
+      "side_effect": "local-mutation",
+      "tool": "noesis-knowledge-engine.store_geospatial_geometry"
+     },
+     {
+      "id": "record-resolution",
+      "idempotency": {
+       "receipt": "geocode_resolutions",
+       "supported": false
+      },
+      "readiness_probe": "places",
+      "required_context": [
+       "namespace",
+       "principal"
+      ],
+      "required_scopes": [
+       "knowledge:geospatial:write"
+      ],
+      "side_effect": "local-mutation",
+      "tool": "noesis-knowledge-engine.record_geospatial_resolution"
+     }
+    ],
+    "readiness_probes": [
+     {
+      "id": "geometries",
+      "kind": "table-exists",
+      "target": "geospatial_geometries"
+     },
+     {
+      "id": "places",
+      "kind": "table-exists",
+      "target": "geospatial_places"
+     }
+    ],
+    "stores": [
+     {
+      "namespace_scoped": true,
+      "record_type": "place",
+      "revision_addressable": true,
+      "store": "src.kb.geospatial",
+      "tables": [
+       "geospatial_places"
+      ]
+     },
+     {
+      "namespace_scoped": true,
+      "record_type": "geometry",
+      "revision_addressable": true,
+      "store": "src.kb.geospatial",
+      "tables": [
+       "geospatial_geometries"
+      ]
+     }
+    ],
+    "version": "1.0.0"
+   },
+   "expect": "schema",
+   "name": "provider-missing-side-effect",
+   "options": {
+    "registered_tools": [
+     "noesis-knowledge-engine.calculate_spatial_relation",
+     "noesis-knowledge-engine.store_geospatial_geometry",
+     "noesis-knowledge-engine.record_geospatial_resolution"
+    ]
+   },
+   "valid": false
+  },
+  {
+   "contract": "noesis-provider-descriptor-v1",
+   "document": {
+    "capabilities": [
+     {
+      "contract": {
+       "name": "noesis-spatial-relation",
+       "version": "1.0.0"
+      },
+      "id": "geospatial.spatial-relation",
+      "operations": [
+       "calculate-spatial-relation",
+       "store-geometry",
+       "record-resolution"
+      ],
+      "semantic_constraints": {
+       "containment": "precision-aware point-in-polygon",
+       "crs": "EPSG:4326",
+       "distance_units": "meters"
+      }
+     }
+    ],
+    "contract": "noesis-provider-descriptor-v1",
+    "id": "geospatial.core",
+    "implementation": {
+     "name": "noesis-geospatial",
+     "server": "noesis-knowledge-engine",
+     "version": "1.0.0"
+    },
+    "operations": [
+     {
+      "id": "calculate-spatial-relation",
+      "idempotency": {
+       "supported": true
+      },
+      "readiness_probe": "geometries",
+      "required_context": [
+       "namespace"
+      ],
+      "required_scopes": [
+       "knowledge:geospatial:read"
+      ],
+      "side_effect": "writes",
+      "tool": "noesis-knowledge-engine.calculate_spatial_relation"
+     },
+     {
+      "id": "store-geometry",
+      "idempotency": {
+       "key": "content-derived geometry_id",
+       "supported": true
+      },
+      "readiness_probe": "geometries",
+      "required_context": [
+       "namespace",
+       "principal"
+      ],
+      "required_scopes": [
+       "knowledge:geospatial:write"
+      ],
+      "side_effect": "local-mutation",
+      "tool": "noesis-knowledge-engine.store_geospatial_geometry"
+     },
+     {
+      "id": "record-resolution",
+      "idempotency": {
+       "receipt": "geocode_resolutions",
+       "supported": false
+      },
+      "readiness_probe": "places",
+      "required_context": [
+       "namespace",
+       "principal"
+      ],
+      "required_scopes": [
+       "knowledge:geospatial:write"
+      ],
+      "side_effect": "local-mutation",
+      "tool": "noesis-knowledge-engine.record_geospatial_resolution"
+     }
+    ],
+    "readiness_probes": [
+     {
+      "id": "geometries",
+      "kind": "table-exists",
+      "target": "geospatial_geometries"
+     },
+     {
+      "id": "places",
+      "kind": "table-exists",
+      "target": "geospatial_places"
+     }
+    ],
+    "stores": [
+     {
+      "namespace_scoped": true,
+      "record_type": "place",
+      "revision_addressable": true,
+      "store": "src.kb.geospatial",
+      "tables": [
+       "geospatial_places"
+      ]
+     },
+     {
+      "namespace_scoped": true,
+      "record_type": "geometry",
+      "revision_addressable": true,
+      "store": "src.kb.geospatial",
+      "tables": [
+       "geospatial_geometries"
+      ]
+     }
+    ],
+    "version": "1.0.0"
+   },
+   "expect": "schema",
+   "name": "provider-unknown-side-effect",
+   "options": {
+    "registered_tools": [
+     "noesis-knowledge-engine.calculate_spatial_relation",
+     "noesis-knowledge-engine.store_geospatial_geometry",
+     "noesis-knowledge-engine.record_geospatial_resolution"
+    ]
+   },
+   "valid": false
+  },
+  {
+   "contract": "noesis-provider-descriptor-v1",
+   "document": {
+    "capabilities": [
+     {
+      "contract": {
+       "name": "noesis-spatial-relation",
+       "version": "1.0.0"
+      },
+      "id": "geospatial.spatial-relation",
+      "operations": [
+       "calculate-spatial-relation",
+       "store-geometry",
+       "record-resolution"
+      ],
+      "semantic_constraints": {
+       "containment": "precision-aware point-in-polygon",
+       "crs": "EPSG:4326",
+       "distance_units": "meters"
+      }
+     }
+    ],
+    "contract": "noesis-provider-descriptor-v1",
+    "id": "geospatial.core",
+    "implementation": {
+     "name": "noesis-geospatial",
+     "server": "noesis-knowledge-engine",
+     "version": "1.0.0"
+    },
+    "operations": [
+     {
+      "id": "calculate-spatial-relation",
+      "idempotency": {
+       "supported": true
+      },
+      "readiness_probe": "not-declared",
+      "required_context": [
+       "namespace"
+      ],
+      "required_scopes": [
+       "knowledge:geospatial:read"
+      ],
+      "side_effect": "read-only",
+      "tool": "noesis-knowledge-engine.calculate_spatial_relation"
+     },
+     {
+      "id": "store-geometry",
+      "idempotency": {
+       "key": "content-derived geometry_id",
+       "supported": true
+      },
+      "readiness_probe": "geometries",
+      "required_context": [
+       "namespace",
+       "principal"
+      ],
+      "required_scopes": [
+       "knowledge:geospatial:write"
+      ],
+      "side_effect": "local-mutation",
+      "tool": "noesis-knowledge-engine.store_geospatial_geometry"
+     },
+     {
+      "id": "record-resolution",
+      "idempotency": {
+       "receipt": "geocode_resolutions",
+       "supported": false
+      },
+      "readiness_probe": "places",
+      "required_context": [
+       "namespace",
+       "principal"
+      ],
+      "required_scopes": [
+       "knowledge:geospatial:write"
+      ],
+      "side_effect": "local-mutation",
+      "tool": "noesis-knowledge-engine.record_geospatial_resolution"
+     }
+    ],
+    "readiness_probes": [
+     {
+      "id": "geometries",
+      "kind": "table-exists",
+      "target": "geospatial_geometries"
+     },
+     {
+      "id": "places",
+      "kind": "table-exists",
+      "target": "geospatial_places"
+     }
+    ],
+    "stores": [
+     {
+      "namespace_scoped": true,
+      "record_type": "place",
+      "revision_addressable": true,
+      "store": "src.kb.geospatial",
+      "tables": [
+       "geospatial_places"
+      ]
+     },
+     {
+      "namespace_scoped": true,
+      "record_type": "geometry",
+      "revision_addressable": true,
+      "store": "src.kb.geospatial",
+      "tables": [
+       "geospatial_geometries"
+      ]
+     }
+    ],
+    "version": "1.0.0"
+   },
+   "expect": "missing_probe",
+   "name": "provider-missing-probe",
+   "options": {
+    "registered_tools": [
+     "noesis-knowledge-engine.calculate_spatial_relation",
+     "noesis-knowledge-engine.store_geospatial_geometry",
+     "noesis-knowledge-engine.record_geospatial_resolution"
+    ]
+   },
+   "valid": false
+  },
+  {
+   "contract": "noesis-provider-descriptor-v1",
+   "document": {
+    "capabilities": [
+     {
+      "contract": {
+       "name": "noesis-spatial-relation",
+       "version": "1.0.0"
+      },
+      "id": "geospatial.spatial-relation",
+      "operations": [
+       "calculate-spatial-relation",
+       "store-geometry",
+       "record-resolution"
+      ],
+      "semantic_constraints": {
+       "containment": "precision-aware point-in-polygon",
+       "crs": "EPSG:4326",
+       "distance_units": "meters"
+      }
+     }
+    ],
+    "contract": "noesis-provider-descriptor-v1",
+    "id": "geospatial.core",
+    "implementation": {
+     "name": "noesis-geospatial",
+     "server": "noesis-knowledge-engine",
+     "version": "1.0.0"
+    },
+    "operations": [
+     {
+      "id": "calculate-spatial-relation",
+      "idempotency": {
+       "supported": true
+      },
+      "readiness_probe": "geometries",
+      "required_context": [
+       "namespace"
+      ],
+      "required_scopes": [
+       "knowledge:geospatial:read"
+      ],
+      "side_effect": "read-only",
+      "tool": "noesis-knowledge-engine.not_a_tool"
+     },
+     {
+      "id": "store-geometry",
+      "idempotency": {
+       "key": "content-derived geometry_id",
+       "supported": true
+      },
+      "readiness_probe": "geometries",
+      "required_context": [
+       "namespace",
+       "principal"
+      ],
+      "required_scopes": [
+       "knowledge:geospatial:write"
+      ],
+      "side_effect": "local-mutation",
+      "tool": "noesis-knowledge-engine.store_geospatial_geometry"
+     },
+     {
+      "id": "record-resolution",
+      "idempotency": {
+       "receipt": "geocode_resolutions",
+       "supported": false
+      },
+      "readiness_probe": "places",
+      "required_context": [
+       "namespace",
+       "principal"
+      ],
+      "required_scopes": [
+       "knowledge:geospatial:write"
+      ],
+      "side_effect": "local-mutation",
+      "tool": "noesis-knowledge-engine.record_geospatial_resolution"
+     }
+    ],
+    "readiness_probes": [
+     {
+      "id": "geometries",
+      "kind": "table-exists",
+      "target": "geospatial_geometries"
+     },
+     {
+      "id": "places",
+      "kind": "table-exists",
+      "target": "geospatial_places"
+     }
+    ],
+    "stores": [
+     {
+      "namespace_scoped": true,
+      "record_type": "place",
+      "revision_addressable": true,
+      "store": "src.kb.geospatial",
+      "tables": [
+       "geospatial_places"
+      ]
+     },
+     {
+      "namespace_scoped": true,
+      "record_type": "geometry",
+      "revision_addressable": true,
+      "store": "src.kb.geospatial",
+      "tables": [
+       "geospatial_geometries"
+      ]
+     }
+    ],
+    "version": "1.0.0"
+   },
+   "expect": "unregistered_tool",
+   "name": "provider-unregistered-tool",
+   "options": {
+    "registered_tools": [
+     "noesis-knowledge-engine.calculate_spatial_relation",
+     "noesis-knowledge-engine.store_geospatial_geometry",
+     "noesis-knowledge-engine.record_geospatial_resolution"
+    ]
+   },
+   "valid": false
+  },
+  {
+   "contract": "noesis-provider-descriptor-v1",
+   "document": {
+    "auto_install": true,
+    "capabilities": [
+     {
+      "contract": {
+       "name": "noesis-spatial-relation",
+       "version": "1.0.0"
+      },
+      "id": "geospatial.spatial-relation",
+      "operations": [
+       "calculate-spatial-relation",
+       "store-geometry",
+       "record-resolution"
+      ],
+      "semantic_constraints": {
+       "containment": "precision-aware point-in-polygon",
+       "crs": "EPSG:4326",
+       "distance_units": "meters"
+      }
+     }
+    ],
+    "contract": "noesis-provider-descriptor-v1",
+    "id": "geospatial.core",
+    "implementation": {
+     "name": "noesis-geospatial",
+     "server": "noesis-knowledge-engine",
+     "version": "1.0.0"
+    },
+    "operations": [
+     {
+      "id": "calculate-spatial-relation",
+      "idempotency": {
+       "supported": true
+      },
+      "readiness_probe": "geometries",
+      "required_context": [
+       "namespace"
+      ],
+      "required_scopes": [
+       "knowledge:geospatial:read"
+      ],
+      "side_effect": "read-only",
+      "tool": "noesis-knowledge-engine.calculate_spatial_relation"
+     },
+     {
+      "id": "store-geometry",
+      "idempotency": {
+       "key": "content-derived geometry_id",
+       "supported": true
+      },
+      "readiness_probe": "geometries",
+      "required_context": [
+       "namespace",
+       "principal"
+      ],
+      "required_scopes": [
+       "knowledge:geospatial:write"
+      ],
+      "side_effect": "local-mutation",
+      "tool": "noesis-knowledge-engine.store_geospatial_geometry"
+     },
+     {
+      "id": "record-resolution",
+      "idempotency": {
+       "receipt": "geocode_resolutions",
+       "supported": false
+      },
+      "readiness_probe": "places",
+      "required_context": [
+       "namespace",
+       "principal"
+      ],
+      "required_scopes": [
+       "knowledge:geospatial:write"
+      ],
+      "side_effect": "local-mutation",
+      "tool": "noesis-knowledge-engine.record_geospatial_resolution"
+     }
+    ],
+    "readiness_probes": [
+     {
+      "id": "geometries",
+      "kind": "table-exists",
+      "target": "geospatial_geometries"
+     },
+     {
+      "id": "places",
+      "kind": "table-exists",
+      "target": "geospatial_places"
+     }
+    ],
+    "stores": [
+     {
+      "namespace_scoped": true,
+      "record_type": "place",
+      "revision_addressable": true,
+      "store": "src.kb.geospatial",
+      "tables": [
+       "geospatial_places"
+      ]
+     },
+     {
+      "namespace_scoped": true,
+      "record_type": "geometry",
+      "revision_addressable": true,
+      "store": "src.kb.geospatial",
+      "tables": [
+       "geospatial_geometries"
+      ]
+     }
+    ],
+    "version": "1.0.0"
+   },
+   "expect": "unknown_field",
+   "name": "provider-unknown-critical-field",
+   "options": {
+    "registered_tools": [
+     "noesis-knowledge-engine.calculate_spatial_relation",
+     "noesis-knowledge-engine.store_geospatial_geometry",
+     "noesis-knowledge-engine.record_geospatial_resolution"
+    ]
+   },
+   "valid": false
+  },
+  {
+   "contract": "provider-set",
+   "document": [
+    {
+     "capabilities": [
+      {
+       "contract": {
+        "name": "noesis-spatial-relation",
+        "version": "1.0.0"
+       },
+       "id": "geospatial.spatial-relation",
+       "operations": [
+        "calculate-spatial-relation",
+        "store-geometry",
+        "record-resolution"
+       ],
+       "semantic_constraints": {
+        "containment": "precision-aware point-in-polygon",
+        "crs": "EPSG:4326",
+        "distance_units": "meters"
+       }
+      }
+     ],
+     "contract": "noesis-provider-descriptor-v1",
+     "id": "geospatial.core",
+     "implementation": {
+      "name": "noesis-geospatial",
+      "server": "noesis-knowledge-engine",
+      "version": "1.0.0"
+     },
+     "operations": [
+      {
+       "id": "calculate-spatial-relation",
+       "idempotency": {
+        "supported": true
+       },
+       "readiness_probe": "geometries",
+       "required_context": [
+        "namespace"
+       ],
+       "required_scopes": [
+        "knowledge:geospatial:read"
+       ],
+       "side_effect": "read-only",
+       "tool": "noesis-knowledge-engine.calculate_spatial_relation"
+      },
+      {
+       "id": "store-geometry",
+       "idempotency": {
+        "key": "content-derived geometry_id",
+        "supported": true
+       },
+       "readiness_probe": "geometries",
+       "required_context": [
+        "namespace",
+        "principal"
+       ],
+       "required_scopes": [
+        "knowledge:geospatial:write"
+       ],
+       "side_effect": "local-mutation",
+       "tool": "noesis-knowledge-engine.store_geospatial_geometry"
+      },
+      {
+       "id": "record-resolution",
+       "idempotency": {
+        "receipt": "geocode_resolutions",
+        "supported": false
+       },
+       "readiness_probe": "places",
+       "required_context": [
+        "namespace",
+        "principal"
+       ],
+       "required_scopes": [
+        "knowledge:geospatial:write"
+       ],
+       "side_effect": "local-mutation",
+       "tool": "noesis-knowledge-engine.record_geospatial_resolution"
+      }
+     ],
+     "readiness_probes": [
+      {
+       "id": "geometries",
+       "kind": "table-exists",
+       "target": "geospatial_geometries"
+      },
+      {
+       "id": "places",
+       "kind": "table-exists",
+       "target": "geospatial_places"
+      }
+     ],
+     "stores": [
+      {
+       "namespace_scoped": true,
+       "record_type": "place",
+       "revision_addressable": true,
+       "store": "src.kb.geospatial",
+       "tables": [
+        "geospatial_places"
+       ]
+      },
+      {
+       "namespace_scoped": true,
+       "record_type": "geometry",
+       "revision_addressable": true,
+       "store": "src.kb.geospatial",
+       "tables": [
+        "geospatial_geometries"
+       ]
+      }
+     ],
+     "version": "1.0.0"
+    },
+    {
+     "capabilities": [
+      {
+       "contract": {
+        "name": "noesis-spatial-relation",
+        "version": "1.0.0"
+       },
+       "id": "geospatial.spatial-relation",
+       "operations": [
+        "calculate-spatial-relation",
+        "store-geometry",
+        "record-resolution"
+       ],
+       "semantic_constraints": {
+        "containment": "precision-aware point-in-polygon",
+        "crs": "EPSG:4326",
+        "distance_units": "meters"
+       }
+      }
+     ],
+     "contract": "noesis-provider-descriptor-v1",
+     "id": "geospatial.transit",
+     "implementation": {
+      "name": "noesis-geospatial",
+      "server": "noesis-knowledge-engine",
+      "version": "1.0.0"
+     },
+     "operations": [
+      {
+       "id": "calculate-spatial-relation",
+       "idempotency": {
+        "supported": true
+       },
+       "readiness_probe": "geometries",
+       "required_context": [
+        "namespace"
+       ],
+       "required_scopes": [
+        "knowledge:geospatial:read"
+       ],
+       "side_effect": "read-only",
+       "tool": "noesis-knowledge-engine.calculate_spatial_relation"
+      },
+      {
+       "id": "store-geometry",
+       "idempotency": {
+        "key": "content-derived geometry_id",
+        "supported": true
+       },
+       "readiness_probe": "geometries",
+       "required_context": [
+        "namespace",
+        "principal"
+       ],
+       "required_scopes": [
+        "knowledge:geospatial:write"
+       ],
+       "side_effect": "local-mutation",
+       "tool": "noesis-knowledge-engine.store_geospatial_geometry"
+      },
+      {
+       "id": "record-resolution",
+       "idempotency": {
+        "receipt": "geocode_resolutions",
+        "supported": false
+       },
+       "readiness_probe": "places",
+       "required_context": [
+        "namespace",
+        "principal"
+       ],
+       "required_scopes": [
+        "knowledge:geospatial:write"
+       ],
+       "side_effect": "local-mutation",
+       "tool": "noesis-knowledge-engine.record_geospatial_resolution"
+      }
+     ],
+     "readiness_probes": [
+      {
+       "id": "geometries",
+       "kind": "table-exists",
+       "target": "geospatial_geometries"
+      },
+      {
+       "id": "places",
+       "kind": "table-exists",
+       "target": "geospatial_places"
+      }
+     ],
+     "stores": [
+      {
+       "record_type": "transit-stop",
+       "store": "src.kb.transit"
+      }
+     ],
+     "version": "1.0.0"
+    }
+   ],
+   "name": "provider-set-distinct-stores-valid",
+   "valid": true
+  },
+  {
+   "contract": "provider-set",
+   "document": [
+    {
+     "capabilities": [
+      {
+       "contract": {
+        "name": "noesis-spatial-relation",
+        "version": "1.0.0"
+       },
+       "id": "geospatial.spatial-relation",
+       "operations": [
+        "calculate-spatial-relation",
+        "store-geometry",
+        "record-resolution"
+       ],
+       "semantic_constraints": {
+        "containment": "precision-aware point-in-polygon",
+        "crs": "EPSG:4326",
+        "distance_units": "meters"
+       }
+      }
+     ],
+     "contract": "noesis-provider-descriptor-v1",
+     "id": "geospatial.core",
+     "implementation": {
+      "name": "noesis-geospatial",
+      "server": "noesis-knowledge-engine",
+      "version": "1.0.0"
+     },
+     "operations": [
+      {
+       "id": "calculate-spatial-relation",
+       "idempotency": {
+        "supported": true
+       },
+       "readiness_probe": "geometries",
+       "required_context": [
+        "namespace"
+       ],
+       "required_scopes": [
+        "knowledge:geospatial:read"
+       ],
+       "side_effect": "read-only",
+       "tool": "noesis-knowledge-engine.calculate_spatial_relation"
+      },
+      {
+       "id": "store-geometry",
+       "idempotency": {
+        "key": "content-derived geometry_id",
+        "supported": true
+       },
+       "readiness_probe": "geometries",
+       "required_context": [
+        "namespace",
+        "principal"
+       ],
+       "required_scopes": [
+        "knowledge:geospatial:write"
+       ],
+       "side_effect": "local-mutation",
+       "tool": "noesis-knowledge-engine.store_geospatial_geometry"
+      },
+      {
+       "id": "record-resolution",
+       "idempotency": {
+        "receipt": "geocode_resolutions",
+        "supported": false
+       },
+       "readiness_probe": "places",
+       "required_context": [
+        "namespace",
+        "principal"
+       ],
+       "required_scopes": [
+        "knowledge:geospatial:write"
+       ],
+       "side_effect": "local-mutation",
+       "tool": "noesis-knowledge-engine.record_geospatial_resolution"
+      }
+     ],
+     "readiness_probes": [
+      {
+       "id": "geometries",
+       "kind": "table-exists",
+       "target": "geospatial_geometries"
+      },
+      {
+       "id": "places",
+       "kind": "table-exists",
+       "target": "geospatial_places"
+      }
+     ],
+     "stores": [
+      {
+       "namespace_scoped": true,
+       "record_type": "place",
+       "revision_addressable": true,
+       "store": "src.kb.geospatial",
+       "tables": [
+        "geospatial_places"
+       ]
+      },
+      {
+       "namespace_scoped": true,
+       "record_type": "geometry",
+       "revision_addressable": true,
+       "store": "src.kb.geospatial",
+       "tables": [
+        "geospatial_geometries"
+       ]
+      }
+     ],
+     "version": "1.0.0"
+    },
+    {
+     "capabilities": [
+      {
+       "contract": {
+        "name": "noesis-spatial-relation",
+        "version": "1.0.0"
+       },
+       "id": "geospatial.spatial-relation",
+       "operations": [
+        "calculate-spatial-relation",
+        "store-geometry",
+        "record-resolution"
+       ],
+       "semantic_constraints": {
+        "containment": "precision-aware point-in-polygon",
+        "crs": "EPSG:4326",
+        "distance_units": "meters"
+       }
+      }
+     ],
+     "contract": "noesis-provider-descriptor-v1",
+     "id": "osint.places",
+     "implementation": {
+      "name": "noesis-geospatial",
+      "server": "noesis-knowledge-engine",
+      "version": "1.0.0"
+     },
+     "operations": [
+      {
+       "id": "calculate-spatial-relation",
+       "idempotency": {
+        "supported": true
+       },
+       "readiness_probe": "geometries",
+       "required_context": [
+        "namespace"
+       ],
+       "required_scopes": [
+        "knowledge:geospatial:read"
+       ],
+       "side_effect": "read-only",
+       "tool": "noesis-knowledge-engine.calculate_spatial_relation"
+      },
+      {
+       "id": "store-geometry",
+       "idempotency": {
+        "key": "content-derived geometry_id",
+        "supported": true
+       },
+       "readiness_probe": "geometries",
+       "required_context": [
+        "namespace",
+        "principal"
+       ],
+       "required_scopes": [
+        "knowledge:geospatial:write"
+       ],
+       "side_effect": "local-mutation",
+       "tool": "noesis-knowledge-engine.store_geospatial_geometry"
+      },
+      {
+       "id": "record-resolution",
+       "idempotency": {
+        "receipt": "geocode_resolutions",
+        "supported": false
+       },
+       "readiness_probe": "places",
+       "required_context": [
+        "namespace",
+        "principal"
+       ],
+       "required_scopes": [
+        "knowledge:geospatial:write"
+       ],
+       "side_effect": "local-mutation",
+       "tool": "noesis-knowledge-engine.record_geospatial_resolution"
+      }
+     ],
+     "readiness_probes": [
+      {
+       "id": "geometries",
+       "kind": "table-exists",
+       "target": "geospatial_geometries"
+      },
+      {
+       "id": "places",
+       "kind": "table-exists",
+       "target": "geospatial_places"
+      }
+     ],
+     "stores": [
+      {
+       "record_type": "place",
+       "store": "src.osint.places"
+      }
+     ],
+     "version": "1.0.0"
+    }
+   ],
+   "expect": "conflicting_store_owner",
+   "name": "provider-set-conflicting-store",
+   "valid": false
+  },
+  {
+   "contract": "noesis-composition-plan-v1",
+   "document": {
+    "bindings": [
+     {
+      "capability": "geospatial.spatial-relation",
+      "consumers": [
+       "osint"
+      ],
+      "contract": {
+       "name": "noesis-spatial-relation",
+       "version": "1.0.0"
+      },
+      "operations": [
+       "calculate-spatial-relation"
+      ],
+      "provider": "geospatial.core",
+      "provider_version": "1.0.0",
+      "reason": "only-compatible"
+     }
+    ],
+    "compatibility_aliases": {
+     "neuronews-osint": "osint"
+    },
+    "contract": "noesis-composition-plan-v1",
+    "digest": "sha256:6d0da6335dea5e1e0f778106b6d8944535fb61131f2d3f737021dc5c3abce43a",
+    "features": {
+     "osint": []
+    },
+    "graph": [
+     {
+      "capability": "geospatial.spatial-relation",
+      "from": "osint",
+      "kind": "requires",
+      "optional": false,
+      "to": "geospatial.spatial-relation"
+     }
+    ],
+    "omissions": [
+     {
+      "feature": "imagery",
+      "pack": "osint",
+      "reason": "not selected"
+     }
+    ],
+    "packs": [
+     {
+      "content_hash": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      "id": "osint",
+      "version": "1.0.0"
+     }
+    ],
+    "providers": [
+     {
+      "content_hash": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+      "id": "geospatial.core",
+      "version": "1.0.0"
+     }
+    ],
+    "resolver_version": "1.0.0",
+    "roots": [
+     {
+      "content_hash": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      "features": [],
+      "pack": "osint",
+      "version": "1.0.0"
+     }
+    ]
+   },
+   "name": "plan-valid",
+   "valid": true
+  },
+  {
+   "contract": "noesis-composition-plan-v1",
+   "document": {
+    "bindings": [
+     {
+      "capability": "geospatial.spatial-relation",
+      "consumers": [
+       "osint"
+      ],
+      "contract": {
+       "name": "noesis-spatial-relation",
+       "version": "1.0.0"
+      },
+      "health": "up",
+      "operations": [
+       "calculate-spatial-relation"
+      ],
+      "provider": "geospatial.core",
+      "provider_version": "1.0.0",
+      "reason": "only-compatible"
+     }
+    ],
+    "compatibility_aliases": {
+     "neuronews-osint": "osint"
+    },
+    "contract": "noesis-composition-plan-v1",
+    "digest": "sha256:6d0da6335dea5e1e0f778106b6d8944535fb61131f2d3f737021dc5c3abce43a",
+    "features": {
+     "osint": []
+    },
+    "graph": [
+     {
+      "capability": "geospatial.spatial-relation",
+      "from": "osint",
+      "kind": "requires",
+      "optional": false,
+      "to": "geospatial.spatial-relation"
+     }
+    ],
+    "omissions": [
+     {
+      "feature": "imagery",
+      "pack": "osint",
+      "reason": "not selected"
+     }
+    ],
+    "packs": [
+     {
+      "content_hash": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      "id": "osint",
+      "version": "1.0.0"
+     }
+    ],
+    "providers": [
+     {
+      "content_hash": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+      "id": "geospatial.core",
+      "version": "1.0.0"
+     }
+    ],
+    "resolver_version": "1.0.0",
+    "roots": [
+     {
+      "content_hash": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      "features": [],
+      "pack": "osint",
+      "version": "1.0.0"
+     }
+    ]
+   },
+   "expect": "dynamic_field",
+   "name": "plan-health-field",
+   "valid": false
+  },
+  {
+   "contract": "noesis-composition-plan-v1",
+   "document": {
+    "bindings": [
+     {
+      "capability": "geospatial.spatial-relation",
+      "consumers": [
+       "osint"
+      ],
+      "contract": {
+       "name": "noesis-spatial-relation",
+       "version": "1.0.0"
+      },
+      "operations": [
+       "calculate-spatial-relation"
+      ],
+      "provider": "geospatial.core",
+      "provider_version": "1.0.0",
+      "reason": "only-compatible"
+     }
+    ],
+    "compatibility_aliases": {
+     "neuronews-osint": "osint"
+    },
+    "contract": "noesis-composition-plan-v1",
+    "credentials": {
+     "ops": "key"
+    },
+    "digest": "sha256:6d0da6335dea5e1e0f778106b6d8944535fb61131f2d3f737021dc5c3abce43a",
+    "features": {
+     "osint": []
+    },
+    "graph": [
+     {
+      "capability": "geospatial.spatial-relation",
+      "from": "osint",
+      "kind": "requires",
+      "optional": false,
+      "to": "geospatial.spatial-relation"
+     }
+    ],
+    "omissions": [
+     {
+      "feature": "imagery",
+      "pack": "osint",
+      "reason": "not selected"
+     }
+    ],
+    "packs": [
+     {
+      "content_hash": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      "id": "osint",
+      "version": "1.0.0"
+     }
+    ],
+    "providers": [
+     {
+      "content_hash": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+      "id": "geospatial.core",
+      "version": "1.0.0"
+     }
+    ],
+    "resolver_version": "1.0.0",
+    "roots": [
+     {
+      "content_hash": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      "features": [],
+      "pack": "osint",
+      "version": "1.0.0"
+     }
+    ]
+   },
+   "expect": "dynamic_field",
+   "name": "plan-credential-field",
+   "valid": false
+  },
+  {
+   "contract": "noesis-composition-plan-v1",
+   "document": {
+    "bindings": [
+     {
+      "capability": "geospatial.spatial-relation",
+      "consumers": [
+       "osint"
+      ],
+      "contract": {
+       "name": "noesis-spatial-relation",
+       "version": "1.0.0"
+      },
+      "operations": [
+       "calculate-spatial-relation"
+      ],
+      "provider": "geospatial.core",
+      "provider_version": "1.0.0",
+      "reason": "only-compatible"
+     }
+    ],
+    "compatibility_aliases": {
+     "neuronews-osint": "osint"
+    },
+    "contract": "noesis-composition-plan-v1",
+    "digest": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+    "features": {
+     "osint": []
+    },
+    "graph": [
+     {
+      "capability": "geospatial.spatial-relation",
+      "from": "osint",
+      "kind": "requires",
+      "optional": false,
+      "to": "geospatial.spatial-relation"
+     }
+    ],
+    "omissions": [
+     {
+      "feature": "imagery",
+      "pack": "osint",
+      "reason": "not selected"
+     }
+    ],
+    "packs": [
+     {
+      "content_hash": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      "id": "osint",
+      "version": "1.0.0"
+     }
+    ],
+    "providers": [
+     {
+      "content_hash": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+      "id": "geospatial.core",
+      "version": "1.0.0"
+     }
+    ],
+    "resolver_version": "1.0.0",
+    "roots": [
+     {
+      "content_hash": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      "features": [],
+      "pack": "osint",
+      "version": "1.0.0"
+     }
+    ]
+   },
+   "expect": "digest_mismatch",
+   "name": "plan-digest-mismatch",
+   "valid": false
+  },
+  {
+   "contract": "noesis-composition-readiness-v1",
+   "document": {
+    "context": {
+     "namespace": "global"
+    },
+    "contract": "noesis-composition-readiness-v1",
+    "observed_at_ms": 1790000000000,
+    "operations": [
+     {
+      "blockers": [
+       {
+        "detail": "no geometries retained",
+        "kind": "empty_data"
+       }
+      ],
+      "capability": "geospatial.spatial-relation",
+      "operation": "calculate-spatial-relation",
+      "prerequisites": [
+       "geometries"
+      ],
+      "provider": "geospatial.core",
+      "state": "blocked"
+     }
+    ],
+    "plan_digest": "sha256:6d0da6335dea5e1e0f778106b6d8944535fb61131f2d3f737021dc5c3abce43a"
+   },
+   "name": "readiness-valid",
+   "valid": true
+  },
+  {
+   "contract": "noesis-composition-readiness-v1",
+   "document": {
+    "context": {
+     "namespace": "global"
+    },
+    "contract": "noesis-composition-readiness-v1",
+    "operations": [
+     {
+      "blockers": [
+       {
+        "detail": "no geometries retained",
+        "kind": "empty_data"
+       }
+      ],
+      "capability": "geospatial.spatial-relation",
+      "operation": "calculate-spatial-relation",
+      "prerequisites": [
+       "geometries"
+      ],
+      "provider": "geospatial.core",
+      "state": "blocked"
+     }
+    ],
+    "plan_digest": "sha256:6d0da6335dea5e1e0f778106b6d8944535fb61131f2d3f737021dc5c3abce43a"
+   },
+   "expect": "schema",
+   "name": "readiness-without-observation-time",
+   "valid": false
+  },
+  {
+   "contract": "noesis-composition-readiness-v1",
+   "document": {
+    "context": {
+     "namespace": "global"
+    },
+    "contract": "noesis-composition-readiness-v1",
+    "observed_at_ms": 1790000000000,
+    "operations": [
+     {
+      "blockers": [
+       {
+        "detail": "missing"
+       }
+      ],
+      "capability": "geospatial.spatial-relation",
+      "operation": "calculate-spatial-relation",
+      "prerequisites": [
+       "geometries"
+      ],
+      "provider": "geospatial.core",
+      "state": "blocked"
+     }
+    ],
+    "plan_digest": "sha256:6d0da6335dea5e1e0f778106b6d8944535fb61131f2d3f737021dc5c3abce43a"
+   },
+   "expect": "schema",
+   "name": "readiness-blocker-without-kind",
+   "valid": false
+  },
+  {
+   "contract": "noesis-composition-readiness-v1",
+   "document": {
+    "api_key": "secret-value",
+    "context": {
+     "namespace": "global"
+    },
+    "contract": "noesis-composition-readiness-v1",
+    "observed_at_ms": 1790000000000,
+    "operations": [
+     {
+      "blockers": [
+       {
+        "detail": "no geometries retained",
+        "kind": "empty_data"
+       }
+      ],
+      "capability": "geospatial.spatial-relation",
+      "operation": "calculate-spatial-relation",
+      "prerequisites": [
+       "geometries"
+      ],
+      "provider": "geospatial.core",
+      "state": "blocked"
+     }
+    ],
+    "plan_digest": "sha256:6d0da6335dea5e1e0f778106b6d8944535fb61131f2d3f737021dc5c3abce43a"
+   },
+   "expect": "unknown_field",
+   "name": "readiness-credential-value",
+   "valid": false
+  },
+  {
+   "contract": "noesis-composition-activation-receipt-v1",
+   "document": {
+    "affected_registrations": [
+     {
+      "action": "register",
+      "id": "osint",
+      "kind": "pack"
+     }
+    ],
+    "contract": "noesis-composition-activation-receipt-v1",
+    "created_at_ms": 1790000000000,
+    "idempotency_key": "enable-osint-1",
+    "new_generation": {
+     "id": "gen-1",
+     "plan_digest": "sha256:6d0da6335dea5e1e0f778106b6d8944535fb61131f2d3f737021dc5c3abce43a"
+    },
+    "previous_generation": null,
+    "receipt_id": "activation:1",
+    "recovery_status": "none",
+    "source_upgrade_receipts": [],
+    "stages": [
+     {
+      "stage": "preview",
+      "status": "applied"
+     },
+     {
+      "stage": "publish",
+      "status": "applied"
+     }
+    ],
+    "status": "published"
+   },
+   "name": "receipt-valid",
+   "options": {
+    "generation_digests": {
+     "gen-1": "sha256:6d0da6335dea5e1e0f778106b6d8944535fb61131f2d3f737021dc5c3abce43a"
+    }
+   },
+   "valid": true
+  },
+  {
+   "contract": "noesis-composition-activation-receipt-v1",
+   "document": {
+    "affected_registrations": [
+     {
+      "action": "register",
+      "id": "osint",
+      "kind": "pack"
+     }
+    ],
+    "contract": "noesis-composition-activation-receipt-v1",
+    "created_at_ms": 1790000000000,
+    "new_generation": {
+     "id": "gen-1",
+     "plan_digest": "sha256:6d0da6335dea5e1e0f778106b6d8944535fb61131f2d3f737021dc5c3abce43a"
+    },
+    "previous_generation": null,
+    "receipt_id": "activation:1",
+    "recovery_status": "none",
+    "source_upgrade_receipts": [],
+    "stages": [
+     {
+      "stage": "preview",
+      "status": "applied"
+     },
+     {
+      "stage": "publish",
+      "status": "applied"
+     }
+    ],
+    "status": "published"
+   },
+   "expect": "schema",
+   "name": "receipt-without-idempotency-key",
+   "valid": false
+  },
+  {
+   "contract": "noesis-composition-activation-receipt-v1",
+   "document": {
+    "affected_registrations": [
+     {
+      "action": "register",
+      "id": "osint",
+      "kind": "pack"
+     }
+    ],
+    "contract": "noesis-composition-activation-receipt-v1",
+    "created_at_ms": 1790000000000,
+    "idempotency_key": "enable-osint-1",
+    "new_generation": {
+     "id": "gen-1",
+     "plan_digest": "sha256:6d0da6335dea5e1e0f778106b6d8944535fb61131f2d3f737021dc5c3abce43a"
+    },
+    "previous_generation": null,
+    "receipt_id": "activation:1",
+    "recovery_status": "none",
+    "source_upgrade_receipts": [],
+    "stages": [
+     {
+      "stage": "preview",
+      "status": "applied"
+     },
+     {
+      "stage": "publish",
+      "status": "applied"
+     }
+    ],
+    "status": "published"
+   },
+   "expect": "generation_digest_mismatch",
+   "name": "receipt-generation-digest-mismatch",
+   "options": {
+    "generation_digests": {
+     "gen-1": "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+    }
+   },
+   "valid": false
+  }
+ ],
+ "corpus": "noesis-composition-contracts"
+}

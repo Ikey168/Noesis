@@ -262,7 +262,34 @@ def _builtin_definitions() -> list[dict[str, Any]]:
         "compatibility_policy": "backward",
         "provenance": {"kind": "builtin", "source": "Noesis checkout"},
     }
+    composition = [
+        # Pack/workflow composition contracts (C02.6); dependencies follow what
+        # each contract pins or references.
+        ("pack-composition", "noesis-pack-composition-v1", []),
+        ("provider-descriptor", "noesis-provider-descriptor-v1", []),
+        ("composition-plan", "noesis-composition-plan-v1",
+         [("pack-composition", "^1.0.0"), ("provider-descriptor", "^1.0.0")]),
+        ("composition-readiness", "noesis-composition-readiness-v1", [("composition-plan", "^1.0.0")]),
+        ("composition-activation-receipt", "noesis-composition-activation-receipt-v1",
+         [("composition-plan", "^1.0.0")]),
+    ]
+    composition_modules = [
+        {
+            **common,
+            "name": name,
+            "kind": "schema",
+            "semantic_version": "1.0.0",
+            "content": json.loads(
+                (REPO_ROOT / f"contracts/schemas/jsonschema/{contract}.json").read_text()
+            ),
+            "dependencies": [
+                {"kind": "schema", "name": dep, "version": spec} for dep, spec in deps
+            ],
+        }
+        for name, contract, deps in composition
+    ]
     return [
+        *composition_modules,
         {
             **common,
             "name": "knowledge-mutation",

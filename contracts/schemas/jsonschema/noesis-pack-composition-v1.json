@@ -1,0 +1,416 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/schemas/noesis-pack-composition-v1.json",
+  "title": "Noesis pack composition manifest v1",
+  "description": "Successor to noesis-pack-v1: an immutable, hashed bundle of contributions and version-ranged capability requirements. Unknown critical fields and executable references fail validation; advisory data may be unknown but is never executed.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "pack_format",
+    "id",
+    "version",
+    "contributes",
+    "requires"
+  ],
+  "properties": {
+    "pack_format": {
+      "const": "noesis-pack-composition-v1"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z0-9][a-z0-9-]*)*$"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$"
+    },
+    "content_hash": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "description": {
+      "type": "string"
+    },
+    "contributes": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [],
+      "properties": {
+        "capabilities": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z0-9][a-z0-9-]*)+$"
+              },
+              "contract": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "name",
+                  "version"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "version": {
+                    "type": "string",
+                    "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$"
+                  }
+                }
+              },
+              "legacy_name": {
+                "type": "string"
+              },
+              "provider": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z0-9][a-z0-9-]*)*$"
+              }
+            }
+          }
+        },
+        "providers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "version"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z0-9][a-z0-9-]*)*$"
+              },
+              "version": {
+                "type": "string",
+                "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$"
+              }
+            }
+          }
+        },
+        "source_packs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "pack_id",
+              "version"
+            ],
+            "properties": {
+              "pack_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "version": {
+                "type": "string"
+              },
+              "manifest_hash": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "ontology_modules": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "name",
+              "range"
+            ],
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1
+              },
+              "range": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        "profiles": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z0-9][a-z0-9-]*)*$"
+              },
+              "description": {
+                "type": "string"
+              },
+              "source_packs": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "vocabulary": {
+                "type": "object"
+              },
+              "workflow_defaults": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "workflow_templates": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "version"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z0-9][a-z0-9-]*)*$"
+              },
+              "version": {
+                "type": "string",
+                "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$"
+              }
+            }
+          }
+        },
+        "enrichers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "name",
+              "kind",
+              "params"
+            ],
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1
+              },
+              "kind": {
+                "enum": [
+                  "keyword_tag"
+                ]
+              },
+              "description": {
+                "type": "string"
+              },
+              "source_types": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "params": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "field",
+                  "label",
+                  "keywords"
+                ],
+                "properties": {
+                  "field": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "label": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "keywords": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "schema_versions": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$"
+          }
+        },
+        "ontology_extensions": {
+          "type": "object"
+        },
+        "provisioning_templates": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "ui_flags": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "boolean"
+          }
+        },
+        "source_types": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "What the pack contributes. Every field is critical: unknown keys fail."
+    },
+    "requires": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "capability",
+          "contract",
+          "range"
+        ],
+        "properties": {
+          "capability": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z0-9][a-z0-9-]*)+$"
+          },
+          "contract": {
+            "type": "string",
+            "minLength": 1
+          },
+          "range": {
+            "type": "string",
+            "minLength": 1
+          },
+          "reason": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "optional_features": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "requires"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z0-9][a-z0-9-]*)*$"
+          },
+          "description": {
+            "type": "string"
+          },
+          "default": {
+            "type": "boolean"
+          },
+          "requires": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "capability",
+                "contract",
+                "range"
+              ],
+              "properties": {
+                "capability": {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z0-9][a-z0-9-]*)+$"
+                },
+                "contract": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "range": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "reason": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "compatibility_aliases": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "advisory": {
+      "type": "object",
+      "description": "Non-critical metadata (panels, planner keywords, query examples, legacy route names). Never executed; unknown keys allowed."
+    },
+    "extensions": {
+      "type": "object",
+      "patternProperties": {
+        "^x-[a-z0-9-]+$": {}
+      },
+      "additionalProperties": false,
+      "description": "Namespaced non-critical extensions; any other unknown field is critical and fails."
+    },
+    "adapter": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source",
+        "supplied_defaults"
+      ],
+      "properties": {
+        "source": {
+          "enum": [
+            "noesis-pack-v1",
+            "domain-pack",
+            "noesis-pack-v1+domain-pack"
+          ]
+        },
+        "supplied_defaults": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "legacy_names": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
