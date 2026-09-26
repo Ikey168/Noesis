@@ -95,7 +95,61 @@ class SourcePackUpgradeStore:
         return (all(f"namespace:{ns}:read" in scopes or f"namespace:{ns}:write" in scopes for ns in namespaces)
                 and all(f"domain:{domain}:read" in scopes for domain in domains))
 
-    def _impacts(self, pack_id, principal_id, scopes):
+    def _composition_impacts(self, pack_id, principal_id, scopes, candidate_version, tables):
+        """Composition plans pinning ``pack_id``: the active generation and plans
+        pinned by active runs (C06.1). Pins stay in the source-pack store; plans
+        only reference them. Returns (effects, inaccessible_count)."""
+        if not {"composition_plans", "composition_active", "composition_generations"} <= tables:
+            return [], 0
+        from src.composition.contracts import satisfies
+
+        roles = {}
+        active = self.conn.execute(
+            "SELECT g.plan_digest FROM composition_active a JOIN composition_generations g "
+            "USING (generation) WHERE a.singleton=1").fetchone()
+        if active:
+            roles[active[0]] = ("active-generation", None)
+        if "composition_run_pins" in tables:
+            for digest_, owner in self.conn.execute(
+                    "SELECT plan_digest, owner FROM composition_run_pins WHERE status='active' "
+                    "ORDER BY plan_digest, owner").fetchall():
+                roles.setdefault(digest_, ("pinned-run", owner))
+        visible_roots = None
+        if "operator" not in scopes and "composition_selections" in tables:
+            visible_roots = {row[0] for row in self.conn.execute(
+                "SELECT root_name FROM composition_selections WHERE owner IS NULL OR owner=?",
+                [principal_id]).fetchall()}
+            selected = {row[0] for row in self.conn.execute(
+                "SELECT root_name FROM composition_selections").fetchall()}
+        effects, hidden = [], 0
+        for digest_, (role, owner) in sorted(roles.items()):
+            row = self.conn.execute("SELECT plan_json FROM composition_plans WHERE digest=?",
+                                    [digest_]).fetchone()
+            if not row:
+                continue
+            plan = json.loads(row[0])
+            pins = [p for p in plan.get("source_packs", []) if p["pack_id"] == pack_id]
+            if not pins:
+                continue
+            if role == "pinned-run" and "operator" not in scopes and owner != principal_id:
+                hidden += 1
+                continue
+            consumers = sorted(m["name"] for m in plan["manifests"]
+                               if visible_roots is None or m["name"] in visible_roots
+                               or m["name"] not in selected)
+            for pin in pins:
+                ranges = list(pin.get("ranges") or [])
+                compatible = (candidate_version is None or not ranges
+                              or any(satisfies(candidate_version, r) for r in ranges))
+                effects.append({"kind": "composition-plan", "id": digest_, "namespace": None,
+                                "role": role, "pinned_version": pin["version"], "ranges": ranges,
+                                "consumers": consumers,
+                                "candidate_compatible": compatible,
+                                "future_execution": "requires_new_composition_plan",
+                                "historical_runs": "keep_pinned_plan"})
+        return effects, hidden
+
+    def _impacts(self, pack_id, principal_id, scopes, candidate_version=None):
         tables = _tables(self.conn)
         effects = []
         inaccessible = {"templates": 0, "projects": 0, "reports": 0, "schedules": 0}
@@ -213,6 +267,11 @@ class SourcePackUpgradeStore:
                                 "unsupported_dependency_types": sorted(unsupported),
                                 "unresolved_source_dependencies": unresolved,
                                 "citation_action": "none; existing citations remain pinned"})
+        composition_effects, hidden = self._composition_impacts(
+            pack_id, principal_id, scopes, candidate_version, tables)
+        effects.extend(composition_effects)
+        if hidden:
+            inaccessible["composition"] = hidden
         return sorted(effects, key=lambda item: (item["kind"], item["namespace"] or "", item["id"], item.get("revision", 0))), inaccessible
 
     def preview_impact(self, candidate: Mapping[str, Any], *, principal_id, scopes,
@@ -222,7 +281,8 @@ class SourcePackUpgradeStore:
         if type(limit) is not int or not 1 <= limit <= 100 or type(offset) is not int or offset < 0:
             raise SourcePackError("invalid_page", "impact page must be bounded to 100 items")
         preview = SourcePackStore(self.conn, initialize=False).preview_upgrade(candidate)
-        effects, inaccessible = self._impacts(preview["pack_id"], principal_id, scopes)
+        effects, inaccessible = self._impacts(preview["pack_id"], principal_id, scopes,
+                                              preview["candidate_version"])
         disclosed = inaccessible if "operator" in scopes else {"withheld": True}
         impact_hash = _hash([preview["preview_hash"], effects, disclosed])
         return {"contract": IMPACT_CONTRACT, "preview": preview,
@@ -280,6 +340,14 @@ class SourcePackUpgradeStore:
             preview = impact["preview"]
             if preview["preview_hash"] != preview_hash or impact["impact_hash"] != impact_hash:
                 raise SourcePackError("stale_preview", "installed pack or dependent impact changed since preview")
+            blocking = sorted({e["id"] for e in impact["effects"]
+                               if e["kind"] == "composition-plan" and not e["candidate_compatible"]})
+            if blocking:
+                raise SourcePackError(
+                    "composition_incompatible",
+                    f"candidate version {value['version']} is outside the range pinned by "
+                    f"composition plan {blocking[0]}",
+                    plan_digests=blocking)
             if preview["idempotent"] or preview["candidate_version"] == preview["installed_version"]:
                 raise SourcePackError("no_upgrade", "candidate does not create a new immutable version")
             current = self.conn.execute(

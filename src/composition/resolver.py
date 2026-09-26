@@ -243,6 +243,7 @@ def resolve(
     chosen_providers: dict[str, Mapping[str, Any]] = {}
     edges: set[tuple[str, str, str]] = set()
     source_refs: dict[str, str] = {}
+    source_ranges: dict[str, set[str]] = {}
 
     def choose_provider(
         consumer: Mapping[str, Any], requirement: Mapping[str, Any]
@@ -341,6 +342,8 @@ def resolve(
                 pack_id=ref["pack_id"],
             )
         source_refs[ref["pack_id"]] = key
+        if spec:
+            source_ranges.setdefault(ref["pack_id"], set()).add(spec)
         edges.add((consumer, f"source:{ref['pack_id']}@{chosen['version']}", "sources"))
         return True
 
@@ -533,6 +536,7 @@ def resolve(
         "contracts": [{"name": name, "version": version} for name, version in contract_pins],
         "source_packs": [
             {"pack_id": pack_id, "version": pin.split("|", 1)[0],
+             "ranges": sorted(source_ranges.get(pack_id, set())),
              **({"manifest_hash": pin.split("|", 1)[1]} if pin.split("|", 1)[1] else {})}
             for pack_id, pin in source_refs.items()
         ],
@@ -565,8 +569,13 @@ def check_resume(
     manifests: Sequence[Mapping[str, Any]],
     providers: Sequence[Mapping[str, Any]],
     contracts: Mapping[str, Sequence[str]],
+    source_packs: Mapping[str, Mapping[str, Any]] | None = None,
 ) -> dict[str, Any]:
     """Decide whether a stored plan can resume against the current candidates.
+
+    ``source_packs`` maps a source ``pack_id`` to its currently installed
+    ``{"version", "manifest_hash"}``; a pinned source that moved requires a new
+    plan (historical runs keep their pins; new execution re-resolves).
 
     ``current`` when every pinned manifest, provider and contract is still
     present with the same hash. ``new-plan-required`` with the differences when
@@ -604,6 +613,17 @@ def check_resume(
         if pin["version"] not in contracts.get(pin["name"], []):
             changes.append({"kind": "contract", "id": f"{pin['name']}@{pin['version']}",
                             "offered_versions": list(contracts.get(pin["name"], []))})
+    for pin in plan.get("source_packs", []):
+        if source_packs is None:
+            break
+        current = source_packs.get(pin["pack_id"])
+        if current is None:
+            unavailable.append({"kind": "source_pack", "id": f"{pin['pack_id']}@{pin['version']}"})
+        elif current["version"] != pin["version"] or (
+            pin.get("manifest_hash") and current.get("manifest_hash") != pin["manifest_hash"]
+        ):
+            changes.append({"kind": "source_pack", "id": f"{pin['pack_id']}@{pin['version']}",
+                            "current_version": current["version"]})
     if unavailable:
         return {"status": "unavailable-for-replay", "plan_digest": plan["digest"],
                 "unavailable": sorted(unavailable, key=lambda e: (e["kind"], e["id"])),

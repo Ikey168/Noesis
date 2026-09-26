@@ -192,6 +192,24 @@ CREATE TABLE IF NOT EXISTS source_pack_schedules (
   next_run_at_ms BIGINT NOT NULL, last_run_id TEXT, updated_by TEXT NOT NULL,
   updated_at_ms BIGINT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS source_pack_schedule_owners (
+  pack_id TEXT NOT NULL, owner TEXT NOT NULL, claimed_by TEXT NOT NULL,
+  claimed_at_ms BIGINT NOT NULL, PRIMARY KEY(pack_id, owner)
+);
+CREATE TABLE IF NOT EXISTS source_pack_shared_runs (
+  acquisition_key TEXT NOT NULL, consumer TEXT NOT NULL, run_id TEXT NOT NULL,
+  namespace TEXT NOT NULL, budgets_json TEXT NOT NULL, debit_json TEXT NOT NULL,
+  joined BOOLEAN NOT NULL, joined_at_ms BIGINT NOT NULL,
+  PRIMARY KEY(acquisition_key, consumer)
+);
+CREATE TABLE IF NOT EXISTS source_pack_account_limits (
+  account TEXT PRIMARY KEY, window_ms BIGINT NOT NULL, max_pages BIGINT NOT NULL,
+  max_bytes BIGINT NOT NULL, updated_at_ms BIGINT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS source_pack_account_usage (
+  account TEXT NOT NULL, run_id TEXT NOT NULL, pages BIGINT NOT NULL, bytes BIGINT NOT NULL,
+  at_ms BIGINT NOT NULL, PRIMARY KEY(account, run_id)
+);
 """
 
 
@@ -2057,6 +2075,7 @@ class SourcePackRuntime:
         *,
         principal_id: str,
         enabled: bool = True,
+        owner: str | None = None,
     ) -> dict[str, Any]:
         self._manifest(pack_id)
         kind = str(schedule.get("kind") or "interval")
@@ -2080,6 +2099,10 @@ class SourcePackRuntime:
                 now,
             ],
         )
+        self.conn.execute(
+            "INSERT OR IGNORE INTO source_pack_schedule_owners VALUES (?,?,?,?)",
+            [pack_id, owner or "legacy", principal_id, now],
+        )
         return {
             "pack_id": pack_id,
             "schedule": safe,
@@ -2087,6 +2110,198 @@ class SourcePackRuntime:
             "next_run_at_ms": next_run,
             "updated_by": principal_id,
         }
+
+    # -- schedule ownership (pack composition C06.2) -------------------------
+    def schedule_owners(self, pack_id: str) -> list[str]:
+        return [row[0] for row in self.conn.execute(
+            "SELECT owner FROM source_pack_schedule_owners WHERE pack_id=? ORDER BY owner",
+            [pack_id]).fetchall()]
+
+    def claim_schedule(
+        self,
+        pack_id: str,
+        owner: str,
+        schedule: Mapping[str, Any],
+        *,
+        principal_id: str,
+    ) -> dict[str, Any]:
+        """Add ``owner`` to a pack's schedule, creating it if none exists.
+
+        An existing schedule keeps its interval; a second owner only records
+        that it depends on it. No schedule is executed here.
+        """
+
+        existing = self.conn.execute(
+            "SELECT 1 FROM source_pack_schedules WHERE pack_id=?", [pack_id]).fetchone()
+        if existing is None:
+            return {**self.set_schedule(pack_id, schedule, principal_id=principal_id, owner=owner),
+                    "owners": self.schedule_owners(pack_id)}
+        self.conn.execute(
+            "INSERT OR IGNORE INTO source_pack_schedule_owners VALUES (?,?,?,?)",
+            [pack_id, owner, principal_id, self.now()])
+        return {"pack_id": pack_id, "owners": self.schedule_owners(pack_id)}
+
+    def release_schedule(self, pack_id: str, owner: str, *, principal_id: str) -> dict[str, Any]:
+        """Release one owner; remove the schedule only when no owner remains.
+
+        A schedule created before ownership was recorded has no owner rows and
+        is never removed by another owner's release.
+        """
+
+        held = self.conn.execute(
+            "SELECT 1 FROM source_pack_schedule_owners WHERE pack_id=? AND owner=?",
+            [pack_id, owner]).fetchone()
+        if held is None:
+            return {"pack_id": pack_id, "removed": False, "owners": self.schedule_owners(pack_id)}
+        self.conn.execute("DELETE FROM source_pack_schedule_owners WHERE pack_id=? AND owner=?",
+                          [pack_id, owner])
+        remaining = self.schedule_owners(pack_id)
+        removed = False
+        if not remaining:
+            self.conn.execute("DELETE FROM source_pack_schedules WHERE pack_id=?", [pack_id])
+            removed = True
+        self.conn.execute(
+            "INSERT OR IGNORE INTO source_pack_audit VALUES (?,?,?,?,?,?)",
+            ["source-pack-audit:" + _digest([pack_id, owner, "release", self.now()])[:24], pack_id,
+             principal_id, "release-schedule", _canonical({"owner": owner, "removed": removed}),
+             self.now()])
+        return {"pack_id": pack_id, "removed": removed, "owners": remaining}
+
+    # -- shared acquisitions and account limits (C06.3, C06.4) ---------------
+    def acquisition_key(
+        self, request: Mapping[str, Any], *, namespace: str, access_context: str
+    ) -> str:
+        """Deduplication key: source version + query + namespace/access context + mapping."""
+
+        normalized = validate_run_request({**dict(request), "run_key": "key"})
+        manifest, _ = self._manifest(normalized["pack_id"])
+        selected = [
+            source for source in manifest["sources"]
+            if not normalized["source_ids"] or source["source_id"] in normalized["source_ids"]
+        ]
+        mapping = _digest([[s["source_id"], s.get("mapping")] for s in selected])
+        query = [normalized["operation"], normalized["mode"], normalized["source_ids"],
+                 normalized["parameters"], normalized["backfill"], normalized["network"]]
+        return _digest([manifest["pack_id"], manifest["version"], manifest["manifest_hash"],
+                        query, str(namespace), str(access_context), mapping])
+
+    def default_account(self, pack_id: str) -> str:
+        manifest, _ = self._manifest(pack_id)
+        refs = sorted({s["auth"]["secret_ref"] for s in manifest["sources"]
+                       if s.get("auth", {}).get("kind") == "required-secret"})
+        return f"secret:{refs[0]}" if refs else f"public:{pack_id}"
+
+    def set_account_limit(self, account: str, *, window_ms: int, max_pages: int, max_bytes: int) -> dict[str, Any]:
+        if min(window_ms, max_pages, max_bytes) < 1:
+            raise SourcePackError("invalid_limit", "account limits must be positive")
+        self.conn.execute("INSERT OR REPLACE INTO source_pack_account_limits VALUES (?,?,?,?,?)",
+                          [account, int(window_ms), int(max_pages), int(max_bytes), self.now()])
+        return self.account_state(account)
+
+    def account_state(self, account: str) -> dict[str, Any]:
+        limit = self.conn.execute(
+            "SELECT window_ms, max_pages, max_bytes FROM source_pack_account_limits WHERE account=?",
+            [account]).fetchone()
+        if limit is None:
+            return {"account": account, "limited": False, "exhausted": False}
+        used = self.conn.execute(
+            "SELECT coalesce(sum(pages),0), coalesce(sum(bytes),0) FROM source_pack_account_usage "
+            "WHERE account=? AND at_ms>=?", [account, self.now() - int(limit[0])]).fetchone()
+        return {"account": account, "limited": True, "window_ms": int(limit[0]),
+                "max_pages": int(limit[1]), "max_bytes": int(limit[2]),
+                "used_pages": int(used[0]), "used_bytes": int(used[1]),
+                "exhausted": int(used[0]) >= int(limit[1]) or int(used[1]) >= int(limit[2])}
+
+    @staticmethod
+    def _usage(receipt: Mapping[str, Any]) -> dict[str, int]:
+        sources = receipt.get("sources") or []
+        return {key: sum(int((s.get("counts") or {}).get(key, 0)) for s in sources)
+                for key in ("pages", "fetched", "bytes")}
+
+    def run_shared(
+        self,
+        request: Mapping[str, Any],
+        *,
+        consumer: str,
+        namespace: str,
+        access_context: str,
+        principal_id: str,
+        account: str | None = None,
+        **run_kwargs: Any,
+    ) -> dict[str, Any]:
+        """Run or join one acquisition shared by every consumer with the same key.
+
+        The first requester's controls start the run; later requesters with the
+        same key join it and receive the same receipt reference. Each consumer's
+        own per-run budget still applies to what the shared run consumed, and a
+        new run must also fit the provider account's aggregate limit, which
+        joins never consume a second time.
+        """
+
+        key = self.acquisition_key(request, namespace=namespace, access_context=access_context)
+        normalized = validate_run_request({**dict(request), "run_key": "key"})
+        consumer_budgets = normalized["budgets"]
+        run_key = "shared:" + key[:40]
+        pack_id = normalized["pack_id"]
+        account = account or self.default_account(pack_id)
+        prior = self.conn.execute(
+            "SELECT run_id, status, receipt_json, request_json FROM source_pack_runs "
+            "WHERE pack_id=? AND run_key=?", [pack_id, run_key]).fetchone()
+        joined = prior is not None
+        if prior is not None and prior[1] == "running":
+            self._record_consumer(key, consumer, prior[0], namespace, consumer_budgets, {}, True)
+            return {"status": "running", "run_id": prior[0],
+                    "shared": {"acquisition_key": key, "consumer": consumer, "joined": True,
+                               "account": account}}
+        if prior is not None and prior[1] in {"complete", "partial"}:
+            receipt = _load(prior[2], {})
+        else:
+            state = self.account_state(account)
+            if state["limited"]:
+                planned_pages = consumer_budgets["max_pages"] * max(1, len(normalized["source_ids"]) or 1)
+                if (state["exhausted"]
+                        or state["used_pages"] + planned_pages > state["max_pages"]
+                        or state["used_bytes"] + consumer_budgets["max_bytes"] > state["max_bytes"]):
+                    raise SourcePackError(
+                        "aggregate_limit_exhausted",
+                        "the provider account's aggregate limit cannot fit this run",
+                        account=account)
+            base = dict(request)
+            if prior is not None:
+                base = {k: v for k, v in _load(prior[3], {}).items() if k != "request_hash"}
+            receipt = self.run({**base, "run_key": run_key}, principal_id=principal_id, **run_kwargs)
+            joined = False
+            usage = self._usage(receipt)
+            self.conn.execute(
+                "INSERT OR IGNORE INTO source_pack_account_usage VALUES (?,?,?,?,?)",
+                [account, receipt["run_id"], usage["pages"], usage["bytes"], self.now()])
+        usage = self._usage(receipt)
+        over = [name for name, used, cap in (
+            ("max_pages", usage["pages"], consumer_budgets["max_pages"] * max(1, len(receipt.get("sources") or []))),
+            ("max_results", usage["fetched"], consumer_budgets["max_results"]),
+            ("max_bytes", usage["bytes"], consumer_budgets["max_bytes"]),
+        ) if used > cap]
+        if over:
+            raise SourcePackError(
+                "budget_exceeded",
+                "the shared run consumed more than this consumer's per-run budget",
+                budgets=over, run_id=receipt["run_id"])
+        self._record_consumer(key, consumer, receipt["run_id"], namespace, consumer_budgets, usage, joined)
+        return {**receipt, "shared": {"acquisition_key": key, "consumer": consumer, "joined": joined,
+                                      "account": account, "debit": usage,
+                                      "receipt_ref": receipt.get("receipt_hash") or receipt["run_id"]}}
+
+    def _record_consumer(self, key, consumer, run_id, namespace, budgets, debit, joined) -> None:
+        self.conn.execute(
+            "INSERT OR REPLACE INTO source_pack_shared_runs VALUES (?,?,?,?,?,?,?,?)",
+            [key, consumer, run_id, namespace, _canonical(budgets), _canonical(debit), bool(joined),
+             self.now()])
+
+    def shared_consumers(self, run_id: str) -> list[dict[str, Any]]:
+        return [{"consumer": row[0], "namespace": row[1], "joined": bool(row[2])}
+                for row in self.conn.execute(
+                    "SELECT consumer, namespace, joined FROM source_pack_shared_runs WHERE run_id=? "
+                    "ORDER BY consumer", [run_id]).fetchall()]
 
     def schedules(self, *, due_at_ms: int | None = None) -> dict[str, Any]:
         at = due_at_ms or self.now()

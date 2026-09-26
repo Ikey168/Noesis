@@ -160,6 +160,9 @@ class Coordinator:
         self.fault = fault or (lambda _stage: None)
         self.readiness_context = dict(readiness_context or {})
         self.hooks: dict[str, list[Callable[..., None]]] = {"disable": [], "published": []}
+        from src.composition.sources import install_hooks
+
+        install_hooks(self)
 
     # -- candidates ---------------------------------------------------------
     def contracts(self) -> dict[str, list[str]]:
@@ -168,15 +171,15 @@ class Coordinator:
         return self._contracts
 
     def source_packs(self) -> dict[str, list[dict[str, Any]]] | None:
+        """Currently installed source-pack versions (the source store stays authoritative)."""
+
+        from src.composition.sources import source_pins
+
         try:
-            rows = self.conn.execute(
-                "SELECT pack_id, version, manifest_hash FROM source_pack_versions").fetchall()
+            self.conn.execute("SELECT 1 FROM source_pack_current LIMIT 1")
         except Exception:  # noqa: BLE001 - no source-pack store means no source pins
             return None
-        found: dict[str, list[dict[str, Any]]] = {}
-        for pack_id, version, manifest_hash in rows:
-            found.setdefault(pack_id, []).append({"version": version, "manifest_hash": manifest_hash})
-        return found
+        return {pack_id: [pin] for pack_id, pin in source_pins(self.conn).items()}
 
     def _resolve(self, *, retain: bool) -> dict[str, Any]:
         selection = self.store.selection()
@@ -645,7 +648,12 @@ class Coordinator:
         plan = self.store.active_plan()
         if plan is None:
             raise CompositionError("no_active_generation", "no composition generation is active")
-        return assess(plan, self.store.providers(), conn=context.pop("conn", self.conn), scopes=scopes,
+        from src.composition.sources import exhausted_providers
+
+        providers = self.store.providers()
+        conn = context.pop("conn", self.conn)
+        context.setdefault("exhausted_accounts", exhausted_providers(conn, providers, now=self.now))
+        return assess(plan, providers, conn=conn, scopes=scopes,
                       shutdown_providers=self.shutdown_providers(),
                       visible_consumers=self.visible_consumers(principal_id), **context)
 
