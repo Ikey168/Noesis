@@ -9212,6 +9212,10 @@ from tools.knowledge_engine_mcp.companies import register as register_company_to
 
 register_company_tools(mcp, _intake_safe, _intake_context)
 
+from tools.knowledge_engine_mcp.standards import register as register_standards_tools
+
+register_standards_tools(mcp, _intake_safe, _intake_context)
+
 
 if __name__ == "__main__":
     from src.mcp_host.transport import run_server

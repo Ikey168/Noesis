@@ -1,6 +1,6 @@
 {
   "pack_id": "technical-software-knowledge",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Repositories, packages, standards, dependencies, and vulnerability advisories.",
   "domains": ["technical"],
   "defaults": {
@@ -21,6 +21,7 @@
     {"source_id": "pypi-json", "connector": "package-registry", "endpoint": "https://pypi.org/pypi", "publisher": "Python Package Index", "scope": "Python packages", "license": {"id": "pypi-terms", "terms_url": "https://policies.python.org/pypi.org/Terms-of-Service/", "redistribution": "package-specific"}, "operations": ["package", "release", "yanked"]},
     {"source_id": "npm-registry", "connector": "package-registry", "endpoint": "https://registry.npmjs.org", "publisher": "npm, Inc.", "scope": "npm packages", "license": {"id": "npm-terms", "terms_url": "https://docs.npmjs.com/policies/terms", "redistribution": "package-specific"}, "operations": ["package", "release", "deprecated"]},
     {"source_id": "osv-api", "endpoint": "https://api.osv.dev/v1", "publisher": "Open Source Vulnerabilities", "scope": "open-source vulnerability advisories", "license": {"id": "osv-data-license", "terms_url": "https://google.github.io/osv.dev/data/", "redistribution": "source-specific"}, "operations": ["package", "commit", "advisory", "modified-since"]},
-    {"source_id": "rfc-editor", "connector": "web", "endpoint": "https://www.rfc-editor.org/rfc", "publisher": "RFC Editor", "scope": "IETF RFC documents", "license": {"id": "ietf-trust-terms", "terms_url": "https://trustee.ietf.org/documents/trust-legal-provisions/", "redistribution": "terms-governed"}, "operations": ["rfc", "section", "obsoletes", "updated-by"]}
+    {"source_id": "rfc-editor", "connector": "web", "endpoint": "https://www.rfc-editor.org/rfc", "publisher": "RFC Editor", "scope": "IETF RFC documents", "license": {"id": "ietf-trust-terms", "terms_url": "https://trustee.ietf.org/documents/trust-legal-provisions/", "redistribution": "terms-governed"}, "operations": ["rfc", "section", "obsoletes", "updated-by"]},
+    {"source_id": "iso-open-data", "connector": "iso-open-data", "endpoint": "https://isopublicstorageprod.blob.core.windows.net/opendata/_latest/iso_deliverables_metadata/json/iso_deliverables_metadata.jsonl", "publisher": "International Organization for Standardization (open data)", "scope": "ISO deliverables metadata for pinned reference prefixes/ICS codes (catalogue only; no standards text)", "license": {"id": "iso-open-data", "terms_url": "https://www.iso.org/open-data.html", "redistribution": "catalogue metadata under the ISO open data licence with attribution (operator must confirm)"}, "mapping": {"target_schema": "noesis-standard-catalogue-v1", "version": "1.0.0"}, "extractor_versions": ["standards-sources:1.0.0"], "auth": {"kind": "none"}, "operations": ["catalogue"], "budgets": {"timeout_ms": 120000, "max_results": 500, "max_bytes": 100000000, "max_pages": 1}, "standards": {"namespace": "global", "selection": {"reference_prefixes": ["ISO 99901"], "ics_codes": ["35.030"], "max_records": 50}}, "fixture": {"path": "tests/fixtures/source_packs/standards-iso-open-data.json", "sha256": "d5fa585c5cfdfde8cd024d676b3fab9fdfcb547129ee70da7d6e6f62403215da", "expected_output_hash": "a4c6000e23bbd090a764028c469d7975fa3edcccb29d1648555baf560f3ce8f0"}}
   ]
 }

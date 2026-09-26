@@ -31,6 +31,7 @@ SUPPORTED_CONNECTORS = frozenset(
         "git",
         "gleif",
         "icecat",
+        "iso-open-data",
         "manifest",
         "package-registry",
         "paper",
@@ -193,6 +194,7 @@ NATIVE_CONNECTOR_MODULES = {
     "europeana": "src.ingestion.cultural_sources",
     "epo-ops": "src.ingestion.patent_sources",
     "gleif": "src.ingestion.lei_sources",
+    "iso-open-data": "src.ingestion.standards_sources",
 }
 
 

@@ -18,7 +18,7 @@
         "required": ["source_id", "connector", "endpoint", "publisher", "scope", "license", "update_cadence", "temporal_semantics", "mapping", "extractor_versions", "schedule", "budgets", "auth", "fixture", "health", "operations", "source_hash"],
         "properties": {
           "source_id": {"type": "string", "minLength": 1},
-          "connector": {"enum": ["berlin-law", "blog", "cellar", "dataset", "ddb", "declarative-rest", "epo-ops", "eprel", "europeana", "filings", "geojson", "git", "gleif", "icecat", "manifest", "package-registry", "paper", "rii", "web", "wfs"]},
+          "connector": {"enum": ["berlin-law", "blog", "cellar", "dataset", "ddb", "declarative-rest", "epo-ops", "eprel", "europeana", "filings", "geojson", "git", "gleif", "icecat", "iso-open-data", "manifest", "package-registry", "paper", "rii", "web", "wfs"]},
           "wfs": {
             "type": "object",
             "description": "Pinned WFS 2.0.0 GetFeature contract; required for the wfs connector.",
@@ -36,6 +36,12 @@
           "geospatial": {
             "type": "object",
             "description": "Feature projection settings for wfs/geojson sources (namespace, geometry types, precision, attribution)."
+          },
+          "standards": {
+            "type": "object",
+            "description": "Bounded standards catalogue selection: reference prefixes and/or ICS codes with a record ceiling.",
+            "required": ["selection"],
+            "properties": {"namespace": {"type": "string", "minLength": 1}, "selection": {"type": "object"}}
           },
           "lei": {
             "type": "object",

@@ -899,7 +899,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 704,
+      "tool_count": 710,
       "tools": [
         "noesis-knowledge-engine.accept_awareness_jev_suggestion",
         "noesis-knowledge-engine.accept_citation_repair",
@@ -1160,6 +1160,7 @@
         "noesis-knowledge-engine.get_source_capability",
         "noesis-knowledge-engine.get_study_replication_graph",
         "noesis-knowledge-engine.handoff_intake_creation",
+        "noesis-knowledge-engine.import_certificates",
         "noesis-knowledge-engine.import_geospatial_features",
         "noesis-knowledge-engine.import_modulo_flashcards",
         "noesis-knowledge-engine.import_research_package",
@@ -1172,6 +1173,7 @@
         "noesis-knowledge-engine.inspect_authored_report",
         "noesis-knowledge-engine.inspect_authored_report_edit",
         "noesis-knowledge-engine.inspect_binary_forecast",
+        "noesis-knowledge-engine.inspect_certificate",
         "noesis-knowledge-engine.inspect_cited_evidence_subscription",
         "noesis-knowledge-engine.inspect_coverage_assessment",
         "noesis-knowledge-engine.inspect_cultural_object",
@@ -1236,6 +1238,7 @@
         "noesis-knowledge-engine.inspect_source_acquisition_run",
         "noesis-knowledge-engine.inspect_source_pack_run",
         "noesis-knowledge-engine.inspect_source_pack_upgrade_receipt",
+        "noesis-knowledge-engine.inspect_standard_edition",
         "noesis-knowledge-engine.inspect_systematic_review_screening_suggestion",
         "noesis-knowledge-engine.inspect_technical_impact_report",
         "noesis-knowledge-engine.inspect_technical_inventory",
@@ -1334,6 +1337,7 @@
         "noesis-knowledge-engine.promote_problem_playbook",
         "noesis-knowledge-engine.propagate_evidence_freshness",
         "noesis-knowledge-engine.propose_authored_report_edit",
+        "noesis-knowledge-engine.propose_certificate_product_links",
         "noesis-knowledge-engine.propose_cultural_matches",
         "noesis-knowledge-engine.propose_forecast_resolution",
         "noesis-knowledge-engine.propose_funding_rule_interpretation",
@@ -1455,6 +1459,7 @@
         "noesis-knowledge-engine.retry_maintenance_job",
         "noesis-knowledge-engine.retry_source_pack_quarantine",
         "noesis-knowledge-engine.reverse_event_merge",
+        "noesis-knowledge-engine.review_certificate_product_link",
         "noesis-knowledge-engine.review_change_brief",
         "noesis-knowledge-engine.review_company_identity_link",
         "noesis-knowledge-engine.review_cross_language_alignment",
@@ -1541,6 +1546,7 @@
         "noesis-knowledge-engine.source_pack_runtime_coverage",
         "noesis-knowledge-engine.source_relationship_path",
         "noesis-knowledge-engine.split_source_alias",
+        "noesis-knowledge-engine.standards_source_contracts",
         "noesis-knowledge-engine.start_awareness_from_inbox",
         "noesis-knowledge-engine.start_guided_playbook_run",
         "noesis-knowledge-engine.start_intake_concept_iteration",
@@ -1611,7 +1617,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 704
+      "visible_tool_count": 710
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -1622,11 +1628,11 @@
     },
     "servers": 30,
     "states": {
-      "available": 99,
+      "available": 100,
       "degraded": 158,
-      "unauthorized": 753
+      "unauthorized": 758
     },
-    "tools": 1010
+    "tools": 1016
   },
   "tools": [
     {
@@ -32270,6 +32276,51 @@
     },
     {
       "cost_class": "medium",
+      "description": "Import certificate or conformity-declaration records from a named source with locators.",
+      "id": "noesis-knowledge-engine.import_certificates",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "records": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "source": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "source",
+          "records"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "import_certificates",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:standards:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Import one bounded GeoJSON FeatureCollection into a caller namespace.\n\nPass the collection inline or as a path under NOESIS_GEOSPATIAL_IMPORT_ROOT.\nFeatures without IDs or with unsupported geometry are reported, not dropped;\nonly snapshot=\"complete\" lets absent features be marked removed.",
       "id": "noesis-knowledge-engine.import_geospatial_features",
       "input_schema": {
@@ -32951,6 +33002,54 @@
       ],
       "required_scopes": [
         "knowledge:forecasts:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "All imported records for a certificate, with validity on a date and status conflicts.",
+      "id": "noesis-knowledge-engine.inspect_certificate",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "certificate_number": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "certificate_number"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "inspect_certificate",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:standards:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -35646,6 +35745,43 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "A standard edition: stage/status, supersession and amendment relations, certificates citing it.",
+      "id": "noesis-knowledge-engine.inspect_standard_edition",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "reference": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "reference"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "inspect_standard_edition",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:standards:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
       "version": "1"
     },
     {
@@ -40523,6 +40659,39 @@
       "required_scopes": [
         "knowledge:reports:read",
         "knowledge:reports:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Candidates where a certificate names a product brand + designation held by a Products model.",
+      "id": "noesis-knowledge-engine.propose_certificate_product_links",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_certificate_product_links",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:standards:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -48385,6 +48554,47 @@
     },
     {
       "cost_class": "medium",
+      "description": "Accept or reject a certificate-to-product candidate link.",
+      "id": "noesis-knowledge-engine.review_certificate_product_link",
+      "input_schema": {
+        "properties": {
+          "decision": {
+            "type": "string"
+          },
+          "link_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "link_id",
+          "decision"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_certificate_product_link",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:standards:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Record principal-scoped feedback on a generated brief.",
       "id": "noesis-knowledge-engine.review_change_brief",
       "input_schema": {
@@ -53242,6 +53452,30 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "ISO Open Data access and why ETSI and certification registries are not wired yet.",
+      "id": "noesis-knowledge-engine.standards_source_contracts",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "standards_source_contracts",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
       "version": "1"
     },
     {

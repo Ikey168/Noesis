@@ -37,6 +37,7 @@ RELATION_TYPES = frozenset(
         "affected_by",
         "fixed_in",
         "supersedes",
+        "amends",
         "implements",
         "fork_of",
         "renamed_from",

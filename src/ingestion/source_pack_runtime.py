@@ -106,6 +106,12 @@ def _lei_projector(conn: Any) -> Any:
     return LeiProjector(conn)
 
 
+def _standards_projector(conn: Any) -> Any:
+    from src.kb.standards import StandardsProjector
+
+    return StandardsProjector(conn)
+
+
 # Mapping target schemas whose records are also projected into a domain store.
 # A projector receives each committed page before its checkpoint advances and
 # the source outcome afterwards, so replayed pages must project idempotently.
@@ -116,6 +122,7 @@ PROJECTORS: dict[str, Callable[[Any], Any]] = {
     "noesis-cultural-object-v1": _cultural_projector,
     "noesis-patent-part-v1": _patent_projector,
     "noesis-lei-part-v1": _lei_projector,
+    "noesis-standard-catalogue-v1": _standards_projector,
 }
 
 _DDL = """
