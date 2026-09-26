@@ -1,7 +1,8 @@
 # Cultural collections expansion scope
 
-Status: proposed, 2026-09-25. Provider docs confirm discoverable APIs, but no
-connector or live acceptance is present in this checkout.
+Status: implemented offline inside the scientific source pack, 2026-09-26
+(see `docs/guides/cultural-collections.md`). Live acceptance for DDB and
+Europeana, including measured cross-provider overlap, is outstanding.
 
 Tracking: [#1732](https://github.com/Ikey168/Noesis/issues/1732), an expansion
 of the existing Science/Research and Geospatial capabilities. It does not

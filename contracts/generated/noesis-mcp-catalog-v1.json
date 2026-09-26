@@ -899,7 +899,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 680,
+      "tool_count": 692,
       "tools": [
         "noesis-knowledge-engine.accept_awareness_jev_suggestion",
         "noesis-knowledge-engine.accept_citation_repair",
@@ -914,6 +914,7 @@
         "noesis-knowledge-engine.acknowledge_change_brief_delivery",
         "noesis-knowledge-engine.acknowledge_cited_evidence_alert",
         "noesis-knowledge-engine.acknowledge_decision_review_task",
+        "noesis-knowledge-engine.acquire_cultural_assets",
         "noesis-knowledge-engine.acquire_funding_source",
         "noesis-knowledge-engine.acquire_opencitations",
         "noesis-knowledge-engine.acquire_product_documents",
@@ -1033,6 +1034,9 @@
         "noesis-knowledge-engine.create_source_acquisition_plan",
         "noesis-knowledge-engine.create_source_research_objective",
         "noesis-knowledge-engine.create_technical_impact_report",
+        "noesis-knowledge-engine.cultural_readiness",
+        "noesis-knowledge-engine.cultural_rights_policy",
+        "noesis-knowledge-engine.cultural_source_contracts",
         "noesis-knowledge-engine.decide_authored_report_edit",
         "noesis-knowledge-engine.decide_exploration_suggestion",
         "noesis-knowledge-engine.decide_intake_feed_item",
@@ -1169,6 +1173,7 @@
         "noesis-knowledge-engine.inspect_binary_forecast",
         "noesis-knowledge-engine.inspect_cited_evidence_subscription",
         "noesis-knowledge-engine.inspect_coverage_assessment",
+        "noesis-knowledge-engine.inspect_cultural_object",
         "noesis-knowledge-engine.inspect_decision_comparative_matrix",
         "noesis-knowledge-engine.inspect_decision_condition_watch",
         "noesis-knowledge-engine.inspect_economic_release_comparison",
@@ -1243,6 +1248,7 @@
         "noesis-knowledge-engine.legislative_dossier_timeline",
         "noesis-knowledge-engine.link_claim_evolution",
         "noesis-knowledge-engine.link_cross_modal_evidence",
+        "noesis-knowledge-engine.link_cultural_research",
         "noesis-knowledge-engine.link_hypothesis_evidence",
         "noesis-knowledge-engine.link_legal_dossier",
         "noesis-knowledge-engine.link_study_artifact",
@@ -1310,6 +1316,7 @@
         "noesis-knowledge-engine.preview_source_acquisition_plan",
         "noesis-knowledge-engine.preview_source_pack_upgrade",
         "noesis-knowledge-engine.preview_source_pack_upgrade_impact",
+        "noesis-knowledge-engine.primary_sources_for_work",
         "noesis-knowledge-engine.prioritize_research_gaps",
         "noesis-knowledge-engine.product_provider_contracts",
         "noesis-knowledge-engine.product_selection_outcomes",
@@ -1319,6 +1326,7 @@
         "noesis-knowledge-engine.promote_problem_playbook",
         "noesis-knowledge-engine.propagate_evidence_freshness",
         "noesis-knowledge-engine.propose_authored_report_edit",
+        "noesis-knowledge-engine.propose_cultural_matches",
         "noesis-knowledge-engine.propose_forecast_resolution",
         "noesis-knowledge-engine.propose_funding_rule_interpretation",
         "noesis-knowledge-engine.propose_intake_concept_revision",
@@ -1439,6 +1447,8 @@
         "noesis-knowledge-engine.reverse_event_merge",
         "noesis-knowledge-engine.review_change_brief",
         "noesis-knowledge-engine.review_cross_language_alignment",
+        "noesis-knowledge-engine.review_cultural_match",
+        "noesis-knowledge-engine.review_cultural_research_candidate",
         "noesis-knowledge-engine.review_epistemic_status",
         "noesis-knowledge-engine.review_evidence_freshness_override",
         "noesis-knowledge-engine.review_funding_rule_interpretation",
@@ -1488,6 +1498,7 @@
         "noesis-knowledge-engine.scan_intake_maintenance",
         "noesis-knowledge-engine.score_binary_forecasts",
         "noesis-knowledge-engine.screen_review_candidate",
+        "noesis-knowledge-engine.search_cultural_objects",
         "noesis-knowledge-engine.search_datasets",
         "noesis-knowledge-engine.search_epistemic_assessments",
         "noesis-knowledge-engine.search_event_records",
@@ -1537,6 +1548,7 @@
         "noesis-knowledge-engine.subscribe_intake_feed",
         "noesis-knowledge-engine.subscribe_intake_newsletter_input",
         "noesis-knowledge-engine.suggest_awareness_with_jev",
+        "noesis-knowledge-engine.suggest_cultural_research_candidates",
         "noesis-knowledge-engine.suggest_dataset_joins",
         "noesis-knowledge-engine.suggest_exploration_sources",
         "noesis-knowledge-engine.suggest_jev_answer_support",
@@ -1587,7 +1599,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 680
+      "visible_tool_count": 692
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -1598,11 +1610,11 @@
     },
     "servers": 30,
     "states": {
-      "available": 95,
+      "available": 97,
       "degraded": 158,
-      "unauthorized": 733
+      "unauthorized": 743
     },
-    "tools": 986
+    "tools": 998
   },
   "tools": [
     {
@@ -19103,6 +19115,65 @@
     },
     {
       "cost_class": "medium",
+      "description": "Retain representations only where item rights permit; otherwise record link-only.",
+      "id": "noesis-knowledge-engine.acquire_cultural_assets",
+      "input_schema": {
+        "properties": {
+          "action": {
+            "default": "store",
+            "type": "string"
+          },
+          "allowed_hosts": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "object_id": {
+            "type": "string"
+          },
+          "purpose": {
+            "default": "research",
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "object_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "acquire_cultural_assets",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:cultural:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Bounded live acquisition of one explicitly selected provider page, topic or search.",
       "id": "noesis-knowledge-engine.acquire_funding_source",
       "input_schema": {
@@ -26468,6 +26539,91 @@
       "version": "1"
     },
     {
+      "cost_class": "low",
+      "description": "Per-provider readiness of the cultural sources inside the scientific source pack.",
+      "id": "noesis-knowledge-engine.cultural_readiness",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "cultural_readiness",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:cultural:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "How an item rights statement governs metadata, asset storage and export (unclear means link-only).",
+      "id": "noesis-knowledge-engine.cultural_rights_policy",
+      "input_schema": {
+        "properties": {
+          "purpose": {
+            "default": "research",
+            "type": "string"
+          },
+          "statement": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "statement"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "cultural_rights_policy",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "DDB and Europeana access, identifiers, pagination, rights semantics and live-verification state.",
+      "id": "noesis-knowledge-engine.cultural_source_contracts",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "cultural_source_contracts",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
       "cost_class": "medium",
       "description": "Accept or reject one edit; acceptance preserves report history and checks author/evidence conflicts.",
       "id": "noesis-knowledge-engine.decide_authored_report_edit",
@@ -32844,6 +33000,43 @@
     },
     {
       "cost_class": "low",
+      "description": "One object: provider record, revisions, rights per representation, places with role and precision.",
+      "id": "noesis-knowledge-engine.inspect_cultural_object",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "object_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "object_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "inspect_cultural_object",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:cultural:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Show options, missing inputs, declared tradeoffs, and sensitivity scenarios.",
       "id": "noesis-knowledge-engine.inspect_decision_comparative_matrix",
       "input_schema": {
@@ -36034,6 +36227,59 @@
       ],
       "required_scopes": [
         "knowledge:multimodal:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Link an object to a scholarly work by explicit citation, provider relation or reviewed assertion.",
+      "id": "noesis-knowledge-engine.link_cultural_research",
+      "input_schema": {
+        "properties": {
+          "basis": {
+            "type": "string"
+          },
+          "evidence": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "object_id": {
+            "type": "string"
+          },
+          "work_id": {
+            "type": "string"
+          },
+          "work_kind": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "object_id",
+          "work_kind",
+          "work_id",
+          "basis",
+          "evidence"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "link_cultural_research",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:cultural:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -39406,6 +39652,47 @@
       "version": "1"
     },
     {
+      "cost_class": "low",
+      "description": "Start from a scholarly work: linked primary objects, open candidates and their geometries/places.",
+      "id": "noesis-knowledge-engine.primary_sources_for_work",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "work_id": {
+            "type": "string"
+          },
+          "work_kind": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "work_kind",
+          "work_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "primary_sources_for_work",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:cultural:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "medium",
       "description": "Rank open gaps and persist executable suggestions within a hard budget.",
       "id": "noesis-knowledge-engine.prioritize_research_gaps",
@@ -39938,6 +40225,39 @@
       "required_scopes": [
         "knowledge:reports:read",
         "knowledge:reports:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Explicit identifier matches plus conservative multi-field candidates across providers.",
+      "id": "noesis-knowledge-engine.propose_cultural_matches",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_cultural_matches",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:cultural:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -47779,6 +48099,96 @@
     },
     {
       "cost_class": "medium",
+      "description": "Accept, reject or defer a cross-provider object match; provider records stay separate.",
+      "id": "noesis-knowledge-engine.review_cultural_match",
+      "input_schema": {
+        "properties": {
+          "decision": {
+            "type": "string"
+          },
+          "match_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "match_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_cultural_match",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:cultural:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Accept (becomes a reviewed link) or reject a candidate research link.",
+      "id": "noesis-knowledge-engine.review_cultural_research_candidate",
+      "input_schema": {
+        "properties": {
+          "decision": {
+            "type": "string"
+          },
+          "link_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "link_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_cultural_research_candidate",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:cultural:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Record an authorized override without erasing machine assessment history.",
       "id": "noesis-knowledge-engine.review_epistemic_status",
       "input_schema": {
@@ -50644,6 +51054,134 @@
       ],
       "required_scopes": [
         "knowledge:reviews:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Objects by place, collection, creator, subject or declared date range, with rights and source links.",
+      "id": "noesis-knowledge-engine.search_cultural_objects",
+      "input_schema": {
+        "properties": {
+          "collection": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "creator": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "date_from": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "date_to": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "geometry_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "limit": {
+            "default": 25,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "place_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "provider": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "subject": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "search_cultural_objects",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:cultural:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -53626,6 +54164,55 @@
       ],
       "required_scopes": [
         "knowledge:decision:execute"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Keyword-overlap candidates between a work and objects; suggestions only, never links.",
+      "id": "noesis-knowledge-engine.suggest_cultural_research_candidates",
+      "input_schema": {
+        "properties": {
+          "limit": {
+            "default": 10,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "text": {
+            "type": "string"
+          },
+          "work_id": {
+            "type": "string"
+          },
+          "work_kind": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "work_kind",
+          "work_id",
+          "text"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "suggest_cultural_research_candidates",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:cultural:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",

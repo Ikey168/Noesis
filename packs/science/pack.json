@@ -1,8 +1,8 @@
 {
   "pack_format": "noesis-pack-v1",
   "name": "science",
-  "version": "1.0.0",
-  "description": "Primary scientific evidence: scholarly works from bounded scholarly APIs, study methodology records, paper families, public peer-review rounds, systematic reviews and preserved citations.",
+  "version": "1.1.0",
+  "description": "Primary scientific evidence: scholarly works from bounded scholarly APIs, study methodology records, paper families, public peer-review rounds, systematic reviews and preserved citations, and cultural primary sources (DDB, Europeana) linked to research works and places.",
   "source_types": [
     "paper"
   ],
@@ -17,7 +17,12 @@
       "europe pmc",
       "openalex",
       "openreview",
-      "preprint"
+      "preprint",
+      "archive",
+      "ddb",
+      "deutsche digitale bibliothek",
+      "europeana",
+      "primary source"
     ],
     "claims": [
       "finding",
@@ -31,7 +36,11 @@
       "author",
       "paper",
       "study",
-      "venue"
+      "venue",
+      "archival object",
+      "map",
+      "photograph",
+      "poster"
     ]
   },
   "enrichers": [],
@@ -43,14 +52,19 @@
     "paper-family-versions",
     "openreview-round-comparison",
     "systematic-review-screening",
-    "preserved-citation-snapshots"
+    "preserved-citation-snapshots",
+    "cultural-primary-source-records",
+    "rights-gated-cultural-assets",
+    "primary-source-research-links",
+    "cultural-object-place-projection"
   ],
   "schema_versions": {
     "methodology-study": "1.0.0",
     "paper-family": "1.0.0",
     "openreview-round": "1.0.0",
     "citation-snapshot": "1.0.0",
-    "source-pack": "1.0.0"
+    "source-pack": "1.0.0",
+    "cultural-object": "1.0.0"
   },
   "ontology_extensions": {
     "extends": "noesis-canonical-entity-relation-ontology",
@@ -58,7 +72,9 @@
       "noesis-methodology-study-v1",
       "noesis-paper-family-v1",
       "noesis-openreview-round-v1",
-      "noesis-citation-snapshot-v1"
+      "noesis-citation-snapshot-v1",
+      "noesis-cultural-object-v1",
+      "noesis-cultural-research-link-v1"
     ],
     "object_types": [
       "scholarly_work",
@@ -66,7 +82,9 @@
       "paper_family",
       "review_round",
       "review_protocol",
-      "citation_snapshot"
+      "citation_snapshot",
+      "cultural_object",
+      "digital_representation"
     ],
     "relation_types": [
       "cites",
@@ -74,7 +92,11 @@
       "replicates",
       "registered_as",
       "reviewed_in",
-      "corrected_by"
+      "corrected_by",
+      "primary_source_for",
+      "depicts_place",
+      "held_by",
+      "same_object_as"
     ]
   },
   "source_pack": "config/source_packs/scientific.json",
@@ -114,6 +136,17 @@
         "depth": 1
       },
       "semantics": "citations present in the document corpus only, bounded by depth and limit"
+    },
+    {
+      "intent": "Archival photographs of Berlin from 1900-1915",
+      "tool": "search_cultural_objects",
+      "arguments": {
+        "namespace": "global",
+        "place_id": "<place_id for Berlin>",
+        "date_from": "1900",
+        "date_to": "1915"
+      },
+      "semantics": "only provider coordinates or gazetteer-resolved place names match; undated or unplaced objects never match; rights decide link-only access"
     }
   ],
   "exclusions": [
@@ -121,6 +154,9 @@
     "paywalled content",
     "peer-review authoring or submission",
     "automated inclusion decisions without human adjudication",
-    "bibliometric impact rankings"
+    "bibliometric impact rankings",
+    "digitized-file mirroring",
+    "universal OCR/transcription",
+    "unreviewed semantic location resolution"
   ]
 }

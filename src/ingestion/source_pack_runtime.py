@@ -88,6 +88,12 @@ def _legal_projector(conn: Any) -> Any:
     return LegalProjector(conn)
 
 
+def _cultural_projector(conn: Any) -> Any:
+    from src.kb.cultural import CulturalProjector
+
+    return CulturalProjector(conn)
+
+
 # Mapping target schemas whose records are also projected into a domain store.
 # A projector receives each committed page before its checkpoint advances and
 # the source outcome afterwards, so replayed pages must project idempotently.
@@ -95,6 +101,7 @@ PROJECTORS: dict[str, Callable[[Any], Any]] = {
     "noesis-geospatial-feature-v1": _geospatial_projector,
     "noesis-product-record-v1": _product_projector,
     "noesis-legal-record-v1": _legal_projector,
+    "noesis-cultural-object-v1": _cultural_projector,
 }
 
 _DDL = """
@@ -689,6 +696,7 @@ class RuntimeAdapterFactory:
     def __init__(
         self, builders: Mapping[str, Callable[..., RuntimeSourceAdapter]] | None = None
     ) -> None:
+        from src.ingestion.cultural_sources import ADAPTERS as CULTURAL_ADAPTERS
         from src.ingestion.geojson_features import GeoJsonFeatureAdapter
         from src.ingestion.legal_sources import ADAPTERS as LEGAL_ADAPTERS
         from src.ingestion.product_sources import ADAPTERS as PRODUCT_ADAPTERS
@@ -700,6 +708,7 @@ class RuntimeAdapterFactory:
         self.builders.update({"geojson": GeoJsonFeatureAdapter, "wfs": WfsFeatureAdapter})
         self.builders.update(PRODUCT_ADAPTERS)
         self.builders.update(LEGAL_ADAPTERS)
+        self.builders.update(CULTURAL_ADAPTERS)
         self.builders.update(dict(builders or {}))
 
     def compile(
@@ -967,6 +976,15 @@ class SourcePackRuntime:
 
                 result[source["source_id"]] = self.factory.compile(
                     source, transport=fixture_transport(fixture["native_pages"])
+                )
+                continue
+            if fixture.get("native_pages") and source["connector"] in {"ddb", "europeana"}:
+                from src.ingestion.cultural_sources import (
+                    fixture_transport as cultural_transport,
+                )
+
+                result[source["source_id"]] = self.factory.compile(
+                    source, transport=cultural_transport(fixture["native_pages"]), secret="fixture-credential"
                 )
                 continue
             if fixture.get("native_pages") and source["connector"] in {"cellar", "rii", "berlin-law"}:

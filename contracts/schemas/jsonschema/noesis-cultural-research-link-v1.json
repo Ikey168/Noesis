@@ -1,0 +1,58 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/schemas/noesis-cultural-research-link-v1.json",
+  "title": "Noesis cultural research link v1",
+  "description": "A link between a scholarly work and a cultural object. Linked only by explicit citation, provider relation or reviewed assertion; keyword overlap is a candidate.",
+  "type": "object",
+  "required": [
+    "contract",
+    "link_id",
+    "object_id",
+    "work_kind",
+    "work_id",
+    "state",
+    "basis",
+    "object_revision_id"
+  ],
+  "properties": {
+    "contract": {
+      "const": "noesis-cultural-research-link-v1"
+    },
+    "link_id": {
+      "type": "string",
+      "pattern": "^cultural-link:"
+    },
+    "state": {
+      "enum": [
+        "linked",
+        "candidate",
+        "rejected"
+      ]
+    },
+    "basis": {
+      "enum": [
+        "explicit_citation",
+        "provider_relation",
+        "reviewed_assertion",
+        "keyword-overlap",
+        "reviewed_rejection"
+      ]
+    },
+    "object_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "work_kind": {
+      "type": "string",
+      "minLength": 1
+    },
+    "work_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "object_revision_id": {
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}

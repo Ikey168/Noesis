@@ -18,7 +18,7 @@
         "required": ["source_id", "connector", "endpoint", "publisher", "scope", "license", "update_cadence", "temporal_semantics", "mapping", "extractor_versions", "schedule", "budgets", "auth", "fixture", "health", "operations", "source_hash"],
         "properties": {
           "source_id": {"type": "string", "minLength": 1},
-          "connector": {"enum": ["berlin-law", "blog", "cellar", "dataset", "declarative-rest", "eprel", "filings", "geojson", "git", "icecat", "manifest", "package-registry", "paper", "rii", "web", "wfs"]},
+          "connector": {"enum": ["berlin-law", "blog", "cellar", "dataset", "ddb", "declarative-rest", "eprel", "europeana", "filings", "geojson", "git", "icecat", "manifest", "package-registry", "paper", "rii", "web", "wfs"]},
           "wfs": {
             "type": "object",
             "description": "Pinned WFS 2.0.0 GetFeature contract; required for the wfs connector.",
@@ -36,6 +36,17 @@
           "geospatial": {
             "type": "object",
             "description": "Feature projection settings for wfs/geojson sources (namespace, geometry types, precision, attribution)."
+          },
+          "cultural": {
+            "type": "object",
+            "description": "Bounded cultural-object query for ddb/europeana sources: namespace, explicit query and filters, rows per page, record ceiling and place-precision policy.",
+            "required": ["query", "rows", "max_records"],
+            "properties": {
+              "namespace": {"type": "string", "minLength": 1},
+              "query": {"type": "object", "required": ["q"]},
+              "rows": {"type": "integer", "minimum": 1, "maximum": 100},
+              "max_records": {"type": "integer", "minimum": 1, "maximum": 500}
+            }
           },
           "legal": {
             "type": "object",

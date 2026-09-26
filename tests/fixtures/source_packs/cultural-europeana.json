@@ -1,0 +1,189 @@
+{
+ "authored": true,
+ "note": "Authored envelopes for fictional Berlin collection records in the documented DDB Solr and Europeana Search API v2 shapes; not provider captures.",
+ "provider": "Europeana",
+ "native_pages": [
+  {
+   "page": "*",
+   "status": 200,
+   "body": {
+    "success": true,
+    "itemsCount": 2,
+    "totalResults": 4,
+    "nextCursor": "AoEfixture",
+    "items": [
+     {
+      "id": "/2048999/fixture_A",
+      "guid": "https://www.europeana.eu/item/2048999/fixture_A",
+      "title": [
+       "Brandenburger Tor, Ansicht von Osten (fiktiv)"
+      ],
+      "dcTitleLangAware": {
+       "de": [
+        "Brandenburger Tor, Ansicht von Osten (fiktiv)"
+       ],
+       "en": [
+        "Brandenburg Gate, view from the east (fictional)"
+       ]
+      },
+      "dcDescriptionLangAware": {
+       "en": [
+        "Authored fixture record."
+       ]
+      },
+      "year": [
+       "1910"
+      ],
+      "rights": [
+       "http://creativecommons.org/publicdomain/mark/1.0/"
+      ],
+      "dataProvider": [
+       "Landesarchiv Berlin (fiktiv)"
+      ],
+      "provider": [
+       "Deutsche Digitale Bibliothek"
+      ],
+      "edmIsShownAt": [
+       "https://www.deutsche-digitale-bibliothek.de/item/FIXTUREDDBA000000000000000000001"
+      ],
+      "edmPreview": [
+       "https://api.europeana.eu/thumbnail/v2/url.json?uri=fixtureA"
+      ],
+      "type": "IMAGE",
+      "language": [
+       "de"
+      ],
+      "edmPlaceLatitude": [
+       "52.5163"
+      ],
+      "edmPlaceLongitude": [
+       "13.3777"
+      ],
+      "edmPlaceLabel": [
+       "Berlin"
+      ],
+      "europeanaCollectionName": [
+       "2048999_Ag_DE_DDB_fixture"
+      ],
+      "timestamp_update": "2026-05-02"
+     },
+     {
+      "id": "/2048999/fixture_map",
+      "guid": "https://www.europeana.eu/item/2048999/fixture_map",
+      "title": [
+       "Plan von Berlin (fiktiv)"
+      ],
+      "year": [
+       "1885"
+      ],
+      "rights": [
+       "http://rightsstatements.org/vocab/InC/1.0/"
+      ],
+      "dataProvider": [
+       "Staatsbibliothek (fiktiv)"
+      ],
+      "provider": [
+       "Europeana Foundation"
+      ],
+      "type": "IMAGE",
+      "language": [
+       "de"
+      ],
+      "edmPlaceLabel": [
+       "Berlin"
+      ],
+      "europeanaCollectionName": [
+       "2048999_maps_fixture"
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "page": "AoEfixture",
+   "status": 200,
+   "body": {
+    "success": true,
+    "itemsCount": 2,
+    "totalResults": 4,
+    "items": [
+     {
+      "id": "/2048999/fixture_poster",
+      "title": [
+       "Plakat: Große Berliner Kunstausstellung (fiktiv)"
+      ],
+      "year": [
+       "1931"
+      ],
+      "rights": [
+       "http://example.org/fixture-custom-license"
+      ],
+      "dataProvider": [
+       "Kunstbibliothek (fiktiv)"
+      ],
+      "provider": [
+       "Europeana Foundation"
+      ],
+      "type": "IMAGE",
+      "language": [
+       "de"
+      ],
+      "dcCreator": [
+       "Fiktiver Grafiker"
+      ]
+     },
+     {
+      "id": "/2048999/fixture_multilingual",
+      "guid": "https://www.europeana.eu/item/2048999/fixture_multilingual",
+      "dcTitleLangAware": {
+       "de": [
+        "Straßenszene (fiktiv)"
+       ],
+       "fr": [
+        "Scène de rue (fictif)"
+       ],
+       "def": [
+        "Street scene"
+       ]
+      },
+      "year": [
+       "1920",
+       "1930"
+      ],
+      "rights": [
+       "http://creativecommons.org/publicdomain/mark/1.0/"
+      ],
+      "dataProvider": [
+       "Landesarchiv Berlin (fiktiv)"
+      ],
+      "provider": [
+       "Europeana Foundation"
+      ],
+      "type": "IMAGE",
+      "language": [
+       "de",
+       "fr"
+      ],
+      "edmPlaceLabel": [
+       "Berlin"
+      ],
+      "edmPlaceLatitude": [
+       "52.5"
+      ],
+      "edmPlaceLongitude": [
+       "13.4"
+      ]
+     }
+    ]
+   }
+  }
+ ],
+ "scenarios": [
+  "aggregated-ddb-record-same-as",
+  "multilingual-titles",
+  "in-copyright-without-coordinates",
+  "unrecognized-rights",
+  "same-title-different-object",
+  "cursor-pagination"
+ ]
+}

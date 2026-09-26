@@ -21,8 +21,10 @@ SUPPORTED_CONNECTORS = frozenset(
         "blog",
         "cellar",
         "dataset",
+        "ddb",
         "declarative-rest",
         "eprel",
+        "europeana",
         "filings",
         "geojson",
         "git",
@@ -185,6 +187,8 @@ def replay_native_fixture(
         from src.ingestion.product_sources import replay_native_fixture as replay
     elif source["connector"] in {"cellar", "rii", "berlin-law"}:
         from src.ingestion.legal_sources import replay_native_fixture as replay
+    elif source["connector"] in {"ddb", "europeana"}:
+        from src.ingestion.cultural_sources import replay_native_fixture as replay
     else:
         from src.ingestion.wfs_api import replay_native_fixture as replay
     return replay(source, fixture)
