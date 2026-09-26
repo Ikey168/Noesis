@@ -1,11 +1,15 @@
 """The Funding & Grants bundle: declared contributions, enablement and readiness.
 
-The pack/workflow composition runtime referenced by the planning issues
-(``docs/architecture/pack-workflow-composition.md``, items C02–C07: resolved
-bindings, lifecycle and authorized dispatch) is proposed, not shipped. This
-module therefore *declares* the bundle's contributions as data and reports
-actual readiness; it does not implement a composition runtime, scheduler,
-permission ledger, project store or submission engine.
+The bundle is composed under the pack/workflow composition contracts
+(``docs/architecture/pack-workflow-composition.md``, C02–C07): its composition
+manifest is ``packs/funding-grants/manifest.json`` and its own provider is
+``packs/funding-grants/providers/funding.core.json``; everything else it uses
+is a shared provider. Once the bundle is cut over to composition management,
+enablement is a selection change through the lifecycle coordinator (the one
+authority) and readiness includes the coordinator's operation-specific
+assessment. Before cutover the per-namespace flag below remains the authority.
+It still implements no scheduler, permission ledger, project store or
+submission engine.
 
 Disabling the bundle for a namespace blocks only the funding entry points.
 Shared providers stay independently usable: ``DurableHTTP``, the document
@@ -26,8 +30,12 @@ BUNDLE = {
     "bundle": BUNDLE_ID, "version": "0.1.0",
     "architecture": {
         "plan": "docs/architecture/pack-workflow-composition.md",
-        "status": "proposed; not present in this repository and no composition runtime is shipped",
-        "depends_on": {key: "pending (unshipped composition runtime)" for key in ("C02", "C03", "C04", "C05", "C06", "C07")},
+        "status": "composed: manifest packs/funding-grants/manifest.json binds funding.core plus shared providers",
+        "manifest": "packs/funding-grants/manifest.json",
+        "depends_on": {"C02": "contracts (src/composition/contracts.py)", "C03": "resolver (src/composition/resolver.py)",
+                       "C04": "readiness (src/composition/readiness.py)", "C05": "lifecycle (src/composition/lifecycle.py)",
+                       "C06": "source integration (src/ingestion/source_pack_runtime.py)",
+                       "C07": "authorized dispatch (src/composition/workflows.py)"},
         "depends_on_semantics": "resolved bindings, lifecycle and authorized dispatch",
     },
     "contributions": {
@@ -71,7 +79,25 @@ def _ensure(conn):
     conn.execute(_DDL)
 
 
+def _coordinator(conn):
+    """The lifecycle coordinator when Funding & Grants is composition-managed, else None."""
+    if not conn.execute("SELECT 1 FROM information_schema.tables WHERE table_name='composition_authority'").fetchone():
+        return None
+    from src.composition.lifecycle import CompositionCoordinator
+
+    coordinator = CompositionCoordinator(conn)
+    return coordinator if coordinator.is_composition_managed(BUNDLE_ID) else None
+
+
+def _selected(coordinator):
+    plan = (coordinator.active() or {}).get("plan") or {}
+    return any(p["id"] == BUNDLE_ID for p in plan.get("packs") or [])
+
+
 def is_enabled(conn, namespace):
+    coordinator = _coordinator(conn)
+    if coordinator is not None:
+        return _selected(coordinator)
     if not conn.execute("SELECT 1 FROM information_schema.tables WHERE table_name='funding_bundle_state'").fetchone():
         return True
     row = conn.execute("SELECT enabled FROM funding_bundle_state WHERE namespace=?", [namespace]).fetchone()
@@ -86,6 +112,22 @@ def require_enabled(conn, namespace):
 def set_enabled(conn, namespace, enabled, *, principal_id, scopes, now=None):
     if "operator" not in scopes:
         raise BundleError("unauthorized", "operator scope is required to change bundle enablement")
+    coordinator = _coordinator(conn)
+    if coordinator is not None:
+        # One authority: a selection change through the coordinator. Shared
+        # providers stay installed and keep serving every other root.
+        key = f"funding-grants:{'enable' if enabled else 'disable'}:{principal_id}:{(now or (lambda: int(time.time() * 1000)))()}"
+        if enabled:
+            manifest = next(m for m in coordinator.installed("pack") if m["id"] == BUNDLE_ID)
+            coordinator.select(BUNDLE_ID, f"^{manifest['version']}")
+            receipt = coordinator.activate(key)
+        elif _selected(coordinator):
+            receipt = coordinator.disable(BUNDLE_ID, key)
+        else:
+            receipt = None
+        return {"namespace": namespace, "bundle": BUNDLE_ID, "enabled": _selected(coordinator),
+                "scope": "deployment", "authority": "composition-coordinator", "receipt": receipt,
+                "shared_capabilities_affected": []}
     _ensure(conn)
     conn.execute(
         """INSERT INTO funding_bundle_state VALUES (?,?,?,?) ON CONFLICT (namespace) DO UPDATE SET
@@ -125,4 +167,17 @@ def readiness(conn, namespace, *, scopes):
         "entry_points": {"discovery": discovery, "profile_to_shortlist": local,
                          "application_preparation": local, "monitoring": local},
         "composition_runtime": BUNDLE["architecture"]["status"],
+        **_composition_readiness(conn, scopes),
     }
+
+
+def _composition_readiness(conn, scopes):
+    """Operation-specific readiness from the coordinator (C04), when composition-managed."""
+    coordinator = _coordinator(conn)
+    if coordinator is None or not _selected(coordinator):
+        return {}
+    assessment = coordinator.readiness(scopes=scopes)
+    plan = coordinator.active()["plan"]
+    funding = {b["capability"] for b in plan["bindings"] if BUNDLE_ID in b["consumers"]}
+    assessment["operations"] = [o for o in assessment["operations"] if o["capability"] in funding]
+    return {"composition": assessment}

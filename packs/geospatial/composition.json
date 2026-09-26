@@ -1,0 +1,63 @@
+{
+  "contributes": {
+    "capabilities": [
+      {
+        "id": "geospatial.feature-query",
+        "provider": "geospatial.core",
+        "contract": {
+          "name": "noesis-geospatial-feature-query",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "geospatial.spatial-relation",
+        "provider": "geospatial.core",
+        "contract": {
+          "name": "noesis-spatial-relation",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "geospatial.geometry-store",
+        "provider": "geospatial.core",
+        "contract": {
+          "name": "noesis-geospatial-geometry",
+          "version": "2.0.0"
+        }
+      },
+      {
+        "id": "geospatial.place-resolution",
+        "provider": "geospatial.core",
+        "contract": {
+          "name": "noesis-geospatial-place",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "geospatial.transit-schedules",
+        "provider": "geospatial.transit",
+        "contract": {
+          "name": "noesis-transit-feed",
+          "version": "1.0.0"
+        }
+      }
+    ],
+    "providers": [
+      {
+        "id": "geospatial.core",
+        "version": "1.0.0"
+      },
+      {
+        "id": "geospatial.transit",
+        "version": "1.0.0"
+      }
+    ],
+    "source_packs": [
+      {
+        "pack_id": "geospatial-berlin",
+        "version": "1.1.0",
+        "range": "^1.1.0"
+      }
+    ]
+  }
+}

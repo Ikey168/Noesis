@@ -1,0 +1,86 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "products.core",
+  "version": "1.0.0",
+  "implementation": {
+    "name": "src.kb.products",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "products.identities",
+      "contract": {
+        "name": "noesis-product-record",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "lookup-models",
+        "inspect-identity"
+      ],
+      "semantic_constraints": {
+        "identity": "GTIN/model with reviewable matches"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "lookup-models",
+      "tool": "noesis-knowledge-engine.lookup_product_models",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "identities",
+      "required_scopes": [
+        "knowledge:products:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "inspect-identity",
+      "tool": "noesis-knowledge-engine.inspect_product_identity",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "identities",
+      "required_scopes": [
+        "knowledge:products:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "product",
+      "store": "src.kb.products",
+      "tables": [
+        "product_identities",
+        "product_revisions",
+        "product_current",
+        "product_assertions"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "identities",
+      "kind": "table-exists",
+      "target": "product_identities"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "products-displays",
+      "version": "1.0.0",
+      "range": "^1.0.0"
+    }
+  ]
+}

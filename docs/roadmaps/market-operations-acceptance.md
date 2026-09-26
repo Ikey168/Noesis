@@ -3,6 +3,11 @@
 This is repository evidence for the local portion of issue #1693. It is kept
 separate from production telemetry and must not be read as a provider SLA.
 
+## Delivery state (audited 2026-09-26)
+
+- Shipped: Fixture evidence only, as stated above; no provider SLA is claimed.
+- Composition dependency: none.
+
 | Check | Fixture result |
 | --- | --- |
 | Query latency observations | 10 ms and 20 ms; p95 target evaluation observed 20 ms |

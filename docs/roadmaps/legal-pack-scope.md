@@ -5,6 +5,11 @@ Status: standalone pack implemented offline, 2026-09-26 (see
 relevance-ranked legal retrieval stays deferred until an independent
 human-judged evaluation passes the recorded thresholds.
 
+## Delivery state (audited 2026-09-26)
+
+- Shipped: Shipped offline in `src/kb/legal.py` with the `legal-research` source pack. Pack live acceptance and relevance-ranked retrieval remain outstanding, as stated above.
+- Composition dependency: record owner `legal.core` (`packs/legal/providers/legal.core.json`). The remaining live acceptance and ranked-retrieval evaluation need none.
+
 Tracking: [#1720](https://github.com/Ikey168/Noesis/issues/1720). Its child
 issues define dependencies and acceptance criteria.
 

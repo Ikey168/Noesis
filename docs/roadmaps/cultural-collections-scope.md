@@ -4,6 +4,11 @@ Status: implemented offline inside the scientific source pack, 2026-09-26
 (see `docs/guides/cultural-collections.md`). Live acceptance for DDB and
 Europeana, including measured cross-provider overlap, is outstanding.
 
+## Delivery state (audited 2026-09-26)
+
+- Shipped: Shipped offline in `src/kb/cultural.py` (projector `noesis-cultural-object-v1` in the scientific source pack) with MCP tools in `tools/knowledge_engine_mcp`. Live DDB/Europeana acceptance is outstanding.
+- Composition dependency: record owner `science.cultural` (`packs/science/providers/science.cultural.json`); the `cultural-collections` optional feature of the science bundle composes it with Geospatial place resolution. Remaining live acceptance needs none.
+
 Tracking: [#1732](https://github.com/Ikey168/Noesis/issues/1732), an expansion
 of the existing Science/Research and Geospatial capabilities. It does not
 create a separate domain or pack. Its child

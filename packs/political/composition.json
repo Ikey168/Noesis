@@ -1,0 +1,28 @@
+{
+  "contributes": {
+    "capabilities": [
+      {
+        "id": "political.knowledge",
+        "provider": "political.core",
+        "contract": {
+          "name": "noesis-political-knowledge",
+          "version": "1.0.0"
+        }
+      }
+    ],
+    "providers": [
+      {
+        "id": "political.core",
+        "version": "1.0.0"
+      }
+    ]
+  },
+  "requires": [
+    {
+      "capability": "political.knowledge",
+      "contract": "noesis-political-knowledge",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    }
+  ]
+}

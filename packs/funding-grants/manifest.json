@@ -1,0 +1,153 @@
+{
+  "pack_format": "noesis-pack-composition-v1",
+  "id": "funding-grants",
+  "version": "0.2.0",
+  "description": "Funding & Grants: opportunity discovery, owner-scoped profiles, eligibility, shortlists, application preparation and monitoring over shared Research, Decision Support, Creation, Awareness and intake providers.",
+  "contributes": {
+    "capabilities": [
+      {
+        "id": "funding.opportunities",
+        "provider": "funding.core",
+        "contract": {
+          "name": "noesis-funding-record",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "funding.profiles",
+        "provider": "funding.core",
+        "contract": {
+          "name": "noesis-funding-profile",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "funding.eligibility",
+        "provider": "funding.core",
+        "contract": {
+          "name": "noesis-funding-eligibility",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "funding.shortlists",
+        "provider": "funding.core",
+        "contract": {
+          "name": "noesis-funding-shortlist",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "funding.workspaces",
+        "provider": "funding.core",
+        "contract": {
+          "name": "noesis-funding-workspace",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "funding.monitoring",
+        "provider": "funding.core",
+        "contract": {
+          "name": "noesis-funding-monitor",
+          "version": "1.0.0"
+        }
+      }
+    ],
+    "providers": [
+      {
+        "id": "funding.core",
+        "version": "1.0.0"
+      }
+    ],
+    "profiles": [
+      {
+        "id": "funding.applicant",
+        "description": "Applicant vocabulary and defaults; applicant facts stay owner-scoped",
+        "vocabulary": {
+          "call": "funding opportunity",
+          "applicant": "profile owner"
+        }
+      }
+    ]
+  },
+  "requires": [
+    {
+      "capability": "funding.opportunities",
+      "contract": "noesis-funding-record",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "funding.profiles",
+      "contract": "noesis-funding-profile",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "funding.eligibility",
+      "contract": "noesis-funding-eligibility",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "funding.shortlists",
+      "contract": "noesis-funding-shortlist",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "funding.workspaces",
+      "contract": "noesis-funding-workspace",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "funding.monitoring",
+      "contract": "noesis-funding-monitor",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "platform.research-projects",
+      "contract": "noesis-research-project",
+      "range": "^1.0.0",
+      "reason": "shared provider reused, never duplicated"
+    },
+    {
+      "capability": "platform.authored-reports",
+      "contract": "noesis-authored-report",
+      "range": "^1.0.0",
+      "reason": "shared provider reused, never duplicated"
+    },
+    {
+      "capability": "platform.decisions",
+      "contract": "noesis-research-decision",
+      "range": "^1.0.0",
+      "reason": "shared provider reused, never duplicated"
+    },
+    {
+      "capability": "platform.subscriptions",
+      "contract": "noesis-knowledge-subscription",
+      "range": "^1.0.0",
+      "reason": "shared provider reused, never duplicated"
+    },
+    {
+      "capability": "platform.session-artifacts",
+      "contract": "noesis-intake-session-artifact",
+      "range": "^1.0.0",
+      "reason": "shared provider reused, never duplicated"
+    }
+  ],
+  "compatibility_aliases": {
+    "funding": "funding-grants"
+  },
+  "advisory": {
+    "never": [
+      "submit applications",
+      "contact funders",
+      "guarantee eligibility or funding success"
+    ]
+  },
+  "content_hash": "sha256:ada61fbe360a1828f254fb2a9ba0dbf6557724b8e577a6abfc0fdebd8be0d7b9"
+}

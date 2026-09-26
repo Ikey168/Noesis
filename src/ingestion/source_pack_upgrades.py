@@ -95,10 +95,39 @@ class SourcePackUpgradeStore:
         return (all(f"namespace:{ns}:read" in scopes or f"namespace:{ns}:write" in scopes for ns in namespaces)
                 and all(f"domain:{domain}:read" in scopes for domain in domains))
 
-    def _impacts(self, pack_id, principal_id, scopes):
+    def _composition_effects(self, pack_id, scopes, candidate_version, inaccessible):
+        """Composition plans pinning this source pack (C06.1); absent tables add nothing."""
+        from src.composition.contracts import satisfies, valid_range
+        from src.composition.sources import composition_dependents, visible
+
+        dependents = composition_dependents(self.conn, pack_id)
+        if not dependents:
+            return []
+        inaccessible["compositions"] = 0
+        effects = []
+        for dependent in dependents:
+            if not visible(scopes):
+                inaccessible["compositions"] += 1
+                continue
+            pin = dependent["pin"]
+            spec = pin.get("range")
+            compatible = None
+            if candidate_version and spec and valid_range(spec):
+                compatible = satisfies(candidate_version, spec)
+            retained = self._retained(pack_id, pin["version"], pin.get("manifest_hash"))
+            effects.append({"kind": "composition", "id": dependent["plan_digest"], "namespace": None,
+                            "generation": dependent["generation"], "role": dependent["role"],
+                            "pinned_version": pin["version"], "range": spec,
+                            "candidate_compatible": compatible, "retained_status": retained,
+                            "reproducibility": "pinned_manifest_available" if retained == "retained" else retained,
+                            "future_execution": "requires_new_plan"})
+        return effects
+
+    def _impacts(self, pack_id, principal_id, scopes, candidate_version=None):
         tables = _tables(self.conn)
         effects = []
         inaccessible = {"templates": 0, "projects": 0, "reports": 0, "schedules": 0}
+        effects += self._composition_effects(pack_id, scopes, candidate_version, inaccessible)
         if {"investigation_templates", "investigation_template_revisions"} <= tables:
             rows = self.conn.execute(
                 "SELECT t.template_id,t.namespace,t.owner,r.revision,r.state_json FROM investigation_templates t "
@@ -222,7 +251,8 @@ class SourcePackUpgradeStore:
         if type(limit) is not int or not 1 <= limit <= 100 or type(offset) is not int or offset < 0:
             raise SourcePackError("invalid_page", "impact page must be bounded to 100 items")
         preview = SourcePackStore(self.conn, initialize=False).preview_upgrade(candidate)
-        effects, inaccessible = self._impacts(preview["pack_id"], principal_id, scopes)
+        effects, inaccessible = self._impacts(preview["pack_id"], principal_id, scopes,
+                                              preview.get("candidate_version"))
         disclosed = inaccessible if "operator" in scopes else {"withheld": True}
         impact_hash = _hash([preview["preview_hash"], effects, disclosed])
         return {"contract": IMPACT_CONTRACT, "preview": preview,
@@ -282,6 +312,15 @@ class SourcePackUpgradeStore:
                 raise SourcePackError("stale_preview", "installed pack or dependent impact changed since preview")
             if preview["idempotent"] or preview["candidate_version"] == preview["installed_version"]:
                 raise SourcePackError("no_upgrade", "candidate does not create a new immutable version")
+            # An active composition whose declared range excludes the candidate
+            # blocks the upgrade; plans pinned by historical runs keep their pins.
+            incompatible = sorted({e["id"] for e in self._composition_effects(
+                value["pack_id"], {"operator"}, value["version"], {})
+                if e["role"] == "active" and e["candidate_compatible"] is False})
+            if incompatible:
+                raise SourcePackError("composition_incompatible",
+                                      f"active composition plan {incompatible[0]} excludes version {value['version']}",
+                                      plans=incompatible)
             current = self.conn.execute(
                 "SELECT version FROM source_pack_current WHERE pack_id=?", [value["pack_id"]]
             ).fetchone()

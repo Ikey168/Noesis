@@ -1,8 +1,20 @@
 # Pack and workflow composition architecture
 
-Status: proposed architecture, 2026-09-25. Planning and documentation only.
-This document specifies future behavior; it does not claim the composition
-resolver, lifecycle coordinator, or workflow dispatcher is implemented.
+Status: implemented, 2026-09-26 (C01–C09, [#1788](https://github.com/Ikey168/Noesis/issues/1788)).
+
+Implemented surfaces:
+- contracts and adapter (`src/composition/contracts.py`, `adapter.py`);
+- resolver (`resolver.py`);
+- catalog discovery and readiness (`readiness.py`, `src/mcp_host/catalog.py`);
+- lifecycle coordinator (`lifecycle.py`);
+- source integration (`src/ingestion/source_pack_upgrades.py`, `source_pack_runtime.py`);
+- workflow bindings and authorized dispatch (`workflows.py`, `local_adapters.py`).
+
+All twelve bundles and all nine source-pack projectors are composition-managed.
+[Composition migration](composition-migration.md) records the ownership
+statements and the legacy paths intentionally kept, each with its reason and
+owner. Live provider availability and the quality of conclusions remain outside
+what the implementation proves.
 
 ## Purpose and architectural decision
 
@@ -24,6 +36,11 @@ owns its spatial implementation; neither consumer owns the other consumer's data
 Existing names need not be renamed to fit an exclusive taxonomy.
 
 ## Current foundation and gaps
+
+The detailed ownership map, preserved identifiers and version rules are in the
+[composition inventory](pack-composition-inventory.md); activation-journal
+storage and startup reconciliation are settled in
+[ADR-003](decisions/ADR-003-composition-activation-journal.md).
 
 This is a bounded inspection of the following implementation surfaces, not a
 claim that every subsystem has been audited.
@@ -103,8 +120,22 @@ private data, treating conflicting assertions as identical, or publishing it.
 
 ## Proposed contracts and resolution rules
 
-The names below are proposed artifacts, not schemas or endpoints shipped by this
-change. Implementation should define JSON Schema and matching runtime validation.
+The five artifacts below are **specified** (C02): each has a JSON Schema under
+`contracts/schemas/jsonschema/`, a runtime validator in
+`src/composition/contracts.py`, a built-in identity in the schema registry, and
+cases in the shared fixture corpus (`tests/fixtures/composition/corpus.json`).
+
+| Artifact | Contract | Schema-registry identity |
+| --- | --- | --- |
+| Pack composition manifest | `noesis-pack-composition-v1` (a new `pack_format` next to `noesis-pack-v1`) | `schema:pack-composition@1.0.0` |
+| Provider descriptor | `noesis-provider-descriptor-v1` | `schema:provider-descriptor@1.0.0` |
+| Resolved composition | `noesis-composition-plan-v1`, canonical digest `plan_digest()` (sorted keys, arrays as sets, SHA-256, `digest` excluded) | `schema:composition-plan@1.0.0` |
+| Readiness assessment | `noesis-composition-readiness-v1` | `schema:composition-readiness@1.0.0` |
+| Activation receipt | `noesis-composition-activation-receipt-v1` | `schema:composition-activation-receipt@1.0.0` |
+
+Existing v1 bundles are read through a read-only adapter
+(`src/composition/adapter.py`). Anything v1 cannot express is filled with
+defaults listed in `adapter.supplied_defaults`.
 
 1. **Pack composition manifest:** immutable ID/version/hash; contributed modules;
    required capability IDs and contract ranges; optional features; source,
@@ -220,7 +251,41 @@ disabled providers, unverified live access, and failed execution remain distinct
 Dependency diagnostics must not expose inaccessible records, private profiles,
 credential values, or other users' workflow selections.
 
+Implementation (C04): `src/composition/readiness.py` holds the plan-fed
+`CompositionView`, `assess()` (a readiness document per bound operation, derived
+through the catalog's own `_state` priority, adding an `unauthorized` blocker kind)
+and caller-scoped explanations. `build_catalog(composition=...)` attributes bound
+tools to packs and data prerequisites from the plan and descriptors; unbound tools
+keep the legacy tables. `shadow_sink=` returns the legacy catalog unchanged and
+collects disagreements; `scripts/composition_shadow_report.py` regenerates the
+committed report in `tests/fixtures/composition/shadow-report.json`. The resolver
+that produces plans (C03) is `src/composition/resolver.py`. Provider descriptors
+ship with bundles as `packs/<bundle>/providers/*.json`.
+
+Implementation (C05, C06):
+- The lifecycle coordinator is `src/composition/lifecycle.py`; ADR-003 has the
+  tables and the reconciliation boundary.
+- Source upgrade impact previews list active and run-pinned composition plans
+  that pin the source pack. An active plan whose declared source-pack `range`
+  excludes the candidate blocks apply (`composition_incompatible`, naming the
+  plan digest).
+- Source-pack schedules record their owners in `source_pack_schedule_owners`. A
+  shared schedule goes only when its last owner releases it, and legacy
+  schedules are never removed by a composition release.
+- `SourcePackRuntime.run_shared` deduplicates acquisitions. Its key is the
+  source version, the query, the access context and the mapping. Joining
+  consumers reference the same receipt.
+- Account limits in `source_pack_account_limits` add an aggregate ceiling across
+  consumers on top of the per-run budget. Exhaustion is the distinct
+  `aggregate_limit_exhausted` blocker, both in shared-run receipts and in
+  readiness.
+
 ## First composition to prove the design
+
+Status: proven for OSINT + Research + Geospatial only (C08, `test_first_composition.py`). The
+composition is proven offline, through real local adapters and captured provider input. Live provider
+availability and the quality of conclusions are not established. The remaining bundles were then migrated
+with the same procedure (see [composition migration](composition-migration.md)).
 
 Use existing OSINT, Research, and Geospatial surfaces before adding a new subject.
 
@@ -242,8 +307,11 @@ own checks and cannot be inferred from this fixture journey.
 
 ## Incremental delivery plan
 
-These are planning slices, not newly created GitHub issues. Dependencies refer
-to the identifiers in this table.
+These slices are tracked in [#1788](https://github.com/Ikey168/Noesis/issues/1788);
+each is a GitHub issue broken into sub-issues (C0x.n) with their own
+dependencies and acceptance criteria, listed in the
+[delivery plan](../roadmaps/pack-composition-delivery-plan.md). Dependencies in
+this table refer to slice identifiers.
 
 | Slice | Deliverable and boundary | Depends on | Acceptance |
 | --- | --- | --- | --- |
@@ -267,20 +335,32 @@ may roll back bindings while retained source versions and records stay intact.
 
 ## Acceptance matrix
 
-| Scenario | Required result |
-| --- | --- |
-| Two packs consume Geospatial | One selected provider; shared permitted references; no duplicate store or automatic re-ingestion. |
-| OSINT disabled, Research active | Research spatial operations still work; retained evidence remains addressable under current access. |
-| Required provider missing or ambiguous | Workflow blocked before execution with a specific dependency/binding explanation. |
-| Optional acquisition unavailable | Permitted local analysis can run with explicit missing-source coverage. |
-| Contract/ontology conflict | No silent overwrite or implicit semantic conversion; the affected composition is rejected. |
-| Upgrade changes a pinned provider/source | Impact preview lists accessible dependents; historical runs retain pins; new execution uses a new plan. |
-| Crash during activation | Previous active generation survives; staged operations reconcile without duplicate registrations. |
-| Crash after a workflow mutation | Owner idempotency/receipt reconciles it, or the step reports unknown outcome instead of blind retry. |
-| Access revoked after preflight | Execution/resume/read/export recheck authority and deny or redact as the owner contract requires. |
-| Several consumers acquire from one account | Existing per-run limits and aggregated provider limits both hold. |
-| Legacy manifest/session/report | Existing identity, references, and public behavior remain valid through the adapter. |
-| Fixture-only public recipe run | Receipt still declares fixture execution; no claim of tool dispatch or live validation. |
+| Scenario | Required result | Test (C08.7) |
+| --- | --- | --- |
+| Two packs consume Geospatial | One selected provider; shared permitted references; no duplicate store or automatic re-ingestion. | `test_one_geospatial_binding_consumed_by_both_roots` in `test_first_composition.py` |
+| OSINT disabled, Research active | Research spatial operations still work; retained evidence remains addressable under current access. | `test_disabling_osint_keeps_research_spatial_operations_and_evidence` in `test_first_composition.py` |
+| Required provider missing or ambiguous | Workflow blocked before execution with a specific dependency/binding explanation. | `test_required_provider_missing_or_ambiguous_blocks_before_execution` in `test_first_composition.py` |
+| Optional acquisition unavailable | Permitted local analysis can run with explicit missing-source coverage. | `test_optional_acquisition_unavailable_runs_local_analysis_with_missing_source_coverage` in `test_first_composition.py` |
+| Contract/ontology conflict | No silent overwrite or implicit semantic conversion; the affected composition is rejected. | `test_contract_or_ontology_conflict_rejects_the_composition` in `test_first_composition.py` |
+| Upgrade changes a pinned provider/source | Impact preview lists accessible dependents; historical runs retain pins; new execution uses a new plan. | `test_source_revision_preview_blocks_incompatible_and_keeps_historical_pins` in `test_first_composition.py` |
+| Crash during activation | Previous active generation survives; staged operations reconcile without duplicate registrations. | `test_crash_during_activation_keeps_the_previous_generation` in `test_first_composition.py` |
+| Crash after a workflow mutation | Owner idempotency/receipt reconciles it, or the step reports unknown outcome instead of blind retry. | `test_crash_after_a_workflow_mutation_reconciles_and_resumes_under_the_original_digest` in `test_first_composition.py` |
+| Access revoked after preflight | Execution/resume/read/export recheck authority and deny or redact as the owner contract requires. | `test_access_revoked_after_preflight_is_rechecked_everywhere` in `test_first_composition.py` |
+| Several consumers acquire from one account | Existing per-run limits and aggregated provider limits both hold. | `test_aggregate_account_limit_holds_across_consumers_and_is_a_distinct_blocker` in `test_sources.py` |
+| Legacy manifest/session/report | Existing identity, references, and public behavior remain valid through the adapter. | `test_legacy_manifests_keep_identity_and_public_behavior_through_the_adapter` in `test_first_composition.py` |
+| Fixture-only public recipe run | Receipt still declares fixture execution; no claim of tool dispatch or live validation. | `test_fixture_runs_cannot_claim_dispatch_and_dispatch_mode_needs_the_dispatcher` in `test_workflows.py` |
+
+`tests/unit/composition/test_acceptance_matrix.py` holds this mapping and fails
+if a row loses its test.
+
+What the proof does not establish:
+- Live provider availability. Every journey uses captured fixture input for
+  providers, even though tool execution is real.
+- The quality of any investigative or scholarly conclusion drawn from the
+  results.
+
+The upgrade row is also exercised for the provider side by
+`test_provider_revision_requires_a_new_plan_while_history_keeps_its_pin`.
 
 ## Effect on the existing expansion backlog
 
@@ -309,7 +389,7 @@ known registered providers, explicit version rules, and one deployment; validate
 it with two consumers before generalizing. Keep provider semantics explicit so
 the catalog cannot advertise unsupported interchangeability.
 
-Implementation must settle the activation journal's storage location and process
+ADR-003 settled the activation journal's storage location and process
 startup reconciliation boundary during C01/C02. Extend an existing registry where
 its transaction/lifecycle contract fits; otherwise introduce only composition
 metadata persistence, not a duplicate source, ontology, or session database.
@@ -318,3 +398,14 @@ Defer arbitrary third-party executable plugins, remote installation, automatic
 provider substitution, distributed activation, concurrent provider major versions,
 and automatic destructive schema migrations. None is required to establish
 shared capability ownership and reliable cross-pack workflows.
+
+Checked on 2026-09-26, all still deferred with no implementation in the
+repository:
+- **Third-party executable plugins:** manifests reject executable references (`executable_reference`).
+- **Remote installation:** documents are installed only from the local candidate set.
+- **Automatic provider substitution:** ambiguity is an error, and a revised provider needs `upgrade`.
+- **Distributed activation:** ADR-003 assumes a single host.
+- **Concurrent provider major versions:** a plan pins one version per provider identity (`conflicting_major`).
+- **Automatic destructive schema migrations:** switching generations does not reverse a destructive migration (ADR-003 amendment).
+
+Each needs its own issue before any work starts.

@@ -31,8 +31,9 @@ def mcp_env(tmp_path, monkeypatch):
 
 
 def test_declared_contributions_reuse_existing_owners_and_admit_no_runtime():
-    assert BUNDLE["architecture"]["status"].startswith("proposed")
+    assert BUNDLE["architecture"]["status"].startswith("composed")
     assert set(BUNDLE["architecture"]["depends_on"]) == {"C02", "C03", "C04", "C05", "C06", "C07"}
+    assert not any("pending" in v for v in BUNDLE["architecture"]["depends_on"].values())
     workflows = BUNDLE["contributions"]["workflows"]
     assert set(workflows) == {"discovery", "profile_to_shortlist", "application_preparation", "monitoring"}
     assert "ResearchProjectStore" in workflows["application_preparation"]["reuses"]
