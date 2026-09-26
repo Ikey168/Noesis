@@ -10,7 +10,7 @@ pandas>=2.0.0
 numpy>=2.5.1
 
 # Visualization
-plotly>=5.17.0,<6.0.0
+plotly>=7.0.0,<8.0.0
 networkx>=3.2.0
 
 # Database utilities
