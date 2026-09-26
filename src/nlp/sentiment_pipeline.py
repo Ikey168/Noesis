@@ -7,8 +7,11 @@ import logging
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
-import psycopg2
-from psycopg2.extras import Json, execute_batch
+try:
+    import psycopg2
+    from psycopg2.extras import Json, execute_batch
+except ImportError:  # the JEV suggestion helper below does not need Postgres
+    psycopg2 = Json = execute_batch = None
 
 from .sentiment_analysis import create_analyzer
 
@@ -44,6 +47,8 @@ class SentimentPipeline:
             batch_size: Batch size for processing
             **sentiment_config: Additional config for sentiment analyzer
         """
+        if psycopg2 is None:
+            raise ImportError("SentimentPipeline requires psycopg2 for its database writer")
         self.batch_size = batch_size
         self.sentiment_provider = sentiment_provider
 
