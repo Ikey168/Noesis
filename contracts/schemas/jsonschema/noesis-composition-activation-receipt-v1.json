@@ -62,22 +62,30 @@
       ]
     },
     "new_generation": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "id",
-        "plan_digest"
-      ],
-      "properties": {
-        "id": {
-          "type": "string",
-          "minLength": 1
+      "description": "The generation published, or null when an activation failed before a plan existed.",
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "plan_digest"
+          ],
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "plan_digest": {
+              "type": "string",
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            }
+          }
         },
-        "plan_digest": {
-          "type": "string",
-          "pattern": "^sha256:[0-9a-f]{64}$"
+        {
+          "type": "null"
         }
-      }
+      ]
     },
     "affected_registrations": {
       "type": "array",

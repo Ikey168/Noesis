@@ -219,6 +219,7 @@ def assess(view: CompositionView, *, conn: Any = None, namespace: str = "global"
            credentials: Mapping[str, Any] | None = None, disabled_providers: Iterable[str] = (),
            enabled_packs: Iterable[str] | None = None, live_verified: Iterable[str] = (),
            failures: Mapping[str, str] | None = None, enabled_source_packs: Iterable[str] | None = None,
+           shutdown_providers: Mapping[str, str] | None = None,
            now_ms: Callable[[], int] | None = None) -> dict[str, Any]:
     """Operation-specific readiness under the caller's namespace and grants.
 
@@ -248,6 +249,9 @@ def assess(view: CompositionView, *, conn: Any = None, namespace: str = "global"
             blockers.append({"kind": "unauthorized", "detail": f"missing scopes {missing_scopes}"})
         if tool.provider in disabled or (packs is not None and tool.pack not in packs):
             blockers.append({"kind": "disabled_provider", "detail": f"provider {tool.provider} is not enabled"})
+        elif tool.provider in (shutdown_providers or {}):
+            blockers.append({"kind": "disabled_provider",
+                             "detail": f"provider {tool.provider} was administratively shut down"})
         data_state, data_reason = "available", None
         if accessible is not None and namespace not in accessible:
             blockers.append({"kind": "inaccessible_data", "detail": "required data is not accessible to this caller"})

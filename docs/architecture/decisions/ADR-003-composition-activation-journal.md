@@ -93,3 +93,32 @@ session stores. The existing candidates are:
 - The catalog (C04) and the domain registry read the active generation. The
   legacy `config/domain_packs.json` remains authoritative only for bundles not
   yet cut over (C05.5).
+
+## Amendment (C05, implementation)
+
+Implemented in `src/composition/lifecycle.py` (`CompositionCoordinator`).
+
+- **Installed documents.** C05.1 requires installing to *retain* the manifest and
+  its hash so a restart can rebuild without the pack registry being present.
+  `composition_installed` therefore keeps each installed manifest or provider
+  descriptor as an immutable row keyed by `(kind, id, version, content_hash)`.
+  Rows are never updated. Generations still reference them only by hash.
+- **Tables.**
+  - `composition_installed`, `composition_selections`, `composition_plans`
+    (by digest), `composition_generations` and `composition_active` (a single
+    pointer row).
+  - `composition_journal` (append-only).
+  - `composition_authority` (per-bundle cutover and compatibility-rollback marker).
+  - `composition_provider_admin` (administrative shutdowns).
+  - `composition_run_pins` (runs that pin a generation's providers).
+- **Interrupted activations.** An activation with no `published` or `failed`
+  entry is journaled `recovered/failed` at startup. Staged source-pack upgrades
+  are settled from `source_pack_upgrade_receipts`: `applied` when the owner
+  receipt exists, `unknown` otherwise. They are never re-run.
+- **Destructive migrations.** Switching the generation pointer does not reverse
+  a destructive provider schema migration. A provider migration ships its own
+  compatibility and rollback plan through the schema registry migration
+  surface. The generation switch only moves bindings.
+- **Uninstall.** Uninstall removes installed documents and synthesized
+  registrations that nothing references. Data deletion stays a separate
+  retention operation.
