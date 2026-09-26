@@ -7,10 +7,12 @@ This middleware handles API key-based authentication alongside JWT tokens.
 import logging
 from typing import Any, Dict, Optional
 
-from fastapi import HTTPException, Request
+from fastapi import Request
+from fastapi.responses import JSONResponse
 from fastapi.security import HTTPBearer
 from starlette.middleware.base import BaseHTTPMiddleware
 
+from src.api.auth.api_key_backends import resolve_api_key
 from src.api.auth.api_key_manager import api_key_manager
 
 logger = logging.getLogger(__name__)
@@ -71,8 +73,9 @@ class APIKeyAuthMiddleware(BaseHTTPMiddleware):
                 request.state.api_key_permissions = key_details.permissions or []
                 request.state.api_key_rate_limit = key_details.rate_limit
 
-                # Update usage tracking
-                await api_key_manager.store.update_api_key_usage(key_details.key_id)
+                # Usage tracking (the local store records usage during verification)
+                if getattr(key_details, "backend", "dynamodb") == "dynamodb":
+                    await api_key_manager.store.update_api_key_usage(key_details.key_id)
 
                 logger.info(
                     "API key authentication successful for user {0}".format(
@@ -91,17 +94,27 @@ class APIKeyAuthMiddleware(BaseHTTPMiddleware):
             else:
                 # Invalid API key
                 logger.warning(
-                    "Invalid API key attempted from {0}".format(request.client.host)
+                    "Invalid API key attempted from {0}".format(
+                        request.client.host if request.client else "unknown"
+                    )
                 )
-                raise HTTPException(status_code=401, detail="Invalid API key")
+                # An HTTPException raised inside BaseHTTPMiddleware surfaces as a
+                # 500; answer 401 directly.
+                return JSONResponse(status_code=401, content={"detail": "Invalid API key"})
 
         # No API key provided - continue to other auth methods
         return await call_next(request)
 
     def _is_excluded_path(self, path: str) -> bool:
-        """Check if path should be excluded from API key auth."""
+        """Check if path should be excluded from API key auth.
+
+        ``/`` matches only the root: as a prefix it would exclude every path.
+        """
         for excluded in self.excluded_paths:
-            if path.startswith(excluded):
+            if excluded == "/":
+                if path == "/":
+                    return True
+            elif path == excluded or path.startswith(excluded.rstrip("/") + "/"):
                 return True
         return False
 
@@ -142,30 +155,7 @@ class APIKeyAuthMiddleware(BaseHTTPMiddleware):
             API key details if valid, None otherwise
         """
         try:
-            # For this implementation, we need to find the key by searching
-            # In a production system, this would be optimized with proper
-            # indexing
-
-            # Extract prefix for identification
-            if not api_key.startswith("nn_"):
-                return None
-
-            # Since we don't have a prefix index in this demo, we'll implement
-            # a simplified validation approach
-            # In production, you'd have a separate table or index for efficient
-            # lookup
-
-            # For now, let's create a mock implementation that works for demo
-            # This is where you'd implement the efficient key lookup
-
-            # We need to hash the provided key and compare with stored hashes
-            # But we need the key_id first, which requires the prefix lookup
-
-            # For demo purposes, let's return None and implement later
-            # when we have proper test data
-
-            return None
-
+            return await resolve_api_key(api_key)
         except Exception as e:
             logger.error("Error validating API key: {0}".format(e))
             return None

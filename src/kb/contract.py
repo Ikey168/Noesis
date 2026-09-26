@@ -97,6 +97,7 @@ def _cross_domain_call(
     per_domain_limit: int,
     conn=None,
     config_path=None,
+    domain_filter=None,
     **kwargs,
 ) -> Dict[str, Any]:
     """Resolve one authorized multi-domain scope and invoke ``operation``."""
@@ -113,6 +114,7 @@ def _cross_domain_call(
             include_private=include_private,
             limit=limit,
             per_domain_limit=per_domain_limit,
+            permitted=domain_filter,
         )
         return _envelope("cross-domain", operation(resolved, scope, **kwargs))
     except CrossDomainError as exc:
@@ -129,6 +131,7 @@ def kb_search_domains(
     include_private: bool = False,
     conn=None,
     config_path=None,
+    domain_filter=None,
 ) -> Dict[str, Any]:
     """Search an explicit domain set or all domains authorized to a principal."""
     from src.kb.cross_domain import search_across
@@ -143,6 +146,7 @@ def kb_search_domains(
         per_domain_limit=per_domain_limit,
         conn=conn,
         config_path=config_path,
+        domain_filter=domain_filter,
         query=query,
     )
 
@@ -158,6 +162,7 @@ def kb_answer_domains(
     include_private: bool = False,
     conn=None,
     config_path=None,
+    domain_filter=None,
 ) -> Dict[str, Any]:
     """Build one cited Answer v1 response from several authorized domains."""
     from src.kb.cross_domain import answer_across
@@ -183,6 +188,7 @@ def kb_answer_domains(
         per_domain_limit=answer_per_domain_limit,
         conn=conn,
         config_path=config_path,
+        domain_filter=domain_filter,
         question=question,
         minimum_relevance=minimum_relevance,
     )
@@ -198,6 +204,7 @@ def kb_cross_links(
     include_private: bool = False,
     conn=None,
     config_path=None,
+    domain_filter=None,
 ) -> Dict[str, Any]:
     """Inspect reversible entity equivalences and claim links across domains."""
     from src.kb.cross_domain import links_across
@@ -212,6 +219,7 @@ def kb_cross_links(
         per_domain_limit=limit,
         conn=conn,
         config_path=config_path,
+        domain_filter=domain_filter,
         kind=kind,
         relation=relation,
     )
@@ -428,6 +436,7 @@ def kb_context(
     include_private: bool = False,
     conn=None,
     config_path=None,
+    domain_filter=None,
 ) -> Dict[str, Any]:
     """Assemble cited multi-surface context under an explicit token budget."""
 
@@ -465,6 +474,7 @@ def kb_context(
             include_private=include_private,
             limit=min(int(max_candidates), 100),
             per_domain_limit=min(int(max_candidates), 100),
+            permitted=domain_filter,
         )
         return _envelope(
             "context",
