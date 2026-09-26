@@ -292,6 +292,9 @@ def _mutability(name: str) -> str:
     from tools.knowledge_engine_mcp.cultural import CULTURAL_WRITES
     if name in CULTURAL_WRITES:
         return "write"
+    from tools.knowledge_engine_mcp.patents import PATENT_WRITES
+    if name in PATENT_WRITES:
+        return "write"
     from tools.knowledge_engine_mcp.investigations import (
         ALERT_WRITES,
         COMPARISON_WRITES,
@@ -796,6 +799,10 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
     from tools.knowledge_engine_mcp.cultural import required_scopes as cultural_scopes
     if server_stem == "knowledge_engine_mcp" and tool_name in CULTURAL_TOOLS:
         return cultural_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.patents import PATENT_TOOLS
+    from tools.knowledge_engine_mcp.patents import required_scopes as patent_scopes
+    if server_stem == "knowledge_engine_mcp" and tool_name in PATENT_TOOLS:
+        return patent_scopes(tool_name, mutability)
     if server_stem == "knowledge_engine_mcp" and tool_name in {
         "suggest_jev_claim_presence",
         "suggest_jev_checkworthiness",

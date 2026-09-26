@@ -899,7 +899,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 692,
+      "tool_count": 698,
       "tools": [
         "noesis-knowledge-engine.accept_awareness_jev_suggestion",
         "noesis-knowledge-engine.accept_citation_repair",
@@ -1213,6 +1213,7 @@
         "noesis-knowledge-engine.inspect_openreview_round",
         "noesis-knowledge-engine.inspect_openreview_round_set",
         "noesis-knowledge-engine.inspect_paper_family",
+        "noesis-knowledge-engine.inspect_patent_publication",
         "noesis-knowledge-engine.inspect_persistent_research_loop",
         "noesis-knowledge-engine.inspect_practice_pack",
         "noesis-knowledge-engine.inspect_practice_review",
@@ -1289,6 +1290,9 @@
         "noesis-knowledge-engine.merge_canonical_events",
         "noesis-knowledge-engine.multilingual_search",
         "noesis-knowledge-engine.openreview_concern_review_target",
+        "noesis-knowledge-engine.patent_family_members",
+        "noesis-knowledge-engine.patent_links",
+        "noesis-knowledge-engine.patent_source_contracts",
         "noesis-knowledge-engine.pause_maintenance_schedule",
         "noesis-knowledge-engine.place_retention_legal_hold",
         "noesis-knowledge-engine.plan_extractor_reprocessing",
@@ -1334,6 +1338,7 @@
         "noesis-knowledge-engine.propose_intake_modulo_note_revision",
         "noesis-knowledge-engine.propose_intake_playbook_revision",
         "noesis-knowledge-engine.propose_intake_report_revision",
+        "noesis-knowledge-engine.propose_patent_link",
         "noesis-knowledge-engine.propose_problem_action",
         "noesis-knowledge-engine.propose_product_matches",
         "noesis-knowledge-engine.publish_entity_change_rebuild",
@@ -1457,6 +1462,7 @@
         "noesis-knowledge-engine.review_multilingual_alias",
         "noesis-knowledge-engine.review_paper_family_notice_target",
         "noesis-knowledge-engine.review_paper_family_relation",
+        "noesis-knowledge-engine.review_patent_link",
         "noesis-knowledge-engine.review_product_match",
         "noesis-knowledge-engine.review_quality_override",
         "noesis-knowledge-engine.review_research_claim_independence",
@@ -1599,7 +1605,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 692
+      "visible_tool_count": 698
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -1610,11 +1616,11 @@
     },
     "servers": 30,
     "states": {
-      "available": 97,
+      "available": 98,
       "degraded": 158,
-      "unauthorized": 743
+      "unauthorized": 748
     },
-    "tools": 998
+    "tools": 1004
   },
   "tools": [
     {
@@ -34752,6 +34758,43 @@
       "version": "1"
     },
     {
+      "cost_class": "low",
+      "description": "One publication: biblio revisions, provider-asserted family, legal events (or not_available), claims, links.",
+      "id": "noesis-knowledge-engine.inspect_patent_publication",
+      "input_schema": {
+        "properties": {
+          "docdb": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "docdb"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "inspect_patent_publication",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:patents:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "medium",
       "description": "Inspect durable project-loop limits, coverage, provenance and stop reasons.",
       "id": "noesis-knowledge-engine.inspect_persistent_research_loop",
@@ -38289,6 +38332,104 @@
       "version": "1"
     },
     {
+      "cost_class": "low",
+      "description": "Family members asserted by the provider, split into acquired and not acquired.",
+      "id": "noesis-knowledge-engine.patent_family_members",
+      "input_schema": {
+        "properties": {
+          "docdb": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "docdb"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "patent_family_members",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:patents:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Publications linked to a scholarly work (doi:...), organization or standard, with basis and state.",
+      "id": "noesis-knowledge-engine.patent_links",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "target_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "target_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "patent_links",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:patents:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "The implemented EPO OPS path and why Espacenet and WIPO PATENTSCOPE are not implemented.",
+      "id": "noesis-knowledge-engine.patent_source_contracts",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "patent_source_contracts",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
       "cost_class": "medium",
       "description": "Pause dispatch for one source pack while preserving its durable schedule.",
       "id": "noesis-knowledge-engine.pause_maintenance_schedule",
@@ -40641,6 +40782,55 @@
       ],
       "required_scopes": [
         "knowledge:intake:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "A reviewable candidate link from a publication to an organization, standard or scholarly work.",
+      "id": "noesis-knowledge-engine.propose_patent_link",
+      "input_schema": {
+        "properties": {
+          "docdb": {
+            "type": "string"
+          },
+          "evidence": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "target_id": {
+            "type": "string"
+          },
+          "target_kind": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "docdb",
+          "target_kind",
+          "target_id",
+          "evidence"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_patent_link",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:patents:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -48619,6 +48809,51 @@
       ],
       "required_scopes": [
         "knowledge:paper-family:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Accept or reject a candidate patent link.",
+      "id": "noesis-knowledge-engine.review_patent_link",
+      "input_schema": {
+        "properties": {
+          "decision": {
+            "type": "string"
+          },
+          "link_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "link_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_patent_link",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:patents:review"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",

@@ -9204,6 +9204,10 @@ from tools.knowledge_engine_mcp.cultural import register as register_cultural_to
 
 register_cultural_tools(mcp, _intake_safe, _intake_context)
 
+from tools.knowledge_engine_mcp.patents import register as register_patent_tools
+
+register_patent_tools(mcp, _intake_safe, _intake_context)
+
 
 if __name__ == "__main__":
     from src.mcp_host.transport import run_server

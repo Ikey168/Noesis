@@ -528,6 +528,7 @@ class EprelProductAdapter(_ProductAdapter):
         }]
 
 
+FIXTURE_SECRET = "fixture-credential"
 ADAPTERS = {"icecat": IcecatProductAdapter, "eprel": EprelProductAdapter}
 
 

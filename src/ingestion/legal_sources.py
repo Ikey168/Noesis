@@ -376,6 +376,7 @@ def _single_xml_member(raw: bytes) -> bytes:
             return stream.read(20_000_001)
 
 
+FIXTURE_SECRET = None
 ADAPTERS = {"cellar": CellarLegalAdapter, "rii": RiiDecisionAdapter, "berlin-law": BerlinLegalAdapter}
 
 

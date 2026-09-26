@@ -359,6 +359,7 @@ class EuropeanaAdapter(_CulturalAdapter):
         }, item)
 
 
+FIXTURE_SECRET = "fixture-credential"
 ADAPTERS = {"ddb": DdbAdapter, "europeana": EuropeanaAdapter}
 
 

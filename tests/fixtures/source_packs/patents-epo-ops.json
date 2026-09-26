@@ -1,0 +1,56 @@
+{
+ "authored": true,
+ "provider": "EPO Open Patent Services",
+ "note": "Authored OPS v3.2 XML envelopes for fictional publications; not provider captures.",
+ "native_pages": [
+  {
+   "request": "/3.2/rest-services/published-data/publication/docdb/EP.3999001.A1/biblio",
+   "status": 200,
+   "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?><ops:world-patent-data xmlns:ops=\"http://ops.epo.org\" xmlns=\"http://www.epo.org/exchange\" xmlns:ftxt=\"http://www.epo.org/fulltext\"><exchange-documents><exchange-document system=\"ops.epo.org\" family-id=\"99000001\" country=\"EP\" doc-number=\"3999001\" kind=\"A1\"><bibliographic-data><publication-reference><document-id document-id-type=\"docdb\"><country>EP</country><doc-number>3999001</doc-number><kind>A1</kind><date>20220518</date></document-id></publication-reference><classifications-ipcr><classification-ipcr sequence=\"1\"><text>H04L 9/32 20060101AFI</text></classification-ipcr></classifications-ipcr><application-reference><document-id document-id-type=\"docdb\"><country>EP</country><doc-number>20190001</doc-number><kind>A</kind></document-id></application-reference><priority-claims><priority-claim sequence=\"1\" kind=\"national\"><document-id document-id-type=\"epodoc\"><country>DE</country><doc-number>102019000001</doc-number><date>20190105</date></document-id></priority-claim></priority-claims><invention-title lang=\"en\">Fictional authentication method (fixture)</invention-title><invention-title lang=\"de\">Fiktives Authentifizierungsverfahren (Fixture)</invention-title><invention-title lang=\"fr\">Procédé d'authentification fictif</invention-title><parties><applicants><applicant sequence=\"1\" data-format=\"docdb\"><applicant-name><name>EXAMPLA GMBH (FICTIONAL)</name></applicant-name></applicant></applicants><inventors><inventor sequence=\"1\" data-format=\"docdb\"><inventor-name><name>MUSTERMANN, ERIKA</name></inventor-name></inventor></inventors></parties><references-cited><citation cited-phase=\"search\"><patcit num=\"1\"><document-id document-id-type=\"docdb\"><country>US</country><doc-number>2015000001</doc-number><kind>A1</kind></document-id></patcit></citation><citation cited-phase=\"examination\"><nplcit num=\"2\"><text>A. Author, Fictional study of tokens, J. Fixt. 2019, doi:10.9999/fixture.patent.1</text></nplcit></citation></references-cited></bibliographic-data><abstract lang=\"en\"><p>Authored fixture abstract.</p></abstract></exchange-document></exchange-documents></ops:world-patent-data>"
+  },
+  {
+   "request": "/3.2/rest-services/family/publication/docdb/EP.3999001.A1",
+   "status": 200,
+   "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?><ops:world-patent-data xmlns:ops=\"http://ops.epo.org\" xmlns=\"http://www.epo.org/exchange\" xmlns:ftxt=\"http://www.epo.org/fulltext\"><ops:patent-family total-result-count=\"4\"><ops:family-member family-id=\"99000001\"><publication-reference><document-id document-id-type=\"docdb\"><country>EP</country><doc-number>3999001</doc-number><kind>A1</kind><date>20220518</date></document-id></publication-reference></ops:family-member><ops:family-member family-id=\"99000001\"><publication-reference><document-id document-id-type=\"docdb\"><country>DE</country><doc-number>102020000001</doc-number><kind>A1</kind><date>20210701</date></document-id></publication-reference></ops:family-member><ops:family-member family-id=\"99000001\"><publication-reference><document-id document-id-type=\"docdb\"><country>US</country><doc-number>2022000001</doc-number><kind>A1</kind><date>20220601</date></document-id></publication-reference></ops:family-member><ops:family-member family-id=\"99000001\"><publication-reference><document-id document-id-type=\"docdb\"><country>EP</country><doc-number>3999001</doc-number><kind>B1</kind><date>20240110</date></document-id></publication-reference></ops:family-member></ops:patent-family></ops:world-patent-data>"
+  },
+  {
+   "request": "/3.2/rest-services/legal/publication/docdb/EP.3999001.A1",
+   "status": 200,
+   "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?><ops:world-patent-data xmlns:ops=\"http://ops.epo.org\" xmlns=\"http://www.epo.org/exchange\" xmlns:ftxt=\"http://www.epo.org/fulltext\"><ops:patent-family><ops:family-member><ops:legal code=\"EPIDOSNREQ1\" desc=\"Request for examination filed\" infl=\"+\"><ops:pre>Request for examination filed</ops:pre><ops:L007EP>20220701</ops:L007EP></ops:legal><ops:legal code=\"PG25\" desc=\"Lapsed in a contracting state (fixture)\" infl=\"+\"><ops:pre>Lapsed in a contracting state (fixture)</ops:pre><ops:L007EP>20240301</ops:L007EP></ops:legal></ops:family-member></ops:patent-family></ops:world-patent-data>"
+  },
+  {
+   "request": "/3.2/rest-services/published-data/publication/docdb/EP.3999001.A1/claims",
+   "status": 200,
+   "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?><ftxt:fulltext-documents xmlns:ops=\"http://ops.epo.org\" xmlns=\"http://www.epo.org/fulltext\" xmlns:ftxt=\"http://www.epo.org/fulltext\"><ftxt:fulltext-document><claims lang=\"EN\"><claim><claim-text>A fictional method comprising a first step.</claim-text></claim><claim><claim-text>The method of claim 1, further comprising a second step.</claim-text></claim></claims></ftxt:fulltext-document></ftxt:fulltext-documents>"
+  },
+  {
+   "request": "/3.2/rest-services/published-data/publication/docdb/DE.102020000001.A1/biblio",
+   "status": 200,
+   "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?><ops:world-patent-data xmlns:ops=\"http://ops.epo.org\" xmlns=\"http://www.epo.org/exchange\" xmlns:ftxt=\"http://www.epo.org/fulltext\"><exchange-documents><exchange-document system=\"ops.epo.org\" family-id=\"99000001\" country=\"DE\" doc-number=\"102020000001\" kind=\"A1\"><bibliographic-data><publication-reference><document-id document-id-type=\"docdb\"><country>DE</country><doc-number>102020000001</doc-number><kind>A1</kind><date>20210701</date></document-id></publication-reference><classifications-ipcr><classification-ipcr sequence=\"1\"><text>H04L 9/32 20060101AFI</text></classification-ipcr></classifications-ipcr><application-reference><document-id document-id-type=\"docdb\"><country>DE</country><doc-number>102020000001</doc-number></document-id></application-reference><priority-claims><priority-claim sequence=\"1\" kind=\"national\"><document-id document-id-type=\"epodoc\"><country>DE</country><doc-number>102019000001</doc-number><date>20190105</date></document-id></priority-claim></priority-claims><invention-title lang=\"de\">Fiktives Authentifizierungsverfahren (Fixture)</invention-title><parties><applicants><applicant sequence=\"1\" data-format=\"docdb\"><applicant-name><name>Exampla GmbH (fiktiv)</name></applicant-name></applicant></applicants><inventors><inventor sequence=\"1\" data-format=\"docdb\"><inventor-name><name>Mustermann, Erika</name></inventor-name></inventor></inventors></parties><references-cited></references-cited></bibliographic-data><abstract lang=\"en\"><p>Autorisierte Fixture.</p></abstract></exchange-document></exchange-documents></ops:world-patent-data>"
+  },
+  {
+   "request": "/3.2/rest-services/family/publication/docdb/DE.102020000001.A1",
+   "status": 200,
+   "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?><ops:world-patent-data xmlns:ops=\"http://ops.epo.org\" xmlns=\"http://www.epo.org/exchange\" xmlns:ftxt=\"http://www.epo.org/fulltext\"><ops:patent-family total-result-count=\"2\"><ops:family-member family-id=\"99000001\"><publication-reference><document-id document-id-type=\"docdb\"><country>EP</country><doc-number>3999001</doc-number><kind>A1</kind><date>20220518</date></document-id></publication-reference></ops:family-member><ops:family-member family-id=\"99000001\"><publication-reference><document-id document-id-type=\"docdb\"><country>DE</country><doc-number>102020000001</doc-number><kind>A1</kind><date>20210701</date></document-id></publication-reference></ops:family-member></ops:patent-family></ops:world-patent-data>"
+  },
+  {
+   "request": "/3.2/rest-services/legal/publication/docdb/DE.102020000001.A1",
+   "status": 404,
+   "body": "<error>No results found</error>"
+  },
+  {
+   "request": "/3.2/rest-services/published-data/publication/docdb/DE.102020000001.A1/claims",
+   "status": 404,
+   "body": "<error>No fulltext</error>"
+  }
+ ],
+ "scenarios": [
+  "family-duplicates",
+  "priority-links",
+  "multilingual-titles",
+  "npl-doi-citation",
+  "missing-legal-status",
+  "missing-claims",
+  "legal-events"
+ ]
+}

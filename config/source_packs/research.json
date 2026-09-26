@@ -1,6 +1,6 @@
 {
   "pack_id": "research-discovery",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "Scholarly discovery, authorship, venue, identifier, and citation metadata.",
   "domains": [
     "research"
@@ -92,6 +92,66 @@
         "id": "cc0-metadata",
         "terms_url": "https://support.datacite.org/docs/metadata-license",
         "redistribution": "cc0"
+      }
+    },
+    {
+      "source_id": "epo-ops-patents",
+      "connector": "epo-ops",
+      "publisher": "European Patent Office (Open Patent Services)",
+      "endpoint": "https://ops.epo.org/3.2",
+      "scope": "Explicitly selected EP/DE publications: bibliographic data, INPADOC family, legal events, claims",
+      "update_cadence": "weekly publication cycles; legal events as reported",
+      "temporal_semantics": "publication, priority and legal-event dates as reported; observation time recorded separately; no validity inferred",
+      "mapping": {
+        "target_schema": "noesis-patent-part-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "patent-sources:1.0.0"
+      ],
+      "operations": [
+        "publications"
+      ],
+      "schedule": {
+        "kind": "interval",
+        "interval_s": 604800
+      },
+      "auth": {
+        "kind": "required-secret",
+        "secret_ref": "NOESIS_EPO_OPS_CREDENTIALS"
+      },
+      "license": {
+        "id": "epo-ops-terms",
+        "terms_url": "https://www.epo.org/en/searching-for-patents/data/web-services/ops",
+        "redistribution": "per EPO OPS terms and fair-use policy; bibliographic data reuse with attribution (operator must confirm)"
+      },
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 50,
+        "max_bytes": 2000000,
+        "max_pages": 20
+      },
+      "health": {
+        "required": false,
+        "max_staleness_s": 2592000
+      },
+      "patent": {
+        "namespace": "global",
+        "publications": [
+          "EP.3999001.A1",
+          "DE.102020000001.A1"
+        ],
+        "parts": [
+          "biblio",
+          "family",
+          "legal",
+          "claims"
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/patents-epo-ops.json",
+        "sha256": "d25d912a9af732920f39052ccf7491188f5a0e0f4b4dd1dafa10fad63e0f9069",
+        "expected_output_hash": "58bc4a6bed298f2d31dbdb105f816c12621cba2017fa5b652d8babe600f2227b"
       }
     }
   ]
