@@ -21,6 +21,7 @@ from src.composition.contracts import seal_manifest, seal_plan
 
 ROOT = Path(__file__).resolve().parents[2]
 CORPUS = ROOT / "tests/fixtures/composition/corpus.json"
+RESOLVER_CORPUS = ROOT / "tests/fixtures/composition/resolver-corpus.json"
 H = "sha256:" + "0" * 64
 H2 = "sha256:" + "1" * 64
 GEOSPATIAL_TOOLS = ["noesis-knowledge-engine.calculate_spatial_relation",
@@ -250,6 +251,146 @@ def cases():
     ]
 
 
+# ------------------------------------------------------------ resolver (C03.4)
+
+
+def req(capability, contract, spec="^1.0.0", **extra):
+    return {"capability": capability, "contract": contract, "range": spec, **extra}
+
+
+def pack(pack_id, version="1.0.0", *, requires=(), contributes=(), features=(), aliases=None, **extra):
+    body = {"pack_format": "noesis-pack-composition-v1", "id": pack_id, "version": version,
+            "description": f"{pack_id} fixture",
+            "contributes": {"capabilities": [dict(c) for c in contributes], **extra.pop("contributes_extra", {})},
+            "requires": [dict(r) for r in requires],
+            "optional_features": [dict(f) for f in features],
+            "compatibility_aliases": dict(aliases or {}), **extra}
+    return seal_manifest(body)
+
+
+def spatial_provider(provider_id="geospatial.core", version="1.0.0", contract_version=None, *, crs="EPSG:4326",
+                     stores=None, capability="geospatial.spatial-relation", contract="noesis-spatial-relation"):
+    body = provider()
+    body.update(id=provider_id, version=version)
+    body["capabilities"] = [{**body["capabilities"][0], "id": capability,
+                             "contract": {"name": contract, "version": contract_version or version},
+                             "semantic_constraints": {**body["capabilities"][0]["semantic_constraints"], "crs": crs}}]
+    body["operations"][0] = {**body["operations"][0], "output_contract": "noesis-spatial-relation-result"}
+    if stores is not None:
+        body["stores"] = stores
+    return body
+
+
+def media_provider(version="1.0.0"):
+    body = provider()
+    body.update(id="osint.media", version=version, stores=[])
+    body["capabilities"] = [{"id": "osint.media-provenance",
+                             "contract": {"name": "noesis-media-provenance", "version": version},
+                             "operations": ["calculate-spatial-relation"], "semantic_constraints": {}}]
+    body["operations"] = body["operations"][:1]
+    return body
+
+
+SPATIAL = req("geospatial.spatial-relation", "noesis-spatial-relation")
+MEDIA_FEATURE = {"id": "imagery", "default": False,
+                 "requires": [req("osint.media-provenance", "noesis-media-provenance")]}
+GEO_CONTRIB = {"id": "geospatial.spatial-relation", "provider": "geospatial.core",
+               "contract": {"name": "noesis-spatial-relation", "version": "1.0.0"}}
+
+
+def resolver_world():
+    """The shared candidate set: OSINT and Research consuming Geospatial's spatial capability."""
+
+    return {
+        "packs": [
+            pack("osint", requires=[SPATIAL], features=[MEDIA_FEATURE], aliases={"neuronews-osint": "osint"},
+                 contributes=[{"id": "osint.origin-aware-corroboration"}]),
+            pack("science", requires=[SPATIAL], aliases={"research": "science"},
+                 contributes_extra={"source_packs": [{"pack_id": "openalex", "version": "1.0.0"}]}),
+            pack("geospatial", contributes=[GEO_CONTRIB]),
+            pack("geospatial", "1.1.0", contributes=[{**GEO_CONTRIB, "contract": {"name": "noesis-spatial-relation",
+                                                                                "version": "1.1.0"}}]),
+        ],
+        "providers": [spatial_provider(), spatial_provider(version="1.1.0")],
+    }
+
+
+def resolver_cases():
+    world = resolver_world()
+    packs, providers = world["packs"], world["providers"]
+    osint = [{"pack": "osint", "range": "^1.0.0"}]
+    cyc_a = pack("cyc-a", requires=[req("cyc-b.cap", "c")], contributes=[{"id": "cyc-a.cap"}])
+    cyc_b = pack("cyc-b", requires=[req("cyc-a.cap", "c")], contributes=[{"id": "cyc-b.cap"}])
+    cyc_providers = [spatial_provider("cyc.p", capability="cyc-a.cap", contract="c", stores=[]),
+                     spatial_provider("cyc.q", capability="cyc-b.cap", contract="c", stores=[])]
+    free = pack("geospatial", contributes=[{"id": "geospatial.spatial-relation"}])
+    rival = spatial_provider("osm.spatial", stores=[])
+    two_caps = pack("mapper", requires=[SPATIAL, req("geospatial.place-lookup", "noesis-place-lookup", "^2.0.0")])
+    place_v2 = spatial_provider("geospatial.core", "2.0.0", capability="geospatial.place-lookup",
+                                contract="noesis-place-lookup")
+    return [
+        {"name": "resolve-osint", "roots": osint, "packs": packs, "providers": providers, "expect": "ok",
+         "bindings": {"geospatial.spatial-relation": ["geospatial.core", "1.1.0", "explicit"]},
+         "omitted": ["osint.imagery"]},
+        {"name": "resolve-alias-root", "roots": [{"pack": "research", "version": "1.0.0"}], "packs": packs,
+         "providers": providers, "expect": "ok",
+         "bindings": {"geospatial.spatial-relation": ["geospatial.core", "1.1.0", "explicit"]}},
+        {"name": "resolve-shared-provider", "roots": osint + [{"pack": "science", "range": "^1.0.0"}],
+         "packs": packs, "providers": providers, "expect": "ok",
+         "bindings": {"geospatial.spatial-relation": ["geospatial.core", "1.1.0", "explicit"]}},
+        {"name": "resolve-only-compatible", "roots": osint, "packs": [packs[0], free],
+         "providers": providers[:1], "expect": "ok",
+         "bindings": {"geospatial.spatial-relation": ["geospatial.core", "1.0.0", "only-compatible"]}},
+        {"name": "resolve-feature-unavailable", "roots": [{**osint[0], "features": ["imagery"]}], "packs": packs,
+         "providers": providers, "expect": "ok", "omitted": ["osint.imagery"]},
+        {"name": "resolve-feature-selected", "roots": [{**osint[0], "features": ["imagery"]}], "packs": packs,
+         "providers": providers + [media_provider()], "expect": "ok",
+         "bindings": {"osint.media-provenance": ["osint.media", "1.0.0", "only-compatible"]}},
+        {"name": "fail-unknown-pack", "roots": [{"pack": "nope", "range": "^1.0.0"}], "packs": packs,
+         "providers": providers, "expect": "unknown_pack"},
+        {"name": "fail-unknown-feature", "roots": [{**osint[0], "features": ["x-ray"]}], "packs": packs,
+         "providers": providers, "expect": "unknown_feature"},
+        {"name": "fail-latest-range", "roots": [{"pack": "osint", "range": "latest"}], "packs": packs,
+         "providers": providers, "expect": "invalid_range"},
+        {"name": "fail-cycle", "roots": [{"pack": "cyc-a", "range": "^1.0.0"}], "packs": [cyc_a, cyc_b],
+         "providers": cyc_providers, "expect": "cycle"},
+        {"name": "fail-incompatible-range", "roots": osint,
+         "packs": [pack("osint", requires=[req("geospatial.spatial-relation", "noesis-spatial-relation", "^2.0.0")]),
+                   free], "providers": providers, "expect": "incompatible_range"},
+        {"name": "fail-missing-contract", "roots": osint,
+         "packs": [pack("osint", requires=[req("geospatial.spatial-relation", "noesis-geodesy")]), free],
+         "providers": providers, "expect": "missing_contract"},
+        {"name": "fail-no-provider", "roots": osint, "packs": [packs[0], free], "providers": [],
+         "expect": "missing_contract"},
+        {"name": "fail-conflicting-major", "roots": [{"pack": "mapper", "range": "^1.0.0"}], "packs": [two_caps],
+         "providers": providers[:1] + [place_v2], "expect": "conflicting_major"},
+        {"name": "fail-ambiguous", "roots": osint, "packs": [packs[0], free],
+         "providers": providers[:1] + [rival], "expect": "ambiguous_binding"},
+        {"name": "resolve-ambiguity-with-selection", "roots": osint, "packs": [packs[0], free],
+         "providers": providers[:1] + [rival], "selections": {"geospatial.spatial-relation": "osm.spatial"},
+         "expect": "ok", "bindings": {"geospatial.spatial-relation": ["osm.spatial", "1.0.0", "explicit"]}},
+        {"name": "fail-semantic-mismatch", "roots": osint,
+         "packs": [pack("osint", requires=[{**SPATIAL, "semantic_constraints": {"crs": "EPSG:3857"}}]), free],
+         "providers": providers, "expect": "semantic_mismatch"},
+        {"name": "fail-output-contract", "roots": osint,
+         "packs": [pack("osint", requires=[{**SPATIAL, "output_contract": "noesis-route-result"}]), free],
+         "providers": providers, "expect": "contract_mismatch"},
+        {"name": "fail-conflicting-store", "roots": [{"pack": "mapper", "range": "^1.0.0"}],
+         "packs": [pack("mapper", requires=[SPATIAL, req("osint.media-provenance", "noesis-media-provenance")])],
+         "providers": providers[:1] + [{**media_provider(), "stores": provider()["stores"][:1]}],
+         "expect": "conflicting_store_owner"},
+        {"name": "fail-undeclared-selection", "roots": osint, "packs": packs, "providers": providers,
+         "selections": {"legal.citation": "geospatial.core"}, "expect": "undeclared_binding"},
+        {"name": "fail-selection-not-declaring", "roots": osint, "packs": [packs[0], free], "providers": providers,
+         "selections": {"geospatial.spatial-relation": "osint.media"}, "expect": "undeclared_binding"},
+    ]
+
+
+def build_resolver() -> str:
+    return json.dumps({"corpus": "noesis-composition-resolver", "cases": resolver_cases()}, indent=1,
+                      ensure_ascii=False, sort_keys=True) + "\n"
+
+
 def build() -> str:
     return json.dumps({"corpus": "noesis-composition-contracts", "cases": cases()}, indent=1,
                       ensure_ascii=False, sort_keys=True) + "\n"
@@ -258,4 +399,5 @@ def build() -> str:
 if __name__ == "__main__":
     CORPUS.parent.mkdir(parents=True, exist_ok=True)
     CORPUS.write_text(build())
-    print(CORPUS)
+    RESOLVER_CORPUS.write_text(build_resolver())
+    print(CORPUS, RESOLVER_CORPUS)

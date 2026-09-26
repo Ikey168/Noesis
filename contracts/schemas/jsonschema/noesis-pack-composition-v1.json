@@ -309,6 +309,24 @@
           },
           "reason": {
             "type": "string"
+          },
+          "semantic_constraints": {
+            "type": "object",
+            "additionalProperties": {
+              "type": [
+                "string",
+                "number",
+                "boolean"
+              ]
+            }
+          },
+          "input_contract": {
+            "type": "string",
+            "minLength": 1
+          },
+          "output_contract": {
+            "type": "string",
+            "minLength": 1
           }
         }
       }
@@ -358,6 +376,24 @@
                 },
                 "reason": {
                   "type": "string"
+                },
+                "semantic_constraints": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": [
+                      "string",
+                      "number",
+                      "boolean"
+                    ]
+                  }
+                },
+                "input_contract": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "output_contract": {
+                  "type": "string",
+                  "minLength": 1
                 }
               }
             }
