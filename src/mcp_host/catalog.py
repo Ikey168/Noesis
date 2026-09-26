@@ -2008,6 +2008,63 @@ def _domains(
     return domains, namespaces, hidden
 
 
+def _composed_tool(
+    view: Any,
+    tool_id: str,
+    legacy_required: list[str],
+    legacy_state: str,
+    legacy_reason: str | None,
+    legacy_pack: str | None,
+    conn: Any,
+    pack_enabled: bool,
+) -> dict[str, Any]:
+    """Plan-derived facts for one bound tool (C04.1/C04.2)."""
+
+    from src.composition.readiness import catalog_state
+
+    required = view.required_data(tool_id, legacy_required)
+    operation = view.operation(tool_id)
+    if operation is not None:
+        state, reason = catalog_state(operation)
+    else:
+        # No observation yet: data readiness from the declared prerequisites,
+        # everything else as the legacy evaluation found it.
+        data_state, data_reason = _data_state(required, conn)
+        state, reason = legacy_state, legacy_reason
+        if state == "available" and data_state != "available":
+            state, reason = data_state, data_reason
+    return {
+        "required_data": required,
+        "state": state,
+        "reason": reason,
+        "packs": view.packs(tool_id),
+        "explanation": view.explanation(tool_id),
+    }
+
+
+def _shadow_diffs(
+    tool_id: str,
+    legacy_pack: str | None,
+    legacy_required: list[str],
+    legacy_state: str,
+    composed: Mapping[str, Any],
+) -> list[dict[str, Any]]:
+    """Disagreements between legacy catalog facts and the composition (C04.4)."""
+
+    diffs = []
+    legacy_packs = [legacy_pack] if legacy_pack else []
+    if legacy_packs != composed["packs"]:
+        diffs.append({"tool": tool_id, "field": "packs", "legacy": legacy_packs,
+                      "composition": composed["packs"]})
+    if list(legacy_required) != list(composed["required_data"]):
+        diffs.append({"tool": tool_id, "field": "required_data", "legacy": list(legacy_required),
+                      "composition": list(composed["required_data"])})
+    if legacy_state != composed["state"]:
+        diffs.append({"tool": tool_id, "field": "state", "legacy": legacy_state,
+                      "composition": composed["state"]})
+    return diffs
+
+
 def _host_state(host_status: Mapping[str, Any] | None, server: str) -> str | None:
     if not host_status:
         return None
@@ -2028,8 +2085,35 @@ async def build_catalog(
     configured_backends: Iterable[str] | None = None,
     host_status: Mapping[str, Any] | None = None,
     include_unusable: bool = True,
+    composition: Mapping[str, Any] | None = None,
+    composition_mode: str | None = None,
+    shadow_sink: list[dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
-    """Build from real registration and tool discovery, then apply policy."""
+    """Build from real registration and tool discovery, then apply policy.
+
+    ``composition`` carries an active composition: ``plan``, ``providers`` and
+    optionally ``readiness`` (C04.2), ``templates`` and ``visible_consumers``.
+    ``composition_mode`` is ``off`` (legacy only), ``shadow`` (legacy output
+    unchanged; disagreements between legacy and composition are appended to
+    ``shadow_sink``) or ``active`` (plan-bound tools take pack attribution,
+    required data and state from the composition). It defaults to ``active``
+    when a composition is given and ``off`` otherwise. Tools the plan does not
+    bind always keep the legacy tables.
+    """
+
+    mode = composition_mode or ("active" if composition else "off")
+    if mode not in {"off", "shadow", "active"}:
+        raise CatalogError(f"unknown composition mode {mode!r}")
+    view = None
+    if composition is not None and mode != "off":
+        from src.composition.readiness import CompositionView
+
+        view = CompositionView(
+            composition["plan"],
+            composition["providers"],
+            readiness=composition.get("readiness"),
+            visible_consumers=composition.get("visible_consumers"),
+        )
 
     registration_path = Path(mcp_path)
     raw = _read_registration(registration_path)
@@ -2104,9 +2188,20 @@ async def build_catalog(
                 backend_ready=backend_ready,
             )
             reason = reason or data_reason
+            tool_id = f"{canonical}.{tool['name']}"
+            composed = None
+            if view is not None and view.bound(tool_id):
+                composed = _composed_tool(
+                    view, tool_id, required_data, state, reason, pack, conn, pack_enabled
+                )
+                if mode == "shadow" and shadow_sink is not None:
+                    shadow_sink.extend(_shadow_diffs(tool_id, pack, required_data, state, composed))
+                if mode == "active":
+                    required_data = composed["required_data"]
+                    state, reason = composed["state"], composed["reason"]
             cost, latency = _cost(tool["name"], mutability)
             capability = {
-                "id": f"{canonical}.{tool['name']}",
+                "id": tool_id,
                 "server": canonical,
                 "name": tool["name"],
                 "version": "1",
@@ -2121,6 +2216,9 @@ async def build_catalog(
                 "state": state,
                 "reason": reason,
             }
+            if composed is not None and mode == "active":
+                capability["packs"] = composed["packs"]
+                capability["composition"] = composed["explanation"]
             server_states.append(state)
             if include_unusable or state == "available":
                 server_tools.append(capability["id"])
@@ -2189,7 +2287,19 @@ async def build_catalog(
         {path.parent.name for path in (REPO_ROOT / "src/domains").glob("*/__init__.py")}
         | packs
     )
+    extra: dict[str, Any] = {}
+    if view is not None and mode == "active" and composition.get("readiness") is not None:
+        from src.composition.readiness import explain
+
+        extra["composition"] = explain(
+            composition["plan"],
+            composition["providers"],
+            composition["readiness"],
+            templates=composition.get("templates", ()),
+            visible_consumers=composition.get("visible_consumers"),
+        )
     return {
+        **extra,
         "catalog_contract": CATALOG_CONTRACT,
         "catalog_version": CATALOG_VERSION,
         "source": ".mcp.json + registered FastMCP tool discovery",

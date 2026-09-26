@@ -8,7 +8,7 @@ from src.composition import contracts as c
 
 TOOL = "noesis-knowledge-engine.calculate_spatial_relation"
 KNOWN_TOOLS = {TOOL}
-PROBES = {"geospatial.local-store"}
+PROBES = {"geospatial.local-store", "geospatial.live-source"}
 CONTRACTS = {"noesis-spatial-result-v1": ["1.0.0"], "noesis-geospatial-geometry-v2": ["2.0.0"],
              "fixture-contract": ["1.0.0", "1.1.0"]}
 

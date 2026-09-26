@@ -84,6 +84,10 @@
     "conformance": {
       "type": "object",
       "required": ["passed", "errors", "missing_registrations", "stale_registrations"]
+    },
+    "composition": {
+      "type": "object",
+      "description": "Composition explanations for the active plan (C04.3); absent when no composition is active."
     }
   },
   "definitions": {
@@ -111,7 +115,9 @@
         "latency_class": {"enum": ["interactive", "batch"]},
         "required_data": {"type": "array", "items": {"type": "string"}},
         "state": {"$ref": "#/definitions/state"},
-        "reason": {"type": ["string", "null"]}
+        "reason": {"type": ["string", "null"]},
+        "packs": {"type": "array", "items": {"type": "string"}},
+        "composition": {"type": "object"}
       },
       "additionalProperties": false
     }
