@@ -23,8 +23,6 @@ from collections.abc import Callable, Mapping, Sequence
 from typing import Any
 from urllib.parse import urlsplit
 
-from defusedxml import ElementTree as ET
-
 from src.ingestion.source_packs import SourcePackError
 
 ADAPTER_CONTRACT = "noesis-source-pack-runtime-adapter-v1"
@@ -298,6 +296,10 @@ class EpoOpsAdapter:
         elif status >= 400:
             raise SourcePackError("schema_drift", f"OPS returned HTTP {status}")
         else:
+            # Optional-sources dependency: imported where XML is parsed so that
+            # installs without it can still load the connector registry.
+            from defusedxml import ElementTree as ET
+
             try:
                 root = ET.fromstring(raw, forbid_dtd=True, forbid_entities=True, forbid_external=True)
             except ET.ParseError as exc:
