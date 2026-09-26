@@ -33,7 +33,7 @@ jobs:
       - run: make models
       - name: Gate pretrained models and publish JSON/Markdown receipts
         run: python scripts/benchmark_models.py --gate
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: argument-model-benchmark-receipts
@@ -56,7 +56,7 @@ jobs:
       - run: python scripts/prepare_external_benchmarks.py --sample 500
       - run: make models
       - run: python scripts/benchmark_models.py --gate
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: argument-model-pretrained-receipts
