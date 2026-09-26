@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import re
+
 from typing import Any, Mapping
 
 from src.domains.economic.dashboard import EconomicDashboardStore
@@ -67,6 +69,19 @@ def _required(args: Mapping[str, Any], name: str) -> Any:
     return value
 
 
+PUBLIC_ERROR_MESSAGES = {
+    "unauthorized": "current market and namespace access is required",
+    "not_found": "the requested market record does not exist",
+    "market_unavailable": "market capability is unavailable",
+    "data_unavailable": "the requested market data is unavailable",
+    "contract_invalid": "the request violates the market contract",
+    "invalid_request": "the market request is invalid",
+    "range_too_large": "the requested range exceeds the allowed bound",
+    "bound_exceeded": "the request exceeds an allowed bound",
+    "request_failed": "market capability request failed",
+}
+
+
 class MarketCapabilityService:
     """Domain service shared by REST and MCP; adapters supply trusted identity."""
 
@@ -89,17 +104,15 @@ class MarketCapabilityService:
             )
             return {"ok": True, "result": result}
         except Exception as exc:  # noqa: BLE001 - one stable boundary for both adapters
+            # Exception text and details never leave the capability boundary:
+            # REST and MCP callers get a stable code with a fixed message.
             code = getattr(exc, "code", None)
-            message = getattr(exc, "message", None)
-            if isinstance(code, str):
-                if not isinstance(message, str):
-                    message = str(exc)[:300] or "market capability request failed"
-            else:
-                code, message = "market_unavailable", "market capability is unavailable"
+            if not isinstance(code, str):
+                code = "market_unavailable"
+            elif not re.fullmatch(r"[a-z][a-z0-9_-]{0,79}", code):
+                code = "request_failed"
+            message = PUBLIC_ERROR_MESSAGES.get(code, PUBLIC_ERROR_MESSAGES["request_failed"])
             error: dict[str, Any] = {"code": code, "message": message}
-            details = getattr(exc, "details", None)
-            if isinstance(details, Mapping) and details:
-                error["details"] = dict(details)
             return {"ok": False, "error": error}
 
     def _invoke(
