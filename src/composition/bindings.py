@@ -28,9 +28,23 @@ CATALOG_ARTIFACT = REPO_ROOT / "contracts/generated/noesis-mcp-catalog-v1.json"
 
 @dataclass(frozen=True)
 class RegisteredBinding:
+    """An allow-listed in-process operation.
+
+    ``fn(ctx, arguments)`` performs it. ``arguments_schema`` validates the
+    arguments; ``result_contract`` names the contract the result must carry;
+    ``gate`` names a gate that must pass whichever pack reached the binding;
+    ``lookup(ctx, idempotency_key)`` returns the owner's execution receipt for
+    a prior call, or ``None`` when the owner recorded no effect.
+    """
+
     binding_id: str
     fn: Callable[..., Mapping[str, Any]]
     description: str = ""
+    arguments_schema: Mapping[str, Any] | None = None
+    result_contract: str | None = None
+    gate: str | None = None
+    lookup: Callable[..., Mapping[str, Any] | None] | None = None
+    result_path: str | None = None
 
 
 @dataclass(frozen=True)
@@ -42,17 +56,47 @@ class RegisteredProbe:
 
 _BINDINGS: dict[str, RegisteredBinding] = {}
 _PROBES: dict[str, RegisteredProbe] = {}
+_GATES: dict[str, Callable[..., bool]] = {}
 _BUILTINS_LOADED = False
 
 
-def register_binding(binding_id: str, description: str = ""):
-    """Decorator registering an in-process binding under ``binding_id``."""
+def register_binding(
+    binding_id: str,
+    description: str = "",
+    *,
+    arguments_schema: Mapping[str, Any] | None = None,
+    result_contract: str | None = None,
+    gate: str | None = None,
+    lookup: Callable[..., Mapping[str, Any] | None] | None = None,
+    result_path: str | None = None,
+):
+    """Decorator registering an in-process binding under ``binding_id``.
+
+    ``result_path`` names the member of the result that carries
+    ``result_contract`` when the binding wraps an owner document.
+    """
 
     def decorate(fn):
-        _BINDINGS[binding_id] = RegisteredBinding(binding_id, fn, description)
+        _BINDINGS[binding_id] = RegisteredBinding(
+            binding_id, fn, description, arguments_schema, result_contract, gate, lookup, result_path)
         return fn
 
     return decorate
+
+
+def register_gate(gate_id: str):
+    """Decorator registering a gate predicate ``fn(ctx) -> bool``."""
+
+    def decorate(fn):
+        _GATES[gate_id] = fn
+        return fn
+
+    return decorate
+
+
+def gate(gate_id: str) -> Callable[..., bool] | None:
+    _load_builtins()
+    return _GATES.get(gate_id)
 
 
 def register_probe(probe_id: str, description: str = ""):
@@ -109,8 +153,10 @@ __all__ = [
     "RegisteredProbe",
     "binding",
     "catalog_tool_ids",
+    "gate",
     "probe",
     "register_binding",
+    "register_gate",
     "register_probe",
     "registered_binding_ids",
     "registered_probe_ids",

@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.com/schemas/composition/noesis-composition-evidence-references-v1.json",
+  "title": "Composition evidence references",
+  "description": "Pinned references to committed document revisions, with the output restrictions their source terms imply.",
+  "type": "object",
+  "required": [
+    "contract",
+    "references",
+    "unresolved"
+  ],
+  "properties": {
+    "contract": {
+      "const": "noesis-composition-evidence-references-v1"
+    },
+    "references": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "owner_capability",
+          "record_kind",
+          "record_id",
+          "namespace",
+          "revision"
+        ],
+        "properties": {
+          "owner_capability": {
+            "type": "string"
+          },
+          "record_kind": {
+            "type": "string"
+          },
+          "record_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "revision": {},
+          "classification": {
+            "enum": [
+              "public",
+              "internal",
+              "restricted"
+            ]
+          },
+          "redistribution": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "unresolved": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

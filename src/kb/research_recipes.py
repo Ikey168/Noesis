@@ -358,8 +358,37 @@ class ResearchRecipeStore:
         execution_input_hash=None,
         execution_mode="adapter",
         actions_executed=True,
+        dispatch_token=None,
     ):
+        """Run a registered recipe through supplied step adapters.
+
+        ``actions_executed`` stays honest: a fixture execution mode can never
+        claim executed actions, and ``composition-dispatch`` runs require the
+        composition dispatcher's token and derive the flag from the bound
+        operations actually invoked (pass ``None``). An adapter raising
+        ``RecipeError('unknown_outcome')`` stops only that step and the steps
+        that depend on it; the run ends ``reconciliation_required``.
+        """
         _require(scopes, EXECUTE_SCOPE)
+        mode_text = str(execution_mode or "")
+        if "fixture" in mode_text and actions_executed:
+            raise RecipeError(
+                "dishonest_execution_claim",
+                "fixture execution cannot report executed actions",
+            )
+        if mode_text == "composition-dispatch":
+            from src.composition.dispatcher import valid_token
+
+            if not valid_token(dispatch_token):
+                raise RecipeError(
+                    "dispatcher_required",
+                    "composition-dispatch runs are started only by the composition dispatcher",
+                )
+        elif actions_executed is None:
+            raise RecipeError("invalid_execution_mode", "only dispatcher runs derive actions_executed")
+        derive_actions = actions_executed is None
+        if derive_actions:
+            actions_executed = False
         tool_versions = dict(tool_versions or {})
         snapshots = list(snapshot_tokens or [])
         preview = self.preview(
@@ -408,7 +437,7 @@ class ResearchRecipeStore:
                 tool_versions,
                 execution_input_hash,
                 execution_mode,
-                actions_executed,
+                "derived" if derive_actions else actions_executed,
             ]
         )
         run_id = "recipe-run:" + _digest([recipe_revision_id, run_key, input_hash])[:24]
@@ -456,12 +485,19 @@ class ResearchRecipeStore:
             ).fetchall()
         }
         omissions = []
+        stopped: dict[str, dict[str, Any]] = {}
         done = 0
         try:
             for ordinal, step in enumerate(recipe["steps"]):
                 prior_checkpoint = checkpoints.get(step["id"])
                 if prior_checkpoint and prior_checkpoint[0] == "completed":
                     state["steps"][step["id"]] = prior_checkpoint[1]
+                    if derive_actions and prior_checkpoint[1].get("dispatched"):
+                        actions_executed = True
+                    continue
+                blocked_by = sorted(set(step.get("depends_on", [])) & set(stopped))
+                if blocked_by:
+                    stopped[step["id"]] = {"code": "blocked_by_unknown_outcome", "steps": blocked_by}
                     continue
                 if prior_checkpoint and prior_checkpoint[0] == "omitted":
                     omissions.append({"step_id": step["id"], **prior_checkpoint[2]})
@@ -496,14 +532,34 @@ class ResearchRecipeStore:
                 error = None
                 output = None
                 started = self.now()
+                unknown = None
                 while attempt <= recipe["limits"]["retries"]:
                     attempt += 1
                     try:
                         output = dict(adapter(step, _redact(state, secret_text)))
                         error = None
                         break
+                    except RecipeError as exc:
+                        if exc.code in {"unknown_outcome", "not_retryable", "effect_violation",
+                                        "gate_denied", "unauthorized", "authority_revoked"}:
+                            error = {"code": exc.code, "message": exc.message[:200]}
+                            unknown = exc.code == "unknown_outcome"
+                            if exc.code != "unknown_outcome":
+                                raise
+                            break
+                        error = {"code": "step_failed", "message": str(exc)[:200]}
                     except Exception as exc:  # noqa: BLE001 - adapter boundary
                         error = {"code": "step_failed", "message": str(exc)[:200]}
+                if unknown:
+                    ih = _digest(_redact(state, secret_text))
+                    cid = "recipe-checkpoint:" + _digest([run_id, step["id"], ih, "reconcile"])[:24]
+                    self.conn.execute(
+                        "INSERT INTO research_recipe_checkpoints VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(run_id,step_id) DO UPDATE SET status=excluded.status,attempt=excluded.attempt,input_hash=excluded.input_hash,output_hash=NULL,output_json=NULL,error_json=excluded.error_json,tool_version=excluded.tool_version,completed_at_ms=excluded.completed_at_ms",
+                        [cid, run_id, step["id"], ordinal, "reconcile", attempt, ih, None, None,
+                         _canonical(error), tool_versions.get(step["tool"], "unknown"), started, self.now()],
+                    )
+                    stopped[step["id"]] = error
+                    continue
                 if error:
                     if step.get("optional"):
                         omissions.append({"step_id": step["id"], "error": error})
@@ -540,11 +596,24 @@ class ResearchRecipeStore:
                     ],
                 )
                 state["steps"][step["id"]] = clean
+                if derive_actions and clean.get("dispatched"):
+                    actions_executed = True
                 done += 1
                 if fail_after is not None and done >= fail_after:
                     raise RecipeError(
                         "injected_failure", "crash injected after durable checkpoint"
                     )
+            if stopped:
+                self.conn.execute(
+                    "UPDATE research_recipe_runs SET status='reconciliation_required',state_json=?,error_json=?,updated_at_ms=? WHERE run_id=?",
+                    [_canonical(_redact(state, secret_text)), _canonical({"stopped": stopped}),
+                     self.now(), run_id],
+                )
+                raise RecipeError(
+                    "reconciliation_required",
+                    "steps with unknown outcomes need reconciliation before the run can complete",
+                    run_id=run_id, stopped=sorted(stopped),
+                )
             safe_state = _redact(state, secret_text)
             receipt = {
                 "contract": RECEIPT_CONTRACT,
@@ -581,6 +650,8 @@ class ResearchRecipeStore:
             return {**receipt, "idempotent": False}
         except Exception as exc:
             code = getattr(exc, "code", "run_failed")
+            if code == "reconciliation_required":
+                raise
             status = "cancelled" if code == "cancelled" else "failed"
             error = {"code": code, "message": str(exc)[:300]}
             self.conn.execute(

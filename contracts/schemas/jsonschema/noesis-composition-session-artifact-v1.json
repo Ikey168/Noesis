@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.com/schemas/composition/noesis-composition-session-artifact-v1.json",
+  "title": "Composition session artifact",
+  "description": "An artifact recorded on an intake session by a workflow step; the session revision is the owner receipt.",
+  "type": "object",
+  "required": [
+    "contract",
+    "session_id",
+    "revision",
+    "adopted",
+    "references"
+  ],
+  "properties": {
+    "contract": {
+      "const": "noesis-composition-session-artifact-v1"
+    },
+    "session_id": {
+      "type": "string"
+    },
+    "revision": {
+      "type": "integer"
+    },
+    "adopted": {
+      "type": "boolean"
+    },
+    "references": {
+      "type": "array"
+    }
+  }
+}

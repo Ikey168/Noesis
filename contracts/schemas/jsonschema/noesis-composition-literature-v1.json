@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.com/schemas/composition/noesis-composition-literature-v1.json",
+  "title": "Composition place literature",
+  "description": "Committed documents mentioning a place, as pinned references.",
+  "type": "object",
+  "required": [
+    "contract",
+    "place",
+    "references"
+  ],
+  "properties": {
+    "contract": {
+      "const": "noesis-composition-literature-v1"
+    },
+    "place": {
+      "type": "string"
+    },
+    "references": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "owner_capability",
+          "record_kind",
+          "record_id",
+          "namespace",
+          "revision"
+        ],
+        "properties": {
+          "owner_capability": {
+            "type": "string"
+          },
+          "record_kind": {
+            "type": "string"
+          },
+          "record_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "revision": {},
+          "classification": {
+            "enum": [
+              "public",
+              "internal",
+              "restricted"
+            ]
+          },
+          "redistribution": {
+            "type": "boolean"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.com/schemas/composition/noesis-composition-acquisition-v1.json",
+  "title": "Composition acquisition result",
+  "description": "A source-pack run reached through the composition dispatcher: the owner's run receipt, the shared-acquisition reference and how provider input was supplied (fixture pages, an injected transport, or live).",
+  "type": "object",
+  "required": [
+    "contract",
+    "receipt",
+    "shared",
+    "provider_input",
+    "references"
+  ],
+  "properties": {
+    "contract": {
+      "const": "noesis-composition-acquisition-v1"
+    },
+    "receipt": {
+      "type": "object"
+    },
+    "shared": {
+      "type": "object"
+    },
+    "provider_input": {
+      "enum": [
+        "fixture-pages",
+        "injected-transport",
+        "live"
+      ]
+    },
+    "references": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "owner_capability",
+          "record_kind",
+          "record_id",
+          "namespace",
+          "revision"
+        ],
+        "properties": {
+          "owner_capability": {
+            "type": "string"
+          },
+          "record_kind": {
+            "type": "string"
+          },
+          "record_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "revision": {},
+          "classification": {
+            "enum": [
+              "public",
+              "internal",
+              "restricted"
+            ]
+          },
+          "redistribution": {
+            "type": "boolean"
+          }
+        }
+      }
+    }
+  }
+}

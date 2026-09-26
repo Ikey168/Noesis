@@ -1,0 +1,53 @@
+{
+  "contract": "noesis-capability-provider-v1",
+  "provider_id": "noesis.research",
+  "version": "1.0.0",
+  "description": "Research literature lookup over committed documents.",
+  "implementation": {
+    "identity": "src.composition.local_bindings:research_place_literature",
+    "version": "1.0.0"
+  },
+  "capabilities": [
+    {
+      "capability": "research.place-literature",
+      "version": "1.0.0",
+      "input_contract": {
+        "name": "noesis-knowledge-source-v1",
+        "version": "1.0.0"
+      },
+      "output_contract": {
+        "name": "noesis-composition-literature-v1",
+        "version": "1.0.0"
+      },
+      "effect": "read-only",
+      "idempotent": true,
+      "execution_receipt": false,
+      "required_scopes": [
+        "knowledge:read"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ],
+      "record_kinds": [],
+      "bindings": [
+        {
+          "kind": "registered",
+          "id": "research.place-literature"
+        },
+        {
+          "kind": "mcp-tool",
+          "id": "noesis-research.literature_claims"
+        }
+      ],
+      "readiness": {
+        "probe": "documents.store"
+      },
+      "semantics": {
+        "match": "case-insensitive-substring",
+        "scope": "committed-document-revisions"
+      }
+    }
+  ],
+  "stores": []
+}

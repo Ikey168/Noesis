@@ -1,0 +1,81 @@
+{
+  "contract": "noesis-capability-provider-v1",
+  "provider_id": "noesis.source-packs",
+  "version": "1.0.0",
+  "description": "The existing source-pack runtime: bounded acquisition with budgets, cursors, receipts and shared runs.",
+  "implementation": {
+    "identity": "src.ingestion.source_pack_runtime:SourcePackRuntime",
+    "version": "1.0.0"
+  },
+  "capabilities": [
+    {
+      "capability": "sources.acquire",
+      "version": "1.0.0",
+      "input_contract": {
+        "name": "noesis-source-pack-run-request-v1",
+        "version": "1.0.0"
+      },
+      "output_contract": {
+        "name": "noesis-source-pack-run-receipt-v1",
+        "version": "1.0.0"
+      },
+      "effect": "acquisition",
+      "idempotent": true,
+      "execution_receipt": true,
+      "required_scopes": [],
+      "required_context": [
+        "namespace",
+        "principal",
+        "source_pack",
+        "network"
+      ],
+      "record_kinds": [
+        "source_pack_run"
+      ],
+      "bindings": [
+        {
+          "kind": "registered",
+          "id": "sources.acquire-shared"
+        },
+        {
+          "kind": "mcp-tool",
+          "id": "noesis-knowledge-engine.run_source_pack_execution"
+        }
+      ],
+      "readiness": {
+        "probe": "sources.runtime"
+      },
+      "semantics": {
+        "deduplication": "source-version+query+namespace+access-context+mapping"
+      }
+    }
+  ],
+  "stores": [
+    {
+      "record_kind": "source_pack_run",
+      "tables": [
+        "source_pack_runs",
+        "source_pack_source_runs",
+        "source_pack_checkpoints",
+        "source_pack_watermarks"
+      ],
+      "revision_addressing": "immutable"
+    },
+    {
+      "record_kind": "source_pack_version",
+      "tables": [
+        "source_pack_versions",
+        "source_pack_current"
+      ],
+      "revision_addressing": "immutable"
+    },
+    {
+      "record_kind": "source_pack_schedule",
+      "tables": [
+        "source_pack_schedules",
+        "source_pack_schedule_owners"
+      ],
+      "revision_addressing": "current-only"
+    }
+  ]
+}

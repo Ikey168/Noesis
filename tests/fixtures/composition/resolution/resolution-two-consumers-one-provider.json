@@ -233,6 +233,51 @@
       "resolution": "reviewable-candidates"
      },
      "version": "1.0.0"
+    },
+    {
+     "bindings": [
+      {
+       "id": "geospatial.features-within",
+       "kind": "registered"
+      },
+      {
+       "id": "noesis-knowledge-engine.query_geospatial_features_within",
+       "kind": "mcp-tool"
+      }
+     ],
+     "capability": "spatial.points-within-boundary",
+     "effect": "read-only",
+     "execution_receipt": false,
+     "idempotent": true,
+     "input_contract": {
+      "name": "noesis-geospatial-feature-query-v1",
+      "version": "1.0.0"
+     },
+     "output_contract": {
+      "name": "noesis-geospatial-feature-query-v1",
+      "version": "1.0.0"
+     },
+     "readiness": {
+      "probe": "geospatial.local-store",
+      "required_data": [
+       "geospatial-features"
+      ]
+     },
+     "record_kinds": [],
+     "required_context": [
+      "namespace",
+      "principal"
+     ],
+     "required_scopes": [
+      "knowledge:geospatial:calculate"
+     ],
+     "semantics": {
+      "boundary_edge": "inside",
+      "containment": "exact-ring-parity",
+      "crs": "EPSG:4326",
+      "query_receipt": "owner-audit"
+     },
+     "version": "1.0.0"
     }
    ],
    "contract": "noesis-capability-provider-v1",
@@ -279,6 +324,15 @@
      "revision_addressing": "immutable",
      "tables": [
       "spatial_receipts"
+     ]
+    },
+    {
+     "record_kind": "geospatial_feature",
+     "revision_addressing": "immutable",
+     "tables": [
+      "geospatial_features",
+      "geospatial_feature_revisions",
+      "geospatial_feature_current"
      ]
     }
    ],

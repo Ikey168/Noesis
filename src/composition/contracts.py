@@ -47,6 +47,7 @@ CONTRACT_MODULES: dict[str, tuple[str, str, tuple[str, ...]]] = {
     PLAN_CONTRACT: ("composition-plan", "1.0.0", ("pack-manifest", "capability-provider")),
     READINESS_CONTRACT: ("composition-readiness", "1.0.0", ("composition-plan",)),
     RECEIPT_CONTRACT: ("composition-activation-receipt", "1.0.0", ("composition-plan",)),
+    "noesis-workflow-template-v1": ("workflow-template", "1.0.0", ("pack-manifest",)),
 }
 
 CONTRACT_MODULE_VERSIONS = {name: version for name, version, _ in CONTRACT_MODULES.values()}

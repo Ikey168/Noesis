@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.com/schemas/composition/noesis-composition-event-geolocation-v1.json",
+  "title": "Composition event geolocation",
+  "description": "Event geography from claim text returned by the review-gated OSINT operation.",
+  "type": "object",
+  "required": [
+    "contract",
+    "references"
+  ],
+  "properties": {
+    "contract": {
+      "const": "noesis-composition-event-geolocation-v1"
+    },
+    "references": {
+      "type": "array"
+    }
+  }
+}
