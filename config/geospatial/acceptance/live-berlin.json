@@ -1,0 +1,269 @@
+{
+  "contract": "noesis-geospatial-live-acceptance-v1",
+  "evidence_kind": "live-provider",
+  "run_started_at": "2026-09-25T02:10:06+00:00",
+  "pack_id": "geospatial-berlin",
+  "pack_version": "1.0.0",
+  "manifest_hash": "59fad05d15ce7931cd38082141df94dc71b6a0ba6835ab361d9f3ca89bfeb7a2",
+  "terms": [
+    {
+      "source_id": "berlin-bezirksgrenzen",
+      "license_id": "dl-de-zero-2.0",
+      "terms_hash": "8effa1c46eabeb3e008aa9d6b4ded4d0a5e7dfb176d9bc0476d7e6ed4189be28",
+      "accepted_by": "operator"
+    },
+    {
+      "source_id": "berlin-schulen",
+      "license_id": "dl-de-zero-2.0",
+      "terms_hash": "8effa1c46eabeb3e008aa9d6b4ded4d0a5e7dfb176d9bc0476d7e6ed4189be28",
+      "accepted_by": "operator"
+    }
+  ],
+  "run": {
+    "run_id": "source-run:897d1874aaf6a2ee2e2edf55",
+    "status": "complete",
+    "elapsed_s": 126.498,
+    "failures": []
+  },
+  "sources": [
+    {
+      "source_id": "berlin-bezirksgrenzen",
+      "endpoint": "https://gdi.berlin.de/services/wfs/alkis_bezirke",
+      "type_names": "alkis_bezirke:bezirksgrenzen",
+      "status": "complete",
+      "counts": {
+        "attempts": 2,
+        "pages": 2,
+        "fetched": 12,
+        "normalized": 12,
+        "inserted": 12,
+        "duplicates": 0,
+        "invalid": 0,
+        "quarantined": 0,
+        "bytes": 698009
+      },
+      "retries": [],
+      "snapshot": {
+        "completeness": "complete",
+        "reasons": [],
+        "number_matched": 12,
+        "states": {
+          "projected": 12
+        },
+        "removed": []
+      }
+    },
+    {
+      "source_id": "berlin-schulen",
+      "endpoint": "https://gdi.berlin.de/services/wfs/schulen",
+      "type_names": "schulen:schulen",
+      "status": "complete",
+      "counts": {
+        "attempts": 4,
+        "pages": 4,
+        "fetched": 930,
+        "normalized": 930,
+        "inserted": 930,
+        "duplicates": 0,
+        "invalid": 0,
+        "quarantined": 0,
+        "bytes": 597951
+      },
+      "retries": [],
+      "snapshot": {
+        "completeness": "complete",
+        "reasons": [],
+        "number_matched": 930,
+        "states": {
+          "projected": 930
+        },
+        "removed": []
+      }
+    }
+  ],
+  "pages": [
+    {
+      "source_id": "berlin-bezirksgrenzen",
+      "start_index": 0,
+      "number_matched": 12,
+      "number_returned": 6,
+      "provider_timestamp": "2026-09-25T02:10:06.515Z",
+      "response_sha256": "f1103f11310b2b813ab39dfc302f5866f03b2194bd579e26f735d8334628af56"
+    },
+    {
+      "source_id": "berlin-bezirksgrenzen",
+      "start_index": 6,
+      "number_matched": 12,
+      "number_returned": 6,
+      "provider_timestamp": "2026-09-25T02:10:09.577Z",
+      "response_sha256": "c8387d7394809e3ab66b9433bf59fd0d6cc8cf46cbc85a312d6feb5af77f01b7"
+    },
+    {
+      "source_id": "berlin-schulen",
+      "start_index": 0,
+      "number_matched": 930,
+      "number_returned": 250,
+      "provider_timestamp": "2026-09-25T02:10:11.843Z",
+      "response_sha256": "a9c309acef11163da2452197ec76577239bee52674f10076da22d21f129b8ac9"
+    },
+    {
+      "source_id": "berlin-schulen",
+      "start_index": 250,
+      "number_matched": 930,
+      "number_returned": 250,
+      "provider_timestamp": "2026-09-25T02:10:46.030Z",
+      "response_sha256": "0ef3d9cef365972661a27cc07d30bdadb9e3e221b007f40cf73f6d1db723d229"
+    },
+    {
+      "source_id": "berlin-schulen",
+      "start_index": 500,
+      "number_matched": 930,
+      "number_returned": 250,
+      "provider_timestamp": "2026-09-25T02:11:17.536Z",
+      "response_sha256": "340ea3d6cad48557bdb47036c429ded51c2b63e45e33cb8b953ad2423523e3fb"
+    },
+    {
+      "source_id": "berlin-schulen",
+      "start_index": 750,
+      "number_matched": 930,
+      "number_returned": 180,
+      "provider_timestamp": "2026-09-25T02:11:48.903Z",
+      "response_sha256": "847f171646de7d1f2af016e1e8f2023517c2059f0815519227e7e0ca7a7f3b54"
+    }
+  ],
+  "points_within_by_district": [
+    {
+      "district": "Charlottenburg-Wilmersdorf",
+      "status": "complete",
+      "members": 85,
+      "provider_declared": 85,
+      "mismatched": [],
+      "receipt_id": "spatial-receipt:4032a106b20998627dd50087",
+      "replay_deterministic": true,
+      "latency_ms": 1459.1
+    },
+    {
+      "district": "Friedrichshain-Kreuzberg",
+      "status": "complete",
+      "members": 71,
+      "provider_declared": 71,
+      "mismatched": [],
+      "receipt_id": "spatial-receipt:d0bbd7745aefb03d1ff51cc3",
+      "replay_deterministic": true,
+      "latency_ms": 1088.3
+    },
+    {
+      "district": "Lichtenberg",
+      "status": "complete",
+      "members": 76,
+      "provider_declared": 76,
+      "mismatched": [],
+      "receipt_id": "spatial-receipt:12f88df4ab3b91bdc32fd8e3",
+      "replay_deterministic": true,
+      "latency_ms": 1142.2
+    },
+    {
+      "district": "Marzahn-Hellersdorf",
+      "status": "complete",
+      "members": 69,
+      "provider_declared": 69,
+      "mismatched": [],
+      "receipt_id": "spatial-receipt:2fce56f6ec9fcbef5792f56b",
+      "replay_deterministic": true,
+      "latency_ms": 884.5
+    },
+    {
+      "district": "Mitte",
+      "status": "complete",
+      "members": 86,
+      "provider_declared": 86,
+      "mismatched": [],
+      "receipt_id": "spatial-receipt:6073251f1f642f2e52bd106c",
+      "replay_deterministic": true,
+      "latency_ms": 1818.0
+    },
+    {
+      "district": "Neukölln",
+      "status": "complete",
+      "members": 71,
+      "provider_declared": 71,
+      "mismatched": [],
+      "receipt_id": "spatial-receipt:fa15499761e3454792af386e",
+      "replay_deterministic": true,
+      "latency_ms": 1033.7
+    },
+    {
+      "district": "Pankow",
+      "status": "complete",
+      "members": 110,
+      "provider_declared": 110,
+      "mismatched": [],
+      "receipt_id": "spatial-receipt:5eec67437334e2b1f1a041ac",
+      "replay_deterministic": true,
+      "latency_ms": 2852.3
+    },
+    {
+      "district": "Reinickendorf",
+      "status": "complete",
+      "members": 75,
+      "provider_declared": 75,
+      "mismatched": [],
+      "receipt_id": "spatial-receipt:ded67d2a1e432df50dc24206",
+      "replay_deterministic": true,
+      "latency_ms": 1085.1
+    },
+    {
+      "district": "Spandau",
+      "status": "complete",
+      "members": 62,
+      "provider_declared": 62,
+      "mismatched": [],
+      "receipt_id": "spatial-receipt:596259f82bdf56dd1a99ad0b",
+      "replay_deterministic": true,
+      "latency_ms": 908.6
+    },
+    {
+      "district": "Steglitz-Zehlendorf",
+      "status": "complete",
+      "members": 79,
+      "provider_declared": 79,
+      "mismatched": [],
+      "receipt_id": "spatial-receipt:68c7451f4fae238431d41347",
+      "replay_deterministic": true,
+      "latency_ms": 1015.3
+    },
+    {
+      "district": "Tempelhof-Schöneberg",
+      "status": "complete",
+      "members": 79,
+      "provider_declared": 79,
+      "mismatched": [],
+      "receipt_id": "spatial-receipt:11763e6b871acd37a4ad0a4f",
+      "replay_deterministic": true,
+      "latency_ms": 1513.7
+    },
+    {
+      "district": "Treptow-Köpenick",
+      "status": "complete",
+      "members": 67,
+      "provider_declared": 67,
+      "mismatched": [],
+      "receipt_id": "spatial-receipt:adbdd39b59e5e3b449a98b37",
+      "replay_deterministic": true,
+      "latency_ms": 1815.1
+    }
+  ],
+  "provider_declared_agreement": true,
+  "transform": {
+    "backend": "noesis-stdlib-utm",
+    "pyproj_available": false,
+    "supported_sources": [
+      "EPSG:4326",
+      "EPSG:25828-25838",
+      "EPSG:32601-32660",
+      "EPSG:32701-32760"
+    ],
+    "action": "Install the optional pyproj dependency for other CRSs"
+  },
+  "outstanding": []
+}

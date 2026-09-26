@@ -1,0 +1,658 @@
+{
+ "captured_at": "2026-09-25T01:26:24Z",
+ "request": "schulen:schulen SRSNAME=urn:ogc:def:crs:EPSG::4258 SORTBY=bsn (server-side GeoServer transform)",
+ "axis_order_observed": "east_north (longitude, latitude) despite the URN's north_east axis definition",
+ "points": [
+  {
+   "id": "schulen.01B01",
+   "coordinates": [
+    13.35786711,
+    52.52390606
+   ]
+  },
+  {
+   "id": "schulen.01G10",
+   "coordinates": [
+    13.40853051,
+    52.50752514
+   ]
+  },
+  {
+   "id": "schulen.01G29",
+   "coordinates": [
+    13.38351371,
+    52.55760342
+   ]
+  },
+  {
+   "id": "schulen.01G42",
+   "coordinates": [
+    13.36517131,
+    52.5561674
+   ]
+  },
+  {
+   "id": "schulen.01K03",
+   "coordinates": [
+    13.39343356,
+    52.53913332
+   ]
+  },
+  {
+   "id": "schulen.01P05",
+   "coordinates": [
+    13.33480002,
+    52.52840565
+   ]
+  },
+  {
+   "id": "schulen.01P36",
+   "coordinates": [
+    13.41542827,
+    52.5233296
+   ]
+  },
+  {
+   "id": "schulen.01P52",
+   "coordinates": [
+    13.32156935,
+    52.52595476
+   ]
+  },
+  {
+   "id": "schulen.01Y08",
+   "coordinates": [
+    13.34392567,
+    52.55731333
+   ]
+  },
+  {
+   "id": "schulen.02G01",
+   "coordinates": [
+    13.43572566,
+    52.52117837
+   ]
+  },
+  {
+   "id": "schulen.02G13",
+   "coordinates": [
+    13.38187353,
+    52.49058125
+   ]
+  },
+  {
+   "id": "schulen.02G27",
+   "coordinates": [
+    13.42656415,
+    52.49785099
+   ]
+  },
+  {
+   "id": "schulen.02K02",
+   "coordinates": [
+    13.4059665,
+    52.49107469
+   ]
+  },
+  {
+   "id": "schulen.02P03",
+   "coordinates": [
+    13.42137373,
+    52.49086951
+   ]
+  },
+  {
+   "id": "schulen.02P23",
+   "coordinates": [
+    13.45004548,
+    52.50840085
+   ]
+  },
+  {
+   "id": "schulen.02Y03",
+   "coordinates": [
+    13.4630907,
+    52.5168904
+   ]
+  },
+  {
+   "id": "schulen.03B07",
+   "coordinates": [
+    13.44135879,
+    52.54571003
+   ]
+  },
+  {
+   "id": "schulen.03G09",
+   "coordinates": [
+    13.41489417,
+    52.54671711
+   ]
+  },
+  {
+   "id": "schulen.03G20",
+   "coordinates": [
+    13.47694044,
+    52.55931439
+   ]
+  },
+  {
+   "id": "schulen.03G32",
+   "coordinates": [
+    13.39491078,
+    52.57959407
+   ]
+  },
+  {
+   "id": "schulen.03G43",
+   "coordinates": [
+    13.36443516,
+    52.59026832
+   ]
+  },
+  {
+   "id": "schulen.03K02",
+   "coordinates": [
+    13.4233526,
+    52.55773616
+   ]
+  },
+  {
+   "id": "schulen.03P03",
+   "coordinates": [
+    13.4282241,
+    52.53522994
+   ]
+  },
+  {
+   "id": "schulen.03P21",
+   "coordinates": [
+    13.41328655,
+    52.56838546
+   ]
+  },
+  {
+   "id": "schulen.03P36",
+   "coordinates": [
+    13.41046181,
+    52.53207691
+   ]
+  },
+  {
+   "id": "schulen.03P48",
+   "coordinates": [
+    13.39938821,
+    52.57507198
+   ]
+  },
+  {
+   "id": "schulen.03Y10",
+   "coordinates": [
+    13.41956433,
+    52.56676384
+   ]
+  },
+  {
+   "id": "schulen.04B02",
+   "coordinates": [
+    13.29118093,
+    52.51194492
+   ]
+  },
+  {
+   "id": "schulen.04G06",
+   "coordinates": [
+    13.25857538,
+    52.50251691
+   ]
+  },
+  {
+   "id": "schulen.04G18",
+   "coordinates": [
+    13.33290983,
+    52.48320652
+   ]
+  },
+  {
+   "id": "schulen.04K02",
+   "coordinates": [
+    13.3212981,
+    52.50898279
+   ]
+  },
+  {
+   "id": "schulen.04P02",
+   "coordinates": [
+    13.25603443,
+    52.51597356
+   ]
+  },
+  {
+   "id": "schulen.04P22",
+   "coordinates": [
+    13.31045721,
+    52.51919351
+   ]
+  },
+  {
+   "id": "schulen.04P45",
+   "coordinates": [
+    13.30167025,
+    52.50056563
+   ]
+  },
+  {
+   "id": "schulen.04Y02",
+   "coordinates": [
+    13.25558944,
+    52.50339453
+   ]
+  },
+  {
+   "id": "schulen.05A03",
+   "coordinates": [
+    13.20507369,
+    52.53914357
+   ]
+  },
+  {
+   "id": "schulen.05G10",
+   "coordinates": [
+    13.17998271,
+    52.52560335
+   ]
+  },
+  {
+   "id": "schulen.05G20",
+   "coordinates": [
+    13.19903263,
+    52.56747858
+   ]
+  },
+  {
+   "id": "schulen.05G30",
+   "coordinates": [
+    13.19730584,
+    52.54856165
+   ]
+  },
+  {
+   "id": "schulen.05K08",
+   "coordinates": [
+    13.18606344,
+    52.51111908
+   ]
+  },
+  {
+   "id": "schulen.05P13",
+   "coordinates": [
+    13.18107859,
+    52.51788316
+   ]
+  },
+  {
+   "id": "schulen.05Y04",
+   "coordinates": [
+    13.2712618,
+    52.54589497
+   ]
+  },
+  {
+   "id": "schulen.06G04",
+   "coordinates": [
+    13.28329738,
+    52.45822044
+   ]
+  },
+  {
+   "id": "schulen.06G16",
+   "coordinates": [
+    13.31385135,
+    52.45455013
+   ]
+  },
+  {
+   "id": "schulen.06G27",
+   "coordinates": [
+    13.3473326,
+    52.42309848
+   ]
+  },
+  {
+   "id": "schulen.06K03",
+   "coordinates": [
+    13.32008311,
+    52.46389891
+   ]
+  },
+  {
+   "id": "schulen.06P06",
+   "coordinates": [
+    13.30219632,
+    52.46032929
+   ]
+  },
+  {
+   "id": "schulen.06P20",
+   "coordinates": [
+    13.26265379,
+    52.43818478
+   ]
+  },
+  {
+   "id": "schulen.06Y03",
+   "coordinates": [
+    13.28026188,
+    52.45910064
+   ]
+  },
+  {
+   "id": "schulen.06Y13",
+   "coordinates": [
+    13.32660048,
+    52.45689991
+   ]
+  },
+  {
+   "id": "schulen.07G06",
+   "coordinates": [
+    13.33803621,
+    52.47981165
+   ]
+  },
+  {
+   "id": "schulen.07G19",
+   "coordinates": [
+    13.39401672,
+    52.46182854
+   ]
+  },
+  {
+   "id": "schulen.07G29",
+   "coordinates": [
+    13.40487711,
+    52.38621657
+   ]
+  },
+  {
+   "id": "schulen.07K02",
+   "coordinates": [
+    13.4044836,
+    52.39431687
+   ]
+  },
+  {
+   "id": "schulen.07K13",
+   "coordinates": [
+    13.37890222,
+    52.46487443
+   ]
+  },
+  {
+   "id": "schulen.07P17",
+   "coordinates": [
+    13.38768974,
+    52.4535389
+   ]
+  },
+  {
+   "id": "schulen.07S04",
+   "coordinates": [
+    13.4182229,
+    52.46423082
+   ]
+  },
+  {
+   "id": "schulen.08A10",
+   "coordinates": [
+    13.37066389,
+    52.56208371
+   ]
+  },
+  {
+   "id": "schulen.08G07",
+   "coordinates": [
+    13.43121944,
+    52.48042697
+   ]
+  },
+  {
+   "id": "schulen.08G18",
+   "coordinates": [
+    13.45048162,
+    52.47773179
+   ]
+  },
+  {
+   "id": "schulen.08G28",
+   "coordinates": [
+    13.50111244,
+    52.42043594
+   ]
+  },
+  {
+   "id": "schulen.08K01",
+   "coordinates": [
+    13.46342418,
+    52.42935143
+   ]
+  },
+  {
+   "id": "schulen.08K12",
+   "coordinates": [
+    13.46429263,
+    52.46736269
+   ]
+  },
+  {
+   "id": "schulen.08P17",
+   "coordinates": [
+    13.43471965,
+    52.43337426
+   ]
+  },
+  {
+   "id": "schulen.08Y03",
+   "coordinates": [
+    13.44232786,
+    52.44542845
+   ]
+  },
+  {
+   "id": "schulen.09G04",
+   "coordinates": [
+    13.48852288,
+    52.46195202
+   ]
+  },
+  {
+   "id": "schulen.09G16",
+   "coordinates": [
+    13.59530675,
+    52.42843478
+   ]
+  },
+  {
+   "id": "schulen.09G26",
+   "coordinates": [
+    13.70302608,
+    52.4336628
+   ]
+  },
+  {
+   "id": "schulen.09K05",
+   "coordinates": [
+    13.61924265,
+    52.45094776
+   ]
+  },
+  {
+   "id": "schulen.09P10",
+   "coordinates": [
+    13.56792463,
+    52.45391047
+   ]
+  },
+  {
+   "id": "schulen.09S03",
+   "coordinates": [
+    13.51552079,
+    52.4714801
+   ]
+  },
+  {
+   "id": "schulen.10A04",
+   "coordinates": [
+    13.53962573,
+    52.535962
+   ]
+  },
+  {
+   "id": "schulen.10G10",
+   "coordinates": [
+    13.5520748,
+    52.54814115
+   ]
+  },
+  {
+   "id": "schulen.10G25",
+   "coordinates": [
+    13.60815834,
+    52.52927954
+   ]
+  },
+  {
+   "id": "schulen.10G37",
+   "coordinates": [
+    13.61077929,
+    52.50097296
+   ]
+  },
+  {
+   "id": "schulen.10K08",
+   "coordinates": [
+    13.57857418,
+    52.57002412
+   ]
+  },
+  {
+   "id": "schulen.10P09",
+   "coordinates": [
+    13.61629678,
+    52.53244354
+   ]
+  },
+  {
+   "id": "schulen.10S04",
+   "coordinates": [
+    13.55341905,
+    52.53112167
+   ]
+  },
+  {
+   "id": "schulen.11B01",
+   "coordinates": [
+    13.51272548,
+    52.52345059
+   ]
+  },
+  {
+   "id": "schulen.11G09",
+   "coordinates": [
+    13.51668648,
+    52.50817164
+   ]
+  },
+  {
+   "id": "schulen.11G21",
+   "coordinates": [
+    13.4982654,
+    52.55183128
+   ]
+  },
+  {
+   "id": "schulen.11G34",
+   "coordinates": [
+    13.49828165,
+    52.54833132
+   ]
+  },
+  {
+   "id": "schulen.11K05",
+   "coordinates": [
+    13.52090988,
+    52.57014761
+   ]
+  },
+  {
+   "id": "schulen.11K15",
+   "coordinates": [
+    13.51200978,
+    52.52447735
+   ]
+  },
+  {
+   "id": "schulen.11P19",
+   "coordinates": [
+    13.47996497,
+    52.52379316
+   ]
+  },
+  {
+   "id": "schulen.11Y05",
+   "coordinates": [
+    13.52323275,
+    52.49188009
+   ]
+  },
+  {
+   "id": "schulen.12G02",
+   "coordinates": [
+    13.35648522,
+    52.56225454
+   ]
+  },
+  {
+   "id": "schulen.12G13",
+   "coordinates": [
+    13.28267794,
+    52.58816849
+   ]
+  },
+  {
+   "id": "schulen.12G24",
+   "coordinates": [
+    13.2724704,
+    52.63681285
+   ]
+  },
+  {
+   "id": "schulen.12K02",
+   "coordinates": [
+    13.35489253,
+    52.60358308
+   ]
+  },
+  {
+   "id": "schulen.12P02",
+   "coordinates": [
+    13.36434957,
+    52.60037482
+   ]
+  },
+  {
+   "id": "schulen.12P19",
+   "coordinates": [
+    13.30947231,
+    52.60449255
+   ]
+  },
+  {
+   "id": "schulen.12S05",
+   "coordinates": [
+    13.30801752,
+    52.6203176
+   ]
+  }
+ ]
+}

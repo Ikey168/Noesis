@@ -1,0 +1,62 @@
+{
+  "pack_format": "noesis-pack-v1",
+  "name": "geospatial",
+  "version": "1.0.0",
+  "description": "Acquired vector features with source identity, revision history and replayable points-inside-boundary queries.",
+  "source_types": ["web"],
+  "ui_flags": {},
+  "panels": [],
+  "planner_keywords": {
+    "entities": ["boundary", "district", "bezirk", "facility", "feature", "geometry", "place"],
+    "sources": ["attribution", "collection", "dataset revision", "snapshot", "wfs"],
+    "events": ["inside", "within", "bbox", "bounding box", "nearby", "proximity"]
+  },
+  "enrichers": [],
+  "provisioning_templates": [],
+  "capabilities": [
+    "native-wfs-2.0.0-geojson-acquisition",
+    "bounded-geojson-featurecollection-import",
+    "provenance-preserving-feature-revisions",
+    "durable-spatial-projection",
+    "complete-snapshot-removal-semantics",
+    "points-inside-boundary-query",
+    "reviewable-boundary-name-resolution"
+  ],
+  "schema_versions": {
+    "geospatial-feature": "1.0.0",
+    "geospatial-feature-query": "1.0.0",
+    "geospatial-geometry": "2.0.0",
+    "source-pack": "1.0.0"
+  },
+  "ontology_extensions": {
+    "extends": "noesis-canonical-entity-relation-ontology",
+    "reuses": ["noesis-geospatial-geometry-v2", "noesis-geospatial-place-v1", "noesis-spatial-result-v1"],
+    "object_types": ["feature", "feature_revision", "collection_snapshot", "geometry", "place"],
+    "relation_types": ["located_within", "revision_of", "acquired_from", "projected_as"]
+  },
+  "source_pack": "config/source_packs/geospatial.json",
+  "query_examples": [
+    {
+      "intent": "Schools inside the Berlin district Mitte",
+      "tool": "query_geospatial_features_within",
+      "arguments": {"namespace": "global", "collection": "schulen:schulen", "boundary_name": "Mitte", "boundary_collection": "alkis_bezirke:bezirksgrenzen"},
+      "semantics": "exact ring parity; boundary-edge points count as inside"
+    },
+    {
+      "intent": "Features in a bounding box",
+      "tool": "search_geospatial_knowledge",
+      "arguments": {"namespace": "global", "bbox": [13.36, 52.50, 13.42, 52.54]},
+      "semantics": "a geometry matches when any of its vertices lies in the box"
+    },
+    {
+      "intent": "Distance between two points",
+      "tool": "calculate_spatial_relation",
+      "arguments": {"operation": "proximity", "left_geometry_id": "<point geometry_id>", "right": [13.4105, 52.5208]},
+      "semantics": "haversine distance to the nearest stored vertex; not a distance to an arbitrary boundary edge and not road routing"
+    }
+  ],
+  "exclusions": [
+    "OGC API Features", "OSM/Overpass", "global gazetteers", "raster, satellite and terrain processing",
+    "tiles and basemaps", "road-network routing", "new spatial databases", "GIS editing"
+  ]
+}

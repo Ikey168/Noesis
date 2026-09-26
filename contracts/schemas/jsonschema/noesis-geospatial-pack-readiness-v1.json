@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/schemas/noesis-geospatial-pack-readiness-v1.json",
+  "title": "Noesis geospatial pack readiness",
+  "type": "object",
+  "required": [
+    "contract",
+    "pack_id",
+    "installed",
+    "enabled",
+    "transform",
+    "shapely_available",
+    "sources",
+    "modes",
+    "blockers"
+  ],
+  "properties": {
+    "contract": {
+      "const": "noesis-geospatial-pack-readiness-v1"
+    },
+    "pack_id": {
+      "type": "string"
+    },
+    "installed": {
+      "type": "boolean"
+    },
+    "enabled": {
+      "type": "boolean"
+    },
+    "transform": {
+      "type": "object"
+    },
+    "shapely_available": {
+      "type": "boolean"
+    },
+    "sources": {
+      "type": "array"
+    },
+    "modes": {
+      "type": "object",
+      "properties": {
+        "fixture": {
+          "enum": [
+            "ready",
+            "blocked"
+          ]
+        },
+        "live": {
+          "enum": [
+            "ready",
+            "blocked"
+          ]
+        }
+      }
+    },
+    "blockers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "code",
+          "severity"
+        ]
+      }
+    }
+  }
+}

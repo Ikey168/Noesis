@@ -1,0 +1,387 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/schemas/noesis-geospatial-feature-v1.json",
+  "title": "Noesis acquired geospatial feature with revision history",
+  "description": "A vector feature identified by provider + collection + native ID. Features are distinct from named places and are never merged across providers automatically.",
+  "type": "object",
+  "required": [
+    "contract",
+    "feature_id",
+    "namespace",
+    "provider",
+    "collection",
+    "native_id",
+    "created_at_ms",
+    "current",
+    "history",
+    "collection_snapshot"
+  ],
+  "properties": {
+    "contract": {
+      "const": "noesis-geospatial-feature-v1"
+    },
+    "feature_id": {
+      "type": "string",
+      "pattern": "^geofeature:[0-9a-f]{24}$"
+    },
+    "namespace": {
+      "type": "string"
+    },
+    "provider": {
+      "type": "string"
+    },
+    "collection": {
+      "type": "string"
+    },
+    "native_id": {
+      "type": "string"
+    },
+    "created_at_ms": {
+      "type": "integer"
+    },
+    "current": {
+      "type": "object",
+      "required": [
+        "revision_id",
+        "revision",
+        "lifecycle",
+        "content_hash",
+        "properties",
+        "geometry_id",
+        "provenance",
+        "temporal",
+        "precision",
+        "run_id",
+        "observed_at_ms"
+      ],
+      "properties": {
+        "revision_id": {
+          "type": "string",
+          "pattern": "^geofeature-rev:[0-9a-f]{24}$"
+        },
+        "revision": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "lifecycle": {
+          "enum": [
+            "active",
+            "removed"
+          ]
+        },
+        "content_hash": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "title": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "properties": {
+          "type": "object",
+          "description": "Source properties preserved without renaming."
+        },
+        "source_geometry": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "description": "Geometry exactly as delivered, in source CRS and source axis order."
+        },
+        "source_crs": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "axis_order": {
+          "enum": [
+            "east_north",
+            "north_east",
+            null
+          ]
+        },
+        "geometry_id": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "WGS84 geometry in noesis-geospatial-geometry-v1/v2; null for removal revisions."
+        },
+        "geometry_type": {
+          "enum": [
+            "Point",
+            "LineString",
+            "Polygon",
+            "MultiPolygon",
+            null
+          ]
+        },
+        "coordinate_transform": {
+          "type": "object",
+          "description": "Transform receipt (producer, sha256, pipeline, accuracy) without duplicated coordinates."
+        },
+        "provenance": {
+          "type": "object",
+          "description": "Source pack, endpoint, license, attribution, run, document and page evidence, or removal basis."
+        },
+        "temporal": {
+          "type": "object",
+          "properties": {
+            "valid_from_ms": {
+              "type": [
+                "integer",
+                "null"
+              ]
+            },
+            "valid_to_ms": {
+              "type": [
+                "integer",
+                "null"
+              ]
+            },
+            "valid_time": {
+              "enum": [
+                "declared",
+                "unknown"
+              ]
+            },
+            "observed_at_ms": {
+              "type": "integer"
+            },
+            "removal_observed_at_ms": {
+              "type": "integer"
+            },
+            "provider_timestamp": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "description": "Observation and provider times are never used as valid time."
+        },
+        "precision": {
+          "type": "object",
+          "required": [
+            "status",
+            "value_m",
+            "basis"
+          ],
+          "properties": {
+            "status": {
+              "enum": [
+                "declared",
+                "unknown"
+              ]
+            },
+            "value_m": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "minimum": 0
+            },
+            "basis": {
+              "type": "string"
+            }
+          },
+          "description": "Positional precision. When status is unknown, value_m is null and any stored precision_m of 0 is not a claim."
+        },
+        "run_id": {
+          "type": "string"
+        },
+        "document_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "observed_at_ms": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "history": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "object",
+        "required": [
+          "revision_id",
+          "revision",
+          "lifecycle",
+          "content_hash",
+          "properties",
+          "geometry_id",
+          "provenance",
+          "temporal",
+          "precision",
+          "run_id",
+          "observed_at_ms"
+        ],
+        "properties": {
+          "revision_id": {
+            "type": "string",
+            "pattern": "^geofeature-rev:[0-9a-f]{24}$"
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "lifecycle": {
+            "enum": [
+              "active",
+              "removed"
+            ]
+          },
+          "content_hash": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "title": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "properties": {
+            "type": "object",
+            "description": "Source properties preserved without renaming."
+          },
+          "source_geometry": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "Geometry exactly as delivered, in source CRS and source axis order."
+          },
+          "source_crs": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "axis_order": {
+            "enum": [
+              "east_north",
+              "north_east",
+              null
+            ]
+          },
+          "geometry_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "WGS84 geometry in noesis-geospatial-geometry-v1/v2; null for removal revisions."
+          },
+          "geometry_type": {
+            "enum": [
+              "Point",
+              "LineString",
+              "Polygon",
+              "MultiPolygon",
+              null
+            ]
+          },
+          "coordinate_transform": {
+            "type": "object",
+            "description": "Transform receipt (producer, sha256, pipeline, accuracy) without duplicated coordinates."
+          },
+          "provenance": {
+            "type": "object",
+            "description": "Source pack, endpoint, license, attribution, run, document and page evidence, or removal basis."
+          },
+          "temporal": {
+            "type": "object",
+            "properties": {
+              "valid_from_ms": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "valid_to_ms": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "valid_time": {
+                "enum": [
+                  "declared",
+                  "unknown"
+                ]
+              },
+              "observed_at_ms": {
+                "type": "integer"
+              },
+              "removal_observed_at_ms": {
+                "type": "integer"
+              },
+              "provider_timestamp": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "description": "Observation and provider times are never used as valid time."
+          },
+          "precision": {
+            "type": "object",
+            "required": [
+              "status",
+              "value_m",
+              "basis"
+            ],
+            "properties": {
+              "status": {
+                "enum": [
+                  "declared",
+                  "unknown"
+                ]
+              },
+              "value_m": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "minimum": 0
+              },
+              "basis": {
+                "type": "string"
+              }
+            },
+            "description": "Positional precision. When status is unknown, value_m is null and any stored precision_m of 0 is not a claim."
+          },
+          "run_id": {
+            "type": "string"
+          },
+          "document_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "observed_at_ms": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      }
+    },
+    "collection_snapshot": {
+      "type": [
+        "object",
+        "null"
+      ]
+    }
+  }
+}

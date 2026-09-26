@@ -7,6 +7,8 @@ from pathlib import Path
 
 import duckdb
 import pytest
+
+from src.ingestion.wfs_api import replay_native_fixture
 from jsonschema import Draft7Validator
 
 from src.ingestion.source_packs import (
@@ -34,16 +36,17 @@ def conn():
 
 def test_all_production_packs_validate_against_contract() -> None:
     packs = load_source_packs(PACK_DIR)
-    assert len(packs) == 8
+    assert len(packs) == 9
     assert {domain for pack in packs for domain in pack["domains"]} == {
         "economic",
+        "geospatial",
         "osint",
         "political",
         "research",
         "scientific",
         "technical",
     }
-    assert sum(len(pack["sources"]) for pack in packs) == 25
+    assert sum(len(pack["sources"]) for pack in packs) == 27
     schema = json.loads(
         (ROOT / "contracts/schemas/jsonschema/noesis-source-pack-v1.json").read_text()
     )
@@ -64,6 +67,9 @@ def test_offline_fixtures_are_pinned_and_replay_deterministically() -> None:
 
         def runner(source, fixture, seen=seen):
             seen.append(source["source_id"])
+            if fixture.get("native_pages"):
+                # Captured native envelopes replay through the real adapter.
+                return replay_native_fixture(source, fixture)
             return fixture["normalized"]
 
         connectors = {
@@ -290,6 +296,7 @@ def test_secret_readiness_health_redaction_and_domain_coverage(conn) -> None:
     coverage = store.coverage()
     assert set(coverage["domains"]) == {
         "economic",
+        "geospatial",
         "osint",
         "political",
         "research",

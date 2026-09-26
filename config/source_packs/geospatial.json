@@ -1,0 +1,120 @@
+{
+  "pack_id": "geospatial-berlin",
+  "version": "1.0.0",
+  "description": "Official Berlin vector layers (district boundaries and school locations) acquired through native WFS 2.0.0 and projected into the geospatial store.",
+  "domains": [
+    "geospatial"
+  ],
+  "defaults": {
+    "connector": "wfs",
+    "publisher": "Geoportal Berlin",
+    "temporal_semantics": "provider-snapshot; no declared valid time; acquisition time recorded separately",
+    "mapping": {
+      "target_schema": "noesis-geospatial-feature-v1",
+      "version": "1.0.0"
+    },
+    "extractor_versions": [
+      "wfs-2.0.0-geojson:1.0.0",
+      "geospatial-feature-projection:1.0.0"
+    ],
+    "operations": [
+      "features"
+    ],
+    "schedule": {
+      "kind": "interval",
+      "interval_s": 604800
+    },
+    "auth": {
+      "kind": "none"
+    },
+    "license": {
+      "id": "dl-de-zero-2.0",
+      "terms_url": "https://www.govdata.de/dl-de/zero-2-0",
+      "redistribution": "permitted-without-conditions"
+    },
+    "health": {
+      "required": true,
+      "max_staleness_s": 1209600
+    }
+  },
+  "sources": [
+    {
+      "source_id": "berlin-bezirksgrenzen",
+      "endpoint": "https://gdi.berlin.de/services/wfs/alkis_bezirke",
+      "scope": "The 12 Berlin districts (ALKIS Bezirksgrenzen); complete collection",
+      "update_cadence": "irregular; follows ALKIS cadastral updates",
+      "budgets": {
+        "timeout_ms": 60000,
+        "max_results": 100,
+        "max_bytes": 5000000,
+        "max_pages": 10
+      },
+      "wfs": {
+        "version": "2.0.0",
+        "type_names": "alkis_bezirke:bezirksgrenzen",
+        "output_format": "application/json",
+        "srs_name": "urn:ogc:def:crs:EPSG::25833",
+        "axis_order": "east_north",
+        "sort_by": "name",
+        "page_size": 6
+      },
+      "geospatial": {
+        "namespace": "global",
+        "title_property": "namgem",
+        "precision": {
+          "status": "unknown",
+          "basis": "WFS capabilities and the GeoJSON encoding declare no positional accuracy"
+        },
+        "geometry_types": [
+          "MultiPolygon"
+        ],
+        "metadata_url": "https://gdi.berlin.de/geonetwork/srv/ger/csw?service=CSW&request=GetRecordById&version=2.0.2&outputschema=http://www.isotc211.org/2005/gmd&elementsetname=full&id=0a7c53a5-b29d-3f45-9734-1c811045e6c2",
+        "attribution": "Geoportal Berlin / ALKIS Berlin Bezirke (dl-de/zero-2-0; attribution not required)"
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/geospatial-bezirksgrenzen.json",
+        "sha256": "fc9bfb719627c64f937faa727c9924930d27f5709a6dac46a602eb8d17143ce4",
+        "expected_output_hash": "d6b465080372930416fbe2797405e3db326c731b19c49fb4aeaac156ae6665e5"
+      }
+    },
+    {
+      "source_id": "berlin-schulen",
+      "endpoint": "https://gdi.berlin.de/services/wfs/schulen",
+      "scope": "Public and private school sites in Berlin (Schulen); complete collection",
+      "update_cadence": "per school year",
+      "budgets": {
+        "timeout_ms": 60000,
+        "max_results": 5000,
+        "max_bytes": 5000000,
+        "max_pages": 20
+      },
+      "wfs": {
+        "version": "2.0.0",
+        "type_names": "schulen:schulen",
+        "output_format": "application/json",
+        "srs_name": "urn:ogc:def:crs:EPSG::25833",
+        "axis_order": "east_north",
+        "sort_by": "bsn",
+        "page_size": 250
+      },
+      "geospatial": {
+        "namespace": "global",
+        "title_property": "schulname",
+        "precision": {
+          "status": "unknown",
+          "basis": "WFS capabilities and the GeoJSON encoding declare no positional accuracy"
+        },
+        "geometry_types": [
+          "Point"
+        ],
+        "metadata_url": "https://gdi.berlin.de/geonetwork/srv/ger/csw?service=CSW&request=GetRecordById&version=2.0.2&outputschema=http://www.isotc211.org/2005/gmd&elementsetname=full&id=2656f411-e4e9-3e57-8dc7-b4533426e048",
+        "attribution": "Geoportal Berlin / Schulen (dl-de/zero-2-0; attribution not required)"
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/geospatial-schulen.json",
+        "sha256": "c4cd0d3c01fa457079a3b033cd0211276746097e241c9265c6a73c20cf8ca871",
+        "expected_output_hash": "6e9b17de9bccbfb21831b8ab20b1e19df154aa0a8574c470dbbcc82819324680"
+      }
+    }
+  ]
+}

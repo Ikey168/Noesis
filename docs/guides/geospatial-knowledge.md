@@ -34,3 +34,5 @@ route calculation, and current event-map locations. Results and work are
 bounded. Access is separated into `knowledge:geospatial:read`,
 `knowledge:geospatial:write`, `knowledge:geospatial:review`, and
 `knowledge:geospatial:calculate`.
+
+For acquired vector layers (WFS/GeoJSON features, revisions, points-inside-boundary queries) see the [geospatial pack guide](geospatial-pack.md).

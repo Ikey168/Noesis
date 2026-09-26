@@ -621,14 +621,15 @@ def test_six_domain_offline_execution(setup):
         selected = manifest["sources"][0]
         accept(runtime, manifest, selected)
         fixture = json.loads((ROOT / selected["fixture"]["path"]).read_text())
+        if fixture.get("native_pages"):
+            # Native captures (WFS/GeoJSON) replay through the real adapter.
+            adapter = runtime.fixture_adapters(manifest["pack_id"], ROOT)[selected["source_id"]]
+        else:
+            adapter = FixturePageAdapter(selected, [fixture["normalized"]])
         result = runtime.run(
             request(manifest, selected, key=f"six:{manifest['pack_id']}"),
             principal_id="operator",
-            adapters={
-                selected["source_id"]: FixturePageAdapter(
-                    selected, [fixture["normalized"]]
-                )
-            },
+            adapters={selected["source_id"]: adapter},
             secret_resolver=lambda _: "fixture-credential",
             dns_resolver=lambda _: ["8.8.8.8"],
         )
@@ -636,6 +637,7 @@ def test_six_domain_offline_execution(setup):
         completed.update(manifest["domains"])
     assert completed == {
         "economic",
+        "geospatial",
         "osint",
         "political",
         "research",

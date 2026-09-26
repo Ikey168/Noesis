@@ -228,7 +228,12 @@ def _contains(
 ) -> bool:
     kind, coordinates = _validate_geometry(geometry)
     if kind == "MultiPolygon":
-        raise GeospatialError("unsupported_operation", "Multipart topology requires the Shapely backend")
+        # Point-in-multipolygon is exact ring parity per part; other multipart
+        # topology (intersections, segments) still requires Shapely.
+        return any(
+            _contains({"type": "Polygon", "coordinates": polygon}, point, tolerance_m)
+            for polygon in coordinates
+        )
     if kind == "Point":
         return _distance_m(coordinates, point) <= tolerance_m
     if kind == "Polygon":
