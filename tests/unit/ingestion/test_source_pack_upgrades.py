@@ -24,9 +24,14 @@ def pack():
     return json.loads((ROOT / "config/source_packs/research.json").read_text())
 
 
+def _bump(version, *, minor):
+    major, minor_part, patch = (int(part) for part in version.split("."))
+    return f"{major}.{minor_part + 1}.0" if minor else f"{major}.{minor_part}.{patch + 1}"
+
+
 def candidate(old):
     value = copy.deepcopy(old)
-    value["version"] = "1.3.0"
+    value["version"] = _bump(old["version"], minor=True)
     value["sources"] = [v for v in value["sources"] if v["source_id"] != "openalex-works"]
     value["sources"][0]["auth"] = {"kind": "required-secret", "secret_ref": "NOESIS_TEST_KEY"}
     value["sources"][0]["mapping"] = {"target_schema": "scholarly-work-v1", "version": "2.0.0"}
@@ -135,7 +140,7 @@ def test_apply_rolls_back_on_preflight_then_replays_and_keeps_old_schedule(seede
     prior_schedule = conn.execute("SELECT schedule_json,enabled,next_run_at_ms FROM source_pack_schedules WHERE pack_id=?", [old["pack_id"]]).fetchone()
     receipt = upgrade.apply(newer, accepted_license_sources=[v["source_id"] for v in newer["sources"]],
                             secret_available=lambda _: True, **args)
-    assert receipt["candidate_version"] == "1.3.0" and receipt["retained_old_version"]
+    assert receipt["candidate_version"] == _bump(old["version"], minor=True) and receipt["retained_old_version"]
     assert conn.execute("SELECT schedule_json,enabled,next_run_at_ms FROM source_pack_schedules WHERE pack_id=?", [old["pack_id"]]).fetchone() == prior_schedule
     replay = upgrade.apply(newer, accepted_license_sources=[v["source_id"] for v in newer["sources"]],
                            secret_available=lambda _: True, **args)
@@ -153,11 +158,11 @@ def test_apply_rolls_back_on_preflight_then_replays_and_keeps_old_schedule(seede
 def test_stale_preview_and_reused_key_are_rejected(seeded):
     conn, old, _ = seeded
     newer = copy.deepcopy(old)
-    newer["version"] = "1.3.0"
+    newer["version"] = _bump(old["version"], minor=True)
     upgrade = SourcePackUpgradeStore(conn)
     preview = upgrade.preview_impact(newer, principal_id="operator", scopes=OPERATOR)
     other = copy.deepcopy(old)
-    other["version"] = "1.2.1"
+    other["version"] = _bump(old["version"], minor=False)
     SourcePackStore(conn).install(other, principal_id="operator")
     with pytest.raises(SourcePackError) as stale:
         upgrade.apply(newer, preview_hash=preview["preview"]["preview_hash"],
@@ -173,7 +178,7 @@ def test_missing_retained_pin_and_explicit_schedule_migration(seeded):
     InvestigationTemplateStore(conn).create("research", "missing-pin", definition,
                                             principal_id="operator", scopes=OPERATOR)
     newer = copy.deepcopy(old)
-    newer["version"] = "1.3.0"
+    newer["version"] = _bump(old["version"], minor=True)
     upgrade = SourcePackUpgradeStore(conn)
     preview = upgrade.preview_impact(newer, principal_id="operator", scopes=OPERATOR)
     template = next(v for v in preview["effects"] if v["kind"] == "template")
@@ -181,6 +186,7 @@ def test_missing_retained_pin_and_explicit_schedule_migration(seeded):
     receipt = upgrade.apply(newer, preview_hash=preview["preview"]["preview_hash"],
                             impact_hash=preview["impact_hash"], apply_key="migrate",
                             principal_id="operator", scopes=OPERATOR, migrate_schedule=True,
+                            secret_available=lambda _ref: True,  # epo-ops requires a credential
                             dns_resolver=lambda _: ["8.8.8.8"])
     assert receipt["schedule_migrated"]
     schedule = json.loads(conn.execute("SELECT schedule_json FROM source_pack_schedules WHERE pack_id=?",
@@ -192,12 +198,13 @@ def test_disabled_pack_can_upgrade_without_enabling_it(seeded):
     conn, old, _ = seeded
     SourcePackStore(conn).set_enabled(old["pack_id"], False, principal_id="operator")
     newer = copy.deepcopy(old)
-    newer["version"] = "1.3.0"
+    newer["version"] = _bump(old["version"], minor=True)
     upgrade = SourcePackUpgradeStore(conn)
     preview = upgrade.preview_impact(newer, principal_id="operator", scopes=OPERATOR)
     receipt = upgrade.apply(newer, preview_hash=preview["preview"]["preview_hash"],
                             impact_hash=preview["impact_hash"], apply_key="disabled",
                             principal_id="operator", scopes=OPERATOR,
+                            secret_available=lambda _ref: True,  # epo-ops requires a credential
                             dns_resolver=lambda _: ["8.8.8.8"])
     assert receipt["preflight"]["ready"] is False
     assert all(source["ready"] for source in receipt["preflight"]["sources"])

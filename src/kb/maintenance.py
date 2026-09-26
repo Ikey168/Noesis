@@ -727,6 +727,8 @@ class MaintenanceOrchestrator:
                 "run_key": f"maintenance:{int(job['scheduled_at_ms'])}:{source['source_id']}",
                 "operation": source["operations"][0],
                 "source_ids": [source["source_id"]],
+                # A scheduled run reads the source's whole declared page budget, not the ad-hoc default.
+                "max_pages": int(source["budgets"]["max_pages"]),
                 "required_sources": [source["source_id"]] if required else [],
                 "network": request["network"],
             }

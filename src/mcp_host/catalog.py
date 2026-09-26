@@ -817,6 +817,10 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
     from tools.knowledge_engine_mcp.standards import required_scopes as standards_scopes
     if server_stem == "knowledge_engine_mcp" and tool_name in STANDARDS_TOOLS:
         return standards_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.transit import TRANSIT_TOOLS
+    from tools.knowledge_engine_mcp.transit import required_scopes as transit_scopes
+    if server_stem == "knowledge_engine_mcp" and tool_name in TRANSIT_TOOLS:
+        return transit_scopes(tool_name, mutability)
     if server_stem == "knowledge_engine_mcp" and tool_name in {
         "suggest_jev_claim_presence",
         "suggest_jev_checkworthiness",

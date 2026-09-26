@@ -9216,6 +9216,10 @@ from tools.knowledge_engine_mcp.standards import register as register_standards_
 
 register_standards_tools(mcp, _intake_safe, _intake_context)
 
+from tools.knowledge_engine_mcp.transit import register as register_transit_tools
+
+register_transit_tools(mcp, _intake_safe, _intake_context)
+
 
 if __name__ == "__main__":
     from src.mcp_host.transport import run_server

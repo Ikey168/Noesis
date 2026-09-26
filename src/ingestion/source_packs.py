@@ -30,6 +30,7 @@ SUPPORTED_CONNECTORS = frozenset(
         "geojson",
         "git",
         "gleif",
+        "gtfs",
         "icecat",
         "iso-open-data",
         "manifest",
@@ -195,6 +196,7 @@ NATIVE_CONNECTOR_MODULES = {
     "epo-ops": "src.ingestion.patent_sources",
     "gleif": "src.ingestion.lei_sources",
     "iso-open-data": "src.ingestion.standards_sources",
+    "gtfs": "src.ingestion.transit_sources",
 }
 
 

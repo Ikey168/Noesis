@@ -899,7 +899,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 710,
+      "tool_count": 714,
       "tools": [
         "noesis-knowledge-engine.accept_awareness_jev_suggestion",
         "noesis-knowledge-engine.accept_citation_repair",
@@ -1590,6 +1590,10 @@
         "noesis-knowledge-engine.suggest_systematic_review_screening",
         "noesis-knowledge-engine.sync_zotero_library",
         "noesis-knowledge-engine.transform_quantitative_frequency",
+        "noesis-knowledge-engine.transit_departures",
+        "noesis-knowledge-engine.transit_feed_versions",
+        "noesis-knowledge-engine.transit_source_contracts",
+        "noesis-knowledge-engine.transit_stops_in_bbox",
         "noesis-knowledge-engine.transition_anomaly_alert",
         "noesis-knowledge-engine.triage_awareness_batch",
         "noesis-knowledge-engine.triage_awareness_item",
@@ -1617,7 +1621,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 710
+      "visible_tool_count": 714
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -1628,11 +1632,11 @@
     },
     "servers": 30,
     "states": {
-      "available": 100,
+      "available": 101,
       "degraded": 158,
-      "unauthorized": 758
+      "unauthorized": 761
     },
-    "tools": 1016
+    "tools": 1020
   },
   "tools": [
     {
@@ -56543,6 +56547,160 @@
       ],
       "required_scopes": [
         "knowledge:quantitative:calculate"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Scheduled departures at a stop on a service day, with realtime state (observed/stale/missing) and alerts.",
+      "id": "noesis-knowledge-engine.transit_departures",
+      "input_schema": {
+        "properties": {
+          "feed": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "realtime_max_age_s": {
+            "default": 300,
+            "type": "integer"
+          },
+          "service_date": {
+            "type": "string"
+          },
+          "stop_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "feed",
+          "stop_id",
+          "service_date"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "transit_departures",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:transit:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Acquired schedule versions of a feed, route shapes and stops relocated between versions.",
+      "id": "noesis-knowledge-engine.transit_feed_versions",
+      "input_schema": {
+        "properties": {
+          "feed": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "feed"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "transit_feed_versions",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:transit:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "The named GTFS feed contract and why rail and flight status feeds are not wired yet.",
+      "id": "noesis-knowledge-engine.transit_source_contracts",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "transit_source_contracts",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Stops of the current feed version inside west,south,east,north with their Geospatial geometry ids.",
+      "id": "noesis-knowledge-engine.transit_stops_in_bbox",
+      "input_schema": {
+        "properties": {
+          "bbox": {
+            "items": {
+              "type": "number"
+            },
+            "type": "array"
+          },
+          "feed": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "feed",
+          "bbox"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "transit_stops_in_bbox",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:transit:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",

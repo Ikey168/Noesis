@@ -112,6 +112,12 @@ def _standards_projector(conn: Any) -> Any:
     return StandardsProjector(conn)
 
 
+def _transit_projector(conn: Any) -> Any:
+    from src.kb.transit import TransitProjector
+
+    return TransitProjector(conn)
+
+
 # Mapping target schemas whose records are also projected into a domain store.
 # A projector receives each committed page before its checkpoint advances and
 # the source outcome afterwards, so replayed pages must project idempotently.
@@ -123,6 +129,7 @@ PROJECTORS: dict[str, Callable[[Any], Any]] = {
     "noesis-patent-part-v1": _patent_projector,
     "noesis-lei-part-v1": _lei_projector,
     "noesis-standard-catalogue-v1": _standards_projector,
+    "noesis-transit-feed-v1": _transit_projector,
 }
 
 _DDL = """

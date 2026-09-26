@@ -47,7 +47,7 @@ def test_all_production_packs_validate_against_contract() -> None:
         "scientific",
         "technical",
     }
-    assert sum(len(pack["sources"]) for pack in packs) == 39
+    assert sum(len(pack["sources"]) for pack in packs) == 40
     schema = json.loads(
         (ROOT / "contracts/schemas/jsonschema/noesis-source-pack-v1.json").read_text()
     )
@@ -125,14 +125,21 @@ def test_validation_rejects_unsafe_unbounded_or_unpinned_sources(
 
 def test_fixture_path_escape_and_drift_are_rejected(tmp_path: Path) -> None:
     pack = raw("research")
-    pack["defaults"]["fixture"]["path"] = "../outside.json"
+
+    def point_fixtures(path: str) -> None:
+        # Sources are checked in id order and some declare their own fixture.
+        for holder in [pack["defaults"], *pack["sources"]]:
+            if "fixture" in holder:
+                holder["fixture"]["path"] = path
+
+    point_fixtures("../outside.json")
     with pytest.raises(SourcePackError) as escaped:
         SourcePackConformance(tmp_path).offline(pack)
     assert escaped.value.code == "unsafe_fixture"
 
     fixture = tmp_path / "fixture.json"
     fixture.write_text('{"normalized": []}')
-    pack["defaults"]["fixture"]["path"] = "fixture.json"
+    point_fixtures("fixture.json")
     with pytest.raises(SourcePackError) as drift:
         SourcePackConformance(tmp_path).offline(pack)
     assert drift.value.code == "fixture_drift"

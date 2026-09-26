@@ -14,6 +14,15 @@ Tracking: [#1746](https://github.com/Ikey168/Noesis/issues/1746).
 - [ ] [#1749](https://github.com/Ikey168/Noesis/issues/1749) — Extend the Technical pack with non-software standards and certification evidence.
 - [ ] [#1750](https://github.com/Ikey168/Noesis/issues/1750) — Add bounded public transport operations to Geospatial and an existing source profile.
 
+## Implementation status (2026-09-26)
+
+All four tracks have a fixture-tested source path; see
+[the source expansions guide](../guides/source-expansions.md). Live access is
+`unverified-live` for EPO OPS (credentials), GLEIF, ISO Open Data and VBB GTFS.
+Espacenet, WIPO PATENTSCOPE, official national registers, ETSI, certification
+registries, VBB GTFS Realtime and rail/flight-status feeds are recorded as not
+implemented, each with a reason in its provider contract.
+
 ## Patents and inventions
 
 Extend Research/Technical with patent publications, family relations, inventor
