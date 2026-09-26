@@ -46,7 +46,7 @@ metadata that `install_manifest` copies into a synthesized `DomainPack`.
 | `packs/political`, code `political` | five political capabilities (identical lists) | `src/domains/political/*` | `kb_political`, legislative dossier tools |
 | `packs/technology`, code `technology` | six technical capabilities (identical lists) | `src/domains/technical/*` | `kb_technical`, technical inventory/impact tools |
 | `packs/market` | eight market capabilities | `src/domains/market/*` | `noesis-market` (62 tools) |
-| code `news`, `research`; `packs/energy` | none declared | news: `src/domains/news/*` enrichers and routes; energy: keyword enricher only | news routes; none |
+| code `news`, `research` | none declared | news: `src/domains/news/*` enrichers and routes | news routes |
 
 **Duplicates.** Economics, political, technology and legal declare their
 capabilities twice, in code and in a manifest. The lists are identical except
@@ -54,8 +54,7 @@ legal, whose manifest adds three strings the code pack omits.
 
 **Orphans.** No declared string lacks an implementation. Implementations
 without a declared string: news (enrichers and routes), research (enrichers;
-its behavior is declared only on `packs/science`), energy (one keyword
-enricher), patents, LEI, standards and transit (delivered as source expansions
+its behavior is declared only on `packs/science`), patents, LEI, standards and transit (delivered as source expansions
 into existing packs without new capability strings), and the intake,
 recipe and project surfaces (not packs).
 

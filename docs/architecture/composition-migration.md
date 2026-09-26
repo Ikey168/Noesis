@@ -35,8 +35,14 @@ and `::test_shadow_diff_is_annotated_for_every_migrated_bundle`.
 | political | `political.core` | v1 manifest plus code pack merged | shadow report |
 | technology (legacy `technical`) | `technology.core`, `technology.patents`, `technology.standards` | alias `technical` | shadow report |
 | products | `products.core` | v1 manifest unchanged | shadow report |
-| energy | none: its v1 capabilities have no implementation and stay declared but unbound | v1 manifest unchanged | `test_capabilities_without_an_implementation_stay_unbound` |
 | funding-grants | `funding.core` plus the shared `platform.*` providers | authored natively (`packs/funding-grants/manifest.json`); alias `funding` | `test_funding_manifest_resolves_to_its_own_provider_plus_shared_providers`, `test_disabling_funding_is_a_selection_change_that_keeps_shared_providers` |
+
+The `energy` example pack was retired on 2026-09-26: it declared no capability
+that any provider implemented (a keyword enricher, a panel and a provisioning
+template only), so `packs/energy/pack.json` was removed rather than composed.
+`test_every_bundle_adapts_and_round_trips_to_its_v1_registration` asserts it no
+longer adapts. Energy coverage belongs to the Climate and Environment bundle tracked in
+[#1849](https://github.com/Ikey168/Noesis/issues/1849).
 
 Legacy v1 capability names stay declared with `legacy.<bundle>.<name>`
 contracts and are never bound. Binding happens only through capabilities a

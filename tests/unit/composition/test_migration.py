@@ -93,7 +93,6 @@ def test_capabilities_without_an_implementation_stay_unbound():
         for capability in manifest["contributes"].get("capabilities") or []:
             if capability.get("legacy_name"):  # v1 names: declared, never bound to a provider
                 assert capability["id"] not in bound and "provider" not in capability
-    assert not any(b["provider"].startswith("energy") for b in plan["bindings"])  # energy has no implementation
 
 
 # ------------------------------------------------------------ C09.2 bundles
@@ -116,7 +115,7 @@ def test_every_bundle_migrates_with_one_authority_and_unchanged_source_pins(isol
 
 def test_shadow_diff_is_annotated_for_every_migrated_bundle():
     report = json.loads(SHADOW_REPORT.read_text())
-    assert set(adapt_all()) - {"energy"} <= set(report["disagreements"]) | {"funding-grants"}
+    assert set(adapt_all()) <= set(report["disagreements"]) | {"funding-grants"}
     for bundle, items in report["disagreements"].items():
         for item in items:
             assert item["annotation"] != "unreviewed", (bundle, item)
