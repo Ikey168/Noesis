@@ -19,9 +19,18 @@ def start_research_topic(
     principal_id: str, scopes: set[str],
 ) -> dict[str, Any]:
     """Create or replay both records; a failed capacity check leaves neither."""
-    normalized_refs = [_reference(ref, namespace, scopes) for ref in references]
     projects = ResearchProjectStore(conn)
     intake = IntakeStore(conn)
+    inherited = []
+    if origin:
+        parent = intake._state(namespace, origin["session_id"])
+        intake._authorize_full_read(parent, principal_id, scopes)
+        inherited = list(parent["references"])
+    normalized_refs = []
+    for raw in [*inherited, *references]:
+        ref = _reference(raw, namespace, scopes)
+        if ref not in normalized_refs:
+            normalized_refs.append(ref)
     # Create source tables before opening the shared transaction: DuckDB DDL
     # cannot be interleaved with the handoff's writes on this connection.
     exploration = IntakeExplorationStore(conn) if any(
@@ -67,7 +76,7 @@ def start_research_topic(
                     "research_project_revision": 1,
                     "definition_of_done": success_criteria,
                     "research_budget": budget},
-            origin=origin, references=[*references, {
+            origin=origin, references=[*normalized_refs, {
                 "kind": "research_project", "id": project["project_id"],
                 "namespace": namespace, "version": 1,
             }], workspace_links=workspace_links,

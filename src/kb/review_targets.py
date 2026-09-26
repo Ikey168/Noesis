@@ -12,7 +12,8 @@ class ReviewTargetError(ValueError):
 
 class ReviewTargets:
     SCOPES = {'entity': 'knowledge:entity-history:read', 'translation': 'knowledge:cross-language:read',
-              'quality': 'knowledge:quality:read', 'extraction': 'knowledge:read'}
+              'quality': 'knowledge:quality:read', 'extraction': 'knowledge:read',
+              'openreview_concern': 'knowledge:openreview:read'}
 
     def __init__(self, conn):
         self.conn = conn
@@ -54,6 +55,10 @@ class ReviewTargets:
             if len(overrides) > 1000:
                 raise ReviewTargetError('target_budget_exceeded', 'quality override history exceeds inbox bound')
             context = {'overrides': [json.loads(v[0]) for v in overrides]}
+        elif kind == 'openreview_concern':
+            row = self._one('SELECT payload_json FROM openreview_concern_revisions WHERE namespace=? AND concern_revision_id=?', [ns, identity])
+            current = self._one('SELECT payload_json FROM openreview_concern_revisions WHERE namespace=? AND concern_id=? ORDER BY revision DESC LIMIT 1', [ns, row['concern_id']])
+            context = {}
         else:
             base = '''SELECT to_json(r) FROM derived_object_revisions r JOIN derived_object_generations g
                 ON g.namespace=r.namespace AND g.generation=r.generation WHERE r.namespace=? AND g.status='committed' '''
@@ -69,8 +74,9 @@ class ReviewTargets:
     def validate_label(kind, label):
         if not isinstance(label, dict):
             raise ReviewTargetError('invalid_label', 'review label must be a structured object')
-        if kind in {'entity', 'translation', 'extraction'}:
-            values = {'entity': {'match', 'non-match', 'uncertain'}, 'translation': {'accepted', 'rejected', 'disputed'}, 'extraction': {'correct', 'incorrect', 'uncertain'}}[kind]
+        if kind in {'entity', 'translation', 'extraction', 'openreview_concern'}:
+            values = {'entity': {'match', 'non-match', 'uncertain'}, 'translation': {'accepted', 'rejected', 'disputed'}, 'extraction': {'correct', 'incorrect', 'uncertain'},
+                      'openreview_concern': {'resolved', 'partial', 'unresolved', 'disputed', 'unassessable'}}[kind]
             if set(label) != {'decision'} or label['decision'] not in values:
                 raise ReviewTargetError('invalid_label', 'unsupported decision label')
         else:

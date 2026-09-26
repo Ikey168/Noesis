@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/contracts/noesis-jev-frame-suggestion-v1.json",
+  "title": "Source-bound Jev multilabel editorial frame suggestion",
+  "type": "object",
+  "required": ["contract", "status", "accepted", "reason", "coverage", "source_binding", "raw_scores", "suggested_frames", "dominant", "prediction_status", "calibration_policy_sha256", "decision_runs"],
+  "properties": {
+    "contract": {"const": "noesis-jev-frame-suggestion-v1"},
+    "status": {"enum": ["suggested", "abstained"]},
+    "accepted": {"const": false},
+    "reason": {"type": ["string", "null"]},
+    "coverage": {"type": "object", "required": ["covered_chars", "total_chars", "complete", "windows"], "properties": {"covered_chars": {"type": "integer", "minimum": 0}, "total_chars": {"type": "integer", "minimum": 1}, "complete": {"type": "boolean"}, "windows": {"type": "array", "items": {"type": "object", "required": ["start", "end", "run_id"], "properties": {"start": {"type": "integer", "minimum": 0}, "end": {"type": "integer", "minimum": 1}, "run_id": {"type": "string", "minLength": 1}}, "additionalProperties": false}}}, "additionalProperties": false},
+    "source_binding": {"type": "array", "minItems": 1, "items": {"type": "object"}},
+    "raw_scores": {"oneOf": [{"type": "null"}, {"type": "object", "required": ["economic", "security", "humanitarian", "legal", "political", "scientific"], "properties": {"economic": {"$ref": "#/$defs/probability"}, "security": {"$ref": "#/$defs/probability"}, "humanitarian": {"$ref": "#/$defs/probability"}, "legal": {"$ref": "#/$defs/probability"}, "political": {"$ref": "#/$defs/probability"}, "scientific": {"$ref": "#/$defs/probability"}}, "additionalProperties": false}]},
+    "suggested_frames": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/frame"}},
+    "dominant": {"type": ["string", "null"], "enum": ["economic", "security", "humanitarian", "legal", "political", "scientific", "other", null]},
+    "prediction_status": {"enum": ["suggested", "abstained"]},
+    "calibration_policy_sha256": {"type": ["string", "null"]},
+    "decision_runs": {"type": "array", "items": {"type": "object"}}
+  },
+  "$defs": {
+    "probability": {"type": "number", "minimum": 0, "maximum": 1},
+    "frame": {"enum": ["economic", "security", "humanitarian", "legal", "political", "scientific"]}
+  },
+  "additionalProperties": false
+}

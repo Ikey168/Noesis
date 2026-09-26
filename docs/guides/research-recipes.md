@@ -20,6 +20,20 @@ starts. MCP uses `knowledge:recipes:read`, `knowledge:recipes:write`, and
 `knowledge:recipes:execute`; registry lists are paginated and every operation
 is namespace-isolated.
 
-The MCP run endpoint accepts bounded local step outputs as adapters, which also
-provides deterministic offline conformance across research, political,
-economic, OSINT, technical, and scientific workflows.
+The current MCP `run_research_recipe` endpoint records caller-supplied result
+fixtures keyed by recipe step ID. It does not invoke the named tools. Its
+receipt reports `execution_mode: "caller-supplied-fixture"`,
+`actions_executed: false`, and a canonical redacted `execution_input_hash` so a
+different fixture payload cannot alias an earlier run under the same run key.
+This path supports deterministic offline conformance across research,
+political, economic, OSINT, technical, and scientific workflows. It is not
+evidence that configured actions ran. General authorized MCP action dispatch
+requires a configured executor with per-tool authorization and durable action
+receipts; that capability is not yet wired into recipe MCP.
+
+The Python `ResearchRecipeStore.run` interface does invoke the adapter
+callables supplied by its trusted caller. Recipe step IDs select those
+callables, optional steps without adapters are recorded as durable omissions,
+and run identity includes the supplied execution-input hash and execution
+mode. Deployments must provide and authorize those adapters at the application
+boundary.

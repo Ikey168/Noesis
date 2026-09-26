@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/schemas/noesis-paper-family-export-v1.json",
+  "title": "Noesis paper family bibliography and lifecycle export",
+  "type": "object",
+  "required": ["contract", "family_id", "revision", "content_hash", "bibliography", "member_lifecycle", "unresolved_notices", "members", "relations", "replay_hash"],
+  "properties": {
+    "contract": {"const": "noesis-paper-family-export-v1"},
+    "family_id": {"type": "string"},
+    "revision": {"type": "integer", "minimum": 1},
+    "content_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "bibliography": {"type": "array"},
+    "member_lifecycle": {"type": "object"},
+    "unresolved_notices": {"type": "array"},
+    "members": {"type": "array"},
+    "relations": {"type": "array"},
+    "replay_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+  },
+  "additionalProperties": false
+}

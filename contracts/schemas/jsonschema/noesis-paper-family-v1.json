@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/schemas/noesis-paper-family-v1.json",
+  "title": "Noesis paper family revision",
+  "type": "object",
+  "required": ["contract", "namespace", "family_id", "owner", "revision", "members", "relations", "notices", "selections", "content_hash"],
+  "properties": {
+    "contract": {"const": "noesis-paper-family-v1"},
+    "namespace": {"type": "string", "minLength": 1},
+    "family_id": {"type": "string", "minLength": 1},
+    "owner": {"type": "string", "minLength": 1},
+    "revision": {"type": "integer", "minimum": 1},
+    "predecessor_hash": {"type": ["string", "null"]},
+    "members": {"type": "array", "maxItems": 100, "items": {"type": "object", "required": ["member_id", "source", "stage", "identifiers", "availability", "status"], "properties": {
+      "member_id": {"type": "string"}, "source": {"type": "object", "required": ["document_id", "revision_id"]},
+      "stage": {"type": "string"}, "identifiers": {"type": "array"}, "availability": {"type": "string"}, "status": {"type": "string"}
+    }}},
+    "relations": {"type": "array", "maxItems": 100},
+    "notices": {"type": "array", "maxItems": 100},
+    "selections": {"type": "array", "maxItems": 100},
+    "created_at_ms": {"type": "integer"},
+    "content_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "member_total": {"type": "integer"},
+    "offset": {"type": "integer"},
+    "next_offset": {"type": ["integer", "null"]},
+    "idempotent": {"type": "boolean"}
+  },
+  "additionalProperties": false
+}

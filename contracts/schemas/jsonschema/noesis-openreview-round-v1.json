@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/contracts/noesis-openreview-round-v1.json",
+  "title": "One pinned public OpenReview round",
+  "type": "object",
+  "required": ["contract", "round_set_id", "revision", "round_id", "notes", "concerns", "total_notes", "total_concerns", "coverage"],
+  "properties": {
+    "contract": {"const": "noesis-openreview-round-v1"},
+    "round_set_id": {"type": "string"},
+    "revision": {"type": "integer", "minimum": 1},
+    "round_id": {"type": "string", "pattern": "^round:[0-9]+$"},
+    "notes": {"type": "array", "maxItems": 100, "items": {"type": "object", "required": ["note_id", "citation", "note_type"]}},
+    "concerns": {"type": "array", "maxItems": 100, "items": {"type": "object", "required": ["key", "review_locator", "status"]}},
+    "total_notes": {"type": "integer", "minimum": 0},
+    "total_concerns": {"type": "integer", "minimum": 0},
+    "coverage": {"const": "selected_accessible_public_notes_only"}
+  }
+}

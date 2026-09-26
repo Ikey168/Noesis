@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/contracts/noesis-openreview-round-comparison-v1.json",
+  "title": "Cited public OpenReview round comparison",
+  "type": "object",
+  "required": ["contract", "round_set_id", "before", "after", "note_changes", "concern_changes", "manuscript_changes", "manuscript_coverage", "interpretation", "coverage"],
+  "properties": {
+    "contract": {"const": "noesis-openreview-round-comparison-v1"},
+    "round_set_id": {"type": "string"},
+    "before": {"$ref": "#/$defs/selector"},
+    "after": {"$ref": "#/$defs/selector"},
+    "note_changes": {"type": "array", "maxItems": 200, "items": {"$ref": "#/$defs/change"}},
+    "concern_changes": {"type": "array", "maxItems": 200, "items": {"type": "object", "required": ["key", "kind", "before", "after"]}},
+    "manuscript_changes": {"type": "array", "maxItems": 200, "items": {"$ref": "#/$defs/change"}},
+    "manuscript_coverage": {"enum": ["available", "unassessable"]},
+    "interpretation": {"type": "null"},
+    "coverage": {"const": "selected_accessible_public_notes_only"}
+  },
+  "$defs": {
+    "selector": {
+      "type": "object", "required": ["revision", "round_id"],
+      "properties": {"revision": {"type": "integer", "minimum": 1}, "round_id": {"type": "string", "pattern": "^round:[0-9]+$"}}
+    },
+    "change": {
+      "type": "object", "required": ["note_id", "note_type", "kind", "before", "after"],
+      "properties": {
+        "note_id": {"type": "string"},
+        "note_type": {"enum": ["submission", "review", "rebuttal", "decision", "unknown"]},
+        "kind": {"enum": ["added", "edited", "unavailable"]},
+        "before": {"type": ["object", "null"]},
+        "after": {"type": ["object", "null"]}
+      }
+    }
+  }
+}

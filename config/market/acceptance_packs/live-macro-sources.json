@@ -1,0 +1,175 @@
+{
+ "pack_id": "market-live-macro-sources-v1",
+ "evidence_kind": "live_provider",
+ "recorded_at": "2026-09-24T16:37:23+00:00",
+ "providers": [
+  {
+   "provider": "eurostat",
+   "status": "live_with_coverage_gaps",
+   "series": [
+    {
+     "series_id": "estat:prc_hicp_manr:DE",
+     "frequency": "monthly",
+     "unit": "annual rate of change",
+     "geography": "DE",
+     "observations": 348,
+     "first_period": "1997-01",
+     "last_period": "2025-12",
+     "preserved": {
+      "provider_vintage_ms": 1770415200000,
+      "vintage_basis": "eurostat_dataset_updated",
+      "provider_release_at_ms": null,
+      "provider_release_time_status": "Eurostat dataset update is not an official release timestamp",
+      "acquired_at_ms": 1790267839898,
+      "seasonal_adjustment": "unknown"
+     }
+    },
+    {
+     "series_id": "estat:namq_10_gdp:FR",
+     "frequency": "quarterly",
+     "unit": "chain linked volumes, percentage change on previous period",
+     "geography": "FR",
+     "observations": 185,
+     "first_period": "1980-Q2",
+     "last_period": "2026-Q2",
+     "preserved": {
+      "provider_vintage_ms": 1790197200000,
+      "vintage_basis": "eurostat_dataset_updated",
+      "provider_release_at_ms": null,
+      "provider_release_time_status": "Eurostat dataset update is not an official release timestamp",
+      "acquired_at_ms": 1790267840014,
+      "seasonal_adjustment": "adjusted"
+     }
+    }
+   ],
+   "diagnostics": [
+    {
+     "stage": "coverage",
+     "locator": "prc_hicp_manr/DE",
+     "code": "stale_series",
+     "series_id": "estat:prc_hicp_manr:DE",
+     "last_period": "2025-12",
+     "lag_periods": 9,
+     "allowed_lag_periods": 4
+    }
+   ]
+  },
+  {
+   "provider": "worldbank",
+   "status": "live_verified",
+   "series": [
+    {
+     "series_id": "wb:NY.GDP.MKTP.CD:US",
+     "frequency": "annual",
+     "unit": null,
+     "geography": "US",
+     "observations": 66,
+     "first_period": "1960",
+     "last_period": "2025",
+     "preserved": {
+      "provider_vintage_ms": 1783900800000,
+      "vintage_basis": "world_bank_lastupdated",
+      "provider_release_at_ms": null,
+      "provider_release_time_status": "World Bank indicator response has no release timestamp",
+      "acquired_at_ms": 1790267840289,
+      "seasonal_adjustment": "unknown"
+     }
+    },
+    {
+     "series_id": "wb:FP.CPI.TOTL.ZG:DE",
+     "frequency": "annual",
+     "unit": "percent",
+     "geography": "DE",
+     "observations": 66,
+     "first_period": "1960",
+     "last_period": "2025",
+     "preserved": {
+      "provider_vintage_ms": 1783900800000,
+      "vintage_basis": "world_bank_lastupdated",
+      "provider_release_at_ms": null,
+      "provider_release_time_status": "World Bank indicator response has no release timestamp",
+      "acquired_at_ms": 1790267840365,
+      "seasonal_adjustment": "unknown"
+     }
+    }
+   ],
+   "diagnostics": []
+  },
+  {
+   "provider": "ecb_sdmx",
+   "status": "unavailable",
+   "series": [],
+   "diagnostics": [
+    {
+     "stage": "fetch",
+     "locator": "EXR/D.USD.EUR.SP00.A",
+     "code": "ModuleNotFoundError"
+    },
+    {
+     "stage": "fetch",
+     "locator": "ICP/M.U2.N.000000.4.ANR",
+     "code": "ModuleNotFoundError"
+    }
+   ]
+  },
+  {
+   "provider": "fred",
+   "status": "live_verified",
+   "series": [
+    {
+     "series_id": "fred:CPIAUCSL:US",
+     "frequency": "monthly",
+     "unit": "index 1982-1984=100",
+     "geography": "US",
+     "observations": 955,
+     "first_period": "1947-01",
+     "last_period": "2026-08",
+     "preserved": {
+      "provider_vintage_ms": 1789084800000,
+      "vintage_basis": "fred_current_realtime_period",
+      "provider_release_at_ms": null,
+      "provider_release_time_status": "release timestamp not returned by series endpoints",
+      "acquired_at_ms": 1790267841788,
+      "seasonal_adjustment": "adjusted"
+     }
+    },
+    {
+     "series_id": "fred:CPIAUCSL:US",
+     "frequency": "monthly",
+     "unit": "index 1982-1984=100",
+     "geography": "US",
+     "observations": 13,
+     "first_period": "2019-01",
+     "last_period": "2020-01",
+     "preserved": {
+      "provider_vintage_ms": 1583020800000,
+      "vintage_basis": "explicit_alfred_realtime_period",
+      "provider_release_at_ms": null,
+      "provider_release_time_status": "release timestamp not returned by series endpoints",
+      "acquired_at_ms": 1790267842742,
+      "seasonal_adjustment": "adjusted"
+     }
+    }
+   ],
+   "diagnostics": [],
+   "release_calendar": {
+    "series_id": "CPIAUCSL",
+    "release_ids": [
+     "10"
+    ],
+    "release_id": "10",
+    "date_count": 23,
+    "first_date": "2025-01-15",
+    "last_date": "2026-12-10",
+    "coverage": "provider_returned_dates",
+    "release_time_precision": "date_only",
+    "include_release_dates_with_no_data": true
+   }
+  }
+ ],
+ "limitations": [
+  "Provider release times are recorded only where the response carries them; otherwise the status explains the fallback clock.",
+  "The bounded CPI example demonstrates one ALFRED vintage; it does not establish revision coverage for every FRED series.",
+  "No analyst review is implied by this pack."
+ ]
+}

@@ -1,0 +1,19 @@
+{
+  "contract": "noesis-market-entitlement-purge-report-v1",
+  "namespace": "market:demo",
+  "scanned_by_kind": {"price_bar": 2},
+  "purged": [
+    {
+      "object_kind": "price_bar",
+      "object_id": "bar:demo:obsolete",
+      "revision_id": "market-bar:obsolete@1",
+      "record_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "entitlement_ids": ["entitlement:fixture-eod"],
+      "reason_code": "retention_expired"
+    }
+  ],
+  "purged_count": 1,
+  "more_to_scan": [],
+  "next_cursors": {},
+  "purged_at_ms": 1790208000000
+}

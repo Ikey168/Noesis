@@ -11,6 +11,7 @@ import time
 from typing import Any
 
 from src.kb.authored_reports import AuthoredReportStore, ReportError
+from src.kb.evidence_changes import EvidenceResolver
 from src.kb.intake_creation import IntakeCreationStore
 from src.kb.intake_modes import IntakeError, IntakeStore, _hash, _text
 from src.kb.intake_playbooks import IntakePlaybookStore
@@ -45,13 +46,15 @@ class IntakeMaintenanceStore:
         findings: list[dict] = []
 
         def add(kind: str, identity: str, version: int, reason: str,
-                suggested_action: str, detail: str, instance: str = "") -> None:
+                suggested_action: str, detail: str, instance: str = "",
+                metadata: dict | None = None) -> None:
             findings.append({
                 "id": "finding:" + _hash([namespace, kind, identity, version, reason, instance])[:32],
                 "reason": reason, "detail": detail,
                 "target": {"kind": kind, "id": identity, "namespace": namespace,
                            "version": version},
                 "suggested_action": suggested_action,
+                **({"metadata": metadata} if metadata else {}),
             })
             if len(findings) > MAX_FINDINGS:
                 raise IntakeError("maintenance_queue_too_large", "review one namespace or a narrower set of artifacts")
@@ -74,7 +77,7 @@ class IntakeMaintenanceStore:
                         raise
                     continue
                 for card in pack["cards"]:
-                    source_status = practice_source_status(self.conn, card, principal_id)
+                    source_status = practice_source_status(self.conn, card, principal_id, scopes)
                     if source_status not in {"superseded", "unavailable"}:
                         continue
                     add("practice_pack", pack_id, int(revision),
@@ -106,7 +109,7 @@ class IntakeMaintenanceStore:
                 card = next((item for item in pack["cards"] if item["id"] == card_id), None)
                 if card is None:
                     continue
-                source_status = practice_source_status(self.conn, card, principal_id)
+                source_status = practice_source_status(self.conn, card, principal_id, scopes)
                 if source_status in {"superseded", "unavailable"}:
                     continue
                 add("practice_pack", pack_id, int(revision), "overdue_practice",
@@ -195,15 +198,293 @@ class IntakeMaintenanceStore:
                     add("creation_project", project_id, int(revision), "stale_created_report",
                         "review_new_revision", "The authored report changed after project acceptance")
 
+        report_scope_available = (
+            "operator" in scopes or "knowledge:reports:read" in scopes
+        )
+        report_store_available = _has_table(self.conn, "authored_reports")
+        report_scan_available = report_scope_available and report_store_available
+        report_scan_limited = False
+        citation_scope_limited = False
+        report_records: list[dict[str, Any]] = []
+        if report_scan_available and _has_table(self.conn, "authored_reports"):
+            rows = self.conn.execute(
+                "SELECT report_id,revision FROM authored_reports "
+                "WHERE namespace=? AND owner=? ORDER BY report_id LIMIT 501",
+                [namespace, principal_id],
+            ).fetchall()
+            report_scan_limited = len(rows) > 500
+            reports = AuthoredReportStore(self.conn, initialize=False)
+            resolver = EvidenceResolver(self.conn, scopes)
+            for report_id, revision in rows[:500]:
+                try:
+                    report = reports.inspect(
+                        namespace, report_id, principal_id=principal_id,
+                        scopes=scopes,
+                    )
+                except ReportError as exc:
+                    if exc.code != "unauthorized":
+                        raise
+                    citation_scope_limited = True
+                    continue
+                report_records.append({
+                    "id": report_id,
+                    "revision": int(revision),
+                    "updated_at_ms": report.get("updated_at_ms"),
+                    "content_sha256": _hash(report["content"]),
+                })
+                for section in report["content"]["sections"]:
+                    for assertion in section["assertions"]:
+                        for dependency in assertion["dependencies"]:
+                            if dependency["kind"] != "source":
+                                continue
+                            comparison = resolver.compare(dependency)
+                            if comparison["reason"].endswith("access_unavailable"):
+                                citation_scope_limited = True
+                                continue
+                            if comparison["status"] != "affected":
+                                continue
+                            change_reason = comparison["reason"]
+                            latest = comparison.get("after") or {}
+                            current_revision = latest.get("revision_id")
+                            pinned_revision = dependency["revision"]
+                            if (
+                                current_revision == pinned_revision
+                                and change_reason not in {
+                                    "confirmed_withdrawal",
+                                    "provider_notice_requires_review",
+                                }
+                            ):
+                                continue
+                            add(
+                                "authored_report", report_id, int(revision),
+                                "outdated_citation", "review_citation",
+                                f"Assertion {assertion['id']} cites source revision "
+                                f"{pinned_revision}; current evidence reports "
+                                f"{change_reason}",
+                                f"{section['id']}:{assertion['id']}:{_hash(dependency)[:16]}",
+                                metadata={
+                                    "section_id": section["id"],
+                                    "assertion_id": assertion["id"],
+                                    "source_id": dependency["id"],
+                                    "pinned_revision": pinned_revision,
+                                    "current_revision": current_revision,
+                                    "source_status": latest.get("lifecycle"),
+                                    "comparison_reason": change_reason,
+                                },
+                            )
+
+        report_reference_scan_limited = False
+        report_reference_stores: list[str] = []
+        linked_report_ids: set[str] = set()
+        visible_report_ids = {item["id"] for item in report_records}
+
+        if visible_report_ids and _has_table(self.conn, "intake_creation_projects"):
+            report_reference_stores.append("intake_creation_projects")
+            rows = self.conn.execute(
+                "SELECT project_id,revision,content_json FROM intake_creation_projects "
+                "WHERE namespace=? AND owner=? ORDER BY project_id LIMIT 501",
+                [namespace, principal_id],
+            ).fetchall()
+            report_reference_scan_limited |= len(rows) > 500
+            for project_id, _revision, raw in rows[:500]:
+                project = json.loads(raw)
+                try:
+                    IntakeCreationStore._access(project, principal_id, scopes)
+                except IntakeError as exc:
+                    if exc.code != "unauthorized":
+                        raise
+                    report_reference_scan_limited = True
+                    continue
+                report_link = project.get("report")
+                if isinstance(report_link, dict) and report_link.get("id") in visible_report_ids:
+                    linked_report_ids.add(report_link["id"])
+
+        if visible_report_ids and _has_table(self.conn, "intake_sessions"):
+            report_reference_stores.append("intake_sessions")
+            rows = self.conn.execute(
+                "SELECT session_id,content_json FROM intake_sessions "
+                "WHERE namespace=? AND owner=? ORDER BY session_id LIMIT 501",
+                [namespace, principal_id],
+            ).fetchall()
+            report_reference_scan_limited |= len(rows) > 500
+            for _session_id, raw in rows[:500]:
+                session = json.loads(raw)
+                try:
+                    IntakeStore._authorize_full_read(session, principal_id, scopes)
+                except IntakeError as exc:
+                    if exc.code != "unauthorized":
+                        raise
+                    report_reference_scan_limited = True
+                    continue
+                for reference in session.get("references", []):
+                    if (
+                        isinstance(reference, dict)
+                        and reference.get("kind") in {"report", "authored_report"}
+                        and reference.get("id") in visible_report_ids
+                    ):
+                        linked_report_ids.add(reference["id"])
+
+        def report_id_filter_query(table: str, select: str, *, extra: str = "") -> list[Any]:
+            nonlocal report_reference_scan_limited
+            if not visible_report_ids:
+                return []
+            placeholders = ",".join("?" for _ in visible_report_ids)
+            rows = self.conn.execute(
+                f"SELECT {select} FROM {table} WHERE namespace=? AND report_id IN ({placeholders}) {extra} LIMIT 501",
+                [namespace, *sorted(visible_report_ids)],
+            ).fetchall()
+            report_reference_scan_limited |= len(rows) > 500
+            return rows[:500]
+
+        if visible_report_ids and _has_table(self.conn, "report_update_subscriptions"):
+            report_reference_stores.append("report_update_subscriptions")
+            linked_report_ids.update(
+                row[0] for row in report_id_filter_query(
+                    "report_update_subscriptions", "report_id",
+                )
+            )
+
+        if visible_report_ids and _has_table(self.conn, "report_edit_proposals"):
+            report_reference_stores.append("report_edit_proposals")
+            linked_report_ids.update(
+                row[0] for row in report_id_filter_query(
+                    "report_edit_proposals", "report_id",
+                )
+            )
+
+        subscription_scan_complete = True
+        if visible_report_ids and _has_table(self.conn, "knowledge_subscriptions"):
+            if "operator" in scopes or "knowledge:subscriptions:read" in scopes:
+                report_reference_stores.append("knowledge_subscriptions")
+                rows = self.conn.execute(
+                    "SELECT subscription_id,query_json FROM knowledge_subscriptions "
+                    "WHERE namespace=? AND owner_principal=? "
+                    "ORDER BY subscription_id LIMIT 501",
+                    [namespace, principal_id],
+                ).fetchall()
+                subscription_scan_complete = len(rows) <= 500
+                for _subscription_id, raw in rows[:500]:
+                    query = json.loads(raw)
+                    target = query.get("citation_target")
+                    if (
+                        isinstance(target, dict)
+                        and target.get("kind") == "report"
+                        and target.get("id") in visible_report_ids
+                    ):
+                        linked_report_ids.add(target["id"])
+            else:
+                subscription_scan_complete = False
+                report_reference_scan_limited = True
+
+        artifact_scan_complete = True
+        if visible_report_ids and _has_table(self.conn, "knowledge_artifacts") and _has_table(
+            self.conn, "knowledge_artifact_dependencies",
+        ):
+            if "operator" in scopes or "knowledge:read" in scopes:
+                report_reference_stores.append("knowledge_artifact_dependencies")
+                placeholders = ",".join("?" for _ in visible_report_ids)
+                rows = self.conn.execute(
+                    "SELECT d.dependency_id FROM knowledge_artifact_dependencies d "
+                    "JOIN knowledge_artifacts a ON a.artifact_id=d.artifact_id "
+                    f"WHERE a.namespace=? AND d.dependency_id IN ({placeholders}) "
+                    "LIMIT 501",
+                    [namespace, *sorted(visible_report_ids)],
+                ).fetchall()
+                # Keep a dense or corrupt dependency graph from making the
+                # bounded Maintenance scan unbounded. If the cap is reached,
+                # unlinked candidates are omitted because links may be outside it.
+                report_reference_scan_limited |= len(rows) > 500
+                linked_report_ids.update(row[0] for row in rows[:500])
+            else:
+                artifact_scan_complete = False
+                report_reference_scan_limited = True
+
+        duplicate_report_ids: set[str] = set()
+        if not report_scan_limited and not citation_scope_limited:
+            duplicate_groups: dict[str, list[dict[str, Any]]] = {}
+            for item in report_records:
+                duplicate_groups.setdefault(item["content_sha256"], []).append(item)
+            for content_hash, matches in sorted(duplicate_groups.items()):
+                if len(matches) < 2:
+                    continue
+                matches.sort(key=lambda item: item["id"])
+                duplicate_report_ids.update(item["id"] for item in matches)
+                first = matches[0]
+                add(
+                    "authored_report", first["id"], first["revision"],
+                    "duplicate_report_content", "review_duplicate_reports",
+                    f"Exact authored-report content is shared by {len(matches)} reports; "
+                    "review the links and revisions before pruning",
+                    content_hash,
+                    metadata={
+                        "duplicate_content_sha256": content_hash,
+                        "duplicate_count": len(matches),
+                        "matching_reports": [
+                            {"id": item["id"], "revision": item["revision"]}
+                            for item in matches[:20]
+                        ],
+                        "additional_match_count": max(0, len(matches) - 20),
+                    },
+                )
+
+        if (
+            report_scan_available
+            and not report_scan_limited
+            and not report_reference_scan_limited
+            and not citation_scope_limited
+            and subscription_scan_complete
+            and artifact_scan_complete
+        ):
+            for item in report_records:
+                if item["id"] in duplicate_report_ids or item["id"] in linked_report_ids:
+                    continue
+                updated_at = item["updated_at_ms"]
+                if type(updated_at) is not int or now_ms < updated_at + MONTH_MS:
+                    continue
+                retention = {"status": "not_registered", "active_hold_ids": []}
+                if "operator" not in scopes and "knowledge:retention:read" not in scopes:
+                    retention = {"status": "scope_required", "active_hold_ids": None}
+                elif _has_table(self.conn, "retention_objects"):
+                    retention_row = self.conn.execute(
+                        "SELECT status FROM retention_objects WHERE namespace=? AND object_id=?",
+                        [namespace, item["id"]],
+                    ).fetchone()
+                    if retention_row:
+                        retention = {"status": retention_row[0], "active_hold_ids": []}
+                    if _has_table(self.conn, "retention_holds"):
+                        holds = [row[0] for row in self.conn.execute(
+                            "SELECT hold_id FROM retention_holds WHERE namespace=? "
+                            "AND object_id=? AND status='active' "
+                            "AND (expires_at_ms IS NULL OR expires_at_ms>?) "
+                            "ORDER BY hold_id LIMIT 21",
+                            [namespace, item["id"], now_ms],
+                        ).fetchall()]
+                        retention["active_hold_ids"] = holds[:20]
+                        retention["additional_hold_count"] = max(0, len(holds) - 20)
+                add(
+                    "authored_report", item["id"], item["revision"],
+                    "unlinked_report_candidate", "review_unlinked_report",
+                    "No link was found in the accessible local intake, report-monitoring, "
+                    "or artifact stores; this is a review candidate, not proof of non-use",
+                    metadata={
+                        "last_updated_at_ms": updated_at,
+                        "checked_reference_stores": report_reference_stores,
+                        "retention": retention,
+                        "remote_links_checked": False,
+                    },
+                )
+
         research_covered = "operator" in scopes or "knowledge:projects:read" in scopes
         research_scope_limited = False
+        research_scan_limited = False
         if research_covered and _has_table(self.conn, "research_projects"):
             rows = self.conn.execute(
                 "SELECT project_id FROM research_projects WHERE namespace=? AND owner=? "
-                "ORDER BY project_id", [namespace, principal_id],
+                "ORDER BY project_id LIMIT ?", [namespace, principal_id, 501],
             ).fetchall()
+            research_scan_limited = len(rows) > 500
             projects = ResearchProjectStore(self.conn, initialize=False, now=self.now)
-            for (project_id,) in rows:
+            for (project_id,) in rows[:500]:
                 try:
                     project = projects.inspect(
                         namespace, project_id, principal_id=principal_id, scopes=scopes,
@@ -215,6 +496,19 @@ class IntakeMaintenanceStore:
                     # Do not reveal that project's ID through a lesser-scoped queue.
                     research_scope_limited = True
                     continue
+                last_updated = project.get("updated_at_ms")
+                if (
+                    project.get("status") in {"active", "paused"}
+                    and type(last_updated) is int
+                    and now_ms >= last_updated + MONTH_MS
+                ):
+                    add(
+                        "research_project", project_id, project["revision"],
+                        "stale_research_topic", "review_or_close_topic",
+                        "Active research topic has not been updated for at least 30 days",
+                        metadata={"status": project["status"],
+                                  "last_updated_at_ms": last_updated},
+                    )
                 for link, availability in zip(
                     project["links"], project["reference_availability"], strict=True,
                 ):
@@ -232,22 +526,97 @@ class IntakeMaintenanceStore:
                         f"{link['id']}:{link['revision']}",
                     )
 
+        worker_covered = "operator" in scopes or "knowledge:maintenance:admin" in scopes
+        worker_scan_available = worker_covered and _has_table(
+            self.conn, "knowledge_maintenance_jobs",
+        )
+        if worker_scan_available:
+            jobs = self.conn.execute(
+                "SELECT job_id,pack_id,status,attempts,available_at_ms,updated_at_ms "
+                "FROM knowledge_maintenance_jobs WHERE status IN ('retry','failed','dead-letter','partial') "
+                "ORDER BY updated_at_ms DESC,job_id LIMIT ?",
+                [MAX_FINDINGS + 1],
+            ).fetchall()
+            for job_id, pack_id, status, attempts, available_at_ms, updated_at_ms in jobs:
+                last_success = None
+                if _has_table(self.conn, "knowledge_maintenance_generations"):
+                    row = self.conn.execute(
+                        "SELECT MAX(committed_at_ms) FROM knowledge_maintenance_generations "
+                        "WHERE pack_id=? AND status='complete'", [pack_id],
+                    ).fetchone()
+                    last_success = row[0] if row else None
+                suggested = (
+                    "inspect_and_retry" if status in {"failed", "dead-letter"}
+                    else "inspect_retry_progress" if status == "retry"
+                    else "inspect_partial_generation"
+                )
+                add("maintenance_job", job_id, max(1, int(attempts)),
+                    "failed_automation", suggested,
+                    f"Source pack {pack_id} worker job is {status}; inspect its attempt history",
+                    metadata={"pack_id": pack_id, "status": status,
+                              "last_successful_at_ms": last_success,
+                              "next_retry_at_ms": int(available_at_ms) if status == "retry" else None,
+                              "updated_at_ms": int(updated_at_ms)})
+
         add("maintenance_review", "routine-health", 1, "routine_health_check",
             "review", "Review the configured system-health criteria")
         findings.sort(key=lambda item: (item["reason"], item["target"]["id"]))
         limitations = ["Reported repair actions are not execution receipts",
-                       "Source-pack failures and broader dependency impact are not yet composed"]
+                       "Broader dependency impact is not yet composed"]
+        if not worker_covered:
+            limitations.append("Worker failures need maintenance admin scope to scan")
+        elif not worker_scan_available:
+            limitations.append("Maintenance worker state is unavailable in this database")
         if not research_covered:
             limitations.append("Pinned research sources need knowledge:projects:read to scan")
         elif research_scope_limited:
             limitations.append("Some research projects were outside current namespace or domain scope")
+        if research_scan_limited:
+            limitations.append("Research project scan was limited to 500 records")
         if practice_scan_limited:
             limitations.append("Practice source scan was limited to 500 packs")
+        if not report_scope_available:
+            limitations.append("Outdated report citations need knowledge:reports:read to scan")
+        elif not report_store_available:
+            limitations.append("Authored report store is unavailable for citation scanning")
+        elif report_scan_limited:
+            limitations.append("Authored report scan was limited to 500 reports")
+            limitations.append(
+                "Duplicate and unlinked report candidates were omitted because report coverage was partial"
+            )
+        if citation_scope_limited:
+            limitations.append("Some report citations could not be compared with current evidence access")
+        if (
+            report_scan_available
+            and (
+                report_reference_scan_limited
+                or not subscription_scan_complete
+                or not artifact_scan_complete
+                or citation_scope_limited
+            )
+        ):
+            limitations.append(
+                "Unlinked report candidates were omitted because local reference coverage was incomplete"
+            )
         return {"contract": CONTRACT, "namespace": namespace, "owner": principal_id,
                 "as_of_ms": now_ms, "findings": findings,
                 "coverage": ["overdue_practice", "practice_intake_source_revisions", "old_draft_playbook",
                              "failed_guided_rehearsal", "stale_created_report",
-                             *(["pinned_research_sources"] if research_covered else [])],
+                             *( ["outdated_citations"] if report_scan_available else []),
+                             *( ["duplicate_report_content"]
+                                if report_scan_available
+                                and not report_scan_limited
+                                and not citation_scope_limited else []),
+                             *( ["unlinked_report_candidates"]
+                                if report_scan_available
+                                and not report_scan_limited
+                                and not report_reference_scan_limited
+                                and not citation_scope_limited
+                                and subscription_scan_complete
+                                and artifact_scan_complete else []),
+                             *(["failed_automation"] if worker_scan_available else []),
+                             *(["stale_research_topics", "pinned_research_sources"]
+                               if research_covered else [])],
                 "limitations": limitations}
 
     def start(

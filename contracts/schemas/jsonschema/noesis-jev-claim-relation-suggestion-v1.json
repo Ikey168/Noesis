@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/contracts/noesis-jev-claim-relation-suggestion-v1.json",
+  "title": "Source-bound claim pair relation suggestion",
+  "type": "object",
+  "required": ["contract", "status", "accepted", "relation", "a_to_b", "b_to_a", "similarity", "duplicate_threshold", "source_binding", "locators", "graph_write", "temporal_transition", "decision_run"],
+  "properties": {
+    "contract": {"const": "noesis-jev-claim-relation-suggestion-v1"},
+    "status": {"enum": ["suggested", "abstained"]},
+    "reason": {"type": "string"},
+    "accepted": {"const": false},
+    "relation": {"enum": ["duplicate", "contradicts", "a_supports_b", "b_supports_a", "a_contradicts_b", "b_contradicts_a", "neutral", null]},
+    "a_to_b": {"enum": ["entailment", "contradiction", "neutral", null]},
+    "b_to_a": {"enum": ["entailment", "contradiction", "neutral", null]},
+    "similarity": {"type": "number", "minimum": 0, "maximum": 1},
+    "duplicate_threshold": {"type": "number", "minimum": 0, "maximum": 1},
+    "source_binding": {"type": "array", "items": {"type": "object"}},
+    "locators": {"type": "array", "minItems": 2, "maxItems": 2, "items": {"type": "object"}},
+    "graph_write": {"const": false},
+    "temporal_transition": {"type": ["object", "null"]},
+    "decision_run": {"type": ["object", "null"]}
+  },
+  "additionalProperties": true
+}

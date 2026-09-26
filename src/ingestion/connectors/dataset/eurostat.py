@@ -16,8 +16,10 @@ from __future__ import annotations
 
 import json
 import re
+import hashlib
 from datetime import datetime, timezone
 from typing import Any, Callable, Dict, Iterable, List, Optional, Union
+from urllib.parse import quote, urlencode
 
 from services.ingest.common.series_model import Observation, SeriesRecord
 from src.ingestion.connectors.dataset.base import DatasetConnector, RawSeries, SeriesRef
@@ -60,6 +62,19 @@ def _strides(size: List[int]) -> List[int]:
     return strides
 
 
+def _seasonal_adjustment(dimensions: Dict[str, Dict[str, Any]]) -> str:
+    for dimension_id, selected in dimensions.items():
+        if dimension_id.casefold() not in {"s_adj", "sa", "seasonal_adjustment", "adjustment"}:
+            continue
+        token = f"{selected.get('code', '')} {selected.get('label', '')}".casefold()
+        code = str(selected.get("code", "")).upper()
+        if "not seasonally adjusted" in token or code in {"NSA", "NNSA"}:
+            return "not_adjusted"
+        if "seasonally adjusted" in token or code in {"SA", "SCA", "SA_WDA", "SCA_WDA"}:
+            return "adjusted"
+    return "unknown"
+
+
 class EurostatConnector(DatasetConnector):
     """Harvest Eurostat series from JSON-stat 2.0 (no key)."""
 
@@ -86,10 +101,9 @@ class EurostatConnector(DatasetConnector):
             )
 
     def _url(self, dataset: str, geography: str, filters: Dict[str, Any]) -> str:
-        params = [f"format=JSON", f"geo={geography}"]
-        for k, v in filters.items():
-            params.append(f"{k}={v}")
-        return f"{_API_BASE}/{dataset}?{'&'.join(params)}"
+        params = {"format": "JSON", "geo": geography}
+        params.update({str(key): str(value) for key, value in filters.items()})
+        return f"{_API_BASE}/{quote(dataset, safe='')}?{urlencode(params)}"
 
     def fetch(self, ref: SeriesRef) -> RawSeries:
         url = self._url(ref.metadata["dataset"], ref.metadata["geography"], ref.metadata.get("filters", {}))
@@ -108,6 +122,7 @@ class EurostatConnector(DatasetConnector):
         # Fixed index per non-time dimension (singletons; else index 0 with a note).
         fixed: Dict[str, int] = {}
         picked_labels: Dict[str, str] = {}
+        selected_dimensions: Dict[str, Dict[str, Any]] = {}
         multi_dims: List[str] = []
         for d in dim_ids:
             if d == "time":
@@ -124,10 +139,15 @@ class EurostatConnector(DatasetConnector):
             fixed[d] = idx
             label = (cats.get("label", {}) or {}).get(code, code)
             picked_labels[d] = label
+            selected_dimensions[d] = {
+                "code": code,
+                "label": label,
+                "index": idx,
+                "category_count": len(index_map),
+            }
 
         time_cats = dimension.get("time", {}).get("category", {}) or {}
         time_index = time_cats.get("index", {}) or {}
-        time_labels = time_cats.get("label", {}) or {}
         # Frequency from the freq dimension if present, else inferred from labels.
         freq_code = None
         if "freq" in picked_labels:
@@ -137,7 +157,8 @@ class EurostatConnector(DatasetConnector):
         unit = normalize_unit(picked_labels.get("unit"))
         geography = normalize_geography(raw.ref.metadata.get("geography"))
         title = cube.get("label") or raw.ref.metadata["dataset"]
-        as_of = _parse_updated(cube.get("updated")) or raw.fetched_at
+        provider_updated_at = _parse_updated(cube.get("updated"))
+        as_of = provider_updated_at or raw.fetched_at
 
         time_pos = dim_ids.index("time")
         observations: List[Observation] = []
@@ -155,8 +176,48 @@ class EurostatConnector(DatasetConnector):
         observations.sort(key=lambda o: o.period)
 
         dataset = raw.ref.metadata["dataset"]
+        filters = raw.ref.metadata.get("filters", {})
+        multi_selection = {
+            dimension_id: selected_dimensions[dimension_id]["code"]
+            for dimension_id in multi_dims
+            if dimension_id in selected_dimensions
+        }
+        selection_hash = (
+            hashlib.sha256(
+                json.dumps(multi_selection, sort_keys=True).encode("utf-8")
+            ).hexdigest()[:12]
+            if multi_selection
+            else None
+        )
         series_id = f"estat:{dataset}:{geography}" if geography else f"estat:{dataset}"
-        metadata: Dict[str, Any] = {"dataset": dataset}
+        if selection_hash:
+            series_id = f"{series_id}:{selection_hash}"
+        requested_filters = {str(key).casefold() for key in filters}
+        unselected_multi_dims = [
+            dimension_id
+            for dimension_id in multi_dims
+            if dimension_id.casefold() not in requested_filters
+        ]
+        metadata: Dict[str, Any] = {
+            "dataset": dataset,
+            "provider_code": dataset,
+            "filters_requested": filters,
+            "selected_dimensions": selected_dimensions,
+            "dimension_coverage": "partial"
+            if unselected_multi_dims
+            else "complete_for_selected_series",
+            "unselected_multi_dimensions": unselected_multi_dims,
+            "provider_release_at_ms": None,
+            "provider_release_time_status": "Eurostat dataset update is not an official release timestamp",
+            "provider_vintage_ms": as_of,
+            "vintage_id": f"{dataset}@{as_of}",
+            "vintage_basis": "eurostat_dataset_updated"
+            if provider_updated_at is not None
+            else "retrieval_time_fallback",
+            "provider_updated_at_ms": provider_updated_at,
+            "acquired_at_ms": raw.fetched_at,
+            "seasonal_adjustment": _seasonal_adjustment(selected_dimensions),
+        }
         if multi_dims:
             metadata["collapsed_dimensions"] = {d: picked_labels.get(d) for d in multi_dims}
         return [

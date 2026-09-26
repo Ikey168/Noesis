@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/contracts/noesis-jev-review-priority-suggestion-v1.json",
+  "title": "Separate semantic operational review priority suggestion",
+  "type": "object",
+  "required": ["contract", "status", "task_id", "target_revision_hash", "vote_hash", "source_binding", "coverage", "baseline_priority", "suggested_priority", "machine_impact", "uncertainty_component", "observed_disagreement", "vendor_confidence", "accepted", "votes_created", "resolution_created", "decision_run"],
+  "properties": {
+    "contract": {"const": "noesis-jev-review-priority-suggestion-v1"},
+    "status": {"enum": ["suggested", "pending", "stale"]},
+    "task_id": {"type": "string"}, "target_revision_hash": {"type": "string"},
+    "vote_hash": {"type": "string"}, "source_binding": {"type": "array"},
+    "coverage": {"type": "object"},
+    "baseline_priority": {"type": "number", "minimum": 0},
+    "suggested_priority": {"type": ["number", "null"], "minimum": 0},
+    "machine_impact": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+    "uncertainty_component": {"type": "number", "minimum": 0, "maximum": 1},
+    "observed_disagreement": {"type": ["boolean", "null"]},
+    "vendor_confidence": {"type": ["number", "null"]},
+    "vendor_confidence_used_as_error_probability": {"const": false},
+    "contributions": {"type": "object"},
+    "accepted": {"const": false}, "votes_created": {"const": false},
+    "resolution_created": {"const": false},
+    "decision_run": {"type": ["object", "null"]},
+    "replayed": {"type": "boolean"}, "valid": {"type": "boolean"}
+  },
+  "additionalProperties": false
+}

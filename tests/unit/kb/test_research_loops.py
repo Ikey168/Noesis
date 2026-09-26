@@ -12,7 +12,7 @@ from tests.unit.kb.test_source_planner import _capability, _objective
 AUTH={'principal_id':'alice','scopes':{'operator'}}
 
 
-def setup(conn=None):
+def make_loop_fixture(conn=None):
     conn=conn or duckdb.connect()
     store=ResearchLoopStore(conn)
     project=store.create('projects','p',questions=['What changed economically?','What changed scientifically?'],success_criteria=['Two-domain evidence'],
@@ -53,7 +53,7 @@ class Runtime:
 
 
 def test_two_domain_cycle_budget_and_idempotent_replay():
-    store,project,loop,bindings,limits=setup()
+    store,project,loop,bindings,limits=make_loop_fixture()
     Runtime.calls=[]
     assert store.create_loop('projects',project['project_id'],'cycle',bindings,limits,**AUTH)['loop_id']==loop['loop_id']
     result=store.execute_loop('projects',loop['loop_id'],runtime_factory=Runtime,**AUTH)
@@ -66,7 +66,7 @@ def test_two_domain_cycle_budget_and_idempotent_replay():
 
 
 def test_no_progress_and_fixture_completion_are_not_success():
-    store,project,loop,bindings,limits=setup()
+    store,project,loop,bindings,limits=make_loop_fixture()
     class Empty(Runtime):
         def query(self,action,derived):
             return {'independent_groups':[],'group_evidence':[],'coverage_complete':True,'execution_mode':'production'}
@@ -81,7 +81,7 @@ def test_no_progress_and_fixture_completion_are_not_success():
 
 
 def test_committed_recipe_recovery_does_not_repeat_or_double_charge(monkeypatch):
-    store,project,loop,bindings,limits=setup()
+    store,project,loop,bindings,limits=make_loop_fixture()
     Runtime.calls=[]
     original=store._save
     def fail_publication(identity,state,status):
@@ -100,7 +100,7 @@ def test_committed_recipe_recovery_does_not_repeat_or_double_charge(monkeypatch)
 
 
 def test_cancellation_resume_deadline_and_unavailable_provider():
-    store,project,loop,bindings,limits=setup()
+    store,project,loop,bindings,limits=make_loop_fixture()
     store.cancel_loop('projects',loop['loop_id'],**AUTH)
     assert store.execute_loop('projects',loop['loop_id'],runtime_factory=Runtime,**AUTH)['status']=='cancelled'
     store.resume_loop('projects',loop['loop_id'],**AUTH)
@@ -118,7 +118,7 @@ def test_cancellation_resume_deadline_and_unavailable_provider():
 
 
 def test_coverage_drops_retracted_prior_source_before_later_domain_completion():
-    store,project,loop,bindings,limits=setup()
+    store,project,loop,bindings,limits=make_loop_fixture()
     class Retraction(Runtime):
         def acquire(self,action):
             result=super().acquire(action)
@@ -134,7 +134,7 @@ def test_coverage_drops_retracted_prior_source_before_later_domain_completion():
 def test_bounded_call_returns_at_deadline_while_provider_holds_one_worker_slot(tmp_path,monkeypatch):
     import time
     from src.kb.research_loop_runtime import ProductionResearchRuntime
-    store,project,loop,bindings,limits=setup(duckdb.connect(str(tmp_path/'deadline.duckdb')))
+    store,project,loop,bindings,limits=make_loop_fixture(duckdb.connect(str(tmp_path/'deadline.duckdb')))
     loop=store.create_loop('projects',project['project_id'],'short',bindings,{**limits,'timeout_ms':100},**AUTH)
     monkeypatch.setattr(ProductionResearchRuntime,'__init__',lambda self,*a,**k:None)
     def slow(self,action):
@@ -154,7 +154,7 @@ def test_bounded_call_returns_at_deadline_while_provider_holds_one_worker_slot(t
 
 
 def test_project_cost_and_retry_limits_survive_resumed_attempts():
-    store,project,loop,bindings,limits=setup()
+    store,project,loop,bindings,limits=make_loop_fixture()
     costly=[{**binding,'cost_ceiling':{'requests':12}} for binding in bindings]
     budgeted=store.create_loop('projects',project['project_id'],'bounded-cost',costly,limits,**AUTH)
     result=store.execute_loop('projects',budgeted['loop_id'],runtime_factory=Runtime,**AUTH)

@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/contracts/noesis-jev-mining-evaluation-v1.json",
+  "title": "Jev stance and frame evaluation report",
+  "description": "Test-split report schema. Fixture labels exercise the evaluator but do not demonstrate human-labeled performance.",
+  "type": "object",
+  "required": ["contract", "task", "policy_sha256", "n", "macro_f1", "per_label", "subset_accuracy", "dominant_accuracy", "accepted_coverage", "by_content_type", "baselines", "statuses", "label_origins", "task_ready", "readiness_requires"],
+  "properties": {
+    "contract": {"const": "noesis-jev-mining-evaluation-v1"},
+    "task": {"enum": ["stance", "frames"]},
+    "policy_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "n": {"type": "integer", "minimum": 1},
+    "macro_f1": {"$ref": "#/$defs/probability"},
+    "per_label": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {"$ref": "#/$defs/class_metrics"}
+    },
+    "subset_accuracy": {"$ref": "#/$defs/probability"},
+    "dominant_accuracy": {"$ref": "#/$defs/probability_or_null"},
+    "accepted_coverage": {"$ref": "#/$defs/probability"},
+    "by_content_type": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {"$ref": "#/$defs/prf"}
+    },
+    "baselines": {
+      "type": "object",
+      "properties": {
+        "legacy_snippet": {"$ref": "#/$defs/prf"},
+        "calibrated_full_window": {"$ref": "#/$defs/prf"}
+      },
+      "additionalProperties": false
+    },
+    "statuses": {
+      "type": "object",
+      "required": ["completed", "abstained", "unavailable", "failed"],
+      "properties": {
+        "completed": {"type": "integer", "minimum": 0},
+        "abstained": {"type": "integer", "minimum": 0},
+        "unavailable": {"type": "integer", "minimum": 0},
+        "failed": {"type": "integer", "minimum": 0}
+      },
+      "additionalProperties": false
+    },
+    "label_origins": {"type": "array", "items": {"enum": ["independent-human", "assisted-human", "fixture"]}},
+    "task_ready": {"const": false},
+    "readiness_requires": {"type": "string", "minLength": 1}
+  },
+  "$defs": {
+    "probability": {"type": "number", "minimum": 0, "maximum": 1},
+    "probability_or_null": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+    "class_metrics": {
+      "type": "object",
+      "required": ["precision", "recall", "f1", "support"],
+      "properties": {
+        "precision": {"$ref": "#/$defs/probability"},
+        "recall": {"$ref": "#/$defs/probability"},
+        "f1": {"$ref": "#/$defs/probability"},
+        "support": {"type": "integer", "minimum": 0}
+      },
+      "additionalProperties": false
+    },
+    "prf": {
+      "type": "object",
+      "required": ["per_class", "macro_f1", "exact_accuracy", "n"],
+      "properties": {
+        "per_class": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {"$ref": "#/$defs/class_metrics"}
+        },
+        "macro_f1": {"$ref": "#/$defs/probability"},
+        "exact_accuracy": {"$ref": "#/$defs/probability"},
+        "n": {"type": "integer", "minimum": 1}
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

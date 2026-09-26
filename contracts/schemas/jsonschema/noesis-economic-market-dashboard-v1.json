@@ -1,0 +1,35 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/schemas/noesis-economic-market-dashboard-v1.json",
+  "type": "object",
+  "required": ["contract", "namespace", "release_id", "snapshots", "release_calendar", "consensus_surprises", "breadth", "cutoffs", "limitations"],
+  "properties": {
+    "contract": {"const": "noesis-economic-market-dashboard-v1"},
+    "namespace": {"type": "string", "minLength": 1, "maxLength": 100},
+    "release_id": {"type": "string", "minLength": 1, "maxLength": 200},
+    "snapshots": {
+      "type": "object",
+      "required": ["initial", "latest", "comparison"],
+      "properties": {
+        "initial": {"type": "object"},
+        "latest": {"type": "object"},
+        "comparison": {"type": ["object", "null"]}
+      },
+      "additionalProperties": true
+    },
+    "release_calendar": {"type": "array", "maxItems": 500, "items": {"type": "object"}},
+    "consensus_surprises": {"type": "array", "maxItems": 50, "items": {"type": "object"}},
+    "breadth": {"type": "object"},
+    "cutoffs": {
+      "type": "object",
+      "required": ["release_cutoff_ms", "acquired_cutoff_ms"],
+      "properties": {
+        "release_cutoff_ms": {"type": "integer", "minimum": 0},
+        "acquired_cutoff_ms": {"type": "integer", "minimum": 0}
+      },
+      "additionalProperties": true
+    },
+    "limitations": {"type": "array", "items": {"type": "string"}}
+  },
+  "additionalProperties": true
+}

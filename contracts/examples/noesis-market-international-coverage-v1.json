@@ -1,0 +1,13 @@
+{
+  "contract": "noesis-market-international-coverage-v1",
+  "asset_class": "international_equities",
+  "formula_version": "noesis-market-specialized-v1",
+  "status": "complete",
+  "coverage_matrix": [{"market_id": "fixture:eu", "provider": "fixture", "calendar": "XETR", "currency": "EUR", "history": "fixture", "filings": "fixture", "accounting_standard": "IFRS", "state": "ready_for_live_review", "missing": []}],
+  "taxonomy_mappings": [],
+  "cross_listings": [],
+  "translations": [],
+  "source_revision_ids": ["fixture:international:1"],
+  "source_rights": {"status": "rights_unverified", "decisions": []},
+  "limitations": ["Fixture only."]
+}

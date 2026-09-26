@@ -1,0 +1,70 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/schemas/noesis-market-financial-fact-v1.json",
+  "title": "Noesis market financial fact v1",
+  "description": "A filed XBRL or equivalent reported fact with exact value lexical form, filing revision and explicit period semantics. When an upstream API omits native contextRef, context_id is a stable composite key and context_id_kind states that limitation.",
+  "type": "object",
+  "required": ["contract", "namespace", "owner", "fact_observation_id", "issuer_id", "revision_id", "revision", "filing_accession", "filing_form", "taxonomy", "concept", "canonical_concept", "statement", "mapping_status", "context_id", "context_id_kind", "unit", "period", "fiscal_year", "fiscal_period", "period_class", "value_lexical", "scale", "decimals", "filed_at_ms", "accepted_at_ms", "public_at_ms", "retrieved_at_ms", "source_document_revision_id", "source_locator", "provider", "prior_revision_id", "source_refs", "recorded_at_ms", "record_hash"],
+  "properties": {
+    "contract": {"const": "noesis-market-financial-fact-v1"},
+    "namespace": {"type": "string", "minLength": 1},
+    "owner": {"type": ["string", "null"]},
+    "fact_observation_id": {"type": "string", "minLength": 1, "description": "Stable logical fact key including filing accession, taxonomy, concept, XBRL context and unit; each correction or replacement is a new revision."},
+    "issuer_id": {"type": "string", "minLength": 1},
+    "revision_id": {"type": "string", "minLength": 1},
+    "revision": {"type": "integer", "minimum": 1},
+    "filing_accession": {"type": "string", "minLength": 1},
+    "filing_form": {"type": "string", "minLength": 1},
+    "taxonomy": {"type": "string", "minLength": 1},
+    "concept": {"type": "string", "minLength": 1, "description": "Exact taxonomy tag, not a substituted display label."},
+    "canonical_concept": {"type": ["string", "null"], "description": "Versioned best-effort Noesis concept mapping; null means unmapped and the original tag remains authoritative."},
+    "statement": {"enum": ["income_statement", "balance_sheet", "cash_flow", "other"]},
+    "mapping_status": {"enum": ["mapped", "unmapped"]},
+    "context_id": {"type": "string", "minLength": 1},
+    "context_id_kind": {"enum": ["source_context_ref", "companyfacts_composite_key"]},
+    "unit": {"type": "string", "minLength": 1},
+    "period": {"oneOf": [{"$ref": "#/definitions/instant_period"}, {"$ref": "#/definitions/duration_period"}]},
+    "fiscal_year": {"type": ["integer", "null"], "minimum": 1},
+    "fiscal_period": {"type": ["string", "null"]},
+    "period_class": {"enum": ["instant", "quarter", "year_to_date", "annual", "other_duration", "unknown"]},
+    "value_lexical": {"type": "string", "pattern": "^-?[0-9]+(\\.[0-9]+)?([eE][+-]?[0-9]+)?$", "description": "Exact decimal/scientific lexical value from the filing; do not replace it with a binary floating-point value."},
+    "normalized_value": {"type": ["number", "null"], "description": "Optional convenience projection. The lexical value, scale, unit and decimals remain authoritative."},
+    "scale": {"type": "integer"},
+    "decimals": {"type": ["integer", "string", "null"], "description": "XBRL decimals attribute, including INF where supplied."},
+    "filed_at_ms": {"type": ["integer", "null"], "minimum": 0},
+    "accepted_at_ms": {"type": ["integer", "null"], "minimum": 0},
+    "public_at_ms": {"type": ["integer", "null"], "minimum": 0},
+    "retrieved_at_ms": {"type": "integer", "minimum": 0},
+    "source_document_revision_id": {"type": "string", "minLength": 1},
+    "source_locator": {"type": "string", "minLength": 1, "description": "A stable locator into the filed source, such as an inline XBRL fact ID or filing document plus coordinates."},
+    "provider": {"type": "string", "minLength": 1},
+    "prior_revision_id": {"type": ["string", "null"]},
+    "source_refs": {"type": "array", "minItems": 1, "items": {"$ref": "#/definitions/source_ref"}},
+    "recorded_at_ms": {"type": "integer", "minimum": 0},
+    "record_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+  },
+  "additionalProperties": false,
+  "definitions": {
+    "instant_period": {
+      "type": "object", "required": ["kind", "instant_date"],
+      "properties": {"kind": {"const": "instant"}, "instant_date": {"type": "string", "format": "date"}},
+      "additionalProperties": false
+    },
+    "duration_period": {
+      "type": "object", "required": ["kind", "start_date", "end_date"],
+      "properties": {"kind": {"const": "duration"}, "start_date": {"type": "string", "format": "date"}, "end_date": {"type": "string", "format": "date"}},
+      "additionalProperties": false
+    },
+    "source_ref": {
+      "type": "object",
+      "required": ["source_ref_id", "provider", "provider_object_id", "source_revision_id", "public_at_ms", "source_snapshot_id", "source_url", "retrieved_at_ms", "content_hash", "license_id", "entitlement_id"],
+      "properties": {
+        "source_ref_id": {"type": "string", "minLength": 1}, "provider": {"type": "string", "minLength": 1}, "provider_object_id": {"type": "string", "minLength": 1},
+        "source_revision_id": {"type": ["string", "null"]}, "public_at_ms": {"type": ["integer", "null"], "minimum": 0}, "source_snapshot_id": {"type": ["string", "null"]}, "source_url": {"type": ["string", "null"], "format": "uri"},
+        "retrieved_at_ms": {"type": "integer", "minimum": 0}, "content_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "license_id": {"type": "string", "minLength": 1}, "entitlement_id": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
+    }
+  }
+}

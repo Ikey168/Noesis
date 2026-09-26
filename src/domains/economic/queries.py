@@ -94,7 +94,8 @@ def _vintages(
     conn: Any, domain: str, series_id: str, observed: int
 ) -> list[dict[str, Any]]:
     rows = conn.execute(
-        "SELECT as_of, vintage_id, release_at_ms, retrieved_at_ms, revision_of, source_url, source_document_id "
+        "SELECT as_of, vintage_id, release_at_ms, retrieved_at_ms, revision_of, source_url, source_document_id, "
+        "release_at_basis, retrieved_at_basis, vintage_basis, release_time_status "
         "FROM economic_vintages WHERE domain=? AND series_id=? AND retrieved_at_ms<=? ORDER BY as_of",
         [domain, series_id, observed],
     ).fetchall()
@@ -106,6 +107,10 @@ def _vintages(
         "revision_of",
         "source_url",
         "source_document_id",
+        "release_at_basis",
+        "retrieved_at_basis",
+        "vintage_basis",
+        "release_time_status",
     )
     return [dict(zip(keys, row)) for row in rows]
 
@@ -158,6 +163,10 @@ def _citation(series: dict[str, Any], vintage: dict[str, Any] | None) -> dict[st
         "provider_vintage_ms": vintage.get("as_of") if vintage else None,
         "release_at_ms": vintage.get("release_at_ms") if vintage else None,
         "retrieved_at_ms": vintage.get("retrieved_at_ms") if vintage else None,
+        "release_at_basis": vintage.get("release_at_basis") if vintage else None,
+        "retrieved_at_basis": vintage.get("retrieved_at_basis") if vintage else None,
+        "vintage_basis": vintage.get("vintage_basis") if vintage else None,
+        "release_time_status": vintage.get("release_time_status") if vintage else None,
         "locator_available": bool(
             ((vintage.get("source_url") if vintage else None) or series["source_url"])
             or (vintage and vintage.get("source_document_id"))

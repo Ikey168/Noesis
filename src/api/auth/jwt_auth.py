@@ -204,6 +204,21 @@ class JWTAuth:
         Raises:
             HTTPException: If no valid token is provided
         """
+        # Local development bypass: when NEURONEWS_DEV_MODE is enabled the
+        # security middlewares (WAF, rate limiting, API key, RBAC) are skipped
+        # so the local frontend can talk to the API without authentication.
+        # Per-route JWT dependencies must honour the same flag, otherwise
+        # auth-gated routes return 401 and the dashboard falls back to demo data.
+        if os.getenv("NEURONEWS_DEV_MODE", "false").strip().lower() in (
+            "1",
+            "true",
+            "yes",
+            "on",
+        ):
+            dev_user = {"sub": "dev", "roles": ["admin"], "dev_mode": True}
+            request.state.user = dev_user
+            return dev_user
+
         credentials: HTTPAuthorizationCredentials = await self.security(request)
 
         if not credentials:

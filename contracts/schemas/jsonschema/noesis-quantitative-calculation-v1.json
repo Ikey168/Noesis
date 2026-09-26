@@ -8,7 +8,7 @@
     "contract": {"const": "noesis-quantitative-calculation-v1"},
     "calculation_id": {"type": "string", "pattern": "^quantitative-calculation:"},
     "namespace": {"type": "string", "minLength": 1},
-    "operation": {"enum": ["conversion", "formula", "frequency-transform", "inflation-adjustment"]},
+    "operation": {"enum": ["conversion", "formula", "frequency-transform", "inflation-adjustment", "market-adjustment", "market-metrics"]},
     "request": {"type": "object"},
     "result": {"type": "object"},
     "input_ids": {"type": "array", "items": {"type": "string"}},

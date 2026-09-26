@@ -1,0 +1,13 @@
+{
+  "contract": "noesis-market-fixed-income-analytics-v1",
+  "asset_class": "fixed_income",
+  "formula_version": "noesis-market-specialized-v1",
+  "status": "complete",
+  "instrument": {"instrument_id": "bond:fixture", "issuer_id": "issuer:fixture", "currency": "USD", "face_value": 100, "coupon_rate": 0.04, "coupon_frequency": 2, "day_count": "30/360", "settlement_calendar": "calendar:us-government", "business_day_convention": "following", "callable": false, "structured": false},
+  "analytics": {"clean_price": 99.5, "dirty_price": 99.5, "yield": 0.045, "modified_duration": 4.1, "convexity": 20.0},
+  "credit_evidence": [{"kind": "rating", "value": "A", "source_revision_id": "fixture:rating:1"}],
+  "model_scope": {"status": "supported_plain_bond", "option_adjusted": false},
+  "source_revision_ids": ["fixture:bond:1"],
+  "source_rights": {"status": "rights_unverified", "decisions": []},
+  "limitations": ["Fixture only."]
+}

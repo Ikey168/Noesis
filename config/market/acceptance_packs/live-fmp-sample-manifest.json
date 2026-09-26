@@ -1,0 +1,762 @@
+{
+  "contract": "noesis-market-provider-sample-manifest-v1",
+  "evidence_kind": "live_provider",
+  "provider": "fmp",
+  "recorded_at": "2026-09-24T17:10:40.155989Z",
+  "authorization": {
+    "status": "authorized",
+    "license_reference": "fmp-credential-scoped-technical-access:2026-09-24",
+    "raw_payload_retention": "not_retained",
+    "commercial_rights_status": "unverified"
+  },
+  "rights": {
+    "local_retention": "pending",
+    "internal_display": "pending",
+    "external_display": "pending",
+    "derived_data": "pending",
+    "report_export": "pending"
+  },
+  "receipts": [
+    {
+      "receipt_id": "fmp:holidays:NASDAQ:2026",
+      "endpoint": "https://financialmodelingprep.com/stable/holidays-by-exchange",
+      "http_status": 200,
+      "records": 12,
+      "requested_at": "2026-09-24T17:09:41.577972Z",
+      "retrieved_at": "2026-09-24T17:09:42.405398Z",
+      "request_sha256": "a1c042afd7dc9668154a6880777c478cea1add0c01bfa337aa67caee8f95a117",
+      "response_sha256": "e8881c346e1f60be9f6a0458afd9064a6be276fb1521f7e7c905656f878b444a"
+    },
+    {
+      "receipt_id": "fmp:holidays:NYSE:2026",
+      "endpoint": "https://financialmodelingprep.com/stable/holidays-by-exchange",
+      "http_status": 200,
+      "records": 12,
+      "requested_at": "2026-09-24T17:09:42.406290Z",
+      "retrieved_at": "2026-09-24T17:09:43.426297Z",
+      "request_sha256": "67faf6dd4abdad1b66e260b798b3568783072854a0c094a39f43afb373b5bfe3",
+      "response_sha256": "979bd5b8d90c57c171660da2139309e8978b3c3935d525861dd14596933a3b18"
+    },
+    {
+      "receipt_id": "fmp:MSFT:profile",
+      "endpoint": "https://financialmodelingprep.com/stable/profile",
+      "http_status": 200,
+      "records": 1,
+      "requested_at": "2026-09-24T17:09:43.426995Z",
+      "retrieved_at": "2026-09-24T17:09:44.449195Z",
+      "request_sha256": "e8963410a2555350a67cebe00f806b32e4a54c995d2631a5fd929709d8a8459d",
+      "response_sha256": "bd6c1cc027b8198cd83e04631b75df85bc3ec1d5b0628aac5a0e9ebaa2babbcf"
+    },
+    {
+      "receipt_id": "fmp:MSFT:raw_oldest",
+      "endpoint": "https://financialmodelingprep.com/stable/historical-price-eod/non-split-adjusted",
+      "http_status": 200,
+      "records": 251,
+      "requested_at": "2026-09-24T17:09:44.449739Z",
+      "retrieved_at": "2026-09-24T17:09:45.477922Z",
+      "request_sha256": "0b73ff25bb4e34a407424567e917601a550b255d076ab9772be2bc39c88fd5dd",
+      "response_sha256": "f1cb52064c9105059b737c3411e76916d655eb265330fbad1fc89f26bbb4fc7f"
+    },
+    {
+      "receipt_id": "fmp:MSFT:raw_recent",
+      "endpoint": "https://financialmodelingprep.com/stable/historical-price-eod/non-split-adjusted",
+      "http_status": 200,
+      "records": 252,
+      "requested_at": "2026-09-24T17:09:45.479812Z",
+      "retrieved_at": "2026-09-24T17:09:46.293830Z",
+      "request_sha256": "301dad5526da004c361a165aa2c25a2c619ffeecaac9bcc3ebc5c8478244e34e",
+      "response_sha256": "3331171925f142e1816021425febe1da4a970a4fa77fb9bbf6750f610fffef37"
+    },
+    {
+      "receipt_id": "fmp:MSFT:adjusted_oldest",
+      "endpoint": "https://financialmodelingprep.com/stable/historical-price-eod/full",
+      "http_status": 200,
+      "records": 251,
+      "requested_at": "2026-09-24T17:09:46.297960Z",
+      "retrieved_at": "2026-09-24T17:09:47.521870Z",
+      "request_sha256": "2cf43d1900a86eaa3c8fac93344141799e1cedfb6c2264702797cb3d04ff5e4f",
+      "response_sha256": "0673fc36078cc977852bacedbbc019667567b7f33d27ca067a301981b25f95ae"
+    },
+    {
+      "receipt_id": "fmp:MSFT:adjusted_recent",
+      "endpoint": "https://financialmodelingprep.com/stable/historical-price-eod/full",
+      "http_status": 200,
+      "records": 252,
+      "requested_at": "2026-09-24T17:09:47.526062Z",
+      "retrieved_at": "2026-09-24T17:09:48.960324Z",
+      "request_sha256": "ee01c0bee50c140940260b6e41dd802af34a8a13ebd5b1a0c9dfabda5f9ee5da",
+      "response_sha256": "0c01bca41fcaca02346bf1d721fe5e594f7cecc216c18072aca0919b1173fa0a"
+    },
+    {
+      "receipt_id": "fmp:MSFT:dividends",
+      "endpoint": "https://financialmodelingprep.com/stable/dividends",
+      "http_status": 200,
+      "records": 92,
+      "requested_at": "2026-09-24T17:09:48.965227Z",
+      "retrieved_at": "2026-09-24T17:09:49.774705Z",
+      "request_sha256": "e5327aa6b9df93e7436127eddc332c5abdf2f79aa2a19d0f9f0b3904cf971f9a",
+      "response_sha256": "cc18b05cce963c590301b0cc499a480d57e5e315f0de2012fcc1526dc69fa365"
+    },
+    {
+      "receipt_id": "fmp:MSFT:splits",
+      "endpoint": "https://financialmodelingprep.com/stable/splits",
+      "http_status": 200,
+      "records": 9,
+      "requested_at": "2026-09-24T17:09:49.775885Z",
+      "retrieved_at": "2026-09-24T17:09:50.797926Z",
+      "request_sha256": "5cb2a575298b2856646c9ad9127f729edb7b9dec5027c332f346bb27330fa539",
+      "response_sha256": "714c22a808c193071aa934bb75f0563fb3b0a1bd88bb2366abf924c20e148d5d"
+    },
+    {
+      "receipt_id": "fmp:MSFT:fundamentals",
+      "endpoint": "https://financialmodelingprep.com/stable/income-statement",
+      "http_status": 200,
+      "records": 2,
+      "requested_at": "2026-09-24T17:09:50.798404Z",
+      "retrieved_at": "2026-09-24T17:09:51.824168Z",
+      "request_sha256": "bedcaf10e936890f563bed7b039d836d48848750de2c8facb73ac2eb24e687e0",
+      "response_sha256": "78dc5a3d2ffa024aed9b514d4aa333d8b478e55e61a1047b2f9fbdb390e90aad"
+    },
+    {
+      "receipt_id": "fmp:ORCL:profile",
+      "endpoint": "https://financialmodelingprep.com/stable/profile",
+      "http_status": 200,
+      "records": 1,
+      "requested_at": "2026-09-24T17:09:54.898996Z",
+      "retrieved_at": "2026-09-24T17:09:55.716385Z",
+      "request_sha256": "8ff227debc4915e9b2c80e451b002f34d056329b1a8ab45049496fb9e1458812",
+      "response_sha256": "7854c24d141f726a086564a56908ac054cd087c1e1de59f10e7df9eb7fd2ff7e"
+    },
+    {
+      "receipt_id": "fmp:CRM:profile",
+      "endpoint": "https://financialmodelingprep.com/stable/profile",
+      "http_status": 200,
+      "records": 1,
+      "requested_at": "2026-09-24T17:10:04.932977Z",
+      "retrieved_at": "2026-09-24T17:10:05.956352Z",
+      "request_sha256": "3214b03b3354adf915f104d57e0df1249bffd1eb3d651a45c46299c3c598c69e",
+      "response_sha256": "707a5512b28bcbb5606186d8f54de3f76bfd93385a3e258788662a6e8670b0c5"
+    },
+    {
+      "receipt_id": "fmp:ADBE:profile",
+      "endpoint": "https://financialmodelingprep.com/stable/profile",
+      "http_status": 200,
+      "records": 1,
+      "requested_at": "2026-09-24T17:10:15.582417Z",
+      "retrieved_at": "2026-09-24T17:10:16.401080Z",
+      "request_sha256": "e84682c4a3f482f860f7d0b085276da78984ba62ed83164927b14a3d7bb893e3",
+      "response_sha256": "000e0f9f7ea9168d90c2c1fb46aed3d129b69b02470dcbfe517b33f6b9f0d97e"
+    },
+    {
+      "receipt_id": "fmp:ADBE:raw_oldest",
+      "endpoint": "https://financialmodelingprep.com/stable/historical-price-eod/non-split-adjusted",
+      "http_status": 200,
+      "records": 251,
+      "requested_at": "2026-09-24T17:10:16.401491Z",
+      "retrieved_at": "2026-09-24T17:10:17.626811Z",
+      "request_sha256": "0d20e72558b39c6aa05ad208b976c6348498b08feee2ed67d94ba7fe61ed6737",
+      "response_sha256": "8130ec898cbbf8dfe1d635648079296cc5272d1e8c3ebe546edd2ad24d41e604"
+    },
+    {
+      "receipt_id": "fmp:ADBE:raw_recent",
+      "endpoint": "https://financialmodelingprep.com/stable/historical-price-eod/non-split-adjusted",
+      "http_status": 200,
+      "records": 252,
+      "requested_at": "2026-09-24T17:10:17.628873Z",
+      "retrieved_at": "2026-09-24T17:10:18.859606Z",
+      "request_sha256": "630f31684bc9ba934a85a11365dfa00e938e45e193e71edc3a8663672d8e9cb2",
+      "response_sha256": "377d7df14ff5c09d6e0145046f580ff83f503291f22dd041550a9497fd3f36d4"
+    },
+    {
+      "receipt_id": "fmp:ADBE:adjusted_oldest",
+      "endpoint": "https://financialmodelingprep.com/stable/historical-price-eod/full",
+      "http_status": 200,
+      "records": 251,
+      "requested_at": "2026-09-24T17:10:18.861968Z",
+      "retrieved_at": "2026-09-24T17:10:20.293395Z",
+      "request_sha256": "fb49fee672e1296e5b75dd243fbd3a6cc2d260d3d42e0e2be707c62d03399d3e",
+      "response_sha256": "31d2e4cc1655668dc6d4ef82b05a987035c2fe4bf7bb1dc1f9e9c6580ed22044"
+    },
+    {
+      "receipt_id": "fmp:ADBE:adjusted_recent",
+      "endpoint": "https://financialmodelingprep.com/stable/historical-price-eod/full",
+      "http_status": 200,
+      "records": 252,
+      "requested_at": "2026-09-24T17:10:20.296369Z",
+      "retrieved_at": "2026-09-24T17:10:22.341209Z",
+      "request_sha256": "76603725481886f5410c3b9d8b8b3e0395b18de691784d74bcbda28cc30b3bc8",
+      "response_sha256": "623caef46e92fa6fe122169aa1767529bef100eb30decac52327a536091f933c"
+    },
+    {
+      "receipt_id": "fmp:ADBE:dividends",
+      "endpoint": "https://financialmodelingprep.com/stable/dividends",
+      "http_status": 200,
+      "records": 63,
+      "requested_at": "2026-09-24T17:10:22.344127Z",
+      "retrieved_at": "2026-09-24T17:10:23.314915Z",
+      "request_sha256": "ce6c280e9132b316eb85b0d806bc0937a901f3f3233f8d1b2be31affa3a1eff7",
+      "response_sha256": "5743e4b044b9585e527276ea9b0e7c2c6d5b92fa603aaf5f0f762c9c4a0b023f"
+    },
+    {
+      "receipt_id": "fmp:ADBE:splits",
+      "endpoint": "https://financialmodelingprep.com/stable/splits",
+      "http_status": 200,
+      "records": 6,
+      "requested_at": "2026-09-24T17:10:23.316050Z",
+      "retrieved_at": "2026-09-24T17:10:24.180571Z",
+      "request_sha256": "7045e57a00f6edaae9a225bd081a271aec37513c32dcbce158e813bd07be7740",
+      "response_sha256": "3c41635d4ba9b0b46c7139a0d5ca6e5466d2b493883e56f93cff196fe463edaf"
+    },
+    {
+      "receipt_id": "fmp:ADBE:fundamentals",
+      "endpoint": "https://financialmodelingprep.com/stable/income-statement",
+      "http_status": 200,
+      "records": 2,
+      "requested_at": "2026-09-24T17:10:24.181012Z",
+      "retrieved_at": "2026-09-24T17:10:25.205116Z",
+      "request_sha256": "a4be2c7abe8df7fcfedb6a1ecd9ea64d8646b79582b7063cbd8122307fe2a449",
+      "response_sha256": "3154b1b5a4d7a36ce03e09542c799dc369158bd3e80fa480fc6f54e57f2751a9"
+    },
+    {
+      "receipt_id": "fmp:NOW:profile",
+      "endpoint": "https://financialmodelingprep.com/stable/profile",
+      "http_status": 200,
+      "records": 1,
+      "requested_at": "2026-09-24T17:10:29.267896Z",
+      "retrieved_at": "2026-09-24T17:10:30.328073Z",
+      "request_sha256": "f630947e196831ea9f9e8b91c63c39db8e2795b14e0716c9a66940b8a8c8198d",
+      "response_sha256": "6135be0c224e711a36d8fbbedb275c803238e1c2791c4e7c4023d4044ad9279b"
+    },
+    {
+      "receipt_id": "fmp:delisted:sample",
+      "endpoint": "https://financialmodelingprep.com/stable/delisted-companies",
+      "http_status": 200,
+      "records": 50,
+      "requested_at": "2026-09-24T17:10:38.031637Z",
+      "retrieved_at": "2026-09-24T17:10:38.925886Z",
+      "request_sha256": "8979c53c924c65dfdc90c313c22d91124bb204685d79cd2028d533769ee76029",
+      "response_sha256": "e0c6321ff36c8906cbf94a27e10faa5c631977480af2f4bb8722921eccae85b6"
+    }
+  ],
+  "instruments": [
+    {
+      "sample_id": "fmp:MSFT",
+      "ticker": "MSFT",
+      "identity_kind": "active",
+      "provider_instrument_id": "MSFT",
+      "venue": "XNAS",
+      "currency": "USD",
+      "timezone": "America/New_York",
+      "history": {
+        "first_date": "2016-09-26",
+        "last_date": "2026-09-24",
+        "raw_adjusted_distinguished": true,
+        "missing_sessions_checked": true,
+        "timezone_boundary_checked": true,
+        "correction_status": "no_correction_in_sample",
+        "duplicate_bars": 0,
+        "recent_missing_sessions": [],
+        "sampled_windows": [
+          [
+            "2016-09-24",
+            "2017-09-24"
+          ],
+          [
+            "2025-09-24",
+            "2026-09-24"
+          ]
+        ]
+      },
+      "coverage": {
+        "prices": {
+          "status": "available",
+          "receipt_ids": [
+            "fmp:MSFT:raw_oldest",
+            "fmp:MSFT:raw_recent",
+            "fmp:MSFT:adjusted_oldest",
+            "fmp:MSFT:adjusted_recent",
+            "fmp:holidays:NASDAQ:2026"
+          ]
+        },
+        "corporate_actions": {
+          "status": "available",
+          "receipt_ids": [
+            "fmp:MSFT:dividends",
+            "fmp:MSFT:splits"
+          ]
+        },
+        "fundamentals": {
+          "status": "available",
+          "receipt_ids": [
+            "fmp:MSFT:fundamentals"
+          ]
+        },
+        "estimates": {
+          "status": "unavailable",
+          "receipt_ids": []
+        },
+        "transcripts": {
+          "status": "not_entitled",
+          "receipt_ids": []
+        },
+        "ownership": {
+          "status": "not_entitled",
+          "receipt_ids": []
+        }
+      }
+    },
+    {
+      "sample_id": "fmp:ORCL",
+      "ticker": "ORCL",
+      "identity_kind": "active",
+      "provider_instrument_id": "ORCL",
+      "venue": "XNYS",
+      "currency": "USD",
+      "timezone": "America/New_York",
+      "history": {
+        "first_date": "2016-09-24",
+        "last_date": "2026-09-24",
+        "raw_adjusted_distinguished": false,
+        "missing_sessions_checked": true,
+        "timezone_boundary_checked": false,
+        "correction_status": "no_correction_in_sample",
+        "duplicate_bars": 0,
+        "recent_missing_sessions": [
+          "2026-08-24",
+          "2026-08-25",
+          "2026-08-26",
+          "2026-08-27",
+          "2026-08-28",
+          "2026-08-31",
+          "2026-09-01",
+          "2026-09-02",
+          "2026-09-03",
+          "2026-09-04",
+          "2026-09-08",
+          "2026-09-09",
+          "2026-09-10",
+          "2026-09-11",
+          "2026-09-14",
+          "2026-09-15",
+          "2026-09-16",
+          "2026-09-17",
+          "2026-09-18",
+          "2026-09-21",
+          "2026-09-22",
+          "2026-09-23"
+        ],
+        "sampled_windows": [
+          [
+            "2016-09-24",
+            "2017-09-24"
+          ],
+          [
+            "2025-09-24",
+            "2026-09-24"
+          ]
+        ]
+      },
+      "coverage": {
+        "prices": {
+          "status": "unavailable",
+          "receipt_ids": []
+        },
+        "corporate_actions": {
+          "status": "unavailable",
+          "receipt_ids": []
+        },
+        "fundamentals": {
+          "status": "unavailable",
+          "receipt_ids": []
+        },
+        "estimates": {
+          "status": "unavailable",
+          "receipt_ids": []
+        },
+        "transcripts": {
+          "status": "not_entitled",
+          "receipt_ids": []
+        },
+        "ownership": {
+          "status": "not_entitled",
+          "receipt_ids": []
+        }
+      }
+    },
+    {
+      "sample_id": "fmp:CRM",
+      "ticker": "CRM",
+      "identity_kind": "active",
+      "provider_instrument_id": "CRM",
+      "venue": "XNYS",
+      "currency": "USD",
+      "timezone": "America/New_York",
+      "history": {
+        "first_date": "2016-09-24",
+        "last_date": "2026-09-24",
+        "raw_adjusted_distinguished": false,
+        "missing_sessions_checked": true,
+        "timezone_boundary_checked": false,
+        "correction_status": "no_correction_in_sample",
+        "duplicate_bars": 0,
+        "recent_missing_sessions": [
+          "2026-08-24",
+          "2026-08-25",
+          "2026-08-26",
+          "2026-08-27",
+          "2026-08-28",
+          "2026-08-31",
+          "2026-09-01",
+          "2026-09-02",
+          "2026-09-03",
+          "2026-09-04",
+          "2026-09-08",
+          "2026-09-09",
+          "2026-09-10",
+          "2026-09-11",
+          "2026-09-14",
+          "2026-09-15",
+          "2026-09-16",
+          "2026-09-17",
+          "2026-09-18",
+          "2026-09-21",
+          "2026-09-22",
+          "2026-09-23"
+        ],
+        "sampled_windows": [
+          [
+            "2016-09-24",
+            "2017-09-24"
+          ],
+          [
+            "2025-09-24",
+            "2026-09-24"
+          ]
+        ]
+      },
+      "coverage": {
+        "prices": {
+          "status": "unavailable",
+          "receipt_ids": []
+        },
+        "corporate_actions": {
+          "status": "unavailable",
+          "receipt_ids": []
+        },
+        "fundamentals": {
+          "status": "unavailable",
+          "receipt_ids": []
+        },
+        "estimates": {
+          "status": "unavailable",
+          "receipt_ids": []
+        },
+        "transcripts": {
+          "status": "not_entitled",
+          "receipt_ids": []
+        },
+        "ownership": {
+          "status": "not_entitled",
+          "receipt_ids": []
+        }
+      }
+    },
+    {
+      "sample_id": "fmp:ADBE",
+      "ticker": "ADBE",
+      "identity_kind": "active",
+      "provider_instrument_id": "ADBE",
+      "venue": "XNAS",
+      "currency": "USD",
+      "timezone": "America/New_York",
+      "history": {
+        "first_date": "2016-09-26",
+        "last_date": "2026-09-24",
+        "raw_adjusted_distinguished": true,
+        "missing_sessions_checked": true,
+        "timezone_boundary_checked": true,
+        "correction_status": "no_correction_in_sample",
+        "duplicate_bars": 0,
+        "recent_missing_sessions": [],
+        "sampled_windows": [
+          [
+            "2016-09-24",
+            "2017-09-24"
+          ],
+          [
+            "2025-09-24",
+            "2026-09-24"
+          ]
+        ]
+      },
+      "coverage": {
+        "prices": {
+          "status": "available",
+          "receipt_ids": [
+            "fmp:ADBE:raw_oldest",
+            "fmp:ADBE:raw_recent",
+            "fmp:ADBE:adjusted_oldest",
+            "fmp:ADBE:adjusted_recent",
+            "fmp:holidays:NASDAQ:2026"
+          ]
+        },
+        "corporate_actions": {
+          "status": "available",
+          "receipt_ids": [
+            "fmp:ADBE:dividends",
+            "fmp:ADBE:splits"
+          ]
+        },
+        "fundamentals": {
+          "status": "available",
+          "receipt_ids": [
+            "fmp:ADBE:fundamentals"
+          ]
+        },
+        "estimates": {
+          "status": "unavailable",
+          "receipt_ids": []
+        },
+        "transcripts": {
+          "status": "not_entitled",
+          "receipt_ids": []
+        },
+        "ownership": {
+          "status": "not_entitled",
+          "receipt_ids": []
+        }
+      }
+    },
+    {
+      "sample_id": "fmp:NOW",
+      "ticker": "NOW",
+      "identity_kind": "active",
+      "provider_instrument_id": "NOW",
+      "venue": "XNYS",
+      "currency": "USD",
+      "timezone": "America/New_York",
+      "history": {
+        "first_date": "2016-09-24",
+        "last_date": "2026-09-24",
+        "raw_adjusted_distinguished": false,
+        "missing_sessions_checked": true,
+        "timezone_boundary_checked": false,
+        "correction_status": "no_correction_in_sample",
+        "duplicate_bars": 0,
+        "recent_missing_sessions": [
+          "2026-08-24",
+          "2026-08-25",
+          "2026-08-26",
+          "2026-08-27",
+          "2026-08-28",
+          "2026-08-31",
+          "2026-09-01",
+          "2026-09-02",
+          "2026-09-03",
+          "2026-09-04",
+          "2026-09-08",
+          "2026-09-09",
+          "2026-09-10",
+          "2026-09-11",
+          "2026-09-14",
+          "2026-09-15",
+          "2026-09-16",
+          "2026-09-17",
+          "2026-09-18",
+          "2026-09-21",
+          "2026-09-22",
+          "2026-09-23"
+        ],
+        "sampled_windows": [
+          [
+            "2016-09-24",
+            "2017-09-24"
+          ],
+          [
+            "2025-09-24",
+            "2026-09-24"
+          ]
+        ]
+      },
+      "coverage": {
+        "prices": {
+          "status": "unavailable",
+          "receipt_ids": []
+        },
+        "corporate_actions": {
+          "status": "unavailable",
+          "receipt_ids": []
+        },
+        "fundamentals": {
+          "status": "unavailable",
+          "receipt_ids": []
+        },
+        "estimates": {
+          "status": "unavailable",
+          "receipt_ids": []
+        },
+        "transcripts": {
+          "status": "not_entitled",
+          "receipt_ids": []
+        },
+        "ownership": {
+          "status": "not_entitled",
+          "receipt_ids": []
+        }
+      }
+    },
+    {
+      "sample_id": "fmp:delisted:HWH",
+      "ticker": "HWH",
+      "identity_kind": "delisted",
+      "provider_instrument_id": "HWH",
+      "venue": "NASDAQ",
+      "currency": "USD",
+      "timezone": "America/New_York",
+      "history": {
+        "first_date": "2022-03-24",
+        "last_date": "2026-09-22",
+        "raw_adjusted_distinguished": false,
+        "missing_sessions_checked": false,
+        "timezone_boundary_checked": false,
+        "correction_status": "no_correction_in_sample"
+      },
+      "coverage": {
+        "prices": {
+          "status": "unavailable",
+          "receipt_ids": []
+        },
+        "corporate_actions": {
+          "status": "unavailable",
+          "receipt_ids": []
+        },
+        "fundamentals": {
+          "status": "unavailable",
+          "receipt_ids": []
+        },
+        "estimates": {
+          "status": "unavailable",
+          "receipt_ids": []
+        },
+        "transcripts": {
+          "status": "unavailable",
+          "receipt_ids": []
+        },
+        "ownership": {
+          "status": "unavailable",
+          "receipt_ids": []
+        }
+      }
+    },
+    {
+      "sample_id": "fmp:delisted:SMCF",
+      "ticker": "SMCF",
+      "identity_kind": "delisted",
+      "provider_instrument_id": "SMCF",
+      "venue": "NASDAQ",
+      "currency": "USD",
+      "timezone": "America/New_York",
+      "history": {
+        "first_date": "2023-12-13",
+        "last_date": "2026-09-22",
+        "raw_adjusted_distinguished": false,
+        "missing_sessions_checked": false,
+        "timezone_boundary_checked": false,
+        "correction_status": "no_correction_in_sample"
+      },
+      "coverage": {
+        "prices": {
+          "status": "unavailable",
+          "receipt_ids": []
+        },
+        "corporate_actions": {
+          "status": "unavailable",
+          "receipt_ids": []
+        },
+        "fundamentals": {
+          "status": "unavailable",
+          "receipt_ids": []
+        },
+        "estimates": {
+          "status": "unavailable",
+          "receipt_ids": []
+        },
+        "transcripts": {
+          "status": "unavailable",
+          "receipt_ids": []
+        },
+        "ownership": {
+          "status": "unavailable",
+          "receipt_ids": []
+        }
+      }
+    }
+  ],
+  "endpoint_statuses": {
+    "fmp:holidays:NASDAQ:2026": 200,
+    "fmp:holidays:NYSE:2026": 200,
+    "fmp:MSFT:profile": 200,
+    "fmp:MSFT:raw_oldest": 200,
+    "fmp:MSFT:raw_recent": 200,
+    "fmp:MSFT:adjusted_oldest": 200,
+    "fmp:MSFT:adjusted_recent": 200,
+    "fmp:MSFT:dividends": 200,
+    "fmp:MSFT:splits": 200,
+    "fmp:MSFT:fundamentals": 200,
+    "fmp:MSFT:estimates": 400,
+    "fmp:MSFT:transcripts": 402,
+    "fmp:MSFT:ownership": 402,
+    "fmp:ORCL:profile": 200,
+    "fmp:ORCL:raw_oldest": 402,
+    "fmp:ORCL:raw_recent": 402,
+    "fmp:ORCL:adjusted_oldest": 402,
+    "fmp:ORCL:adjusted_recent": 402,
+    "fmp:ORCL:dividends": 402,
+    "fmp:ORCL:splits": 402,
+    "fmp:ORCL:fundamentals": 402,
+    "fmp:ORCL:estimates": 402,
+    "fmp:ORCL:transcripts": 402,
+    "fmp:ORCL:ownership": 402,
+    "fmp:CRM:profile": 200,
+    "fmp:CRM:raw_oldest": 402,
+    "fmp:CRM:raw_recent": 402,
+    "fmp:CRM:adjusted_oldest": 402,
+    "fmp:CRM:adjusted_recent": 402,
+    "fmp:CRM:dividends": 402,
+    "fmp:CRM:splits": 402,
+    "fmp:CRM:fundamentals": 402,
+    "fmp:CRM:estimates": 402,
+    "fmp:CRM:transcripts": 402,
+    "fmp:CRM:ownership": 402,
+    "fmp:ADBE:profile": 200,
+    "fmp:ADBE:raw_oldest": 200,
+    "fmp:ADBE:raw_recent": 200,
+    "fmp:ADBE:adjusted_oldest": 200,
+    "fmp:ADBE:adjusted_recent": 200,
+    "fmp:ADBE:dividends": 200,
+    "fmp:ADBE:splits": 200,
+    "fmp:ADBE:fundamentals": 200,
+    "fmp:ADBE:estimates": 400,
+    "fmp:ADBE:transcripts": 402,
+    "fmp:ADBE:ownership": 402,
+    "fmp:NOW:profile": 200,
+    "fmp:NOW:raw_oldest": 402,
+    "fmp:NOW:raw_recent": 402,
+    "fmp:NOW:adjusted_oldest": 402,
+    "fmp:NOW:adjusted_recent": 402,
+    "fmp:NOW:dividends": 402,
+    "fmp:NOW:splits": 402,
+    "fmp:NOW:fundamentals": 402,
+    "fmp:NOW:estimates": 402,
+    "fmp:NOW:transcripts": 402,
+    "fmp:NOW:ownership": 402,
+    "fmp:delisted:sample": 200,
+    "fmp:HWH:delisted-price": 402,
+    "fmp:SMCF:delisted-price": 402
+  },
+  "limitations": [
+    "A valid API key proves technical endpoint access, not commercial rights.",
+    "Transcript and institutional-ownership endpoints were probed and entitlement failures are explicit.",
+    "No live provider correction was observed in this point-in-time sample."
+  ]
+}

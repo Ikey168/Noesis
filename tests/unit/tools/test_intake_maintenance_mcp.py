@@ -41,6 +41,18 @@ def test_maintenance_mcp_review_and_denied_read(tmp_path, monkeypatch):
         observation="No blocking failures found",
     )
     assert assessed["unmet_completion_checks"] == []
+    preview = tools["preview_intake_maintenance_impact"].fn(
+        namespace="research", finding_id=finding["id"], action="archive",
+    )
+    unsupported = tools["execute_intake_maintenance_action"].fn(
+        namespace="research", session_id=started["session_id"],
+        command_key="archive-health", expected_revision=assessed["revision"],
+        finding_id=finding["id"], action="archive", preview_hash=preview["preview_hash"],
+    )
+    assert unsupported["error"]["code"] == "action_unsupported"
+    assert _required_scopes("knowledge_engine_mcp", "write", "execute_intake_maintenance_action") == [
+        "knowledge:intake:write",
+    ]
     assert _required_scopes("knowledge_engine_mcp", "read", "scan_intake_maintenance") == [
         "knowledge:intake:read",
     ]

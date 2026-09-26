@@ -229,6 +229,9 @@ def _builtin_definitions() -> list[dict[str, Any]]:
         REPO_ROOT / "contracts/schemas/jsonschema/noesis-knowledge-mutation-v1.json"
     )
     mutation = json.loads(mutation_path.read_text())
+    typed_decision = json.loads(
+        (REPO_ROOT / "contracts/schemas/jsonschema/noesis-typed-decision-v1.json").read_text()
+    )
     ontology = {
         "object_types": [
             "Entity",
@@ -266,6 +269,13 @@ def _builtin_definitions() -> list[dict[str, Any]]:
             "kind": "schema",
             "semantic_version": "1.0.0",
             "content": mutation,
+        },
+        {
+            **common,
+            "name": "typed-decision",
+            "kind": "schema",
+            "semantic_version": "1.0.0",
+            "content": typed_decision,
         },
         {
             **common,

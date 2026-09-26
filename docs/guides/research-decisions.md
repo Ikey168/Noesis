@@ -13,7 +13,19 @@ optional deadline timestamp (Unix milliseconds or `null`). A two-option yes/no
 choice can therefore close without opening a research project. The stored
 `noesis-decision-v2` record is a finalized user choice; it does not assert that
 missing evidence was acquired. Project-pinned records without this context retain
-the `noesis-decision-v1` contract.
+the `noesis-decision-v1` contract. A decision with a declared evidence budget
+uses `noesis-decision-v3`.
+
+Bounded collection is opt-in through an `evidence_budget` with `max_items`
+(1–50), declared relevance `criteria`, and a `stop_condition`. Each existing
+observation must have one matching `evidence_assessments` entry before a budgeted
+decision is saved. `record_decision_evidence` appends one revision-pinned evidence
+reference and records the criterion, supports/contradicts/context/irrelevant
+assessment, and rationale. It requires the current decision revision and a
+unique command key; a replay returns the stored receipt. The cap is enforced
+before another item can be added. This records an author's relevance assessment;
+it does not independently establish that evidence is correct or that the choice
+is well supported.
 
 ```json
 {
@@ -27,6 +39,12 @@ the `noesis-decision-v1` contract.
     "missing_inputs": ["Future usage"],
     "deadline_at_ms": null
   },
+  "evidence_budget": {
+    "max_items": 5,
+    "criteria": ["current usage", "renewal cost"],
+    "stop_condition": "Stop when each declared criterion has one current source check"
+  },
+  "evidence_assessments": [],
   "options": [{"id": "yes", "description": "Renew"}, {"id": "no", "description": "Cancel"}],
   "constraints": ["Within budget"],
   "assumptions": [],

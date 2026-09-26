@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/contracts/noesis-jev-claim-relation-evaluation-v1.json",
+  "title": "Jev claim-pair relation evaluation report",
+  "description": "Test-split report schema. Fixture labels exercise the evaluator but do not demonstrate human-labeled relation quality.",
+  "type": "object",
+  "required": ["contract", "n", "methods", "label_origins", "task_ready"],
+  "properties": {
+    "contract": {"const": "noesis-jev-claim-relation-evaluation-v1"},
+    "n": {"type": "integer", "minimum": 1},
+    "methods": {
+      "type": "object",
+      "required": ["jev", "local_nli"],
+      "properties": {
+        "jev": {"$ref": "#/$defs/relations"},
+        "local_nli": {"$ref": "#/$defs/relations"}
+      },
+      "additionalProperties": false
+    },
+    "label_origins": {"type": "array", "items": {"enum": ["independent-human", "fixture"]}},
+    "task_ready": {"const": false}
+  },
+  "$defs": {
+    "probability_or_null": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+    "rate": {
+      "type": "object",
+      "required": ["predicted", "false", "false_rate"],
+      "properties": {
+        "predicted": {"type": "integer", "minimum": 0},
+        "false": {"type": "integer", "minimum": 0},
+        "false_rate": {"$ref": "#/$defs/probability_or_null"}
+      },
+      "additionalProperties": false
+    },
+    "relations": {
+      "type": "object",
+      "required": ["duplicate", "supports", "contradicts"],
+      "properties": {
+        "duplicate": {"$ref": "#/$defs/rate"},
+        "supports": {"$ref": "#/$defs/rate"},
+        "contradicts": {"$ref": "#/$defs/rate"}
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

@@ -2,12 +2,51 @@
 
 import io
 import math
+from datetime import datetime, timezone
 from urllib.parse import parse_qsl, urlsplit, urlunsplit
 
 from services.ingest.common.series_model import Observation, SeriesRecord
 from src.integrations.common import IntegrationError, digest, version
 
 from .base import DatasetConnector, RawSeries, SeriesRef
+
+
+def _time_millis(value):
+    if value is None:
+        return None
+    text = str(value).strip().replace("Z", "+00:00")
+    try:
+        parsed = datetime.fromisoformat(text)
+    except ValueError:
+        return None
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=timezone.utc)
+    return int(parsed.timestamp() * 1000)
+
+
+def _seasonal_adjustment(dimensions, common_attributes):
+    values = {
+        str(key).upper(): str(value)
+        for key, value in {**dimensions, **common_attributes}.items()
+    }
+    for key in ("S_ADJ", "SEAS_ADJ", "SEASONAL_ADJUSTMENT", "ADJUSTMENT"):
+        if key not in values:
+            continue
+        token = values[key].casefold()
+        code = values[key].upper()
+        if "not seasonally adjusted" in token or code in {"NSA", "NNSA"}:
+            return "not_adjusted"
+        if "seasonally adjusted" in token or code in {"SA", "SCA", "SA_WDA", "SCA_WDA"}:
+            return "adjusted"
+        if key == "ADJUSTMENT" and code in _ECB_ADJUSTMENT:
+            return _ECB_ADJUSTMENT[code]
+    return "unknown"
+
+
+# ECB CL_ADJUSTMENT codes: N = neither seasonally nor working-day adjusted,
+# S = seasonally adjusted, Y = seasonally and working-day adjusted. Working-day
+# or calendar-only adjustment (W, C) is not seasonal and stays unknown.
+_ECB_ADJUSTMENT = {"N": "not_adjusted", "S": "adjusted", "Y": "adjusted"}
 
 
 class SDMXConnector(DatasetConnector):
@@ -341,6 +380,13 @@ class SDMXConnector(DatasetConnector):
                     for k, v in first.items()
                     if all(attrs.get(k) == v for attrs in entry["attributes"].values())
                 }
+            prepared_at = str(message.header.prepared) if message.header.prepared else None
+            extracted_at = str(message.header.extracted) if message.header.extracted else None
+            frequency_value = (
+                normalized_dimensions.get("FREQ")
+                or normalized_dimensions.get("BBK_STD_FREQ")
+                or common_attributes.get("FREQ")
+            )
             frequency = {
                 "A": "annual",
                 "Q": "quarterly",
@@ -348,11 +394,13 @@ class SDMXConnector(DatasetConnector):
                 "W": "weekly",
                 "D": "daily",
             }.get(
-                normalized_dimensions.get("FREQ")
-                or normalized_dimensions.get("BBK_STD_FREQ")
-                or common_attributes.get("FREQ"),
+                frequency_value,
                 "irregular",
             )
+            release_clock_status = (
+                "SDMX header timestamps preserved; they are not asserted as release time"
+            )
+            vintage_id = f"{raw.ref.locator}@{raw.fetched_at}"
             records.append(
                 SeriesRecord(
                     series_id=self.provider + ":" + raw.ref.locator + ":" + key[:24],
@@ -374,11 +422,22 @@ class SDMXConnector(DatasetConnector):
                         "provider_prepared_at": str(message.header.prepared)
                         if message.header.prepared
                         else None,
+                        "provider_prepared_at_ms": _time_millis(prepared_at),
                         "provider_release_at": None,
+                        "provider_release_at_ms": None,
+                        "provider_release_time_status": release_clock_status,
                         "dataset_metadata": entry["dataset_metadata"],
                         "provider_extracted_at": str(message.header.extracted)
                         if message.header.extracted
                         else None,
+                        "provider_extracted_at_ms": _time_millis(extracted_at),
+                        "provider_vintage_ms": raw.fetched_at,
+                        "vintage_id": vintage_id,
+                        "vintage_basis": "retrieval_time_current_response",
+                        "acquired_at_ms": raw.fetched_at,
+                        "seasonal_adjustment": _seasonal_adjustment(
+                            normalized_dimensions, common_attributes
+                        ),
                         "dataflow_id": raw.ref.metadata.get("flow")
                         or raw.ref.locator.split("/", 1)[0],
                         "structure": self._structure_projection(structure, dimensions),

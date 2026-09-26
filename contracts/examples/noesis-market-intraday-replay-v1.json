@@ -1,0 +1,13 @@
+{
+  "contract": "noesis-market-intraday-replay-v1",
+  "asset_class": "intraday",
+  "formula_version": "noesis-market-specialized-v1",
+  "status": "complete",
+  "entitlement": {"tier": "delayed", "real_time": false},
+  "events": [{"sequence": 1, "exchange_at_ms": 1000, "received_at_ms": 1001, "event_type": "trade"}],
+  "replay": {"replay_hash": "fixture", "input_count": 1, "recovered_count": 0, "gaps": [], "recovered_sequences": [], "unrecovered_sequences": [], "bounded": true},
+  "quality": {"out_of_order_count": 0, "duplicate_sequence_count": 0, "correction_count": 0, "p95_latency_ms": 1, "max_events_per_second": 1, "backpressure": "not_assessed"},
+  "source_revision_ids": ["fixture:intraday:1"],
+  "source_rights": {"status": "rights_unverified", "decisions": []},
+  "limitations": ["Fixture only."]
+}

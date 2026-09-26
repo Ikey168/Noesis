@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "noesis-intake-research-independence-review-v1",
+  "title": "Authorized Deep Research source-origin review",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "contract",
+    "review_id",
+    "namespace",
+    "bundle_id",
+    "bundle_revision",
+    "claim_id",
+    "claim_hash",
+    "status",
+    "basis",
+    "method",
+    "groups",
+    "reviewer",
+    "reviewed_at_ms",
+    "provenance"
+  ],
+  "properties": {
+    "contract": {"const": "noesis-intake-research-independence-review-v1"},
+    "review_id": {"type": "string", "pattern": "^research-independence-review:[0-9a-f]{32}$"},
+    "namespace": {"type": "string", "minLength": 1},
+    "bundle_id": {"type": "string", "pattern": "^research-bundle:[0-9a-f]{32}$"},
+    "bundle_revision": {"type": "integer", "minimum": 1},
+    "claim_id": {"type": "string", "minLength": 1},
+    "claim_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "status": {"enum": ["independent", "dependent", "uncertain"]},
+    "basis": {"type": "string", "minLength": 1},
+    "method": {"const": "manual_origin_review"},
+    "groups": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 100,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["group_id", "card_ids"],
+        "properties": {
+          "group_id": {"type": "string", "minLength": 1},
+          "card_ids": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}}
+        }
+      }
+    },
+    "reviewer": {"type": "string", "minLength": 1},
+    "reviewed_at_ms": {"type": "integer", "minimum": 0},
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["bundle_revision", "claim_hash", "source_pins"],
+      "properties": {
+        "bundle_revision": {"type": "integer", "minimum": 1},
+        "claim_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "source_pins": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["group_id", "card_id", "namespace", "source_id", "source_version", "quote_hash"],
+            "properties": {
+              "group_id": {"type": "string", "minLength": 1},
+              "card_id": {"type": "string", "minLength": 1},
+              "namespace": {"type": "string", "minLength": 1},
+              "source_id": {"type": "string", "minLength": 1},
+              "source_version": {"type": "integer", "minimum": 1},
+              "quote_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+            }
+          }
+        }
+      }
+    }
+  }
+}

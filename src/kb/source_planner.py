@@ -526,9 +526,14 @@ class SourcePlannerStore:
         principal_id: str = "preview",
         optimizer: str = "greedy",
         solver_timeout_seconds: float = 2,
+        semantic_scores: Mapping[str, Mapping[str, Any]] | None = None,
     ) -> dict[str, Any]:
         _require(scopes, WRITE_SCOPE if persist else READ_SCOPE)
+        if persist and semantic_scores:
+            raise SourcePlannerError("evaluation_required", "semantic scores are available only in unpersisted previews")
         objective = self.objective(namespace, objective_id, scopes={READ_SCOPE})
+        if semantic_scores is not None and not isinstance(semantic_scores, Mapping):
+            raise SourcePlannerError("invalid_semantic_scores", "versioned semantic score mapping required")
         constraints = objective["constraints"]
         required = set(constraints["required_sources"])
         forbidden = set(constraints["forbidden_sources"])
@@ -602,6 +607,22 @@ class SourcePlannerStore:
                 "freshness": 1 / (1 + max(0, age) / 86_400_000),
             }
             score = round(sum(score_components.values()) / len(score_components), 8)
+            signal = ((semantic_scores or {}).get(capability["capability_id"])
+                      if projected_cost <= float(constraints["budget"]) else None)
+            if signal is not None:
+                if (not isinstance(signal, Mapping) or
+                    signal.get("objective_input_hash") != objective["input_hash"] or
+                    signal.get("capability_content_hash") != capability["content_hash"] or
+                    not isinstance(signal.get("evaluation_ref"), str) or
+                    not signal["evaluation_ref"] or
+                    type(signal.get("score")) not in {int, float} or
+                    not 0 <= signal["score"] <= 1):
+                    raise SourcePlannerError("invalid_semantic_scores", "current bounded versioned score required")
+                score_components["baseline"] = score
+                score_components["semantic_relevance"] = signal["score"]
+                score_components["semantic_weight"] = 0.2
+                score_components["semantic_evaluation_ref"] = signal["evaluation_ref"]
+                score = round(0.8 * score + 0.2 * signal["score"], 8)
             candidates.append(
                 {
                     "capability": capability,
@@ -612,7 +633,11 @@ class SourcePlannerStore:
                 }
             )
         candidates.sort(
-            key=lambda item: (-item["score"], item["capability"]["source_id"])
+            key=lambda item: (
+                item["capability"]["source_id"] not in required,
+                -item["score"],
+                item["capability"]["source_id"],
+            )
         )
         fallback_candidates = list(candidates)
         if optimizer not in {"greedy", "cp-sat"}:

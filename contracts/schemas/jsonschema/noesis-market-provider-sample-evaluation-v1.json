@@ -1,0 +1,40 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/schemas/noesis-market-provider-sample-evaluation-v1.json",
+  "type": "object",
+  "required": [
+    "contract", "pack_id", "status", "evidence_kind", "provider",
+    "manifest_sha256", "authorization", "rights", "checks",
+    "coverage_comparison", "receipt_count", "instrument_count", "limitations"
+  ],
+  "properties": {
+    "contract": {"const": "noesis-market-provider-sample-evaluation-v1"},
+    "pack_id": {"type": "string"},
+    "status": {"enum": ["credential_blocked", "live_incomplete", "live_evaluated", "fixture_incomplete", "fixture_verified_only"]},
+    "evidence_kind": {"enum": ["live_provider", "fixture"]},
+    "provider": {"type": "string"},
+    "recorded_at": {"type": ["string", "null"]},
+    "manifest_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "authorization": {"type": "object"},
+    "rights": {"type": "object"},
+    "checks": {
+      "type": "array",
+      "minItems": 6,
+      "items": {
+        "type": "object",
+        "required": ["name", "status", "details"],
+        "properties": {
+          "name": {"type": "string"},
+          "status": {"enum": ["passed", "failed", "blocked"]},
+          "details": {}
+        },
+        "additionalProperties": false
+      }
+    },
+    "coverage_comparison": {"type": "object"},
+    "receipt_count": {"type": "integer", "minimum": 0},
+    "instrument_count": {"type": "integer", "minimum": 0},
+    "limitations": {"type": "array", "items": {"type": "string"}}
+  },
+  "additionalProperties": false
+}

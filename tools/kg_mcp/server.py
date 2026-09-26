@@ -30,6 +30,8 @@ Design constraints (same as other NeuroNews MCP servers):
 
 from __future__ import annotations
 
+import contextlib
+import functools
 import sys
 from pathlib import Path
 from typing import Optional
@@ -77,6 +79,29 @@ def _get_kg_store():
     return _ro_store
 
 
+def _release_kg_store():
+    """Close the cached read-only handle so other connections to the file stay possible."""
+    global _ro_store, _ro_signature
+    if _ro_store is not None:
+        with contextlib.suppress(Exception):
+            _ro_store.close()
+    _ro_store = _ro_signature = None
+
+
+def _released(fn):
+    # DuckDB refuses a second connection to one file with a different
+    # configuration in the same process, so the read-only handle is released
+    # after every tool call (mirrors tools/kb_mcp/server.py).
+    @functools.wraps(fn)
+    def wrapper(*args, **kwargs):
+        try:
+            return fn(*args, **kwargs)
+        finally:
+            _release_kg_store()
+
+    return wrapper
+
+
 def _get_correction_store():
     from src.knowledge_graph.entity_corrections import EntityCorrectionStore
 
@@ -91,6 +116,7 @@ def _get_correction_store():
 # ---------------------------------------------------------------------------
 
 @mcp.tool()
+@_released
 def kg_stats() -> dict:
     """
     Return current KnowledgeGraphStore statistics.
@@ -114,6 +140,7 @@ def kg_stats() -> dict:
 
 
 @mcp.tool()
+@_released
 def kg_ontology() -> dict:
     """
     Return the KG ontology: entity types, relation types, and which
@@ -139,6 +166,7 @@ def kg_ontology() -> dict:
 
 @mcp.tool(
 )
+@_released
 def list_entities(
     entity_type: Optional[str] = None,
     name_filter: Optional[str] = None,
@@ -188,6 +216,7 @@ def list_entities(
 
 
 @mcp.tool()
+@_released
 def get_entity(entity_id: str) -> dict:
     """
     Return full details of a KG node plus its neighbour count.
@@ -215,6 +244,7 @@ def get_entity(entity_id: str) -> dict:
 
 
 @mcp.tool()
+@_released
 def list_corrections(
     status: Optional[str] = "pending",
     entity_id: Optional[str] = None,
@@ -257,6 +287,7 @@ def list_corrections(
 
 
 @mcp.tool()
+@_released
 def get_correction(correction_id: str) -> dict:
     """
     Return full details of a single entity correction request.
@@ -272,6 +303,7 @@ def get_correction(correction_id: str) -> dict:
 
 
 @mcp.tool()
+@_released
 def emerging_connections(
     since_minutes: int = 60,
     limit: int = 20,
@@ -307,6 +339,7 @@ def emerging_connections(
 
 @mcp.tool(
 )
+@_released
 def evolving_topics(
     window_minutes: int = 60,
     top_n: int = 15,
@@ -378,6 +411,7 @@ def _comention_graph():
     # panel, servable through the /api/v1/ui/data proxy. Base nodes/edges stay
     # available via the existing /api/v1/entity_graph REST route.
 )
+@_released
 def kg_communities(kg: Optional[str] = None) -> dict:
     """Community detection (label propagation) over the KG co-mention graph,
     for colouring the entity graph. Accepts an optional ``kg`` namespace
@@ -401,6 +435,7 @@ def kg_communities(kg: Optional[str] = None) -> dict:
         }
     ),
 )
+@_released
 def kg_centrality(kg: Optional[str] = None, top: int = 20) -> dict:
     """PageRank centrality over the KG co-mention graph, for sizing entity-graph
     nodes. Accepts an optional ``kg`` namespace (Track P).

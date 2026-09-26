@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.dev/contracts/noesis-decision-evidence-receipt-v1.json",
+  "title": "Noesis Decision Evidence Receipt v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "contract",
+    "decision_id",
+    "decision_revision",
+    "recorded_by",
+    "recorded_at_ms",
+    "command_key",
+    "request_hash",
+    "reference",
+    "criterion",
+    "assessment",
+    "rationale",
+    "remaining_items",
+    "max_items",
+    "stop_condition"
+  ],
+  "properties": {
+    "contract": {"const": "noesis-decision-evidence-receipt-v1"},
+    "decision_id": {"type": "string", "minLength": 1},
+    "decision_revision": {"type": "integer", "minimum": 1},
+    "recorded_by": {"type": "string", "minLength": 1},
+    "recorded_at_ms": {"type": "integer", "minimum": 0},
+    "command_key": {"type": "string", "minLength": 1},
+    "request_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "id"],
+      "properties": {
+        "kind": {"const": "evidence"},
+        "id": {"type": "string", "minLength": 1},
+        "namespace": {"type": "string", "minLength": 1},
+        "generation": {"type": "integer", "minimum": 0},
+        "revision": {"type": "integer", "minimum": 0},
+        "question_revision": {"type": "integer", "minimum": 0},
+        "locator": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "document_id": {"type": "string"},
+            "revision_id": {"type": "string"},
+            "start": {"type": "integer", "minimum": 0},
+            "end": {"type": "integer", "minimum": 0},
+            "page": {"type": "integer", "minimum": 0},
+            "section": {"type": "string"}
+          }
+        }
+      },
+      "anyOf": [{"required": ["revision"]}, {"required": ["generation"]}]
+    },
+    "criterion": {"type": "string", "minLength": 1},
+    "assessment": {"enum": ["supports", "contradicts", "context", "irrelevant"]},
+    "rationale": {"type": "string", "minLength": 1},
+    "remaining_items": {"type": "integer", "minimum": 0},
+    "max_items": {"type": "integer", "minimum": 1, "maximum": 50},
+    "stop_condition": {"type": "string", "minLength": 1}
+  }
+}

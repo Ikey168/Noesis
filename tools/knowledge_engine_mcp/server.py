@@ -1,5 +1,7 @@
 """MCP controls for residual knowledge-engine ingestion and derivation capabilities."""
 
+# Registration imports appear after the authorization helpers they use.
+
 from __future__ import annotations
 
 import sys
@@ -92,6 +94,33 @@ def knowledge_engine_capabilities() -> dict:
             "noesis-workflow-stage-receipt-v1",
             "noesis-workflow-watermark-v1",
             "noesis-source-pack-v1",
+            "noesis-source-pack-upgrade-preview-v1",
+            "noesis-source-pack-upgrade-impact-v1",
+            "noesis-source-pack-upgrade-receipt-v1",
+            "noesis-technical-inventory-v1",
+            "noesis-technical-impact-v1",
+            "noesis-technical-impact-report-v1",
+            "noesis-technical-impact-comparison-v1",
+            "noesis-technical-impact-export-v1",
+            "noesis-economic-release-snapshot-v1",
+            "noesis-economic-release-comparison-v1",
+            "noesis-legislative-dossier-v1",
+            "noesis-legislative-timeline-v1",
+            "noesis-legislative-comparison-v1",
+            "noesis-paper-family-v1",
+            "noesis-paper-family-comparison-v1",
+            "noesis-paper-family-export-v1",
+            "noesis-typed-decision-v1",
+            "noesis-decision-task-rollout-v1",
+            "noesis-event-dossier-v1",
+            "noesis-event-dossier-comparison-v1",
+            "noesis-openreview-rounds-v1",
+            "noesis-openreview-round-v1",
+            "noesis-openreview-round-comparison-v1",
+            "noesis-investigation-coverage-v1",
+            "noesis-investigation-coverage-comparison-v1",
+            "noesis-review-screening-suggestion-v1",
+            "noesis-review-screening-evaluation-v1",
             "noesis-source-pack-run-request-v1",
             "noesis-source-pack-run-receipt-v1",
             "noesis-document-revision-v1",
@@ -109,12 +138,51 @@ def knowledge_engine_capabilities() -> dict:
             "noesis-intake-route-v1",
             "noesis-intake-session-v1",
             "noesis-intake-playbook-v1",
+            "noesis-intake-iteration-playbook-v1",
+            "noesis-intake-iteration-decision-v1",
+            "noesis-intake-iteration-report-v1",
+            "noesis-intake-iteration-concept-v1",
+            "noesis-intake-iteration-modulo-note-v1",
+            "noesis-problem-action-v1",
             "noesis-intake-playbook-run-v1",
             "noesis-intake-session-page-v1",
             "noesis-intake-session-export-v1",
             "noesis-intake-session-export-verification-v1",
             "noesis-modulo-intake-handoff-v1",
             "noesis-modulo-intake-handoff-v2",
+            "noesis-modulo-intake-handoff-v3",
+            "noesis-intake-workflow-discovery-v1",
+            "noesis-modulo-intake-migration-preview-v1",
+            "noesis-jev-record-candidate-v1",
+            "noesis-jev-identity-evaluation-v1",
+            "noesis-jev-methodology-evaluation-v1",
+            "noesis-jev-intake-route-suggestion-v1",
+            "noesis-jev-epistemic-kind-suggestion-v1",
+            "noesis-awareness-decision-suggestion-v1",
+            "noesis-jev-awareness-evaluation-v1",
+            "noesis-jev-claim-presence-suggestion-v1",
+            "noesis-jev-checkworthiness-suggestion-v1",
+            "noesis-jev-sentiment-suggestion-v1",
+            "noesis-jev-attribution-suggestion-v1",
+            "noesis-jev-stance-suggestion-v1",
+            "noesis-jev-frame-suggestion-v1",
+            "noesis-jev-mining-evaluation-v1",
+            "noesis-jev-rerank-suggestion-v1",
+            "noesis-jev-rerank-evaluation-v1",
+            "noesis-jev-answer-support-suggestion-v1",
+            "noesis-jev-answer-support-evaluation-v1",
+            "noesis-jev-claim-relation-suggestion-v1",
+            "noesis-jev-claim-relation-evaluation-v1",
+            "noesis-jev-review-priority-suggestion-v1",
+            "noesis-jev-review-priority-evaluation-v1",
+            "noesis-jev-revision-significance-v1",
+            "noesis-jev-revision-significance-evaluation-v1",
+            "noesis-decision-comparative-matrix-v1",
+            "noesis-jev-source-planning-v1",
+            "noesis-jev-source-planning-evaluation-v1",
+            "noesis-intake-practice-draft-v1",
+            "noesis-intake-maintenance-impact-v1",
+            "noesis-intake-playbook-search-v1",
             "noesis-intake-subscriptions-v1",
             "noesis-intake-feed-item-v1",
             "noesis-intake-feed-page-v1",
@@ -3060,6 +3128,61 @@ def install_source_pack(manifest: dict[str, Any], enable: bool = False) -> dict:
             manifest, principal_id=_context()[0], enable=enable
         ),
         write=True,
+    )
+
+
+@mcp.tool()
+def preview_source_pack_upgrade(candidate: dict[str, Any]) -> dict:
+    """Read-only semantic comparison against the installed source-pack version."""
+    from src.ingestion.source_packs import SourcePackStore
+
+    return _safe(
+        lambda conn: SourcePackStore(conn, initialize=False).preview_upgrade(candidate),
+        required_scope="knowledge:read",
+    )
+
+
+@mcp.tool()
+def import_technical_inventory(content: str, format: str) -> dict:
+    """Import a bounded pinned npm or Python inventory as private caller data."""
+    from src.domains.technical.inventory import InventoryStore
+
+    return _safe(
+        lambda conn: InventoryStore(conn).import_inventory(
+            content, format, owner_id=_context()[0]
+        ),
+        write=True,
+        required_scope="knowledge:technical:write",
+    )
+
+
+@mcp.tool()
+def inspect_technical_inventory(
+    inventory_id: str, limit: int = 100, offset: int = 0
+) -> dict:
+    """Read one owner-scoped inventory page and link acquired technical records."""
+    from src.domains.technical.inventory import InventoryStore
+
+    return _safe(
+        lambda conn: InventoryStore(conn, initialize=False).inspect(
+            inventory_id, owner_id=_context()[0], limit=limit, offset=offset
+        ),
+        required_scope="knowledge:technical:read",
+    )
+
+
+@mcp.tool()
+def assess_technical_inventory_impact(
+    inventory_id: str, limit: int = 100, offset: int = 0
+) -> dict:
+    """Compare pinned dependencies with acquired advisory ranges and release records."""
+    from src.domains.technical.impact import assess_inventory
+
+    return _safe(
+        lambda conn: assess_inventory(
+            conn, inventory_id, owner_id=_context()[0], limit=limit, offset=offset
+        ),
+        required_scope="knowledge:technical:read",
     )
 
 
@@ -6131,15 +6254,43 @@ def run_research_recipe(
     secrets: dict[str, str] | None = None,
     fail_after: int | None = None,
 ) -> dict:
-    """Run or resume a recipe with bounded local step adapters and durable checkpoints."""
-    from src.kb.research_recipes import ResearchRecipeStore
+    """Record caller-supplied fixture outputs with durable checkpoints.
 
-    adapters = {
-        name: (lambda step, state, value=value: dict(value))
-        for name, value in step_outputs.items()
-    }
-    return _safe(
-        lambda c: ResearchRecipeStore(c).run(
+    This records supplied outputs for each recipe step; it does not invoke the
+    named MCP tools or execute external actions. Keys in ``step_outputs`` are
+    recipe step IDs.
+    """
+    from src.kb.research_recipes import (
+        RecipeError,
+        ResearchRecipeStore,
+        execution_input_digest,
+    )
+
+    def run(c):
+        store = ResearchRecipeStore(c)
+        recipe = store.recipe(
+            namespace, recipe_revision_id, scopes={"knowledge:recipes:read"}
+        )
+        steps = {str(step["id"]): step for step in recipe["steps"]}
+        supplied = set(step_outputs)
+        unknown = sorted(supplied - set(steps))
+        required_missing = sorted(
+            step_id
+            for step_id, step in steps.items()
+            if step_id not in supplied and not step.get("optional", False)
+        )
+        if unknown or required_missing:
+            raise RecipeError(
+                "invalid_fixture_outputs",
+                "fixture outputs must cover every required recipe step and use known step IDs",
+                unknown_step_ids=unknown,
+                missing_required_step_ids=required_missing,
+            )
+        adapters = {
+            step_id: (lambda step, state, value=value: dict(value))
+            for step_id, value in step_outputs.items()
+        }
+        return store.run(
             namespace,
             recipe_revision_id,
             parameters,
@@ -6154,7 +6305,15 @@ def run_research_recipe(
             tool_versions=tool_versions,
             snapshot_tokens=snapshot_tokens,
             fail_after=fail_after,
-        ),
+            execution_input_hash=execution_input_digest(
+                step_outputs, secrets=list((secrets or {}).values())
+            ),
+            execution_mode="caller-supplied-fixture",
+            actions_executed=False,
+        )
+
+    return _safe(
+        run,
         write=True,
         required_scope="knowledge:recipes:execute",
     )
@@ -8033,6 +8192,18 @@ def revise_research_decision(namespace: str, decision_id: str, expected_revision
 
 
 @mcp.tool()
+def record_decision_evidence(namespace: str, decision_id: str, expected_revision: int,
+                             command_key: str, reference: dict[str, Any], criterion: str,
+                             assessment: str, rationale: str) -> dict:
+    """Append one relevance-reviewed evidence item within the decision's declared budget."""
+    from src.kb.decisions import WRITE_SCOPE, DecisionStore
+    return _safe(lambda c: DecisionStore(c).record_evidence(
+        namespace, decision_id, expected_revision, command_key, reference, criterion,
+        assessment, rationale, principal_id=_context()[0], scopes=_context()[1]),
+        write=True, required_scope=WRITE_SCOPE)
+
+
+@mcp.tool()
 def calculate_decision_sensitivity(namespace: str, decision_id: str, revision: int, weights: dict[str, Any],
                                     inputs: dict[str, Any], scenarios: list[dict[str, Any]], provenance: str) -> dict:
     """Record bounded weighted-utility comparisons with ties, missing data, and formula provenance."""
@@ -8833,6 +9004,57 @@ from tools.knowledge_engine_mcp.investigations import (
 
 register_investigation_tools(mcp, _safe, lambda: _context())
 
+from tools.knowledge_engine_mcp.political_dossiers import (
+    register as register_political_dossier_tools,
+)
+
+register_political_dossier_tools(mcp, _safe, lambda: _context())
+
+from tools.knowledge_engine_mcp import economic_releases
+
+economic_releases.register(mcp, _safe, lambda: _context())
+
+from tools.knowledge_engine_mcp.scholarly_families import (
+    register as register_paper_family_tools,
+)
+
+register_paper_family_tools(mcp, _safe, lambda: _context())
+
+from tools.knowledge_engine_mcp.technical_reports import (
+    register as register_technical_report_tools,
+)
+
+register_technical_report_tools(mcp, _safe, lambda: _context())
+
+from tools.knowledge_engine_mcp import event_dossiers
+
+event_dossiers.register(mcp, _safe, lambda: _context())
+
+from tools.knowledge_engine_mcp.openreview_rounds import (
+    register as register_openreview_round_tools,
+)
+
+register_openreview_round_tools(mcp, _safe, lambda: _context())
+
+from tools.knowledge_engine_mcp.source_pack_upgrades import (
+    register as register_source_pack_upgrade_tools,
+)
+
+register_source_pack_upgrade_tools(mcp, _safe, lambda: _context())
+
+from tools.knowledge_engine_mcp.coverage_assessments import (
+    register as register_coverage_assessment_tools,
+)
+
+register_coverage_assessment_tools(mcp, _safe, lambda: _context())
+
+from tools.knowledge_engine_mcp.systematic_review_decisions import (
+    register as register_review_screening_decision_tools,
+)
+
+register_review_screening_decision_tools(mcp, _safe, lambda: _context())
+
+from tools.knowledge_engine_mcp.decisions import register as register_decision_tools
 from tools.knowledge_engine_mcp.intake import register as register_intake_tools
 
 
@@ -8853,7 +9075,88 @@ def _intake_safe(operation, *, write: bool = False, required_scope: str | None =
     return _safe(operation, write=write, required_scope=required_scope, caller=_intake_context)
 
 
+register_decision_tools(mcp, _intake_safe, _intake_context)
+
+from tools.knowledge_engine_mcp.jev_record_candidates import (
+    register as register_jev_record_candidate_tools,
+)
+
+register_jev_record_candidate_tools(mcp, _intake_safe, _intake_context)
+
+from tools.knowledge_engine_mcp.jev_nlp import (
+    register as register_jev_nlp_tools,
+)
+
+register_jev_nlp_tools(mcp, _intake_safe, _intake_context)
+
+from tools.knowledge_engine_mcp.jev_epistemic import (
+    register as register_jev_epistemic_tools,
+)
+
+register_jev_epistemic_tools(mcp, _intake_safe, _intake_context)
+
+from tools.knowledge_engine_mcp.jev_evidence import (
+    register as register_jev_evidence_tools,
+)
+
+register_jev_evidence_tools(mcp, _intake_safe, _intake_context)
+
+from tools.knowledge_engine_mcp.jev_intake_routing import (
+    register as register_jev_intake_routing_tools,
+)
+
+register_jev_intake_routing_tools(mcp, _intake_safe, _intake_context)
+
+from tools.knowledge_engine_mcp.jev_review_priority import (
+    register as register_jev_review_priority_tools,
+)
+
+register_jev_review_priority_tools(mcp, _intake_safe, _intake_context)
+
+from tools.knowledge_engine_mcp.jev_revision_significance import (
+    register as register_jev_revision_significance_tools,
+)
+
+register_jev_revision_significance_tools(mcp, _intake_safe, _intake_context)
+
+from tools.knowledge_engine_mcp.jev_source_planning import (
+    register as register_jev_source_planning_tools,
+)
+
+register_jev_source_planning_tools(mcp, _intake_safe, _intake_context)
+
+from tools.knowledge_engine_mcp.decision_comparison import (
+    register as register_decision_comparison_tools,
+)
+
+register_decision_comparison_tools(mcp, _intake_safe, _intake_context)
+
+from tools.knowledge_engine_mcp.practice_drafts import (
+    register as register_practice_draft_tools,
+)
+
+register_practice_draft_tools(mcp, _intake_safe, _intake_context)
+
+from tools.knowledge_engine_mcp.playbook_search import (
+    register as register_playbook_search_tools,
+)
+
+register_playbook_search_tools(mcp, _intake_safe, _intake_context)
+
+from tools.knowledge_engine_mcp.skills import (
+    register as register_skill_tools,
+)
+
+register_skill_tools(mcp, _intake_safe, _intake_context)
+
+
 register_intake_tools(mcp, _intake_safe, _intake_context)
+
+from tools.knowledge_engine_mcp.intake_migration import (
+    register as register_intake_migration_tools,
+)
+
+register_intake_migration_tools(mcp, _intake_safe, _intake_context)
 
 from tools.knowledge_engine_mcp.research_intake import (
     register as register_intake_research_tools,
@@ -8879,7 +9182,7 @@ from tools.knowledge_engine_mcp.iteration_intake import (
 
 register_intake_iteration_tools(mcp, _intake_safe, _intake_context)
 
-from tools.knowledge_engine_mcp.funding import register as register_funding_tools  # noqa: E402
+from tools.knowledge_engine_mcp.funding import register as register_funding_tools
 
 register_funding_tools(mcp, _intake_safe, _intake_context)
 

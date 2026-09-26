@@ -1,0 +1,15 @@
+{
+  "contract": "noesis-market-digital-asset-analysis-v1",
+  "asset_class": "digital_asset",
+  "formula_version": "noesis-market-specialized-v1",
+  "status": "complete",
+  "identity": {"asset_id": "ethereum:0xabc", "chain_id": "ethereum", "contract_address": "0xabc", "symbol": "FIX"},
+  "calendar": {"type": "continuous_24_7", "holidays": []},
+  "observations": [{"at_ms": 1, "price": 10, "venue": "fixture"}],
+  "supply_history": [{"at_ms": 0, "supply": 1000}],
+  "chain_reorganizations": [],
+  "liquidity": {"observations": 0, "volume_sum": null, "source_reliability": 1.0},
+  "source_revision_ids": ["fixture:digital:1"],
+  "source_rights": {"status": "rights_unverified", "decisions": []},
+  "limitations": ["Fixture only."]
+}

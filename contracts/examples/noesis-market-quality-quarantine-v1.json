@@ -1,0 +1,11 @@
+{
+  "contract": "noesis-market-quality-quarantine-v1",
+  "namespace": "market:demo",
+  "object_kind": "price_bar",
+  "revision_id": "market-bar:demo@1",
+  "status": "quarantined",
+  "reason": "Provider disagreement under review.",
+  "finding_ids": ["market-quality-finding:demo-disagreement"],
+  "reviewer_id": "analyst:demo",
+  "updated_at_ms": 1790208000000
+}

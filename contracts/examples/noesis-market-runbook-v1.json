@@ -1,0 +1,1 @@
+{"contract":"noesis-market-runbook-v1","namespace":"market:fixture","owner":"operator","runbook_id":"runbook:1","revision":1,"scenario":"restore","steps":[{"action":"verify"}],"record_hash":"0000000000000000000000000000000000000000000000000000000000000000"}

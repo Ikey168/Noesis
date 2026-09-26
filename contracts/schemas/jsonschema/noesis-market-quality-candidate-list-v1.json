@@ -1,0 +1,33 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/schemas/noesis-market-quality-candidate-list-v1.json",
+  "title": "Noesis rejected market ingest candidate list v1",
+  "type": "object",
+  "required": ["contract", "namespace", "request_key", "items", "limit"],
+  "properties": {
+    "contract": {"const": "noesis-market-quality-candidate-list-v1"},
+    "namespace": {"type": "string", "minLength": 1},
+    "request_key": {"type": "string", "minLength": 1},
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["candidate_id", "provider", "listing_id", "interval", "record_hash", "error_code", "status", "created_at_ms"],
+        "properties": {
+          "candidate_id": {"type": "string", "minLength": 1},
+          "provider": {"type": "string", "minLength": 1},
+          "listing_id": {"type": "string", "minLength": 1},
+          "interval": {"type": "string", "minLength": 1},
+          "provider_record_id": {"type": ["string", "null"]},
+          "record_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+          "error_code": {"type": "string", "minLength": 1},
+          "status": {"const": "quarantined"},
+          "created_at_ms": {"type": "integer", "minimum": 0}
+        },
+        "additionalProperties": false
+      }
+    },
+    "limit": {"type": "integer", "minimum": 1, "maximum": 500}
+  },
+  "additionalProperties": false
+}

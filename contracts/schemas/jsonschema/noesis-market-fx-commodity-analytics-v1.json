@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/schemas/noesis-market-fx-commodity-analytics-v1.json",
+  "type": "object",
+  "required": ["contract", "asset_class", "formula_version", "status", "observations", "continuous_series", "tradable_pnl", "source_revision_ids", "source_rights", "limitations"],
+  "properties": {
+    "contract": {"const": "noesis-market-fx-commodity-analytics-v1"},
+    "asset_class": {"const": "fx_commodity"},
+    "formula_version": {"type": "string"},
+    "status": {"enum": ["complete", "no_data"]},
+    "observations": {"type": "array"},
+    "continuous_series": {"type": "array"},
+    "tradable_pnl": {"type": "array"},
+    "source_revision_ids": {"type": "array", "items": {"type": "string"}},
+    "source_rights": {"type": "object"},
+    "limitations": {"type": "array", "items": {"type": "string"}}
+  },
+  "additionalProperties": true
+}

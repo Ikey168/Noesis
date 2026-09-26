@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/contracts/noesis-openreview-rounds-v1.json",
+  "title": "Pinned public OpenReview round set",
+  "type": "object",
+  "required": ["contract", "namespace", "round_set_id", "owner", "forum_id", "revision", "notes", "concerns", "round_ids", "ambiguous_membership_count", "coverage"],
+  "properties": {
+    "contract": {"const": "noesis-openreview-rounds-v1"},
+    "namespace": {"type": "string", "minLength": 1},
+    "round_set_id": {"type": "string", "minLength": 1},
+    "owner": {"type": "string", "minLength": 1},
+    "forum_id": {"type": "string", "minLength": 1},
+    "revision": {"type": "integer", "minimum": 1},
+    "notes": {"type": "array", "maxItems": 100, "items": {"$ref": "#/$defs/note"}},
+    "concerns": {"type": "array", "maxItems": 100, "items": {"$ref": "#/$defs/concern"}},
+    "round_ids": {"type": "array", "items": {"type": "string", "pattern": "^round:[0-9]+$"}},
+    "ambiguous_membership_count": {"type": "integer", "minimum": 0},
+    "coverage": {"const": "selected_accessible_public_notes_only"}
+  },
+  "$defs": {
+    "citation": {
+      "type": "object",
+      "required": ["document_id", "revision_id", "url", "note_id", "content_hash", "payload_hash", "native_version"],
+      "properties": {
+        "document_id": {"type": "string"},
+        "revision_id": {"type": "string"},
+        "url": {"type": "string", "pattern": "^https://openreview.net/"},
+        "note_id": {"type": "string"},
+        "content_hash": {"type": "string"},
+        "payload_hash": {"type": "string"},
+        "native_version": {"type": "string"}
+      }
+    },
+    "note": {
+      "type": "object",
+      "required": ["note_id", "forum_id", "note_type", "invitations", "observed_at_ms", "availability", "membership_state", "citation"],
+      "properties": {
+        "note_id": {"type": "string"},
+        "forum_id": {"type": "string"},
+        "note_type": {"enum": ["submission", "review", "rebuttal", "decision", "unknown"]},
+        "invitations": {"type": "array", "items": {"type": "string"}},
+        "observed_at_ms": {"type": "integer", "minimum": 0},
+        "availability": {"enum": ["public", "removed"]},
+        "membership_state": {"enum": ["supported", "ambiguous"]},
+        "citation": {"$ref": "#/$defs/citation"}
+      }
+    },
+    "concern": {
+      "type": "object",
+      "required": ["concern_id", "concern_revision_id", "key", "status", "review_quote", "review_locator", "manuscript_changed", "independently_verified"],
+      "properties": {
+        "concern_id": {"type": "string"},
+        "concern_revision_id": {"type": "string"},
+        "key": {"type": "string"},
+        "status": {"enum": ["unresolved", "unassessable", "author_claimed", "author_claimed_partial", "machine_proposed", "partial", "disputed", "independently_verified"]},
+        "review_quote": {"type": "string"},
+        "review_locator": {"$ref": "#/$defs/citation"},
+        "manuscript_changed": {"type": "boolean"},
+        "independently_verified": {"type": "boolean"}
+      }
+    }
+  }
+}

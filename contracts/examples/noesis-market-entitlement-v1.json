@@ -1,0 +1,19 @@
+{
+  "contract": "noesis-market-entitlement-v1",
+  "namespace": "market:demo",
+  "entitlement_id": "entitlement:fixture-eod",
+  "provider": "fixture-only",
+  "license_id": "fixture-no-redistribution",
+  "status": "active",
+  "capabilities": ["read", "retain", "derive", "display"],
+  "effective_at_ms": 1790208000000,
+  "expires_at_ms": null,
+  "max_retention_ms": 31536000000,
+  "evidence_ref": "fixture:rights-review:v1",
+  "decision_ref": "fixture:market-entitlement-review:v1",
+  "reviewer_id": "operator:demo",
+  "revision": 1,
+  "revision_id": "market-entitlement:0123456789abcdef01234567@1",
+  "recorded_at_ms": 1790208000000,
+  "record_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+}

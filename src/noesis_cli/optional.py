@@ -47,6 +47,12 @@ KINDS = (
     "capture_replay",
     "model_download",
     "calibration",
+    "typed_decision_evaluation",
+    "decision",
+    "decision_read",
+    "decision_task",
+    "decision_rollout",
+    "decision_rollout_read",
 )
 
 
@@ -167,6 +173,63 @@ def run_request(config, request, *, scopes):
     if not isinstance(params, dict):
         raise TypeError("parameters must be an object")
     with open_warehouse(config) as conn:
+        if kind in {"decision", "decision_read", "decision_task", "decision_rollout", "decision_rollout_read"}:
+            from src.integrations.typesafe import TypeSafeClient
+            from src.kb.decision_runtime import DecisionRuntime
+
+            def decision_credential(reference):
+                if reference != "typesafe":
+                    return None
+                return os.environ.get("TYPESAFE_API_KEY")
+
+            runtime = DecisionRuntime(
+                conn,
+                client=TypeSafeClient(),
+                credential_resolver=decision_credential,
+                initialize=kind not in {"decision_read", "decision_rollout_read"},
+            )
+            auth = {"principal_id": config.principal, "scopes": scopes}
+            if kind == "decision_read":
+                return runtime.inspect(namespace, request["run_id"], **auth)
+            if kind == "decision_rollout_read":
+                return runtime.inspect_task_rollout(namespace, request["task"], **auth)
+            if kind == "decision_rollout":
+                return runtime.configure_task_rollout(
+                    namespace, request["task"], request["mode"],
+                    model=request.get("model"), rubric_id=request.get("rubric_id"),
+                    evaluation_ref=request.get("evaluation_ref"), **auth,
+                )
+            if kind == "decision_task":
+                from src.kb.jev_tasks import suggest_task
+
+                return suggest_task(
+                    runtime,
+                    namespace,
+                    request["run_id"],
+                    request["task"],
+                    params,
+                    request["sources"],
+                    allow_remote=request.get("network_approved") is True,
+                    policy=request.get("policy"),
+                    max_attempts=request.get("max_attempts", 1),
+                    max_cost_usd_micros=request.get("max_cost_usd_micros", 0),
+                    deadline_s=request.get("deadline_s", 30),
+                    **auth,
+                )
+            return runtime.run(
+                namespace,
+                request["run_id"],
+                request["task"],
+                state=request.get("state", {}),
+                questions=request["questions"],
+                source_refs=request["sources"],
+                allow_remote=request.get("network_approved") is True,
+                policy=request.get("policy"),
+                max_attempts=request.get("max_attempts", 1),
+                max_cost_usd_micros=request.get("max_cost_usd_micros", 0),
+                deadline_s=request.get("deadline_s", 30),
+                **auth,
+            )
         if kind == "regional_review":
             from src.ingestion.regional_review import queue_candidate
 
@@ -231,6 +294,22 @@ def run_request(config, request, *, scopes):
                 "status": "measured",
                 "policy": policy,
                 "held_out": evaluate_policy(test, policy),
+                "human_annotation_collected": False,
+            }
+        if kind == "typed_decision_evaluation":
+            from src.evaluation.typed_decisions import (
+                evaluate_acceptance_policy,
+                fit_acceptance_policy,
+            )
+
+            _required(scopes, "knowledge:optional:execute", f"namespace:{namespace}:write")
+            validation = read_json(request["validation_file"])
+            test = read_json(request["test_file"])
+            policy = fit_acceptance_policy(validation, **params)
+            return {
+                "status": "measured",
+                "policy": policy,
+                "held_out": evaluate_acceptance_policy(test, policy),
                 "human_annotation_collected": False,
             }
         if kind in {"regional", "registry_import"}:

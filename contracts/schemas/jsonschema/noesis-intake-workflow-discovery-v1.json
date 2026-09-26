@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "noesis-intake-workflow-discovery-v1",
+  "title": "Caller-scoped ten-mode workflow discovery",
+  "type": "object",
+  "required": ["contract", "namespace", "owner", "source_mode", "live_source_verified", "delivery_readiness", "modes", "sessions"],
+  "properties": {
+    "contract": {"const": "noesis-intake-workflow-discovery-v1"},
+    "namespace": {"type": "string", "minLength": 1},
+    "owner": {"type": "string", "minLength": 1},
+    "source_mode": {"type": "string"},
+    "live_source_verified": {"const": false},
+    "delivery_readiness": {"type": "string"},
+    "modes": {
+      "type": "array", "minItems": 1, "maxItems": 10,
+      "items": {
+        "type": "object",
+        "required": ["mode", "native_tools", "required_scopes", "missing_scopes", "native_start_possible", "complete_journey_ready", "blockers", "required_inputs", "output_kinds", "allowed_mutations", "artifact_resource_template", "readiness_basis"],
+        "properties": {
+          "mode": {"type": "string"},
+          "native_tools": {"type": "array", "items": {"type": "string"}},
+          "required_scopes": {"type": "array", "items": {"type": "string"}},
+          "missing_scopes": {"type": "array", "items": {"type": "string"}},
+          "native_start_possible": {"type": "boolean"},
+          "complete_journey_ready": {"type": "boolean"},
+          "blockers": {"type": "array", "items": {"type": "string"}},
+          "required_inputs": {"type": "array", "items": {"type": "string"}},
+          "output_kinds": {"type": "array", "items": {"type": "string"}},
+          "allowed_mutations": {"type": "array", "items": {"type": "string"}},
+          "artifact_resource_template": {"type": "string"},
+          "readiness_basis": {"const": "caller_scopes_and_local_state_only"}
+        }
+      }
+    },
+    "sessions": {
+      "type": "array", "maxItems": 100,
+      "items": {
+        "type": "object",
+        "required": ["session_id", "mode", "status", "revision", "resource", "allowed_next_actions"],
+        "properties": {
+          "session_id": {"type": "string"},
+          "mode": {"type": "string"},
+          "status": {"type": "string"},
+          "revision": {"type": "integer", "minimum": 1},
+          "resource": {"type": "string"},
+          "allowed_next_actions": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "contract": "noesis-market-alert-watch-v1",
+  "namespace": "market:fixture",
+  "watch_id": "anomaly-watch:fixture",
+  "watch_key": "subject-price",
+  "version": 1,
+  "owner": "alice",
+  "rules": {"triggers": [{"rule_id": "close-high", "type": "price_threshold", "listing_id": "listing:subject", "field": "close", "operator": "gte", "value": "100"}]},
+  "notification": {"dedupe_window_ms": 300000, "retry_delay_ms": 60000, "owner_id": "alice"},
+  "status": "active",
+  "record_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+  "recorded_at_ms": 1771057800000
+}

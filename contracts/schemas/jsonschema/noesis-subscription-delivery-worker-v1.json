@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/contracts/noesis-subscription-delivery-worker-v1.json",
+  "title": "Configured subscription delivery worker readiness or tick",
+  "type": "object",
+  "required": ["contract"],
+  "properties": {
+    "contract": {"const": "noesis-subscription-delivery-worker-v1"},
+    "ready": {"type": "boolean"},
+    "principal_id": {"type": "string"},
+    "destinations": {"type": "array", "items": {"type": "object"}},
+    "max_per_tick": {"type": "integer", "minimum": 1, "maximum": 100},
+    "worker_id": {"type": "string"},
+    "attempted": {"type": "integer", "minimum": 0},
+    "delivered": {"type": "integer", "minimum": 0},
+    "retrying": {"type": "integer", "minimum": 0},
+    "failed": {"type": "integer", "minimum": 0},
+    "receipts": {"type": "array", "items": {"type": "object"}}
+  },
+  "additionalProperties": false
+}

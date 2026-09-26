@@ -360,8 +360,8 @@ async def classify_attribution_batch(
 
 @router.post("/claims/extract")
 async def extract_claims_for_document(
-    document_id: str = Query(..., description="ID of a document already in news_articles"),
-    source_type: str = Query("news", description="Source type label"),
+    document_id: str = Query(..., description="ID of a stored document"),
+    source_type: Optional[str] = Query(None, description="Source type for legacy news rows"),
 ) -> Dict[str, Any]:
     """Run the claim+evidence pipeline on a stored document and persist results."""
     import threading
@@ -371,16 +371,31 @@ async def extract_claims_for_document(
     conn = get_shared_connection()
     lock = getattr(conn, "_lock", None) or threading.Lock()
 
+    import duckdb
+
     with lock:
-        row = conn.execute(
-            "SELECT id, title, content FROM news_articles WHERE id = ? LIMIT 1",
-            [document_id],
-        ).fetchone()
+        try:
+            row = conn.execute(
+                "SELECT document_id, title, content, source_type "
+                "FROM documents WHERE document_id = ? LIMIT 1",
+                [document_id],
+            ).fetchone()
+        except duckdb.CatalogException:
+            row = None  # Warehouses created before the generic document store.
+        if row is None:
+            try:
+                legacy = conn.execute(
+                    "SELECT id, title, content FROM news_articles WHERE id = ? LIMIT 1",
+                    [document_id],
+                ).fetchone()
+            except duckdb.CatalogException:
+                legacy = None
+            row = (*legacy, source_type or "news") if legacy else None
 
     if not row:
         raise HTTPException(status_code=404, detail=f"Document '{document_id}' not found")
 
-    doc_id, title, content = row[0], row[1], row[2]
+    doc_id, title, content, stored_source_type = row
     if not content:
         raise HTTPException(status_code=422, detail="Document has no content to process")
 
@@ -391,7 +406,7 @@ async def extract_claims_for_document(
 
         doc = Document(
             document_id=doc_id,
-            source_type=source_type,
+            source_type=stored_source_type,
             language="en",
             ingested_at=int(time.time() * 1000),
             title=title,
@@ -400,7 +415,7 @@ async def extract_claims_for_document(
         claims, evidence = run_pipeline(doc, conn)
         return {
             "document_id": doc_id,
-            "source_type": source_type,
+            "source_type": stored_source_type,
             "claims_extracted": len(claims),
             "evidence_found": len(evidence),
             "claims": [

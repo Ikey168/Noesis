@@ -183,9 +183,36 @@ class AuthoredReportStore:
             self._abort(exc)
         return state
 
-    def revise(self, namespace, report_id, expected_revision, content, *, principal_id, scopes):
+    def revise(
+        self, namespace, report_id, expected_revision, content, *, principal_id,
+        scopes, iteration_receipt=None, _within_transaction=False,
+    ):
         content = validate_content(content)
-        self.conn.execute("BEGIN")
+        if iteration_receipt is not None:
+            required_receipt = {
+                "contract", "session_id", "session_revision", "report_id",
+                "before_revision", "expected", "outcome", "before_after_rationale",
+                "proposal_sha256", "proposal_recorded_at_ms",
+            }
+            if (
+                not isinstance(iteration_receipt, dict)
+                or set(iteration_receipt) != required_receipt
+                or iteration_receipt.get("contract") != "noesis-intake-iteration-report-v1"
+                or iteration_receipt.get("report_id") != report_id
+                or iteration_receipt.get("before_revision") != expected_revision
+                or not isinstance(iteration_receipt.get("outcome"), dict)
+                or not isinstance(iteration_receipt.get("proposal_sha256"), str)
+                or len(iteration_receipt["proposal_sha256"]) != 64
+                or type(iteration_receipt.get("proposal_recorded_at_ms")) is not int
+                or iteration_receipt["proposal_recorded_at_ms"] < 0
+            ):
+                raise ReportError("invalid_iteration_receipt", "iteration receipt must identify this reviewed report revision")
+            try:
+                iteration_receipt = json.loads(_json(iteration_receipt))
+            except (TypeError, ValueError) as exc:
+                raise ReportError("invalid_iteration_receipt", "iteration receipt must be finite JSON") from exc
+        if not _within_transaction:
+            self.conn.execute("BEGIN")
         try:
             state = self._state(namespace, report_id)
             self._authorize(state, principal_id, scopes, write=True)
@@ -195,14 +222,52 @@ class AuthoredReportStore:
             if not changed:
                 raise ReportError("revision_conflict", "report changed; inspect the current revision")
             self.conn.execute("INSERT INTO authored_report_revisions VALUES (?,?,?)", [report_id, state["revision"], _json(state)])
-            self.conn.execute("COMMIT")
+            if iteration_receipt is not None:
+                history = [*state.get("iteration_history", []), iteration_receipt]
+                if len(history) > 100:
+                    raise ReportError("iteration_history_limit", "report iteration history is limited to 100 receipts")
+                state["iteration_history"] = history
+                self.conn.execute(
+                    "UPDATE authored_report_revisions SET content_json=? WHERE report_id=? AND revision=?",
+                    [_json(state), report_id, state["revision"]],
+                )
+            if not _within_transaction:
+                self.conn.execute("COMMIT")
         except Exception as exc:
-            self._abort(exc)
+            if not _within_transaction:
+                self._abort(exc)
+            raise
         return state
 
-    def export(self, namespace, report_id, *, principal_id, scopes, revision=None):
+    def export(self, namespace, report_id, *, principal_id, scopes, revision=None, external=False):
         state = self.inspect(namespace, report_id, revision=revision, principal_id=principal_id, scopes=scopes)
-        return render_export(state)
+        rights = self._market_rights(state, principal_id, scopes, external=external)
+        exported = render_export(state)
+        if rights["state"] != "not_market_backed":
+            exported["market_rights"] = rights
+        return exported
+
+    def _market_rights(self, state, principal_id, scopes, *, external):
+        """Fail closed when cited market evidence lost its export rights."""
+        from src.domains.market.entitlements import recheck_market_dependencies
+
+        dependencies = [
+            dep
+            for section in state["content"]["sections"]
+            for assertion in section["assertions"]
+            for dep in assertion["dependencies"]
+        ]
+        rights = recheck_market_dependencies(
+            self.conn, dependencies, operation="export", principal_id=principal_id,
+            scopes=scopes, external=external, now_ms=int(self.now()),
+        )
+        if rights["state"] == "withheld":
+            raise ReportError(
+                "market_rights_withheld",
+                "cited market evidence may not be exported under current provider rights ("
+                + ", ".join(rights["reason_codes"]) + ")",
+            )
+        return rights
 
     def render(self, namespace, report_id, *, principal_id, scopes, revision=None,
                output_format="docx", references=(), locale="de-DE", csl_path=None):

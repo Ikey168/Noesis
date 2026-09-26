@@ -43,6 +43,36 @@ upgrades retain previous versions, and enable/disable changes only the selected
 pack. Fixture hashes and expected normalized-output hashes make provider mapping
 drift visible in offline CI.
 
+Before upgrading, call the read-only MCP tool `preview_source_pack_upgrade` with
+the complete candidate manifest. For example, install
+`config/source_packs/research.json`, change its version to `1.3.0`, and change
+the `crossref-works` mapping version in the candidate. The response pins the
+installed and candidate hashes and lists source additions, removals, and field
+changes, including endpoint, connector, mapping, domain, credential declaration,
+and license terms. Reordering sources or operations does not produce a change.
+The preview does not check provider availability or apply the upgrade. A changed
+manifest with an already installed version and a version downgrade are rejected.
+The tool requires `knowledge:read` or `operator`; it returns credential reference
+names only, never resolved secret values.
+
+## Technical dependency inventories
+
+`import_technical_inventory` accepts the contents of a `package-lock.json`
+(lockfile versions 1–3) or a pinned `requirements.txt`, plus `format` set to
+that filename. For example, call it with
+`{"content":"Foo_Bar==1.2.3\n", "format":"requirements.txt"}`. It returns
+an owner-scoped inventory ID, an exact input SHA-256 hash, normalized package
+coordinates, versions, direct/transitive origins, and explicit `unresolved` or
+`unsupported` labels. `inspect_technical_inventory` accepts that ID and bounded
+`limit`/`offset` to read entries and IDs of already acquired package and OSV
+records in the public Technology graph. A matching advisory link is evidence
+of identity only; version impact is assessed separately. Input is limited to
+2 MB and 5,000 entries, and imports never run project code or fetch packages.
+Imports require `knowledge:technical:write`; reads require
+`knowledge:technical:read`. Fixture tests cover parsing and owner isolation;
+live provider availability and vulnerability impact are not inferred from an
+inventory import.
+
 ## Execution runtime
 
 Installed packs can be executed incrementally or as bounded backfills. Before
@@ -97,3 +127,8 @@ Run the complete network-free execution showcase with:
 ```bash
 make source-pack-runtime-check
 ```
+
+For explicit date, geography, language and topic scope across pinned runs, use
+the [investigation coverage guide](investigation-coverage.md). It distinguishes
+observed evidence, successful empty searches, unavailable sources, and sources
+that were not attempted.

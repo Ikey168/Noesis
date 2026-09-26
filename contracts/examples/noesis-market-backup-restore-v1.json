@@ -1,0 +1,1 @@
+{"contract":"noesis-market-backup-restore-v1","namespace":"market:fixture","backup_id":"backup:1","owner":"operator","manifest":{"tables":["market_ops_measurements"]},"content":{},"content_hash":"0000000000000000000000000000000000000000000000000000000000000000","status":"restored","limitations":["operator restore step"]}
