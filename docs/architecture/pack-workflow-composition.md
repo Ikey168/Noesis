@@ -25,6 +25,11 @@ Existing names need not be renamed to fit an exclusive taxonomy.
 
 ## Current foundation and gaps
 
+The detailed ownership map, preserved identifiers and version rules are in the
+[composition inventory](pack-composition-inventory.md); activation-journal
+storage and startup reconciliation are settled in
+[ADR-003](decisions/ADR-003-composition-activation-journal.md).
+
 This is a bounded inspection of the following implementation surfaces, not a
 claim that every subsystem has been audited.
 
