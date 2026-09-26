@@ -1,0 +1,46 @@
+{
+ "contract": "readiness",
+ "covers": [
+  "blocker-kinds"
+ ],
+ "document": {
+  "context": {
+   "namespace": "global",
+   "network": "disabled"
+  },
+  "contract": "noesis-composition-readiness-v1",
+  "observed_at_ms": 1000,
+  "operations": [
+   {
+    "blockers": [
+     {
+      "kind": "empty-data",
+      "reason": "the local spatial store holds no geometries"
+     }
+    ],
+    "capability": "spatial.relation",
+    "consumer": "sample-research@1.0.0",
+    "effect": "local-mutation",
+    "operation": "noesis-knowledge-engine.calculate_spatial_relation",
+    "prerequisites": [
+     {
+      "kind": "credential",
+      "name": "none",
+      "satisfied": true
+     }
+    ],
+    "provider_id": "noesis.geospatial",
+    "state": "blocked"
+   }
+  ],
+  "optional_omissions": [
+   {
+    "capability": "spatial.geometry-store",
+    "consumer": "sample-research@1.0.0",
+    "feature": "geometry-capture"
+   }
+  ],
+  "plan_digest": "sha256:bae9b2afc913350afff09bbd3c2e3fad9c920dcee1d6b662ba6e6fe71d77c607"
+ },
+ "valid": true
+}

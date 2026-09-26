@@ -1,0 +1,199 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.com/schemas/composition/noesis-composition-readiness-v1.json",
+  "title": "Noesis composition readiness assessment",
+  "description": "An observation, not a plan field: per-operation prerequisites, blockers and optional omissions for one plan digest under one caller and namespace context at one time. Dynamic credentials and live health never become immutable plan facts. Produced by src/composition/readiness.py. Blockers carry a kind from a closed set and never a credential value, record content, or another user's selection; the schema forbids those fields instead of relying on redaction.",
+  "type": "object",
+  "required": [
+    "contract",
+    "plan_digest",
+    "context",
+    "observed_at_ms",
+    "operations"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "contract": {
+      "const": "noesis-composition-readiness-v1"
+    },
+    "plan_digest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "context": {
+      "type": "object",
+      "required": [
+        "namespace"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "namespace": {
+          "type": "string"
+        },
+        "scope_digest": {
+          "type": "string"
+        },
+        "network": {
+          "enum": [
+            "disabled",
+            "live"
+          ]
+        }
+      }
+    },
+    "observed_at_ms": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "operations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "consumer",
+          "capability",
+          "operation",
+          "provider_id",
+          "state",
+          "prerequisites",
+          "blockers"
+        ],
+        "properties": {
+          "consumer": {
+            "type": "string"
+          },
+          "capability": {
+            "type": "string"
+          },
+          "operation": {
+            "type": "string"
+          },
+          "provider_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "effect": {
+            "enum": [
+              "read-only",
+              "local-mutation",
+              "acquisition",
+              "external-publication"
+            ]
+          },
+          "state": {
+            "enum": [
+              "ready",
+              "blocked",
+              "degraded",
+              "omitted"
+            ]
+          },
+          "prerequisites": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "kind",
+                "satisfied"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "kind": {
+                  "enum": [
+                    "scope",
+                    "context",
+                    "data",
+                    "credential",
+                    "live-access",
+                    "provider-enabled",
+                    "source-pack"
+                  ]
+                },
+                "name": {
+                  "type": "string"
+                },
+                "satisfied": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "blockers": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "kind",
+                "reason"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "kind": {
+                  "enum": [
+                    "empty-data",
+                    "inaccessible-data",
+                    "missing-credentials",
+                    "provider-disabled",
+                    "unverified-live",
+                    "failed-execution",
+                    "unauthorized",
+                    "provider-unavailable",
+                    "binding-missing",
+                    "aggregate-limit-exhausted"
+                  ]
+                },
+                "reason": {
+                  "type": "string",
+                  "maxLength": 300
+                },
+                "credential_kind": {
+                  "type": "string",
+                  "maxLength": 64
+                },
+                "record_kind": {
+                  "type": "string",
+                  "maxLength": 100
+                }
+              }
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "optional_omissions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "consumer",
+          "capability",
+          "feature"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "consumer": {
+            "type": "string"
+          },
+          "capability": {
+            "type": "string"
+          },
+          "feature": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "integer"
+      }
+    }
+  }
+}

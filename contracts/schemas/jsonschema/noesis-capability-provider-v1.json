@@ -1,0 +1,276 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.com/schemas/composition/noesis-capability-provider-v1.json",
+  "title": "Noesis capability provider descriptor",
+  "description": "A registered implementation of one or more capabilities: exact input/output contracts, registered tool or service bindings, owned stores, required scopes and context, and side-effect, idempotency and readiness declarations. Bindings name registered MCP tools or allow-listed binding IDs; a descriptor cannot name arbitrary code. Every operation declares a side-effect class, idempotency, and a readiness probe. Runtime validation: src/composition/contracts.py:validate_provider.",
+  "type": "object",
+  "required": [
+    "contract",
+    "provider_id",
+    "version",
+    "implementation",
+    "capabilities",
+    "stores"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "contract": {
+      "const": "noesis-capability-provider-v1"
+    },
+    "provider_id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*(\\.[a-z][a-z0-9-]*)+$",
+      "maxLength": 128
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 2000
+    },
+    "descriptor_hash": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "implementation": {
+      "type": "object",
+      "required": [
+        "identity",
+        "version"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "identity": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        }
+      }
+    },
+    "capabilities": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 100,
+      "items": {
+        "type": "object",
+        "required": [
+          "bindings",
+          "capability",
+          "effect",
+          "idempotent",
+          "input_contract",
+          "output_contract",
+          "readiness",
+          "version"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "capability": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]*(\\.[a-z][a-z0-9-]*)+$",
+            "maxLength": 128
+          },
+          "version": {
+            "type": "string",
+            "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$"
+          },
+          "input_contract": {
+            "$ref": "#/definitions/contract"
+          },
+          "output_contract": {
+            "$ref": "#/definitions/contract"
+          },
+          "semantics": {
+            "type": "object",
+            "maxProperties": 20,
+            "additionalProperties": {
+              "type": [
+                "string",
+                "number",
+                "boolean"
+              ]
+            }
+          },
+          "effect": {
+            "enum": [
+              "read-only",
+              "local-mutation",
+              "acquisition",
+              "external-publication"
+            ]
+          },
+          "idempotent": {
+            "type": "boolean"
+          },
+          "execution_receipt": {
+            "type": "boolean"
+          },
+          "required_scopes": {
+            "type": "array",
+            "maxItems": 20,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required_context": {
+            "type": "array",
+            "maxItems": 10,
+            "items": {
+              "enum": [
+                "namespace",
+                "principal",
+                "source_pack",
+                "network",
+                "credential",
+                "terms"
+              ]
+            }
+          },
+          "record_kinds": {
+            "type": "array",
+            "maxItems": 20,
+            "items": {
+              "type": "string"
+            }
+          },
+          "bindings": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 10,
+            "items": {
+              "type": "object",
+              "required": [
+                "kind",
+                "id"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "kind": {
+                  "enum": [
+                    "mcp-tool",
+                    "registered"
+                  ]
+                },
+                "id": {
+                  "type": "string",
+                  "minLength": 3,
+                  "maxLength": 200
+                }
+              }
+            }
+          },
+          "readiness": {
+            "type": "object",
+            "required": [
+              "probe"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "probe": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9-]*(\\.[a-z0-9-]+)+$",
+                "maxLength": 200
+              },
+              "required_data": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "stores": {
+      "type": "array",
+      "maxItems": 50,
+      "items": {
+        "type": "object",
+        "required": [
+          "record_kind",
+          "tables"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "record_kind": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "tables": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "revision_addressing": {
+            "enum": [
+              "immutable",
+              "current-only",
+              "unsupported"
+            ]
+          }
+        }
+      }
+    },
+    "source_packs": {
+      "type": "array",
+      "maxItems": 20,
+      "description": "Source packs this provider acquires from or projects. Pins stay in the source-pack store; this only declares the dependency.",
+      "items": {
+        "type": "object",
+        "required": [
+          "pack_id",
+          "range"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "pack_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "range": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "config": {
+            "type": "string",
+            "maxLength": 256
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "contract": {
+      "type": "object",
+      "required": [
+        "name",
+        "version"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$"
+        }
+      }
+    }
+  }
+}

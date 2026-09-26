@@ -1,0 +1,390 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.com/schemas/domains/noesis-pack-v2.json",
+  "title": "Noesis pack composition manifest",
+  "description": "Versioned successor to noesis-pack-v1 (pack_format noesis-pack-v2). Declares what a pack contributes, which capabilities it requires under which contract ranges, optional features, source/ontology/profile/workflow references, and compatibility aliases. Runtime validation: src/composition/contracts.py:validate_manifest, also reachable from src/domains/pack_format.py. Unknown top-level fields are rejected unless prefixed x-; x- fields named in critical_extensions must be understood or validation fails. Advisory fields (panels, planner_keywords, advisory) may hold anything. Keys that would name code to execute are rejected anywhere in the document.",
+  "type": "object",
+  "required": [
+    "pack_format",
+    "name",
+    "version",
+    "requires",
+    "contributes"
+  ],
+  "additionalProperties": false,
+  "patternProperties": {
+    "^x-[a-z0-9-]+$": {}
+  },
+  "properties": {
+    "pack_format": {
+      "const": "noesis-pack-v2"
+    },
+    "name": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_-]{1,31}$"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 4000
+    },
+    "manifest_hash": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "requires": {
+      "type": "array",
+      "maxItems": 200,
+      "items": {
+        "$ref": "#/definitions/requirement"
+      }
+    },
+    "optional_features": {
+      "type": "object",
+      "maxProperties": 50,
+      "propertyNames": {
+        "pattern": "^[a-z][a-z0-9-]{0,63}$"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "description": {
+            "type": "string",
+            "maxLength": 1000
+          }
+        }
+      }
+    },
+    "contributes": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "providers": {
+          "type": "array",
+          "maxItems": 50,
+          "items": {
+            "$ref": "#/definitions/provider_ref"
+          }
+        },
+        "capability_labels": {
+          "type": "array",
+          "maxItems": 200,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          }
+        },
+        "ontology": {
+          "type": "object"
+        },
+        "profiles": {
+          "type": "array",
+          "maxItems": 50,
+          "items": {
+            "$ref": "#/definitions/profile"
+          }
+        },
+        "workflow_templates": {
+          "type": "array",
+          "maxItems": 50,
+          "items": {
+            "type": "object",
+            "required": [
+              "template_id",
+              "version"
+            ]
+          }
+        }
+      }
+    },
+    "references": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "source_packs": {
+          "type": "array",
+          "maxItems": 50,
+          "items": {
+            "$ref": "#/definitions/source_pack_ref"
+          }
+        },
+        "contracts": {
+          "type": "array",
+          "maxItems": 200,
+          "items": {
+            "$ref": "#/definitions/contract_ref"
+          }
+        },
+        "ontology_modules": {
+          "type": "array",
+          "maxItems": 100,
+          "items": {
+            "$ref": "#/definitions/contract_ref"
+          }
+        }
+      }
+    },
+    "aliases": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "capability_labels": {
+          "type": "object",
+          "maxProperties": 200,
+          "additionalProperties": {
+            "$ref": "#/definitions/capability_id"
+          }
+        }
+      }
+    },
+    "critical_extensions": {
+      "type": "array",
+      "maxItems": 20,
+      "items": {
+        "type": "string",
+        "pattern": "^x-[a-z0-9-]+$"
+      }
+    },
+    "metadata": {
+      "type": "object"
+    },
+    "legacy_v1": {
+      "type": "object"
+    },
+    "panels": {
+      "description": "Advisory; retained but never registered.",
+      "type": [
+        "array",
+        "object",
+        "null"
+      ]
+    },
+    "planner_keywords": {
+      "description": "Advisory; retained but never registered.",
+      "type": [
+        "object",
+        "array",
+        "null"
+      ]
+    },
+    "advisory": {
+      "description": "Advisory metadata; unknown content is allowed.",
+      "type": "object"
+    },
+    "adapter": {
+      "type": "object",
+      "required": [
+        "source",
+        "supplied_defaults"
+      ],
+      "additionalProperties": false,
+      "description": "Present when the manifest was produced by an adapter. supplied_defaults names every field the source format could not express and the adapter filled with a declared default; the resolver treats them conservatively.",
+      "properties": {
+        "source": {
+          "enum": [
+            "noesis-pack-v1",
+            "domain-pack"
+          ]
+        },
+        "supplied_defaults": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "requires",
+              "optional_features",
+              "contract_ranges",
+              "store_ownership",
+              "providers"
+            ]
+          },
+          "uniqueItems": true
+        },
+        "declared_routes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Route modules a code-registered pack mounts. Descriptive only; never imported from a manifest."
+        },
+        "enrichers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Enricher names of a code-registered pack."
+        },
+        "ui_flags": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "boolean"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "capability_id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*(\\.[a-z][a-z0-9-]*)+$",
+      "maxLength": 128
+    },
+    "range": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "contract_ref": {
+      "type": "object",
+      "required": [
+        "name",
+        "range"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "range": {
+          "$ref": "#/definitions/range"
+        }
+      }
+    },
+    "requirement": {
+      "type": "object",
+      "required": [
+        "capability",
+        "range"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "capability": {
+          "$ref": "#/definitions/capability_id"
+        },
+        "range": {
+          "$ref": "#/definitions/range"
+        },
+        "input_contract": {
+          "$ref": "#/definitions/contract_ref"
+        },
+        "output_contract": {
+          "$ref": "#/definitions/contract_ref"
+        },
+        "semantics": {
+          "type": "object",
+          "maxProperties": 20,
+          "additionalProperties": {
+            "type": [
+              "string",
+              "number",
+              "boolean"
+            ]
+          }
+        },
+        "effects": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "read-only",
+              "local-mutation",
+              "acquisition",
+              "external-publication"
+            ]
+          },
+          "uniqueItems": true
+        },
+        "feature": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]{0,63}$"
+        },
+        "reason": {
+          "type": "string",
+          "maxLength": 500
+        }
+      }
+    },
+    "provider_ref": {
+      "type": "object",
+      "required": [
+        "provider_id",
+        "version"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "provider_id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*(\\.[a-z][a-z0-9-]*)+$"
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$"
+        }
+      }
+    },
+    "source_pack_ref": {
+      "type": "object",
+      "required": [
+        "pack_id"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "pack_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "range": {
+          "$ref": "#/definitions/range"
+        },
+        "config": {
+          "type": "string",
+          "maxLength": 256
+        }
+      }
+    },
+    "profile": {
+      "type": "object",
+      "required": [
+        "profile_id"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "profile_id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]{0,63}$"
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 1000
+        },
+        "source_packs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "vocabulary": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "query_defaults": {
+          "type": "object"
+        },
+        "workflow_templates": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

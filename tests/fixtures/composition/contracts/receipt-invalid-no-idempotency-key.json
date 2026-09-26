@@ -1,0 +1,48 @@
+{
+ "contract": "receipt",
+ "covers": [
+  "idempotency"
+ ],
+ "document": {
+  "activation_id": "composition-activation:fixture",
+  "contract": "noesis-composition-activation-receipt-v1",
+  "created_at_ms": 1000,
+  "error": null,
+  "new_generation": 1,
+  "operation": "activate",
+  "plan_digest": "sha256:bae9b2afc913350afff09bbd3c2e3fad9c920dcee1d6b662ba6e6fe71d77c607",
+  "previous_generation": null,
+  "principal_id": "operator",
+  "receipt_hash": "sha256:b26e8a669837edb5f21a8070a0985e0dc49416633d260da9623f91787f7f5759",
+  "recovery_status": "not-needed",
+  "registrations": {
+   "added": [
+    "sample-research@1.0.0"
+   ],
+   "removed": [],
+   "retained": []
+  },
+  "source_upgrade_refs": [],
+  "stages": [
+   {
+    "stage": "previewed",
+    "status": "applied"
+   },
+   {
+    "stage": "staged",
+    "status": "applied"
+   },
+   {
+    "stage": "verified",
+    "status": "applied"
+   },
+   {
+    "stage": "published",
+    "status": "applied"
+   }
+  ],
+  "status": "applied"
+ },
+ "expect": "invalid_receipt",
+ "valid": false
+}

@@ -1,0 +1,174 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.com/schemas/composition/noesis-composition-activation-receipt-v1.json",
+  "title": "Noesis composition activation receipt",
+  "description": "Durable record of one activation attempt: previous and new composition generations, affected registrations, referenced source-upgrade receipts, applied or failed stages, the idempotency key and recovery status. Execution receipts stay with their owners. Produced by src/composition/lifecycle.py.",
+  "type": "object",
+  "required": [
+    "contract",
+    "activation_id",
+    "idempotency_key",
+    "previous_generation",
+    "new_generation",
+    "plan_digest",
+    "registrations",
+    "source_upgrade_refs",
+    "stages",
+    "status",
+    "recovery_status",
+    "receipt_hash"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "contract": {
+      "const": "noesis-composition-activation-receipt-v1"
+    },
+    "activation_id": {
+      "type": "string"
+    },
+    "idempotency_key": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "previous_generation": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "new_generation": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "plan_digest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "registrations": {
+      "type": "object",
+      "required": [
+        "added",
+        "removed",
+        "retained"
+      ],
+      "properties": {
+        "added": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "removed": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "retained": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "source_upgrade_refs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "stages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "stage",
+          "status"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "stage": {
+            "enum": [
+              "previewed",
+              "staged",
+              "verified",
+              "published",
+              "failed",
+              "abandoned",
+              "rolled-back"
+            ]
+          },
+          "status": {
+            "enum": [
+              "applied",
+              "failed",
+              "skipped"
+            ]
+          },
+          "at_ms": {
+            "type": "integer"
+          },
+          "detail": {
+            "type": "string",
+            "maxLength": 300
+          }
+        }
+      }
+    },
+    "status": {
+      "enum": [
+        "applied",
+        "failed",
+        "abandoned"
+      ]
+    },
+    "recovery_status": {
+      "enum": [
+        "not-needed",
+        "previous-generation-retained",
+        "reconciled"
+      ]
+    },
+    "error": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string",
+          "maxLength": 500
+        }
+      }
+    },
+    "principal_id": {
+      "type": "string"
+    },
+    "created_at_ms": {
+      "type": "integer"
+    },
+    "receipt_hash": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "operation": {
+      "enum": [
+        "activate",
+        "disable",
+        "shutdown",
+        "uninstall",
+        "rollback",
+        "cutover",
+        "reconcile"
+      ]
+    }
+  }
+}

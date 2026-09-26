@@ -1,0 +1,189 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.com/schemas/composition/noesis-composition-plan-v1.json",
+  "title": "Noesis resolved composition plan",
+  "description": "Deterministic result of resolving root pack selections against an explicit candidate set: the complete dependency graph, exact manifest/provider/contract hashes, selected optional features, binding decisions with reasons, output contracts, compatibility aliases, visible optional omissions, a canonical digest and the resolver version. Produced by src/composition/resolver.py. Canonicalization (src/composition/contracts.py:canonicalize_plan): every array is a set and is sorted by canonical JSON; object keys are sorted; the digest is sha256 over the canonical form without the digest field. Observation-time and dynamic fields (health, credentials, readiness, timestamps) are forbidden anywhere in a plan.",
+  "type": "object",
+  "required": [
+    "contract",
+    "resolver_version",
+    "roots",
+    "features",
+    "manifests",
+    "providers",
+    "contracts",
+    "bindings",
+    "edges",
+    "omissions",
+    "aliases",
+    "digest"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "contract": {
+      "const": "noesis-composition-plan-v1"
+    },
+    "resolver_version": {
+      "type": "string"
+    },
+    "roots": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "version"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "features": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      }
+    },
+    "manifests": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "version",
+          "manifest_hash"
+        ]
+      }
+    },
+    "providers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "provider_id",
+          "version",
+          "descriptor_hash"
+        ]
+      }
+    },
+    "contracts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "version"
+        ]
+      }
+    },
+    "source_packs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "pack_id",
+          "version"
+        ]
+      }
+    },
+    "bindings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "consumer",
+          "capability",
+          "range",
+          "provider_id",
+          "provider_version",
+          "capability_version",
+          "effect",
+          "reason"
+        ],
+        "properties": {
+          "reason": {
+            "enum": [
+              "explicit",
+              "only-compatible",
+              "retained-pin"
+            ]
+          }
+        }
+      }
+    },
+    "edges": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "from",
+          "to",
+          "kind"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "from": {
+            "type": "string"
+          },
+          "to": {
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "requires",
+              "binds",
+              "contributes",
+              "sources"
+            ]
+          }
+        }
+      }
+    },
+    "omissions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "consumer",
+          "capability",
+          "feature",
+          "code"
+        ]
+      }
+    },
+    "aliases": {
+      "type": "object"
+    },
+    "output_contracts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "capability",
+          "name",
+          "version"
+        ]
+      }
+    },
+    "digest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "conservative": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Manifests whose requirements or ownership were adapter-supplied defaults."
+    }
+  }
+}

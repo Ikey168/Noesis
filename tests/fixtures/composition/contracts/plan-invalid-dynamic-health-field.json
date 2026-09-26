@@ -1,0 +1,74 @@
+{
+ "contract": "plan",
+ "covers": [
+  "dynamic-fields"
+ ],
+ "document": {
+  "aliases": {},
+  "bindings": [
+   {
+    "capability": "spatial.relation",
+    "capability_version": "1.0.0",
+    "consumer": "sample-research@1.0.0",
+    "effect": "local-mutation",
+    "provider_id": "noesis.geospatial",
+    "provider_version": "1.0.0",
+    "range": "^1.0.0",
+    "reason": "only-compatible"
+   }
+  ],
+  "conservative": [],
+  "contract": "noesis-composition-plan-v1",
+  "contracts": [
+   {
+    "name": "noesis-spatial-result-v1",
+    "version": "1.0.0"
+   }
+  ],
+  "digest": "sha256:ccbd66834f99a8174ec1e6be47e3fa52ffb789c54a71b3aaeda38086b9d43b52",
+  "edges": [
+   {
+    "from": "sample-research@1.0.0",
+    "kind": "binds",
+    "to": "noesis.geospatial@1.0.0"
+   }
+  ],
+  "features": {
+   "sample-research": []
+  },
+  "manifests": [
+   {
+    "manifest_hash": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+    "name": "sample-research",
+    "version": "1.0.0"
+   }
+  ],
+  "omissions": [
+   {
+    "capability": "spatial.geometry-store",
+    "code": "feature-not-selected",
+    "consumer": "sample-research@1.0.0",
+    "feature": "geometry-capture"
+   }
+  ],
+  "output_contracts": [],
+  "providers": [
+   {
+    "descriptor_hash": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+    "health": "healthy",
+    "provider_id": "noesis.geospatial",
+    "version": "1.0.0"
+   }
+  ],
+  "resolver_version": "1",
+  "roots": [
+   {
+    "name": "sample-research",
+    "version": "1.0.0"
+   }
+  ],
+  "source_packs": []
+ },
+ "expect": "dynamic_field_in_plan",
+ "valid": false
+}

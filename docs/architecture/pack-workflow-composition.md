@@ -106,8 +106,23 @@ private data, treating conflicting assertions as identical, or publishing it.
 
 ## Proposed contracts and resolution rules
 
-The names below are proposed artifacts, not schemas or endpoints shipped by this
-change. Implementation should define JSON Schema and matching runtime validation.
+The five contracts below are specified (C02): each has a JSON Schema under
+`contracts/schemas/jsonschema/`, runtime validation in
+`src/composition/contracts.py`, and an identity in the schema registry.
+
+| Contract | Schema | Registry identity |
+| --- | --- | --- |
+| Pack composition manifest | `noesis-pack-v2.json` (`pack_format: noesis-pack-v2`) | `schema:pack-manifest@2.0.0` |
+| Provider descriptor | `noesis-capability-provider-v1.json` | `schema:capability-provider@1.0.0` |
+| Resolved composition | `noesis-composition-plan-v1.json` | `schema:composition-plan@1.0.0` |
+| Readiness assessment | `noesis-composition-readiness-v1.json` | `schema:composition-readiness@1.0.0` |
+| Activation receipt | `noesis-composition-activation-receipt-v1.json` | `schema:composition-activation-receipt@1.0.0` |
+
+The shared fixture corpus is `tests/fixtures/composition/contracts/`. The v1
+adapters (`adapt_v1`, `adapt_domain_pack`) express every existing `pack.json`
+and code-registered `DomainPack` as a v2 manifest; fields v1 cannot express
+are listed under `adapter.supplied_defaults` and the resolver treats them
+conservatively.
 
 1. **Pack composition manifest:** immutable ID/version/hash; contributed modules;
    required capability IDs and contract ranges; optional features; source,

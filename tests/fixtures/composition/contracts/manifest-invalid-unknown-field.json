@@ -1,0 +1,75 @@
+{
+ "contract": "manifest",
+ "covers": [
+  "critical-unknown-fields"
+ ],
+ "document": {
+  "aliases": {
+   "capability_labels": {
+    "place-evidence": "spatial.relation"
+   }
+  },
+  "contributes": {
+   "capability_labels": [
+    "place-evidence"
+   ],
+   "profiles": [
+    {
+     "profile_id": "places",
+     "vocabulary": [
+      "place"
+     ]
+    }
+   ]
+  },
+  "description": "Fixture pack consuming the shared spatial capability.",
+  "name": "sample-research",
+  "optional_features": {
+   "geometry-capture": {
+    "description": "Store new geometries"
+   }
+  },
+  "pack_format": "noesis-pack-v2",
+  "planner_keywords": {
+   "anything": [
+    "advisory"
+   ]
+  },
+  "references": {
+   "contracts": [
+    {
+     "name": "noesis-spatial-result-v1",
+     "range": "~1.0.0"
+    }
+   ],
+   "source_packs": [
+    {
+     "pack_id": "geospatial-berlin",
+     "range": "^1.0.0"
+    }
+   ]
+  },
+  "requirements": [],
+  "requires": [
+   {
+    "capability": "spatial.relation",
+    "effects": [
+     "local-mutation"
+    ],
+    "input_contract": {
+     "name": "noesis-geospatial-geometry-v2",
+     "range": "^2.0.0"
+    },
+    "range": "^1.0.0"
+   },
+   {
+    "capability": "spatial.geometry-store",
+    "feature": "geometry-capture",
+    "range": "^1.0.0"
+   }
+  ],
+  "version": "1.0.0"
+ },
+ "expect": "invalid_manifest",
+ "valid": false
+}

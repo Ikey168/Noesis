@@ -37,6 +37,10 @@ from src.domains.pack_vocab import FACETS
 from src.domains.pack_vocab import MAX_SPAN, MIN_SPAN, SOURCE_TYPES
 
 PACK_FORMAT = "noesis-pack-v1"
+# Versioned successor: the pack composition manifest (C02.1). Validation lives in
+# src/composition/contracts.py; v1 validation below is unchanged.
+PACK_FORMAT_V2 = "noesis-pack-v2"
+SUPPORTED_PACK_FORMATS = (PACK_FORMAT, PACK_FORMAT_V2)
 
 # A pack name is a namespace token; a version is semver-ish (major.minor.patch).
 NAME_RE = re.compile(r"^[a-z][a-z0-9_-]{1,31}$")
@@ -277,6 +281,29 @@ def validate_manifest(data: Dict[str, Any]) -> List[str]:
     return errors
 
 
+def validate_composition_manifest(data: Dict[str, Any], known_capabilities=None) -> List[str]:
+    """Validate a ``noesis-pack-v2`` composition manifest.
+
+    Returns human-readable errors (empty means valid), mirroring
+    :func:`validate_manifest`. Unlike v1, unknown critical fields, unknown
+    required capabilities, malformed ranges and executable references fail.
+    """
+    from src.composition.contracts import CompositionError, validate_manifest as validate_v2
+
+    try:
+        validate_v2(data, known_capabilities=known_capabilities)
+    except CompositionError as err:
+        return list(err.details.get("errors") or [f"{err.code}: {err.message}"])
+    return []
+
+
+def validate_any_manifest(data: Dict[str, Any]) -> List[str]:
+    """Dispatch on ``pack_format``: v1 manifests keep v1 validation exactly."""
+    if isinstance(data, dict) and data.get("pack_format") == PACK_FORMAT_V2:
+        return validate_composition_manifest(data)
+    return validate_manifest(data)
+
+
 class PackFormatError(ValueError):
     """A manifest failed validation."""
 
@@ -315,6 +342,10 @@ def load_manifest(path: str) -> PackManifest:
 
 __all__ = [
     "PACK_FORMAT",
+    "PACK_FORMAT_V2",
+    "SUPPORTED_PACK_FORMATS",
+    "validate_any_manifest",
+    "validate_composition_manifest",
     "ENRICHER_KINDS",
     "TEMPLATE_BACKENDS",
     "MANIFEST_FILENAME",

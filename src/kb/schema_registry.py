@@ -262,7 +262,15 @@ def _builtin_definitions() -> list[dict[str, Any]]:
         "compatibility_policy": "backward",
         "provenance": {"kind": "builtin", "source": "Noesis checkout"},
     }
+    # Pack-composition contracts are registered here so their identities and
+    # version rules come from this registry rather than a parallel one.
+    from src.composition.contracts import builtin_contract_definitions
+
+    composition = [
+        {**common, **definition} for definition in builtin_contract_definitions()
+    ]
     return [
+        *composition,
         {
             **common,
             "name": "knowledge-mutation",
