@@ -1,0 +1,244 @@
+{
+  "pack_id": "legal-research",
+  "version": "1.0.0",
+  "description": "Bounded EU (CELLAR), German federal court (Rechtsprechung im Internet) and Berlin (gesetze.berlin.de) legal sources for cited legal research. Selected works and published decisions only; current law is never inferred.",
+  "domains": [
+    "legal"
+  ],
+  "defaults": {
+    "temporal_semantics": "source-reported dates (document, publication, entry into force, commencement, validity end, decision) as valid time; acquisition time recorded separately; current force is not inferred",
+    "mapping": {
+      "target_schema": "noesis-legal-record-v1",
+      "version": "1.0.0"
+    },
+    "extractor_versions": [
+      "regional-providers:noesis-native-regional-v1",
+      "legal-projection:1.0.0"
+    ],
+    "operations": [
+      "records"
+    ],
+    "schedule": {
+      "kind": "interval",
+      "interval_s": 2592000
+    },
+    "health": {
+      "required": false,
+      "max_staleness_s": 7776000
+    }
+  },
+  "sources": [
+    {
+      "source_id": "cellar-gdpr-deu",
+      "connector": "cellar",
+      "publisher": "Publications Office of the European Union (CELLAR)",
+      "endpoint": "https://publications.europa.eu/webapi/rdf/sparql",
+      "scope": "Regulation (EU) 2016/679, German expression: first bounded SPARQL page",
+      "update_cadence": "continuous; new expressions, manifestations and corrigenda appear as published",
+      "auth": {
+        "kind": "none"
+      },
+      "license": {
+        "id": "eu-publications-reuse",
+        "terms_url": "https://op.europa.eu/en/web/about-us/legal-notices/eu-law-and-publications-website",
+        "redistribution": "reuse permitted with source acknowledgement under Commission Decision 2011/833/EU (operator must confirm per document)"
+      },
+      "budgets": {
+        "timeout_ms": 60000,
+        "max_results": 100,
+        "max_bytes": 5000000,
+        "max_pages": 1
+      },
+      "legal": {
+        "namespace": "global",
+        "selection": {
+          "celex": [
+            "32016R0679"
+          ],
+          "languages": [
+            "DEU"
+          ],
+          "page_size": 100
+        }
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/legal-cellar-gdpr-deu.json",
+        "sha256": "2cca5e4336ceeb5100ca39e0cabd6e91675dd76d38ede94316d7bc1674e68db1",
+        "expected_output_hash": "fa969e19da8a20ddc8b4b82b872ab61d29d87e69f805140dd4b8e29c290baa32"
+      }
+    },
+    {
+      "source_id": "cellar-gdpr-eng",
+      "connector": "cellar",
+      "publisher": "Publications Office of the European Union (CELLAR)",
+      "endpoint": "https://publications.europa.eu/webapi/rdf/sparql",
+      "scope": "Regulation (EU) 2016/679, English expression: first bounded SPARQL page",
+      "update_cadence": "continuous; new expressions, manifestations and corrigenda appear as published",
+      "auth": {
+        "kind": "none"
+      },
+      "license": {
+        "id": "eu-publications-reuse",
+        "terms_url": "https://op.europa.eu/en/web/about-us/legal-notices/eu-law-and-publications-website",
+        "redistribution": "reuse permitted with source acknowledgement under Commission Decision 2011/833/EU (operator must confirm per document)"
+      },
+      "budgets": {
+        "timeout_ms": 60000,
+        "max_results": 100,
+        "max_bytes": 5000000,
+        "max_pages": 1
+      },
+      "legal": {
+        "namespace": "global",
+        "selection": {
+          "celex": [
+            "32016R0679"
+          ],
+          "languages": [
+            "ENG"
+          ],
+          "page_size": 100
+        }
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/legal-cellar-gdpr-eng.json",
+        "sha256": "0c15b39a185cedc4e5e6ae44a6ab588c7a5a40439e31e87bd272c25d7209232b",
+        "expected_output_hash": "a7e716e2c7443942113e45ee3adbe437efe81e023a9963a6670f6fd63601b4c5"
+      }
+    },
+    {
+      "source_id": "cellar-c362-14-deu",
+      "connector": "cellar",
+      "publisher": "Publications Office of the European Union (CELLAR)",
+      "endpoint": "https://publications.europa.eu/webapi/rdf/sparql",
+      "scope": "Judgment C-362/14, German expression: first bounded SPARQL page",
+      "update_cadence": "continuous; new expressions, manifestations and corrigenda appear as published",
+      "auth": {
+        "kind": "none"
+      },
+      "license": {
+        "id": "eu-publications-reuse",
+        "terms_url": "https://op.europa.eu/en/web/about-us/legal-notices/eu-law-and-publications-website",
+        "redistribution": "reuse permitted with source acknowledgement under Commission Decision 2011/833/EU (operator must confirm per document)"
+      },
+      "budgets": {
+        "timeout_ms": 60000,
+        "max_results": 100,
+        "max_bytes": 5000000,
+        "max_pages": 1
+      },
+      "legal": {
+        "namespace": "global",
+        "selection": {
+          "celex": [
+            "62014CJ0362"
+          ],
+          "languages": [
+            "DEU"
+          ],
+          "page_size": 100
+        }
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/legal-cellar-c362-14-deu.json",
+        "sha256": "3c9be47ed1ac00447d3328e64a60f98ed04391a6a9a91c3d85f0da5edbe747fa",
+        "expected_output_hash": "6c90c4b36daf0228e1aace6acca601d184d0b819f77ee43adb7d9223194ac90b"
+      }
+    },
+    {
+      "source_id": "rii-federal-decisions",
+      "connector": "rii",
+      "publisher": "Bundesministerium der Justiz / juris (Rechtsprechung im Internet)",
+      "endpoint": "https://www.rechtsprechung-im-internet.de",
+      "scope": "Explicit federal decisions plus one bounded index window (modified since 2026-01-01, 3 decisions)",
+      "update_cadence": "daily index updates; decisions may be revised",
+      "auth": {
+        "kind": "none"
+      },
+      "license": {
+        "id": "amtliche-werke-rii",
+        "terms_url": "https://www.rechtsprechung-im-internet.de/",
+        "redistribution": "official decisions are public-domain official works (§ 5 UrhG); portal terms and redactions apply (operator must confirm)"
+      },
+      "budgets": {
+        "timeout_ms": 60000,
+        "max_results": 50,
+        "max_bytes": 20000000,
+        "max_pages": 10
+      },
+      "legal": {
+        "namespace": "global",
+        "selection": {
+          "decisions": [
+            "JURE999999999"
+          ],
+          "index": {
+            "since": "2026-01-01",
+            "limit": 3
+          }
+        }
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/legal-rii.json",
+        "sha256": "e470756be8fab47046bec0c1e059370add5951f4d4a0183d0db87ccba2b5d001",
+        "expected_output_hash": "891c9c779ecf19d479de109f262030d52b12410522f190bf9e76bd307ce8028d"
+      }
+    },
+    {
+      "source_id": "berlin-law-publications",
+      "connector": "berlin-law",
+      "publisher": "Land Berlin / juris (gesetze.berlin.de)",
+      "endpoint": "https://gesetze.berlin.de",
+      "scope": "Explicitly selected Berlin laws (juris XML downloads) and rendered judgments",
+      "update_cadence": "irregular; follows GVBl. publications",
+      "auth": {
+        "kind": "none"
+      },
+      "license": {
+        "id": "berlin-official-works",
+        "terms_url": "https://gesetze.berlin.de/",
+        "redistribution": "official legal texts are public-domain official works (§ 5 UrhG); editorial juris material is excluded and portal terms apply (operator must confirm)"
+      },
+      "budgets": {
+        "timeout_ms": 60000,
+        "max_results": 20,
+        "max_bytes": 5000000,
+        "max_pages": 10
+      },
+      "legal": {
+        "namespace": "global",
+        "selection": [
+          {
+            "official_id": "jlr-FIXTUREBEG2019",
+            "format": "juris-xml-zip",
+            "historical": true,
+            "url": "https://gesetze.berlin.de/jportal/bsbeAizDownload/FixG_BE_2019.zip?doc.id=jlr-FIXTUREBEG2019&doc.part=X"
+          },
+          {
+            "official_id": "jlr-FIXTUREBEG2019",
+            "format": "juris-xml-zip",
+            "historical": null,
+            "url": "https://gesetze.berlin.de/jportal/bsbeAizDownload/FixG_BE.zip?doc.id=jlr-FIXTUREBEG2019&doc.part=X"
+          },
+          {
+            "official_id": "NJRE000000001",
+            "format": "rendered-html",
+            "historical": null,
+            "url": "https://gesetze.berlin.de/bsbe/document/NJRE000000001"
+          },
+          {
+            "official_id": "jlr-FIXTUREMISSING",
+            "format": "juris-xml-zip",
+            "historical": null,
+            "url": "https://gesetze.berlin.de/jportal/bsbeAizDownload/Missing.zip?doc.id=jlr-FIXTUREMISSING&doc.part=X"
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/legal-berlin.json",
+        "sha256": "181269befb4bd51ff26cf54ae639fa233ba9133b42b6a94c029830a4cc280e38",
+        "expected_output_hash": "3094e3625636d0ef40779bd59ed634bf7a2e877152bdf73aa6e9b9e3203484a0"
+      }
+    }
+  ]
+}

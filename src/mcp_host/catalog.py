@@ -283,6 +283,15 @@ def _mutability(name: str) -> str:
     from tools.knowledge_engine_mcp.funding import FUNDING_WRITES
     if name in FUNDING_WRITES:
         return "write"
+    from tools.knowledge_engine_mcp.products import PRODUCT_WRITES
+    if name in PRODUCT_WRITES:
+        return "write"
+    from tools.knowledge_engine_mcp.legal import LEGAL_WRITES
+    if name in LEGAL_WRITES:
+        return "write"
+    from tools.knowledge_engine_mcp.cultural import CULTURAL_WRITES
+    if name in CULTURAL_WRITES:
+        return "write"
     from tools.knowledge_engine_mcp.investigations import (
         ALERT_WRITES,
         COMPARISON_WRITES,
@@ -775,6 +784,18 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
     from tools.knowledge_engine_mcp.funding import FUNDING_TOOLS, required_scopes
     if server_stem == "knowledge_engine_mcp" and tool_name in FUNDING_TOOLS:
         return required_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.products import PRODUCT_TOOLS
+    from tools.knowledge_engine_mcp.products import required_scopes as product_scopes
+    if server_stem == "knowledge_engine_mcp" and tool_name in PRODUCT_TOOLS:
+        return product_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.legal import LEGAL_TOOLS
+    from tools.knowledge_engine_mcp.legal import required_scopes as legal_scopes
+    if server_stem == "knowledge_engine_mcp" and tool_name in LEGAL_TOOLS:
+        return legal_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.cultural import CULTURAL_TOOLS
+    from tools.knowledge_engine_mcp.cultural import required_scopes as cultural_scopes
+    if server_stem == "knowledge_engine_mcp" and tool_name in CULTURAL_TOOLS:
+        return cultural_scopes(tool_name, mutability)
     if server_stem == "knowledge_engine_mcp" and tool_name in {
         "suggest_jev_claim_presence",
         "suggest_jev_checkworthiness",

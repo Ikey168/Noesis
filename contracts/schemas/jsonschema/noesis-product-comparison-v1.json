@@ -1,0 +1,109 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/schemas/noesis-product-comparison-v1.json",
+  "title": "Noesis product comparison v1",
+  "description": "Evidence-linked comparison of resolved models. Every value cites its record revision and locator; rows are comparable only on a shared attribute, mode, unit and (for energy classes) label scheme.",
+  "type": "object",
+  "required": [
+    "contract",
+    "namespace",
+    "columns",
+    "rows",
+    "notice"
+  ],
+  "properties": {
+    "contract": {
+      "const": "noesis-product-comparison-v1"
+    },
+    "namespace": {
+      "type": "string",
+      "minLength": 1
+    },
+    "columns": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "required": [
+          "model_id",
+          "members",
+          "variants",
+          "documents",
+          "pending_matches",
+          "rejected_matches"
+        ]
+      }
+    },
+    "rows": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "attribute",
+          "mode",
+          "comparable",
+          "cells"
+        ],
+        "properties": {
+          "comparable": {
+            "type": "boolean"
+          },
+          "not_comparable_reason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "cells": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "model_id",
+                "state",
+                "values"
+              ],
+              "properties": {
+                "state": {
+                  "enum": [
+                    "value",
+                    "conflict",
+                    "missing",
+                    "unnormalized"
+                  ]
+                },
+                "values": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "provider",
+                      "assertion_kind",
+                      "native_value",
+                      "normalization_state",
+                      "evidence"
+                    ],
+                    "properties": {
+                      "evidence": {
+                        "type": "object",
+                        "required": [
+                          "variant_id",
+                          "revision_id",
+                          "locator"
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "notice": {
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}

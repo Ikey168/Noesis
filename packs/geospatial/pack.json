@@ -51,7 +51,7 @@
     {
       "intent": "Distance between two points",
       "tool": "calculate_spatial_relation",
-      "arguments": {"operation": "proximity", "left_geometry_id": "<point geometry_id>", "right": [13.4105, 52.5208]},
+      "arguments": {"namespace": "global", "operation": "proximity", "left_geometry_id": "<point geometry_id>", "right": [13.4105, 52.5208]},
       "semantics": "haversine distance to the nearest stored vertex; not a distance to an arbitrary boundary edge and not road routing"
     }
   ],

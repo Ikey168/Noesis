@@ -1,0 +1,190 @@
+{
+  "pack_id": "products-displays",
+  "version": "1.0.0",
+  "description": "EU-market electronic displays from Open Icecat (brand-authorised content) and the EPREL public API (supplier registrations), bounded to an explicit model selection. Neither provider is independent testing.",
+  "domains": [
+    "products"
+  ],
+  "defaults": {
+    "publisher": "see source",
+    "temporal_semantics": "provider-declared revision (Icecat ProductDataUpdated, EPREL versionNumber); acquisition time recorded separately; absence never implies discontinuation",
+    "mapping": {
+      "target_schema": "noesis-product-record-v1",
+      "version": "1.0.0"
+    },
+    "extractor_versions": [
+      "product-sources:1.0.0",
+      "products-display-normalization-v1:1.0.0"
+    ],
+    "operations": [
+      "models"
+    ],
+    "schedule": {
+      "kind": "interval",
+      "interval_s": 604800
+    },
+    "health": {
+      "required": false,
+      "max_staleness_s": 2592000
+    }
+  },
+  "sources": [
+    {
+      "source_id": "icecat-displays",
+      "connector": "icecat",
+      "publisher": "Icecat (Open Icecat)",
+      "endpoint": "https://live.icecat.biz/api",
+      "scope": "Explicitly selected display models by brand+product code or GTIN; Open Icecat catalogue only",
+      "update_cadence": "continuous editorial updates; ProductDataUpdated per product",
+      "auth": {
+        "kind": "optional-secret",
+        "secret_ref": "NOESIS_ICECAT_API_TOKEN"
+      },
+      "license": {
+        "id": "open-icecat-content",
+        "terms_url": "https://icecat.com/structured-data-content-users/",
+        "redistribution": "attribution-required; storage and export per Open Icecat terms (operator must confirm)"
+      },
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 20,
+        "max_bytes": 2000000,
+        "max_pages": 10
+      },
+      "product": {
+        "namespace": "global",
+        "language": "EN",
+        "market": "EU",
+        "shopname": "openicecat-live",
+        "category": {
+          "label": "electronic displays",
+          "provider_category_id": "1584"
+        },
+        "documents": {
+          "retain": false,
+          "allowed_hosts": [
+            "objects.icecat.biz"
+          ],
+          "media_types": [
+            "application/pdf"
+          ],
+          "max_bytes": 5000000
+        },
+        "selection": [
+          {
+            "brand": "Exampla",
+            "product_code": "EX-27Q4",
+            "label": "27in QHD (matched)"
+          },
+          {
+            "brand": "Exampla",
+            "product_code": "EX-32U8",
+            "label": "32in UHD (matched, conflicting energy)"
+          },
+          {
+            "gtin": "4012345000030",
+            "label": "24in FHD (matched, missing depth)"
+          },
+          {
+            "brand": "Exampla",
+            "product_code": "EX-32U8UK",
+            "label": "UK regional variant (ambiguous)"
+          },
+          {
+            "brand": "Exampla",
+            "product_code": "EX-24F1B",
+            "label": "bundle sharing a GTIN (identifier conflict)"
+          },
+          {
+            "brand": "Exampla",
+            "product_code": "EX-34Q4",
+            "label": "same family name, different size"
+          },
+          {
+            "gtin": "4000000000013",
+            "label": "unknown GTIN (not found)"
+          },
+          {
+            "brand": "Othermark",
+            "product_code": "OM-1",
+            "label": "non-sponsoring brand (outside Open Icecat)"
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/products-icecat.json",
+        "sha256": "ba59be8117836f13cdf84ed33a08c6d9b62cfd82a9399a3452c63de338dd5014",
+        "expected_output_hash": "75957c192c752da3ca26bd3e1cfa8ff7452d6ded120b07e6b9aaf7dcce31b6e2"
+      }
+    },
+    {
+      "source_id": "eprel-displays",
+      "connector": "eprel",
+      "publisher": "European Commission (EPREL)",
+      "endpoint": "https://eprel.ec.europa.eu/api/products",
+      "scope": "Explicitly selected electronic-display registrations by EPREL registration number",
+      "update_cadence": "supplier-driven; versionNumber per registration",
+      "auth": {
+        "kind": "required-secret",
+        "secret_ref": "NOESIS_EPREL_API_KEY"
+      },
+      "license": {
+        "id": "eprel-public-data",
+        "terms_url": "https://energy-efficient-products.ec.europa.eu/eprel_en",
+        "redistribution": "public registration data; reuse per EPREL public API terms (operator must confirm)"
+      },
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 20,
+        "max_bytes": 2000000,
+        "max_pages": 10
+      },
+      "product": {
+        "namespace": "global",
+        "language": "EN",
+        "market": "EU",
+        "category": {
+          "label": "electronic displays",
+          "product_group": "electronicdisplays"
+        },
+        "documents": {
+          "retain": false,
+          "allowed_hosts": [
+            "eprel.ec.europa.eu"
+          ],
+          "media_types": [
+            "application/pdf"
+          ],
+          "max_bytes": 5000000
+        },
+        "selection": [
+          {
+            "registration_number": "1100001",
+            "label": "27in QHD (matched)"
+          },
+          {
+            "registration_number": "1100002",
+            "label": "32in UHD (matched, conflicting energy)"
+          },
+          {
+            "registration_number": "1100003",
+            "label": "24in FHD (matched)"
+          },
+          {
+            "registration_number": "1100007",
+            "label": "withdrawn registration"
+          },
+          {
+            "registration_number": "1100099",
+            "label": "unknown registration (not found)"
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/products-eprel.json",
+        "sha256": "1a834e97e2a8512303c277d51452f9379a84cc273f84d67d872fba5a557988e8",
+        "expected_output_hash": "fcebc27e89a57d0acb1e7a3f0e09c4bd6892e5b6108dcd937dfad7d6030ce744"
+      }
+    }
+  ]
+}

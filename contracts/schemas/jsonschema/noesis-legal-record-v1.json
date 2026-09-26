@@ -1,0 +1,83 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/schemas/noesis-legal-record-v1.json",
+  "title": "Noesis legal record v1",
+  "description": "Runtime page record for the Legal pack: one noesis-native-regional-v1 record (CELLAR, federal court or Berlin) with its page receipt.",
+  "type": "object",
+  "required": [
+    "id",
+    "title",
+    "language",
+    "url",
+    "legal_record",
+    "legal_page"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "language": {
+      "type": "string",
+      "minLength": 1
+    },
+    "url": {
+      "type": "string",
+      "pattern": "^https://"
+    },
+    "published_at": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "content": {
+      "type": "string"
+    },
+    "legal_record": {
+      "type": "object",
+      "required": [
+        "contract",
+        "provider",
+        "provider_id",
+        "kind",
+        "source_url",
+        "fields",
+        "sections",
+        "is_current_law"
+      ],
+      "properties": {
+        "contract": {
+          "const": "noesis-native-regional-v1"
+        },
+        "provider": {
+          "enum": [
+            "cellar",
+            "german-courts",
+            "berlin-law"
+          ]
+        },
+        "is_current_law": {
+          "type": "null"
+        },
+        "sections": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "text",
+              "locator"
+            ]
+          }
+        }
+      }
+    },
+    "legal_page": {
+      "type": "object"
+    }
+  }
+}

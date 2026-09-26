@@ -1,0 +1,182 @@
+{
+ "authored": true,
+ "note": "Authored envelopes in the documented provider shape for a fictional brand; not provider captures. Live field names are re-validated by scripts/products_live_check.py.",
+ "license": "fixture authored for Noesis tests",
+ "provider": "EPREL public API",
+ "native_pages": [
+  {
+   "selector": {
+    "registration_number": "1100001",
+    "label": "27in QHD (matched)"
+   },
+   "status": 200,
+   "requires_secret": true,
+   "body": {
+    "eprelRegistrationNumber": "1100001",
+    "productGroup": "electronicdisplays",
+    "supplierOrTrademark": "Exampla",
+    "modelIdentifier": "EX-27Q4",
+    "implementingAct": "EU_2019_2013",
+    "status": "PUBLISHED",
+    "versionNumber": 3,
+    "diagonalCm": 68.6,
+    "diagonalInch": 27,
+    "resolutionHorizontalPixels": 2560,
+    "resolutionVerticalPixels": 1440,
+    "powerOnModeSDR": 19,
+    "powerOnModeHDR": 28,
+    "energyConsumption1000hSDR": 19,
+    "energyConsumption1000hHDR": 28,
+    "energyClassSDR": "F",
+    "energyClassHDR": "G",
+    "onMarketStartDate": [
+     2025,
+     2,
+     1
+    ],
+    "placementCountries": [
+     {
+      "country": "DE"
+     },
+     {
+      "country": "FR"
+     }
+    ],
+    "energyLabelId": 1600001
+   }
+  },
+  {
+   "selector": {
+    "registration_number": "1100002",
+    "label": "32in UHD (matched, conflicting energy)"
+   },
+   "status": 200,
+   "requires_secret": true,
+   "body": {
+    "eprelRegistrationNumber": "1100002",
+    "productGroup": "electronicdisplays",
+    "supplierOrTrademark": "Exampla",
+    "modelIdentifier": "EX-32U8",
+    "implementingAct": "EU_2019_2013",
+    "status": "PUBLISHED",
+    "versionNumber": 2,
+    "diagonalCm": 80.0,
+    "diagonalInch": 31.5,
+    "resolutionHorizontalPixels": 3840,
+    "resolutionVerticalPixels": 2160,
+    "powerOnModeSDR": 31,
+    "powerOnModeHDR": 52,
+    "energyConsumption1000hSDR": 36,
+    "energyConsumption1000hHDR": 52,
+    "energyClassSDR": "G",
+    "energyClassHDR": "G",
+    "onMarketStartDate": [
+     2025,
+     2,
+     1
+    ],
+    "placementCountries": [
+     {
+      "country": "DE"
+     },
+     {
+      "country": "FR"
+     }
+    ],
+    "energyLabelId": 1600002
+   }
+  },
+  {
+   "selector": {
+    "registration_number": "1100003",
+    "label": "24in FHD (matched)"
+   },
+   "status": 200,
+   "requires_secret": true,
+   "body": {
+    "eprelRegistrationNumber": "1100003",
+    "productGroup": "electronicdisplays",
+    "supplierOrTrademark": "Exampla",
+    "modelIdentifier": "EX-24F1",
+    "implementingAct": "EU_2019_2013",
+    "status": "PUBLISHED",
+    "versionNumber": 1,
+    "diagonalCm": 60.5,
+    "diagonalInch": 23.8,
+    "resolutionHorizontalPixels": 1920,
+    "resolutionVerticalPixels": 1080,
+    "powerOnModeSDR": 12,
+    "energyConsumption1000hSDR": 12,
+    "energyClassSDR": "E",
+    "onMarketStartDate": [
+     2025,
+     2,
+     1
+    ],
+    "placementCountries": [
+     {
+      "country": "DE"
+     },
+     {
+      "country": "FR"
+     }
+    ],
+    "energyLabelId": 1600003
+   }
+  },
+  {
+   "selector": {
+    "registration_number": "1100007",
+    "label": "withdrawn registration"
+   },
+   "status": 200,
+   "requires_secret": true,
+   "body": {
+    "eprelRegistrationNumber": "1100007",
+    "productGroup": "electronicdisplays",
+    "supplierOrTrademark": "Exampla",
+    "modelIdentifier": "EX-22E0",
+    "implementingAct": "EU_2019_2013",
+    "status": "WITHDRAWN",
+    "versionNumber": 4,
+    "diagonalCm": 54.6,
+    "diagonalInch": 21.5,
+    "resolutionHorizontalPixels": 1920,
+    "resolutionVerticalPixels": 1080,
+    "powerOnModeSDR": 11,
+    "energyConsumption1000hSDR": 11,
+    "energyClassSDR": "E",
+    "onMarketStartDate": [
+     2025,
+     2,
+     1
+    ],
+    "placementCountries": [
+     {
+      "country": "DE"
+     },
+     {
+      "country": "FR"
+     }
+    ],
+    "energyLabelId": 1600007
+   }
+  },
+  {
+   "selector": {
+    "registration_number": "1100099",
+    "label": "unknown registration (not found)"
+   },
+   "status": 404,
+   "requires_secret": true,
+   "body": null
+  }
+ ],
+ "scenarios": [
+  "matched-models",
+  "conflicting-energy",
+  "withdrawn-registration",
+  "not-found",
+  "api-key-required"
+ ]
+}

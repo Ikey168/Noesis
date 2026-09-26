@@ -68,7 +68,7 @@ def main() -> int:
     enqueue = orchestrator.enqueue_due(at_ms=1_000, principal_id="reference")
     drain = orchestrator.drain(
         "reference-worker",
-        max_jobs=10,
+        max_jobs=len(manifests),
         enqueue=False,
         principal_id="reference",
         adapter_provider=adapters,
@@ -102,7 +102,7 @@ def main() -> int:
         len(enqueue["created"]) == len(manifests)
         and len(generations) == len(manifests)
         and domains
-        == ["economic", "geospatial", "osint", "political", "research", "scientific", "technical"]
+        == ["economic", "geospatial", "legal", "osint", "political", "products", "research", "scientific", "technical"]
         and statuses == {"complete", "partial"}
         and all(item["matched"] for item in replays)
         and query["items"]

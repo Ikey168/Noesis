@@ -1,0 +1,85 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/schemas/noesis-product-match-v1.json",
+  "title": "Noesis product match v1",
+  "description": "A deterministic cross-provider match candidate with evidence, reasons, candidate state and append-only review history.",
+  "type": "object",
+  "required": [
+    "contract",
+    "match_id",
+    "left_model_id",
+    "right_model_id",
+    "method",
+    "candidate_state",
+    "confidence",
+    "evidence",
+    "reasons",
+    "review_state",
+    "review_history"
+  ],
+  "properties": {
+    "contract": {
+      "const": "noesis-product-match-v1"
+    },
+    "match_id": {
+      "type": "string",
+      "pattern": "^product-match:"
+    },
+    "left_model_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "right_model_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "method": {
+      "type": "string",
+      "minLength": 1
+    },
+    "candidate_state": {
+      "enum": [
+        "proposed",
+        "ambiguous",
+        "contradicted"
+      ]
+    },
+    "confidence": {
+      "enum": [
+        "high",
+        "medium",
+        "low",
+        "none"
+      ]
+    },
+    "evidence": {
+      "type": "array"
+    },
+    "reasons": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "review_state": {
+      "enum": [
+        "unreviewed",
+        "accepted",
+        "rejected",
+        "deferred"
+      ]
+    },
+    "review_history": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "sequence",
+          "decision",
+          "reason",
+          "principal_id"
+        ]
+      }
+    }
+  }
+}

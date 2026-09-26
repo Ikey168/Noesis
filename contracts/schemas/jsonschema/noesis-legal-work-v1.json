@@ -1,0 +1,58 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/schemas/noesis-legal-work-v1.json",
+  "title": "Noesis legal work v1",
+  "description": "A legal work or decision in one jurisdiction with source-native identity and supplied identifiers; lookups report found, ambiguous, not_found_in_jurisdiction or not_covered.",
+  "type": "object",
+  "required": [
+    "contract"
+  ],
+  "properties": {
+    "contract": {
+      "const": "noesis-legal-work-v1"
+    },
+    "work_id": {
+      "type": "string",
+      "pattern": "^legal-work:"
+    },
+    "jurisdiction": {
+      "enum": [
+        "EU",
+        "DE",
+        "DE-BE"
+      ]
+    },
+    "work_kind": {
+      "enum": [
+        "normative",
+        "decision",
+        "gazette",
+        "preparatory",
+        "consolidated"
+      ]
+    },
+    "identifiers": {
+      "type": "object"
+    },
+    "status": {
+      "enum": [
+        "found",
+        "ambiguous",
+        "not_found_in_jurisdiction",
+        "not_covered"
+      ]
+    },
+    "works": {
+      "type": "array"
+    },
+    "versions": {
+      "type": "array"
+    },
+    "citations": {
+      "type": "array"
+    },
+    "review_boundary": {
+      "type": "string"
+    }
+  }
+}

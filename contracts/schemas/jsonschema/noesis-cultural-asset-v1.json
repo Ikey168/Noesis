@@ -1,0 +1,80 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/schemas/noesis-cultural-asset-v1.json",
+  "title": "Noesis cultural asset v1",
+  "description": "The outcome of retaining one representation under its item rights: retained (hash, media type), link-only, unavailable or too-large.",
+  "type": "object",
+  "required": [
+    "contract",
+    "role",
+    "url",
+    "action",
+    "rights",
+    "state"
+  ],
+  "properties": {
+    "contract": {
+      "const": "noesis-cultural-asset-v1"
+    },
+    "role": {
+      "type": "string",
+      "minLength": 1
+    },
+    "url": {
+      "type": "string",
+      "minLength": 1
+    },
+    "action": {
+      "enum": [
+        "store",
+        "export"
+      ]
+    },
+    "rights": {
+      "type": "object",
+      "required": [
+        "category",
+        "allows",
+        "default_action"
+      ],
+      "properties": {
+        "category": {
+          "enum": [
+            "public-domain",
+            "open-attribution",
+            "noncommercial",
+            "restricted",
+            "unrecognized",
+            "missing"
+          ]
+        },
+        "allows": {
+          "type": "object",
+          "required": [
+            "metadata",
+            "store_asset",
+            "export_asset"
+          ]
+        },
+        "default_action": {
+          "enum": [
+            "retain-permitted",
+            "link-only"
+          ]
+        }
+      }
+    },
+    "state": {
+      "enum": [
+        "retained",
+        "link-only",
+        "unavailable",
+        "too-large"
+      ]
+    },
+    "content_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    }
+  }
+}

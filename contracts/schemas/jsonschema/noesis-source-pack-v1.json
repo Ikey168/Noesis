@@ -18,7 +18,7 @@
         "required": ["source_id", "connector", "endpoint", "publisher", "scope", "license", "update_cadence", "temporal_semantics", "mapping", "extractor_versions", "schedule", "budgets", "auth", "fixture", "health", "operations", "source_hash"],
         "properties": {
           "source_id": {"type": "string", "minLength": 1},
-          "connector": {"enum": ["blog", "dataset", "declarative-rest", "filings", "geojson", "git", "manifest", "package-registry", "paper", "web", "wfs"]},
+          "connector": {"enum": ["berlin-law", "blog", "cellar", "dataset", "ddb", "declarative-rest", "eprel", "europeana", "filings", "geojson", "git", "icecat", "manifest", "package-registry", "paper", "rii", "web", "wfs"]},
           "wfs": {
             "type": "object",
             "description": "Pinned WFS 2.0.0 GetFeature contract; required for the wfs connector.",
@@ -36,6 +36,37 @@
           "geospatial": {
             "type": "object",
             "description": "Feature projection settings for wfs/geojson sources (namespace, geometry types, precision, attribution)."
+          },
+          "cultural": {
+            "type": "object",
+            "description": "Bounded cultural-object query for ddb/europeana sources: namespace, explicit query and filters, rows per page, record ceiling and place-precision policy.",
+            "required": ["query", "rows", "max_records"],
+            "properties": {
+              "namespace": {"type": "string", "minLength": 1},
+              "query": {"type": "object", "required": ["q"]},
+              "rows": {"type": "integer", "minimum": 1, "maximum": 100},
+              "max_records": {"type": "integer", "minimum": 1, "maximum": 500}
+            }
+          },
+          "legal": {
+            "type": "object",
+            "description": "Bounded legal selection for cellar/rii/berlin-law sources: namespace and explicit CELEX+languages, doknr list or index window, or official Berlin publications.",
+            "required": ["selection"],
+            "properties": {
+              "namespace": {"type": "string", "minLength": 1},
+              "selection": {"type": ["object", "array"]}
+            }
+          },
+          "product": {
+            "type": "object",
+            "description": "Bounded model selection for icecat/eprel sources: namespace, category, market, language, 1-50 explicit selectors and the document retention policy.",
+            "required": ["category", "selection"],
+            "properties": {
+              "namespace": {"type": "string", "minLength": 1},
+              "category": {"type": "object", "required": ["label"]},
+              "documents": {"type": "object"},
+              "selection": {"type": "array", "minItems": 1, "maxItems": 50, "items": {"type": "object", "minProperties": 1}}
+            }
           },
           "endpoint": {"type": "string", "pattern": "^https://"},
           "publisher": {"type": "string", "minLength": 1},

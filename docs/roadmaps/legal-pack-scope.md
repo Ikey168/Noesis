@@ -1,8 +1,9 @@
 # Legal pack scope
 
-Status: proposed, 2026-09-25. Existing legal source integrations have bounded
-implementations and completed foundation issues; this scope does not claim
-that a standalone Legal pack or generally validated legal retrieval is shipped.
+Status: standalone pack implemented offline, 2026-09-26 (see
+`docs/guides/legal-pack.md`). Pack live acceptance is outstanding, and
+relevance-ranked legal retrieval stays deferred until an independent
+human-judged evaluation passes the recorded thresholds.
 
 Tracking: [#1720](https://github.com/Ikey168/Noesis/issues/1720). Its child
 issues define dependencies and acceptance criteria.

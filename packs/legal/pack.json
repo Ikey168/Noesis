@@ -1,0 +1,77 @@
+{
+  "pack_format": "noesis-pack-v1",
+  "name": "legal",
+  "version": "1.0.0",
+  "description": "Bounded EU (CELLAR), German federal court and Berlin legal research: exact works, separate language expressions, source-supported versions, cited passages with exact locators, explicit citations and as-of selection that never infers current force.",
+  "source_types": ["web"],
+  "ui_flags": {},
+  "panels": [],
+  "planner_keywords": {
+    "entities": ["celex", "ecli", "eli", "gesetz", "law", "regulation", "urteil", "verordnung"],
+    "sources": ["cellar", "eur-lex", "gesetze.berlin.de", "rechtsprechung im internet"],
+    "claims": ["article", "artikel", "paragraph", "section"],
+    "events": ["amendment", "commencement", "entry into force", "inkrafttreten", "repeal"]
+  },
+  "enrichers": [],
+  "provisioning_templates": [],
+  "capabilities": [
+    "cellar-work-expression-manifestation",
+    "federal-court-decisions",
+    "berlin-legal-publications",
+    "as-of-version-selection",
+    "cited-passage-retrieval",
+    "version-comparison",
+    "explicit-citation-graph",
+    "legislative-dossier-links",
+    "gated-retrieval-modes"
+  ],
+  "schema_versions": {
+    "legal-work": "1.0.0",
+    "legal-version": "1.0.0",
+    "legal-version-selection": "1.0.0",
+    "legal-version-comparison": "1.0.0",
+    "legal-retrieval-evaluation": "1.0.0",
+    "source-pack": "1.0.0"
+  },
+  "ontology_extensions": {
+    "extends": "noesis-canonical-entity-relation-ontology",
+    "reuses": ["noesis-temporal-v1", "noesis-evidence-bundle-v1", "noesis-legal-work-v1",
+               "noesis-legal-version-selection-v1"],
+    "object_types": ["legal_work", "legal_expression", "legal_version", "legal_passage", "court_decision",
+                     "legal_citation", "legal_temporal_fact"],
+    "relation_types": ["expression_of", "version_of", "cites", "amends", "corrects", "cites_norm",
+                       "prior_instance", "enacted_from_procedure"]
+  },
+  "source_pack": "config/source_packs/legal.json",
+  "query_examples": [
+    {
+      "intent": "Find the GDPR by CELEX",
+      "tool": "lookup_legal_work",
+      "arguments": {"namespace": "global", "identifier": "32016R0679"},
+      "semantics": "exact identifier match across CELEX, ELI, ECLI, doknr, docket and official IDs"
+    },
+    {
+      "intent": "Which version of a Berlin law applied on 1 January 2020",
+      "tool": "select_legal_version_as_of",
+      "arguments": {"namespace": "global", "work_id": "<work_id>", "as_of": "2020-01-01"},
+      "semantics": "candidates with sourced commencement/validity evidence; missing or conflicting dates stay unknown or ambiguous"
+    },
+    {
+      "intent": "Quote § 2 of a version",
+      "tool": "get_legal_passages",
+      "arguments": {"namespace": "global", "version_id": "<version_id>", "locator": "NN2"},
+      "semantics": "exact source passages with XML-path or paragraph locators; no relevance ranking"
+    },
+    {
+      "intent": "What changed between two versions",
+      "tool": "compare_legal_versions",
+      "arguments": {"namespace": "global", "left_version_id": "<version_id>", "right_version_id": "<version_id>"},
+      "semantics": "passage-level source changes, not a legal-effect assessment"
+    }
+  ],
+  "exclusions": [
+    "complete EU, German or Berlin law", "all German case law", "legal advice", "inferred current force",
+    "relevance-ranked legal retrieval without accepted human-judged evaluation", "other jurisdictions",
+    "undocumented provider APIs"
+  ]
+}

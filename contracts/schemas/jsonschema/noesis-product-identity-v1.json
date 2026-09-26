@@ -1,0 +1,95 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/schemas/noesis-product-identity-v1.json",
+  "title": "Noesis product identity v1",
+  "description": "Product family/model/variant lookup or inspection result. Variants are provider records; models group them per provider by brand and exact designation; cross-provider equivalence exists only through reviewed matches.",
+  "type": "object",
+  "required": [
+    "contract",
+    "namespace"
+  ],
+  "properties": {
+    "contract": {
+      "const": "noesis-product-identity-v1"
+    },
+    "namespace": {
+      "type": "string",
+      "minLength": 1
+    },
+    "identity_id": {
+      "type": "string"
+    },
+    "level": {
+      "enum": [
+        "family",
+        "model",
+        "variant"
+      ]
+    },
+    "variants": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "variant_id",
+          "model_id",
+          "provider",
+          "provider_record_id",
+          "record_state",
+          "current_revision_id"
+        ],
+        "properties": {
+          "variant_id": {
+            "type": "string",
+            "pattern": "^product-variant:"
+          },
+          "model_id": {
+            "type": "string",
+            "pattern": "^product-model:"
+          },
+          "provider": {
+            "enum": [
+              "icecat",
+              "eprel"
+            ]
+          },
+          "brand": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "designation": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "provider_record_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "record_state": {
+            "enum": [
+              "published",
+              "withdrawn"
+            ]
+          },
+          "current_revision_id": {
+            "type": "string",
+            "pattern": "^product-revision:"
+          },
+          "identifier_conflicts": {
+            "type": "array"
+          },
+          "matches": {
+            "type": "array"
+          }
+        }
+      }
+    },
+    "matches": {
+      "type": "array"
+    }
+  }
+}

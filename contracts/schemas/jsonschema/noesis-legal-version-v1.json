@@ -1,0 +1,71 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/schemas/noesis-legal-version-v1.json",
+  "title": "Noesis legal version v1",
+  "description": "One manifestation or captured text of a language expression, with its sourced temporal facts; historical text stays historical.",
+  "type": "object",
+  "required": [
+    "contract",
+    "version_id",
+    "expression_id",
+    "language",
+    "content_coverage",
+    "facts"
+  ],
+  "properties": {
+    "contract": {
+      "const": "noesis-legal-version-v1"
+    },
+    "version_id": {
+      "type": "string",
+      "pattern": "^legal-version:"
+    },
+    "expression_id": {
+      "type": "string",
+      "pattern": "^legal-expression:"
+    },
+    "language": {
+      "type": "string",
+      "minLength": 1
+    },
+    "historical": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "content_coverage": {
+      "enum": [
+        "captured-text",
+        "metadata-only"
+      ]
+    },
+    "facts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "fact",
+          "value",
+          "basis"
+        ],
+        "properties": {
+          "fact": {
+            "enum": [
+              "enactment",
+              "document",
+              "publication",
+              "entry_into_force",
+              "commencement",
+              "validity_end",
+              "decision"
+            ]
+          },
+          "basis": {
+            "const": "source-reported"
+          }
+        }
+      }
+    }
+  }
+}

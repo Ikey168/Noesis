@@ -638,8 +638,10 @@ def test_six_domain_offline_execution(setup):
     assert completed == {
         "economic",
         "geospatial",
+        "legal",
         "osint",
         "political",
+        "products",
         "research",
         "scientific",
         "technical",

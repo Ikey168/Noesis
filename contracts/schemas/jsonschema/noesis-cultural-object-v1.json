@@ -1,0 +1,179 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/schemas/noesis-cultural-object-v1.json",
+  "title": "Noesis cultural object v1",
+  "description": "A cultural-heritage provider record (DDB, Europeana) as primary-source evidence: provider identity and aggregation, institution, collection, multilingual titles, original and normalized dates, places with role and projection state, item rights and separate representations.",
+  "type": "object",
+  "required": [
+    "contract",
+    "provider"
+  ],
+  "properties": {
+    "contract": {
+      "const": "noesis-cultural-object-v1"
+    },
+    "provider": {
+      "enum": [
+        "ddb",
+        "europeana"
+      ]
+    },
+    "provider_record_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "object_id": {
+      "type": "string",
+      "pattern": "^cultural-object:"
+    },
+    "source_url": {
+      "type": "string",
+      "pattern": "^https?://"
+    },
+    "titles": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "value",
+          "language"
+        ],
+        "properties": {
+          "value": {
+            "type": "string"
+          },
+          "language": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    },
+    "descriptions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "value",
+          "language"
+        ],
+        "properties": {
+          "value": {
+            "type": "string"
+          },
+          "language": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    },
+    "dates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "original",
+          "normalized",
+          "method"
+        ]
+      }
+    },
+    "places": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "role"
+        ],
+        "properties": {
+          "role": {
+            "enum": [
+              "institution",
+              "digitization",
+              "depicted",
+              "event"
+            ]
+          },
+          "state": {
+            "enum": [
+              "coordinates-projected",
+              "coordinates-rejected",
+              "name-resolved",
+              "needs-review",
+              "unresolved",
+              "name-only"
+            ]
+          }
+        }
+      }
+    },
+    "rights": {
+      "anyOf": [
+        {
+          "type": "object",
+          "required": [
+            "category",
+            "allows",
+            "default_action"
+          ],
+          "properties": {
+            "category": {
+              "enum": [
+                "public-domain",
+                "open-attribution",
+                "noncommercial",
+                "restricted",
+                "unrecognized",
+                "missing"
+              ]
+            },
+            "allows": {
+              "type": "object",
+              "required": [
+                "metadata",
+                "store_asset",
+                "export_asset"
+              ]
+            },
+            "default_action": {
+              "enum": [
+                "retain-permitted",
+                "link-only"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "statement"
+          ]
+        }
+      ]
+    },
+    "representations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "role",
+          "url"
+        ],
+        "properties": {
+          "role": {
+            "enum": [
+              "preview",
+              "thumbnail",
+              "original"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

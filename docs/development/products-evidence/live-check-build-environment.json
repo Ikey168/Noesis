@@ -1,0 +1,106 @@
+{
+  "check": "products-live-acceptance",
+  "started_at": "2026-09-26T02:13:28.114318+00:00",
+  "environment_note": "Claude Code build container on 2026-09-26; outbound access to live.icecat.biz and eprel.ec.europa.eu is not permitted by the network policy; cohort is the fictional fixture selection, so even a reachable provider would return not_found",
+  "credentials_present": {
+    "NOESIS_EPREL_API_KEY": false,
+    "NOESIS_ICECAT_API_TOKEN": false
+  },
+  "readiness": {
+    "pack_id": "products-displays",
+    "installed": true,
+    "enabled": true,
+    "providers": {
+      "icecat": {
+        "source_id": "icecat-displays",
+        "fixture": "ready",
+        "live": "ready",
+        "live_verification": "unverified-live",
+        "blockers": []
+      },
+      "eprel": {
+        "source_id": "eprel-displays",
+        "fixture": "ready",
+        "live": "blocked",
+        "live_verification": "unverified-live",
+        "blockers": [
+          {
+            "code": "credential_missing",
+            "secret_ref": "NOESIS_EPREL_API_KEY",
+            "severity": "blocking-live",
+            "action": "complete the provider's API access process; public browsing is not API readiness"
+          }
+        ]
+      }
+    },
+    "cross_source_validation": "outstanding",
+    "notice": "Readiness is per provider; cross-provider overlap is validated only by a dated live run of both."
+  },
+  "providers": {
+    "eprel": {
+      "source_id": "eprel-displays",
+      "endpoint": "https://eprel.ec.europa.eu/api/products",
+      "selection_size": 5,
+      "status": "blocked",
+      "failure": [
+        {
+          "source_id": "eprel-displays",
+          "classification": "preflight",
+          "detail": [
+            "credential_missing"
+          ]
+        }
+      ],
+      "elapsed_s": 0.03
+    },
+    "icecat": {
+      "source_id": "icecat-displays",
+      "endpoint": "https://live.icecat.biz/api",
+      "selection_size": 8,
+      "status": "failed",
+      "failure": {
+        "code": "source_unavailable",
+        "message": "source unavailable",
+        "classification": "transient-availability"
+      },
+      "counts": {
+        "attempts": 3,
+        "pages": 0,
+        "fetched": 0,
+        "normalized": 0,
+        "inserted": 0,
+        "duplicates": 0,
+        "invalid": 0,
+        "quarantined": 0,
+        "bytes": 0
+      },
+      "retries": [
+        {
+          "attempt": 1,
+          "code": "source_unavailable",
+          "delay_ms": 100
+        },
+        {
+          "attempt": 2,
+          "code": "source_unavailable",
+          "delay_ms": 200
+        }
+      ],
+      "projection": {
+        "refresh_advanced": false,
+        "reason": "run_not_complete",
+        "projected_models": 0,
+        "selection_size": 8
+      },
+      "outcomes": [],
+      "elapsed_s": 1.4
+    }
+  },
+  "variants": [],
+  "acceptance": {
+    "two_provider_live_run": "outstanding",
+    "cross_source_overlap": "outstanding",
+    "note": "Offline fixtures and a single working provider never satisfy two-provider acceptance."
+  },
+  "finished_at": "2026-09-26T02:13:30.022342+00:00"
+}

@@ -1,0 +1,216 @@
+{
+  "check": "legal-live-acceptance",
+  "started_at": "2026-09-26T02:33:54.436328+00:00",
+  "environment_note": "Claude Code build container on 2026-09-26; outbound access to publications.europa.eu, rechtsprechung-im-internet.de and gesetze.berlin.de is not permitted by the network policy; Berlin selection is the fictional fixture",
+  "berlin_selection": "fixture",
+  "sources": {
+    "berlin-law-publications": {
+      "connector": "berlin-law",
+      "endpoint": "https://gesetze.berlin.de",
+      "status": "failed",
+      "failure": {
+        "code": "source_unavailable",
+        "message": "source unavailable",
+        "classification": "transient-availability"
+      },
+      "counts": {
+        "attempts": 3,
+        "pages": 0,
+        "fetched": 0,
+        "normalized": 0,
+        "inserted": 0,
+        "duplicates": 0,
+        "invalid": 0,
+        "quarantined": 0,
+        "bytes": 0
+      },
+      "outcomes": [],
+      "elapsed_s": 1.64
+    },
+    "cellar-c362-14-deu": {
+      "connector": "cellar",
+      "endpoint": "https://publications.europa.eu/webapi/rdf/sparql",
+      "status": "failed",
+      "failure": {
+        "code": "source_unavailable",
+        "message": "source unavailable",
+        "classification": "transient-availability"
+      },
+      "counts": {
+        "attempts": 3,
+        "pages": 0,
+        "fetched": 0,
+        "normalized": 0,
+        "inserted": 0,
+        "duplicates": 0,
+        "invalid": 0,
+        "quarantined": 0,
+        "bytes": 0
+      },
+      "outcomes": [],
+      "elapsed_s": 1.12
+    },
+    "cellar-gdpr-deu": {
+      "connector": "cellar",
+      "endpoint": "https://publications.europa.eu/webapi/rdf/sparql",
+      "status": "failed",
+      "failure": {
+        "code": "source_unavailable",
+        "message": "source unavailable",
+        "classification": "transient-availability"
+      },
+      "counts": {
+        "attempts": 3,
+        "pages": 0,
+        "fetched": 0,
+        "normalized": 0,
+        "inserted": 0,
+        "duplicates": 0,
+        "invalid": 0,
+        "quarantined": 0,
+        "bytes": 0
+      },
+      "outcomes": [],
+      "elapsed_s": 1.27
+    },
+    "cellar-gdpr-eng": {
+      "connector": "cellar",
+      "endpoint": "https://publications.europa.eu/webapi/rdf/sparql",
+      "status": "failed",
+      "failure": {
+        "code": "source_unavailable",
+        "message": "source unavailable",
+        "classification": "transient-availability"
+      },
+      "counts": {
+        "attempts": 3,
+        "pages": 0,
+        "fetched": 0,
+        "normalized": 0,
+        "inserted": 0,
+        "duplicates": 0,
+        "invalid": 0,
+        "quarantined": 0,
+        "bytes": 0
+      },
+      "outcomes": [],
+      "elapsed_s": 1.25
+    },
+    "rii-federal-decisions": {
+      "connector": "rii",
+      "endpoint": "https://www.rechtsprechung-im-internet.de",
+      "status": "failed",
+      "failure": {
+        "code": "source_unavailable",
+        "message": "source unavailable",
+        "classification": "transient-availability"
+      },
+      "counts": {
+        "attempts": 3,
+        "pages": 0,
+        "fetched": 0,
+        "normalized": 0,
+        "inserted": 0,
+        "duplicates": 0,
+        "invalid": 0,
+        "quarantined": 0,
+        "bytes": 0
+      },
+      "outcomes": [],
+      "elapsed_s": 1.83
+    }
+  },
+  "works": [],
+  "readiness": {
+    "pack_id": "legal-research",
+    "installed": true,
+    "enabled": true,
+    "providers": {
+      "cellar": {
+        "jurisdiction": "EU",
+        "installed": true,
+        "fixture": "ready",
+        "live": "ready",
+        "coverage": "Selected EU works; language expressions and manifestations stay distinct; current law is not inferred",
+        "blockers": [],
+        "pack_live_acceptance": "outstanding",
+        "prior_adapter_live_evidence": "docs/development/workflow-review-evidence/cellar-native-2026-09-09.json"
+      },
+      "rii": {
+        "jurisdiction": "DE",
+        "installed": true,
+        "fixture": "ready",
+        "live": "ready",
+        "coverage": "Decisions of the federal courts published on rechtsprechung-im-internet.de, not all German case law",
+        "blockers": [],
+        "pack_live_acceptance": "outstanding",
+        "prior_adapter_live_evidence": "docs/development/workflow-review-evidence/court-streaming-live-2026-09-08.json"
+      },
+      "berlin-law": {
+        "jurisdiction": "DE-BE",
+        "installed": true,
+        "fixture": "ready",
+        "live": "ready",
+        "coverage": "Selected official Berlin publications; historical versions remain historical; editorial text is excluded",
+        "blockers": [],
+        "pack_live_acceptance": "outstanding",
+        "prior_adapter_live_evidence": "docs/development/workflow-review-evidence/berlin-native-2026-09-09.json"
+      }
+    },
+    "retrieval_modes": {
+      "contract": "noesis-legal-retrieval-modes-v1",
+      "decided_at": "2026-09-26",
+      "modes": {
+        "exact-identifier": {
+          "state": "enabled",
+          "scope": "lookup by CELEX, ELI, ECLI, doknr, docket or official ID",
+          "basis": "deterministic identity match; not a relevance claim"
+        },
+        "exact-locator-or-substring": {
+          "state": "enabled",
+          "scope": "passages of one chosen version by locator fragment or exact substring",
+          "basis": "deterministic filter inside one version; not a relevance ranking"
+        },
+        "lexical-bm25": {
+          "state": "deferred",
+          "basis": "no accepted independent human-judged legal evaluation"
+        },
+        "semantic": {
+          "state": "deferred",
+          "basis": "no accepted independent human-judged legal evaluation"
+        },
+        "hybrid": {
+          "state": "deferred",
+          "basis": "no accepted independent human-judged legal evaluation"
+        },
+        "reranked": {
+          "state": "deferred",
+          "basis": "no accepted independent human-judged legal evaluation"
+        }
+      },
+      "thresholds": {
+        "min_queries_per_stratum": 20,
+        "min_assessors_per_query": 2,
+        "min_cohen_kappa": 0.6,
+        "recall_at_10": 0.8,
+        "ndcg_at_10": 0.6,
+        "supported_passage_precision_at_5": 0.7,
+        "min_gain_over_keyword_baseline": 0.05,
+        "max_p95_latency_ms": 1500
+      },
+      "evidence": [
+        "docs/development/workflow-review-evidence/legal-reference-retrieval-2026-09-09.json",
+        "docs/development/workflow-review-evidence/legal-reference-small-corpus-rejection-2026-09-09.json"
+      ],
+      "evidence_note": "Existing runs used publisher-identifier and exact-membership labels; they cannot enable a mode."
+    },
+    "review_boundary": "Source facts and version selection are not a determination of legal effect or current force; that assessment needs human legal review."
+  },
+  "acceptance": {
+    "sources_complete": [],
+    "jurisdictions_demonstrated": [],
+    "all_three_jurisdictions": false,
+    "retrieval_relevance": "not evaluated (see config/legal/retrieval_modes.json)"
+  },
+  "finished_at": "2026-09-26T02:34:01.913786+00:00"
+}
