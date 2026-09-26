@@ -141,7 +141,8 @@
                     "unauthorized",
                     "provider-unavailable",
                     "binding-missing",
-                    "aggregate-limit-exhausted"
+                    "aggregate-limit-exhausted",
+                    "provider-shutdown"
                   ]
                 },
                 "reason": {

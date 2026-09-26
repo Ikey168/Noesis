@@ -64,6 +64,7 @@ BLOCKER_KINDS = (
     "provider-unavailable",
     "binding-missing",
     "aggregate-limit-exhausted",
+    "provider-shutdown",
 )
 
 # x- extensions this implementation understands. A manifest that names any

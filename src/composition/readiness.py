@@ -36,6 +36,7 @@ _KIND_TO_STATE = {
     "unverified-live": "degraded",
     "failed-execution": "degraded",
     "aggregate-limit-exhausted": "degraded",
+    "provider-shutdown": "unavailable",
 }
 _STATE_ORDER = ("unauthorized", "disabled", "unavailable", "empty", "degraded", "available")
 
@@ -52,6 +53,7 @@ REASONS = {
     "provider-unavailable": "the provider is not available",
     "binding-missing": "the operation has no registered binding",
     "aggregate-limit-exhausted": "the shared provider account limit is exhausted",
+    "provider-shutdown": "the provider was shut down by an administrator",
 }
 
 
@@ -85,6 +87,7 @@ def assess(
     credential_available: Callable[[str], bool] | None = None,
     disabled_providers: Iterable[str] = (),
     unavailable_providers: Iterable[str] = (),
+    shutdown_providers: Iterable[str] = (),
     failed_operations: Iterable[str] = (),
     exhausted_accounts: Iterable[str] = (),
     probe_results: Mapping[str, Mapping[str, Any]] | None = None,
@@ -106,6 +109,7 @@ def assess(
     descriptors = {(d["provider_id"], d["version"]): d for d in providers}
     disabled = set(disabled_providers)
     unavailable = set(unavailable_providers)
+    shutdown = set(shutdown_providers)
     failed = set(failed_operations)
     exhausted = set(exhausted_accounts)
     visible = None if visible_consumers is None else set(visible_consumers)
@@ -150,6 +154,8 @@ def assess(
             blockers.append(_blocker("provider-disabled"))
         if binding["provider_id"] in unavailable:
             blockers.append(_blocker("provider-unavailable"))
+        if binding["provider_id"] in shutdown:
+            blockers.append(_blocker("provider-shutdown"))
         if "credential" in context:
             ok = bool(credential_available and credential_available(binding["provider_id"]))
             prerequisites.append({"kind": "credential", "name": binding["provider_id"], "satisfied": ok})

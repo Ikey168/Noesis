@@ -15,12 +15,51 @@ from __future__ import annotations
 import json
 import os
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Callable, Dict, List, Optional
 
 from src.domains.base import DomainPack
 
 _REGISTRY: Dict[str, DomainPack] = {}
 _ENABLED: set = set()
+
+# Lifecycle authority (pack composition C05.5). When the composition
+# coordinator is installed, it decides for each bundle whether a legacy call is
+# delegated (returns True), refused with a compatibility error (raises), or
+# left to the legacy path (returns False). There is never a second
+# enabled-state ledger: delegated calls change state only through the
+# coordinator.
+_AUTHORITY: Optional[Callable[[str, str], bool]] = None
+
+
+class CompatibilityError(RuntimeError):
+    """A legacy lifecycle call targeted a composition-managed bundle."""
+
+    def __init__(self, name: str, operation: str, message: str) -> None:
+        super().__init__(message)
+        self.name = name
+        self.operation = operation
+
+
+def set_authority(hook: Optional[Callable[[str, str], bool]]) -> None:
+    """Install (or clear, with ``None``) the lifecycle authority hook."""
+    global _AUTHORITY
+    _AUTHORITY = hook
+
+
+def _delegated(name: str, operation: str) -> bool:
+    return bool(_AUTHORITY is not None and _AUTHORITY(name, operation))
+
+
+def _set_enabled(name: str, enabled: bool) -> None:
+    """Change enabled state without consulting the authority hook.
+
+    Only the legacy path and the composition coordinator's apply step call
+    this; everything else goes through :func:`enable_pack`/:func:`disable_pack`.
+    """
+    if enabled:
+        _ENABLED.add(name)
+    else:
+        _ENABLED.discard(name)
 
 _DEFAULT_CONFIG_PATH = Path(__file__).parent.parent.parent / "config" / "domain_packs.json"
 
@@ -34,13 +73,21 @@ def register_pack(pack: DomainPack) -> None:
 
 
 def enable_pack(name: str) -> None:
-    """Mark the named pack as enabled (without requiring it to be registered yet)."""
-    _ENABLED.add(name)
+    """Mark the named pack as enabled (without requiring it to be registered yet).
+
+    For a composition-managed bundle the call is delegated to the composition
+    coordinator or refused with :class:`CompatibilityError`.
+    """
+    if _delegated(name, "enable"):
+        return
+    _set_enabled(name, True)
 
 
 def disable_pack(name: str) -> None:
-    """Mark the named pack as disabled."""
-    _ENABLED.discard(name)
+    """Mark the named pack as disabled (delegated for composition-managed bundles)."""
+    if _delegated(name, "disable"):
+        return
+    _set_enabled(name, False)
 
 
 def is_pack_enabled(name: str) -> bool:
@@ -91,13 +138,23 @@ def load_config(path: Optional[str] = None) -> List[str]:
     if env_override:
         enabled = [p.strip() for p in env_override.split(",") if p.strip()]
 
-    _ENABLED.clear()
+    managed = {name for name in list(_ENABLED) | set(enabled) if _is_managed(name)}
+    for name in list(_ENABLED):
+        if name not in managed:
+            _ENABLED.discard(name)
     for name in enabled:
-        enable_pack(name)
+        if name not in managed:
+            _set_enabled(name, True)
     return list(enabled)
 
 
+def _is_managed(name: str) -> bool:
+    """Whether the authority hook claims ``name`` (its enabled state is not the config's)."""
+    return bool(_AUTHORITY is not None and _AUTHORITY(name, "query"))
+
+
 def reset() -> None:
-    """Clear all registered packs and enabled flags. For test use only."""
+    """Clear all registered packs, enabled flags and the authority hook. For test use only."""
     _REGISTRY.clear()
     _ENABLED.clear()
+    set_authority(None)

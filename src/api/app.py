@@ -415,6 +415,32 @@ def _load_domain_packs():
     except Exception:
         import logging
         logging.getLogger(__name__).warning("Domain-pack config could not be loaded", exc_info=True)
+    _reconcile_composition()
+
+
+def _reconcile_composition():
+    """Startup reconciliation of pack composition (ADR-003).
+
+    Runs once after the legacy config load. It only uses a warehouse that
+    already exists, never creates one, and does nothing when no composition
+    state has been written. It never issues provider requests.
+    """
+    try:
+        from pathlib import Path
+
+        from src.composition.lifecycle import startup
+        from src.config.env import warehouse_path
+        from src.database import local_analytics_connector as warehouse
+
+        if warehouse._CONNECTION is None and not Path(
+            warehouse_path(warehouse._default_db_path())
+        ).exists():
+            return None
+        return startup(warehouse.get_shared_connection())
+    except Exception:
+        import logging
+        logging.getLogger(__name__).warning("Pack composition could not be reconciled", exc_info=True)
+        return None
 
 
 def check_all_imports():

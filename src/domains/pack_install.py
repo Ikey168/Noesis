@@ -81,8 +81,10 @@ def install_manifest(manifest: PackManifest) -> Dict[str, Any]:
     registered anywhere: the generative UI they fed has been retired, so they
     are advisory metadata now. The pack's enrichers, ui_flags and provisioning
     templates install as before."""
+    if domain_registry._delegated(manifest.name, "install"):
+        return {"name": manifest.name, "version": manifest.version, "delegated": True}
     if manifest.name in _INSTALLED:
-        uninstall(manifest.name)
+        _uninstall(manifest.name)
 
     # Enrichers -> a synthesized, enabled DomainPack (also carries the ui_flags).
     enrichers = [_compile_enricher(e) for e in manifest.enrichers]
@@ -97,7 +99,7 @@ def install_manifest(manifest: PackManifest) -> Dict[str, Any]:
         ontology_extensions=dict(manifest.ontology_extensions),
     )
     domain_registry.register_pack(pack)
-    domain_registry.enable_pack(manifest.name)
+    domain_registry._set_enabled(manifest.name, True)
 
     # Provisioning templates -> the deployable-template registry.
     template_names: List[str] = []
@@ -179,13 +181,19 @@ def deploy_template(conn, name: str, provisioner: Any = None, approve: bool = Tr
 
 def uninstall(name: str) -> bool:
     """Remove an installed pack's runtime registrations. Returns True if the pack
-    was installed."""
+    was installed. Composition-managed bundles are delegated or refused."""
+    if domain_registry._delegated(name, "uninstall"):
+        return True
+    return _uninstall(name)
+
+
+def _uninstall(name: str) -> bool:
     info = _INSTALLED.pop(name, None)
     if info is None:
         return False
     for template_name in info["templates"]:
         _TEMPLATES.pop(template_name, None)
-    domain_registry.disable_pack(name)
+    domain_registry._set_enabled(name, False)
     return True
 
 
