@@ -323,13 +323,22 @@ def resolve(
             return True
         versions = candidates.source_packs.get(ref["pack_id"], [])
         spec = ref.get("range")
+        if not versions:
+            # An absent source pack removes acquisition, not the composition:
+            # local analysis over retained records still works. Visible omission.
+            omission = {"consumer": consumer, "capability": f"source-pack:{ref['pack_id']}",
+                        "feature": "source-packs", "code": "source-pack-not-installed"}
+            if omission not in omissions:
+                omissions.append(omission)
+            return False
         matching = [v for v in versions if spec is None or satisfies(v["version"], spec)]
         if not matching:
             if optional:
                 return False
             raise CompositionError(
-                "missing_source_pack",
-                f"{consumer}: source pack {ref['pack_id']} {spec or ''} is not retained",
+                "incompatible_range",
+                f"{consumer}: installed source pack {ref['pack_id']} "
+                f"{[v['version'] for v in versions]} is outside {spec}",
                 pack_id=ref["pack_id"],
             )
         chosen = matching[-1]

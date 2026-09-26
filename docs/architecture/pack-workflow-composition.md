@@ -240,6 +240,16 @@ credential values, or other users' workflow selections.
 
 ## First composition to prove the design
 
+Status: proven for OSINT + Research + Geospatial (C08,
+[#1796](https://github.com/Ikey168/Noesis/issues/1796)). The shipped
+`packs/osint`, `packs/science` and `packs/geospatial` manifests carry
+`composition.json` overlays: OSINT contributes the `osint.location-investigation`
+template, Science contributes `science.place-evidence`, and Geospatial
+contributes the `noesis.geospatial` provider descriptor. Both templates bind to
+that one provider. The proof runs offline through real local adapters with
+fixture provider input; see the acceptance matrix below for what it
+establishes and what it does not.
+
 Use existing OSINT, Research, and Geospatial surfaces before adding a new subject.
 
 1. Register one spatial provider with explicit contracts for the actual query
@@ -301,6 +311,31 @@ may roll back bindings while retained source versions and records stay intact.
 | Several consumers acquire from one account | Existing per-run limits and aggregated provider limits both hold. |
 | Legacy manifest/session/report | Existing identity, references, and public behavior remain valid through the adapter. |
 | Fixture-only public recipe run | Receipt still declares fixture execution; no claim of tool dispatch or live validation. |
+
+Each row maps to exactly one automated test marked `composition_acceptance`
+(`python -m pytest -m composition_acceptance tests/unit/composition`), which
+runs in the unit-test CI lane and gates C09.
+
+| Scenario | Test |
+| --- | --- |
+| Two packs consume Geospatial | `tests/unit/composition/test_acceptance.py::test_two_packs_consume_geospatial_through_one_provider` |
+| OSINT disabled, Research active | `tests/unit/composition/test_acceptance.py::test_osint_disabled_while_research_stays_active` |
+| Required provider missing or ambiguous | `tests/unit/composition/test_acceptance.py::test_missing_or_ambiguous_provider_blocks_before_execution` |
+| Optional acquisition unavailable | `tests/unit/composition/test_acceptance.py::test_optional_acquisition_unavailable_runs_local_analysis_with_missing_coverage` |
+| Contract/ontology conflict | `tests/unit/composition/test_acceptance.py::test_contract_or_ontology_conflict_rejects_the_composition` |
+| Upgrade changes a pinned provider/source | `tests/unit/composition/test_acceptance.py::test_upgrade_of_a_pinned_source_or_provider_keeps_history_and_needs_a_new_plan` |
+| Crash during activation | `tests/unit/composition/test_acceptance.py::test_crash_during_activation_keeps_the_previous_generation` |
+| Crash after a workflow mutation | `tests/unit/composition/test_acceptance.py::test_crash_after_a_workflow_mutation_reconciles_from_the_owner_receipt` |
+| Access revoked after preflight | `tests/unit/composition/test_acceptance.py::test_access_revoked_after_preflight_is_rechecked_everywhere` |
+| Several consumers acquire from one account | `tests/unit/composition/test_acceptance.py::test_several_consumers_on_one_account_share_its_limit` |
+| Legacy manifest/session/report | `tests/unit/composition/test_acceptance.py::test_legacy_manifest_session_and_report_keep_identity_through_the_adapter` |
+| Fixture-only public recipe run | `tests/unit/composition/test_acceptance.py::test_fixture_only_public_recipe_run_declares_fixture_execution` |
+
+**What the proof does not establish.** The journeys use fixture provider input
+served through the real source-pack adapters, so they say nothing about live
+provider availability, and they check composition and local execution
+behavior, not the quality of investigative conclusions. Both need their own
+acceptance evidence.
 
 ## Effect on the existing expansion backlog
 

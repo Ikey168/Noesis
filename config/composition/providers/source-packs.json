@@ -43,7 +43,10 @@
         }
       ],
       "readiness": {
-        "probe": "sources.runtime"
+        "probe": "sources.runtime",
+        "required_data": [
+          "knowledge-engine-runtime"
+        ]
       },
       "semantics": {
         "deduplication": "source-version+query+namespace+access-context+mapping"

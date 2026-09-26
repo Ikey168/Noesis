@@ -277,7 +277,9 @@ def test_every_existing_pack_resolves_to_a_valid_plan():
                            manifests=manifests, providers=providers, contracts=contracts)
         assert result["status"] == "resolved", item["name"]
         c.validate_plan(result["plan"])
-        assert result["plan"]["conservative"] == [f"{item['name']}@{item['version']}"]
+        overlay = (ROOT / "packs" / item["name"] / "composition.json").exists()
+        expected = [] if overlay else [f"{item['name']}@{item['version']}"]
+        assert [m for m in result["plan"]["conservative"] if m.startswith(item["name"] + "@")] == expected
 
 
 RESOLUTION_CASES = sorted((ROOT / "tests/fixtures/composition/resolution").glob("*.json"))

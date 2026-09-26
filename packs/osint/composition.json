@@ -1,0 +1,198 @@
+{
+  "pack_format": "noesis-pack-v2",
+  "name": "osint",
+  "version": "1.0.0",
+  "description": "Bounded public-source investigation: probable reporting origins, corroboration, source reliability and identity, cited timelines, relationship paths, and media provenance.",
+  "requires": [
+    {
+      "capability": "sources.acquire",
+      "range": "^1.0.0",
+      "effects": [
+        "acquisition"
+      ]
+    },
+    {
+      "capability": "spatial.points-within-boundary",
+      "range": "^1.0.0",
+      "semantics": {
+        "containment": "exact-ring-parity"
+      }
+    },
+    {
+      "capability": "evidence.document-references",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "intake.session-artifact",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "osint.event-geolocation",
+      "range": "^1.0.0",
+      "feature": "gated-geolocation"
+    }
+  ],
+  "optional_features": {
+    "gated-geolocation": {
+      "description": "Review-gated event geography (NOESIS_OSINT_GATED_TOOLS)"
+    }
+  },
+  "contributes": {
+    "providers": [
+      {
+        "provider_id": "noesis.osint",
+        "version": "1.0.0"
+      }
+    ],
+    "profiles": [
+      {
+        "profile_id": "event-location",
+        "description": "Event location investigations",
+        "vocabulary": [
+          "event",
+          "location",
+          "district",
+          "place"
+        ],
+        "query_defaults": {
+          "collection": "schulen:schulen",
+          "boundary_collection": "alkis_bezirke:bezirksgrenzen"
+        },
+        "workflow_templates": [
+          "osint.location-investigation"
+        ]
+      }
+    ],
+    "workflow_templates": [
+      {
+        "contract": "noesis-workflow-template-v1",
+        "template_id": "osint.location-investigation",
+        "version": "1.0.0",
+        "owner_pack": "osint",
+        "description": "Investigate where an event happened: acquire the bounded Berlin layers, find the features inside the named district, pin the document revisions behind them as evidence, optionally add review-gated event geography, and record the findings on the investigation session.",
+        "mode": "Deep Research",
+        "profile": "event-location",
+        "parameters": {
+          "place": {
+            "type": "string",
+            "required": true,
+            "description": "District or boundary name of the reported event location"
+          }
+        },
+        "steps": [
+          {
+            "id": "acquire",
+            "capability": "sources.acquire",
+            "range": "^1.0.0",
+            "effect": "acquisition",
+            "optional": true,
+            "arguments": {
+              "pack_id": "geospatial-berlin",
+              "source_ids": [
+                "berlin-bezirksgrenzen",
+                "berlin-schulen"
+              ],
+              "max_results": 5000,
+              "max_bytes": 5000000
+            }
+          },
+          {
+            "id": "within",
+            "capability": "spatial.points-within-boundary",
+            "range": "^1.0.0",
+            "effect": "read-only",
+            "depends_on": [
+              "acquire"
+            ],
+            "arguments": {
+              "collection": "schulen:schulen",
+              "boundary_name": {
+                "$param": "place"
+              },
+              "boundary_collection": "alkis_bezirke:bezirksgrenzen"
+            }
+          },
+          {
+            "id": "evidence",
+            "capability": "evidence.document-references",
+            "range": "^1.0.0",
+            "effect": "read-only",
+            "depends_on": [
+              "within"
+            ],
+            "arguments": {
+              "document_ids": {
+                "$step": "within.members[].document_id"
+              }
+            }
+          },
+          {
+            "id": "geolocate",
+            "capability": "osint.event-geolocation",
+            "range": "^1.0.0",
+            "effect": "read-only",
+            "optional": true,
+            "arguments": {
+              "topic": {
+                "$param": "place"
+              }
+            }
+          },
+          {
+            "id": "artifact",
+            "capability": "intake.session-artifact",
+            "range": "^1.0.0",
+            "effect": "local-mutation",
+            "depends_on": [
+              "evidence",
+              "geolocate"
+            ],
+            "arguments": {
+              "name": "osint.location-investigation",
+              "content": {
+                "place": {
+                  "$param": "place"
+                },
+                "features_inside": {
+                  "$step": "within.total_members"
+                },
+                "event_geography": {
+                  "$step": "geolocate.locations"
+                }
+              },
+              "coverage": {
+                "acquired": {
+                  "$step": "acquire.receipt.coverage"
+                },
+                "sources": [
+                  "geospatial-berlin"
+                ]
+              },
+              "references": {
+                "$step": "evidence.references"
+              }
+            }
+          }
+        ],
+        "permitted_record_kinds": [
+          "geospatial_feature",
+          "document",
+          "osint_observation"
+        ],
+        "expected_artifacts": [
+          {
+            "kind": "session-artifact",
+            "name": "osint.location-investigation",
+            "from_step": "artifact"
+          }
+        ],
+        "source_packs": [
+          {
+            "pack_id": "geospatial-berlin",
+            "version": "1.1.0"
+          }
+        ]
+      }
+    ]
+  }
+}

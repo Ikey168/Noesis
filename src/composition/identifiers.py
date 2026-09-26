@@ -22,13 +22,21 @@ CODE_REGISTERED_DOMAINS = (
 
 
 def code_registered_packs() -> dict[str, Any]:
-    """Import every built-in domain module and return the registered packs."""
+    """The ``DomainPack`` objects the built-in domain modules register.
 
-    from src.domains import registry
+    Read from the modules themselves rather than the live registry, so the
+    result does not depend on what has been registered or cleared since.
+    """
 
-    for module in CODE_REGISTERED_DOMAINS:
-        importlib.import_module(f"src.domains.{module}")
-    return dict(registry._REGISTRY)
+    from src.domains.base import DomainPack
+
+    packs: dict[str, Any] = {}
+    for module_name in CODE_REGISTERED_DOMAINS:
+        module = importlib.import_module(f"src.domains.{module_name}")
+        for value in vars(module).values():
+            if isinstance(value, DomainPack):
+                packs[value.name] = value
+    return dict(sorted(packs.items()))
 
 
 def preserved_identifiers(catalog: Mapping[str, Any]) -> dict[str, Any]:

@@ -1,0 +1,149 @@
+{
+  "pack_format": "noesis-pack-v2",
+  "name": "science",
+  "version": "1.2.0",
+  "description": "Primary scientific evidence: scholarly works from bounded scholarly APIs, study methodology records, paper families, public peer-review rounds, systematic reviews and preserved citations, and cultural primary sources (DDB, Europeana) linked to research works and places; and mathematics: zbMATH Open literature, OEIS sequences and pinned formal-library declarations (Lean mathlib4, Isabelle AFP) with proof dependencies, revisions and reviewable cross-source links (acquired through config/source_packs/research.json).",
+  "requires": [
+    {
+      "capability": "spatial.points-within-boundary",
+      "range": "^1.0.0",
+      "semantics": {
+        "containment": "exact-ring-parity"
+      }
+    },
+    {
+      "capability": "research.place-literature",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "evidence.document-references",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "intake.session-artifact",
+      "range": "^1.0.0"
+    }
+  ],
+  "contributes": {
+    "providers": [
+      {
+        "provider_id": "noesis.research",
+        "version": "1.0.0"
+      }
+    ],
+    "profiles": [
+      {
+        "profile_id": "place-evidence",
+        "description": "Place-related literature review",
+        "vocabulary": [
+          "place",
+          "archive",
+          "literature"
+        ],
+        "query_defaults": {
+          "collection": "schulen:schulen",
+          "boundary_collection": "alkis_bezirke:bezirksgrenzen"
+        },
+        "workflow_templates": [
+          "science.place-evidence"
+        ]
+      }
+    ],
+    "workflow_templates": [
+      {
+        "contract": "noesis-workflow-template-v1",
+        "template_id": "science.place-evidence",
+        "version": "1.0.0",
+        "owner_pack": "science",
+        "description": "Review place-related evidence: find the features inside a place using the shared spatial capability, look up committed literature that mentions it, pin the document revisions behind both, and record the evidence on the research session.",
+        "mode": "Deep Research",
+        "profile": "place-evidence",
+        "parameters": {
+          "place": {
+            "type": "string",
+            "required": true,
+            "description": "Place or district under review"
+          }
+        },
+        "steps": [
+          {
+            "id": "within",
+            "capability": "spatial.points-within-boundary",
+            "range": "^1.0.0",
+            "effect": "read-only",
+            "arguments": {
+              "collection": "schulen:schulen",
+              "boundary_name": {
+                "$param": "place"
+              },
+              "boundary_collection": "alkis_bezirke:bezirksgrenzen"
+            }
+          },
+          {
+            "id": "literature",
+            "capability": "research.place-literature",
+            "range": "^1.0.0",
+            "effect": "read-only",
+            "arguments": {
+              "place": {
+                "$param": "place"
+              }
+            }
+          },
+          {
+            "id": "evidence",
+            "capability": "evidence.document-references",
+            "range": "^1.0.0",
+            "effect": "read-only",
+            "depends_on": [
+              "within"
+            ],
+            "arguments": {
+              "document_ids": {
+                "$step": "within.members[].document_id"
+              }
+            }
+          },
+          {
+            "id": "artifact",
+            "capability": "intake.session-artifact",
+            "range": "^1.0.0",
+            "effect": "local-mutation",
+            "depends_on": [
+              "evidence",
+              "literature"
+            ],
+            "arguments": {
+              "name": "science.place-evidence",
+              "content": {
+                "place": {
+                  "$param": "place"
+                },
+                "features_inside": {
+                  "$step": "within.total_members"
+                },
+                "literature": {
+                  "$step": "literature.references"
+                }
+              },
+              "references": {
+                "$step": "evidence.references"
+              }
+            }
+          }
+        ],
+        "permitted_record_kinds": [
+          "geospatial_feature",
+          "document"
+        ],
+        "expected_artifacts": [
+          {
+            "kind": "session-artifact",
+            "name": "science.place-evidence",
+            "from_step": "artifact"
+          }
+        ]
+      }
+    ]
+  }
+}

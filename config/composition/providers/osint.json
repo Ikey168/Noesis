@@ -74,7 +74,10 @@
         }
       ],
       "readiness": {
-        "probe": "osint.claims"
+        "probe": "osint.claims",
+        "required_data": [
+          "warehouse"
+        ]
       }
     }
   ],

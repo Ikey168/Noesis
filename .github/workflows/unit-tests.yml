@@ -14,6 +14,8 @@ on:
       - "tools/**"
       - "services/**"
       - "contracts/**"
+      - "config/composition/**"
+      - "packs/**"
       - "tests/**"
       - "requirements*.txt"
       - ".github/workflows/unit-tests.yml"
@@ -23,6 +25,8 @@ on:
       - "tools/**"
       - "services/**"
       - "contracts/**"
+      - "config/composition/**"
+      - "packs/**"
       - "tests/**"
       - "requirements*.txt"
       - ".github/workflows/unit-tests.yml"
@@ -59,6 +63,14 @@ jobs:
       - name: Verify immutable model pins
         run: python -m src.argument_mining.fetch_models --check
 
+      - name: Verify pack-composition fixtures are current
+        # The preserved-identifier list and the catalog shadow diff are
+        # generated from the live catalog; every shadow disagreement must be
+        # annotated before a bundle's lifecycle is cut over (C04.4, C08.6).
+        run: |
+          python scripts/generate_composition_identifiers.py --check
+          python scripts/composition_shadow_report.py --check
+
       - name: Run unit tests (capability plane)
         run: |
           python -m pytest \
@@ -67,6 +79,7 @@ jobs:
             tests/unit/analytics \
             tests/unit/app \
             tests/unit/argument_mining \
+            tests/unit/composition \
             tests/unit/config \
             tests/unit/domains \
             tests/unit/evidence_bundle \

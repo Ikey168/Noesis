@@ -41,7 +41,10 @@
         }
       ],
       "readiness": {
-        "probe": "documents.store"
+        "probe": "documents.store",
+        "required_data": [
+          "knowledge-engine-runtime"
+        ]
       }
     }
   ],

@@ -1,0 +1,31 @@
+{
+  "pack_format": "noesis-pack-v2",
+  "name": "geospatial",
+  "version": "1.0.0",
+  "description": "Acquired vector features with source identity, revision history and replayable points-inside-boundary queries.",
+  "requires": [],
+  "contributes": {
+    "providers": [
+      {
+        "provider_id": "noesis.geospatial",
+        "version": "1.0.0"
+      }
+    ]
+  },
+  "references": {
+    "source_packs": [
+      {
+        "pack_id": "geospatial-berlin",
+        "range": "^1.0.0",
+        "config": "config/source_packs/geospatial.json"
+      }
+    ]
+  },
+  "aliases": {
+    "capability_labels": {
+      "points-inside-boundary-query": "spatial.points-within-boundary",
+      "reviewable-boundary-name-resolution": "spatial.resolution-record",
+      "durable-spatial-projection": "spatial.geometry-store"
+    }
+  }
+}

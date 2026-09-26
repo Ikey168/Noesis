@@ -2,9 +2,9 @@
   "contract": "noesis-capability-provider-v1",
   "provider_id": "noesis.geospatial",
   "version": "1.0.0",
-  "description": "The existing Geospatial service: places, geometries, reviewable resolutions and spatial relations in src/kb/geospatial.py, exposed through noesis-knowledge-engine tools.",
+  "description": "The existing Geospatial service: places, geometries, reviewable resolutions, spatial relations and acquired vector features in src/kb/geospatial.py and src/kb/geospatial_features.py, exposed through noesis-knowledge-engine tools. Coordinates are stored in WGS84 (EPSG:4326); projected source coordinates are transformed on import and keep their source CRS in provenance.",
   "implementation": {
-    "identity": "src.kb.geospatial:GeospatialStore",
+    "identity": "src.kb.geospatial:GeospatialStore+src.kb.geospatial_features:GeospatialFeatureStore",
     "version": "1.0.0"
   },
   "capabilities": [
@@ -22,8 +22,10 @@
       "semantics": {
         "algorithm": "wgs84-stdlib-v1",
         "crs": "EPSG:4326",
+        "crs_handling": "inputs must be stored WGS84 geometries",
         "distance_units": "metres",
         "proximity": "haversine-nearest-stored-vertex",
+        "topology": "exact-ring-parity",
         "routing": false
       },
       "effect": "local-mutation",
@@ -48,7 +50,7 @@
       "readiness": {
         "probe": "geospatial.local-store",
         "required_data": [
-          "geospatial-geometries"
+          "knowledge-engine-runtime"
         ]
       }
     },
@@ -65,6 +67,7 @@
       },
       "semantics": {
         "crs": "EPSG:4326",
+        "crs_handling": "projected inputs are transformed to WGS84 and keep their source CRS",
         "identity": "content-addressed-geometry"
       },
       "effect": "local-mutation",
@@ -87,7 +90,10 @@
         }
       ],
       "readiness": {
-        "probe": "geospatial.local-store"
+        "probe": "geospatial.local-store",
+        "required_data": [
+          "knowledge-engine-runtime"
+        ]
       }
     },
     {
@@ -125,7 +131,135 @@
         }
       ],
       "readiness": {
-        "probe": "geospatial.local-store"
+        "probe": "geospatial.local-store",
+        "required_data": [
+          "knowledge-engine-runtime"
+        ]
+      }
+    },
+    {
+      "capability": "spatial.place-revision",
+      "version": "1.0.0",
+      "input_contract": {
+        "name": "noesis-geospatial-place-v1",
+        "version": "1.0.0"
+      },
+      "output_contract": {
+        "name": "noesis-geospatial-place-v1",
+        "version": "1.0.0"
+      },
+      "semantics": {
+        "concurrency": "optimistic-expected-revision",
+        "history": "immutable-place-revisions"
+      },
+      "effect": "local-mutation",
+      "idempotent": true,
+      "execution_receipt": false,
+      "required_scopes": [
+        "knowledge:geospatial:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ],
+      "record_kinds": [
+        "place"
+      ],
+      "bindings": [
+        {
+          "kind": "mcp-tool",
+          "id": "noesis-knowledge-engine.revise_geospatial_place"
+        }
+      ],
+      "readiness": {
+        "probe": "geospatial.local-store",
+        "required_data": [
+          "knowledge-engine-runtime"
+        ]
+      }
+    },
+    {
+      "capability": "spatial.geometry-simplify",
+      "version": "1.0.0",
+      "input_contract": {
+        "name": "noesis-geospatial-geometry-v2",
+        "version": "2.0.0"
+      },
+      "output_contract": {
+        "name": "noesis-geospatial-geometry-v2",
+        "version": "2.0.0"
+      },
+      "semantics": {
+        "tolerance_units": "metres",
+        "crs": "EPSG:4326",
+        "result": "new-content-addressed-geometry",
+        "source_geometry": "unchanged"
+      },
+      "effect": "local-mutation",
+      "idempotent": true,
+      "execution_receipt": false,
+      "required_scopes": [
+        "knowledge:geospatial:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ],
+      "record_kinds": [
+        "geometry"
+      ],
+      "bindings": [
+        {
+          "kind": "mcp-tool",
+          "id": "noesis-knowledge-engine.simplify_geospatial_geometry"
+        }
+      ],
+      "readiness": {
+        "probe": "geospatial.local-store",
+        "required_data": [
+          "knowledge-engine-runtime"
+        ]
+      }
+    },
+    {
+      "capability": "spatial.resolution-review",
+      "version": "1.0.0",
+      "input_contract": {
+        "name": "noesis-geocode-resolution-v1",
+        "version": "1.0.0"
+      },
+      "output_contract": {
+        "name": "noesis-geocode-resolution-v1",
+        "version": "1.0.0"
+      },
+      "semantics": {
+        "decision": "human-review",
+        "merge_names_across_collections": false
+      },
+      "effect": "local-mutation",
+      "idempotent": true,
+      "execution_receipt": false,
+      "required_scopes": [
+        "knowledge:geospatial:review"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ],
+      "record_kinds": [
+        "geocode_resolution"
+      ],
+      "bindings": [
+        {
+          "kind": "mcp-tool",
+          "id": "noesis-knowledge-engine.review_geospatial_resolution"
+        }
+      ],
+      "readiness": {
+        "probe": "geospatial.local-store",
+        "required_data": [
+          "knowledge-engine-runtime"
+        ]
       }
     },
     {
@@ -138,6 +272,13 @@
       "output_contract": {
         "name": "noesis-geospatial-feature-query-v1",
         "version": "1.0.0"
+      },
+      "semantics": {
+        "containment": "exact-ring-parity",
+        "boundary_edge": "inside",
+        "crs": "EPSG:4326",
+        "crs_handling": "features projected from EPSG:25833 on import",
+        "query_receipt": "owner-audit"
       },
       "effect": "read-only",
       "idempotent": true,
@@ -163,14 +304,8 @@
       "readiness": {
         "probe": "geospatial.local-store",
         "required_data": [
-          "geospatial-features"
+          "knowledge-engine-runtime"
         ]
-      },
-      "semantics": {
-        "containment": "exact-ring-parity",
-        "boundary_edge": "inside",
-        "crs": "EPSG:4326",
-        "query_receipt": "owner-audit"
       }
     }
   ],

@@ -282,6 +282,13 @@ def intake_session_artifact(ctx: Any, arguments: Mapping[str, Any]) -> dict[str,
     store = IntakeStore(ctx.conn, initialize=False)
     current = store.inspect(ctx.namespace, ctx.session_id, principal_id=ctx.principal_id,
                             scopes=set(ctx.scopes))
+    coverage = dict(arguments.get("coverage") or {})
+    if "sources" in coverage:
+        acquired = coverage.pop("acquired", None)
+        sources = sorted(coverage.pop("sources"))
+        coverage = {**coverage, "sources": sources,
+                    "acquisition": "complete" if acquired else "unavailable",
+                    "missing_sources": [] if acquired else sources}
     refs = []
     for ref in arguments.get("references") or []:
         if isinstance(ref, Mapping) and ref.get("record_kind") == "document":
@@ -291,11 +298,11 @@ def intake_session_artifact(ctx: Any, arguments: Mapping[str, Any]) -> dict[str,
         ctx.namespace, ctx.session_id, f"composition:{ctx.idempotency_key[:48]}",
         expected_revision=current["revision"], action="record",
         payload={"data": {f"artifact:{arguments['name']}": {
-            "content": arguments.get("content"), "coverage": arguments.get("coverage", {}),
+            "content": arguments.get("content"), "coverage": coverage,
             "run_id": ctx.run_id, "step_id": ctx.step_id}}, "references": refs},
         principal_id=ctx.principal_id, scopes=set(ctx.scopes))
     return {"contract": "noesis-composition-session-artifact-v1", "session_id": ctx.session_id,
-            "revision": int(state["revision"]), "adopted": False,
+            "revision": int(state["revision"]), "adopted": False, "coverage": coverage,
             "references": [dict(r) for r in arguments.get("references") or [] if isinstance(r, Mapping)]}
 
 

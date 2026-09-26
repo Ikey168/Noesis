@@ -41,7 +41,10 @@
         }
       ],
       "readiness": {
-        "probe": "documents.store"
+        "probe": "documents.store",
+        "required_data": [
+          "warehouse"
+        ]
       },
       "semantics": {
         "match": "case-insensitive-substring",

@@ -98,8 +98,11 @@ def test_v1_pack_round_trips_through_the_adapter(path: Path):
     assert {r["name"]: r["range"] for r in adapted.get("references", {}).get("contracts", [])} == (
         legacy.schema_versions)
     assert adapted["contributes"].get("ontology", {}) == legacy.ontology_extensions
-    assert set(adapted["adapter"]["supplied_defaults"]) >= {"requires", "store_ownership",
-                                                            "contract_ranges"}
+    if (path.parent / "composition.json").exists():
+        assert "adapter" not in adapted  # composition fields are declared, not adapter-supplied
+    else:
+        assert set(adapted["adapter"]["supplied_defaults"]) >= {"requires", "store_ownership",
+                                                                "contract_ranges"}
     try:
         before = pack_install.install_manifest(legacy)
         after = pack_install.install_manifest(PackManifest.from_dict(view))

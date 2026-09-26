@@ -80,7 +80,7 @@ def test_composed_geospatial_attribution_comes_from_the_plan(reference, geo_conn
     server = next(s for s in active["servers"] if s["name"] == "noesis-knowledge-engine")
     assert server["pack"] is None  # the stem table attributes no pack
     assert tool["packs"] == ["geospatial", "osint", "research"]
-    assert tool["required_data"] == ["geospatial-geometries"]
+    assert tool["required_data"] == legacy["required_data"] == ["knowledge-engine-runtime"]
     assert tool["state"] == "available" and legacy["state"] == "unauthorized"
     assert {t["id"] for t in active["tools"]} == {t["id"] for t in reference["tools"]}
     untouched = next(t for t in active["tools"] if t["id"] == "noesis-osint.corroborate")
@@ -170,7 +170,7 @@ def test_geospatial_explanation_names_provider_pin_reason_and_consumers(geo_conn
     assert item["pinned"]["descriptor_hash"] == providers[0]["descriptor_hash"]
     assert item["selection_reasons"] == ["only-compatible"]
     assert item["consuming_packs"] == ["osint", "research"]
-    assert item["required_data"] == ["geospatial-geometries"]
+    assert item["required_data"] == ["knowledge-engine-runtime"]
 
 
 def test_blocked_workflow_names_the_blocking_operation_and_kind(geo_conn):
@@ -210,7 +210,7 @@ def test_shadow_mode_output_is_byte_identical_and_records_disagreements(referenc
         composition_mode="shadow", shadow_sink=sink)
     assert json.dumps(shadow, sort_keys=True) == json.dumps(reference, sort_keys=True)
     fields = {(d["tool"], d["field"]) for d in sink}
-    assert (GEO_TOOL, "packs") in fields and (GEO_TOOL, "required_data") in fields
+    assert (GEO_TOOL, "packs") in fields and (GEO_TOOL, "state") in fields
 
 
 def test_committed_shadow_report_is_current_and_fully_annotated():

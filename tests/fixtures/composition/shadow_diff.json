@@ -1,6 +1,133 @@
 {
- "bundles": {},
+ "bundles": {
+  "osint": [
+   {
+    "composition": [
+     "osint",
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.command_intake_mode"
+   },
+   {
+    "composition": "unavailable",
+    "field": "state",
+    "legacy": "unauthorized",
+    "tool": "noesis-knowledge-engine.command_intake_mode"
+   },
+   {
+    "composition": [
+     "osint",
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.document_revision"
+   },
+   {
+    "composition": "unavailable",
+    "field": "state",
+    "legacy": "available",
+    "tool": "noesis-knowledge-engine.document_revision"
+   },
+   {
+    "composition": [
+     "geospatial",
+     "osint",
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.query_geospatial_features_within"
+   },
+   {
+    "composition": "unavailable",
+    "field": "state",
+    "legacy": "unauthorized",
+    "tool": "noesis-knowledge-engine.query_geospatial_features_within"
+   },
+   {
+    "composition": [
+     "osint"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.run_source_pack_execution"
+   },
+   {
+    "composition": "unavailable",
+    "field": "state",
+    "legacy": "available",
+    "tool": "noesis-knowledge-engine.run_source_pack_execution"
+   }
+  ],
+  "science": [
+   {
+    "composition": [
+     "osint",
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.command_intake_mode"
+   },
+   {
+    "composition": "unavailable",
+    "field": "state",
+    "legacy": "unauthorized",
+    "tool": "noesis-knowledge-engine.command_intake_mode"
+   },
+   {
+    "composition": [
+     "osint",
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.document_revision"
+   },
+   {
+    "composition": "unavailable",
+    "field": "state",
+    "legacy": "available",
+    "tool": "noesis-knowledge-engine.document_revision"
+   },
+   {
+    "composition": [
+     "geospatial",
+     "osint",
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.query_geospatial_features_within"
+   },
+   {
+    "composition": "unavailable",
+    "field": "state",
+    "legacy": "unauthorized",
+    "tool": "noesis-knowledge-engine.query_geospatial_features_within"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [
+     "research"
+    ],
+    "tool": "noesis-research.literature_claims"
+   },
+   {
+    "composition": "unavailable",
+    "field": "state",
+    "legacy": "degraded",
+    "tool": "noesis-research.literature_claims"
+   }
+  ]
+ },
  "contract": "noesis-composition-shadow-report-v1",
- "disagreements": 0,
- "plan_digest": "sha256:11aa188ecb5da03cef4691335e104327437cd4d7a8e215196a665d0b72b9ee26"
+ "disagreements": 10,
+ "plan_digest": "sha256:385256e316546f156f930c3c7c9f4625d5eed28c56d82259ee23eee12f87c429"
 }

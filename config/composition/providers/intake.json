@@ -43,7 +43,10 @@
         }
       ],
       "readiness": {
-        "probe": "intake.store"
+        "probe": "intake.store",
+        "required_data": [
+          "knowledge-engine-runtime"
+        ]
       }
     }
   ],
