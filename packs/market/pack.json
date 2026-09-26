@@ -1,0 +1,152 @@
+{
+  "pack_format": "noesis-pack-v1",
+  "name": "market",
+  "version": "1.0.0",
+  "description": "Point-in-time market research: versioned issuers, securities and listings, filing facts and end-of-day bars under explicit public and acquisition cutoffs, screens, dossiers, theses and alerts with receipts.",
+  "source_types": [
+    "web",
+    "note"
+  ],
+  "ui_flags": {},
+  "panels": [],
+  "planner_keywords": {
+    "entities": [
+      "company",
+      "issuer",
+      "listing",
+      "security",
+      "ticker"
+    ],
+    "sources": [
+      "10-k",
+      "10-q",
+      "8-k",
+      "edgar",
+      "filing",
+      "xbrl"
+    ],
+    "events": [
+      "corporate action",
+      "earnings",
+      "merger",
+      "spin-off",
+      "split"
+    ],
+    "trend": [
+      "price history",
+      "return",
+      "screen",
+      "volatility"
+    ]
+  },
+  "enrichers": [],
+  "provisioning_templates": [],
+  "capabilities": [
+    "point-in-time-instrument-resolution",
+    "versioned-filing-facts",
+    "cutoff-bounded-price-history",
+    "historical-universe-screening",
+    "company-dossiers-and-industry-models",
+    "thesis-and-alert-receipts",
+    "quantitative-and-specialized-analytics",
+    "provider-health-and-readiness"
+  ],
+  "schema_versions": {
+    "market-issuer": "1.0.0",
+    "market-security": "1.0.0",
+    "market-listing": "1.0.0",
+    "market-financial-fact": "1.0.0",
+    "market-bar": "1.0.0",
+    "market-screener-run": "1.0.0",
+    "market-company-dossier": "1.0.0"
+  },
+  "ontology_extensions": {
+    "extends": "noesis-canonical-entity-relation-ontology",
+    "reuses": [
+      "noesis-market-issuer-v1",
+      "noesis-market-security-v1",
+      "noesis-market-listing-v1",
+      "noesis-market-financial-fact-v1",
+      "noesis-market-bar-v1",
+      "noesis-market-issuer-relationship-v1"
+    ],
+    "object_types": [
+      "issuer",
+      "security",
+      "listing",
+      "financial_fact",
+      "bar",
+      "corporate_action",
+      "trading_session",
+      "universe_membership",
+      "portfolio",
+      "thesis"
+    ],
+    "relation_types": [
+      "merged_into",
+      "merged_from",
+      "spun_off",
+      "successor_of",
+      "renamed_to",
+      "listed_as",
+      "issued_by"
+    ]
+  },
+  "query_examples": [
+    {
+      "intent": "Resolve a ticker as it was known at a date",
+      "tool": "lookup_market_instrument",
+      "arguments": {
+        "namespace": "global",
+        "symbol": "AAPL",
+        "mic": "XNAS",
+        "acquired_by_ms": 1735689600000
+      },
+      "semantics": "only revisions acquired by the cutoff; later corrections are invisible"
+    },
+    {
+      "intent": "Reported financial statements without look-ahead",
+      "tool": "get_market_financial_statements",
+      "arguments": {
+        "namespace": "global",
+        "issuer_id": "<issuer_id>",
+        "acquired_by_ms": 1735689600000,
+        "publicly_available_by_ms": 1735689600000
+      },
+      "semantics": "facts both public and acquired by the cutoffs; restatements appear as later versions"
+    },
+    {
+      "intent": "End-of-day prices for a listing",
+      "tool": "get_market_price_history",
+      "arguments": {
+        "namespace": "global",
+        "listing_id": "<listing_id>",
+        "start_ms": 1704067200000,
+        "end_ms": 1735689600000,
+        "acquired_by_ms": 1735689600000
+      },
+      "semantics": "retained bars only, bounded pages; no intraday data and no gap filling"
+    },
+    {
+      "intent": "Historical screen of a universe",
+      "tool": "screen_market_universe",
+      "arguments": {
+        "namespace": "global",
+        "universe_id": "<universe_id>",
+        "as_of_ms": 1735689600000,
+        "start_ms": 1704067200000,
+        "end_ms": 1735689600000,
+        "acquired_by_ms": 1735689600000,
+        "publicly_available_by_ms": 1735689600000
+      },
+      "semantics": "membership as of the date, with per-result explanations and a replayable receipt"
+    }
+  ],
+  "exclusions": [
+    "order routing or trade execution",
+    "investment advice",
+    "real-time streaming quotes",
+    "redistribution of licensed provider data",
+    "survivorship-biased current-constituent screens"
+  ]
+}

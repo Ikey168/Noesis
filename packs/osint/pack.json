@@ -1,0 +1,126 @@
+{
+  "pack_format": "noesis-pack-v1",
+  "name": "osint",
+  "version": "1.0.0",
+  "description": "Bounded public-source investigation: probable reporting origins, corroboration, source reliability and identity, cited timelines, relationship paths, and media provenance.",
+  "source_types": [
+    "news",
+    "web",
+    "blog"
+  ],
+  "ui_flags": {},
+  "panels": [],
+  "planner_keywords": {
+    "sources": [
+      "archive",
+      "gdelt",
+      "origin",
+      "provenance",
+      "rdap",
+      "reliability",
+      "wayback"
+    ],
+    "claims": [
+      "corroborate",
+      "contradiction",
+      "debunk",
+      "verify"
+    ],
+    "entities": [
+      "domain",
+      "organization",
+      "person"
+    ],
+    "events": [
+      "timeline",
+      "first reported"
+    ]
+  },
+  "enrichers": [],
+  "provisioning_templates": [],
+  "capabilities": [
+    "bounded-public-osint-acquisition",
+    "probable-origin-graph",
+    "origin-aware-corroboration",
+    "contradiction-scan",
+    "source-reliability-cards",
+    "source-identity-and-relationships",
+    "cited-timeline-reconstruction",
+    "media-provenance-and-reuse",
+    "investigation-audit"
+  ],
+  "schema_versions": {
+    "source-identity": "1.0.0",
+    "media-authenticity": "1.0.0",
+    "investigation-template": "1.0.0",
+    "source-pack": "1.0.0"
+  },
+  "ontology_extensions": {
+    "extends": "noesis-canonical-entity-relation-ontology",
+    "reuses": [
+      "noesis-source-identity-v1",
+      "noesis-media-authenticity-v1",
+      "noesis-investigation-template-v1"
+    ],
+    "object_types": [
+      "observation",
+      "source_identity",
+      "probable_origin",
+      "media_asset",
+      "investigation"
+    ],
+    "relation_types": [
+      "originates_from",
+      "republishes",
+      "corroborates",
+      "contradicts",
+      "owned_by",
+      "derived_from"
+    ]
+  },
+  "source_pack": "config/source_packs/osint.json",
+  "query_examples": [
+    {
+      "intent": "Is this claim independently supported",
+      "tool": "corroborate",
+      "arguments": {
+        "claim_id": "<claim_id>"
+      },
+      "semantics": "counts probable origins as well as publications, with credibility; never collapsed into one confidence score"
+    },
+    {
+      "intent": "Where did these reports come from",
+      "tool": "evidence_origin_graph",
+      "arguments": {
+        "document_ids": [
+          "<document_id>"
+        ]
+      },
+      "semantics": "current probable origins with explainable document relations; probable, not proof of attribution"
+    },
+    {
+      "intent": "How reliable is this outlet",
+      "tool": "source_reliability",
+      "arguments": {
+        "source": "<source name or domain>"
+      },
+      "semantics": "a reliability card scored the same way outlets are scored"
+    },
+    {
+      "intent": "Timeline of events for an entity",
+      "tool": "timeline_reconstruct",
+      "arguments": {
+        "entity": "<entity name>"
+      },
+      "semantics": "a cited event timeline; each event carries its corroboration density"
+    }
+  ],
+  "exclusions": [
+    "private or non-public data",
+    "account or credential access",
+    "person tracking or doxxing",
+    "social-media scraping beyond declared sources",
+    "facial recognition",
+    "attribution verdicts"
+  ]
+}

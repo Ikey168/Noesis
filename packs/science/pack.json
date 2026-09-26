@@ -1,0 +1,126 @@
+{
+  "pack_format": "noesis-pack-v1",
+  "name": "science",
+  "version": "1.0.0",
+  "description": "Primary scientific evidence: scholarly works from bounded scholarly APIs, study methodology records, paper families, public peer-review rounds, systematic reviews and preserved citations.",
+  "source_types": [
+    "paper"
+  ],
+  "ui_flags": {},
+  "panels": [],
+  "planner_keywords": {
+    "sources": [
+      "arxiv",
+      "crossref",
+      "datacite",
+      "doi",
+      "europe pmc",
+      "openalex",
+      "openreview",
+      "preprint"
+    ],
+    "claims": [
+      "finding",
+      "limitation",
+      "methodology",
+      "replication",
+      "study design",
+      "systematic review"
+    ],
+    "entities": [
+      "author",
+      "paper",
+      "study",
+      "venue"
+    ]
+  },
+  "enrichers": [],
+  "provisioning_templates": [],
+  "capabilities": [
+    "bounded-scholarly-source-acquisition",
+    "study-methodology-records",
+    "study-replication-graph",
+    "paper-family-versions",
+    "openreview-round-comparison",
+    "systematic-review-screening",
+    "preserved-citation-snapshots"
+  ],
+  "schema_versions": {
+    "methodology-study": "1.0.0",
+    "paper-family": "1.0.0",
+    "openreview-round": "1.0.0",
+    "citation-snapshot": "1.0.0",
+    "source-pack": "1.0.0"
+  },
+  "ontology_extensions": {
+    "extends": "noesis-canonical-entity-relation-ontology",
+    "reuses": [
+      "noesis-methodology-study-v1",
+      "noesis-paper-family-v1",
+      "noesis-openreview-round-v1",
+      "noesis-citation-snapshot-v1"
+    ],
+    "object_types": [
+      "scholarly_work",
+      "study",
+      "paper_family",
+      "review_round",
+      "review_protocol",
+      "citation_snapshot"
+    ],
+    "relation_types": [
+      "cites",
+      "version_of",
+      "replicates",
+      "registered_as",
+      "reviewed_in",
+      "corrected_by"
+    ]
+  },
+  "source_pack": "config/source_packs/scientific.json",
+  "query_examples": [
+    {
+      "intent": "Studies that used a randomized design",
+      "tool": "search_methodology_studies",
+      "arguments": {
+        "namespace": "global",
+        "query": "randomized"
+      },
+      "semantics": "bounded search over current study-method records; not a full-text literature search"
+    },
+    {
+      "intent": "Registration, replication, data and code links for a study",
+      "tool": "get_study_replication_graph",
+      "arguments": {
+        "namespace": "global",
+        "study_id": "<study_id>"
+      },
+      "semantics": "bounded registration, replication, data, code and correction links recorded for the study"
+    },
+    {
+      "intent": "Which versions of a paper exist and which one to cite",
+      "tool": "inspect_paper_family",
+      "arguments": {
+        "namespace": "global",
+        "family_id": "<family_id>"
+      },
+      "semantics": "exact source versions with their access types; membership is curated, not inferred at query time"
+    },
+    {
+      "intent": "Citation network around a paper",
+      "tool": "citation_graph",
+      "arguments": {
+        "identifier": "<doi or paper id>",
+        "depth": 1
+      },
+      "semantics": "citations present in the document corpus only, bounded by depth and limit"
+    }
+  ],
+  "exclusions": [
+    "full-text PDF harvesting from publishers",
+    "paywalled content",
+    "peer-review authoring or submission",
+    "automated inclusion decisions without human adjudication",
+    "bibliometric impact rankings"
+  ]
+}
