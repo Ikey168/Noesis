@@ -1,0 +1,1777 @@
+{
+ "capabilities": {
+  "as-of-version-selection": {
+   "provider_modules": [
+    "src/kb/legal.py"
+   ],
+   "tools": [
+    "noesis-knowledge-engine.select_legal_version_as_of",
+    "noesis-knowledge-engine.legal_selection_outcomes"
+   ],
+   "declaring_bundles": [
+    "packs/legal",
+    "src/domains/legal"
+   ],
+   "status": "implemented"
+  },
+  "berlin-legal-publications": {
+   "provider_modules": [
+    "src/ingestion/legal_sources.py",
+    "src/kb/legal.py"
+   ],
+   "tools": [
+    "noesis-knowledge-engine.install_source_pack",
+    "noesis-knowledge-engine.preflight_source_pack_run",
+    "noesis-knowledge-engine.run_source_pack_execution",
+    "noesis-knowledge-engine.inspect_source_pack_run",
+    "noesis-knowledge-engine.replay_source_pack_run",
+    "noesis-knowledge-engine.lookup_legal_work",
+    "noesis-knowledge-engine.inspect_legal_work",
+    "noesis-knowledge-engine.legal_source_contracts"
+   ],
+   "declaring_bundles": [
+    "packs/legal",
+    "src/domains/legal"
+   ],
+   "status": "implemented",
+   "note": "BerlinLegalAdapter (gesetze.berlin.de, connector \"berlin-law\")."
+  },
+  "bitemporal-economic-observations": {
+   "provider_modules": [
+    "src/domains/economic/model.py",
+    "src/kb/temporal.py",
+    "src/domains/economic/releases.py"
+   ],
+   "tools": [
+    "noesis-kb.kb_economic",
+    "noesis-kb.kb_temporal",
+    "noesis-knowledge-engine.create_economic_release_snapshot"
+   ],
+   "declaring_bundles": [
+    "packs/economics",
+    "src/domains/economics"
+   ],
+   "status": "implemented",
+   "note": "Observations are projected into the shared bitemporal ledger (src/kb/temporal.py)."
+  },
+  "bitemporal-office-terms": {
+   "provider_modules": [
+    "src/domains/political/model.py",
+    "src/domains/political/queries.py"
+   ],
+   "tools": [
+    "noesis-kb.kb_political"
+   ],
+   "declaring_bundles": [
+    "packs/political",
+    "src/domains/political"
+   ],
+   "status": "implemented",
+   "note": "query_type officeholder_at_date; terms only written via load_fixture."
+  },
+  "bounded-geojson-featurecollection-import": {
+   "provider_modules": [
+    "src/ingestion/geojson_features.py",
+    "src/kb/geospatial_features.py"
+   ],
+   "tools": [
+    "noesis-knowledge-engine.import_geospatial_features"
+   ],
+   "declaring_bundles": [
+    "packs/geospatial"
+   ],
+   "status": "implemented"
+  },
+  "bounded-public-osint-acquisition": {
+   "provider_modules": [
+    "src/ingestion/source_pack_runtime.py",
+    "src/ingestion/source_packs.py"
+   ],
+   "tools": [
+    "noesis-knowledge-engine.install_source_pack",
+    "noesis-knowledge-engine.preflight_source_pack_run",
+    "noesis-knowledge-engine.run_source_pack_execution",
+    "noesis-knowledge-engine.inspect_source_pack_run",
+    "noesis-knowledge-engine.replay_source_pack_run"
+   ],
+   "declaring_bundles": [
+    "packs/osint"
+   ],
+   "status": "implemented",
+   "note": "Only the generic declarative-rest/blog runtime; the pack policy block (review_gate, deny_person_identification) is not read anywhere in src/."
+  },
+  "bounded-scholarly-source-acquisition": {
+   "provider_modules": [
+    "src/ingestion/source_pack_runtime.py",
+    "src/ingestion/scholarly_api.py",
+    "src/ingestion/europepmc_api.py",
+    "src/ingestion/datacite_api.py"
+   ],
+   "tools": [
+    "noesis-knowledge-engine.install_source_pack",
+    "noesis-knowledge-engine.preflight_source_pack_run",
+    "noesis-knowledge-engine.run_source_pack_execution",
+    "noesis-knowledge-engine.inspect_source_pack_run",
+    "noesis-knowledge-engine.replay_source_pack_run"
+   ],
+   "declaring_bundles": [
+    "packs/science"
+   ],
+   "status": "implemented",
+   "note": "Europe PMC, arXiv and DataCite sources in config/source_packs/scientific.json run through the generic HTTPS page adapter."
+  },
+  "canonical-economic-indicators": {
+   "provider_modules": [
+    "src/domains/economic/model.py",
+    "src/domains/economic/queries.py",
+    "src/kb/contract.py"
+   ],
+   "tools": [
+    "noesis-kb.kb_economic"
+   ],
+   "declaring_bundles": [
+    "packs/economics",
+    "src/domains/economics"
+   ],
+   "status": "implemented",
+   "note": "register_series is only reached via model.load_fixture; no MCP write path, reads via kb_economic."
+  },
+  "canonical-package-coordinates": {
+   "provider_modules": [
+    "src/domains/technical/model.py",
+    "src/domains/technical/registries.py"
+   ],
+   "tools": [
+    "noesis-kb.kb_technical",
+    "noesis-pipeline.run_connector"
+   ],
+   "declaring_bundles": [
+    "packs/technology",
+    "src/domains/technology"
+   ],
+   "status": "implemented"
+  },
+  "cellar-work-expression-manifestation": {
+   "provider_modules": [
+    "src/ingestion/legal_sources.py",
+    "src/kb/legal.py"
+   ],
+   "tools": [
+    "noesis-knowledge-engine.install_source_pack",
+    "noesis-knowledge-engine.preflight_source_pack_run",
+    "noesis-knowledge-engine.run_source_pack_execution",
+    "noesis-knowledge-engine.inspect_source_pack_run",
+    "noesis-knowledge-engine.replay_source_pack_run",
+    "noesis-knowledge-engine.lookup_legal_work",
+    "noesis-knowledge-engine.inspect_legal_work",
+    "noesis-knowledge-engine.legal_source_contracts"
+   ],
+   "declaring_bundles": [
+    "packs/legal",
+    "src/domains/legal"
+   ],
+   "status": "implemented",
+   "note": "CellarLegalAdapter (connector \"cellar\")."
+  },
+  "cited-economic-comparisons": {
+   "provider_modules": [
+    "src/domains/economic/queries.py",
+    "src/domains/economic/releases.py"
+   ],
+   "tools": [
+    "noesis-kb.kb_economic",
+    "noesis-knowledge-engine.compare_economic_release_snapshots",
+    "noesis-knowledge-engine.inspect_economic_release_comparison",
+    "noesis-knowledge-engine.export_economic_release_comparison",
+    "noesis-knowledge-engine.create_economic_comparison_report"
+   ],
+   "declaring_bundles": [
+    "packs/economics",
+    "src/domains/economics"
+   ],
+   "status": "implemented"
+  },
+  "cited-passage-retrieval": {
+   "provider_modules": [
+    "src/kb/legal.py"
+   ],
+   "tools": [
+    "noesis-knowledge-engine.get_legal_passages"
+   ],
+   "declaring_bundles": [
+    "packs/legal",
+    "src/domains/legal"
+   ],
+   "status": "implemented"
+  },
+  "cited-timeline-reconstruction": {
+   "provider_modules": [
+    "src/osint/timeline.py"
+   ],
+   "tools": [
+    "noesis-osint.timeline_reconstruct"
+   ],
+   "declaring_bundles": [
+    "packs/osint"
+   ],
+   "status": "implemented"
+  },
+  "claim-observation-links": {
+   "provider_modules": [
+    "src/domains/economic/model.py",
+    "src/domains/economic/queries.py",
+    "src/analytics/claim_check.py"
+   ],
+   "tools": [
+    "noesis-kb.kb_economic",
+    "noesis-statistics.claim_vs_data"
+   ],
+   "declaring_bundles": [
+    "packs/economics",
+    "src/domains/economics"
+   ],
+   "status": "implemented",
+   "note": "record_economic_link only reached via fixture load; claim_vs_data is a separate generic claim-check path."
+  },
+  "company-dossiers-and-industry-models": {
+   "provider_modules": [
+    "src/domains/market/research.py",
+    "src/domains/market/dossier_inputs.py",
+    "src/domains/market/dashboard.py"
+   ],
+   "tools": [
+    "noesis-market.build_market_company_dossier",
+    "noesis-market.build_market_industry_model",
+    "noesis-market.calculate_market_sizing",
+    "noesis-market.record_market_driver_hypotheses",
+    "noesis-market.save_market_materials",
+    "noesis-market.get_company_research_dashboard",
+    "noesis-market.inspect_market_research_artifact"
+   ],
+   "declaring_bundles": [
+    "packs/market"
+   ],
+   "status": "implemented"
+  },
+  "complete-snapshot-removal-semantics": {
+   "provider_modules": [
+    "src/kb/geospatial_features.py"
+   ],
+   "tools": [
+    "noesis-knowledge-engine.run_source_pack_execution",
+    "noesis-knowledge-engine.inspect_geospatial_feature_coverage"
+   ],
+   "declaring_bundles": [
+    "packs/geospatial"
+   ],
+   "status": "implemented",
+   "note": "Implemented in GeospatialFeatureStore.finish_snapshot/tombstone handling; no dedicated tool, applied during source-pack runs."
+  },
+  "contradiction-scan": {
+   "provider_modules": [
+    "src/osint/contradictions.py"
+   ],
+   "tools": [
+    "noesis-osint.contradiction_scan"
+   ],
+   "declaring_bundles": [
+    "packs/osint"
+   ],
+   "status": "implemented"
+  },
+  "cultural-object-place-projection": {
+   "provider_modules": [
+    "src/kb/cultural.py",
+    "src/kb/geospatial.py"
+   ],
+   "tools": [
+    "noesis-knowledge-engine.search_cultural_objects",
+    "noesis-knowledge-engine.inspect_cultural_object"
+   ],
+   "declaring_bundles": [
+    "packs/science"
+   ],
+   "status": "implemented",
+   "note": "Provider coordinates projected into GeospatialStore as points; search filters by place_id/geometry_ids."
+  },
+  "cultural-primary-source-records": {
+   "provider_modules": [
+    "src/ingestion/cultural_sources.py",
+    "src/kb/cultural.py"
+   ],
+   "tools": [
+    "noesis-knowledge-engine.search_cultural_objects",
+    "noesis-knowledge-engine.inspect_cultural_object",
+    "noesis-knowledge-engine.cultural_source_contracts",
+    "noesis-knowledge-engine.cultural_readiness",
+    "noesis-knowledge-engine.propose_cultural_matches",
+    "noesis-knowledge-engine.review_cultural_match"
+   ],
+   "declaring_bundles": [
+    "packs/science"
+   ],
+   "status": "implemented",
+   "note": "DdbAdapter and EuropeanaAdapter."
+  },
+  "cutoff-bounded-price-history": {
+   "provider_modules": [
+    "src/domains/market/prices.py",
+    "src/domains/market/metrics.py",
+    "src/domains/market/actions.py"
+   ],
+   "tools": [
+    "noesis-market.get_market_price_history",
+    "noesis-market.calculate_market_price_metrics"
+   ],
+   "declaring_bundles": [
+    "packs/market"
+   ],
+   "status": "implemented"
+  },
+  "dependency-compatibility-graph": {
+   "provider_modules": [
+    "src/domains/technical/queries.py",
+    "src/domains/technical/model.py"
+   ],
+   "tools": [
+    "noesis-kb.kb_technical"
+   ],
+   "declaring_bundles": [
+    "packs/technology",
+    "src/domains/technology"
+   ],
+   "status": "implemented",
+   "note": "query_types dependency_paths/depends_on/breaking_changes."
+  },
+  "durable-spatial-projection": {
+   "provider_modules": [
+    "src/kb/geospatial_features.py",
+    "src/kb/geospatial.py"
+   ],
+   "tools": [
+    "noesis-knowledge-engine.retry_geospatial_feature_projection",
+    "noesis-knowledge-engine.inspect_geospatial_feature",
+    "noesis-knowledge-engine.store_geospatial_geometry"
+   ],
+   "declaring_bundles": [
+    "packs/geospatial"
+   ],
+   "status": "implemented"
+  },
+  "evidence-linked-model-comparison": {
+   "provider_modules": [
+    "src/kb/products.py"
+   ],
+   "tools": [
+    "noesis-knowledge-engine.compare_product_models"
+   ],
+   "declaring_bundles": [
+    "packs/products"
+   ],
+   "status": "implemented"
+  },
+  "explicit-citation-graph": {
+   "provider_modules": [
+    "src/kb/legal.py"
+   ],
+   "tools": [
+    "noesis-knowledge-engine.inspect_legal_work",
+    "noesis-knowledge-engine.lookup_legal_work"
+   ],
+   "declaring_bundles": [
+    "packs/legal"
+   ],
+   "status": "implemented",
+   "note": "legal_citations table; exposed inside inspect_legal_work and citation lookup, no dedicated graph tool."
+  },
+  "explicit-measurement-dimensions": {
+   "provider_modules": [
+    "src/domains/economic/model.py",
+    "src/domains/economic/releases.py"
+   ],
+   "tools": [
+    "noesis-kb.kb_economic",
+    "noesis-knowledge-engine.compare_economic_release_snapshots"
+   ],
+   "declaring_bundles": [
+    "packs/economics",
+    "src/domains/economics"
+   ],
+   "status": "implemented",
+   "note": "assess_comparability enforces dimension compatibility."
+  },
+  "explicit-withdrawal-refresh-semantics": {
+   "provider_modules": [
+    "src/kb/products.py"
+   ],
+   "tools": [
+    "noesis-knowledge-engine.run_source_pack_execution",
+    "noesis-knowledge-engine.inspect_product_identity"
+   ],
+   "declaring_bundles": [
+    "packs/products"
+   ],
+   "status": "implemented",
+   "note": "Applied in ProductStore.observe_page/finish_source during runs; no dedicated tool."
+  },
+  "federal-court-decisions": {
+   "provider_modules": [
+    "src/ingestion/legal_sources.py",
+    "src/kb/legal.py"
+   ],
+   "tools": [
+    "noesis-knowledge-engine.install_source_pack",
+    "noesis-knowledge-engine.preflight_source_pack_run",
+    "noesis-knowledge-engine.run_source_pack_execution",
+    "noesis-knowledge-engine.inspect_source_pack_run",
+    "noesis-knowledge-engine.replay_source_pack_run",
+    "noesis-knowledge-engine.lookup_legal_work",
+    "noesis-knowledge-engine.inspect_legal_work",
+    "noesis-knowledge-engine.legal_source_contracts"
+   ],
+   "declaring_bundles": [
+    "packs/legal",
+    "src/domains/legal"
+   ],
+   "status": "implemented",
+   "note": "RiiDecisionAdapter (rechtsprechung-im-internet.de, connector \"rii\")."
+  },
+  "formal-library-snapshots": {
+   "provider_modules": [
+    "src/ingestion/math_sources.py",
+    "src/kb/mathematics.py"
+   ],
+   "tools": [
+    "noesis-knowledge-engine.inspect_formal_declaration",
+    "noesis-knowledge-engine.export_formal_references",
+    "noesis-knowledge-engine.search_mathematics"
+   ],
+   "declaring_bundles": [
+    "packs/science"
+   ],
+   "status": "implemented",
+   "note": "FormalLibraryAdapter pinned to commits (Lean/Isabelle/Coq lexical scan)."
+  },
+  "formal-proof-dependencies": {
+   "provider_modules": [
+    "src/kb/mathematics.py",
+    "src/ingestion/math_sources.py"
+   ],
+   "tools": [
+    "noesis-knowledge-engine.formal_declaration_dependencies"
+   ],
+   "declaring_bundles": [
+    "packs/science"
+   ],
+   "status": "implemented",
+   "note": "Lexical, not elaborated, dependencies."
+  },
+  "formal-revision-comparison": {
+   "provider_modules": [
+    "src/kb/mathematics.py"
+   ],
+   "tools": [
+    "noesis-knowledge-engine.compare_formal_snapshots"
+   ],
+   "declaring_bundles": [
+    "packs/science"
+   ],
+   "status": "implemented"
+  },
+  "gated-retrieval-modes": {
+   "provider_modules": [
+    "src/kb/legal_retrieval.py"
+   ],
+   "tools": [
+    "noesis-knowledge-engine.legal_retrieval_modes",
+    "noesis-knowledge-engine.legal_readiness"
+   ],
+   "declaring_bundles": [
+    "packs/legal"
+   ],
+   "status": "implemented",
+   "note": "Mode states and thresholds come from config/legal/retrieval_modes.json."
+  },
+  "historical-universe-screening": {
+   "provider_modules": [
+    "src/domains/market/screeners.py"
+   ],
+   "tools": [
+    "noesis-market.screen_market_universe",
+    "noesis-market.save_market_screener_query",
+    "noesis-market.inspect_market_screener_run",
+    "noesis-market.export_market_screener_run"
+   ],
+   "declaring_bundles": [
+    "packs/market"
+   ],
+   "status": "implemented"
+  },
+  "incremental-git-ingestion": {
+   "provider_modules": [
+    "src/domains/technical/git_connector.py"
+   ],
+   "tools": [
+    "noesis-pipeline.run_connector",
+    "noesis-knowledge-engine.install_source_pack",
+    "noesis-knowledge-engine.preflight_source_pack_run",
+    "noesis-knowledge-engine.run_source_pack_execution",
+    "noesis-knowledge-engine.inspect_source_pack_run",
+    "noesis-knowledge-engine.replay_source_pack_run"
+   ],
+   "declaring_bundles": [
+    "packs/technology",
+    "src/domains/technology"
+   ],
+   "status": "implemented",
+   "note": "Registered connector; tool exposure is via generic connector/source-pack runners."
+  },
+  "investigation-audit": {
+   "provider_modules": [
+    "src/osint/investigations.py"
+   ],
+   "tools": [
+    "noesis-osint.investigation_audit"
+   ],
+   "declaring_bundles": [
+    "packs/osint"
+   ],
+   "status": "implemented"
+  },
+  "legislative-dossier-links": {
+   "provider_modules": [
+    "src/kb/legal.py",
+    "src/domains/political/legislative_dossiers.py"
+   ],
+   "tools": [
+    "noesis-knowledge-engine.link_legal_dossier",
+    "noesis-knowledge-engine.save_legislative_dossier",
+    "noesis-knowledge-engine.inspect_legislative_dossier",
+    "noesis-knowledge-engine.legislative_dossier_timeline",
+    "noesis-knowledge-engine.compare_legislative_dossier",
+    "noesis-knowledge-engine.export_legislative_dossier_changes",
+    "noesis-knowledge-engine.legislative_dossier_dependencies"
+   ],
+   "declaring_bundles": [
+    "packs/legal"
+   ],
+   "status": "implemented"
+  },
+  "math-cross-source-links": {
+   "provider_modules": [
+    "src/kb/mathematics.py"
+   ],
+   "tools": [
+    "noesis-knowledge-engine.math_links",
+    "noesis-knowledge-engine.propose_math_links",
+    "noesis-knowledge-engine.review_math_link"
+   ],
+   "declaring_bundles": [
+    "packs/science"
+   ],
+   "status": "implemented"
+  },
+  "math-literature-records": {
+   "provider_modules": [
+    "src/ingestion/math_sources.py",
+    "src/kb/mathematics.py"
+   ],
+   "tools": [
+    "noesis-knowledge-engine.inspect_math_literature",
+    "noesis-knowledge-engine.search_mathematics",
+    "noesis-knowledge-engine.math_source_contracts"
+   ],
+   "declaring_bundles": [
+    "packs/science"
+   ],
+   "status": "implemented",
+   "note": "ZbmathAdapter; sources declared in config/source_packs/research.json, not scientific.json."
+  },
+  "math-source-objects": {
+   "provider_modules": [
+    "src/kb/mathematics.py"
+   ],
+   "tools": [
+    "noesis-knowledge-engine.record_math_object",
+    "noesis-knowledge-engine.inspect_math_object",
+    "noesis-knowledge-engine.extract_math_text_objects"
+   ],
+   "declaring_bundles": [
+    "packs/science"
+   ],
+   "status": "implemented"
+  },
+  "media-provenance-and-reuse": {
+   "provider_modules": [
+    "src/analytics/image_reuse.py",
+    "src/kb/multimodal_evidence.py",
+    "src/osint/imagery_gated.py"
+   ],
+   "tools": [
+    "noesis-osint.image_provenance",
+    "noesis-osint.image_reuse",
+    "noesis-osint.image_reuse_findings",
+    "noesis-knowledge-engine.inspect_media_provenance",
+    "noesis-knowledge-engine.record_media_transformation",
+    "noesis-knowledge-engine.assess_media_authenticity"
+   ],
+   "declaring_bundles": [
+    "packs/osint"
+   ],
+   "status": "implemented",
+   "note": "Gated imagery tools (reverse_image_search, geolocate_image) are env-gated and not in the generated catalog."
+  },
+  "native-eprel-public-api-acquisition": {
+   "provider_modules": [
+    "src/ingestion/product_sources.py",
+    "src/kb/products.py"
+   ],
+   "tools": [
+    "noesis-knowledge-engine.install_source_pack",
+    "noesis-knowledge-engine.preflight_source_pack_run",
+    "noesis-knowledge-engine.run_source_pack_execution",
+    "noesis-knowledge-engine.inspect_source_pack_run",
+    "noesis-knowledge-engine.replay_source_pack_run",
+    "noesis-knowledge-engine.product_provider_contracts"
+   ],
+   "declaring_bundles": [
+    "packs/products"
+   ],
+   "status": "implemented",
+   "note": "EprelProductAdapter (connector \"eprel\")."
+  },
+  "native-open-icecat-acquisition": {
+   "provider_modules": [
+    "src/ingestion/product_sources.py",
+    "src/kb/products.py"
+   ],
+   "tools": [
+    "noesis-knowledge-engine.install_source_pack",
+    "noesis-knowledge-engine.preflight_source_pack_run",
+    "noesis-knowledge-engine.run_source_pack_execution",
+    "noesis-knowledge-engine.inspect_source_pack_run",
+    "noesis-knowledge-engine.replay_source_pack_run",
+    "noesis-knowledge-engine.product_provider_contracts"
+   ],
+   "declaring_bundles": [
+    "packs/products"
+   ],
+   "status": "implemented",
+   "note": "IcecatProductAdapter (connector \"icecat\")."
+  },
+  "native-wfs-2.0.0-geojson-acquisition": {
+   "provider_modules": [
+    "src/ingestion/wfs_api.py",
+    "src/ingestion/source_pack_runtime.py",
+    "src/kb/geospatial_features.py"
+   ],
+   "tools": [
+    "noesis-knowledge-engine.install_source_pack",
+    "noesis-knowledge-engine.preflight_source_pack_run",
+    "noesis-knowledge-engine.run_source_pack_execution",
+    "noesis-knowledge-engine.inspect_source_pack_run",
+    "noesis-knowledge-engine.replay_source_pack_run",
+    "noesis-knowledge-engine.inspect_geospatial_pack_readiness"
+   ],
+   "declaring_bundles": [
+    "packs/geospatial"
+   ],
+   "status": "implemented",
+   "note": "WFS adapter is registered as the \"wfs\" runtime builder; acquisition runs through the generic source-pack tools (config/source_packs/geospatial.json)."
+  },
+  "oeis-sequence-records": {
+   "provider_modules": [
+    "src/ingestion/math_sources.py",
+    "src/kb/mathematics.py"
+   ],
+   "tools": [
+    "noesis-knowledge-engine.inspect_oeis_sequence",
+    "noesis-knowledge-engine.search_mathematics"
+   ],
+   "declaring_bundles": [
+    "packs/science"
+   ],
+   "status": "implemented",
+   "note": "OeisAdapter; sources in config/source_packs/research.json."
+  },
+  "official-source-manifests": {
+   "provider_modules": [
+    "src/ingestion/connectors/political_official.py",
+    "src/domains/political/queries.py",
+    "src/domains/political/enrichers.py"
+   ],
+   "tools": [
+    "noesis-kb.kb_political",
+    "noesis-pipeline.run_connector"
+   ],
+   "declaring_bundles": [
+    "packs/political",
+    "src/domains/political"
+   ],
+   "status": "implemented",
+   "note": "Coverage checked against config/political_sources.json; source pack config/source_packs/political.json is declarative-rest."
+  },
+  "openreview-round-comparison": {
+   "provider_modules": [
+    "src/domains/research/openreview_rounds.py",
+    "src/ingestion/openreview_api.py"
+   ],
+   "tools": [
+    "noesis-knowledge-engine.save_openreview_round_set",
+    "noesis-knowledge-engine.inspect_openreview_round_set",
+    "noesis-knowledge-engine.inspect_openreview_round",
+    "noesis-knowledge-engine.compare_openreview_rounds",
+    "noesis-knowledge-engine.export_openreview_round_comparison",
+    "noesis-knowledge-engine.openreview_concern_review_target",
+    "noesis-knowledge-engine.assess_openreview_concern"
+   ],
+   "declaring_bundles": [
+    "packs/science"
+   ],
+   "status": "implemented",
+   "note": "OpenReview sources live in config/source_packs/openreview.json, not the science pack's scientific.json."
+  },
+  "origin-aware-corroboration": {
+   "provider_modules": [
+    "src/osint/corroboration.py",
+    "src/osint/independence.py"
+   ],
+   "tools": [
+    "noesis-osint.corroborate",
+    "noesis-kb.kb_corroborate"
+   ],
+   "declaring_bundles": [
+    "packs/osint"
+   ],
+   "status": "implemented"
+  },
+  "osv-cve-advisories": {
+   "provider_modules": [
+    "src/domains/technical/advisories.py",
+    "src/domains/technical/model.py"
+   ],
+   "tools": [
+    "noesis-kb.kb_technical",
+    "noesis-knowledge-engine.assess_technical_inventory_impact"
+   ],
+   "declaring_bundles": [
+    "packs/technology",
+    "src/domains/technology"
+   ],
+   "status": "implemented",
+   "note": "ingest_advisory has no caller outside its module; advisories are only read (affected_by/fixed_in, inventory impact)."
+  },
+  "paper-family-versions": {
+   "provider_modules": [
+    "src/domains/research/paper_families.py"
+   ],
+   "tools": [
+    "noesis-knowledge-engine.create_paper_family",
+    "noesis-knowledge-engine.inspect_paper_family",
+    "noesis-knowledge-engine.add_paper_family_member",
+    "noesis-knowledge-engine.correct_paper_family_relation",
+    "noesis-knowledge-engine.review_paper_family_relation",
+    "noesis-knowledge-engine.remove_paper_family_member",
+    "noesis-knowledge-engine.attach_paper_family_notice",
+    "noesis-knowledge-engine.review_paper_family_notice_target",
+    "noesis-knowledge-engine.select_paper_family_citation",
+    "noesis-knowledge-engine.compare_paper_family_members",
+    "noesis-knowledge-engine.export_paper_family"
+   ],
+   "declaring_bundles": [
+    "packs/science"
+   ],
+   "status": "implemented"
+  },
+  "per-provider-readiness": {
+   "provider_modules": [
+    "src/kb/products.py",
+    "src/ingestion/provider_readiness.py"
+   ],
+   "tools": [
+    "noesis-knowledge-engine.products_readiness",
+    "noesis-knowledge-engine.product_provider_contracts"
+   ],
+   "declaring_bundles": [
+    "packs/products"
+   ],
+   "status": "implemented"
+  },
+  "point-in-time-instrument-resolution": {
+   "provider_modules": [
+    "src/domains/market/instruments.py",
+    "src/domains/market/asof.py",
+    "src/domains/market/capabilities.py"
+   ],
+   "tools": [
+    "noesis-market.lookup_market_instrument"
+   ],
+   "declaring_bundles": [
+    "packs/market"
+   ],
+   "status": "implemented"
+  },
+  "points-inside-boundary-query": {
+   "provider_modules": [
+    "src/kb/geospatial_features.py",
+    "src/kb/geospatial.py"
+   ],
+   "tools": [
+    "noesis-knowledge-engine.query_geospatial_features_within",
+    "noesis-knowledge-engine.replay_geospatial_feature_query"
+   ],
+   "declaring_bundles": [
+    "packs/geospatial"
+   ],
+   "status": "implemented"
+  },
+  "political-research-queries": {
+   "provider_modules": [
+    "src/domains/political/queries.py",
+    "src/kb/contract.py"
+   ],
+   "tools": [
+    "noesis-kb.kb_political"
+   ],
+   "declaring_bundles": [
+    "packs/political",
+    "src/domains/political"
+   ],
+   "status": "implemented"
+  },
+  "preserved-citation-snapshots": {
+   "provider_modules": [
+    "src/kb/citation_preservation.py"
+   ],
+   "tools": [
+    "noesis-knowledge-engine.register_citation_archive_policy",
+    "noesis-knowledge-engine.get_citation_archive_policy",
+    "noesis-knowledge-engine.capture_citation_snapshot",
+    "noesis-knowledge-engine.get_citation_snapshot",
+    "noesis-knowledge-engine.replay_citation_snapshot",
+    "noesis-knowledge-engine.verify_preserved_citation",
+    "noesis-knowledge-engine.record_citation_health",
+    "noesis-knowledge-engine.get_citation_status",
+    "noesis-knowledge-engine.preview_citation_repair",
+    "noesis-knowledge-engine.accept_citation_repair",
+    "noesis-knowledge-engine.export_preserved_citations"
+   ],
+   "declaring_bundles": [
+    "packs/science"
+   ],
+   "status": "implemented"
+  },
+  "primary-source-research-links": {
+   "provider_modules": [
+    "src/kb/cultural.py"
+   ],
+   "tools": [
+    "noesis-knowledge-engine.primary_sources_for_work",
+    "noesis-knowledge-engine.link_cultural_research",
+    "noesis-knowledge-engine.suggest_cultural_research_candidates",
+    "noesis-knowledge-engine.review_cultural_research_candidate"
+   ],
+   "declaring_bundles": [
+    "packs/science"
+   ],
+   "status": "implemented"
+  },
+  "probable-origin-graph": {
+   "provider_modules": [
+    "src/osint/independence.py"
+   ],
+   "tools": [
+    "noesis-osint.evidence_origin_graph",
+    "noesis-osint.origin_signals"
+   ],
+   "declaring_bundles": [
+    "packs/osint"
+   ],
+   "status": "implemented"
+  },
+  "proposal-vote-lifecycle": {
+   "provider_modules": [
+    "src/domains/political/model.py",
+    "src/domains/political/queries.py"
+   ],
+   "tools": [
+    "noesis-kb.kb_political"
+   ],
+   "declaring_bundles": [
+    "packs/political",
+    "src/domains/political"
+   ],
+   "status": "implemented",
+   "note": "query_types proposal_lifecycle and vote_records."
+  },
+  "provenance-preserving-feature-revisions": {
+   "provider_modules": [
+    "src/kb/geospatial_features.py"
+   ],
+   "tools": [
+    "noesis-knowledge-engine.inspect_geospatial_feature",
+    "noesis-knowledge-engine.inspect_geospatial_feature_coverage"
+   ],
+   "declaring_bundles": [
+    "packs/geospatial"
+   ],
+   "status": "implemented"
+  },
+  "provider-health-and-readiness": {
+   "provider_modules": [
+    "src/domains/market/operations.py",
+    "src/domains/market/capabilities.py"
+   ],
+   "tools": [
+    "noesis-market.market_provider_health",
+    "noesis-market.market_readiness",
+    "noesis-market.evaluate_market_slos",
+    "noesis-market.record_market_operations_measurements"
+   ],
+   "declaring_bundles": [
+    "packs/market"
+   ],
+   "status": "implemented"
+  },
+  "provider-linked-document-acquisition": {
+   "provider_modules": [
+    "src/kb/products.py"
+   ],
+   "tools": [
+    "noesis-knowledge-engine.acquire_product_documents",
+    "noesis-knowledge-engine.inspect_product_identity"
+   ],
+   "declaring_bundles": [
+    "packs/products"
+   ],
+   "status": "implemented"
+  },
+  "provider-scoped-product-identities": {
+   "provider_modules": [
+    "src/kb/products.py"
+   ],
+   "tools": [
+    "noesis-knowledge-engine.lookup_product_models",
+    "noesis-knowledge-engine.inspect_product_identity",
+    "noesis-knowledge-engine.product_selection_outcomes"
+   ],
+   "declaring_bundles": [
+    "packs/products"
+   ],
+   "status": "implemented"
+  },
+  "quantitative-and-specialized-analytics": {
+   "provider_modules": [
+    "src/domains/market/quantitative.py",
+    "src/domains/market/specialized.py"
+   ],
+   "tools": [
+    "noesis-market.run_market_event_study",
+    "noesis-market.run_market_factor_analysis",
+    "noesis-market.run_market_backtest",
+    "noesis-market.run_market_walk_forward",
+    "noesis-market.record_market_portfolio",
+    "noesis-market.run_market_risk_report",
+    "noesis-market.inspect_market_quantitative_run",
+    "noesis-market.export_market_quantitative_run",
+    "noesis-market.run_market_fixed_income",
+    "noesis-market.run_market_fx_commodity",
+    "noesis-market.run_market_derivatives",
+    "noesis-market.run_market_digital_asset",
+    "noesis-market.run_market_intraday_replay",
+    "noesis-market.run_market_international_coverage",
+    "noesis-market.inspect_market_specialized_run",
+    "noesis-market.export_market_specialized_run"
+   ],
+   "declaring_bundles": [
+    "packs/market"
+   ],
+   "status": "implemented"
+  },
+  "release-vintage-history": {
+   "provider_modules": [
+    "src/domains/economic/releases.py",
+    "src/domains/economic/model.py",
+    "src/ingestion/connectors/dataset/queries.py"
+   ],
+   "tools": [
+    "noesis-kb.kb_economic",
+    "noesis-statistics.get_observations",
+    "noesis-knowledge-engine.create_economic_release_snapshot",
+    "noesis-knowledge-engine.inspect_economic_release_snapshot",
+    "noesis-market.inspect_economic_release_snapshot"
+   ],
+   "declaring_bundles": [
+    "packs/economics",
+    "src/domains/economics"
+   ],
+   "status": "implemented"
+  },
+  "reviewable-boundary-name-resolution": {
+   "provider_modules": [
+    "src/kb/geospatial_features.py",
+    "src/kb/geospatial.py"
+   ],
+   "tools": [
+    "noesis-knowledge-engine.resolve_geospatial_boundary",
+    "noesis-knowledge-engine.resolve_geospatial_candidates",
+    "noesis-knowledge-engine.record_geospatial_resolution",
+    "noesis-knowledge-engine.review_geospatial_resolution"
+   ],
+   "declaring_bundles": [
+    "packs/geospatial"
+   ],
+   "status": "implemented",
+   "note": "resolve_boundary leaves ambiguous names unresolved; the review workflow lives in src/kb/geospatial.py (place resolutions), not in the feature store."
+  },
+  "reviewable-cross-provider-matching": {
+   "provider_modules": [
+    "src/kb/products.py"
+   ],
+   "tools": [
+    "noesis-knowledge-engine.propose_product_matches",
+    "noesis-knowledge-engine.review_product_match"
+   ],
+   "declaring_bundles": [
+    "packs/products"
+   ],
+   "status": "implemented"
+  },
+  "rights-gated-cultural-assets": {
+   "provider_modules": [
+    "src/kb/cultural.py"
+   ],
+   "tools": [
+    "noesis-knowledge-engine.cultural_rights_policy",
+    "noesis-knowledge-engine.acquire_cultural_assets"
+   ],
+   "declaring_bundles": [
+    "packs/science"
+   ],
+   "status": "implemented"
+  },
+  "scoped-entity-resolution": {
+   "provider_modules": [
+    "src/domains/political/model.py",
+    "src/kb/cross_domain.py"
+   ],
+   "tools": [
+    "noesis-kb.kb_political"
+   ],
+   "declaring_bundles": [
+    "packs/political",
+    "src/domains/political"
+   ],
+   "status": "implemented",
+   "note": "record_alias/resolve_alias exist but no MCP tool or other module calls them; kb_political only resolves domain scope."
+  },
+  "section-addressable-specifications": {
+   "provider_modules": [
+    "src/domains/technical/specifications.py",
+    "src/domains/technical/model.py"
+   ],
+   "tools": [
+    "noesis-kb.kb_technical",
+    "noesis-pipeline.run_connector"
+   ],
+   "declaring_bundles": [
+    "packs/technology",
+    "src/domains/technology"
+   ],
+   "status": "implemented",
+   "note": "Only generic exposure; kb_technical query \"implements\" reads specification relations."
+  },
+  "source-identity-and-relationships": {
+   "provider_modules": [
+    "src/kb/source_identity.py"
+   ],
+   "tools": [
+    "noesis-knowledge-engine.register_source_identity",
+    "noesis-knowledge-engine.lookup_source_identity",
+    "noesis-knowledge-engine.source_identity_history",
+    "noesis-knowledge-engine.revise_source_identity",
+    "noesis-knowledge-engine.delete_source_identity",
+    "noesis-knowledge-engine.decide_source_alias",
+    "noesis-knowledge-engine.split_source_alias",
+    "noesis-knowledge-engine.resolve_source_alias",
+    "noesis-knowledge-engine.add_source_relationship",
+    "noesis-knowledge-engine.retract_source_relationship",
+    "noesis-knowledge-engine.source_identity_dossier",
+    "noesis-knowledge-engine.source_relationship_path",
+    "noesis-knowledge-engine.explain_source_independence"
+   ],
+   "declaring_bundles": [
+    "packs/osint"
+   ],
+   "status": "implemented",
+   "note": "Implemented in the knowledge engine, not the osint server; osint relationship_path is an entity-graph path, not source relationships."
+  },
+  "source-reliability-cards": {
+   "provider_modules": [
+    "src/osint/reliability.py"
+   ],
+   "tools": [
+    "noesis-osint.source_reliability"
+   ],
+   "declaring_bundles": [
+    "packs/osint"
+   ],
+   "status": "implemented"
+  },
+  "study-methodology-records": {
+   "provider_modules": [
+    "src/kb/methodology_provenance.py"
+   ],
+   "tools": [
+    "noesis-knowledge-engine.register_methodology_study",
+    "noesis-knowledge-engine.get_methodology_study",
+    "noesis-knowledge-engine.search_methodology_studies",
+    "noesis-knowledge-engine.extract_methodology_statements",
+    "noesis-knowledge-engine.replay_methodology_extraction",
+    "noesis-knowledge-engine.assess_methodology_limitation",
+    "noesis-knowledge-engine.list_methodology_limitations",
+    "noesis-knowledge-engine.compare_study_methodologies",
+    "noesis-knowledge-engine.explain_study_evidence_strength",
+    "noesis-knowledge-engine.suggest_jev_methodology_record"
+   ],
+   "declaring_bundles": [
+    "packs/science"
+   ],
+   "status": "implemented"
+  },
+  "study-replication-graph": {
+   "provider_modules": [
+    "src/kb/methodology_provenance.py"
+   ],
+   "tools": [
+    "noesis-knowledge-engine.link_study_artifact",
+    "noesis-knowledge-engine.get_study_replication_graph"
+   ],
+   "declaring_bundles": [
+    "packs/science"
+   ],
+   "status": "implemented"
+  },
+  "systematic-review-screening": {
+   "provider_modules": [
+    "src/kb/systematic_reviews.py",
+    "src/kb/systematic_review_decisions.py"
+   ],
+   "tools": [
+    "noesis-knowledge-engine.create_review_protocol",
+    "noesis-knowledge-engine.inspect_review_protocol",
+    "noesis-knowledge-engine.amend_review_protocol",
+    "noesis-knowledge-engine.add_review_candidate",
+    "noesis-knowledge-engine.screen_review_candidate",
+    "noesis-knowledge-engine.list_review_candidates",
+    "noesis-knowledge-engine.inspect_review_candidate",
+    "noesis-knowledge-engine.adjudicate_review_candidate",
+    "noesis-knowledge-engine.extract_review_field",
+    "noesis-knowledge-engine.review_study_field",
+    "noesis-knowledge-engine.export_systematic_review",
+    "noesis-knowledge-engine.suggest_systematic_review_screening",
+    "noesis-knowledge-engine.inspect_systematic_review_screening_suggestion"
+   ],
+   "declaring_bundles": [
+    "packs/science"
+   ],
+   "status": "implemented"
+  },
+  "temporal-technical-queries": {
+   "provider_modules": [
+    "src/domains/technical/queries.py",
+    "src/kb/contract.py"
+   ],
+   "tools": [
+    "noesis-kb.kb_technical"
+   ],
+   "declaring_bundles": [
+    "packs/technology",
+    "src/domains/technology"
+   ],
+   "status": "implemented",
+   "note": "observed_before cutoff on technical queries."
+  },
+  "thesis-and-alert-receipts": {
+   "provider_modules": [
+    "src/domains/market/research.py",
+    "src/domains/market/alerts.py",
+    "src/domains/market/delivery.py"
+   ],
+   "tools": [
+    "noesis-market.save_market_thesis",
+    "noesis-market.review_market_thesis",
+    "noesis-market.save_market_alert_watch",
+    "noesis-market.run_market_alerts",
+    "noesis-market.inspect_market_alert_watch",
+    "noesis-market.inspect_market_alert_run",
+    "noesis-market.deliver_market_alert",
+    "noesis-market.market_alert_history"
+   ],
+   "declaring_bundles": [
+    "packs/market"
+   ],
+   "status": "implemented"
+  },
+  "unit-normalized-display-attributes": {
+   "provider_modules": [
+    "src/kb/products.py",
+    "src/kb/quantitative.py"
+   ],
+   "tools": [
+    "noesis-knowledge-engine.inspect_product_identity",
+    "noesis-knowledge-engine.compare_product_models"
+   ],
+   "declaring_bundles": [
+    "packs/products"
+   ],
+   "status": "implemented",
+   "note": "NORMALIZED_UNITS/PRODUCT_UNITS registered in the quantitative store."
+  },
+  "version-comparison": {
+   "provider_modules": [
+    "src/kb/legal.py"
+   ],
+   "tools": [
+    "noesis-knowledge-engine.compare_legal_versions"
+   ],
+   "declaring_bundles": [
+    "packs/legal",
+    "src/domains/legal"
+   ],
+   "status": "implemented"
+  },
+  "versioned-filing-facts": {
+   "provider_modules": [
+    "src/domains/market/financial_facts.py",
+    "src/domains/market/metrics.py"
+   ],
+   "tools": [
+    "noesis-market.get_market_financial_statements",
+    "noesis-market.calculate_market_fact_metrics"
+   ],
+   "declaring_bundles": [
+    "packs/market"
+   ],
+   "status": "implemented"
+  }
+ },
+ "duplicates": {
+  "as-of-version-selection": [
+   "packs/legal",
+   "src/domains/legal"
+  ],
+  "berlin-legal-publications": [
+   "packs/legal",
+   "src/domains/legal"
+  ],
+  "bitemporal-economic-observations": [
+   "packs/economics",
+   "src/domains/economics"
+  ],
+  "bitemporal-office-terms": [
+   "packs/political",
+   "src/domains/political"
+  ],
+  "canonical-economic-indicators": [
+   "packs/economics",
+   "src/domains/economics"
+  ],
+  "canonical-package-coordinates": [
+   "packs/technology",
+   "src/domains/technology"
+  ],
+  "cellar-work-expression-manifestation": [
+   "packs/legal",
+   "src/domains/legal"
+  ],
+  "cited-economic-comparisons": [
+   "packs/economics",
+   "src/domains/economics"
+  ],
+  "cited-passage-retrieval": [
+   "packs/legal",
+   "src/domains/legal"
+  ],
+  "claim-observation-links": [
+   "packs/economics",
+   "src/domains/economics"
+  ],
+  "dependency-compatibility-graph": [
+   "packs/technology",
+   "src/domains/technology"
+  ],
+  "explicit-measurement-dimensions": [
+   "packs/economics",
+   "src/domains/economics"
+  ],
+  "federal-court-decisions": [
+   "packs/legal",
+   "src/domains/legal"
+  ],
+  "incremental-git-ingestion": [
+   "packs/technology",
+   "src/domains/technology"
+  ],
+  "official-source-manifests": [
+   "packs/political",
+   "src/domains/political"
+  ],
+  "osv-cve-advisories": [
+   "packs/technology",
+   "src/domains/technology"
+  ],
+  "political-research-queries": [
+   "packs/political",
+   "src/domains/political"
+  ],
+  "proposal-vote-lifecycle": [
+   "packs/political",
+   "src/domains/political"
+  ],
+  "release-vintage-history": [
+   "packs/economics",
+   "src/domains/economics"
+  ],
+  "scoped-entity-resolution": [
+   "packs/political",
+   "src/domains/political"
+  ],
+  "section-addressable-specifications": [
+   "packs/technology",
+   "src/domains/technology"
+  ],
+  "temporal-technical-queries": [
+   "packs/technology",
+   "src/domains/technology"
+  ],
+  "version-comparison": [
+   "packs/legal",
+   "src/domains/legal"
+  ]
+ },
+ "orphans_no_implementation": [],
+ "implementations_without_string": [
+  {
+   "name": "research literature analytics",
+   "provider_modules": [
+    "src/domains/research/analytics.py",
+    "src/ingestion/opencitations.py"
+   ],
+   "tools": [
+    "noesis-research.citation_graph",
+    "noesis-research.literature_claims",
+    "noesis-research.venues"
+   ],
+   "note": "Science pack query_examples use citation_graph but no science capability string names it; catalog gates research_mcp on the \"research\" domain pack."
+  },
+  {
+   "name": "osint entity dossier and relationship paths",
+   "provider_modules": [
+    "src/osint/dossier.py",
+    "src/osint/paths.py"
+   ],
+   "tools": [
+    "noesis-osint.entity_dossier",
+    "noesis-osint.relationship_path"
+   ]
+  },
+  {
+   "name": "osint artifact provenance chain",
+   "provider_modules": [
+    "src/osint/provenance.py"
+   ],
+   "tools": [
+    "noesis-osint.trace_artifact"
+   ]
+  },
+  {
+   "name": "osint gated geolocation/coordination",
+   "provider_modules": [
+    "src/osint/gated.py",
+    "src/osint/imagery_gated.py"
+   ],
+   "tools": [],
+   "note": "geolocate_claims, narrative_coordination, reverse_image_search, geolocate_image are env-gated and absent from the generated catalog."
+  },
+  {
+   "name": "GTFS transit schedules",
+   "provider_modules": [
+    "src/kb/transit.py",
+    "src/ingestion/transit_sources.py"
+   ],
+   "tools": [
+    "noesis-knowledge-engine.transit_source_contracts",
+    "noesis-knowledge-engine.transit_feed_versions",
+    "noesis-knowledge-engine.transit_departures",
+    "noesis-knowledge-engine.transit_stops_in_bbox"
+   ],
+   "note": "GTFS source is in config/source_packs/geospatial.json but the geospatial pack declares no transit string."
+  },
+  {
+   "name": "geospatial places, geometries and spatial relations",
+   "provider_modules": [
+    "src/kb/geospatial.py"
+   ],
+   "tools": [
+    "noesis-knowledge-engine.register_geospatial_place",
+    "noesis-knowledge-engine.revise_geospatial_place",
+    "noesis-knowledge-engine.get_geospatial_place",
+    "noesis-knowledge-engine.store_geospatial_geometry",
+    "noesis-knowledge-engine.list_geospatial_geometries",
+    "noesis-knowledge-engine.simplify_geospatial_geometry",
+    "noesis-knowledge-engine.calculate_spatial_relation",
+    "noesis-knowledge-engine.replay_spatial_relation",
+    "noesis-knowledge-engine.search_geospatial_knowledge",
+    "noesis-knowledge-engine.query_geospatial_event_map"
+   ],
+   "note": "Used in geospatial query_examples (search_geospatial_knowledge, calculate_spatial_relation) with no matching string."
+  },
+  {
+   "name": "pipeline geo map",
+   "provider_modules": [
+    "src/analytics/geospatial.py"
+   ],
+   "tools": [
+    "noesis-pipeline.geo_map"
+   ]
+  },
+  {
+   "name": "patents (EPO OPS)",
+   "provider_modules": [
+    "src/kb/patents.py",
+    "src/ingestion/patent_sources.py"
+   ],
+   "tools": [
+    "noesis-knowledge-engine.patent_source_contracts",
+    "noesis-knowledge-engine.inspect_patent_publication",
+    "noesis-knowledge-engine.patent_family_members",
+    "noesis-knowledge-engine.patent_links",
+    "noesis-knowledge-engine.propose_patent_link",
+    "noesis-knowledge-engine.review_patent_link"
+   ],
+   "note": "epo-ops source in config/source_packs/research.json."
+  },
+  {
+   "name": "LEI company identities (GLEIF)",
+   "provider_modules": [
+    "src/kb/lei.py",
+    "src/ingestion/lei_sources.py"
+   ],
+   "tools": [
+    "noesis-knowledge-engine.company_source_contracts",
+    "noesis-knowledge-engine.inspect_lei_entity",
+    "noesis-knowledge-engine.lei_parents_as_of",
+    "noesis-knowledge-engine.propose_lei_registry_links",
+    "noesis-knowledge-engine.link_company_identity",
+    "noesis-knowledge-engine.review_company_identity_link"
+   ],
+   "note": "gleif source in config/source_packs/economic.json."
+  },
+  {
+   "name": "standards editions and certificates (ISO)",
+   "provider_modules": [
+    "src/kb/standards.py",
+    "src/ingestion/standards_sources.py"
+   ],
+   "tools": [
+    "noesis-knowledge-engine.standards_source_contracts",
+    "noesis-knowledge-engine.inspect_standard_edition",
+    "noesis-knowledge-engine.inspect_certificate",
+    "noesis-knowledge-engine.import_certificates",
+    "noesis-knowledge-engine.propose_certificate_product_links",
+    "noesis-knowledge-engine.review_certificate_product_link"
+   ],
+   "note": "iso-open-data source in config/source_packs/technical.json."
+  },
+  {
+   "name": "technical inventory impact reports",
+   "provider_modules": [
+    "src/domains/technical/inventory.py",
+    "src/domains/technical/impact.py",
+    "src/domains/technical/impact_reports.py"
+   ],
+   "tools": [
+    "noesis-knowledge-engine.import_technical_inventory",
+    "noesis-knowledge-engine.inspect_technical_inventory",
+    "noesis-knowledge-engine.assess_technical_inventory_impact",
+    "noesis-knowledge-engine.create_technical_impact_report",
+    "noesis-knowledge-engine.inspect_technical_impact_report",
+    "noesis-knowledge-engine.compare_technical_impact_reports",
+    "noesis-knowledge-engine.export_technical_impact_report"
+   ]
+  },
+  {
+   "name": "funding opportunities bundle",
+   "provider_modules": [
+    "src/kb/funding_opportunities.py",
+    "src/kb/funding_eligibility.py",
+    "src/kb/funding_workspaces.py",
+    "src/ingestion/funding_providers.py"
+   ],
+   "tools": [
+    "noesis-knowledge-engine.funding_provider_contracts",
+    "noesis-knowledge-engine.acquire_funding_source",
+    "noesis-knowledge-engine.list_funding_opportunities",
+    "noesis-knowledge-engine.assess_funding_eligibility",
+    "noesis-knowledge-engine.build_funding_shortlist",
+    "noesis-knowledge-engine.create_funding_workspace",
+    "noesis-knowledge-engine.draft_funding_application",
+    "noesis-knowledge-engine.create_funding_monitor"
+   ]
+  },
+  {
+   "name": "quantitative metrics and units",
+   "provider_modules": [
+    "src/kb/quantitative.py"
+   ],
+   "tools": [
+    "noesis-knowledge-engine.register_quantitative_unit",
+    "noesis-knowledge-engine.register_quantitative_metric",
+    "noesis-knowledge-engine.record_quantitative_observation",
+    "noesis-knowledge-engine.read_quantitative_series",
+    "noesis-knowledge-engine.assess_quantitative_comparability",
+    "noesis-knowledge-engine.convert_quantitative_value",
+    "noesis-knowledge-engine.adjust_quantitative_inflation"
+   ]
+  },
+  {
+   "name": "event records and dossiers",
+   "provider_modules": [
+    "src/kb/events.py",
+    "src/kb/event_dossiers.py"
+   ],
+   "tools": [
+    "noesis-knowledge-engine.create_event_record",
+    "noesis-knowledge-engine.get_event_record_as_of",
+    "noesis-knowledge-engine.event_timeline",
+    "noesis-knowledge-engine.relate_events",
+    "noesis-knowledge-engine.create_event_dossier",
+    "noesis-knowledge-engine.event_dossier_timeline"
+   ]
+  },
+  {
+   "name": "multilingual / cross-language claims",
+   "provider_modules": [
+    "src/kb/cross_language.py"
+   ],
+   "tools": [
+    "noesis-knowledge-engine.record_language_text",
+    "noesis-knowledge-engine.record_translation",
+    "noesis-knowledge-engine.align_cross_language_claims",
+    "noesis-knowledge-engine.compare_cross_language_claims",
+    "noesis-knowledge-engine.multilingual_search"
+   ]
+  },
+  {
+   "name": "tabular dataset intelligence",
+   "provider_modules": [
+    "src/kb/dataset_intelligence.py"
+   ],
+   "tools": [
+    "noesis-knowledge-engine.register_dataset_catalog",
+    "noesis-knowledge-engine.search_datasets",
+    "noesis-knowledge-engine.ingest_tabular_dataset",
+    "noesis-knowledge-engine.compare_dataset_releases",
+    "noesis-knowledge-engine.suggest_dataset_joins"
+   ]
+  },
+  {
+   "name": "Zotero library sync",
+   "provider_modules": [
+    "src/ingestion/zotero_sync.py"
+   ],
+   "tools": [
+    "noesis-knowledge-engine.sync_zotero_library",
+    "noesis-knowledge-engine.list_zotero_items",
+    "noesis-knowledge-engine.inspect_zotero_item",
+    "noesis-knowledge-engine.export_zotero_bibliography"
+   ]
+  },
+  {
+   "name": "OpenCitations acquisition",
+   "provider_modules": [
+    "src/ingestion/opencitations.py"
+   ],
+   "tools": [
+    "noesis-knowledge-engine.acquire_opencitations"
+   ]
+  },
+  {
+   "name": "market briefs and operations recovery",
+   "provider_modules": [
+    "src/domains/market/research.py",
+    "src/domains/market/operations.py"
+   ],
+   "tools": [
+    "noesis-market.generate_market_brief",
+    "noesis-market.deliver_market_brief",
+    "noesis-market.export_market_brief",
+    "noesis-market.export_market_brief_evidence_bundle",
+    "noesis-market.schedule_market_brief",
+    "noesis-market.run_market_brief_schedules",
+    "noesis-market.create_market_backup",
+    "noesis-market.restore_market_backup",
+    "noesis-market.record_market_recovery_drill",
+    "noesis-market.save_market_budget",
+    "noesis-market.consume_market_budget"
+   ]
+  },
+  {
+   "name": "economic-market dashboard",
+   "provider_modules": [
+    "src/domains/economic/dashboard.py",
+    "src/domains/market/dashboard.py"
+   ],
+   "tools": [
+    "noesis-market.get_economic_market_dashboard"
+   ]
+  }
+ ],
+ "catalog_pack_mapping": {
+  "server_pack": {
+   "function": "src/mcp_host/catalog.py:_server_pack (line ~1822)",
+   "maps": {
+    "research_mcp": "research"
+   },
+   "default": null,
+   "summary": "Only research_mcp is pack-gated (to the \"research\" src/domains pack, enabled by default in config/domain_packs.json); every other server, including osint_mcp, market_mcp and knowledge_engine_mcp, returns None and is never pack-gated. No packs/ bundle (science, osint, geospatial, legal, products, market, ...) gates any server."
+  },
+  "required_data_pack_specific_branches": {
+   "market_mcp": {
+    "market_readiness": [
+     "market-instrument-store"
+    ],
+    "lookup_market_instrument": [
+     "market-instrument-store",
+     "market-entitlement-store"
+    ],
+    "get_market_price_history": [
+     "market-price-store",
+     "market-entitlement-store"
+    ],
+    "get_market_financial_statements": [
+     "market-financial-fact-store",
+     "market-entitlement-store"
+    ],
+    "inspect_economic_release_snapshot": [
+     "economic-release-store"
+    ],
+    "calculate_market_price_metrics": [
+     "market-price-store",
+     "market-action-store",
+     "market-entitlement-store"
+    ],
+    "calculate_market_fact_metrics": [
+     "market-instrument-store",
+     "market-financial-fact-store",
+     "market-entitlement-store"
+    ],
+    "get_company_research_dashboard": [
+     "market-instrument-store",
+     "market-price-store",
+     "market-financial-fact-store",
+     "market-action-store",
+     "market-entitlement-store"
+    ],
+    "save_market_screener_query|screen_market_universe": [
+     "market-instrument-store",
+     "market-price-store",
+     "market-financial-fact-store",
+     "market-entitlement-store",
+     "market-screener-store"
+    ],
+    "inspect_market_screener_run|export_market_screener_run": [
+     "market-screener-store",
+     "market-entitlement-store"
+    ],
+    "quantitative tools (run_market_event_study, run_market_factor_analysis, run_market_backtest, run_market_walk_forward, record_market_portfolio, run_market_risk_report, inspect/export_market_quantitative_run)": [
+     "market-quantitative-store",
+     "market-entitlement-store"
+    ],
+    "research tools (save_market_materials, build_market_company_dossier, build_market_industry_model, calculate_market_sizing, record_market_driver_hypotheses, save/review_market_thesis, market brief tools, market_acceptance_journey, review_market_acceptance_journey, inspect_market_research_artifact)": [
+     "market-research-store",
+     "market-entitlement-store"
+    ],
+    "operations tools (record_market_operations_measurements, evaluate_market_slos, market_provider_health, save/consume_market_budget, record_market_recovery_drill, create/restore_market_backup, prune_market_operations_audit, save_market_runbook, record_market_repair)": [
+     "market-operations-store"
+    ],
+    "specialized tools (run_market_fixed_income, run_market_fx_commodity, run_market_derivatives, run_market_digital_asset, run_market_intraday_replay, run_market_international_coverage, inspect/export_market_specialized_run)": [
+     "market-specialized-store",
+     "market-entitlement-store"
+    ],
+    "get_economic_market_dashboard": [
+     "economic-release-store",
+     "market-instrument-store",
+     "market-price-store"
+    ],
+    "alert tools (save/inspect_market_alert_watch, run_market_alerts, inspect_market_alert_run, deliver_market_alert, market_alert_history)": [
+     "market-alert-store",
+     "market-entitlement-store"
+    ],
+    "default": [
+     "market-instrument-store"
+    ]
+   }
+  },
+  "required_data_other_stems": {
+   "knowledge_engine_mcp": "tool-specific branches only for intake-mode, research-loop/budget, decision-watch, review-inbox, authored-report-edit and research-analysis tools (they return knowledge:* scope strings as labels); all pack tools (geospatial, legal, products, science/cultural/math, transit, patents) fall to [\"knowledge-engine-runtime\"]",
+   "catalog_mcp": [
+    "mcp-registration",
+    "domain-registry"
+   ],
+   "transactions_mcp": [
+    "knowledge-transaction-store"
+   ],
+   "schema_registry_mcp": [
+    "knowledge-schema-registry"
+   ],
+   "federation_mcp": [
+    "federated-knowledge-sources"
+   ],
+   "subscriptions_mcp": [
+    "knowledge-subscription-store"
+   ],
+   "namespaces_mcp": [
+    "portable-namespace-store"
+   ],
+   "memory_mcp": [
+    "knowledge-memory-store"
+   ],
+   "contract_mcp": [
+    "contract-schemas"
+   ],
+   "schema_mcp": [
+    "application-schema"
+   ],
+   "domain_packs_mcp": [
+    "pack-registry"
+   ],
+   "lineage_mcp": [
+    "lineage-backend"
+   ],
+   "monitoring_mcp": [
+    "metrics-store"
+   ],
+   "security_mcp": [
+    "local-security-state"
+   ],
+   "blog_mcp": [
+    "subscription-store"
+   ],
+   "dataset_mcp": [
+    "argument-dataset"
+   ],
+   "provisioning_mcp": [
+    "namespace-registry"
+   ],
+   "kb_mcp (kb_domains only)": [
+    "domain-registry"
+   ],
+   "fallback (osint_mcp, research_mcp, pipeline_mcp, statistics_mcp, kb_mcp, kg_mcp, argument_mcp, sources_mcp, ...)": [
+    "warehouse"
+   ]
+  },
+  "summary": "market_mcp is the only server stem with pack-specific required-data branches (per-store labels); the osint, research and knowledge-engine pack tools get generic labels (\"warehouse\" / \"knowledge-engine-runtime\")."
+ }
+}
