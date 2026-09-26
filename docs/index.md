@@ -114,6 +114,8 @@ For the project overview and local setup, start with the
   detection, extraction cascade, escalation, selector self-repair
 - [MCP rearchitecture](architecture/mcp-rearchitecture.md) — the
   capability-plane design and its stages
+- [Pack and workflow composition](architecture/pack-workflow-composition.md) —
+  proposed shared capability architecture, lifecycle rules, and migration plan
 - [Knowledge-engine pivot](architecture/knowledge-engine-pivot.md) —
   claim/triple-centric knowledge-graph design
 - [Exactly-once delivery](architecture/exactly-once-delivery.md) — streaming
