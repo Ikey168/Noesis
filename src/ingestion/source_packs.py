@@ -27,6 +27,7 @@ SUPPORTED_CONNECTORS = frozenset(
         "eprel",
         "europeana",
         "filings",
+        "formal-library",
         "geojson",
         "git",
         "gleif",
@@ -34,11 +35,13 @@ SUPPORTED_CONNECTORS = frozenset(
         "icecat",
         "iso-open-data",
         "manifest",
+        "oeis",
         "package-registry",
         "paper",
         "rii",
         "web",
         "wfs",
+        "zbmath",
     }
 )
 AUTH_KINDS = frozenset({"none", "optional-secret", "required-secret"})
@@ -197,6 +200,9 @@ NATIVE_CONNECTOR_MODULES = {
     "gleif": "src.ingestion.lei_sources",
     "iso-open-data": "src.ingestion.standards_sources",
     "gtfs": "src.ingestion.transit_sources",
+    "zbmath": "src.ingestion.math_sources",
+    "oeis": "src.ingestion.math_sources",
+    "formal-library": "src.ingestion.math_sources",
 }
 
 

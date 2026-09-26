@@ -1,0 +1,112 @@
+{
+  "check": "mathematics-live-acceptance",
+  "started_at": "2026-09-26T05:29:11.313201+00:00",
+  "environment_note": "Claude Code cloud build container, 2026-09-26: egress proxy allows GitHub (raw.githubusercontent.com) and rejects api.zbmath.org and oeis.org.",
+  "sources": {
+    "afp-zeckendorf": {
+      "connector": "formal-library",
+      "endpoint": "https://raw.githubusercontent.com",
+      "status": "complete",
+      "failure": null,
+      "counts": {
+        "attempts": 1,
+        "pages": 1,
+        "fetched": 1,
+        "normalized": 1,
+        "inserted": 1,
+        "duplicates": 0,
+        "invalid": 0,
+        "quarantined": 0,
+        "bytes": 15931
+      },
+      "elapsed_s": 0.59,
+      "fixture_matches_live": {
+        "thys/Zeckendorf/Zeckendorf.thy": true
+      }
+    },
+    "mathlib4-fib": {
+      "connector": "formal-library",
+      "endpoint": "https://raw.githubusercontent.com",
+      "status": "complete",
+      "failure": null,
+      "counts": {
+        "attempts": 2,
+        "pages": 2,
+        "fetched": 2,
+        "normalized": 2,
+        "inserted": 2,
+        "duplicates": 0,
+        "invalid": 0,
+        "quarantined": 0,
+        "bytes": 17145
+      },
+      "elapsed_s": 0.94,
+      "fixture_matches_live": {
+        "Mathlib/Data/Nat/Fib/Basic.lean": true,
+        "Mathlib/Data/Nat/Fib/Zeckendorf.lean": true
+      }
+    },
+    "oeis-sequences": {
+      "connector": "oeis",
+      "endpoint": "https://oeis.org",
+      "status": "failed",
+      "failure": {
+        "code": "source_unavailable",
+        "message": "source unavailable",
+        "classification": "transient-availability"
+      },
+      "counts": {
+        "attempts": 3,
+        "pages": 0,
+        "fetched": 0,
+        "normalized": 0,
+        "inserted": 0,
+        "duplicates": 0,
+        "invalid": 0,
+        "quarantined": 0,
+        "bytes": 0
+      },
+      "elapsed_s": 0.91
+    },
+    "zbmath-open": {
+      "connector": "zbmath",
+      "endpoint": "https://api.zbmath.org/v1",
+      "status": "failed",
+      "failure": {
+        "code": "source_unavailable",
+        "message": "source unavailable",
+        "classification": "transient-availability"
+      },
+      "counts": {
+        "attempts": 3,
+        "pages": 0,
+        "fetched": 0,
+        "normalized": 0,
+        "inserted": 0,
+        "duplicates": 0,
+        "invalid": 0,
+        "quarantined": 0,
+        "bytes": 0
+      },
+      "elapsed_s": 1.2
+    }
+  },
+  "projected": {
+    "math_literature": 0,
+    "math_sequences": 0,
+    "formal_declarations": 96,
+    "formal_dependencies": 99
+  },
+  "acceptance": {
+    "sources_complete": [
+      "afp-zeckendorf",
+      "mathlib4-fib"
+    ],
+    "sources_unavailable": [
+      "oeis-sequences",
+      "zbmath-open"
+    ],
+    "formal_fixtures_identical_to_live": true
+  },
+  "finished_at": "2026-09-26T05:29:15.342153+00:00"
+}

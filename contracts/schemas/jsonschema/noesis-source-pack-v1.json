@@ -18,7 +18,7 @@
         "required": ["source_id", "connector", "endpoint", "publisher", "scope", "license", "update_cadence", "temporal_semantics", "mapping", "extractor_versions", "schedule", "budgets", "auth", "fixture", "health", "operations", "source_hash"],
         "properties": {
           "source_id": {"type": "string", "minLength": 1},
-          "connector": {"enum": ["berlin-law", "blog", "cellar", "dataset", "ddb", "declarative-rest", "epo-ops", "eprel", "europeana", "filings", "geojson", "git", "gleif", "gtfs", "icecat", "iso-open-data", "manifest", "package-registry", "paper", "rii", "web", "wfs"]},
+          "connector": {"enum": ["berlin-law", "blog", "cellar", "dataset", "ddb", "declarative-rest", "epo-ops", "eprel", "europeana", "filings", "formal-library", "geojson", "git", "gleif", "gtfs", "icecat", "iso-open-data", "manifest", "oeis", "package-registry", "paper", "rii", "web", "wfs", "zbmath"]},
           "wfs": {
             "type": "object",
             "description": "Pinned WFS 2.0.0 GetFeature contract; required for the wfs connector.",
@@ -36,6 +36,24 @@
           "geospatial": {
             "type": "object",
             "description": "Feature projection settings for wfs/geojson sources (namespace, geometry types, precision, attribution)."
+          },
+          "zbmath": {
+            "type": "object",
+            "description": "Pinned zbMATH Open document ids (1-50).",
+            "required": ["document_ids"],
+            "properties": {"document_ids": {"type": "array", "minItems": 1, "maxItems": 50, "items": {"type": "string", "pattern": "^[0-9]{1,12}$"}}}
+          },
+          "oeis": {
+            "type": "object",
+            "description": "Pinned OEIS A-numbers (1-50).",
+            "required": ["a_numbers"],
+            "properties": {"a_numbers": {"type": "array", "minItems": 1, "maxItems": 50, "items": {"type": "string", "pattern": "^A[0-9]{6}$"}}}
+          },
+          "formal": {
+            "type": "object",
+            "description": "One formal library snapshot: system, owner/repository, immutable 40-hex commit, license and 1-50 repository-relative paths.",
+            "required": ["library", "system", "repository", "commit", "license", "paths"],
+            "properties": {"library": {"type": "string", "minLength": 1}, "system": {"enum": ["lean", "isabelle", "coq"]}, "repository": {"type": "string", "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"}, "commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"}, "license": {"type": "string", "minLength": 1}, "paths": {"type": "array", "minItems": 1, "maxItems": 50, "items": {"type": "string"}}}
           },
           "transit": {
             "type": "object",
