@@ -292,6 +292,18 @@ def _mutability(name: str) -> str:
     from tools.knowledge_engine_mcp.cultural import CULTURAL_WRITES
     if name in CULTURAL_WRITES:
         return "write"
+    from tools.knowledge_engine_mcp.patents import PATENT_WRITES
+    if name in PATENT_WRITES:
+        return "write"
+    from tools.knowledge_engine_mcp.companies import COMPANY_WRITES
+    if name in COMPANY_WRITES:
+        return "write"
+    from tools.knowledge_engine_mcp.standards import STANDARDS_WRITES
+    if name in STANDARDS_WRITES:
+        return "write"
+    from tools.knowledge_engine_mcp.mathematics import MATH_WRITES
+    if name in MATH_WRITES:
+        return "write"
     from tools.knowledge_engine_mcp.investigations import (
         ALERT_WRITES,
         COMPARISON_WRITES,
@@ -796,6 +808,26 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
     from tools.knowledge_engine_mcp.cultural import required_scopes as cultural_scopes
     if server_stem == "knowledge_engine_mcp" and tool_name in CULTURAL_TOOLS:
         return cultural_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.patents import PATENT_TOOLS
+    from tools.knowledge_engine_mcp.patents import required_scopes as patent_scopes
+    if server_stem == "knowledge_engine_mcp" and tool_name in PATENT_TOOLS:
+        return patent_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.companies import COMPANY_TOOLS
+    from tools.knowledge_engine_mcp.companies import required_scopes as company_scopes
+    if server_stem == "knowledge_engine_mcp" and tool_name in COMPANY_TOOLS:
+        return company_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.standards import STANDARDS_TOOLS
+    from tools.knowledge_engine_mcp.standards import required_scopes as standards_scopes
+    if server_stem == "knowledge_engine_mcp" and tool_name in STANDARDS_TOOLS:
+        return standards_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.transit import TRANSIT_TOOLS
+    from tools.knowledge_engine_mcp.transit import required_scopes as transit_scopes
+    if server_stem == "knowledge_engine_mcp" and tool_name in TRANSIT_TOOLS:
+        return transit_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.mathematics import MATH_TOOLS
+    from tools.knowledge_engine_mcp.mathematics import required_scopes as math_scopes
+    if server_stem == "knowledge_engine_mcp" and tool_name in MATH_TOOLS:
+        return math_scopes(tool_name, mutability)
     if server_stem == "knowledge_engine_mcp" and tool_name in {
         "suggest_jev_claim_presence",
         "suggest_jev_checkworthiness",

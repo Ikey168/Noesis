@@ -32,7 +32,8 @@ def test_public_preview_to_apply_to_receipt(monkeypatch):
     for source in old["sources"]:
         runtime.accept_license(old["pack_id"], source["source_id"], principal_id="operator")
     newer = copy.deepcopy(old)
-    newer["version"] = "1.3.0"
+    major, minor, _patch = (int(part) for part in old["version"].split("."))
+    newer["version"] = f"{major}.{minor + 1}.0"
     newer["description"] += " Fixture upgrade."
     tools = Tools()
     seen = []
@@ -42,6 +43,7 @@ def test_public_preview_to_apply_to_receipt(monkeypatch):
         return fn(conn)
 
     source_pack_upgrades.register(tools, safe, lambda: ("operator", {"operator"}))
+    monkeypatch.setenv("NOESIS_EPO_OPS_CREDENTIALS", "fixture-key:fixture-secret")  # epo-ops requires one
     monkeypatch.setattr("src.ingestion.source_pack_runtime.socket.getaddrinfo",
                         lambda *_args, **_kwargs: [(None, None, None, None, ("8.8.8.8", 443))])
     preview = tools.functions["preview_source_pack_upgrade_impact"](newer)

@@ -1,8 +1,8 @@
 {
   "pack_format": "noesis-pack-v1",
   "name": "science",
-  "version": "1.1.0",
-  "description": "Primary scientific evidence: scholarly works from bounded scholarly APIs, study methodology records, paper families, public peer-review rounds, systematic reviews and preserved citations, and cultural primary sources (DDB, Europeana) linked to research works and places.",
+  "version": "1.2.0",
+  "description": "Primary scientific evidence: scholarly works from bounded scholarly APIs, study methodology records, paper families, public peer-review rounds, systematic reviews and preserved citations, and cultural primary sources (DDB, Europeana) linked to research works and places; and mathematics: zbMATH Open literature, OEIS sequences and pinned formal-library declarations (Lean mathlib4, Isabelle AFP) with proof dependencies, revisions and reviewable cross-source links (acquired through config/source_packs/research.json).",
   "source_types": [
     "paper"
   ],
@@ -22,7 +22,15 @@
       "ddb",
       "deutsche digitale bibliothek",
       "europeana",
-      "primary source"
+      "primary source",
+      "zbmath",
+      "oeis",
+      "mathlib",
+      "lean",
+      "isabelle",
+      "archive of formal proofs",
+      "coq",
+      "msc"
     ],
     "claims": [
       "finding",
@@ -30,7 +38,12 @@
       "methodology",
       "replication",
       "study design",
-      "systematic review"
+      "systematic review",
+      "theorem",
+      "lemma",
+      "definition",
+      "conjecture",
+      "proof"
     ],
     "entities": [
       "author",
@@ -40,7 +53,11 @@
       "archival object",
       "map",
       "photograph",
-      "poster"
+      "poster",
+      "mathematical object",
+      "integer sequence",
+      "formal declaration",
+      "formal library"
     ]
   },
   "enrichers": [],
@@ -56,7 +73,14 @@
     "cultural-primary-source-records",
     "rights-gated-cultural-assets",
     "primary-source-research-links",
-    "cultural-object-place-projection"
+    "cultural-object-place-projection",
+    "math-literature-records",
+    "oeis-sequence-records",
+    "formal-library-snapshots",
+    "formal-proof-dependencies",
+    "formal-revision-comparison",
+    "math-source-objects",
+    "math-cross-source-links"
   ],
   "schema_versions": {
     "methodology-study": "1.0.0",
@@ -64,7 +88,10 @@
     "openreview-round": "1.0.0",
     "citation-snapshot": "1.0.0",
     "source-pack": "1.0.0",
-    "cultural-object": "1.0.0"
+    "cultural-object": "1.0.0",
+    "math-record": "1.0.0",
+    "formal-declaration": "1.0.0",
+    "math-link": "1.0.0"
   },
   "ontology_extensions": {
     "extends": "noesis-canonical-entity-relation-ontology",
@@ -74,7 +101,10 @@
       "noesis-openreview-round-v1",
       "noesis-citation-snapshot-v1",
       "noesis-cultural-object-v1",
-      "noesis-cultural-research-link-v1"
+      "noesis-cultural-research-link-v1",
+      "noesis-math-record-v1",
+      "noesis-formal-declaration-v1",
+      "noesis-math-link-v1"
     ],
     "object_types": [
       "scholarly_work",
@@ -84,7 +114,11 @@
       "review_protocol",
       "citation_snapshot",
       "cultural_object",
-      "digital_representation"
+      "digital_representation",
+      "integer_sequence",
+      "formal_declaration",
+      "formal_snapshot",
+      "math_object"
     ],
     "relation_types": [
       "cites",
@@ -96,7 +130,11 @@
       "primary_source_for",
       "depicts_place",
       "held_by",
-      "same_object_as"
+      "same_object_as",
+      "imports",
+      "references_lexically",
+      "formalizes_candidate",
+      "cites_identifier"
     ]
   },
   "source_pack": "config/source_packs/scientific.json",
@@ -147,6 +185,42 @@
         "date_to": "1915"
       },
       "semantics": "only provider coordinates or gazetteer-resolved place names match; undated or unplaced objects never match; rights decide link-only access"
+    },
+    {
+      "intent": "Papers, sequences and formal declarations about Zeckendorf representations",
+      "tool": "search_mathematics",
+      "arguments": {
+        "query": "Zeckendorf representation"
+      },
+      "semantics": "bounded search over acquired records; formal results pin the library commit and show explicit vs candidate links"
+    },
+    {
+      "intent": "Which sequence starts 0, 1, 1, 2, 3, 5, 8",
+      "tool": "search_mathematics",
+      "arguments": {
+        "query": "0, 1, 1, 2, 3, 5, 8"
+      },
+      "semantics": "contiguous term match over acquired OEIS entries only"
+    },
+    {
+      "intent": "A formal theorem and what it depends on at a fixed library revision",
+      "tool": "inspect_formal_declaration",
+      "arguments": {
+        "library": "mathlib4",
+        "name": "Nat.zeckendorfEquiv",
+        "commit": "b2bf051988bf69448bce88722cc09a05fea31662"
+      },
+      "semantics": "lexical declaration scan; module imports are explicit, statement references are lexical, not elaborated"
+    },
+    {
+      "intent": "What changed in a formal library between two revisions",
+      "tool": "compare_formal_snapshots",
+      "arguments": {
+        "library": "mathlib4",
+        "from_commit": "<older commit>",
+        "to_commit": "<newer commit>"
+      },
+      "semantics": "declarations added/removed/changed by statement hash; renames are candidates"
     }
   ],
   "exclusions": [
@@ -157,6 +231,11 @@
     "bibliometric impact rankings",
     "digitized-file mirroring",
     "universal OCR/transcription",
-    "unreviewed semantic location resolution"
+    "unreviewed semantic location resolution",
+    "automatic identity between a paper theorem and a formal theorem",
+    "universal formula OCR",
+    "proof translation between formal systems",
+    "unrestricted repository mirroring",
+    "licensed MathSciNet access"
   ]
 }

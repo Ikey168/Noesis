@@ -899,7 +899,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 692,
+      "tool_count": 728,
       "tools": [
         "noesis-knowledge-engine.accept_awareness_jev_suggestion",
         "noesis-knowledge-engine.accept_citation_repair",
@@ -978,6 +978,7 @@
         "noesis-knowledge-engine.command_intake_creation",
         "noesis-knowledge-engine.command_intake_mode",
         "noesis-knowledge-engine.command_practice_review",
+        "noesis-knowledge-engine.company_source_contracts",
         "noesis-knowledge-engine.compare_change_briefs",
         "noesis-knowledge-engine.compare_claim_sources",
         "noesis-knowledge-engine.compare_coverage_assessments",
@@ -986,6 +987,7 @@
         "noesis-knowledge-engine.compare_economic_release_snapshots",
         "noesis-knowledge-engine.compare_event_dossier_revisions",
         "noesis-knowledge-engine.compare_evidence_freshness_policies",
+        "noesis-knowledge-engine.compare_formal_snapshots",
         "noesis-knowledge-engine.compare_hypotheses",
         "noesis-knowledge-engine.compare_legal_versions",
         "noesis-knowledge-engine.compare_legislative_dossier",
@@ -1096,6 +1098,7 @@
         "noesis-knowledge-engine.export_economic_release_comparison",
         "noesis-knowledge-engine.export_entity_identity_history",
         "noesis-knowledge-engine.export_event_dossier_comparison",
+        "noesis-knowledge-engine.export_formal_references",
         "noesis-knowledge-engine.export_funding_application_draft",
         "noesis-knowledge-engine.export_hypothesis_workspace",
         "noesis-knowledge-engine.export_intake_creation",
@@ -1115,11 +1118,13 @@
         "noesis-knowledge-engine.export_systematic_review",
         "noesis-knowledge-engine.export_technical_impact_report",
         "noesis-knowledge-engine.export_zotero_bibliography",
+        "noesis-knowledge-engine.extract_math_text_objects",
         "noesis-knowledge-engine.extract_methodology_statements",
         "noesis-knowledge-engine.extract_multimodal_observations",
         "noesis-knowledge-engine.extract_review_field",
         "noesis-knowledge-engine.fetch_declarative_api",
         "noesis-knowledge-engine.filter_access_bound_query",
+        "noesis-knowledge-engine.formal_declaration_dependencies",
         "noesis-knowledge-engine.funding_bundle_status",
         "noesis-knowledge-engine.funding_opportunity_history",
         "noesis-knowledge-engine.funding_provider_contracts",
@@ -1159,6 +1164,7 @@
         "noesis-knowledge-engine.get_source_capability",
         "noesis-knowledge-engine.get_study_replication_graph",
         "noesis-knowledge-engine.handoff_intake_creation",
+        "noesis-knowledge-engine.import_certificates",
         "noesis-knowledge-engine.import_geospatial_features",
         "noesis-knowledge-engine.import_modulo_flashcards",
         "noesis-knowledge-engine.import_research_package",
@@ -1171,6 +1177,7 @@
         "noesis-knowledge-engine.inspect_authored_report",
         "noesis-knowledge-engine.inspect_authored_report_edit",
         "noesis-knowledge-engine.inspect_binary_forecast",
+        "noesis-knowledge-engine.inspect_certificate",
         "noesis-knowledge-engine.inspect_cited_evidence_subscription",
         "noesis-knowledge-engine.inspect_coverage_assessment",
         "noesis-knowledge-engine.inspect_cultural_object",
@@ -1182,6 +1189,7 @@
         "noesis-knowledge-engine.inspect_entity_change_impact",
         "noesis-knowledge-engine.inspect_event_dossier",
         "noesis-knowledge-engine.inspect_exploration_source",
+        "noesis-knowledge-engine.inspect_formal_declaration",
         "noesis-knowledge-engine.inspect_funding_opportunity",
         "noesis-knowledge-engine.inspect_funding_profile",
         "noesis-knowledge-engine.inspect_funding_shortlist",
@@ -1206,13 +1214,18 @@
         "noesis-knowledge-engine.inspect_jev_task_rollout",
         "noesis-knowledge-engine.inspect_legal_work",
         "noesis-knowledge-engine.inspect_legislative_dossier",
+        "noesis-knowledge-engine.inspect_lei_entity",
         "noesis-knowledge-engine.inspect_maintenance_generation",
         "noesis-knowledge-engine.inspect_maintenance_job",
+        "noesis-knowledge-engine.inspect_math_literature",
+        "noesis-knowledge-engine.inspect_math_object",
         "noesis-knowledge-engine.inspect_media_provenance",
         "noesis-knowledge-engine.inspect_modulo_intake_migration",
+        "noesis-knowledge-engine.inspect_oeis_sequence",
         "noesis-knowledge-engine.inspect_openreview_round",
         "noesis-knowledge-engine.inspect_openreview_round_set",
         "noesis-knowledge-engine.inspect_paper_family",
+        "noesis-knowledge-engine.inspect_patent_publication",
         "noesis-knowledge-engine.inspect_persistent_research_loop",
         "noesis-knowledge-engine.inspect_practice_pack",
         "noesis-knowledge-engine.inspect_practice_review",
@@ -1233,6 +1246,7 @@
         "noesis-knowledge-engine.inspect_source_acquisition_run",
         "noesis-knowledge-engine.inspect_source_pack_run",
         "noesis-knowledge-engine.inspect_source_pack_upgrade_receipt",
+        "noesis-knowledge-engine.inspect_standard_edition",
         "noesis-knowledge-engine.inspect_systematic_review_screening_suggestion",
         "noesis-knowledge-engine.inspect_technical_impact_report",
         "noesis-knowledge-engine.inspect_technical_inventory",
@@ -1246,7 +1260,9 @@
         "noesis-knowledge-engine.legal_source_contracts",
         "noesis-knowledge-engine.legislative_dossier_dependencies",
         "noesis-knowledge-engine.legislative_dossier_timeline",
+        "noesis-knowledge-engine.lei_parents_as_of",
         "noesis-knowledge-engine.link_claim_evolution",
+        "noesis-knowledge-engine.link_company_identity",
         "noesis-knowledge-engine.link_cross_modal_evidence",
         "noesis-knowledge-engine.link_cultural_research",
         "noesis-knowledge-engine.link_hypothesis_evidence",
@@ -1286,9 +1302,14 @@
         "noesis-knowledge-engine.maintenance_generation_lineage",
         "noesis-knowledge-engine.maintenance_health",
         "noesis-knowledge-engine.mark_intake_feed_read",
+        "noesis-knowledge-engine.math_links",
+        "noesis-knowledge-engine.math_source_contracts",
         "noesis-knowledge-engine.merge_canonical_events",
         "noesis-knowledge-engine.multilingual_search",
         "noesis-knowledge-engine.openreview_concern_review_target",
+        "noesis-knowledge-engine.patent_family_members",
+        "noesis-knowledge-engine.patent_links",
+        "noesis-knowledge-engine.patent_source_contracts",
         "noesis-knowledge-engine.pause_maintenance_schedule",
         "noesis-knowledge-engine.place_retention_legal_hold",
         "noesis-knowledge-engine.plan_extractor_reprocessing",
@@ -1326,6 +1347,7 @@
         "noesis-knowledge-engine.promote_problem_playbook",
         "noesis-knowledge-engine.propagate_evidence_freshness",
         "noesis-knowledge-engine.propose_authored_report_edit",
+        "noesis-knowledge-engine.propose_certificate_product_links",
         "noesis-knowledge-engine.propose_cultural_matches",
         "noesis-knowledge-engine.propose_forecast_resolution",
         "noesis-knowledge-engine.propose_funding_rule_interpretation",
@@ -1334,6 +1356,9 @@
         "noesis-knowledge-engine.propose_intake_modulo_note_revision",
         "noesis-knowledge-engine.propose_intake_playbook_revision",
         "noesis-knowledge-engine.propose_intake_report_revision",
+        "noesis-knowledge-engine.propose_lei_registry_links",
+        "noesis-knowledge-engine.propose_math_links",
+        "noesis-knowledge-engine.propose_patent_link",
         "noesis-knowledge-engine.propose_problem_action",
         "noesis-knowledge-engine.propose_product_matches",
         "noesis-knowledge-engine.publish_entity_change_rebuild",
@@ -1353,6 +1378,7 @@
         "noesis-knowledge-engine.record_intake_iteration_outcome",
         "noesis-knowledge-engine.record_language_text",
         "noesis-knowledge-engine.record_maintenance_finding",
+        "noesis-knowledge-engine.record_math_object",
         "noesis-knowledge-engine.record_media_transformation",
         "noesis-knowledge-engine.record_multilingual_alias",
         "noesis-knowledge-engine.record_problem_step",
@@ -1445,7 +1471,9 @@
         "noesis-knowledge-engine.retry_maintenance_job",
         "noesis-knowledge-engine.retry_source_pack_quarantine",
         "noesis-knowledge-engine.reverse_event_merge",
+        "noesis-knowledge-engine.review_certificate_product_link",
         "noesis-knowledge-engine.review_change_brief",
+        "noesis-knowledge-engine.review_company_identity_link",
         "noesis-knowledge-engine.review_cross_language_alignment",
         "noesis-knowledge-engine.review_cultural_match",
         "noesis-knowledge-engine.review_cultural_research_candidate",
@@ -1454,9 +1482,11 @@
         "noesis-knowledge-engine.review_funding_rule_interpretation",
         "noesis-knowledge-engine.review_geospatial_resolution",
         "noesis-knowledge-engine.review_intake_iteration_stability",
+        "noesis-knowledge-engine.review_math_link",
         "noesis-knowledge-engine.review_multilingual_alias",
         "noesis-knowledge-engine.review_paper_family_notice_target",
         "noesis-knowledge-engine.review_paper_family_relation",
+        "noesis-knowledge-engine.review_patent_link",
         "noesis-knowledge-engine.review_product_match",
         "noesis-knowledge-engine.review_quality_override",
         "noesis-knowledge-engine.review_research_claim_independence",
@@ -1504,6 +1534,7 @@
         "noesis-knowledge-engine.search_event_records",
         "noesis-knowledge-engine.search_geospatial_knowledge",
         "noesis-knowledge-engine.search_intake_playbooks",
+        "noesis-knowledge-engine.search_mathematics",
         "noesis-knowledge-engine.search_methodology_studies",
         "noesis-knowledge-engine.search_multimodal_assets",
         "noesis-knowledge-engine.select_legal_version_as_of",
@@ -1529,6 +1560,7 @@
         "noesis-knowledge-engine.source_pack_runtime_coverage",
         "noesis-knowledge-engine.source_relationship_path",
         "noesis-knowledge-engine.split_source_alias",
+        "noesis-knowledge-engine.standards_source_contracts",
         "noesis-knowledge-engine.start_awareness_from_inbox",
         "noesis-knowledge-engine.start_guided_playbook_run",
         "noesis-knowledge-engine.start_intake_concept_iteration",
@@ -1572,6 +1604,10 @@
         "noesis-knowledge-engine.suggest_systematic_review_screening",
         "noesis-knowledge-engine.sync_zotero_library",
         "noesis-knowledge-engine.transform_quantitative_frequency",
+        "noesis-knowledge-engine.transit_departures",
+        "noesis-knowledge-engine.transit_feed_versions",
+        "noesis-knowledge-engine.transit_source_contracts",
+        "noesis-knowledge-engine.transit_stops_in_bbox",
         "noesis-knowledge-engine.transition_anomaly_alert",
         "noesis-knowledge-engine.triage_awareness_batch",
         "noesis-knowledge-engine.triage_awareness_item",
@@ -1599,7 +1635,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 692
+      "visible_tool_count": 728
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -1610,11 +1646,11 @@
     },
     "servers": 30,
     "states": {
-      "available": 97,
+      "available": 102,
       "degraded": 158,
-      "unauthorized": 743
+      "unauthorized": 774
     },
-    "tools": 998
+    "tools": 1034
   },
   "tools": [
     {
@@ -23277,6 +23313,30 @@
     },
     {
       "cost_class": "low",
+      "description": "GLEIF access, the reused OpenCorporates provider and why official registers are not wired.",
+      "id": "noesis-knowledge-engine.company_source_contracts",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "company_source_contracts",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Compare classifications, materiality, scores, and uncertainty.",
       "id": "noesis-knowledge-engine.compare_change_briefs",
       "input_schema": {
@@ -23674,6 +23734,47 @@
       ],
       "required_scopes": [
         "knowledge:freshness:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Declarations added, removed or changed between two commits, rename candidates and import changes.",
+      "id": "noesis-knowledge-engine.compare_formal_snapshots",
+      "input_schema": {
+        "properties": {
+          "from_commit": {
+            "type": "string"
+          },
+          "library": {
+            "type": "string"
+          },
+          "to_commit": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "library",
+          "from_commit",
+          "to_commit"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "compare_formal_snapshots",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:mathematics:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -29462,6 +29563,50 @@
     },
     {
       "cost_class": "low",
+      "description": "A reproducible, hashed bundle of declaration references pinned to one commit.",
+      "id": "noesis-knowledge-engine.export_formal_references",
+      "input_schema": {
+        "properties": {
+          "commit": {
+            "type": "string"
+          },
+          "library": {
+            "type": "string"
+          },
+          "names": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "library",
+          "commit",
+          "names"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "export_formal_references",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:mathematics:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Export a draft revision after re-checking current access; includes edit provenance.",
       "id": "noesis-knowledge-engine.export_funding_application_draft",
       "input_schema": {
@@ -30276,6 +30421,43 @@
     },
     {
       "cost_class": "medium",
+      "description": "Extract candidate expressions and named results (with exact spans) from a literature record's text.",
+      "id": "noesis-knowledge-engine.extract_math_text_objects",
+      "input_schema": {
+        "properties": {
+          "provider": {
+            "type": "string"
+          },
+          "provider_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "provider",
+          "provider_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "extract_math_text_objects",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:mathematics:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Persist bounded method statements with page, section, table, or passage locators.",
       "id": "noesis-knowledge-engine.extract_methodology_statements",
       "input_schema": {
@@ -30570,6 +30752,47 @@
       ],
       "required_scopes": [
         "knowledge:views:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Explicit module imports and lexical statement references for a declaration or module at a commit.",
+      "id": "noesis-knowledge-engine.formal_declaration_dependencies",
+      "input_schema": {
+        "properties": {
+          "commit": {
+            "type": "string"
+          },
+          "library": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "library",
+          "commit",
+          "name"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "formal_declaration_dependencies",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:mathematics:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -32234,6 +32457,51 @@
     },
     {
       "cost_class": "medium",
+      "description": "Import certificate or conformity-declaration records from a named source with locators.",
+      "id": "noesis-knowledge-engine.import_certificates",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "records": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "source": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "source",
+          "records"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "import_certificates",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:standards:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Import one bounded GeoJSON FeatureCollection into a caller namespace.\n\nPass the collection inline or as a path under NOESIS_GEOSPATIAL_IMPORT_ROOT.\nFeatures without IDs or with unsupported geometry are reported, not dropped;\nonly snapshot=\"complete\" lets absent features be marked removed.",
       "id": "noesis-knowledge-engine.import_geospatial_features",
       "input_schema": {
@@ -32922,6 +33190,54 @@
     },
     {
       "cost_class": "low",
+      "description": "All imported records for a certificate, with validity on a date and status conflicts.",
+      "id": "noesis-knowledge-engine.inspect_certificate",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "certificate_number": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "certificate_number"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "inspect_certificate",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:standards:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Inspect citation monitoring settings and recheck target access.",
       "id": "noesis-knowledge-engine.inspect_cited_evidence_subscription",
       "input_schema": {
@@ -33400,6 +33716,47 @@
       ],
       "required_scopes": [
         "knowledge:intake:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "A formal declaration at an exact commit: statement span, permalink, dependencies and links.",
+      "id": "noesis-knowledge-engine.inspect_formal_declaration",
+      "input_schema": {
+        "properties": {
+          "commit": {
+            "type": "string"
+          },
+          "library": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "library",
+          "name",
+          "commit"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "inspect_formal_declaration",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:mathematics:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -34429,6 +34786,43 @@
     },
     {
       "cost_class": "low",
+      "description": "An LEI's names, legal vs headquarters address, register pointer, status, parents, exceptions and links.",
+      "id": "noesis-knowledge-engine.inspect_lei_entity",
+      "input_schema": {
+        "properties": {
+          "lei": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "lei"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "inspect_lei_entity",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:companies:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Inspect one append-only committed knowledge generation.",
       "id": "noesis-knowledge-engine.inspect_maintenance_generation",
       "input_schema": {
@@ -34491,6 +34885,76 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "One literature record with its observed revisions and explicit/candidate links.",
+      "id": "noesis-knowledge-engine.inspect_math_literature",
+      "input_schema": {
+        "properties": {
+          "provider": {
+            "type": "string"
+          },
+          "provider_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "provider",
+          "provider_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "inspect_math_literature",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:mathematics:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "A source-backed mathematical object (exact span, method, confidence) and its notation aliases.",
+      "id": "noesis-knowledge-engine.inspect_math_object",
+      "input_schema": {
+        "properties": {
+          "object_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "object_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "inspect_math_object",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:mathematics:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
       "version": "1"
     },
     {
@@ -34574,6 +35038,39 @@
       ],
       "required_scopes": [
         "knowledge:intake:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "One OEIS entry (terms, references, revision) with its links.",
+      "id": "noesis-knowledge-engine.inspect_oeis_sequence",
+      "input_schema": {
+        "properties": {
+          "a_number": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "a_number"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "inspect_oeis_sequence",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:mathematics:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -34746,6 +35243,43 @@
       ],
       "required_scopes": [
         "knowledge:paper-family:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "One publication: biblio revisions, provider-asserted family, legal events (or not_available), claims, links.",
+      "id": "noesis-knowledge-engine.inspect_patent_publication",
+      "input_schema": {
+        "properties": {
+          "docdb": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "docdb"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "inspect_patent_publication",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:patents:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -35540,6 +36074,43 @@
     },
     {
       "cost_class": "low",
+      "description": "A standard edition: stage/status, supersession and amendment relations, certificates citing it.",
+      "id": "noesis-knowledge-engine.inspect_standard_edition",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "reference": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "reference"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "inspect_standard_edition",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:standards:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Read a machine suggestion after current protocol and source checks.",
       "id": "noesis-knowledge-engine.inspect_systematic_review_screening_suggestion",
       "input_schema": {
@@ -36060,6 +36631,47 @@
       "version": "1"
     },
     {
+      "cost_class": "low",
+      "description": "Parent assertions observed by a time, with conflicting assertions kept.",
+      "id": "noesis-knowledge-engine.lei_parents_as_of",
+      "input_schema": {
+        "properties": {
+          "as_of_ms": {
+            "type": "integer"
+          },
+          "lei": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "lei",
+          "as_of_ms"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "lei_parents_as_of",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:companies:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "medium",
       "description": "Link existing claims with a sourced successor, refinement, reversal, withdrawal, or branch.",
       "id": "noesis-knowledge-engine.link_claim_evolution",
@@ -36170,6 +36782,55 @@
       ],
       "required_scopes": [
         "knowledge:claim-timeline:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Propose a link from an LEI to an OpenCorporates record, market issuer or register entry.",
+      "id": "noesis-knowledge-engine.link_company_identity",
+      "input_schema": {
+        "properties": {
+          "evidence": {
+            "type": "string"
+          },
+          "external_id": {
+            "type": "string"
+          },
+          "external_kind": {
+            "type": "string"
+          },
+          "lei": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "lei",
+          "external_kind",
+          "external_id",
+          "evidence"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "link_company_identity",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:companies:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -38139,6 +38800,71 @@
     },
     {
       "cost_class": "low",
+      "description": "Links of a literature record, sequence, declaration or object with basis, evidence and review state.",
+      "id": "noesis-knowledge-engine.math_links",
+      "input_schema": {
+        "properties": {
+          "include_rejected": {
+            "default": false,
+            "type": "boolean"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "subject_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "subject_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "math_links",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:mathematics:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "zbMATH Open, OEIS and formal-library access, terms and identifiers; reused and deferred providers.",
+      "id": "noesis-knowledge-engine.math_source_contracts",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "math_source_contracts",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Merge explicitly selected events into one reversible canonical revision.",
       "id": "noesis-knowledge-engine.merge_canonical_events",
       "input_schema": {
@@ -38286,6 +39012,104 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Family members asserted by the provider, split into acquired and not acquired.",
+      "id": "noesis-knowledge-engine.patent_family_members",
+      "input_schema": {
+        "properties": {
+          "docdb": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "docdb"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "patent_family_members",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:patents:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Publications linked to a scholarly work (doi:...), organization or standard, with basis and state.",
+      "id": "noesis-knowledge-engine.patent_links",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "target_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "target_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "patent_links",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:patents:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "The implemented EPO OPS path and why Espacenet and WIPO PATENTSCOPE are not implemented.",
+      "id": "noesis-knowledge-engine.patent_source_contracts",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "patent_source_contracts",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
       "version": "1"
     },
     {
@@ -40232,6 +41056,39 @@
     },
     {
       "cost_class": "medium",
+      "description": "Candidates where a certificate names a product brand + designation held by a Products model.",
+      "id": "noesis-knowledge-engine.propose_certificate_product_links",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_certificate_product_links",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:standards:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Explicit identifier matches plus conservative multi-field candidates across providers.",
       "id": "noesis-knowledge-engine.propose_cultural_matches",
       "input_schema": {
@@ -40641,6 +41498,114 @@
       ],
       "required_scopes": [
         "knowledge:intake:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Candidates between LEIs and existing OpenCorporates records on jurisdiction + registry number.",
+      "id": "noesis-knowledge-engine.propose_lei_registry_links",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_lei_registry_links",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:companies:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Record explicit links from source citations/identifiers and bounded reviewable candidates.",
+      "id": "noesis-knowledge-engine.propose_math_links",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_math_links",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:mathematics:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "A reviewable candidate link from a publication to an organization, standard or scholarly work.",
+      "id": "noesis-knowledge-engine.propose_patent_link",
+      "input_schema": {
+        "properties": {
+          "docdb": {
+            "type": "string"
+          },
+          "evidence": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "target_id": {
+            "type": "string"
+          },
+          "target_kind": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "docdb",
+          "target_kind",
+          "target_id",
+          "evidence"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_patent_link",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:patents:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -41797,6 +42762,89 @@
       ],
       "required_scopes": [
         "knowledge:intake:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Record an expression, definition, theorem, proof or notation alias with its exact source span.",
+      "id": "noesis-knowledge-engine.record_math_object",
+      "input_schema": {
+        "properties": {
+          "alias_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "confidence": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "exact_text": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "method": {
+            "type": "string"
+          },
+          "notation": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "source_kind": {
+            "type": "string"
+          },
+          "source_ref": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "kind",
+          "source_kind",
+          "source_ref",
+          "exact_text",
+          "method"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "record_math_object",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:mathematics:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -48005,6 +49053,47 @@
     },
     {
       "cost_class": "medium",
+      "description": "Accept or reject a certificate-to-product candidate link.",
+      "id": "noesis-knowledge-engine.review_certificate_product_link",
+      "input_schema": {
+        "properties": {
+          "decision": {
+            "type": "string"
+          },
+          "link_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "link_id",
+          "decision"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_certificate_product_link",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:standards:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Record principal-scoped feedback on a generated brief.",
       "id": "noesis-knowledge-engine.review_change_brief",
       "input_schema": {
@@ -48043,6 +49132,51 @@
       ],
       "required_scopes": [
         "knowledge:briefs:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Accept or reject an LEI identity link.",
+      "id": "noesis-knowledge-engine.review_company_identity_link",
+      "input_schema": {
+        "properties": {
+          "decision": {
+            "type": "string"
+          },
+          "link_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "link_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_company_identity_link",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:companies:review"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -48463,6 +49597,47 @@
     },
     {
       "cost_class": "medium",
+      "description": "Accept or reject a candidate link; explicit links are not reviewable.",
+      "id": "noesis-knowledge-engine.review_math_link",
+      "input_schema": {
+        "properties": {
+          "decision": {
+            "type": "string"
+          },
+          "link_id": {
+            "type": "string"
+          },
+          "note": {
+            "default": "",
+            "type": "string"
+          }
+        },
+        "required": [
+          "link_id",
+          "decision"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_math_link",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:mathematics:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Accept, reject, or preserve ambiguity for an alias decision.",
       "id": "noesis-knowledge-engine.review_multilingual_alias",
       "input_schema": {
@@ -48619,6 +49794,51 @@
       ],
       "required_scopes": [
         "knowledge:paper-family:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Accept or reject a candidate patent link.",
+      "id": "noesis-knowledge-engine.review_patent_link",
+      "input_schema": {
+        "properties": {
+          "decision": {
+            "type": "string"
+          },
+          "link_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "link_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_patent_link",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:patents:review"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -51565,6 +52785,57 @@
     },
     {
       "cost_class": "medium",
+      "description": "Search papers, OEIS sequences (A-number, name or comma-separated terms) and formal declarations.",
+      "id": "noesis-knowledge-engine.search_mathematics",
+      "input_schema": {
+        "properties": {
+          "kinds": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "limit": {
+            "default": 20,
+            "type": "integer"
+          },
+          "query": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "search_mathematics",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:mathematics:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Search current study-method records with bounded pagination.",
       "id": "noesis-knowledge-engine.search_methodology_studies",
       "input_schema": {
@@ -52772,6 +54043,30 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "ISO Open Data access and why ETSI and certification registries are not wired yet.",
+      "id": "noesis-knowledge-engine.standards_source_contracts",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "standards_source_contracts",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
       "version": "1"
     },
     {
@@ -55839,6 +57134,160 @@
       ],
       "required_scopes": [
         "knowledge:quantitative:calculate"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Scheduled departures at a stop on a service day, with realtime state (observed/stale/missing) and alerts.",
+      "id": "noesis-knowledge-engine.transit_departures",
+      "input_schema": {
+        "properties": {
+          "feed": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "realtime_max_age_s": {
+            "default": 300,
+            "type": "integer"
+          },
+          "service_date": {
+            "type": "string"
+          },
+          "stop_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "feed",
+          "stop_id",
+          "service_date"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "transit_departures",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:transit:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Acquired schedule versions of a feed, route shapes and stops relocated between versions.",
+      "id": "noesis-knowledge-engine.transit_feed_versions",
+      "input_schema": {
+        "properties": {
+          "feed": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "feed"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "transit_feed_versions",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:transit:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "The named GTFS feed contract and why rail and flight status feeds are not wired yet.",
+      "id": "noesis-knowledge-engine.transit_source_contracts",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "transit_source_contracts",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Stops of the current feed version inside west,south,east,north with their Geospatial geometry ids.",
+      "id": "noesis-knowledge-engine.transit_stops_in_bbox",
+      "input_schema": {
+        "properties": {
+          "bbox": {
+            "items": {
+              "type": "number"
+            },
+            "type": "array"
+          },
+          "feed": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "feed",
+          "bbox"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "transit_stops_in_bbox",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:transit:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",

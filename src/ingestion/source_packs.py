@@ -23,18 +23,25 @@ SUPPORTED_CONNECTORS = frozenset(
         "dataset",
         "ddb",
         "declarative-rest",
+        "epo-ops",
         "eprel",
         "europeana",
         "filings",
+        "formal-library",
         "geojson",
         "git",
+        "gleif",
+        "gtfs",
         "icecat",
+        "iso-open-data",
         "manifest",
+        "oeis",
         "package-registry",
         "paper",
         "rii",
         "web",
         "wfs",
+        "zbmath",
     }
 )
 AUTH_KINDS = frozenset({"none", "optional-secret", "required-secret"})
@@ -178,17 +185,40 @@ def _contains_secret(value: Any, *, parent: str = "") -> bool:
     return False
 
 
+# Native connectors implemented outside the generic HTTPS adapter. Each module
+# exposes ADAPTERS, fixture_transport(pages), replay_native_fixture(source,
+# fixture) and FIXTURE_SECRET (the credential its fixtures expect, or None).
+NATIVE_CONNECTOR_MODULES = {
+    "icecat": "src.ingestion.product_sources",
+    "eprel": "src.ingestion.product_sources",
+    "cellar": "src.ingestion.legal_sources",
+    "rii": "src.ingestion.legal_sources",
+    "berlin-law": "src.ingestion.legal_sources",
+    "ddb": "src.ingestion.cultural_sources",
+    "europeana": "src.ingestion.cultural_sources",
+    "epo-ops": "src.ingestion.patent_sources",
+    "gleif": "src.ingestion.lei_sources",
+    "iso-open-data": "src.ingestion.standards_sources",
+    "gtfs": "src.ingestion.transit_sources",
+    "zbmath": "src.ingestion.math_sources",
+    "oeis": "src.ingestion.math_sources",
+    "formal-library": "src.ingestion.math_sources",
+}
+
+
+def native_connector_module(connector: str) -> Any:
+    import importlib
+
+    return importlib.import_module(NATIVE_CONNECTOR_MODULES[connector])
+
+
 def replay_native_fixture(
     source: Mapping[str, Any], fixture: Mapping[str, Any]
 ) -> list[dict[str, Any]]:
     """Replay captured or authored native envelopes through the connector's real adapter."""
 
-    if source["connector"] in {"icecat", "eprel"}:
-        from src.ingestion.product_sources import replay_native_fixture as replay
-    elif source["connector"] in {"cellar", "rii", "berlin-law"}:
-        from src.ingestion.legal_sources import replay_native_fixture as replay
-    elif source["connector"] in {"ddb", "europeana"}:
-        from src.ingestion.cultural_sources import replay_native_fixture as replay
+    if source["connector"] in NATIVE_CONNECTOR_MODULES:
+        replay = native_connector_module(source["connector"]).replay_native_fixture
     else:
         from src.ingestion.wfs_api import replay_native_fixture as replay
     return replay(source, fixture)

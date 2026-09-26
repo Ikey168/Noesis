@@ -1,0 +1,42 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/schemas/noesis-patent-part-v1.json",
+  "title": "Noesis patent part v1",
+  "description": "One EPO OPS part (biblio, family, legal, claims) of one docdb publication as parsed.",
+  "type": "object",
+  "required": [
+    "contract",
+    "provider",
+    "publication",
+    "part",
+    "data",
+    "raw_sha256"
+  ],
+  "properties": {
+    "contract": {
+      "const": "noesis-patent-part-v1"
+    },
+    "provider": {
+      "const": "epo-ops"
+    },
+    "publication": {
+      "type": "string",
+      "pattern": "^[A-Z]{2}\\.[0-9A-Z]{1,15}\\.[A-Z][0-9]?$"
+    },
+    "part": {
+      "enum": [
+        "biblio",
+        "family",
+        "legal",
+        "claims"
+      ]
+    },
+    "data": {
+      "type": "object"
+    },
+    "raw_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    }
+  }
+}

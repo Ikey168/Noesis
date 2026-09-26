@@ -94,6 +94,36 @@ def _cultural_projector(conn: Any) -> Any:
     return CulturalProjector(conn)
 
 
+def _patent_projector(conn: Any) -> Any:
+    from src.kb.patents import PatentProjector
+
+    return PatentProjector(conn)
+
+
+def _lei_projector(conn: Any) -> Any:
+    from src.kb.lei import LeiProjector
+
+    return LeiProjector(conn)
+
+
+def _standards_projector(conn: Any) -> Any:
+    from src.kb.standards import StandardsProjector
+
+    return StandardsProjector(conn)
+
+
+def _transit_projector(conn: Any) -> Any:
+    from src.kb.transit import TransitProjector
+
+    return TransitProjector(conn)
+
+
+def _math_projector(conn: Any) -> Any:
+    from src.kb.mathematics import MathProjector
+
+    return MathProjector(conn)
+
+
 # Mapping target schemas whose records are also projected into a domain store.
 # A projector receives each committed page before its checkpoint advances and
 # the source outcome afterwards, so replayed pages must project idempotently.
@@ -102,6 +132,11 @@ PROJECTORS: dict[str, Callable[[Any], Any]] = {
     "noesis-product-record-v1": _product_projector,
     "noesis-legal-record-v1": _legal_projector,
     "noesis-cultural-object-v1": _cultural_projector,
+    "noesis-patent-part-v1": _patent_projector,
+    "noesis-lei-part-v1": _lei_projector,
+    "noesis-standard-catalogue-v1": _standards_projector,
+    "noesis-transit-feed-v1": _transit_projector,
+    "noesis-math-record-v1": _math_projector,
 }
 
 _DDL = """
@@ -696,19 +731,19 @@ class RuntimeAdapterFactory:
     def __init__(
         self, builders: Mapping[str, Callable[..., RuntimeSourceAdapter]] | None = None
     ) -> None:
-        from src.ingestion.cultural_sources import ADAPTERS as CULTURAL_ADAPTERS
         from src.ingestion.geojson_features import GeoJsonFeatureAdapter
-        from src.ingestion.legal_sources import ADAPTERS as LEGAL_ADAPTERS
-        from src.ingestion.product_sources import ADAPTERS as PRODUCT_ADAPTERS
+        from src.ingestion.source_packs import (
+            NATIVE_CONNECTOR_MODULES,
+            native_connector_module,
+        )
         from src.ingestion.wfs_api import WfsFeatureAdapter
 
         self.builders: dict[str, Callable[..., Any]] = {
             kind: HTTPSPageAdapter for kind in SUPPORTED_CONNECTORS
         }
         self.builders.update({"geojson": GeoJsonFeatureAdapter, "wfs": WfsFeatureAdapter})
-        self.builders.update(PRODUCT_ADAPTERS)
-        self.builders.update(LEGAL_ADAPTERS)
-        self.builders.update(CULTURAL_ADAPTERS)
+        for connector in NATIVE_CONNECTOR_MODULES:
+            self.builders[connector] = native_connector_module(connector).ADAPTERS[connector]
         self.builders.update(dict(builders or {}))
 
     def compile(
@@ -965,6 +1000,11 @@ class SourcePackRuntime:
     ) -> dict[str, RuntimeSourceAdapter]:
         """Compile pinned pack fixtures into deterministic, network-free adapters."""
 
+        from src.ingestion.source_packs import (
+            NATIVE_CONNECTOR_MODULES,
+            native_connector_module,
+        )
+
         manifest, _ = self._manifest(pack_id)
         conformance = SourcePackConformance(root)
         result: dict[str, RuntimeSourceAdapter] = {}
@@ -978,32 +1018,11 @@ class SourcePackRuntime:
                     source, transport=fixture_transport(fixture["native_pages"])
                 )
                 continue
-            if fixture.get("native_pages") and source["connector"] in {"ddb", "europeana"}:
-                from src.ingestion.cultural_sources import (
-                    fixture_transport as cultural_transport,
-                )
-
+            if fixture.get("native_pages") and source["connector"] in NATIVE_CONNECTOR_MODULES:
+                module = native_connector_module(source["connector"])
                 result[source["source_id"]] = self.factory.compile(
-                    source, transport=cultural_transport(fixture["native_pages"]), secret="fixture-credential"
-                )
-                continue
-            if fixture.get("native_pages") and source["connector"] in {"cellar", "rii", "berlin-law"}:
-                from src.ingestion.legal_sources import (
-                    fixture_transport as legal_transport,
-                )
-
-                result[source["source_id"]] = self.factory.compile(
-                    source, transport=legal_transport(fixture["native_pages"])
-                )
-                continue
-            if fixture.get("native_pages") and source["connector"] in {"icecat", "eprel"}:
-                from src.ingestion.product_sources import (
-                    fixture_transport as product_transport,
-                )
-
-                secret = None if dict(source.get("auth") or {}).get("kind") == "none" else "fixture-credential"
-                result[source["source_id"]] = self.factory.compile(
-                    source, transport=product_transport(fixture["native_pages"]), secret=secret
+                    source, transport=module.fixture_transport(fixture["native_pages"]),
+                    secret=module.FIXTURE_SECRET,
                 )
                 continue
             result[source["source_id"]] = FixturePageAdapter(

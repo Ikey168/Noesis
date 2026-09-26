@@ -1,7 +1,7 @@
 {
   "pack_id": "geospatial-berlin",
-  "version": "1.0.0",
-  "description": "Official Berlin vector layers (district boundaries and school locations) acquired through native WFS 2.0.0 and projected into the geospatial store.",
+  "version": "1.1.0",
+  "description": "Official Berlin vector layers (district boundaries and school locations) acquired through native WFS 2.0.0 and projected into the geospatial store, plus a pinned VBB GTFS timetable feed whose stops and route shapes project into the same store.",
   "domains": [
     "geospatial"
   ],
@@ -114,6 +114,55 @@
         "path": "tests/fixtures/source_packs/geospatial-schulen.json",
         "sha256": "c4cd0d3c01fa457079a3b033cd0211276746097e241c9265c6a73c20cf8ca871",
         "expected_output_hash": "6e9b17de9bccbfb21831b8ab20b1e19df154aa0a8574c470dbbcc82819324680"
+      }
+    },
+    {
+      "source_id": "vbb-gtfs",
+      "connector": "gtfs",
+      "endpoint": "https://www.vbb.de/vbbgtfs",
+      "publisher": "Verkehrsverbund Berlin-Brandenburg (VBB)",
+      "scope": "GTFS Schedule for pinned VBB routes (routes, trips, stop times, stops, calendars, shapes); no realtime endpoint declared",
+      "update_cadence": "irregular; VBB republishes the timetable feed, typically weekly",
+      "temporal_semantics": "schedule as published per feed version (ZIP hash + feed_info); acquisition time recorded; a replaced feed is not evidence of past operations",
+      "license": {
+        "id": "cc-by-vbb",
+        "terms_url": "https://www.vbb.de/vbb-services/api-open-data/datensaetze/",
+        "redistribution": "CC BY per VBB open-data terms with attribution (operator must confirm)"
+      },
+      "mapping": {
+        "target_schema": "noesis-transit-feed-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "transit-sources:1.0.0"
+      ],
+      "operations": [
+        "feed"
+      ],
+      "schedule": {
+        "kind": "interval",
+        "interval_s": 86400
+      },
+      "budgets": {
+        "timeout_ms": 120000,
+        "max_results": 10,
+        "max_bytes": 100000000,
+        "max_pages": 2
+      },
+      "transit": {
+        "namespace": "global",
+        "feed": "vbb",
+        "route_ids": [
+          "R1",
+          "R2"
+        ],
+        "max_stop_times": 20000,
+        "stop_precision_m": 10
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/transit-gtfs.json",
+        "sha256": "c33583bf39ac5f14710acf0f0cd0783731135f395760ec39be0238d217a690da",
+        "expected_output_hash": "7bdb4ee8a9a2c65adc1914d8881dff1feed8440d502a86ff6df957874f2f606a"
       }
     }
   ]

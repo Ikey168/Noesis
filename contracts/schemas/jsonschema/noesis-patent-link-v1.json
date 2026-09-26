@@ -1,0 +1,55 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/schemas/noesis-patent-link-v1.json",
+  "title": "Noesis patent link v1",
+  "description": "A link from a patent publication to a scholarly work, organization or standard: sourced (the patent's own citation) or reviewed.",
+  "type": "object",
+  "required": [
+    "contract",
+    "link_id",
+    "publication_id",
+    "target_kind",
+    "target_id",
+    "state",
+    "basis"
+  ],
+  "properties": {
+    "contract": {
+      "const": "noesis-patent-link-v1"
+    },
+    "link_id": {
+      "type": "string",
+      "pattern": "^patent-link:"
+    },
+    "publication_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "target_kind": {
+      "enum": [
+        "scholarly_work",
+        "organization",
+        "standard"
+      ]
+    },
+    "target_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "state": {
+      "enum": [
+        "linked",
+        "candidate",
+        "rejected"
+      ]
+    },
+    "basis": {
+      "enum": [
+        "patent-npl-citation",
+        "proposed",
+        "reviewed-assertion",
+        "reviewed-rejection"
+      ]
+    }
+  }
+}

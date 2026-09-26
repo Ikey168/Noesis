@@ -1,0 +1,242 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/schemas/noesis-math-record-v1.json",
+  "title": "Noesis mathematics source record v1",
+  "description": "One provider record as acquired: a zbMATH Open document, an OEIS entry or a formal-library file at an immutable commit with lexically scanned declarations. Records keep provider identity; nothing is merged across providers.",
+  "type": "object",
+  "required": [
+    "contract",
+    "kind",
+    "provider",
+    "provider_id"
+  ],
+  "properties": {
+    "contract": {
+      "const": "noesis-math-record-v1"
+    },
+    "kind": {
+      "enum": [
+        "literature",
+        "sequence",
+        "formal-file"
+      ]
+    },
+    "provider": {
+      "enum": [
+        "zbmath-open",
+        "oeis",
+        "formal-library"
+      ]
+    },
+    "provider_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "title": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "authors": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "year": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "msc": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "identifiers": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      }
+    },
+    "references": {
+      "type": "array"
+    },
+    "name": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "terms": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^-?[0-9]+$"
+      }
+    },
+    "cited_identifiers": {
+      "type": "object"
+    },
+    "revision": {},
+    "library": {
+      "type": "string"
+    },
+    "system": {
+      "enum": [
+        "lean",
+        "isabelle",
+        "coq"
+      ]
+    },
+    "repository": {
+      "type": "string"
+    },
+    "commit": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "path": {
+      "type": "string"
+    },
+    "license": {
+      "type": "string"
+    },
+    "file_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "method": {
+      "type": "string"
+    },
+    "module": {
+      "type": "string"
+    },
+    "imports": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "declarations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "kind",
+          "line_start",
+          "line_end",
+          "statement",
+          "statement_sha256",
+          "module"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "kind": {
+            "type": "string"
+          },
+          "line_start": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "line_end": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "statement": {
+            "type": "string"
+          },
+          "statement_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "doc": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "module": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "raw_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "literature"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "title",
+          "authors",
+          "msc",
+          "identifiers",
+          "references"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "sequence"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "name",
+          "terms",
+          "references",
+          "cited_identifiers",
+          "revision"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "formal-file"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "library",
+          "system",
+          "repository",
+          "commit",
+          "path",
+          "license",
+          "file_sha256",
+          "method",
+          "module",
+          "imports",
+          "declarations"
+        ]
+      }
+    }
+  ]
+}

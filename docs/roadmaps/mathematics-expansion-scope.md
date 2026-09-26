@@ -18,6 +18,13 @@ Tracking: [#1751](https://github.com/Ikey168/Noesis/issues/1751).
 - [ ] [#1759](https://github.com/Ikey168/Noesis/issues/1759) — Expose mathematics discovery through existing Research workflows.
 - [ ] [#1760](https://github.com/Ikey168/Noesis/issues/1760) — Add offline acceptance and a reproducible demo.
 
+## Implementation status (2026-09-26)
+
+Implemented with offline acceptance; see [the mathematics guide](../guides/mathematics.md).
+Formal-library sources (mathlib4, AFP) were validated live against their pinned
+commits; zbMATH Open and OEIS live acceptance remains open (hosts unreachable
+from the build environment, fixtures authored in the documented shapes).
+
 ## Intended use
 
 Follow mathematical results from literature into reusable mathematical

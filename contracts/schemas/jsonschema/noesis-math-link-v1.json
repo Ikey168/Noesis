@@ -1,0 +1,128 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/schemas/noesis-math-link-v1.json",
+  "title": "Noesis mathematics link v1",
+  "description": "A link between literature, sequences, formal declarations or objects. Explicit links come from a source citation or identifier; candidates come from names, statements or expressions and need review. No link asserts identity.",
+  "type": "object",
+  "required": [
+    "contract",
+    "link_id",
+    "subject",
+    "object",
+    "basis",
+    "evidence",
+    "state",
+    "asserts_identity"
+  ],
+  "properties": {
+    "contract": {
+      "const": "noesis-math-link-v1"
+    },
+    "link_id": {
+      "type": "string",
+      "pattern": "^mlink:[0-9a-f]{24}$"
+    },
+    "subject": {
+      "type": "object",
+      "required": [
+        "kind",
+        "id"
+      ]
+    },
+    "object": {
+      "type": "object",
+      "required": [
+        "kind",
+        "id"
+      ]
+    },
+    "basis": {
+      "enum": [
+        "explicit-citation",
+        "explicit-identifier",
+        "candidate-name",
+        "candidate-statement",
+        "candidate-expression"
+      ]
+    },
+    "evidence": {
+      "type": "object"
+    },
+    "confidence": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0,
+      "maximum": 1
+    },
+    "state": {
+      "enum": [
+        "explicit",
+        "candidate",
+        "accepted",
+        "rejected"
+      ]
+    },
+    "reviewed_by": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "review_note": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "asserts_identity": {
+      "const": false
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "basis": {
+            "enum": [
+              "explicit-citation",
+              "explicit-identifier"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "state": {
+            "const": "explicit"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "basis": {
+            "enum": [
+              "candidate-name",
+              "candidate-statement",
+              "candidate-expression"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "state": {
+            "enum": [
+              "candidate",
+              "accepted",
+              "rejected"
+            ]
+          }
+        }
+      }
+    }
+  ]
+}
