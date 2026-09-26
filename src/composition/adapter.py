@@ -240,16 +240,24 @@ def adapt_all(root: Path | None = None) -> dict[str, dict[str, Any]]:
     """Every bundle in the checkout as one composition manifest, keyed by bundle id."""
 
     root = root or REPO_ROOT / "packs"
-    manifests, overlays = {}, {}
+    manifests = {}
     for path in sorted(root.glob("*/pack.json")):
         data = json.loads(path.read_text())
         manifests[bundle_id(data["name"])] = data
-        overlay = path.parent / "composition.json"
-        if overlay.exists():
-            overlays[bundle_id(data["name"])] = json.loads(overlay.read_text())
+    overlays = {bundle_id(path.parent.name): json.loads(path.read_text())
+                for path in sorted(root.glob("*/composition.json"))}
     code = {bundle_id(p.name): p for p in code_packs()}
     adapted = {}
     for bundle in sorted(set(manifests) | set(code)):
         manifest = adapt_bundle(manifests.get(bundle), code.get(bundle))
         adapted[bundle] = apply_overlay(manifest, overlays[bundle]) if bundle in overlays else manifest
+    for manifest in native_manifests(root):
+        adapted[manifest["id"]] = manifest
     return adapted
+
+
+def native_manifests(root: Path | None = None) -> list[dict[str, Any]]:
+    """Bundles authored directly as composition manifests (``packs/<bundle>/manifest.json``)."""
+
+    root = root or REPO_ROOT / "packs"
+    return [json.loads(path.read_text()) for path in sorted(root.glob("*/manifest.json"))]

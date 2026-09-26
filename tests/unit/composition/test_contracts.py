@@ -85,6 +85,8 @@ def test_every_bundle_adapts_and_round_trips_to_its_v1_registration():
                             "products", "science", "technology", "energy"}
     for bundle, manifest in adapted.items():
         assert validate_composition_manifest(manifest) == [], bundle
+        if "adapter" not in manifest:  # authored natively as a composition manifest
+            continue
         defaults = set(manifest["adapter"]["supplied_defaults"])
         assert defaults >= {"capability-contracts", "store-ownership"}
         overlay = ROOT / "packs" / bundle / "composition.json"
@@ -104,7 +106,7 @@ def test_every_bundle_adapts_and_round_trips_to_its_v1_registration():
 
 def test_merged_bundles_keep_both_sources_and_legacy_names():
     legal = adapter.adapt_all()["legal"]
-    assert legal["adapter"]["source"] == "noesis-pack-v1+domain-pack"
+    assert legal["adapter"]["source"] == "noesis-pack-v1+domain-pack+composition-overlay"
     manifest_caps = json.loads((ROOT / "packs/legal/pack.json").read_text())["capabilities"]
     assert adapter.v1_view(legal)["capabilities"][: len(manifest_caps)] == manifest_caps
     science = adapter.adapt_all()["science"]

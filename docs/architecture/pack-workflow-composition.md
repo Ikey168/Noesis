@@ -1,8 +1,20 @@
 # Pack and workflow composition architecture
 
-Status: proposed architecture, 2026-09-25. Planning and documentation only.
-This document specifies future behavior; it does not claim the composition
-resolver, lifecycle coordinator, or workflow dispatcher is implemented.
+Status: implemented, 2026-09-26 (C01–C09, [#1788](https://github.com/Ikey168/Noesis/issues/1788)).
+
+Implemented surfaces:
+- contracts and adapter (`src/composition/contracts.py`, `adapter.py`);
+- resolver (`resolver.py`);
+- catalog discovery and readiness (`readiness.py`, `src/mcp_host/catalog.py`);
+- lifecycle coordinator (`lifecycle.py`);
+- source integration (`src/ingestion/source_pack_upgrades.py`, `source_pack_runtime.py`);
+- workflow bindings and authorized dispatch (`workflows.py`, `local_adapters.py`).
+
+All twelve bundles and all nine source-pack projectors are composition-managed.
+[Composition migration](composition-migration.md) records the ownership
+statements and the legacy paths intentionally kept, each with its reason and
+owner. Live provider availability and the quality of conclusions remain outside
+what the implementation proves.
 
 ## Purpose and architectural decision
 
@@ -272,7 +284,8 @@ Implementation (C05, C06):
 
 Status: proven for OSINT + Research + Geospatial only (C08, `test_first_composition.py`). The
 composition is proven offline, through real local adapters and captured provider input. Live provider
-availability and the quality of conclusions are not established. Other subjects remain proposed.
+availability and the quality of conclusions are not established. The remaining bundles were then migrated
+with the same procedure (see [composition migration](composition-migration.md)).
 
 Use existing OSINT, Research, and Geospatial surfaces before adding a new subject.
 
@@ -376,7 +389,7 @@ known registered providers, explicit version rules, and one deployment; validate
 it with two consumers before generalizing. Keep provider semantics explicit so
 the catalog cannot advertise unsupported interchangeability.
 
-Implementation must settle the activation journal's storage location and process
+ADR-003 settled the activation journal's storage location and process
 startup reconciliation boundary during C01/C02. Extend an existing registry where
 its transaction/lifecycle contract fits; otherwise introduce only composition
 metadata persistence, not a duplicate source, ontology, or session database.
@@ -385,3 +398,14 @@ Defer arbitrary third-party executable plugins, remote installation, automatic
 provider substitution, distributed activation, concurrent provider major versions,
 and automatic destructive schema migrations. None is required to establish
 shared capability ownership and reliable cross-pack workflows.
+
+Checked on 2026-09-26, all still deferred with no implementation in the
+repository:
+- **Third-party executable plugins:** manifests reject executable references (`executable_reference`).
+- **Remote installation:** documents are installed only from the local candidate set.
+- **Automatic provider substitution:** ambiguity is an error, and a revised provider needs `upgrade`.
+- **Distributed activation:** ADR-003 assumes a single host.
+- **Concurrent provider major versions:** a plan pins one version per provider identity (`conflicting_major`).
+- **Automatic destructive schema migrations:** switching generations does not reverse a destructive migration (ADR-003 amendment).
+
+Each needs its own issue before any work starts.

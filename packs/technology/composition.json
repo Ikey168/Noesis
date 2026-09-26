@@ -1,0 +1,76 @@
+{
+  "contributes": {
+    "capabilities": [
+      {
+        "id": "technology.knowledge",
+        "provider": "technology.core",
+        "contract": {
+          "name": "noesis-technical-knowledge",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "technology.patents",
+        "provider": "technology.patents",
+        "contract": {
+          "name": "noesis-patent-part",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "technology.standards",
+        "provider": "technology.standards",
+        "contract": {
+          "name": "noesis-standard-catalogue",
+          "version": "1.0.0"
+        }
+      }
+    ],
+    "providers": [
+      {
+        "id": "technology.core",
+        "version": "1.0.0"
+      },
+      {
+        "id": "technology.patents",
+        "version": "1.0.0"
+      },
+      {
+        "id": "technology.standards",
+        "version": "1.0.0"
+      }
+    ],
+    "source_packs": [
+      {
+        "pack_id": "research-discovery",
+        "version": "1.4.0",
+        "range": "^1.4.0"
+      },
+      {
+        "pack_id": "technical-software-knowledge",
+        "version": "1.1.0",
+        "range": "^1.1.0"
+      }
+    ]
+  },
+  "requires": [
+    {
+      "capability": "technology.knowledge",
+      "contract": "noesis-technical-knowledge",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "technology.patents",
+      "contract": "noesis-patent-part",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "technology.standards",
+      "contract": "noesis-standard-catalogue",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    }
+  ]
+}

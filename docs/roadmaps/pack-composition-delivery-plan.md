@@ -1,8 +1,11 @@
 # Pack composition delivery plan
 
-Status: proposed implementation backlog, 2026-09-26. Planning only; creating
-issues does not implement the composition resolver, lifecycle coordinator, or
-workflow dispatcher.
+Status: delivered, 2026-09-26. Slices C01–C09 are implemented and closed; see the architecture document's status line.
+
+## Delivery state (audited 2026-09-26)
+
+- Shipped: Delivered: C01–C09 (#1789–#1797) are implemented in `src/composition/`; see the status line of the architecture document.
+- Composition dependency: not applicable (this is the composition plan itself).
 
 Tracking: [#1788](https://github.com/Ikey168/Noesis/issues/1788). Architecture:
 [pack and workflow composition](../architecture/pack-workflow-composition.md).

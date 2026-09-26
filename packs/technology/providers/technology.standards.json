@@ -1,0 +1,86 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "technology.standards",
+  "version": "1.0.0",
+  "implementation": {
+    "name": "src.kb.standards",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "technology.standards",
+      "contract": {
+        "name": "noesis-standard-catalogue",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "inspect-edition",
+        "inspect-certificate"
+      ],
+      "semantic_constraints": {
+        "edition": "catalogue edition as published"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "inspect-edition",
+      "tool": "noesis-knowledge-engine.inspect_standard_edition",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "editions",
+      "required_scopes": [
+        "knowledge:standards:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "inspect-certificate",
+      "tool": "noesis-knowledge-engine.inspect_certificate",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "editions",
+      "required_scopes": [
+        "knowledge:standards:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "standard-edition",
+      "store": "src.kb.standards",
+      "tables": [
+        "standard_revisions",
+        "standard_current",
+        "certificate_records",
+        "certificate_product_links"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "editions",
+      "kind": "table-exists",
+      "target": "standard_revisions"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "technical-software-knowledge",
+      "version": "1.1.0",
+      "range": "^1.1.0"
+    }
+  ]
+}

@@ -156,14 +156,22 @@ and existing outbox.
 ## Bundle and MCP (F14)
 
 `BUNDLE` declares source, ontology, eligibility, ranking and workflow
-contributions. The composition plan it refers to
-(`docs/architecture/pack-workflow-composition.md`, C02–C07) is proposed and not
-present in this repository, so those dependencies are declared as pending and
-no composition runtime is implemented. `funding_bundle_status` reports each
-provider and entry point as `ready` (a network observation is current),
-`fixture-only` or `unavailable`. `set_funding_bundle_enabled` (operator) gates
-only the funding tools; shared providers, research projects and other
-workflows keep working.
+contributions. The bundle is composed under the pack/workflow composition
+contracts (`docs/architecture/pack-workflow-composition.md`, C02–C07).
+
+- **Manifest:** `packs/funding-grants/manifest.json` requires the funding-owned
+  `funding.core` provider (`packs/funding-grants/providers/funding.core.json`)
+  plus the shared research-project, authored-report, decision, subscription and
+  intake-session providers. It declares no store of its own that duplicates them.
+- **Readiness:** `funding_bundle_status` reports each provider and entry point as
+  `ready` (a network observation is current), `fixture-only` or `unavailable`.
+  Once the bundle is composition-managed, it also includes the coordinator's
+  operation-specific readiness for the funding bindings.
+- **Enablement:** `set_funding_bundle_enabled` (operator) is a selection change
+  through the lifecycle coordinator once the bundle is cut over, which makes it
+  deployment-wide. Before cutover it stays the per-namespace flag. Either way it
+  gates only the funding tools; shared providers, research projects and other
+  workflows keep working.
 
 ## Acceptance evidence
 

@@ -63,10 +63,43 @@ def registered_view(root: Path | None = None) -> CompositionView:
     return CompositionView(result.plan, descriptors, bundles.values())
 
 
+def annotate(item: Mapping[str, Any]) -> str:
+    """The reviewed resolution for a disagreement, or ``unreviewed``.
+
+    Explicit entries win; otherwise the three reviewed classes of difference
+    apply: plan-derived pack attribution, probe-id vocabulary, and state
+    changes that follow from bundle enablement or from probing a store the
+    provider owns. Anything else stays ``unreviewed`` and fails the parity test.
+    """
+
+    explicit = ANNOTATIONS.get((item["tool"], item["field"]))
+    if explicit:
+        return explicit
+    from src.composition.adapter import bundle_id
+
+    legacy, composed, reason = item.get("legacy"), item.get("composition"), str(item.get("reason") or "")
+    if item["field"] == "pack":
+        if legacy is None:
+            return ("resolved: attribution now comes from the plan (the bundle contributes the bound capability); "
+                    "legacy had no pack for this server")
+        if isinstance(legacy, str) and bundle_id(legacy) == composed:
+            return "resolved: same bundle under its composition id (legacy alias)"
+    if item["field"] == "required_data":
+        return _VOCABULARY
+    if item["field"] == "state":
+        if composed == "disabled" and "pack is disabled" in reason:
+            return ("intended: once composition-managed, the tool follows its bundle's enablement; legacy authority "
+                    "applies until cutover")
+        if composed in {"degraded", "unavailable"} and legacy in {"available", "degraded", "empty"}:
+            return ("intended: the descriptor probes the store the provider owns; the legacy table did not probe it "
+                    "or probed a different store")
+    return "unreviewed"
+
+
 def report(disagreements: list[Mapping[str, Any]], view: CompositionView) -> dict[str, Any]:
     bundles: dict[str, list[dict[str, Any]]] = {}
     for item in sorted(disagreements, key=lambda d: (d["bundle"], d["tool"], d["field"])):
-        note = ANNOTATIONS.get((item["tool"], item["field"]), "unreviewed")
+        note = annotate(item)
         bundles.setdefault(item["bundle"], []).append({**item, "annotation": note})
     return {
         "report": "noesis-composition-shadow-diff",

@@ -32,11 +32,23 @@
           "name": "noesis-geospatial-place",
           "version": "1.0.0"
         }
+      },
+      {
+        "id": "geospatial.transit-schedules",
+        "provider": "geospatial.transit",
+        "contract": {
+          "name": "noesis-transit-feed",
+          "version": "1.0.0"
+        }
       }
     ],
     "providers": [
       {
         "id": "geospatial.core",
+        "version": "1.0.0"
+      },
+      {
+        "id": "geospatial.transit",
         "version": "1.0.0"
       }
     ],

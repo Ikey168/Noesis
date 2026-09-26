@@ -5,6 +5,11 @@
 **Phase:** [Scope and readiness](https://github.com/Ikey168/Noesis/issues/1648)  
 **Audit issue:** [#1654](https://github.com/Ikey168/Noesis/issues/1654)
 
+## Delivery state (audited 2026-09-26)
+
+- Shipped: The market bundle ships in `src/market` and `tools/market_mcp`; this audit's dated baseline is historical and is not updated here.
+- Composition dependency: `market.core` (instruments, prices) and `market.lei` (LEI record owner). Provider approval (see the provider evaluation) needs none.
+
 ## Purpose and method
 
 This audit establishes the Noesis repository baseline and bounds its first market-analytics release. It is based on code, contracts, documentation, and completed implementation issues present in the repository on the date above. Two public macro connector paths were called against live Eurostat and World Bank endpoints; the configured FRED and SEC paths could not be reached because their credentials are absent. The in-memory quantitative calculation was exercised. No production deployment, persistent warehouse, market price feed, or analyst workflow was exercised.

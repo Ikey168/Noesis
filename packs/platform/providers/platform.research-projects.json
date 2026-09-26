@@ -1,0 +1,81 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "platform.research-projects",
+  "version": "1.0.0",
+  "implementation": {
+    "name": "src.kb.research_projects",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "platform.research-projects",
+      "contract": {
+        "name": "noesis-research-project",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "create-project",
+        "inspect-project"
+      ],
+      "semantic_constraints": {
+        "authority": "owner-scoped projects with budgets"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "create-project",
+      "tool": "noesis-knowledge-engine.create_research_project",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "request_key"
+      },
+      "readiness_probe": "projects",
+      "required_scopes": [
+        "knowledge:projects:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "inspect-project",
+      "tool": "noesis-knowledge-engine.inspect_research_project",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "projects",
+      "required_scopes": [
+        "knowledge:projects:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "research-project",
+      "store": "src.kb.research_projects",
+      "tables": [
+        "research_projects",
+        "research_project_revisions",
+        "research_project_expenditures",
+        "research_project_reservations"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "projects",
+      "kind": "table-exists",
+      "target": "research_projects"
+    }
+  ]
+}

@@ -1,0 +1,86 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "technology.patents",
+  "version": "1.0.0",
+  "implementation": {
+    "name": "src.kb.patents",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "technology.patents",
+      "contract": {
+        "name": "noesis-patent-part",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "inspect-publication",
+        "family-members"
+      ],
+      "semantic_constraints": {
+        "family": "DOCDB family identity"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "inspect-publication",
+      "tool": "noesis-knowledge-engine.inspect_patent_publication",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "publications",
+      "required_scopes": [
+        "knowledge:patents:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "family-members",
+      "tool": "noesis-knowledge-engine.patent_family_members",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "publications",
+      "required_scopes": [
+        "knowledge:patents:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "patent-publication",
+      "store": "src.kb.patents",
+      "tables": [
+        "patent_publications",
+        "patent_part_revisions",
+        "patent_part_current",
+        "patent_links"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "publications",
+      "kind": "table-exists",
+      "target": "patent_publications"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "research-discovery",
+      "version": "1.4.0",
+      "range": "^1.4.0"
+    }
+  ]
+}

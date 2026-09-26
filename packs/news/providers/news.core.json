@@ -1,0 +1,66 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "news.core",
+  "version": "1.0.0",
+  "implementation": {
+    "name": "tools/pipeline_mcp",
+    "version": "1.0.0",
+    "server": "noesis-pipeline"
+  },
+  "capabilities": [
+    {
+      "id": "news.articles",
+      "contract": {
+        "name": "noesis-news-articles",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "latest-articles",
+        "semantic-search"
+      ],
+      "semantic_constraints": {
+        "scope": "ingested news documents"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "latest-articles",
+      "tool": "noesis-pipeline.latest_articles",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "documents",
+      "required_scopes": [
+        "knowledge:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "semantic-search",
+      "tool": "noesis-pipeline.semantic_search",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "documents",
+      "required_scopes": [
+        "knowledge:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    }
+  ],
+  "stores": [],
+  "readiness_probes": [
+    {
+      "id": "documents",
+      "kind": "table-exists",
+      "target": "documents"
+    }
+  ]
+}

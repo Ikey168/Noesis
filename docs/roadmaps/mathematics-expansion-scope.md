@@ -1,22 +1,25 @@
 # Mathematics expansion scope
 
-Status: proposed, 2026-09-25. This expands the existing Science/Research
-capabilities; it does not create a separate domain or pack. Provider contracts
-and live integrations have not yet been validated by this scope document.
+Status: implemented offline, 2026-09-26, as a Science/Research expansion (no separate pack). Bounded live acceptance is tracked in #1786.
+
+## Delivery state (audited 2026-09-26)
+
+- Shipped: #1752–#1760 are closed; the code is `src/kb/mathematics.py` (projector `noesis-math-record-v1` in `research-discovery`). Bounded live acceptance for zbMATH Open and OEIS is tracked in #1786.
+- Composition dependency: record owner `science.mathematics` (`packs/science/providers/science.mathematics.json`), bound by the science bundle. The remaining live acceptance (#1786) needs none.
 
 Tracking: [#1751](https://github.com/Ikey168/Noesis/issues/1751).
 
 ## Implementation issues
 
-- [ ] [#1752](https://github.com/Ikey168/Noesis/issues/1752) — Define source access, licensing, identifiers, and update contracts.
-- [ ] [#1753](https://github.com/Ikey168/Noesis/issues/1753) — Add bounded scholarly-metadata ingestion for mathematics sources.
-- [ ] [#1754](https://github.com/Ikey168/Noesis/issues/1754) — Add OEIS sequence records and literature references to Research.
-- [ ] [#1755](https://github.com/Ikey168/Noesis/issues/1755) — Ingest versioned declarations from formal mathematics libraries.
-- [ ] [#1756](https://github.com/Ikey168/Noesis/issues/1756) — Normalize mathematical objects and extract theorem-level records.
-- [ ] [#1757](https://github.com/Ikey168/Noesis/issues/1757) — Link papers, mathematical objects, and formal declarations with evidence.
-- [ ] [#1758](https://github.com/Ikey168/Noesis/issues/1758) — Track formal proof dependencies and library revisions.
-- [ ] [#1759](https://github.com/Ikey168/Noesis/issues/1759) — Expose mathematics discovery through existing Research workflows.
-- [ ] [#1760](https://github.com/Ikey168/Noesis/issues/1760) — Add offline acceptance and a reproducible demo.
+- [x] [#1752](https://github.com/Ikey168/Noesis/issues/1752) — Define source access, licensing, identifiers, and update contracts.
+- [x] [#1753](https://github.com/Ikey168/Noesis/issues/1753) — Add bounded scholarly-metadata ingestion for mathematics sources.
+- [x] [#1754](https://github.com/Ikey168/Noesis/issues/1754) — Add OEIS sequence records and literature references to Research.
+- [x] [#1755](https://github.com/Ikey168/Noesis/issues/1755) — Ingest versioned declarations from formal mathematics libraries.
+- [x] [#1756](https://github.com/Ikey168/Noesis/issues/1756) — Normalize mathematical objects and extract theorem-level records.
+- [x] [#1757](https://github.com/Ikey168/Noesis/issues/1757) — Link papers, mathematical objects, and formal declarations with evidence.
+- [x] [#1758](https://github.com/Ikey168/Noesis/issues/1758) — Track formal proof dependencies and library revisions.
+- [x] [#1759](https://github.com/Ikey168/Noesis/issues/1759) — Expose mathematics discovery through existing Research workflows.
+- [x] [#1760](https://github.com/Ikey168/Noesis/issues/1760) — Add offline acceptance and a reproducible demo.
 
 ## Implementation status (2026-09-26)
 

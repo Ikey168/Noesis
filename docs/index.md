@@ -115,7 +115,10 @@ For the project overview and local setup, start with the
 - [MCP rearchitecture](architecture/mcp-rearchitecture.md) — the
   capability-plane design and its stages
 - [Pack and workflow composition](architecture/pack-workflow-composition.md) —
-  proposed shared capability architecture, lifecycle rules, and migration plan
+  implemented shared capability architecture: resolver, readiness, lifecycle
+  coordinator and authorized dispatch
+- [Composition migration](architecture/composition-migration.md) — per-bundle
+  ownership statements, projector record owners and the legacy paths kept
 - [Knowledge-engine pivot](architecture/knowledge-engine-pivot.md) —
   claim/triple-centric knowledge-graph design
 - [Exactly-once delivery](architecture/exactly-once-delivery.md) — streaming

@@ -114,7 +114,8 @@ def test_shadow_mode_returns_the_legacy_catalog_byte_for_byte(legacy):
     fields = {(d["tool"], d["field"]) for d in sink}
     assert {(SPATIAL_TOOL, "pack"), (SPATIAL_TOOL, "required_data"), (SPATIAL_TOOL, "state")} <= fields
     grouped = report(sink, _world())["disagreements"]
-    assert set(grouped) == {"geospatial"} and all(d["annotation"] == "unreviewed" for d in grouped["geospatial"])
+    assert set(grouped) == {"geospatial"}
+    assert all(d["annotation"].split(":")[0] in {"resolved", "intended"} for d in grouped["geospatial"])
 
 
 def test_committed_shadow_report_for_registered_bundles():

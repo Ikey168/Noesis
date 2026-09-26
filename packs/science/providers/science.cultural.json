@@ -1,0 +1,86 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "science.cultural",
+  "version": "1.0.0",
+  "implementation": {
+    "name": "src.kb.cultural",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "science.cultural-objects",
+      "contract": {
+        "name": "noesis-cultural-object",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "inspect-object",
+        "search-objects"
+      ],
+      "semantic_constraints": {
+        "rights": "per-object rights policy"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "inspect-object",
+      "tool": "noesis-knowledge-engine.inspect_cultural_object",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "objects",
+      "required_scopes": [
+        "knowledge:cultural:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "search-objects",
+      "tool": "noesis-knowledge-engine.search_cultural_objects",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "objects",
+      "required_scopes": [
+        "knowledge:cultural:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "cultural-object",
+      "store": "src.kb.cultural",
+      "tables": [
+        "cultural_objects",
+        "cultural_revisions",
+        "cultural_current",
+        "cultural_places"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "objects",
+      "kind": "table-exists",
+      "target": "cultural_objects"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "primary-scientific-evidence",
+      "version": "1.1.0",
+      "range": "^1.1.0"
+    }
+  ]
+}
