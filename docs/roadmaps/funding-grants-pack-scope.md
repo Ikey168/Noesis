@@ -5,6 +5,15 @@ issues does not implement integrations or submit funding applications.
 
 Tracking: [#1761](https://github.com/Ikey168/Noesis/issues/1761).
 
+## Delivery state (2026-09-26)
+
+Audited against the repository on 2026-09-26 (C09.1, [Ikey168/Noesis#1840](https://github.com/Ikey168/Noesis/issues/1840)). Every item below cites a file or tool that exists in this checkout; where this section and older text disagree, this section is current.
+
+- **Shipped:** #1762–#1774 and #1776 — provider contracts, records, private profiles, the NLnet, EU, Förderdatenbank and EXIST parsers, normalization and revisions, eligibility, ranking, workspaces, drafts and budgets, monitoring and offline acceptance (feature commit `27c5778d`). The "Planning only" status line above predates that commit.
+- **Shipped by C09.4:** #1775 — the bundle is composed under the composition contracts: `packs/funding-grants/pack.json` and `composition.json`, the generated `noesis.funding` provider, bindings to the shared research-project, authored-report, quantitative, subscription and document-reference providers, readiness from the composition assessment, and enablement as a coordinator selection change (see `docs/subsystems/funding-grants.md`).
+- **Partial:** #1777 — the offline demo ships (`scripts/funding_demo.py`); the live check failed because egress was denied.
+- **Composition dependency of remaining work:** none for #1777. A dispatched profile → shortlist → workspace workflow template is not part of this roadmap and has no issue yet.
+
 ## Outcome
 
 Given an explicit private applicant/project profile, discover open and upcoming
@@ -55,10 +64,11 @@ Reuse source execution, Research, Decision Support, Creation, Awareness,
 subscriptions, and project/intake state. Keep applicant facts owner-scoped;
 shared source records must not contain private profile data.
 
-The composition architecture is proposed. Source contracts, record design and
-connector work can advance independently. F14 depends on architecture slices
-C02–C07 for resolved bindings, readiness, lifecycle and actual authorized dispatch.
-Do not introduce a parallel scheduler, permissions ledger or project store.
+The composition architecture is implemented (C02–C08) and F14 (#1775) is
+composed under it (C09.4): resolved bindings, readiness and lifecycle come from
+the composition runtime. Authorized dispatch is available to a funding
+workflow template, which does not exist yet. Do not introduce a parallel
+scheduler, permissions ledger or project store.
 
 Existing `config/extraction_schemas/eu-funding.json` models award metadata.
 Audit it for reuse but keep programmes, calls/rounds, applications and awards

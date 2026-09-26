@@ -3,11 +3,20 @@
   "name": "geospatial",
   "version": "1.0.0",
   "description": "Acquired vector features with source identity, revision history and replayable points-inside-boundary queries.",
-  "requires": [],
+  "requires": [
+    {
+      "capability": "transit.schedules",
+      "range": "^1.0.0"
+    }
+  ],
   "contributes": {
     "providers": [
       {
         "provider_id": "noesis.geospatial",
+        "version": "1.0.0"
+      },
+      {
+        "provider_id": "noesis.transit",
         "version": "1.0.0"
       }
     ]
@@ -23,9 +32,13 @@
   },
   "aliases": {
     "capability_labels": {
+      "bounded-geojson-featurecollection-import": "spatial.feature-import",
+      "complete-snapshot-removal-semantics": "sources.acquire",
+      "durable-spatial-projection": "spatial.geometry-store",
+      "native-wfs-2.0.0-geojson-acquisition": "sources.acquire",
       "points-inside-boundary-query": "spatial.points-within-boundary",
-      "reviewable-boundary-name-resolution": "spatial.resolution-record",
-      "durable-spatial-projection": "spatial.geometry-store"
+      "provenance-preserving-feature-revisions": "spatial.feature-inspect",
+      "reviewable-boundary-name-resolution": "spatial.boundary-resolution"
     }
   }
 }

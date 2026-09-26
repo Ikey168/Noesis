@@ -1,8 +1,21 @@
 # Pack and workflow composition architecture
 
-Status: proposed architecture, 2026-09-25. Planning and documentation only.
-This document specifies future behavior; it does not claim the composition
-resolver, lifecycle coordinator, or workflow dispatcher is implemented.
+Status: implemented, 2026-09-26 (C01–C09, tracker
+[#1788](https://github.com/Ikey168/Noesis/issues/1788)). Proposed 2026-09-25.
+Implemented surfaces: the v2 manifest, provider descriptor, plan, readiness and
+activation-receipt contracts with v1 adapters (`src/composition/contracts.py`);
+the pure resolver (`resolver.py`); plan-derived catalog facts, readiness and
+shadow mode (`readiness.py`, `src/mcp_host/catalog.py`); the lifecycle
+coordinator with journal, generation switch, retention and one enablement
+authority (`lifecycle.py`, `store.py`, ADR-003); source-upgrade, schedule,
+shared-run and account-limit integration (`sources.py`); workflow templates and
+the authorized dispatcher (`workflows.py`, `dispatcher.py`); and every shipped
+bundle migrated under it (`bundles.py`, `migration.py`): OSINT, Science
+(Research, cultural collections, mathematics, patents), Geospatial (with
+transit), Legal, Economics (with LEI), Political, Technology (with standards),
+Market, Products, Funding & Grants and the code-registered Research bundle.
+What intentionally remains on the legacy path is listed under
+[Legacy paths after migration](#legacy-paths-after-migration).
 
 ## Purpose and architectural decision
 
@@ -37,7 +50,7 @@ journal storage and reconciliation are decided in
 | [Manifest](../../src/domains/pack_format.py) and [installer](../../src/domains/pack_install.py) | Declarative v1 manifests; installation enables a pack, replacement uninstalls the old registration first. Panels and planner keywords are now advisory. | Need staged replacement, explicit contribution ownership, and shared dependency lifecycles. |
 | [Source packs](../../src/ingestion/source_packs.py) and [runtime](../../src/ingestion/source_pack_runtime.py) | Durable versions, enablement, acquisition preflight, budgets, cursors, schedules, and receipts. | Reuse execution and persistence; connect pack dependencies to these authoritative records. |
 | [Source upgrades](../../src/ingestion/source_pack_upgrades.py) | Inspect dependent projects, templates, schedules, and reports before applying a version change. | Extend impact analysis to compositions; preserve existing source upgrade controls. |
-| [MCP catalog](../../src/mcp_host/catalog.py) | Discovers actual tools and evaluates authorization, backend, data, and transport state; some pack mapping is hard-coded. | Add explicit capability-to-provider bindings and composition explanations to this catalog. |
+| [MCP catalog](../../src/mcp_host/catalog.py) | Discovers actual tools and evaluates authorization, backend, data, and transport state; some pack mapping is hard-coded. | Add explicit capability-to-provider bindings and composition explanations to this catalog. (Done in C04; the hard-coded mapping remains the fallback for tools no plan binds.) |
 | [Schema registry](../../src/kb/schema_registry.py) and [ontology](../../src/kb/ontology.py) | Versioned modules, compatibility/dependency logic, and evidence-backed crosswalks. | Reuse contract identities and version semantics; avoid a parallel ontology registry. |
 | [KB domains](kb-domains.md) | Content views can overlap; namespace backings have separate lifecycles. | Preserve this distinction. A pack or profile is not a namespace or authorization grant. |
 | [Intake sessions](../subsystems/intake-modes.md) and [investigation templates](../guides/investigation-workflows.md) | Coordinate existing artifacts; templates pin source packs. | Reference a resolved composition alongside existing session/project state. |
@@ -275,17 +288,17 @@ These slices are tracked in
 slice (C01 #1789 through C09 #1797). Dependencies refer to the identifiers in
 this table.
 
-| Slice | Deliverable and boundary | Depends on | Acceptance |
-| --- | --- | --- | --- |
-| C01 | Inventory capability providers, authoritative stores, routes/tools, and existing dependency/version rules. | — | OSINT, Research, Geospatial, sources, and intake have an ownership map; unknowns are recorded. |
-| C02 | Specify composition manifest, provider, plan, readiness, and receipt schemas plus v1 adapters. | C01 | Valid/invalid examples cover aliases, ranges, conflicting owners, effects, and critical unknown fields. |
-| C03 | Build pure dependency and binding resolution over retained manifests. | C02 | Deterministic pins; actionable cycle, ambiguity, and incompatibility failures; no mutations or network. |
-| C04 | Extend catalog discovery and operation-specific readiness with the plan. | C03 | Correct explanations for disabled, unauthorized, empty, offline, and optional states without private-data disclosure. |
-| C05 | Add durable composition selection, activation journal, generation switch, and dependency retention. | C03, C04 | Failure/restart retains or reconstructs a working prior generation; disabling one consumer preserves another. |
-| C06 | Integrate source upgrade impact, schedule ownership, acquisition reuse, and shared budgets. | C05 | Source pins/cursors remain authoritative; incompatible upgrades are blocked; callers cannot multiply account quotas. |
-| C07 | Bind intake/templates/recipes to plans and implement authorized execution adapters. | C04, C05 | A real bounded local journey produces owner receipts; revocation, cancellation, retry, and unknown outcomes are handled. |
-| C08 | Prove the OSINT + Research + Geospatial composition and migration parity. | C06, C07 | Shared identities, selective disablement, upgrade impact, rollback, and legacy behavior pass the matrix below. |
-| C09 | Migrate additional bundles and update source-expansion roadmaps using the proven contracts. | C08 | Each migration names ownership, retained compatibility, and acceptance evidence before retiring its legacy path. |
+| Slice | Deliverable and boundary | Depends on | Acceptance | Status |
+| --- | --- | --- | --- | --- |
+| C01 | Inventory capability providers, authoritative stores, routes/tools, and existing dependency/version rules. | — | OSINT, Research, Geospatial, sources, and intake have an ownership map; unknowns are recorded. | Delivered: `pack-composition-inventory.md`, preserved-identifier fixture |
+| C02 | Specify composition manifest, provider, plan, readiness, and receipt schemas plus v1 adapters. | C01 | Valid/invalid examples cover aliases, ranges, conflicting owners, effects, and critical unknown fields. | Delivered: five JSON Schemas, registry identities, v1 adapters |
+| C03 | Build pure dependency and binding resolution over retained manifests. | C02 | Deterministic pins; actionable cycle, ambiguity, and incompatibility failures; no mutations or network. | Delivered: `resolver.py` |
+| C04 | Extend catalog discovery and operation-specific readiness with the plan. | C03 | Correct explanations for disabled, unauthorized, empty, offline, and optional states without private-data disclosure. | Delivered: catalog composition modes, readiness, shadow report |
+| C05 | Add durable composition selection, activation journal, generation switch, and dependency retention. | C03, C04 | Failure/restart retains or reconstructs a working prior generation; disabling one consumer preserves another. | Delivered: coordinator, ADR-003 journal, authority hook |
+| C06 | Integrate source upgrade impact, schedule ownership, acquisition reuse, and shared budgets. | C05 | Source pins/cursors remain authoritative; incompatible upgrades are blocked; callers cannot multiply account quotas. | Delivered: `sources.py`, upgrade impact, `run_shared`, account limits |
+| C07 | Bind intake/templates/recipes to plans and implement authorized execution adapters. | C04, C05 | A real bounded local journey produces owner receipts; revocation, cancellation, retry, and unknown outcomes are handled. | Delivered: workflow templates, dispatcher, step receipts |
+| C08 | Prove the OSINT + Research + Geospatial composition and migration parity. | C06, C07 | Shared identities, selective disablement, upgrade impact, rollback, and legacy behavior pass the matrix below. | Delivered: `tests/unit/composition/test_acceptance.py` |
+| C09 | Migrate additional bundles and update source-expansion roadmaps using the proven contracts. | C08 | Each migration names ownership, retained compatibility, and acceptance evidence before retiring its legacy path. | Delivered: generated providers and overlays, `migration.py`, funding composition, roadmap delivery state |
 
 V1 bundles initially adapt into composition without changing their runtime
 behavior. Compare catalog/plan outputs in shadow mode before switching lifecycle
@@ -294,6 +307,47 @@ authority: the legacy path until cutover, the composition coordinator afterward.
 Legacy API calls after cutover delegate or return a compatibility error; they
 must not silently maintain a second enabled-state ledger. A compatibility flag
 may roll back bindings while retained source versions and records stay intact.
+
+### Migration procedure and results (C09)
+
+Every shipped bundle follows the procedure proven in C08.6, run by
+`scripts/migrate_composition.py` (`src/composition/migration.py`): install the
+shipped manifests and descriptors, select the bundles the legacy registry has
+enabled, activate one generation, cut every bundle over, and verify that
+source-pack versions, pins, checkpoints, watermarks and runs are unchanged.
+
+| Bundle | Ownership (provider → records) | Retained compatibility | Acceptance evidence |
+| --- | --- | --- | --- |
+| osint, science, geospatial | C08; plus generated `noesis.osint-investigation`, `noesis.scholarly`, `noesis.cultural`, `noesis.mathematics`, `noesis.patents`, `noesis.transit` | Tool IDs, aliases and required data unchanged (`preserved_identifiers.json`); declared labels aliased in each `composition.json` | `test_acceptance.py`, `test_migration.py` |
+| legal, economics, political, technology | `noesis.legal`, `noesis.economics` + `noesis.lei`, `noesis.political`, `noesis.technology` + `noesis.standards` | The code-registered domain module keeps its routes and enrichers; the manifest adds only provisioning templates (`lifecycle._registration`) | `test_migration.py::test_code_registered_twins_keep_their_domain_pack_registration` |
+| market, products, energy | `noesis.market`, `noesis.products`; energy contributes no provider (panels, planner keywords and an enricher only) | v1 runtime fields carried in `legacy_v1` | `test_migration.py`, shadow report |
+| research (code-registered) | `noesis.research-analytics` | `src/domains/research/composition.json` overlays the adapted DomainPack | shadow report |
+| funding-grants | `noesis.funding`; binds `noesis.research-projects`, `noesis.reports`, `noesis.quantitative`, `noesis.subscriptions`, `noesis.documents` | `set_funding_bundle_enabled` delegates to the coordinator after cutover | `tests/unit/funding/test_funding_composition.py` |
+| news (code-registered) | none (no capability of its own) | Adapted from its DomainPack; managed like any other root | `test_migration.py` |
+
+Every source-pack projector has one named owner (`bundles.PROJECTOR_OWNERS`,
+checked against `PROJECTORS`) and no record kind or table has two owners. The
+generated descriptors and overlays are rendered from the ownership table and
+checked in CI (`scripts/generate_composition_bundles.py --check`). Declared
+capability labels that only run inside another operation are listed per pack
+under `metadata.unbound_capability_labels`, not bound. The shadow diff has 250
+disagreements, all annotated: tool pack attribution for newly bound tools (pack
+attribution is not a preserved identifier) plus the C08 entries.
+
+### Legacy paths after migration
+
+| Path | State | Reason and owner |
+| --- | --- | --- |
+| `registry.enable_pack`/`disable_pack` | Delegating shim for managed bundles | Callers keep working; the coordinator is the authority. Composition. |
+| `pack_install.install_manifest`/`uninstall` | Refused (`CompatibilityError`) for managed bundles | Delegating would change install/uninstall semantics. Composition. |
+| `registry.load_config` | Leaves managed bundles alone | `config/domain_packs.json` still enables unmanaged packs. Domains. |
+| `funding_bundle_state` table | Written only while funding is legacy-managed | Per-namespace enablement before cutover or with `NOESIS_COMPOSITION_LIFECYCLE=legacy`. Funding. |
+| Catalog pack/stem tables in `src/mcp_host/catalog.py` | Kept | Fallback for tools no plan binds and for deployments that have not run the migration; `composition_mode` defaults to `off` without a composition. MCP host. |
+| `NOESIS_COMPOSITION_LIFECYCLE=legacy` | Kept | Process-wide compatibility flag; `Coordinator.rollback` restores one bundle. Composition. |
+
+A test (`test_migration.py::test_no_retired_legacy_path_changes_enabled_state_independently`)
+asserts that none of these paths changes a managed bundle's enabled state
+without the coordinator.
 
 ## Acceptance matrix
 
@@ -345,17 +399,20 @@ formal-proof capabilities can be independently referenced. Cultural collections
 compose Research with Geospatial. Patents, registries, standards, and transport
 reuse existing owners wherever their records and operations already fit.
 
-Music remains a possible future bundle, not approved implementation scope. Its
-identity model and optional audio processing would be contributions under the
-same contract. Funding & Grants now has an explicitly requested implementation
-backlog in [#1761](https://github.com/Ikey168/Noesis/issues/1761), scoped in the
-[funding roadmap](../roadmaps/funding-grants-pack-scope.md). It remains planned,
-not implemented; procurement remains a suggestion. This architecture does not
-automatically add other proposed subjects to the implementation backlog.
+Music remains a possible future bundle, not approved implementation scope, and
+is not migrated or scaffolded. Its identity model and optional audio processing
+would be contributions under the same contract. Funding & Grants
+([#1761](https://github.com/Ikey168/Noesis/issues/1761), scoped in the
+[funding roadmap](../roadmaps/funding-grants-pack-scope.md)) is implemented and
+composed under these contracts (C09.4); procurement remains a suggestion. This
+architecture does not automatically add other proposed subjects to the
+implementation backlog.
 
-Existing expansion issues remain in place. C09 should audit their delivery state
-and add composition dependencies only where necessary; do not assume earlier
-proposed roadmaps still describe what has or has not shipped.
+Existing expansion issues remain in place. C09.1 audited their delivery state on
+2026-09-26: each roadmap under `docs/roadmaps/` now has a dated "Delivery state"
+section naming what shipped, what is partial, and the composition dependency of
+the remaining work. Only Funding #1775 needed composition features, and C09.4
+delivered them.
 
 ## Tradeoffs and deferred decisions
 
@@ -364,12 +421,20 @@ known registered providers, explicit version rules, and one deployment; validate
 it with two consumers before generalizing. Keep provider semantics explicit so
 the catalog cannot advertise unsupported interchangeability.
 
-Implementation must settle the activation journal's storage location and process
-startup reconciliation boundary during C01/C02. Extend an existing registry where
-its transaction/lifecycle contract fits; otherwise introduce only composition
-metadata persistence, not a duplicate source, ontology, or session database.
+The activation journal's storage location and the startup reconciliation
+boundary are settled in
+[ADR-003](decisions/ADR-003-composition-journal-storage.md): composition
+metadata only (`composition_*` tables in the warehouse), not a duplicate
+source, ontology, or session database.
 
 Defer arbitrary third-party executable plugins, remote installation, automatic
 provider substitution, distributed activation, concurrent provider major versions,
 and automatic destructive schema migrations. None is required to establish
 shared capability ownership and reliable cross-pack workflows.
+
+Confirmed at C09.5 (2026-09-26): all six remain deferred and none has its own
+issue. The implementation enforces the boundaries: manifests cannot name code
+(only registered bindings dispatch), installation reads local files only, the
+resolver reports ambiguity instead of substituting providers, the coordinator
+serves one deployment, conflicting provider majors block composition, and
+switching the generation pointer never reverses a data migration.

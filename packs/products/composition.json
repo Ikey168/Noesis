@@ -1,0 +1,57 @@
+{
+  "pack_format": "noesis-pack-v2",
+  "name": "products",
+  "version": "1.0.0",
+  "description": "Physical product models (EU-market electronic displays) from Open Icecat and EPREL: provider-scoped identities, source-linked specifications, reviewable cross-provider matches, datasheet links and evidence-linked comparison.",
+  "requires": [
+    {
+      "capability": "products.evidence-linked-model-comparison",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "products.per-provider-readiness",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "products.provider-linked-document-acquisition",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "products.provider-linked-document-acquisition-acquisition",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "products.provider-scoped-product-identities",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "products.reviewable-cross-provider-matching-changes",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "products.unit-normalized-display-attributes",
+      "range": "^1.0.0"
+    }
+  ],
+  "contributes": {
+    "providers": [
+      {
+        "provider_id": "noesis.products",
+        "version": "1.0.0"
+      }
+    ]
+  },
+  "aliases": {
+    "capability_labels": {
+      "evidence-linked-model-comparison": "products.evidence-linked-model-comparison",
+      "explicit-withdrawal-refresh-semantics": "sources.acquire",
+      "native-eprel-public-api-acquisition": "sources.acquire",
+      "native-open-icecat-acquisition": "sources.acquire",
+      "per-provider-readiness": "products.per-provider-readiness",
+      "provider-linked-document-acquisition": "products.provider-linked-document-acquisition",
+      "provider-scoped-product-identities": "products.provider-scoped-product-identities",
+      "reviewable-cross-provider-matching": "products.reviewable-cross-provider-matching-changes",
+      "unit-normalized-display-attributes": "products.unit-normalized-display-attributes"
+    }
+  }
+}

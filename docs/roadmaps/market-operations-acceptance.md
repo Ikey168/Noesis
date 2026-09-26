@@ -22,3 +22,11 @@ provider freshness, concurrent query latency, notification delivery,
 backup/restore timing, infrastructure cost and licensed-provider request cost
 still require a configured deployment. They remain explicit gaps and are not
 inferred from the local receipt.
+
+## Delivery state (2026-09-26)
+
+Audited against the repository on 2026-09-26 (C09.1, [Ikey168/Noesis#1840](https://github.com/Ikey168/Noesis/issues/1840)). Every item below cites a file or tool that exists in this checkout; where this section and older text disagree, this section is current.
+
+- **Shipped:** latency, coverage and cost observations with SLO evaluation (`src/domains/market/operations.py`), budget control with idempotent charge replay, recovery drills and hash-checked backup/restore, audit retention and the local benchmark (`config/market/acceptance_packs/local-operations-benchmark.json`).
+- **Not shipped:** production telemetry (capacity, concurrent latency, notification delivery, backup timing, infrastructure and provider cost).
+- **Composition dependency of remaining work:** none.

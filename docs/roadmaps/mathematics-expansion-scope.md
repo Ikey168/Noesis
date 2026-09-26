@@ -6,6 +6,16 @@ and live integrations have not yet been validated by this scope document.
 
 Tracking: [#1751](https://github.com/Ikey168/Noesis/issues/1751).
 
+## Delivery state (2026-09-26)
+
+Audited against the repository on 2026-09-26 (C09.1, [Ikey168/Noesis#1840](https://github.com/Ikey168/Noesis/issues/1840)). Every item below cites a file or tool that exists in this checkout; where this section and older text disagree, this section is current.
+
+- **Shipped:** #1752–#1754 and #1756–#1760 — source contracts (`math_source_contracts`), zbMATH Open and OEIS ingestion from fixtures, math objects and theorem extraction, explicit and candidate links, proof dependencies and revisions, discovery through Research (`search_mathematics`) and the offline demo (`scripts/mathematics_demo.py`).
+- **Partial:** #1755 — Lean mathlib4 and Isabelle AFP are pinned and were validated live (`docs/development/mathematics-evidence/live-check-build-environment.json`); Coq has a lexical scanner but no pinned library source.
+- **Not shipped:** bounded live checks for zbMATH Open and OEIS (both `sources_unavailable` in the live receipt).
+- **Composition:** mathematics stays a Science/Research expansion. Its records are owned by the generated `noesis.mathematics` provider (`config/composition/providers/mathematics.json`, contributed by `packs/science`), which declares the `research-discovery` source pack and the `noesis-math-record-v1` projector's store.
+- **Composition dependency of remaining work:** none. The Coq source is a new pinned entry in `config/source_packs/research.json`; the live checks need network access, not composition features.
+
 ## Implementation issues
 
 - [ ] [#1752](https://github.com/Ikey168/Noesis/issues/1752) — Define source access, licensing, identifiers, and update contracts.

@@ -9,6 +9,15 @@ of the existing Science/Research and Geospatial capabilities. It does not
 create a separate domain or pack. Its child
 issues define scope, dependencies and acceptance.
 
+## Delivery state (2026-09-26)
+
+Audited against the repository on 2026-09-26 (C09.1, [Ikey168/Noesis#1840](https://github.com/Ikey168/Noesis/issues/1840)). Every item below cites a file or tool that exists in this checkout; where this section and older text disagree, this section is current.
+
+- **Shipped:** #1734–#1744 — object, collection, creator and rights records (`src/kb/cultural.py`), DDB and Europeana acquisition (`config/source_packs/scientific.json`), multilingual metadata, matching without merging, research links, geospatial projection, rights-aware assets, the Science/Geospatial wiring, place-based discovery (`search_cultural_objects`) and offline acceptance (`cultural_readiness`).
+- **Partial:** #1733 — collections are pinned by query, but the fixtures are fictional and DDB/Europeana overlap and item-level rights were never measured; #1745 — the offline demo exists only as tests, and the live check was blocked for both providers (no API keys).
+- **Composition:** cultural collections compose Research with Geospatial. The generated `noesis.cultural` provider (contributed by `packs/science`) owns the cultural records and projects places through the shared spatial store; it declares the `primary-scientific-evidence` source pack.
+- **Composition dependency of remaining work:** none. #1733 and #1745 need credentialed live runs and measurement.
+
 ## GitHub implementation issues
 
 - [ ] [#1733](https://github.com/Ikey168/Noesis/issues/1733) — Select bounded Europeana and DDB collections, rights and place coverage.

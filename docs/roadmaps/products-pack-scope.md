@@ -10,6 +10,16 @@ Reuse shared runtime improvements without making either pack depend on the
 other pack's delivery. Audit existing product/company relationship work from
 [#1674](https://github.com/Ikey168/Noesis/issues/1674) before designing new storage.
 
+## Delivery state (2026-09-26)
+
+Audited against the repository on 2026-09-26 (C09.1, [Ikey168/Noesis#1840](https://github.com/Ikey168/Noesis/issues/1840)). Every item below cites a file or tool that exists in this checkout; where this section and older text disagree, this section is current.
+
+- **Shipped:** #1708–#1718 — family/model/variant identities (`src/kb/products.py`), Open Icecat and EPREL acquisition from fixtures (`src/ingestion/product_sources.py`, `config/source_packs/products.json`), reviewable matching, display normalization, revisions, refresh and withdrawal, datasheets, the pack and source profile, lookup and comparison, and offline acceptance. The earlier note that "no existing Icecat, EPREL, GTIN or product-catalog implementation was found" is out of date.
+- **Partial:** #1719 — the three-model comparison exists offline; the live run was `blocked`/`failed` (`docs/development/products-evidence/live-check-build-environment.json`).
+- **Not shipped:** #1707 — access and cross-source overlap validation (`"cross_source_overlap": "outstanding"`).
+- **Composition:** `packs/products` is composition-managed (C09.3): it contributes the generated `noesis.products` provider, which owns the product records written by the `noesis-product-record-v1` projector.
+- **Composition dependency of remaining work:** none. #1707 and #1719 need credentialed live runs.
+
 ## GitHub implementation issues
 
 - [ ] [#1707](https://github.com/Ikey168/Noesis/issues/1707) — Validate Open Icecat and EPREL access and display-model overlap.

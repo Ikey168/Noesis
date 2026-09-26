@@ -38,6 +38,8 @@ from tests.unit.geospatial_pack_helpers import PUBLIC_DNS
 ROOT = Path(__file__).resolve().parents[3]
 BUNDLES = ("geospatial", "osint", "science")
 OSINT, SCIENCE = "osint@1.0.0", "science@1.2.0"
+# Geospatial consumes its own transit capability (C09.3), so it is a consumer too.
+GEOSPATIAL = "geospatial@1.0.0"
 acceptance = pytest.mark.composition_acceptance
 
 
@@ -312,7 +314,9 @@ def test_upgrade_of_a_pinned_source_or_provider_keeps_history_and_needs_a_new_pl
     for capability in revised["capabilities"]:
         capability["version"] = "1.1.0"
     world.coordinator.store.install_provider(revised, principal_id="operator")
-    assert world.coordinator.preview(retain=False)["affected_consumers"] == [OSINT, SCIENCE]
+    # geospatial@1.0.0 contributes only noesis.geospatial@1.0.0, so rebinding
+    # to 1.1.0 drops it (and its transit binding) from the closure.
+    assert world.coordinator.preview(retain=False)["affected_consumers"] == [GEOSPATIAL, OSINT, SCIENCE]
 
 
 @acceptance
@@ -332,7 +336,7 @@ def test_crash_during_activation_keeps_the_previous_generation():
     lc.reset_runtime()
     report = lc.Coordinator(world.conn, contracts=world.coordinator.contracts()).reconcile()
     assert report["generation"] == 1 and report["abandoned"]
-    assert {b["consumer"] for b in lc.runtime().bindings()} == {OSINT}
+    assert {b["consumer"] for b in lc.runtime().bindings()} == {OSINT, GEOSPATIAL}
     run = world.run("osint", OSINT, world.session("after-crash"))
     assert run["status"] == "completed"
 

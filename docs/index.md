@@ -115,14 +115,19 @@ For the project overview and local setup, start with the
 - [MCP rearchitecture](architecture/mcp-rearchitecture.md) — the
   capability-plane design and its stages
 - [Pack and workflow composition](architecture/pack-workflow-composition.md) —
-  proposed shared capability architecture, lifecycle rules, and migration plan
+  shared capability architecture, implemented 2026-09-26 (C01–C09): manifests,
+  provider descriptors, resolver, readiness, lifecycle coordinator, source
+  integration and workflow dispatch; with the
+  [ownership inventory](architecture/pack-composition-inventory.md) and the
+  per-roadmap delivery state in [`roadmaps/`](roadmaps/)
 - [Knowledge-engine pivot](architecture/knowledge-engine-pivot.md) —
   claim/triple-centric knowledge-graph design
 - [Exactly-once delivery](architecture/exactly-once-delivery.md) — streaming
   delivery guarantees
 - Decision records:
   [ADR-001 tool-panel annotation](architecture/decisions/ADR-001-tool-panel-annotation.md) ·
-  [ADR-002 data-plane stage 3](architecture/decisions/ADR-002-data-plane-stage3.md)
+  [ADR-002 data-plane stage 3](architecture/decisions/ADR-002-data-plane-stage3.md) ·
+  [ADR-003 composition journal storage](architecture/decisions/ADR-003-composition-journal-storage.md)
 
 ## Integration
 

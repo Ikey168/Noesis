@@ -1,0 +1,79 @@
+{
+  "pack_format": "noesis-pack-v1",
+  "name": "funding-grants",
+  "version": "0.1.0",
+  "description": "Funding & Grants: bounded discovery of calls from declared funding providers, owner-scoped applicant profiles, requirement-based eligibility, explained shortlists, application workspaces and drafts on shared research-project, report and calculation owners, and monitoring through shared subscriptions. Never submits applications or contacts funders.",
+  "source_types": [
+    "web"
+  ],
+  "ui_flags": {},
+  "panels": [],
+  "planner_keywords": {
+    "sources": [
+      "nlnet",
+      "eu funding & tenders",
+      "foerderdatenbank",
+      "exist",
+      "funding call",
+      "grant programme"
+    ],
+    "entities": [
+      "funder",
+      "programme",
+      "call",
+      "grant",
+      "applicant"
+    ],
+    "events": [
+      "deadline",
+      "call opens",
+      "call closes",
+      "award"
+    ]
+  },
+  "enrichers": [],
+  "provisioning_templates": [],
+  "capabilities": [],
+  "schema_versions": {
+    "funding-record": "1.0.0",
+    "funding-shortlist": "1.0.0"
+  },
+  "ontology_extensions": {
+    "extends": "noesis-canonical-entity-relation-ontology",
+    "reuses": [
+      "noesis-funding-record-v1",
+      "noesis-funding-shortlist-v1"
+    ],
+    "object_types": [
+      "programme",
+      "call",
+      "directory_entry",
+      "award",
+      "funding_profile",
+      "funding_shortlist",
+      "funding_workspace"
+    ],
+    "relation_types": [
+      "call_of",
+      "administered_by",
+      "shortlisted_for",
+      "prepared_in"
+    ]
+  },
+  "query_examples": [
+    {
+      "intent": "Which funding calls are open for this namespace?",
+      "tool": "list_funding_opportunities",
+      "arguments": {
+        "namespace": "global"
+      },
+      "semantics": "stored opportunity revisions with their provider staleness; not a live search"
+    }
+  ],
+  "exclusions": [
+    "submitting applications",
+    "contacting funders",
+    "guaranteeing eligibility or funding success",
+    "a parallel scheduler, permission ledger or project store"
+  ]
+}

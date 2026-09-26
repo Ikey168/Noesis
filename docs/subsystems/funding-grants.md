@@ -155,15 +155,44 @@ and existing outbox.
 
 ## Bundle and MCP (F14)
 
-`BUNDLE` declares source, ontology, eligibility, ranking and workflow
-contributions. The composition plan it refers to
-(`docs/architecture/pack-workflow-composition.md`, C02–C07) is proposed and not
-present in this repository, so those dependencies are declared as pending and
-no composition runtime is implemented. `funding_bundle_status` reports each
-provider and entry point as `ready` (a network observation is current),
-`fixture-only` or `unavailable`. `set_funding_bundle_enabled` (operator) gates
-only the funding tools; shared providers, research projects and other
-workflows keep working.
+The bundle is composed under the
+[pack/workflow composition contracts](../architecture/pack-workflow-composition.md)
+(C09.4, [#1843](https://github.com/Ikey168/Noesis/issues/1843)):
+
+| Piece | Where |
+| --- | --- |
+| Manifest | `packs/funding-grants/pack.json` (v1 runtime fields) and `composition.json` (requirements, entry points) |
+| Funding-owned provider | `noesis.funding` (`config/composition/providers/funding.json`): the funding tools, split into read, change and acquisition capabilities, owning the `funding_*` tables |
+| Shared providers it binds | `noesis.research-projects`, `noesis.reports`, `noesis.quantitative`, `noesis.subscriptions`, `noesis.documents` |
+| Declaration kept for callers | `BUNDLE` in `src/kb/funding_bundle.py` |
+
+The manifest resolves against the shipped candidates to a plan that binds only
+those shared providers plus `noesis.funding`. No shared provider owns a
+`funding_*` table, so applicant facts stay owner-scoped.
+
+`funding_bundle_status` reports each provider and entry point as `ready` (a
+network observation is current), `fixture-only` or `unavailable`, from the
+provider evidence as before. It adds a `composition` section read from the C04
+readiness assessment (the coordinator's, once the bundle is cut over): a
+coordinator-owned blocker on a bound shared provider (disabled, shut down,
+failed, account limit exhausted) makes the entry points that use it
+`unavailable`. The entry point → capability map is `metadata.entry_points` in
+`composition.json`.
+
+`set_funding_bundle_enabled` (operator) has one authority at a time:
+
+- after cutover (`scripts/migrate_composition.py` or `Coordinator.cutover`), it
+  is a composition selection change: enabling selects and activates the
+  bundle, disabling removes the root through the coordinator. The selection is
+  deployment-wide; the `namespace` argument is kept for compatibility and the
+  result says `"scope": "deployment"`;
+- before cutover, or with `NOESIS_COMPOSITION_LIFECYCLE=legacy`, the
+  per-namespace `funding_bundle_state` table is the legacy authority.
+
+The two are never written for the same change. Disabling gates only the
+funding tools; shared providers, research projects and other workflows keep
+working. A dispatched profile → shortlist → workspace workflow template is
+not implemented.
 
 ## Acceptance evidence
 
@@ -178,7 +207,7 @@ workflows keep working.
 | [#1771](https://github.com/Ikey168/Noesis/issues/1771) ranking | `test_funding_ranking.py` |
 | [#1772](https://github.com/Ikey168/Noesis/issues/1772), [#1773](https://github.com/Ikey168/Noesis/issues/1773) preparation | `test_funding_workspaces.py` |
 | [#1774](https://github.com/Ikey168/Noesis/issues/1774) monitoring | `test_funding_monitoring.py` |
-| [#1775](https://github.com/Ikey168/Noesis/issues/1775) bundle | `test_funding_bundle_mcp.py`, regenerated MCP catalog |
+| [#1775](https://github.com/Ikey168/Noesis/issues/1775) bundle | `test_funding_bundle_mcp.py`, `test_funding_composition.py` (manifest resolves to shared providers plus `noesis.funding`; one enablement authority; disabling leaves shared providers working), regenerated MCP catalog |
 | [#1776](https://github.com/Ikey168/Noesis/issues/1776) offline journey | `test_funding_acceptance.py` (network disabled; authored fixtures) |
 | [#1777](https://github.com/Ikey168/Noesis/issues/1777) live + demo | `scripts/funding_live_check.py`, `docs/development/funding-evidence/`, `docs/examples/funding-shortlist-demo.md` (offline). **Live validation still needs a run from a network that can reach the providers.** |
 

@@ -138,7 +138,7 @@ def load_config(path: Optional[str] = None) -> List[str]:
     if env_override:
         enabled = [p.strip() for p in env_override.split(",") if p.strip()]
 
-    managed = {name for name in list(_ENABLED) | set(enabled) if _is_managed(name)}
+    managed = {name for name in set(_ENABLED) | set(enabled) if _is_managed(name)}
     for name in list(_ENABLED):
         if name not in managed:
             _ENABLED.discard(name)

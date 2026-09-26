@@ -1,0 +1,57 @@
+{
+  "pack_format": "noesis-pack-v2",
+  "name": "legal",
+  "version": "1.0.0",
+  "description": "Bounded EU (CELLAR), German federal court and Berlin legal research: exact works, separate language expressions, source-supported versions, cited passages with exact locators, explicit citations and as-of selection that never infers current force.",
+  "requires": [
+    {
+      "capability": "legal.as-of-version-selection",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "legal.cited-passage-retrieval",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "legal.explicit-citation-graph",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "legal.gated-retrieval-modes",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "legal.legislative-dossier-links",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "legal.legislative-dossier-links-changes",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "legal.version-comparison",
+      "range": "^1.0.0"
+    }
+  ],
+  "contributes": {
+    "providers": [
+      {
+        "provider_id": "noesis.legal",
+        "version": "1.0.0"
+      }
+    ]
+  },
+  "aliases": {
+    "capability_labels": {
+      "as-of-version-selection": "legal.as-of-version-selection",
+      "berlin-legal-publications": "sources.acquire",
+      "cellar-work-expression-manifestation": "sources.acquire",
+      "cited-passage-retrieval": "legal.cited-passage-retrieval",
+      "explicit-citation-graph": "legal.explicit-citation-graph",
+      "federal-court-decisions": "sources.acquire",
+      "gated-retrieval-modes": "legal.gated-retrieval-modes",
+      "legislative-dossier-links": "legal.legislative-dossier-links",
+      "version-comparison": "legal.version-comparison"
+    }
+  }
+}

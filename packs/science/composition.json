@@ -22,15 +22,129 @@
     {
       "capability": "intake.session-artifact",
       "range": "^1.0.0"
+    },
+    {
+      "capability": "scholarly.study-methodology-records",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "scholarly.study-methodology-records-changes",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "scholarly.study-replication-graph",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "scholarly.study-replication-graph-changes",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "scholarly.paper-family-versions",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "scholarly.paper-family-versions-changes",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "scholarly.openreview-round-comparison",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "scholarly.openreview-round-comparison-changes",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "scholarly.systematic-review-screening",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "scholarly.systematic-review-screening-changes",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "scholarly.preserved-citation-snapshots",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "scholarly.preserved-citation-snapshots-changes",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "cultural.cultural-primary-source-records",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "cultural.cultural-primary-source-records-changes",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "cultural.rights-gated-cultural-assets",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "cultural.rights-gated-cultural-assets-acquisition",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "cultural.primary-source-research-links",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "cultural.primary-source-research-links-changes",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "cultural.cultural-object-place-projection",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "math.math-literature-records",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "math.oeis-sequence-records",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "math.formal-library-snapshots",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "math.formal-proof-dependencies",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "math.formal-revision-comparison",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "math.math-source-objects",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "math.math-source-objects-changes",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "math.math-cross-source-links",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "math.math-cross-source-links-changes",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "patents.publications",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "patents.publications-changes",
+      "range": "^1.0.0"
     }
   ],
   "contributes": {
-    "providers": [
-      {
-        "provider_id": "noesis.research",
-        "version": "1.0.0"
-      }
-    ],
     "profiles": [
       {
         "profile_id": "place-evidence",
@@ -144,6 +258,50 @@
           }
         ]
       }
+    ],
+    "providers": [
+      {
+        "provider_id": "noesis.cultural",
+        "version": "1.0.0"
+      },
+      {
+        "provider_id": "noesis.mathematics",
+        "version": "1.0.0"
+      },
+      {
+        "provider_id": "noesis.patents",
+        "version": "1.0.0"
+      },
+      {
+        "provider_id": "noesis.research",
+        "version": "1.0.0"
+      },
+      {
+        "provider_id": "noesis.scholarly",
+        "version": "1.0.0"
+      }
     ]
+  },
+  "aliases": {
+    "capability_labels": {
+      "bounded-scholarly-source-acquisition": "sources.acquire",
+      "cultural-object-place-projection": "cultural.cultural-object-place-projection",
+      "cultural-primary-source-records": "cultural.cultural-primary-source-records",
+      "formal-library-snapshots": "math.formal-library-snapshots",
+      "formal-proof-dependencies": "math.formal-proof-dependencies",
+      "formal-revision-comparison": "math.formal-revision-comparison",
+      "math-cross-source-links": "math.math-cross-source-links",
+      "math-literature-records": "math.math-literature-records",
+      "math-source-objects": "math.math-source-objects",
+      "oeis-sequence-records": "math.oeis-sequence-records",
+      "openreview-round-comparison": "scholarly.openreview-round-comparison",
+      "paper-family-versions": "scholarly.paper-family-versions",
+      "preserved-citation-snapshots": "scholarly.preserved-citation-snapshots",
+      "primary-source-research-links": "cultural.primary-source-research-links",
+      "rights-gated-cultural-assets": "cultural.rights-gated-cultural-assets",
+      "study-methodology-records": "scholarly.study-methodology-records",
+      "study-replication-graph": "scholarly.study-replication-graph",
+      "systematic-review-screening": "scholarly.systematic-review-screening"
+    }
   }
 }

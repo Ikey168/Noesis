@@ -67,8 +67,11 @@ jobs:
         # The preserved-identifier list and the catalog shadow diff are
         # generated from the live catalog; every shadow disagreement must be
         # annotated before a bundle's lifecycle is cut over (C04.4, C08.6).
+        # The migrated bundles' provider descriptors and overlays are
+        # generated from the ownership table (C09.2-C09.4).
         run: |
           python scripts/generate_composition_identifiers.py --check
+          python scripts/generate_composition_bundles.py --check
           python scripts/composition_shadow_report.py --check
 
       - name: Run unit tests (capability plane)

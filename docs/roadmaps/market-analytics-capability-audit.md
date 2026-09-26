@@ -5,6 +5,16 @@
 **Phase:** [Scope and readiness](https://github.com/Ikey168/Noesis/issues/1648)  
 **Audit issue:** [#1654](https://github.com/Ikey168/Noesis/issues/1654)
 
+## Delivery state (2026-09-26)
+
+Audited against the repository on 2026-09-26 (C09.1, [Ikey168/Noesis#1840](https://github.com/Ikey168/Noesis/issues/1840)). Every item below cites a file or tool that exists in this checkout; where this section and older text disagree, this section is current.
+
+- **Shipped:** instrument identity, revisioned EOD bars and corporate actions, as-filed facts with live SEC reconciliation (`config/market/acceptance_packs/live-sec-statements.json`, `live_verified`), point-in-time manifests, quality and repair, entitlements, metrics and shared REST/MCP, dashboards, screeners and watches, research artifacts, quantitative tools, operations, the market pack (`packs/market/pack.json`), the web workspace (`apps/market-research/`) and the five-company fixture journey. Rows below that call the finance pack, SEC reconciliation, FRED, the FMP adapter, the web workbench or Evidence Bundle export "open" are out of date.
+- **Partial:** the licensed price provider (FMP live sample `live_incomplete`), macro live coverage (Eurostat gaps, ECB SDMX unavailable), phase-5 asset classes (fixture engines only; live checks `credential_blocked`) and the market source pack (no `config/source_packs/market*.json`).
+- **Not shipped:** analyst and user acceptance (#1679), the commercial rights matrix, and custom/dimensional XBRL fact mapping.
+- **Composition:** `packs/market` is composition-managed (C09.3) through the generated `noesis.market` provider.
+- **Composition dependency of remaining work:** none. Commercial terms, credentialed live runs, human review and XBRL mapping are independent of composition.
+
 ## Purpose and method
 
 This audit establishes the Noesis repository baseline and bounds its first market-analytics release. It is based on code, contracts, documentation, and completed implementation issues present in the repository on the date above. Two public macro connector paths were called against live Eurostat and World Bank endpoints; the configured FRED and SEC paths could not be reached because their credentials are absent. The in-memory quantitative calculation was exercised. No production deployment, persistent warehouse, market price feed, or analyst workflow was exercised.

@@ -20,16 +20,31 @@ SHADOW_ANNOTATIONS = REPO_ROOT / "tests/fixtures/composition/shadow_annotations.
 
 
 def code_registered_manifests() -> list[dict[str, Any]]:
-    """Code-registered packs that have no distributable manifest of their own."""
+    """Code-registered packs that have no distributable manifest of their own.
+
+    A ``composition.json`` beside the pack's module (``src/domains/<name>/``)
+    supplies its composition fields, as it does for distributable packs.
+    """
 
     from src.composition.identifiers import code_registered_packs
 
     distributable = {path.parent.name for path in (REPO_ROOT / "packs").glob("*/pack.json")}
-    return [
-        c.adapt_domain_pack(pack)
-        for name, pack in sorted(code_registered_packs().items())
-        if name not in distributable
-    ]
+    manifests = []
+    for name, pack in sorted(code_registered_packs().items()):
+        if name in distributable:
+            continue
+        adapted = c.adapt_domain_pack(pack)
+        overlay = code_overlay_path(name)
+        if overlay.exists():
+            adapted = c.merge_overlay(adapted, json.loads(overlay.read_text(encoding="utf-8")))
+        manifests.append(adapted)
+    return manifests
+
+
+def code_overlay_path(name: str) -> Path:
+    """Where a code-registered pack keeps its composition overlay."""
+
+    return REPO_ROOT / "src/domains" / name / "composition.json"
 
 
 def candidates() -> dict[str, Any]:

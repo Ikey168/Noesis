@@ -2024,7 +2024,11 @@ def _composed_tool(
 
     required = view.required_data(tool_id, legacy_required)
     operation = view.operation(tool_id)
-    if operation is not None:
+    if view.delegated(tool_id):
+        # Migrated bundles delegate data readiness to the legacy evaluation;
+        # the composition adds only what the coordinator owns.
+        state, reason = view.lifecycle_state(tool_id) or (legacy_state, legacy_reason)
+    elif operation is not None:
         state, reason = catalog_state(operation)
     else:
         # No observation yet: data readiness from the declared prerequisites,

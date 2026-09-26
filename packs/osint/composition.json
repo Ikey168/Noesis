@@ -30,6 +30,50 @@
       "capability": "osint.event-geolocation",
       "range": "^1.0.0",
       "feature": "gated-geolocation"
+    },
+    {
+      "capability": "osint.cited-timeline-reconstruction",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "osint.contradiction-scan",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "osint.investigation-audit",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "osint.media-provenance-and-reuse",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "osint.media-provenance-and-reuse-via-knowledge-engine-runtime",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "osint.media-provenance-and-reuse-changes",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "osint.origin-aware-corroboration",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "osint.probable-origin-graph",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "osint.source-identity-and-relationships",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "osint.source-identity-and-relationships-changes",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "osint.source-reliability-cards",
+      "range": "^1.0.0"
     }
   ],
   "optional_features": {
@@ -38,12 +82,6 @@
     }
   },
   "contributes": {
-    "providers": [
-      {
-        "provider_id": "noesis.osint",
-        "version": "1.0.0"
-      }
-    ],
     "profiles": [
       {
         "profile_id": "event-location",
@@ -193,6 +231,29 @@
           }
         ]
       }
+    ],
+    "providers": [
+      {
+        "provider_id": "noesis.osint",
+        "version": "1.0.0"
+      },
+      {
+        "provider_id": "noesis.osint-investigation",
+        "version": "1.0.0"
+      }
     ]
+  },
+  "aliases": {
+    "capability_labels": {
+      "bounded-public-osint-acquisition": "sources.acquire",
+      "cited-timeline-reconstruction": "osint.cited-timeline-reconstruction",
+      "contradiction-scan": "osint.contradiction-scan",
+      "investigation-audit": "osint.investigation-audit",
+      "media-provenance-and-reuse": "osint.media-provenance-and-reuse",
+      "origin-aware-corroboration": "osint.origin-aware-corroboration",
+      "probable-origin-graph": "osint.probable-origin-graph",
+      "source-identity-and-relationships": "osint.source-identity-and-relationships",
+      "source-reliability-cards": "osint.source-reliability-cards"
+    }
   }
 }

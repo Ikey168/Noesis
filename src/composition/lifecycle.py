@@ -94,10 +94,20 @@ def _registration(manifest: Mapping[str, Any]) -> dict[str, Any]:
 
     from src.domains.pack_format import PackManifest
 
+    from src.composition.identifiers import code_registered_packs
+
     adapter = manifest.get("adapter", {})
     if adapter.get("source") == "domain-pack":
-        return {"kind": "code-registered", "name": manifest["name"], "version": manifest["version"]}
+        return {"kind": "code-registered", "name": manifest["name"], "version": manifest["version"],
+                "templates": []}
     view = PackManifest.from_dict(v1_view(manifest))
+    if manifest["name"] in code_registered_packs():
+        # A distributable manifest whose name a built-in domain module also
+        # registers (legal, economics, political, technology): the module's
+        # DomainPack keeps its routes and code enrichers; the manifest adds
+        # only its provisioning templates.
+        return {"kind": "code-registered", "name": manifest["name"], "version": manifest["version"],
+                "templates": list(view.provisioning_templates)}
     return {"kind": "manifest", "name": manifest["name"], "version": manifest["version"], "v1": view}
 
 
@@ -123,6 +133,13 @@ def _apply_registration(registration: Mapping[str, Any]) -> None:
         # serves until this line, the new one from this line on.
         domain_registry.register_pack(pack)
         for template in view.provisioning_templates:
+            pack_install._TEMPLATES[template["name"]] = {**template, "pack": name}
+    else:
+        from src.composition.identifiers import code_registered_packs
+
+        if domain_registry.get_pack(name) is None and name in code_registered_packs():
+            domain_registry.register_pack(code_registered_packs()[name])
+        for template in registration.get("templates", []):
             pack_install._TEMPLATES[template["name"]] = {**template, "pack": name}
     domain_registry._set_enabled(name, True)
 
@@ -548,11 +565,16 @@ class Coordinator:
 
     # -- C05.5 authority -----------------------------------------------------
     def cutover(self, bundle: str, idempotency_key: str, *, principal_id: str) -> dict[str, Any]:
-        """Hand a bundle's lifecycle to the coordinator (one authority)."""
+        """Hand a bundle's lifecycle to the coordinator (one authority).
+
+        The bundle must be installed in the composition store; it need not be
+        selected. An installed but unselected bundle is cut over disabled and
+        stays so until it is selected through the coordinator.
+        """
 
         plan = self.store.active_plan()
-        if not plan or bundle not in {m["name"] for m in plan["manifests"]}:
-            raise CompositionError("not_active", f"{bundle} is not in the active generation")
+        if bundle not in {m["name"] for m in self.store.manifests()}:
+            raise CompositionError("not_installed", f"{bundle} is not installed in the composition store")
         activation_id, prior = self._begin(idempotency_key, "cutover", {"bundle": bundle})
         if prior is not None:
             return prior
@@ -561,6 +583,10 @@ class Coordinator:
         pack_install._INSTALLED.pop(bundle, None)  # the legacy ledger stops describing it
         self.store.set_authority(bundle, "composition", principal_id=principal_id)
         changes = self.apply_active()
+        if bundle not in runtime().bundles:
+            # Not selected: whatever the legacy path had enabled stops serving.
+            _remove_registration(bundle)
+            changes["removed"] = sorted({*changes["removed"], f"bundle:{bundle}@legacy"})
         install_authority(self)
         return self._authority_receipt(activation_id, idempotency_key, "cutover", plan, changes, principal_id)
 
@@ -685,6 +711,12 @@ def _changes(active: Mapping[str, Any] | None, plan: Mapping[str, Any]) -> dict[
 _INSTALLED_COORDINATOR: Coordinator | None = None
 
 
+def installed_coordinator() -> Coordinator | None:
+    """The coordinator currently acting as the legacy registry's authority."""
+
+    return _INSTALLED_COORDINATOR
+
+
 def install_authority(coordinator: Coordinator | None) -> None:
     """Install the coordinator as the legacy registry's authority hook."""
 
@@ -716,6 +748,7 @@ __all__ = [
     "Crash",
     "Runtime",
     "install_authority",
+    "installed_coordinator",
     "legacy_mode",
     "reset_runtime",
     "runtime",

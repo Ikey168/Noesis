@@ -8,6 +8,16 @@ human-judged evaluation passes the recorded thresholds.
 Tracking: [#1720](https://github.com/Ikey168/Noesis/issues/1720). Its child
 issues define dependencies and acceptance criteria.
 
+## Delivery state (2026-09-26)
+
+Audited against the repository on 2026-09-26 (C09.1, [Ikey168/Noesis#1840](https://github.com/Ikey168/Noesis/issues/1840)). Every item below cites a file or tool that exists in this checkout; where this section and older text disagree, this section is current.
+
+- **Shipped:** #1721–#1726, #1729, #1730 — pinned source coverage (`config/source_packs/legal.json`), the shared legal model (`src/kb/legal.py`), CELLAR, federal and Berlin sources, as-of version history (`select_legal_version_as_of`), the standalone pack (`packs/legal/pack.json`, `src/domains/legal/`) and offline acceptance (`legal_readiness`). The earlier note that no `src/domains/legal`, `packs/legal` or `config/source_packs/legal.json` exists is out of date.
+- **Partial:** #1727 — the evaluation gate ships, but with no human judgments every ranked mode stays `deferred`; #1728 — cited passages, version comparison and dossier links ship, but comparison refuses versions of different works, so cross-jurisdiction comparison does not exist.
+- **Not shipped:** #1731 — live validation and demo (every live source `failed`).
+- **Composition:** `packs/legal` is composition-managed (C09.2). The code-registered legal domain module keeps its routes and enrichers; the generated `noesis.legal` provider owns the legal records written by the `noesis-legal-record-v1` projector.
+- **Composition dependency of remaining work:** none. #1727 needs human judgments, #1728 a new store operation and tool, #1731 live runs.
+
 ## GitHub implementation issues
 
 - [ ] [#1721](https://github.com/Ikey168/Noesis/issues/1721) — Pin legal source coverage, access conditions and reuse policy.

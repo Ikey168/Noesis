@@ -92,6 +92,22 @@ def osint_gated_tools(ctx: Any) -> bool:
     return gated_tools_enabled()
 
 
+@register_probe("catalog.required-data", "Legacy catalog data readiness for the declared required data")
+def catalog_required_data(conn: Any, context: Mapping[str, Any]) -> dict[str, Any]:
+    """Reuse the catalog's own data-state evaluation for migrated bundles."""
+
+    from src.mcp_host.catalog import _data_state
+
+    state, _reason = _data_state(list(context.get("required_data") or []), conn)
+    if state == "available":
+        return _ready()
+    if state == "empty":
+        return _blocked("empty-data", "required data is empty")
+    if state == "degraded":
+        return _blocked("inaccessible-data", "data readiness could not be probed")
+    return _blocked("provider-unavailable", "the store behind the required data is not configured")
+
+
 @register_probe("sources.runtime", "The source-pack runtime is configured")
 def sources_runtime(conn: Any, context: Mapping[str, Any]) -> dict[str, Any]:
     if _table_rows(conn, "source_pack_current") is None:

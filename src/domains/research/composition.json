@@ -1,0 +1,20 @@
+{
+  "pack_format": "noesis-pack-v2",
+  "name": "research",
+  "version": "0.0.0",
+  "description": "Research-domain analytics for scholarly papers: venue credibility, citation graphs, and literature claims. Runs only for source_type='paper' documents.",
+  "requires": [
+    {
+      "capability": "research.literature-analytics",
+      "range": "^1.0.0"
+    }
+  ],
+  "contributes": {
+    "providers": [
+      {
+        "provider_id": "noesis.research-analytics",
+        "version": "1.0.0"
+      }
+    ]
+  }
+}

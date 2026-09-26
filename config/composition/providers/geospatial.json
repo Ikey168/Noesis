@@ -307,6 +307,126 @@
           "knowledge-engine-runtime"
         ]
       }
+    },
+    {
+      "capability": "spatial.feature-import",
+      "version": "1.0.0",
+      "input_contract": {
+        "name": "noesis-geospatial-feature-v1",
+        "version": "1.0.0"
+      },
+      "output_contract": {
+        "name": "noesis-geospatial-feature-v1",
+        "version": "1.0.0"
+      },
+      "semantics": {
+        "input": "bounded GeoJSON FeatureCollection",
+        "crs": "declared CRS transformed to WGS84; source CRS kept in provenance",
+        "revisions": "provenance-preserving"
+      },
+      "effect": "local-mutation",
+      "idempotent": true,
+      "execution_receipt": false,
+      "required_scopes": [
+        "knowledge:geospatial:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ],
+      "record_kinds": [
+        "geospatial_feature"
+      ],
+      "bindings": [
+        {
+          "kind": "mcp-tool",
+          "id": "noesis-knowledge-engine.import_geospatial_features"
+        }
+      ],
+      "readiness": {
+        "probe": "geospatial.local-store",
+        "required_data": [
+          "knowledge-engine-runtime"
+        ]
+      }
+    },
+    {
+      "capability": "spatial.feature-inspect",
+      "version": "1.0.0",
+      "input_contract": {
+        "name": "noesis-geospatial-feature-v1",
+        "version": "1.0.0"
+      },
+      "output_contract": {
+        "name": "noesis-geospatial-feature-v1",
+        "version": "1.0.0"
+      },
+      "semantics": {
+        "revisions": "immutable feature revisions with document and page provenance",
+        "crs": "EPSG:4326"
+      },
+      "effect": "read-only",
+      "idempotent": true,
+      "execution_receipt": false,
+      "required_scopes": [
+        "knowledge:geospatial:read"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ],
+      "record_kinds": [],
+      "bindings": [
+        {
+          "kind": "mcp-tool",
+          "id": "noesis-knowledge-engine.inspect_geospatial_feature"
+        }
+      ],
+      "readiness": {
+        "probe": "geospatial.local-store",
+        "required_data": [
+          "knowledge-engine-runtime"
+        ]
+      }
+    },
+    {
+      "capability": "spatial.boundary-resolution",
+      "version": "1.0.0",
+      "input_contract": {
+        "name": "noesis-geospatial-feature-v1",
+        "version": "1.0.0"
+      },
+      "output_contract": {
+        "name": "noesis-geospatial-feature-v1",
+        "version": "1.0.0"
+      },
+      "semantics": {
+        "resolution": "exact title after whitespace and case folding",
+        "ambiguity": "needs-review; names are not merged across collections"
+      },
+      "effect": "read-only",
+      "idempotent": true,
+      "execution_receipt": false,
+      "required_scopes": [
+        "knowledge:geospatial:read"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ],
+      "record_kinds": [],
+      "bindings": [
+        {
+          "kind": "mcp-tool",
+          "id": "noesis-knowledge-engine.resolve_geospatial_boundary"
+        }
+      ],
+      "readiness": {
+        "probe": "geospatial.local-store",
+        "required_data": [
+          "knowledge-engine-runtime"
+        ]
+      }
     }
   ],
   "stores": [

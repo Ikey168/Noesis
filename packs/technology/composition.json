@@ -1,0 +1,70 @@
+{
+  "pack_format": "noesis-pack-v2",
+  "name": "technology",
+  "version": "1.0.0",
+  "description": "Version-aware software, repository, standards, dependency, and advisory knowledge.",
+  "requires": [
+    {
+      "capability": "technology.canonical-package-coordinates",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "technology.canonical-package-coordinates-changes",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "technology.dependency-compatibility-graph",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "technology.osv-cve-advisories",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "technology.osv-cve-advisories-via-knowledge-engine-runtime",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "technology.section-addressable-specifications",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "technology.section-addressable-specifications-changes",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "technology.temporal-technical-queries",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "standards.editions-and-certificates",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "standards.editions-and-certificates-changes",
+      "range": "^1.0.0"
+    }
+  ],
+  "contributes": {
+    "providers": [
+      {
+        "provider_id": "noesis.standards",
+        "version": "1.0.0"
+      },
+      {
+        "provider_id": "noesis.technology",
+        "version": "1.0.0"
+      }
+    ]
+  },
+  "aliases": {
+    "capability_labels": {
+      "canonical-package-coordinates": "technology.canonical-package-coordinates",
+      "dependency-compatibility-graph": "technology.dependency-compatibility-graph",
+      "incremental-git-ingestion": "sources.acquire",
+      "osv-cve-advisories": "technology.osv-cve-advisories",
+      "section-addressable-specifications": "technology.section-addressable-specifications",
+      "temporal-technical-queries": "technology.temporal-technical-queries"
+    }
+  }
+}

@@ -1,6 +1,928 @@
 {
  "bundles": {
+  "economics": [
+   {
+    "composition": [
+     "economics"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-kb.kb_economic"
+   },
+   {
+    "composition": [
+     "economics"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-kb.kb_temporal"
+   },
+   {
+    "composition": [
+     "economics"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.company_source_contracts"
+   },
+   {
+    "composition": [
+     "economics"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.compare_economic_release_snapshots"
+   },
+   {
+    "composition": [
+     "economics"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.create_economic_comparison_report"
+   },
+   {
+    "composition": [
+     "economics"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.create_economic_release_snapshot"
+   },
+   {
+    "composition": [
+     "economics"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.export_economic_release_comparison"
+   },
+   {
+    "composition": [
+     "economics"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.inspect_economic_release_comparison"
+   },
+   {
+    "composition": [
+     "economics"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.inspect_economic_release_snapshot"
+   },
+   {
+    "composition": [
+     "economics"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.inspect_lei_entity"
+   },
+   {
+    "composition": [
+     "economics"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.lei_parents_as_of"
+   },
+   {
+    "composition": [
+     "economics"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.link_company_identity"
+   },
+   {
+    "composition": [
+     "economics"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.propose_lei_registry_links"
+   },
+   {
+    "composition": [
+     "economics"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-market.inspect_economic_release_snapshot"
+   },
+   {
+    "composition": [
+     "economics"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-statistics.claim_vs_data"
+   },
+   {
+    "composition": [
+     "economics"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-statistics.get_observations"
+   }
+  ],
+  "funding-grants": [
+   {
+    "composition": [
+     "funding-grants"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.acquire_funding_source"
+   },
+   {
+    "composition": [
+     "funding-grants"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.assess_funding_eligibility"
+   },
+   {
+    "composition": [
+     "funding-grants"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.build_funding_shortlist"
+   },
+   {
+    "composition": [
+     "funding-grants"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.create_authored_report"
+   },
+   {
+    "composition": [
+     "funding-grants"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.create_funding_monitor"
+   },
+   {
+    "composition": [
+     "funding-grants"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.create_funding_profile"
+   },
+   {
+    "composition": [
+     "funding-grants"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.create_funding_workspace"
+   },
+   {
+    "composition": [
+     "funding-grants"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.create_research_project"
+   },
+   {
+    "composition": [
+     "funding-grants",
+     "osint",
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.document_revision"
+   },
+   {
+    "composition": "unavailable",
+    "field": "state",
+    "legacy": "available",
+    "tool": "noesis-knowledge-engine.document_revision"
+   },
+   {
+    "composition": [
+     "funding-grants"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.draft_funding_application"
+   },
+   {
+    "composition": [
+     "funding-grants"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.evaluate_quantitative_formula"
+   },
+   {
+    "composition": [
+     "funding-grants"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.export_funding_application_draft"
+   },
+   {
+    "composition": [
+     "funding-grants"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.funding_provider_contracts"
+   },
+   {
+    "composition": [
+     "funding-grants"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.inspect_funding_opportunity"
+   },
+   {
+    "composition": [
+     "funding-grants"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.inspect_funding_profile"
+   },
+   {
+    "composition": [
+     "funding-grants"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.inspect_funding_shortlist"
+   },
+   {
+    "composition": [
+     "funding-grants"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.inspect_funding_workspace"
+   },
+   {
+    "composition": [
+     "funding-grants"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.list_funding_opportunities"
+   },
+   {
+    "composition": [
+     "funding-grants"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.poll_funding_monitor"
+   },
+   {
+    "composition": [
+     "funding-grants"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.record_funding_workspace_outcome"
+   },
+   {
+    "composition": [
+     "funding-grants"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.record_quantitative_observation"
+   },
+   {
+    "composition": [
+     "funding-grants"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.record_research_project_expenditure"
+   },
+   {
+    "composition": [
+     "funding-grants"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.refresh_funding_workspace"
+   },
+   {
+    "composition": [
+     "funding-grants"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.register_quantitative_metric"
+   },
+   {
+    "composition": [
+     "funding-grants"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.register_quantitative_unit"
+   },
+   {
+    "composition": [
+     "funding-grants"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.revise_authored_report"
+   },
+   {
+    "composition": [
+     "funding-grants"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.revise_research_project"
+   },
+   {
+    "composition": [
+     "funding-grants"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.run_funding_monitor"
+   },
+   {
+    "composition": [
+     "funding-grants"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.update_funding_profile"
+   },
+   {
+    "composition": [
+     "funding-grants"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.update_funding_workspace_items"
+   },
+   {
+    "composition": [
+     "funding-grants"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-subscriptions.create_subscription"
+   }
+  ],
+  "geospatial": [
+   {
+    "composition": [
+     "geospatial"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.transit_departures"
+   },
+   {
+    "composition": [
+     "geospatial"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.transit_feed_versions"
+   },
+   {
+    "composition": [
+     "geospatial"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.transit_source_contracts"
+   },
+   {
+    "composition": [
+     "geospatial"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.transit_stops_in_bbox"
+   }
+  ],
+  "legal": [
+   {
+    "composition": [
+     "legal"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.compare_legal_versions"
+   },
+   {
+    "composition": [
+     "legal"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.compare_legislative_dossier"
+   },
+   {
+    "composition": [
+     "legal"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.export_legislative_dossier_changes"
+   },
+   {
+    "composition": [
+     "legal"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.get_legal_passages"
+   },
+   {
+    "composition": [
+     "legal"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.inspect_legal_work"
+   },
+   {
+    "composition": [
+     "legal"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.inspect_legislative_dossier"
+   },
+   {
+    "composition": [
+     "legal"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.legal_readiness"
+   },
+   {
+    "composition": [
+     "legal"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.legal_retrieval_modes"
+   },
+   {
+    "composition": [
+     "legal"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.legal_selection_outcomes"
+   },
+   {
+    "composition": [
+     "legal"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.legislative_dossier_dependencies"
+   },
+   {
+    "composition": [
+     "legal"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.legislative_dossier_timeline"
+   },
+   {
+    "composition": [
+     "legal"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.link_legal_dossier"
+   },
+   {
+    "composition": [
+     "legal"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.lookup_legal_work"
+   },
+   {
+    "composition": [
+     "legal"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.save_legislative_dossier"
+   },
+   {
+    "composition": [
+     "legal"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.select_legal_version_as_of"
+   }
+  ],
+  "market": [
+   {
+    "composition": [
+     "market"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-market.build_market_company_dossier"
+   },
+   {
+    "composition": [
+     "market"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-market.build_market_industry_model"
+   },
+   {
+    "composition": [
+     "market"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-market.calculate_market_fact_metrics"
+   },
+   {
+    "composition": [
+     "market"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-market.calculate_market_price_metrics"
+   },
+   {
+    "composition": [
+     "market"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-market.calculate_market_sizing"
+   },
+   {
+    "composition": [
+     "market"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-market.deliver_market_alert"
+   },
+   {
+    "composition": [
+     "market"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-market.evaluate_market_slos"
+   },
+   {
+    "composition": [
+     "market"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-market.export_market_quantitative_run"
+   },
+   {
+    "composition": [
+     "market"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-market.export_market_screener_run"
+   },
+   {
+    "composition": [
+     "market"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-market.export_market_specialized_run"
+   },
+   {
+    "composition": [
+     "market"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-market.get_company_research_dashboard"
+   },
+   {
+    "composition": [
+     "market"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-market.get_market_financial_statements"
+   },
+   {
+    "composition": [
+     "market"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-market.get_market_price_history"
+   },
+   {
+    "composition": [
+     "market"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-market.inspect_market_alert_run"
+   },
+   {
+    "composition": [
+     "market"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-market.inspect_market_alert_watch"
+   },
+   {
+    "composition": [
+     "market"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-market.inspect_market_quantitative_run"
+   },
+   {
+    "composition": [
+     "market"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-market.inspect_market_research_artifact"
+   },
+   {
+    "composition": [
+     "market"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-market.inspect_market_screener_run"
+   },
+   {
+    "composition": [
+     "market"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-market.inspect_market_specialized_run"
+   },
+   {
+    "composition": [
+     "market"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-market.lookup_market_instrument"
+   },
+   {
+    "composition": [
+     "market"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-market.market_alert_history"
+   },
+   {
+    "composition": [
+     "market"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-market.market_provider_health"
+   },
+   {
+    "composition": [
+     "market"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-market.market_readiness"
+   },
+   {
+    "composition": [
+     "market"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-market.record_market_driver_hypotheses"
+   },
+   {
+    "composition": [
+     "market"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-market.record_market_operations_measurements"
+   },
+   {
+    "composition": [
+     "market"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-market.record_market_portfolio"
+   },
+   {
+    "composition": [
+     "market"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-market.review_market_thesis"
+   },
+   {
+    "composition": [
+     "market"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-market.run_market_alerts"
+   },
+   {
+    "composition": [
+     "market"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-market.run_market_backtest"
+   },
+   {
+    "composition": [
+     "market"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-market.run_market_derivatives"
+   },
+   {
+    "composition": [
+     "market"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-market.run_market_digital_asset"
+   },
+   {
+    "composition": [
+     "market"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-market.run_market_event_study"
+   },
+   {
+    "composition": [
+     "market"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-market.run_market_factor_analysis"
+   },
+   {
+    "composition": [
+     "market"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-market.run_market_fixed_income"
+   },
+   {
+    "composition": [
+     "market"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-market.run_market_fx_commodity"
+   },
+   {
+    "composition": [
+     "market"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-market.run_market_international_coverage"
+   },
+   {
+    "composition": [
+     "market"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-market.run_market_intraday_replay"
+   },
+   {
+    "composition": [
+     "market"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-market.run_market_risk_report"
+   },
+   {
+    "composition": [
+     "market"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-market.run_market_walk_forward"
+   },
+   {
+    "composition": [
+     "market"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-market.save_market_alert_watch"
+   },
+   {
+    "composition": [
+     "market"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-market.save_market_materials"
+   },
+   {
+    "composition": [
+     "market"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-market.save_market_screener_query"
+   },
+   {
+    "composition": [
+     "market"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-market.save_market_thesis"
+   },
+   {
+    "composition": [
+     "market"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-market.screen_market_universe"
+   }
+  ],
   "osint": [
+   {
+    "composition": [
+     "osint"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-kb.kb_corroborate"
+   },
+   {
+    "composition": [
+     "osint"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.add_source_relationship"
+   },
+   {
+    "composition": [
+     "osint"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.assess_media_authenticity"
+   },
    {
     "composition": [
      "osint",
@@ -18,6 +940,23 @@
    },
    {
     "composition": [
+     "osint"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.decide_source_alias"
+   },
+   {
+    "composition": [
+     "osint"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.delete_source_identity"
+   },
+   {
+    "composition": [
+     "funding-grants",
      "osint",
      "science"
     ],
@@ -30,6 +969,30 @@
     "field": "state",
     "legacy": "available",
     "tool": "noesis-knowledge-engine.document_revision"
+   },
+   {
+    "composition": [
+     "osint"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.explain_source_independence"
+   },
+   {
+    "composition": [
+     "osint"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.inspect_media_provenance"
+   },
+   {
+    "composition": [
+     "osint"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.lookup_source_identity"
    },
    {
     "composition": [
@@ -53,6 +1016,46 @@
     ],
     "field": "packs",
     "legacy": [],
+    "tool": "noesis-knowledge-engine.record_media_transformation"
+   },
+   {
+    "composition": [
+     "osint"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.register_source_identity"
+   },
+   {
+    "composition": [
+     "osint"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.resolve_source_alias"
+   },
+   {
+    "composition": [
+     "osint"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.retract_source_relationship"
+   },
+   {
+    "composition": [
+     "osint"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.revise_source_identity"
+   },
+   {
+    "composition": [
+     "osint"
+    ],
+    "field": "packs",
+    "legacy": [],
     "tool": "noesis-knowledge-engine.run_source_pack_execution"
    },
    {
@@ -60,9 +1063,307 @@
     "field": "state",
     "legacy": "available",
     "tool": "noesis-knowledge-engine.run_source_pack_execution"
+   },
+   {
+    "composition": [
+     "osint"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.source_identity_dossier"
+   },
+   {
+    "composition": [
+     "osint"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.source_identity_history"
+   },
+   {
+    "composition": [
+     "osint"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.source_relationship_path"
+   },
+   {
+    "composition": [
+     "osint"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.split_source_alias"
+   },
+   {
+    "composition": [
+     "osint"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-osint.contradiction_scan"
+   },
+   {
+    "composition": [
+     "osint"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-osint.corroborate"
+   },
+   {
+    "composition": [
+     "osint"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-osint.evidence_origin_graph"
+   },
+   {
+    "composition": [
+     "osint"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-osint.image_provenance"
+   },
+   {
+    "composition": [
+     "osint"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-osint.image_reuse"
+   },
+   {
+    "composition": [
+     "osint"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-osint.image_reuse_findings"
+   },
+   {
+    "composition": [
+     "osint"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-osint.investigation_audit"
+   },
+   {
+    "composition": [
+     "osint"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-osint.origin_signals"
+   },
+   {
+    "composition": [
+     "osint"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-osint.source_reliability"
+   },
+   {
+    "composition": [
+     "osint"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-osint.timeline_reconstruct"
+   }
+  ],
+  "political": [
+   {
+    "composition": [
+     "political"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-kb.kb_political"
+   },
+   {
+    "composition": [
+     "political",
+     "technology"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-pipeline.run_connector"
+   }
+  ],
+  "products": [
+   {
+    "composition": [
+     "products"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.acquire_product_documents"
+   },
+   {
+    "composition": [
+     "products"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.compare_product_models"
+   },
+   {
+    "composition": [
+     "products"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.inspect_product_identity"
+   },
+   {
+    "composition": [
+     "products"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.lookup_product_models"
+   },
+   {
+    "composition": [
+     "products"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.product_provider_contracts"
+   },
+   {
+    "composition": [
+     "products"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.product_selection_outcomes"
+   },
+   {
+    "composition": [
+     "products"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.products_readiness"
+   },
+   {
+    "composition": [
+     "products"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.propose_product_matches"
+   },
+   {
+    "composition": [
+     "products"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.review_product_match"
+   }
+  ],
+  "research": [
+   {
+    "composition": [
+     "research",
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [
+     "research"
+    ],
+    "tool": "noesis-research.literature_claims"
    }
   ],
   "science": [
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.accept_citation_repair"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.acquire_cultural_assets"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.add_paper_family_member"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.add_review_candidate"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.adjudicate_review_candidate"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.amend_review_protocol"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.assess_methodology_limitation"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.assess_openreview_concern"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.attach_paper_family_notice"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.capture_citation_snapshot"
+   },
    {
     "composition": [
      "osint",
@@ -80,6 +1381,87 @@
    },
    {
     "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.compare_formal_snapshots"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.compare_openreview_rounds"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.compare_paper_family_members"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.compare_study_methodologies"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.correct_paper_family_relation"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.create_paper_family"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.create_review_protocol"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.cultural_readiness"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.cultural_rights_policy"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.cultural_source_contracts"
+   },
+   {
+    "composition": [
+     "funding-grants",
      "osint",
      "science"
     ],
@@ -92,6 +1474,342 @@
     "field": "state",
     "legacy": "available",
     "tool": "noesis-knowledge-engine.document_revision"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.explain_study_evidence_strength"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.export_formal_references"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.export_openreview_round_comparison"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.export_paper_family"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.export_preserved_citations"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.export_systematic_review"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.extract_math_text_objects"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.extract_methodology_statements"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.extract_review_field"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.formal_declaration_dependencies"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.get_citation_archive_policy"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.get_citation_snapshot"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.get_citation_status"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.get_methodology_study"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.get_study_replication_graph"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.inspect_cultural_object"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.inspect_formal_declaration"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.inspect_math_literature"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.inspect_math_object"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.inspect_oeis_sequence"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.inspect_openreview_round"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.inspect_openreview_round_set"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.inspect_paper_family"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.inspect_patent_publication"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.inspect_review_candidate"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.inspect_review_protocol"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.inspect_systematic_review_screening_suggestion"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.link_cultural_research"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.link_study_artifact"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.list_methodology_limitations"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.list_review_candidates"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.math_links"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.math_source_contracts"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.openreview_concern_review_target"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.patent_family_members"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.patent_links"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.patent_source_contracts"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.preview_citation_repair"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.primary_sources_for_work"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.propose_cultural_matches"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.propose_math_links"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.propose_patent_link"
    },
    {
     "composition": [
@@ -114,20 +1832,282 @@
      "science"
     ],
     "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.record_citation_health"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.record_math_object"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.register_citation_archive_policy"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.register_methodology_study"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.remove_paper_family_member"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.replay_citation_snapshot"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.replay_methodology_extraction"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.review_cultural_match"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.review_cultural_research_candidate"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.review_math_link"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.review_paper_family_notice_target"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.review_paper_family_relation"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.review_patent_link"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.review_study_field"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.save_openreview_round_set"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.screen_review_candidate"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.search_cultural_objects"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.search_mathematics"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.search_methodology_studies"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.select_paper_family_citation"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.suggest_cultural_research_candidates"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.suggest_jev_methodology_record"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.suggest_systematic_review_screening"
+   },
+   {
+    "composition": [
+     "science"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.verify_preserved_citation"
+   },
+   {
+    "composition": [
+     "research",
+     "science"
+    ],
+    "field": "packs",
     "legacy": [
      "research"
     ],
     "tool": "noesis-research.literature_claims"
+   }
+  ],
+  "technology": [
+   {
+    "composition": [
+     "technology"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-kb.kb_technical"
    },
    {
-    "composition": "unavailable",
-    "field": "state",
-    "legacy": "degraded",
-    "tool": "noesis-research.literature_claims"
+    "composition": [
+     "technology"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.assess_technical_inventory_impact"
+   },
+   {
+    "composition": [
+     "technology"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.import_certificates"
+   },
+   {
+    "composition": [
+     "technology"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.inspect_certificate"
+   },
+   {
+    "composition": [
+     "technology"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.inspect_standard_edition"
+   },
+   {
+    "composition": [
+     "technology"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.propose_certificate_product_links"
+   },
+   {
+    "composition": [
+     "technology"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.review_certificate_product_link"
+   },
+   {
+    "composition": [
+     "technology"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-knowledge-engine.standards_source_contracts"
+   },
+   {
+    "composition": [
+     "political",
+     "technology"
+    ],
+    "field": "packs",
+    "legacy": [],
+    "tool": "noesis-pipeline.run_connector"
    }
   ]
  },
  "contract": "noesis-composition-shadow-report-v1",
- "disagreements": 10,
- "plan_digest": "sha256:385256e316546f156f930c3c7c9f4625d5eed28c56d82259ee23eee12f87c429"
+ "disagreements": 250,
+ "plan_digest": "sha256:e149c294408c63fbebd3fbe222c58dccd65f0c35c66030c97d462875d3a1f57c"
 }

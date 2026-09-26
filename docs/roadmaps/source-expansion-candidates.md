@@ -7,6 +7,16 @@ Tracking: [#1746](https://github.com/Ikey168/Noesis/issues/1746).
 
 
 
+## Delivery state (2026-09-26)
+
+Audited against the repository on 2026-09-26 (C09.1, [Ikey168/Noesis#1840](https://github.com/Ikey168/Noesis/issues/1840)). Every item below cites a file or tool that exists in this checkout; where this section and older text disagree, this section is current.
+
+- **Shipped:** #1747 EPO OPS patents (`src/kb/patents.py`), #1748 GLEIF LEI and company identity linking (`src/kb/lei.py`), #1749 ISO catalogue editions (`src/kb/standards.py`) and #1750 VBB GTFS Schedule projected into Geospatial (`src/kb/transit.py`). The "proposed" status line above is out of date.
+- **Partial:** #1749 certification evidence (explicit import only, no registry connector); #1750 GTFS Realtime (decoder only, no validated endpoint).
+- **Not shipped:** Espacenet and WIPO PATENTSCOPE, national company registers, ETSI standards and IPR, rail and flight status, and bounded live acceptance for all four sources.
+- **Composition:** each expansion reuses an existing owner, as planned. The generated providers `noesis.patents` (via `packs/science`), `noesis.lei` (via `packs/economics`), `noesis.standards` (via `packs/technology`) and `noesis.transit` (via `packs/geospatial`) each own their projector's records and declare their source pack.
+- **Composition dependency of remaining work:** none (new connectors, store fields or live runs on existing owners).
+
 ## GitHub implementation issues
 
 - [ ] [#1747](https://github.com/Ikey168/Noesis/issues/1747) — Extend Research and Technical with patent-family and legal-event sources.

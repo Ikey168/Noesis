@@ -1,0 +1,90 @@
+{
+  "pack_format": "noesis-pack-v2",
+  "name": "economics",
+  "version": "1.0.0",
+  "description": "Vintaged quantitative knowledge with canonical indicators and cited comparisons.",
+  "requires": [
+    {
+      "capability": "economics.bitemporal-economic-observations",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "economics.bitemporal-economic-observations-changes",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "economics.canonical-economic-indicators",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "economics.cited-economic-comparisons",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "economics.cited-economic-comparisons-via-warehouse",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "economics.cited-economic-comparisons-changes",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "economics.claim-observation-links",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "economics.explicit-measurement-dimensions",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "economics.explicit-measurement-dimensions-changes",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "economics.release-vintage-history",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "economics.release-vintage-history-via-knowledge-engine-runtime",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "economics.release-vintage-history-via-economic-release-store",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "economics.release-vintage-history-changes",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "lei.company-identities",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "lei.company-identities-changes",
+      "range": "^1.0.0"
+    }
+  ],
+  "contributes": {
+    "providers": [
+      {
+        "provider_id": "noesis.economics",
+        "version": "1.0.0"
+      },
+      {
+        "provider_id": "noesis.lei",
+        "version": "1.0.0"
+      }
+    ]
+  },
+  "aliases": {
+    "capability_labels": {
+      "bitemporal-economic-observations": "economics.bitemporal-economic-observations",
+      "canonical-economic-indicators": "economics.canonical-economic-indicators",
+      "cited-economic-comparisons": "economics.cited-economic-comparisons",
+      "claim-observation-links": "economics.claim-observation-links",
+      "explicit-measurement-dimensions": "economics.explicit-measurement-dimensions",
+      "release-vintage-history": "economics.release-vintage-history"
+    }
+  }
+}

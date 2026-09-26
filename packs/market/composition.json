@@ -1,0 +1,108 @@
+{
+  "pack_format": "noesis-pack-v2",
+  "name": "market",
+  "version": "1.0.0",
+  "description": "Point-in-time market research: versioned issuers, securities and listings, filing facts and end-of-day bars under explicit public and acquisition cutoffs, screens, dossiers, theses and alerts with receipts.",
+  "requires": [
+    {
+      "capability": "market.company-dossiers-and-industry-models",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "market.company-dossiers-and-industry-models-changes",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "market.company-dossiers-and-industry-models-changes-via-market-instrument-store",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "market.cutoff-bounded-price-history",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "market.cutoff-bounded-price-history-via-market-price-store",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "market.historical-universe-screening",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "market.historical-universe-screening-changes",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "market.point-in-time-instrument-resolution",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "market.provider-health-and-readiness",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "market.provider-health-and-readiness-via-market-instrument-store",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "market.provider-health-and-readiness-changes",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "market.quantitative-and-specialized-analytics",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "market.quantitative-and-specialized-analytics-via-market-specialized-store",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "market.quantitative-and-specialized-analytics-changes",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "market.quantitative-and-specialized-analytics-changes-via-market-quantitative-store",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "market.thesis-and-alert-receipts",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "market.thesis-and-alert-receipts-changes",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "market.thesis-and-alert-receipts-changes-via-market-research-store",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "market.versioned-filing-facts",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "market.versioned-filing-facts-via-market-financial-fact-store",
+      "range": "^1.0.0"
+    }
+  ],
+  "contributes": {
+    "providers": [
+      {
+        "provider_id": "noesis.market",
+        "version": "1.0.0"
+      }
+    ]
+  },
+  "aliases": {
+    "capability_labels": {
+      "company-dossiers-and-industry-models": "market.company-dossiers-and-industry-models",
+      "cutoff-bounded-price-history": "market.cutoff-bounded-price-history",
+      "historical-universe-screening": "market.historical-universe-screening",
+      "point-in-time-instrument-resolution": "market.point-in-time-instrument-resolution",
+      "provider-health-and-readiness": "market.provider-health-and-readiness",
+      "quantitative-and-specialized-analytics": "market.quantitative-and-specialized-analytics",
+      "thesis-and-alert-receipts": "market.thesis-and-alert-receipts",
+      "versioned-filing-facts": "market.versioned-filing-facts"
+    }
+  }
+}

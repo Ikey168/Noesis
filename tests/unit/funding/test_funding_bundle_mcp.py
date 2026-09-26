@@ -30,9 +30,10 @@ def mcp_env(tmp_path, monkeypatch):
     return asyncio.run(server.mcp.get_tools()), state, path
 
 
-def test_declared_contributions_reuse_existing_owners_and_admit_no_runtime():
-    assert BUNDLE["architecture"]["status"].startswith("proposed")
+def test_declared_contributions_reuse_existing_owners_and_are_composed():
+    assert BUNDLE["architecture"]["status"].startswith("implemented")
     assert set(BUNDLE["architecture"]["depends_on"]) == {"C02", "C03", "C04", "C05", "C06", "C07"}
+    assert not any("pending" in value for value in BUNDLE["architecture"]["depends_on"].values())
     workflows = BUNDLE["contributions"]["workflows"]
     assert set(workflows) == {"discovery", "profile_to_shortlist", "application_preparation", "monitoring"}
     assert "ResearchProjectStore" in workflows["application_preparation"]["reuses"]

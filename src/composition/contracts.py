@@ -477,6 +477,17 @@ def load_pack(
     if not overlay_path.exists():
         return adapted
     overlay = json.loads(overlay_path.read_text(encoding="utf-8"))
+    return merge_overlay(adapted, overlay, known_capabilities=known_capabilities)
+
+
+def merge_overlay(
+    adapted: Mapping[str, Any],
+    overlay: Mapping[str, Any],
+    *,
+    known_capabilities: Iterable[str] | None = None,
+) -> dict[str, Any]:
+    """Merge a ``composition.json`` overlay onto an adapted v1 or DomainPack manifest."""
+
     if overlay.get("name") != adapted["name"] or overlay.get("version") != adapted["version"]:
         raise CompositionError(
             "identity_mismatch",
@@ -489,7 +500,12 @@ def load_pack(
                 "invalid_manifest", f"composition.json must not declare {field}"
             )
     merged = {key: value for key, value in overlay.items() if key != "manifest_hash"}
-    merged["legacy_v1"] = adapted["legacy_v1"]
+    # A v1 pack keeps its runtime fields; a code-registered pack keeps its
+    # adapter record and advisory source types.
+    carried = ("legacy_v1",) if "legacy_v1" in adapted else ("adapter", "advisory")
+    for field in carried:
+        if field in adapted:
+            merged[field] = copy.deepcopy(adapted[field])
     contributes = dict(merged.get("contributes", {}))
     contributes.setdefault(
         "capability_labels", adapted["contributes"].get("capability_labels", [])

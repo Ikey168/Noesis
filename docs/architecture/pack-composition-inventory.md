@@ -266,6 +266,34 @@ connection; the generation switch is a pointer update written with its
 generation, abandons unfinished activations, and reconciles staged source-owner
 operations only from their receipts.
 
+## C09 Record owners after migration
+
+Every source-pack projector in `src/ingestion/source_pack_runtime.py`
+(`PROJECTORS`) has one provider that owns the records it writes
+(`src/composition/bundles.py`, `PROJECTOR_OWNERS`). Each owner declares its
+source pack, so the source-pack runtime stays the authority for versions, pins
+and cursors.
+
+| Projector target schema | Owning provider | Store module | Source pack | Contributed by |
+| --- | --- | --- | --- | --- |
+| `noesis-geospatial-feature-v1` | `noesis.geospatial` | `src.kb.geospatial_features` | `geospatial-berlin` | `packs/geospatial` |
+| `noesis-transit-feed-v1` | `noesis.transit` | `src.kb.transit` | `geospatial-berlin` | `packs/geospatial` |
+| `noesis-product-record-v1` | `noesis.products` | `src.kb.products` | `products-displays` | `packs/products` |
+| `noesis-legal-record-v1` | `noesis.legal` | `src.kb.legal` | `legal-research` | `packs/legal` |
+| `noesis-cultural-object-v1` | `noesis.cultural` | `src.kb.cultural` | `primary-scientific-evidence` | `packs/science` |
+| `noesis-patent-part-v1` | `noesis.patents` | `src.kb.patents` | `research-discovery` | `packs/science` |
+| `noesis-math-record-v1` | `noesis.mathematics` | `src.kb.mathematics` | `research-discovery` | `packs/science` |
+| `noesis-lei-part-v1` | `noesis.lei` | `src.kb.lei` | `economic-statistics-and-filings` | `packs/economics` |
+| `noesis-standard-catalogue-v1` | `noesis.standards` | `src.kb.standards` | `technical-software-knowledge` | `packs/technology` |
+
+The other generated providers own the domain records behind each bundle's
+declared capabilities (`noesis.legal`, `noesis.economics`, `noesis.political`,
+`noesis.technology`, `noesis.market`, `noesis.products`, `noesis.scholarly`,
+`noesis.osint-investigation`, `noesis.research-analytics`, `noesis.funding`) or
+are shared deployment built-ins (`noesis.research-projects`, `noesis.reports`,
+`noesis.quantitative`, `noesis.subscriptions`). No record kind or table has
+two owners (`tests/unit/composition/test_migration.py`).
+
 ## Per-surface summary
 
 | Surface | Provider code | Authoritative store | Exposure | Version rules |

@@ -4,6 +4,15 @@ Status: implemented 2026-09-25. See the [geospatial pack guide](../guides/geospa
 Offline acceptance and a dated bounded live run against both Berlin layers are
 recorded separately (`config/geospatial/acceptance/live-berlin.json`).
 
+## Delivery state (2026-09-26)
+
+Audited against the repository on 2026-09-26 (C09.1, [Ikey168/Noesis#1840](https://github.com/Ikey168/Noesis/issues/1840)). Every item below cites a file or tool that exists in this checkout; where this section and older text disagree, this section is current.
+
+- **Shipped:** #1696–#1705 — pinned Berlin WFS layers (`config/source_packs/geospatial.json`), bounded GeoJSON import (`import_geospatial_features`), the native WFS adapter (`src/ingestion/wfs_api.py`), provenance-preserving features and projection (`src/kb/geospatial_features.py`), refresh/removal semantics, the pack and source profile (`packs/geospatial/pack.json`), source-aware queries (`query_geospatial_features_within`, `replay_geospatial_feature_query`) and offline acceptance. The live Berlin validation ran: `config/geospatial/acceptance/live-berlin.json` records a complete import with accepted terms hashes, which supersedes the earlier "no live feature import was performed" note.
+- **Not shipped:** the OGC API Features adapter planned after v1.
+- **Composition:** `packs/geospatial` is composition-managed (C08, C09.3). It contributes `noesis.geospatial` and `noesis.transit` (`config/composition/providers/`), and its declared labels are aliased to provider capabilities in `packs/geospatial/composition.json`.
+- **Composition dependency of remaining work:** none. The OGC API Features adapter is a new source connector behind the existing `sources.acquire` capability and `noesis.geospatial` provider.
+
 ## GitHub implementation issues
 
 Tracking: [#1695](https://github.com/Ikey168/Noesis/issues/1695).

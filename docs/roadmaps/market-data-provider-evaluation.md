@@ -4,6 +4,15 @@
 **Scope:** initial U.S. public-equity release defined in [the market capability audit](market-analytics-capability-audit.md) and [roadmap issue #1647](https://github.com/Ikey168/Noesis/issues/1647)  
 **Evaluation issue:** [#1655](https://github.com/Ikey168/Noesis/issues/1655)
 
+## Delivery state (2026-09-26)
+
+Audited against the repository on 2026-09-26 (C09.1, [Ikey168/Noesis#1840](https://github.com/Ikey168/Noesis/issues/1840)). Every item below cites a file or tool that exists in this checkout; where this section and older text disagree, this section is current.
+
+- **Shipped:** the vendor shortlist and rights matrix (this document), the FMP adapter behind the provider-neutral EOD boundary (`src/ingestion/connectors/market/fmp.py`), the sample-evidence harness (`scripts/market_provider_sample_evidence.py`) and the hash-only live receipt (`config/market/acceptance_packs/live-price-provider.json`).
+- **Partial:** the five-symbol entitlement sample (`live_incomplete`).
+- **Not shipped:** a commercial quote and written retention, display and export rights; production enablement of any vendor (deliberately deferred).
+- **Composition dependency of remaining work:** none (procurement and credentialed sampling).
+
 ## Recommendation
 
 FMP is now the selected **technical adapter candidate**, but not an approved production provider. A credential-scoped live probe on 2026-09-24 covered all five identities and both NASDAQ/NYSE calendars. Its actual dataset scope was partial: the sampled key returned EOD prices, actions and statements for only two of the five issuers; the other three price/action requests and both delisted-price requests returned HTTP 402. Transcript and institutional-ownership requests returned 402 for all five. Commercial retention, display, derived-data and report-export rights remain unverified. The hash-only receipt is in `config/market/acceptance_packs/live-price-provider.json`; no key or raw payload is retained.

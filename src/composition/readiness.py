@@ -40,6 +40,14 @@ _KIND_TO_STATE = {
 }
 _STATE_ORDER = ("unauthorized", "disabled", "unavailable", "empty", "degraded", "available")
 
+# The probe that delegates data readiness to the legacy catalog evaluation.
+# Tools behind it keep the legacy state; only coordinator-owned blockers
+# (below) can override it, because the legacy tables cannot see them.
+DELEGATING_PROBE = "catalog.required-data"
+LIFECYCLE_BLOCKERS = frozenset(
+    {"provider-disabled", "provider-shutdown", "failed-execution", "aggregate-limit-exhausted"}
+)
+
 # Fixed, content-free reasons per blocker kind. Emission uses these instead of
 # any caller- or probe-supplied text, so nothing private can leak through them.
 REASONS = {
@@ -173,18 +181,20 @@ def assess(
             if target["kind"] == "registered" and target["id"] not in known:
                 blockers.append(_blocker("binding-missing"))
         probe_id = offered["readiness"]["probe"]
+        cache_key = f"{probe_id}|{','.join(offered['readiness'].get('required_data', []))}"
         if probe_results is not None and probe_id in probe_results:
             observed = probe_results[probe_id]
-        elif probe_id in probe_cache:
-            observed = probe_cache[probe_id]
+        elif cache_key in probe_cache:
+            observed = probe_cache[cache_key]
         else:
             probe = registry.probe(probe_id)
             observed = (
                 {"state": "blocked", "blockers": [{"kind": "binding-missing"}]}
                 if probe is None
-                else probe.fn(conn, {"namespace": namespace, "network": network})
+                else probe.fn(conn, {"namespace": namespace, "network": network,
+                                     "required_data": offered["readiness"].get("required_data", [])})
             )
-            probe_cache[probe_id] = observed
+            probe_cache[cache_key] = observed
         prerequisites.append(
             {"kind": "data", "name": probe_id, "satisfied": observed.get("state") == "ready"}
         )
@@ -281,7 +291,8 @@ class CompositionView:
                     {"capability": binding["capability"], "provider_id": binding["provider_id"],
                      "provider_version": binding["provider_version"], "reason": binding["reason"],
                      "consumers": set(), "contributors": set(contributors.get(provider_node, set())),
-                     "required_data": list((offered or {}).get("readiness", {}).get("required_data", []))},
+                     "required_data": list((offered or {}).get("readiness", {}).get("required_data", [])),
+                     "probe": (offered or {}).get("readiness", {}).get("probe")},
                 )
                 entry["consumers"].add(binding["consumer"])
 
@@ -302,6 +313,26 @@ class CompositionView:
     def required_data(self, tool_id: str, legacy: list[str]) -> list[str]:
         declared = self.tools[tool_id]["required_data"]
         return list(declared) if declared else list(legacy)
+
+    def delegated(self, tool_id: str) -> bool:
+        """Whether the tool's data readiness is the legacy catalog evaluation."""
+
+        return self.tools[tool_id]["probe"] == DELEGATING_PROBE
+
+    def lifecycle_state(self, tool_id: str) -> tuple[str, str | None] | None:
+        """A coordinator-owned blocker on the tool's provider, if any."""
+
+        if self.readiness is None:
+            return None
+        provider = self.tools[tool_id]["provider_id"]
+        kinds = sorted({
+            b["kind"] for o in self.readiness["operations"] if o.get("provider_id") == provider
+            for b in o["blockers"] if b["kind"] in LIFECYCLE_BLOCKERS
+        })
+        if not kinds:
+            return None
+        state = min((_KIND_TO_STATE[k] for k in kinds), key=_STATE_ORDER.index)
+        return state, next(REASONS[k] for k in kinds if _KIND_TO_STATE[k] == state)
 
     def operation(self, tool_id: str) -> Mapping[str, Any] | None:
         if self.readiness is None:

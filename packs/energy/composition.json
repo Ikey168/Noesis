@@ -1,0 +1,8 @@
+{
+  "pack_format": "noesis-pack-v2",
+  "name": "energy",
+  "version": "1.0.0",
+  "description": "Energy-sector domain pack: a grid-outage panel, energy-coverage planner keywords, a keyword-tag enricher, and a provisioning template for an energy knowledge graph. Distributable and installable without code changes.",
+  "requires": [],
+  "contributes": {}
+}

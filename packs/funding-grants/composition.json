@@ -1,0 +1,88 @@
+{
+  "pack_format": "noesis-pack-v2",
+  "name": "funding-grants",
+  "version": "0.1.0",
+  "description": "Funding & Grants: bounded discovery of calls from declared funding providers, owner-scoped applicant profiles, requirement-based eligibility, explained shortlists, application workspaces and drafts on shared research-project, report and calculation owners, and monitoring through shared subscriptions. Never submits applications or contacts funders.",
+  "requires": [
+    {
+      "capability": "research.projects-changes",
+      "range": "^1.0.0",
+      "effects": [
+        "local-mutation"
+      ]
+    },
+    {
+      "capability": "reports.authored-changes",
+      "range": "^1.0.0",
+      "effects": [
+        "local-mutation"
+      ]
+    },
+    {
+      "capability": "quantitative.calculations-changes",
+      "range": "^1.0.0",
+      "effects": [
+        "local-mutation"
+      ]
+    },
+    {
+      "capability": "subscriptions.events-changes",
+      "range": "^1.0.0",
+      "effects": [
+        "local-mutation"
+      ]
+    },
+    {
+      "capability": "evidence.document-references",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "funding.grants",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "funding.grants-changes",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "funding.grants-acquisition",
+      "range": "^1.0.0"
+    }
+  ],
+  "contributes": {
+    "providers": [
+      {
+        "provider_id": "noesis.funding",
+        "version": "1.0.0"
+      }
+    ]
+  },
+  "metadata": {
+    "entry_points": {
+      "discovery": [
+        "funding.grants",
+        "funding.grants-acquisition",
+        "evidence.document-references"
+      ],
+      "profile_to_shortlist": [
+        "funding.grants",
+        "funding.grants-changes"
+      ],
+      "application_preparation": [
+        "funding.grants-changes",
+        "research.projects-changes",
+        "reports.authored-changes",
+        "quantitative.calculations-changes"
+      ],
+      "monitoring": [
+        "funding.grants-changes",
+        "subscriptions.events-changes"
+      ]
+    },
+    "never": [
+      "submit applications",
+      "contact funders",
+      "guarantee eligibility or funding success"
+    ]
+  }
+}

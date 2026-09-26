@@ -1,0 +1,49 @@
+{
+  "pack_format": "noesis-pack-v2",
+  "name": "political",
+  "version": "1.0.0",
+  "description": "Official political knowledge with scoped identity and bitemporal research queries.",
+  "requires": [
+    {
+      "capability": "political.bitemporal-office-terms",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "political.official-source-manifests",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "political.official-source-manifests-changes",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "political.political-research-queries",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "political.proposal-vote-lifecycle",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "political.scoped-entity-resolution",
+      "range": "^1.0.0"
+    }
+  ],
+  "contributes": {
+    "providers": [
+      {
+        "provider_id": "noesis.political",
+        "version": "1.0.0"
+      }
+    ]
+  },
+  "aliases": {
+    "capability_labels": {
+      "bitemporal-office-terms": "political.bitemporal-office-terms",
+      "official-source-manifests": "political.official-source-manifests",
+      "political-research-queries": "political.political-research-queries",
+      "proposal-vote-lifecycle": "political.proposal-vote-lifecycle",
+      "scoped-entity-resolution": "political.scoped-entity-resolution"
+    }
+  }
+}
