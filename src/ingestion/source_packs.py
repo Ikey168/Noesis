@@ -29,6 +29,7 @@ SUPPORTED_CONNECTORS = frozenset(
         "filings",
         "geojson",
         "git",
+        "gleif",
         "icecat",
         "manifest",
         "package-registry",
@@ -191,6 +192,7 @@ NATIVE_CONNECTOR_MODULES = {
     "ddb": "src.ingestion.cultural_sources",
     "europeana": "src.ingestion.cultural_sources",
     "epo-ops": "src.ingestion.patent_sources",
+    "gleif": "src.ingestion.lei_sources",
 }
 
 

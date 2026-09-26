@@ -18,7 +18,7 @@
         "required": ["source_id", "connector", "endpoint", "publisher", "scope", "license", "update_cadence", "temporal_semantics", "mapping", "extractor_versions", "schedule", "budgets", "auth", "fixture", "health", "operations", "source_hash"],
         "properties": {
           "source_id": {"type": "string", "minLength": 1},
-          "connector": {"enum": ["berlin-law", "blog", "cellar", "dataset", "ddb", "declarative-rest", "epo-ops", "eprel", "europeana", "filings", "geojson", "git", "icecat", "manifest", "package-registry", "paper", "rii", "web", "wfs"]},
+          "connector": {"enum": ["berlin-law", "blog", "cellar", "dataset", "ddb", "declarative-rest", "epo-ops", "eprel", "europeana", "filings", "geojson", "git", "gleif", "icecat", "manifest", "package-registry", "paper", "rii", "web", "wfs"]},
           "wfs": {
             "type": "object",
             "description": "Pinned WFS 2.0.0 GetFeature contract; required for the wfs connector.",
@@ -36,6 +36,15 @@
           "geospatial": {
             "type": "object",
             "description": "Feature projection settings for wfs/geojson sources (namespace, geometry types, precision, attribution)."
+          },
+          "lei": {
+            "type": "object",
+            "description": "Bounded GLEIF selection: 1-50 LEIs and the parts to read (record, parent relationships, reporting exceptions).",
+            "required": ["leis"],
+            "properties": {
+              "namespace": {"type": "string", "minLength": 1},
+              "leis": {"type": "array", "minItems": 1, "maxItems": 50, "items": {"type": "string", "pattern": "^[0-9A-Z]{18}[0-9]{2}$"}}
+            }
           },
           "patent": {
             "type": "object",

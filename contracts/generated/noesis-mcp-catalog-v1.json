@@ -899,7 +899,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 698,
+      "tool_count": 704,
       "tools": [
         "noesis-knowledge-engine.accept_awareness_jev_suggestion",
         "noesis-knowledge-engine.accept_citation_repair",
@@ -978,6 +978,7 @@
         "noesis-knowledge-engine.command_intake_creation",
         "noesis-knowledge-engine.command_intake_mode",
         "noesis-knowledge-engine.command_practice_review",
+        "noesis-knowledge-engine.company_source_contracts",
         "noesis-knowledge-engine.compare_change_briefs",
         "noesis-knowledge-engine.compare_claim_sources",
         "noesis-knowledge-engine.compare_coverage_assessments",
@@ -1206,6 +1207,7 @@
         "noesis-knowledge-engine.inspect_jev_task_rollout",
         "noesis-knowledge-engine.inspect_legal_work",
         "noesis-knowledge-engine.inspect_legislative_dossier",
+        "noesis-knowledge-engine.inspect_lei_entity",
         "noesis-knowledge-engine.inspect_maintenance_generation",
         "noesis-knowledge-engine.inspect_maintenance_job",
         "noesis-knowledge-engine.inspect_media_provenance",
@@ -1247,7 +1249,9 @@
         "noesis-knowledge-engine.legal_source_contracts",
         "noesis-knowledge-engine.legislative_dossier_dependencies",
         "noesis-knowledge-engine.legislative_dossier_timeline",
+        "noesis-knowledge-engine.lei_parents_as_of",
         "noesis-knowledge-engine.link_claim_evolution",
+        "noesis-knowledge-engine.link_company_identity",
         "noesis-knowledge-engine.link_cross_modal_evidence",
         "noesis-knowledge-engine.link_cultural_research",
         "noesis-knowledge-engine.link_hypothesis_evidence",
@@ -1338,6 +1342,7 @@
         "noesis-knowledge-engine.propose_intake_modulo_note_revision",
         "noesis-knowledge-engine.propose_intake_playbook_revision",
         "noesis-knowledge-engine.propose_intake_report_revision",
+        "noesis-knowledge-engine.propose_lei_registry_links",
         "noesis-knowledge-engine.propose_patent_link",
         "noesis-knowledge-engine.propose_problem_action",
         "noesis-knowledge-engine.propose_product_matches",
@@ -1451,6 +1456,7 @@
         "noesis-knowledge-engine.retry_source_pack_quarantine",
         "noesis-knowledge-engine.reverse_event_merge",
         "noesis-knowledge-engine.review_change_brief",
+        "noesis-knowledge-engine.review_company_identity_link",
         "noesis-knowledge-engine.review_cross_language_alignment",
         "noesis-knowledge-engine.review_cultural_match",
         "noesis-knowledge-engine.review_cultural_research_candidate",
@@ -1605,7 +1611,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 698
+      "visible_tool_count": 704
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -1616,11 +1622,11 @@
     },
     "servers": 30,
     "states": {
-      "available": 98,
+      "available": 99,
       "degraded": 158,
-      "unauthorized": 748
+      "unauthorized": 753
     },
-    "tools": 1004
+    "tools": 1010
   },
   "tools": [
     {
@@ -23283,6 +23289,30 @@
     },
     {
       "cost_class": "low",
+      "description": "GLEIF access, the reused OpenCorporates provider and why official registers are not wired.",
+      "id": "noesis-knowledge-engine.company_source_contracts",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "company_source_contracts",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Compare classifications, materiality, scores, and uncertainty.",
       "id": "noesis-knowledge-engine.compare_change_briefs",
       "input_schema": {
@@ -34435,6 +34465,43 @@
     },
     {
       "cost_class": "low",
+      "description": "An LEI's names, legal vs headquarters address, register pointer, status, parents, exceptions and links.",
+      "id": "noesis-knowledge-engine.inspect_lei_entity",
+      "input_schema": {
+        "properties": {
+          "lei": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "lei"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "inspect_lei_entity",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:companies:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Inspect one append-only committed knowledge generation.",
       "id": "noesis-knowledge-engine.inspect_maintenance_generation",
       "input_schema": {
@@ -36103,6 +36170,47 @@
       "version": "1"
     },
     {
+      "cost_class": "low",
+      "description": "Parent assertions observed by a time, with conflicting assertions kept.",
+      "id": "noesis-knowledge-engine.lei_parents_as_of",
+      "input_schema": {
+        "properties": {
+          "as_of_ms": {
+            "type": "integer"
+          },
+          "lei": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "lei",
+          "as_of_ms"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "lei_parents_as_of",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:companies:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "medium",
       "description": "Link existing claims with a sourced successor, refinement, reversal, withdrawal, or branch.",
       "id": "noesis-knowledge-engine.link_claim_evolution",
@@ -36213,6 +36321,55 @@
       ],
       "required_scopes": [
         "knowledge:claim-timeline:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Propose a link from an LEI to an OpenCorporates record, market issuer or register entry.",
+      "id": "noesis-knowledge-engine.link_company_identity",
+      "input_schema": {
+        "properties": {
+          "evidence": {
+            "type": "string"
+          },
+          "external_id": {
+            "type": "string"
+          },
+          "external_kind": {
+            "type": "string"
+          },
+          "lei": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "lei",
+          "external_kind",
+          "external_id",
+          "evidence"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "link_company_identity",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:companies:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -40782,6 +40939,39 @@
       ],
       "required_scopes": [
         "knowledge:intake:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Candidates between LEIs and existing OpenCorporates records on jurisdiction + registry number.",
+      "id": "noesis-knowledge-engine.propose_lei_registry_links",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_lei_registry_links",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:companies:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -48233,6 +48423,51 @@
       ],
       "required_scopes": [
         "knowledge:briefs:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Accept or reject an LEI identity link.",
+      "id": "noesis-knowledge-engine.review_company_identity_link",
+      "input_schema": {
+        "properties": {
+          "decision": {
+            "type": "string"
+          },
+          "link_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "link_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_company_identity_link",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:companies:review"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
