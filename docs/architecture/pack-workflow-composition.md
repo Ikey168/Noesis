@@ -270,6 +270,10 @@ Implementation (C05, C06):
 
 ## First composition to prove the design
 
+Status: proven for OSINT + Research + Geospatial only (C08, `test_first_composition.py`). The
+composition is proven offline, through real local adapters and captured provider input. Live provider
+availability and the quality of conclusions are not established. Other subjects remain proposed.
+
 Use existing OSINT, Research, and Geospatial surfaces before adding a new subject.
 
 1. Register one spatial provider with explicit contracts for the actual query
@@ -318,20 +322,32 @@ may roll back bindings while retained source versions and records stay intact.
 
 ## Acceptance matrix
 
-| Scenario | Required result |
-| --- | --- |
-| Two packs consume Geospatial | One selected provider; shared permitted references; no duplicate store or automatic re-ingestion. |
-| OSINT disabled, Research active | Research spatial operations still work; retained evidence remains addressable under current access. |
-| Required provider missing or ambiguous | Workflow blocked before execution with a specific dependency/binding explanation. |
-| Optional acquisition unavailable | Permitted local analysis can run with explicit missing-source coverage. |
-| Contract/ontology conflict | No silent overwrite or implicit semantic conversion; the affected composition is rejected. |
-| Upgrade changes a pinned provider/source | Impact preview lists accessible dependents; historical runs retain pins; new execution uses a new plan. |
-| Crash during activation | Previous active generation survives; staged operations reconcile without duplicate registrations. |
-| Crash after a workflow mutation | Owner idempotency/receipt reconciles it, or the step reports unknown outcome instead of blind retry. |
-| Access revoked after preflight | Execution/resume/read/export recheck authority and deny or redact as the owner contract requires. |
-| Several consumers acquire from one account | Existing per-run limits and aggregated provider limits both hold. |
-| Legacy manifest/session/report | Existing identity, references, and public behavior remain valid through the adapter. |
-| Fixture-only public recipe run | Receipt still declares fixture execution; no claim of tool dispatch or live validation. |
+| Scenario | Required result | Test (C08.7) |
+| --- | --- | --- |
+| Two packs consume Geospatial | One selected provider; shared permitted references; no duplicate store or automatic re-ingestion. | `test_one_geospatial_binding_consumed_by_both_roots` in `test_first_composition.py` |
+| OSINT disabled, Research active | Research spatial operations still work; retained evidence remains addressable under current access. | `test_disabling_osint_keeps_research_spatial_operations_and_evidence` in `test_first_composition.py` |
+| Required provider missing or ambiguous | Workflow blocked before execution with a specific dependency/binding explanation. | `test_required_provider_missing_or_ambiguous_blocks_before_execution` in `test_first_composition.py` |
+| Optional acquisition unavailable | Permitted local analysis can run with explicit missing-source coverage. | `test_optional_acquisition_unavailable_runs_local_analysis_with_missing_source_coverage` in `test_first_composition.py` |
+| Contract/ontology conflict | No silent overwrite or implicit semantic conversion; the affected composition is rejected. | `test_contract_or_ontology_conflict_rejects_the_composition` in `test_first_composition.py` |
+| Upgrade changes a pinned provider/source | Impact preview lists accessible dependents; historical runs retain pins; new execution uses a new plan. | `test_source_revision_preview_blocks_incompatible_and_keeps_historical_pins` in `test_first_composition.py` |
+| Crash during activation | Previous active generation survives; staged operations reconcile without duplicate registrations. | `test_crash_during_activation_keeps_the_previous_generation` in `test_first_composition.py` |
+| Crash after a workflow mutation | Owner idempotency/receipt reconciles it, or the step reports unknown outcome instead of blind retry. | `test_crash_after_a_workflow_mutation_reconciles_and_resumes_under_the_original_digest` in `test_first_composition.py` |
+| Access revoked after preflight | Execution/resume/read/export recheck authority and deny or redact as the owner contract requires. | `test_access_revoked_after_preflight_is_rechecked_everywhere` in `test_first_composition.py` |
+| Several consumers acquire from one account | Existing per-run limits and aggregated provider limits both hold. | `test_aggregate_account_limit_holds_across_consumers_and_is_a_distinct_blocker` in `test_sources.py` |
+| Legacy manifest/session/report | Existing identity, references, and public behavior remain valid through the adapter. | `test_legacy_manifests_keep_identity_and_public_behavior_through_the_adapter` in `test_first_composition.py` |
+| Fixture-only public recipe run | Receipt still declares fixture execution; no claim of tool dispatch or live validation. | `test_fixture_runs_cannot_claim_dispatch_and_dispatch_mode_needs_the_dispatcher` in `test_workflows.py` |
+
+`tests/unit/composition/test_acceptance_matrix.py` holds this mapping and fails
+if a row loses its test.
+
+What the proof does not establish:
+- Live provider availability. Every journey uses captured fixture input for
+  providers, even though tool execution is real.
+- The quality of any investigative or scholarly conclusion drawn from the
+  results.
+
+The upgrade row is also exercised for the provider side by
+`test_provider_revision_requires_a_new_plan_while_history_keeps_its_pin`.
 
 ## Effect on the existing expansion backlog
 

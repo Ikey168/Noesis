@@ -85,8 +85,11 @@ def test_every_bundle_adapts_and_round_trips_to_its_v1_registration():
                             "products", "science", "technology", "energy"}
     for bundle, manifest in adapted.items():
         assert validate_composition_manifest(manifest) == [], bundle
-        assert set(manifest["adapter"]["supplied_defaults"]) >= {"requires", "capability-contracts",
-                                                                 "store-ownership"}
+        defaults = set(manifest["adapter"]["supplied_defaults"])
+        assert defaults >= {"capability-contracts", "store-ownership"}
+        overlay = ROOT / "packs" / bundle / "composition.json"
+        declares_requires = overlay.exists() and "requires" in json.loads(overlay.read_text())
+        assert ("requires" in defaults) != declares_requires, bundle
     for path in sorted((ROOT / "packs").glob("*/pack.json")):
         data = json.loads(path.read_text())
         v1 = PackManifest.from_dict(data)

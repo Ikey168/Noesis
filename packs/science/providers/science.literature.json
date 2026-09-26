@@ -1,0 +1,50 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "science.literature",
+  "version": "1.0.0",
+  "implementation": {
+    "name": "src.domains.research.analytics",
+    "version": "1.0.0",
+    "server": "noesis-research"
+  },
+  "capabilities": [
+    {
+      "id": "science.literature-claims",
+      "contract": {
+        "name": "noesis-literature-claims",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "literature-claims"
+      ],
+      "semantic_constraints": {
+        "scope": "claims scoped to papers"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "literature-claims",
+      "tool": "noesis-research.literature_claims",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "claims",
+      "required_scopes": [
+        "knowledge:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    }
+  ],
+  "stores": [],
+  "readiness_probes": [
+    {
+      "id": "claims",
+      "kind": "table-exists",
+      "target": "argument_claims"
+    }
+  ]
+}

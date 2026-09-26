@@ -1,0 +1,91 @@
+{
+  "contract": "noesis-workflow-template-v1",
+  "id": "osint.location-investigation",
+  "version": "1.0.0",
+  "pack": "osint",
+  "profile": "osint.investigator",
+  "description": "Investigate where an event happened: refresh the permitted source features, place the reported location against a named boundary, corroborate the claim and record the finding in the session.",
+  "parameters": {
+    "boundary_name": {
+      "type": "string",
+      "required": true,
+      "description": "Boundary the event is reported in"
+    },
+    "claim_id": {
+      "type": "string",
+      "required": true,
+      "description": "Claim under investigation"
+    }
+  },
+  "requires": [
+    {
+      "capability": "geospatial.feature-query",
+      "contract": "noesis-geospatial-feature-query",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "platform.session-artifacts",
+      "contract": "noesis-intake-session-artifact",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "osint.corroboration",
+      "contract": "noesis-osint-corroboration",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "platform.source-acquisition",
+      "contract": "noesis-source-acquisition",
+      "range": "^1.0.0"
+    }
+  ],
+  "steps": [
+    {
+      "id": "acquire",
+      "capability": "platform.source-acquisition",
+      "operation": "acquire",
+      "effect": "acquisition",
+      "optional": true,
+      "produces": "source-run"
+    },
+    {
+      "id": "locate",
+      "capability": "geospatial.feature-query",
+      "operation": "features-within",
+      "effect": "read-only",
+      "produces": "feature-membership"
+    },
+    {
+      "id": "corroborate",
+      "capability": "osint.corroboration",
+      "operation": "corroborate",
+      "effect": "read-only",
+      "produces": "corroboration"
+    },
+    {
+      "id": "record",
+      "capability": "platform.session-artifacts",
+      "operation": "record-artifact",
+      "effect": "local-mutation",
+      "depends_on": [
+        "locate",
+        "corroborate"
+      ],
+      "produces": "session-artifact"
+    }
+  ],
+  "artifacts": [
+    {
+      "id": "location-finding",
+      "kind": "session-artifact",
+      "description": "Boundary membership with feature revision references, corroboration and source coverage"
+    }
+  ],
+  "questions": [
+    "Is the reported location inside ${boundary_name}?"
+  ],
+  "success_criteria": [
+    "Every place reference names its owner capability, record kind, native id, namespace and revision"
+  ],
+  "content_hash": "sha256:30f72ea0b4cf30aca50667c6729b0ddb0038b71c7b25c8b9d849541f312d9bfb"
+}

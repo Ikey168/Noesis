@@ -1,0 +1,64 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "platform.intake-sessions",
+  "version": "1.0.0",
+  "implementation": {
+    "name": "src.kb.intake_modes",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "platform.session-artifacts",
+      "contract": {
+        "name": "noesis-intake-session-artifact",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "record-artifact"
+      ],
+      "semantic_constraints": {
+        "authority": "the intake session owns its artifacts"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "record-artifact",
+      "tool": "noesis-knowledge-engine.command_intake_mode",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "intake command_key"
+      },
+      "readiness_probe": "sessions",
+      "required_scopes": [
+        "knowledge:intake:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "intake-session",
+      "store": "src.kb.intake_modes",
+      "tables": [
+        "intake_sessions",
+        "intake_session_revisions",
+        "intake_session_commands"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "sessions",
+      "kind": "table-exists",
+      "target": "intake_sessions"
+    }
+  ]
+}

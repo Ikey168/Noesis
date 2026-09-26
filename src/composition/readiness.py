@@ -52,6 +52,8 @@ def probe_state(probes: Sequence[Mapping[str, Any]], conn: Any, *,
     defers to the catalog's own tool state and adds nothing here.
     """
 
+    if conn is None and any(p.get("kind") in {"table-exists", "table-rows"} for p in probes):
+        return "degraded", "data readiness was not probed"
     enabled = set(enabled_source_packs) if enabled_source_packs is not None else None
     states: list[tuple[str, str]] = []
     for probe in sorted(probes, key=lambda p: str(p.get("id"))):
@@ -87,7 +89,7 @@ class ToolBinding:
     provider: str
     provider_version: str
     operation: str
-    pack: str
+    pack: str | None
     reason: str
     consumers: tuple[str, ...]
     probes: tuple[Mapping[str, Any], ...]
@@ -128,7 +130,8 @@ class CompositionView:
                 self.tools[op["tool"]] = ToolBinding(
                     tool=op["tool"], capability=capability, provider=binding["provider"],
                     provider_version=binding["provider_version"], operation=op_id,
-                    pack=contributors.get(capability) or binding["provider"].split(".")[0],
+                    # Platform providers (no contributing bundle) are not pack-owned.
+                    pack=contributors.get(capability),
                     reason=binding["reason"], consumers=tuple(binding["consumers"]),
                     probes=tuple(p for p in [probes.get(op.get("readiness_probe"))] if p),
                     required_scopes=tuple(op.get("required_scopes") or ()),
@@ -248,7 +251,7 @@ def assess(view: CompositionView, *, conn: Any = None, namespace: str = "global"
         missing_scopes = sorted(set(tool.required_scopes) - granted)
         if missing_scopes:
             blockers.append({"kind": "unauthorized", "detail": f"missing scopes {missing_scopes}"})
-        if tool.provider in disabled or (packs is not None and tool.pack not in packs):
+        if tool.provider in disabled or (packs is not None and tool.pack is not None and tool.pack not in packs):
             blockers.append({"kind": "disabled_provider", "detail": f"provider {tool.provider} is not enabled"})
         elif tool.provider in (shutdown_providers or {}):
             blockers.append({"kind": "disabled_provider",

@@ -71,9 +71,20 @@ def _projection(catalog):
 
 
 def test_golden_registered_bundles_keep_tool_ids_aliases_and_required_data(legacy):
-    composed = _catalog(composition=registered_view())
-    assert _projection(composed) == _projection(legacy)
-    assert {k: v for k, v in composed.items() if k != "composition"} == legacy
+    view = registered_view()
+    composed = _catalog(composition=view)
+    tools, servers = _projection(composed)
+    legacy_tools, legacy_servers = _projection(legacy)
+    assert set(tools) == set(legacy_tools) and servers == legacy_servers  # tool IDs and aliases preserved
+    managed = set(view.tools)
+    assert managed  # OSINT + Research + Geospatial bindings (C08)
+    assert {t: v for t, v in tools.items() if t not in managed} == {
+        t: v for t, v in legacy_tools.items() if t not in managed}
+    for tool in composed["tools"]:
+        assert ("composition" in tool) == (tool["id"] in managed)
+        if tool["id"] in managed:
+            assert tool["required_data"] == view.tools[tool["id"]].required_data
+            assert tool["required_scopes"] == legacy_tools[tool["id"]][2]  # a pack is not a grant
     assert "composition" not in legacy
 
 

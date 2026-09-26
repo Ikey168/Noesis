@@ -168,12 +168,57 @@ def adapt_bundle(manifest: Any = None, domain_pack: Any = None) -> dict[str, Any
     return seal_manifest(body)
 
 
+def apply_overlay(manifest: Mapping[str, Any], overlay: Mapping[str, Any]) -> dict[str, Any]:
+    """Merge a bundle's ``composition.json`` declarations into its adapted manifest.
+
+    The overlay supplies what v1 cannot express (requirements, optional
+    features, provider-backed capabilities, workflow templates, profiles and
+    ranged source-pack references). Legacy fields are kept as they are, so the
+    v1 registration and public behavior do not change.
+    """
+
+    body = json.loads(json.dumps({k: v for k, v in manifest.items() if k != "content_hash"}))
+    supplied = set(body["adapter"]["supplied_defaults"])
+    for key in ("requires", "optional_features"):
+        if key in overlay:
+            body[key] = [dict(item) for item in overlay[key]]
+            supplied.discard(key)
+    contributes = body.setdefault("contributes", {})
+    for key, items in (overlay.get("contributes") or {}).items():
+        if key in {"capabilities", "providers", "workflow_templates", "profiles"}:
+            ids = {item["id"] for item in items}
+            contributes[key] = [c for c in contributes.get(key) or [] if c.get("id") not in ids] + [dict(i) for i in items]
+        elif key == "source_packs":
+            packs = {item["pack_id"] for item in items}
+            contributes[key] = ([c for c in contributes.get(key) or [] if c.get("pack_id") not in packs]
+                                + [dict(i) for i in items])
+        else:
+            contributes[key] = items
+    body["adapter"] = {**body["adapter"], "source": body["adapter"]["source"] + "+composition-overlay",
+                       "supplied_defaults": sorted(supplied)}
+    return seal_manifest(body)
+
+
+def workflow_templates(root: Path | None = None) -> list[dict[str, Any]]:
+    """Workflow templates shipped under ``packs/<bundle>/workflows/*.json``."""
+
+    root = root or REPO_ROOT / "packs"
+    return [json.loads(path.read_text()) for path in sorted(root.glob("*/workflows/*.json"))]
+
+
 def v1_view(composition: Mapping[str, Any]) -> dict[str, Any]:
-    """What a v1 registration of this bundle exposes, for round-trip checks."""
+    """What a v1 registration of this bundle exposes, for round-trip checks.
+
+    For adapted bundles only the legacy capability names count; capabilities
+    a composition overlay adds are composition contributions, not v1 names.
+    """
 
     contributes = composition.get("contributes") or {}
+    capabilities = contributes.get("capabilities") or []
+    if composition.get("adapter"):
+        capabilities = [c for c in capabilities if c.get("legacy_name")]
     return {
-        "capabilities": [c.get("legacy_name") or c["id"].split(".", 1)[1] for c in contributes.get("capabilities") or []],
+        "capabilities": [c.get("legacy_name") or c["id"].split(".", 1)[1] for c in capabilities],
         "schema_versions": dict(contributes.get("schema_versions") or {}),
         "ontology_extensions": dict(contributes.get("ontology_extensions") or {}),
     }
@@ -195,10 +240,16 @@ def adapt_all(root: Path | None = None) -> dict[str, dict[str, Any]]:
     """Every bundle in the checkout as one composition manifest, keyed by bundle id."""
 
     root = root or REPO_ROOT / "packs"
-    manifests = {}
+    manifests, overlays = {}, {}
     for path in sorted(root.glob("*/pack.json")):
         data = json.loads(path.read_text())
         manifests[bundle_id(data["name"])] = data
+        overlay = path.parent / "composition.json"
+        if overlay.exists():
+            overlays[bundle_id(data["name"])] = json.loads(overlay.read_text())
     code = {bundle_id(p.name): p for p in code_packs()}
-    return {bundle: adapt_bundle(manifests.get(bundle), code.get(bundle))
-            for bundle in sorted(set(manifests) | set(code))}
+    adapted = {}
+    for bundle in sorted(set(manifests) | set(code)):
+        manifest = adapt_bundle(manifests.get(bundle), code.get(bundle))
+        adapted[bundle] = apply_overlay(manifest, overlays[bundle]) if bundle in overlays else manifest
+    return adapted

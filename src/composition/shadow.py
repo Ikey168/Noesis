@@ -21,8 +21,31 @@ from src.composition.resolver import resolve
 
 SHADOW_REPORT = REPO_ROOT / "tests/fixtures/composition/shadow-report.json"
 
-# Known, reviewed disagreements: (tool, field) -> why the composition answer differs.
-ANNOTATIONS: dict[tuple[str, str], str] = {}
+# Known, reviewed disagreements: (tool, field) -> why the composition answer differs
+# and how it is resolved at cutover (C08.6). Anything missing reads "unreviewed".
+_VOCABULARY = ("resolved: vocabulary only - the descriptor names its readiness probe where the legacy "
+               "table names a logical store; both describe the same prerequisite")
+ANNOTATIONS: dict[tuple[str, str], str] = {
+    ("noesis-knowledge-engine.query_geospatial_features_within", "pack"):
+        "resolved: attribution now comes from the plan (geospatial contributes geospatial.feature-query); "
+        "legacy had no pack for the knowledge-engine server",
+    ("noesis-knowledge-engine.query_geospatial_features_within", "required_data"): _VOCABULARY,
+    ("noesis-osint.corroborate", "pack"):
+        "resolved: attribution now comes from the plan (osint contributes osint.corroboration); the legacy "
+        "stem table had no pack for the osint server",
+    ("noesis-osint.corroborate", "required_data"): _VOCABULARY,
+    ("noesis-osint.corroborate", "state"):
+        "intended: once osint is composition-managed its tools follow the bundle's enablement; the legacy "
+        "catalog served them whatever config/domain_packs.json said. Legacy authority applies until cutover",
+    ("noesis-knowledge-engine.command_intake_mode", "required_data"): _VOCABULARY,
+    ("noesis-knowledge-engine.run_source_pack_execution", "required_data"): _VOCABULARY,
+    ("noesis-knowledge-engine.run_source_pack_execution", "state"):
+        "intended: the descriptor probes the source-run store it owns; the legacy table never probed the "
+        "knowledge-engine runtime, so an unprobed store read as available",
+    ("noesis-research.literature_claims", "pack"):
+        "resolved: same bundle under its composition id (research is the legacy alias of science)",
+    ("noesis-research.literature_claims", "required_data"): _VOCABULARY,
+}
 
 
 def provider_descriptors(root: Path | None = None) -> list[dict[str, Any]]:

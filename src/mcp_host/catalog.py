@@ -2140,7 +2140,7 @@ async def build_catalog(
                 )
                 composed_state, composed_reason = _state(
                     authorized=set(required_scopes) <= scopes,
-                    pack_enabled=binding.pack in composed_packs,
+                    pack_enabled=binding.pack is None or binding.pack in composed_packs,
                     # A descriptor probe that finds no store makes the
                     # operation unavailable rather than silently available.
                     import_error=import_error
@@ -2166,7 +2166,8 @@ async def build_catalog(
                             shadow_sink.append(
                                 {
                                     "tool": f"{canonical}.{tool['name']}",
-                                    "bundle": binding.pack,
+                                    "bundle": binding.pack
+                                    or binding.provider.split(".")[0],
                                     "field": field_name,
                                     "legacy": legacy_view[field_name],
                                     "composition": composed_view[field_name],

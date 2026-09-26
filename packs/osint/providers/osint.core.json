@@ -1,0 +1,81 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "osint.core",
+  "version": "1.0.0",
+  "implementation": {
+    "name": "src.osint",
+    "version": "1.0.0",
+    "server": "noesis-osint"
+  },
+  "capabilities": [
+    {
+      "id": "osint.corroboration",
+      "contract": {
+        "name": "noesis-osint-corroboration",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "corroborate"
+      ],
+      "semantic_constraints": {
+        "independence": "origin-aware; never collapses to one confidence"
+      }
+    },
+    {
+      "id": "osint.media-provenance",
+      "contract": {
+        "name": "noesis-media-provenance",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "image-provenance"
+      ],
+      "semantic_constraints": {
+        "purpose": "review-gated imagery provenance"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "corroborate",
+      "tool": "noesis-osint.corroborate",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "claims",
+      "required_scopes": [
+        "knowledge:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "image-provenance",
+      "tool": "noesis-osint.image_provenance",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "claims",
+      "required_scopes": [
+        "knowledge:read"
+      ],
+      "required_context": [
+        "namespace"
+      ],
+      "gates": [
+        "osint-review"
+      ]
+    }
+  ],
+  "stores": [],
+  "readiness_probes": [
+    {
+      "id": "claims",
+      "kind": "table-exists",
+      "target": "argument_claims"
+    }
+  ]
+}

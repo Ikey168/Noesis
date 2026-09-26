@@ -433,11 +433,8 @@
       ],
       "properties": {
         "source": {
-          "enum": [
-            "noesis-pack-v1",
-            "domain-pack",
-            "noesis-pack-v1+domain-pack"
-          ]
+          "type": "string",
+          "pattern": "^(noesis-pack-v1|domain-pack|noesis-pack-v1\\+domain-pack)(\\+composition-overlay)?$"
         },
         "supplied_defaults": {
           "type": "array",

@@ -263,6 +263,35 @@
         }
       },
       "minItems": 1
+    },
+    "source_packs": {
+      "type": "array",
+      "description": "Source packs whose runtime records the provider's stores project.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "pack_id",
+          "version"
+        ],
+        "properties": {
+          "pack_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "version": {
+            "type": "string",
+            "minLength": 1
+          },
+          "range": {
+            "type": "string",
+            "minLength": 1
+          },
+          "manifest_hash": {
+            "type": "string"
+          }
+        }
+      }
     }
   }
 }

@@ -21,6 +21,9 @@ from src.composition.workflows import StepContext
 SOURCE_TOOL = "noesis-knowledge-engine.run_source_pack_execution"
 SPATIAL_TOOL = "noesis-knowledge-engine.calculate_spatial_relation"
 SESSION_TOOL = "noesis-knowledge-engine.command_intake_mode"
+FEATURES_TOOL = "noesis-knowledge-engine.query_geospatial_features_within"
+CORROBORATE_TOOL = "noesis-osint.corroborate"
+LITERATURE_TOOL = "noesis-research.literature_claims"
 
 
 def acquire_source(runtime: Any, *, principal_id: str, fixture_adapters: Mapping[str, Any] | None = None,
@@ -90,3 +93,68 @@ def session_artifact(intake: Any, *, principal_id: str, scopes: set[str]) -> Cal
                 "artifact_id": arguments["artifact_id"], "tool_execution": "real"}
 
     return handler
+
+
+def features_within(store: Any, *, principal_id: str, scopes: set[str],
+                    reference_limit: int = 25) -> Callable[[Mapping[str, Any], StepContext], dict]:
+    """Points of a collection inside a named boundary, with cross-pack record references.
+
+    Each reference names the owner capability, native record kind and id,
+    namespace and revision, so two packs referencing the same place get the
+    same identity.
+    """
+
+    def handler(arguments: Mapping[str, Any], context: StepContext) -> dict[str, Any]:
+        context.record_effect("read-only")
+        result = store.within(arguments["namespace"], collection=arguments["collection"],
+                              boundary_name=arguments["boundary_name"],
+                              boundary_collection=arguments["boundary_collection"], principal_id=principal_id,
+                              scopes=scopes, limit=int(arguments.get("limit", 1000)))
+        members = result.get("members") or []
+        references = [{"owner_capability": "geospatial.feature-query", "record_kind": "feature",
+                       "native_id": m["native_id"], "feature_id": m["feature_id"],
+                       "namespace": m.get("namespace", arguments["namespace"]), "revision_id": m["revision_id"]}
+                      for m in members[:reference_limit]]
+        boundary = result.get("boundary") or {}
+        return {"status": result.get("status"), "total_members": result.get("total_members", len(members)),
+                "boundary": {"feature_id": boundary.get("feature_id"), "revision_id": boundary.get("revision_id")},
+                "references": references, "evidence": [{**ref, "restrictions": []} for ref in references],
+                "receipt": {"owner": "geospatial-features",
+                            "receipt_id": (result.get("receipt") or {}).get("receipt_id")},
+                "tool_execution": "real"}
+
+    return handler
+
+
+def corroboration(conn: Any) -> Callable[[Mapping[str, Any], StepContext], dict]:
+    def handler(arguments: Mapping[str, Any], context: StepContext) -> dict[str, Any]:
+        context.record_effect("read-only")
+        from src.osint import corroborate
+
+        return {"corroboration": corroborate(conn, str(arguments["claim_id"])), "tool_execution": "real"}
+
+    return handler
+
+
+def literature(conn: Any) -> Callable[[Mapping[str, Any], StepContext], dict]:
+    def handler(arguments: Mapping[str, Any], context: StepContext) -> dict[str, Any]:
+        context.record_effect("read-only")
+        from src.domains.research.analytics import literature_claims
+
+        return {"literature": literature_claims(conn, arguments.get("topic")), "tool_execution": "real"}
+
+    return handler
+
+
+def session_command_receipt(conn: Any) -> Callable[[str], Mapping[str, Any] | None]:
+    """Owner receipt for an artifact command, keyed like :func:`session_artifact`."""
+
+    def lookup(idempotency_key: str) -> Mapping[str, Any] | None:
+        row = conn.execute("SELECT session_id, revision FROM intake_session_commands WHERE command_key=?",
+                           [f"artifact:{idempotency_key[:32]}"]).fetchone()
+        if not row:
+            return None
+        return {"result": {"receipt": {"owner": "intake-session", "session_id": row[0], "revision": row[1]},
+                           "tool_execution": "real", "reconciled": True}}
+
+    return lookup

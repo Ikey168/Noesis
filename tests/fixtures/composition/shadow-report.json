@@ -1,5 +1,11 @@
 {
-  "bound_capabilities": [],
+  "bound_capabilities": [
+    "geospatial.feature-query",
+    "osint.corroboration",
+    "platform.session-artifacts",
+    "platform.source-acquisition",
+    "science.literature-claims"
+  ],
   "bundles_resolved": [
     "economics",
     "energy",
@@ -13,7 +19,132 @@
     "science",
     "technology"
   ],
-  "composed_tools": [],
-  "disagreements": {},
+  "composed_tools": [
+    "noesis-knowledge-engine.command_intake_mode",
+    "noesis-knowledge-engine.query_geospatial_features_within",
+    "noesis-knowledge-engine.run_source_pack_execution",
+    "noesis-osint.corroborate",
+    "noesis-research.literature_claims"
+  ],
+  "disagreements": {
+    "geospatial": [
+      {
+        "annotation": "resolved: attribution now comes from the plan (geospatial contributes geospatial.feature-query); legacy had no pack for the knowledge-engine server",
+        "bundle": "geospatial",
+        "composition": "geospatial",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.query_geospatial_features_within"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "geospatial",
+        "composition": [
+          "feature-revisions"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.query_geospatial_features_within"
+      }
+    ],
+    "osint": [
+      {
+        "annotation": "resolved: attribution now comes from the plan (osint contributes osint.corroboration); the legacy stem table had no pack for the osint server",
+        "bundle": "osint",
+        "composition": "osint",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-osint.corroborate"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "osint",
+        "composition": [
+          "claims"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "warehouse"
+        ],
+        "reason": null,
+        "tool": "noesis-osint.corroborate"
+      },
+      {
+        "annotation": "intended: once osint is composition-managed its tools follow the bundle's enablement; the legacy catalog served them whatever config/domain_packs.json said. Legacy authority applies until cutover",
+        "bundle": "osint",
+        "composition": "disabled",
+        "field": "state",
+        "legacy": "degraded",
+        "reason": "required domain pack is disabled",
+        "tool": "noesis-osint.corroborate"
+      }
+    ],
+    "platform": [
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "platform",
+        "composition": [
+          "sessions"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.command_intake_mode"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "platform",
+        "composition": [
+          "runs"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.run_source_pack_execution"
+      },
+      {
+        "annotation": "intended: the descriptor probes the source-run store it owns; the legacy table never probed the knowledge-engine runtime, so an unprobed store read as available",
+        "bundle": "platform",
+        "composition": "degraded",
+        "field": "state",
+        "legacy": "available",
+        "reason": "backend or data readiness is incomplete",
+        "tool": "noesis-knowledge-engine.run_source_pack_execution"
+      }
+    ],
+    "science": [
+      {
+        "annotation": "resolved: same bundle under its composition id (research is the legacy alias of science)",
+        "bundle": "science",
+        "composition": "science",
+        "field": "pack",
+        "legacy": "research",
+        "reason": null,
+        "tool": "noesis-research.literature_claims"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "science",
+        "composition": [
+          "claims"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "warehouse"
+        ],
+        "reason": null,
+        "tool": "noesis-research.literature_claims"
+      }
+    ]
+  },
   "report": "noesis-composition-shadow-diff"
 }

@@ -424,6 +424,7 @@ class WorkflowDispatcher:
 
         statuses: dict[str, str] = {}
         results: dict[str, Any] = {}
+        used: dict[str, Mapping[str, Any]] = {}
         pending = [dict(s) for s in workflow["steps"]]
         while pending:
             progressed = False
@@ -436,8 +437,12 @@ class WorkflowDispatcher:
                 if any(statuses[d] != "completed" for d in deps):
                     statuses[step["id"]] = "blocked"
                     continue
+                step_arguments = arguments.get(step["id"], {})
+                if callable(step_arguments):  # computed from earlier results (e.g. coverage, references)
+                    step_arguments = step_arguments(results, statuses)
+                used[step["id"]] = step_arguments
                 try:
-                    results[step["id"]] = self.execute(run_id, step, arguments.get(step["id"], {}),
+                    results[step["id"]] = self.execute(run_id, step, step_arguments,
                                                        principal=principal, scopes=scopes, authorize=authorize,
                                                        cancelled=cancelled, action=action)
                     statuses[step["id"]] = "completed"
@@ -449,7 +454,8 @@ class WorkflowDispatcher:
                     statuses[step["id"]] = "omitted" if step.get("optional") else "failed"
             if not progressed:
                 break
-        return {"run_id": run_id, "plan_digest": self.plan["digest"], "steps": statuses, "results": results}
+        return {"run_id": run_id, "plan_digest": self.plan["digest"], "steps": statuses, "results": results,
+                "arguments": used}
 
     def resume(self, run_id: str, workflow: Mapping[str, Any], arguments: Mapping[str, Mapping[str, Any]],
                **options: Any) -> dict[str, Any]:
@@ -565,7 +571,7 @@ def run_workflow(dispatcher: WorkflowDispatcher, recipes: Any, bindings: Workflo
     steps_by_id = {s["id"]: s for s in workflow["steps"]}
     adapters = {
         step_id: (lambda step, state, sid=step_id: {k: v for k, v in dispatcher.execute(
-            run_id, steps_by_id[sid], arguments.get(sid, {}), principal=principal, scopes=scopes,
+            run_id, steps_by_id[sid], outcome["arguments"][sid], principal=principal, scopes=scopes,
             authorize=authorize).items() if k != "_dispatch"})
         for step_id, status in outcome["steps"].items() if status == "completed"
     }

@@ -1,0 +1,62 @@
+{
+  "requires": [
+    {
+      "capability": "geospatial.feature-query",
+      "contract": "noesis-geospatial-feature-query",
+      "range": "^1.0.0",
+      "semantic_constraints": {
+        "crs": "EPSG:4326"
+      },
+      "reason": "places are resolved against the shared spatial store"
+    },
+    {
+      "capability": "platform.session-artifacts",
+      "contract": "noesis-intake-session-artifact",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "science.literature-claims",
+      "contract": "noesis-literature-claims",
+      "range": "^1.0.0"
+    }
+  ],
+  "contributes": {
+    "capabilities": [
+      {
+        "id": "science.literature-claims",
+        "provider": "science.literature",
+        "contract": {
+          "name": "noesis-literature-claims",
+          "version": "1.0.0"
+        }
+      }
+    ],
+    "providers": [
+      {
+        "id": "science.literature",
+        "version": "1.0.0"
+      }
+    ],
+    "workflow_templates": [
+      {
+        "id": "science.place-evidence",
+        "version": "1.0.0"
+      }
+    ],
+    "profiles": [
+      {
+        "id": "science.place-review",
+        "description": "Place-evidence literature review defaults",
+        "vocabulary": {
+          "place": "study site",
+          "evidence": "cited finding"
+        },
+        "workflow_defaults": {
+          "science.place-evidence": {
+            "boundary_collection": "alkis_bezirke:bezirksgrenzen"
+          }
+        }
+      }
+    ]
+  }
+}
