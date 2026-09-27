@@ -31,6 +31,7 @@ PROJECTOR_OWNERS = {
     "noesis-standard-catalogue-v1": "src.kb.standards",
     "noesis-transit-feed-v1": "src.kb.transit",
     "noesis-math-record-v1": "src.kb.mathematics",
+    "noesis-procurement-record-v1": "src.kb.procurement_notices",
 }
 
 

@@ -204,6 +204,11 @@ NATIVE_CONNECTOR_MODULES = {
     "oeis": "src.ingestion.math_sources",
     "formal-library": "src.ingestion.math_sources",
 }
+# Public Procurement native connectors (TED eForms, UK OCDS, SAM.gov).
+_PROCUREMENT_CONNECTORS = {"ted": "src.ingestion.procurement_providers", "ocds": "src.ingestion.procurement_providers",
+                           "sam-gov": "src.ingestion.procurement_providers"}
+NATIVE_CONNECTOR_MODULES.update(_PROCUREMENT_CONNECTORS)
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset(_PROCUREMENT_CONNECTORS)
 
 
 def native_connector_module(connector: str) -> Any:
