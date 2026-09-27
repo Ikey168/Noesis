@@ -101,11 +101,14 @@ class EurostatConnector(DatasetConnector):
             api = str(spec.get("api") or "statistics")
             if api not in _BASES:
                 raise ValueError(f"unsupported Eurostat API {api!r}")
-            filters = {k: v for k, v in spec.items() if k not in ("dataset", "geography", "api")}
-            yield SeriesRef(
-                locator=f"{dataset}/{geography}",
-                metadata={"dataset": dataset, "geography": geography, "filters": filters, "api": api},
-            )
+            series_key = spec.get("series_key")
+            if series_key not in (None, "dimensions"):
+                raise ValueError(f"unsupported Eurostat series_key {series_key!r}")
+            filters = {k: v for k, v in spec.items() if k not in ("dataset", "geography", "api", "series_key")}
+            metadata = {"dataset": dataset, "geography": geography, "filters": filters, "api": api}
+            if series_key:
+                metadata["series_key"] = series_key
+            yield SeriesRef(locator=f"{dataset}/{geography}", metadata=metadata)
 
     def _url(self, dataset: str, geography: str, filters: Dict[str, Any], api: str = "statistics") -> str:
         base, geo_dimension = _BASES[api]
@@ -205,6 +208,12 @@ class EurostatConnector(DatasetConnector):
             # A Comext flow is identified by every requested dimension (partner,
             # product, flow, indicator), not by the reporter alone.
             series_id = f"estat-comext:{dataset}:{geography}:" + ":".join(
+                f"{key}={value}" for key, value in sorted(filters.items()))
+        elif raw.ref.metadata.get("series_key") == "dimensions":
+            # Opt-in (government finance statistics, #1909): two series of one
+            # dataset and geography that differ only in a filtered dimension
+            # (sector, na_item, unit, cofog99) are two series, never one.
+            series_id = f"estat:{dataset}:{geography}:" + ":".join(
                 f"{key}={value}" for key, value in sorted(filters.items()))
         requested_filters = {str(key).casefold() for key in filters}
         unselected_multi_dims = [

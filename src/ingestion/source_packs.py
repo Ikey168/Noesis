@@ -242,6 +242,10 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"lobbying-register"})
 NATIVE_CONNECTOR_MODULES["election-results"] = "src.ingestion.election_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"election-results"})
 
+# Economics public finance (Bundeshaushalt, Berlin budget, EU FTS, Eurostat GFS; #1909).
+NATIVE_CONNECTOR_MODULES["public-finance"] = "src.ingestion.public_finance_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"public-finance"})
+
 
 def native_connector_module(connector: str) -> Any:
     import importlib
