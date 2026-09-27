@@ -158,6 +158,9 @@ For the project overview and local setup, start with the
   analysis behind the guardrails (no person identification, fail-closed)
 - [OSINT passive DNS access decision](security/osint-passive-dns-access.md) —
   per-provider terms review; no passive DNS provider adopted
+- [Legal sanctions guide](guides/legal-sanctions.md) — per-list designation
+  statements as of a date, dual-use annex editions, reviewable identity matches
+  and monitors; [source audit](roadmaps/legal-sanctions-source-audit.md)
 - [OSINT pack guide](guides/osint-pack.md) — Admiralty grades, ownership
   dossiers, video reuse, registry and certificate history, infrastructure
   pivots and the gated imagery tier
