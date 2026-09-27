@@ -161,6 +161,9 @@ For the project overview and local setup, start with the
 - [Legal sanctions guide](guides/legal-sanctions.md) — per-list designation
   statements as of a date, dual-use annex editions, reviewable identity matches
   and monitors; [source audit](roadmaps/legal-sanctions-source-audit.md)
+- [Technology vulnerabilities guide](guides/technology-vulnerabilities.md) — CVEs across NVD, OSV, GitHub,
+  CVE Services, KEV and EPSS side by side, component identity review, affected-as-of impact answers and
+  monitors; [source audit](roadmaps/technology-vulnerabilities-source-audit.md)
 - [OSINT pack guide](guides/osint-pack.md) — Admiralty grades, ownership
   dossiers, video reuse, registry and certificate history, infrastructure
   pivots and the gated imagery tier

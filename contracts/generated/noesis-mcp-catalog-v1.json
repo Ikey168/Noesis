@@ -28180,7 +28180,7 @@
     },
     {
       "cost_class": "medium",
-      "description": "Pin one bounded dependency assessment and its available source revisions.",
+      "description": "Pin one bounded dependency assessment and its available source revisions.\n\nWith vulnerability_namespace, reviewed component matches in the vulnerability store are assessed too\nand their advisory revisions are pinned next to the inventory hash.",
       "id": "noesis-knowledge-engine.create_technical_impact_report",
       "input_schema": {
         "properties": {
@@ -28211,6 +28211,17 @@
           },
           "request_key": {
             "type": "string"
+          },
+          "vulnerability_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
           }
         },
         "required": [
