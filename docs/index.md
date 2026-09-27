@@ -171,6 +171,10 @@ For the project overview and local setup, start with the
   certified vintages kept apart, poll series beside (never blended into) results, reviewable party identity,
   constituency boundaries as of a date, certified-only forecast resolution, news evidence without causal reading
   and monitors; [source audit](roadmaps/political-elections-source-audit.md)
+- [Economics public finance guide](guides/economics-public-finance.md) — budget plans, supplementary budgets and
+  outturn vintages in each source's own hierarchy, beneficiary payments with reviewable identity, audit findings
+  without verdicts, acts and dossiers linked by citation and basis-aware comparisons;
+  [source audit](roadmaps/economics-public-finance-source-audit.md)
 - [OSINT pack guide](guides/osint-pack.md) — Admiralty grades, ownership
   dossiers, video reuse, registry and certificate history, infrastructure
   pivots and the gated imagery tier

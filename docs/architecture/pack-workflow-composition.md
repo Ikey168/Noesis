@@ -349,6 +349,7 @@ may roll back bindings while retained source versions and records stay intact.
 | Several consumers acquire from one account | Existing per-run limits and aggregated provider limits both hold. | `test_aggregate_account_limit_holds_across_consumers_and_is_a_distinct_blocker` in `test_sources.py` |
 | Legacy manifest/session/report | Existing identity, references, and public behavior remain valid through the adapter. | `test_legacy_manifests_keep_identity_and_public_behavior_through_the_adapter` in `test_first_composition.py` |
 | Fixture-only public recipe run | Receipt still declares fixture execution; no claim of tool dispatch or live validation. | `test_fixture_runs_cannot_claim_dispatch_and_dispatch_mode_needs_the_dispatcher` in `test_workflows.py` |
+| Public-finance budget line to payments | Pinned budget, payment and statistics fixtures replay through the runtime into one cited dossier; plan, outturn and payment records stay distinct, figures on different bases get no difference, conflicts are flagged, identity links are reviewed and reversed, and a restart replay adds no record or event. | `test_budget_line_to_plans_outturns_payments_findings_acts_dossiers_and_award_context` in `test_public_finance_acceptance.py` |
 
 `tests/unit/composition/test_acceptance_matrix.py` holds this mapping and fails
 if a row loses its test.

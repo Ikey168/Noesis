@@ -38,6 +38,11 @@ MATRIX = {
     "Fixture-only public recipe run":
         "tests/unit/composition/test_workflows.py::"
         "test_fixture_runs_cannot_claim_dispatch_and_dispatch_mode_needs_the_dispatcher",
+    # The Economics public-finance feature's offline journey (#2006) composes economics, legal, political,
+    # procurement, funding, ownership identity, subscriptions and the source-pack runtime.
+    "Public-finance budget line to payments":
+        "tests/unit/domains/test_public_finance_acceptance.py::"
+        "test_budget_line_to_plans_outturns_payments_findings_acts_dossiers_and_award_context",
 }
 
 
