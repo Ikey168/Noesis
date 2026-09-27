@@ -47,6 +47,15 @@ ANNOTATIONS: dict[tuple[str, str], str] = {
     ("noesis-research.literature_claims", "required_data"): _VOCABULARY,
 }
 
+# Climate and Environment (#1849) requires the geospatial relation, geometry, place-resolution and
+# transit capabilities, so their tools are plan-bound (and attributed to geospatial) once it resolves.
+for _tool in ("calculate_spatial_relation", "record_geospatial_resolution", "review_geospatial_resolution",
+              "revise_geospatial_place", "simplify_geospatial_geometry", "store_geospatial_geometry",
+              "transit_departures", "transit_stops_in_bbox"):
+    ANNOTATIONS[(f"noesis-knowledge-engine.{_tool}", "pack")] = (
+        "resolved: bound in the plan because climate-environment requires the capability; attribution is the "
+        "providing bundle (geospatial); legacy had no pack for the knowledge-engine server")
+
 
 def provider_descriptors(root: Path | None = None) -> list[dict[str, Any]]:
     root = root or REPO_ROOT / "packs"

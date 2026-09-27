@@ -1,6 +1,12 @@
 {
   "bound_capabilities": [
     "economics.knowledge",
+    "environment.identity",
+    "environment.monitoring",
+    "environment.obligation-evidence",
+    "environment.place-dossiers",
+    "environment.records",
+    "environment.vintages",
     "funding.eligibility",
     "funding.monitoring",
     "funding.opportunities",
@@ -8,6 +14,10 @@
     "funding.shortlists",
     "funding.workspaces",
     "geospatial.feature-query",
+    "geospatial.geometry-store",
+    "geospatial.place-resolution",
+    "geospatial.spatial-relation",
+    "geospatial.transit-schedules",
     "legal.works",
     "market.instruments",
     "market.legal-entities",
@@ -28,6 +38,7 @@
     "technology.standards"
   ],
   "bundles_resolved": [
+    "climate-environment",
     "economics",
     "funding-grants",
     "geospatial",
@@ -44,21 +55,32 @@
     "noesis-kb.kb_economic",
     "noesis-kb.kb_political",
     "noesis-kb.kb_technical",
+    "noesis-knowledge-engine.acquire_environment_source",
     "noesis-knowledge-engine.acquire_funding_source",
     "noesis-knowledge-engine.assess_funding_eligibility",
+    "noesis-knowledge-engine.attach_environment_obligation_evidence",
+    "noesis-knowledge-engine.build_environment_place_dossier",
     "noesis-knowledge-engine.build_funding_shortlist",
+    "noesis-knowledge-engine.calculate_spatial_relation",
+    "noesis-knowledge-engine.climate_environment_bundle_status",
     "noesis-knowledge-engine.command_intake_mode",
+    "noesis-knowledge-engine.compare_environment_vintages",
     "noesis-knowledge-engine.create_authored_report",
+    "noesis-knowledge-engine.create_environment_monitor",
     "noesis-knowledge-engine.create_funding_monitor",
     "noesis-knowledge-engine.create_funding_profile",
     "noesis-knowledge-engine.create_funding_workspace",
     "noesis-knowledge-engine.create_research_decision",
     "noesis-knowledge-engine.create_research_project",
     "noesis-knowledge-engine.draft_funding_application",
+    "noesis-knowledge-engine.environment_provider_contracts",
+    "noesis-knowledge-engine.export_environment_dossier",
     "noesis-knowledge-engine.funding_provider_contracts",
     "noesis-knowledge-engine.get_legal_passages",
     "noesis-knowledge-engine.inspect_authored_report",
     "noesis-knowledge-engine.inspect_certificate",
+    "noesis-knowledge-engine.inspect_environment_dossier",
+    "noesis-knowledge-engine.inspect_environment_obligation_evidence",
     "noesis-knowledge-engine.inspect_funding_opportunity",
     "noesis-knowledge-engine.inspect_legal_work",
     "noesis-knowledge-engine.inspect_lei_entity",
@@ -69,14 +91,31 @@
     "noesis-knowledge-engine.inspect_research_project",
     "noesis-knowledge-engine.inspect_standard_edition",
     "noesis-knowledge-engine.lei_parents_as_of",
+    "noesis-knowledge-engine.list_environment_facilities",
+    "noesis-knowledge-engine.list_environment_grid_events",
+    "noesis-knowledge-engine.list_environment_operator_links",
     "noesis-knowledge-engine.list_funding_opportunities",
+    "noesis-knowledge-engine.lookup_environment_series",
     "noesis-knowledge-engine.lookup_legal_work",
     "noesis-knowledge-engine.lookup_product_models",
     "noesis-knowledge-engine.patent_family_members",
+    "noesis-knowledge-engine.poll_environment_monitor",
+    "noesis-knowledge-engine.propose_environment_operator_links",
     "noesis-knowledge-engine.query_geospatial_features_within",
+    "noesis-knowledge-engine.record_geospatial_resolution",
+    "noesis-knowledge-engine.register_environment_schemas",
+    "noesis-knowledge-engine.replay_environment_dossier",
+    "noesis-knowledge-engine.review_environment_operator_link",
+    "noesis-knowledge-engine.review_geospatial_resolution",
+    "noesis-knowledge-engine.revise_geospatial_place",
+    "noesis-knowledge-engine.run_environment_monitor",
     "noesis-knowledge-engine.run_funding_monitor",
     "noesis-knowledge-engine.run_source_pack_execution",
     "noesis-knowledge-engine.search_mathematics",
+    "noesis-knowledge-engine.simplify_geospatial_geometry",
+    "noesis-knowledge-engine.store_geospatial_geometry",
+    "noesis-knowledge-engine.transit_departures",
+    "noesis-knowledge-engine.transit_stops_in_bbox",
     "noesis-market.get_market_price_history",
     "noesis-market.lookup_market_instrument",
     "noesis-osint.corroborate",
@@ -87,6 +126,457 @@
     "noesis-subscriptions.inspect_subscription"
   ],
   "disagreements": {
+    "climate-environment": [
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "climate-environment",
+        "composition": "climate-environment",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.acquire_environment_source"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "climate-environment",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.acquire_environment_source"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "climate-environment",
+        "composition": "climate-environment",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.attach_environment_obligation_evidence"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "climate-environment",
+        "composition": [
+          "identity"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.attach_environment_obligation_evidence"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "climate-environment",
+        "composition": "climate-environment",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.build_environment_place_dossier"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "climate-environment",
+        "composition": [
+          "dossiers"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.build_environment_place_dossier"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "climate-environment",
+        "composition": "climate-environment",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.climate_environment_bundle_status"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "climate-environment",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.climate_environment_bundle_status"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "climate-environment",
+        "composition": "climate-environment",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.compare_environment_vintages"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "climate-environment",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.compare_environment_vintages"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "climate-environment",
+        "composition": "climate-environment",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.create_environment_monitor"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "climate-environment",
+        "composition": [
+          "monitors"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.create_environment_monitor"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "climate-environment",
+        "composition": "climate-environment",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.environment_provider_contracts"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "climate-environment",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.environment_provider_contracts"
+      },
+      {
+        "annotation": "intended: once composition-managed, the tool follows its bundle's enablement; legacy authority applies until cutover",
+        "bundle": "climate-environment",
+        "composition": "disabled",
+        "field": "state",
+        "legacy": "available",
+        "reason": "required domain pack is disabled",
+        "tool": "noesis-knowledge-engine.environment_provider_contracts"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "climate-environment",
+        "composition": "climate-environment",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.export_environment_dossier"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "climate-environment",
+        "composition": [
+          "dossiers"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.export_environment_dossier"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "climate-environment",
+        "composition": "climate-environment",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.inspect_environment_dossier"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "climate-environment",
+        "composition": [
+          "dossiers"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.inspect_environment_dossier"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "climate-environment",
+        "composition": "climate-environment",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.inspect_environment_obligation_evidence"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "climate-environment",
+        "composition": [
+          "identity"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.inspect_environment_obligation_evidence"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "climate-environment",
+        "composition": "climate-environment",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.list_environment_facilities"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "climate-environment",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.list_environment_facilities"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "climate-environment",
+        "composition": "climate-environment",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.list_environment_grid_events"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "climate-environment",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.list_environment_grid_events"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "climate-environment",
+        "composition": "climate-environment",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.list_environment_operator_links"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "climate-environment",
+        "composition": [
+          "identity"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.list_environment_operator_links"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "climate-environment",
+        "composition": "climate-environment",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.lookup_environment_series"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "climate-environment",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.lookup_environment_series"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "climate-environment",
+        "composition": "climate-environment",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.poll_environment_monitor"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "climate-environment",
+        "composition": [
+          "monitors"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.poll_environment_monitor"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "climate-environment",
+        "composition": "climate-environment",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.propose_environment_operator_links"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "climate-environment",
+        "composition": [
+          "identity"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.propose_environment_operator_links"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "climate-environment",
+        "composition": "climate-environment",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.register_environment_schemas"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "climate-environment",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.register_environment_schemas"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "climate-environment",
+        "composition": "climate-environment",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.replay_environment_dossier"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "climate-environment",
+        "composition": [
+          "dossiers"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.replay_environment_dossier"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "climate-environment",
+        "composition": "climate-environment",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.review_environment_operator_link"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "climate-environment",
+        "composition": [
+          "identity"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.review_environment_operator_link"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "climate-environment",
+        "composition": "climate-environment",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.run_environment_monitor"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "climate-environment",
+        "composition": [
+          "monitors"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.run_environment_monitor"
+      }
+    ],
     "economics": [
       {
         "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
@@ -375,6 +865,28 @@
     ],
     "geospatial": [
       {
+        "annotation": "resolved: bound in the plan because climate-environment requires the capability; attribution is the providing bundle (geospatial); legacy had no pack for the knowledge-engine server",
+        "bundle": "geospatial",
+        "composition": "geospatial",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.calculate_spatial_relation"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "geospatial",
+        "composition": [
+          "geometries"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.calculate_spatial_relation"
+      },
+      {
         "annotation": "resolved: attribution now comes from the plan (geospatial contributes geospatial.feature-query); legacy had no pack for the knowledge-engine server",
         "bundle": "geospatial",
         "composition": "geospatial",
@@ -395,6 +907,160 @@
         ],
         "reason": null,
         "tool": "noesis-knowledge-engine.query_geospatial_features_within"
+      },
+      {
+        "annotation": "resolved: bound in the plan because climate-environment requires the capability; attribution is the providing bundle (geospatial); legacy had no pack for the knowledge-engine server",
+        "bundle": "geospatial",
+        "composition": "geospatial",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.record_geospatial_resolution"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "geospatial",
+        "composition": [
+          "places"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.record_geospatial_resolution"
+      },
+      {
+        "annotation": "resolved: bound in the plan because climate-environment requires the capability; attribution is the providing bundle (geospatial); legacy had no pack for the knowledge-engine server",
+        "bundle": "geospatial",
+        "composition": "geospatial",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.review_geospatial_resolution"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "geospatial",
+        "composition": [
+          "places"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.review_geospatial_resolution"
+      },
+      {
+        "annotation": "resolved: bound in the plan because climate-environment requires the capability; attribution is the providing bundle (geospatial); legacy had no pack for the knowledge-engine server",
+        "bundle": "geospatial",
+        "composition": "geospatial",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.revise_geospatial_place"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "geospatial",
+        "composition": [
+          "places"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.revise_geospatial_place"
+      },
+      {
+        "annotation": "resolved: bound in the plan because climate-environment requires the capability; attribution is the providing bundle (geospatial); legacy had no pack for the knowledge-engine server",
+        "bundle": "geospatial",
+        "composition": "geospatial",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.simplify_geospatial_geometry"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "geospatial",
+        "composition": [
+          "geometries"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.simplify_geospatial_geometry"
+      },
+      {
+        "annotation": "resolved: bound in the plan because climate-environment requires the capability; attribution is the providing bundle (geospatial); legacy had no pack for the knowledge-engine server",
+        "bundle": "geospatial",
+        "composition": "geospatial",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.store_geospatial_geometry"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "geospatial",
+        "composition": [
+          "geometries"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.store_geospatial_geometry"
+      },
+      {
+        "annotation": "resolved: bound in the plan because climate-environment requires the capability; attribution is the providing bundle (geospatial); legacy had no pack for the knowledge-engine server",
+        "bundle": "geospatial",
+        "composition": "geospatial",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.transit_departures"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "geospatial",
+        "composition": [
+          "feeds"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.transit_departures"
+      },
+      {
+        "annotation": "resolved: bound in the plan because climate-environment requires the capability; attribution is the providing bundle (geospatial); legacy had no pack for the knowledge-engine server",
+        "bundle": "geospatial",
+        "composition": "geospatial",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.transit_stops_in_bbox"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "geospatial",
+        "composition": [
+          "feeds"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.transit_stops_in_bbox"
       }
     ],
     "legal": [

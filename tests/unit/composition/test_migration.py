@@ -31,6 +31,7 @@ PROJECTOR_OWNERS = {
     "noesis-standard-catalogue-v1": "src.kb.standards",
     "noesis-transit-feed-v1": "src.kb.transit",
     "noesis-math-record-v1": "src.kb.mathematics",
+    "noesis-environment-record-v1": "src.kb.environment_store",
 }
 
 
@@ -77,7 +78,10 @@ def test_every_projector_has_one_record_owner_one_descriptor_and_its_source_pack
     assert set(PROJECTOR_OWNERS) == set(PROJECTORS)
     descriptors = provider_descriptors()
     assert validate_provider_set(descriptors) == []  # one owner per record type, no duplicate store
-    configs = {json.loads(p.read_text())["pack_id"]: p.read_text() for p in (ROOT / "config/source_packs").glob("*.json")}
+    configs = {}
+    # Deployment packs plus the source packs a bundle ships with its manifest (packs/<bundle>/source_packs).
+    for path in [*(ROOT / "config/source_packs").glob("*.json"), *(ROOT / "packs").glob("*/source_packs/*.json")]:
+        configs[json.loads(path.read_text())["pack_id"]] = configs.get(json.loads(path.read_text())["pack_id"], "") + path.read_text()
     for schema, module in PROJECTOR_OWNERS.items():
         owners = [d for d in descriptors if any(s["store"] == module for s in d["stores"])]
         assert len(owners) == 1, (schema, [d["id"] for d in owners])
@@ -189,3 +193,45 @@ def test_no_retired_legacy_path_changes_enabled_state_independently_of_the_coord
     with pytest.raises(funding_bundle.BundleError):
         funding_bundle.set_enabled(conn, "ns", not before, principal_id="analyst", scopes={"knowledge:read"})
     assert funding_bundle.is_enabled(conn, "ns") == before
+
+
+# ------------------------------------------------------------ Climate and Environment (#1849, E12)
+
+
+def test_climate_environment_manifest_resolves_to_its_own_provider_plus_shared_providers(isolated_registry):
+    manifest = json.loads((ROOT / "packs/climate-environment/manifest.json").read_text())
+    assert validate_composition_manifest(manifest) == []
+    _, coordinator, _, _ = _migrated()
+    plan = coordinator.active()["plan"]
+    bound = [b for b in plan["bindings"] if "climate-environment" in b["consumers"]]
+    assert {b["provider"] for b in bound} == {"environment.core", "geospatial.core", "geospatial.transit", "market.lei",
+                                              "platform.source-runtime", "platform.subscriptions"}
+    owned = {s["store"] for d in provider_descriptors() if d["id"] == "environment.core" for s in d["stores"]}
+    others = {s["store"] for d in provider_descriptors() if d["id"] != "environment.core" for s in d["stores"]}
+    assert not owned & others  # no parallel spatial, LEI, subscription or source store
+    assert all(s.startswith("src.kb.environment_") for s in owned)
+    pins = {(p["pack_id"], p.get("range")) for p in plan["source_packs"]}
+    assert ("geospatial-berlin", "^1.1.0") in pins and ("climate-environment", "^1.0.0") in pins
+
+
+def test_disabling_climate_environment_is_a_selection_change_that_keeps_geospatial(isolated_registry):
+    from src.kb import environment_bundle
+    from src.kb.geospatial_features import GeospatialFeatureStore
+
+    conn, coordinator, _, _ = _migrated()
+    assert environment_bundle.is_enabled(conn, "environment")
+    status = environment_bundle.readiness(conn, "environment", scopes={"operator", "knowledge:environment:read"})
+    assert {o["provider"] for o in status["composition"]["operations"]} >= {"environment.core"}
+    result = environment_bundle.set_enabled(conn, "environment", False, principal_id="operator", scopes={"operator"})
+    assert result["authority"] == "composition-coordinator" and result["enabled"] is False
+    assert result["receipt"]["status"] == "published" and result["receipt"]["receipt_id"].startswith("activation:")
+    assert not conn.execute("SELECT 1 FROM information_schema.tables WHERE table_name='environment_bundle_state'").fetchone()
+    plan = coordinator.active()["plan"]
+    assert "climate-environment" not in {p["id"] for p in plan["packs"]}
+    assert "geospatial" in {p["id"] for p in plan["packs"]}
+    bindings = {b["capability"]: b for b in plan["bindings"]}
+    assert bindings["geospatial.feature-query"]["provider"] == "geospatial.core"
+    assert {d["id"] for d in coordinator.installed("provider")} >= {"geospatial.core", "market.lei", "environment.core"}
+    GeospatialFeatureStore(conn)  # the shared spatial owner still initializes and serves
+    again = environment_bundle.set_enabled(conn, "environment", True, principal_id="operator", scopes={"operator"})
+    assert again["enabled"] is True and again["receipt"]["status"] == "published"
