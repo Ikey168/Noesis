@@ -167,6 +167,10 @@ For the project overview and local setup, start with the
 - [Political lobbying guide](guides/political-lobbying.md) — transparency-register declarations and meeting
   declarations linked to legislative dossiers, declared spend ranges as filed, reviewable identity and dossier
   links and monitors; [source audit](roadmaps/political-lobbying-source-audit.md)
+- [Political elections guide](guides/political-elections.md) — contest results as published with preliminary and
+  certified vintages kept apart, poll series beside (never blended into) results, reviewable party identity,
+  constituency boundaries as of a date, certified-only forecast resolution, news evidence without causal reading
+  and monitors; [source audit](roadmaps/political-elections-source-audit.md)
 - [OSINT pack guide](guides/osint-pack.md) — Admiralty grades, ownership
   dossiers, video reuse, registry and certificate history, infrastructure
   pivots and the gated imagery tier
