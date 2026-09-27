@@ -245,3 +245,8 @@ def test_runtime_run_projects_every_provider_and_leaves_evidence(tmp_path):
         "ted-notices": 6, "uk-fts-ocds": 3, "uk-contracts-finder-ocds": 1, "sam-opportunities": 3}
     assert env.conn.execute("SELECT count(*) FROM documents").fetchone()[0] >= 13
     assert env.conn.execute("SELECT count(*) FROM source_pack_watermarks WHERE pack_id='procurement'").fetchone()[0] == 1
+    # The original notice is retained as evidence next to the mapped record.
+    metadata = json.loads(env.conn.execute("SELECT metadata FROM documents WHERE url LIKE '%00612345-2026'").fetchone()[0])
+    native = json.loads(metadata["source_pack_native_json"])
+    assert native["native_notice"]["BT-04-procedure"].endswith("0001") and native["procurement_record"]["notice_id"] == "00612345-2026"
+    assert metadata["source_pack_mapping_schema"] == "noesis-procurement-record-v1"

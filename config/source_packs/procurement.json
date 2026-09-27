@@ -57,7 +57,7 @@
       "fixture": {
         "path": "tests/fixtures/source_packs/procurement-ted.json",
         "sha256": "f9a1113409eb08be88863a2f8a6e4692208752d5c6236f40f5953e37e6535dd7",
-        "expected_output_hash": "d2c694bcf913679f93a54708191d4d3ab8fc898b896c6b6b4a74bc10e5a60dd7"
+        "expected_output_hash": "d7607cfbe405544dd40c54ed5a3ae42da7f2a34a2483e5372c1d3332b7dec269"
       }
     },
     {
@@ -92,7 +92,7 @@
       "fixture": {
         "path": "tests/fixtures/source_packs/procurement-uk-fts.json",
         "sha256": "dc6a3f846532b2952ff506ba77fd109fc2dcc3422bb7b67d7bb4e4b66026fc7e",
-        "expected_output_hash": "47ddeba9919cfe1d15c7a1723b4f24109ce58fdbc45e4d887c9272f26b3363ee"
+        "expected_output_hash": "eb052f7bc5f1a6818b88c647a5dac99e70e1a671a8512ec65278181f78046ce1"
       }
     },
     {
@@ -127,7 +127,7 @@
       "fixture": {
         "path": "tests/fixtures/source_packs/procurement-uk-cf.json",
         "sha256": "66aae76276cbc24b24a800440ac2fa3f8932a7a7f298b6c996dae020cc821242",
-        "expected_output_hash": "05127489940091d93bdf15e36fa9a688f8bccedbf9cfc2e2081b7eaee8f3c7d5"
+        "expected_output_hash": "57ba435ba82a353672b44ef3a88be1322a3580320df2d72cd84b30bf8a4fc68e"
       }
     },
     {
@@ -164,7 +164,7 @@
       "fixture": {
         "path": "tests/fixtures/source_packs/procurement-sam.json",
         "sha256": "83e741dcb548cf0cf594eb6a10bab6efde255f41bccc60e02e479efec72261d7",
-        "expected_output_hash": "282202251b1c0525b08168ee12f6d71da96e4b8592fb42a055bced21c0aeed2b"
+        "expected_output_hash": "d5033628fe807dc7315b5da30d1d91ca1e39f651d874dad3ce73a088d6be3aba"
       }
     }
   ]

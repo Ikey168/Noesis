@@ -107,9 +107,14 @@ pinned selection and pinned offline fixture. The native adapters:
 - pin one query or parameter window and reject request parameters;
 - map notices with fail-closed parsers: a shape that does not match raises
   `schema_drift` and nothing from that page is ingested;
-- keep a JSON-pointer and field locator relative to the notice (page position
-  never changes a record), the language tag of every multilingual text, the
-  raw response SHA-256 in the page receipt, and `execution: network|injected`.
+- keep:
+  - a JSON-pointer and field locator relative to the notice, so page position
+    never changes a record;
+  - the language tag of every multilingual text;
+  - the original notice, release or opportunity object (`native_notice`,
+    stored with the mapped record in the document's source-pack native JSON);
+  - the raw response SHA-256 in the page receipt;
+  - `execution: network|injected`.
 
 `EFORMS_MAPPING` documents the eForms business term behind every mapped field.
 Selection criteria become machine rules only when their text is unambiguous:

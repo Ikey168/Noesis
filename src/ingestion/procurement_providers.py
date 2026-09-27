@@ -635,13 +635,14 @@ def parse_ted_search(payload):
         _drift("TED search response lacks notices[]")
     if payload.get("timedOut"):
         raise SourcePackError("source_timeout", "TED search timed out server-side; results are partial")
-    records = []
+    records, natives = [], []
     for index, notice in enumerate(payload["notices"]):
         try:
             records.append(parse_ted_notice(notice, index=index))
         except ProcurementRecordError as exc:
             raise SourcePackError("mapping_failed", f"notice {notice.get('publication-number')}: {exc}") from exc
-    return {"records": records, "next": payload.get("iterationNextToken") or None,
+        natives.append(notice)
+    return {"records": records, "natives": natives, "next": payload.get("iterationNextToken") or None,
             "total": payload.get("totalNoticeCount")}
 
 
@@ -806,13 +807,14 @@ def parse_ocds_package(payload, provider):
         _drift("OCDS release package lacks releases[]")
     if payload.get("version") not in ("1.1", None):
         _drift(f"unsupported OCDS version {payload.get('version')}")
-    records = []
+    records, natives = [], []
     for index, release in enumerate(payload["releases"]):
         try:
             records.append(parse_ocds_release(release, provider, index=index))
         except ProcurementRecordError as exc:
             raise SourcePackError("mapping_failed", f"release {release.get('id')}: {exc}") from exc
-    return {"records": records, "next": (payload.get("links") or {}).get("next")}
+        natives.append(release)
+    return {"records": records, "natives": natives, "next": (payload.get("links") or {}).get("next")}
 
 
 # ------------------------------------------------------------------- SAM.gov
@@ -889,7 +891,7 @@ def parse_sam_opportunity(item, *, index=0):
 def parse_sam_search(payload):
     if not isinstance(payload, dict) or not isinstance(payload.get("opportunitiesData"), list) or "totalRecords" not in payload:
         _drift("SAM response lacks opportunitiesData[] or totalRecords")
-    records = []
+    records, natives = [], []
     for index, item in enumerate(payload["opportunitiesData"]):
         try:
             mapped = parse_sam_opportunity(item, index=index)
@@ -897,7 +899,8 @@ def parse_sam_search(payload):
             raise SourcePackError("mapping_failed", f"notice {item.get('noticeId')}: {exc}") from exc
         if mapped is not None:
             records.append(mapped)
-    return {"records": records, "total": int(payload["totalRecords"]), "offset": int(payload.get("offset") or 0),
+            natives.append(item)
+    return {"records": records, "natives": natives, "total": int(payload["totalRecords"]), "offset": int(payload.get("offset") or 0),
             "returned": len(payload["opportunitiesData"])}
 
 
@@ -1017,11 +1020,13 @@ class _ProcurementAdapter:
         from src.ingestion.source_pack_runtime import RuntimePage
 
         records = []
-        for item in parsed["records"]:
+        for item, native in zip(parsed["records"], parsed["natives"], strict=True):
+            # The original notice/release/opportunity object is retained as evidence (stored in the
+            # document's source-pack native JSON) next to the mapped record and the response hash.
             records.append({"id": f"{self.provider}:{item['notice_id']}", "title": item["title"], "language": item["language"],
                             "url": item["source_url"], "published_at": item.get("published"),
                             "content": "\n".join([item["title"]] + [r["text"] for r in item.get("requirements") or []]),
-                            RECORD_KEY: item, "raw_sha256": _sha(raw)})
+                            RECORD_KEY: item, "native_notice": native, "raw_sha256": _sha(raw)})
         receipt = {"status": status, "provider": self.provider, "execution": self.execution, "response_sha256": _sha(raw),
                    "records": len(records), "complete": next_cursor is None,
                    **{k: headers[k] for k in ("last-modified", "etag") if k in headers}, **extra}
