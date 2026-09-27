@@ -14,6 +14,13 @@ Frame extraction (scene-change sampling) and OCR are **injected** — they need
 heavy binaries (ffmpeg, tesseract) that stay out of the tool servers — so this
 module is testable offline and degrades to nothing when they are unavailable.
 
+OX04 (#2044): sampled keyframes are also indexed as corpus image assets
+(:func:`index_keyframe_assets`), one ``image_assets`` row per distinct frame
+(sha256 of the frame bytes, parent = the media document) and one
+``image_appearances`` row whose ``context`` records the offset in seconds and
+the scene index, so perceptual-hash reuse detection covers video. Corpus
+internal, no external calls; it identifies images, never people.
+
 See ``docs/architecture/BEYOND_TEXT_ROADMAP.md`` §4.
 """
 
@@ -124,3 +131,47 @@ def keyframe_documents(
             continue
         documents.append(keyframe_document(parent, media_ref, media_id, kf, ts))
     return documents
+
+
+def index_keyframe_assets(
+    store: Any,
+    media_document_id: str,
+    keyframes: List[Keyframe],
+    *,
+    media_ref: Optional[str] = None,
+    now_ms: Optional[int] = None,
+    max_keyframes: int = DEFAULT_MAX_KEYFRAMES,
+) -> List[dict]:
+    """Route sampled keyframes through the image asset store (OX04).
+
+    Each frame with bytes becomes (or reuses, by content) an ``image_assets``
+    row whose parent is the media document, plus an ``image_appearances`` row
+    for the media document with the frame's offset and scene index. dHash is
+    computed on the same path as still images; EXIF is recorded as empty
+    because frames carry none, never fabricated. Bounded by ``max_keyframes``.
+    A video is one document: a frame repeated within it is one appearance.
+    """
+    from src.ingestion.assets.provenance import keyframe_provenance
+    from src.ingestion.assets.store import frame_context
+
+    indexed: List[dict] = []
+    for scene_index, kf in enumerate(keyframes[:max_keyframes]):
+        if not kf.image_bytes:
+            continue
+        asset = store.put(kf.image_bytes, parent_document_id=media_document_id, now_ms=now_ms)
+        store.record_appearance(
+            asset.sha256,
+            media_document_id,
+            context=frame_context(
+                kf.timestamp_s,
+                scene_index,
+                media_fragment(media_ref, kf.timestamp_s) if media_ref else None,
+            ),
+            now_ms=now_ms,
+        )
+        if (store.get_provenance(asset.sha256) or {}).get("phash") is None:
+            store.enrich(asset.sha256, **keyframe_provenance(kf.image_bytes))
+        indexed.append(
+            {"sha256": asset.sha256, "offset_s": kf.timestamp_s, "scene_index": scene_index}
+        )
+    return indexed
