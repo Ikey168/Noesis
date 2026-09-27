@@ -641,6 +641,7 @@ def test_six_domain_offline_execution(setup):
         "legal",
         "osint",
         "political",
+        "procurement",
         "products",
         "research",
         "scientific",
