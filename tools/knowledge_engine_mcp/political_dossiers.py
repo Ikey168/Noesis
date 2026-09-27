@@ -48,10 +48,16 @@ def register(mcp, safe, context):
     def legislative_dossier_timeline(
         namespace: str, dossier_id: str, revision: int | None = None,
         observed_as_of_ms: int | None = None, limit: int = 50, offset: int = 0,
+        lobbying_namespace: str | None = None,
     ) -> dict:
-        """Order source-backed stages without leaking later observations."""
+        """Order source-backed stages without leaking later observations.
+
+        With lobbying_namespace (Political lobbying feature), declared interests and meetings linked to this
+        dossier revision by explicit register fields or reviewed assertions are listed apart from the stages.
+        """
         return call("timeline", namespace, dossier_id, revision=revision,
-                    observed_as_of_ms=observed_as_of_ms, limit=limit, offset=offset)
+                    observed_as_of_ms=observed_as_of_ms, limit=limit, offset=offset,
+                    lobbying_namespace=lobbying_namespace)
 
     @mcp.tool()
     def compare_legislative_dossier(
@@ -71,6 +77,11 @@ def register(mcp, safe, context):
     @mcp.tool()
     def legislative_dossier_dependencies(
         namespace: str, dossier_id: str, revision: int | None = None,
+        lobbying_namespace: str | None = None,
     ) -> dict:
-        """Return existing project/report links and explicit evidence changes."""
-        return call("dependencies", namespace, dossier_id, revision=revision)
+        """Return existing project/report links and explicit evidence changes.
+
+        With lobbying_namespace, the linked register declarations are returned as source dependencies too.
+        """
+        return call("dependencies", namespace, dossier_id, revision=revision,
+                    lobbying_namespace=lobbying_namespace)
