@@ -14,6 +14,7 @@ from src.kb.geospatial import GeospatialError
 from src.kb.geospatial_features import GeospatialFeatureStore
 from tests.unit.geospatial_pack_helpers import (
     FIXTURES,
+    ORIGIN,
     SCOPES,
     WfsServer,
     install,
@@ -227,6 +228,33 @@ def test_points_within_holes_multipolygons_and_replay(tmp_path):
     assert replay["deterministic"] and replay["recomputed_members"] == 1
     with pytest.raises(GeospatialError):
         store.within("team", collection="sites", principal_id="alice", scopes=SCOPES)
+
+
+def test_polygons_containing_a_point_respect_holes_and_replay():
+    """The reverse query (#1908): which boundary features contain one point; none or several are never chosen."""
+    conn = duckdb.connect(":memory:")
+    store = GeospatialFeatureStore(conn)
+    store.import_feature_collection(
+        "team", {"type": "FeatureCollection", "features": [
+            square("donut", 0, 0, 1000, hole=200), square("overlap", 0, 0, 300)]},
+        provider="Team", collection="areas", source_crs="EPSG:25833", title_property="name",
+        snapshot="complete", principal_id="alice", scopes=SCOPES,
+    )
+
+    def wgs84(dx, dy):
+        return spatial.transform_geometry({"type": "Point", "coordinates": [ORIGIN[0] + dx, ORIGIN[1] + dy]},
+                                          "EPSG:25833")["result"]["geometry"]["coordinates"]
+
+    one = store.containing("team", collection="areas", point=wgs84(800, 800), principal_id="alice", scopes=SCOPES)
+    assert one["status"] == "resolved" and [m["native_id"] for m in one["members"]] == ["donut"]
+    two = store.containing("team", collection="areas", point=wgs84(100, 100), principal_id="alice", scopes=SCOPES)
+    assert two["status"] == "ambiguous" and len(two["members"]) == 2
+    hole = store.containing("team", collection="areas", point=wgs84(500, 500), principal_id="alice", scopes=SCOPES)
+    assert hole["status"] == "outside"
+    replay = store.replay_within("team", two["receipt"]["receipt_id"], scopes=SCOPES)
+    assert replay["deterministic"] and replay["recomputed_members"] == 2
+    with pytest.raises(GeospatialError):
+        store.containing("team", collection="areas", point=[500, 500], principal_id="alice", scopes=SCOPES)
 
 
 def test_namespaces_isolate_local_imports_and_ambiguous_names_need_review():
