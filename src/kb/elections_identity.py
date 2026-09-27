@@ -431,6 +431,20 @@ class ElectionIdentity:
                     frontier.append(other)
         return sorted(group)
 
+    def accepted_external(self, namespace: str, record_key: str) -> list[str]:
+        """Non-election records (Political pack parties, canonical entities) joined by accepted decisions."""
+        if not table_exists(self.conn, "ownership_identity_candidates"):
+            return []
+        group = self.linked(namespace, record_key)
+        rows = self.conn.execute(
+            "SELECT left_key, right_key FROM ownership_identity_candidates WHERE namespace=? AND state='accepted' "
+            "AND (list_contains(?, left_key) OR list_contains(?, right_key)) ORDER BY candidate_id",
+            [namespace, group, group],
+        ).fetchall()
+        return sorted(
+            {k for pair in rows for k in pair if not k.startswith("elections:")}
+        )
+
     def identity(
         self, namespace: str, record_key: str, *, scopes: Iterable[str]
     ) -> dict[str, Any]:
