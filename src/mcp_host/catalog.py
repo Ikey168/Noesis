@@ -322,6 +322,9 @@ def _mutability(name: str) -> str:
     from tools.knowledge_engine_mcp.vulnerabilities import VULNERABILITY_WRITES
     if name in VULNERABILITY_WRITES:
         return "write"
+    from tools.knowledge_engine_mcp.lobbying import LOBBYING_WRITES
+    if name in LOBBYING_WRITES:
+        return "write"
     from tools.knowledge_engine_mcp.investigations import (
         ALERT_WRITES,
         COMPARISON_WRITES,
@@ -875,6 +878,10 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
     from tools.knowledge_engine_mcp.vulnerabilities import required_scopes as vulnerability_scopes
     if server_stem == "knowledge_engine_mcp" and tool_name in VULNERABILITY_TOOLS:
         return vulnerability_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.lobbying import LOBBYING_TOOLS
+    from tools.knowledge_engine_mcp.lobbying import required_scopes as lobbying_scopes
+    if server_stem == "knowledge_engine_mcp" and tool_name in LOBBYING_TOOLS:
+        return lobbying_scopes(tool_name, mutability)
     if server_stem == "knowledge_engine_mcp" and tool_name in {
         "suggest_jev_claim_presence",
         "suggest_jev_checkworthiness",
@@ -967,9 +974,13 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
     }:
         return ["knowledge:economic:write" if mutability == "write" else "knowledge:economic:read"]
     if server_stem == "knowledge_engine_mcp" and tool_name in {
+        "legislative_dossier_timeline", "legislative_dossier_dependencies",
+    }:
+        # With lobbying_namespace these also read linked register declarations (Political lobbying feature).
+        return ["knowledge:political:dossier:read", "knowledge:political:lobbying:read"]
+    if server_stem == "knowledge_engine_mcp" and tool_name in {
         "save_legislative_dossier", "inspect_legislative_dossier",
-        "legislative_dossier_timeline", "compare_legislative_dossier",
-        "export_legislative_dossier_changes", "legislative_dossier_dependencies",
+        "compare_legislative_dossier", "export_legislative_dossier_changes",
     }:
         return ["knowledge:political:dossier:write" if mutability == "write" else "knowledge:political:dossier:read"]
     if server_stem == "knowledge_engine_mcp" and tool_name in {

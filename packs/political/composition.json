@@ -8,12 +8,58 @@
           "name": "noesis-political-knowledge",
           "version": "1.0.0"
         }
+      },
+      {
+        "id": "political.lobbying",
+        "provider": "political.lobbying",
+        "contract": {
+          "name": "noesis-lobbying-record",
+          "version": "1.0.0"
+        }
       }
     ],
     "providers": [
       {
         "id": "political.core",
         "version": "1.0.0"
+      },
+      {
+        "id": "political.lobbying",
+        "version": "1.0.0"
+      }
+    ],
+    "source_packs": [
+      {
+        "pack_id": "official-political-records",
+        "version": "1.1.0",
+        "range": "^1.1.0"
+      }
+    ],
+    "profiles": [
+      {
+        "id": "political.lobbying-review",
+        "description": "Transparency-register review: declarations are what registrants and officials filed, never influence findings",
+        "workflow_defaults": {
+          "registers": [
+            "eu-tr",
+            "de-lobbyregister",
+            "uk-orcl",
+            "ep-meetings",
+            "ec-meetings"
+          ],
+          "as_of": "the register revision in force on the date by the register's own dates; latest when no date is given",
+          "include_candidates": true,
+          "unmatched_names": "shown as the register string, marked unmatched",
+          "spend": "the declared range with currency and period, never collapsed"
+        },
+        "vocabulary": {
+          "declaration": "a register statement as filed",
+          "link": "an explicit register field or a reviewed assertion",
+          "candidate": "a shared keyword or unreviewed proposal, never a link"
+        },
+        "source_packs": [
+          "official-political-records"
+        ]
       }
     ]
   },
@@ -23,6 +69,51 @@
       "contract": "noesis-political-knowledge",
       "range": "^1.0.0",
       "reason": "the bundle's own entry points use these operations"
+    }
+  ],
+  "optional_features": [
+    {
+      "id": "lobbying",
+      "default": false,
+      "description": "Lobbying and transparency-register evidence: registrants, clients, declared interests, declared spend ranges, meetings with officials and register revisions, linked to legislative dossiers by explicit register fields or reviewed assertions, with reviewable identity matches and subscription monitors. Declarations as filed; no influence claim or point estimate.",
+      "requires": [
+        {
+          "capability": "political.lobbying",
+          "contract": "noesis-lobbying-record",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "political.knowledge",
+          "contract": "noesis-political-knowledge",
+          "range": "^1.0.0",
+          "reason": "declarations are read beside the Political bundle's legislative dossiers"
+        },
+        {
+          "capability": "platform.entity-identity",
+          "contract": "noesis-entity-identity-decision",
+          "range": "^1.0.0",
+          "reason": "accepted and reverted matches are entity identity decisions"
+        },
+        {
+          "capability": "market.legal-entities",
+          "contract": "noesis-lei-part",
+          "range": "^1.0.0",
+          "reason": "LEIs a register states are compared with LEI records"
+        },
+        {
+          "capability": "ownership.identity",
+          "contract": "noesis-ownership-identity-candidate",
+          "range": "^1.0.0",
+          "reason": "registrant and client matches use the reviewable identity state machine"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "lobbying monitors are knowledge subscriptions"
+        }
+      ]
     }
   ]
 }

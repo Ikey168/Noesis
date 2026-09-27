@@ -900,7 +900,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 849,
+      "tool_count": 870,
       "tools": [
         "noesis-knowledge-engine.accept_awareness_jev_suggestion",
         "noesis-knowledge-engine.accept_citation_repair",
@@ -1046,6 +1046,7 @@
         "noesis-knowledge-engine.create_intake_skill",
         "noesis-knowledge-engine.create_investigation_comparison",
         "noesis-knowledge-engine.create_investigation_template",
+        "noesis-knowledge-engine.create_lobbying_monitor",
         "noesis-knowledge-engine.create_paper_family",
         "noesis-knowledge-engine.create_persistent_research_loop",
         "noesis-knowledge-engine.create_practice_pack",
@@ -1129,6 +1130,7 @@
         "noesis-knowledge-engine.export_change_briefs",
         "noesis-knowledge-engine.export_clinical_evidence_bundle",
         "noesis-knowledge-engine.export_coverage_comparison",
+        "noesis-knowledge-engine.export_dossier_interests_report",
         "noesis-knowledge-engine.export_economic_release_comparison",
         "noesis-knowledge-engine.export_entity_identity_history",
         "noesis-knowledge-engine.export_environment_dossier",
@@ -1315,9 +1317,11 @@
         "noesis-knowledge-engine.link_cultural_research",
         "noesis-knowledge-engine.link_hypothesis_evidence",
         "noesis-knowledge-engine.link_legal_dossier",
+        "noesis-knowledge-engine.link_lobbying_dossier",
         "noesis-knowledge-engine.link_study_artifact",
         "noesis-knowledge-engine.list_change_briefs",
         "noesis-knowledge-engine.list_decision_review_tasks",
+        "noesis-knowledge-engine.list_dossier_declared_interests",
         "noesis-knowledge-engine.list_due_practice",
         "noesis-knowledge-engine.list_environment_facilities",
         "noesis-knowledge-engine.list_environment_grid_events",
@@ -1333,11 +1337,15 @@
         "noesis-knowledge-engine.list_intake_feed_subscriptions",
         "noesis-knowledge-engine.list_intake_modes",
         "noesis-knowledge-engine.list_investigation_templates",
+        "noesis-knowledge-engine.list_lobbying_dossier_links",
+        "noesis-knowledge-engine.list_lobbying_identity_candidates",
         "noesis-knowledge-engine.list_maintenance_due_work",
         "noesis-knowledge-engine.list_maintenance_jobs",
         "noesis-knowledge-engine.list_methodology_limitations",
+        "noesis-knowledge-engine.list_official_meetings",
         "noesis-knowledge-engine.list_ownership_identity_candidates",
         "noesis-knowledge-engine.list_procurement_notices",
+        "noesis-knowledge-engine.list_registrant_declarations",
         "noesis-knowledge-engine.list_research_analysis_runs",
         "noesis-knowledge-engine.list_research_gap_tasks",
         "noesis-knowledge-engine.list_research_gaps",
@@ -1352,6 +1360,10 @@
         "noesis-knowledge-engine.list_vulnerability_component_matches",
         "noesis-knowledge-engine.list_vulnerability_components",
         "noesis-knowledge-engine.list_zotero_items",
+        "noesis-knowledge-engine.lobbying_grant_candidates",
+        "noesis-knowledge-engine.lobbying_readiness",
+        "noesis-knowledge-engine.lobbying_source_contracts",
+        "noesis-knowledge-engine.lobbying_source_identity_candidates",
         "noesis-knowledge-engine.lookup_clinical_trial",
         "noesis-knowledge-engine.lookup_environment_series",
         "noesis-knowledge-engine.lookup_legal_work",
@@ -1385,6 +1397,7 @@
         "noesis-knowledge-engine.poll_decision_condition_watch",
         "noesis-knowledge-engine.poll_environment_monitor",
         "noesis-knowledge-engine.poll_funding_monitor",
+        "noesis-knowledge-engine.poll_lobbying_monitor",
         "noesis-knowledge-engine.poll_procurement_monitor",
         "noesis-knowledge-engine.poll_sanctions_monitor",
         "noesis-knowledge-engine.poll_vulnerability_monitor",
@@ -1435,6 +1448,9 @@
         "noesis-knowledge-engine.propose_intake_playbook_revision",
         "noesis-knowledge-engine.propose_intake_report_revision",
         "noesis-knowledge-engine.propose_lei_registry_links",
+        "noesis-knowledge-engine.propose_lobbying_dossier_link",
+        "noesis-knowledge-engine.propose_lobbying_identity_link",
+        "noesis-knowledge-engine.propose_lobbying_identity_matches",
         "noesis-knowledge-engine.propose_math_links",
         "noesis-knowledge-engine.propose_ownership_identity_matches",
         "noesis-knowledge-engine.propose_patent_link",
@@ -1564,6 +1580,8 @@
         "noesis-knowledge-engine.retry_maintenance_job",
         "noesis-knowledge-engine.retry_source_pack_quarantine",
         "noesis-knowledge-engine.reverse_event_merge",
+        "noesis-knowledge-engine.revert_lobbying_dossier_link",
+        "noesis-knowledge-engine.revert_lobbying_identity_match",
         "noesis-knowledge-engine.revert_ownership_identity_match",
         "noesis-knowledge-engine.revert_procurement_party_link",
         "noesis-knowledge-engine.revert_sanctions_identity_match",
@@ -1581,6 +1599,8 @@
         "noesis-knowledge-engine.review_funding_rule_interpretation",
         "noesis-knowledge-engine.review_geospatial_resolution",
         "noesis-knowledge-engine.review_intake_iteration_stability",
+        "noesis-knowledge-engine.review_lobbying_dossier_link",
+        "noesis-knowledge-engine.review_lobbying_identity_match",
         "noesis-knowledge-engine.review_math_link",
         "noesis-knowledge-engine.review_multilingual_alias",
         "noesis-knowledge-engine.review_ownership_identity_match",
@@ -1618,6 +1638,7 @@
         "noesis-knowledge-engine.run_environment_monitor",
         "noesis-knowledge-engine.run_funding_monitor",
         "noesis-knowledge-engine.run_hosted_typed_decision",
+        "noesis-knowledge-engine.run_lobbying_monitor",
         "noesis-knowledge-engine.run_maintenance_drain",
         "noesis-knowledge-engine.run_maintenance_once",
         "noesis-knowledge-engine.run_persistent_research_loop",
@@ -1757,7 +1778,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 849
+      "visible_tool_count": 870
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -1768,11 +1789,11 @@
     },
     "servers": 30,
     "states": {
-      "available": 112,
+      "available": 113,
       "degraded": 159,
-      "unauthorized": 885
+      "unauthorized": 905
     },
-    "tools": 1156
+    "tools": 1177
   },
   "tools": [
     {
@@ -27107,6 +27128,75 @@
     },
     {
       "cost_class": "medium",
+      "description": "A subscription on a dossier, a registrant entry, a client or an office holder; no new scheduler.",
+      "id": "noesis-knowledge-engine.create_lobbying_monitor",
+      "input_schema": {
+        "properties": {
+          "delivery": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "dossier_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "key": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "request_key": {
+            "type": "string"
+          },
+          "watch": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "request_key",
+          "watch",
+          "key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "create_lobbying_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:political:lobbying:read",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Create a versioned scholarly family from an exact accessible document revision.",
       "id": "noesis-knowledge-engine.create_paper_family",
       "input_schema": {
@@ -31416,6 +31506,76 @@
       ],
       "required_scopes": [
         "knowledge:coverage:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Export a dossier's declared interests and meetings as a cited authored report (evidence bundle).",
+      "id": "noesis-knowledge-engine.export_dossier_interests_report",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "dossier_id": {
+            "type": "string"
+          },
+          "dossier_namespace": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "report_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "request_key": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "dossier_namespace",
+          "dossier_id",
+          "request_key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "export_dossier_interests_report",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:political:lobbying:read",
+        "knowledge:political:dossier:read",
+        "knowledge:ownership:read",
+        "knowledge:reports:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -39095,12 +39255,23 @@
     },
     {
       "cost_class": "low",
-      "description": "Return existing project/report links and explicit evidence changes.",
+      "description": "Return existing project/report links and explicit evidence changes.\n\nWith lobbying_namespace, the linked register declarations are returned as source dependencies too.",
       "id": "noesis-knowledge-engine.legislative_dossier_dependencies",
       "input_schema": {
         "properties": {
           "dossier_id": {
             "type": "string"
+          },
+          "lobbying_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
           },
           "namespace": {
             "type": "string"
@@ -39135,7 +39306,8 @@
         "knowledge-engine-runtime"
       ],
       "required_scopes": [
-        "knowledge:political:dossier:read"
+        "knowledge:political:dossier:read",
+        "knowledge:political:lobbying:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -39143,7 +39315,7 @@
     },
     {
       "cost_class": "low",
-      "description": "Order source-backed stages without leaking later observations.",
+      "description": "Order source-backed stages without leaking later observations.\n\nWith lobbying_namespace (Political lobbying feature), declared interests and meetings linked to this\ndossier revision by explicit register fields or reviewed assertions are listed apart from the stages.",
       "id": "noesis-knowledge-engine.legislative_dossier_timeline",
       "input_schema": {
         "properties": {
@@ -39153,6 +39325,17 @@
           "limit": {
             "default": 50,
             "type": "integer"
+          },
+          "lobbying_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
           },
           "namespace": {
             "type": "string"
@@ -39202,7 +39385,8 @@
         "knowledge-engine-runtime"
       ],
       "required_scopes": [
-        "knowledge:political:dossier:read"
+        "knowledge:political:dossier:read",
+        "knowledge:political:lobbying:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -39737,6 +39921,49 @@
     },
     {
       "cost_class": "medium",
+      "description": "Link declarations to a dossier's current revision by explicit register fields; shared words only\nproduce candidates. Idempotent; links to earlier dossier revisions are kept.",
+      "id": "noesis-knowledge-engine.link_lobbying_dossier",
+      "input_schema": {
+        "properties": {
+          "dossier_id": {
+            "type": "string"
+          },
+          "dossier_namespace": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "dossier_namespace",
+          "dossier_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "link_lobbying_dossier",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:political:lobbying:read",
+        "knowledge:political:lobbying:write",
+        "knowledge:political:dossier:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Link a study to registrations, protocols, data, code, replications, or corrections.",
       "id": "noesis-knowledge-engine.link_study_artifact",
       "input_schema": {
@@ -39947,6 +40174,64 @@
       ],
       "required_scopes": [
         "knowledge:decisions:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Who declared an interest in a dossier and which officials met about it, citing every register revision.\n\nRows are marked explicit-field, reviewed-assertion or unreviewed-candidate; registrants are matched (a\nreviewed identity decision) or unmatched register strings. Spend is the declared range with currency and\nperiod; registers are shown side by side and never reconciled. No influence claim is made.",
+      "id": "noesis-knowledge-engine.list_dossier_declared_interests",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "dossier_id": {
+            "type": "string"
+          },
+          "dossier_namespace": {
+            "type": "string"
+          },
+          "include_candidates": {
+            "default": true,
+            "type": "boolean"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "dossier_namespace",
+          "dossier_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_dossier_declared_interests",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:political:lobbying:read",
+        "knowledge:political:dossier:read",
+        "knowledge:ownership:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -40605,6 +40890,92 @@
     },
     {
       "cost_class": "low",
+      "description": "Links and candidates for a dossier with their basis, cited dossier and register revisions and review state.",
+      "id": "noesis-knowledge-engine.list_lobbying_dossier_links",
+      "input_schema": {
+        "properties": {
+          "dossier_id": {
+            "type": "string"
+          },
+          "dossier_namespace": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "dossier_namespace",
+          "dossier_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_lobbying_dossier_links",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:political:lobbying:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Identity candidates and decisions involving register records, with reviewer, evidence and revisions.",
+      "id": "noesis-knowledge-engine.list_lobbying_identity_candidates",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "record_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_lobbying_identity_candidates",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:political:lobbying:read",
+        "knowledge:ownership:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "List bounded runnable maintenance work without claiming it.",
       "id": "noesis-knowledge-engine.list_maintenance_due_work",
       "input_schema": {
@@ -40730,6 +41101,95 @@
     },
     {
       "cost_class": "low",
+      "description": "Meetings an office holder declared: date, place, subject and organisations as declared, with dossier links.",
+      "id": "noesis-knowledge-engine.list_official_meetings",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "date_from": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "date_to": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "official_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "official_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_official_meetings",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:political:lobbying:read",
+        "knowledge:ownership:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Identity candidates with basis, evidence, confidence, state and the recorded decision.",
       "id": "noesis-knowledge-engine.list_ownership_identity_candidates",
       "input_schema": {
@@ -40825,6 +41285,95 @@
       ],
       "required_scopes": [
         "knowledge:procurement:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "What a registrant declared over time (every register revision, cited); an entity id gathers its\nreviewed register records side by side. Deregistrations are lifecycle revisions.",
+      "id": "noesis-knowledge-engine.list_registrant_declarations",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "entity_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "entry_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "native_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "register": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_registrant_declarations",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:political:lobbying:read",
+        "knowledge:ownership:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -41487,6 +42036,140 @@
       ],
       "required_scopes": [
         "knowledge:zotero:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Funding programme records a declared EU grant may refer to: candidates only, never confirmed funding.",
+      "id": "noesis-knowledge-engine.lobbying_grant_candidates",
+      "input_schema": {
+        "properties": {
+          "funding_namespace": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "revision_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "revision_id",
+          "funding_namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "lobbying_grant_candidates",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:political:lobbying:read",
+        "knowledge:funding:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Whether the Political lobbying feature is selected, and per-register acquired exports and access decisions.",
+      "id": "noesis-knowledge-engine.lobbying_readiness",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "lobbying_readiness",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:political:lobbying:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Per-register access decisions, formats, identifiers, revision and deregistration semantics and terms.",
+      "id": "noesis-knowledge-engine.lobbying_source_contracts",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "lobbying_source_contracts",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "OSINT source identities a registrant's declared website points to, for review with decide_source_alias.",
+      "id": "noesis-knowledge-engine.lobbying_source_identity_candidates",
+      "input_schema": {
+        "properties": {
+          "entry_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "source_namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "entry_id",
+          "source_namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "lobbying_source_identity_candidates",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:political:lobbying:read",
+        "knowledge:source-identity:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -43065,6 +43748,44 @@
       ],
       "required_scopes": [
         "knowledge:funding:read",
+        "knowledge:subscriptions:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Poll a lobbying monitor's events through the subscription delivery path.",
+      "id": "noesis-knowledge-engine.poll_lobbying_monitor",
+      "input_schema": {
+        "properties": {
+          "cursor": {
+            "default": "",
+            "type": "string"
+          },
+          "subscription_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "poll_lobbying_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:political:lobbying:read",
         "knowledge:subscriptions:read"
       ],
       "server": "noesis-knowledge-engine",
@@ -45592,6 +46313,172 @@
       ],
       "required_scopes": [
         "knowledge:companies:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "A reviewer's candidate assertion that a declaration concerns a dossier; it links only once reviewed.",
+      "id": "noesis-knowledge-engine.propose_lobbying_dossier_link",
+      "input_schema": {
+        "properties": {
+          "dossier_id": {
+            "type": "string"
+          },
+          "dossier_namespace": {
+            "type": "string"
+          },
+          "evidence": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "interest_key": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "revision_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "revision_id",
+          "interest_key",
+          "dossier_namespace",
+          "dossier_id",
+          "evidence"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_lobbying_dossier_link",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:political:lobbying:read",
+        "knowledge:political:lobbying:write",
+        "knowledge:political:dossier:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "A reviewer's candidate resting on an identifier, or a name plus country/address, the register states.",
+      "id": "noesis-knowledge-engine.propose_lobbying_identity_link",
+      "input_schema": {
+        "properties": {
+          "evidence": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "record_key": {
+            "type": "string"
+          },
+          "target_entity": {
+            "type": "string"
+          },
+          "target_key": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "record_key",
+          "target_key",
+          "target_entity",
+          "evidence"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_lobbying_identity_link",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:political:lobbying:read",
+        "knowledge:ownership:read",
+        "knowledge:ownership:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Propose candidates from identifiers registers state: across registers, to Corporate Ownership records,\nLEI records and canonical entities (a name alone is never acceptable). Nothing is merged.",
+      "id": "noesis-knowledge-engine.propose_lobbying_identity_matches",
+      "input_schema": {
+        "properties": {
+          "lei_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "ownership_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_lobbying_identity_matches",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:political:lobbying:read",
+        "knowledge:ownership:read",
+        "knowledge:ownership:write",
+        "knowledge:companies:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -53822,6 +54709,89 @@
     },
     {
       "cost_class": "medium",
+      "description": "Revert a reviewed dossier-link decision; explicit register fields cannot be reverted.",
+      "id": "noesis-knowledge-engine.revert_lobbying_dossier_link",
+      "input_schema": {
+        "properties": {
+          "link_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "link_id",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "revert_lobbying_dossier_link",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:political:lobbying:read",
+        "knowledge:political:lobbying:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Undo an accepted or rejected decision; the registrant returns to unmatched and no record changes.",
+      "id": "noesis-knowledge-engine.revert_lobbying_identity_match",
+      "input_schema": {
+        "properties": {
+          "candidate_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "candidate_id",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "revert_lobbying_identity_match",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:ownership:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Undo an accepted or rejected identity decision; both records stay intact and auditable.",
       "id": "noesis-knowledge-engine.revert_ownership_identity_match",
       "input_schema": {
@@ -54616,6 +55586,109 @@
       ],
       "required_scopes": [
         "knowledge:intake:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Accept (a reviewed assertion) or reject a dossier-link candidate with reviewer, evidence and time.",
+      "id": "noesis-knowledge-engine.review_lobbying_dossier_link",
+      "input_schema": {
+        "properties": {
+          "decision": {
+            "type": "string"
+          },
+          "evidence": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "link_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "link_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_lobbying_dossier_link",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:political:lobbying:read",
+        "knowledge:political:lobbying:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Accept or reject a candidate as an identity decision; register records are linked, never rewritten.",
+      "id": "noesis-knowledge-engine.review_lobbying_identity_match",
+      "input_schema": {
+        "properties": {
+          "candidate_id": {
+            "type": "string"
+          },
+          "decision": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "candidate_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_lobbying_identity_match",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:ownership:review"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -56704,6 +57777,52 @@
       ],
       "required_scopes": [
         "knowledge:decision:execute"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Evaluate a monitor at a committed watermark: registrations, deregistrations, spend or client revisions\n(old and new as filed) and meetings, each citing the new and previous register revision.",
+      "id": "noesis-knowledge-engine.run_lobbying_monitor",
+      "input_schema": {
+        "properties": {
+          "subscription_id": {
+            "type": "string"
+          },
+          "watermark": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "run_lobbying_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:political:lobbying:read",
+        "knowledge:ownership:read",
+        "knowledge:subscriptions:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",

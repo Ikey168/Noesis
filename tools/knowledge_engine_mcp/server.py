@@ -9250,6 +9250,12 @@ from tools.knowledge_engine_mcp.sanctions import (  # noqa: E402 - registration 
 
 register_sanctions_tools(mcp, _intake_safe, _intake_context)
 
+from tools.knowledge_engine_mcp.lobbying import (  # noqa: E402 - registration order
+    register as register_lobbying_tools,
+)
+
+register_lobbying_tools(mcp, _intake_safe, _intake_context)
+
 from tools.knowledge_engine_mcp.vulnerabilities import (  # noqa: E402 - registration order
     register as register_vulnerability_tools,
 )
