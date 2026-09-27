@@ -44,6 +44,8 @@ SUPPORTED_CONNECTORS = frozenset(
         "zbmath",
     }
 )
+# Clinical Evidence native connectors (src/ingestion/clinical_providers.py).
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"ctgov", "ctis", "eu-ctr", "openfda", "ema-medicines"})
 AUTH_KINDS = frozenset({"none", "optional-secret", "required-secret"})
 _SEMVER = re.compile(
     r"^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:[-+][0-9A-Za-z.-]+)?$"
@@ -204,6 +206,10 @@ NATIVE_CONNECTOR_MODULES = {
     "oeis": "src.ingestion.math_sources",
     "formal-library": "src.ingestion.math_sources",
 }
+NATIVE_CONNECTOR_MODULES.update({
+    connector: "src.ingestion.clinical_providers"
+    for connector in ("ctgov", "ctis", "eu-ctr", "openfda", "ema-medicines")
+})
 
 
 def native_connector_module(connector: str) -> Any:

@@ -1,0 +1,75 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/schemas/noesis-clinical-record-v1.json",
+  "title": "Noesis Clinical Record v1",
+  "description": "Registered trial (one revision per registry version), arm/intervention, outcome measure, result posting, regulatory record, registry link and review registration. Registration, results posting and publication are distinct kinds; publications are references to documents revisions. Adverse-event figures are reporting counts. No record carries advice, dosing, incidence, causation or a grade.",
+  "type": "object",
+  "required": ["contract", "record_kind", "unknowns"],
+  "properties": {
+    "contract": {"const": "noesis-clinical-record-v1"},
+    "record_kind": {"enum": ["registered-trial", "trial-arm", "outcome-measure", "result-posting", "regulatory-record", "registry-link", "review-registration"]},
+    "unknowns": {"type": "array", "items": {"type": "string"}},
+    "native_version": {"$ref": "#/definitions/native_version"},
+    "source_url": {"type": "string", "pattern": "^https://"}
+  },
+  "not": {"anyOf": [
+    {"required": ["incidence"]}, {"required": ["causation"]}, {"required": ["dose"]}, {"required": ["dosing"]},
+    {"required": ["recommendation"]}, {"required": ["advice"]}, {"required": ["grade"]}
+  ]},
+  "allOf": [
+    {"if": {"properties": {"record_kind": {"const": "registered-trial"}}},
+     "then": {"required": ["registry", "identifier", "source_url", "native_version"],
+              "properties": {
+                "registry": {"enum": ["ctgov", "ctis", "euctr"]},
+                "status": {"type": "object", "properties": {"normalized": {"enum": ["not-yet-recruiting", "recruiting", "enrolling-by-invitation", "active-not-recruiting", "suspended", "terminated", "completed", "withdrawn", "authorised", "ongoing", "ended", "halted", "not-authorised", "unknown"]}}},
+                "phase": {"type": "object", "properties": {"normalized": {"type": "array", "items": {"enum": ["early-phase-1", "phase-1", "phase-2", "phase-3", "phase-4", "not-applicable", "unknown"]}}}},
+                "design": {"type": "object", "properties": {
+                  "allocation": {"enum": ["randomized", "non-randomized", "not-applicable", "unknown"]},
+                  "masking": {"enum": ["none", "single", "double", "triple", "quadruple", "unknown"]},
+                  "enrollment_planned": {"type": ["integer", "null"], "minimum": 0},
+                  "enrollment_actual": {"type": ["integer", "null"], "minimum": 0}}},
+                "secondary_identifiers": {"type": "array", "items": {"type": "object", "required": ["kind", "value"]}}
+              },
+              "not": {"anyOf": [{"required": ["outcome_results"]}, {"required": ["adverse_events"]}, {"required": ["publication"]}]}}},
+    {"if": {"properties": {"record_kind": {"const": "outcome-measure"}}},
+     "then": {"required": ["registry", "identifier", "outcome_key", "measure", "role", "present", "native_version"],
+              "properties": {"role": {"enum": ["primary", "secondary", "other"]}, "present": {"type": "boolean"}}}},
+    {"if": {"properties": {"record_kind": {"const": "trial-arm"}}},
+     "then": {"required": ["registry", "identifier", "arm_key", "label", "present", "native_version"]}},
+    {"if": {"properties": {"record_kind": {"const": "result-posting"}}},
+     "then": {"required": ["registry", "identifier", "posted", "content_acquired", "native_version"],
+              "properties": {"content_acquired": {"type": "boolean"}},
+              "not": {"anyOf": [{"required": ["publication"]}, {"required": ["doi"]}, {"required": ["pmid"]}]}}},
+    {"if": {"properties": {"record_kind": {"const": "regulatory-record"}}},
+     "then": {"required": ["authority", "provider", "regulatory_kind", "native_id", "native_version"],
+              "properties": {"regulatory_kind": {"enum": ["approval", "label-revision", "safety-communication", "adverse-event-summary", "authorisation-status"]},
+                             "counts": {"type": "array", "items": {"type": "object", "required": ["term", "reports"], "additionalProperties": false,
+                                                                    "properties": {"term": {"type": "string"}, "reports": {"type": "integer", "minimum": 0}}}}},
+              "allOf": [
+                {"if": {"properties": {"provider": {"const": "openfda"}}}, "then": {"required": ["disclaimer"], "properties": {"disclaimer": {"type": "object", "required": ["text"]}}}},
+                {"if": {"properties": {"regulatory_kind": {"const": "adverse-event-summary"}}}, "then": {"required": ["counts", "count_semantics"]}}
+              ]}},
+    {"if": {"properties": {"record_kind": {"const": "registry-link"}}},
+     "then": {"required": ["link_kind", "from_record", "to", "evidence_kind", "evidence", "status"],
+              "properties": {"link_kind": {"enum": ["registry-registry", "registry-publication", "registry-review"]},
+                             "evidence_kind": {"enum": ["registry-declared-secondary-id", "registry-declared-reference", "secondary-source-identifier", "paper-family", "abstract-mention", "user-supplied"]},
+                             "status": {"enum": ["accepted", "candidate", "rejected", "target-not-acquired"]}},
+              "allOf": [{"if": {"properties": {"link_kind": {"const": "registry-publication"}}},
+                         "then": {"properties": {"to": {"type": "object", "required": ["document_id", "revision_id"]}}}}]}},
+    {"if": {"properties": {"record_kind": {"const": "review-registration"}}},
+     "then": {"required": ["registry", "identifier", "title", "source", "native_version"],
+              "properties": {"registry": {"const": "prospero"}, "identifier": {"type": "string", "pattern": "^CRD[0-9]{8,14}$"}}}}
+  ],
+  "definitions": {
+    "native_version": {
+      "type": "object",
+      "required": ["basis"],
+      "properties": {
+        "version": {"type": ["string", "null"]},
+        "date": {"type": ["string", "null"], "pattern": "^[0-9]{4}-[0-9]{2}(-[0-9]{2})?$"},
+        "basis": {"enum": ["registry-history", "current-record", "label-version", "revision-number", "observation", "registration"]}
+      },
+      "additionalProperties": false
+    }
+  }
+}

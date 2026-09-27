@@ -1,0 +1,108 @@
+{
+ "study": {
+  "protocolSection": {
+   "identificationModule": {
+    "nctId": "NCT09000002",
+    "orgStudyIdInfo": {
+     "id": "NTG-2002"
+    },
+    "briefTitle": "NOETIC-2: Open-Label Noetiglutide Dose-Finding Study (fixture)",
+    "officialTitle": "An Open-Label, Randomised Phase 2 Study of Noetiglutide in Type 2 Diabetes (fixture)"
+   },
+   "statusModule": {
+    "statusVerifiedDate": "2019-08",
+    "overallStatus": "TERMINATED",
+    "whyStopped": "Sponsor decision (fixture)",
+    "startDateStruct": {
+     "date": "2017-02-01",
+     "type": "ACTUAL"
+    },
+    "primaryCompletionDateStruct": {
+     "date": "2019-06-30",
+     "type": "ACTUAL"
+    },
+    "completionDateStruct": {
+     "date": "2019-06-30",
+     "type": "ACTUAL"
+    },
+    "studyFirstSubmitDate": "2017-04-10",
+    "studyFirstPostDateStruct": {
+     "date": "2017-04-12",
+     "type": "ACTUAL"
+    },
+    "lastUpdatePostDateStruct": {
+     "date": "2019-08-01",
+     "type": "ACTUAL"
+    }
+   },
+   "sponsorCollaboratorsModule": {
+    "leadSponsor": {
+     "name": "Fixture Therapeutics GmbH",
+     "class": "INDUSTRY"
+    }
+   },
+   "descriptionModule": {
+    "briefSummary": "Authored fixture. Terminated; no results were posted."
+   },
+   "conditionsModule": {
+    "conditions": [
+     "Diabetes Mellitus, Type 2"
+    ]
+   },
+   "designModule": {
+    "studyType": "INTERVENTIONAL",
+    "phases": [
+     "PHASE2"
+    ],
+    "designInfo": {
+     "allocation": "RANDOMIZED",
+     "interventionModel": "PARALLEL",
+     "primaryPurpose": "TREATMENT",
+     "maskingInfo": {
+      "masking": "NONE"
+     }
+    },
+    "enrollmentInfo": {
+     "count": 64,
+     "type": "ACTUAL"
+    }
+   },
+   "armsInterventionsModule": {
+    "armGroups": [
+     {
+      "label": "Noetiglutide low",
+      "type": "EXPERIMENTAL",
+      "interventionNames": [
+       "Drug: Noetiglutide"
+      ]
+     },
+     {
+      "label": "Noetiglutide high",
+      "type": "EXPERIMENTAL",
+      "interventionNames": [
+       "Drug: Noetiglutide"
+      ]
+     }
+    ],
+    "interventions": [
+     {
+      "type": "DRUG",
+      "name": "Noetiglutide",
+      "armGroupLabels": [
+       "Noetiglutide low",
+       "Noetiglutide high"
+      ]
+     }
+    ]
+   },
+   "outcomesModule": {
+    "primaryOutcomes": [
+     {
+      "measure": "Change From Baseline in HbA1c",
+      "timeFrame": "Week 12"
+     }
+    ]
+   }
+  }
+ }
+}
