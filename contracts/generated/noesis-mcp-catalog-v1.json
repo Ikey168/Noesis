@@ -899,7 +899,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 728,
+      "tool_count": 745,
       "tools": [
         "noesis-knowledge-engine.accept_awareness_jev_suggestion",
         "noesis-knowledge-engine.accept_citation_repair",
@@ -917,6 +917,7 @@
         "noesis-knowledge-engine.acquire_cultural_assets",
         "noesis-knowledge-engine.acquire_funding_source",
         "noesis-knowledge-engine.acquire_opencitations",
+        "noesis-knowledge-engine.acquire_ownership_sources",
         "noesis-knowledge-engine.acquire_product_documents",
         "noesis-knowledge-engine.add_paper_family_member",
         "noesis-knowledge-engine.add_review_candidate",
@@ -957,6 +958,7 @@
         "noesis-knowledge-engine.branch_research_project",
         "noesis-knowledge-engine.build_funding_shortlist",
         "noesis-knowledge-engine.build_intake_creation_artifact",
+        "noesis-knowledge-engine.build_ownership_dossier",
         "noesis-knowledge-engine.build_research_package",
         "noesis-knowledge-engine.build_review_annotation_dataset",
         "noesis-knowledge-engine.calculate_decision_sensitivity",
@@ -1108,6 +1110,7 @@
         "noesis-knowledge-engine.export_legislative_dossier_changes",
         "noesis-knowledge-engine.export_modulo_intake_handoff",
         "noesis-knowledge-engine.export_openreview_round_comparison",
+        "noesis-knowledge-engine.export_ownership_dossier",
         "noesis-knowledge-engine.export_paper_family",
         "noesis-knowledge-engine.export_practice_pack",
         "noesis-knowledge-engine.export_preserved_citations",
@@ -1224,6 +1227,7 @@
         "noesis-knowledge-engine.inspect_oeis_sequence",
         "noesis-knowledge-engine.inspect_openreview_round",
         "noesis-knowledge-engine.inspect_openreview_round_set",
+        "noesis-knowledge-engine.inspect_ownership_record",
         "noesis-knowledge-engine.inspect_paper_family",
         "noesis-knowledge-engine.inspect_patent_publication",
         "noesis-knowledge-engine.inspect_persistent_research_loop",
@@ -1285,6 +1289,7 @@
         "noesis-knowledge-engine.list_maintenance_due_work",
         "noesis-knowledge-engine.list_maintenance_jobs",
         "noesis-knowledge-engine.list_methodology_limitations",
+        "noesis-knowledge-engine.list_ownership_identity_candidates",
         "noesis-knowledge-engine.list_research_analysis_runs",
         "noesis-knowledge-engine.list_research_gap_tasks",
         "noesis-knowledge-engine.list_research_gaps",
@@ -1297,6 +1302,7 @@
         "noesis-knowledge-engine.list_source_packs",
         "noesis-knowledge-engine.list_zotero_items",
         "noesis-knowledge-engine.lookup_legal_work",
+        "noesis-knowledge-engine.lookup_ownership_entity",
         "noesis-knowledge-engine.lookup_product_models",
         "noesis-knowledge-engine.lookup_source_identity",
         "noesis-knowledge-engine.maintenance_generation_lineage",
@@ -1307,6 +1313,12 @@
         "noesis-knowledge-engine.merge_canonical_events",
         "noesis-knowledge-engine.multilingual_search",
         "noesis-knowledge-engine.openreview_concern_review_target",
+        "noesis-knowledge-engine.ownership_bundle_status",
+        "noesis-knowledge-engine.ownership_graph",
+        "noesis-knowledge-engine.ownership_provider_contracts",
+        "noesis-knowledge-engine.ownership_record_history",
+        "noesis-knowledge-engine.ownership_state_as_of",
+        "noesis-knowledge-engine.ownership_timeline",
         "noesis-knowledge-engine.patent_family_members",
         "noesis-knowledge-engine.patent_links",
         "noesis-knowledge-engine.patent_source_contracts",
@@ -1358,6 +1370,7 @@
         "noesis-knowledge-engine.propose_intake_report_revision",
         "noesis-knowledge-engine.propose_lei_registry_links",
         "noesis-knowledge-engine.propose_math_links",
+        "noesis-knowledge-engine.propose_ownership_identity_matches",
         "noesis-knowledge-engine.propose_patent_link",
         "noesis-knowledge-engine.propose_problem_action",
         "noesis-knowledge-engine.propose_product_matches",
@@ -1381,6 +1394,7 @@
         "noesis-knowledge-engine.record_math_object",
         "noesis-knowledge-engine.record_media_transformation",
         "noesis-knowledge-engine.record_multilingual_alias",
+        "noesis-knowledge-engine.record_ownership_register_document",
         "noesis-knowledge-engine.record_problem_step",
         "noesis-knowledge-engine.record_quantitative_observation",
         "noesis-knowledge-engine.record_quantitative_series_break",
@@ -1471,6 +1485,7 @@
         "noesis-knowledge-engine.retry_maintenance_job",
         "noesis-knowledge-engine.retry_source_pack_quarantine",
         "noesis-knowledge-engine.reverse_event_merge",
+        "noesis-knowledge-engine.revert_ownership_identity_match",
         "noesis-knowledge-engine.review_certificate_product_link",
         "noesis-knowledge-engine.review_change_brief",
         "noesis-knowledge-engine.review_company_identity_link",
@@ -1484,6 +1499,7 @@
         "noesis-knowledge-engine.review_intake_iteration_stability",
         "noesis-knowledge-engine.review_math_link",
         "noesis-knowledge-engine.review_multilingual_alias",
+        "noesis-knowledge-engine.review_ownership_identity_match",
         "noesis-knowledge-engine.review_paper_family_notice_target",
         "noesis-knowledge-engine.review_paper_family_relation",
         "noesis-knowledge-engine.review_patent_link",
@@ -1542,6 +1558,7 @@
         "noesis-knowledge-engine.set_cited_evidence_subscription_status",
         "noesis-knowledge-engine.set_funding_bundle_enabled",
         "noesis-knowledge-engine.set_maintenance_schedule_paused",
+        "noesis-knowledge-engine.set_ownership_bundle_enabled",
         "noesis-knowledge-engine.set_research_package_trust_policy",
         "noesis-knowledge-engine.set_source_pack_enabled",
         "noesis-knowledge-engine.set_source_pack_schedule",
@@ -1635,7 +1652,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 728
+      "visible_tool_count": 745
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -1646,11 +1663,11 @@
     },
     "servers": 30,
     "states": {
-      "available": 102,
+      "available": 104,
       "degraded": 158,
-      "unauthorized": 774
+      "unauthorized": 789
     },
-    "tools": 1034
+    "tools": 1051
   },
   "tools": [
     {
@@ -19329,6 +19346,58 @@
     },
     {
       "cost_class": "medium",
+      "description": "Bounded live acquisition of the installed corporate-ownership source pack through the source runtime.",
+      "id": "noesis-knowledge-engine.acquire_ownership_sources",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "run_key": {
+            "type": "string"
+          },
+          "source_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "run_key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "acquire_ownership_sources",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:ownership:write",
+        "knowledge:ingestion:execute"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Fetch provider-linked datasheets/information sheets of one variant within the pack's document policy.",
       "id": "noesis-knowledge-engine.acquire_product_documents",
       "input_schema": {
@@ -21996,6 +22065,73 @@
       ],
       "required_scopes": [
         "knowledge:intake:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "An explained, pinned ownership dossier for one identifier, with conflicts and unknowns visible.",
+      "id": "noesis-knowledge-engine.build_ownership_dossier",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "evidence_kind": {
+            "default": "unspecified",
+            "type": "string"
+          },
+          "known_at_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "scheme": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "scheme",
+          "value"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "build_ownership_dossier",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:ownership:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -29988,6 +30124,67 @@
       "version": "1"
     },
     {
+      "cost_class": "medium",
+      "description": "Save the dossier as an authored report with one citation per source record revision.",
+      "id": "noesis-knowledge-engine.export_ownership_dossier",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "evidence_kind": {
+            "default": "unspecified",
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "request_key": {
+            "type": "string"
+          },
+          "scheme": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "scheme",
+          "value",
+          "request_key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "export_ownership_dossier",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:ownership:read",
+        "knowledge:reports:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "low",
       "description": "Export selected bibliography entries and version-specific lifecycle history.",
       "id": "noesis-knowledge-engine.export_paper_family",
@@ -35194,6 +35391,54 @@
     },
     {
       "cost_class": "low",
+      "description": "One ownership record revision with its source, locator and unknowns.",
+      "id": "noesis-knowledge-engine.inspect_ownership_record",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "record_id": {
+            "type": "string"
+          },
+          "revision": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "record_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "inspect_ownership_record",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:ownership:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Inspect a bounded family page with exact source versions and access types.",
       "id": "noesis-knowledge-engine.inspect_paper_family",
       "input_schema": {
@@ -37956,6 +38201,61 @@
       "version": "1"
     },
     {
+      "cost_class": "low",
+      "description": "Identity candidates with basis, evidence, confidence, state and the recorded decision.",
+      "id": "noesis-knowledge-engine.list_ownership_identity_candidates",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "record_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "state": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_ownership_identity_candidates",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:ownership:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "medium",
       "description": "Page through persisted runs for a registered analysis.",
       "id": "noesis-knowledge-engine.list_research_analysis_runs",
@@ -38567,6 +38867,47 @@
     },
     {
       "cost_class": "low",
+      "description": "Entities carrying an identifier (lei, gb-coh, sec-cik, ...) or name|country candidates (never a pick).",
+      "id": "noesis-knowledge-engine.lookup_ownership_entity",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "scheme": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "scheme",
+          "value"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "lookup_ownership_entity",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:ownership:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Find product variants by brand, exact designation, GTIN or text, with identifier conflicts and matches.",
       "id": "noesis-knowledge-engine.lookup_product_models",
       "input_schema": {
@@ -39009,6 +39350,303 @@
       ],
       "required_scopes": [
         "knowledge:openreview:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Declared contributions plus per-provider record presence, live-verification state and readiness.",
+      "id": "noesis-knowledge-engine.ownership_bundle_status",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "ownership_bundle_status",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:ownership:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "direct_parents / ultimate_parents / subsidiaries / control_chain / successor_chain as of a date.",
+      "id": "noesis-knowledge-engine.ownership_graph",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "entity": {
+            "type": "string"
+          },
+          "known_at_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "max_depth": {
+            "default": 10,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "query": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "query",
+          "entity"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "ownership_graph",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:ownership:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Per-provider access contracts, identifiers carried, not-implemented registers and live-verification state.",
+      "id": "noesis-knowledge-engine.ownership_provider_contracts",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "ownership_provider_contracts",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Every revision of an ownership record with run and observation time.",
+      "id": "noesis-knowledge-engine.ownership_record_history",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "record_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "record_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "ownership_record_history",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:ownership:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Registration, officers and ownership in force at a date, from revisions known at a record time.",
+      "id": "noesis-knowledge-engine.ownership_state_as_of",
+      "input_schema": {
+        "properties": {
+          "date": {
+            "type": "string"
+          },
+          "entity": {
+            "type": "string"
+          },
+          "known_at_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "entity",
+          "date"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "ownership_state_as_of",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:ownership:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Cited registrations, officers, ownership changes, filings, market corporate actions and temporal assertions.",
+      "id": "noesis-knowledge-engine.ownership_timeline",
+      "input_schema": {
+        "properties": {
+          "entity": {
+            "type": "string"
+          },
+          "known_at_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "market_acquired_by_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "market_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "security_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "entity"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "ownership_timeline",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:ownership:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -41564,6 +42202,72 @@
     },
     {
       "cost_class": "medium",
+      "description": "Propose reviewable identity candidates (exact, cross-referenced, name+jurisdiction); nothing is merged.",
+      "id": "noesis-knowledge-engine.propose_ownership_identity_matches",
+      "input_schema": {
+        "properties": {
+          "as_of_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "lei_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "market_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_ownership_identity_matches",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:ownership:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "A reviewable candidate link from a publication to an organization, standard or scholarly work.",
       "id": "noesis-knowledge-engine.propose_patent_link",
       "input_schema": {
@@ -42992,6 +43696,93 @@
       ],
       "required_scopes": [
         "knowledge:cross-language:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Record a registration from an official register document the user obtained (no register is scraped).",
+      "id": "noesis-knowledge-engine.record_ownership_register_document",
+      "input_schema": {
+        "properties": {
+          "document": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "jurisdiction": {
+            "type": "string"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "number": {
+            "type": "string"
+          },
+          "provider": {
+            "type": "string"
+          },
+          "register": {
+            "type": "string"
+          },
+          "registered_on": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "provider",
+          "register",
+          "number",
+          "jurisdiction",
+          "document"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "record_ownership_register_document",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:ownership:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -49053,6 +49844,47 @@
     },
     {
       "cost_class": "medium",
+      "description": "Undo an accepted or rejected identity decision; both records stay intact and auditable.",
+      "id": "noesis-knowledge-engine.revert_ownership_identity_match",
+      "input_schema": {
+        "properties": {
+          "candidate_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "candidate_id",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "revert_ownership_identity_match",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:ownership:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Accept or reject a certificate-to-product candidate link.",
       "id": "noesis-knowledge-engine.review_certificate_product_link",
       "input_schema": {
@@ -49680,6 +50512,51 @@
       ],
       "required_scopes": [
         "knowledge:cross-language:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Accept or reject a candidate as an entity identity decision (match / non-match).",
+      "id": "noesis-knowledge-engine.review_ownership_identity_match",
+      "input_schema": {
+        "properties": {
+          "candidate_id": {
+            "type": "string"
+          },
+          "decision": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "candidate_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_ownership_identity_match",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:ownership:review"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -53162,6 +54039,43 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Enable/disable Corporate Ownership (a coordinator selection change once composed); shared providers stay.",
+      "id": "noesis-knowledge-engine.set_ownership_bundle_enabled",
+      "input_schema": {
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "enabled"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "set_ownership_bundle_enabled",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "operator"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
       "version": "1"
     },
     {

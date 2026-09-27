@@ -1,0 +1,134 @@
+{
+  "pack_format": "noesis-pack-composition-v1",
+  "id": "corporate-ownership",
+  "version": "0.1.0",
+  "description": "Corporate Ownership and Registries: from an explicit company identifier to a source-cited ownership dossier over GLEIF Level 2, UK Companies House, SEC EDGAR and Open Ownership BODS, reusing market.lei, entity identity, the source runtime and authored reports.",
+  "contributes": {
+    "capabilities": [
+      {
+        "id": "ownership.records",
+        "provider": "ownership.core",
+        "contract": {
+          "name": "noesis-ownership-record",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "ownership.identity",
+        "provider": "ownership.core",
+        "contract": {
+          "name": "noesis-ownership-identity-candidate",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "ownership.graph",
+        "provider": "ownership.core",
+        "contract": {
+          "name": "noesis-ownership-graph",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "ownership.timeline",
+        "provider": "ownership.core",
+        "contract": {
+          "name": "noesis-ownership-timeline",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "ownership.dossier",
+        "provider": "ownership.core",
+        "contract": {
+          "name": "noesis-ownership-dossier",
+          "version": "1.0.0"
+        }
+      }
+    ],
+    "providers": [
+      {
+        "id": "ownership.core",
+        "version": "1.0.0"
+      }
+    ],
+    "profiles": [
+      {
+        "id": "ownership.analyst",
+        "description": "Registry vocabulary; assertions are source statements, not determinations",
+        "vocabulary": {
+          "assertion": "source-stated ownership or control",
+          "entity": "source record group"
+        }
+      }
+    ]
+  },
+  "requires": [
+    {
+      "capability": "ownership.records",
+      "contract": "noesis-ownership-record",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "ownership.identity",
+      "contract": "noesis-ownership-identity-candidate",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "ownership.graph",
+      "contract": "noesis-ownership-graph",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "ownership.timeline",
+      "contract": "noesis-ownership-timeline",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "ownership.dossier",
+      "contract": "noesis-ownership-dossier",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "market.legal-entities",
+      "contract": "noesis-lei-part",
+      "range": "^1.0.0",
+      "reason": "LEI Level 1/Level 2 records stay in the market.lei owner"
+    },
+    {
+      "capability": "platform.entity-identity",
+      "contract": "noesis-entity-identity-decision",
+      "range": "^1.0.0",
+      "reason": "shared provider reused, never duplicated"
+    },
+    {
+      "capability": "platform.source-acquisition",
+      "contract": "noesis-source-acquisition",
+      "range": "^1.0.0",
+      "reason": "shared provider reused, never duplicated"
+    },
+    {
+      "capability": "platform.authored-reports",
+      "contract": "noesis-authored-report",
+      "range": "^1.0.0",
+      "reason": "shared provider reused, never duplicated"
+    }
+  ],
+  "compatibility_aliases": {
+    "ownership": "corporate-ownership"
+  },
+  "advisory": {
+    "never": [
+      "infer beneficial ownership",
+      "make sanctions or AML determinations",
+      "merge entities automatically",
+      "scrape registers whose terms or access forbid it"
+    ]
+  },
+  "content_hash": "sha256:37e635313e7bfe0ddc48996df1d2e2eb9eecc20168b5a0e08ec0979ffd209650"
+}

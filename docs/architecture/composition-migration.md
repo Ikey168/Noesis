@@ -37,6 +37,7 @@ and `::test_shadow_diff_is_annotated_for_every_migrated_bundle`.
 | products | `products.core` | v1 manifest unchanged | shadow report |
 | energy | none: its v1 capabilities have no implementation and stay declared but unbound | v1 manifest unchanged | `test_capabilities_without_an_implementation_stay_unbound` |
 | funding-grants | `funding.core` plus the shared `platform.*` providers | authored natively (`packs/funding-grants/manifest.json`); alias `funding` | `test_funding_manifest_resolves_to_its_own_provider_plus_shared_providers`, `test_disabling_funding_is_a_selection_change_that_keeps_shared_providers` |
+| corporate-ownership | `ownership.core` plus `market.lei`, `platform.entity-identity`, `platform.source-runtime` and `platform.authored-reports` | authored natively (`packs/corporate-ownership/manifest.json`); alias `ownership` | `test_ownership_manifest_resolves_to_its_own_provider_plus_shared_providers`, `test_disabling_ownership_is_a_selection_change_that_keeps_shared_providers` |
 
 Legacy v1 capability names stay declared with `legacy.<bundle>.<name>`
 contracts and are never bound. Binding happens only through capabilities a
@@ -60,6 +61,7 @@ projector introduces a store. Evidence:
 | `noesis-lei-part-v1` | `src.kb.lei` | `market.lei` | `economic-statistics-and-filings` |
 | `noesis-standard-catalogue-v1` | `src.kb.standards` | `technology.standards` | `technical-software-knowledge` |
 | `noesis-math-record-v1` | `src.kb.mathematics` | `science.mathematics` | `research-discovery` |
+| `noesis-ownership-part-v1` | `src.kb.ownership_store` | `ownership.core` | `corporate-ownership` |
 
 Music remains a possible future bundle and is neither migrated nor scaffolded.
 

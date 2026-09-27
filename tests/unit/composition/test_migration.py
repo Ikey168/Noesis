@@ -31,6 +31,7 @@ PROJECTOR_OWNERS = {
     "noesis-standard-catalogue-v1": "src.kb.standards",
     "noesis-transit-feed-v1": "src.kb.transit",
     "noesis-math-record-v1": "src.kb.mathematics",
+    "noesis-ownership-part-v1": "src.kb.ownership_store",
 }
 
 
@@ -190,3 +191,53 @@ def test_no_retired_legacy_path_changes_enabled_state_independently_of_the_coord
     with pytest.raises(funding_bundle.BundleError):
         funding_bundle.set_enabled(conn, "ns", not before, principal_id="analyst", scopes={"knowledge:read"})
     assert funding_bundle.is_enabled(conn, "ns") == before
+
+
+# ------------------------------------------------------------ corporate ownership (#1860)
+
+
+def test_ownership_manifest_resolves_to_its_own_provider_plus_shared_providers(isolated_registry):
+    from src.kb import ownership_bundle
+
+    manifest = json.loads((ROOT / "packs/corporate-ownership/manifest.json").read_text())
+    assert validate_composition_manifest(manifest) == []
+    _, coordinator, _, _ = _migrated()
+    plan = coordinator.active()["plan"]
+    bound = {(b["capability"], b["provider"]) for b in plan["bindings"] if "corporate-ownership" in b["consumers"]}
+    assert {p for _, p in bound} == {"ownership.core", "market.lei", "platform.entity-identity",
+                                     "platform.source-runtime", "platform.authored-reports"}
+    assert ("market.legal-entities", "market.lei") in bound  # LEI records stay with their owner
+    stores = {}
+    for descriptor in provider_descriptors():
+        for store in descriptor["stores"]:
+            stores.setdefault(store["record_type"], []).append(descriptor["id"])
+    assert all(len(owners) == 1 for owners in stores.values())  # one authority per store
+    owned = {s["store"] for d in provider_descriptors() if d["id"] == "ownership.core" for s in d["stores"]}
+    assert owned == {"src.kb.ownership_store", "src.kb.ownership_identity"}  # no second entity or LEI store
+    assert ownership_bundle.BUNDLE["architecture"]["manifest"] == "packs/corporate-ownership/manifest.json"
+
+
+def test_disabling_ownership_is_a_selection_change_that_keeps_shared_providers(isolated_registry):
+    from src.kb import ownership_bundle
+
+    conn, coordinator, _, _ = _migrated()
+    assert ownership_bundle.is_enabled(conn, "ownership")
+    status = ownership_bundle.readiness(conn, "ownership", scopes={"operator", "knowledge:ownership:read"})
+    assert {o["provider"] for o in status["composition"]["operations"]} >= {"ownership.core", "market.lei"}
+    result = ownership_bundle.set_enabled(conn, "ownership", False, principal_id="operator", scopes={"operator"})
+    assert result["authority"] == "composition-coordinator" and result["enabled"] is False
+    assert result["receipt"]  # activation receipt for the selection change
+    assert not conn.execute("SELECT 1 FROM information_schema.tables WHERE table_name='ownership_bundle_state'").fetchone()
+    plan = coordinator.active()["plan"]
+    assert "corporate-ownership" not in {p["id"] for p in plan["packs"]}
+    lei = next(b for b in plan["bindings"] if b["capability"] == "market.legal-entities")
+    assert "market" in lei["consumers"]  # the market bundle keeps its LEI provider
+    assert {d["id"] for d in coordinator.installed("provider")} >= {
+        "platform.entity-identity", "platform.source-runtime", "platform.authored-reports", "market.lei"}
+    from src.kb.entity_history import EntityHistoryStore
+    from src.kb.lei import LeiStore
+
+    LeiStore(conn)
+    EntityHistoryStore(conn)  # shared owners still initialize and serve
+    again = ownership_bundle.set_enabled(conn, "ownership", True, principal_id="operator", scopes={"operator"})
+    assert again["enabled"] is True and again["receipt"]
