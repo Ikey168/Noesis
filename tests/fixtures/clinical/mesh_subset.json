@@ -1,0 +1,93 @@
+{
+ "note": "Authored subset in the shape of MeSH descriptor records; identifiers and tree numbers are believed to match MeSH but were not verified in this environment.",
+ "version": "2026.0.0",
+ "descriptors": [
+  {
+   "ui": "D004700",
+   "name": "Endocrine System Diseases",
+   "tree_numbers": [
+    "C19"
+   ],
+   "entry_terms": [],
+   "scope_note": "Pathological processes of the endocrine glands."
+  },
+  {
+   "ui": "D008659",
+   "name": "Metabolic Diseases",
+   "tree_numbers": [
+    "C18.452"
+   ],
+   "entry_terms": [],
+   "scope_note": "Generic term for diseases caused by an abnormal metabolic process."
+  },
+  {
+   "ui": "D044882",
+   "name": "Glucose Metabolism Disorders",
+   "tree_numbers": [
+    "C18.452.394"
+   ],
+   "entry_terms": [],
+   "scope_note": "Pathological conditions in which glucose metabolism is abnormal."
+  },
+  {
+   "ui": "D003920",
+   "name": "Diabetes Mellitus",
+   "tree_numbers": [
+    "C18.452.394.750",
+    "C19.246"
+   ],
+   "entry_terms": [],
+   "scope_note": "A heterogeneous group of disorders characterized by hyperglycemia and glucose intolerance."
+  },
+  {
+   "ui": "D003924",
+   "name": "Diabetes Mellitus, Type 2",
+   "tree_numbers": [
+    "C18.452.394.750.149",
+    "C19.246.300"
+   ],
+   "entry_terms": [
+    "Type 2 Diabetes",
+    "Type 2 Diabetes Mellitus",
+    "Diabetes Mellitus, Noninsulin-Dependent",
+    "NIDDM"
+   ],
+   "scope_note": "A subclass of diabetes mellitus that is not insulin-responsive."
+  },
+  {
+   "ui": "D003922",
+   "name": "Diabetes Mellitus, Type 1",
+   "tree_numbers": [
+    "C18.452.394.750.124",
+    "C19.246.267"
+   ],
+   "entry_terms": [
+    "Type 1 Diabetes",
+    "Insulin-Dependent Diabetes Mellitus"
+   ],
+   "scope_note": "A subtype of diabetes mellitus characterized by insulin deficiency."
+  },
+  {
+   "ui": "D008687",
+   "name": "Metformin",
+   "tree_numbers": [
+    "D02.078.370.141.450"
+   ],
+   "entry_terms": [
+    "Metformin HCl"
+   ],
+   "scope_note": "A biguanide hypoglycemic agent."
+  },
+  {
+   "ui": "D010919",
+   "name": "Placebos",
+   "tree_numbers": [
+    "D26.660"
+   ],
+   "entry_terms": [
+    "Placebo"
+   ],
+   "scope_note": "Any dummy medication or treatment."
+  }
+ ]
+}

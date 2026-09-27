@@ -18,7 +18,7 @@
         "required": ["source_id", "connector", "endpoint", "publisher", "scope", "license", "update_cadence", "temporal_semantics", "mapping", "extractor_versions", "schedule", "budgets", "auth", "fixture", "health", "operations", "source_hash"],
         "properties": {
           "source_id": {"type": "string", "minLength": 1},
-          "connector": {"enum": ["berlin-law", "blog", "cellar", "dataset", "ddb", "declarative-rest", "epo-ops", "eprel", "europeana", "filings", "formal-library", "geojson", "git", "gleif", "gtfs", "icecat", "iso-open-data", "manifest", "oeis", "package-registry", "paper", "rii", "web", "wfs", "zbmath"]},
+          "connector": {"enum": ["berlin-law", "blog", "bods", "cellar", "companies-house", "ctgov", "ctis", "dataset", "ddb", "declarative-rest", "ema-medicines", "epo-ops", "eprel", "eu-ctr", "europeana", "filings", "formal-library", "geojson", "git", "gleif", "gtfs", "icecat", "iso-open-data", "manifest", "ocds", "oeis", "openfda", "package-registry", "paper", "rii", "sam-gov", "sec-edgar-ownership", "ted", "web", "wfs", "zbmath"]},
           "wfs": {
             "type": "object",
             "description": "Pinned WFS 2.0.0 GetFeature contract; required for the wfs connector.",
@@ -36,6 +36,12 @@
           "geospatial": {
             "type": "object",
             "description": "Feature projection settings for wfs/geojson sources (namespace, geometry types, precision, attribution)."
+          },
+          "clinical": {
+            "type": "object",
+            "description": "Clinical Evidence selection: the namespace records belong to plus pinned NCT/EU CT/EudraCT numbers, openFDA products or EMA product numbers (1-50), or one bounded ClinicalTrials.gov query.",
+            "required": ["namespace"],
+            "properties": {"namespace": {"type": "string", "minLength": 1}, "nct_ids": {"type": "array", "maxItems": 50, "items": {"type": "string", "pattern": "^NCT[0-9]{8}$"}}, "history": {"type": "boolean"}, "max_versions": {"type": "integer", "minimum": 1, "maximum": 40}, "query": {"type": "object"}, "page_size": {"type": "integer", "minimum": 1, "maximum": 100}, "ct_numbers": {"type": "array", "maxItems": 50, "items": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{6}-[0-9]{2}-[0-9]{2}$"}}, "eudract_numbers": {"type": "array", "maxItems": 50, "items": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{6}-[0-9]{2}$"}}, "products": {"type": "array", "maxItems": 50, "items": {"type": "object"}}, "endpoints": {"type": "array", "items": {"enum": ["label", "drugsfda", "event-counts"]}}, "event_count_field": {"type": "string"}, "max_labels": {"type": "integer", "minimum": 1, "maximum": 10}, "export_path": {"type": "string"}, "product_numbers": {"type": "array", "maxItems": 50, "items": {"type": "string", "pattern": "^EMEA/H/C/[0-9]{6}$"}}}
           },
           "zbmath": {
             "type": "object",
@@ -67,6 +73,18 @@
             "required": ["selection"],
             "properties": {"namespace": {"type": "string", "minLength": 1}, "selection": {"type": "object"}}
           },
+          "procurement": {
+            "type": "object",
+            "description": "Bounded public-procurement selection (ted, ocds, sam-gov): the provider, one pinned query or parameter window, page size and the target namespace.",
+            "required": ["provider"],
+            "properties": {
+              "provider": {"enum": ["ted", "uk-fts", "uk-cf", "sam-gov"]},
+              "namespace": {"type": "string", "minLength": 1},
+              "query": {"type": "string", "minLength": 1, "maxLength": 2000},
+              "params": {"type": "object", "additionalProperties": {"type": "string"}},
+              "page_size": {"type": "integer", "minimum": 1, "maximum": 1000}
+            }
+          },
           "lei": {
             "type": "object",
             "description": "Bounded GLEIF selection: 1-50 LEIs and the parts to read (record, parent relationships, reporting exceptions).",
@@ -74,6 +92,20 @@
             "properties": {
               "namespace": {"type": "string", "minLength": 1},
               "leis": {"type": "array", "minItems": 1, "maxItems": 50, "items": {"type": "string", "pattern": "^[0-9A-Z]{18}[0-9]{2}$"}}
+            }
+          },
+          "ownership": {
+            "type": "object",
+            "description": "Bounded corporate-ownership selection: the namespace records project into, 1-25 company numbers (companies-house), 1-25 CIKs plus selected filing documents (sec-edgar-ownership) or 1-10 BODS statement files (bods), and the source's live-verification state.",
+            "properties": {
+              "namespace": {"type": "string", "minLength": 1},
+              "companies": {"type": "array", "maxItems": 25, "items": {"type": "string", "pattern": "^[A-Z0-9]{8}$"}},
+              "parts": {"type": "array", "items": {"type": "string"}},
+              "ciks": {"type": "array", "maxItems": 25, "items": {"type": "string", "pattern": "^[0-9]{1,10}$"}},
+              "filings": {"type": "array", "maxItems": 25, "items": {"type": "object", "required": ["cik", "accession", "document"]}},
+              "max_filings": {"type": "integer", "minimum": 1, "maximum": 1000},
+              "files": {"type": "array", "maxItems": 10, "items": {"type": "string", "pattern": "^/"}},
+              "live_verification": {"type": "string"}
             }
           },
           "patent": {

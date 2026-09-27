@@ -9224,6 +9224,26 @@ from tools.knowledge_engine_mcp.mathematics import register as register_math_too
 
 register_math_tools(mcp, _intake_safe, _intake_context)
 
+from tools.knowledge_engine_mcp.clinical import register as register_clinical_tools
+
+register_clinical_tools(mcp, _intake_safe, _intake_context)
+
+from tools.knowledge_engine_mcp.ownership import register as register_ownership_tools
+
+register_ownership_tools(mcp, _intake_safe, _intake_context)
+
+from tools.knowledge_engine_mcp.procurement import (
+    register as register_procurement_tools,
+)
+
+register_procurement_tools(mcp, _intake_safe, _intake_context)
+
+from tools.knowledge_engine_mcp.environment import (
+    register as register_environment_tools,
+)
+
+register_environment_tools(mcp, _intake_safe, _intake_context)
+
 
 if __name__ == "__main__":
     from src.mcp_host.transport import run_server

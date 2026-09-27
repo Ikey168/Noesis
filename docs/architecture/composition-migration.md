@@ -35,8 +35,17 @@ and `::test_shadow_diff_is_annotated_for_every_migrated_bundle`.
 | political | `political.core` | v1 manifest plus code pack merged | shadow report |
 | technology (legacy `technical`) | `technology.core`, `technology.patents`, `technology.standards` | alias `technical` | shadow report |
 | products | `products.core` | v1 manifest unchanged | shadow report |
-| energy | none: its v1 capabilities have no implementation and stay declared but unbound | v1 manifest unchanged | `test_capabilities_without_an_implementation_stay_unbound` |
 | funding-grants | `funding.core` plus the shared `platform.*` providers | authored natively (`packs/funding-grants/manifest.json`); alias `funding` | `test_funding_manifest_resolves_to_its_own_provider_plus_shared_providers`, `test_disabling_funding_is_a_selection_change_that_keeps_shared_providers` |
+| corporate-ownership | `ownership.core` plus `market.lei`, `platform.entity-identity`, `platform.source-runtime` and `platform.authored-reports` | authored natively (`packs/corporate-ownership/manifest.json`); alias `ownership` | `test_ownership_manifest_resolves_to_its_own_provider_plus_shared_providers`, `test_disabling_ownership_is_a_selection_change_that_keeps_shared_providers` |
+| procurement | `procurement.core`; binds `funding.core` (reused capabilities, re-exported so neither bundle is the other's dependency root), `market.lei` and shared `platform.*` providers | authored natively (`packs/procurement/manifest.json`); alias `public-procurement` | `tests/unit/composition/test_procurement_composition.py` |
+| climate-environment | `environment.core` plus the shared `geospatial.core`, `geospatial.transit`, `market.lei`, `platform.source-runtime` and `platform.subscriptions` providers | authored natively (`packs/climate-environment/manifest.json`); alias `environment`; ships the `climate-environment` source pack and the `geospatial-berlin` 1.2.0 upgrade (Umweltatlas) | `test_climate_environment_manifest_resolves_to_its_own_provider_plus_shared_providers`, `test_disabling_climate_environment_is_a_selection_change_that_keeps_geospatial` |
+
+The `energy` example pack was retired on 2026-09-26: it declared no capability
+that any provider implemented (a keyword enricher, a panel and a provisioning
+template only), so `packs/energy/pack.json` was removed rather than composed.
+`test_every_bundle_adapts_and_round_trips_to_its_v1_registration` asserts it no
+longer adapts. Energy coverage belongs to the Climate and Environment bundle tracked in
+[#1849](https://github.com/Ikey168/Noesis/issues/1849).
 
 Legacy v1 capability names stay declared with `legacy.<bundle>.<name>`
 contracts and are never bound. Binding happens only through capabilities a
@@ -60,6 +69,8 @@ projector introduces a store. Evidence:
 | `noesis-lei-part-v1` | `src.kb.lei` | `market.lei` | `economic-statistics-and-filings` |
 | `noesis-standard-catalogue-v1` | `src.kb.standards` | `technology.standards` | `technical-software-knowledge` |
 | `noesis-math-record-v1` | `src.kb.mathematics` | `science.mathematics` | `research-discovery` |
+| `noesis-ownership-part-v1` | `src.kb.ownership_store` | `ownership.core` | `corporate-ownership` |
+| `noesis-procurement-record-v1` | `src.kb.procurement_notices` | `procurement.core` | `procurement` |
 
 Music remains a possible future bundle and is neither migrated nor scaffolded.
 
@@ -71,3 +82,4 @@ Music remains a possible future bundle and is neither migrated nor scaffolded.
 | `src/domains/pack_install.py` `install_manifest`/`uninstall` | The legacy installer for non-composed manifests; it refuses composition-managed names. | lifecycle coordinator |
 | `src/mcp_host/catalog.py` `_server_pack` / `_required_data` tables | The generated catalog artifact (`contracts/generated/noesis-mcp-catalog-v1.json`) is built without a deployment's active plan, and unbound tools have no descriptor. The tables are the fallback, never an authority. | MCP catalog |
 | `src/kb/funding_bundle.py` per-namespace flag | The authority only until Funding & Grants is cut over. Afterwards `set_enabled` routes to the coordinator and the flag is never written. | lifecycle coordinator |
+| `src/kb/environment_bundle.py` per-namespace flag | Same rule for Climate and Environment: the authority only until the bundle is cut over; afterwards `set_enabled` is a coordinator selection change. | lifecycle coordinator |

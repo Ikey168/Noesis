@@ -19,10 +19,13 @@ SUPPORTED_CONNECTORS = frozenset(
     {
         "berlin-law",
         "blog",
+        "bods",
+        "companies-house",
         "cellar",
         "dataset",
         "ddb",
         "declarative-rest",
+        "environment",
         "epo-ops",
         "eprel",
         "europeana",
@@ -39,11 +42,14 @@ SUPPORTED_CONNECTORS = frozenset(
         "package-registry",
         "paper",
         "rii",
+        "sec-edgar-ownership",
         "web",
         "wfs",
         "zbmath",
     }
 )
+# Clinical Evidence native connectors (src/ingestion/clinical_providers.py).
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"ctgov", "ctis", "eu-ctr", "openfda", "ema-medicines"})
 AUTH_KINDS = frozenset({"none", "optional-secret", "required-secret"})
 _SEMVER = re.compile(
     r"^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:[-+][0-9A-Za-z.-]+)?$"
@@ -203,7 +209,22 @@ NATIVE_CONNECTOR_MODULES = {
     "zbmath": "src.ingestion.math_sources",
     "oeis": "src.ingestion.math_sources",
     "formal-library": "src.ingestion.math_sources",
+    # Corporate Ownership and Registries (#1846)
+    "companies-house": "src.ingestion.ownership_providers",
+    "sec-edgar-ownership": "src.ingestion.ownership_providers",
+    "bods": "src.ingestion.ownership_providers",
+    "environment": "src.ingestion.environment_providers",
 }
+NATIVE_CONNECTOR_MODULES.update({
+    connector: "src.ingestion.clinical_providers"
+    for connector in ("ctgov", "ctis", "eu-ctr", "openfda", "ema-medicines")
+})
+
+# Public Procurement native connectors (TED eForms, UK OCDS, SAM.gov).
+_PROCUREMENT_CONNECTORS = {"ted": "src.ingestion.procurement_providers", "ocds": "src.ingestion.procurement_providers",
+                           "sam-gov": "src.ingestion.procurement_providers"}
+NATIVE_CONNECTOR_MODULES.update(_PROCUREMENT_CONNECTORS)
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset(_PROCUREMENT_CONNECTORS)
 
 
 def native_connector_module(connector: str) -> Any:

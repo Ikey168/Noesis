@@ -1,0 +1,26 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "noesis-ownership-dossier-v1",
+  "title": "Explained, source-cited ownership dossier",
+  "description": "Entities, relationships with sources and validity, officers, filings and a corporate-event timeline for one identifier, with conflicts, reporting exceptions and unknowns visible. Pinned record revisions make it replayable. It is not a beneficial-ownership, sanctions or AML determination.",
+  "type": "object",
+  "required": ["contract", "namespace", "query", "as_of", "entities", "relationships", "officers", "filings", "timeline", "conflicts", "unknowns", "identity", "pins", "notice", "evidence", "dossier_hash"],
+  "properties": {
+    "contract": {"const": "noesis-ownership-dossier-v1"},
+    "namespace": {"type": "string"},
+    "query": {"type": "object", "required": ["scheme", "value"]},
+    "as_of": {"type": ["string", "null"]},
+    "entities": {"type": "array"},
+    "relationships": {"type": "object"},
+    "officers": {"type": "array"},
+    "filings": {"type": "array"},
+    "timeline": {"type": "object", "required": ["entries", "undated"]},
+    "conflicts": {"type": "array"},
+    "unknowns": {"type": "array"},
+    "identity": {"type": "object"},
+    "pins": {"type": "object"},
+    "notice": {"type": "string"},
+    "evidence": {"type": "object", "required": ["kind"]},
+    "dossier_hash": {"type": "string"}
+  }
+}

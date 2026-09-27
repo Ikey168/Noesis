@@ -1,0 +1,90 @@
+{
+ "result": {
+  "uids": [
+   "99000001",
+   "99000002",
+   "99000003"
+  ],
+  "99000001": {
+   "uid": "99000001",
+   "title": "Noetiglutide versus placebo in type 2 diabetes (NOETIC-1): a randomised trial.",
+   "authors": [
+    {
+     "name": "Fixture A"
+    },
+    {
+     "name": "Example B"
+    }
+   ],
+   "sortpubdate": "2019/05/01 00:00",
+   "pubdate": "2019 May",
+   "fulljournalname": "Journal of Fixture Medicine",
+   "articleids": [
+    {
+     "idtype": "pubmed",
+     "value": "99000001"
+    },
+    {
+     "idtype": "doi",
+     "value": "10.5555/noetic1.2019"
+    }
+   ],
+   "pubtype": [
+    "Journal Article",
+    "Randomized Controlled Trial"
+   ]
+  },
+  "99000002": {
+   "uid": "99000002",
+   "title": "Noetiglutide dose finding in type 2 diabetes (NOETIC-2).",
+   "authors": [
+    {
+     "name": "Fixture C"
+    }
+   ],
+   "sortpubdate": "2021/03/01 00:00",
+   "pubdate": "2021 Mar",
+   "fulljournalname": "Fixture Diabetes Reports",
+   "articleids": [
+    {
+     "idtype": "pubmed",
+     "value": "99000002"
+    },
+    {
+     "idtype": "doi",
+     "value": "10.5555/noetic2.2021"
+    }
+   ],
+   "pubtype": [
+    "Journal Article",
+    "Clinical Trial, Phase II"
+   ]
+  },
+  "99000003": {
+   "uid": "99000003",
+   "title": "A randomised trial of noetiglutide in adolescents with type 2 diabetes.",
+   "authors": [
+    {
+     "name": "Fixture D"
+    }
+   ],
+   "sortpubdate": "2024/09/01 00:00",
+   "pubdate": "2024 Sep",
+   "fulljournalname": "Fixture Paediatrics",
+   "articleids": [
+    {
+     "idtype": "pubmed",
+     "value": "99000003"
+    },
+    {
+     "idtype": "doi",
+     "value": "10.5555/adolescent.2024"
+    }
+   ],
+   "pubtype": [
+    "Journal Article",
+    "Randomized Controlled Trial"
+   ]
+  }
+ }
+}

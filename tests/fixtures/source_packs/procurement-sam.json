@@ -1,0 +1,109 @@
+{
+ "authored": true,
+ "provider": "SAM.gov Get Opportunities Public API v2",
+ "note": "Authored opportunities for a fictional agency; the fixture transport requires an api_key parameter but never a real key.",
+ "scenarios": [
+  "set-aside",
+  "sources-sought",
+  "award-notice",
+  "naics-without-cpv"
+ ],
+ "native_pages": [
+  {
+   "request": {
+    "offset": 0
+   },
+   "body": {
+    "totalRecords": 3,
+    "limit": 100,
+    "offset": 0,
+    "opportunitiesData": [
+     {
+      "noticeId": "fx0001aa11bb22cc33dd44ee55ff6601",
+      "title": "IT Help Desk Support Services (fixture)",
+      "solicitationNumber": "FX-26-R-0001",
+      "fullParentPathName": "DEPARTMENT OF FIXTURES.FIXTURE AGENCY.OFFICE OF ACQUISITION",
+      "fullParentPathCode": "099.9900.FX0001",
+      "postedDate": "2026-09-15",
+      "type": "Combined Synopsis/Solicitation",
+      "baseType": "Combined Synopsis/Solicitation",
+      "archiveType": "autocustom",
+      "archiveDate": "2026-11-27",
+      "typeOfSetAsideDescription": "Total Small Business Set-Aside (FAR 19.5)",
+      "typeOfSetAside": "SBA",
+      "responseDeadLine": "2026-10-28T14:00:00-04:00",
+      "naicsCode": "541513",
+      "classificationCode": "D399",
+      "active": "Yes",
+      "award": null,
+      "description": "https://api.sam.gov/prod/opportunities/v1/noticedesc?noticeid=fx0001aa11bb22cc33dd44ee55ff6601",
+      "organizationType": "OFFICE",
+      "placeOfPerformance": {
+       "city": {
+        "name": "Fixture City"
+       },
+       "state": {
+        "code": "VA",
+        "name": "Virginia"
+       },
+       "country": {
+        "code": "USA",
+        "name": "UNITED STATES"
+       }
+      },
+      "uiLink": "https://sam.gov/opp/fx0001aa11bb22cc33dd44ee55ff6601/view",
+      "resourceLinks": null
+     },
+     {
+      "noticeId": "fx0002aa11bb22cc33dd44ee55ff6602",
+      "title": "Cloud Hosting Market Research (fixture)",
+      "solicitationNumber": "FX-26-SS-0002",
+      "fullParentPathName": "DEPARTMENT OF FIXTURES.FIXTURE AGENCY.OFFICE OF ACQUISITION",
+      "postedDate": "2026-09-18",
+      "type": "Sources Sought",
+      "baseType": "Sources Sought",
+      "naicsCode": "518210",
+      "classificationCode": "DD01",
+      "active": "Yes",
+      "award": null,
+      "responseDeadLine": null,
+      "uiLink": "https://sam.gov/opp/fx0002aa11bb22cc33dd44ee55ff6602/view"
+     },
+     {
+      "noticeId": "fx0003aa11bb22cc33dd44ee55ff6603",
+      "title": "Help Desk Services Award (fixture)",
+      "solicitationNumber": "FX-25-C-0009",
+      "fullParentPathName": "DEPARTMENT OF FIXTURES.FIXTURE AGENCY.OFFICE OF ACQUISITION",
+      "postedDate": "2025-08-05",
+      "type": "Award Notice",
+      "baseType": "Award Notice",
+      "naicsCode": "541513",
+      "classificationCode": "D399",
+      "active": "No",
+      "award": {
+       "date": "2025-08-01",
+       "number": "FX-25-C-0009",
+       "amount": "1250000.00",
+       "awardee": {
+        "name": "Fixture Federal Solutions LLC",
+        "ueiSAM": "FXUEI0000001",
+        "location": {
+         "city": {
+          "name": "Fixture City"
+         },
+         "state": {
+          "code": "VA"
+         },
+         "country": {
+          "code": "USA"
+         }
+        }
+       }
+      },
+      "uiLink": "https://sam.gov/opp/fx0003aa11bb22cc33dd44ee55ff6603/view"
+     }
+    ]
+   }
+  }
+ ]
+}

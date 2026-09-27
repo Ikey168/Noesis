@@ -82,7 +82,8 @@ def test_v1_validation_is_unchanged_and_dispatch_routes_by_format():
 def test_every_bundle_adapts_and_round_trips_to_its_v1_registration():
     adapted = adapter.adapt_all()
     assert set(adapted) >= {"economics", "geospatial", "legal", "market", "news", "osint", "political",
-                            "products", "science", "technology", "energy"}
+                            "products", "science", "technology"}
+    assert "energy" not in adapted  # retired: it never had an implementation
     for bundle, manifest in adapted.items():
         assert validate_composition_manifest(manifest) == [], bundle
         if "adapter" not in manifest:  # authored natively as a composition manifest

@@ -206,6 +206,36 @@ class LeiStore:
             [namespace, lei]).fetchall()
         return [dict(zip(("level", "kind", "reason", "run_id"), r)) for r in rows]
 
+    def level2(self, namespace: str, lei: str) -> dict[str, Any]:
+        """Raw Level 1 current revision plus every Level 2 row, for downstream projection.
+
+        Used by the corporate-ownership bundle to project parent assertions and
+        reporting exceptions as ownership records *with this LEI record as
+        source*; nothing is copied into a second LEI store.
+        """
+        current = self.conn.execute(
+            "SELECT r.revision_id, r.provider_revision, r.raw_sha256, r.attributes_json, r.observed_at_ms "
+            "FROM lei_current c JOIN lei_revisions r USING(revision_id) WHERE c.namespace=? AND c.lei=?",
+            [namespace, lei]).fetchone()
+        parents = self.conn.execute(
+            "SELECT assertion_id, level, parent_lei, relationship_status, periods_json, registration_json, run_id, "
+            "observed_at_ms FROM lei_parent_assertions WHERE namespace=? AND child_lei=? ORDER BY observed_at_ms, "
+            "assertion_id", [namespace, lei]).fetchall()
+        reporting = self.conn.execute(
+            "SELECT level, kind, reason, detail_json, run_id, observed_at_ms FROM lei_reporting "
+            "WHERE namespace=? AND lei=? ORDER BY observed_at_ms, level, kind", [namespace, lei]).fetchall()
+        return {
+            "lei": lei,
+            "record": None if current is None else {
+                "revision_id": current[0], "provider_revision": current[1], "raw_sha256": current[2],
+                "attributes": _load(current[3], {}), "observed_at_ms": current[4]},
+            "parents": [dict(zip(("assertion_id", "level", "parent_lei", "relationship_status"), r[:4]),
+                             periods=_load(r[4], []), registration=_load(r[5], {}), run_id=r[6], observed_at_ms=r[7])
+                        for r in parents],
+            "reporting": [dict(zip(("level", "kind", "reason"), r[:3]), detail=_load(r[3], {}), run_id=r[4],
+                               observed_at_ms=r[5]) for r in reporting],
+        }
+
     def parents_as_of(self, namespace: str, lei: str, as_of_ms: int, *, scopes) -> dict[str, Any]:
         _authorize(namespace, scopes, READ_SCOPE, write=False)
         return {"lei": lei, "as_of_ms": as_of_ms, "parents": self.parents(namespace, lei, as_of_ms=as_of_ms),

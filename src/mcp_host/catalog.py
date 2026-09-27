@@ -283,6 +283,9 @@ def _mutability(name: str) -> str:
     from tools.knowledge_engine_mcp.funding import FUNDING_WRITES
     if name in FUNDING_WRITES:
         return "write"
+    from tools.knowledge_engine_mcp.procurement import PROCUREMENT_WRITES
+    if name in PROCUREMENT_WRITES:
+        return "write"
     from tools.knowledge_engine_mcp.products import PRODUCT_WRITES
     if name in PRODUCT_WRITES:
         return "write"
@@ -303,6 +306,15 @@ def _mutability(name: str) -> str:
         return "write"
     from tools.knowledge_engine_mcp.mathematics import MATH_WRITES
     if name in MATH_WRITES:
+        return "write"
+    from tools.knowledge_engine_mcp.clinical import CLINICAL_WRITES
+    if name in CLINICAL_WRITES:
+        return "write"
+    from tools.knowledge_engine_mcp.ownership import OWNERSHIP_WRITES
+    if name in OWNERSHIP_WRITES:
+        return "write"
+    from tools.knowledge_engine_mcp.environment import ENVIRONMENT_WRITES
+    if name in ENVIRONMENT_WRITES:
         return "write"
     from tools.knowledge_engine_mcp.investigations import (
         ALERT_WRITES,
@@ -796,6 +808,12 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
     from tools.knowledge_engine_mcp.funding import FUNDING_TOOLS, required_scopes
     if server_stem == "knowledge_engine_mcp" and tool_name in FUNDING_TOOLS:
         return required_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.procurement import PROCUREMENT_TOOLS
+    from tools.knowledge_engine_mcp.procurement import (
+        required_scopes as procurement_scopes,
+    )
+    if server_stem == "knowledge_engine_mcp" and tool_name in PROCUREMENT_TOOLS:
+        return procurement_scopes(tool_name, mutability)
     from tools.knowledge_engine_mcp.products import PRODUCT_TOOLS
     from tools.knowledge_engine_mcp.products import required_scopes as product_scopes
     if server_stem == "knowledge_engine_mcp" and tool_name in PRODUCT_TOOLS:
@@ -828,6 +846,21 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
     from tools.knowledge_engine_mcp.mathematics import required_scopes as math_scopes
     if server_stem == "knowledge_engine_mcp" and tool_name in MATH_TOOLS:
         return math_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.clinical import CLINICAL_TOOLS
+    from tools.knowledge_engine_mcp.clinical import required_scopes as clinical_scopes
+    if server_stem == "knowledge_engine_mcp" and tool_name in CLINICAL_TOOLS:
+        return clinical_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.ownership import OWNERSHIP_TOOLS
+    from tools.knowledge_engine_mcp.ownership import required_scopes as ownership_scopes
+    if server_stem == "knowledge_engine_mcp" and tool_name in OWNERSHIP_TOOLS:
+        return ownership_scopes(tool_name, mutability)
+
+    from tools.knowledge_engine_mcp.environment import ENVIRONMENT_TOOLS
+    from tools.knowledge_engine_mcp.environment import (
+        required_scopes as environment_scopes,
+    )
+    if server_stem == "knowledge_engine_mcp" and tool_name in ENVIRONMENT_TOOLS:
+        return environment_scopes(tool_name, mutability)
     if server_stem == "knowledge_engine_mcp" and tool_name in {
         "suggest_jev_claim_presence",
         "suggest_jev_checkworthiness",
