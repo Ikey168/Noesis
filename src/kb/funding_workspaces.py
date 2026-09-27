@@ -92,6 +92,18 @@ def _gap_items(assessment):
 
 
 class FundingWorkspaceStore:
+    """Workspace revisions, owner-reviewed checklist updates and outcomes.
+
+    Public Procurement's bid workspaces subclass it and override the class
+    attributes below; ``update_items``, ``record_outcome`` and the revisioned
+    command path are shared unchanged.
+    """
+
+    TABLE = "funding_workspace"
+    READ_SCOPE = READ_SCOPE
+    WRITE_SCOPE = WRITE_SCOPE
+    SUBJECT = "funding"
+
     def __init__(self, conn, *, initialize=True, now=None):
         from src.kb.funding_ranking import ShortlistService
         from src.kb.research_projects import ResearchProjectStore
@@ -103,17 +115,16 @@ class FundingWorkspaceStore:
         self.eligibility = self.shortlists.eligibility
         self.projects = ResearchProjectStore(conn, initialize=initialize, now=self.now)
 
-    @staticmethod
-    def _authorize(state, principal_id, scopes, *, write=False):
-        if not principal_id or (WRITE_SCOPE if write else READ_SCOPE) not in scopes or state["owner"] != principal_id:
-            raise WorkspaceError("unauthorized", "only the workspace owner with current funding scope can access it")
+    def _authorize(self, state, principal_id, scopes, *, write=False):
+        if not principal_id or (self.WRITE_SCOPE if write else self.READ_SCOPE) not in scopes or state["owner"] != principal_id:
+            raise WorkspaceError("unauthorized", f"only the workspace owner with current {self.SUBJECT} scope can access it")
         namespace = state["namespace"]
         if f"namespace:{namespace}:write" not in scopes and (write or f"namespace:{namespace}:read" not in scopes):
             raise WorkspaceError("unauthorized", "current namespace access is required")
 
     def _state(self, namespace, workspace_id, revision=None):
         row = self.conn.execute(
-            """SELECT r.content_json FROM funding_workspaces w JOIN funding_workspace_revisions r
+            f"""SELECT r.content_json FROM {self.TABLE}s w JOIN {self.TABLE}_revisions r
                ON r.workspace_id=w.workspace_id AND r.revision=coalesce(?, w.revision)
                WHERE w.workspace_id=? AND w.namespace=?""", [revision, workspace_id, namespace]).fetchone()
         if not row:
@@ -190,7 +201,7 @@ class FundingWorkspaceStore:
             state = self._state(namespace, workspace_id)
             self._authorize(state, principal_id, scopes, write=True)
             prior = self.conn.execute(
-                "SELECT request_hash, result_revision FROM funding_workspace_commands WHERE workspace_id=? AND command_key=?",
+                f"SELECT request_hash, result_revision FROM {self.TABLE}_commands WHERE workspace_id=? AND command_key=?",
                 [workspace_id, command_key]).fetchone()
             if prior:
                 if prior[0] != request_hash:
@@ -203,12 +214,12 @@ class FundingWorkspaceStore:
             state["revision"] += 1
             state["updated_at_ms"] = self.now()
             state["history"].append({"revision": state["revision"], "change": change, "command_key": command_key})
-            if not self.conn.execute("UPDATE funding_workspaces SET revision=? WHERE workspace_id=? AND revision=? RETURNING revision",
+            if not self.conn.execute(f"UPDATE {self.TABLE}s SET revision=? WHERE workspace_id=? AND revision=? RETURNING revision",
                                      [state["revision"], workspace_id, expected_revision]).fetchone():
                 raise WorkspaceError("revision_conflict", "workspace changed concurrently")
-            self.conn.execute("INSERT INTO funding_workspace_revisions VALUES (?,?,?,?)",
+            self.conn.execute(f"INSERT INTO {self.TABLE}_revisions VALUES (?,?,?,?)",
                               [workspace_id, state["revision"], canonical(state), state["updated_at_ms"]])
-            self.conn.execute("INSERT INTO funding_workspace_commands VALUES (?,?,?,?)",
+            self.conn.execute(f"INSERT INTO {self.TABLE}_commands VALUES (?,?,?,?)",
                               [workspace_id, command_key, request_hash, state["revision"]])
             self.conn.execute("COMMIT")
         except Exception:

@@ -35,7 +35,7 @@ def conn():
 
 def test_all_production_packs_validate_against_contract() -> None:
     packs = load_source_packs(PACK_DIR)
-    assert len(packs) == 13
+    assert len(packs) == 14
     assert {domain for pack in packs for domain in pack["domains"]} == {
         "clinical",
         "corporate-ownership",
@@ -44,12 +44,13 @@ def test_all_production_packs_validate_against_contract() -> None:
         "legal",
         "osint",
         "political",
+        "procurement",
         "products",
         "research",
         "scientific",
         "technical",
     }
-    assert sum(len(pack["sources"]) for pack in packs) == 54
+    assert sum(len(pack["sources"]) for pack in packs) == 58
     schema = json.loads(
         (ROOT / "contracts/schemas/jsonschema/noesis-source-pack-v1.json").read_text()
     )
@@ -317,6 +318,7 @@ def test_secret_readiness_health_redaction_and_domain_coverage(conn) -> None:
         "legal",
         "osint",
         "political",
+        "procurement",
         "products",
         "research",
         "scientific",

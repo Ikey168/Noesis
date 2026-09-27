@@ -283,6 +283,9 @@ def _mutability(name: str) -> str:
     from tools.knowledge_engine_mcp.funding import FUNDING_WRITES
     if name in FUNDING_WRITES:
         return "write"
+    from tools.knowledge_engine_mcp.procurement import PROCUREMENT_WRITES
+    if name in PROCUREMENT_WRITES:
+        return "write"
     from tools.knowledge_engine_mcp.products import PRODUCT_WRITES
     if name in PRODUCT_WRITES:
         return "write"
@@ -802,6 +805,10 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
     from tools.knowledge_engine_mcp.funding import FUNDING_TOOLS, required_scopes
     if server_stem == "knowledge_engine_mcp" and tool_name in FUNDING_TOOLS:
         return required_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.procurement import PROCUREMENT_TOOLS
+    from tools.knowledge_engine_mcp.procurement import required_scopes as procurement_scopes
+    if server_stem == "knowledge_engine_mcp" and tool_name in PROCUREMENT_TOOLS:
+        return procurement_scopes(tool_name, mutability)
     from tools.knowledge_engine_mcp.products import PRODUCT_TOOLS
     from tools.knowledge_engine_mcp.products import required_scopes as product_scopes
     if server_stem == "knowledge_engine_mcp" and tool_name in PRODUCT_TOOLS:

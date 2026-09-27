@@ -33,6 +33,7 @@ PROJECTOR_OWNERS = {
     "noesis-math-record-v1": "src.kb.mathematics",
     "noesis-clinical-record-v1": "src.kb.clinical_records",
     "noesis-ownership-part-v1": "src.kb.ownership_store",
+    "noesis-procurement-record-v1": "src.kb.procurement_notices",
 }
 
 

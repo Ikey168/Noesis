@@ -18,7 +18,7 @@
         "required": ["source_id", "connector", "endpoint", "publisher", "scope", "license", "update_cadence", "temporal_semantics", "mapping", "extractor_versions", "schedule", "budgets", "auth", "fixture", "health", "operations", "source_hash"],
         "properties": {
           "source_id": {"type": "string", "minLength": 1},
-          "connector": {"enum": ["berlin-law", "blog", "bods", "cellar", "companies-house", "ctgov", "ctis", "dataset", "ddb", "declarative-rest", "ema-medicines", "epo-ops", "eprel", "eu-ctr", "europeana", "filings", "formal-library", "geojson", "git", "gleif", "gtfs", "icecat", "iso-open-data", "manifest", "oeis", "openfda", "package-registry", "paper", "rii", "sec-edgar-ownership", "web", "wfs", "zbmath"]},
+          "connector": {"enum": ["berlin-law", "blog", "bods", "cellar", "companies-house", "ctgov", "ctis", "dataset", "ddb", "declarative-rest", "ema-medicines", "epo-ops", "eprel", "eu-ctr", "europeana", "filings", "formal-library", "geojson", "git", "gleif", "gtfs", "icecat", "iso-open-data", "manifest", "ocds", "oeis", "openfda", "package-registry", "paper", "rii", "sam-gov", "sec-edgar-ownership", "ted", "web", "wfs", "zbmath"]},
           "wfs": {
             "type": "object",
             "description": "Pinned WFS 2.0.0 GetFeature contract; required for the wfs connector.",
@@ -72,6 +72,18 @@
             "description": "Bounded standards catalogue selection: reference prefixes and/or ICS codes with a record ceiling.",
             "required": ["selection"],
             "properties": {"namespace": {"type": "string", "minLength": 1}, "selection": {"type": "object"}}
+          },
+          "procurement": {
+            "type": "object",
+            "description": "Bounded public-procurement selection (ted, ocds, sam-gov): the provider, one pinned query or parameter window, page size and the target namespace.",
+            "required": ["provider"],
+            "properties": {
+              "provider": {"enum": ["ted", "uk-fts", "uk-cf", "sam-gov"]},
+              "namespace": {"type": "string", "minLength": 1},
+              "query": {"type": "string", "minLength": 1, "maxLength": 2000},
+              "params": {"type": "object", "additionalProperties": {"type": "string"}},
+              "page_size": {"type": "integer", "minimum": 1, "maximum": 1000}
+            }
           },
           "lei": {
             "type": "object",
