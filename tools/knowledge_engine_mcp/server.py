@@ -8235,7 +8235,11 @@ def revise_binary_forecast(namespace: str, forecast_id: str, expected_revision: 
 
 @mcp.tool()
 def propose_forecast_resolution(namespace: str, forecast_id: str) -> dict:
-    """Match registered quantitative rules to sourced observations without settling the forecast."""
+    """Match registered quantitative rules to sourced observations without settling the forecast.
+
+    An election forecast (Political elections feature) is matched to its contest's certified result vintage only;
+    conditional scope: that case also needs knowledge:political:elections:read on the elections namespace.
+    """
     from src.kb.forecasts import READ_SCOPE, ForecastStore
     return _safe(lambda c: ForecastStore(c, initialize=False).propose_resolution(namespace, forecast_id,
         principal_id=_context()[0], scopes=_context()[1]), required_scope=READ_SCOPE)
