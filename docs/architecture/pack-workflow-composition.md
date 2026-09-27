@@ -370,17 +370,47 @@ formal-proof capabilities can be independently referenced. Cultural collections
 compose Research with Geospatial. Patents, registries, standards, and transport
 reuse existing owners wherever their records and operations already fit.
 
+Funding & Grants ([#1761](https://github.com/Ikey168/Noesis/issues/1761)) and
+the four bundles tracked in [#1846](https://github.com/Ikey168/Noesis/issues/1846),
+[#1847](https://github.com/Ikey168/Noesis/issues/1847),
+[#1848](https://github.com/Ikey168/Noesis/issues/1848) and
+[#1849](https://github.com/Ikey168/Noesis/issues/1849) (Corporate Ownership,
+Clinical Evidence, Public Procurement, Climate and Environment) are composed
+bundles with their own scope documents under `docs/roadmaps/`. Their live
+provider verification remains separate from their offline acceptance.
+
+Subjects planned on 2026-09-27 are expansions of existing bundles, not new
+packs: each adds a provider descriptor and an optional feature (default off) to
+its host, in the way cultural collections expanded Science. Each has a scope
+document under `docs/roadmaps/` and a tracking issue with granular sub-issues.
+
+| Host bundle | Expansion | Tracking |
+| --- | --- | --- |
+| Technology | Software vulnerability and supply-chain advisories (`technology.vulnerabilities`) | [#1913](https://github.com/Ikey168/Noesis/issues/1913) |
+| Political | Election results and public-opinion series (`political.elections`) | [#1908](https://github.com/Ikey168/Noesis/issues/1908) |
+| Political | Lobbying and transparency registers (`political.lobbying`) | [#1911](https://github.com/Ikey168/Noesis/issues/1911) |
+| Legal | Sanctions designations and trade-control lists (`legal.sanctions`) | [#1907](https://github.com/Ikey168/Noesis/issues/1907) |
+| Geospatial | Housing, land-value and urban-planning layers (`geospatial.housing`) | [#1912](https://github.com/Ikey168/Noesis/issues/1912) |
+| Economics | Public budgets, outturns and beneficiary payments (`economics.public-finance`) | [#1909](https://github.com/Ikey168/Noesis/issues/1909) |
+| Economics | Migration and demographic statistics (`economics.demographics`) | [#1914](https://github.com/Ikey168/Noesis/issues/1914) |
+| Funding & Grants | Development finance and aid activity data (`funding.development-finance`) | [#1932](https://github.com/Ikey168/Noesis/issues/1932) |
+| Clinical Evidence | Public-health surveillance series (`clinical.surveillance`) | [#1917](https://github.com/Ikey168/Noesis/issues/1917) |
+| Products | Product safety notices and recalls (`products.safety`) | [#1916](https://github.com/Ikey168/Noesis/issues/1916) |
+
+Two features on one host (Political, Economics) stay independent optional
+branches; enabling one never requires the other. Where an expansion consumes a
+bundle that is itself still verifying live access (for example Corporate
+Ownership identity from Legal sanctions and Political lobbying), the dependency
+is recorded as not blocking.
+
 Music remains a possible future bundle, not approved implementation scope. Its
 identity model and optional audio processing would be contributions under the
-same contract. Funding & Grants now has an explicitly requested implementation
-backlog in [#1761](https://github.com/Ikey168/Noesis/issues/1761), scoped in the
-[funding roadmap](../roadmaps/funding-grants-pack-scope.md). It remains planned,
-not implemented; procurement remains a suggestion. This architecture does not
-automatically add other proposed subjects to the implementation backlog.
+same contract. This architecture does not automatically add other proposed
+subjects to the implementation backlog.
 
-Existing expansion issues remain in place. C09 should audit their delivery state
-and add composition dependencies only where necessary; do not assume earlier
-proposed roadmaps still describe what has or has not shipped.
+Existing expansion issues remain in place. Do not assume earlier proposed
+roadmaps still describe what has or has not shipped; each scope document
+carries its own audited delivery state.
 
 ## Tradeoffs and deferred decisions
 
