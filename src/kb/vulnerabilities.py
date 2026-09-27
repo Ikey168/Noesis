@@ -788,12 +788,13 @@ class VulnerabilityStore:
         revision_id: str | None = None,
         coordinate: str | None = None,
         package: str | None = None,
+        source: str | None = None,
     ) -> list[dict[str, Any]]:
         rows = self.conn.execute(
             "SELECT range_id, revision_id, series_id, source, ecosystem_source, ecosystem, package, coordinate, "
             "range_type, events_json, versions_json, cpe_json, applicability FROM vuln_ranges WHERE namespace=? "
             "AND (? IS NULL OR revision_id=?) AND (? IS NULL OR coordinate=?) AND (? IS NULL OR package=?) "
-            "ORDER BY source, ecosystem_source, package, range_id",
+            "AND (? IS NULL OR source=?) ORDER BY source, ecosystem_source, package, range_id",
             [
                 namespace,
                 revision_id,
@@ -802,6 +803,8 @@ class VulnerabilityStore:
                 coordinate,
                 package,
                 package,
+                source,
+                source,
             ],
         ).fetchall()
         return [

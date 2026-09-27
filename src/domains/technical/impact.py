@@ -117,13 +117,14 @@ def _vulnerability_findings(
     findings = []
     for match in identity.accepted_targets(namespace, entry["coordinate"]):
         if match["target_kind"] == "advisory-package":
-            _, source, ecosystem_source, package = match["target_key"].split(":", 3)
+            # Source labels hold no colon; ecosystems ("Debian:11") and names may, so compare whole keys.
+            source = match["target_key"].split(":", 2)[1]
             rows = [
                 r
-                for r in store.ranges(namespace, package=package)
-                if r["source"] == source
-                and r["ecosystem_source"] == ecosystem_source
-                and r["range_type"] != "CPE"
+                for r in store.ranges(namespace, source=source)
+                if r["range_type"] != "CPE"
+                and f"advisory-package:{r['source']}:{r['ecosystem_source']}:{r['package']}"
+                == match["target_key"]
             ]
         else:
             product = match["target_key"].split(":", 1)[1]
