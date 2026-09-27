@@ -19,6 +19,8 @@ SUPPORTED_CONNECTORS = frozenset(
     {
         "berlin-law",
         "blog",
+        "bods",
+        "companies-house",
         "cellar",
         "dataset",
         "ddb",
@@ -39,6 +41,7 @@ SUPPORTED_CONNECTORS = frozenset(
         "package-registry",
         "paper",
         "rii",
+        "sec-edgar-ownership",
         "web",
         "wfs",
         "zbmath",
@@ -203,6 +206,10 @@ NATIVE_CONNECTOR_MODULES = {
     "zbmath": "src.ingestion.math_sources",
     "oeis": "src.ingestion.math_sources",
     "formal-library": "src.ingestion.math_sources",
+    # Corporate Ownership and Registries (#1846)
+    "companies-house": "src.ingestion.ownership_providers",
+    "sec-edgar-ownership": "src.ingestion.ownership_providers",
+    "bods": "src.ingestion.ownership_providers",
 }
 
 
