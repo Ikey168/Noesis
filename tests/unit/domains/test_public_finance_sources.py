@@ -391,3 +391,51 @@ def test_documents_are_paged_one_release_each_and_marked_as_fixture_evidence():
         ("Ist (vorläufig)", "2100-01-20", "fixture"),
         ("Haushaltsrechnung (Ist)", "2100-04-30", "fixture"),
     ]
+
+
+def test_the_source_pack_runtime_runs_a_budget_source_into_the_record_owner():
+    from src.ingestion.source_pack_runtime import SourcePackRuntime
+    from src.ingestion.source_packs import SourcePackStore
+    from src.kb.public_finance import PublicFinanceStore
+
+    conn = h.connection()
+    manifest = h.manifest()
+    SourcePackStore(conn).install(
+        manifest, principal_id="operator", enable=True, now_ms=1
+    )
+    clock = iter(range(10, 10_000))
+    runtime = SourcePackRuntime(conn, now=lambda: next(clock), sleep=lambda _d: None)
+    adapters = runtime.fixture_adapters(manifest["pack_id"], h.ROOT)
+    for key in ("bund", "gfs"):
+        source_id = h.SOURCES[key]
+        runtime.accept_license(manifest["pack_id"], source_id, principal_id="operator")
+        result = runtime.run(
+            {
+                "pack_id": manifest["pack_id"],
+                "run_key": key,
+                "operation": "release",
+                "source_ids": [source_id],
+                "max_results": 1000,
+                "max_bytes": 20_000_000,
+                "timeout_ms": 60_000,
+            },
+            principal_id="operator",
+            adapters={source_id: adapters[source_id]},
+            dns_resolver=lambda _host: ["8.8.8.8"],
+        )
+        assert result["status"] == "complete", result
+    store = PublicFinanceStore(conn, initialize=False)
+    releases = store.releases("global", provider="bundeshaushalt")
+    assert [r["published_on"] for r in releases] == [
+        "2098-12-01",
+        "2099-06-15",
+        "2100-01-20",
+        "2100-04-30",
+    ]
+    assert {r["evidence_origin"] for r in releases} == {"fixture"}
+    assert len(store.lines("global", scheme="de-bund-haushalt")) == 3
+    assert (
+        conn.execute("SELECT count(*) FROM economic_release_snapshots").fetchone()[0]
+        == 1
+    )
+    conn.close()

@@ -1,0 +1,277 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "economics.public-finance",
+  "version": "1.0.0",
+  "implementation": {
+    "name": "src.kb.public_finance",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "economics.public-finance",
+      "contract": {
+        "name": "noesis-public-finance-record",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "list-lines",
+        "inspect-line",
+        "compare-line",
+        "line-dossier",
+        "beneficiary-payments",
+        "beneficiary-dossier",
+        "audit-findings",
+        "identity-candidates",
+        "links",
+        "line-place",
+        "gfs-series"
+      ],
+      "semantic_constraints": {
+        "hierarchy": "budget lines keep each source's own codes and labels (Einzelplan/Kapitel/Titel, Berlin Bereich and district, EU budget line); no cross-source hierarchy is synthesised",
+        "figures": "plan, supplementary-plan, outturn and payment figures are distinct revisioned records with amount text, unit, a pint-normalised value, accounting basis and source revision; the revision in force follows the source's publication date",
+        "comparisons": "a difference only between figures on the same accounting basis and currency, or under a cited reconciliation method; conflicting sources are flagged side by side, never averaged or preferred",
+        "identity": "beneficiaries stay source strings; links to ownership, funding, canonical entities and procurement suppliers are reviewable, reversible identity decisions",
+        "exclusions": "no fiscal forecast, no waste or fraud determination and no netting of figures across accounting bases without a cited method"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "list-lines",
+      "tool": "noesis-knowledge-engine.list_budget_lines",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "figures",
+      "required_scopes": [
+        "knowledge:economic:public-finance:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "inspect-line",
+      "tool": "noesis-knowledge-engine.inspect_budget_line",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "figures",
+      "required_scopes": [
+        "knowledge:economic:public-finance:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "compare-line",
+      "tool": "noesis-knowledge-engine.compare_budget_line",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "figures",
+      "required_scopes": [
+        "knowledge:economic:public-finance:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "line-dossier",
+      "tool": "noesis-knowledge-engine.budget_line_dossier",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "figures",
+      "required_scopes": [
+        "knowledge:economic:public-finance:read",
+        "knowledge:ownership:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "beneficiary-payments",
+      "tool": "noesis-knowledge-engine.list_beneficiary_payments",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "figures",
+      "required_scopes": [
+        "knowledge:economic:public-finance:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "beneficiary-dossier",
+      "tool": "noesis-knowledge-engine.beneficiary_dossier",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "figures",
+      "required_scopes": [
+        "knowledge:economic:public-finance:read",
+        "knowledge:ownership:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "audit-findings",
+      "tool": "noesis-knowledge-engine.list_audit_findings",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "figures",
+      "required_scopes": [
+        "knowledge:economic:public-finance:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "identity-candidates",
+      "tool": "noesis-knowledge-engine.list_public_finance_identity_candidates",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "figures",
+      "required_scopes": [
+        "knowledge:economic:public-finance:read",
+        "knowledge:ownership:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "links",
+      "tool": "noesis-knowledge-engine.list_public_finance_links",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "figures",
+      "required_scopes": [
+        "knowledge:economic:public-finance:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "line-place",
+      "tool": "noesis-knowledge-engine.budget_line_place",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "figures",
+      "required_scopes": [
+        "knowledge:economic:public-finance:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "gfs-series",
+      "tool": "noesis-knowledge-engine.list_government_finance_series",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "figures",
+      "required_scopes": [
+        "knowledge:economic:public-finance:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "public-finance-record",
+      "store": "src.kb.public_finance",
+      "tables": [
+        "public_finance_releases",
+        "public_finance_lines",
+        "public_finance_plans",
+        "public_finance_figures",
+        "public_finance_figure_members",
+        "public_finance_payments",
+        "public_finance_payment_members",
+        "public_finance_findings"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "public-finance-gfs-vintage",
+      "store": "src.kb.public_finance_gfs",
+      "tables": [
+        "public_finance_gfs_vintages"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "public-finance-link",
+      "store": "src.kb.public_finance_links",
+      "tables": [
+        "public_finance_links"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "public-finance-place-link",
+      "store": "src.kb.public_finance_places",
+      "tables": [
+        "public_finance_place_links"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "public-finance-reconciliation-method",
+      "store": "src.kb.public_finance_queries",
+      "tables": [
+        "public_finance_reconciliations"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "figures",
+      "kind": "table-exists",
+      "target": "public_finance_figures"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "economic-statistics-and-filings",
+      "version": "1.2.0",
+      "range": "^1.2.0"
+    }
+  ]
+}

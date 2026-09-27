@@ -900,7 +900,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 899,
+      "tool_count": 927,
       "tools": [
         "noesis-knowledge-engine.accept_awareness_jev_suggestion",
         "noesis-knowledge-engine.accept_citation_repair",
@@ -960,8 +960,11 @@
         "noesis-knowledge-engine.attach_paper_family_notice",
         "noesis-knowledge-engine.authorize_access_export",
         "noesis-knowledge-engine.begin_research_snapshot",
+        "noesis-knowledge-engine.beneficiary_dossier",
         "noesis-knowledge-engine.branch_hypothesis_workspace",
         "noesis-knowledge-engine.branch_research_project",
+        "noesis-knowledge-engine.budget_line_dossier",
+        "noesis-knowledge-engine.budget_line_place",
         "noesis-knowledge-engine.build_clinical_evidence_map",
         "noesis-knowledge-engine.build_environment_place_dossier",
         "noesis-knowledge-engine.build_funding_shortlist",
@@ -998,6 +1001,7 @@
         "noesis-knowledge-engine.command_practice_review",
         "noesis-knowledge-engine.company_source_contracts",
         "noesis-knowledge-engine.compare_advisory_revisions",
+        "noesis-knowledge-engine.compare_budget_line",
         "noesis-knowledge-engine.compare_change_briefs",
         "noesis-knowledge-engine.compare_claim_sources",
         "noesis-knowledge-engine.compare_control_list_editions",
@@ -1009,6 +1013,7 @@
         "noesis-knowledge-engine.compare_event_dossier_revisions",
         "noesis-knowledge-engine.compare_evidence_freshness_policies",
         "noesis-knowledge-engine.compare_formal_snapshots",
+        "noesis-knowledge-engine.compare_government_finance_vintages",
         "noesis-knowledge-engine.compare_hypotheses",
         "noesis-knowledge-engine.compare_legal_versions",
         "noesis-knowledge-engine.compare_legislative_dossier",
@@ -1055,6 +1060,7 @@
         "noesis-knowledge-engine.create_procurement_monitor",
         "noesis-knowledge-engine.create_procurement_profile",
         "noesis-knowledge-engine.create_procurement_workspace",
+        "noesis-knowledge-engine.create_public_finance_monitor",
         "noesis-knowledge-engine.create_research_decision",
         "noesis-knowledge-engine.create_research_package_manifest",
         "noesis-knowledge-engine.create_research_project",
@@ -1213,6 +1219,7 @@
         "noesis-knowledge-engine.get_source_capability",
         "noesis-knowledge-engine.get_study_replication_graph",
         "noesis-knowledge-engine.handoff_intake_creation",
+        "noesis-knowledge-engine.import_audit_findings",
         "noesis-knowledge-engine.import_certificates",
         "noesis-knowledge-engine.import_election_poll_release",
         "noesis-knowledge-engine.import_geospatial_features",
@@ -1228,6 +1235,7 @@
         "noesis-knowledge-engine.inspect_authored_report",
         "noesis-knowledge-engine.inspect_authored_report_edit",
         "noesis-knowledge-engine.inspect_binary_forecast",
+        "noesis-knowledge-engine.inspect_budget_line",
         "noesis-knowledge-engine.inspect_certificate",
         "noesis-knowledge-engine.inspect_cited_evidence_subscription",
         "noesis-knowledge-engine.inspect_clinical_evidence_map",
@@ -1321,6 +1329,9 @@
         "noesis-knowledge-engine.legislative_dossier_dependencies",
         "noesis-knowledge-engine.legislative_dossier_timeline",
         "noesis-knowledge-engine.lei_parents_as_of",
+        "noesis-knowledge-engine.link_budget_acts",
+        "noesis-knowledge-engine.link_budget_districts",
+        "noesis-knowledge-engine.link_budget_dossier",
         "noesis-knowledge-engine.link_claim_evolution",
         "noesis-knowledge-engine.link_clinical_publications",
         "noesis-knowledge-engine.link_company_identity",
@@ -1331,6 +1342,9 @@
         "noesis-knowledge-engine.link_legal_dossier",
         "noesis-knowledge-engine.link_lobbying_dossier",
         "noesis-knowledge-engine.link_study_artifact",
+        "noesis-knowledge-engine.list_audit_findings",
+        "noesis-knowledge-engine.list_beneficiary_payments",
+        "noesis-knowledge-engine.list_budget_lines",
         "noesis-knowledge-engine.list_change_briefs",
         "noesis-knowledge-engine.list_decision_review_tasks",
         "noesis-knowledge-engine.list_dossier_declared_interests",
@@ -1348,6 +1362,7 @@
         "noesis-knowledge-engine.list_extractors",
         "noesis-knowledge-engine.list_funding_opportunities",
         "noesis-knowledge-engine.list_geospatial_geometries",
+        "noesis-knowledge-engine.list_government_finance_series",
         "noesis-knowledge-engine.list_intake_feed_inbox",
         "noesis-knowledge-engine.list_intake_feed_signal_rules",
         "noesis-knowledge-engine.list_intake_feed_subscriptions",
@@ -1361,6 +1376,8 @@
         "noesis-knowledge-engine.list_official_meetings",
         "noesis-knowledge-engine.list_ownership_identity_candidates",
         "noesis-knowledge-engine.list_procurement_notices",
+        "noesis-knowledge-engine.list_public_finance_identity_candidates",
+        "noesis-knowledge-engine.list_public_finance_links",
         "noesis-knowledge-engine.list_registrant_declarations",
         "noesis-knowledge-engine.list_research_analysis_runs",
         "noesis-knowledge-engine.list_research_gap_tasks",
@@ -1416,6 +1433,7 @@
         "noesis-knowledge-engine.poll_funding_monitor",
         "noesis-knowledge-engine.poll_lobbying_monitor",
         "noesis-knowledge-engine.poll_procurement_monitor",
+        "noesis-knowledge-engine.poll_public_finance_monitor",
         "noesis-knowledge-engine.poll_sanctions_monitor",
         "noesis-knowledge-engine.poll_vulnerability_monitor",
         "noesis-knowledge-engine.preflight_intake_mode",
@@ -1475,11 +1493,15 @@
         "noesis-knowledge-engine.propose_patent_link",
         "noesis-knowledge-engine.propose_problem_action",
         "noesis-knowledge-engine.propose_product_matches",
+        "noesis-knowledge-engine.propose_public_finance_award_parties",
+        "noesis-knowledge-engine.propose_public_finance_identity_matches",
         "noesis-knowledge-engine.propose_sanctions_identity_link",
         "noesis-knowledge-engine.propose_sanctions_identity_matches",
         "noesis-knowledge-engine.propose_vulnerability_component_link",
         "noesis-knowledge-engine.propose_vulnerability_component_matches",
         "noesis-knowledge-engine.propose_vulnerability_product_matches",
+        "noesis-knowledge-engine.public_finance_readiness",
+        "noesis-knowledge-engine.public_finance_source_contracts",
         "noesis-knowledge-engine.publish_entity_change_rebuild",
         "noesis-knowledge-engine.query_geospatial_event_map",
         "noesis-knowledge-engine.query_geospatial_features_within",
@@ -1505,6 +1527,7 @@
         "noesis-knowledge-engine.record_ownership_register_document",
         "noesis-knowledge-engine.record_problem_step",
         "noesis-knowledge-engine.record_procurement_workspace_outcome",
+        "noesis-knowledge-engine.record_public_finance_reconciliation",
         "noesis-knowledge-engine.record_quantitative_observation",
         "noesis-knowledge-engine.record_quantitative_series_break",
         "noesis-knowledge-engine.record_research_coverage",
@@ -1610,6 +1633,8 @@
         "noesis-knowledge-engine.revert_lobbying_identity_match",
         "noesis-knowledge-engine.revert_ownership_identity_match",
         "noesis-knowledge-engine.revert_procurement_party_link",
+        "noesis-knowledge-engine.revert_public_finance_identity_match",
+        "noesis-knowledge-engine.revert_public_finance_link",
         "noesis-knowledge-engine.revert_sanctions_identity_match",
         "noesis-knowledge-engine.revert_vulnerability_component_match",
         "noesis-knowledge-engine.review_certificate_product_link",
@@ -1635,6 +1660,8 @@
         "noesis-knowledge-engine.review_paper_family_relation",
         "noesis-knowledge-engine.review_patent_link",
         "noesis-knowledge-engine.review_product_match",
+        "noesis-knowledge-engine.review_public_finance_identity_match",
+        "noesis-knowledge-engine.review_public_finance_link",
         "noesis-knowledge-engine.review_quality_override",
         "noesis-knowledge-engine.review_research_claim_independence",
         "noesis-knowledge-engine.review_sanctions_identity_match",
@@ -1671,6 +1698,7 @@
         "noesis-knowledge-engine.run_maintenance_once",
         "noesis-knowledge-engine.run_persistent_research_loop",
         "noesis-knowledge-engine.run_procurement_monitor",
+        "noesis-knowledge-engine.run_public_finance_monitor",
         "noesis-knowledge-engine.run_reference_workflow",
         "noesis-knowledge-engine.run_research_recipe",
         "noesis-knowledge-engine.run_sanctions_monitor",
@@ -1807,7 +1835,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 899
+      "visible_tool_count": 927
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -1818,11 +1846,11 @@
     },
     "servers": 30,
     "states": {
-      "available": 114,
+      "available": 115,
       "degraded": 159,
-      "unauthorized": 933
+      "unauthorized": 960
     },
-    "tools": 1206
+    "tools": 1234
   },
   "tools": [
     {
@@ -22388,6 +22416,55 @@
       "version": "1"
     },
     {
+      "cost_class": "low",
+      "description": "A beneficiary's payments, grant candidates and reviewed corporate identity. Conditional scope:\nprocurement_namespace needs knowledge:procurement:read (award history as context only).",
+      "id": "noesis-knowledge-engine.beneficiary_dossier",
+      "input_schema": {
+        "properties": {
+          "beneficiary_key": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "procurement_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "beneficiary_key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "beneficiary_dossier",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:economic:public-finance:read",
+        "knowledge:ownership:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "medium",
       "description": "Branch a workspace while retaining stable hypothesis identities.",
       "id": "noesis-knowledge-engine.branch_hypothesis_workspace",
@@ -22498,6 +22575,92 @@
       ],
       "required_scopes": [
         "knowledge:projects:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "A line's cited budget dossier: figures by year, payments, audit findings, cited acts and dossiers, district\nplace, beneficiaries with reviewed identity, and unknowns. Conditional scope: procurement_namespace needs\nknowledge:procurement:read (award history shown as context only).",
+      "id": "noesis-knowledge-engine.budget_line_dossier",
+      "input_schema": {
+        "properties": {
+          "line_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "procurement_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "line_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "budget_line_dossier",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:economic:public-finance:read",
+        "knowledge:ownership:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "A Berlin line's district link (feature and place), or why it has none.",
+      "id": "noesis-knowledge-engine.budget_line_place",
+      "input_schema": {
+        "properties": {
+          "line_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "line_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "budget_line_place",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:economic:public-finance:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -24498,6 +24661,58 @@
     },
     {
       "cost_class": "low",
+      "description": "Plan against outturn and vintage against vintage for one line and year, side by side with citations; a\ndifference only on the same accounting basis and currency (or under a cited method); conflicting sources\nflagged. Conditional scope: gfs_series_id needs knowledge:economic:read (shown beside, never netted).",
+      "id": "noesis-knowledge-engine.compare_budget_line",
+      "input_schema": {
+        "properties": {
+          "fiscal_year": {
+            "type": "string"
+          },
+          "gfs_series_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "line_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "line_id",
+          "fiscal_year"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "compare_budget_line",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:economic:public-finance:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Compare classifications, materiality, scores, and uncertainty.",
       "id": "noesis-knowledge-engine.compare_change_briefs",
       "input_schema": {
@@ -25040,6 +25255,66 @@
       ],
       "required_scopes": [
         "knowledge:mathematics:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Two Eurostat publications of one GFS series through the existing economic release comparison.",
+      "id": "noesis-knowledge-engine.compare_government_finance_vintages",
+      "input_schema": {
+        "properties": {
+          "left_as_of": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "right_as_of": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "series_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "series_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "compare_government_finance_vintages",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:economic:public-finance:read",
+        "knowledge:economic:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -27690,6 +27965,64 @@
       "required_scopes": [
         "knowledge:procurement:write",
         "knowledge:projects:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "A subscription on a budget line, programme or beneficiary; no new scheduler.",
+      "id": "noesis-knowledge-engine.create_public_finance_monitor",
+      "input_schema": {
+        "properties": {
+          "delivery": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "key": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "request_key": {
+            "type": "string"
+          },
+          "watch": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "request_key",
+          "watch",
+          "key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "create_public_finance_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:economic:public-finance:read",
+        "knowledge:subscriptions:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -35251,6 +35584,44 @@
     },
     {
       "cost_class": "medium",
+      "description": "Record an operator's finding sheet for one audit report (report, passage locators, quotes, cited lines);\na sheet with a verdict or determination is refused.",
+      "id": "noesis-knowledge-engine.import_audit_findings",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "sheet": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "namespace",
+          "sheet"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "import_audit_findings",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:economic:public-finance:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Import certificate or conformity-declaration records from a named source with locators.",
       "id": "noesis-knowledge-engine.import_certificates",
       "input_schema": {
@@ -36090,6 +36461,43 @@
       ],
       "required_scopes": [
         "knowledge:forecasts:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "A line's plan, supplementary-plan and outturn history across fiscal years and vintages, and the audit\nfindings that cite it, every figure cited with its accounting basis.",
+      "id": "noesis-knowledge-engine.inspect_budget_line",
+      "input_schema": {
+        "properties": {
+          "line_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "line_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "inspect_budget_line",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:economic:public-finance:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -40001,6 +40409,124 @@
     },
     {
       "cost_class": "medium",
+      "description": "Link plans to budget acts by an exact stated citation (CELEX, ELI, BGBl, GVBl); title overlap is only a\ncandidate; unmatched citations stay unresolved.",
+      "id": "noesis-knowledge-engine.link_budget_acts",
+      "input_schema": {
+        "properties": {
+          "legal_namespace": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "legal_namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "link_budget_acts",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:economic:public-finance:write",
+        "knowledge:legal:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Link Berlin district lines to the district boundaries and places by the published district code only.",
+      "id": "noesis-knowledge-engine.link_budget_districts",
+      "input_schema": {
+        "properties": {
+          "geo_namespace": {
+            "default": "global",
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "link_budget_districts",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:economic:public-finance:write",
+        "knowledge:geospatial:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Link plans to a legislative dossier by the dossier's own identifier; shared keywords are candidates.",
+      "id": "noesis-knowledge-engine.link_budget_dossier",
+      "input_schema": {
+        "properties": {
+          "dossier_id": {
+            "type": "string"
+          },
+          "dossier_namespace": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "dossier_namespace",
+          "dossier_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "link_budget_dossier",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:economic:public-finance:write",
+        "knowledge:political:dossier:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Link existing claims with a sourced successor, refinement, reversal, withdrawal, or branch.",
       "id": "noesis-knowledge-engine.link_claim_evolution",
       "input_schema": {
@@ -40674,6 +41200,216 @@
       ],
       "required_scopes": [
         "knowledge:methodology:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Audit report passages and the lines they cite, as recorded; no verdict.",
+      "id": "noesis-knowledge-engine.list_audit_findings",
+      "input_schema": {
+        "properties": {
+          "line_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "report_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_audit_findings",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:economic:public-finance:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Published commitment and payment rows (current revision), each cited; never a plan or outturn figure.",
+      "id": "noesis-knowledge-engine.list_beneficiary_payments",
+      "input_schema": {
+        "properties": {
+          "beneficiary_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "budget_line": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "fiscal_year": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "programme": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_beneficiary_payments",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:economic:public-finance:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Budget lines in each source's own hierarchy (codes and labels as published); no cross-source hierarchy.",
+      "id": "noesis-knowledge-engine.list_budget_lines",
+      "input_schema": {
+        "properties": {
+          "codes": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "provider": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "scheme": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_budget_lines",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:economic:public-finance:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -41530,6 +42266,50 @@
     },
     {
       "cost_class": "low",
+      "description": "Acquired Eurostat GFS series (ESA 2010) with their vintages and release snapshots.",
+      "id": "noesis-knowledge-engine.list_government_finance_series",
+      "input_schema": {
+        "properties": {
+          "dataset": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_government_finance_series",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:economic:public-finance:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Page persistent feed items without marking unseen entries processed.",
       "id": "noesis-knowledge-engine.list_intake_feed_inbox",
       "input_schema": {
@@ -42125,6 +42905,106 @@
       ],
       "required_scopes": [
         "knowledge:procurement:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Beneficiary identity candidates with basis, evidence and review state; nothing is merged.",
+      "id": "noesis-knowledge-engine.list_public_finance_identity_candidates",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "record_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_public_finance_identity_candidates",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:economic:public-finance:read",
+        "knowledge:ownership:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Act and dossier links and candidates with basis, source revision, rule or reviewer.",
+      "id": "noesis-knowledge-engine.list_public_finance_links",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "subject_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "target_kind": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_public_finance_links",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:economic:public-finance:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -44706,6 +45586,44 @@
       ],
       "required_scopes": [
         "knowledge:procurement:read",
+        "knowledge:subscriptions:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Poll a public-finance monitor's events through the subscription delivery path.",
+      "id": "noesis-knowledge-engine.poll_public_finance_monitor",
+      "input_schema": {
+        "properties": {
+          "cursor": {
+            "default": "",
+            "type": "string"
+          },
+          "subscription_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "poll_public_finance_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:economic:public-finance:read",
         "knowledge:subscriptions:read"
       ],
       "server": "noesis-knowledge-engine",
@@ -47735,6 +48653,103 @@
     },
     {
       "cost_class": "medium",
+      "description": "Offer beneficiaries and procurement suppliers as reviewable identity candidates.",
+      "id": "noesis-knowledge-engine.propose_public_finance_award_parties",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "procurement_namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "procurement_namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_public_finance_award_parties",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:economic:public-finance:read",
+        "knowledge:procurement:read",
+        "knowledge:ownership:read",
+        "knowledge:ownership:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Offer beneficiaries to ownership entities, canonical entities and funding awards as reviewable\ncandidates. Conditional scope: funding_namespace needs knowledge:funding:read.",
+      "id": "noesis-knowledge-engine.propose_public_finance_identity_matches",
+      "input_schema": {
+        "properties": {
+          "funding_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "ownership_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_public_finance_identity_matches",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:economic:public-finance:read",
+        "knowledge:ownership:read",
+        "knowledge:ownership:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "A reviewer's candidate resting on an identifier or a name plus attributes the list states.",
       "id": "noesis-knowledge-engine.propose_sanctions_identity_link",
       "input_schema": {
@@ -47951,6 +48966,56 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Whether the Economics public-finance feature is selected, and per-provider releases and decisions.",
+      "id": "noesis-knowledge-engine.public_finance_readiness",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "public_finance_readiness",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:economic:public-finance:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Per-provider access decisions, hierarchy, vintage, unit and accounting-basis semantics, and terms.",
+      "id": "noesis-knowledge-engine.public_finance_source_contracts",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "public_finance_source_contracts",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
       "version": "1"
     },
     {
@@ -49609,6 +50674,60 @@
       ],
       "required_scopes": [
         "knowledge:procurement:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Record a reconciliation method the source publishes, with its citation; without one, figures on\ndifferent accounting bases are never differenced.",
+      "id": "noesis-knowledge-engine.record_public_finance_reconciliation",
+      "input_schema": {
+        "properties": {
+          "citation": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "description": {
+            "type": "string"
+          },
+          "from_basis": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "provider": {
+            "type": "string"
+          },
+          "to_basis": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "provider",
+          "from_basis",
+          "to_basis",
+          "citation",
+          "description"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "record_public_finance_reconciliation",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:economic:public-finance:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -56299,6 +57418,88 @@
     },
     {
       "cost_class": "medium",
+      "description": "Undo an accepted or rejected beneficiary decision; the beneficiary is the source string again.",
+      "id": "noesis-knowledge-engine.revert_public_finance_identity_match",
+      "input_schema": {
+        "properties": {
+          "candidate_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "candidate_id",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "revert_public_finance_identity_match",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:ownership:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Undo a reviewed act or dossier decision.",
+      "id": "noesis-knowledge-engine.revert_public_finance_link",
+      "input_schema": {
+        "properties": {
+          "link_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "link_id",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "revert_public_finance_link",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:economic:public-finance:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Undo an accepted or rejected decision; the prior state is restored and no record changes.",
       "id": "noesis-knowledge-engine.revert_sanctions_identity_match",
       "input_schema": {
@@ -57499,6 +58700,96 @@
       ],
       "required_scopes": [
         "knowledge:products:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Accept or reject a beneficiary candidate as an entity identity decision; records are never rewritten.",
+      "id": "noesis-knowledge-engine.review_public_finance_identity_match",
+      "input_schema": {
+        "properties": {
+          "candidate_id": {
+            "type": "string"
+          },
+          "decision": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "candidate_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_public_finance_identity_match",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:ownership:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Accept or reject an act or dossier candidate with a reason.",
+      "id": "noesis-knowledge-engine.review_public_finance_link",
+      "input_schema": {
+        "properties": {
+          "decision": {
+            "type": "string"
+          },
+          "link_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "link_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_public_finance_link",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:economic:public-finance:review"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -59516,6 +60807,51 @@
       ],
       "required_scopes": [
         "knowledge:procurement:write",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Evaluate a monitor at a committed watermark: supplementary plans, outturn vintages, payment publications\nand audit findings, each with its source revision and the revision it supersedes.",
+      "id": "noesis-knowledge-engine.run_public_finance_monitor",
+      "input_schema": {
+        "properties": {
+          "subscription_id": {
+            "type": "string"
+          },
+          "watermark": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "run_public_finance_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:economic:public-finance:read",
         "knowledge:subscriptions:write"
       ],
       "server": "noesis-knowledge-engine",

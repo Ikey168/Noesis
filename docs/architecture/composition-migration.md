@@ -31,7 +31,7 @@ and `::test_shadow_diff_is_annotated_for_every_migrated_bundle`.
 | geospatial | `geospatial.core`, `geospatial.transit` | v1 manifest and Berlin source pack unchanged | `test_first_composition.py` |
 | legal | `legal.core`; optional `sanctions` feature (default off) adds `legal.sanctions` and binds `ownership.core`, `market.lei`, `platform.entity-identity`, `economics.core` and `platform.subscriptions` | v1 manifest plus code pack merged; ships `legal-research` 1.1.0 | shadow report; `tests/unit/composition/test_legal_sanctions_composition.py` |
 | market | `market.core`, `market.lei` | v1 manifest plus code pack merged | shadow report |
-| economics (legacy `economic`) | `economics.core` | alias `economic` | shadow report |
+| economics (legacy `economic`) | `economics.core`; optional `public-finance` feature (default off, coexisting with the planned optional `economics.demographics` feature) adds `economics.public-finance` and binds `legal.core`, `political.core`, `procurement.core`, `funding.core`, `ownership.core`, `platform.entity-identity`, `platform.subscriptions` and `platform.source-runtime` | alias `economic`; ships `economic-statistics-and-filings` 1.2.0 | shadow report; `tests/unit/composition/test_economics_public_finance_composition.py` |
 | political | `political.core`; optional `lobbying` feature (default off) adds `political.lobbying` and binds `ownership.core`, `market.lei`, `platform.entity-identity` and `platform.subscriptions`; optional `elections` feature (default off, independent of `lobbying`) adds `political.elections` and binds `geospatial.core`, `news.core`, `ownership.core`, `platform.entity-identity`, `platform.subscriptions` and `platform.source-runtime` | v1 manifest plus code pack merged; ships `official-political-records` 1.2.0 | shadow report; `tests/unit/composition/test_political_lobbying_composition.py`, `tests/unit/composition/test_political_elections_composition.py` |
 | technology (legacy `technical`) | `technology.core`, `technology.patents`, `technology.standards`; optional `vulnerabilities` feature (default off) adds `technology.vulnerabilities` and binds `products.core`, `platform.entity-identity`, `platform.subscriptions` and `platform.source-runtime` | alias `technical`; ships `technical-software-knowledge` 1.2.0 | shadow report; `tests/unit/composition/test_technology_vulnerabilities_composition.py` |
 | products | `products.core` | v1 manifest unchanged | shadow report |
@@ -75,6 +75,7 @@ projector introduces a store. Evidence:
 | `noesis-vulnerability-record-v1` | `src.kb.vulnerabilities` | `technology.vulnerabilities` | `technical-software-knowledge` |
 | `noesis-lobbying-record-v1` | `src.kb.lobbying` | `political.lobbying` | `official-political-records` |
 | `noesis-election-record-v1` | `src.kb.elections` | `political.elections` | `official-political-records` |
+| `noesis-public-finance-record-v1` | `src.kb.public_finance` | `economics.public-finance` | `economic-statistics-and-filings` |
 
 Music remains a possible future bundle and is neither migrated nor scaffolded.
 

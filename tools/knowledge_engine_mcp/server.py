@@ -9266,6 +9266,12 @@ from tools.knowledge_engine_mcp.elections import (  # noqa: E402 - registration 
 
 register_election_tools(mcp, _intake_safe, _intake_context)
 
+from tools.knowledge_engine_mcp.public_finance import (  # noqa: E402 - registration order
+    register as register_public_finance_tools,
+)
+
+register_public_finance_tools(mcp, _intake_safe, _intake_context)
+
 from tools.knowledge_engine_mcp.vulnerabilities import (  # noqa: E402 - registration order
     register as register_vulnerability_tools,
 )
