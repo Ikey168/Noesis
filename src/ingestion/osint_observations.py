@@ -156,11 +156,16 @@ def acquire(
     max_bytes: int | None = None,
     timeout_s: float | None = None,
     now: Callable[[], int] | None = None,
+    resolve_url: Callable[[Callable[..., Mapping[str, Any]]], str] | None = None,
 ) -> dict[str, Any]:
     """Acquire one registry observation for one domain, with a durable receipt.
 
     ``parse(raw_bytes, domain)`` turns the provider payload into redacted facts;
-    only those facts are stored. Exactly one request; no retries.
+    only those facts are stored. Exactly one provider request; no retries.
+    ``resolve_url(transport)`` optionally resolves the authoritative endpoint
+    (e.g. RDAP through the IANA bootstrap) inside the receipted block, so a
+    resolution failure is receipted like any other failure; ``url`` then names
+    the declared logical endpoint used for the request key.
     """
     source = load_source(source_id)
     budgets = source["budgets"]
@@ -209,8 +214,12 @@ def acquire(
 
         transport = HTTPSPageAdapter._request
     try:
+        target = url
+        if resolve_url is not None:
+            target = resolve_url(transport)
+            receipt["resolved_endpoint"] = target
         response = transport(
-            url=url,
+            url=target,
             params=dict(params),
             headers={"Accept": "application/json"},
             timeout=timeout_s,
@@ -245,7 +254,7 @@ def acquire(
                 "archive_at": iso(started),
                 "archive_at_ms": started,
                 "temporal_semantics": "fetch-and-archive-observation",
-                "locator": response.get("final_url") or url,
+                "locator": response.get("final_url") or target,
                 "raw_sha256": hashlib.sha256(raw).hexdigest(),
                 "raw_stored": False,
                 "license": license_,
@@ -399,20 +408,29 @@ def revise_identity_native_ids(
     *,
     principal_id: str,
     scopes: set[str],
+    citation_key: str | None = None,
 ) -> dict[str, Any]:
     """Append an identity revision carrying observation-derived native ids.
 
     The revision history of ``source_identity`` is the registration/issuance
-    history: each changed observation becomes one new revision, citing its
-    observation id; an unchanged observation is idempotent.
+    history. Existing native ids (including the source's own ``domain``) are
+    kept; ``updates`` only add or change the observation-derived keys, which
+    callers namespace per domain. ``citation_key`` names the key holding the
+    observation id: it is not substantive, so an observation whose substantive
+    values equal the current ones is idempotent (no new revision) and the
+    revision keeps citing the observation that first stated those values.
     """
     from src.kb.source_identity import READ_SCOPE
 
     prior = store.get(namespace, source_id, scopes={READ_SCOPE})
-    native = {
-        **prior["native_ids"],
-        **{k: str(v) for k, v in updates.items() if v is not None},
-    }
+    current = prior["native_ids"]
+    values = {k: str(v) for k, v in updates.items() if v is not None}
+    substantive = {k: v for k, v in values.items() if k != citation_key}
+    if citation_key in current and all(
+        current.get(k) == v for k, v in substantive.items()
+    ):
+        return {**prior, "idempotent": True}
+    native = {**current, **values}
     return store.revise(
         namespace,
         source_id,

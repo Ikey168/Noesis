@@ -195,12 +195,18 @@ def test_journey_domain_history_and_organization_pivot():
     history = store.get(
         NS, ids["exampla-news.example"], scopes={READ_SCOPE}, include_history=True
     )["revisions"]
-    assert [bool(h["native_ids"].get("rdap:observation")) for h in history] == [
+    assert [
+        bool(h["native_ids"].get("rdap:exampla-news.example:observation"))
+        for h in history
+    ] == [
         False,
         True,
         True,
     ]
-    assert history[-1]["native_ids"]["ct:observation"] == c["observation_id"]
+    assert (
+        history[-1]["native_ids"]["ct:exampla-news.example:observation"]
+        == c["observation_id"]
+    )
     assert projected["shared_infrastructure"][0]["policy"]["status"] == "probable"
     assert trace_artifact(conn, document_id=r["observation_id"])["chain"][-1][
         "identity_revisions"

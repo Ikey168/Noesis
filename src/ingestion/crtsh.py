@@ -187,17 +187,19 @@ def project_crtsh(
         namespace,
         source_id,
         {
-            "domain": domain,
-            "ct:certificate_count": str(len(certs)),
-            "ct:first_not_before": certs[0]["not_before"] if certs else None,
-            "ct:latest_not_before": certs[-1]["not_before"] if certs else None,
-            "ct:issuers": ",".join(
+            f"ct:{domain}:certificate_count": str(len(certs)),
+            f"ct:{domain}:first_not_before": certs[0]["not_before"] if certs else None,
+            f"ct:{domain}:latest_not_before": certs[-1]["not_before"]
+            if certs
+            else None,
+            f"ct:{domain}:issuers": ",".join(
                 sorted({c["issuer"] for c in certs if c.get("issuer")})
             ),
-            "ct:observation": observation_id,
+            f"ct:{domain}:observation": observation_id,
         },
         principal_id=principal_id,
         scopes=scopes,
+        citation_key=f"ct:{domain}:observation",
     )
     shared: dict[str, list[dict[str, Any]]] = {}
     for cert in certs:

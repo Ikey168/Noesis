@@ -1,7 +1,8 @@
 """RDAP domain-registration acquisition and source-identity projection (OX05, #2045).
 
 Consumes the ``rdap-domain`` source declared in ``config/source_packs/osint.json``
-(endpoint ``https://rdap.org/domain``, the RDAP bootstrap redirector). One
+(endpoint ``https://data.iana.org/rdap/dns.json``, the IANA RDAP bootstrap
+registry, RFC 9224); each lookup goes to the registry server it names. One
 domain per call, through the bounded, receipted path in
 :mod:`src.ingestion.osint_observations`; the response is parsed per RFC 9083
 (``ldhName``, ``status``, ``events``, ``nameservers``, ``entities`` with jCard
@@ -32,13 +33,87 @@ Projection (:func:`project_rdap`) writes, through the
 from __future__ import annotations
 
 import json
+import time
 from collections.abc import Callable, Mapping
 from typing import Any
 
 from src.ingestion import osint_observations as obs
 
 SOURCE_ID = "rdap-domain"
-ADAPTER_VERSION = "rdap-domain-v1"
+ADAPTER_VERSION = "rdap-domain-v2"
+# RFC 9224 bootstrap: the authoritative RDAP base URL per TLD. The source pack
+# endpoint is this registry file; the per-domain request goes straight to the
+# registry's server it names, so no cross-host redirect is ever followed.
+BOOTSTRAP_URL = "https://data.iana.org/rdap/dns.json"
+BOOTSTRAP_MAX_BYTES = 1_000_000
+BOOTSTRAP_TTL_MS = 24 * 3600 * 1000
+_BOOTSTRAP_CACHE: dict[str, Any] = {}
+
+
+def parse_bootstrap(raw: bytes) -> dict[str, str]:
+    """``tld -> https base URL`` from an IANA RDAP DNS bootstrap file."""
+    payload = json.loads(raw)
+    services = payload.get("services") if isinstance(payload, Mapping) else None
+    if not isinstance(services, list):
+        raise obs.ObservationError("invalid_bootstrap", "not an RDAP bootstrap file")
+    table: dict[str, str] = {}
+    for entry in services:
+        if not (isinstance(entry, list) and len(entry) == 2):
+            continue
+        tlds, urls = entry
+        https = [str(u) for u in urls or [] if str(u).lower().startswith("https://")]
+        if not https:
+            continue  # never downgrade to plain HTTP
+        base = https[0] if https[0].endswith("/") else https[0] + "/"
+        for tld in tlds or []:
+            table.setdefault(str(tld).lower().strip("."), base)
+    return table
+
+
+def bootstrap_table(
+    transport: Callable[..., Mapping[str, Any]],
+    *,
+    now_ms: int,
+    timeout_s: float,
+    cache: dict[str, Any] | None = None,
+) -> dict[str, str]:
+    """The bootstrap table, fetched once per TTL (one bounded GET, no retries)."""
+    cache = _BOOTSTRAP_CACHE if cache is None else cache
+    if (
+        cache.get("table")
+        and now_ms - int(cache.get("fetched_at_ms", 0)) < BOOTSTRAP_TTL_MS
+    ):
+        return cache["table"]
+    response = transport(
+        url=BOOTSTRAP_URL,
+        params={},
+        headers={"Accept": "application/json"},
+        timeout=timeout_s,
+        max_bytes=BOOTSTRAP_MAX_BYTES,
+    )
+    raw = response.get("content", b"")
+    raw = raw.encode() if isinstance(raw, str) else bytes(raw)
+    if int(response.get("status", 200)) != 200 or len(raw) > BOOTSTRAP_MAX_BYTES:
+        raise obs.ObservationError(
+            "bootstrap_unavailable", "IANA RDAP bootstrap unavailable"
+        )
+    table = parse_bootstrap(raw)
+    cache.update(table=table, fetched_at_ms=now_ms)
+    return table
+
+
+def rdap_url(domain: str, table: Mapping[str, str]) -> str:
+    """The authoritative RDAP domain URL, by longest matching label suffix."""
+    labels = domain.split(".")
+    for start in range(1, len(labels)):
+        suffix = ".".join(labels[start:])
+        if suffix in table:
+            return f"{table[suffix]}domain/{domain}"
+    raise obs.ObservationError(
+        "no_rdap_service", "the IANA bootstrap names no RDAP server for this TLD"
+    )
+
+
 REGISTRANT_CAVEAT = (
     "registrant organization as stated in RDAP at archive time; registration is not proof of editorial "
     "ownership or control"
@@ -205,16 +280,34 @@ def acquire_rdap(
     timeout_s: float | None = None,
     now: Callable[[], int] | None = None,
     investigation: str | None = None,
+    bootstrap_cache: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    """Acquire RDAP registration facts for one explicitly named domain."""
+    """Acquire RDAP registration facts for one explicitly named domain.
+
+    The authoritative registry server is resolved from the IANA bootstrap
+    (cached for 24 h, one bounded GET when stale); the domain lookup is then a
+    single request to that server, so the transport's same-host redirect policy
+    holds and nothing depends on a cross-host redirect."""
     source = obs.load_source(SOURCE_ID)
     domain = obs.normalize_domain(domain)
+    clock = now or (lambda: int(time.time() * 1000))
+    bounded_timeout = float(timeout_s or source["budgets"]["timeout_ms"] / 1000)
+
+    def resolve(active_transport: Callable[..., Mapping[str, Any]]) -> str:
+        table = bootstrap_table(
+            active_transport,
+            now_ms=clock(),
+            timeout_s=bounded_timeout,
+            cache=bootstrap_cache,
+        )
+        return rdap_url(domain, table)
+
     receipt = obs.acquire(
         conn,
         source_id=SOURCE_ID,
         domain=domain,
         request_id=request_id,
-        url=f"{source['endpoint'].rstrip('/')}/{domain}",
+        url=f"{source['endpoint']}#{domain}",
         params={},
         parse=parse_rdap_domain,
         adapter_version=ADAPTER_VERSION,
@@ -222,6 +315,7 @@ def acquire_rdap(
         max_bytes=max_bytes,
         timeout_s=timeout_s,
         now=now,
+        resolve_url=resolve,
     )
     if investigation:
         obs.record_in_investigation(conn, investigation, receipt)
@@ -292,18 +386,20 @@ def project_rdap(
         namespace,
         source_id,
         {
-            "domain": domain,
-            "rdap:registrar": (facts.get("registrar") or {}).get("name"),
-            "rdap:registrar_iana_id": (facts.get("registrar") or {}).get("iana_id"),
-            "rdap:registration": _event(facts, "registration"),
-            "rdap:last_changed": _event(facts, "last changed"),
-            "rdap:expiration": _event(facts, "expiration"),
-            "rdap:status": ",".join(facts.get("status") or []),
-            "rdap:nameservers": ",".join(facts.get("nameservers") or []),
-            "rdap:observation": observation_id,
+            f"rdap:{domain}:registrar": (facts.get("registrar") or {}).get("name"),
+            f"rdap:{domain}:registrar_iana_id": (facts.get("registrar") or {}).get(
+                "iana_id"
+            ),
+            f"rdap:{domain}:registration": _event(facts, "registration"),
+            f"rdap:{domain}:last_changed": _event(facts, "last changed"),
+            f"rdap:{domain}:expiration": _event(facts, "expiration"),
+            f"rdap:{domain}:status": ",".join(facts.get("status") or []),
+            f"rdap:{domain}:nameservers": ",".join(facts.get("nameservers") or []),
+            f"rdap:{domain}:observation": observation_id,
         },
         principal_id=principal_id,
         scopes=scopes,
+        citation_key=f"rdap:{domain}:observation",
     )
     relationship = None
     org = facts.get("registrant_organization")

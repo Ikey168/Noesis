@@ -27,10 +27,26 @@ NS = "osint"
 SCOPES = {READ_SCOPE, WRITE_SCOPE, REVIEW_SCOPE}
 
 
-def transport_for(name, calls=None, status=200):
+BOOTSTRAP = (FIX / "iana-rdap-dns.json").read_bytes()
+
+
+@pytest.fixture(autouse=True)
+def _fresh_bootstrap_cache():
+    rdap._BOOTSTRAP_CACHE.clear()
+    yield
+    rdap._BOOTSTRAP_CACHE.clear()
+
+
+def transport_for(name, calls=None, status=200, bootstrap_calls=None):
+    """Replays a fixture for the provider request; the IANA bootstrap URL
+    answers with the bootstrap fixture (counted in ``bootstrap_calls``)."""
     body = (FIX / name).read_bytes()
 
     def transport(*, url, params, headers, timeout, max_bytes):
+        if url == rdap.BOOTSTRAP_URL:
+            if bootstrap_calls is not None:
+                bootstrap_calls.append({"url": url, "max_bytes": max_bytes})
+            return {"status": 200, "content": BOOTSTRAP, "final_url": url}
         if calls is not None:
             calls.append(
                 {
@@ -166,7 +182,7 @@ def test_rdap_receipt_is_bounded_and_replayable(world):
     assert first["redistribution"] == "provider-specific"
     assert calls == [
         {
-            "url": "https://rdap.org/domain/exampla-news.example",
+            "url": "https://rdap.fixture-registry.test/v1/domain/exampla-news.example",
             "params": {},
             "timeout": 10.0,
             "max_bytes": 5_000_000,
@@ -238,9 +254,10 @@ def test_rdap_projects_revisions_and_ownership_side_by_side(world):
     ]
     assert len(history) == 2
     native = history[-1]["native_ids"]
-    assert native["rdap:registration"] == "2011-03-14T09:00:00Z"
-    assert native["rdap:registrar"] == "Fixture Registrar GmbH"
-    assert native["rdap:observation"] == receipt["observation_id"]
+    d = "exampla-news.example"
+    assert native[f"rdap:{d}:registration"] == "2011-03-14T09:00:00Z"
+    assert native[f"rdap:{d}:registrar"] == "Fixture Registrar GmbH"
+    assert native[f"rdap:{d}:observation"] == receipt["observation_id"]
     rel = out["ownership_relationship"]
     assert (
         rel["relationship_type"] == "ownership" and rel["to_source_id"] == ids["news"]
@@ -396,9 +413,10 @@ def test_crtsh_projects_history_and_a_probable_shared_infrastructure_relation(wo
         conn, NS, receipt["observation_id"], principal_id="analyst", scopes=SCOPES
     )
     native = store.get(NS, ids["news"], scopes={READ_SCOPE})["native_ids"]
-    assert native["ct:certificate_count"] == "3"
-    assert native["ct:first_not_before"] == "2023-01-10T00:00:00"
-    assert native["ct:observation"] == receipt["observation_id"]
+    d = "exampla-news.example"
+    assert native[f"ct:{d}:certificate_count"] == "3"
+    assert native[f"ct:{d}:first_not_before"] == "2023-01-10T00:00:00"
+    assert native[f"ct:{d}:observation"] == receipt["observation_id"]
     [relation] = out["shared_infrastructure"]
     assert relation["relationship_type"] == "shared-infrastructure"
     assert {relation["from_source_id"], relation["to_source_id"]} == {
@@ -457,3 +475,235 @@ def test_source_pack_fixtures_match_the_parsers():
                 domain = json.loads(raw)["ldhName"].lower()
                 rebuilt.append(rdap.parse_rdap_domain(raw, domain))
         assert rebuilt == fixture["normalized"]
+
+
+# --------------------------------------------------- review regressions (#2045)
+
+
+def test_rdap_resolves_the_registry_server_from_the_iana_bootstrap(world):
+    """Regression: rdap.org answers by redirecting to another host, which the
+    default transport refuses; the lookup must go straight to the registry
+    server named by the bootstrap, with the bootstrap cached and bounded."""
+    conn, _store, _ids, clock = world
+    calls, boot = [], []
+    cache = {}
+    transport = transport_for(
+        "rdap-domain-exampla-news.json", calls, bootstrap_calls=boot
+    )
+    first = rdap.acquire_rdap(
+        conn,
+        "exampla-news.example",
+        request_id="b1",
+        transport=transport,
+        now=clock,
+        bootstrap_cache=cache,
+    )
+    assert first["status"] == "acquired"
+    assert (
+        first["resolved_endpoint"]
+        == "https://rdap.fixture-registry.test/v1/domain/exampla-news.example"
+    )
+    assert [c["url"] for c in calls] == [first["resolved_endpoint"]]
+    assert boot == [{"url": rdap.BOOTSTRAP_URL, "max_bytes": rdap.BOOTSTRAP_MAX_BYTES}]
+    rdap.acquire_rdap(
+        conn,
+        "exampla-news.example",
+        request_id="b2",
+        transport=transport,
+        now=clock,
+        bootstrap_cache=cache,
+    )
+    assert len(boot) == 1  # cached within the TTL
+    # Longest suffix wins; an http-only service is never used.
+    table = rdap.parse_bootstrap(BOOTSTRAP)
+    assert (
+        rdap.rdap_url("news.co.example", table)
+        == "https://rdap.second-level.test/domain/news.co.example"
+    )
+    with pytest.raises(ObservationError):
+        rdap.rdap_url("site.insecure", table)
+    unknown = rdap.acquire_rdap(
+        conn,
+        "site.unlisted",
+        request_id="b3",
+        transport=transport,
+        now=clock,
+        bootstrap_cache=cache,
+    )
+    assert (
+        unknown["status"] == "failed" and unknown["failure_type"] == "no_rdap_service"
+    )
+
+
+def test_rdap_works_through_the_default_transport_policy(world, monkeypatch):
+    """Regression: with the real redirect validator, the old rdap.org path
+    failed with network_policy; the bootstrap path never needs a cross-host hop."""
+    from src.ingestion import source_pack_runtime
+
+    conn, _store, _ids, clock = world
+    served = []
+
+    def fake_request(*, url, params, headers, timeout, max_bytes):
+        served.append(url)
+        if url == rdap.BOOTSTRAP_URL:
+            return {"status": 200, "content": BOOTSTRAP, "final_url": url}
+        if url.startswith("https://rdap.org/"):
+            # What rdap.org does: redirect to the registry host, which the
+            # runtime's validator refuses.
+            source_pack_runtime._validate_redirect(
+                url, "https://rdap.fixture-registry.test/v1/domain/x"
+            )
+        return {
+            "status": 200,
+            "content": (FIX / "rdap-domain-exampla-news.json").read_bytes(),
+            "final_url": url,
+        }
+
+    monkeypatch.setattr(
+        source_pack_runtime.HTTPSPageAdapter, "_request", staticmethod(fake_request)
+    )
+    receipt = rdap.acquire_rdap(
+        conn, "exampla-news.example", request_id="p1", now=clock
+    )
+    assert receipt["status"] == "acquired"
+    assert not any(u.startswith("https://rdap.org/") for u in served)
+
+
+def test_projection_never_replaces_the_source_domain_and_keys_facts_by_domain(world):
+    """Regression: projecting an alias domain used to overwrite native_ids
+    ``domain`` and the per-source rdap/ct keys."""
+    conn, store, _ids, clock = world
+    # exampla-news.example is already aliased in NS; use a fresh namespace.
+    ns = "osint-multi"
+    multi = store.register(
+        ns,
+        "publication",
+        "Multi Domain",
+        principal_id="analyst",
+        scopes=SCOPES,
+        native_ids={"domain": "exampla-news.example"},
+    )
+    store.decide_alias(
+        ns,
+        multi["source_id"],
+        "domain",
+        "private-blog.example",
+        reason="second masthead domain",
+        reviewer_id="reviewer",
+        scopes=SCOPES,
+    )
+    a = rdap.acquire_rdap(
+        conn,
+        "exampla-news.example",
+        request_id="m1",
+        transport=transport_for("rdap-domain-exampla-news.json"),
+        now=clock,
+    )
+    b = rdap.acquire_rdap(
+        conn,
+        "private-blog.example",
+        request_id="m2",
+        transport=transport_for("rdap-domain-individual-registrant.json"),
+        now=clock,
+    )
+    rdap.project_rdap(
+        conn, ns, a["observation_id"], principal_id="analyst", scopes=SCOPES
+    )
+    rdap.project_rdap(
+        conn, ns, b["observation_id"], principal_id="analyst", scopes=SCOPES
+    )
+    native = store.get(ns, multi["source_id"], scopes={READ_SCOPE})["native_ids"]
+    assert native["domain"] == "exampla-news.example"
+    assert native["rdap:exampla-news.example:registrar"] == "Fixture Registrar GmbH"
+    assert native["rdap:private-blog.example:registrar"] == "Budget Names Inc"
+    assert osint_observations.source_domains(conn, ns) == {
+        "exampla-news.example": [multi["source_id"]],
+        "private-blog.example": [multi["source_id"]],
+    }
+    again = rdap.project_rdap(
+        conn, ns, a["observation_id"], principal_id="analyst", scopes=SCOPES
+    )
+    assert (
+        again["status"] == "projected"
+        and again["source_identity"] == multi["source_id"]
+    )
+    from src.osint.infrastructure import infrastructure_pivot
+
+    assert (
+        infrastructure_pivot(conn, "exampla-news.example", namespace=ns)["status"]
+        == "ok"
+    )
+
+
+def test_unchanged_reacquisition_adds_no_revision(world):
+    """Regression: the observation id hashes the fetch time, so re-acquiring
+    identical data used to append a revision every time."""
+    conn, store, ids, clock = world
+    transport = transport_for("rdap-domain-exampla-news.json")
+    first = rdap.acquire_rdap(
+        conn, "exampla-news.example", request_id="u1", transport=transport, now=clock
+    )
+    rdap.project_rdap(
+        conn, NS, first["observation_id"], principal_id="analyst", scopes=SCOPES
+    )
+    before = store.get(NS, ids["news"], scopes={READ_SCOPE})
+    second = rdap.acquire_rdap(
+        conn, "exampla-news.example", request_id="u2", transport=transport, now=clock
+    )
+    assert second["observation_id"] != first["observation_id"]
+    out = rdap.project_rdap(
+        conn, NS, second["observation_id"], principal_id="analyst", scopes=SCOPES
+    )
+    after = store.get(NS, ids["news"], scopes={READ_SCOPE})
+    assert after["revision"] == before["revision"] == out["identity_revision"]
+    assert (
+        after["native_ids"]["rdap:exampla-news.example:observation"]
+        == first["observation_id"]
+    )
+    c1 = crtsh.acquire_crtsh(
+        conn,
+        "exampla-news.example",
+        request_id="u3",
+        transport=transport_for("crtsh-exampla-news.json"),
+        now=clock,
+    )
+    crtsh.project_crtsh(
+        conn, NS, c1["observation_id"], principal_id="analyst", scopes=SCOPES
+    )
+    mid = store.get(NS, ids["news"], scopes={READ_SCOPE})["revision"]
+    c2 = crtsh.acquire_crtsh(
+        conn,
+        "exampla-news.example",
+        request_id="u4",
+        transport=transport_for("crtsh-exampla-news.json"),
+        now=clock,
+    )
+    crtsh.project_crtsh(
+        conn, NS, c2["observation_id"], principal_id="analyst", scopes=SCOPES
+    )
+    assert (
+        store.get(NS, ids["news"], scopes={READ_SCOPE})["revision"]
+        == mid
+        == before["revision"] + 1
+    )
+    # A substantive change still revises.
+    changed = json.loads((FIX / "rdap-domain-exampla-news.json").read_text())
+    changed["events"][2]["eventDate"] = "2028-03-14T09:00:00Z"
+
+    def renewed(**kwargs):
+        if kwargs["url"] == rdap.BOOTSTRAP_URL:
+            return {"status": 200, "content": BOOTSTRAP}
+        return {"status": 200, "content": json.dumps(changed).encode()}
+
+    third = rdap.acquire_rdap(
+        conn, "exampla-news.example", request_id="u5", transport=renewed, now=clock
+    )
+    rdap.project_rdap(
+        conn, NS, third["observation_id"], principal_id="analyst", scopes=SCOPES
+    )
+    final = store.get(NS, ids["news"], scopes={READ_SCOPE})
+    assert final["revision"] == mid + 1
+    assert (
+        final["native_ids"]["rdap:exampla-news.example:expiration"]
+        == "2028-03-14T09:00:00Z"
+    )
