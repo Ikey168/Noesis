@@ -115,3 +115,25 @@ def test_writes_and_scopes_through_mcp(mcp_env):
         namespace="global", candidate_id=candidate, reason="x"
     )
     assert refused["ok"] is False and refused["error"]["code"] == "unauthorized"
+
+
+def test_propose_works_with_exactly_the_declared_scopes(mcp_env):
+    tools, state = mcp_env
+    namespace_access = {"namespace:global:read", "namespace:global:write"}
+    state["scopes"] = (
+        set(SANCTIONS_SCOPES["propose_sanctions_identity_matches"]) | namespace_access
+    )
+    proposed = tools["propose_sanctions_identity_matches"].fn(
+        namespace="global", ownership_namespace="global"
+    )
+    assert "error" not in proposed and len(proposed["proposed"]) >= 3, proposed
+    state["scopes"] = {
+        "knowledge:legal:read",
+        "knowledge:ownership:write",
+    } | namespace_access
+    refused = tools["propose_sanctions_identity_matches"].fn(
+        namespace="global", ownership_namespace="global"
+    )
+    assert (
+        refused["ok"] is False
+    )  # ownership records cannot be read without the declared read scope

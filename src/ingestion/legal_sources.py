@@ -238,7 +238,11 @@ def _provider_error(exc: Exception) -> SourcePackError:
 
 
 CONTROL_CODE = re.compile(r"^(\d[A-E]\d{3})(?=\b|[.\s])")
-_BREAK = re.compile(r"^(CATEGORY\s+\d|ANNEX\b|PART\s+[IVX]+\b)", re.I)
+_ANNEX = re.compile(r"^ANNEX\s+([IVX]+[a-z]?)\b", re.I)
+# Headings EUR-Lex renders as plain paragraphs: annex, part and section
+# titles, category titles ("CATEGORY 1 — ...") and product-group titles
+# ("1B Test, inspection and production equipment").
+_BREAK = re.compile(r"^(?i:CATEGORY\s+\d|ANNEX\b|PART\s+[IVX]+\b|SECTION\s+[A-Z0-9]+\b)|^\d[A-E](?:\s|$)")
 
 
 def _xhtml_blocks(raw: bytes) -> list[tuple[str, str, str | None]]:
@@ -269,27 +273,35 @@ def parse_xhtml_paragraphs(raw: bytes) -> list[dict[str, Any]]:
 
 
 def parse_control_list_annex(raw: bytes) -> list[dict[str, Any]]:
-    """One passage per control code (the code and every paragraph up to the next code or heading).
+    """One passage per control code within its annex (the code and its paragraphs up to the next code or heading).
 
-    A control entry is located by its code so the same entry can be compared
-    across editions; other paragraphs keep their paragraph index. The text is
-    the source text; the category is the code's first digit as the annex
-    numbers it, not an interpretation of what is controlled.
+    Entries are scoped to the annex they appear in (``ANNEX I``, ``ANNEX IV``
+    ...): a code repeated in another annex is a separate passage located as
+    ``annex-<n>/<code>``, never appended to the Annex I entry. A control entry
+    is located by its annex and code so the same entry can be compared across
+    editions; other paragraphs (including group, category and annex headings)
+    keep their paragraph index. The text is the source text; the category is
+    the code's first digit as the annex numbers it, not an interpretation.
     """
     sections: list[dict[str, Any]] = []
-    entries: dict[str, dict[str, Any]] = {}
+    entries: dict[tuple[str | None, str], dict[str, Any]] = {}
     current = None
+    annex = None
     for index, (text, tag, ident) in enumerate(_xhtml_blocks(raw)):
-        match = CONTROL_CODE.match(text)
+        heading = _ANNEX.match(text)
+        if heading:
+            annex = heading.group(1).lower()
+        match = None if heading else CONTROL_CODE.match(text)
         if match:
             code = match.group(1)
-            current = entries.get(code)
+            current = entries.get((annex, code))
             if current is None:
                 current = {"text": text, "locator": {"kind": "control-entry", "official_norm_id": code,
-                                                     "path": f"annex-i/{code}", "category": code[0],
-                                                     "product_group": code[1], "paragraph_indexes": [index],
+                                                     "annex": annex, "path": f"annex-{annex or 'none'}/{code}",
+                                                     "category": code[0], "product_group": code[1],
+                                                     "paragraph_indexes": [index],
                                                      "precision": "control-code grouping of source paragraphs"}}
-                entries[code] = current
+                entries[(annex, code)] = current
                 sections.append(current)
             else:
                 current["text"] += "\n" + text

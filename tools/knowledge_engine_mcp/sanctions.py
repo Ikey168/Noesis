@@ -33,8 +33,11 @@ SANCTIONS_READS = {
 SANCTIONS_TOOLS = SANCTIONS_WRITES | SANCTIONS_READS
 SANCTIONS_SCOPES = {
     "sanctions_source_contracts": [],
+    # Proposing reads the lists, reads Corporate Ownership records (and the candidates it returns) and writes
+    # candidates into the ownership identity state machine.
     "propose_sanctions_identity_matches": [
         "knowledge:legal:read",
+        "knowledge:ownership:read",
         "knowledge:ownership:write",
     ],
     "propose_sanctions_identity_link": [

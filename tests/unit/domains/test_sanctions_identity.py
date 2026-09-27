@@ -58,11 +58,22 @@ def test_cross_list_candidates_rest_on_stated_identifiers_with_revisions(lists):
         "sanctions:eu:EU.9001.01",
         "sanctions:uk:RUS9001",
     ) in pairs  # same registration number
+    # IMO numbers are global; a passport or registration number is exact only when both lists name the
+    # same issuing country in a comparable form ("RU" against "Russian Federation" or a missing country is not).
+    assert (
+        pairs[("sanctions:eu:EU.9002.02", "sanctions:ofac:99001")]["basis"]
+        == "exact-identifier"
+    )
+    assert (
+        pairs[("sanctions:eu:EU.9003.03", "sanctions:un:QDi.902")]["basis"]
+        == "unqualified-identifier"
+    )
+    assert (
+        pairs[("sanctions:eu:EU.9001.01", "sanctions:uk:RUS9001")]["basis"]
+        == "unqualified-identifier"
+    )
     for candidate in pairs.values():
-        assert (
-            candidate["state"] == "proposed"
-            and candidate["basis"] == "exact-identifier"
-        )
+        assert candidate["state"] == "proposed"
         evidence = candidate["evidence"][0]
         assert evidence["left"]["revision_id"] and evidence["right"]["snapshot_id"]
         assert candidate["source_revisions_compared"]
@@ -321,3 +332,241 @@ def test_ownership_records_match_only_by_identifiers_within_their_register_count
         scopes=h.REVIEW_SCOPES,
     )
     assert service.clusters("global") == {}
+
+
+def entry(list_id, entry_id, identifiers, name="Fixture Party"):
+    return {
+        "list_id": list_id,
+        "entry_id": entry_id,
+        "party_kind": "person",
+        "names": [
+            {
+                "name": name,
+                "kind": "primary",
+                "quality": None,
+                "script": None,
+                "language": None,
+            }
+        ],
+        "identifiers": identifiers,
+        "addresses": [],
+        "programmes": [],
+        "legal_basis": [],
+        "dates_of_birth": [],
+        "nationalities": [],
+        "remarks": [],
+        "listed_on": None,
+        "amended_on": None,
+        "cross_references": {},
+    }
+
+
+def passport(value, country):
+    return {
+        "kind": "passport",
+        "value": value,
+        "source_type": "Passport",
+        "country": country,
+        "note": None,
+    }
+
+
+def snapshot(conn, list_id, entries, digest):
+    SanctionsStore(conn).apply_snapshot(
+        "global",
+        {
+            "list_id": list_id,
+            "publication_date": "2026-03-01",
+            "file_sha256": digest * 64,
+            "entry_count": len(entries),
+            "format": "fixture",
+        },
+        entries,
+        run_id="r",
+        source_id=None,
+    )
+
+
+def test_same_digits_from_different_issuing_countries_are_not_a_candidate():
+    conn = h.connection()
+    snapshot(
+        conn,
+        "eu",
+        [
+            entry("eu", "EU.1", [passport("A1234567", "FR")]),
+            entry("eu", "EU.2", [passport("B7654321", "DE")]),
+            entry("eu", "EU.3", [passport("C1111111", None)]),
+        ],
+        "a",
+    )
+    snapshot(
+        conn,
+        "ofac",
+        [
+            entry("ofac", "1", [passport("A1234567", "DE")]),
+            entry("ofac", "2", [passport("B7654321", "de")]),
+            entry("ofac", "3", [passport("C1111111", "DE")]),
+        ],
+        "b",
+    )
+    pairs = {
+        tuple(c["records"]): c
+        for c in SanctionsIdentity(conn).propose(
+            "global", principal_id="analyst", scopes=h.SCOPES
+        )["candidates"]
+    }
+    assert (
+        "sanctions:eu:EU.1",
+        "sanctions:ofac:1",
+    ) not in pairs  # FR and DE passports: different documents
+    assert (
+        pairs[("sanctions:eu:EU.2", "sanctions:ofac:2")]["basis"] == "exact-identifier"
+    )
+    missing = pairs[("sanctions:eu:EU.3", "sanctions:ofac:3")]
+    assert missing["basis"] == "unqualified-identifier" and missing["confidence"] < 0.95
+    assert missing["evidence"][0]["issuers"] == {
+        "relation": "unknown",
+        "left": None,
+        "right": "DE",
+    }
+
+
+def test_stronger_evidence_upgrades_a_pending_candidate_and_rejections_can_be_reproposed(
+    lists,
+):
+    identity = SanctionsIdentity(lists)
+    person = designation(lists, "eu", "EU.9003.03")
+    name_only = identity.propose_link(
+        "global",
+        person,
+        target_key="entity:ivan",
+        target_entity="ent-ivan",
+        evidence={
+            "kind": "name",
+            "value": "Ivan Fictional-Example",
+            "target_source": "news document",
+        },
+        principal_id="analyst",
+        scopes=h.SCOPES,
+    )
+    assert name_only["change"] == "created"
+    upgraded = identity.propose_link(
+        "global",
+        person,
+        target_key="entity:ivan",
+        target_entity="ent-ivan",
+        evidence={
+            "kind": "passport",
+            "value": "X1234567",
+            "target_source": "registry extract",
+        },
+        principal_id="analyst",
+        scopes=h.SCOPES,
+    )
+    assert (
+        upgraded["candidate_id"] == name_only["candidate_id"]
+        and upgraded["change"] == "upgraded"
+    )
+    view = next(
+        c
+        for c in identity.candidates("global", scopes=h.SCOPES)
+        if c["candidate_id"] == upgraded["candidate_id"]
+    )
+    assert (
+        view["basis"] == "cross-referenced-identifier" and view["state"] == "proposed"
+    )
+    assert (
+        view["history"][-1]["previous_basis"] == "similar-name"
+    )  # the audit trail keeps what was replaced
+    weaker = identity.propose_link(
+        "global",
+        person,
+        target_key="entity:ivan",
+        target_entity="ent-ivan",
+        evidence={
+            "kind": "name",
+            "value": "Ivan Fictional-Example",
+            "target_source": "another document",
+        },
+        principal_id="analyst",
+        scopes=h.SCOPES,
+    )
+    assert (
+        weaker["change"] is None
+    )  # weaker evidence never downgrades a pending candidate
+    identity.service.review(
+        "global",
+        upgraded["candidate_id"],
+        "reject",
+        "different person",
+        principal_id="reviewer",
+        scopes=h.REVIEW_SCOPES,
+    )
+    same = identity.propose_link(
+        "global",
+        person,
+        target_key="entity:ivan",
+        target_entity="ent-ivan",
+        evidence={
+            "kind": "passport",
+            "value": "X1234567",
+            "target_source": "registry extract",
+        },
+        principal_id="analyst",
+        scopes=h.SCOPES,
+    )
+    assert (
+        same["change"] is None
+    )  # the rejected evidence alone does not reopen the review
+    again = identity.propose_link(
+        "global",
+        person,
+        target_key="entity:ivan",
+        target_entity="ent-ivan",
+        evidence={
+            "kind": "passport",
+            "value": "X1234567",
+            "target_source": "newly found registry record",
+            "attributes": [{"kind": "date_of_birth", "value": "1970-01-01"}],
+        },
+        principal_id="analyst",
+        scopes=h.REVIEW_SCOPES,
+    )
+    assert again["change"] == "reproposed"
+    reopened = next(
+        c
+        for c in identity.candidates("global", scopes=h.SCOPES)
+        if c["candidate_id"] == again["candidate_id"]
+    )
+    assert reopened["state"] == "proposed" and reopened["decision_id"] is None
+    assert [e.get("state") for e in reopened["history"]] == [
+        "proposed",
+        "proposed",
+        "rejected",
+        "proposed",
+    ]
+    accepted = identity.service.review(
+        "global",
+        again["candidate_id"],
+        "accept",
+        "registry record",
+        principal_id="reviewer",
+        scopes=h.REVIEW_SCOPES,
+    )
+    assert accepted["state"] == "accepted"
+    assert (
+        identity.propose_link(
+            "global",
+            person,
+            target_key="entity:ivan",
+            target_entity="ent-ivan",
+            evidence={
+                "kind": "passport",
+                "value": "X1234567",
+                "target_source": "yet another record",
+            },
+            principal_id="analyst",
+            scopes=h.SCOPES,
+        )["change"]
+        is None
+    )  # an accepted decision is left alone

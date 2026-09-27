@@ -45602,6 +45602,7 @@
       ],
       "required_scopes": [
         "knowledge:legal:read",
+        "knowledge:ownership:read",
         "knowledge:ownership:write"
       ],
       "server": "noesis-knowledge-engine",

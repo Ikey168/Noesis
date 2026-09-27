@@ -332,7 +332,7 @@
       "fixture": {
         "path": "tests/fixtures/source_packs/legal-cellar-dual-use-eng.json",
         "sha256": "eba0d08aa9bf08997dfaeed7b42c4039474776e6013688e06c3702a4533ae8c3",
-        "expected_output_hash": "33a1a76cc535e2836dc859dbbda36116c9e53e1945722f779853d1e9c179325d"
+        "expected_output_hash": "15125d59b5617d252dbe4feac7d9e02174149b178e5af007f9fa165deec0eca5"
       }
     },
     {

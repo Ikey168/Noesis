@@ -366,3 +366,84 @@ def test_comext_transport_policy_refuses_other_hosts_and_redirects():
     assert get(COMEXT_SELECTION["endpoint"] + "/DS-045409") == "{}"
     pinned = h.ROOT / COMEXT_SELECTION["fixture"]
     assert hashlib.sha256(pinned.read_bytes()).hexdigest()  # the pinned fixture exists
+
+
+SYNTHETIC_ANNEXES = """<html><body>
+<p>ANNEX I</p>
+<p>CATEGORY 1 — SPECIAL MATERIALS AND RELATED EQUIPMENT</p>
+<p>1A Systems, equipment and components</p>
+<p>1A001 Components made from fluorinated compounds, as follows:</p>
+<p>a. Seals and gaskets.</p>
+<p>{heading}</p>
+<p>1B001 Equipment for the production of fibres, as follows:</p>
+<p>ANNEX IV</p>
+<p>List of items subject to intra-Community transfer controls</p>
+<p>1A001 Items referred to in Annex I that also need an intra-Union licence.</p>
+</body></html>"""
+
+
+def annex_entries(heading="1B Test, inspection and production equipment"):
+    sections = parse_control_list_annex(
+        SYNTHETIC_ANNEXES.format(heading=heading).encode()
+    )
+    return sections, {
+        (s["locator"]["annex"], s["locator"]["official_norm_id"]): s
+        for s in sections
+        if s["locator"]["kind"] == "control-entry"
+    }
+
+
+def test_a_code_repeated_in_another_annex_is_a_separate_entry():
+    _, entries = annex_entries()
+    assert sorted(entries) == [("i", "1A001"), ("i", "1B001"), ("iv", "1A001")]
+    annex_i = entries[("i", "1A001")]
+    assert annex_i["text"].splitlines() == [
+        "1A001 Components made from fluorinated compounds, as follows:",
+        "a. Seals and gaskets.",
+    ]
+    assert annex_i["locator"]["path"] == "annex-i/1A001"
+    annex_iv = entries[("iv", "1A001")]
+    assert (
+        annex_iv["locator"]["path"] == "annex-iv/1A001"
+        and "intra-Union" in annex_iv["text"]
+    )
+
+
+def test_group_headings_rendered_as_paragraphs_end_the_previous_entry():
+    sections, entries = annex_entries()
+    headings = [
+        s["text"] for s in sections if s["locator"]["kind"] == "xhtml-paragraph"
+    ]
+    assert "1B Test, inspection and production equipment" in headings
+    assert "1A Systems, equipment and components" in headings
+    _, renamed = annex_entries("1B Test, inspection and production equipment (renamed)")
+    assert (
+        renamed[("i", "1A001")]["text"] == entries[("i", "1A001")]["text"]
+    )  # a heading change is not 1A001's
+
+
+def test_only_annex_i_passages_are_control_list_entries(editions):
+    conn, store, _ = editions
+    work = consolidated_work(store)["work_id"]
+    version = conn.execute(
+        "SELECT version_id FROM legal_versions WHERE work_id=? AND "
+        "content_coverage='captured-text' ORDER BY version_id LIMIT 1",
+        [work],
+    ).fetchone()[0]
+    conn.execute(
+        "INSERT INTO legal_passages VALUES (?, 999, 'annex-iv-1C350', ?, ?)",
+        [
+            version,
+            json.dumps(
+                {
+                    "kind": "control-entry",
+                    "official_norm_id": "1C350",
+                    "annex": "iv",
+                    "path": "annex-iv/1C350",
+                }
+            ),
+            "1C350 Annex IV wording",
+        ],
+    )
+    texts = [e["text"] for e in SanctionsStore(conn).control_entries("global", "1C350")]
+    assert "1C350 Annex IV wording" not in texts and len(texts) == 2

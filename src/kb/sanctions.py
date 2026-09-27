@@ -59,6 +59,7 @@ CHANGES = ("listed", "amended", "relisted", "delisted")
 CONTROL_LISTS = {
     "eu-dual-use": {
         "base_celex": "32021R0821",
+        "annex": "i",
         "title": "Regulation (EU) 2021/821, Annex I",
     }
 }
@@ -665,6 +666,7 @@ class SanctionsStore:
     ) -> list[dict[str, Any]]:
         """Control-list entries of every captured edition, read from the Legal store's located passages."""
         legal_namespace = legal_namespace or namespace
+        spec = CONTROL_LISTS[control_list]
         work = self.control_list_work(legal_namespace, control_list)
         if work is None:
             return []
@@ -680,8 +682,11 @@ class SanctionsStore:
                 [version_id],
             ).fetchall():
                 locator = _load(locator_json, {})
-                if locator.get("kind") != "control-entry":
-                    continue
+                if (
+                    locator.get("kind") != "control-entry"
+                    or locator.get("annex") != spec["annex"]
+                ):
+                    continue  # the same code in another annex (e.g. Annex IV) is not the control-list entry
                 code = str(locator["official_norm_id"])
                 entries.append(
                     {

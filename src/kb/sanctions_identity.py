@@ -38,6 +38,39 @@ OWNERSHIP_SCHEMES = {
     "registration_number": {"gb-coh": "GB", "company_number": "GB"},
 }
 ATTRIBUTE_KINDS = ("date_of_birth", "nationality", "address")
+# Identifiers unique worldwide; every other kind is only unique within its issuing country.
+GLOBAL_IDENTIFIER_KINDS = ("imo", "lei")
+
+
+def _issuer(value: Any) -> tuple[str, str] | None:
+    """An issuing country as (form, value): an ISO code ("code") or a normalized name ("name")."""
+    from src.ingestion.connectors.dataset.normalize import normalize_geography
+
+    text = " ".join(str(value or "").split())
+    if not text:
+        return None
+    if len(text) in (2, 3) and text.isalpha():
+        return "code", str(normalize_geography(text))
+    return "name", normalize_identifier(text)
+
+
+def issuer_comparison(
+    kind: str, left: Mapping[str, Any], right: Mapping[str, Any]
+) -> dict[str, Any]:
+    """Whether two stated identifiers come from the same issuer.
+
+    ``global`` for worldwide identifiers (IMO, LEI); ``same`` or ``different``
+    when both sides state a comparable issuing country; ``unknown`` when a
+    country is missing or stated in forms that cannot be compared (a code
+    against a name) - such a candidate is downgraded, never exact.
+    """
+    countries = {"left": left.get("country"), "right": right.get("country")}
+    if kind in GLOBAL_IDENTIFIER_KINDS:
+        return {"relation": "global", **countries}
+    a, b = _issuer(left.get("country")), _issuer(right.get("country"))
+    if a is None or b is None or a[0] != b[0]:
+        return {"relation": "unknown", **countries}
+    return {"relation": "same" if a[1] == b[1] else "different", **countries}
 
 
 class SanctionsIdentity:
@@ -109,6 +142,9 @@ class SanctionsIdentity:
                 for right, right_id in holders[i + 1 :]:
                     if left["list_id"] == right["list_id"]:
                         continue  # one list's own entries are its business; lists are only compared across
+                    issuers = issuer_comparison(kind, left_id, right_id)
+                    if issuers["relation"] == "different":
+                        continue  # same digits from two issuers are two different documents
                     offered.append(
                         self.service.offer(
                             namespace,
@@ -116,13 +152,16 @@ class SanctionsIdentity:
                             right_key=right["record_key"],
                             left_entity=left["entity_id"],
                             right_entity=right["entity_id"],
-                            basis="exact-identifier",
+                            basis="exact-identifier"
+                            if issuers["relation"] in {"same", "global"}
+                            else "unqualified-identifier",
                             evidence=[
                                 {
                                     "kind": kind,
                                     "value": left_id["value"],
                                     "left": self._side(left),
                                     "right": self._side(right),
+                                    "issuers": issuers,
                                     "fields": ["identifiers"],
                                     "note": "both lists state this identifier; the lists stay separate",
                                 }
@@ -136,7 +175,9 @@ class SanctionsIdentity:
                 namespace, ownership_namespace, index, principal_id, scopes
             )
         return {
-            "proposed": [o["candidate_id"] for o in offered if o["created"]],
+            "proposed": [
+                o["candidate_id"] for o in offered if o["created"] or o.get("change")
+            ],
             "candidates": self.candidates(namespace, scopes=scopes),
         }
 
@@ -340,6 +381,7 @@ class SanctionsIdentity:
             "candidate_id": candidate["candidate_id"],
             "state": candidate["state"],
             "basis": candidate["basis"],
+            "confidence": candidate["confidence"],
             "records": [candidate["left_key"], candidate["right_key"]],
             "entities": [candidate["left_entity"], candidate["right_entity"]],
             "decision_id": candidate["decision_id"],
