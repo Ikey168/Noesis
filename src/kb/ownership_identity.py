@@ -28,8 +28,8 @@ Bases, strongest first:
   as a candidate but can never be accepted: a similar name alone is not an
   identity.
 
-Other record owners (the Legal sanctions and Political lobbying and elections features) put their own candidates
-into this same state machine through :meth:`OwnershipIdentityService.offer`;
+Other record owners (the Legal sanctions, Political lobbying and elections, and Economics public-finance
+features) put their own candidates into this same state machine through :meth:`OwnershipIdentityService.offer`;
 review, rejection and revert are shared.
 
 Successors and predecessors (mergers, re-registrations) are corporate events,
@@ -51,7 +51,7 @@ CONFIDENCE = {"exact-identifier": 0.95, "cross-referenced-identifier": 0.8,
               "unqualified-identifier": 0.5, "name-jurisdiction": 0.35, "similar-name": 0.1}
 NEVER_ACCEPTED = frozenset({"similar-name"})
 # Record keys owned by other bundles that share this state machine through ``offer``.
-FOREIGN_KEY_PREFIXES = ("sanctions:", "lobbying:", "elections:")
+FOREIGN_KEY_PREFIXES = ("sanctions:", "lobbying:", "elections:", "public-finance:")
 PRIMARY_SCHEME = {"gleif": "lei", "companies-house": "gb-coh", "sec-edgar": "sec-cik"}
 STATES = ("proposed", "accepted", "rejected", "reverted")
 _DDL = """
