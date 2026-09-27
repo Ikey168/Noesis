@@ -169,3 +169,16 @@ def test_inspection_and_the_budget_dossier_cite_everything_and_list_unknowns(con
     assert forbidden_keys(dossier) == []
     with pytest.raises(PublicFinanceError):
         queries.compare_budget_line(h.NS, grant, "2099", scopes={"knowledge:read"})
+
+
+def test_a_changed_gfs_cube_without_a_new_update_time_is_refused_not_dropped(conn):
+    h.apply(conn, "gfs", 0, h.GFS_APRIL)
+    silently = h.body(h.GFS_APRIL).replace("1040.2", "1041.0")
+    with pytest.raises(PublicFinanceError) as refused:
+        h.apply(conn, "gfs", 0, silently)
+    assert refused.value.code == "vintage_conflict"
+    assert (
+        conn.execute("SELECT count(*) FROM public_finance_gfs_vintages").fetchone()[0]
+        == 1
+    )
+    assert h.apply(conn, "gfs", 0, h.GFS_APRIL)["status"] == "unchanged"

@@ -540,10 +540,9 @@ class PublicFinanceStore:
                 "invalid_release", "a budget line states every code of its scheme"
             )
         line_key = f"{scheme}:" + "/".join(identity[k] for k in SCHEMES[scheme])
-        line_id = (
-            "pf-line:"
-            + digest([namespace, provider, scheme, identity, figure.get("side")])[:24]
-        )
+        # The codes identify a line; the revenue/expenditure marker is an attribute (a Titel number is unique
+        # within its Kapitel), so a file that omits the marker never splits one line into two.
+        line_id = "pf-line:" + digest([namespace, provider, scheme, identity])[:24]
         if self.conn.execute(
             "SELECT 1 FROM public_finance_lines WHERE namespace=? AND line_id=?",
             [namespace, line_id],

@@ -263,3 +263,16 @@ def test_audit_findings_quote_passages_cite_lines_and_refuse_verdicts(conn):
     with pytest.raises(PublicFinanceError) as denied:
         store.import_findings(h.NS, corrected, principal_id="x", scopes=h.READ_ONLY)
     assert denied.value.code == "unauthorized"
+
+
+def test_a_file_without_the_revenue_expenditure_marker_does_not_split_a_line(conn):
+    h.apply(conn, "bund", 0, "de_bund_2099_soll.csv")
+    bare = "\n".join(
+        line.rsplit(";", 2)[0] + ";" + line.rsplit(";", 1)[1]
+        if not line.startswith("#")
+        else line
+        for line in h.body("de_bund_2099_nachtrag1.csv").splitlines()
+    )
+    assert "Einnahme/Ausgabe" not in bare
+    h.apply(conn, "bund", 1, bare + "\n")
+    assert len(PublicFinanceStore(conn).lines(h.NS, scheme="de-bund-haushalt")) == 3

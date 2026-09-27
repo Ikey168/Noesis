@@ -25314,7 +25314,8 @@
       ],
       "required_scopes": [
         "knowledge:economic:public-finance:read",
-        "knowledge:economic:read"
+        "knowledge:economic:read",
+        "knowledge:economic:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",

@@ -38,6 +38,7 @@ SCOPES = {
     f"namespace:{NS}:read",
     f"namespace:{NS}:write",
     "knowledge:economic:read",
+    "knowledge:economic:write",
     "knowledge:ownership:read",
     "knowledge:ownership:write",
     "knowledge:subscriptions:read",

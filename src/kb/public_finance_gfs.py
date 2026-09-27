@@ -36,6 +36,7 @@ from src.kb.public_finance import (
 )
 
 ECONOMIC_READ = "knowledge:economic:read"
+ECONOMIC_WRITE = "knowledge:economic:write"
 OWNER = "public-finance"
 ACCOUNTING_BASIS = "esa2010"
 _DDL = """
@@ -82,6 +83,7 @@ class GovernmentFinanceStatistics:
         record = SeriesRecord.from_dict(dict(items[0]))
         retrieved = self.now()
         record.metadata["acquired_at_ms"] = retrieved
+        self._check_same_update(record)
         self.conn.execute("BEGIN")
         try:
             release_id, created = self.store._release(
@@ -179,6 +181,31 @@ class GovernmentFinanceStatistics:
             "vintages": 1,
         }
 
+    def _check_same_update(self, record: Any) -> None:
+        """An already stored provider update must state the same values; a silent change is refused, not dropped."""
+        if not table_exists(self.conn, "dataset_observations") or not table_exists(
+            self.conn, "public_finance_gfs_vintages"
+        ):
+            return
+        if not self.conn.execute(
+            "SELECT 1 FROM public_finance_gfs_vintages WHERE series_id=? AND as_of=?",
+            [record.series_id, record.as_of],
+        ).fetchone():
+            return
+        stored = {
+            period: value
+            for period, value in self.conn.execute(
+                "SELECT period, value FROM dataset_observations WHERE series_id=? AND as_of=?",
+                [record.series_id, record.as_of],
+            ).fetchall()
+        }
+        if stored != {o.period: o.value for o in record.observations}:
+            raise PublicFinanceError(
+                "vintage_conflict",
+                "the provider changed values without a new updated time; the stored vintage is kept and the "
+                "response is refused",
+            )
+
     def series(
         self, namespace: str, *, scopes: Iterable[str], dataset: str | None = None
     ) -> list[dict[str, Any]]:
@@ -242,8 +269,11 @@ class GovernmentFinanceStatistics:
 
         scopes = set(scopes)
         authorize(namespace, scopes, READ_SCOPE)
-        if "operator" not in scopes and ECONOMIC_READ not in scopes:
-            raise PublicFinanceError("unauthorized", f"{ECONOMIC_READ} is required")
+        # The comparison is kept as an economic comparison artifact, so it reads and writes economic scope.
+        if "operator" not in scopes and not {ECONOMIC_READ, ECONOMIC_WRITE} <= scopes:
+            raise PublicFinanceError(
+                "unauthorized", f"{ECONOMIC_READ} and {ECONOMIC_WRITE} are required"
+            )
         entry = next(
             (
                 s

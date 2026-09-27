@@ -17,6 +17,7 @@ OWNERSHIP_READ = "knowledge:ownership:read"
 OWNERSHIP_WRITE = "knowledge:ownership:write"
 OWNERSHIP_REVIEW = "knowledge:ownership:review"
 ECONOMIC_READ = "knowledge:economic:read"
+ECONOMIC_WRITE = "knowledge:economic:write"
 LEGAL_READ = "knowledge:legal:read"
 DOSSIER_READ = "knowledge:political:dossier:read"
 PROCUREMENT_READ = "knowledge:procurement:read"
@@ -89,7 +90,7 @@ PUBLIC_FINANCE_SCOPES = {
     ],
     "link_budget_districts": [WRITE, GEO_READ],
     "record_public_finance_reconciliation": [WRITE],
-    "compare_government_finance_vintages": [READ, ECONOMIC_READ],
+    "compare_government_finance_vintages": [READ, ECONOMIC_READ, ECONOMIC_WRITE],
     "create_public_finance_monitor": [READ, "knowledge:subscriptions:write"],
     "run_public_finance_monitor": [READ, "knowledge:subscriptions:write"],
 }
