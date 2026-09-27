@@ -637,6 +637,7 @@ def test_six_domain_offline_execution(setup):
         completed.update(manifest["domains"])
     assert completed == {
         "clinical",
+        "corporate-ownership",
         "economic",
         "geospatial",
         "legal",

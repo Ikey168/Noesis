@@ -130,6 +130,12 @@ def _clinical_projector(conn: Any) -> Any:
     return ClinicalProjector(conn)
 
 
+def _ownership_projector(conn: Any) -> Any:
+    from src.kb.ownership_store import OwnershipProjector
+
+    return OwnershipProjector(conn)
+
+
 # Mapping target schemas whose records are also projected into a domain store.
 # A projector receives each committed page before its checkpoint advances and
 # the source outcome afterwards, so replayed pages must project idempotently.
@@ -144,6 +150,7 @@ PROJECTORS: dict[str, Callable[[Any], Any]] = {
     "noesis-transit-feed-v1": _transit_projector,
     "noesis-math-record-v1": _math_projector,
     "noesis-clinical-record-v1": _clinical_projector,
+    "noesis-ownership-part-v1": _ownership_projector,
 }
 
 _DDL = """

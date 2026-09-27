@@ -18,7 +18,7 @@
         "required": ["source_id", "connector", "endpoint", "publisher", "scope", "license", "update_cadence", "temporal_semantics", "mapping", "extractor_versions", "schedule", "budgets", "auth", "fixture", "health", "operations", "source_hash"],
         "properties": {
           "source_id": {"type": "string", "minLength": 1},
-          "connector": {"enum": ["berlin-law", "blog", "cellar", "ctgov", "ctis", "dataset", "ddb", "declarative-rest", "ema-medicines", "epo-ops", "eprel", "eu-ctr", "europeana", "filings", "formal-library", "geojson", "git", "gleif", "gtfs", "icecat", "iso-open-data", "manifest", "oeis", "openfda", "package-registry", "paper", "rii", "web", "wfs", "zbmath"]},
+          "connector": {"enum": ["berlin-law", "blog", "bods", "cellar", "companies-house", "ctgov", "ctis", "dataset", "ddb", "declarative-rest", "ema-medicines", "epo-ops", "eprel", "eu-ctr", "europeana", "filings", "formal-library", "geojson", "git", "gleif", "gtfs", "icecat", "iso-open-data", "manifest", "oeis", "openfda", "package-registry", "paper", "rii", "sec-edgar-ownership", "web", "wfs", "zbmath"]},
           "wfs": {
             "type": "object",
             "description": "Pinned WFS 2.0.0 GetFeature contract; required for the wfs connector.",
@@ -80,6 +80,20 @@
             "properties": {
               "namespace": {"type": "string", "minLength": 1},
               "leis": {"type": "array", "minItems": 1, "maxItems": 50, "items": {"type": "string", "pattern": "^[0-9A-Z]{18}[0-9]{2}$"}}
+            }
+          },
+          "ownership": {
+            "type": "object",
+            "description": "Bounded corporate-ownership selection: the namespace records project into, 1-25 company numbers (companies-house), 1-25 CIKs plus selected filing documents (sec-edgar-ownership) or 1-10 BODS statement files (bods), and the source's live-verification state.",
+            "properties": {
+              "namespace": {"type": "string", "minLength": 1},
+              "companies": {"type": "array", "maxItems": 25, "items": {"type": "string", "pattern": "^[A-Z0-9]{8}$"}},
+              "parts": {"type": "array", "items": {"type": "string"}},
+              "ciks": {"type": "array", "maxItems": 25, "items": {"type": "string", "pattern": "^[0-9]{1,10}$"}},
+              "filings": {"type": "array", "maxItems": 25, "items": {"type": "object", "required": ["cik", "accession", "document"]}},
+              "max_filings": {"type": "integer", "minimum": 1, "maximum": 1000},
+              "files": {"type": "array", "maxItems": 10, "items": {"type": "string", "pattern": "^/"}},
+              "live_verification": {"type": "string"}
             }
           },
           "patent": {

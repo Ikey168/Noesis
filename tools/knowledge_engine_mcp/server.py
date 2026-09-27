@@ -9228,6 +9228,10 @@ from tools.knowledge_engine_mcp.clinical import register as register_clinical_to
 
 register_clinical_tools(mcp, _intake_safe, _intake_context)
 
+from tools.knowledge_engine_mcp.ownership import register as register_ownership_tools
+
+register_ownership_tools(mcp, _intake_safe, _intake_context)
+
 
 if __name__ == "__main__":
     from src.mcp_host.transport import run_server
