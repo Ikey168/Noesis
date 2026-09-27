@@ -57,7 +57,10 @@ def test_tools_are_registered_with_every_scope_they_read_and_write(mcp_env):
     assert LOBBYING_TOOLS <= names
     by_name = {t["name"]: t for t in catalog["tools"]}
     for name in ("legislative_dossier_timeline", "legislative_dossier_dependencies"):
-        assert "knowledge:political:lobbying:read" in by_name[name]["required_scopes"]
+        # Static requirements stay the dossier scope; the lobbying scope is conditional and documented.
+        assert by_name[name]["required_scopes"] == ["knowledge:political:dossier:read"]
+        assert "conditional scope" in tools[name].description.lower()
+        assert "knowledge:political:lobbying:read" in tools[name].description
     descriptor = json.loads(
         (h.ROOT / "packs/political/providers/political.lobbying.json").read_text()
     )
@@ -128,3 +131,32 @@ def test_answers_links_and_reviews_through_mcp(mcp_env):
         contracts["contracts"]["integrity-watch-eu"]["access_decision"]
         == "not-implemented"
     )
+
+
+def test_dossier_tools_require_the_lobbying_scope_only_with_a_lobbying_namespace(
+    mcp_env,
+):
+    tools, state, dossiers = mcp_env
+    dossier_id = dossiers["eu"]["dossier_id"]
+    tools["link_lobbying_dossier"].fn(
+        namespace="global", dossier_namespace=h.DOSSIER_NS, dossier_id=dossier_id
+    )
+    state["scopes"] = set(dossiers["scopes"])  # dossier access only, no lobbying scope
+    for name in ("legislative_dossier_timeline", "legislative_dossier_dependencies"):
+        plain = tools[name].fn(namespace=h.DOSSIER_NS, dossier_id=dossier_id)
+        assert plain.get("ok", True) is not False and "lobbying_entries" not in plain, (
+            plain
+        )
+        refused = tools[name].fn(
+            namespace=h.DOSSIER_NS, dossier_id=dossier_id, lobbying_namespace="global"
+        )
+        assert refused["ok"] is False and refused["error"]["code"] == "unauthorized"
+    state["scopes"] = set(dossiers["scopes"]) | set(h.READ_ONLY)
+    timeline = tools["legislative_dossier_timeline"].fn(
+        namespace=h.DOSSIER_NS, dossier_id=dossier_id, lobbying_namespace="global"
+    )
+    assert len(timeline["lobbying_entries"]) == 4
+    deps = tools["legislative_dossier_dependencies"].fn(
+        namespace=h.DOSSIER_NS, dossier_id=dossier_id, lobbying_namespace="global"
+    )
+    assert len(deps["lobbying_links"]) == 4

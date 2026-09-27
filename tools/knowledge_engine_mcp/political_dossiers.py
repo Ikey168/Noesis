@@ -54,6 +54,8 @@ def register(mcp, safe, context):
 
         With lobbying_namespace (Political lobbying feature), declared interests and meetings linked to this
         dossier revision by explicit register fields or reviewed assertions are listed apart from the stages.
+        Conditional scope: passing lobbying_namespace also requires knowledge:political:lobbying:read and
+        read access to that namespace; without it only the dossier scopes apply.
         """
         return call("timeline", namespace, dossier_id, revision=revision,
                     observed_as_of_ms=observed_as_of_ms, limit=limit, offset=offset,
@@ -82,6 +84,8 @@ def register(mcp, safe, context):
         """Return existing project/report links and explicit evidence changes.
 
         With lobbying_namespace, the linked register declarations are returned as source dependencies too.
+        Conditional scope: passing lobbying_namespace also requires knowledge:political:lobbying:read and
+        read access to that namespace; without it only the dossier scopes apply.
         """
         return call("dependencies", namespace, dossier_id, revision=revision,
                     lobbying_namespace=lobbying_namespace)

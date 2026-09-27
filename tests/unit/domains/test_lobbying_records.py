@@ -272,3 +272,43 @@ def test_declared_grants_are_only_candidates_for_funding_programme_records(conn)
         candidate["declared_grant"]["citation"]["revision_id"]
         == revision["revision_id"]
     )
+
+
+def test_a_late_older_export_lands_as_history_without_changing_the_current_state(conn):
+    store = LobbyingStore(conn)
+    january = (h.FIXTURES / "eu_tr_2099-01-15.xml").read_text()
+    march = (h.FIXTURES / "eu_tr_2099-03-01.xml").read_text()
+    h.apply(conn, "eu-tr", "eu_tr_2099-01-15.xml")
+    h.apply(
+        conn, "eu-tr", "eu_tr_2099-03-01.xml"
+    )  # the forum is deregistered by absence
+    forum = h.entry_id(conn, h.EU_FORUM)
+    deregistered = store.in_force("global", forum)
+    assert deregistered["lifecycle"] == "deregistered"
+    # A February export (older than March) arrives late with a distinct forum statement.
+    february = (
+        january.replace('generationDate="2099-01-15"', 'generationDate="2099-02-01"')
+        .replace(
+            "<lastUpdateDate>2098-12-01</lastUpdateDate>",
+            "<lastUpdateDate>2099-01-20</lastUpdateDate>",
+        )
+        .replace("electric vehicle charging networks", "charging networks")
+    )
+    late = h.apply(conn, "eu-tr", "feb.xml", body=february)
+    assert late["newest"] is False and late["amended"] >= 1
+    assert store.in_force("global", forum)["revision_id"] == deregistered["revision_id"]
+    history = store.history("global", forum)
+    assert [r["change"] for r in history] == ["registered", "amended", "deregistered"]
+    assert history[1]["previous_revision_id"] == history[0]["revision_id"]
+    # A later full export that still omits the forum adds no second deregistration.
+    may = march.replace('generationDate="2099-03-01"', 'generationDate="2099-05-01"')
+    assert h.apply(conn, "eu-tr", "may.xml", body=may)["deregistered"] == 0
+    assert len(store.history("global", forum)) == 3
+    # Re-listed in a newer export: reregistered, not amended.
+    june = january.replace('generationDate="2099-01-15"', 'generationDate="2099-06-01"')
+    assert h.apply(conn, "eu-tr", "june.xml", body=june)["reregistered"] == 1
+    current = store.in_force("global", forum)
+    assert (
+        current["change"] == "reregistered"
+        and current["previous_revision_id"] == deregistered["revision_id"]
+    )

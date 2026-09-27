@@ -333,3 +333,82 @@ def test_stronger_register_evidence_supersedes_a_pending_word_candidate(world):
         new["entry_id"] == candidate["entry_id"]
         and new["link_kind"] == "explicit-field"
     )
+
+
+def test_full_and_short_eli_forms_match_the_same_act():
+    from src.ingestion.lobbying_sources import reference_key
+
+    forms = [
+        "http://data.europa.eu/eli/reg/2099/1/oj",
+        "https://data.europa.eu/eli/reg/2099/1/oj/",
+        "/eli/reg/2099/1/oj",
+        "eli/reg/2099/1/oj",
+        "ELI:reg/2099/1/oj",
+    ]
+    assert {reference_key("eli", form) for form in forms} == {"eli:reg/2099/1/oj"}
+    for identifier in (
+        "http://data.europa.eu/eli/reg/2099/1/oj",
+        "instrument:eu:http://data.europa.eu/eli/reg/2099/1/oj",
+        "instrument:eu:eli/reg/2099/1/oj",
+    ):
+        dossier = {
+            "jurisdiction": "EU",
+            "stages": [
+                {
+                    "stage_id": "s",
+                    "stage": "publication",
+                    "procedure_identifiers": [identifier],
+                    "normalized_document_id": "celex-x",
+                    "normalized_instrument_id": identifier,
+                    "citation": {},
+                }
+            ],
+        }
+        keys = stage_keys(dossier)
+        assert "eli:reg/2099/1/oj" in keys, identifier
+        assert len(keys["eli:reg/2099/1/oj"]) == 1
+
+
+def test_a_dossier_storing_a_full_eli_uri_links_a_short_form_register_reference(world):
+    conn, dossiers, scopes = world
+    store, template = dossiers["store"], dossiers["templates"]["eu"]
+    eli = "http://data.europa.eu/eli/reg/2099/1/oj"
+    document = h._add(
+        store,
+        template,
+        source_id="eu-eurlex-regulatory",
+        identity="32099R0001",
+        document_type="regulation",
+        title="Regulation (EU) 2099/1 on fictional meters",
+        content="Regulation on fictional meters (fixture).",
+        political={"procedure_id": eli, "instrument_id": eli, "fixture": True},
+        observed_at=4000,
+    )
+    saved = LegislativeDossierStore(conn, now=lambda: 4500).save(
+        h.DOSSIER_NS,
+        "meters",
+        "EU",
+        eli,
+        [h._ref(conn, document)],
+        principal_id="alice",
+        scopes=scopes | {f"document:{document}:read"},
+    )
+    body = (
+        (h.FIXTURES / "ec_meetings_2099-02-12.json")
+        .read_text()
+        .replace(
+            '"legislativeFiles": [{"scheme": "eu-procedure", "value": "2099/0101(COD)"}]',
+            '"legislativeFiles": [{"scheme": "eli", "value": "eli/reg/2099/1/oj"}]',
+        )
+    )
+    h.apply(conn, "ec-meetings", "ec-eli.json", body=body)
+    result = LobbyingDossierLinks(conn).link_dossier(
+        "global",
+        h.DOSSIER_NS,
+        saved["dossier_id"],
+        principal_id="alice",
+        scopes=scopes | {f"document:{document}:read"},
+    )
+    explicit = by_kind(result["links"])["explicit-field"]
+    assert [link["reference"]["key"] for link in explicit] == ["eli:reg/2099/1/oj"]
+    assert explicit[0]["evidence"]["dossier_identifier"] == eli

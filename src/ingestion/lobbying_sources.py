@@ -337,7 +337,8 @@ def reference_key(scheme: str, value: Any) -> str | None:
         return f"celex:{match[1].upper()}" if match else None
     if scheme == "eli":
         match = re.fullmatch(
-            r"(?:https?://data\.europa\.eu)?/?eli/([a-z0-9_/.-]+?)/?", text.lower()
+            r"(?:(?:https?:)?//data\.europa\.eu)?/?eli[/:]([a-z0-9_/.-]+?)/?",
+            text.lower(),
         )
         return f"eli:{match[1]}" if match else None
     if scheme == "de-drucksache":

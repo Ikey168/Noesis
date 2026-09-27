@@ -25,6 +25,7 @@ from src.kb.lobbying import (
     LobbyingError,
     LobbyingStore,
     authorize,
+    digest,
     normalize_name,
 )
 
@@ -173,13 +174,16 @@ class LobbyingQueries:
     def _last_statement(
         self, namespace: str, entry_id: str, before: Mapping[str, Any]
     ) -> dict[str, Any] | None:
-        """For a deregistration without a statement, the last statement it ended (still cited to its revision)."""
-        rows = self.conn.execute(
-            "SELECT revision_id FROM lobbying_revisions WHERE namespace=? AND entry_id=? AND statement_json IS NOT "
-            "NULL AND revision_no<? ORDER BY revision_no DESC LIMIT 1",
-            [namespace, entry_id, before["revision_no"]],
-        ).fetchone()
-        return None if rows is None else self.store.revision(namespace, rows[0])
+        """For a deregistration without a statement, the last statement it ended (still cited to its revision).
+
+        Follows the predecessor chain, which runs in the register's own order.
+        """
+        current = before
+        while current.get("previous_revision_id"):
+            current = self.store.revision(namespace, current["previous_revision_id"])
+            if current["statement"] is not None:
+                return current
+        return None
 
     # ------------------------------------------------------------------ dossier
 
@@ -728,15 +732,23 @@ class LobbyingQueries:
                     "citations": [],
                 }
             )
-        generation = self.conn.execute(
-            "SELECT coalesce(max(sequence), 0) FROM lobbying_exports WHERE namespace=?",
+        # Export sequences are counted per register, so the namespace generation covers every register: the sum
+        # of their latest sequences changes whenever any register gains an export.
+        per_register = self.conn.execute(
+            "SELECT register, max(sequence) FROM lobbying_exports WHERE namespace=? GROUP BY register "
+            "ORDER BY register",
             [namespace],
-        ).fetchone()[0]
+        ).fetchall()
+        generation = sum(int(sequence) for _register, sequence in per_register)
+        state = digest(
+            [[register, int(sequence)] for register, sequence in per_register]
+        )[:12]
         content = {
             "title": f"Declared interests in dossier {answer['dossier']['procedure_id']}",
             "sections": sections,
             "snapshot": {
-                "id": f"lobbying:{namespace}:{dossier_id}:{answer['dossier']['revision']}:{as_of or 'latest'}",
+                "id": f"lobbying:{namespace}:{dossier_id}:{answer['dossier']['revision']}:{as_of or 'latest'}:"
+                f"{state}",
                 "generations": {namespace: int(generation)},
             },
             "bibliography": sorted(bibliography.values(), key=lambda b: b["id"]),

@@ -374,10 +374,13 @@ class LegislativeDossierStore:
         """
         if lobbying_namespace is None:
             return None
-        from src.kb.lobbying import LobbyingError
+        from src.kb.lobbying import READ_SCOPE as LOBBYING_READ
+        from src.kb.lobbying import LobbyingError, authorize
         from src.kb.lobbying_links import LobbyingDossierLinks
 
         try:
+            # Conditional scope: enforced at call time, only when a lobbying namespace is requested.
+            authorize(lobbying_namespace, scopes, LOBBYING_READ)
             return LobbyingDossierLinks(self.conn, initialize=False).dossier_entries(
                 lobbying_namespace, namespace, dossier_id, revision, scopes=scopes)
         except LobbyingError as exc:

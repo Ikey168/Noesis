@@ -93,6 +93,23 @@ def _tokens(text: Any) -> set[str]:
     }
 
 
+def _local_forms(value: str) -> list[str]:
+    """The identifier as the dossier stores it, and without a ``kind:jurisdiction:`` prefix.
+
+    Dossier identifiers are casefolded official identifiers, sometimes prefixed (``proposal:de:…``,
+    ``instrument:eu:…``). A full ELI URI (``http://data.europa.eu/eli/reg/2099/1/oj``) contains colons itself,
+    so the prefix is only stripped when it has that exact shape, never by splitting on the last colon alone.
+    """
+    forms = [value]
+    stripped = re.sub(r"^[a-z][a-z_-]*:[a-z]{2}:", "", value)
+    if stripped != value:
+        forms.append(stripped)
+    last = value.rsplit(":", 1)[-1]
+    if last not in forms and not last.startswith("//"):
+        forms.append(last)
+    return forms
+
+
 def stage_keys(dossier: Mapping[str, Any]) -> dict[str, list[dict[str, Any]]]:
     """Canonical reference keys the dossier's stages carry, with the stage and citation each came from."""
     keys: dict[str, list[dict[str, Any]]] = {}
@@ -104,8 +121,11 @@ def stage_keys(dossier: Mapping[str, Any]) -> dict[str, list[dict[str, Any]]]:
             stage.get("normalized_instrument_id"),
         ]
         for value in [v for v in values if v]:
-            local = str(value).rsplit(":", 1)[-1]
-            for scheme, scope in REFERENCE_SCHEMES.items():
+            for local, scheme, scope in (
+                (form, scheme, scope)
+                for form in _local_forms(str(value))
+                for scheme, scope in REFERENCE_SCHEMES.items()
+            ):
                 if scope != jurisdiction:
                     continue
                 if (
@@ -114,7 +134,9 @@ def stage_keys(dossier: Mapping[str, Any]) -> dict[str, list[dict[str, Any]]]:
                 ):
                     continue
                 key = reference_key(scheme, local)
-                if key:
+                if key and not any(
+                    item["stage_id"] == stage["stage_id"] for item in keys.get(key, [])
+                ):
                     keys.setdefault(key, []).append(
                         {
                             "stage_id": stage["stage_id"],

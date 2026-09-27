@@ -260,3 +260,29 @@ def test_the_answer_exports_as_a_cited_authored_report(world):
         assertion["citations"]
     )
     assert forbidden_keys(report) == []
+
+
+def test_the_report_generation_moves_when_any_register_gains_an_export(world):
+    conn, dossiers, scopes = world
+    scopes = scopes | REPORTS | {f"namespace:{h.NS}:read"}
+    queries = LobbyingQueries(conn)
+
+    def snapshot(key):
+        return queries.export_report(
+            "global",
+            h.DOSSIER_NS,
+            dossiers["eu"]["dossier_id"],
+            key,
+            principal_id="alice",
+            scopes=scopes,
+        )["report"]["content"]["snapshot"]
+
+    before = snapshot("before")
+    # The EU register has two exports; the UK register only one. A second UK export must still be visible.
+    body = (h.FIXTURES / "uk_orcl_2099-04-30.csv").read_text() + (
+        "ORCL0099,Example Public Affairs Ltd,09990099,1 Example Street London,2099 Q2,Other Example GmbH,2099-07-20\n"
+    )
+    assert h.apply(conn, "uk-orcl", "uk2.csv", body=body)["status"] == "applied"
+    after = snapshot("after")
+    assert after["generations"]["global"] == before["generations"]["global"] + 1
+    assert after["id"] != before["id"]

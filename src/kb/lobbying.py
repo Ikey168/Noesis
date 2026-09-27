@@ -103,13 +103,19 @@ CREATE TABLE IF NOT EXISTS lobbying_revisions (
   revision_no INTEGER NOT NULL, previous_revision_id TEXT, change TEXT NOT NULL, lifecycle TEXT NOT NULL,
   change_basis TEXT NOT NULL, content_hash TEXT, statement_json TEXT, effective_on TEXT NOT NULL, declared_on TEXT,
   native_version TEXT, export_id TEXT NOT NULL, source_id TEXT, evidence_origin TEXT NOT NULL,
-  observed_at_ms BIGINT NOT NULL, PRIMARY KEY(namespace, revision_id)
+  observed_at_ms BIGINT NOT NULL, export_date TEXT NOT NULL, PRIMARY KEY(namespace, revision_id)
 );
 CREATE TABLE IF NOT EXISTS lobbying_export_members (
   namespace TEXT NOT NULL, export_id TEXT NOT NULL, entry_id TEXT NOT NULL, revision_id TEXT NOT NULL,
   PRIMARY KEY(namespace, export_id, entry_id, revision_id)
 );
 """
+
+
+# The register's own order of an entry's revisions: register date, then the date of the export that stated it,
+# then arrival. A late-arriving older export therefore never becomes the current state.
+REGISTER_ORDER = "effective_on DESC, export_date DESC, revision_no DESC"
+REGISTER_ORDER_ASC = "effective_on, export_date, revision_no"
 
 
 class LobbyingError(ValueError):
@@ -400,6 +406,7 @@ class LobbyingStore:
                             origin,
                             acquired,
                             last,
+                            published,
                         )
                         counts["deregistered"] += 1
             self.conn.execute("COMMIT")
@@ -439,15 +446,24 @@ class LobbyingStore:
 
     def _latest(self, namespace: str, entry_id: str) -> dict[str, Any] | None:
         row = self.conn.execute(
-            "SELECT revision_id, revision_no, lifecycle, content_hash FROM lobbying_revisions WHERE namespace=? "
-            "AND entry_id=? ORDER BY revision_no DESC LIMIT 1",
+            "SELECT revision_id, revision_no, lifecycle, content_hash, effective_on FROM lobbying_revisions "
+            f"WHERE namespace=? AND entry_id=? ORDER BY {REGISTER_ORDER} LIMIT 1",
             [namespace, entry_id],
         ).fetchone()
         return (
             None
             if row is None
             else dict(
-                zip(("revision_id", "revision_no", "lifecycle", "content_hash"), row)
+                zip(
+                    (
+                        "revision_id",
+                        "revision_no",
+                        "lifecycle",
+                        "content_hash",
+                        "effective_on",
+                    ),
+                    row,
+                )
             )
         )
 
@@ -509,6 +525,11 @@ class LobbyingStore:
             )
             basis = "stated in the export"
         effective = _effective(entry, published)
+        previous = last
+        if not newest and last is not None:
+            # History only: never dated after the current state, and chained to the revision it follows by date.
+            effective = min(effective, last["effective_on"])
+            previous = self._before(namespace, entry_id, effective, published)
         if reappears:
             effective = published  # re-listed as of this export, whatever date the repeated statement carries
         if newest and last is not None and not entry.get("period"):
@@ -536,8 +557,22 @@ class LobbyingStore:
             origin,
             acquired,
             last,
+            published,
+            previous=previous,
         )
         return revision_id, change
+
+    def _before(
+        self, namespace, entry_id, effective, export_date
+    ) -> dict[str, Any] | None:
+        """The revision a dated observation follows in the register's own order (None when it is the earliest)."""
+        row = self.conn.execute(
+            "SELECT revision_id FROM lobbying_revisions WHERE namespace=? AND entry_id=? AND "
+            "(effective_on<? OR (effective_on=? AND export_date<=?)) "
+            f"ORDER BY {REGISTER_ORDER} LIMIT 1",
+            [namespace, entry_id, effective, effective, export_date],
+        ).fetchone()
+        return None if row is None else {"revision_id": row[0]}
 
     def _append(
         self,
@@ -556,8 +591,18 @@ class LobbyingStore:
         origin,
         acquired,
         last,
+        export_date,
+        *,
+        previous: Mapping[str, Any] | None | bool = True,
     ) -> str:
-        number = 1 if last is None else int(last["revision_no"]) + 1
+        if previous is True:
+            previous = last
+        number = 1 + int(
+            self.conn.execute(
+                "SELECT coalesce(max(revision_no), 0) FROM lobbying_revisions WHERE namespace=? AND entry_id=?",
+                [namespace, entry_id],
+            ).fetchone()[0]
+        )
         revision_id = (
             "lobbying-revision:" + digest([namespace, entry_id, number, export_id])[:24]
         )
@@ -566,14 +611,14 @@ class LobbyingStore:
             [namespace, entry_id],
         ).fetchone()[0]
         self.conn.execute(
-            "INSERT INTO lobbying_revisions VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            "INSERT INTO lobbying_revisions VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
             [
                 namespace,
                 revision_id,
                 entry_id,
                 register,
                 number,
-                None if last is None else last["revision_id"],
+                None if not previous else previous["revision_id"],
                 change,
                 lifecycle,
                 basis,
@@ -586,6 +631,7 @@ class LobbyingStore:
                 source_id,
                 origin,
                 acquired,
+                export_date,
             ],
         )
         return revision_id
@@ -725,7 +771,7 @@ class LobbyingStore:
         """Every revision of an entry, in the register's own date order (arrival order breaks ties)."""
         rows = self.conn.execute(
             "SELECT revision_id FROM lobbying_revisions WHERE namespace=? AND entry_id=? "
-            "ORDER BY effective_on, revision_no",
+            f"ORDER BY {REGISTER_ORDER_ASC}",
             [namespace, entry_id],
         ).fetchall()
         return [self.revision(namespace, r[0]) for r in rows]
@@ -738,7 +784,7 @@ class LobbyingStore:
             as_of = date.fromisoformat(str(as_of)[:10]).isoformat()
         row = self.conn.execute(
             "SELECT revision_id FROM lobbying_revisions WHERE namespace=? AND entry_id=? AND (? IS NULL OR "
-            "effective_on<=?) ORDER BY effective_on DESC, revision_no DESC LIMIT 1",
+            f"effective_on<=?) ORDER BY {REGISTER_ORDER} LIMIT 1",
             [namespace, entry_id, as_of, as_of],
         ).fetchone()
         return None if row is None else self.revision(namespace, row[0])

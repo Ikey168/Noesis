@@ -974,14 +974,13 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
     }:
         return ["knowledge:economic:write" if mutability == "write" else "knowledge:economic:read"]
     if server_stem == "knowledge_engine_mcp" and tool_name in {
-        "legislative_dossier_timeline", "legislative_dossier_dependencies",
-    }:
-        # With lobbying_namespace these also read linked register declarations (Political lobbying feature).
-        return ["knowledge:political:dossier:read", "knowledge:political:lobbying:read"]
-    if server_stem == "knowledge_engine_mcp" and tool_name in {
         "save_legislative_dossier", "inspect_legislative_dossier",
-        "compare_legislative_dossier", "export_legislative_dossier_changes",
+        "legislative_dossier_timeline", "compare_legislative_dossier",
+        "export_legislative_dossier_changes", "legislative_dossier_dependencies",
     }:
+        # legislative_dossier_timeline/dependencies additionally require knowledge:political:lobbying:read at
+        # call time, and only when lobbying_namespace is passed (Political lobbying feature); the catalog lists
+        # static requirements only, so dossier-only callers keep these tools.
         return ["knowledge:political:dossier:write" if mutability == "write" else "knowledge:political:dossier:read"]
     if server_stem == "knowledge_engine_mcp" and tool_name in {
         "run_hosted_typed_decision",

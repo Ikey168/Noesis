@@ -93,7 +93,7 @@ class LobbyingIdentity:
         """
         rows = self.conn.execute(
             "SELECT entry_id, revision_id FROM (SELECT e.entry_id, r.revision_id, e.register, e.native_id, "
-            "row_number() OVER (PARTITION BY e.entry_id ORDER BY r.effective_on DESC, r.revision_no DESC) AS rank "
+            "row_number() OVER (PARTITION BY e.entry_id ORDER BY r.effective_on DESC, r.export_date DESC, r.revision_no DESC) AS rank "
             "FROM lobbying_entries e JOIN lobbying_revisions r ON r.namespace=e.namespace AND r.entry_id=e.entry_id "
             "WHERE e.namespace=? AND e.entry_kind='registrant' AND r.statement_json IS NOT NULL) "
             "WHERE rank=1 ORDER BY register, native_id",
