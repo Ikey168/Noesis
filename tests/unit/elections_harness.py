@@ -154,3 +154,32 @@ class Clock:
     def __call__(self) -> int:
         self.value += 1000
         return self.value
+
+
+DE_NEXT = "de-bt:2103-03-04"
+
+
+def next_federal_body() -> str:
+    """A later fictional federal election on new Wahlkreis boundaries, in which one party runs under a new name."""
+    return (
+        (FIXTURES / DE_FINAL)
+        .read_text()
+        .replace("01.03.2099", "04.03.2103")
+        .replace("Stand: 20.03.2099 10:00", "Stand: 24.03.2103 10:00")
+        .replace("Bundestagswahl 2099", "Bundestagswahl 2103")
+        .replace(";Musterunion;", ";Neue Musterunion;")
+    )
+
+
+def next_federal_source() -> dict:
+    item = source("de-btw")
+    item["elections"]["geometry"]["de-bt-wahlkreis"].update(
+        vintage="btw2103", layer="btw2103_wahlkreise"
+    )
+    return item
+
+
+def apply_next_federal(conn) -> dict:
+    return apply(
+        conn, "de-btw", "next", body=next_federal_body(), item=next_federal_source()
+    )
