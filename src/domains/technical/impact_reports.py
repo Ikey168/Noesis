@@ -104,14 +104,25 @@ class ImpactReportStore:
             ResearchProjectStore(self.conn, initialize=False).inspect(
                 namespace, report["project_id"], principal_id=principal_id, scopes=scopes)
         self._reauthorize_snapshots(report["source_snapshots"], scopes)
+        if report.get("vulnerability_namespace") is not None:
+            self._authorize(report["vulnerability_namespace"], principal_id, principal_id, scopes)
+            from src.kb.vulnerabilities import VulnerabilityStore
+
+            current = VulnerabilityStore(self.conn, initialize=False).revision_digests(
+                report["vulnerability_namespace"], [v["revision_id"] for v in report["vulnerability_revisions"]])
+            if current != report["vulnerability_revisions"]:
+                raise ImpactReportError("source_unavailable", "pinned vulnerability revisions are unavailable")
         return report
 
     def create(self, namespace, request_key, inventory_id, *, principal_id, scopes,
-               project_id=None, limit=100, offset=0):
+               project_id=None, limit=100, offset=0, vulnerability_namespace=None):
         _text(namespace, "namespace", 128)
         _text(request_key, "request key")
         _text(inventory_id, "inventory ID")
         self._authorize(namespace, principal_id, principal_id, scopes, write=True)
+        if vulnerability_namespace is not None:
+            _text(vulnerability_namespace, "vulnerability namespace", 128)
+            self._authorize(vulnerability_namespace, principal_id, principal_id, scopes)
         if type(limit) is not int or not 1 <= limit <= 100 or type(offset) is not int or not 0 <= offset <= 5000:
             raise ImpactReportError("invalid_page", "impact page must be bounded to 100 entries")
         if project_id is not None:
@@ -119,11 +130,14 @@ class ImpactReportStore:
                 namespace, project_id, principal_id=principal_id, scopes=scopes)
             if project["status"] == "archived":
                 raise ImpactReportError("project_archived", "archived project cannot receive new assessment")
-        assessment = assess_inventory(self.conn, inventory_id, owner_id=principal_id, limit=limit, offset=offset)
+        assessment = assess_inventory(self.conn, inventory_id, owner_id=principal_id, limit=limit, offset=offset,
+                                      vulnerability_namespace=vulnerability_namespace)
         inventory = InventoryStore(self.conn, initialize=False).inspect(inventory_id, owner_id=principal_id, limit=1)
         report_id = "technical-impact-report:" + _hash([namespace, principal_id, request_key])[:24]
         requested = {"inventory_id": inventory_id, "inventory_hash": assessment["inventory_hash"],
                      "project_id": project_id, "limit": limit, "offset": offset}
+        if vulnerability_namespace is not None:
+            requested["vulnerability_namespace"] = vulnerability_namespace
         request_hash = _hash(requested)
         prior = self.conn.execute("SELECT request_hash FROM technical_impact_reports WHERE report_id=?", [report_id]).fetchone()
         if prior:
@@ -155,10 +169,11 @@ class ImpactReportStore:
                 candidate["source_snapshot"] = snapshots.get(candidate.get("source_document_id"))
             acquired = finding["entry"].get("acquired_package") or {}
             finding["package_snapshot"] = snapshots.get(acquired.get("source_document_id"))
-            admissible = [a for a in finding["advisories"] if a["finding"] != "unknown"]
+            cited = finding["advisories"] + finding.get("vulnerability_advisories", [])
+            admissible = [a for a in cited if a["finding"] != "unknown"]
             if any(a["finding"] == "affected" for a in admissible):
                 finding["classification"] = "affected"
-            elif admissible and len(admissible) == len(finding["advisories"]):
+            elif admissible and len(admissible) == len(cited):
                 finding["classification"] = "unaffected_under_assessed_ranges"
             else:
                 finding["classification"] = "unknown"
@@ -174,6 +189,15 @@ class ImpactReportStore:
                                                  "missing": [doc for doc, value in snapshots.items() if value is None]}),
                   "coverage_note": assessment["coverage_note"], "created_at_ms": self.now(),
                   "executed_changes": False}
+        if vulnerability_namespace is not None:
+            # Pin the vulnerability-store revisions (immutable, content-addressed) next to the inventory hash.
+            from src.kb.vulnerabilities import VulnerabilityStore
+
+            pinned = VulnerabilityStore(self.conn, initialize=False).revision_digests(
+                vulnerability_namespace,
+                [v["revision_id"] for f in assessment["findings"] for v in f.get("vulnerability_advisories", [])])
+            report.update({"vulnerability_namespace": vulnerability_namespace, "vulnerability_revisions": pinned,
+                           "vulnerability_snapshot_hash": _hash(pinned)})
         report["report_hash"] = _hash(report)
         self.conn.execute("INSERT INTO technical_impact_reports VALUES (?,?,?,?,?,?)",
                           [report_id, namespace, principal_id, request_hash, _json(report), self.now()])
@@ -190,20 +214,36 @@ class ImpactReportStore:
                     for f in report["findings"]}
         lmap, rmap = keyed(left), keyed(right)
         keys = sorted(set(lmap) | set(rmap))
-        changes = [{"entry_key": list(key),
-                    "before": lmap[key]["classification"] if key in lmap else None,
-                    "after": rmap[key]["classification"] if key in rmap else None,
-                    "changed": key not in lmap or key not in rmap or
-                               lmap[key]["classification"] != rmap[key]["classification"]}
-                   for key in keys]
+        def cited(finding):
+            return sorted({(v["source"], v["advisory_id"], v["revision_id"], v["finding"])
+                           for v in (finding or {}).get("vulnerability_advisories", [])})
+
+        changes = []
+        for key in keys:
+            before, after = cited(lmap.get(key)), cited(rmap.get(key))
+            change = {"entry_key": list(key),
+                      "before": lmap[key]["classification"] if key in lmap else None,
+                      "after": rmap[key]["classification"] if key in rmap else None,
+                      "changed": key not in lmap or key not in rmap or
+                                 lmap[key]["classification"] != rmap[key]["classification"]}
+            if before or after:
+                fields = ("source", "advisory_id", "revision_id", "finding")
+                change["advisory_revisions_before"] = [dict(zip(fields, v)) for v in before]
+                change["advisory_revisions_after"] = [dict(zip(fields, v)) for v in after]
+                change["advisory_revisions_changed"] = before != after
+            changes.append(change)
         return {"contract": COMPARISON_CONTRACT, "namespace": namespace,
                 "left_report_id": left_report_id, "right_report_id": right_report_id,
                 "left_inventory_hash": left["inventory_hash"], "right_inventory_hash": right["inventory_hash"],
                 "left_source_snapshot_hash": left["source_snapshot_hash"],
                 "right_source_snapshot_hash": right["source_snapshot_hash"],
+                **({"left_vulnerability_snapshot_hash": left.get("vulnerability_snapshot_hash"),
+                    "right_vulnerability_snapshot_hash": right.get("vulnerability_snapshot_hash")}
+                   if left.get("vulnerability_namespace") or right.get("vulnerability_namespace") else {}),
                 "changes": changes, "changed_count": sum(v["changed"] for v in changes),
                 "same_inventory": left["inventory_hash"] == right["inventory_hash"],
-                "same_sources": left["source_snapshot_hash"] == right["source_snapshot_hash"]}
+                "same_sources": left["source_snapshot_hash"] == right["source_snapshot_hash"]
+                and left.get("vulnerability_snapshot_hash") == right.get("vulnerability_snapshot_hash")}
 
     def export(self, namespace, report_id, *, principal_id, scopes):
         report = self._report(namespace, report_id, principal_id, scopes)
@@ -228,6 +268,13 @@ class ImpactReportStore:
                                           "revision_id": source["revision_id"]}}
                 if dependency not in dependencies:
                     dependencies.append(dependency)
+            for advisory in finding.get("vulnerability_advisories", []):
+                citation_id = "citation:" + _hash([report_id, index, advisory["source"], advisory["revision_id"]])[:24]
+                if not any(value["id"] == citation_id for value in bibliography):
+                    bibliography.append({"id": citation_id, "text": f"{advisory['advisory_id']} ({advisory['source']}, "
+                                                                   f"revision {advisory['revision_no']})"})
+                if citation_id not in citations:
+                    citations.append(citation_id)
             entry = finding["entry"]
             text = f"{entry['name']} {entry['version']}: {finding['classification']}"
             assertions.append({"id": f"finding-{index}", "text": text,

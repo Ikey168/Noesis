@@ -71,10 +71,154 @@ def _in_events(ecosystem: str, version: str, events: list[dict[str, Any]]) -> bo
     return affected
 
 
+def _in_cpe_bounds(ecosystem: str, version: str, item: dict[str, Any]) -> bool:
+    cpe = dict(item.get("cpe") or {})
+    bounds = dict(cpe.get("bounds") or {})
+    if bounds:
+        checks = (
+            ("versionStartIncluding", lambda c: c >= 0),
+            ("versionStartExcluding", lambda c: c > 0),
+            ("versionEndIncluding", lambda c: c <= 0),
+            ("versionEndExcluding", lambda c: c < 0),
+        )
+        return all(
+            test(_compare(ecosystem, version, str(bounds[key])))
+            for key, test in checks
+            if key in bounds
+        )
+    if cpe.get("all_versions"):
+        return True
+    versions = [str(v) for v in item.get("versions") or []]
+    if not versions:
+        raise ValueError("range has no bounds or versions")
+    return any(_compare(ecosystem, version, value) == 0 for value in versions)
+
+
+def _vulnerability_findings(
+    conn: Any, namespace: str, entry: dict[str, Any]
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    """Findings from ranges of reviewed (accepted) component matches in ``src.kb.vulnerabilities``.
+
+    Each finding cites the source, advisory revision, content digest and the
+    range it evaluated; exploitation evidence and scores are quoted, never
+    turned into a verdict or priority.
+    """
+    if not conn.execute(
+        "SELECT 1 FROM information_schema.tables WHERE table_name='vuln_ranges'"
+    ).fetchone():
+        return [], []
+    from src.kb.vulnerabilities import VulnerabilityStore
+    from src.kb.vulnerability_identity import VulnerabilityIdentity
+    from src.kb.vulnerability_queries import VulnerabilityQueries
+
+    store = VulnerabilityStore(conn, initialize=False)
+    identity = VulnerabilityIdentity(conn, initialize=False)
+    queries = VulnerabilityQueries(conn)
+    findings = []
+    for match in identity.accepted_targets(namespace, entry["coordinate"]):
+        if match["target_kind"] == "advisory-package":
+            _, source, ecosystem_source, package = match["target_key"].split(":", 3)
+            rows = [
+                r
+                for r in store.ranges(namespace, package=package)
+                if r["source"] == source
+                and r["ecosystem_source"] == ecosystem_source
+                and r["range_type"] != "CPE"
+            ]
+        else:
+            product = match["target_key"].split(":", 1)[1]
+            rows = [
+                r
+                for r in store.ranges(namespace, package=product)
+                if r["range_type"] == "CPE"
+            ]
+        for item in rows:
+            if (
+                store.latest_revision_id(namespace, item["series_id"])
+                != item["revision_id"]
+            ):
+                continue  # only the current revision of each source record is assessed
+            revision = store.revision(namespace, item["revision_id"], detail=False)
+            cve_id = revision["cve_id"] or queries.resolve_identifier(
+                namespace, revision["native_id"]
+            ).get("cve_id")
+            state, reason = "unknown", None
+            if revision["lifecycle"] != "active":
+                reason = f"{revision['lifecycle']}_by_source"
+            elif item["applicability"] == "conditional":
+                reason = "conditional_applicability"
+            else:
+                try:
+                    if item["range_type"] in {"ECOSYSTEM", "SEMVER"}:
+                        if item["ecosystem"] != entry["ecosystem"]:
+                            raise LookupError
+                        hit = _in_events(
+                            entry["ecosystem"], entry["version"], item["events"]
+                        )
+                    elif item["range_type"] in {"CPE", "VERSIONS"}:
+                        hit = _in_cpe_bounds(entry["ecosystem"], entry["version"], item)
+                    else:
+                        raise LookupError
+                    state = "affected" if hit else "unaffected_under_assessed_range"
+                except LookupError:
+                    reason = "unsupported_range"
+                except (ValueError, TypeError, InvalidVersion):
+                    reason = "uninterpretable_range"
+            quoted = {"exploitation": [], "scores": []}
+            if cve_id:
+                quoted["exploitation"] = store.exploitation(namespace, cve_id=cve_id)
+                for series in store.series_list(namespace, cve_id=cve_id):
+                    if series["record_kind"] == "score":
+                        quoted["scores"] += store.scores(
+                            namespace, series=series["series_id"]
+                        )
+            quoted["scores"] += [
+                s for s in store.scores(namespace, revision_id=item["revision_id"])
+            ]
+            findings.append(
+                {
+                    "advisory_id": revision["native_id"],
+                    "cve_id": cve_id,
+                    "source": revision["source"],
+                    "series_id": item["series_id"],
+                    "revision_id": item["revision_id"],
+                    "revision_no": revision["revision_no"],
+                    "content_digest": revision["content_digest"],
+                    "range_id": item["range_id"],
+                    "range_type": item["range_type"],
+                    "range_event": {
+                        "events": item["events"],
+                        "versions": item["versions"],
+                        "cpe": item["cpe"],
+                    },
+                    "finding": state,
+                    "reason": reason,
+                    "match_id": match["match_id"],
+                    "decision_id": match["decision_id"],
+                    "quoted_evidence": quoted,
+                }
+            )
+    pending = [
+        {"match_id": m["match_id"], "target_key": m["target_key"], "state": m["state"]}
+        for m in identity.pending_targets(namespace, entry["coordinate"])
+    ]
+    return findings, pending
+
+
 def assess_inventory(
-    conn: Any, inventory_id: str, *, owner_id: str, limit: int = 100, offset: int = 0
+    conn: Any,
+    inventory_id: str,
+    *,
+    owner_id: str,
+    limit: int = 100,
+    offset: int = 0,
+    vulnerability_namespace: str | None = None,
 ) -> dict[str, Any]:
-    """Assess one bounded owner-scoped page against acquired public graph records."""
+    """Assess one bounded owner-scoped page against acquired public graph records.
+
+    With ``vulnerability_namespace``, ranges of reviewed component matches in
+    the vulnerability store are assessed alongside ``technical_advisory_ranges``.
+    """
 
     page = InventoryStore(conn, initialize=False).inspect(
         inventory_id, owner_id=owner_id, limit=limit, offset=offset
@@ -87,6 +231,18 @@ def assess_inventory(
             "advisories": [],
             "upstream_review_candidates": [],
         }
+        if (
+            vulnerability_namespace
+            and entry["status"] == "pinned"
+            and entry.get("coordinate")
+        ):
+            vulnerable, pending = _vulnerability_findings(
+                conn, vulnerability_namespace, entry
+            )
+            result["vulnerability_advisories"] = vulnerable
+            result["vulnerability_candidates"] = pending
+            if any(item["finding"] == "affected" for item in vulnerable):
+                result["overall"] = "affected"
         if entry["status"] != "pinned" or not entry.get("acquired_package"):
             result["reason"] = (
                 "unresolved_inventory_entry"
@@ -169,8 +325,14 @@ def assess_inventory(
                     }
                 )
         findings.append(result)
+    extra = (
+        {"vulnerability_namespace": vulnerability_namespace}
+        if vulnerability_namespace
+        else {}
+    )
     return {
         "contract": CONTRACT,
+        **extra,
         "inventory_id": inventory_id,
         "inventory_hash": page["inventory_hash"],
         "offset": offset,
