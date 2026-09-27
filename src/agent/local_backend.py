@@ -85,6 +85,11 @@ def build_local_caller(conn, clock: Optional[Callable[[], Any]] = None):
             return trace_artifact(conn, claim_id=a.get("claim_id"), document_id=a.get("document_id"))
         if tool == "investigation_audit":
             return investigation_audit(conn, a["name"])
+        if tool == "infrastructure_pivot":
+            from src.osint.infrastructure import infrastructure_pivot
+
+            return infrastructure_pivot(conn, a["identifier"], namespace=a.get("namespace", "osint"),
+                                        max_depth=a.get("max_depth", 2))
         if tool in ("geolocate_claims", "narrative_coordination"):
             from src.osint import gated
             fn = getattr(gated, tool)
