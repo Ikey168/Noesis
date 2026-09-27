@@ -164,6 +164,9 @@ For the project overview and local setup, start with the
 - [Technology vulnerabilities guide](guides/technology-vulnerabilities.md) — CVEs across NVD, OSV, GitHub,
   CVE Services, KEV and EPSS side by side, component identity review, affected-as-of impact answers and
   monitors; [source audit](roadmaps/technology-vulnerabilities-source-audit.md)
+- [Political lobbying guide](guides/political-lobbying.md) — transparency-register declarations and meeting
+  declarations linked to legislative dossiers, declared spend ranges as filed, reviewable identity and dossier
+  links and monitors; [source audit](roadmaps/political-lobbying-source-audit.md)
 - [OSINT pack guide](guides/osint-pack.md) — Admiralty grades, ownership
   dossiers, video reuse, registry and certificate history, infrastructure
   pivots and the gated imagery tier
