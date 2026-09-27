@@ -899,7 +899,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 728,
+      "tool_count": 757,
       "tools": [
         "noesis-knowledge-engine.accept_awareness_jev_suggestion",
         "noesis-knowledge-engine.accept_citation_repair",
@@ -946,6 +946,7 @@
         "noesis-knowledge-engine.assess_media_authenticity",
         "noesis-knowledge-engine.assess_methodology_limitation",
         "noesis-knowledge-engine.assess_openreview_concern",
+        "noesis-knowledge-engine.assess_procurement_eligibility",
         "noesis-knowledge-engine.assess_quantitative_comparability",
         "noesis-knowledge-engine.assess_technical_inventory_impact",
         "noesis-knowledge-engine.assign_review_inbox_task",
@@ -957,6 +958,7 @@
         "noesis-knowledge-engine.branch_research_project",
         "noesis-knowledge-engine.build_funding_shortlist",
         "noesis-knowledge-engine.build_intake_creation_artifact",
+        "noesis-knowledge-engine.build_procurement_shortlist",
         "noesis-knowledge-engine.build_research_package",
         "noesis-knowledge-engine.build_review_annotation_dataset",
         "noesis-knowledge-engine.calculate_decision_sensitivity",
@@ -1026,6 +1028,9 @@
         "noesis-knowledge-engine.create_paper_family",
         "noesis-knowledge-engine.create_persistent_research_loop",
         "noesis-knowledge-engine.create_practice_pack",
+        "noesis-knowledge-engine.create_procurement_monitor",
+        "noesis-knowledge-engine.create_procurement_profile",
+        "noesis-knowledge-engine.create_procurement_workspace",
         "noesis-knowledge-engine.create_research_decision",
         "noesis-knowledge-engine.create_research_package_manifest",
         "noesis-knowledge-engine.create_research_project",
@@ -1042,6 +1047,7 @@
         "noesis-knowledge-engine.decide_authored_report_edit",
         "noesis-knowledge-engine.decide_exploration_suggestion",
         "noesis-knowledge-engine.decide_intake_feed_item",
+        "noesis-knowledge-engine.decide_procurement_party_link",
         "noesis-knowledge-engine.decide_source_alias",
         "noesis-knowledge-engine.decrypt_research_package",
         "noesis-knowledge-engine.delete_source_identity",
@@ -1067,6 +1073,7 @@
         "noesis-knowledge-engine.document_revision_history",
         "noesis-knowledge-engine.draft_funding_application",
         "noesis-knowledge-engine.draft_intake_practice_pack",
+        "noesis-knowledge-engine.draft_procurement_bid",
         "noesis-knowledge-engine.encrypt_research_package",
         "noesis-knowledge-engine.evaluate_cited_evidence_subscription",
         "noesis-knowledge-engine.evaluate_knowledge_query",
@@ -1111,6 +1118,7 @@
         "noesis-knowledge-engine.export_paper_family",
         "noesis-knowledge-engine.export_practice_pack",
         "noesis-knowledge-engine.export_preserved_citations",
+        "noesis-knowledge-engine.export_procurement_bid_draft",
         "noesis-knowledge-engine.export_research_analysis",
         "noesis-knowledge-engine.export_research_analysis_package",
         "noesis-knowledge-engine.export_research_recipe_run",
@@ -1229,6 +1237,10 @@
         "noesis-knowledge-engine.inspect_persistent_research_loop",
         "noesis-knowledge-engine.inspect_practice_pack",
         "noesis-knowledge-engine.inspect_practice_review",
+        "noesis-knowledge-engine.inspect_procurement_notice",
+        "noesis-knowledge-engine.inspect_procurement_profile",
+        "noesis-knowledge-engine.inspect_procurement_shortlist",
+        "noesis-knowledge-engine.inspect_procurement_workspace",
         "noesis-knowledge-engine.inspect_product_identity",
         "noesis-knowledge-engine.inspect_quality_health",
         "noesis-knowledge-engine.inspect_reference_workflow",
@@ -1285,6 +1297,7 @@
         "noesis-knowledge-engine.list_maintenance_due_work",
         "noesis-knowledge-engine.list_maintenance_jobs",
         "noesis-knowledge-engine.list_methodology_limitations",
+        "noesis-knowledge-engine.list_procurement_notices",
         "noesis-knowledge-engine.list_research_analysis_runs",
         "noesis-knowledge-engine.list_research_gap_tasks",
         "noesis-knowledge-engine.list_research_gaps",
@@ -1317,6 +1330,7 @@
         "noesis-knowledge-engine.poll_cited_evidence_alerts",
         "noesis-knowledge-engine.poll_decision_condition_watch",
         "noesis-knowledge-engine.poll_funding_monitor",
+        "noesis-knowledge-engine.poll_procurement_monitor",
         "noesis-knowledge-engine.preflight_intake_mode",
         "noesis-knowledge-engine.preflight_source_pack_run",
         "noesis-knowledge-engine.preview_anomaly_baseline",
@@ -1339,6 +1353,12 @@
         "noesis-knowledge-engine.preview_source_pack_upgrade_impact",
         "noesis-knowledge-engine.primary_sources_for_work",
         "noesis-knowledge-engine.prioritize_research_gaps",
+        "noesis-knowledge-engine.procurement_award_history",
+        "noesis-knowledge-engine.procurement_bundle_status",
+        "noesis-knowledge-engine.procurement_incumbency",
+        "noesis-knowledge-engine.procurement_notice_history",
+        "noesis-knowledge-engine.procurement_party_candidates",
+        "noesis-knowledge-engine.procurement_provider_contracts",
         "noesis-knowledge-engine.product_provider_contracts",
         "noesis-knowledge-engine.product_selection_outcomes",
         "noesis-knowledge-engine.products_readiness",
@@ -1382,6 +1402,7 @@
         "noesis-knowledge-engine.record_media_transformation",
         "noesis-knowledge-engine.record_multilingual_alias",
         "noesis-knowledge-engine.record_problem_step",
+        "noesis-knowledge-engine.record_procurement_workspace_outcome",
         "noesis-knowledge-engine.record_quantitative_observation",
         "noesis-knowledge-engine.record_quantitative_series_break",
         "noesis-knowledge-engine.record_research_coverage",
@@ -1391,6 +1412,7 @@
         "noesis-knowledge-engine.recover_stale_maintenance_jobs",
         "noesis-knowledge-engine.refresh_funding_workspace",
         "noesis-knowledge-engine.refresh_intake_feed_inbox",
+        "noesis-knowledge-engine.refresh_procurement_workspace",
         "noesis-knowledge-engine.register_access_bound_object",
         "noesis-knowledge-engine.register_access_view_policy",
         "noesis-knowledge-engine.register_anomaly_watch",
@@ -1440,6 +1462,7 @@
         "noesis-knowledge-engine.replay_maintenance_generation",
         "noesis-knowledge-engine.replay_methodology_extraction",
         "noesis-knowledge-engine.replay_multimodal_extraction",
+        "noesis-knowledge-engine.replay_procurement_shortlist",
         "noesis-knowledge-engine.replay_quality_assessment",
         "noesis-knowledge-engine.replay_quantitative_calculation",
         "noesis-knowledge-engine.replay_research_gap",
@@ -1471,6 +1494,7 @@
         "noesis-knowledge-engine.retry_maintenance_job",
         "noesis-knowledge-engine.retry_source_pack_quarantine",
         "noesis-knowledge-engine.reverse_event_merge",
+        "noesis-knowledge-engine.revert_procurement_party_link",
         "noesis-knowledge-engine.review_certificate_product_link",
         "noesis-knowledge-engine.review_change_brief",
         "noesis-knowledge-engine.review_company_identity_link",
@@ -1517,6 +1541,7 @@
         "noesis-knowledge-engine.run_maintenance_drain",
         "noesis-knowledge-engine.run_maintenance_once",
         "noesis-knowledge-engine.run_persistent_research_loop",
+        "noesis-knowledge-engine.run_procurement_monitor",
         "noesis-knowledge-engine.run_reference_workflow",
         "noesis-knowledge-engine.run_research_recipe",
         "noesis-knowledge-engine.run_source_pack_execution",
@@ -1542,6 +1567,7 @@
         "noesis-knowledge-engine.set_cited_evidence_subscription_status",
         "noesis-knowledge-engine.set_funding_bundle_enabled",
         "noesis-knowledge-engine.set_maintenance_schedule_paused",
+        "noesis-knowledge-engine.set_procurement_bundle_enabled",
         "noesis-knowledge-engine.set_research_package_trust_policy",
         "noesis-knowledge-engine.set_source_pack_enabled",
         "noesis-knowledge-engine.set_source_pack_schedule",
@@ -1615,6 +1641,8 @@
         "noesis-knowledge-engine.unified_query_capabilities",
         "noesis-knowledge-engine.update_funding_profile",
         "noesis-knowledge-engine.update_funding_workspace_items",
+        "noesis-knowledge-engine.update_procurement_profile",
+        "noesis-knowledge-engine.update_procurement_workspace_items",
         "noesis-knowledge-engine.update_research_gap_status",
         "noesis-knowledge-engine.validate_api_connector_manifest",
         "noesis-knowledge-engine.validate_knowledge_workflow",
@@ -1628,14 +1656,15 @@
         "noesis-knowledge-engine.verify_research_package",
         "noesis-knowledge-engine.verify_retention_checkpoint",
         "noesis-knowledge-engine.visit_exploration_feed_item",
-        "noesis-knowledge-engine.withdraw_funding_profile"
+        "noesis-knowledge-engine.withdraw_funding_profile",
+        "noesis-knowledge-engine.withdraw_procurement_profile"
       ],
       "transports": [
         "stdio",
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 728
+      "visible_tool_count": 757
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -1646,11 +1675,11 @@
     },
     "servers": 30,
     "states": {
-      "available": 102,
+      "available": 104,
       "degraded": 158,
-      "unauthorized": 774
+      "unauthorized": 801
     },
-    "tools": 1034
+    "tools": 1063
   },
   "tools": [
     {
@@ -21380,6 +21409,47 @@
       "version": "1"
     },
     {
+      "cost_class": "medium",
+      "description": "Per-lot requirements assessment with cited notice passages, profile facts used and unknowns (not the buyer's decision).",
+      "id": "noesis-knowledge-engine.assess_procurement_eligibility",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "procedure_key": {
+            "type": "string"
+          },
+          "profile_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "profile_id",
+          "procedure_key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "assess_procurement_eligibility",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:procurement:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "low",
       "description": "Explain whether observations are comparable across adjustments and series breaks.",
       "id": "noesis-knowledge-engine.assess_quantitative_comparability",
@@ -21996,6 +22066,69 @@
       ],
       "required_scopes": [
         "knowledge:intake:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Explained per-lot shortlist: eligibility, fit inputs with sources, award context, buckets and sensitivity (not a win probability).",
+      "id": "noesis-knowledge-engine.build_procurement_shortlist",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "profile_id": {
+            "type": "string"
+          },
+          "providers": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "weights": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "profile_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "build_procurement_shortlist",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:procurement:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -25940,6 +26073,185 @@
     },
     {
       "cost_class": "medium",
+      "description": "Watch new notices, corrigenda, deadline changes, cancellations and awards via a knowledge subscription.",
+      "id": "noesis-knowledge-engine.create_procurement_monitor",
+      "input_schema": {
+        "properties": {
+          "delivery": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "local_time": {
+            "default": "08:00",
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "profile_id": {
+            "type": "string"
+          },
+          "providers": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "request_key": {
+            "type": "string"
+          },
+          "timezone": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "watch": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "profile_id",
+          "request_key",
+          "providers"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "create_procurement_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:procurement:write",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Create a private, owner-scoped supplier or buyer profile with no default facts.",
+      "id": "noesis-knowledge-engine.create_procurement_profile",
+      "input_schema": {
+        "properties": {
+          "kind": {
+            "default": "supplier",
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "request_key": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "request_key",
+          "label"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "create_procurement_profile",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:procurement:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Start bid preparation for one shortlisted lot: cited requirement checklist, document list and milestones.",
+      "id": "noesis-knowledge-engine.create_procurement_workspace",
+      "input_schema": {
+        "properties": {
+          "item_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "request_key": {
+            "type": "string"
+          },
+          "shortlist_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "request_key",
+          "shortlist_id",
+          "item_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "create_procurement_workspace",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:procurement:write",
+        "knowledge:projects:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Record options, preferences, evidence, action, and review conditions against a project revision.",
       "id": "noesis-knowledge-engine.create_research_decision",
       "input_schema": {
@@ -26879,6 +27191,77 @@
       ],
       "required_scopes": [
         "knowledge:intake:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Record a reviewed match/non-match identity decision (auditable, reversible; never a merge).",
+      "id": "noesis-knowledge-engine.decide_procurement_party_link",
+      "input_schema": {
+        "properties": {
+          "decision": {
+            "type": "string"
+          },
+          "entity_id": {
+            "type": "string"
+          },
+          "evidence": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "party": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "namespace",
+          "party",
+          "entity_id",
+          "decision"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "decide_procurement_party_link",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:procurement:review",
+        "knowledge:entity-history:review",
+        "knowledge:entity-history:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -28126,6 +28509,48 @@
       ],
       "required_scopes": [
         "knowledge:intake:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Editable cited bid draft pinned to the notice revision; gaps stay explicitly unanswered.",
+      "id": "noesis-knowledge-engine.draft_procurement_bid",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "request_key": {
+            "type": "string"
+          },
+          "workspace_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "workspace_id",
+          "request_key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "draft_procurement_bid",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:procurement:write",
+        "knowledge:reports:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -30100,6 +30525,55 @@
       ],
       "required_scopes": [
         "knowledge:citation:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Export a bid draft revision after re-checking current access; includes edit provenance.",
+      "id": "noesis-knowledge-engine.export_procurement_bid_draft",
+      "input_schema": {
+        "properties": {
+          "draft_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "revision": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "draft_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "export_procurement_bid_draft",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:procurement:read",
+        "knowledge:reports:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -35420,6 +35894,187 @@
     },
     {
       "cost_class": "low",
+      "description": "One procedure revision: the causing notice, lots, cited requirements, deadlines, values (estimated vs awarded) and awards.",
+      "id": "noesis-knowledge-engine.inspect_procurement_notice",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "procedure_key": {
+            "type": "string"
+          },
+          "revision": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "procedure_key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "inspect_procurement_notice",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:procurement:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Owner-only profile view with unknown and unreviewed facts listed.",
+      "id": "noesis-knowledge-engine.inspect_procurement_profile",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "profile_id": {
+            "type": "string"
+          },
+          "revision": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "profile_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "inspect_procurement_profile",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:procurement:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "A stored shortlist and whether corrigenda, cancellations or awards have invalidated it.",
+      "id": "noesis-knowledge-engine.inspect_procurement_shortlist",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "shortlist_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "shortlist_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "inspect_procurement_shortlist",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:procurement:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Checklist progress, documents with source and status, stale items and the lot's current state.",
+      "id": "noesis-knowledge-engine.inspect_procurement_workspace",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "revision": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "workspace_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "workspace_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "inspect_procurement_workspace",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:procurement:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "A model or variant with revisions, current and superseded assertions, documents, coverage and matches.",
       "id": "noesis-knowledge-engine.inspect_product_identity",
       "input_schema": {
@@ -37956,6 +38611,53 @@
       "version": "1"
     },
     {
+      "cost_class": "low",
+      "description": "Current procedures with per-lot derived state, deadlines (original text), freshness and award links.",
+      "id": "noesis-knowledge-engine.list_procurement_notices",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "providers": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_procurement_notices",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:procurement:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "medium",
       "description": "Page through persisted runs for a registered analysis.",
       "id": "noesis-knowledge-engine.list_research_analysis_runs",
@@ -39426,6 +40128,48 @@
     },
     {
       "cost_class": "low",
+      "description": "Poll monitor events after a cursor.",
+      "id": "noesis-knowledge-engine.poll_procurement_monitor",
+      "input_schema": {
+        "properties": {
+          "cursor": {
+            "default": "",
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "subscription_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "poll_procurement_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:procurement:read",
+        "knowledge:subscriptions:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Check caller scopes, native entry points, and known live-readiness gaps.",
       "id": "noesis-knowledge-engine.preflight_intake_mode",
       "input_schema": {
@@ -40580,6 +41324,270 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Award and modification history per buyer, supplier or CPV with sources and dates (context, never evidence of an open procedure).",
+      "id": "noesis-knowledge-engine.procurement_award_history",
+      "input_schema": {
+        "properties": {
+          "buyer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "buyer_entity": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "cpv": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "supplier": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "supplier_entity": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "procurement_award_history",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:procurement:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Declared contributions plus ready/fixture-only/unavailable/not-implemented state per provider; offline and live evidence apart.",
+      "id": "noesis-knowledge-engine.procurement_bundle_status",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "procurement_bundle_status",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:procurement:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Derived, explained incumbency for a buyer and CPV branch from acquired award history.",
+      "id": "noesis-knowledge-engine.procurement_incumbency",
+      "input_schema": {
+        "properties": {
+          "buyer": {
+            "type": "string"
+          },
+          "cpv": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "buyer",
+          "cpv"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "procurement_incumbency",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:procurement:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Revision history: which notice (contract notice, corrigendum, cancellation) caused each revision and what changed.",
+      "id": "noesis-knowledge-engine.procurement_notice_history",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "procedure_key": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "procedure_key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "procurement_notice_history",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:procurement:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Proposed canonical-entity / LEI identities for a buyer or supplier with evidence; never applied automatically.",
+      "id": "noesis-knowledge-engine.procurement_party_candidates",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "party": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "namespace",
+          "party"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "procurement_party_candidates",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:procurement:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Per-provider access contracts (TED, Find a Tender, Contracts Finder, SAM.gov, German portals, OpenTender), eForms mapping and live state.",
+      "id": "noesis-knowledge-engine.procurement_provider_contracts",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "procurement_provider_contracts",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
       "version": "1"
     },
     {
@@ -43100,6 +44108,67 @@
     },
     {
       "cost_class": "medium",
+      "description": "Record prepared / user-reported submitted / buyer-confirmed. Never submits anything.",
+      "id": "noesis-knowledge-engine.record_procurement_workspace_outcome",
+      "input_schema": {
+        "properties": {
+          "command_key": {
+            "type": "string"
+          },
+          "evidence": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "expected_revision": {
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "outcome": {
+            "type": "string"
+          },
+          "workspace_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "workspace_id",
+          "command_key",
+          "expected_revision",
+          "outcome"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "record_procurement_workspace_outcome",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:procurement:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Record a provenance-rich observation without replacing earlier vintages.",
       "id": "noesis-knowledge-engine.record_quantitative_observation",
       "input_schema": {
@@ -43743,6 +44812,52 @@
       "required_scopes": [
         "knowledge:intake:write",
         "knowledge:intake:fetch"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Adopt the current notice revision, keep preparation and flag changed requirements stale.",
+      "id": "noesis-knowledge-engine.refresh_procurement_workspace",
+      "input_schema": {
+        "properties": {
+          "command_key": {
+            "type": "string"
+          },
+          "expected_revision": {
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "workspace_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "workspace_id",
+          "command_key",
+          "expected_revision"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "refresh_procurement_workspace",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:procurement:write",
+        "knowledge:projects:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -47709,6 +48824,43 @@
     },
     {
       "cost_class": "low",
+      "description": "Recompute a shortlist from its pinned profile, procedure and award revisions and compare digests.",
+      "id": "noesis-knowledge-engine.replay_procurement_shortlist",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "shortlist_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "shortlist_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "replay_procurement_shortlist",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:procurement:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Verify a quality assessment against its deterministic hash.",
       "id": "noesis-knowledge-engine.replay_quality_assessment",
       "input_schema": {
@@ -49049,6 +50201,46 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Undo a party link through an auditable undo decision.",
+      "id": "noesis-knowledge-engine.revert_procurement_party_link",
+      "input_schema": {
+        "properties": {
+          "link_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "link_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "revert_procurement_party_link",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:procurement:review",
+        "knowledge:entity-history:review",
+        "knowledge:entity-history:write",
+        "knowledge:entity-history:execute"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
       "version": "1"
     },
     {
@@ -51588,6 +52780,55 @@
     },
     {
       "cost_class": "medium",
+      "description": "Evaluate a monitor at a committed procurement source-pack watermark; replaying a watermark creates no new events.",
+      "id": "noesis-knowledge-engine.run_procurement_monitor",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "subscription_id": {
+            "type": "string"
+          },
+          "watermark": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "run_procurement_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:procurement:write",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Run or resume the canonical seven-stage Knowledge Engine workflow.",
       "id": "noesis-knowledge-engine.run_reference_workflow",
       "input_schema": {
@@ -53162,6 +54403,43 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Enable/disable Public Procurement (a coordinator selection change once composed); Funding & Grants and shared providers stay usable.",
+      "id": "noesis-knowledge-engine.set_procurement_bundle_enabled",
+      "input_schema": {
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "enabled"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "set_procurement_bundle_enabled",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "operator"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
       "version": "1"
     },
     {
@@ -57681,6 +58959,167 @@
     },
     {
       "cost_class": "medium",
+      "description": "Owner-reviewed fact changes (capabilities, turnover, certifications, exclusion self-declarations); proposals stay unknown.",
+      "id": "noesis-knowledge-engine.update_procurement_profile",
+      "input_schema": {
+        "properties": {
+          "clear_facts": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "command_key": {
+            "type": "string"
+          },
+          "expected_revision": {
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "profile_id": {
+            "type": "string"
+          },
+          "propose_facts": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "reject": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "review": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "set_facts": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "profile_id",
+          "command_key",
+          "expected_revision"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "update_procurement_profile",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:procurement:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Owner-reviewed checklist status updates.",
+      "id": "noesis-knowledge-engine.update_procurement_workspace_items",
+      "input_schema": {
+        "properties": {
+          "command_key": {
+            "type": "string"
+          },
+          "expected_revision": {
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "updates": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "workspace_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "workspace_id",
+          "command_key",
+          "expected_revision",
+          "updates"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "update_procurement_workspace_items",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:procurement:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Review, progress, resolve, or dismiss a gap with explicit evidence.",
       "id": "noesis-knowledge-engine.update_research_gap_status",
       "input_schema": {
@@ -58300,6 +59739,43 @@
       ],
       "required_scopes": [
         "knowledge:funding:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Withdraw a profile; it and every view pinned to it become unreadable.",
+      "id": "noesis-knowledge-engine.withdraw_procurement_profile",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "profile_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "profile_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "withdraw_procurement_profile",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:procurement:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",

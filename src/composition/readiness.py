@@ -116,7 +116,19 @@ class CompositionView:
         self.descriptors = {d["id"]: d for d in descriptors if (d["id"], d["version"]) in pins}
         pinned_packs = {(p["id"], p["version"]) for p in plan.get("packs") or []}
         self.manifests = {m["id"]: m for m in manifests if (m["id"], m["version"]) in pinned_packs}
-        contributors = {e["to"]: e["from"] for e in plan.get("graph") or [] if e.get("kind") == "contributes"}
+        self.bindings_by_capability = {b["capability"]: b for b in plan.get("bindings") or []}
+        contributing: dict[str, list[str]] = {}
+        for edge in plan.get("graph") or []:
+            if edge.get("kind") == "contributes":
+                contributing.setdefault(edge["to"], []).append(edge["from"])
+
+        def shipped(pack_id: str) -> set[str]:
+            return {ref["id"] for ref in ((self.manifests.get(pack_id) or {}).get("contributes") or {}).get("providers") or []}
+
+        # When several packs contribute one capability (Public Procurement re-exports the
+        # funding.* capabilities it reuses), the pack that ships the bound provider owns it.
+        contributors = {capability: next((p for p in packs if (self.bindings_by_capability.get(capability) or {}).get("provider") in shipped(p)),
+                                         packs[-1]) for capability, packs in contributing.items()}
         self.tools: dict[str, ToolBinding] = {}
         self.bindings = {b["capability"]: b for b in plan.get("bindings") or []}
         for capability, binding in sorted(self.bindings.items()):
