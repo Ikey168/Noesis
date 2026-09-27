@@ -18,7 +18,7 @@
         "required": ["source_id", "connector", "endpoint", "publisher", "scope", "license", "update_cadence", "temporal_semantics", "mapping", "extractor_versions", "schedule", "budgets", "auth", "fixture", "health", "operations", "source_hash"],
         "properties": {
           "source_id": {"type": "string", "minLength": 1},
-          "connector": {"enum": ["berlin-law", "blog", "bods", "cellar", "companies-house", "ctgov", "ctis", "dataset", "ddb", "declarative-rest", "ema-medicines", "epo-ops", "eprel", "eu-ctr", "europeana", "filings", "formal-library", "geojson", "git", "gleif", "gtfs", "icecat", "iso-open-data", "manifest", "ocds", "oeis", "openfda", "package-registry", "paper", "rii", "sam-gov", "sanctions-list", "sec-edgar-ownership", "ted", "web", "wfs", "zbmath"]},
+          "connector": {"enum": ["berlin-law", "blog", "bods", "cellar", "companies-house", "ctgov", "ctis", "dataset", "ddb", "declarative-rest", "ema-medicines", "epo-ops", "eprel", "eu-ctr", "europeana", "filings", "formal-library", "geojson", "git", "gleif", "gtfs", "icecat", "iso-open-data", "manifest", "ocds", "oeis", "openfda", "package-registry", "paper", "rii", "sam-gov", "sanctions-list", "sec-edgar-ownership", "ted", "vulnerability-feed", "web", "wfs", "zbmath"]},
           "wfs": {
             "type": "object",
             "description": "Pinned WFS 2.0.0 GetFeature contract; required for the wfs connector.",
@@ -147,6 +147,18 @@
               "legal_namespace": {"type": "string", "minLength": 1},
               "list": {"enum": ["eu", "un", "ofac", "uk"]},
               "format": {"enum": ["eu-fsf-xml-1.1", "un-sc-xml", "ofac-sdn-xml", "uk-sanctions-list-xml"]}
+            },
+            "additionalProperties": false
+          },
+          "vulnerabilities": {
+            "type": "object",
+            "description": "One bounded vulnerability source for the vulnerability-feed connector: its documented format, source label, namespace and pinned selection (CVE ids, advisory ids or repository paths, a lastModified window, CPE match strings or CWE ids).",
+            "required": ["format"],
+            "properties": {
+              "namespace": {"type": "string", "minLength": 1},
+              "format": {"enum": ["nvd-cve-2.0", "nvd-cve-history-2.0", "nvd-cpe-2.0", "osv", "cve-json-5", "cisa-kev", "first-epss", "cwe-xml"]},
+              "source": {"enum": ["nvd", "nvd-cpe", "osv", "ghsa", "cve-services", "cisa-kev", "first-epss", "cwe"]},
+              "selection": {"type": "object"}
             },
             "additionalProperties": false
           },

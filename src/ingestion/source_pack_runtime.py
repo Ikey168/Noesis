@@ -154,6 +154,12 @@ def _sanctions_projector(conn: Any) -> Any:
     return SanctionsProjector(conn)
 
 
+def _vulnerability_projector(conn: Any) -> Any:
+    from src.kb.vulnerabilities import VulnerabilityProjector
+
+    return VulnerabilityProjector(conn)
+
+
 # Mapping target schemas whose records are also projected into a domain store.
 # A projector receives each committed page before its checkpoint advances and
 # the source outcome afterwards, so replayed pages must project idempotently.
@@ -172,6 +178,7 @@ PROJECTORS: dict[str, Callable[[Any], Any]] = {
     "noesis-procurement-record-v1": _procurement_projector,
     "noesis-environment-record-v1": _environment_projector,
     "noesis-sanctions-record-v1": _sanctions_projector,
+    "noesis-vulnerability-record-v1": _vulnerability_projector,
 }
 
 _DDL = """

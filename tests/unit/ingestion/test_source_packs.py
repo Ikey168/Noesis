@@ -50,8 +50,9 @@ def test_all_production_packs_validate_against_contract() -> None:
         "scientific",
         "technical",
     }
-    # 59 plus the Legal sanctions feature's six sources (#1907): four lists and two CELLAR selections.
-    assert sum(len(pack["sources"]) for pack in packs) == 65
+    # 59 plus the Legal sanctions feature's six sources (#1907): four lists and two CELLAR selections,
+    # plus the Technology vulnerabilities feature's eight new sources (#1913; osv-api was reviewed in place).
+    assert sum(len(pack["sources"]) for pack in packs) == 73
     schema = json.loads(
         (ROOT / "contracts/schemas/jsonschema/noesis-source-pack-v1.json").read_text()
     )

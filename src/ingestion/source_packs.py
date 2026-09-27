@@ -230,6 +230,10 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset(_PROCUREMENT_CONNECTORS)
 NATIVE_CONNECTOR_MODULES["sanctions-list"] = "src.ingestion.sanctions_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"sanctions-list"})
 
+# Technology vulnerability and advisory sources (NVD, OSV, GitHub, CISA KEV, EPSS, CVE Services, CPE, CWE; #1913).
+NATIVE_CONNECTOR_MODULES["vulnerability-feed"] = "src.ingestion.vulnerability_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"vulnerability-feed"})
+
 
 def native_connector_module(connector: str) -> Any:
     import importlib

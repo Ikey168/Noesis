@@ -36,6 +36,7 @@ PROJECTOR_OWNERS = {
     "noesis-procurement-record-v1": "src.kb.procurement_notices",
     "noesis-environment-record-v1": "src.kb.environment_store",
     "noesis-sanctions-record-v1": "src.kb.sanctions",
+    "noesis-vulnerability-record-v1": "src.kb.vulnerabilities",
 }
 
 
