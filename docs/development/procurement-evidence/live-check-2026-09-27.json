@@ -1,0 +1,179 @@
+{
+  "contract": "noesis-procurement-live-check-v1",
+  "evidence_kind": "live",
+  "started_at": "2026-09-27T00:42:54.262854+00:00",
+  "environment": "Claude Code cloud session; outbound HTTPS goes through the session's egress proxy, whose organization policy refuses CONNECT to api.ted.europa.eu, www.find-tender.service.gov.uk, www.contractsfinder.service.gov.uk and api.sam.gov (HTTP 403 on CONNECT); NOESIS_SAM_API_KEY is not configured",
+  "providers": {
+    "sam-gov": {
+      "source_id": "sam-opportunities",
+      "endpoint": "https://api.sam.gov/opportunities/v2/search",
+      "access_contract": "SAM.gov Get Opportunities Public API v2 (GET /opportunities/v2/search)",
+      "observed_at": "2026-09-27T00:42:54.474073+00:00",
+      "elapsed_seconds": 0.18,
+      "preflight": {
+        "ready": false,
+        "failures": [
+          "credential_missing"
+        ],
+        "authentication": {
+          "kind": "required-secret",
+          "secret_ref": "NOESIS_SAM_API_KEY",
+          "available": false
+        }
+      },
+      "ok": false,
+      "run_status": "partial",
+      "source_status": "blocked",
+      "failure": {
+        "code": "credential_missing",
+        "stage": "preflight"
+      },
+      "adapter_probe": {
+        "ok": false,
+        "code": "credential_missing",
+        "message": "SAM.gov requires the NOESIS_SAM_API_KEY secret",
+        "transport_detail": null
+      },
+      "records": []
+    },
+    "ted": {
+      "source_id": "ted-notices",
+      "endpoint": "https://api.ted.europa.eu/v3",
+      "access_contract": "TED API v3 notice search (POST /v3/notices/search, JSON) over published eForms notices",
+      "observed_at": "2026-09-27T00:42:55.436589+00:00",
+      "elapsed_seconds": 0.73,
+      "preflight": {
+        "ready": true,
+        "failures": [],
+        "authentication": {
+          "kind": "none",
+          "secret_ref": null,
+          "available": true
+        }
+      },
+      "ok": false,
+      "run_status": "partial",
+      "source_status": "failed",
+      "counts": {
+        "pages": 0,
+        "fetched": 0,
+        "normalized": 0,
+        "bytes": 0
+      },
+      "failure": {
+        "code": "source_unavailable",
+        "message": "source unavailable",
+        "classification": "transient-availability"
+      },
+      "retries": [],
+      "adapter_probe": {
+        "ok": false,
+        "code": "source_unavailable",
+        "message": "egress to the provider host was refused by the network proxy (CONNECT Forbidden)",
+        "transport_detail": "Tunnel connection failed: 403 Forbidden"
+      },
+      "records": []
+    },
+    "uk-cf": {
+      "source_id": "uk-contracts-finder-ocds",
+      "endpoint": "https://www.contractsfinder.service.gov.uk/Published/Notices/OCDS/Search",
+      "access_contract": "Contracts Finder OCDS search (GET /Published/Notices/OCDS/Search)",
+      "observed_at": "2026-09-27T00:42:56.059365+00:00",
+      "elapsed_seconds": 0.6,
+      "preflight": {
+        "ready": true,
+        "failures": [],
+        "authentication": {
+          "kind": "none",
+          "secret_ref": null,
+          "available": true
+        }
+      },
+      "ok": false,
+      "run_status": "partial",
+      "source_status": "failed",
+      "counts": {
+        "pages": 0,
+        "fetched": 0,
+        "normalized": 0,
+        "bytes": 0
+      },
+      "failure": {
+        "code": "source_unavailable",
+        "message": "source unavailable",
+        "classification": "transient-availability"
+      },
+      "retries": [],
+      "adapter_probe": {
+        "ok": false,
+        "code": "source_unavailable",
+        "message": "egress to the provider host was refused by the network proxy (CONNECT Forbidden)",
+        "transport_detail": "Tunnel connection failed: 403 Forbidden"
+      },
+      "records": []
+    },
+    "uk-fts": {
+      "source_id": "uk-fts-ocds",
+      "endpoint": "https://www.find-tender.service.gov.uk/api/1.0/ocdsReleasePackages",
+      "access_contract": "Find a Tender OCDS release packages (GET /api/1.0/ocdsReleasePackages)",
+      "observed_at": "2026-09-27T00:42:56.835636+00:00",
+      "elapsed_seconds": 0.73,
+      "preflight": {
+        "ready": true,
+        "failures": [],
+        "authentication": {
+          "kind": "none",
+          "secret_ref": null,
+          "available": true
+        }
+      },
+      "ok": false,
+      "run_status": "partial",
+      "source_status": "failed",
+      "counts": {
+        "pages": 0,
+        "fetched": 0,
+        "normalized": 0,
+        "bytes": 0
+      },
+      "failure": {
+        "code": "source_unavailable",
+        "message": "source unavailable",
+        "classification": "transient-availability"
+      },
+      "retries": [],
+      "adapter_probe": {
+        "ok": false,
+        "code": "source_unavailable",
+        "message": "egress to the provider host was refused by the network proxy (CONNECT Forbidden)",
+        "transport_detail": "Tunnel connection failed: 403 Forbidden"
+      },
+      "records": []
+    }
+  },
+  "note": "Live evidence only; offline fixture results are reported separately by the unit and acceptance tests.",
+  "not_implemented": {
+    "service-bund": "service.bund.de publishes federal tender listings as portal pages and an RSS listing feed of titles and links only; no documented machine interface for notice content (deadlines, lots, criteria) exists, and portal pages are not scraped. Federal notices above the EU thresholds are covered through TED.",
+    "berlin-vergabe": "The Berlin Vergabeplattform offers no documented public API or bulk export for notices; the portal requires interactive use and is not scraped. Berlin notices above the EU thresholds are covered through TED.",
+    "opentender": "OpenTender (DIGIWHIST) offers bulk historical downloads derived from TED and national portals; it is award history only (never evidence of an open procedure) and duplicates TED award notices, so it is not ingested in this bounded profile."
+  },
+  "finished_at": "2026-09-27T00:42:56.835672+00:00",
+  "summary": {
+    "sam-gov": {
+      "runtime": "credential_missing",
+      "adapter": "credential_missing"
+    },
+    "ted": {
+      "runtime": "source_unavailable",
+      "adapter": "source_unavailable"
+    },
+    "uk-cf": {
+      "runtime": "source_unavailable",
+      "adapter": "source_unavailable"
+    },
+    "uk-fts": {
+      "runtime": "source_unavailable",
+      "adapter": "source_unavailable"
+    }
+  }
+}

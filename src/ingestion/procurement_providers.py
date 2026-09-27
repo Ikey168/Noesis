@@ -170,8 +170,17 @@ LAST_LIVE_CHECK = {
     "date": "2026-09-27",
     "report": "docs/development/procurement-evidence/live-check-2026-09-27.json",
     "result": "blocked",
-    "detail": "every implemented provider host was refused by the build environment's egress policy",
+    "detail": "no provider was reached: the build environment's egress proxy refused CONNECT to every provider host",
+    "providers": {
+        "ted": {"result": "blocked", "failure_code": "source_unavailable", "transport_detail": "Tunnel connection failed: 403 Forbidden"},
+        "uk-fts": {"result": "blocked", "failure_code": "source_unavailable", "transport_detail": "Tunnel connection failed: 403 Forbidden"},
+        "uk-cf": {"result": "blocked", "failure_code": "source_unavailable", "transport_detail": "Tunnel connection failed: 403 Forbidden"},
+        "sam-gov": {"result": "blocked", "failure_code": "credential_missing", "transport_detail": None,
+                    "note": "blocked at preflight: NOESIS_SAM_API_KEY is not configured; no request was sent"},
+    },
 }
+for _provider, _result in LAST_LIVE_CHECK["providers"].items():
+    LIVE_VERIFICATION[_provider] = {**LIVE_VERIFICATION[_provider], "last_check": {"date": LAST_LIVE_CHECK["date"], **_result}}
 
 # ------------------------------------------------------------------ eForms map
 
@@ -925,8 +934,12 @@ def http_request(*, url, params, headers, timeout, body=None, method="GET", max_
         if isinstance(reason, TimeoutError):
             raise SourcePackError("source_timeout", "source request exceeded its transport timeout") from exc
         detail = str(reason)
-        code = "network_policy" if "403" in detail or "Tunnel connection failed" in detail else "source_unavailable"
-        raise SourcePackError(code, f"source transport is unavailable ({type(reason).__name__}: {detail[:200]})") from exc
+        if "Tunnel connection failed" in detail:
+            # The environment's egress proxy refused CONNECT to the provider host.
+            raise SourcePackError("source_unavailable", "egress to the provider host was refused by the network proxy "
+                                  f"(CONNECT {detail.rsplit(' ', 1)[-1][:40]})", transport_detail=detail[:200]) from exc
+        raise SourcePackError("source_unavailable", f"source transport is unavailable ({type(reason).__name__}: {detail[:200]})",
+                              transport_detail=detail[:200]) from exc
 
 
 class _ProcurementAdapter:
@@ -988,7 +1001,7 @@ class _ProcurementAdapter:
         if status == 429:
             raise SourcePackError("rate_limited", f"{self.provider} rate limit reached", retry_after_ms=_retry_after_ms(headers.get("retry-after")))
         if status in {401, 403}:
-            raise SourcePackError("authentication_failed" if self.provider == "sam-gov" else "access_denied",
+            raise SourcePackError("authentication_failed",
                                   f"{self.provider} refused the request (HTTP {status})")
         if status >= 500:
             raise SourcePackError("source_unavailable", f"{self.provider} returned HTTP {status}")

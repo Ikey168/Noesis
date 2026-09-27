@@ -64,12 +64,15 @@ def _cpv_fit(view, facts):
         return None, ["the notice states no CPV code for this lot"]
     best, reasons = 0.0, []
     for code in view["cpv"]:
-        for interest in interests:
-            relation = cpv_relation(interest, code)
-            score = {"covers": 1.0, "same-division": 0.4}.get(relation, 0.0)
-            if score:
-                reasons.append(f"CPV {code} {'lies within' if relation == 'covers' else 'shares the division of'} your interest {interest}")
-            best = max(best, score)
+        relations = {interest: cpv_relation(interest, code) for interest in interests}
+        covering = [i for i, r in relations.items() if r == "covers"]
+        near = [i for i, r in relations.items() if r == "same-division"]
+        if covering:
+            best = 1.0
+            reasons.append(f"CPV {code} lies within your interest {', '.join(covering)}")
+        elif near:
+            best = max(best, 0.4)
+            reasons.append(f"CPV {code} only shares the division of your interest {', '.join(near)}")
     return best, reasons or [f"CPV {', '.join(view['cpv'])} is outside your stated interests"]
 
 
