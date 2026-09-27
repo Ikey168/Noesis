@@ -26,6 +26,10 @@ from src.ingestion.connectors.dataset.base import DatasetConnector, RawSeries, S
 from src.ingestion.connectors.dataset.normalize import normalize_frequency, normalize_geography, normalize_unit
 
 _API_BASE = "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data"
+# Comext (international trade in goods) is served by the same dissemination API
+# family under its own path; its cubes use ``reporter`` rather than ``geo``.
+_COMEXT_BASE = "https://ec.europa.eu/eurostat/api/comext/dissemination/statistics/1.0/data"
+_BASES = {"statistics": (_API_BASE, "geo"), "comext": (_COMEXT_BASE, "reporter")}
 _LICENSE = "Eurostat (reuse permitted with attribution)"
 
 # A Eurostat spec is a dataset code plus a geography (and optional extra filters).
@@ -94,19 +98,24 @@ class EurostatConnector(DatasetConnector):
         for spec in specs:
             dataset = str(spec["dataset"])
             geography = str(spec["geography"])
-            filters = {k: v for k, v in spec.items() if k not in ("dataset", "geography")}
+            api = str(spec.get("api") or "statistics")
+            if api not in _BASES:
+                raise ValueError(f"unsupported Eurostat API {api!r}")
+            filters = {k: v for k, v in spec.items() if k not in ("dataset", "geography", "api")}
             yield SeriesRef(
                 locator=f"{dataset}/{geography}",
-                metadata={"dataset": dataset, "geography": geography, "filters": filters},
+                metadata={"dataset": dataset, "geography": geography, "filters": filters, "api": api},
             )
 
-    def _url(self, dataset: str, geography: str, filters: Dict[str, Any]) -> str:
-        params = {"format": "JSON", "geo": geography}
+    def _url(self, dataset: str, geography: str, filters: Dict[str, Any], api: str = "statistics") -> str:
+        base, geo_dimension = _BASES[api]
+        params = {"format": "JSON", geo_dimension: geography}
         params.update({str(key): str(value) for key, value in filters.items()})
-        return f"{_API_BASE}/{quote(dataset, safe='')}?{urlencode(params)}"
+        return f"{base}/{quote(dataset, safe='')}?{urlencode(params)}"
 
     def fetch(self, ref: SeriesRef) -> RawSeries:
-        url = self._url(ref.metadata["dataset"], ref.metadata["geography"], ref.metadata.get("filters", {}))
+        url = self._url(ref.metadata["dataset"], ref.metadata["geography"], ref.metadata.get("filters", {}),
+                        ref.metadata.get("api", "statistics"))
         return RawSeries(ref=ref, content=self._http_get(url), content_type="application/json", source_url=url)
 
     def parse(self, raw: RawSeries) -> List[SeriesRecord]:
@@ -192,6 +201,11 @@ class EurostatConnector(DatasetConnector):
         series_id = f"estat:{dataset}:{geography}" if geography else f"estat:{dataset}"
         if selection_hash:
             series_id = f"{series_id}:{selection_hash}"
+        if raw.ref.metadata.get("api") == "comext":
+            # A Comext flow is identified by every requested dimension (partner,
+            # product, flow, indicator), not by the reporter alone.
+            series_id = f"estat-comext:{dataset}:{geography}:" + ":".join(
+                f"{key}={value}" for key, value in sorted(filters.items()))
         requested_filters = {str(key).casefold() for key in filters}
         unselected_multi_dims = [
             dimension_id

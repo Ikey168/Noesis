@@ -7,6 +7,11 @@ checkpoints and projection apply. Each source declares an explicit, bounded
 ``legal`` selection:
 
 * ``cellar`` - up to 20 CELEX numbers and 1-24 languages, paged SPARQL rows.
+  An optional ``text`` selection also fetches the text of up to 10 items of
+  the selected manifestation formats from the same host and splits it into
+  located passages: ``xhtml-paragraphs`` (one passage per paragraph) or
+  ``eu-control-list-annex`` (one passage per control code, e.g. the Annex I
+  entries of the dual-use Regulation (EU) 2021/821, located by the code).
 * ``rii`` - explicit ``doknr`` identities and/or one bounded index window
   (court and modified-since filters) from the official RII table of contents.
 * ``berlin-law`` - explicit documented download or rendered-page URLs on
@@ -43,6 +48,8 @@ PROVIDER_CONTRACTS = {
         "identifiers": ["CELEX", "ELI", "ECLI", "CELLAR work/expression/manifestation/item URIs"],
         "authentication": "none",
         "coverage": "Selected EU works; language expressions and manifestations stay distinct; current law is not inferred",
+        "text_retrieval": "optional: XHTML items of selected works on publications.europa.eu, split into located "
+                          "passages (unverified-live: item URLs may answer with same-host redirects only)",
         "prior_live_evidence": "docs/development/workflow-review-evidence/cellar-native-2026-09-09.json",
     },
     "rii": {
@@ -87,6 +94,15 @@ def legal_declaration(source: Mapping[str, Any]) -> dict[str, Any]:
             raise SourcePackError("unbounded_source", "cellar sources select 1-20 CELEX numbers")
         if not 1 <= len(languages) <= 24 or any(not re.fullmatch(r"[A-Z]{3}", lang) for lang in languages):
             raise SourcePackError("invalid_mapping", "cellar sources select 1-24 three-letter languages")
+        text = dict(selection or {}).get("text")
+        if text is not None:
+            text = dict(text)
+            formats = list(text.get("formats") or [])
+            if text.get("parser") not in TEXT_PARSERS or not 1 <= len(formats) <= 3 \
+                    or any(not re.fullmatch(r"[a-z0-9]{2,12}", f) for f in formats) \
+                    or not 1 <= int(text.get("max_items") or 0) <= 10:
+                raise SourcePackError("invalid_mapping", "cellar text selections name a parser, 1-3 formats and "
+                                                         "1-10 max_items")
     elif connector == "rii":
         decisions = list(dict(selection or {}).get("decisions") or [])
         index = dict(selection or {}).get("index")
@@ -221,8 +237,107 @@ def _provider_error(exc: Exception) -> SourcePackError:
     return SourcePackError(mapped, f"{code}: {exc}")
 
 
+CONTROL_CODE = re.compile(r"^(\d[A-E]\d{3})(?=\b|[.\s])")
+_BREAK = re.compile(r"^(CATEGORY\s+\d|ANNEX\b|PART\s+[IVX]+\b)", re.I)
+
+
+def _xhtml_blocks(raw: bytes) -> list[tuple[str, str, str | None]]:
+    from bs4 import BeautifulSoup
+
+    soup = BeautifulSoup(raw, "html.parser")
+    for element in soup.select("script,style,nav,footer,header,noscript"):
+        element.decompose()
+    main = soup.body or soup
+    blocks = []
+    for element in main.select("h1,h2,h3,h4,p,li,td"):
+        if element.find(["p", "li", "td"]):
+            continue  # a container's text is emitted by its own paragraphs
+        text = " ".join(element.get_text(" ", strip=True).split())
+        if text:
+            blocks.append((text, element.name, element.get("id")))
+    if len(blocks) > 20000:
+        raise SourcePackError("response_too_large", "item text has too many paragraphs")
+    return blocks
+
+
+def parse_xhtml_paragraphs(raw: bytes) -> list[dict[str, Any]]:
+    """One passage per paragraph, located by its index among headings and paragraphs."""
+    return [{"text": text, "locator": {"kind": "xhtml-paragraph", "index_in_headings_and_paragraphs": index,
+                                       "tag": tag, "id": ident,
+                                       "precision": "element selection; not byte offsets"}}
+            for index, (text, tag, ident) in enumerate(_xhtml_blocks(raw))]
+
+
+def parse_control_list_annex(raw: bytes) -> list[dict[str, Any]]:
+    """One passage per control code (the code and every paragraph up to the next code or heading).
+
+    A control entry is located by its code so the same entry can be compared
+    across editions; other paragraphs keep their paragraph index. The text is
+    the source text; the category is the code's first digit as the annex
+    numbers it, not an interpretation of what is controlled.
+    """
+    sections: list[dict[str, Any]] = []
+    entries: dict[str, dict[str, Any]] = {}
+    current = None
+    for index, (text, tag, ident) in enumerate(_xhtml_blocks(raw)):
+        match = CONTROL_CODE.match(text)
+        if match:
+            code = match.group(1)
+            current = entries.get(code)
+            if current is None:
+                current = {"text": text, "locator": {"kind": "control-entry", "official_norm_id": code,
+                                                     "path": f"annex-i/{code}", "category": code[0],
+                                                     "product_group": code[1], "paragraph_indexes": [index],
+                                                     "precision": "control-code grouping of source paragraphs"}}
+                entries[code] = current
+                sections.append(current)
+            else:
+                current["text"] += "\n" + text
+                current["locator"]["paragraph_indexes"].append(index)
+            continue
+        if current is not None and not _BREAK.match(text) and tag not in {"h1", "h2", "h3", "h4"}:
+            current["text"] += "\n" + text
+            current["locator"]["paragraph_indexes"].append(index)
+            continue
+        current = None
+        sections.append({"text": text, "locator": {"kind": "xhtml-paragraph", "index_in_headings_and_paragraphs": index,
+                                                   "tag": tag, "id": ident,
+                                                   "precision": "element selection; not byte offsets"}})
+    return sections
+
+
+TEXT_PARSERS = {"xhtml-paragraphs": parse_xhtml_paragraphs, "eu-control-list-annex": parse_control_list_annex}
+
+
 class CellarLegalAdapter(_LegalAdapter):
     connector = "cellar"
+
+    def _fetch_texts(self, records: list[dict[str, Any]], text: Mapping[str, Any]) -> list[dict[str, Any]]:
+        """Fetch and split the text of selected items (same host only); a missing item stays metadata-only."""
+        fetched = []
+        for record in records:
+            fields = record["fields"]
+            if len(fetched) >= int(text["max_items"]) or fields.get("format") not in text["formats"] \
+                    or not fields.get("item"):
+                continue
+            url = "https://" + str(fields["item"]).split("://", 1)[-1]
+            status, raw = self._get(url, headers={"Accept": "application/xhtml+xml, text/html"})
+            outcome = {"item": fields["item"], "status": status, "response_sha256": hashlib.sha256(raw).hexdigest(),
+                       "bytes": len(raw)}
+            fetched.append(outcome)
+            if status in {404, 410}:
+                fields["text_status"] = outcome["outcome"] = "not_found"
+                continue
+            if status >= 400:
+                raise SourcePackError("schema_drift", f"CELLAR item returned HTTP {status}")
+            sections = TEXT_PARSERS[text["parser"]](raw)
+            if not sections:
+                raise SourcePackError("schema_drift", "CELLAR item has no extractable text")
+            record["sections"] = sections
+            record["native"]["original_sha256"] = outcome["response_sha256"]
+            fields["text_parser"] = text["parser"]
+            fields["text_status"] = outcome["outcome"] = "captured"
+        return fetched
 
     def fetch_page(self, request: Mapping[str, Any], *, cursor: str | None):
         from src.ingestion.regional_providers import (
@@ -252,9 +367,13 @@ class CellarLegalAdapter(_LegalAdapter):
         info = {"offset": offset, "limit": limit, "query_sha256": _digest(query),
                 "response_sha256": hashlib.sha256(raw).hexdigest(), "rows": len(payload["results"]["bindings"]),
                 "final_page": result["next_offset"] is None}
+        text_bytes = 0
+        if selection.get("text"):
+            info["texts"] = self._fetch_texts(result["records"], selection["text"])
+            text_bytes = sum(int(t.pop("bytes", 0)) for t in info["texts"])
         records = [self._wrap(record, info) for record in result["records"]]
         next_state = None if result["next_offset"] is None else {"offset": result["next_offset"]}
-        return self._page(records, next_state, len(raw), {"status": status, **info})
+        return self._page(records, next_state, len(raw) + text_bytes, {"status": status, **info})
 
 
 class RiiDecisionAdapter(_LegalAdapter):

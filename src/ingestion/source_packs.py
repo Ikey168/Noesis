@@ -226,6 +226,10 @@ _PROCUREMENT_CONNECTORS = {"ted": "src.ingestion.procurement_providers", "ocds":
 NATIVE_CONNECTOR_MODULES.update(_PROCUREMENT_CONNECTORS)
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset(_PROCUREMENT_CONNECTORS)
 
+# Legal sanctions lists (EU FSF, UN SC, OFAC SLS, UK Sanctions List; #1907).
+NATIVE_CONNECTOR_MODULES["sanctions-list"] = "src.ingestion.sanctions_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"sanctions-list"})
+
 
 def native_connector_module(connector: str) -> Any:
     import importlib

@@ -20,6 +20,14 @@ explicit Berlin import path) and are projected here:
   assertion in the shared ``kb_temporal_assertions`` store (valid time from
   the source, observation time from acquisition).
 
+Consolidated texts: EUR-Lex publishes each consolidated version of an act as
+its own CELLAR work with CELEX ``0<base>-<YYYYMMDD>``. They are projected as
+versions (editions) of one ``consolidated`` work per base act, each with a
+``consolidation`` fact taken from the CELEX date; a later acquired
+consolidation of the same act supersedes an earlier one from its own date.
+The consolidation series is only as complete as the acquired selection, and
+the answer says so.
+
 ``select_as_of`` returns candidate versions with their evidence; missing or
 conflicting commencement evidence stays ``unknown``/``ambiguous``. Nothing here
 asserts current legal force, and legal-effect assessment is a human review
@@ -46,7 +54,8 @@ DEFAULT_NAMESPACE = "global"
 REGIONAL_CONTRACT = "noesis-native-regional-v1"
 PROVIDER_JURISDICTIONS = {"cellar": "EU", "german-courts": "DE", "berlin-law": "DE-BE"}
 FACT_KINDS = ("enactment", "document", "publication", "entry_into_force", "commencement", "validity_end",
-              "decision")
+              "decision", "consolidation")
+CONSOLIDATED_CELEX = re.compile(r"^0(\d{4}[A-Z]\d{4})-(\d{4})(\d{2})(\d{2})$")
 DOSSIER_RELATIONS = frozenset({"enacted_as", "amends", "transposes", "implements", "related_procedure"})
 REVIEW_BOUNDARY = ("Source facts and version selection are not a determination of legal effect or current force; "
                    "that assessment needs human legal review.")
@@ -132,6 +141,18 @@ def _celex_kind(celex: str | None) -> str:
     return {"6": "decision", "3": "normative", "5": "preparatory", "0": "consolidated"}.get(sector, "normative")
 
 
+def consolidated_of(celex: Any) -> tuple[str, str] | None:
+    """``(base CELEX, consolidation date)`` for a consolidated-version CELEX, else ``None``."""
+    match = CONSOLIDATED_CELEX.match(str(celex or ""))
+    if not match:
+        return None
+    try:
+        day = date(int(match.group(2)), int(match.group(3)), int(match.group(4))).isoformat()
+    except ValueError:
+        return None
+    return "3" + match.group(1), day
+
+
 def _locator_key(locator: Mapping[str, Any]) -> str:
     parts = [locator.get("official_norm_id"), locator.get("path"), locator.get("paragraph_number"),
              locator.get("index_in_headings_and_paragraphs")]
@@ -150,7 +171,14 @@ class LegalStore:
     def _work(self, namespace: str, record: Mapping[str, Any], run_id: str) -> tuple[str, str]:
         provider, fields = record["provider"], dict(record.get("fields") or {})
         jurisdiction = PROVIDER_JURISDICTIONS[provider]
-        if provider == "cellar":
+        consolidated = consolidated_of(fields.get("celex")) if provider == "cellar" else None
+        if consolidated:
+            # Every consolidated version of one act is an edition of one work.
+            native_id = f"consolidated:{consolidated[0]}"
+            kind = "consolidated"
+            identifiers = {"consolidated_text_of": consolidated[0], "consolidated_celex": [fields["celex"]]}
+            body = None
+        elif provider == "cellar":
             native_id = str(fields.get("work") or "")
             kind = _celex_kind(fields.get("celex"))
             identifiers = {"celex": fields.get("celex"), "eli": list(fields.get("eli_identifiers") or []),
@@ -178,6 +206,13 @@ class LegalStore:
             [work_id, namespace, provider, jurisdiction, kind, record["kind"], native_id,
              _canonical({k: v for k, v in identifiers.items() if v not in (None, "", [])}), body,
              record.get("title"), run_id, self.now()])
+        if consolidated:
+            row = self.conn.execute("SELECT identifiers_json FROM legal_works WHERE work_id=?", [work_id]).fetchone()
+            known = _load(row[0], {})
+            if fields["celex"] not in known.get("consolidated_celex", []):
+                known["consolidated_celex"] = sorted({*known.get("consolidated_celex", []), fields["celex"]})
+                self.conn.execute("UPDATE legal_works SET identifiers_json=? WHERE work_id=?",
+                                  [_canonical(known), work_id])
         return work_id, jurisdiction
 
     def project(self, namespace: str, records: Sequence[Mapping[str, Any]], *, run_id: str, source_id: str | None,
@@ -292,6 +327,10 @@ class LegalStore:
             facts = [(k, v) for k, v in facts if k != "commencement"]
         if record["provider"] == "berlin-law" and record.get("published_at") and not fields.get("enactment_date"):
             facts.append(("publication", _day(record["published_at"])))
+        consolidated = consolidated_of(fields.get("celex")) if record["provider"] == "cellar" else None
+        if consolidated:
+            # The CELEX date of a consolidated version: the date its consolidated text applies from.
+            facts.append(("consolidation", consolidated[1]))
         return sorted(set(facts))
 
     def _resolve_citation_targets(self, namespace: str) -> None:
@@ -339,6 +378,8 @@ class LegalStore:
         matches = []
         for work_id, jur, identifiers_json, work_title, native_id in rows:
             identifiers = _load(identifiers_json, {})
+            # A consolidated work is found by its consolidated CELEX numbers, never by its base act's CELEX.
+            identifiers.pop("consolidated_text_of", None)
             flat = {str(native_id)} | {str(v) for v in identifiers.values() if isinstance(v, str)} | {
                 str(x) for v in identifiers.values() if isinstance(v, list) for x in v}
             hit = None
@@ -450,6 +491,8 @@ class LegalStore:
                 facts.setdefault(fact["fact"], []).append(fact["value"])
             starts = facts.get("commencement") or facts.get("entry_into_force") or []
             ends = facts.get("validity_end") or []
+            if work["work_kind"] == "consolidated":
+                starts = facts.get("consolidation") or []
             if work["work_kind"] == "decision":
                 decided = facts.get("decision") or facts.get("document") or []
                 state = ("applies" if decided and min(decided) <= day else "after_as_of" if decided
@@ -469,6 +512,8 @@ class LegalStore:
                                "language": version["language"],
                                "historical": version["historical"], "state": state, "evidence": basis,
                                "observed_at_ms": version["observed_at_ms"]})
+        if work["work_kind"] == "consolidated":
+            self._supersede(candidates, day)
         applying = [c for c in candidates if c["state"] == "applies"]
         undetermined = [c for c in candidates if c["state"] in {"commencement_unknown", "ambiguous_commencement",
                                                                   "date_unknown"}]
@@ -490,7 +535,25 @@ class LegalStore:
                 "equivalent_manifestations": equivalent, "candidates": candidates,
                 "other_language_expressions": other_languages,
                 "translation_notice": "Language expressions are separate versions and are not assumed legally identical.",
+                **({"consolidation_notice": "Editions are the acquired consolidated versions only; a consolidation "
+                                            "that was not acquired cannot be selected."}
+                   if work["work_kind"] == "consolidated" else {}),
                 "review_boundary": REVIEW_BOUNDARY}
+
+    @staticmethod
+    def _supersede(candidates: list[dict[str, Any]], day: str) -> None:
+        """A consolidated edition stops applying when a later acquired edition's consolidation date is reached."""
+        dated = [(c, (c["evidence"].get("commencement") or [None])[0]) for c in candidates]
+        for candidate, start in dated:
+            if candidate["state"] != "applies" or start is None:
+                continue
+            later = sorted((other_start, other["version_id"]) for other, other_start in dated
+                           if other is not candidate and other["language"] == candidate["language"]
+                           and other_start is not None and start < other_start <= day)
+            if later:
+                candidate["state"] = "superseded"
+                candidate["evidence"] = {**candidate["evidence"], "superseded_by": later[0][1],
+                                         "superseded_from": later[0][0]}
 
     def compare_versions(self, namespace: str, left_version_id: str, right_version_id: str, *,
                          scopes) -> dict[str, Any]:

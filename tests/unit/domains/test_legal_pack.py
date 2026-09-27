@@ -128,12 +128,16 @@ def work(store, **query):
 
 def test_pack_declares_implemented_connectors_and_replays_offline():
     value = manifest()
-    assert {s["connector"] for s in value["sources"]} == {"cellar", "rii", "berlin-law"} <= SUPPORTED_CONNECTORS
+    assert {s["connector"] for s in value["sources"]} == {"cellar", "rii", "berlin-law",
+                                                          "sanctions-list"} <= SUPPORTED_CONNECTORS
     result = SourcePackConformance(ROOT).offline(value)
     assert result["valid"]
     assert {s["source_id"]: s["records"] for s in result["sources"]} == {
         "cellar-gdpr-deu": 2, "cellar-gdpr-eng": 2, "cellar-c362-14-deu": 4, "rii-federal-decisions": 3,
-        "berlin-law-publications": 3}
+        "berlin-law-publications": 3,
+        # Legal sanctions feature (#1907): sanctions acts, dual-use editions and the four lists.
+        "cellar-sanctions-acts-eng": 1, "cellar-dual-use-2021-821": 5, "eu-sanctions-consolidated": 3,
+        "un-sc-consolidated": 2, "ofac-sls": 2, "uk-sanctions-list": 2}
 
 
 def test_records_follow_the_legal_record_contract_and_never_claim_current_law():
@@ -230,12 +234,17 @@ def test_run_projects_every_source_and_repeats_idempotently(loaded):
         [s["source_id"] for s in value["sources"]], 0)
     counts = {t: conn.execute(f"SELECT count(*) FROM {t}").fetchone()[0]
               for t in ("legal_works", "legal_versions", "legal_passages", "legal_citations", "legal_facts")}
-    assert counts["legal_works"] == 7  # GDPR, C-362/14, three federal decisions, a Berlin law and judgment
+    # GDPR, C-362/14, three federal decisions, a Berlin law and judgment; plus (sanctions feature) Regulation
+    # 269/2014, Regulation 2021/821, Delegated Regulation 2024/2547 and one consolidated-editions work.
+    assert counts["legal_works"] == 11
     # CELLAR runs are bounded to the captured first page, so an incremental
     # run continues at offset 100, which was never captured.
     resumed = run(runtime, value, "incremental-2")
     cellar = {s["source_id"]: s for s in resumed["sources"] if s["source_id"].startswith("cellar")}
-    assert {json.loads(s["cursor"]["start"])["offset"] for s in cellar.values()} == {100}
+    full_first_pages = {"cellar-gdpr-deu", "cellar-gdpr-eng", "cellar-c362-14-deu"}
+    assert {json.loads(cellar[k]["cursor"]["start"])["offset"] for k in full_first_pages} == {100}
+    # The sanctions-feature CELLAR selections fit in one page, so they are complete, not resumed.
+    assert all(cellar[k]["cursor"]["start"] is None for k in set(cellar) - full_first_pages)
     again = run(runtime, value, "backfill-2", mode="backfill", backfill={"from_ms": 0})
     assert again["status"] == "complete"
     assert {t: conn.execute(f"SELECT count(*) FROM {t}").fetchone()[0] for t in counts} == counts
