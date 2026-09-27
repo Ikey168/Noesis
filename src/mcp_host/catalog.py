@@ -809,7 +809,9 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
     if server_stem == "knowledge_engine_mcp" and tool_name in FUNDING_TOOLS:
         return required_scopes(tool_name, mutability)
     from tools.knowledge_engine_mcp.procurement import PROCUREMENT_TOOLS
-    from tools.knowledge_engine_mcp.procurement import required_scopes as procurement_scopes
+    from tools.knowledge_engine_mcp.procurement import (
+        required_scopes as procurement_scopes,
+    )
     if server_stem == "knowledge_engine_mcp" and tool_name in PROCUREMENT_TOOLS:
         return procurement_scopes(tool_name, mutability)
     from tools.knowledge_engine_mcp.products import PRODUCT_TOOLS
@@ -854,7 +856,9 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
         return ownership_scopes(tool_name, mutability)
 
     from tools.knowledge_engine_mcp.environment import ENVIRONMENT_TOOLS
-    from tools.knowledge_engine_mcp.environment import required_scopes as environment_scopes
+    from tools.knowledge_engine_mcp.environment import (
+        required_scopes as environment_scopes,
+    )
     if server_stem == "knowledge_engine_mcp" and tool_name in ENVIRONMENT_TOOLS:
         return environment_scopes(tool_name, mutability)
     if server_stem == "knowledge_engine_mcp" and tool_name in {

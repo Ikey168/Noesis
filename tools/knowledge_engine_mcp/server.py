@@ -9232,11 +9232,15 @@ from tools.knowledge_engine_mcp.ownership import register as register_ownership_
 
 register_ownership_tools(mcp, _intake_safe, _intake_context)
 
-from tools.knowledge_engine_mcp.procurement import register as register_procurement_tools
+from tools.knowledge_engine_mcp.procurement import (
+    register as register_procurement_tools,
+)
 
 register_procurement_tools(mcp, _intake_safe, _intake_context)
 
-from tools.knowledge_engine_mcp.environment import register as register_environment_tools
+from tools.knowledge_engine_mcp.environment import (
+    register as register_environment_tools,
+)
 
 register_environment_tools(mcp, _intake_safe, _intake_context)
 
