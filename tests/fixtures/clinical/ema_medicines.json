@@ -1,0 +1,31 @@
+{
+ "data": [
+  {
+   "category": "Human",
+   "name_of_medicine": "Noetiglu (fixture)",
+   "ema_product_number": "EMEA/H/C/009001",
+   "medicine_status": "Authorised",
+   "inn_common_name": "noetiglutide",
+   "active_substance": "noetiglutide",
+   "therapeutic_area_mesh": "Diabetes Mellitus, Type 2",
+   "pharmacotherapeutic_group_human": "Drugs used in diabetes",
+   "marketing_authorisation_developer_applicant_holder": "Fixture Therapeutics GmbH",
+   "marketing_authorisation_date": "2020-02-10",
+   "revision_number": "4",
+   "last_updated_date": "2026-06-01",
+   "medicine_url": "https://www.ema.europa.eu/en/medicines/human/EPAR/noetiglu-fixture"
+  },
+  {
+   "category": "Human",
+   "name_of_medicine": "Unrelated medicine (fixture)",
+   "ema_product_number": "EMEA/H/C/009002",
+   "medicine_status": "Withdrawn",
+   "inn_common_name": "fixturamab",
+   "active_substance": "fixturamab",
+   "therapeutic_area_mesh": "Arthritis, Rheumatoid",
+   "revision_number": "2",
+   "last_updated_date": "2025-01-01",
+   "medicine_url": "https://www.ema.europa.eu/en/medicines/human/EPAR/fixturamab"
+  }
+ ]
+}

@@ -1,0 +1,81 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "science.paper-families",
+  "version": "1.0.0",
+  "description": "Scholarly version families (preprint, version of record, corrections, retractions).",
+  "implementation": {
+    "name": "src.domains.research.paper_families",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "science.paper-families",
+      "contract": {
+        "name": "noesis-paper-family",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "create-family",
+        "inspect-family"
+      ],
+      "semantic_constraints": {
+        "relations": "provider evidence or independent review"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "create-family",
+      "tool": "noesis-knowledge-engine.create_paper_family",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "family_key"
+      },
+      "readiness_probe": "families",
+      "required_scopes": [
+        "knowledge:paper-family:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "inspect-family",
+      "tool": "noesis-knowledge-engine.inspect_paper_family",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "families",
+      "required_scopes": [
+        "knowledge:paper-family:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "paper-family",
+      "store": "src.domains.research.paper_families",
+      "tables": [
+        "paper_families",
+        "paper_family_revisions",
+        "paper_family_commands"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "families",
+      "kind": "table-exists",
+      "target": "paper_families"
+    }
+  ]
+}

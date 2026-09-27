@@ -1,5 +1,11 @@
 {
   "bound_capabilities": [
+    "clinical.evidence-maps",
+    "clinical.methodology",
+    "clinical.monitoring",
+    "clinical.publication-links",
+    "clinical.terms",
+    "clinical.trials",
     "economics.knowledge",
     "funding.eligibility",
     "funding.monitoring",
@@ -23,11 +29,15 @@
     "products.identities",
     "science.literature-claims",
     "science.math-objects",
+    "science.methodology",
+    "science.paper-families",
+    "science.systematic-reviews",
     "technology.knowledge",
     "technology.patents",
     "technology.standards"
   ],
   "bundles_resolved": [
+    "clinical-evidence",
     "economics",
     "funding-grants",
     "geospatial",
@@ -45,38 +55,63 @@
     "noesis-kb.kb_political",
     "noesis-kb.kb_technical",
     "noesis-knowledge-engine.acquire_funding_source",
+    "noesis-knowledge-engine.align_clinical_terms",
     "noesis-knowledge-engine.assess_funding_eligibility",
+    "noesis-knowledge-engine.build_clinical_evidence_map",
     "noesis-knowledge-engine.build_funding_shortlist",
+    "noesis-knowledge-engine.clinical_coverage_gaps",
+    "noesis-knowledge-engine.clinical_outcome_switching",
+    "noesis-knowledge-engine.clinical_provider_contracts",
+    "noesis-knowledge-engine.clinical_strength_view",
+    "noesis-knowledge-engine.clinical_trial_history",
     "noesis-knowledge-engine.command_intake_mode",
     "noesis-knowledge-engine.create_authored_report",
+    "noesis-knowledge-engine.create_clinical_monitor",
     "noesis-knowledge-engine.create_funding_monitor",
     "noesis-knowledge-engine.create_funding_profile",
     "noesis-knowledge-engine.create_funding_workspace",
+    "noesis-knowledge-engine.create_paper_family",
     "noesis-knowledge-engine.create_research_decision",
     "noesis-knowledge-engine.create_research_project",
+    "noesis-knowledge-engine.create_review_protocol",
     "noesis-knowledge-engine.draft_funding_application",
+    "noesis-knowledge-engine.expand_clinical_question",
+    "noesis-knowledge-engine.export_clinical_evidence_bundle",
     "noesis-knowledge-engine.funding_provider_contracts",
     "noesis-knowledge-engine.get_legal_passages",
+    "noesis-knowledge-engine.get_methodology_study",
+    "noesis-knowledge-engine.import_prospero_registration",
     "noesis-knowledge-engine.inspect_authored_report",
     "noesis-knowledge-engine.inspect_certificate",
+    "noesis-knowledge-engine.inspect_clinical_evidence_map",
     "noesis-knowledge-engine.inspect_funding_opportunity",
     "noesis-knowledge-engine.inspect_legal_work",
     "noesis-knowledge-engine.inspect_lei_entity",
     "noesis-knowledge-engine.inspect_math_object",
+    "noesis-knowledge-engine.inspect_paper_family",
     "noesis-knowledge-engine.inspect_patent_publication",
     "noesis-knowledge-engine.inspect_product_identity",
     "noesis-knowledge-engine.inspect_research_decision",
     "noesis-knowledge-engine.inspect_research_project",
+    "noesis-knowledge-engine.inspect_review_protocol",
     "noesis-knowledge-engine.inspect_standard_edition",
     "noesis-knowledge-engine.lei_parents_as_of",
+    "noesis-knowledge-engine.link_clinical_publications",
     "noesis-knowledge-engine.list_funding_opportunities",
+    "noesis-knowledge-engine.lookup_clinical_trial",
     "noesis-knowledge-engine.lookup_legal_work",
     "noesis-knowledge-engine.lookup_product_models",
     "noesis-knowledge-engine.patent_family_members",
+    "noesis-knowledge-engine.poll_clinical_monitor",
     "noesis-knowledge-engine.query_geospatial_features_within",
+    "noesis-knowledge-engine.record_clinical_trial_design",
+    "noesis-knowledge-engine.register_methodology_study",
+    "noesis-knowledge-engine.review_clinical_publication_link",
+    "noesis-knowledge-engine.run_clinical_monitor",
     "noesis-knowledge-engine.run_funding_monitor",
     "noesis-knowledge-engine.run_source_pack_execution",
     "noesis-knowledge-engine.search_mathematics",
+    "noesis-knowledge-engine.search_methodology_studies",
     "noesis-market.get_market_price_history",
     "noesis-market.lookup_market_instrument",
     "noesis-osint.corroborate",
@@ -87,6 +122,413 @@
     "noesis-subscriptions.inspect_subscription"
   ],
   "disagreements": {
+    "clinical-evidence": [
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "clinical-evidence",
+        "composition": "clinical-evidence",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.align_clinical_terms"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "clinical-evidence",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.align_clinical_terms"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "clinical-evidence",
+        "composition": "clinical-evidence",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.build_clinical_evidence_map"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "clinical-evidence",
+        "composition": [
+          "maps"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.build_clinical_evidence_map"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "clinical-evidence",
+        "composition": "clinical-evidence",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.clinical_coverage_gaps"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "clinical-evidence",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.clinical_coverage_gaps"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "clinical-evidence",
+        "composition": "clinical-evidence",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.clinical_outcome_switching"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "clinical-evidence",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.clinical_outcome_switching"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "clinical-evidence",
+        "composition": "clinical-evidence",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.clinical_provider_contracts"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "clinical-evidence",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.clinical_provider_contracts"
+      },
+      {
+        "annotation": "intended: once composition-managed, the tool follows its bundle's enablement; legacy authority applies until cutover",
+        "bundle": "clinical-evidence",
+        "composition": "disabled",
+        "field": "state",
+        "legacy": "available",
+        "reason": "required domain pack is disabled",
+        "tool": "noesis-knowledge-engine.clinical_provider_contracts"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "clinical-evidence",
+        "composition": "clinical-evidence",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.clinical_strength_view"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "clinical-evidence",
+        "composition": [
+          "maps"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.clinical_strength_view"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "clinical-evidence",
+        "composition": "clinical-evidence",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.clinical_trial_history"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "clinical-evidence",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.clinical_trial_history"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "clinical-evidence",
+        "composition": "clinical-evidence",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.create_clinical_monitor"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "clinical-evidence",
+        "composition": [
+          "monitors"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.create_clinical_monitor"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "clinical-evidence",
+        "composition": "clinical-evidence",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.expand_clinical_question"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "clinical-evidence",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.expand_clinical_question"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "clinical-evidence",
+        "composition": "clinical-evidence",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.export_clinical_evidence_bundle"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "clinical-evidence",
+        "composition": [
+          "maps"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.export_clinical_evidence_bundle"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "clinical-evidence",
+        "composition": "clinical-evidence",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.import_prospero_registration"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "clinical-evidence",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.import_prospero_registration"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "clinical-evidence",
+        "composition": "clinical-evidence",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.inspect_clinical_evidence_map"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "clinical-evidence",
+        "composition": [
+          "maps"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.inspect_clinical_evidence_map"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "clinical-evidence",
+        "composition": "clinical-evidence",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.link_clinical_publications"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "clinical-evidence",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.link_clinical_publications"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "clinical-evidence",
+        "composition": "clinical-evidence",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.lookup_clinical_trial"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "clinical-evidence",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.lookup_clinical_trial"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "clinical-evidence",
+        "composition": "clinical-evidence",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.poll_clinical_monitor"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "clinical-evidence",
+        "composition": [
+          "monitors"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.poll_clinical_monitor"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "clinical-evidence",
+        "composition": "clinical-evidence",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.record_clinical_trial_design"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "clinical-evidence",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.record_clinical_trial_design"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "clinical-evidence",
+        "composition": "clinical-evidence",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.review_clinical_publication_link"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "clinical-evidence",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.review_clinical_publication_link"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "clinical-evidence",
+        "composition": "clinical-evidence",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.run_clinical_monitor"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "clinical-evidence",
+        "composition": [
+          "monitors"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.run_clinical_monitor"
+      }
+    ],
     "economics": [
       {
         "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
@@ -858,6 +1300,45 @@
     ],
     "science": [
       {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "science",
+        "composition": [
+          "families"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.create_paper_family"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "science",
+        "composition": [
+          "protocols"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.create_review_protocol"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "science",
+        "composition": [
+          "studies"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.get_methodology_study"
+      },
+      {
         "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
         "bundle": "science",
         "composition": "science",
@@ -880,6 +1361,45 @@
         "tool": "noesis-knowledge-engine.inspect_math_object"
       },
       {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "science",
+        "composition": [
+          "families"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.inspect_paper_family"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "science",
+        "composition": [
+          "protocols"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.inspect_review_protocol"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "science",
+        "composition": [
+          "studies"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.register_methodology_study"
+      },
+      {
         "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
         "bundle": "science",
         "composition": "science",
@@ -900,6 +1420,19 @@
         ],
         "reason": null,
         "tool": "noesis-knowledge-engine.search_mathematics"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "science",
+        "composition": [
+          "studies"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.search_methodology_studies"
       },
       {
         "annotation": "resolved: same bundle under its composition id (research is the legacy alias of science)",

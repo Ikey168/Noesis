@@ -1,0 +1,74 @@
+{
+ "meta": {
+  "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+  "terms": "https://open.fda.gov/terms/",
+  "license": "https://open.fda.gov/license/",
+  "last_updated": "2026-09-19",
+  "results": {
+   "skip": 0,
+   "limit": 5,
+   "total": 1
+  }
+ },
+ "results": [
+  {
+   "application_number": "NDA299001",
+   "sponsor_name": "FIXTURE THERAPEUTICS GMBH",
+   "openfda": {
+    "brand_name": [
+     "NOETIGLU (FIXTURE)"
+    ],
+    "generic_name": [
+     "NOETIGLUTIDE"
+    ],
+    "application_number": [
+     "NDA299001"
+    ],
+    "manufacturer_name": [
+     "Fixture Therapeutics GmbH"
+    ],
+    "product_type": [
+     "HUMAN PRESCRIPTION DRUG"
+    ],
+    "route": [
+     "SUBCUTANEOUS"
+    ],
+    "substance_name": [
+     "NOETIGLUTIDE"
+    ]
+   },
+   "products": [
+    {
+     "product_number": "001",
+     "brand_name": "NOETIGLU (FIXTURE)",
+     "marketing_status": "Prescription",
+     "active_ingredients": [
+      {
+       "name": "NOETIGLUTIDE",
+       "strength": "(fixture)"
+      }
+     ]
+    }
+   ],
+   "submissions": [
+    {
+     "submission_type": "ORIG",
+     "submission_number": "1",
+     "submission_status": "AP",
+     "submission_status_date": "20190905",
+     "submission_class_code": "TYPE 1",
+     "submission_class_code_description": "Type 1 - New Molecular Entity",
+     "review_priority": "STANDARD"
+    },
+    {
+     "submission_type": "SUPPL",
+     "submission_number": "7",
+     "submission_status": "AP",
+     "submission_status_date": "20250415",
+     "submission_class_code": "LABELING",
+     "submission_class_code_description": "Labeling"
+    }
+   ]
+  }
+ ]
+}
