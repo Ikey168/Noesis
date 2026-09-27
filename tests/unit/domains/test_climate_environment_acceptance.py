@@ -194,6 +194,7 @@ def test_row_places_without_coverage(journey):
 
 
 def test_row_unit_conversion_through_pint(journey):
+    pytest.importorskip("pint")  # optional unit-evaluation dependency, as in the other pint tests
     env, _, _ = journey
     series = EnvironmentStore(env.conn).series(NS, record_id(NS, "observation_series", "openaq", "sensor:7771"),
                                                scopes=SCOPES, unit="mg/m³")

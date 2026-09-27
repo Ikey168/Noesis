@@ -156,9 +156,21 @@ def unit_expression(unit):
     return UNIT_EXPRESSIONS.get(unit) if isinstance(unit, str) else None
 
 
+def _pint_available():
+    """Whether the optional ``pint`` dependency is installed (``unit-evaluation`` extra)."""
+
+    try:
+        import pint  # noqa: F401
+    except ImportError:
+        return False
+    return True
+
+
 @lru_cache(maxsize=256)
 def _dimension(expression):
-    return str(_registry().Quantity(1, expression).dimensionality) if expression else None
+    if not expression or not _pint_available():
+        return None
+    return str(_registry().Quantity(1, expression).dimensionality)
 
 
 @lru_cache(maxsize=1)
@@ -189,6 +201,11 @@ def normalise(value, unit, *, target=None, precision=6):
     exact decimals; the receipt digest is returned with the value. ``target``
     defaults to the canonical unit of the value's dimension. An unmapped unit or
     a missing value yields ``None`` rather than a guess.
+
+    A value already published in the target unit is returned unchanged without
+    consulting pint (no receipt: nothing was converted). When a real conversion
+    is needed and the optional pint dependency is not installed, the result is
+    ``None`` as for any unconvertible value, never an exception.
     """
 
     expression = unit_expression(unit)
@@ -199,8 +216,15 @@ def normalise(value, unit, *, target=None, precision=6):
         if target is None:
             return None
     target_expression = UNIT_EXPRESSIONS.get(target, target)
+    quantum = Decimal(1).scaleb(-precision)
+    if target_expression == expression:
+        return {"value": str(Decimal(str(value)).quantize(quantum, rounding=ROUND_HALF_EVEN)),
+                "unit": target_expression, "dimension": None, "receipt_sha256": None,
+                "method": "identity (published unit equals target)"}
+    if not _pint_available():
+        return None
     slope, intercept, dimension, receipt = _affine(expression, target_expression)
-    result = (Decimal(str(value)) * slope + intercept).quantize(Decimal(1).scaleb(-precision), rounding=ROUND_HALF_EVEN)
+    result = (Decimal(str(value)) * slope + intercept).quantize(quantum, rounding=ROUND_HALF_EVEN)
     return {"value": str(result), "unit": target_expression, "dimension": dimension, "receipt_sha256": receipt,
             "method": "pint convert_physical (affine calibration receipt)"}
 
