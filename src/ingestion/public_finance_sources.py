@@ -617,7 +617,7 @@ def parse_fts(raw: bytes, *, document: Mapping[str, Any]) -> dict[str, Any]:
     _require(rows, header, _FTS_REQUIRED)
     declared_kind = document.get("amount_kind")
     payments = []
-    occurrences: dict[str, int] = {}
+    occurrences: dict[tuple[str, str], int] = {}
     for number, row in enumerate(rows, start=2):
         year = _clean(row["Year"])
         if not year or not re.fullmatch(r"\d{4}", year):
@@ -681,10 +681,12 @@ def parse_fts(raw: bytes, *, document: Mapping[str, Any]) -> dict[str, Any]:
         identity = body["position_key"] or _digest(
             {k: v for k, v in body.items() if k not in {"amount", "amount_text"}}
         )
-        occurrences[identity] = occurrences.get(identity, 0) + 1
-        body["payment_key"] = identity + (
-            f"#{occurrences[identity]}" if occurrences[identity] > 1 else ""
+        # A commitment and a payment of one position are two records (the kind is part of their key); only an
+        # exact repeat of the same kind is numbered.
+        occurrence = occurrences[(identity, kind)] = (
+            occurrences.get((identity, kind), 0) + 1
         )
+        body["payment_key"] = identity + (f"#{occurrence}" if occurrence > 1 else "")
         body["locator"] = {"row": number}
         payments.append(body)
     return {
