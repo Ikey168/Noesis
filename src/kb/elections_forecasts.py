@@ -245,11 +245,21 @@ def rule_for(
 def _evaluate(
     rule: Mapping[str, Any], figures: Mapping[str, Any]
 ) -> tuple[int | None, str]:
-    entries = figures.get("entries") or []
-    modes = {e.get("mode") for e in entries}
-    if len(modes) > 1 and None not in modes and "TOTAL" not in modes:
-        return None, "figures-split-by-mode-are-never-summed"
-    entries = [e for e in entries if e.get("mode") in (None, "TOTAL")]
+    # One figure per entry, as published: its TOTAL row when the source states one, otherwise its only row (a
+    # county reporting a single mode such as ELECTION DAY states that mode's count as the whole). Several modes and
+    # no TOTAL are never summed: the rule stays unresolved rather than reading the entry as absent.
+    rows: dict[str, list[Mapping[str, Any]]] = {}
+    for entry in figures.get("entries") or []:
+        rows.setdefault(entry["key"], []).append(entry)
+    entries = []
+    for key, items in rows.items():
+        totals = [e for e in items if e.get("mode") in (None, "TOTAL")]
+        if len(totals) == 1:
+            entries.append(totals[0])
+        elif len(items) == 1:
+            entries.append(items[0])
+        else:
+            return None, "figures-split-by-mode-are-never-summed"
     wanted = [e for e in entries if e["key"] == rule["entry"]]
     if rule["kind"] == "winner":
         counts = [e.get("votes") for e in entries]

@@ -185,8 +185,17 @@ class ElectionPolls:
                 fetch=lambda _url: csv_text,
                 column_map=cmap,
                 topic=election_id,
+                # One stored series per poll: the same publisher and end date with another client, question or
+                # fieldwork start is another poll, never an overwrite.
                 poll_id=lambda r: (
-                    f"{slug(publisher)}-{r.methodology.fieldwork_end or r.period}"
+                    f"{slug(publisher)}-{r.methodology.fieldwork_end or r.period}-"
+                    + digest(
+                        [
+                            r.methodology.client,
+                            r.methodology.question,
+                            r.methodology.fieldwork_start,
+                        ]
+                    )[:12]
                 ),
                 as_of_for=lambda r: day_ms(r.methodology.published_on or published),
                 on_stored=lambda r, record: dataset_ids.__setitem__(

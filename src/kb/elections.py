@@ -573,13 +573,25 @@ class ElectionStore:
     ):
         figures = json.loads(canonical(contest["figures"]))
         content_hash = digest(figures)
+        # The same observation: equal figures of the same declared kind published on the same date (a replayed or
+        # re-serialised file, in any order of arrival), or equal to the vintage of the same class in force at this
+        # publication date. Equal figures to an *earlier*, since superseded vintage are a new vintage - a reversion
+        # to earlier figures is itself a correction.
         same = self.conn.execute(
             "SELECT vintage_id FROM election_result_vintages WHERE namespace=? AND contest_id=? AND content_hash=? "
-            "AND declared_kind=? ORDER BY vintage_no LIMIT 1",
-            [namespace, contest_id, content_hash, declared],
+            "AND declared_kind=? AND published_on=? ORDER BY vintage_no LIMIT 1",
+            [namespace, contest_id, content_hash, declared, published],
         ).fetchone()
         if same:
             return same[0], None
+        kinds = ["preliminary"] if declared == "preliminary" else list(CERTIFIED_CLASS)
+        current = self.conn.execute(
+            "SELECT vintage_id, content_hash FROM election_result_vintages WHERE namespace=? AND contest_id=? AND "
+            f"published_on<=? AND list_contains(?, kind) ORDER BY {SOURCE_ORDER} LIMIT 1",
+            [namespace, contest_id, published, kinds],
+        ).fetchone()
+        if current and current[1] == content_hash:
+            return current[0], None
         kind = declared
         if declared == "certified":
             # A certified figure that differs from an earlier-dated certified-class vintage is a correction.

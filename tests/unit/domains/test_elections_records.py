@@ -218,3 +218,33 @@ def test_readiness_and_feature_flag_default_off(conn):
         "global", conn.execute("SELECT release_id FROM election_releases").fetchone()[0]
     )
     assert valid(release) and release["evidence_origin"] == "fixture"
+
+
+def test_a_reversion_to_earlier_certified_figures_is_a_new_correction(conn):
+    """Certified A, corrected B, then A again: the reversion is recorded and becomes current (review fix)."""
+    store = ElectionStore(conn)
+    h.apply(conn, "de-btw", h.DE_FINAL)
+    original = (h.FIXTURES / h.DE_FINAL).read_text()
+    changed = original.replace(
+        "Stand: 20.03.2099 10:00", "Stand: 02.05.2099 09:00"
+    ).replace(";Musterunion;2;1;39020;", ";Musterunion;2;1;39021;")
+    h.apply(conn, "de-btw", "b", body=changed)
+    reverted = original.replace("Stand: 20.03.2099 10:00", "Stand: 01.06.2099 09:00")
+    result = h.apply(conn, "de-btw", "a-again", body=reverted)
+    assert result["corrected"] == 1
+    contest = h.contest_id(conn, h.DE_ELECTION, "de-bt-wahlkreis", "001", "first-vote")
+    history = store.history("global", contest)
+    assert [(v["kind"], v["published_on"]) for v in history] == [
+        ("certified", "2099-03-20"),
+        ("corrected", "2099-05-02"),
+        ("corrected", "2099-06-01"),
+    ]
+    assert history[0]["content_hash"] == history[2]["content_hash"]
+    current = store.in_force("global", contest)
+    assert (
+        current["published_on"] == "2099-06-01"
+        and current["previous_vintage_id"] == history[1]["vintage_id"]
+    )
+    # The same figures published again later, unchanged against the current vintage, add nothing.
+    again = original.replace("Stand: 20.03.2099 10:00", "Stand: 02.06.2099 09:00")
+    assert h.apply(conn, "de-btw", "a-once-more", body=again)["vintages"] == 0

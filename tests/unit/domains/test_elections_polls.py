@@ -224,3 +224,30 @@ def test_imports_are_validated_and_scoped(conn):
             scopes=h.READ_ONLY,
         )
     assert exc.value.code == "unauthorized"
+
+
+def test_polls_sharing_publisher_and_end_date_are_separate_stored_series(conn):
+    """Another client, question or fieldwork start on the same end date is another poll (review fix)."""
+    header, row = (h.FIXTURES / FIRST).read_text().splitlines()[:2]
+    other_client = row.replace("Musterzeitung", "Beispielsender").replace(
+        ",31,33,21", ",30,34,22"
+    )
+    other_start = row.replace("2099-02-01", "2099-02-03").replace(
+        ",31,33,21", ",29,35,20"
+    )
+    load(conn, "x", body="\n".join([header, row, other_client, other_start]) + "\n")
+    readings = [
+        r
+        for r in ElectionPolls(conn).readings("global", scopes=h.READ_ONLY)
+        if r["option"] == "Musterunion"
+    ]
+    assert sorted(r["value"] for r in readings) == [33.0, 34.0, 35.0]
+    stored = {r["dataset_series_id"] for r in readings}
+    assert len(stored) == 3
+    values = {
+        conn.execute(
+            "SELECT value FROM dataset_observations WHERE series_id=?", [series_id]
+        ).fetchone()[0]
+        for series_id in stored
+    }
+    assert values == {33.0, 34.0, 35.0}  # nothing overwritten in the observation store

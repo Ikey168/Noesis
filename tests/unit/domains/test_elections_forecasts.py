@@ -226,3 +226,56 @@ def test_split_modes_are_never_summed_to_resolve(env):
         proposal["status"] == "unresolved"
         and proposal["reason"] == "figures-split-by-mode-are-never-summed"
     )
+
+
+def test_a_single_published_mode_counts_as_the_total_and_mixed_modes_refuse(env):
+    """A county reporting only ELECTION DAY resolves on that count; it is never read as absent (review fix)."""
+    conn, clock, forecasts, _ = env
+    body = "\n".join(
+        [
+            "year,state,state_po,county_name,county_fips,office,candidate,party,candidatevotes,totalvotes,version,mode",
+            "2099,EXAMPLE STATE,EX,ONE MODE COUNTY,99005,US PRESIDENT,ALEX EXAMPLE,EXAMPLE PARTY,900,1500,20990115,"
+            "ELECTION DAY",
+            "2099,EXAMPLE STATE,EX,ONE MODE COUNTY,99005,US PRESIDENT,SAM DEMO,DEMO PARTY,600,1500,20990115,"
+            "ELECTION DAY",
+            "2099,EXAMPLE STATE,EX,MOCK COUNTY,99003,US PRESIDENT,ALEX EXAMPLE,EXAMPLE PARTY,1200,2600,20990115,"
+            "ELECTION DAY",
+            "2099,EXAMPLE STATE,EX,MOCK COUNTY,99003,US PRESIDENT,ALEX EXAMPLE,EXAMPLE PARTY,300,500,20990115,"
+            "ABSENTEE",
+        ]
+    )
+    h.apply(conn, "us", "one-mode", body=body + "\n")
+    single = h.contest_id(
+        conn, "us-us-president:2099", "us-fips-county", "99005", "office"
+    )
+    mixed = h.contest_id(
+        conn, "us-us-president:2099", "us-fips-county", "99003", "office"
+    )
+    rule = {
+        "kind": "votes_at_least",
+        "entry": "candidate:alex-example",
+        "threshold": "800",
+    }
+    one = register(forecasts, single, key="single", rule=rule)
+    two = register(forecasts, mixed, key="mixed", rule=rule)
+    winner = register(
+        forecasts,
+        single,
+        key="winner",
+        rule={"kind": "winner", "entry": "candidate:alex-example"},
+    )
+    clock.set("2099-03-26")
+    ledger = ForecastStore(conn, now=clock)
+
+    def propose(created):
+        return ledger.propose_resolution(
+            FORECAST_NS, created["forecast_id"], principal_id="alice", scopes=SCOPES
+        )
+
+    assert (propose(one)["status"], propose(one)["proposed_outcome"]) == ("proposed", 1)
+    assert propose(winner)["proposed_outcome"] == 1
+    refused = propose(two)
+    assert (
+        refused["status"] == "unresolved"
+        and refused["reason"] == "figures-split-by-mode-are-never-summed"
+    )
