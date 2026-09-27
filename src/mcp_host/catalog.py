@@ -304,6 +304,9 @@ def _mutability(name: str) -> str:
     from tools.knowledge_engine_mcp.mathematics import MATH_WRITES
     if name in MATH_WRITES:
         return "write"
+    from tools.knowledge_engine_mcp.clinical import CLINICAL_WRITES
+    if name in CLINICAL_WRITES:
+        return "write"
     from tools.knowledge_engine_mcp.investigations import (
         ALERT_WRITES,
         COMPARISON_WRITES,
@@ -828,6 +831,10 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
     from tools.knowledge_engine_mcp.mathematics import required_scopes as math_scopes
     if server_stem == "knowledge_engine_mcp" and tool_name in MATH_TOOLS:
         return math_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.clinical import CLINICAL_TOOLS
+    from tools.knowledge_engine_mcp.clinical import required_scopes as clinical_scopes
+    if server_stem == "knowledge_engine_mcp" and tool_name in CLINICAL_TOOLS:
+        return clinical_scopes(tool_name, mutability)
     if server_stem == "knowledge_engine_mcp" and tool_name in {
         "suggest_jev_claim_presence",
         "suggest_jev_checkworthiness",
