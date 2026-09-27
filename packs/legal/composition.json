@@ -8,19 +8,31 @@
           "name": "noesis-legal-record",
           "version": "1.0.0"
         }
+      },
+      {
+        "id": "legal.sanctions",
+        "provider": "legal.sanctions",
+        "contract": {
+          "name": "noesis-sanctions-record",
+          "version": "1.0.0"
+        }
       }
     ],
     "providers": [
       {
         "id": "legal.core",
         "version": "1.0.0"
+      },
+      {
+        "id": "legal.sanctions",
+        "version": "1.0.0"
       }
     ],
     "source_packs": [
       {
         "pack_id": "legal-research",
-        "version": "1.0.0",
-        "range": "^1.0.0"
+        "version": "1.1.0",
+        "range": "^1.1.0"
       }
     ]
   },
@@ -30,6 +42,57 @@
       "contract": "noesis-legal-record",
       "range": "^1.0.0",
       "reason": "the bundle's own entry points use these operations"
+    }
+  ],
+  "optional_features": [
+    {
+      "id": "sanctions",
+      "default": false,
+      "description": "Sanctions designations and trade-control lists: per-list statements as of a date, legal basis as CELLAR works, dual-use annex editions, Comext trade context, reviewable identity matches and subscription monitors. No screening verdict, compliance determination or legal advice.",
+      "requires": [
+        {
+          "capability": "legal.sanctions",
+          "contract": "noesis-sanctions-record",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "legal.works",
+          "contract": "noesis-legal-record",
+          "range": "^1.0.0",
+          "reason": "legal bases and control-list editions are CELLAR works, expressions and versions"
+        },
+        {
+          "capability": "ownership.identity",
+          "contract": "noesis-ownership-identity-candidate",
+          "range": "^1.0.0",
+          "reason": "designation matches use the reviewable identity state machine"
+        },
+        {
+          "capability": "market.legal-entities",
+          "contract": "noesis-lei-part",
+          "range": "^1.0.0",
+          "reason": "LEIs a list states are compared with LEI records"
+        },
+        {
+          "capability": "platform.entity-identity",
+          "contract": "noesis-entity-identity-decision",
+          "range": "^1.0.0",
+          "reason": "accepted and reverted matches are entity identity decisions"
+        },
+        {
+          "capability": "economics.knowledge",
+          "contract": "noesis-economic-knowledge",
+          "range": "^1.0.0",
+          "reason": "Comext trade flows are answered with their vintages"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "sanctions monitors are knowledge subscriptions"
+        }
+      ]
     }
   ]
 }

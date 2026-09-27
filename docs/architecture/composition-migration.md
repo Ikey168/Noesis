@@ -29,7 +29,7 @@ and `::test_shadow_diff_is_annotated_for_every_migrated_bundle`.
 | science (legacy `research`) | `science.literature`, `science.mathematics`, `science.cultural` (optional `cultural-collections` feature) | alias `research`; code enrichers kept | `test_first_composition.py` |
 | osint | `osint.core` (imagery provenance behind `osint-review`) | v1 `packs/osint/pack.json` unchanged | `test_first_composition.py` |
 | geospatial | `geospatial.core`, `geospatial.transit` | v1 manifest and Berlin source pack unchanged | `test_first_composition.py` |
-| legal | `legal.core` | v1 manifest plus code pack merged | shadow report |
+| legal | `legal.core`; optional `sanctions` feature (default off) adds `legal.sanctions` and binds `ownership.core`, `market.lei`, `platform.entity-identity`, `economics.core` and `platform.subscriptions` | v1 manifest plus code pack merged; ships `legal-research` 1.1.0 | shadow report; `tests/unit/composition/test_legal_sanctions_composition.py` |
 | market | `market.core`, `market.lei` | v1 manifest plus code pack merged | shadow report |
 | economics (legacy `economic`) | `economics.core` | alias `economic` | shadow report |
 | political | `political.core` | v1 manifest plus code pack merged | shadow report |
@@ -71,6 +71,7 @@ projector introduces a store. Evidence:
 | `noesis-math-record-v1` | `src.kb.mathematics` | `science.mathematics` | `research-discovery` |
 | `noesis-ownership-part-v1` | `src.kb.ownership_store` | `ownership.core` | `corporate-ownership` |
 | `noesis-procurement-record-v1` | `src.kb.procurement_notices` | `procurement.core` | `procurement` |
+| `noesis-sanctions-record-v1` | `src.kb.sanctions` | `legal.sanctions` | `legal-research` |
 
 Music remains a possible future bundle and is neither migrated nor scaffolded.
 
