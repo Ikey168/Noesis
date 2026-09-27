@@ -37,7 +37,7 @@ def manifest(**overrides):
         "description": "Investigative bundle consuming the shared spatial capability.",
         "contributes": {
             "capabilities": [{"id": "osint.origin-aware-corroboration",
-                              "contract": {"name": "noesis-osint-corroboration", "version": "1.0.0"}}],
+                              "contract": {"name": "noesis-osint-corroboration", "version": "1.1.0"}}],
             "workflow_templates": [{"id": "osint.location-investigation", "version": "1.0.0"}],
         },
         "requires": [{"capability": "geospatial.spatial-relation", "contract": "noesis-spatial-relation",

@@ -19,6 +19,11 @@ lineage, and retains per-publication credibility plus weighted tallies. A
 claim with only its own source is flagged ``single_sourced`` so the panel can
 mark it clearly rather than implying corroboration that does not exist.
 
+OX01 (#2041): the output also carries ``credibility_grade``, an Admiralty-style
+information-credibility digit 1–6 for the claim, beside the carrying source's
+``source_reliability_grade`` (A–F). They are two independent axes, reported
+side by side with their derivations and never fused into one number.
+
 Honesty-wrapped (``n`` = number of probable corroborating origins, or distinct
 sources under the explicitly named fallback).
 Stdlib-only; the connection is injected read-only.
@@ -40,6 +45,91 @@ ASSUMPTIONS = [
     "absence of evidence is not evidence: a single-sourced claim is flagged, not scored",
     "reads only already-ingested public documents; no crawling or targeting",
 ]
+
+
+CREDIBILITY_LABELS = {
+    1: "confirmed by other sources",
+    2: "probably true",
+    3: "possibly true",
+    4: "doubtful",
+    5: "improbable",
+    6: "truth cannot be judged",
+}
+CREDIBILITY_METHOD = (
+    "admiralty-information-credibility-v1: rule table over probable-origin counts "
+    "and credibility-weighted support vs. contradiction"
+)
+CREDIBILITY_ASSUMPTIONS = [
+    "6 (cannot be judged) when lineage is unresolved or nothing independent bears on the claim",
+    "5 when the only independent origins contradict it, or it is single-sourced and fact-checked as disputed",
+    "1 needs at least two independent supporting origins and no contradicting origin",
+    "2 needs at least two supporting origins and weighted support at least twice weighted contradiction",
+    "3 is one uncontradicted supporting origin, or support that outweighs contradiction by less than 2x",
+    "4 when weighted contradiction outweighs weighted support",
+    "grades the claim only; source reliability (A-F) is a separate, independent axis",
+]
+AXES_NOTE = (
+    "source reliability (A-F) and information credibility (1-6) are independent axes: "
+    "a reliable source can carry an unconfirmed claim and vice versa; they are never "
+    "combined into one confidence"
+)
+_DISPUTED_VERDICTS = ("disputed", "false", "refuted")
+
+
+def credibility_grade(
+    *,
+    support_origins: int,
+    contradict_origins: int,
+    weighted_support: float,
+    weighted_contradict: float,
+    single_sourced: bool,
+    unresolved: int,
+    verdict: Optional[str] = None,
+) -> Dict[str, Any]:
+    """Admiralty information-credibility digit (1–6) with its derivation."""
+    s, c = int(support_origins), int(contradict_origins)
+    ws, wc = float(weighted_support), float(weighted_contradict)
+    lineage_unresolved = unresolved > 0 and (s + c) == 0
+    disputed = (verdict or "").lower() in _DISPUTED_VERDICTS
+    if lineage_unresolved:
+        grade, rule = 6, "lineage unresolved: no resolved independent origin"
+    elif single_sourced:
+        if disputed:
+            grade, rule = 5, "single-sourced and fact-checked as disputed"
+        else:
+            grade, rule = 6, "single-sourced: nothing independent bears on the claim"
+    elif s == 0:
+        grade, rule = 5, f"no supporting origin; {c} contradicting origin(s)"
+    elif s >= 2 and c == 0:
+        grade, rule = 1, f"{s} independent supporting origins, none contradicting"
+    elif s >= 2 and ws >= 2 * wc:
+        grade, rule = 2, f"{s} supporting origins; weighted support {ws} >= 2 x {wc}"
+    elif c == 0 or ws >= wc:
+        grade, rule = 3, f"{s} supporting / {c} contradicting origin(s); support {ws} >= contradiction {wc}"
+    else:
+        grade, rule = 4, f"weighted contradiction {wc} > weighted support {ws}"
+    return {
+        "axis": "information_credibility",
+        "scale": "1-6",
+        "grade": grade,
+        "label": CREDIBILITY_LABELS[grade],
+        "derivation": {
+            "inputs": {
+                "probable_origin_support_count": s,
+                "probable_origin_contradict_count": c,
+                "weighted_support": round(ws, 3),
+                "weighted_contradict": round(wc, 3),
+                "single_sourced": bool(single_sourced),
+                "unresolved_count": int(unresolved),
+                "lineage_unresolved": lineage_unresolved,
+                "factcheck_verdict": verdict,
+            },
+            "rule_applied": rule,
+        },
+        "method": CREDIBILITY_METHOD,
+        "assumptions": list(CREDIBILITY_ASSUMPTIONS),
+        "independent_of": "source_reliability",
+    }
 
 
 def _support_contradict_from_evidence(
@@ -206,6 +296,23 @@ def corroborate(conn, claim_id: str) -> Dict[str, Any]:
         support_credibility = None
         support_calib = {"coverage": None, "calibration_n": 0}
 
+    weighted_support = _weighted(support_sources)
+    weighted_contradict = _weighted(contradict_sources)
+    info_grade = credibility_grade(
+        support_origins=support_independence["probable_origin_count"],
+        contradict_origins=contradict_independence["probable_origin_count"],
+        weighted_support=weighted_support,
+        weighted_contradict=weighted_contradict,
+        single_sourced=single_sourced,
+        unresolved=support_independence["unresolved_count"]
+        + contradict_independence["unresolved_count"],
+        verdict=row[4],
+    )
+    from src.osint.reliability import source_reliability
+
+    own_card = source_reliability(conn, own_source)
+    source_grade = own_card.get("reliability_grade")
+
     return analytic_envelope(
         n=independent_total,
         method=METHOD,
@@ -235,9 +342,17 @@ def corroborate(conn, claim_id: str) -> Dict[str, Any]:
             "method": support_independence["method"],
             "assumptions": support_independence["assumptions"],
         },
-        weighted_support=_weighted(support_sources),
-        weighted_contradict=_weighted(contradict_sources),
+        weighted_support=weighted_support,
+        weighted_contradict=weighted_contradict,
         single_sourced=single_sourced,
+        source_reliability_grade=source_grade,
+        credibility_grade=info_grade,
+        grading={
+            "source_reliability": source_grade["grade"] if source_grade else None,
+            "information_credibility": info_grade["grade"],
+            "independent_axes": True,
+            "note": AXES_NOTE,
+        },
         support_credibility=support_credibility,
         support_coverage=support_calib["coverage"],
         support_calibration_n=support_calib["calibration_n"],
