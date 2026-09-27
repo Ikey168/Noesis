@@ -66,18 +66,22 @@ GFS_OCTOBER = "eurostat_gov_10a_main_2025-10.json"
 PLAN_REFERENCES = [
     {
         "scheme": "de-bgbl",
-        "value": "BGBl. 2098 I Nr. 999",
+        "identifier": "BGBl. 2098 I Nr. 999",
         "role": "Haushaltsgesetz 2099",
     },
-    {"scheme": "de-drucksache", "value": "99/1001", "role": "Regierungsentwurf"},
+    {"scheme": "de-drucksache", "identifier": "99/1001", "role": "Regierungsentwurf"},
 ]
 NACHTRAG_REFERENCES = [
-    {"scheme": "de-drucksache", "value": "99/1002", "role": "Nachtragshaushaltsgesetz"}
+    {
+        "scheme": "de-drucksache",
+        "identifier": "99/1002",
+        "role": "Nachtragshaushaltsgesetz",
+    }
 ]
 BERLIN_REFERENCES = [
     {
         "scheme": "de-be-gvbl",
-        "value": "GVBl. 2098 S. 999",
+        "identifier": "GVBl. 2098 S. 999",
         "role": "Haushaltsgesetz 2099/2100",
     }
 ]

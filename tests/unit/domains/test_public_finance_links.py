@@ -48,7 +48,7 @@ def test_acts_link_only_by_an_exact_stated_citation_and_titles_are_candidates(co
     )
     assert (
         linked["basis"] == "explicit-citation"
-        and linked["reference"]["value"] == "GVBl. 2098 S. 999"
+        and linked["reference"]["identifier"] == "GVBl. 2098 S. 999"
     )
     assert linked["evidence"]["plan_source_revision"]["provider"] == "berlin-senfin"
     assert linked["rule"] == "exact identifier via lookup_legal_work"
@@ -57,7 +57,7 @@ def test_acts_link_only_by_an_exact_stated_citation_and_titles_are_candidates(co
         h.NS, scopes=scopes, subject_id=federal["plan_id"], target_kind="legal-work"
     )
     assert unresolved["state"] == "unresolved" and unresolved["target_id"] is None
-    assert unresolved["reference"]["value"] == "BGBl. 2098 I Nr. 999"
+    assert unresolved["reference"]["identifier"] == "BGBl. 2098 I Nr. 999"
     # The supplementary Berlin act shares words and the year with the Berlin plan: a candidate, never a link.
     (candidate,) = links.links(
         h.NS, scopes=scopes, subject_id=berlin["plan_id"], states=["candidate"]

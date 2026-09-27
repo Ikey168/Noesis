@@ -218,7 +218,7 @@ class PublicFinanceLinks:
                 scheme = reference.get("scheme")
                 if scheme not in ACT_SCHEMES:
                     continue
-                identifier = act_identifier(scheme, reference.get("value"))
+                identifier = act_identifier(scheme, reference.get("identifier"))
                 try:
                     found = legal.lookup(
                         legal_namespace,
@@ -259,7 +259,7 @@ class PublicFinanceLinks:
                         "linked",
                         {
                             k: reference[k]
-                            for k in ("scheme", "value")
+                            for k in ("scheme", "identifier")
                             if k in reference
                         },
                         {
@@ -307,7 +307,7 @@ class PublicFinanceLinks:
                         "unresolved",
                         {
                             k: reference[k]
-                            for k in ("scheme", "value")
+                            for k in ("scheme", "identifier")
                             if k in reference
                         },
                         {
@@ -402,7 +402,7 @@ class PublicFinanceLinks:
                     or REFERENCE_SCHEMES.get(scheme) != dossier["jurisdiction"]
                 ):
                     continue
-                key = reference_key(scheme, reference.get("value"))
+                key = reference_key(scheme, reference.get("identifier"))
                 for stage in keys.get(key or "", []):
                     explicit = True
                     link_id = (
@@ -431,7 +431,11 @@ class PublicFinanceLinks:
                         dossier["revision"],
                         "dossier-identifier",
                         "linked",
-                        {"scheme": scheme, "value": reference.get("value"), "key": key},
+                        {
+                            "scheme": scheme,
+                            "identifier": reference.get("identifier"),
+                            "key": key,
+                        },
                         {
                             "plan_source_revision": reference["stated_in"],
                             "stage": stage,
@@ -790,7 +794,7 @@ class PublicFinanceLinks:
         scopes = set(scopes)
         authorize(namespace, scopes, READ_SCOPE)
         require_scope(scopes, PROCUREMENT_READ)
-        identity = PublicFinanceIdentity(self.conn, now=self.now)
+        identity = PublicFinanceIdentity(self.conn, now=self.now, initialize=False)
         matched = [
             link
             for link in identity.identity(namespace, beneficiary_key, scopes=scopes)[
@@ -800,7 +804,7 @@ class PublicFinanceLinks:
         ]
         awards = []
         if matched:
-            procurement = ProcurementIdentityService(self.conn)
+            procurement = ProcurementIdentityService(self.conn, initialize=False)
             try:
                 history = procurement.award_history(
                     procurement_namespace, scopes=scopes

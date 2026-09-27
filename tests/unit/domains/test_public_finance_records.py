@@ -74,7 +74,7 @@ def test_plan_supplementary_and_outturn_figures_are_distinct_revisioned_records(
         ("supplementary_plan", "nachtrag-1", "1. Nachtragshaushalt (Soll)"),
         ("plan", "haushaltsplan", "Haushaltsplan (Soll)"),
     ]
-    assert {r["value"] for r in plans[1]["references"]} == {
+    assert {r["identifier"] for r in plans[1]["references"]} == {
         "BGBl. 2098 I Nr. 999",
         "99/1001",
     }

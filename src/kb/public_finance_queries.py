@@ -419,9 +419,9 @@ class PublicFinanceQueries:
 
         entries = [
             s
-            for s in GovernmentFinanceStatistics(self.conn, now=self.now).series(
-                namespace, scopes={"operator"}
-            )
+            for s in GovernmentFinanceStatistics(
+                self.conn, now=self.now, initialize=False
+            ).series(namespace, scopes={"operator"})
             if s["series_id"] == series_id
         ]
         if not entries:
@@ -524,13 +524,13 @@ class PublicFinanceQueries:
             }
             - {None}
         )
-        links = PublicFinanceLinks(self.conn, now=self.now)
+        links = PublicFinanceLinks(self.conn, now=self.now, initialize=False)
         acts, dossiers = [], []
         for plan_id in plan_ids:
             for link in links.links(namespace, scopes=scopes, subject_id=plan_id):
                 (acts if link["target_kind"] == "legal-work" else dossiers).append(link)
         payments = self.store.payments(namespace, line_id=line_id)
-        identity = PublicFinanceIdentity(self.conn, now=self.now)
+        identity = PublicFinanceIdentity(self.conn, now=self.now, initialize=False)
         beneficiaries = []
         for key in sorted({p["beneficiary_key"] for p in payments}):
             entry = {
@@ -543,7 +543,7 @@ class PublicFinanceQueries:
                 )
             beneficiaries.append(entry)
         place = (
-            PublicFinancePlaces(self.conn, now=self.now).place(
+            PublicFinancePlaces(self.conn, now=self.now, initialize=False).place(
                 namespace, line_id, scopes=scopes
             )
             if line["scheme"] == "de-be-haushalt"
@@ -566,7 +566,7 @@ class PublicFinanceQueries:
             if b["identity"]["state"] == "unmatched"
         ]
         unknowns += [
-            f"cited act {a['reference']['value']} is not acquired"
+            f"cited act {a['reference']['identifier']} is not acquired"
             for a in acts
             if a["state"] == "unresolved"
         ]
@@ -603,7 +603,7 @@ class PublicFinanceQueries:
             raise PublicFinanceError(
                 "not_found", "no payment names this beneficiary in this namespace"
             )
-        identity = PublicFinanceIdentity(self.conn, now=self.now)
+        identity = PublicFinanceIdentity(self.conn, now=self.now, initialize=False)
         view = identity.identity(namespace, beneficiary_key, scopes=scopes)
         candidates = identity.candidates(
             namespace, scopes=scopes, record_key=beneficiary_key
@@ -631,7 +631,7 @@ class PublicFinanceQueries:
         }
         if procurement_namespace:
             answer["award_context"] = PublicFinanceLinks(
-                self.conn, now=self.now
+                self.conn, now=self.now, initialize=False
             ).award_context(
                 namespace, beneficiary_key, procurement_namespace, scopes=scopes
             )
