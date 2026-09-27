@@ -33,7 +33,7 @@ and `::test_shadow_diff_is_annotated_for_every_migrated_bundle`.
 | market | `market.core`, `market.lei` | v1 manifest plus code pack merged | shadow report |
 | economics (legacy `economic`) | `economics.core` | alias `economic` | shadow report |
 | political | `political.core` | v1 manifest plus code pack merged | shadow report |
-| technology (legacy `technical`) | `technology.core`, `technology.patents`, `technology.standards` | alias `technical` | shadow report |
+| technology (legacy `technical`) | `technology.core`, `technology.patents`, `technology.standards`; optional `vulnerabilities` feature (default off) adds `technology.vulnerabilities` and binds `products.core`, `platform.entity-identity`, `platform.subscriptions` and `platform.source-runtime` | alias `technical`; ships `technical-software-knowledge` 1.2.0 | shadow report; `tests/unit/composition/test_technology_vulnerabilities_composition.py` |
 | products | `products.core` | v1 manifest unchanged | shadow report |
 | funding-grants | `funding.core` plus the shared `platform.*` providers | authored natively (`packs/funding-grants/manifest.json`); alias `funding` | `test_funding_manifest_resolves_to_its_own_provider_plus_shared_providers`, `test_disabling_funding_is_a_selection_change_that_keeps_shared_providers` |
 | corporate-ownership | `ownership.core` plus `market.lei`, `platform.entity-identity`, `platform.source-runtime` and `platform.authored-reports` | authored natively (`packs/corporate-ownership/manifest.json`); alias `ownership` | `test_ownership_manifest_resolves_to_its_own_provider_plus_shared_providers`, `test_disabling_ownership_is_a_selection_change_that_keeps_shared_providers` |
@@ -72,6 +72,7 @@ projector introduces a store. Evidence:
 | `noesis-ownership-part-v1` | `src.kb.ownership_store` | `ownership.core` | `corporate-ownership` |
 | `noesis-procurement-record-v1` | `src.kb.procurement_notices` | `procurement.core` | `procurement` |
 | `noesis-sanctions-record-v1` | `src.kb.sanctions` | `legal.sanctions` | `legal-research` |
+| `noesis-vulnerability-record-v1` | `src.kb.vulnerabilities` | `technology.vulnerabilities` | `technical-software-knowledge` |
 
 Music remains a possible future bundle and is neither migrated nor scaffolded.
 

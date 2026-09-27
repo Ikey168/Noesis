@@ -1,0 +1,135 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "technology.vulnerabilities",
+  "version": "1.0.0",
+  "implementation": {
+    "name": "src.kb.vulnerabilities",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "technology.vulnerabilities",
+      "contract": {
+        "name": "noesis-vulnerability-record",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "inspect-vulnerability",
+        "search-component-advisories",
+        "compare-advisory-revisions",
+        "list-components"
+      ],
+      "semantic_constraints": {
+        "identity": "the CVE id is the vulnerability identity; GHSA and OSV ids reach it only through source-stated aliases",
+        "sources": "each source's advisory is its own revision series; conflicting assertions are kept side by side",
+        "scores": "CVSS quoted per publisher and version, EPSS per score date and model version; never averaged",
+        "exclusions": "no exploitability or risk verdict, no remediation advice and no inferred severity"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "inspect-vulnerability",
+      "tool": "noesis-knowledge-engine.inspect_vulnerability",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:technical:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "search-component-advisories",
+      "tool": "noesis-knowledge-engine.search_component_advisories",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:technical:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "compare-advisory-revisions",
+      "tool": "noesis-knowledge-engine.compare_advisory_revisions",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:technical:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "list-components",
+      "tool": "noesis-knowledge-engine.list_vulnerability_components",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:technical:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "vulnerability-record",
+      "store": "src.kb.vulnerabilities",
+      "tables": [
+        "vuln_identities",
+        "vuln_series",
+        "vuln_revisions",
+        "vuln_aliases",
+        "vuln_ranges",
+        "vuln_weaknesses",
+        "vuln_scores",
+        "vuln_exploitation",
+        "vuln_change_events"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "vulnerability-component-match",
+      "store": "src.kb.vulnerability_identity",
+      "tables": [
+        "vuln_component_matches"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "revisions",
+      "kind": "table-exists",
+      "target": "vuln_revisions"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "technical-software-knowledge",
+      "version": "1.2.0",
+      "range": "^1.2.0"
+    }
+  ]
+}

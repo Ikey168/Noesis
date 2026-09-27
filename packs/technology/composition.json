@@ -24,6 +24,14 @@
           "name": "noesis-standard-catalogue",
           "version": "1.0.0"
         }
+      },
+      {
+        "id": "technology.vulnerabilities",
+        "provider": "technology.vulnerabilities",
+        "contract": {
+          "name": "noesis-vulnerability-record",
+          "version": "1.0.0"
+        }
       }
     ],
     "providers": [
@@ -38,6 +46,10 @@
       {
         "id": "technology.standards",
         "version": "1.0.0"
+      },
+      {
+        "id": "technology.vulnerabilities",
+        "version": "1.0.0"
       }
     ],
     "source_packs": [
@@ -48,8 +60,8 @@
       },
       {
         "pack_id": "technical-software-knowledge",
-        "version": "1.1.0",
-        "range": "^1.1.0"
+        "version": "1.2.0",
+        "range": "^1.2.0"
       }
     ]
   },
@@ -71,6 +83,51 @@
       "contract": "noesis-standard-catalogue",
       "range": "^1.0.0",
       "reason": "the bundle's own entry points use these operations"
+    }
+  ],
+  "optional_features": [
+    {
+      "id": "vulnerabilities",
+      "default": false,
+      "description": "Software vulnerability and supply-chain advisory evidence: CVEs across NVD, OSV, GitHub, CVE Services, CISA KEV and FIRST EPSS with per-source revisions, CWE/CPE reference modules, reviewable component matches, affected-as-of answers through the technical impact tools and subscription monitors. No exploitability or risk verdict, remediation advice or inferred severity.",
+      "requires": [
+        {
+          "capability": "technology.vulnerabilities",
+          "contract": "noesis-vulnerability-record",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "technology.knowledge",
+          "contract": "noesis-technical-knowledge",
+          "range": "^1.0.0",
+          "reason": "inventories, impact reports and kb_technical answer affected-as-of questions"
+        },
+        {
+          "capability": "products.identities",
+          "contract": "noesis-product-record",
+          "range": "^1.0.0",
+          "reason": "CPE names link to product records only through explicit identifiers or reviews"
+        },
+        {
+          "capability": "platform.entity-identity",
+          "contract": "noesis-entity-identity-decision",
+          "range": "^1.0.0",
+          "reason": "component matches are reversible entity identity decisions"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "vulnerability monitors are knowledge subscriptions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "NVD, OSV, GitHub, KEV, EPSS, CVE, CPE and CWE sources run through the source-pack runtime"
+        }
+      ]
     }
   ]
 }

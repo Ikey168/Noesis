@@ -900,7 +900,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 833,
+      "tool_count": 849,
       "tools": [
         "noesis-knowledge-engine.accept_awareness_jev_suggestion",
         "noesis-knowledge-engine.accept_citation_repair",
@@ -996,6 +996,7 @@
         "noesis-knowledge-engine.command_intake_mode",
         "noesis-knowledge-engine.command_practice_review",
         "noesis-knowledge-engine.company_source_contracts",
+        "noesis-knowledge-engine.compare_advisory_revisions",
         "noesis-knowledge-engine.compare_change_briefs",
         "noesis-knowledge-engine.compare_claim_sources",
         "noesis-knowledge-engine.compare_control_list_editions",
@@ -1062,6 +1063,7 @@
         "noesis-knowledge-engine.create_source_acquisition_plan",
         "noesis-knowledge-engine.create_source_research_objective",
         "noesis-knowledge-engine.create_technical_impact_report",
+        "noesis-knowledge-engine.create_vulnerability_monitor",
         "noesis-knowledge-engine.cultural_readiness",
         "noesis-knowledge-engine.cultural_rights_policy",
         "noesis-knowledge-engine.cultural_source_contracts",
@@ -1294,6 +1296,7 @@
         "noesis-knowledge-engine.inspect_systematic_review_screening_suggestion",
         "noesis-knowledge-engine.inspect_technical_impact_report",
         "noesis-knowledge-engine.inspect_technical_inventory",
+        "noesis-knowledge-engine.inspect_vulnerability",
         "noesis-knowledge-engine.inspect_zotero_item",
         "noesis-knowledge-engine.install_source_pack",
         "noesis-knowledge-engine.instantiate_investigation_template",
@@ -1346,6 +1349,8 @@
         "noesis-knowledge-engine.list_source_pack_quarantine",
         "noesis-knowledge-engine.list_source_pack_schedules",
         "noesis-knowledge-engine.list_source_packs",
+        "noesis-knowledge-engine.list_vulnerability_component_matches",
+        "noesis-knowledge-engine.list_vulnerability_components",
         "noesis-knowledge-engine.list_zotero_items",
         "noesis-knowledge-engine.lookup_clinical_trial",
         "noesis-knowledge-engine.lookup_environment_series",
@@ -1382,6 +1387,7 @@
         "noesis-knowledge-engine.poll_funding_monitor",
         "noesis-knowledge-engine.poll_procurement_monitor",
         "noesis-knowledge-engine.poll_sanctions_monitor",
+        "noesis-knowledge-engine.poll_vulnerability_monitor",
         "noesis-knowledge-engine.preflight_intake_mode",
         "noesis-knowledge-engine.preflight_source_pack_run",
         "noesis-knowledge-engine.preview_anomaly_baseline",
@@ -1436,6 +1442,9 @@
         "noesis-knowledge-engine.propose_product_matches",
         "noesis-knowledge-engine.propose_sanctions_identity_link",
         "noesis-knowledge-engine.propose_sanctions_identity_matches",
+        "noesis-knowledge-engine.propose_vulnerability_component_link",
+        "noesis-knowledge-engine.propose_vulnerability_component_matches",
+        "noesis-knowledge-engine.propose_vulnerability_product_matches",
         "noesis-knowledge-engine.publish_entity_change_rebuild",
         "noesis-knowledge-engine.query_geospatial_event_map",
         "noesis-knowledge-engine.query_geospatial_features_within",
@@ -1558,6 +1567,7 @@
         "noesis-knowledge-engine.revert_ownership_identity_match",
         "noesis-knowledge-engine.revert_procurement_party_link",
         "noesis-knowledge-engine.revert_sanctions_identity_match",
+        "noesis-knowledge-engine.revert_vulnerability_component_match",
         "noesis-knowledge-engine.review_certificate_product_link",
         "noesis-knowledge-engine.review_change_brief",
         "noesis-knowledge-engine.review_clinical_publication_link",
@@ -1583,6 +1593,7 @@
         "noesis-knowledge-engine.review_sanctions_identity_match",
         "noesis-knowledge-engine.review_study_field",
         "noesis-knowledge-engine.review_translation",
+        "noesis-knowledge-engine.review_vulnerability_component_match",
         "noesis-knowledge-engine.revise_authored_report",
         "noesis-knowledge-engine.revise_binary_forecast",
         "noesis-knowledge-engine.revise_event_dossier",
@@ -1615,6 +1626,7 @@
         "noesis-knowledge-engine.run_research_recipe",
         "noesis-knowledge-engine.run_sanctions_monitor",
         "noesis-knowledge-engine.run_source_pack_execution",
+        "noesis-knowledge-engine.run_vulnerability_monitor",
         "noesis-knowledge-engine.sanctions_readiness",
         "noesis-knowledge-engine.sanctions_source_contracts",
         "noesis-knowledge-engine.sanctions_trade_context",
@@ -1626,6 +1638,7 @@
         "noesis-knowledge-engine.scan_intake_maintenance",
         "noesis-knowledge-engine.score_binary_forecasts",
         "noesis-knowledge-engine.screen_review_candidate",
+        "noesis-knowledge-engine.search_component_advisories",
         "noesis-knowledge-engine.search_cultural_objects",
         "noesis-knowledge-engine.search_datasets",
         "noesis-knowledge-engine.search_epistemic_assessments",
@@ -1733,6 +1746,9 @@
         "noesis-knowledge-engine.verify_research_package",
         "noesis-knowledge-engine.verify_retention_checkpoint",
         "noesis-knowledge-engine.visit_exploration_feed_item",
+        "noesis-knowledge-engine.vulnerability_readiness",
+        "noesis-knowledge-engine.vulnerability_source_contracts",
+        "noesis-knowledge-engine.vulnerability_standard_links",
         "noesis-knowledge-engine.withdraw_funding_profile",
         "noesis-knowledge-engine.withdraw_procurement_profile"
       ],
@@ -1741,7 +1757,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 833
+      "visible_tool_count": 849
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -1752,11 +1768,11 @@
     },
     "servers": 30,
     "states": {
-      "available": 111,
+      "available": 112,
       "degraded": 159,
-      "unauthorized": 870
+      "unauthorized": 885
     },
-    "tools": 1140
+    "tools": 1156
   },
   "tools": [
     {
@@ -15338,7 +15354,7 @@
     },
     {
       "cost_class": "low",
-      "description": "Query dependency paths, vulnerable versions, fixes, supersession,\nimplementations, and breaking changes with exact package coordinates,\ntemporal cutoffs, assumptions, and source citations.",
+      "description": "Query dependency paths, vulnerable versions, fixes, supersession,\nimplementations, and breaking changes with exact package coordinates,\ntemporal cutoffs, assumptions, and source citations. query_type\n\"advisory\" returns, for a CVE/advisory id or a package coordinate, the\nper-source advisory revisions, ranges, weaknesses, exploitation evidence\nand scores as they stood at observed_before (no verdict or severity).",
       "id": "noesis-kb.kb_technical",
       "input_schema": {
         "properties": {
@@ -24323,6 +24339,65 @@
     },
     {
       "cost_class": "low",
+      "description": "Field-level change of one source's advisory between two revisions (source change, not its effect).",
+      "id": "noesis-knowledge-engine.compare_advisory_revisions",
+      "input_schema": {
+        "properties": {
+          "left_revision_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "right_revision_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "series_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "series_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "compare_advisory_revisions",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:technical:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Compare classifications, materiality, scores, and uncertainty.",
       "id": "noesis-knowledge-engine.compare_change_briefs",
       "input_schema": {
@@ -28158,6 +28233,64 @@
       ],
       "required_scopes": [
         "knowledge:technical:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "A subscription on a component (package coordinate) or a CVE; no new scheduler or delivery path.",
+      "id": "noesis-knowledge-engine.create_vulnerability_monitor",
+      "input_schema": {
+        "properties": {
+          "delivery": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "key": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "request_key": {
+            "type": "string"
+          },
+          "watch": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "request_key",
+          "watch",
+          "key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "create_vulnerability_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:technical:read",
+        "knowledge:subscriptions:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -38620,6 +38753,54 @@
     },
     {
       "cost_class": "low",
+      "description": "One CVE (or GHSA/OSV id) as every source stated it on a date, side by side.\n\nReturns advisory revisions per source, aliases with the sources asserting them, affected ranges and\ntheir agreement, weaknesses with CWE version, CVSS quoted per publisher, dated EPSS observations and\nKEV listings. No exploitability or risk verdict, no remediation advice and no inferred severity.",
+      "id": "noesis-knowledge-engine.inspect_vulnerability",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "identifier": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "identifier"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "inspect_vulnerability",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:technical:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Reopen an imported item revision while separately reporting its current external lifecycle.",
       "id": "noesis-knowledge-engine.inspect_zotero_item",
       "input_schema": {
@@ -41165,6 +41346,94 @@
     },
     {
       "cost_class": "low",
+      "description": "Component match candidates and decisions, with basis, evidence, decision id and history.",
+      "id": "noesis-knowledge-engine.list_vulnerability_component_matches",
+      "input_schema": {
+        "properties": {
+          "key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "state": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_vulnerability_component_matches",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:technical:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Components advisories name, as written by each source, with their match status (candidate/accepted).",
+      "id": "noesis-knowledge-engine.list_vulnerability_components",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_vulnerability_components",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:technical:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "List the current owner's imported items, including explicit attachment and deletion states.",
       "id": "noesis-knowledge-engine.list_zotero_items",
       "input_schema": {
@@ -42865,6 +43134,43 @@
       ],
       "required_scopes": [
         "knowledge:legal:read",
+        "knowledge:subscriptions:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Poll a vulnerability monitor's events through the subscription delivery path.",
+      "id": "noesis-knowledge-engine.poll_vulnerability_monitor",
+      "input_schema": {
+        "properties": {
+          "cursor": {
+            "default": "",
+            "type": "string"
+          },
+          "subscription_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "poll_vulnerability_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
         "knowledge:subscriptions:read"
       ],
       "server": "noesis-knowledge-engine",
@@ -45604,6 +45910,129 @@
         "knowledge:legal:read",
         "knowledge:ownership:read",
         "knowledge:ownership:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "A reviewer's candidate (package:/product: to cpe-product:/advisory-package:); it still needs review.",
+      "id": "noesis-knowledge-engine.propose_vulnerability_component_link",
+      "input_schema": {
+        "properties": {
+          "component_key": {
+            "type": "string"
+          },
+          "evidence": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "target_key": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "component_key",
+          "target_key",
+          "evidence"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_vulnerability_component_link",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:technical:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Candidates between your inventory entries and advisory packages with the same canonical coordinate.",
+      "id": "noesis-knowledge-engine.propose_vulnerability_component_matches",
+      "input_schema": {
+        "properties": {
+          "inventory_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "inventory_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_vulnerability_component_matches",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:technical:read",
+        "knowledge:technical:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Candidates from CPE names that product records carry as explicit identifiers.",
+      "id": "noesis-knowledge-engine.propose_vulnerability_product_matches",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "products_namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "products_namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_vulnerability_product_matches",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:technical:read",
+        "knowledge:technical:write",
+        "knowledge:products:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -53504,6 +53933,47 @@
     },
     {
       "cost_class": "medium",
+      "description": "Undo a decision; the match returns to candidate and no record changes.",
+      "id": "noesis-knowledge-engine.revert_vulnerability_component_match",
+      "input_schema": {
+        "properties": {
+          "match_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "match_id",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "revert_vulnerability_component_match",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:technical:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Accept or reject a certificate-to-product candidate link.",
       "id": "noesis-knowledge-engine.review_certificate_product_link",
       "input_schema": {
@@ -54737,6 +55207,51 @@
       ],
       "required_scopes": [
         "knowledge:cross-language:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Accept or reject a candidate as an entity identity decision; records are linked, never rewritten.",
+      "id": "noesis-knowledge-engine.review_vulnerability_component_match",
+      "input_schema": {
+        "properties": {
+          "decision": {
+            "type": "string"
+          },
+          "match_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "match_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_vulnerability_component_match",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:technical:review"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -56630,6 +57145,52 @@
       "version": "1"
     },
     {
+      "cost_class": "medium",
+      "description": "Evaluate a monitor at a committed watermark: new advisories, KEV additions, score changes, withdrawals.",
+      "id": "noesis-knowledge-engine.run_vulnerability_monitor",
+      "input_schema": {
+        "properties": {
+          "subscription_id": {
+            "type": "string"
+          },
+          "watermark": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "run_vulnerability_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:technical:read",
+        "knowledge:subscriptions:write",
+        "knowledge:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "low",
       "description": "Whether the Legal sanctions feature is selected, and per-list acquired snapshots and access decisions.",
       "id": "noesis-knowledge-engine.sanctions_readiness",
@@ -57181,6 +57742,72 @@
       ],
       "required_scopes": [
         "knowledge:reviews:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Advisories naming a package coordinate or CPE vendor:product as of a date; none found reads unknown.\n\nNo exploitability or risk verdict, no remediation advice and no inferred severity.",
+      "id": "noesis-knowledge-engine.search_component_advisories",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "coordinate": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "cpe_product": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "search_component_advisories",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:technical:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -63516,6 +64143,105 @@
       ],
       "required_scopes": [
         "knowledge:intake:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Whether the Technology vulnerabilities feature is selected, and acquired series per source.",
+      "id": "noesis-knowledge-engine.vulnerability_readiness",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "vulnerability_readiness",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:technical:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Per-provider access decisions, formats, identifiers, revision semantics and licences (V01 audit).",
+      "id": "noesis-knowledge-engine.vulnerability_source_contracts",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "vulnerability_source_contracts",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Standards editions an advisory revision references explicitly (exact catalogue URL only).",
+      "id": "noesis-knowledge-engine.vulnerability_standard_links",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "revision_id": {
+            "type": "string"
+          },
+          "standards_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "revision_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "vulnerability_standard_links",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:technical:read",
+        "knowledge:standards:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",

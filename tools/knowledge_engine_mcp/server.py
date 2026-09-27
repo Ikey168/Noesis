@@ -9250,6 +9250,12 @@ from tools.knowledge_engine_mcp.sanctions import (  # noqa: E402 - registration 
 
 register_sanctions_tools(mcp, _intake_safe, _intake_context)
 
+from tools.knowledge_engine_mcp.vulnerabilities import (  # noqa: E402 - registration order
+    register as register_vulnerability_tools,
+)
+
+register_vulnerability_tools(mcp, _intake_safe, _intake_context)
+
 
 if __name__ == "__main__":
     from src.mcp_host.transport import run_server

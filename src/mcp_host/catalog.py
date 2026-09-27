@@ -319,6 +319,9 @@ def _mutability(name: str) -> str:
     from tools.knowledge_engine_mcp.sanctions import SANCTIONS_WRITES
     if name in SANCTIONS_WRITES:
         return "write"
+    from tools.knowledge_engine_mcp.vulnerabilities import VULNERABILITY_WRITES
+    if name in VULNERABILITY_WRITES:
+        return "write"
     from tools.knowledge_engine_mcp.investigations import (
         ALERT_WRITES,
         COMPARISON_WRITES,
@@ -868,6 +871,10 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
     from tools.knowledge_engine_mcp.sanctions import required_scopes as sanctions_scopes
     if server_stem == "knowledge_engine_mcp" and tool_name in SANCTIONS_TOOLS:
         return sanctions_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.vulnerabilities import VULNERABILITY_TOOLS
+    from tools.knowledge_engine_mcp.vulnerabilities import required_scopes as vulnerability_scopes
+    if server_stem == "knowledge_engine_mcp" and tool_name in VULNERABILITY_TOOLS:
+        return vulnerability_scopes(tool_name, mutability)
     if server_stem == "knowledge_engine_mcp" and tool_name in {
         "suggest_jev_claim_presence",
         "suggest_jev_checkworthiness",
