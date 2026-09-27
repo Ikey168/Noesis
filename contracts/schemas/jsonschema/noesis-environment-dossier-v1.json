@@ -1,0 +1,26 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "noesis-environment-dossier-v1",
+  "title": "Place-centred environmental dossier with pinned vintages and replayable spatial receipts",
+  "description": "Observations, model output and forecasts are separate sections; every item states its source, kind and as-of basis. Sections without data are listed as explicit coverage gaps. No attribution, projection or compliance determination is included.",
+  "type": "object",
+  "required": ["contract", "dossier_id", "namespace", "place", "as_of_ms", "sections", "coverage_gaps", "receipts", "status"],
+  "properties": {
+    "contract": {"const": "noesis-environment-dossier-v1"},
+    "dossier_id": {"type": "string", "pattern": "^env-dossier:"},
+    "namespace": {"type": "string"},
+    "place": {"type": "object", "required": ["place_id", "canonical_name"]},
+    "as_of_ms": {"type": "integer"},
+    "status": {"enum": ["complete", "partial", "coverage_gap"]},
+    "sections": {"type": "object", "required": ["observations", "model_output", "forecasts", "grid", "facilities", "layers"],
+      "properties": {
+        "model_output": {"type": "array", "items": {"type": "object", "required": ["kind"], "properties": {"kind": {"const": "model"}}}},
+        "forecasts": {"type": "array", "items": {"type": "object", "required": ["kind"], "properties": {"kind": {"const": "forecast"}}}},
+        "grid": {"type": "array", "items": {"type": "object", "required": ["kind", "source_url", "as_of"]}},
+        "facilities": {"type": "array", "items": {"type": "object", "required": ["source_url", "operator", "as_of"]}}
+      }},
+    "coverage_gaps": {"type": "array", "items": {"type": "object", "required": ["section", "reason"]}},
+    "receipts": {"type": "array", "items": {"type": "object", "required": ["operation", "receipt_id"]}},
+    "not_implemented": {"type": "object"}
+  }
+}

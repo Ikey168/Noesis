@@ -1,0 +1,22 @@
+{
+ "captured_at": "authored 2026-09-26 (not a capture)",
+ "provider": "eu-ets",
+ "note": "Authored offline fixture in the provider's documented response shape; identifiers are illustrative and values are invented. Not live evidence.",
+ "endpoint": "https://climate.ec.europa.eu/document/download",
+ "scenarios": [
+  "eu_ets"
+ ],
+ "native_pages": [
+  {
+   "url": "https://climate.ec.europa.eu/document/download/verified-emissions-2025-en.csv",
+   "params": {},
+   "status": 200,
+   "headers": {
+    "Content-Type": "text/csv"
+   },
+   "parse": "eu_ets",
+   "body_sha256": "1d02be7aa998bd42feb51a424483733561f43561d1d3b548ddc6440565cf1c4c",
+   "body": "REGISTRY_CODE;INSTALLATION_IDENTIFIER;INSTALLATION_NAME;PERMIT_IDENTIFIER;ACCOUNT_HOLDER_NAME;COMPANY_REGISTRATION_NUMBER;MAIN_ACTIVITY_TYPE_CODE;ALLOCATION_2025;VERIFIED_EMISSIONS_2025;COMPLIANCE_CODE_2025\nDE;900201;HKW Mitte (authored fixture);DE-FIX-14310-0001;Beispiel Wärme Berlin GmbH;HRB 000001 B;20;41250;598412;A\nDE;900202;Heizwerk Fixture Süd (authored fixture);DE-FIX-14310-0002;Muster Stadtwerke Fixture GmbH;;20;1800;12087;A\nDE;900203;Unselected Installation (authored fixture);DE-FIX-14310-0003;Other Operator Fixture AG;;20;500;700;B\n"
+  }
+ ]
+}

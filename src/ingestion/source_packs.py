@@ -23,6 +23,7 @@ SUPPORTED_CONNECTORS = frozenset(
         "dataset",
         "ddb",
         "declarative-rest",
+        "environment",
         "epo-ops",
         "eprel",
         "europeana",
@@ -203,6 +204,7 @@ NATIVE_CONNECTOR_MODULES = {
     "zbmath": "src.ingestion.math_sources",
     "oeis": "src.ingestion.math_sources",
     "formal-library": "src.ingestion.math_sources",
+    "environment": "src.ingestion.environment_providers",
 }
 
 

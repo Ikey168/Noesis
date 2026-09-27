@@ -124,6 +124,12 @@ def _math_projector(conn: Any) -> Any:
     return MathProjector(conn)
 
 
+def _environment_projector(conn: Any) -> Any:
+    from src.kb.environment_store import EnvironmentProjector
+
+    return EnvironmentProjector(conn)
+
+
 # Mapping target schemas whose records are also projected into a domain store.
 # A projector receives each committed page before its checkpoint advances and
 # the source outcome afterwards, so replayed pages must project idempotently.
@@ -137,6 +143,7 @@ PROJECTORS: dict[str, Callable[[Any], Any]] = {
     "noesis-standard-catalogue-v1": _standards_projector,
     "noesis-transit-feed-v1": _transit_projector,
     "noesis-math-record-v1": _math_projector,
+    "noesis-environment-record-v1": _environment_projector,
 }
 
 _DDL = """

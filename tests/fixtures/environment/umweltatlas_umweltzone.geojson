@@ -1,0 +1,54 @@
+{
+ "type": "FeatureCollection",
+ "features": [
+  {
+   "type": "Feature",
+   "id": "umweltzone.1",
+   "geometry": {
+    "type": "MultiPolygon",
+    "coordinates": [
+     [
+      [
+       [
+        386000.0,
+        5814500.0
+       ],
+       [
+        396500.0,
+        5814500.0
+       ],
+       [
+        396500.0,
+        5824000.0
+       ],
+       [
+        386000.0,
+        5824000.0
+       ],
+       [
+        386000.0,
+        5814500.0
+       ]
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "gml_id": "umweltzone.1",
+    "bezeichnung": "Umweltzone Berlin (authored fixture outline)",
+    "stufe": "Stufe 3 (grüne Plakette)",
+    "gueltig_ab": "2010-01-01"
+   }
+  }
+ ],
+ "totalFeatures": 1,
+ "numberMatched": 1,
+ "numberReturned": 1,
+ "timeStamp": "2026-09-20T06:00:00.000Z",
+ "crs": {
+  "type": "name",
+  "properties": {
+   "name": "urn:ogc:def:crs:EPSG::25833"
+  }
+ }
+}

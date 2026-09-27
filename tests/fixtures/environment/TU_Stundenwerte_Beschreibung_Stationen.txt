@@ -1,0 +1,4 @@
+Stations_id von_datum bis_datum Stationshoehe geoBreite geoLaenge Stationsname Bundesland Abgabe
+----------- --------- --------- ------------- --------- --------- ----------------------------------------- ---------- --------
+00399 18930101 20260925             37     52.5198   13.4057 Berlin-Alexanderplatz                    Berlin                                                                            Frei
+00433 19510101 20260925             48     52.4675   13.4021 Berlin-Tempelhof                         Berlin                                                                            Frei
