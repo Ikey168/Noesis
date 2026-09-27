@@ -1,0 +1,331 @@
+"""Link registered trials to publications and preprints harvested by the Science providers (H07).
+
+Publications are never copied into a clinical store: a link is a
+``registry-link`` record pointing at an exact ``documents`` revision. Links are
+created only from declared identifiers, each with its evidence kind:
+
+* ``registry-declared-reference`` – the registry lists the article (CT.gov
+  ``referencesModule`` PMID/DOI);
+* ``secondary-source-identifier`` – the bibliographic source lists the trial
+  (PubMed ``DataBankList``, Europe PMC accession annotations), matched against
+  the trial's own or declared secondary identifiers;
+* ``paper-family`` – the article's preprint, journal version, corrections and
+  retractions, grouped by :class:`~src.domains.research.paper_families.PaperFamilyStore`
+  from provider relations and Crossref notices.
+
+A registry number that appears only in title or abstract text becomes a
+*candidate* link that needs an independent review. Trials without accepted
+links and trial-report publications that carry no registry identifier are
+reported as coverage gaps; nothing is inferred from titles or similarity.
+"""
+
+from __future__ import annotations
+
+import json
+from typing import Any
+
+from src.domains.research.paper_families import PaperFamilyError, PaperFamilyStore
+from src.ingestion.connectors.paper import trial_registry
+from src.kb.clinical_records import (
+    PRIMARY_IDENTIFIER,
+    REVIEW_SCOPE,
+    ClinicalRecordError,
+    ClinicalRecordStore,
+    _require_read,
+    _require_write,
+    digest,
+)
+
+RXIV_SOURCES = {"medrxiv", "biorxiv"}
+
+
+class PublicationLinker:
+    def __init__(self, conn, *, initialize=True, now=None):
+        self.conn = conn
+        self.records = ClinicalRecordStore(conn, initialize=initialize, now=now)
+        self.now = self.records.now
+
+    # ------------------------------------------------------------ documents
+
+    def _documents(self, document_ids=None, limit=5000):
+        if not self.conn.execute("SELECT 1 FROM information_schema.tables WHERE table_name='documents'").fetchone():
+            return []
+        rows = self.conn.execute(
+            "SELECT document_id, source_id, title, content, metadata FROM documents WHERE source_type='paper' "
+            "ORDER BY document_id LIMIT ?", [int(limit)]).fetchall()
+        docs = []
+        for document_id, source_id, title, content, metadata in rows:
+            if document_ids is not None and document_id not in document_ids:
+                continue
+            revision = self.conn.execute(
+                "SELECT revision_id FROM document_revision_records WHERE document_id=? AND committed_watermark IS NOT "
+                "NULL ORDER BY revision DESC LIMIT 1", [document_id]).fetchone()
+            if not revision:
+                continue
+            doc = {"document_id": document_id, "revision_id": revision[0], "source_id": source_id, "title": title,
+                   "content": content, "metadata": json.loads(metadata) if metadata else {}}
+            doc["ids"] = trial_registry.identifiers(doc)
+            doc["declared"] = trial_registry.registry_identifiers(doc)
+            doc["mentions"] = trial_registry.mentions(doc)
+            doc["related"] = _related(doc)
+            docs.append(doc)
+        return docs
+
+    # ----------------------------------------------------------------- link
+
+    def link(self, namespace, *, principal_id, scopes, observation_id, document_ids=None, family_scopes=None):
+        """Create publication links for every trial in the namespace; report gaps."""
+        _require_write(namespace, scopes)
+        docs = self._documents(set(document_ids) if document_ids is not None else None)
+        trials = self.records.find(namespace, scopes=scopes, kinds={"registered-trial"})
+        by_pmid = {d["ids"]["pmid"]: d for d in docs if d["ids"]["pmid"]}
+        by_doi = {d["ids"]["doi"]: d for d in docs if d["ids"]["doi"]}
+        result = {"observation_id": observation_id, "links": [], "candidates": [], "families": [],
+                  "declared_not_harvested": [], "family_errors": []}
+        for trial_row in trials:
+            trial = trial_row["record"]
+            own = {(PRIMARY_IDENTIFIER[trial["registry"]], trial["identifier"])}
+            own |= {(s["kind"], s["value"]) for s in trial.get("secondary_identifiers") or []
+                    if s["kind"] in {"nct", "eudract", "eu-ct", "isrctn"}}
+            source = {"provider": trial["registry"], "identifier": trial["identifier"]}
+            accepted, mentioned_docs = {}, []
+            for reference in trial.get("declared_references") or []:
+                doc = by_pmid.get(reference.get("pmid")) or by_doi.get(reference.get("doi"))
+                if not doc:
+                    result["declared_not_harvested"].append({"trial": source, "reference": reference})
+                    continue
+                accepted[doc["document_id"]] = doc
+                result["links"].append(self._add(namespace, source, doc, "registry-declared-reference", "accepted", {
+                    "reference": reference, "trial_record_id": trial_row["record_id"],
+                    "trial_revision": trial_row["revision"]}, scopes, observation_id))
+            for doc in docs:
+                matched = [a for a in doc["declared"] if (a["kind"], a["value"]) in own]
+                if matched:
+                    accepted[doc["document_id"]] = doc
+                    result["links"].append(self._add(namespace, source, doc, "secondary-source-identifier",
+                                                     "accepted", {"accessions": matched}, scopes, observation_id))
+                else:
+                    mentioned = [m for m in doc["mentions"] if (m["kind"], m["value"]) in own]
+                    if mentioned:
+                        mentioned_docs.append((doc, mentioned))
+            members = set(accepted)
+            for doc in sorted(accepted.values(), key=lambda d: d["document_id"]):
+                family = self._family(namespace, source, doc, docs, principal_id=principal_id,
+                                      scopes=family_scopes or scopes, observation_id=observation_id, result=result)
+                if family:
+                    result["families"].append(family)
+                    members |= set(family["members"])
+            for doc, mentioned in mentioned_docs:
+                if doc["document_id"] in members:
+                    continue  # already linked through declared evidence or its paper family
+                result["candidates"].append(self._add(
+                    namespace, source, doc, "abstract-mention", "candidate",
+                    {"mentions": mentioned, "note": "text mention only; needs independent review"}, scopes,
+                    observation_id))
+        return result
+
+    def _add(self, namespace, source, doc, evidence_kind, status, evidence, scopes, observation_id, family_id=None):
+        target = {"document_id": doc["document_id"], "revision_id": doc["revision_id"],
+                  "identifiers": {k: v for k, v in doc["ids"].items() if v}, "title": (doc.get("title") or "")[:500]}
+        if family_id:
+            target["family_id"] = family_id
+        applied = self.records.add_link(namespace, {
+            "link_kind": "registry-publication", "from_record": source, "to": target,
+            "evidence_kind": evidence_kind, "evidence": {**evidence, "document_source": doc["source_id"]},
+            "status": status}, scopes=scopes, observation_id=observation_id)
+        return {"link_id": applied["link_id"], "trial": source, "document_id": doc["document_id"],
+                "evidence_kind": evidence_kind, "status": status, "created": bool(applied["created"]),
+                "revised": bool(applied["revised"])}
+
+    def _family(self, namespace, source, doc, docs, *, principal_id, scopes, observation_id, result):
+        """Group the article with its preprint and notices; link new members through the family."""
+        store = PaperFamilyStore(self.conn, now=self.now)
+        preprints = [d for d in docs if d["source_id"] in RXIV_SOURCES and doc["ids"]["doi"] and any(
+            r.get("target_identifier") == doc["ids"]["doi"] and r.get("predicate") == "IsPreprintOf"
+            for r in d["related"])]
+        root = preprints[0] if preprints else doc
+        key = f"clinical:{source['provider']}:{source['identifier']}:{root['document_id']}"
+        try:
+            family = store.create(namespace, key, _member(root), principal_id=principal_id, scopes=scopes)
+            if preprints:
+                relation = next(r for r in root["related"] if r.get("target_identifier") == doc["ids"]["doi"])
+                if not any(m["source"]["document_id"] == doc["document_id"] for m in family["members"]):
+                    family = store.add_member(
+                        namespace, family["family_id"], "clinical-add:" + doc["document_id"], _member(doc),
+                        source_member_id=family["members"][0]["member_id"], relation_type="is-preprint-of",
+                        provenance={"kind": "provider", "relation": relation}, expected_revision=family["revision"],
+                        principal_id=principal_id, scopes=scopes)
+            family = self._attach_notices(store, namespace, family, principal_id=principal_id, scopes=scopes)
+        except PaperFamilyError as exc:
+            result["family_errors"].append({"trial": source, "document_id": doc["document_id"], "code": exc.code})
+            return None
+        for member in family["members"]:
+            if member["status"] != "active":
+                continue
+            member_doc = next((d for d in docs if d["document_id"] == member["source"]["document_id"]), None)
+            if member_doc:
+                result["links"].append(self._add(
+                    namespace, source, member_doc, "paper-family", "accepted",
+                    {"family_id": family["family_id"], "via_document": doc["document_id"],
+                     "relations": [r["relation_id"] for r in family["relations"]
+                                   if member["member_id"] in {r["source_member_id"], r["target_member_id"]}]},
+                    scopes=_link_scopes(scopes), observation_id=observation_id, family_id=family["family_id"]))
+        return {"family_id": family["family_id"], "revision": family["revision"], "trial": source,
+                "members": [m["source"]["document_id"] for m in family["members"]],
+                "notices": [{"notice_type": n["notice_type"], "status": n["status"], "target_member_id": n[
+                    "target_member_id"]} for n in family["notices"]]}
+
+    def _attach_notices(self, store, namespace, family, *, principal_id, scopes):
+        if not self.conn.execute("SELECT 1 FROM information_schema.tables WHERE table_name='crossref_notices'").fetchone():
+            return family
+        dois = {v["value"] for m in family["members"] for v in m["identifiers"] if v["kind"] == "doi"}
+        attached = {n["notice_id"] for n in family["notices"]}
+        for notice_id, notice_json in self.conn.execute(
+                "SELECT notice_id, notice_json FROM crossref_notices ORDER BY notice_id").fetchall():
+            if notice_id in attached or json.loads(notice_json).get("target_doi") not in dois:
+                continue
+            family = store.attach_notice(namespace, family["family_id"], "clinical-notice:" + notice_id, notice_id,
+                                         expected_revision=family["revision"], principal_id=principal_id, scopes=scopes)
+        return family
+
+    # --------------------------------------------------------------- review
+
+    def review_candidate(self, namespace, link_id, decision, rationale, *, principal_id, scopes, observation_id):
+        """Accept or reject a text-mention candidate; the review is recorded on a new link revision."""
+        if REVIEW_SCOPE not in scopes and "operator" not in scopes:
+            raise ClinicalRecordError("unauthorized", "clinical review scope is required")
+        if decision not in {"accept", "reject"} or not str(rationale or "").strip():
+            raise ClinicalRecordError("invalid_review", "accept or reject with a rationale")
+        current = self.records.get(namespace, link_id, scopes=scopes)["record"]
+        if current["record_kind"] != "registry-link" or current["status"] != "candidate":
+            raise ClinicalRecordError("not_a_candidate", "only candidate links are reviewed")
+        body = {k: v for k, v in current.items() if k not in {"contract", "record_kind", "unknowns", "native_version"}}
+        body.update(status="accepted" if decision == "accept" else "rejected",
+                    review={"principal_id": principal_id, "decision": decision, "rationale": rationale,
+                            "annotation_origin": "human"})
+        applied = self.records.add_link(namespace, body, scopes=_link_scopes(scopes), observation_id=observation_id)
+        return {"link_id": applied["link_id"], "status": body["status"], "review": body["review"]}
+
+    # ----------------------------------------------------------------- read
+
+    def publications(self, namespace, trial_record_id, *, principal_id, scopes):
+        """Accepted publications, candidates and family notices (retractions visible) for one trial."""
+        _require_read(namespace, scopes)
+        trial = self.records.get(namespace, trial_record_id, scopes=scopes)["record"]
+        links = [link for link in self.records.links(namespace, provider=trial["registry"],
+                                                    identifier_value=trial["identifier"])
+                 if link["link_kind"] == "registry-publication"]
+        by_doc: dict[str, dict[str, Any]] = {}
+        candidates = []
+        for link in links:
+            if link["status"] == "candidate":
+                candidates.append({"link_id": link["link_id"], "document_id": link["to"]["document_id"],
+                                   "evidence": link["evidence"]})
+                continue
+            if link["status"] != "accepted":
+                continue
+            entry = by_doc.setdefault(link["to"]["document_id"], {
+                "document_id": link["to"]["document_id"], "revision_id": link["to"]["revision_id"],
+                "identifiers": link["to"].get("identifiers") or {}, "title": link["to"].get("title"),
+                "evidence_kinds": [], "link_ids": [], "family_ids": []})
+            entry["evidence_kinds"] = sorted({*entry["evidence_kinds"], link["evidence_kind"]})
+            entry["link_ids"] = sorted({*entry["link_ids"], link["link_id"]})
+            family_id = link["to"].get("family_id") or link["evidence"].get("family_id")
+            if family_id:
+                entry["family_ids"] = sorted({*entry["family_ids"], family_id})
+        families, notices, restricted = {}, [], []
+        family_ids = self._family_ids(namespace, trial)
+        for family_id in family_ids:
+            try:
+                families[family_id] = PaperFamilyStore(self.conn, initialize=False).inspect(
+                    namespace, family_id, principal_id=principal_id, scopes=scopes, limit=100)
+            except PaperFamilyError as exc:
+                restricted.append({"family_id": family_id, "code": exc.code})
+        for family_id, family in families.items():
+            for member in family["members"]:
+                entry = by_doc.get(member["source"]["document_id"])
+                if entry is not None:
+                    entry["family_ids"] = sorted({*entry["family_ids"], family_id})
+                    entry["stage"] = member["stage"]
+            for notice in family["notices"]:
+                target = next((m for m in family["members"] if m["member_id"] == notice["target_member_id"]), None)
+                notices.append({"family_id": family_id, "notice_type": notice["notice_type"],
+                                "status": notice["status"], "notice_id": notice["notice_id"],
+                                "target_document_id": target["source"]["document_id"] if target else None,
+                                "target_doi": notice.get("target_doi")})
+        for entry in by_doc.values():
+            entry["notices"] = [n for n in notices if n["target_document_id"] == entry["document_id"]]
+        retractions = [n for n in notices if n["notice_type"] == "retraction"]
+        return {"trial_record_id": trial_record_id, "publications": sorted(by_doc.values(), key=lambda e: e["document_id"]),
+                "candidates": candidates, "families": sorted(families), "family_access_restricted": restricted,
+                "retracted": True if retractions else (None if restricted else False), "retractions": retractions}
+
+    def _family_ids(self, namespace, trial):
+        return sorted({link["to"].get("family_id") or link["evidence"].get("family_id")
+                       for link in self.records.links(namespace, provider=trial["registry"],
+                                                      identifier_value=trial["identifier"])
+                       if link["evidence_kind"] == "paper-family" and link["status"] == "accepted"} - {None})
+
+    # ----------------------------------------------------------------- gaps
+
+    def coverage_gaps(self, namespace, *, scopes, trial_record_ids=None, document_ids=None):
+        """Unlinked trials, unregistered trial publications, unharvested references, pending candidates."""
+        _require_read(namespace, scopes)
+        trials = [t for t in self.records.find(namespace, scopes=scopes, kinds={"registered-trial"})
+                  if trial_record_ids is None or t["record_id"] in trial_record_ids]
+        linked_docs, unlinked, pending, declared = set(), [], [], []
+        by_pmid = {}
+        docs = self._documents(set(document_ids) if document_ids is not None else None)
+        for doc in docs:
+            if doc["ids"]["pmid"]:
+                by_pmid[doc["ids"]["pmid"]] = doc
+        for trial_row in trials:
+            trial = trial_row["record"]
+            links = [link for link in self.records.links(namespace, provider=trial["registry"],
+                                                        identifier_value=trial["identifier"])
+                     if link["link_kind"] == "registry-publication"]
+            accepted = [link for link in links if link["status"] == "accepted"]
+            linked_docs |= {link["to"]["document_id"] for link in links}
+            pending += [{"link_id": link["link_id"], "trial": trial["identifier"], "document_id": link["to"]["document_id"]}
+                        for link in links if link["status"] == "candidate"]
+            if not accepted:
+                unlinked.append({"record_id": trial_row["record_id"], "registry": trial["registry"],
+                                 "identifier": trial["identifier"],
+                                 "reason": "no registry-declared, secondary-source or family evidence links a "
+                                           "harvested publication; none is inferred"})
+            for reference in trial.get("declared_references") or []:
+                if reference.get("pmid") and reference["pmid"] not in by_pmid:
+                    declared.append({"trial": trial["identifier"], "reference": reference,
+                                     "reason": "registry-declared publication is not among harvested documents"})
+        unregistered = [{"document_id": d["document_id"], "title": d["title"], "identifiers": d["ids"],
+                         "publication_types": trial_registry.publication_types(d),
+                         "reason": "reported as a trial but declares no registry identifier"}
+                        for d in docs if trial_registry.is_trial_report(d) and not d["declared"]
+                        and not d["mentions"] and d["document_id"] not in linked_docs]
+        return {"unlinked_trials": unlinked, "unregistered_publications": unregistered,
+                "declared_not_harvested": declared, "pending_candidates": pending,
+                "gaps_hash": digest([unlinked, unregistered, declared, pending])}
+
+
+def _member(doc):
+    stage = "preprint" if doc["source_id"] in RXIV_SOURCES else "version-of-record"
+    identifiers = [{"kind": "doi", "value": doc["ids"]["doi"]}] if doc["ids"]["doi"] else []
+    if doc["ids"]["pmid"]:
+        identifiers.append({"kind": "provider", "value": "pmid:" + doc["ids"]["pmid"]})
+    if not identifiers:
+        identifiers = [{"kind": "provider", "value": doc["document_id"]}]
+    return {"document_id": doc["document_id"], "revision_id": doc["revision_id"], "stage": stage,
+            "identifiers": identifiers}
+
+
+def _related(doc):
+    raw = doc["metadata"].get("related_resources_json")
+    try:
+        values = json.loads(raw) if isinstance(raw, str) else list(raw or [])
+    except ValueError:
+        return []
+    return [v for v in values if isinstance(v, dict)]
+
+
+def _link_scopes(scopes):
+    return set(scopes)
