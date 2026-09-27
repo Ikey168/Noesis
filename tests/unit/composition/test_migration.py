@@ -38,6 +38,7 @@ PROJECTOR_OWNERS = {
     "noesis-sanctions-record-v1": "src.kb.sanctions",
     "noesis-vulnerability-record-v1": "src.kb.vulnerabilities",
     "noesis-lobbying-record-v1": "src.kb.lobbying",
+    "noesis-election-record-v1": "src.kb.elections",
 }
 
 

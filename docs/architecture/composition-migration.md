@@ -32,7 +32,7 @@ and `::test_shadow_diff_is_annotated_for_every_migrated_bundle`.
 | legal | `legal.core`; optional `sanctions` feature (default off) adds `legal.sanctions` and binds `ownership.core`, `market.lei`, `platform.entity-identity`, `economics.core` and `platform.subscriptions` | v1 manifest plus code pack merged; ships `legal-research` 1.1.0 | shadow report; `tests/unit/composition/test_legal_sanctions_composition.py` |
 | market | `market.core`, `market.lei` | v1 manifest plus code pack merged | shadow report |
 | economics (legacy `economic`) | `economics.core` | alias `economic` | shadow report |
-| political | `political.core`; optional `lobbying` feature (default off, independent of the planned optional `elections` feature) adds `political.lobbying` and binds `ownership.core`, `market.lei`, `platform.entity-identity` and `platform.subscriptions` | v1 manifest plus code pack merged; ships `official-political-records` 1.1.0 | shadow report; `tests/unit/composition/test_political_lobbying_composition.py` |
+| political | `political.core`; optional `lobbying` feature (default off) adds `political.lobbying` and binds `ownership.core`, `market.lei`, `platform.entity-identity` and `platform.subscriptions`; optional `elections` feature (default off, independent of `lobbying`) adds `political.elections` and binds `geospatial.core`, `news.core`, `ownership.core`, `platform.entity-identity`, `platform.subscriptions` and `platform.source-runtime` | v1 manifest plus code pack merged; ships `official-political-records` 1.2.0 | shadow report; `tests/unit/composition/test_political_lobbying_composition.py`, `tests/unit/composition/test_political_elections_composition.py` |
 | technology (legacy `technical`) | `technology.core`, `technology.patents`, `technology.standards`; optional `vulnerabilities` feature (default off) adds `technology.vulnerabilities` and binds `products.core`, `platform.entity-identity`, `platform.subscriptions` and `platform.source-runtime` | alias `technical`; ships `technical-software-knowledge` 1.2.0 | shadow report; `tests/unit/composition/test_technology_vulnerabilities_composition.py` |
 | products | `products.core` | v1 manifest unchanged | shadow report |
 | funding-grants | `funding.core` plus the shared `platform.*` providers | authored natively (`packs/funding-grants/manifest.json`); alias `funding` | `test_funding_manifest_resolves_to_its_own_provider_plus_shared_providers`, `test_disabling_funding_is_a_selection_change_that_keeps_shared_providers` |
@@ -74,6 +74,7 @@ projector introduces a store. Evidence:
 | `noesis-sanctions-record-v1` | `src.kb.sanctions` | `legal.sanctions` | `legal-research` |
 | `noesis-vulnerability-record-v1` | `src.kb.vulnerabilities` | `technology.vulnerabilities` | `technical-software-knowledge` |
 | `noesis-lobbying-record-v1` | `src.kb.lobbying` | `political.lobbying` | `official-political-records` |
+| `noesis-election-record-v1` | `src.kb.elections` | `political.elections` | `official-political-records` |
 
 Music remains a possible future bundle and is neither migrated nor scaffolded.
 

@@ -1,0 +1,240 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "political.elections",
+  "version": "1.0.0",
+  "implementation": {
+    "name": "src.kb.elections",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "political.election-records",
+      "contract": {
+        "name": "noesis-election-record",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "list-contests",
+        "contest-results",
+        "contest-dossier",
+        "poll-series",
+        "party-results",
+        "identity-candidates",
+        "boundary-vintages",
+        "news-evidence"
+      ],
+      "semantic_constraints": {
+        "vintages": "preliminary, certified, recount and corrected results are separate vintages of one contest, never overwritten; the vintage in force on a date follows the authority's publication date",
+        "figures": "copied as published and cited to the release they came from; nothing recomputed, vote modes never summed",
+        "polls": "poll readings keep publisher, method, fieldwork window and sample size, are typed as polls and are never a result or an aggregate",
+        "identity": "parties, candidates and constituencies are linked only by reviewable, reversible identity decisions; successions and redistricting are dated, cited assertions",
+        "exclusions": "no seat or outcome prediction, no poll aggregation into a single number and no causal claim from news framing"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "list-contests",
+      "tool": "noesis-knowledge-engine.list_election_contests",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:political:elections:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "contest-results",
+      "tool": "noesis-knowledge-engine.election_contest_results",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:political:elections:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "contest-dossier",
+      "tool": "noesis-knowledge-engine.election_contest_dossier",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:political:elections:read",
+        "knowledge:ownership:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "poll-series",
+      "tool": "noesis-knowledge-engine.list_election_poll_series",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:political:elections:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "party-results",
+      "tool": "noesis-knowledge-engine.election_party_results",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:political:elections:read",
+        "knowledge:ownership:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "identity-candidates",
+      "tool": "noesis-knowledge-engine.list_election_identity_candidates",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:political:elections:read",
+        "knowledge:ownership:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "boundary-vintages",
+      "tool": "noesis-knowledge-engine.list_election_boundary_vintages",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:political:elections:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "news-evidence",
+      "tool": "noesis-knowledge-engine.election_news_evidence",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:political:elections:read",
+        "knowledge:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "election-record",
+      "store": "src.kb.elections",
+      "tables": [
+        "election_releases",
+        "election_elections",
+        "election_constituencies",
+        "election_contests",
+        "election_candidates",
+        "election_result_vintages",
+        "election_release_members"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "election-poll-series",
+      "store": "src.kb.elections_polls",
+      "tables": [
+        "election_poll_releases",
+        "election_poll_readings"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "election-assertion",
+      "store": "src.kb.elections_identity",
+      "tables": [
+        "election_assertions"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "election-boundary-vintage",
+      "store": "src.kb.elections_geo",
+      "tables": [
+        "election_boundary_vintages",
+        "election_place_links"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "election-forecast-rule",
+      "store": "src.kb.elections_forecasts",
+      "tables": [
+        "election_forecast_rules"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "election-news-link",
+      "store": "src.kb.elections_news",
+      "tables": [
+        "election_news_links"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "vintages",
+      "kind": "table-exists",
+      "target": "election_result_vintages"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "official-political-records",
+      "version": "1.2.0",
+      "range": "^1.2.0"
+    }
+  ]
+}

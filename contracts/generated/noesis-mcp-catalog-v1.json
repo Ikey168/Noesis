@@ -900,7 +900,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 870,
+      "tool_count": 899,
       "tools": [
         "noesis-knowledge-engine.accept_awareness_jev_suggestion",
         "noesis-knowledge-engine.accept_citation_repair",
@@ -939,6 +939,7 @@
         "noesis-knowledge-engine.archive_knowledge_checkpoint",
         "noesis-knowledge-engine.archive_research_project",
         "noesis-knowledge-engine.artifact_lineage",
+        "noesis-knowledge-engine.assert_election_news_link",
         "noesis-knowledge-engine.assess_authored_report_changes",
         "noesis-knowledge-engine.assess_epistemic_statement",
         "noesis-knowledge-engine.assess_evidence_freshness",
@@ -1034,6 +1035,7 @@
         "noesis-knowledge-engine.create_decision_condition_watch",
         "noesis-knowledge-engine.create_economic_comparison_report",
         "noesis-knowledge-engine.create_economic_release_snapshot",
+        "noesis-knowledge-engine.create_election_monitor",
         "noesis-knowledge-engine.create_environment_monitor",
         "noesis-knowledge-engine.create_event_dossier",
         "noesis-knowledge-engine.create_event_dossier_report",
@@ -1099,6 +1101,14 @@
         "noesis-knowledge-engine.draft_funding_application",
         "noesis-knowledge-engine.draft_intake_practice_pack",
         "noesis-knowledge-engine.draft_procurement_bid",
+        "noesis-knowledge-engine.election_constituency_place",
+        "noesis-knowledge-engine.election_contest_dossier",
+        "noesis-knowledge-engine.election_contest_results",
+        "noesis-knowledge-engine.election_news_evidence",
+        "noesis-knowledge-engine.election_party_results",
+        "noesis-knowledge-engine.election_results_at_place",
+        "noesis-knowledge-engine.election_source_contracts",
+        "noesis-knowledge-engine.elections_readiness",
         "noesis-knowledge-engine.encrypt_research_package",
         "noesis-knowledge-engine.environment_provider_contracts",
         "noesis-knowledge-engine.evaluate_cited_evidence_subscription",
@@ -1204,6 +1214,7 @@
         "noesis-knowledge-engine.get_study_replication_graph",
         "noesis-knowledge-engine.handoff_intake_creation",
         "noesis-knowledge-engine.import_certificates",
+        "noesis-knowledge-engine.import_election_poll_release",
         "noesis-knowledge-engine.import_geospatial_features",
         "noesis-knowledge-engine.import_modulo_flashcards",
         "noesis-knowledge-engine.import_prospero_registration",
@@ -1315,6 +1326,7 @@
         "noesis-knowledge-engine.link_company_identity",
         "noesis-knowledge-engine.link_cross_modal_evidence",
         "noesis-knowledge-engine.link_cultural_research",
+        "noesis-knowledge-engine.link_election_constituency_place",
         "noesis-knowledge-engine.link_hypothesis_evidence",
         "noesis-knowledge-engine.link_legal_dossier",
         "noesis-knowledge-engine.link_lobbying_dossier",
@@ -1323,6 +1335,10 @@
         "noesis-knowledge-engine.list_decision_review_tasks",
         "noesis-knowledge-engine.list_dossier_declared_interests",
         "noesis-knowledge-engine.list_due_practice",
+        "noesis-knowledge-engine.list_election_boundary_vintages",
+        "noesis-knowledge-engine.list_election_contests",
+        "noesis-knowledge-engine.list_election_identity_candidates",
+        "noesis-knowledge-engine.list_election_poll_series",
         "noesis-knowledge-engine.list_environment_facilities",
         "noesis-knowledge-engine.list_environment_grid_events",
         "noesis-knowledge-engine.list_environment_operator_links",
@@ -1395,6 +1411,7 @@
         "noesis-knowledge-engine.poll_cited_evidence_alerts",
         "noesis-knowledge-engine.poll_clinical_monitor",
         "noesis-knowledge-engine.poll_decision_condition_watch",
+        "noesis-knowledge-engine.poll_election_monitor",
         "noesis-knowledge-engine.poll_environment_monitor",
         "noesis-knowledge-engine.poll_funding_monitor",
         "noesis-knowledge-engine.poll_lobbying_monitor",
@@ -1432,6 +1449,7 @@
         "noesis-knowledge-engine.product_provider_contracts",
         "noesis-knowledge-engine.product_selection_outcomes",
         "noesis-knowledge-engine.products_readiness",
+        "noesis-knowledge-engine.project_election_boundaries",
         "noesis-knowledge-engine.promote_awareness_item",
         "noesis-knowledge-engine.promote_intake_work_procedure",
         "noesis-knowledge-engine.promote_problem_playbook",
@@ -1439,6 +1457,7 @@
         "noesis-knowledge-engine.propose_authored_report_edit",
         "noesis-knowledge-engine.propose_certificate_product_links",
         "noesis-knowledge-engine.propose_cultural_matches",
+        "noesis-knowledge-engine.propose_election_identity_matches",
         "noesis-knowledge-engine.propose_environment_operator_links",
         "noesis-knowledge-engine.propose_forecast_resolution",
         "noesis-knowledge-engine.propose_funding_rule_interpretation",
@@ -1473,6 +1492,7 @@
         "noesis-knowledge-engine.record_citation_health",
         "noesis-knowledge-engine.record_clinical_trial_design",
         "noesis-knowledge-engine.record_decision_evidence",
+        "noesis-knowledge-engine.record_election_assertion",
         "noesis-knowledge-engine.record_entity_identity_decision",
         "noesis-knowledge-engine.record_funding_workspace_outcome",
         "noesis-knowledge-engine.record_geospatial_resolution",
@@ -1493,6 +1513,7 @@
         "noesis-knowledge-engine.record_translation",
         "noesis-knowledge-engine.recover_research_analysis_run",
         "noesis-knowledge-engine.recover_stale_maintenance_jobs",
+        "noesis-knowledge-engine.refresh_election_news_links",
         "noesis-knowledge-engine.refresh_funding_workspace",
         "noesis-knowledge-engine.refresh_intake_feed_inbox",
         "noesis-knowledge-engine.refresh_procurement_workspace",
@@ -1504,6 +1525,8 @@
         "noesis-knowledge-engine.register_dataset_catalog",
         "noesis-knowledge-engine.register_dataset_release",
         "noesis-knowledge-engine.register_derived_artifact",
+        "noesis-knowledge-engine.register_election_boundary_collection",
+        "noesis-knowledge-engine.register_election_forecast",
         "noesis-knowledge-engine.register_entity_dependency",
         "noesis-knowledge-engine.register_entity_history_identity",
         "noesis-knowledge-engine.register_environment_schemas",
@@ -1573,6 +1596,7 @@
         "noesis-knowledge-engine.resume_maintenance_schedule",
         "noesis-knowledge-engine.resume_persistent_research_loop",
         "noesis-knowledge-engine.retire_hypothesis_workspace",
+        "noesis-knowledge-engine.retract_election_assertion",
         "noesis-knowledge-engine.retract_event_account",
         "noesis-knowledge-engine.retract_hypothesis_evidence",
         "noesis-knowledge-engine.retract_source_relationship",
@@ -1580,6 +1604,8 @@
         "noesis-knowledge-engine.retry_maintenance_job",
         "noesis-knowledge-engine.retry_source_pack_quarantine",
         "noesis-knowledge-engine.reverse_event_merge",
+        "noesis-knowledge-engine.revert_election_identity_match",
+        "noesis-knowledge-engine.revert_election_news_link",
         "noesis-knowledge-engine.revert_lobbying_dossier_link",
         "noesis-knowledge-engine.revert_lobbying_identity_match",
         "noesis-knowledge-engine.revert_ownership_identity_match",
@@ -1593,6 +1619,7 @@
         "noesis-knowledge-engine.review_cross_language_alignment",
         "noesis-knowledge-engine.review_cultural_match",
         "noesis-knowledge-engine.review_cultural_research_candidate",
+        "noesis-knowledge-engine.review_election_identity_match",
         "noesis-knowledge-engine.review_environment_operator_link",
         "noesis-knowledge-engine.review_epistemic_status",
         "noesis-knowledge-engine.review_evidence_freshness_override",
@@ -1635,6 +1662,7 @@
         "noesis-knowledge-engine.route_intake_mode",
         "noesis-knowledge-engine.run_anomaly_detector",
         "noesis-knowledge-engine.run_clinical_monitor",
+        "noesis-knowledge-engine.run_election_monitor",
         "noesis-knowledge-engine.run_environment_monitor",
         "noesis-knowledge-engine.run_funding_monitor",
         "noesis-knowledge-engine.run_hosted_typed_decision",
@@ -1658,6 +1686,7 @@
         "noesis-knowledge-engine.save_openreview_round_set",
         "noesis-knowledge-engine.scan_intake_maintenance",
         "noesis-knowledge-engine.score_binary_forecasts",
+        "noesis-knowledge-engine.score_election_forecasts",
         "noesis-knowledge-engine.screen_review_candidate",
         "noesis-knowledge-engine.search_component_advisories",
         "noesis-knowledge-engine.search_cultural_objects",
@@ -1778,7 +1807,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 870
+      "visible_tool_count": 899
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -1789,11 +1818,11 @@
     },
     "servers": 30,
     "states": {
-      "available": 113,
+      "available": 114,
       "degraded": 159,
-      "unauthorized": 905
+      "unauthorized": 933
     },
-    "tools": 1177
+    "tools": 1206
   },
   "tools": [
     {
@@ -20952,6 +20981,56 @@
     },
     {
       "cost_class": "medium",
+      "description": "A reviewer's assertion that an article concerns the contest or one of its parties.",
+      "id": "noesis-knowledge-engine.assert_election_news_link",
+      "input_schema": {
+        "properties": {
+          "contest_id": {
+            "type": "string"
+          },
+          "document_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "target_key": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "contest_id",
+          "document_id",
+          "target_key",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "assert_election_news_link",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:political:elections:write",
+        "knowledge:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Poll committed evidence dependencies and persist a focused report-change assessment.",
       "id": "noesis-knowledge-engine.assess_authored_report_changes",
       "input_schema": {
@@ -26313,6 +26392,64 @@
     },
     {
       "cost_class": "medium",
+      "description": "A subscription on a contest, constituency, poll series or an election's polls; no new scheduler.",
+      "id": "noesis-knowledge-engine.create_election_monitor",
+      "input_schema": {
+        "properties": {
+          "delivery": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "key": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "request_key": {
+            "type": "string"
+          },
+          "watch": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "request_key",
+          "watch",
+          "key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "create_election_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:political:elections:read",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Watch a place: user thresholds, unavailability, permits/releases and new vintages via a knowledge subscription.",
       "id": "noesis-knowledge-engine.create_environment_monitor",
       "input_schema": {
@@ -30089,6 +30226,373 @@
       "required_scopes": [
         "knowledge:procurement:write",
         "knowledge:reports:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "A constituency's place link: accepted by review, otherwise unresolved.",
+      "id": "noesis-knowledge-engine.election_constituency_place",
+      "input_schema": {
+        "properties": {
+          "constituency_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "constituency_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "election_constituency_place",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:political:elections:read",
+        "knowledge:geospatial:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "A contest's cited dossier: result vintages and changes, candidates and lists with reviewable identity,\npoll series apart from results, boundary vintages, and unknowns. Conditional scope: include_places needs\nknowledge:geospatial:read, forecast_namespace knowledge:forecasts:read, include_news knowledge:read. No\nprediction, poll aggregate or causal claim.",
+      "id": "noesis-knowledge-engine.election_contest_dossier",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "contest_id": {
+            "type": "string"
+          },
+          "forecast_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "include_news": {
+            "default": false,
+            "type": "boolean"
+          },
+          "include_places": {
+            "default": false,
+            "type": "boolean"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "contest_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "election_contest_dossier",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:political:elections:read",
+        "knowledge:ownership:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "A contest's result vintage in force on a date (by the authority's publication date), every vintage and\nthe figures that changed between them, each cited; preliminary and certified are never merged.",
+      "id": "noesis-knowledge-engine.election_contest_results",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "contest_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "contest_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "election_contest_results",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:political:elections:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Frames and sentiment of linked articles (date, outlet, frame label) beside the contest's results and\npolls for the same period, never merged; no correlation or causal effect is stated.",
+      "id": "noesis-knowledge-engine.election_news_evidence",
+      "input_schema": {
+        "properties": {
+          "contest_id": {
+            "type": "string"
+          },
+          "date_from": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "date_to": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "include_candidates": {
+            "default": true,
+            "type": "boolean"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "contest_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "election_news_evidence",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:political:elections:read",
+        "knowledge:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "A party list's results across the elections its accepted identity decisions join, per contest as\npublished, with its dated succession assertions (conflicts side by side).",
+      "id": "noesis-knowledge-engine.election_party_results",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "record_key": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "record_key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "election_party_results",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:political:elections:read",
+        "knowledge:ownership:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Which constituency contained a point ([lon, lat]) on a date, from the boundary vintage valid then, and\nits result vintages in force; boundary and result evidence are cited separately (records a receipt).",
+      "id": "noesis-knowledge-engine.election_results_at_place",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "point": {
+            "items": {
+              "type": "number"
+            },
+            "type": "array"
+          },
+          "scheme": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "scheme",
+          "point",
+          "as_of"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "election_results_at_place",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:political:elections:read",
+        "knowledge:geospatial:calculate",
+        "knowledge:geospatial:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Per-provider access decisions, formats, identifiers, vintages, jurisdiction rules and terms.",
+      "id": "noesis-knowledge-engine.election_source_contracts",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "election_source_contracts",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Whether the Political elections feature is selected, and per-provider releases and access decisions.",
+      "id": "noesis-knowledge-engine.elections_readiness",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "elections_readiness",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:political:elections:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -34785,6 +35289,70 @@
       ],
       "required_scopes": [
         "knowledge:standards:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Import one publisher's poll release through the polls connector; figures are kept only when the\npublisher's terms allow redistribution, otherwise link-only metadata.",
+      "id": "noesis-knowledge-engine.import_election_poll_release",
+      "input_schema": {
+        "properties": {
+          "csv_text": {
+            "type": "string"
+          },
+          "election_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "publisher": {
+            "type": "string"
+          },
+          "redistribution": {
+            "type": "string"
+          },
+          "source_url": {
+            "type": "string"
+          },
+          "terms_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "publisher",
+          "election_id",
+          "source_url",
+          "csv_text",
+          "redistribution"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "import_election_poll_release",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:political:elections:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -39760,6 +40328,48 @@
     },
     {
       "cost_class": "medium",
+      "description": "Record a reviewable place resolution for a constituency (review with review_geospatial_resolution).",
+      "id": "noesis-knowledge-engine.link_election_constituency_place",
+      "input_schema": {
+        "properties": {
+          "constituency_id": {
+            "type": "string"
+          },
+          "geo_namespace": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "constituency_id",
+          "geo_namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "link_election_constituency_place",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:political:elections:write",
+        "knowledge:geospatial:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Link provenance-rich evidence to a hypothesis with declared stance.",
       "id": "noesis-knowledge-engine.link_hypothesis_evidence",
       "input_schema": {
@@ -40267,6 +40877,238 @@
       ],
       "required_scopes": [
         "knowledge:intake:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Boundary vintages per unit scheme with their validity windows and Geospatial collections.",
+      "id": "noesis-knowledge-engine.list_election_boundary_vintages",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "scheme": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_election_boundary_vintages",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:political:elections:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Contests (one election, reporting unit and ballot) with their cited jurisdiction rules.",
+      "id": "noesis-knowledge-engine.list_election_contests",
+      "input_schema": {
+        "properties": {
+          "constituency_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "election_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "unit_native_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "unit_scheme": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_election_contests",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:political:elections:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Identity candidates and decisions involving election records, with basis, evidence and reviewer.",
+      "id": "noesis-knowledge-engine.list_election_identity_candidates",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "record_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_election_identity_candidates",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:political:elections:read",
+        "knowledge:ownership:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Poll series per publisher, question and option with every reading's fieldwork, sample and source;\nnever averaged and never a result.",
+      "id": "noesis-knowledge-engine.list_election_poll_series",
+      "input_schema": {
+        "properties": {
+          "date_from": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "date_to": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "election_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_election_poll_series",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:political:elections:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -43670,6 +44512,44 @@
     },
     {
       "cost_class": "low",
+      "description": "Poll an elections monitor's events through the subscription delivery path.",
+      "id": "noesis-knowledge-engine.poll_election_monitor",
+      "input_schema": {
+        "properties": {
+          "cursor": {
+            "default": "",
+            "type": "string"
+          },
+          "subscription_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "poll_election_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:political:elections:read",
+        "knowledge:subscriptions:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Poll monitor events after a cursor.",
       "id": "noesis-knowledge-engine.poll_environment_monitor",
       "input_schema": {
@@ -45418,6 +46298,98 @@
     },
     {
       "cost_class": "medium",
+      "description": "Project one constituency boundary vintage through the Geospatial projector as its own collection.",
+      "id": "noesis-knowledge-engine.project_election_boundaries",
+      "input_schema": {
+        "properties": {
+          "boundary_vintage": {
+            "type": "string"
+          },
+          "feature_collection": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "feature_namespace": {
+            "default": "global",
+            "type": "string"
+          },
+          "id_property": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "scheme": {
+            "type": "string"
+          },
+          "source_crs": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "title_property": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "valid_from": {
+            "type": "string"
+          },
+          "valid_to": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "scheme",
+          "boundary_vintage",
+          "feature_collection",
+          "id_property",
+          "valid_from"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "project_election_boundaries",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:political:elections:write",
+        "knowledge:geospatial:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Promote an escalated item with its source and annotation references.",
       "id": "noesis-knowledge-engine.promote_awareness_item",
       "input_schema": {
@@ -45869,6 +46841,53 @@
     },
     {
       "cost_class": "medium",
+      "description": "Propose party, candidate, poll-option and constituency candidates within one country; nothing merges.",
+      "id": "noesis-knowledge-engine.propose_election_identity_matches",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "political_jurisdictions": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_election_identity_matches",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:political:elections:read",
+        "knowledge:ownership:read",
+        "knowledge:ownership:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Candidate identity decisions from facility operators to canonical entities and LEI records (none accepted).",
       "id": "noesis-knowledge-engine.propose_environment_operator_links",
       "input_schema": {
@@ -45902,7 +46921,7 @@
     },
     {
       "cost_class": "high",
-      "description": "Match registered quantitative rules to sourced observations without settling the forecast.",
+      "description": "Match registered quantitative rules to sourced observations without settling the forecast.\n\nAn election forecast (Political elections feature) is matched to its contest's certified result vintage only;\nconditional scope: that case also needs knowledge:political:elections:read on the elections namespace.",
       "id": "noesis-knowledge-engine.propose_forecast_resolution",
       "input_schema": {
         "properties": {
@@ -47048,7 +48067,7 @@
     },
     {
       "cost_class": "medium",
-      "description": "List point features inside one boundary with source evidence and a receipt.\n\nMembership is exact ring parity on stored WGS84 geometry; an ambiguous\nboundary name returns candidates instead of choosing one.",
+      "description": "List point features inside one boundary with source evidence and a receipt.\n\nMembership is exact ring parity on stored WGS84 geometry; an ambiguous\nboundary name returns candidates instead of choosing one. With ``point``\n([lon, lat]) and no boundary, it answers the other way round: which\npolygon features of ``collection`` contain that point (none, one or\nseveral, never chosen between).",
       "id": "noesis-knowledge-engine.query_geospatial_features_within",
       "input_schema": {
         "properties": {
@@ -47094,6 +48113,20 @@
           },
           "namespace": {
             "type": "string"
+          },
+          "point": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "number"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
           }
         },
         "required": [
@@ -47596,6 +48629,71 @@
       ],
       "required_scopes": [
         "knowledge:decisions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "A dated, cited successor/merger/renaming or redistricting assertion; kept beside conflicting ones.",
+      "id": "noesis-knowledge-engine.record_election_assertion",
+      "input_schema": {
+        "properties": {
+          "kind": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "object_key": {
+            "type": "string"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "source": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "subject_key": {
+            "type": "string"
+          },
+          "valid_on": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "kind",
+          "subject_key",
+          "object_key",
+          "valid_on",
+          "source"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "record_election_assertion",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:political:elections:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -49122,6 +50220,66 @@
     },
     {
       "cost_class": "medium",
+      "description": "Link articles by explicit mentions of a contest's published parties or candidates; shared words only\nyield keyword candidates. No causal reading.",
+      "id": "noesis-knowledge-engine.refresh_election_news_links",
+      "input_schema": {
+        "properties": {
+          "contest_id": {
+            "type": "string"
+          },
+          "date_from": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "date_to": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "contest_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "refresh_election_news_links",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:political:elections:write",
+        "knowledge:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Adopt the current call revision, keep preparation and flag changed requirements.",
       "id": "noesis-knowledge-engine.refresh_funding_workspace",
       "input_schema": {
@@ -50127,6 +51285,153 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Use a boundary collection the Geospatial store already holds for a vintage; nothing is copied.",
+      "id": "noesis-knowledge-engine.register_election_boundary_collection",
+      "input_schema": {
+        "properties": {
+          "boundary_vintage": {
+            "type": "string"
+          },
+          "collection": {
+            "type": "string"
+          },
+          "feature_namespace": {
+            "default": "global",
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "provider": {
+            "type": "string"
+          },
+          "scheme": {
+            "type": "string"
+          },
+          "valid_from": {
+            "type": "string"
+          },
+          "valid_to": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "scheme",
+          "boundary_vintage",
+          "collection",
+          "provider",
+          "valid_from"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "register_election_boundary_collection",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:political:elections:write",
+        "knowledge:geospatial:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "high",
+      "description": "Register your forecast in the binary forecast ledger with a rule resolved only on the certified vintage;\nthe probability is yours - the pack makes none.",
+      "id": "noesis-knowledge-engine.register_election_forecast",
+      "input_schema": {
+        "properties": {
+          "contest_id": {
+            "type": "string"
+          },
+          "evidence": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "forecast_namespace": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "probability": {
+            "type": "number"
+          },
+          "question": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "request_key": {
+            "type": "string"
+          },
+          "resolution_at_ms": {
+            "type": "integer"
+          },
+          "rule": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "namespace",
+          "forecast_namespace",
+          "request_key",
+          "contest_id",
+          "rule",
+          "probability",
+          "resolution_at_ms",
+          "evidence"
+        ],
+        "type": "object"
+      },
+      "latency_class": "batch",
+      "mutability": "write",
+      "name": "register_election_forecast",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:political:elections:read",
+        "knowledge:forecasts:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
       "version": "1"
     },
     {
@@ -54441,6 +55746,47 @@
     },
     {
       "cost_class": "medium",
+      "description": "Retract an assertion as a new revision.",
+      "id": "noesis-knowledge-engine.retract_election_assertion",
+      "input_schema": {
+        "properties": {
+          "assertion_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "assertion_id",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "retract_election_assertion",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:political:elections:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Retract a disputed event account without erasing its earlier revision.",
       "id": "noesis-knowledge-engine.retract_event_account",
       "input_schema": {
@@ -54703,6 +56049,88 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Undo an accepted or rejected decision; answers return to the unmatched source strings.",
+      "id": "noesis-knowledge-engine.revert_election_identity_match",
+      "input_schema": {
+        "properties": {
+          "candidate_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "candidate_id",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "revert_election_identity_match",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:ownership:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Revert a news link or candidate as a new revision.",
+      "id": "noesis-knowledge-engine.revert_election_news_link",
+      "input_schema": {
+        "properties": {
+          "link_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "link_id",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "revert_election_news_link",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:political:elections:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
       "version": "1"
     },
     {
@@ -55265,6 +56693,51 @@
       ],
       "required_scopes": [
         "knowledge:cultural:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Accept or reject a candidate as an entity identity decision; records are linked, never rewritten.",
+      "id": "noesis-knowledge-engine.review_election_identity_match",
+      "input_schema": {
+        "properties": {
+          "candidate_id": {
+            "type": "string"
+          },
+          "decision": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "candidate_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_election_identity_match",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:ownership:review"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -57611,6 +59084,51 @@
     },
     {
       "cost_class": "medium",
+      "description": "Evaluate a monitor at a committed watermark: new vintages (certified with changed figures, recounts,\ncorrections) and new poll readings, each cited.",
+      "id": "noesis-knowledge-engine.run_election_monitor",
+      "input_schema": {
+        "properties": {
+          "subscription_id": {
+            "type": "string"
+          },
+          "watermark": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "run_election_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:political:elections:read",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Evaluate a monitor at a committed watermark (latest when omitted); replay creates no new events.",
       "id": "noesis-knowledge-engine.run_environment_monitor",
       "input_schema": {
@@ -58816,6 +60334,47 @@
         "knowledge-engine-runtime"
       ],
       "required_scopes": [
+        "knowledge:forecasts:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "high",
+      "description": "score_binary_forecasts with the cutoff taken from the certified publication time; refused before it.",
+      "id": "noesis-knowledge-engine.score_election_forecasts",
+      "input_schema": {
+        "properties": {
+          "forecast_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "forecast_namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "forecast_namespace",
+          "forecast_ids"
+        ],
+        "type": "object"
+      },
+      "latency_class": "batch",
+      "mutability": "read",
+      "name": "score_election_forecasts",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:political:elections:read",
         "knowledge:forecasts:read"
       ],
       "server": "noesis-knowledge-engine",

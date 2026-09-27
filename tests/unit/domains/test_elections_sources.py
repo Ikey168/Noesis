@@ -237,3 +237,43 @@ def test_malformed_files_are_schema_drift():
             "us-medsl-county-csv", bad.encode(), declared={"vintage": "certified"}
         )
     assert Path(h.FIXTURES / h.UK).read_text().count("Example Party") == 3
+
+
+def test_the_source_pack_runtime_runs_a_result_source_into_the_record_owner():
+    from src.ingestion.source_pack_runtime import SourcePackRuntime
+    from src.ingestion.source_packs import SourcePackStore
+    from src.kb.elections import ElectionStore
+
+    conn = h.connection()
+    manifest = h.manifest()
+    SourcePackStore(conn).install(
+        manifest, principal_id="operator", enable=True, now_ms=1
+    )
+    clock = iter(range(10, 10_000))
+    runtime = SourcePackRuntime(conn, now=lambda: next(clock), sleep=lambda _d: None)
+    source_id = h.SOURCES["de-btw"]
+    runtime.accept_license(manifest["pack_id"], source_id, principal_id="operator")
+    adapters = runtime.fixture_adapters(manifest["pack_id"], h.ROOT)
+    request = {
+        "pack_id": manifest["pack_id"],
+        "run_key": "btw",
+        "operation": "release",
+        "source_ids": [source_id],
+        "max_results": 1000,
+        "max_bytes": 20_000_000,
+        "timeout_ms": 60_000,
+    }
+    result = runtime.run(
+        request,
+        principal_id="operator",
+        adapters={source_id: adapters[source_id]},
+        dns_resolver=lambda _host: ["8.8.8.8"],
+    )
+    assert result["status"] == "complete", result
+    store = ElectionStore(conn, initialize=False)
+    (release,) = conn.execute(
+        "SELECT release_id, source_id, evidence_origin FROM election_releases"
+    ).fetchall()
+    assert release[1] == source_id and release[2] == "fixture"
+    assert len(store.contests("global", election_id=h.DE_ELECTION)) == 8
+    conn.close()

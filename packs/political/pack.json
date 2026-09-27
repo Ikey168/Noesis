@@ -9,7 +9,7 @@
   "planner_keywords": {
     "actors": ["officeholder", "party", "institution", "registrant", "interest representative", "lobbyist"],
     "events": ["election", "proposal", "vote", "regulation", "meeting", "registration", "deregistration"],
-    "sources": ["transparency register", "lobbyregister", "register of consultant lobbyists"]
+    "sources": ["transparency register", "lobbyregister", "register of consultant lobbyists", "federal returning officer", "electoral commission", "poll"]
   },
   "enrichers": [
     {
@@ -37,17 +37,27 @@
     "official-meeting-declarations",
     "lobbying-dossier-links",
     "lobbying-identity-review",
-    "lobbying-monitoring"
+    "lobbying-monitoring",
+    "election-result-vintages",
+    "election-poll-series",
+    "election-identity-review",
+    "election-boundaries-as-of",
+    "election-forecast-resolution",
+    "election-news-evidence",
+    "election-monitoring"
   ],
   "schema_versions": {
     "source": "1.0.0",
     "model": "1.0.0",
     "research": "1.0.0",
-    "source-pack": "1.1.0",
+    "source-pack": "1.2.0",
     "lobbying-record": "1.0.0",
     "lobbying-answer": "1.0.0",
     "lobbying-dossier-link": "1.0.0",
-    "lobbying-notification": "1.0.0"
+    "lobbying-notification": "1.0.0",
+    "election-record": "1.0.0",
+    "election-answer": "1.0.0",
+    "election-notification": "1.0.0"
   },
   "ontology_extensions": {
     "extends": "noesis-canonical-entity-relation-ontology",
@@ -55,14 +65,16 @@
       "election", "institution", "instrument", "jurisdiction", "office",
       "office_term", "party", "person", "proposal", "vote", "lobbying_registrant",
       "lobbying_client", "declared_interest", "spend_declaration", "register_revision",
-      "official_meeting"
+      "official_meeting", "election_release", "contest", "constituency", "candidate_or_list",
+      "result_vintage", "poll_series", "poll_reading"
     ],
     "relation_types": [
       "adopted_as", "contests", "corrects", "holds_office", "in_jurisdiction",
       "institutional_position", "member_of_party", "part_of", "proposal_amends",
       "proposal_sponsored_by", "roll_call_on", "succeeds", "term_for_office",
       "term_holder", "vote_cast_by", "declares_interest_in", "represents_client",
-      "met_official", "revision_of", "declared_in_register"
+      "met_official", "revision_of", "declared_in_register", "contest_of_election", "contest_in_constituency",
+      "vintage_of_contest", "result_for", "poll_about_election", "successor_constituency", "successor_party"
     ]
   },
   "exclusions": [
@@ -71,6 +83,10 @@
     "point estimates, totals or averages of declared spend ranges",
     "merged cross-register registrant records",
     "dossier links from shared keywords alone",
-    "scraped register or aggregator portals"
+    "scraped register or aggregator portals",
+    "seat or outcome predictions",
+    "poll aggregation into a single true number",
+    "causal claims from news framing or sentiment",
+    "overwriting preliminary results with certified ones"
   ]
 }

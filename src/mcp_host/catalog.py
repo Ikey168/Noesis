@@ -325,6 +325,9 @@ def _mutability(name: str) -> str:
     from tools.knowledge_engine_mcp.lobbying import LOBBYING_WRITES
     if name in LOBBYING_WRITES:
         return "write"
+    from tools.knowledge_engine_mcp.elections import ELECTION_WRITES
+    if name in ELECTION_WRITES:
+        return "write"
     from tools.knowledge_engine_mcp.investigations import (
         ALERT_WRITES,
         COMPARISON_WRITES,
@@ -882,6 +885,10 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
     from tools.knowledge_engine_mcp.lobbying import required_scopes as lobbying_scopes
     if server_stem == "knowledge_engine_mcp" and tool_name in LOBBYING_TOOLS:
         return lobbying_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.elections import ELECTION_TOOLS
+    from tools.knowledge_engine_mcp.elections import required_scopes as election_scopes
+    if server_stem == "knowledge_engine_mcp" and tool_name in ELECTION_TOOLS:
+        return election_scopes(tool_name, mutability)
     if server_stem == "knowledge_engine_mcp" and tool_name in {
         "suggest_jev_claim_presence",
         "suggest_jev_checkworthiness",

@@ -9260,6 +9260,12 @@ from tools.knowledge_engine_mcp.lobbying import (  # noqa: E402 - registration o
 
 register_lobbying_tools(mcp, _intake_safe, _intake_context)
 
+from tools.knowledge_engine_mcp.elections import (  # noqa: E402 - registration order
+    register as register_election_tools,
+)
+
+register_election_tools(mcp, _intake_safe, _intake_context)
+
 from tools.knowledge_engine_mcp.vulnerabilities import (  # noqa: E402 - registration order
     register as register_vulnerability_tools,
 )

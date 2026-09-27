@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import copy
 import json
 from pathlib import Path
 
@@ -112,8 +111,13 @@ def test_descriptor_declares_the_capability_operations_stores_probe_and_source_p
 
 def test_the_bundle_resolves_with_the_feature_off_by_default():
     composition = json.loads((ROOT / "packs/political/composition.json").read_text())
-    (feature,) = composition["optional_features"]
-    assert feature["id"] == "lobbying" and feature["default"] is False
+    features = {f["id"]: f for f in composition["optional_features"]}
+    assert set(features) == {
+        "lobbying",
+        "elections",
+    }  # two independent optional features (#1911, #1908)
+    feature = features["lobbying"]
+    assert feature["default"] is False
     assert {r["capability"] for r in feature["requires"]} == {
         "political.lobbying",
         "political.knowledge",
@@ -138,11 +142,16 @@ def test_selecting_the_feature_binds_its_provider_and_the_consumed_ones():
         plan["features"]["political"] == ["lobbying"]
         and bound(plan) == FEATURE_PROVIDERS
     )
-    assert not plan["omissions"]
+    # Only the other optional feature, left unselected, is omitted.
+    assert plan["omissions"] == [
+        {"pack": "political", "feature": "elections", "reason": "not selected"}
+    ]
+    # The bundle ships official-political-records 1.2.0 (the elections feature's result sources, #1908); the
+    # lobbying descriptor's ^1.1.0 range is satisfied by it.
     assert {
         "pack_id": "official-political-records",
-        "version": "1.1.0",
-        "range": "^1.1.0",
+        "version": "1.2.0",
+        "range": "^1.2.0",
     } in plan["source_packs"]
     profiles = {p["id"]: p for p in adapt_all()["political"]["contributes"]["profiles"]}
     defaults = profiles["political.lobbying-review"]["workflow_defaults"]
@@ -160,35 +169,15 @@ def test_a_missing_consumed_provider_is_a_visible_omission_not_a_failure():
     )
 
 
-def test_the_feature_coexists_with_a_second_optional_elections_feature():
-    """The planned optional ``elections`` feature (not shipped here) can be selected independently or together."""
+def test_the_feature_coexists_with_the_optional_elections_feature():
+    """Lobbying and elections are selected independently or together (the real elections feature, #1908)."""
     bundles = adapt_all()
-    political = copy.deepcopy(bundles["political"])
-    political["optional_features"].append(
-        {
-            "id": "elections",
-            "default": False,
-            "description": "planned election results feature (test double)",
-            "requires": [
-                {
-                    "capability": "political.knowledge",
-                    "contract": "noesis-political-knowledge",
-                    "range": "^1.0.0",
-                    "reason": "elections read political knowledge",
-                }
-            ],
-        }
-    )
-    from src.composition.contracts import seal_manifest
-
-    bundles["political"] = seal_manifest(
-        {k: v for k, v in political.items() if k != "content_hash"}
-    )
     assert validate_composition_manifest(bundles["political"]) == []
     for selection in ([], ["lobbying"], ["elections"], ["elections", "lobbying"]):
         plan = political_plan(selection, bundles=bundles)
         assert sorted(plan["features"]["political"]) == sorted(selection)
         assert ("political.lobbying" in bound(plan)) == ("lobbying" in selection)
+        assert ("political.elections" in bound(plan)) == ("elections" in selection)
 
 
 def test_no_new_pack_directory_or_enablement_flag_is_added():

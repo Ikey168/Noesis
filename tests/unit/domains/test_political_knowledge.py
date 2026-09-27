@@ -76,9 +76,11 @@ def test_distributable_pack_validates_installs_and_round_trips():
     try:
         assert receipt["schema_versions"] == {
             "source": "1.0.0", "model": "1.0.0", "research": "1.0.0",
-            # The optional lobbying feature's contracts and the source pack that ships its registers (#1911).
-            "source-pack": "1.1.0", "lobbying-record": "1.0.0", "lobbying-answer": "1.0.0",
+            # The optional lobbying feature's contracts and the source pack that ships its registers (#1911),
+            # and the optional elections feature's contracts and result sources (#1908).
+            "source-pack": "1.2.0", "lobbying-record": "1.0.0", "lobbying-answer": "1.0.0",
             "lobbying-dossier-link": "1.0.0", "lobbying-notification": "1.0.0",
+            "election-record": "1.0.0", "election-answer": "1.0.0", "election-notification": "1.0.0",
         }
         assert "political-research-queries" in receipt["capabilities"]
     finally:
