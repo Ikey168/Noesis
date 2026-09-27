@@ -361,8 +361,26 @@ class VulnerabilityStore:
                 "series_id": sid,
                 "revision_id": latest["revision_id"],
             }
-        modified = source_time_ms(
-            statement.get("modified") or observation.get("catalog_released")
+        if kind == "score":
+            # Scores are dated observations, not versions of one statement: each distinct
+            # (score date, model version, values) is kept, whatever order dates arrive in
+            # (a time-series back-fill); replaying a stored observation adds nothing.
+            known = self.conn.execute(
+                "SELECT revision_id FROM vuln_revisions WHERE namespace=? AND series_id=? AND content_digest=?",
+                [namespace, sid, content_digest],
+            ).fetchone()
+            if known:
+                return {
+                    "status": "unchanged",
+                    "series_id": sid,
+                    "revision_id": known[0],
+                }
+        modified = (
+            None
+            if kind == "score"
+            else source_time_ms(
+                statement.get("modified") or observation.get("catalog_released")
+            )
         )
         if latest and modified is not None:
             previous = source_time_ms(
