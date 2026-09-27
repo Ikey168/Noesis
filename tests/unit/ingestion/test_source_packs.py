@@ -52,8 +52,9 @@ def test_all_production_packs_validate_against_contract() -> None:
     }
     # 59 plus the Legal sanctions feature's six sources (#1907): four lists and two CELLAR selections,
     # plus the Technology vulnerabilities feature's eight new sources (#1913; osv-api was reviewed in place),
-    # plus the Political lobbying feature's five register and meeting-declaration sources (#1911).
-    assert sum(len(pack["sources"]) for pack in packs) == 78
+    # plus the Political lobbying feature's five register and meeting-declaration sources (#1911),
+    # plus the Political elections feature's four official result sources (#1908).
+    assert sum(len(pack["sources"]) for pack in packs) == 82
     schema = json.loads(
         (ROOT / "contracts/schemas/jsonschema/noesis-source-pack-v1.json").read_text()
     )

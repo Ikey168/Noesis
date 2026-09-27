@@ -327,7 +327,8 @@ def test_a_bounded_selection_emits_only_named_entries():
 
 def test_the_source_pack_declares_pinned_fixtures_that_replay_offline():
     manifest = h.manifest()
-    assert manifest["version"] == "1.1.0"
+    # Lobbying sources shipped in 1.1.0; 1.2.0 adds the elections feature's result sources (#1908).
+    assert manifest["version"] == "1.2.0"
     lobbying = [s for s in manifest["sources"] if s["connector"] == "lobbying-register"]
     assert {s["source_id"] for s in lobbying} == set(h.SOURCES.values())
     for item in lobbying:

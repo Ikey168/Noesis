@@ -18,7 +18,7 @@
         "required": ["source_id", "connector", "endpoint", "publisher", "scope", "license", "update_cadence", "temporal_semantics", "mapping", "extractor_versions", "schedule", "budgets", "auth", "fixture", "health", "operations", "source_hash"],
         "properties": {
           "source_id": {"type": "string", "minLength": 1},
-          "connector": {"enum": ["berlin-law", "blog", "bods", "cellar", "companies-house", "ctgov", "ctis", "dataset", "ddb", "declarative-rest", "ema-medicines", "epo-ops", "eprel", "eu-ctr", "europeana", "filings", "formal-library", "geojson", "git", "gleif", "gtfs", "icecat", "iso-open-data", "lobbying-register", "manifest", "ocds", "oeis", "openfda", "package-registry", "paper", "rii", "sam-gov", "sanctions-list", "sec-edgar-ownership", "ted", "vulnerability-feed", "web", "wfs", "zbmath"]},
+          "connector": {"enum": ["berlin-law", "blog", "bods", "cellar", "companies-house", "ctgov", "ctis", "dataset", "ddb", "declarative-rest", "election-results", "ema-medicines", "epo-ops", "eprel", "eu-ctr", "europeana", "filings", "formal-library", "geojson", "git", "gleif", "gtfs", "icecat", "iso-open-data", "lobbying-register", "manifest", "ocds", "oeis", "openfda", "package-registry", "paper", "rii", "sam-gov", "sanctions-list", "sec-edgar-ownership", "ted", "vulnerability-feed", "web", "wfs", "zbmath"]},
           "wfs": {
             "type": "object",
             "description": "Pinned WFS 2.0.0 GetFeature contract; required for the wfs connector.",
@@ -160,6 +160,24 @@
               "format": {"enum": ["eu-tr-xml", "de-lobbyregister-json", "ep-meetings-csv", "ec-meetings-json", "uk-orcl-csv"]},
               "selection": {"type": "object", "properties": {"native_ids": {"type": "array", "items": {"type": "string", "minLength": 1}, "minItems": 1, "maxItems": 500}}, "additionalProperties": false},
               "documents": {"enum": ["link-only", "text"]}
+            },
+            "additionalProperties": false
+          },
+          "elections": {
+            "type": "object",
+            "description": "One official result file for the election-results connector: its provider, documented format, namespace, the vintage kind when the file does not state one, the jurisdiction rules cited to their source, the provider's geometry reference per unit scheme, and for compiled datasets a bounded selection.",
+            "required": ["provider", "format", "rules"],
+            "properties": {
+              "namespace": {"type": "string", "minLength": 1},
+              "provider": {"enum": ["bundeswahlleiterin", "berlin-landeswahlleitung", "uk-electoral-commission", "mit-election-lab"]},
+              "format": {"enum": ["de-btw-kerg-csv", "de-be-wahlkreis-csv", "gb-ec-candidates-csv", "us-medsl-county-csv"]},
+              "vintage": {"enum": ["preliminary", "certified", "recount", "corrected"]},
+              "authority": {"type": "string", "minLength": 1},
+              "election": {"type": "object", "required": ["kind", "date"], "properties": {"kind": {"type": "string"}, "date": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"}, "native_id": {"type": "string"}, "name": {"type": "string"}}, "additionalProperties": false},
+              "election_dates": {"type": "object", "additionalProperties": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"}},
+              "rules": {"type": "object", "required": ["source_url"], "properties": {"source_url": {"type": "string", "pattern": "^https://"}}},
+              "geometry": {"type": "object", "additionalProperties": {"type": "object", "required": ["provider", "layer", "vintage", "crs"], "properties": {"provider": {"type": "string"}, "layer": {"type": "string"}, "vintage": {"type": "string"}, "crs": {"type": "string"}, "url": {"type": "string"}, "valid_from": {"type": "string"}}, "additionalProperties": false}},
+              "selection": {"type": "object", "properties": {"years": {"type": "array", "items": {"type": "string"}, "maxItems": 20}, "states": {"type": "array", "items": {"type": "string"}, "maxItems": 60}}, "additionalProperties": false}
             },
             "additionalProperties": false
           },

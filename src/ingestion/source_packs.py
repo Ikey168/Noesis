@@ -238,6 +238,10 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"vulnerability-feed"})
 NATIVE_CONNECTOR_MODULES["lobbying-register"] = "src.ingestion.lobbying_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"lobbying-register"})
 
+# Political election results (Bundeswahlleiterin, Berlin, UK Electoral Commission, MIT Election Lab; #1908).
+NATIVE_CONNECTOR_MODULES["election-results"] = "src.ingestion.election_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"election-results"})
+
 
 def native_connector_module(connector: str) -> Any:
     import importlib
