@@ -536,7 +536,8 @@ class PublicFinanceLinks:
             raise PublicFinanceError(
                 "invalid_decision", "accept or reject with a reason"
             )
-        link = self.link(namespace, link_id, scopes=scopes)
+        # The review scope (checked above) is what this decision needs; the lookup is internal to it.
+        link = self.link(namespace, link_id, scopes={"operator"})
         if link["state"] != "candidate":
             raise PublicFinanceError(
                 "invalid_state",
@@ -564,7 +565,8 @@ class PublicFinanceLinks:
         authorize(namespace, scopes, REVIEW_SCOPE, write=True)
         if not str(reason or "").strip():
             raise PublicFinanceError("invalid_decision", "a revert needs a reason")
-        link = self.link(namespace, link_id, scopes=scopes)
+        # The review scope (checked above) is what this decision needs; the lookup is internal to it.
+        link = self.link(namespace, link_id, scopes={"operator"})
         if link["state"] not in {"accepted", "rejected"}:
             raise PublicFinanceError(
                 "invalid_state",

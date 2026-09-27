@@ -347,3 +347,71 @@ def test_a_district_code_without_a_boundary_stays_unresolved(conn):
         "global", h.line_id(conn, "de-be-haushalt", bereich="31"), scopes=h.SCOPES
     )
     assert link["state"] == "unresolved" and "no boundary feature" in link["reason"]
+
+
+def test_the_current_district_link_is_the_latest_evaluation(conn):
+    from src.kb.geospatial_features import GeospatialFeatureStore
+
+    h.apply(conn, "berlin", 0, h.BERLIN)
+    places = PublicFinancePlaces(conn)
+    mitte = h.line_id(conn, "de-be-haushalt", bereich="31")
+    places.link_districts(
+        "global", principal_id="a", scopes=h.SCOPES | GEO, geo_namespace="geo"
+    )
+    assert (
+        "no boundary feature"
+        in places.place("global", mitte, scopes=h.SCOPES)["reason"]
+    )
+    _boundaries(conn)
+    places.link_districts(
+        "global", principal_id="a", scopes=h.SCOPES | GEO, geo_namespace="geo"
+    )
+    assert places.place("global", mitte, scopes=h.SCOPES)["state"] == "linked"
+    # A second feature stating the same code: unresolved again, for a different reason than before.
+    square = [[[13.3, 52.5], [13.4, 52.5], [13.4, 52.6], [13.3, 52.6], [13.3, 52.5]]]
+    duplicate = {
+        "type": "FeatureCollection",
+        "features": [
+            {
+                "type": "Feature",
+                "id": "bezirksgrenzen.dup",
+                "geometry": {"type": "Polygon", "coordinates": square},
+                "properties": {"gem": "001", "namgem": "Mitte (Duplikat)"},
+            }
+        ],
+    }
+    GeospatialFeatureStore(conn).import_feature_collection(
+        "geo",
+        json.dumps(duplicate),
+        provider="other",
+        collection="alkis_bezirke:bezirksgrenzen",
+        source_crs="EPSG:4326",
+        title_property="namgem",
+        principal_id="p",
+        scopes=GEO,
+    )
+    places.link_districts(
+        "global", principal_id="a", scopes=h.SCOPES | GEO, geo_namespace="geo"
+    )
+    current = places.place("global", mitte, scopes=h.SCOPES)
+    assert (
+        current["state"] == "unresolved"
+        and "more than one boundary feature" in current["reason"]
+    )
+    reasons = [
+        r[0]
+        for r in conn.execute(
+            "SELECT coalesce(reason, state) FROM public_finance_place_links WHERE line_id=? ORDER BY evaluation_no",
+            [mitte],
+        ).fetchall()
+    ]
+    assert len(reasons) == 3 and reasons[1] == "linked"
+    places.link_districts(
+        "global", principal_id="a", scopes=h.SCOPES | GEO, geo_namespace="geo"
+    )
+    assert (
+        conn.execute(
+            "SELECT count(*) FROM public_finance_place_links WHERE line_id=?", [mitte]
+        ).fetchone()[0]
+        == 3
+    )

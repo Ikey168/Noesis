@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS public_finance_place_links (
   namespace TEXT NOT NULL, link_id TEXT NOT NULL, line_id TEXT NOT NULL, district_code TEXT NOT NULL,
   collection TEXT NOT NULL, state TEXT NOT NULL, feature_id TEXT, feature_revision_id TEXT, feature_title TEXT,
   place_id TEXT, place_revision_id TEXT, reason TEXT, created_by TEXT NOT NULL, created_at_ms BIGINT NOT NULL,
-  PRIMARY KEY(namespace, link_id)
+  evaluation_no INTEGER NOT NULL, PRIMARY KEY(namespace, link_id)
 );
 """
 
@@ -122,25 +122,31 @@ class PublicFinancePlaces:
             place_id, place_revision = (
                 places[0] if len(places) == 1 and state == "linked" else (None, None)
             )
+            outcome = [
+                state,
+                collection,
+                feature_id,
+                revision_id,
+                place_id,
+                place_revision,
+                reason,
+            ]
+            current = self.conn.execute(
+                "SELECT state, collection, feature_id, feature_revision_id, place_id, place_revision_id, reason, "
+                "evaluation_no FROM public_finance_place_links WHERE namespace=? AND line_id=? "
+                "ORDER BY evaluation_no DESC LIMIT 1",
+                [namespace, line["line_id"]],
+            ).fetchone()
+            if current is not None and list(current[:7]) == outcome:
+                continue  # the latest evaluation already says this; nothing new
+            # Every change of outcome (linked, unresolved for a reason, linked again) is a new evaluation; the
+            # latest one is the line's current link.
+            number = 1 + (int(current[7]) if current else 0)
             link_id = (
-                "pf-place:"
-                + digest(
-                    [
-                        namespace,
-                        line["line_id"],
-                        collection,
-                        revision_id,
-                        place_revision,
-                    ]
-                )[:24]
+                "pf-place:" + digest([namespace, line["line_id"], number, outcome])[:24]
             )
-            if self.conn.execute(
-                "SELECT 1 FROM public_finance_place_links WHERE namespace=? AND link_id=?",
-                [namespace, link_id],
-            ).fetchone():
-                continue
             self.conn.execute(
-                "INSERT INTO public_finance_place_links VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                "INSERT INTO public_finance_place_links VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                 [
                     namespace,
                     link_id,
@@ -156,6 +162,7 @@ class PublicFinancePlaces:
                     reason,
                     principal_id,
                     self.now(),
+                    number,
                 ],
             )
             (linked if state == "linked" else unresolved).append(link_id)
@@ -188,7 +195,7 @@ class PublicFinancePlaces:
         row = self.conn.execute(
             "SELECT link_id, district_code, collection, state, feature_id, feature_revision_id, feature_title, "
             "place_id, place_revision_id, reason, created_at_ms FROM public_finance_place_links WHERE namespace=? AND "
-            "line_id=? ORDER BY created_at_ms DESC, link_id DESC LIMIT 1",
+            "line_id=? ORDER BY evaluation_no DESC LIMIT 1",
             [namespace, line_id],
         ).fetchone()
         if row is None:

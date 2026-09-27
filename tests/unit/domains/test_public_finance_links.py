@@ -185,3 +185,49 @@ def test_award_history_is_context_for_a_reviewed_supplier_match_only(conn):
         links.award_context(
             h.NS, DE_BENEFICIARY, h.PROCUREMENT_NS, scopes=h.REVIEW_SCOPES
         )
+
+
+def test_link_reviews_run_with_exactly_the_declared_scopes(conn):
+    from tools.knowledge_engine_mcp.public_finance import PUBLIC_FINANCE_SCOPES
+
+    h.load_acts(conn)
+    links = PublicFinanceLinks(conn)
+    links.link_acts(
+        h.NS,
+        legal_namespace=h.LEGAL_NS,
+        principal_id="a",
+        scopes=h.REVIEW_SCOPES | h.LEGAL_SCOPES,
+    )
+    (candidate,) = links.links(h.NS, scopes=h.SCOPES, states=["candidate"])
+    for tool in ("review_public_finance_link", "revert_public_finance_link"):
+        assert PUBLIC_FINANCE_SCOPES[tool] == [
+            "knowledge:economic:public-finance:review"
+        ]
+    exact = {"knowledge:economic:public-finance:review", f"namespace:{h.NS}:write"}
+    accepted = links.review(
+        h.NS,
+        candidate["link_id"],
+        "accept",
+        "cited on page 2",
+        principal_id="r",
+        scopes=exact,
+    )
+    assert accepted["state"] == "accepted"
+    assert (
+        links.revert(
+            h.NS, candidate["link_id"], "withdrawn", principal_id="r", scopes=exact
+        )["state"]
+        == "reverted"
+    )
+    with pytest.raises(PublicFinanceError):
+        links.review(
+            h.NS,
+            candidate["link_id"],
+            "accept",
+            "x",
+            principal_id="r",
+            scopes={
+                "knowledge:economic:public-finance:read",
+                f"namespace:{h.NS}:write",
+            },
+        )

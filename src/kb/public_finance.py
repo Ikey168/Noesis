@@ -44,7 +44,7 @@ import re
 import time
 from collections.abc import Callable, Iterable, Mapping, Sequence
 from datetime import date
-from decimal import Decimal
+from decimal import ROUND_HALF_EVEN, Decimal
 from typing import Any
 
 from src.ingestion.public_finance_sources import (
@@ -257,11 +257,16 @@ def normalise_amount(amount: Any, unit: str) -> dict[str, Any] | None:
 
         receipt = convert_physical(str(amount), pint_unit, "count", precision=2)
     except ModuleNotFoundError:
+        # Without the optional pint dependency the published scale (a declared power of ten) is applied exactly,
+        # with the same rounding pint's receipt uses, so figures stay comparable across deployments.
+        value = (Decimal(str(amount)) * scale).quantize(
+            Decimal("0.01"), rounding=ROUND_HALF_EVEN
+        )
         return {
-            "value": None,
+            "value": str(value),
             "currency": currency,
             "scale": scale,
-            "method": "not normalised: the pint dependency is not installed",
+            "method": f"exact decimal scale x{scale} (pint not installed; scale only, no currency conversion)",
             "receipt_sha256": None,
         }
     return {
@@ -1445,13 +1450,18 @@ class PublicFinanceStore:
         fiscal_year: str | None = None,
         current_only: bool = True,
     ) -> list[dict[str, Any]]:
+        # The revision in force of each payment is chosen first (by the source's date), then filtered: a
+        # payment republished with a corrected line or beneficiary no longer answers a query on the old value.
         rows = self.conn.execute(
-            "SELECT payment_id, series_key FROM public_finance_payments WHERE namespace=? AND "
+            "SELECT payment_id, series_key FROM (SELECT *, row_number() OVER (PARTITION BY series_key "
+            f"ORDER BY {SOURCE_ORDER}) AS rank FROM public_finance_payments WHERE namespace=?) WHERE "
+            "(NOT ? OR rank=1) AND "
             "(? IS NULL OR beneficiary_key=?) AND (? IS NULL OR programme=?) AND (? IS NULL OR line_id=?) AND "
             "(? IS NULL OR budget_line=?) AND (? IS NULL OR fiscal_year=?) "
             f"ORDER BY series_key, {SOURCE_ORDER}",
             [
                 namespace,
+                bool(current_only),
                 beneficiary_key,
                 beneficiary_key,
                 programme,
@@ -1500,7 +1510,9 @@ class PublicFinanceStore:
         out = []
         for (key,) in rows:
             latest = self.payments(namespace, beneficiary_key=key)
-            statement = latest[-1]["statement"] if latest else {}
+            if not latest:
+                continue  # every payment once naming this beneficiary now names another (a corrected row)
+            statement = latest[-1]["statement"]
             out.append(
                 {
                     "beneficiary_key": key,

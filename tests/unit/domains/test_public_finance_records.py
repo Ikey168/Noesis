@@ -276,3 +276,69 @@ def test_a_file_without_the_revenue_expenditure_marker_does_not_split_a_line(con
     assert "Einnahme/Ausgabe" not in bare
     h.apply(conn, "bund", 1, bare + "\n")
     assert len(PublicFinanceStore(conn).lines(h.NS, scheme="de-bund-haushalt")) == 3
+
+
+def test_a_corrected_line_or_beneficiary_moves_the_payment_and_stale_values_stop_answering(
+    conn,
+):
+    h.apply(conn, "fts", 0, h.FTS)
+    store = PublicFinanceStore(conn)
+    old_line = h.line_id(conn, "eu-budget-line", budget_line="99010201")
+    corrected = h.body(h.FTS).replace(
+        "Exemplo Investigação Lda,PT999999990,PT,Cidade Exemplo,99 01 02 01 - Fictional Research Programme",
+        "Exemplo Investigação SA,PT999999991,PT,Cidade Exemplo,99 03 01 00 - Fictional Regional Fund",
+    )
+    h.apply(
+        conn,
+        "fts",
+        0,
+        corrected,
+        headers={"Last-Modified": "Fri, 30 Jul 2100 10:00:00 GMT"},
+    )
+    new_line = h.line_id(conn, "eu-budget-line", budget_line="99030100")
+    assert "FTS-2099-000002" not in {
+        p["payment_key"] for p in store.payments(h.NS, line_id=old_line)
+    }
+    assert "FTS-2099-000002" not in {
+        p["payment_key"] for p in store.payments(h.NS, budget_line="99010201")
+    }
+    (moved,) = [
+        p
+        for p in store.payments(h.NS, line_id=new_line)
+        if p["payment_key"] == "FTS-2099-000002"
+    ]
+    assert (
+        moved["revision_no"] == 2 and moved["beneficiary"] == "Exemplo Investigação SA"
+    )
+    old_key = "public-finance:beneficiary:eu-fts:vat:PT:PT999999990"
+    assert store.payments(h.NS, beneficiary_key=old_key) == []
+    assert old_key not in {b["beneficiary_key"] for b in store.beneficiaries(h.NS)}
+    # History still holds both revisions.
+    assert len(store.payments(h.NS, beneficiary_key=old_key, current_only=False)) == 1
+    assert len(store.payment_history(h.NS, moved["series_key"])) == 2
+
+
+def test_amounts_in_thousands_normalise_the_same_without_pint(monkeypatch):
+    import builtins
+
+    from src.kb.public_finance import normalise_amount
+
+    with_pint = normalise_amount("131200.4", "1.000 EUR")
+    real_import = builtins.__import__
+
+    def no_pint(name, *args, **kwargs):
+        if name == "pint":
+            raise ModuleNotFoundError("No module named 'pint'")
+        return real_import(name, *args, **kwargs)
+
+    monkeypatch.setattr(builtins, "__import__", no_pint)
+    fallback = normalise_amount("131200.4", "1.000 EUR")
+    assert (
+        fallback["value"] == "131200400.00"
+        and "pint not installed" in fallback["method"]
+    )
+    if (
+        with_pint["receipt_sha256"] is not None
+        or "pint convert_physical" in with_pint["method"]
+    ):
+        assert with_pint["value"] == fallback["value"]
