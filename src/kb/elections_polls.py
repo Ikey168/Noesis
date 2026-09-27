@@ -20,7 +20,9 @@ combined: two publishers are two series.
 
 from __future__ import annotations
 
+import csv
 import hashlib
+import io
 import time
 from collections.abc import Callable, Iterable
 from dataclasses import replace
@@ -127,7 +129,7 @@ class ElectionPolls:
             )
         if format_id not in PROVIDER_COLUMN_MAPS:
             raise ElectionError("invalid_release", f"unknown poll layout {format_id!r}")
-        header = csv_text.splitlines()[0].split(",") if csv_text.strip() else []
+        header = next(csv.reader(io.StringIO(csv_text)), []) if csv_text.strip() else []
         missing = [
             c
             for c in ("publisher", "fieldwork_end", "sample_size", "question")

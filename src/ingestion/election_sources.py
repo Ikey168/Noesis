@@ -1281,7 +1281,7 @@ def replay_native_fixture(
 
 
 def day_ms(day: str, at: str | None = None) -> int:
-    """Epoch milliseconds (UTC) of a publication date or date-time."""
+    """Epoch milliseconds of a publication date or date-time; a stated time without a zone is read as UTC."""
     stamp = (
         datetime.fromisoformat(at)
         if at
