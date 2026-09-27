@@ -1,0 +1,16 @@
+{
+  "contract": "noesis-environment-bidding-zones-v1",
+  "note": "Authored coarse outlines used only to find which bidding zone contains a place. They are NOT official ENTSO-E geometries (the Transparency Platform publishes zones by EIC code, not by boundary). Precision is declared coarse; a place within the declared precision of a border must be checked by hand.",
+  "zones": [
+    {
+      "code": "10Y1001A1001A82H",
+      "name": "DE-LU",
+      "members": ["DE", "LU", "DE-LU"],
+      "precision_m": 100000,
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[5.8, 47.2], [13.9, 47.4], [15.1, 50.9], [14.3, 53.9], [11.0, 54.9], [8.5, 55.1], [5.8, 53.4], [5.7, 50.8], [5.7, 49.4], [5.8, 47.2]]]
+      }
+    }
+  ]
+}

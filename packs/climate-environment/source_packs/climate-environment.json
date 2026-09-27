@@ -1,0 +1,344 @@
+{
+  "pack_id": "climate-environment",
+  "version": "1.0.0",
+  "description": "Climate and Environment sources for one bounded Berlin selection: OpenAQ and Umweltbundesamt air quality, ENTSO-E and SMARD grid records for DE-LU, EEA industrial facilities, EU ETS installations, Open-Meteo reanalysis and forecasts, and DWD station observations. Berlin Umweltatlas layers are delivered as the geospatial-berlin 1.2.0 upgrade. Every source is live-unverified until a dated run; Copernicus/CAMS is not implemented.",
+  "domains": [
+    "environment"
+  ],
+  "defaults": {
+    "connector": "environment",
+    "temporal_semantics": "provider observation, model or forecast periods as published; kind is explicit per series; acquisition time and provider release time recorded separately as vintages",
+    "mapping": {
+      "target_schema": "noesis-environment-record-v1",
+      "version": "1.0.0"
+    },
+    "extractor_versions": [
+      "environment-providers:1.0.0"
+    ],
+    "operations": [
+      "observe"
+    ],
+    "schedule": {
+      "kind": "interval",
+      "interval_s": 86400
+    },
+    "auth": {
+      "kind": "none"
+    },
+    "budgets": {
+      "timeout_ms": 60000,
+      "max_results": 500,
+      "max_bytes": 20000000,
+      "max_pages": 40
+    },
+    "health": {
+      "required": false,
+      "max_staleness_s": 259200
+    }
+  },
+  "sources": [
+    {
+      "source_id": "openaq-berlin-mitte",
+      "endpoint": "https://api.openaq.org/v3",
+      "publisher": "OpenAQ",
+      "scope": "OpenAQ location 2993 (EEA station DEBE068, Berlin Mitte) and its NO2/PM10 sensors, hourly aggregates for one pinned window",
+      "update_cadence": "hourly",
+      "auth": {
+        "kind": "required-secret",
+        "secret_ref": "NOESIS_OPENAQ_API_KEY"
+      },
+      "license": {
+        "id": "openaq-terms-per-location-licence",
+        "terms_url": "https://openaq.org/terms",
+        "redistribution": "per location licence (CC BY 4.0 for EEA data); attribution required"
+      },
+      "environment": {
+        "provider": "openaq",
+        "namespace": "environment",
+        "live_verification": "blocked",
+        "selection": {
+          "locations": [
+            "2993"
+          ],
+          "sensors": [
+            "7771",
+            "7772"
+          ],
+          "datetime_from": "2026-09-24T00:00:00Z",
+          "datetime_to": "2026-09-24T04:00:00Z",
+          "limit": 100
+        }
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/environment-openaq.json",
+        "sha256": "69e36576157b3c74d28de8238bb0de851aaa8306b4c7c60e3e2584ca09940738",
+        "expected_output_hash": "d07f2645981fe4a6352cc8bb835bfad0e5dc675b92b5f7f3ee03b1f0705fe3f1"
+      }
+    },
+    {
+      "source_id": "uba-berlin",
+      "endpoint": "https://www.umweltbundesamt.de/api/air_data/v3",
+      "publisher": "Umweltbundesamt",
+      "scope": "UBA stations 282 (DEBE068 Berlin Mitte) and 271 (DEBE065 Frankfurter Allee), NO2 hourly means for one pinned window; values declared provisional",
+      "update_cadence": "hourly",
+      "license": {
+        "id": "dl-de-by-2.0",
+        "terms_url": "https://www.govdata.de/dl-de/by-2-0",
+        "redistribution": "permitted with attribution 'Umweltbundesamt'"
+      },
+      "environment": {
+        "provider": "uba",
+        "namespace": "environment",
+        "live_verification": "blocked",
+        "selection": {
+          "stations": [
+            "282",
+            "271"
+          ],
+          "components": [
+            "5"
+          ],
+          "scope": 2,
+          "date_from": "2026-09-24",
+          "time_from": 1,
+          "date_to": "2026-09-24",
+          "time_to": 4,
+          "data_status": "provisional"
+        }
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/environment-uba.json",
+        "sha256": "021397d18efa91b03aa8f75a546bf40734b19404be375c2197b92bd480ec0a01",
+        "expected_output_hash": "4cec91ef8a2b946ae103964b1124eab11a2bb09728373d3facea5a742c6be967"
+      }
+    },
+    {
+      "source_id": "entsoe-de-lu",
+      "endpoint": "https://web-api.tp.entsoe.eu/api",
+      "publisher": "ENTSO-E Transparency Platform",
+      "scope": "Bidding zone DE-LU (10Y1001A1001A82H): actual generation per type, actual and day-ahead load, generation-unit unavailability for one pinned hour",
+      "update_cadence": "hourly",
+      "auth": {
+        "kind": "required-secret",
+        "secret_ref": "NOESIS_ENTSOE_SECURITY_TOKEN"
+      },
+      "license": {
+        "id": "entsoe-transparency-terms",
+        "terms_url": "https://transparency.entsoe.eu/content/static_content/Static%20content/terms%20and%20conditions/terms%20and%20conditions.html",
+        "redistribution": "reuse with attribution to the ENTSO-E Transparency Platform"
+      },
+      "environment": {
+        "provider": "entsoe",
+        "namespace": "environment",
+        "live_verification": "blocked",
+        "selection": {
+          "bidding_zone": "10Y1001A1001A82H",
+          "zone_name": "DE-LU",
+          "period_start": "202609240000",
+          "period_end": "202609240100",
+          "documents": [
+            "generation",
+            "load",
+            "load-forecast",
+            "unavailability"
+          ]
+        }
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/environment-entsoe.json",
+        "sha256": "4f2f4c9410e89feabab199ee2305b54de3b33c0158a4d549008beadb7e9f20f1",
+        "expected_output_hash": "ce8f09335adfbfcfc84645b79caa82208a4e51b3fd87657c7ebd7489fbae1440"
+      }
+    },
+    {
+      "source_id": "smard-de",
+      "endpoint": "https://www.smard.de/app/chart_data",
+      "publisher": "Bundesnetzagentur | SMARD.de",
+      "scope": "SMARD region DE quarter-hour files for total load (410, realised) and forecast load (411) for the week pinned by timestamp",
+      "update_cadence": "hourly",
+      "license": {
+        "id": "cc-by-4.0",
+        "terms_url": "https://www.smard.de/home/datennutzung",
+        "redistribution": "CC BY 4.0 with attribution 'Bundesnetzagentur | SMARD.de'"
+      },
+      "environment": {
+        "provider": "smard",
+        "namespace": "environment",
+        "live_verification": "blocked",
+        "selection": {
+          "bidding_zone": "10Y1001A1001A82H",
+          "files": [
+            {
+              "filter": "410",
+              "region": "DE",
+              "resolution": "quarterhour",
+              "timestamp": 1789941600000
+            },
+            {
+              "filter": "411",
+              "region": "DE",
+              "resolution": "quarterhour",
+              "timestamp": 1789941600000
+            }
+          ]
+        }
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/environment-smard.json",
+        "sha256": "02127ec1c69351ca4fdd41fcab272b4785c27d36e153100a02c32d97216025c1",
+        "expected_output_hash": "8b64bd7122a2747b5c8229cb85cb1c0a738df7fa9934d869948193552fcf5ac3"
+      }
+    },
+    {
+      "source_id": "eea-industry-berlin",
+      "endpoint": "https://discodata.eea.europa.eu/sql",
+      "publisher": "European Environment Agency (Industrial Emissions Portal data)",
+      "scope": "Facilities reported for city Berlin (DE) with reporting-year 2024 releases, one pinned Discodata query",
+      "update_cadence": "yearly publication",
+      "license": {
+        "id": "cc-by-4.0",
+        "terms_url": "https://www.eea.europa.eu/en/legal-notice",
+        "redistribution": "EEA standard re-use policy with attribution"
+      },
+      "environment": {
+        "provider": "eea-industry",
+        "namespace": "environment",
+        "live_verification": "blocked",
+        "selection": {
+          "country": "DE",
+          "city": "Berlin",
+          "reporting_year": 2024,
+          "limit": 500
+        }
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/environment-eea-industry.json",
+        "sha256": "98928e9979c940b1df8bb117e007835750e7d4dc57494ad473e2606a7f6f1439",
+        "expected_output_hash": "7be60b836a87415db65dd63a5b50c23a7e31a31b381fee298bacec5c881fe036"
+      }
+    },
+    {
+      "source_id": "eu-ets-berlin",
+      "endpoint": "https://climate.ec.europa.eu/document/download",
+      "publisher": "European Commission (EU ETS Union Registry)",
+      "scope": "Verified emissions and allocations for two selected installations, reporting year 2025, from one pinned export file",
+      "update_cadence": "yearly publication",
+      "license": {
+        "id": "ec-reuse-2011-833",
+        "terms_url": "https://commission.europa.eu/legal-notice_en",
+        "redistribution": "Commission reuse policy with source acknowledgement"
+      },
+      "environment": {
+        "provider": "eu-ets",
+        "namespace": "environment",
+        "live_verification": "blocked",
+        "selection": {
+          "export_url": "https://climate.ec.europa.eu/document/download/verified-emissions-2025-en.csv",
+          "installations": [
+            "DE_900201",
+            "DE_900202"
+          ],
+          "year": 2025,
+          "released_at": "2026-04-01"
+        }
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/environment-eu-ets.json",
+        "sha256": "759997a62f37ba4d0e672378cf5d2f33b02c087448fc130b91e9fc42397b16e1",
+        "expected_output_hash": "ddcd25859e96955c58ef27c95ce28b321e4df4f3e7a9e1c66c14983456779c52"
+      }
+    },
+    {
+      "source_id": "open-meteo-archive-berlin",
+      "endpoint": "https://archive-api.open-meteo.com/v1/archive",
+      "publisher": "Open-Meteo (ERA5 reanalysis)",
+      "scope": "ERA5 hourly temperature and precipitation for the grid cell of Alexanderplatz, one pinned day (kind model, never observation)",
+      "update_cadence": "daily",
+      "license": {
+        "id": "cc-by-4.0",
+        "terms_url": "https://open-meteo.com/en/terms",
+        "redistribution": "CC BY 4.0 with attribution; non-commercial API use"
+      },
+      "environment": {
+        "provider": "open-meteo-archive",
+        "namespace": "environment",
+        "live_verification": "blocked",
+        "selection": {
+          "latitude": 52.5219,
+          "longitude": 13.4132,
+          "start_date": "2026-09-24",
+          "end_date": "2026-09-24",
+          "hourly": [
+            "temperature_2m",
+            "precipitation"
+          ],
+          "model": "era5"
+        }
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/environment-open-meteo-archive.json",
+        "sha256": "f59ac4c2ada8045b89d237aed2223913c98733d93080492e7433b0ecb8be70ca",
+        "expected_output_hash": "4b1dcc64103686401d3da12c21e64780c7706b16230c15546ca3664833ddb526"
+      }
+    },
+    {
+      "source_id": "open-meteo-forecast-berlin",
+      "endpoint": "https://api.open-meteo.com/v1/forecast",
+      "publisher": "Open-Meteo (DWD ICON-D2 forecast)",
+      "scope": "ICON-D2 hourly temperature and precipitation forecast for the grid cell of Alexanderplatz, one day, with model run time from meta.json (kind forecast)",
+      "update_cadence": "every model run",
+      "license": {
+        "id": "cc-by-4.0",
+        "terms_url": "https://open-meteo.com/en/terms",
+        "redistribution": "CC BY 4.0 with attribution; non-commercial API use"
+      },
+      "environment": {
+        "provider": "open-meteo-forecast",
+        "namespace": "environment",
+        "live_verification": "blocked",
+        "selection": {
+          "latitude": 52.5219,
+          "longitude": 13.4132,
+          "hourly": [
+            "temperature_2m",
+            "precipitation"
+          ],
+          "model": "icon_d2",
+          "forecast_days": 1
+        }
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/environment-open-meteo-forecast.json",
+        "sha256": "537dba69cd4c0a5cc6b71299a5c442ed10f25709d2d3113cfdca680bce967647",
+        "expected_output_hash": "8e55c31c39028e1558326be8d21be7c186a1c1970e129e84279cd21837ce6ab1"
+      }
+    },
+    {
+      "source_id": "dwd-berlin-alexanderplatz",
+      "endpoint": "https://opendata.dwd.de/climate_environment/CDC/observations_germany/climate/hourly",
+      "publisher": "Deutscher Wetterdienst",
+      "scope": "DWD station 00399 Berlin-Alexanderplatz hourly air temperature and humidity, 'recent' product (not yet completely quality controlled)",
+      "update_cadence": "daily",
+      "license": {
+        "id": "cc-by-4.0-dwd",
+        "terms_url": "https://www.dwd.de/EN/service/copyright/copyright_node.html",
+        "redistribution": "CC BY 4.0 with attribution 'Deutscher Wetterdienst'"
+      },
+      "environment": {
+        "provider": "dwd",
+        "namespace": "environment",
+        "live_verification": "blocked",
+        "selection": {
+          "parameter": "air_temperature",
+          "station": "00399",
+          "period": "recent"
+        }
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/environment-dwd.json",
+        "sha256": "e16860a98d4baf68bbe3306f78fc85d7f85788f6e45fee234fa66bf99ba185e0",
+        "expected_output_hash": "bb1156e4bd359724f3d9421b39f72c0d21b641b660f15616187f618a2dedec3d"
+      }
+    }
+  ]
+}

@@ -1,0 +1,219 @@
+{
+ "meta": {
+  "name": "openaq-api",
+  "website": "/",
+  "page": 1,
+  "limit": 100,
+  "found": 4
+ },
+ "results": [
+  {
+   "value": 31.4,
+   "flagInfo": {
+    "hasFlags": false
+   },
+   "parameter": {
+    "id": 5,
+    "name": "no2",
+    "units": "µg/m³",
+    "displayName": null
+   },
+   "period": {
+    "label": "1hour",
+    "interval": "01:00:00",
+    "datetimeFrom": {
+     "utc": "2026-09-24T00:00:00Z",
+     "local": "2026-09-24T00:00:00+00:00"
+    },
+    "datetimeTo": {
+     "utc": "2026-09-24T01:00:00Z",
+     "local": "2026-09-24T01:00:00+00:00"
+    }
+   },
+   "coordinates": null,
+   "summary": {
+    "min": 31.4,
+    "q02": 31.4,
+    "q25": 31.4,
+    "median": 31.4,
+    "q75": 31.4,
+    "q98": 31.4,
+    "max": 31.4,
+    "avg": 31.4,
+    "sd": null
+   },
+   "coverage": {
+    "expectedCount": 1,
+    "expectedInterval": "01:00:00",
+    "observedCount": 1,
+    "observedInterval": "01:00:00",
+    "percentComplete": 100.0,
+    "percentCoverage": 100.0,
+    "datetimeFrom": {
+     "utc": "2026-09-24T00:00:00Z",
+     "local": "2026-09-24T00:00:00Z"
+    },
+    "datetimeTo": {
+     "utc": "2026-09-24T01:00:00Z",
+     "local": "2026-09-24T01:00:00Z"
+    }
+   }
+  },
+  {
+   "value": 28.9,
+   "flagInfo": {
+    "hasFlags": false
+   },
+   "parameter": {
+    "id": 5,
+    "name": "no2",
+    "units": "µg/m³",
+    "displayName": null
+   },
+   "period": {
+    "label": "1hour",
+    "interval": "01:00:00",
+    "datetimeFrom": {
+     "utc": "2026-09-24T01:00:00Z",
+     "local": "2026-09-24T01:00:00+00:00"
+    },
+    "datetimeTo": {
+     "utc": "2026-09-24T02:00:00Z",
+     "local": "2026-09-24T02:00:00+00:00"
+    }
+   },
+   "coordinates": null,
+   "summary": {
+    "min": 28.9,
+    "q02": 28.9,
+    "q25": 28.9,
+    "median": 28.9,
+    "q75": 28.9,
+    "q98": 28.9,
+    "max": 28.9,
+    "avg": 28.9,
+    "sd": null
+   },
+   "coverage": {
+    "expectedCount": 1,
+    "expectedInterval": "01:00:00",
+    "observedCount": 1,
+    "observedInterval": "01:00:00",
+    "percentComplete": 100.0,
+    "percentCoverage": 100.0,
+    "datetimeFrom": {
+     "utc": "2026-09-24T01:00:00Z",
+     "local": "2026-09-24T01:00:00Z"
+    },
+    "datetimeTo": {
+     "utc": "2026-09-24T02:00:00Z",
+     "local": "2026-09-24T02:00:00Z"
+    }
+   }
+  },
+  {
+   "value": 44.7,
+   "flagInfo": {
+    "hasFlags": false
+   },
+   "parameter": {
+    "id": 5,
+    "name": "no2",
+    "units": "µg/m³",
+    "displayName": null
+   },
+   "period": {
+    "label": "1hour",
+    "interval": "01:00:00",
+    "datetimeFrom": {
+     "utc": "2026-09-24T02:00:00Z",
+     "local": "2026-09-24T02:00:00+00:00"
+    },
+    "datetimeTo": {
+     "utc": "2026-09-24T03:00:00Z",
+     "local": "2026-09-24T03:00:00+00:00"
+    }
+   },
+   "coordinates": null,
+   "summary": {
+    "min": 44.7,
+    "q02": 44.7,
+    "q25": 44.7,
+    "median": 44.7,
+    "q75": 44.7,
+    "q98": 44.7,
+    "max": 44.7,
+    "avg": 44.7,
+    "sd": null
+   },
+   "coverage": {
+    "expectedCount": 1,
+    "expectedInterval": "01:00:00",
+    "observedCount": 1,
+    "observedInterval": "01:00:00",
+    "percentComplete": 100.0,
+    "percentCoverage": 100.0,
+    "datetimeFrom": {
+     "utc": "2026-09-24T02:00:00Z",
+     "local": "2026-09-24T02:00:00Z"
+    },
+    "datetimeTo": {
+     "utc": "2026-09-24T03:00:00Z",
+     "local": "2026-09-24T03:00:00Z"
+    }
+   }
+  },
+  {
+   "value": 52.1,
+   "flagInfo": {
+    "hasFlags": false
+   },
+   "parameter": {
+    "id": 5,
+    "name": "no2",
+    "units": "µg/m³",
+    "displayName": null
+   },
+   "period": {
+    "label": "1hour",
+    "interval": "01:00:00",
+    "datetimeFrom": {
+     "utc": "2026-09-24T03:00:00Z",
+     "local": "2026-09-24T03:00:00+00:00"
+    },
+    "datetimeTo": {
+     "utc": "2026-09-24T04:00:00Z",
+     "local": "2026-09-24T04:00:00+00:00"
+    }
+   },
+   "coordinates": null,
+   "summary": {
+    "min": 52.1,
+    "q02": 52.1,
+    "q25": 52.1,
+    "median": 52.1,
+    "q75": 52.1,
+    "q98": 52.1,
+    "max": 52.1,
+    "avg": 52.1,
+    "sd": null
+   },
+   "coverage": {
+    "expectedCount": 1,
+    "expectedInterval": "01:00:00",
+    "observedCount": 1,
+    "observedInterval": "01:00:00",
+    "percentComplete": 100.0,
+    "percentCoverage": 100.0,
+    "datetimeFrom": {
+     "utc": "2026-09-24T03:00:00Z",
+     "local": "2026-09-24T03:00:00Z"
+    },
+    "datetimeTo": {
+     "utc": "2026-09-24T04:00:00Z",
+     "local": "2026-09-24T04:00:00Z"
+    }
+   }
+  }
+ ]
+}

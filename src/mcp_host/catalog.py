@@ -313,6 +313,9 @@ def _mutability(name: str) -> str:
     from tools.knowledge_engine_mcp.ownership import OWNERSHIP_WRITES
     if name in OWNERSHIP_WRITES:
         return "write"
+    from tools.knowledge_engine_mcp.environment import ENVIRONMENT_WRITES
+    if name in ENVIRONMENT_WRITES:
+        return "write"
     from tools.knowledge_engine_mcp.investigations import (
         ALERT_WRITES,
         COMPARISON_WRITES,
@@ -849,6 +852,11 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
     from tools.knowledge_engine_mcp.ownership import required_scopes as ownership_scopes
     if server_stem == "knowledge_engine_mcp" and tool_name in OWNERSHIP_TOOLS:
         return ownership_scopes(tool_name, mutability)
+
+    from tools.knowledge_engine_mcp.environment import ENVIRONMENT_TOOLS
+    from tools.knowledge_engine_mcp.environment import required_scopes as environment_scopes
+    if server_stem == "knowledge_engine_mcp" and tool_name in ENVIRONMENT_TOOLS:
+        return environment_scopes(tool_name, mutability)
     if server_stem == "knowledge_engine_mcp" and tool_name in {
         "suggest_jev_claim_presence",
         "suggest_jev_checkworthiness",

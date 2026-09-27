@@ -142,6 +142,12 @@ def _procurement_projector(conn: Any) -> Any:
     return ProcurementProjector(conn)
 
 
+def _environment_projector(conn: Any) -> Any:
+    from src.kb.environment_store import EnvironmentProjector
+
+    return EnvironmentProjector(conn)
+
+
 # Mapping target schemas whose records are also projected into a domain store.
 # A projector receives each committed page before its checkpoint advances and
 # the source outcome afterwards, so replayed pages must project idempotently.
@@ -158,6 +164,7 @@ PROJECTORS: dict[str, Callable[[Any], Any]] = {
     "noesis-clinical-record-v1": _clinical_projector,
     "noesis-ownership-part-v1": _ownership_projector,
     "noesis-procurement-record-v1": _procurement_projector,
+    "noesis-environment-record-v1": _environment_projector,
 }
 
 _DDL = """

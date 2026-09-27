@@ -25,6 +25,7 @@ SUPPORTED_CONNECTORS = frozenset(
         "dataset",
         "ddb",
         "declarative-rest",
+        "environment",
         "epo-ops",
         "eprel",
         "europeana",
@@ -212,6 +213,7 @@ NATIVE_CONNECTOR_MODULES = {
     "companies-house": "src.ingestion.ownership_providers",
     "sec-edgar-ownership": "src.ingestion.ownership_providers",
     "bods": "src.ingestion.ownership_providers",
+    "environment": "src.ingestion.environment_providers",
 }
 NATIVE_CONNECTOR_MODULES.update({
     connector: "src.ingestion.clinical_providers"

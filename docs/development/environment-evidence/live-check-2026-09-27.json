@@ -1,0 +1,389 @@
+{
+  "contract": "noesis-environment-live-check-v1",
+  "evidence_kind": "live",
+  "started_at": "2026-09-27T00:40:41.796166+00:00",
+  "environment": "Claude Code cloud session; the organization egress policy rejects connections to the provider hosts (verified by the coordinator); DurableHTTP does not use environment proxies; NOESIS_OPENAQ_API_KEY and NOESIS_ENTSOE_SECURITY_TOKEN are not configured",
+  "providers": {
+    "openaq": {
+      "access_contract": "REST API v3 (JSON): /v3/locations/{id}, /v3/sensors/{id}/hours",
+      "credential": "missing",
+      "ok": false,
+      "failure": {
+        "failure_code": "credential_missing",
+        "transport": {
+          "failure_code": "provider_failed",
+          "failure_type": "ProviderError"
+        }
+      },
+      "elapsed_seconds": 0.31,
+      "requests": [
+        {
+          "url": "https://api.openaq.org/v3/locations/2993",
+          "state": "failed",
+          "http_status": null,
+          "failure_code": "provider_failed",
+          "failure_type": "ConnectError",
+          "observed_at_ms": 1790469641817,
+          "response_headers": null,
+          "execution": "network",
+          "bytes": null
+        }
+      ],
+      "records": [],
+      "coverage": null
+    },
+    "uba": {
+      "access_contract": "Luftdaten API v3 (JSON): stations/json, components/json, measures/json",
+      "credential": null,
+      "ok": false,
+      "failure": {
+        "provider": "uba",
+        "failure_code": "provider_failed",
+        "recorded_at_ms": 1790469642457,
+        "effect": "stored records and vintages unchanged; dependent views read as stale"
+      },
+      "elapsed_seconds": 0.34,
+      "requests": [
+        {
+          "url": "https://www.umweltbundesamt.de/api/air_data/v3/stations/json",
+          "state": "failed",
+          "http_status": null,
+          "failure_code": "provider_failed",
+          "failure_type": "ConnectError",
+          "observed_at_ms": 1790469642243,
+          "response_headers": null,
+          "execution": "network",
+          "bytes": null
+        }
+      ],
+      "records": [],
+      "coverage": null
+    },
+    "entsoe": {
+      "access_contract": "Transparency Platform RESTful API (XML): A75 generation per type, A65 load (A16 actual, A01 day-ahead), A80 generation-unit unavailability",
+      "credential": "missing",
+      "ok": false,
+      "failure": {
+        "failure_code": "credential_missing",
+        "transport": {
+          "failure_code": "provider_failed",
+          "failure_type": "ProviderError"
+        }
+      },
+      "elapsed_seconds": 0.13,
+      "requests": [
+        {
+          "url": "https://web-api.tp.entsoe.eu/api",
+          "state": "failed",
+          "http_status": null,
+          "failure_code": "provider_failed",
+          "failure_type": "ConnectError",
+          "observed_at_ms": 1790469642488,
+          "response_headers": null,
+          "execution": "network",
+          "bytes": null
+        }
+      ],
+      "records": [],
+      "coverage": null
+    },
+    "smard": {
+      "access_contract": "SMARD chart_data JSON files: /app/chart_data/{filter}/{region}/{filter}_{region}_{resolution}_{timestamp}.json",
+      "credential": null,
+      "ok": false,
+      "failure": {
+        "provider": "smard",
+        "failure_code": "provider_failed",
+        "recorded_at_ms": 1790469643098,
+        "effect": "stored records and vintages unchanged; dependent views read as stale"
+      },
+      "elapsed_seconds": 0.49,
+      "requests": [
+        {
+          "url": "https://www.smard.de/app/chart_data/410/DE/410_DE_quarterhour_1789941600000.json",
+          "state": "failed",
+          "http_status": null,
+          "failure_code": "provider_failed",
+          "failure_type": "ConnectError",
+          "observed_at_ms": 1790469642835,
+          "response_headers": null,
+          "execution": "network",
+          "bytes": null
+        }
+      ],
+      "records": [],
+      "coverage": null
+    },
+    "eea-industry": {
+      "access_contract": "EEA Discodata SQL endpoint (JSON) over the 'Industrial Reporting under IED and E-PRTR' publication; the query is pinned in the adapter",
+      "credential": null,
+      "ok": false,
+      "failure": {
+        "provider": "eea-industry",
+        "failure_code": "provider_failed",
+        "recorded_at_ms": 1790469643502,
+        "effect": "stored records and vintages unchanged; dependent views read as stale"
+      },
+      "elapsed_seconds": 0.4,
+      "requests": [
+        {
+          "url": "https://discodata.eea.europa.eu/sql",
+          "state": "failed",
+          "http_status": null,
+          "failure_code": "provider_failed",
+          "failure_type": "ConnectError",
+          "observed_at_ms": 1790469643233,
+          "response_headers": null,
+          "execution": "network",
+          "bytes": null
+        }
+      ],
+      "records": [],
+      "coverage": null
+    },
+    "eu-ets": {
+      "access_contract": "Union Registry verified-emissions/compliance export, read from an explicitly pinned download URL as delimited text (CSV/semicolon)",
+      "credential": null,
+      "ok": false,
+      "failure": {
+        "provider": "eu-ets",
+        "failure_code": "provider_failed",
+        "recorded_at_ms": 1790469643751,
+        "effect": "stored records and vintages unchanged; dependent views read as stale"
+      },
+      "elapsed_seconds": 0.25,
+      "requests": [
+        {
+          "url": "https://climate.ec.europa.eu/document/download/verified-emissions-2025-en.csv",
+          "state": "failed",
+          "http_status": null,
+          "failure_code": "provider_failed",
+          "failure_type": "ConnectError",
+          "observed_at_ms": 1790469643569,
+          "response_headers": null,
+          "execution": "network",
+          "bytes": null
+        }
+      ],
+      "records": [],
+      "coverage": null
+    },
+    "open-meteo-archive": {
+      "access_contract": "Historical Weather API (JSON): archive-api.open-meteo.com/v1/archive",
+      "credential": null,
+      "ok": false,
+      "failure": {
+        "provider": "open-meteo-archive",
+        "failure_code": "provider_failed",
+        "recorded_at_ms": 1790469643876,
+        "effect": "stored records and vintages unchanged; dependent views read as stale"
+      },
+      "elapsed_seconds": 0.11,
+      "requests": [
+        {
+          "url": "https://archive-api.open-meteo.com/v1/archive",
+          "state": "failed",
+          "http_status": null,
+          "failure_code": "provider_failed",
+          "failure_type": "ConnectError",
+          "observed_at_ms": 1790469643788,
+          "response_headers": null,
+          "execution": "network",
+          "bytes": null
+        }
+      ],
+      "records": [],
+      "coverage": null
+    },
+    "open-meteo-forecast": {
+      "access_contract": "Forecast API (JSON): api.open-meteo.com/v1/forecast with a pinned model, plus the model's meta.json for the run time",
+      "credential": null,
+      "ok": false,
+      "failure": {
+        "provider": "open-meteo-forecast",
+        "failure_code": "provider_failed",
+        "recorded_at_ms": 1790469643942,
+        "effect": "stored records and vintages unchanged; dependent views read as stale"
+      },
+      "elapsed_seconds": 0.06,
+      "requests": [
+        {
+          "url": "https://api.open-meteo.com/data/dwd_icon_d2/static/meta.json",
+          "state": "failed",
+          "http_status": null,
+          "failure_code": "provider_failed",
+          "failure_type": "ConnectError",
+          "observed_at_ms": 1790469643902,
+          "response_headers": null,
+          "execution": "network",
+          "bytes": null
+        }
+      ],
+      "records": [],
+      "coverage": null
+    },
+    "dwd": {
+      "access_contract": "CDC open data files: climate/hourly/<parameter>/<recent|historical>/ station description and product ZIP",
+      "credential": null,
+      "ok": false,
+      "failure": {
+        "provider": "dwd",
+        "failure_code": "provider_failed",
+        "recorded_at_ms": 1790469644118,
+        "effect": "stored records and vintages unchanged; dependent views read as stale"
+      },
+      "elapsed_seconds": 0.18,
+      "requests": [
+        {
+          "url": "https://opendata.dwd.de/climate_environment/CDC/observations_germany/climate/hourly/air_temperature/recent/TU_Stundenwerte_Beschreibung_Stationen.txt",
+          "state": "failed",
+          "http_status": null,
+          "failure_code": "provider_failed",
+          "failure_type": "ConnectError",
+          "observed_at_ms": 1790469643954,
+          "response_headers": null,
+          "execution": "network",
+          "bytes": null
+        }
+      ],
+      "records": [],
+      "coverage": null
+    },
+    "umweltatlas": {
+      "access_contract": "WFS 2.0.0 GetFeature (GeoJSON, EPSG:25833) via src/ingestion/wfs_api.py as a geospatial-berlin source-pack upgrade",
+      "credential": null,
+      "ok": false,
+      "failure": {
+        "source_id": "umweltatlas-umweltzone",
+        "failure_code": "provider_failed",
+        "failure_type": "ProviderError"
+      },
+      "failures": [
+        {
+          "source_id": "umweltatlas-umweltzone",
+          "failure_code": "provider_failed",
+          "failure_type": "ProviderError"
+        },
+        {
+          "source_id": "umweltatlas-laerm-lden",
+          "failure_code": "provider_failed",
+          "failure_type": "ProviderError"
+        },
+        {
+          "source_id": "umweltatlas-klimafunktion",
+          "failure_code": "provider_failed",
+          "failure_type": "ProviderError"
+        }
+      ],
+      "elapsed_seconds": 0.32,
+      "requests": [
+        {
+          "url": "https://gdi.berlin.de/services/wfs/ua_klimaanalyse_2022",
+          "state": "failed",
+          "http_status": null,
+          "failure_code": "provider_failed",
+          "failure_type": "ConnectError",
+          "observed_at_ms": 1790469644408,
+          "response_headers": null,
+          "execution": "network",
+          "bytes": null
+        },
+        {
+          "url": "https://gdi.berlin.de/services/wfs/ua_stratlaerm_2022",
+          "state": "failed",
+          "http_status": null,
+          "failure_code": "provider_failed",
+          "failure_type": "ConnectError",
+          "observed_at_ms": 1790469644344,
+          "response_headers": null,
+          "execution": "network",
+          "bytes": null
+        },
+        {
+          "url": "https://gdi.berlin.de/services/wfs/ua_umweltzone",
+          "state": "failed",
+          "http_status": null,
+          "failure_code": "provider_failed",
+          "failure_type": "ConnectError",
+          "observed_at_ms": 1790469644166,
+          "response_headers": null,
+          "execution": "network",
+          "bytes": null
+        }
+      ],
+      "records": [],
+      "coverage": null
+    },
+    "copernicus-cams": {
+      "access_contract": "not implemented",
+      "ok": false,
+      "failure": {
+        "failure_code": "not_implemented",
+        "reason": "CAMS requires an ADS account, a personal key and dataset licence acceptance that have not been verified for this deployment; CAMS products are model analyses/forecasts and would enter as kind 'model'/'forecast' only. No scraping or keyless access is attempted."
+      },
+      "requests": [],
+      "records": []
+    }
+  },
+  "live_verification_before": {
+    "openaq": "unverified-live",
+    "uba": "unverified-live",
+    "entsoe": "unverified-live",
+    "smard": "unverified-live",
+    "eea-industry": "unverified-live",
+    "eu-ets": "unverified-live",
+    "umweltatlas": "unverified-live",
+    "open-meteo-archive": "unverified-live",
+    "open-meteo-forecast": "unverified-live",
+    "dwd": "unverified-live",
+    "copernicus-cams": "not implemented"
+  },
+  "note": "Live evidence only; offline fixture results are reported separately by the unit and acceptance tests.",
+  "finished_at": "2026-09-27T00:40:44.451998+00:00",
+  "summary": {
+    "openaq": "credential_missing",
+    "uba": "provider_failed",
+    "entsoe": "credential_missing",
+    "smard": "provider_failed",
+    "eea-industry": "provider_failed",
+    "eu-ets": "provider_failed",
+    "open-meteo-archive": "provider_failed",
+    "open-meteo-forecast": "provider_failed",
+    "dwd": "provider_failed",
+    "umweltatlas": "provider_failed",
+    "copernicus-cams": "not_implemented"
+  },
+  "transport_failures": {
+    "openaq": [
+      "ConnectError"
+    ],
+    "uba": [
+      "ConnectError"
+    ],
+    "entsoe": [
+      "ConnectError"
+    ],
+    "smard": [
+      "ConnectError"
+    ],
+    "eea-industry": [
+      "ConnectError"
+    ],
+    "eu-ets": [
+      "ConnectError"
+    ],
+    "open-meteo-archive": [
+      "ConnectError"
+    ],
+    "open-meteo-forecast": [
+      "ConnectError"
+    ],
+    "dwd": [
+      "ConnectError"
+    ],
+    "umweltatlas": [
+      "ConnectError"
+    ],
+    "copernicus-cams": []
+  }
+}

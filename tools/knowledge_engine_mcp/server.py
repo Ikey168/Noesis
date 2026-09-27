@@ -9236,6 +9236,10 @@ from tools.knowledge_engine_mcp.procurement import register as register_procurem
 
 register_procurement_tools(mcp, _intake_safe, _intake_context)
 
+from tools.knowledge_engine_mcp.environment import register as register_environment_tools
+
+register_environment_tools(mcp, _intake_safe, _intake_context)
+
 
 if __name__ == "__main__":
     from src.mcp_host.transport import run_server
