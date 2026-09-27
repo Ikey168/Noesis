@@ -49,8 +49,22 @@ subsidiaries, officers, reporting exceptions) each cite the ownership record
 revision, provider, jurisdiction and validity; conflicting assertions are
 listed side by side. The section is never assembled for a person entity.
 
-Per-list sanctions designations (OX03) wait for the Legal sanctions feature
-(#1907); no `designations` feature is declared yet.
+## Sanctions designations in the entity dossier (OX03)
+
+`entity_dossier(entity, designations_namespace=...)` adds a `designations`
+section (optional feature `designations`, off by default, requiring the Legal
+bundle's `legal.sanctions` capability). It is inert unless the Legal
+`sanctions` feature is selected in the active composition plan. The entity
+reaches list designations only through accepted, unreverted identity
+decisions (for example a reviewed `propose_sanctions_identity_link`); names
+are never matched. Lines are grouped by list (EU, UN, OFAC, UK) and report the
+status as of the date (`listed`, `not_listed_in_snapshot` with its delisting,
+or `unknown`), the listing revision and snapshot cited, programmes and the
+legal-basis work. A cross-list link is followed only when it is itself an
+accepted decision. For a person, the section appears only under the person
+guardrail and shows only the list record's own statement. The section is a
+report of list statements, not a screening verdict or compliance
+determination (see the [Legal sanctions guide](legal-sanctions.md)).
 
 ## Recycled video frames (OX04)
 

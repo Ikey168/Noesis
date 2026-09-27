@@ -5683,11 +5683,22 @@
     },
     {
       "cost_class": "low",
-      "description": "A cited entity brief from already-ingested public documents only. A\nperson entity with no ingested document is refused (person guardrail).\n\nOptional ``ownership`` feature (off unless ``ownership_namespace`` is\ngiven): for an organization, a cited section from the Corporate Ownership\nbundle (identity, direct/ultimate parents, subsidiaries, officers,\nconflicts side by side). Resolved only via accepted identity decisions,\nnever by name; inert when the bundle is disabled; never for a person.\n\nArgs:\n    entity: the entity name or id (see kg_mcp.list_entities).\n    entity_type: optional type hint (e.g. \"person\") to enforce the guardrail.\n    ownership_namespace: namespace whose ownership records to compose.\n    as_of: as-of date (YYYY-MM-DD) for ownership relationships; today by default.",
+      "description": "A cited entity brief from already-ingested public documents only. A\nperson entity with no ingested document is refused (person guardrail).\n\nOptional ``ownership`` feature (off unless ``ownership_namespace`` is\ngiven): for an organization, a cited section from the Corporate Ownership\nbundle (identity, direct/ultimate parents, subsidiaries, officers,\nconflicts side by side). Resolved only via accepted identity decisions,\nnever by name; inert when the bundle is disabled; never for a person.\n\nOptional ``designations`` feature (off unless ``designations_namespace``\nis given): what each sanctions list (EU, UN, OFAC, UK) stated about the\nentity as of the date, per list, citing snapshots, listing revisions and\nlegal-basis works. Resolved only via accepted identity decisions; inert\nunless the Legal sanctions feature is enabled. List statements only, not a\nscreening verdict or compliance determination; for a person only the list\nrecord's own statement, and only under the person guardrail.\n\nArgs:\n    entity: the entity name or id (see kg_mcp.list_entities).\n    entity_type: optional type hint (e.g. \"person\") to enforce the guardrail.\n    ownership_namespace: namespace whose ownership records to compose.\n    as_of: as-of date (YYYY-MM-DD) for ownership and designations; today by default.\n    designations_namespace: namespace whose Legal sanctions records to compose.",
       "id": "noesis-osint.entity_dossier",
       "input_schema": {
         "properties": {
           "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "designations_namespace": {
             "anyOf": [
               {
                 "type": "string"

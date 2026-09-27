@@ -66,6 +66,7 @@
     "investigation-audit",
     "admiralty-reliability-and-credibility-grades",
     "organization-ownership-dossier",
+    "per-list-designation-statements",
     "video-keyframe-reuse-detection",
     "registry-and-certificate-history",
     "organization-keyed-infrastructure-pivot",
@@ -150,6 +151,15 @@
         "ownership_namespace": "<namespace>"
       },
       "semantics": "a cited ownership section from Corporate Ownership records (identity, parents, subsidiaries, officers) resolved only through accepted identity decisions; conflicts side by side; not a beneficial-ownership, sanctions or compliance determination"
+    },
+    {
+      "intent": "What did each sanctions list state about this organization",
+      "tool": "entity_dossier",
+      "arguments": {
+        "entity": "<organization name or id>",
+        "designations_namespace": "<namespace>"
+      },
+      "semantics": "per-list designation statements (EU, UN, OFAC, UK) as of a date, cited to snapshots, listing revisions and legal-basis works, resolved only through accepted identity decisions; lists stay separate; not a screening verdict or compliance determination"
     },
     {
       "intent": "Which other sources share this domain's registrant or certificates",

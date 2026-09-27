@@ -27,6 +27,16 @@ similarity. Ambiguous resolution returns candidates; conflicting assertions are
 shown side by side. Every line cites the ownership record revision it came
 from. It is never assembled for a person entity.
 
+OX03 (#2043): an optional ``designations`` section reports what each sanctions
+list (EU, UN, OFAC, UK) stated about the entity as of a date, through the Legal
+bundle's ``sanctions`` feature (``src.kb.sanctions*``). It is inert unless that
+feature is selected. Designations are reached only through accepted,
+unreverted identity decisions (never by name); lists stay separate, and a
+cross-list link is followed only when it is itself an accepted decision. Every
+line cites its snapshot, listing revision and legal-basis work. For a person
+(who must already pass the guardrail above) only the list record's own
+statement is shown: no cross-list expansion and no identity context.
+
 Stdlib-only; the connection is injected read-only.
 """
 
@@ -393,12 +403,186 @@ def _ownership_section(
     }
 
 
+DESIGNATIONS_NOTICE = (
+    "Designation lines report what each sanctions list stated, per list and as of the date shown, cited to the "
+    "list snapshot and listing revision. They are not a screening verdict, a sanctions or AML compliance "
+    "determination or legal advice, and a similar name is never treated as the same entity."
+)
+
+
+def _designation_subjects(conn, namespace: str) -> Dict[str, str]:
+    """canonical entity id -> designation id for every designation in the namespace."""
+    rows = conn.execute(
+        "SELECT canonical_entity_id, designation_id FROM sanctions_designations WHERE namespace = ?",
+        [namespace],
+    ).fetchall()
+    return {r[0]: r[1] for r in rows}
+
+
+def _resolve_designations(
+    conn, namespace: str, entity: str, *, follow_cross_list: bool
+) -> List[Dict[str, Any]]:
+    """Designations reached through accepted identity decisions only (no names)."""
+    subjects = _designation_subjects(conn, namespace)
+    by_designation = {v: k for k, v in subjects.items()}
+    start = _entity_ids(conn, entity)
+    hits: Dict[str, Dict[str, Any]] = {}
+    for value in start:
+        if value in subjects:
+            hits[subjects[value]] = {"basis": "designation-entity-id", "via": value}
+    frontier = list(start)
+    seen = set(start)
+    while frontier:
+        decisions = _accepted_matches(conn, namespace, frontier)
+        frontier = []
+        for decision in decisions:
+            for subject in decision["subject_ids"]:
+                if subject in seen or subject not in subjects:
+                    continue
+                seen.add(subject)
+                hits.setdefault(
+                    subjects[subject],
+                    {
+                        "basis": "accepted-identity-decision",
+                        "via": decision["decision_id"],
+                    },
+                )
+                if follow_cross_list:
+                    frontier.append(subject)
+    return [
+        {"designation_id": did, "entity_id": by_designation[did], **found}
+        for did, found in sorted(hits.items())
+    ]
+
+
+def _designation_line(
+    statement: Mapping[str, Any], resolved: Mapping[str, Any], *, person: bool
+) -> Dict[str, Any]:
+    designation = statement["designation"]
+    line: Dict[str, Any] = {
+        "list_id": designation["list_id"],
+        "list_entry_id": designation["list_entry_id"],
+        "party_kind": designation["party_kind"],
+        "status": statement["status"],
+        "as_of": statement["as_of"],
+        "resolved_by": {"basis": resolved["basis"], "via": resolved["via"]},
+    }
+    if statement.get("reason"):
+        line["reason"] = statement["reason"]
+    coverage = statement.get("coverage") or {}
+    stated = statement.get("statement") or {}
+    revision = stated.get("listing_revision") or {}
+    line["citation"] = {
+        "snapshot": coverage.get("snapshot") or statement.get("first_snapshot"),
+        "revision_id": revision.get("revision_id"),
+        "cited": bool(
+            coverage.get("snapshot") or statement.get("statements_side_by_side")
+        ),
+    }
+    if revision:
+        line["listing_revision"] = {
+            k: revision.get(k)
+            for k in (
+                "revision_id",
+                "change",
+                "source_revision",
+                "compared_snapshots",
+                "source_dates",
+            )
+        }
+        line["names_as_stated"] = sorted(
+            {
+                a["value"]
+                for a in stated.get("aliases") or []
+                if a["alias_kind"] in {"name", "transliteration"}
+            }
+        )
+        line["programmes"] = [p["code"] for p in stated.get("programmes") or []]
+        line["legal_basis"] = [
+            {
+                "citation": b.get("source_citation"),
+                "status": b.get("status"),
+                "work_id": b.get("work_id"),
+                "expression_id": b.get("expression_id"),
+                "celex": b.get("celex"),
+            }
+            for b in stated.get("legal_basis") or []
+        ]
+    if statement.get("delisting"):
+        line["delisting"] = statement["delisting"]
+    if statement.get("statements_side_by_side"):
+        line["statements_side_by_side"] = [
+            {"snapshot": side["snapshot"], "status": side["status"]}
+            for side in statement["statements_side_by_side"]
+        ]
+    if person:
+        line["note"] = "the list record's own statement only"
+    return line
+
+
+def _designations_section(
+    conn, entity: str, is_person: bool, request: Mapping[str, Any]
+) -> Dict[str, Any]:
+    namespace = str(request.get("namespace") or "")
+    as_of = str(request.get("as_of") or date.today().isoformat())
+    legal_namespace = request.get("legal_namespace") or namespace
+    base = {
+        "feature": "designations",
+        "namespace": namespace,
+        "as_of": as_of,
+        "notice": DESIGNATIONS_NOTICE,
+    }
+    if not common.table_exists(conn, "sanctions_designations"):
+        return {
+            **base,
+            "status": "inert",
+            "reason": "no Legal sanctions records in this warehouse",
+        }
+    from src.kb.sanctions import READ_SCOPE, SanctionsError, authorize, feature_enabled
+
+    if not feature_enabled(conn, namespace):
+        return {
+            **base,
+            "status": "inert",
+            "reason": "the Legal sanctions feature is not enabled",
+        }
+    try:
+        authorize(namespace, set(request.get("scopes") or ()), READ_SCOPE)
+    except SanctionsError as exc:
+        return {**base, "status": exc.code, "reason": str(exc)}
+    from src.kb.sanctions_queries import SanctionsQueries
+
+    resolved = _resolve_designations(
+        conn, namespace, entity, follow_cross_list=not is_person
+    )
+    if not resolved:
+        return {
+            **base,
+            "status": "not_resolved",
+            "note": "no accepted identity decision links this entity to a list designation; names are never matched",
+        }
+    queries = SanctionsQueries(conn)
+    lists: Dict[str, List[Dict[str, Any]]] = {}
+    for found in resolved:
+        statement = queries.statement_as_of(
+            namespace, found["designation_id"], as_of, legal_namespace=legal_namespace
+        )
+        line = _designation_line(statement, found, person=is_person)
+        lists.setdefault(line["list_id"], []).append(line)
+    return {
+        **base,
+        "status": "assembled",
+        "lists": {k: lists[k] for k in sorted(lists)},
+    }
+
+
 def entity_dossier(
     conn,
     entity: str,
     entity_type: Optional[str] = None,
     *,
     ownership: Optional[Mapping[str, Any]] = None,
+    designations: Optional[Mapping[str, Any]] = None,
 ) -> Dict[str, Any]:
     """A cited brief for one entity from ingested public documents.
 
@@ -407,6 +591,8 @@ def entity_dossier(
 
     ``ownership`` (optional feature, off by default) requests the Corporate
     Ownership section: ``{"namespace", "principal_id", "scopes", "as_of"?}``.
+    ``designations`` (optional feature, off by default) requests the per-list
+    sanctions statements: ``{"namespace", "principal_id", "scopes", "as_of"?}``.
     """
     if not common.table_exists(conn, "document_actors"):
         return {"error": "no entity-mention layer available", "entity": entity}
@@ -450,4 +636,10 @@ def entity_dossier(
         # Registry-sourced, cited to ownership record revisions; kept apart from
         # the document-sourced lines above.
         out["ownership"] = _ownership_section(conn, entity, is_person, ownership)
+    if designations is not None:
+        # List-sourced, cited to snapshots and listing revisions; kept apart from
+        # the document-sourced lines above.
+        out["designations"] = _designations_section(
+            conn, entity, is_person, designations
+        )
     return out

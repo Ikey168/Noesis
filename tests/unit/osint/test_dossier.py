@@ -209,3 +209,121 @@ def test_ownership_conflicts_are_side_by_side(owned):
     [conflict] = section["conflicts"]
     assert len(conflict["holders"]) == 2
     assert "not resolved" in conflict["resolution"]
+
+
+# --------------------------------------------------------------- OX03 designations (#2043)
+
+from src.kb.sanctions_identity import SanctionsIdentity  # noqa: E402
+from tests.unit import sanctions_harness as sh  # noqa: E402
+
+DES = {"namespace": sh.NS, "principal_id": "analyst", "scopes": sorted(sh.SCOPES), "as_of": "2026-03-01"}
+
+
+@pytest.fixture()
+def designated(seed, monkeypatch):
+    from src.kb import sanctions
+
+    seed.articles([("n1", "Freight firm expands", "http://a/9", "Alpha Wire", "2026-02-01"),
+                   ("n2", "Tanker seen offshore", "http://b/9", "Beta Journal", "2026-02-02")])
+    seed.actors([("n1", "Examplar Freight LLC", "org:examplar", "organization"),
+                 ("n2", "Fictional Star", "org:star", "organization"),
+                 ("n1", "Ivan Fictional-Example", "person:ivan", "director")])
+    sh.load_legal(seed.conn, "cellar-sanctions-acts-eng")
+    for list_id, files in sh.FILES.items():
+        for name in files:
+            sh.apply(seed.conn, list_id, name)
+    monkeypatch.setattr(sanctions, "feature_enabled", lambda conn, namespace=None: True)
+    return seed
+
+
+def _designation(conn, list_id, entry_id):
+    return conn.execute("SELECT designation_id FROM sanctions_designations WHERE list_id=? AND list_entry_id=?",
+                        [list_id, entry_id]).fetchone()[0]
+
+
+def _accept_link(conn, entity_id, list_id, entry_id, kind, value):
+    identity = SanctionsIdentity(conn)
+    offered = identity.propose_link(sh.NS, _designation(conn, list_id, entry_id), target_key=f"osint:{entity_id}",
+                                    target_entity=entity_id,
+                                    evidence={"kind": kind, "value": value, "target_source": "reviewed document"},
+                                    principal_id="analyst", scopes=sh.SCOPES)
+    identity.service.review(sh.NS, offered["candidate_id"], "accept", "reviewed identifier",
+                            principal_id="reviewer", scopes=sh.REVIEW_SCOPES)
+    return offered["candidate_id"]
+
+
+def _accept_cross_list(conn, left, right):
+    identity = SanctionsIdentity(conn)
+    candidates = identity.propose(sh.NS, principal_id="analyst", scopes=sh.SCOPES)["candidates"]
+    chosen = next(c for c in candidates if c["records"] == [left, right])
+    identity.service.review(sh.NS, chosen["candidate_id"], "accept", "same identifier on both lists",
+                            principal_id="reviewer", scopes=sh.REVIEW_SCOPES)
+
+
+def test_designations_feature_off_adds_no_section(designated):
+    _accept_link(designated.conn, "org:examplar", "eu", "EU.9001.01", "registration_number", "1027700000001")
+    out = entity_dossier(designated.conn, "Examplar Freight LLC")
+    assert "designations" not in out
+
+
+def test_designations_are_inert_without_the_legal_sanctions_feature(designated, monkeypatch):
+    from src.kb import sanctions
+
+    monkeypatch.setattr(sanctions, "feature_enabled", lambda conn, namespace=None: False)
+    _accept_link(designated.conn, "org:examplar", "eu", "EU.9001.01", "registration_number", "1027700000001")
+    section = entity_dossier(designated.conn, "Examplar Freight LLC", designations=DES)["designations"]
+    assert section["status"] == "inert" and "lists" not in section
+
+
+def test_designations_never_resolve_by_name(designated):
+    section = entity_dossier(designated.conn, "Examplar Freight LLC", designations=DES)["designations"]
+    assert section["status"] == "not_resolved" and "names are never matched" in section["note"]
+
+
+def test_fixture_listing_gives_a_cited_section_with_per_list_separation(designated):
+    conn = designated.conn
+    _accept_link(conn, "org:examplar", "eu", "EU.9001.01", "registration_number", "1027700000001")
+    _accept_cross_list(conn, "sanctions:eu:EU.9001.01", "sanctions:ofac:99002")
+    section = entity_dossier(conn, "Examplar Freight LLC", designations=DES)["designations"]
+    assert section["status"] == "assembled"
+    assert sorted(section["lists"]) == ["eu", "ofac"]  # UK states the same number but is only a candidate
+    eu = section["lists"]["eu"][0]
+    assert eu["status"] == "listed" and eu["citation"]["cited"] and eu["citation"]["revision_id"]
+    assert eu["citation"]["snapshot"]["publication_date"] == "2026-03-01"
+    assert eu["legal_basis"][0]["status"] == "resolved" and eu["legal_basis"][0]["work_id"]
+    assert eu["programmes"] == ["UKR"] and eu["resolved_by"]["basis"] == "accepted-identity-decision"
+    assert section["lists"]["ofac"][0]["list_entry_id"] == "99002"
+    assert "not a screening verdict" in section["notice"]
+    assert sh.forbidden_keys(section) == []
+
+
+def test_a_delisted_entry_is_shown_with_its_delisting_revision(designated):
+    conn = designated.conn
+    _accept_link(conn, "org:star", "eu", "EU.9002.02", "imo", "9999991")
+    section = entity_dossier(conn, "Fictional Star", designations={**DES, "as_of": "2026-07-01"})["designations"]
+    line = section["lists"]["eu"][0]
+    assert line["status"] == "not_listed_in_snapshot" and line["delisting"]["change"] == "delisted"
+    assert [s["publication_date"] for s in line["delisting"]["compared_snapshots"]] == ["2026-03-01", "2026-06-01"]
+
+
+def test_a_person_gets_only_the_list_records_own_statement_under_the_guardrail(designated):
+    conn = designated.conn
+    _accept_link(conn, "person:ivan", "eu", "EU.9003.03", "passport", "X1234567")
+    _accept_cross_list(conn, "sanctions:eu:EU.9003.03", "sanctions:un:QDi.902")
+    out = entity_dossier(conn, "Ivan Fictional-Example", designations=DES)
+    assert out["is_person"] is True and out["found"] is True
+    section = out["designations"]
+    assert sorted(section["lists"]) == ["eu"]  # no cross-list expansion for a person
+    line = section["lists"]["eu"][0]
+    assert line["note"] == "the list record's own statement only"
+    stated = {a["value"] for a in _stated_aliases(conn, line["listing_revision"]["revision_id"])}
+    assert set(line["names_as_stated"]) <= stated  # nothing beyond what the list itself states
+    assert "identity" not in line and "differences_between_lists" not in section
+    refused = entity_dossier(conn, "person:nobody", designations=DES)
+    assert refused["code"] == "person_requires_documents" and "designations" not in refused
+
+
+def _stated_aliases(conn, revision_id):
+    from src.kb.sanctions import SanctionsStore
+
+    return SanctionsStore(conn).aliases(sh.NS, revision_id)

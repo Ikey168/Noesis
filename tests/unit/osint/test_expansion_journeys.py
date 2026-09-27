@@ -1,8 +1,9 @@
 """Offline acceptance journeys for the expanded OSINT pack (OX12, #2052; tracker #2040).
 
 One reproducible journey per capability, against hand-written fixtures only.
-The Legal sanctions feature (#1907) has not landed, so the designations
-journey asserts that the feature is absent and the dossier stays inert.
+The designations journey (OX03, #2043) enables the Legal bundle's
+``sanctions`` feature through the composition coordinator and reads per-list
+statements for an organization linked by an accepted identity decision.
 """
 
 from __future__ import annotations
@@ -88,15 +89,101 @@ def test_journey_organization_to_cited_ownership_dossier():
         for g in section["direct_parents"]
         for a in g["assertions"]
     )
-    # OX03 is deferred until the Legal sanctions feature (#1907) lands: no
-    # designations section is assembled and the composition declares no such feature.
+    # The designations section (OX03) is a separate, opt-in feature: not assembled unless requested.
     assert "designations" not in dossier
     composition = json.loads((ROOT / "packs/osint/composition.json").read_text())
-    assert "designations" not in {f["id"] for f in composition["optional_features"]}
-    assert {f["id"]: f["default"] for f in composition["optional_features"]}[
-        "ownership"
-    ] is False
+    defaults = {f["id"]: f["default"] for f in composition["optional_features"]}
+    assert defaults["ownership"] is False and defaults["designations"] is False
     env.conn.close()
+
+
+@pytest.fixture()
+def isolated_registry():
+    from src.domains import registry as domain_registry
+
+    saved = (
+        dict(domain_registry._REGISTRY),
+        set(domain_registry._ENABLED),
+        domain_registry._AUTHORITY,
+    )
+    yield
+    domain_registry._REGISTRY.clear()
+    domain_registry._REGISTRY.update(saved[0])
+    domain_registry._ENABLED.clear()
+    domain_registry._ENABLED.update(saved[1])
+    domain_registry.set_authority(saved[2])
+
+
+def test_journey_organization_to_cited_designation_statements(isolated_registry):
+    from src.kb.sanctions import feature_enabled
+    from src.kb.sanctions_identity import SanctionsIdentity
+    from tests.unit import sanctions_harness as sh
+    from tests.unit.composition.test_migration import _migrated
+
+    conn, coordinator, bundles, _ = _migrated()
+    designations = {
+        "namespace": sh.NS,
+        "principal_id": "analyst",
+        "scopes": sorted(sh.SCOPES),
+        "as_of": "2026-03-01",
+    }
+    conn.execute(
+        "CREATE TABLE document_actors (document_id VARCHAR, source_type VARCHAR, actor_name VARCHAR, "
+        "entity_id VARCHAR, role VARCHAR, confidence DOUBLE, extracted_at VARCHAR)"
+    )
+    conn.execute(
+        "INSERT INTO document_actors (document_id, source_type, actor_name, entity_id, role) "
+        "VALUES ('d1', 'news', 'Examplar Freight LLC', 'org:examplar', 'organization')"
+    )
+    sh.load_legal(conn, "cellar-sanctions-acts-eng")
+    for name in sh.FILES["eu"]:
+        sh.apply(conn, "eu", name)
+    identity = SanctionsIdentity(conn)
+    designation = conn.execute(
+        "SELECT designation_id FROM sanctions_designations WHERE list_entry_id='EU.9001.01'"
+    ).fetchone()[0]
+    offered = identity.propose_link(
+        sh.NS,
+        designation,
+        target_key="osint:org:examplar",
+        target_entity="org:examplar",
+        evidence={
+            "kind": "registration_number",
+            "value": "1027700000001",
+            "target_source": "registry extract",
+        },
+        principal_id="analyst",
+        scopes=sh.SCOPES,
+    )
+    identity.service.review(
+        sh.NS,
+        offered["candidate_id"],
+        "accept",
+        "same registration number",
+        principal_id="reviewer",
+        scopes=sh.REVIEW_SCOPES,
+    )
+    # The Legal sanctions feature is off by default: the section is inert.
+    assert feature_enabled(conn) is False
+    inert = entity_dossier(conn, "Examplar Freight LLC", designations=designations)[
+        "designations"
+    ]
+    assert inert["status"] == "inert"
+    coordinator.select("legal", bundles["legal"]["version"], features=["sanctions"])
+    assert coordinator.activate("osint-journey-sanctions")["status"] == "published"
+    section = entity_dossier(conn, "Examplar Freight LLC", designations=designations)[
+        "designations"
+    ]
+    assert section["status"] == "assembled" and list(section["lists"]) == ["eu"]
+    line = section["lists"]["eu"][0]
+    assert line["status"] == "listed" and line["citation"]["cited"]
+    assert line["legal_basis"][0]["status"] == "resolved"
+    composition = json.loads((ROOT / "packs/osint/composition.json").read_text())
+    feature = next(
+        f for f in composition["optional_features"] if f["id"] == "designations"
+    )
+    assert [r["capability"] for r in feature["requires"]] == ["legal.sanctions"]
+    conn.close()
 
 
 def test_journey_recycled_video_frame_across_two_documents(tmp_path):

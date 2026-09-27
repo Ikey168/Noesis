@@ -61,6 +61,19 @@
           "range": "^1.0.0"
         }
       ]
+    },
+    {
+      "id": "designations",
+      "default": false,
+      "description": "Cited per-list sanctions designation statements in entity_dossier through the Legal bundle's sanctions feature; inert unless that feature is enabled in the namespace. List statements only, never a screening verdict or compliance determination",
+      "requires": [
+        {
+          "capability": "legal.sanctions",
+          "contract": "noesis-sanctions-record",
+          "range": "^1.0.0",
+          "reason": "the section composes the Legal sanctions record owner's as-of statements"
+        }
+      ]
     }
   ],
   "contributes": {

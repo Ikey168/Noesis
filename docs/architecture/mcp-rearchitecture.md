@@ -380,8 +380,9 @@ two separately rated Admiralty axes (source reliability A–F, information
 credibility 1–6) with their derivations, never fused (contract
 `noesis-osint-corroboration` 1.1.0). `entity_dossier` composes a cited
 Corporate Ownership section for organizations (optional `ownership` feature,
-off by default); per-list sanctions designations wait for the Legal sanctions
-feature (#1907). Sampled video keyframes are corpus image assets, so reuse
+off by default) and, through the Legal bundle's `sanctions` feature (#1907),
+per-list sanctions designation statements (optional `designations` feature,
+off by default). Sampled video keyframes are corpus image assets, so reuse
 detection covers video. RDAP and crt.sh observations (`src/ingestion/rdap.py`,
 `src/ingestion/crtsh.py`) become cited source-identity revisions and
 `shared-infrastructure` relations; passive DNS has a recorded access decision

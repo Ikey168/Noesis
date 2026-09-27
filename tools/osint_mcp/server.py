@@ -264,6 +264,7 @@ def entity_dossier(
     entity_type: Optional[str] = None,
     ownership_namespace: Optional[str] = None,
     as_of: Optional[str] = None,
+    designations_namespace: Optional[str] = None,
 ) -> dict:
     """A cited entity brief from already-ingested public documents only. A
     person entity with no ingested document is refused (person guardrail).
@@ -274,11 +275,20 @@ def entity_dossier(
     conflicts side by side). Resolved only via accepted identity decisions,
     never by name; inert when the bundle is disabled; never for a person.
 
+    Optional ``designations`` feature (off unless ``designations_namespace``
+    is given): what each sanctions list (EU, UN, OFAC, UK) stated about the
+    entity as of the date, per list, citing snapshots, listing revisions and
+    legal-basis works. Resolved only via accepted identity decisions; inert
+    unless the Legal sanctions feature is enabled. List statements only, not a
+    screening verdict or compliance determination; for a person only the list
+    record's own statement, and only under the person guardrail.
+
     Args:
         entity: the entity name or id (see kg_mcp.list_entities).
         entity_type: optional type hint (e.g. "person") to enforce the guardrail.
         ownership_namespace: namespace whose ownership records to compose.
-        as_of: as-of date (YYYY-MM-DD) for ownership relationships; today by default.
+        as_of: as-of date (YYYY-MM-DD) for ownership and designations; today by default.
+        designations_namespace: namespace whose Legal sanctions records to compose.
     """
     try:
         con = _warehouse_ro()
@@ -296,7 +306,22 @@ def entity_dossier(
                 "scopes": scopes,
                 "as_of": as_of,
             }
-        return _dossier(con, entity, entity_type=entity_type, ownership=ownership)
+        designations = None
+        if designations_namespace:
+            principal, scopes = _context()
+            designations = {
+                "namespace": designations_namespace,
+                "principal_id": principal,
+                "scopes": scopes,
+                "as_of": as_of,
+            }
+        return _dossier(
+            con,
+            entity,
+            entity_type=entity_type,
+            ownership=ownership,
+            designations=designations,
+        )
     except Exception as exc:
         return {"error": str(exc)}
     finally:
