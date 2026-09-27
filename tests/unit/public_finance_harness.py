@@ -215,3 +215,172 @@ class Clock:
     def __call__(self) -> int:
         self.value += 1000
         return self.value
+
+
+LEGAL_NS = "legal"
+DOSSIER_NS = "research"
+PROCUREMENT_NS = "procurement"
+LEGAL_SCOPES = {"knowledge:legal:read", f"namespace:{LEGAL_NS}:read"}
+PROCUREMENT_SCOPES = {"knowledge:procurement:read", f"namespace:{PROCUREMENT_NS}:read"}
+
+
+def load_acts(conn) -> dict:
+    """A fictional Berlin budget act (berlin-law, GVBl reference) and a fictional EU budget act (CELLAR)."""
+    from src.kb.legal import REGIONAL_CONTRACT, LegalStore
+
+    records = [
+        {
+            "contract": REGIONAL_CONTRACT,
+            "provider": "berlin-law",
+            "provider_id": "jlr-HGBE2099pP1",
+            "kind": "normative",
+            "language": "de",
+            "title": "Gesetz über die Feststellung des Haushaltsplans von Berlin für die Haushaltsjahre 2099 und "
+            "2100 (Haushaltsgesetz 2099/2100, fiktiv)",
+            "fields": {
+                "gazette_reference": "GVBl. 2098 S. 999",
+                "enactment_date": "2098-12-15",
+            },
+        },
+        {
+            "contract": REGIONAL_CONTRACT,
+            "provider": "berlin-law",
+            "provider_id": "jlr-NHGBE2099pP1",
+            "kind": "normative",
+            "language": "de",
+            "title": "Nachtragshaushaltsgesetz 2099 für Berlin (fiktiv)",
+            "fields": {
+                "gazette_reference": "GVBl. 2099 S. 111",
+                "enactment_date": "2099-07-01",
+            },
+        },
+    ]
+    return LegalStore(conn).project(
+        LEGAL_NS, records, run_id="legal-fixture", source_id="berlin-law-fixture"
+    )
+
+
+def budget_dossiers(conn) -> dict:
+    """Fictional DE dossiers: the 2099 budget bill (printed paper 99/1001) and a supplementary bill (99/1009)."""
+    from src.domains.political.legislative_dossiers import LegislativeDossierStore
+    from tests.unit import lobbying_harness as lh
+
+    store, de, _eu = lh._documents(conn)
+    bill = lh._add(
+        store,
+        de,
+        source_id="de-bundestag-dip",
+        identity="99/1001",
+        document_type="proposal",
+        title="Entwurf eines Gesetzes über die Feststellung des Bundeshaushaltsplans für das "
+        "Haushaltsjahr 2099 (fiktiv)",
+        content="Gesetzentwurf der Bundesregierung (fiktiv).",
+        political={"procedure_id": "proposal:de:haushaltsgesetz-2099", "fixture": True},
+        observed_at=2000,
+    )
+    nachtrag = lh._add(
+        store,
+        de,
+        source_id="de-bundestag-dip",
+        identity="99/1009",
+        document_type="proposal",
+        title="Entwurf eines Nachtragshaushaltsgesetzes 2099 (fiktiv)",
+        content="Gesetzentwurf (fiktiv).",
+        political={
+            "procedure_id": "proposal:de:nachtragshaushaltsgesetz-2099",
+            "fixture": True,
+        },
+        observed_at=2000,
+    )
+    scopes = lh.DOSSIER_SCOPES | {f"document:{d}:read" for d in (bill, nachtrag)}
+    saved = LegislativeDossierStore(conn, now=lambda: 3000)
+    budget = saved.save(
+        DOSSIER_NS,
+        "haushalt-2099",
+        "DE",
+        "proposal:de:haushaltsgesetz-2099",
+        [lh._ref(conn, bill)],
+        principal_id="alice",
+        scopes=scopes,
+    )
+    supplementary = saved.save(
+        DOSSIER_NS,
+        "nachtrag-2099",
+        "DE",
+        "proposal:de:nachtragshaushaltsgesetz-2099",
+        [lh._ref(conn, nachtrag)],
+        principal_id="alice",
+        scopes=scopes,
+    )
+    return {"budget": budget, "supplementary": supplementary, "scopes": scopes}
+
+
+def load_awards(conn) -> dict:
+    """A fictional TED award whose supplier states the FTS beneficiary's VAT number, and an unrelated award."""
+    from src.kb.procurement_notices import ProcurementNoticeStore
+    from src.kb.procurement_records import party, record
+
+    buyer = party(
+        "buyer",
+        "Fiktive Beschaffungsstelle",
+        identifiers=[{"scheme": "national", "id": "DE-FB-1"}],
+        country="DE",
+    )
+    awards = [
+        record(
+            "ted",
+            "award",
+            "999001-2099",
+            "PROC-2099-1",
+            "Fictional evaluation services",
+            source_url="https://ted.europa.eu/en/notice/-/detail/999001-2099",
+            buyer=buyer,
+            awards=[
+                {
+                    "award_id": "1",
+                    "date": "2099-05-01",
+                    "status": "active",
+                    "suppliers": [
+                        party(
+                            "supplier",
+                            "Beispiel Forschung GmbH",
+                            country="DE",
+                            identifiers=[{"scheme": "VAT", "id": "DE 999999999"}],
+                        )
+                    ],
+                }
+            ],
+        ),
+        record(
+            "ted",
+            "award",
+            "999002-2099",
+            "PROC-2099-2",
+            "Fictional catering",
+            source_url="https://ted.europa.eu/en/notice/-/detail/999002-2099",
+            buyer=buyer,
+            awards=[
+                {
+                    "award_id": "1",
+                    "date": "2099-06-01",
+                    "status": "active",
+                    "suppliers": [
+                        party(
+                            "supplier",
+                            "Beispiel Kantine GmbH",
+                            country="DE",
+                            identifiers=[{"scheme": "VAT", "id": "DE888888888"}],
+                        )
+                    ],
+                }
+            ],
+        ),
+    ]
+    return ProcurementNoticeStore(conn).ingest(
+        PROCUREMENT_NS,
+        "ted",
+        awards,
+        observation_id="ted-fixture",
+        observed_at_ms=1,
+        scopes={"operator"},
+    )
