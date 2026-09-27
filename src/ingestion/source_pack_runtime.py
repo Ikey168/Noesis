@@ -154,6 +154,12 @@ def _sanctions_projector(conn: Any) -> Any:
     return SanctionsProjector(conn)
 
 
+def _lobbying_projector(conn: Any) -> Any:
+    from src.kb.lobbying import LobbyingProjector
+
+    return LobbyingProjector(conn)
+
+
 def _vulnerability_projector(conn: Any) -> Any:
     from src.kb.vulnerabilities import VulnerabilityProjector
 
@@ -179,6 +185,7 @@ PROJECTORS: dict[str, Callable[[Any], Any]] = {
     "noesis-environment-record-v1": _environment_projector,
     "noesis-sanctions-record-v1": _sanctions_projector,
     "noesis-vulnerability-record-v1": _vulnerability_projector,
+    "noesis-lobbying-record-v1": _lobbying_projector,
 }
 
 _DDL = """

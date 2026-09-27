@@ -18,7 +18,7 @@
         "required": ["source_id", "connector", "endpoint", "publisher", "scope", "license", "update_cadence", "temporal_semantics", "mapping", "extractor_versions", "schedule", "budgets", "auth", "fixture", "health", "operations", "source_hash"],
         "properties": {
           "source_id": {"type": "string", "minLength": 1},
-          "connector": {"enum": ["berlin-law", "blog", "bods", "cellar", "companies-house", "ctgov", "ctis", "dataset", "ddb", "declarative-rest", "ema-medicines", "epo-ops", "eprel", "eu-ctr", "europeana", "filings", "formal-library", "geojson", "git", "gleif", "gtfs", "icecat", "iso-open-data", "manifest", "ocds", "oeis", "openfda", "package-registry", "paper", "rii", "sam-gov", "sanctions-list", "sec-edgar-ownership", "ted", "vulnerability-feed", "web", "wfs", "zbmath"]},
+          "connector": {"enum": ["berlin-law", "blog", "bods", "cellar", "companies-house", "ctgov", "ctis", "dataset", "ddb", "declarative-rest", "ema-medicines", "epo-ops", "eprel", "eu-ctr", "europeana", "filings", "formal-library", "geojson", "git", "gleif", "gtfs", "icecat", "iso-open-data", "lobbying-register", "manifest", "ocds", "oeis", "openfda", "package-registry", "paper", "rii", "sam-gov", "sanctions-list", "sec-edgar-ownership", "ted", "vulnerability-feed", "web", "wfs", "zbmath"]},
           "wfs": {
             "type": "object",
             "description": "Pinned WFS 2.0.0 GetFeature contract; required for the wfs connector.",
@@ -147,6 +147,19 @@
               "legal_namespace": {"type": "string", "minLength": 1},
               "list": {"enum": ["eu", "un", "ofac", "uk"]},
               "format": {"enum": ["eu-fsf-xml-1.1", "un-sc-xml", "ofac-sdn-xml", "uk-sanctions-list-xml"]}
+            },
+            "additionalProperties": false
+          },
+          "lobbying": {
+            "type": "object",
+            "description": "One register export or meeting list for the lobbying-register connector: its register, documented format, namespace, optional bounded selection of native identifiers and position-paper retention (link-only unless the register's terms allow text).",
+            "required": ["register", "format"],
+            "properties": {
+              "namespace": {"type": "string", "minLength": 1},
+              "register": {"enum": ["eu-tr", "de-lobbyregister", "uk-orcl", "ep-meetings", "ec-meetings"]},
+              "format": {"enum": ["eu-tr-xml", "de-lobbyregister-json", "ep-meetings-csv", "ec-meetings-json", "uk-orcl-csv"]},
+              "selection": {"type": "object", "properties": {"native_ids": {"type": "array", "items": {"type": "string", "minLength": 1}, "minItems": 1, "maxItems": 500}}, "additionalProperties": false},
+              "documents": {"enum": ["link-only", "text"]}
             },
             "additionalProperties": false
           },

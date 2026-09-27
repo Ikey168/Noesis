@@ -234,6 +234,10 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"sanctions-list"})
 NATIVE_CONNECTOR_MODULES["vulnerability-feed"] = "src.ingestion.vulnerability_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"vulnerability-feed"})
 
+# Political lobbying and transparency registers (EU TR, Lobbyregister, EP/Commission meetings, UK ORCL; #1911).
+NATIVE_CONNECTOR_MODULES["lobbying-register"] = "src.ingestion.lobbying_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"lobbying-register"})
+
 
 def native_connector_module(connector: str) -> Any:
     import importlib
