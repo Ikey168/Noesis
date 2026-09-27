@@ -371,6 +371,23 @@ genuinely new tools are needed.
 | `narrative_coordination(topic)` | Track DS `coordination_detect` | Coordinated-cohort graph | Astroturf / influence-operation surfacing — flag cohorts, never accuse |
 | `geolocate_claims(topic)` | NER (places) + geocoding of document *content* | Event map (where events are *reported* to occur) | Places extracted from text, not people tracked; strictly event-geography |
 | `contradiction_scan(entity|topic)` | M6 CONTRADICTS edges | Contradiction ledger | Surfaces where the public record disagrees with itself |
+| `infrastructure_pivot(identifier)` | source-identity relationships from RDAP and certificate transparency | Infrastructure paths | Organization-keyed: which sources share a registrant organization or certificate SAN set, every hop cited, shared infrastructure `probable`; person-keyed identifiers refused (ungated) |
+| `chronolocate_image(sha256)` | corpus assets + local solar geometry | Imagery review queue | Capture-time suggestion for a confirmed or operator-hypothesised place; `cited: false` until confirmed (review-gated) |
+| `reference_imagery(suggestion_id)` | key-gated provider, no default | Imagery review queue | Reference satellite/street-level view for a queued suggestion's place; never a citation (review-gated) |
+
+**OSINT expansion (#2040).** `corroborate` and `source_reliability` now report
+two separately rated Admiralty axes (source reliability A–F, information
+credibility 1–6) with their derivations, never fused (contract
+`noesis-osint-corroboration` 1.1.0). `entity_dossier` composes a cited
+Corporate Ownership section for organizations (optional `ownership` feature,
+off by default); per-list sanctions designations wait for the Legal sanctions
+feature (#1907). Sampled video keyframes are corpus image assets, so reuse
+detection covers video. RDAP and crt.sh observations (`src/ingestion/rdap.py`,
+`src/ingestion/crtsh.py`) become cited source-identity revisions and
+`shared-infrastructure` relations; passive DNS has a recorded access decision
+(`docs/security/osint-passive-dns-access.md`: no provider adopted).
+Search-engine querying, exposed-service search, subdomain enumeration and
+person-keyed identifier pivoting stay excluded.
 
 ### The non-negotiable: an evidence discipline
 

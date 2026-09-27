@@ -44,6 +44,23 @@
           "range": "^1.0.0"
         }
       ]
+    },
+    {
+      "id": "ownership",
+      "default": false,
+      "description": "Cited Corporate Ownership section in entity_dossier for organization entities; inert unless the Corporate Ownership bundle is enabled in the namespace",
+      "requires": [
+        {
+          "capability": "ownership.graph",
+          "contract": "noesis-ownership-graph",
+          "range": "^1.0.0"
+        },
+        {
+          "capability": "ownership.dossier",
+          "contract": "noesis-ownership-dossier",
+          "range": "^1.0.0"
+        }
+      ]
     }
   ],
   "contributes": {
@@ -53,7 +70,7 @@
         "provider": "osint.core",
         "contract": {
           "name": "noesis-osint-corroboration",
-          "version": "1.0.0"
+          "version": "1.1.0"
         }
       },
       {
@@ -61,6 +78,14 @@
         "provider": "osint.core",
         "contract": {
           "name": "noesis-media-provenance",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "osint.source-infrastructure",
+        "provider": "osint.core",
+        "contract": {
+          "name": "noesis-osint-source-infrastructure",
           "version": "1.0.0"
         }
       }
@@ -74,6 +99,10 @@
     "workflow_templates": [
       {
         "id": "osint.location-investigation",
+        "version": "1.0.0"
+      },
+      {
+        "id": "osint.source-vetting",
         "version": "1.0.0"
       }
     ],

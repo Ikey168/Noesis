@@ -366,7 +366,7 @@
       "pack": null,
       "reason": null,
       "state": "degraded",
-      "tool_count": 13,
+      "tool_count": 14,
       "tools": [
         "noesis-osint.contradiction_scan",
         "noesis-osint.corroborate",
@@ -375,6 +375,7 @@
         "noesis-osint.image_provenance",
         "noesis-osint.image_reuse",
         "noesis-osint.image_reuse_findings",
+        "noesis-osint.infrastructure_pivot",
         "noesis-osint.investigation_audit",
         "noesis-osint.origin_signals",
         "noesis-osint.relationship_path",
@@ -387,7 +388,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 13
+      "visible_tool_count": 14
     },
     {
       "aliases": [
@@ -1734,10 +1735,10 @@
     "servers": 30,
     "states": {
       "available": 110,
-      "degraded": 158,
+      "degraded": 159,
       "unauthorized": 853
     },
-    "tools": 1121
+    "tools": 1122
   },
   "tools": [
     {
@@ -5536,7 +5537,7 @@
     },
     {
       "cost_class": "low",
-      "description": "How many probable origins support or contradict a claim, alongside\npublication counts and credibility. Never collapses to one confidence.\n\nArgs:\n    claim_id: the claim to corroborate (see argument_mcp.list_claims).",
+      "description": "How many probable origins support or contradict a claim, alongside\npublication counts and credibility. Never collapses to one confidence.\n\nTwo Admiralty-style grades are reported side by side as independent axes,\neach with its derivation: ``credibility_grade`` rates the information 1-6\n(1 confirmed by independent origins ... 5 improbable, 6 cannot be judged,\ne.g. single-sourced or unresolved lineage) and ``source_reliability_grade``\nrates the carrying source A-F (F when its track record is too thin). They\nare never fused into one score.\n\nArgs:\n    claim_id: the claim to corroborate (see argument_mcp.list_claims).",
       "id": "noesis-osint.corroborate",
       "input_schema": {
         "properties": {
@@ -5582,11 +5583,17 @@
           "contradict": {
             "type": "array"
           },
+          "credibility_grade": {
+            "type": "object"
+          },
           "error": {
             "type": [
               "string",
               "object"
             ]
+          },
+          "grading": {
+            "type": "object"
           },
           "independence": {
             "type": "object"
@@ -5621,6 +5628,12 @@
           "single_sourced": {
             "type": "boolean"
           },
+          "source_reliability_grade": {
+            "type": [
+              "object",
+              "null"
+            ]
+          },
           "support": {
             "type": "array"
           },
@@ -5652,14 +5665,36 @@
     },
     {
       "cost_class": "low",
-      "description": "A cited entity brief from already-ingested public documents only. A\nperson entity with no ingested document is refused (person guardrail).\n\nArgs:\n    entity: the entity name or id (see kg_mcp.list_entities).\n    entity_type: optional type hint (e.g. \"person\") to enforce the guardrail.",
+      "description": "A cited entity brief from already-ingested public documents only. A\nperson entity with no ingested document is refused (person guardrail).\n\nOptional ``ownership`` feature (off unless ``ownership_namespace`` is\ngiven): for an organization, a cited section from the Corporate Ownership\nbundle (identity, direct/ultimate parents, subsidiaries, officers,\nconflicts side by side). Resolved only via accepted identity decisions,\nnever by name; inert when the bundle is disabled; never for a person.\n\nArgs:\n    entity: the entity name or id (see kg_mcp.list_entities).\n    entity_type: optional type hint (e.g. \"person\") to enforce the guardrail.\n    ownership_namespace: namespace whose ownership records to compose.\n    as_of: as-of date (YYYY-MM-DD) for ownership relationships; today by default.",
       "id": "noesis-osint.entity_dossier",
       "input_schema": {
         "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
           "entity": {
             "type": "string"
           },
           "entity_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "ownership_namespace": {
             "anyOf": [
               {
                 "type": "string"
@@ -5714,6 +5749,9 @@
           },
           "mentions": {
             "type": "array"
+          },
+          "ownership": {
+            "type": "object"
           },
           "uncited_count": {
             "type": "integer"
@@ -5990,6 +6028,70 @@
     },
     {
       "cost_class": "low",
+      "description": "Organization-keyed infrastructure pivot (domain -> registrant\norganization -> related domains; shared certificate SAN sets) over cited\nsource-identity relationships. Every hop cites its RDAP / CT observation and\ncarries its status (shared infrastructure is \"probable\"). No same-operator\nverdict. Person-keyed identifiers (e-mail, @handle, username, IP address,\nperson: ids) are refused with person_identifier_refused.\n\nArgs:\n    identifier: a domain name or a source-identity id.\n    namespace: the source-identity namespace to read.\n    max_depth: hops to follow (1-3).",
+      "id": "noesis-osint.infrastructure_pivot",
+      "input_schema": {
+        "properties": {
+          "identifier": {
+            "type": "string"
+          },
+          "max_depth": {
+            "default": 2,
+            "type": "integer"
+          },
+          "namespace": {
+            "default": "osint",
+            "type": "string"
+          }
+        },
+        "required": [
+          "identifier"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "infrastructure_pivot",
+      "output_schema": {
+        "additionalProperties": true,
+        "properties": {
+          "caveat": {
+            "type": "string"
+          },
+          "count": {
+            "type": "integer"
+          },
+          "identifier": {
+            "type": "string"
+          },
+          "paths": {
+            "type": "array"
+          },
+          "resolution": {
+            "type": "object"
+          },
+          "status": {
+            "type": "string"
+          },
+          "truncated": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "reason": "backend or data readiness is incomplete",
+      "required_data": [
+        "warehouse"
+      ],
+      "required_scopes": [
+        "knowledge:read"
+      ],
+      "server": "noesis-osint",
+      "state": "degraded",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Reconstruct an investigation from its provisioning audit trail: the KG\nrecord, bound sources, and every logged action in order. An investigation\nis a Track P-provisioned namespaced KG; this replays its trail.\n\nArgs:\n    investigation: the investigation (provisioned KG) name.",
       "id": "noesis-osint.investigation_audit",
       "input_schema": {
@@ -6119,7 +6221,7 @@
     },
     {
       "cost_class": "low",
-      "description": "Reliability card for any source (blog, paper venue, filing, outlet),\nscored the same way outlets are.\n\nArgs:\n    source: the source name to vet (see sources_mcp.list_sources).",
+      "description": "Reliability card for any source (blog, paper venue, filing, outlet),\nscored the same way outlets are.\n\n``reliability_grade`` is an Admiralty source-reliability letter A-F derived\nfrom transparency, corroboration hit-rate and correction history with the\nthresholds shown; F (\"cannot be judged\") below the minimum track record.\nIt grades the source only; information credibility (1-6) is a separate\naxis reported per claim by ``corroborate``.\n\nArgs:\n    source: the source name to vet (see sources_mcp.list_sources).",
       "id": "noesis-osint.source_reliability",
       "input_schema": {
         "properties": {
@@ -6213,6 +6315,9 @@
               "hi",
               "level"
             ],
+            "type": "object"
+          },
+          "reliability_grade": {
             "type": "object"
           },
           "scored_as_outlet": {
@@ -6312,7 +6417,7 @@
     },
     {
       "cost_class": "low",
-      "description": "Trace one artifact (a claim or a document) end to end: source to\nconnector to document to enrichment to claim to routed namespace, every\nstage cited. Answers \"where did this come from and what happened to it\".\n\nArgs:\n    claim_id: trace a claim (see argument_mcp.list_claims).\n    document_id: trace a document (a news_articles id).",
+      "description": "Trace one artifact (a claim or a document) end to end: source to\nconnector to document to enrichment to claim to routed namespace, every\nstage cited. Answers \"where did this come from and what happened to it\".\nAn RDAP / certificate-transparency observation id (``osint-obs:...``) traces\nsource-pack source -> acquisition receipt -> observation -> the\nsource-identity revisions and relationships that cite it.\n\nArgs:\n    claim_id: trace a claim (see argument_mcp.list_claims).\n    document_id: trace a document (a news_articles id) or an osint-obs: observation id.",
       "id": "noesis-osint.trace_artifact",
       "input_schema": {
         "properties": {

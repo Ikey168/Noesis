@@ -156,6 +156,11 @@ For the project overview and local setup, start with the
   gated behind `NOESIS_OSINT_GATED_TOOLS`
 - [OSINT abuse analysis](security/osint-abuse-analysis.md) — the dual-use
   analysis behind the guardrails (no person identification, fail-closed)
+- [OSINT passive DNS access decision](security/osint-passive-dns-access.md) —
+  per-provider terms review; no passive DNS provider adopted
+- [OSINT pack guide](guides/osint-pack.md) — Admiralty grades, ownership
+  dossiers, video reuse, registry and certificate history, infrastructure
+  pivots and the gated imagery tier
 
 ## Subsystems
 

@@ -204,6 +204,7 @@
     "noesis-market.get_market_price_history",
     "noesis-market.lookup_market_instrument",
     "noesis-osint.corroborate",
+    "noesis-osint.source_reliability",
     "noesis-pipeline.latest_articles",
     "noesis-pipeline.semantic_search",
     "noesis-research.literature_claims",
@@ -2133,6 +2134,37 @@
         "legacy": "degraded",
         "reason": "required domain pack is disabled",
         "tool": "noesis-osint.corroborate"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "osint",
+        "composition": "osint",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-osint.source_reliability"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "osint",
+        "composition": [
+          "claims"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "warehouse"
+        ],
+        "reason": null,
+        "tool": "noesis-osint.source_reliability"
+      },
+      {
+        "annotation": "intended: once composition-managed, the tool follows its bundle's enablement; legacy authority applies until cutover",
+        "bundle": "osint",
+        "composition": "disabled",
+        "field": "state",
+        "legacy": "degraded",
+        "reason": "required domain pack is disabled",
+        "tool": "noesis-osint.source_reliability"
       }
     ],
     "platform": [
