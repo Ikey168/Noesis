@@ -1,0 +1,148 @@
+{
+  "pack_id": "onchain-observations",
+  "version": "1.0.0",
+  "description": "On-chain Observations: public-ledger facts for one explicitly named address, transaction or contract per request (Etherscan V2 for Ethereum mainnet, Blockstream Esplora for Bitcoin mainnet) and quoted, attributed labels from the MIT-licensed ethereum-lists token dataset. Read-only: no wallet, key or submission capability. Labels are what a source states; no address is ever attributed to a person or declared owned by anyone. Access audit: docs/security/onchain-source-access.md.",
+  "domains": [
+    "onchain"
+  ],
+  "defaults": {
+    "connector": "declarative-rest",
+    "update_cadence": "on explicit request only; no schedule enumerates addresses",
+    "temporal_semantics": "ledger facts as reported by the explorer at the chain head it states; observation time recorded separately",
+    "mapping": {
+      "target_schema": "noesis-onchain-observation-v1",
+      "version": "1.0.0"
+    },
+    "extractor_versions": [
+      "onchain-observations:1.0.0"
+    ],
+    "schedule": {
+      "kind": "interval",
+      "interval_s": 86400
+    },
+    "health": {
+      "required": false,
+      "max_staleness_s": 604800
+    },
+    "policy": {
+      "deny_person_identification": true,
+      "attribution_verdicts": "never",
+      "one_identifier_per_request": true,
+      "read_only": true
+    }
+  },
+  "sources": [
+    {
+      "source_id": "etherscan-v2-mainnet",
+      "endpoint": "https://api.etherscan.io/v2/api",
+      "publisher": "Etherscan",
+      "scope": "Ethereum mainnet (chainid=1): transactions and token transfers of one explicit address in a bounded block range, one transaction by hash, and one contract's creation and first inbound funding",
+      "license": {
+        "id": "etherscan-api-terms",
+        "terms_url": "https://etherscan.io/apiterms",
+        "redistribution": "facts-with-citation; attribution 'Powered by Etherscan.io APIs'; no bulk redistribution of API output (verify against the live terms)"
+      },
+      "auth": {
+        "kind": "required-secret",
+        "secret_ref": "NOESIS_ETHERSCAN_API_KEY"
+      },
+      "budgets": {
+        "timeout_ms": 15000,
+        "max_results": 1000,
+        "max_bytes": 5000000,
+        "max_pages": 5
+      },
+      "operations": [
+        "address-transactions",
+        "transaction",
+        "contract-origin",
+        "address-funding"
+      ],
+      "policy": {
+        "deny_person_identification": true,
+        "attribution_verdicts": "never",
+        "one_identifier_per_request": true,
+        "read_only": true,
+        "attribution": "Powered by Etherscan.io APIs"
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/onchain-etherscan.json",
+        "sha256": "65631fd29417b25b15654f845837650c4582781e428f70a803937d698d95f5f4",
+        "expected_output_hash": "d4fed8a41adaea1d2075959743dfe59222619bfdc6b9b05a5fd90e324339b1d6"
+      }
+    },
+    {
+      "source_id": "blockstream-esplora-bitcoin",
+      "endpoint": "https://blockstream.info/api",
+      "publisher": "Blockstream (Esplora)",
+      "scope": "Bitcoin mainnet: confirmed transactions of one explicit address (25 per page, bounded pages) and one transaction by txid; mempool transactions are not acquired",
+      "license": {
+        "id": "blockstream-esplora-terms",
+        "terms_url": "https://blockstream.info/",
+        "redistribution": "facts-with-citation; public ledger data (verify the public service terms)"
+      },
+      "auth": {
+        "kind": "none"
+      },
+      "budgets": {
+        "timeout_ms": 15000,
+        "max_results": 25,
+        "max_bytes": 5000000,
+        "max_pages": 4
+      },
+      "operations": [
+        "address-transactions",
+        "transaction",
+        "address-funding"
+      ],
+      "policy": {
+        "deny_person_identification": true,
+        "attribution_verdicts": "never",
+        "one_identifier_per_request": true,
+        "read_only": true,
+        "attribution": "Data from Blockstream Esplora (blockstream.info)"
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/onchain-esplora.json",
+        "sha256": "85d9bd6996ec195a25944672be3912478f51a239f88b617e0c1ceaa9f50cf60c",
+        "expected_output_hash": "f6c9ba80bb22bdea38443616ae3267a06d65b8ac4e0af0806dc7f0c357e3bf55"
+      }
+    },
+    {
+      "source_id": "ethereum-lists-tokens",
+      "endpoint": "https://raw.githubusercontent.com/MyEtherWallet/ethereum-lists/master/src/tokens/eth",
+      "publisher": "MyEtherWallet ethereum-lists contributors",
+      "scope": "one token-contract file per explicitly named Ethereum mainnet address; name, symbol, type, decimals and website quoted as stated; support e-mail and social handles dropped",
+      "license": {
+        "id": "MIT",
+        "terms_url": "https://github.com/MyEtherWallet/ethereum-lists/blob/master/LICENSE",
+        "redistribution": "quotation with attribution (MIT licence notice retained; verify against the repository licence)"
+      },
+      "auth": {
+        "kind": "none"
+      },
+      "budgets": {
+        "timeout_ms": 10000,
+        "max_results": 1,
+        "max_bytes": 200000,
+        "max_pages": 1
+      },
+      "operations": [
+        "label"
+      ],
+      "policy": {
+        "deny_person_identification": true,
+        "attribution_verdicts": "never",
+        "one_identifier_per_request": true,
+        "read_only": true,
+        "dataset": "MyEtherWallet/ethereum-lists src/tokens/eth",
+        "attribution": "Label quoted from MyEtherWallet/ethereum-lists (MIT licence)"
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/onchain-ethereum-lists.json",
+        "sha256": "028466622b18cbb39af85de8fca47c104b6ef01e14097afa53c6ff6c93891ee6",
+        "expected_output_hash": "9dc121d7bb924a2b701a49622644f9407c30840536343a70293135d9fb59ee15"
+      }
+    }
+  ]
+}

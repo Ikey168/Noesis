@@ -19,6 +19,10 @@ certificate transparency, id prefix ``osint-obs:``) traces as its own chain:
 the declared source-pack source, the acquisition receipt, the observation, and
 every source-identity revision and relationship that cites it.
 
+On-chain Observations (#2056): an ``onchain-obs:`` observation traces the
+same way through :func:`src.kb.onchain.trace_observation` - source-pack
+source, acquisition receipt, observation, and the record revisions citing it.
+
 Stdlib-only; the connection is injected read-only.
 """
 
@@ -191,6 +195,10 @@ def trace_artifact(
     """
     if claim_id is None and document_id and str(document_id).startswith("osint-obs:"):
         return _observation_chain(conn, str(document_id))
+    if claim_id is None and document_id and str(document_id).startswith("onchain-obs:"):
+        from src.kb.onchain import trace_observation
+
+        return trace_observation(conn, str(document_id))
     claim: Optional[Dict[str, Any]] = None
     if claim_id is not None:
         if not common.table_exists(conn, "argument_claims"):
