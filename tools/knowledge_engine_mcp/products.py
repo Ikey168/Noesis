@@ -2,10 +2,14 @@
 
 Acquisition itself runs through the shared source-pack tools
 (``run_source_pack_execution`` with pack ``products-displays``: operation
-``models`` for the display providers, ``notices`` for the safety feature's
-Safety Gate, CPSC, NHTSA and RASFF sources). Values are provider assertions
-(brand content or supplier registrations), never independent tests or buying
-recommendations. Safety notices are what an authority published, quoted and
+``models`` for the display and appliance providers, ``components`` for the
+BMEcat component catalogues, ``notices`` for the safety feature's Safety Gate,
+CPSC, NHTSA and RASFF sources). Lookup, matching and comparison take a
+``category`` from the category registry (displays, household washing machines,
+refrigerating appliances, multilayer ceramic capacitors, thick-film chip
+resistors); comparison never crosses categories. Values are provider assertions
+(brand content, supplier registrations, manufacturer or supplier catalogue
+data), never independent tests, buying recommendations or cross-references. Safety notices are what an authority published, quoted and
 cited to a notice revision: no tool returns a safety verdict, risk score or
 consumer advice, and a product without an accepted notice match has no notice
 on record.
@@ -21,18 +25,34 @@ SAFETY_READS = {
     "propose_product_notice_party_links", "poll_product_notice_monitor",
 }
 SAFETY_TOOLS = SAFETY_WRITES | SAFETY_READS
-PRODUCT_WRITES = {"propose_product_matches", "review_product_match", "acquire_product_documents"} | SAFETY_WRITES
-PRODUCT_TOOLS = PRODUCT_WRITES | SAFETY_READS | {
+# Products expansion (#2061): category registry, component lookup, manufacturer links and document citations.
+EXPANSION_WRITES = {"review_component_manufacturer_link", "revert_component_manufacturer_link"}
+EXPANSION_READS = {"product_category_registry", "lookup_component", "cite_product_document"}
+EXPANSION_TOOLS = EXPANSION_WRITES | EXPANSION_READS
+PRODUCT_WRITES = {"propose_product_matches", "review_product_match", "acquire_product_documents"} | SAFETY_WRITES \
+    | EXPANSION_WRITES
+PRODUCT_TOOLS = PRODUCT_WRITES | SAFETY_READS | EXPANSION_READS | {
     "products_readiness", "product_provider_contracts", "lookup_product_models",
     "inspect_product_identity", "product_selection_outcomes", "compare_product_models",
 }
 _ENTITY = ["knowledge:entity-history:write", "knowledge:entity-history:review"]
 PRODUCT_SCOPES = {
     "product_provider_contracts": [],
+    "product_category_registry": [],
     "products_readiness": ["knowledge:products:read"],
+    "lookup_product_models": ["knowledge:products:read"],
+    "inspect_product_identity": ["knowledge:products:read"],
+    "compare_product_models": ["knowledge:products:read"],
+    "lookup_component": ["knowledge:products:read"],
+    "product_selection_outcomes": ["knowledge:products:read"],
+    "cite_product_document": ["knowledge:products:read"],
     "propose_product_matches": ["knowledge:products:write"],
     "review_product_match": ["knowledge:products:review"],
     "acquire_product_documents": ["knowledge:products:write"],
+    # Manufacturer links are entity identity decisions; reverting one is an undo decision.
+    "review_component_manufacturer_link": ["knowledge:products:review", *_ENTITY],
+    "revert_component_manufacturer_link": ["knowledge:products:review", *_ENTITY,
+                                           "knowledge:entity-history:execute"],
     "product_safety_source_contracts": [],
     # include_news additionally needs knowledge:read, checked at call time.
     "lookup_product_notices": ["knowledge:products:read"],
@@ -55,6 +75,34 @@ PRODUCT_SCOPES = {
 }
 
 
+QUERY_EXAMPLES = {
+    "lookup_product_models": {
+        "arguments": {"namespace": "global", "brand": "Hausmark", "designation": "WM-8E14",
+                      "category": "household washing machines"},
+        "semantics": "exact designation ignoring case and separators within one registered category; one row per "
+                     "provider record, with identifier conflicts and match candidates",
+    },
+    "propose_product_matches": {
+        "arguments": {"namespace": "global", "category": "multilayer ceramic capacitors"},
+        "semantics": "deterministic candidates inside one category from designations (appliances, displays) or "
+                     "manufacturer + exact MPN (components) and the category's corroborating attributes; never "
+                     "across categories and never merged until a reviewer accepts",
+    },
+    "compare_product_models": {
+        "arguments": {"namespace": "global", "model_ids": ["<model_id>", "<model_id>"],
+                      "category": "refrigerating appliances"},
+        "semantics": "rows from the category registry; a row compares only on a shared attribute, mode, unit and "
+                     "label scheme; component nominal values carry their tolerance; mixed categories are refused",
+    },
+    "lookup_component": {
+        "arguments": {"namespace": "global", "mpn": "CX0603X7R104K500", "manufacturer": "Capatronic"},
+        "semantics": "one entry per manufacturer + MPN identity with every provider's record, SKU aliases, the "
+                     "lifecycle status each source published with its date, match candidates and link-only records; "
+                     "no cross-reference, replacement, price or stock",
+    },
+}
+
+
 def required_scopes(tool_name, mutability):
     return PRODUCT_SCOPES.get(
         tool_name, ["knowledge:products:write" if mutability == "write" else "knowledge:products:read"])
@@ -64,17 +112,37 @@ def register(mcp, safe, context):
     def who():
         return context()[0], context()[1]
 
-    def store(conn):
+    def store(conn, *, initialize=True):
         from src.kb.products import ProductStore
 
-        return ProductStore(conn)
+        # Reads run on read-only connections: they never create tables and answer not_ready before any run.
+        return ProductStore(conn, initialize=initialize)
 
     @mcp.tool()
     def product_provider_contracts() -> dict:
-        """Pinned Open Icecat and EPREL access contracts, catalogue boundaries and live-verification state."""
-        from src.ingestion.product_sources import ASSERTION_KINDS, PROVIDER_CONTRACTS
+        """Pinned Open Icecat, EPREL and BMEcat access contracts, catalogue boundaries and live-verification state,
+        plus the PX01 component-source decisions (implement / link-only / not implemented) with verify notes."""
+        from src.ingestion.product_sources import ASSERTION_KINDS, COMPONENT_SOURCE_DECISIONS, PROVIDER_CONTRACTS
 
-        return {"contracts": PROVIDER_CONTRACTS, "assertion_kinds": ASSERTION_KINDS}
+        return {"contracts": PROVIDER_CONTRACTS, "assertion_kinds": ASSERTION_KINDS,
+                "component_sources": COMPONENT_SOURCE_DECISIONS}
+
+    @mcp.tool()
+    def product_category_registry(category: str | None = None) -> dict:
+        """Registered product categories: attribute keys, kinds, canonical and accepted units, modes, tolerance
+        attributes, label schemes by regulation, default comparison rows and matching rules."""
+        def run():
+            from src.kb import product_categories
+
+            if category:
+                found = product_categories.resolve_label(category)
+                if found is None:
+                    return {"ok": False, "error": {"code": "unknown_category",
+                                                   "message": f"{category!r} is not a registered category",
+                                                   "registered": product_categories.categories()}}
+                return {"categories": {found: product_categories.category(found)}}
+            return {"categories": product_categories.registry()}
+        return run()
 
     @mcp.tool()
     def products_readiness() -> dict:
@@ -86,17 +154,57 @@ def register(mcp, safe, context):
     @mcp.tool()
     def lookup_product_models(namespace: str, query: str | None = None, brand: str | None = None,
                               designation: str | None = None, gtin: str | None = None,
-                              provider: str | None = None, limit: int = 25) -> dict:
-        """Find product variants by brand, exact designation, GTIN or text, with identifier conflicts and matches."""
-        return safe(lambda conn: store(conn).lookup(
+                              provider: str | None = None, limit: int = 25, category: str | None = None) -> dict:
+        """Find product variants by brand, exact designation, GTIN or text, optionally within one registered
+        category (id or label), with identifier conflicts and matches."""
+        return safe(lambda conn: store(conn, initialize=False).lookup(
             namespace, scopes=who()[1], query=query, brand=brand, designation=designation, gtin=gtin,
-            provider=provider, limit=limit), required_scope="knowledge:products:read")
+            provider=provider, limit=limit, category=category), required_scope="knowledge:products:read")
 
     @mcp.tool()
     def inspect_product_identity(namespace: str, identity_id: str) -> dict:
-        """A model or variant with revisions, current and superseded assertions, documents, coverage and matches."""
-        return safe(lambda conn: store(conn).inspect(namespace, identity_id, scopes=who()[1]),
+        """A model or variant with revisions, current and superseded assertions, documents, coverage and matches
+        (components also with the lifecycle status their source published)."""
+        return safe(lambda conn: store(conn, initialize=False).inspect(namespace, identity_id, scopes=who()[1]),
                     required_scope="knowledge:products:read")
+
+    @mcp.tool()
+    def lookup_component(namespace: str, mpn: str | None = None, manufacturer: str | None = None,
+                         sku: str | None = None, category: str | None = None, limit: int = 25) -> dict:
+        """Electronic components by manufacturer part number (optionally with the manufacturer) or by a
+        provider-scoped distributor SKU: one entry per normalised manufacturer + MPN with each provider's record,
+        SKU aliases, lifecycle status only as a named source published it (with its date), match candidates and
+        link-only records (Octopart, DigiKey). No cross-reference, replacement, price, stock or availability."""
+        return safe(lambda conn: store(conn, initialize=False).lookup_component(
+            namespace, scopes=who()[1], mpn=mpn, manufacturer=manufacturer, sku=sku, category=category,
+            limit=limit), required_scope="knowledge:products:read")
+
+    @mcp.tool()
+    def review_component_manufacturer_link(namespace: str, manufacturer: str, entity_id: str, decision: str,
+                                           reason: str) -> dict:
+        """Record a match / non-match between a published component manufacturer name and a canonical entity as
+        an entity identity decision; never a merge. Linked names count as one manufacturer in component lookups
+        and matching."""
+        return safe(lambda conn: store(conn).decide_manufacturer_link(
+            namespace, manufacturer, entity_id, decision, reason, scopes=who()[1], principal_id=who()[0]),
+            write=True, required_scope="knowledge:products:review")
+
+    @mcp.tool()
+    def revert_component_manufacturer_link(namespace: str, link_id: str) -> dict:
+        """Undo a manufacturer link; the undo is itself an auditable identity decision."""
+        return safe(lambda conn: store(conn).revert_manufacturer_link(namespace, link_id, scopes=who()[1],
+                                                                      principal_id=who()[0]),
+                    write=True, required_scope="knowledge:products:review")
+
+    @mcp.tool()
+    def cite_product_document(namespace: str, link_id: str, page: int | None = None,
+                              section: str | None = None) -> dict:
+        """A citation locator into a provider-linked datasheet or information sheet: link, retained content hash
+        and a page checked against the extracted pages (section recorded verbatim). A document never retained
+        is cited as its link only."""
+        return safe(lambda conn: store(conn, initialize=False).cite_document(
+            namespace, link_id, scopes=who()[1], page=page, section=section),
+            required_scope="knowledge:products:read")
 
     @mcp.tool()
     def product_selection_outcomes(namespace: str, run_id: str) -> dict:
@@ -106,15 +214,20 @@ def register(mcp, safe, context):
             from src.kb.products import READ_SCOPE, _authorize
 
             _authorize(namespace, who()[1], READ_SCOPE, write=False)
+            products = store(conn, initialize=False)
+            products._require_ready()
             safety = ProductSafetyStore(conn, initialize=False)
-            return {"run_id": run_id, "outcomes": store(conn).selection_outcomes(namespace, run_id),
+            return {"run_id": run_id, "outcomes": products.selection_outcomes(namespace, run_id),
                     "notice_outcomes": safety.selection_outcomes(namespace, run_id) if safety.ready() else []}
         return safe(run, required_scope="knowledge:products:read")
 
     @mcp.tool()
-    def propose_product_matches(namespace: str) -> dict:
-        """Deterministic Icecat/EPREL match candidates from identifiers and corroborating attributes; none auto-accepted."""
-        return safe(lambda conn: store(conn).propose_matches(namespace, scopes=who()[1], principal_id=who()[0]),
+    def propose_product_matches(namespace: str, category: str | None = None) -> dict:
+        """Deterministic cross-provider match candidates within one category (Icecat/EPREL for displays and
+        appliances, manufacturer + exact MPN between component catalogues) from identifiers and the category's
+        corroborating attributes; never across categories and none auto-accepted."""
+        return safe(lambda conn: store(conn).propose_matches(namespace, scopes=who()[1], principal_id=who()[0],
+                                                             category=category),
                     write=True, required_scope="knowledge:products:write")
 
     @mcp.tool()
@@ -137,10 +250,14 @@ def register(mcp, safe, context):
         return safe(run, write=True, required_scope="knowledge:products:write")
 
     @mcp.tool()
-    def compare_product_models(namespace: str, model_ids: list[str], attributes: list[str] | None = None) -> dict:
-        """Evidence-linked comparison of 2-6 resolved models; only accepted matches merge provider columns."""
-        return safe(lambda conn: store(conn).compare(namespace, model_ids, scopes=who()[1], attributes=attributes),
-                    required_scope="knowledge:products:read")
+    def compare_product_models(namespace: str, model_ids: list[str], attributes: list[str] | None = None,
+                               category: str | None = None) -> dict:
+        """Evidence-linked comparison of 2-6 resolved models of one category (rows from the category registry);
+        only accepted matches merge provider columns, component values show their tolerance, and models of
+        different categories are refused. No ranking or best pick."""
+        return safe(lambda conn: store(conn, initialize=False).compare(
+            namespace, model_ids, scopes=who()[1], attributes=attributes, category=category),
+            required_scope="knowledge:products:read")
 
     # ------------------------------------------------------------ safety notices (#1916)
 
