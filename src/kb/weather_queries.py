@@ -638,6 +638,7 @@ class WeatherQueries:
                     "effective",
                     "expires",
                     "sender",
+                    "sent",
                     "identifier",
                     "msg_type",
                     "provider",
