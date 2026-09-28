@@ -205,6 +205,11 @@ For the project overview and local setup, start with the
   label assertions and probable address clustering with declared heuristics, a null model and a measured
   false-positive rate; no attribution verdicts, no person linkage, no wallet or submission capability;
   [source access audit](security/onchain-source-access.md)
+- [Linguistics guide](guides/linguistics.md) — word-centred lexemes, forms, senses and definition revisions from
+  Wikidata lexemes and Wiktionary, cited etymology chains, languages and dialects resolved to Glottocode and
+  ISO 639-3 through reviewable identity, WALS typological profiles and monitors; CC BY-SA attribution travels
+  with Wiktionary output, and no machine translation is presented as sourced;
+  [source audit](development/linguistics-evidence/source-audit.md)
 - [Geospatial housing guide](guides/geospatial-housing.md) — land-value zones with valuation dates, Mietspiegel
   editions and cells, development-plan stages, Wohnlagen, permit and completion statistics and Destatis vintages
   projected onto an address, parcel or district as of a date, with citation links and monitors; no valuation or

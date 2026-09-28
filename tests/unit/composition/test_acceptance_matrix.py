@@ -79,6 +79,10 @@ MATRIX = {
     "Multi-category product lookup, match and compare":
         "tests/unit/domains/test_products_expansion_acceptance.py::"
         "test_multi_category_lookup_match_compare_and_cite",
+    # The Linguistics pack's offline journey (#2190) composes its record owner, reviewable identity through
+    # entity history, the cross-language records, Geospatial places, subscriptions and the source-pack runtime.
+    "Word to cited lexeme dossier":
+        "tests/unit/domains/test_linguistics_acceptance.py::test_word_to_cited_lexeme_dossier_offline",
 }
 
 
