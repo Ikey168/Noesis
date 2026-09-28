@@ -182,3 +182,62 @@ def test_linking_needs_write_scopes(env):
             h.NS, principal_id="x", scopes=h.READ_ONLY, observation_id="o"
         )
     assert caught.value.code == "unauthorized"
+
+
+def test_citation_matching_and_the_gap_scanner_share_one_boundary_rule():
+    from src.kb.clinical_publications import DATASET_PATTERNS
+
+    url = "Eurostat, https://ec.europa.eu/eurostat/databrowser/view/hlth_cd_aro/default/table?lang=en"
+    assert cites(url, "eurostat-dataset", "hlth_cd_aro")
+    assert [m.group(0) for m in DATASET_PATTERNS["eurostat-dataset"].finditer(url)] == [
+        "hlth_cd_aro"
+    ]
+    for text in (
+        "see hlth_cd_aro2",
+        "x-hlth_cd_aro",
+        "see hlth_cd_aro.v2",
+        "a_hlth_cd_aro",
+    ):
+        assert not cites(text, "eurostat-dataset", "hlth_cd_aro"), text
+        assert [
+            m.group(0) for m in DATASET_PATTERNS["eurostat-dataset"].finditer(text)
+        ] != ["hlth_cd_aro"], text
+    rki = "https://github.com/robert-koch-institut/Fiktive_Tuberkulose-Meldedaten@2099-01-20/tree"
+    assert cites(
+        rki,
+        "rki-release",
+        "robert-koch-institut/Fiktive_Tuberkulose-Meldedaten@2099-01-20",
+    )
+    assert [m.group(0) for m in DATASET_PATTERNS["rki-release"].finditer(rki)] == [
+        "robert-koch-institut/Fiktive_Tuberkulose-Meldedaten@2099-01-20"
+    ]
+
+
+def test_a_dataset_cited_by_its_browser_url_is_a_citation(env):
+    from services.ingest.common.document_model import Document
+    from src.ingestion.document_store import DocumentStore
+
+    document = Document(
+        document_id="spdoc:sv:url-citing",
+        source_type="paper",
+        source_id="europe-pmc",
+        language="en",
+        ingested_at=env.clock(),
+        url="https://example.org/url-citing",
+        title="Mortality data (fictional)",
+        content="Deaths by cause.",
+        authors=["A. Fictional"],
+        metadata={
+            "content_representation": "plain-text-abstract",
+            "doi": "10.5555/sv-url",
+            "references_json": '[{"text": "https://ec.europa.eu/eurostat/databrowser/view/hlth_cd_aro/default/'
+            'table"}]',
+        },
+    )
+    assert not DocumentStore(env.conn).upsert([document.to_dict()]).invalid
+    result = linker(env).link_series(
+        h.NS, principal_id="alice", scopes=h.SCOPES, observation_id="link-url"
+    )
+    assert "spdoc:sv:url-citing" in {
+        link.get("document_id") for link in result["links"]
+    }

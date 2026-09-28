@@ -52,10 +52,24 @@ from src.kb.clinical_records import (
 RXIV_SOURCES = {"medrxiv", "biorxiv"}
 SURVEILLANCE = "surveillance"
 # Dataset identifier shapes looked for in declared references when reporting cited datasets that no series holds.
+# One token boundary for dataset identifiers, shared by citation matching and the gap scanner: an identifier is
+# not part of a longer word or code (letters, digits, underscore, hyphen, or a dot joining more of the code), while
+# path separators, punctuation and spaces delimit it - so ``.../databrowser/view/hlth_cd_aro/default/table`` cites
+# ``hlth_cd_aro`` and ``hlth_cd_aro2`` does not.
+TOKEN_BEFORE = r"(?<![\w.-])"
+TOKEN_AFTER = r"(?![\w-]|\.\w)"
+
+
+def token_pattern(body, flags=0):
+    return re.compile(TOKEN_BEFORE + body + TOKEN_AFTER, flags)
+
+
+# Dataset identifier shapes looked for in declared references when reporting cited datasets that no series holds.
 DATASET_PATTERNS = {
-    "eurostat-dataset": re.compile(r"(?<![\w-])hlth_[a-z0-9_]+(?![\w-])", re.I),
-    "rki-release": re.compile(r"(?<![\w/-])robert-koch-institut/[A-Za-z0-9_.-]+@[A-Za-z0-9_.-]+(?![\w/-])"),
-    "doi": re.compile(r"(?<![\w/.-])10\.5281/zenodo\.\d+(?![\w/-])", re.I),
+    "eurostat-dataset": token_pattern(r"hlth_[a-z0-9_]+", re.I),
+    "rki-release": token_pattern(r"robert-koch-institut/[A-Za-z0-9_-]+(?:\.[A-Za-z0-9_-]+)*@[A-Za-z0-9_-]+"
+                                 r"(?:\.[A-Za-z0-9_-]+)*"),
+    "doi": token_pattern(r"10\.5281/zenodo\.\d+", re.I),
 }
 
 
@@ -76,8 +90,7 @@ def cites(text, kind, identifier):
     if kind == "doi":
         # A DOI written as a resolver URL is the same identifier (normalised on both sides).
         haystack = re.sub(r"https?://(?:dx\.)?doi\.org/", " ", haystack)
-    pattern = r"(?<![\w/-])" + re.escape(needle) + r"(?![\w/-])"
-    return re.search(pattern, haystack) is not None
+    return token_pattern(re.escape(needle)).search(haystack) is not None
 
 
 def declared_dataset_text(doc):
