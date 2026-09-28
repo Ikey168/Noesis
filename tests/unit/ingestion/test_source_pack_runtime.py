@@ -650,4 +650,5 @@ def test_six_domain_offline_execution(setup):
         "research",
         "scientific",
         "technical",
+        "weather",
     }

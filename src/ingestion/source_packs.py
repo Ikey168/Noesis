@@ -278,6 +278,10 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"development-finance"})
 NATIVE_CONNECTOR_MODULES["bafin-notices"] = "src.ingestion.bafin_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"bafin-notices"})
 
+# Weather operational sources (DWD CDC/MOSMIX/CAP, aviationweather.gov, NWS API, Open-Meteo; #2163).
+NATIVE_CONNECTOR_MODULES["weather"] = "src.ingestion.weather_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"weather"})
+
 
 def native_connector_module(connector: str) -> Any:
     import importlib

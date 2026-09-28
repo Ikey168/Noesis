@@ -1,0 +1,40 @@
+{
+ "captured": false,
+ "provider": "dwd-cdc",
+ "note": "Authored bodies served for the production URLs. They name fictional stations, warncells and alerts only, so the production selection is out of scope for every item; parsing is exercised with fictional selections in tests/unit/weather/harness.py.",
+ "native_pages": [
+  {
+   "url": "https://opendata.dwd.de/climate_environment/CDC/observations_germany/climate/10_minutes/air_temperature/recent/zehn_min_tu_Beschreibung_Stationen.txt",
+   "params": {},
+   "status": 200,
+   "body_base64": "U3RhdGlvbnNfaWQgdm9uX2RhdHVtIGJpc19kYXR1bSBTdGF0aW9uc2hvZWhlIGdlb0JyZWl0ZSBnZW9MYWVuZ2UgU3RhdGlvbnNuYW1lIEJ1bmRlc2xhbmQgQWJnYWJlCi0tLS0tLS0tLS0tIC0tLS0tLS0tLSAtLS0tLS0tLS0gLS0tLS0tLS0tLS0tLSAtLS0tLS0tLS0gLS0tLS0tLS0tIC0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tIC0tLS0tLS0tLS0gLS0tLS0tLS0KOTk5MDEgMTk5MDAxMDEgMjAyNjA2MDkgICAgICAgICAgICAgNDEgICAgIDUyLjM4MTAgICAxMy41MjkwIE11c3RlcnN0YWR0LUZsdWdmZWxkICAgICAgICAgICAgICAgICAgICAgQnJhbmRlbmJ1cmcgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIEZyZWkK",
+   "authored": true
+  },
+  {
+   "url": "https://opendata.dwd.de/climate_environment/CDC/observations_germany/climate/10_minutes/air_temperature/recent/10minutenwerte_TU_00433_akt.zip",
+   "params": {},
+   "status": 200,
+   "body_base64": "UEsDBBQAAAAIAAAAIVyphAHYNQAAAD8AAAAoAAAAcHJvZHVrdF9hdXRob3JlZF9maXh0dXJlX2hlYWRlcl9vbmx5LnR4dAsOcQzx9PcLjvd0sfZ1DQ6Od3EMCfW1VlAI9LMOCIg3NLAOCQGTvqYgKsgNzHEBkan5RVwAUEsBAhQDFAAAAAgAAAAhXKmEAdg1AAAAPwAAACgAAAAAAAAAAAAAAIABAAAAAHByb2R1a3RfYXV0aG9yZWRfZml4dHVyZV9oZWFkZXJfb25seS50eHRQSwUGAAAAAAEAAQBWAAAAewAAAAAA",
+   "authored": true
+  },
+  {
+   "url": "https://opendata.dwd.de/climate_environment/CDC/observations_germany/climate/10_minutes/air_temperature/recent/zehn_min_tu_Beschreibung_Stationen.txt",
+   "params": {},
+   "status": 200,
+   "body_base64": "U3RhdGlvbnNfaWQgdm9uX2RhdHVtIGJpc19kYXR1bSBTdGF0aW9uc2hvZWhlIGdlb0JyZWl0ZSBnZW9MYWVuZ2UgU3RhdGlvbnNuYW1lIEJ1bmRlc2xhbmQgQWJnYWJlCi0tLS0tLS0tLS0tIC0tLS0tLS0tLSAtLS0tLS0tLS0gLS0tLS0tLS0tLS0tLSAtLS0tLS0tLS0gLS0tLS0tLS0tIC0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tIC0tLS0tLS0tLS0gLS0tLS0tLS0KOTk5MDEgMTk5MDAxMDEgMjAyNjA2MDkgICAgICAgICAgICAgNDEgICAgIDUyLjM4MTAgICAxMy41MjkwIE11c3RlcnN0YWR0LUZsdWdmZWxkICAgICAgICAgICAgICAgICAgICAgQnJhbmRlbmJ1cmcgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIEZyZWkK",
+   "authored": true
+  },
+  {
+   "url": "https://opendata.dwd.de/climate_environment/CDC/observations_germany/climate/10_minutes/air_temperature/recent/10minutenwerte_TU_03987_akt.zip",
+   "params": {},
+   "status": 200,
+   "body_base64": "UEsDBBQAAAAIAAAAIVyphAHYNQAAAD8AAAAoAAAAcHJvZHVrdF9hdXRob3JlZF9maXh0dXJlX2hlYWRlcl9vbmx5LnR4dAsOcQzx9PcLjvd0sfZ1DQ6Od3EMCfW1VlAI9LMOCIg3NLAOCQGTvqYgKsgNzHEBkan5RVwAUEsBAhQDFAAAAAgAAAAhXKmEAdg1AAAAPwAAACgAAAAAAAAAAAAAAIABAAAAAHByb2R1a3RfYXV0aG9yZWRfZml4dHVyZV9oZWFkZXJfb25seS50eHRQSwUGAAAAAAEAAQBWAAAAewAAAAAA",
+   "authored": true
+  }
+ ],
+ "scenarios": [
+  "bounded-selection",
+  "out-of-scope-items-counted",
+  "user-agent-sent"
+ ]
+}

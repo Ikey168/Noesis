@@ -44,7 +44,9 @@ GRID_EVENT_TYPES = ("generation", "load", "unavailability")
 UNAVAILABILITY_KINDS = ("planned", "unplanned", "unknown")
 LOCATION_KINDS = ("station", "grid-cell", "facility", "bidding-zone")
 PROVIDERS = ("openaq", "uba", "entsoe", "smard", "eea-industry", "eu-ets", "umweltatlas",
-             "open-meteo-archive", "open-meteo-forecast", "dwd", "copernicus-cams")
+             "open-meteo-archive", "open-meteo-forecast", "dwd", "copernicus-cams",
+             # Station-only providers the Weather pack registers through this owner (#2165).
+             "dwd-mosmix", "aviationweather")
 # What each provider (dataset) can publish. A value outside this set is
 # rejected at validation: reanalysis and forecasts can never become observations.
 PROVIDER_KINDS = {
@@ -59,6 +61,8 @@ PROVIDER_KINDS = {
     "open-meteo-forecast": {"forecast"},
     "dwd": {"observation"},
     "copernicus-cams": set(),  # not implemented
+    "dwd-mosmix": set(),  # stations only (Weather pack forecast locations)
+    "aviationweather": set(),  # stations only (Weather pack METAR stations)
 }
 # Native unit text (as published) -> pint expression. Anything else is kept as
 # published and marked ``unit_unmapped``; it is never guessed.

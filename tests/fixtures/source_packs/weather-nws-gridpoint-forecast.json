@@ -1,0 +1,26 @@
+{
+ "captured": false,
+ "provider": "nws",
+ "note": "Authored bodies served for the production URLs. They name fictional stations, warncells and alerts only, so the production selection is out of scope for every item; parsing is exercised with fictional selections in tests/unit/weather/harness.py.",
+ "native_pages": [
+  {
+   "url": "https://api.weather.gov/points/42.3601,-71.0589",
+   "params": {},
+   "status": 200,
+   "body": "{\"properties\": {\"gridId\": \"BOX\", \"gridX\": 71, \"gridY\": 90}}",
+   "authored": true
+  },
+  {
+   "url": "https://api.weather.gov/gridpoints/BOX/71,90/forecast/hourly",
+   "params": {},
+   "status": 200,
+   "body": "{\"type\": \"Feature\", \"geometry\": {\"type\": \"Polygon\", \"coordinates\": [[[-71.0, 42.3], [-71.0, 42.4], [-70.9, 42.4], [-71.0, 42.3]]]}, \"properties\": {\"updateTime\": \"2026-06-10T09:00:00+00:00\", \"periods\": []}}",
+   "authored": true
+  }
+ ],
+ "scenarios": [
+  "bounded-selection",
+  "out-of-scope-items-counted",
+  "user-agent-sent"
+ ]
+}

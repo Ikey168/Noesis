@@ -76,7 +76,12 @@ CREATE TABLE IF NOT EXISTS weather_forecast_elements(
 CREATE TABLE IF NOT EXISTS weather_provider_state(
  namespace TEXT NOT NULL, provider TEXT NOT NULL, last_success_ms BIGINT, last_failure_ms BIGINT,
  last_failure_code TEXT, last_run_id TEXT, PRIMARY KEY(namespace, provider));
+CREATE TABLE IF NOT EXISTS weather_station_identifiers(
+ namespace TEXT NOT NULL, station_key TEXT NOT NULL, scheme TEXT NOT NULL, value TEXT NOT NULL, stated_by TEXT NOT NULL,
+ locator_json TEXT NOT NULL, first_seen_ms BIGINT NOT NULL, run_id TEXT NOT NULL,
+ PRIMARY KEY(namespace, station_key, scheme, value, stated_by));
 """
+IDENTIFIER_CONTRACT = "noesis-weather-station-identifier-v1"
 
 
 class WeatherError(ValueError):
@@ -224,10 +229,12 @@ class WeatherStore:
                 "weather records are written to a caller namespace",
             )
         retrieved = int(retrieved_at_ms or self.now())
-        stations, weather = [], []
+        stations, weather, identifiers = [], [], []
         for item in records:
             if dict(item).get("contract") == "noesis-environment-record-v1":
                 stations.append(dict(item))
+            elif dict(item).get("contract") == IDENTIFIER_CONTRACT:
+                identifiers.append(dict(item))
             else:
                 weather.append(wr.validate(dict(item)))
         counts = {
@@ -235,6 +242,9 @@ class WeatherStore:
             "unchanged": 0,
             "corrections": 0,
             "late_history": 0,
+            "identifiers": self._identifiers(
+                namespace, identifiers, run_id=run_id, retrieved=retrieved
+            ),
             "places": 0,
             "features": 0,
             "stations_registered": 0,
@@ -649,14 +659,30 @@ class WeatherStore:
         )
 
     @staticmethod
-    def area_keys(area: Mapping[str, Any]) -> list[str]:
-        """Feature native ids of one CAP area: warncell ids and UGC zones, never names."""
+    def area_keys(record: Mapping[str, Any], index: int) -> list[str]:
+        """Match keys of one CAP area: warncell ids and UGC zones (never names), plus the message polygon
+        when the area's polygon cannot be attributed to exactly one code."""
 
-        return sorted(
+        area = record["areas"][index]
+        codes = sorted(
             f"{'warncell' if c['scheme'] == 'WARNCELLID' else 'ugc'}:{c['value']}"
             for c in area.get("codes") or []
             if c["scheme"] in {"WARNCELLID", "UGC"}
         )
+        if area.get("polygons") and len(codes) != 1:
+            codes.append(
+                "cap:"
+                + digest([record["sender"], record["identifier"]])[:20]
+                + f"#{index}"
+            )
+        return codes
+
+    @staticmethod
+    def _projected_key(keys: list[str]) -> str | None:
+        coded = [k for k in keys if not k.startswith("cap:")]
+        if len(coded) == 1:
+            return coded[0]
+        return next((k for k in keys if k.startswith("cap:")), None)
 
     def _project_warning_areas(
         self,
@@ -668,11 +694,13 @@ class WeatherStore:
     ) -> int:
         by_provider: dict[str, dict[str, dict[str, Any]]] = {}
         for record in sorted(records, key=lambda r: (r["sent"], r["identifier"])):
-            for area in record["areas"]:
-                keys = self.area_keys(area)
-                # A polygon is attributed to an area code only when the area names exactly one code.
-                if len(keys) != 1 or not area["polygons"]:
+            for index, area in enumerate(record["areas"]):
+                # A polygon is attributed to an area code only when the area names exactly one code;
+                # otherwise it is projected as the message's own polygon.
+                key = self._projected_key(self.area_keys(record, index))
+                if key is None or not area["polygons"]:
                     continue
+                keys = [key]
                 polygons = area["polygons"]
                 geometry = (
                     {"type": "Polygon", "coordinates": [polygons[0]]}
@@ -711,6 +739,67 @@ class WeatherStore:
             )
             for provider, items in sorted(by_provider.items())
         )
+
+    def _identifiers(
+        self,
+        namespace: str,
+        statements: list[dict[str, Any]],
+        *,
+        run_id: str,
+        retrieved: int,
+    ) -> int:
+        """Source-stated station identifiers (e.g. a MOSMIX id's ICAO code), as published."""
+
+        inserted = 0
+        for item in statements:
+            station = wr.station_ref(
+                item["station"]["provider"], item["station"]["native_id"]
+            )
+            scheme, value = str(item.get("scheme") or ""), str(item.get("value") or "")
+            if not scheme or not value or not item.get("stated_by"):
+                raise WeatherError(
+                    "invalid_identifier",
+                    "identifier statements name scheme, value and source",
+                )
+            rows = self.conn.execute(
+                "INSERT INTO weather_station_identifiers VALUES (?,?,?,?,?,?,?,?) ON CONFLICT DO NOTHING "
+                "RETURNING station_key",
+                [
+                    namespace,
+                    wr.station_key(station),
+                    scheme,
+                    value,
+                    item["stated_by"],
+                    canonical(item.get("locator") or {}),
+                    retrieved,
+                    run_id,
+                ],
+            ).fetchall()
+            inserted += len(rows)
+        return inserted
+
+    def identifiers(
+        self, namespace: str, *, cutoff_ms: int | None = None
+    ) -> list[dict[str, Any]]:
+        if not _table(self.conn, "weather_station_identifiers"):
+            return []
+        rows = self.conn.execute(
+            "SELECT station_key, scheme, value, stated_by, locator_json, first_seen_ms FROM "
+            "weather_station_identifiers WHERE namespace=? AND (? IS NULL OR first_seen_ms<=?) "
+            "ORDER BY station_key, scheme, value, stated_by",
+            [namespace, cutoff_ms, cutoff_ms],
+        ).fetchall()
+        return [
+            {
+                "station": r[0],
+                "scheme": r[1],
+                "value": r[2],
+                "stated_by": r[3],
+                "locator": json.loads(r[4]),
+                "first_seen_ms": int(r[5]),
+            }
+            for r in rows
+        ]
 
     # ------------------------------------------------------------- provider state
 

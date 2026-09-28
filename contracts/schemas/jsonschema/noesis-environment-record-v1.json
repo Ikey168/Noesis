@@ -20,7 +20,7 @@
   "properties": {
     "contract": {"const": "noesis-environment-record-v1"},
     "record_type": {"enum": ["station", "observation_series", "facility", "grid_event", "indicator_vintage"]},
-    "provider": {"enum": ["openaq", "uba", "entsoe", "smard", "eea-industry", "eu-ets", "umweltatlas", "open-meteo-archive", "open-meteo-forecast", "dwd", "copernicus-cams"]},
+    "provider": {"enum": ["openaq", "uba", "entsoe", "smard", "eea-industry", "eu-ets", "umweltatlas", "open-meteo-archive", "open-meteo-forecast", "dwd", "copernicus-cams", "dwd-mosmix", "aviationweather"]},
     "native_id": {"type": "string", "minLength": 1},
     "title": {"type": "string", "minLength": 1},
     "source_url": {"type": "string", "pattern": "^https://"},
