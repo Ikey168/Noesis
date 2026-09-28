@@ -407,10 +407,14 @@ class HousingMonitor:
                     "maintenance orchestrator commit them",
                 )
             watermark = int(row[0])
+        snapshot = self.snapshot(subscription)
+        # The pointer to the neighbouring (previous) publication is context, not part of the item: an older
+        # publication acquired late changes the pointer but not the record, and must not read as a correction.
+        previous = {item["id"]: item.pop("previous") for item in snapshot["items"]}
         evaluated = self.subscriptions.evaluate(
             subscription_id,
             watermark,
-            self.snapshot(subscription),
+            snapshot,
             principal_id=principal_id,
             scopes=scopes,
             observed_at_ms=self.now(),
@@ -422,7 +426,7 @@ class HousingMonitor:
                 "WHERE event_id=?",
                 [event_id],
             ).fetchone()
-            notifications.extend(self._classify(event_id, *row))
+            notifications.extend(self._classify(event_id, *row, previous=previous))
         return {
             "subscription_id": subscription_id,
             "status": evaluated["status"],
@@ -433,7 +437,13 @@ class HousingMonitor:
 
     @staticmethod
     def _classify(
-        event_id: str, event_type: str, key: str, before: str | None, after: str | None
+        event_id: str,
+        event_type: str,
+        key: str,
+        before: str | None,
+        after: str | None,
+        *,
+        previous: Mapping[str, Any] | None = None,
     ) -> list[dict[str, Any]]:
         if event_type not in {"added", "changed", "corrected"} or not after:
             return []
@@ -464,7 +474,7 @@ class HousingMonitor:
                 "source_revision": revision,
                 "supersedes": json.loads(before)["source_revision"]
                 if before
-                else item.get("previous"),
+                else (previous or {}).get(item["id"]),
                 "item": {
                     k: v
                     for k, v in item.items()

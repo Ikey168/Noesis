@@ -242,3 +242,38 @@ def test_selectors_are_validated_and_scoped(env):
     )
     with pytest.raises(HousingError):
         monitor.run(other["subscription_id"], principal_id="alice", scopes=h.SCOPES)
+
+
+def test_an_older_publication_loaded_late_is_new_and_never_a_correction_of_the_newer_one():
+    env = h.Env()
+    env.install()
+    env.run(["berlin-bezirksgrenzen"], "districts")
+    env.upgrade()
+    env.boris_2100()
+    monitor = HousingMonitor(env.conn)
+    watch = monitor.create(
+        NS,
+        "late",
+        selector={"zone_id": "1099001"},
+        principal_id="alice",
+        scopes=h.SCOPES,
+    )
+    commit(env, 1)
+    first = monitor.run(watch["subscription_id"], principal_id="alice", scopes=h.SCOPES)
+    assert [
+        (n["kind"], n["item"]["valuation_date"]) for n in first["notifications"]
+    ] == [("new_land_value_publication", "2100-01-01")]
+    assert first["notifications"][0]["supersedes"] is None
+    env.run(
+        ["berlin-boris-bodenrichtwerte"], "late-2099"
+    )  # the pinned 2099 publication arrives late
+    commit(env, 2)
+    late = monitor.run(watch["subscription_id"], principal_id="alice", scopes=h.SCOPES)
+    assert [
+        (n["kind"], n["item"]["valuation_date"]) for n in late["notifications"]
+    ] == [("new_land_value_publication", "2099-01-01")]
+    events = monitor.poll(
+        watch["subscription_id"], principal_id="alice", scopes=h.SCOPES
+    )["events"]
+    assert [e["event_type"] for e in events] == ["added", "added"]
+    env.conn.close()

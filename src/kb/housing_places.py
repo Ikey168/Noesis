@@ -37,6 +37,7 @@ import json
 import time
 from collections.abc import Iterable, Mapping, Sequence
 from datetime import date, datetime, timezone
+from decimal import Decimal
 from typing import Any
 
 from src.ingestion.housing_sources import (
@@ -331,18 +332,18 @@ class HousingPlaces:
         dated = [
             r for r in rows if r.get("valuation_date") and r["valuation_date"] <= day
         ]
-        latest: dict[tuple, dict[str, Any]] = {}
+        # The edition in force is the latest Stichtag each source published on or before the date; only zones of
+        # that edition are matched, so a zone renumbered or dropped since an earlier Stichtag is never current.
+        editions: dict[tuple, str] = {}
         for row in dated:
-            key = (
-                row["source_id"],
-                row["source_revision"]["collection"],
-                row["zone_id"],
-            )
-            if (
-                key not in latest
-                or row["valuation_date"] > latest[key]["valuation_date"]
-            ):
-                latest[key] = row
+            key = (row["source_id"], row["source_revision"]["collection"])
+            editions[key] = max(editions.get(key, ""), row["valuation_date"])
+        latest = {
+            row["record_id"]: row
+            for row in dated
+            if row["valuation_date"]
+            == editions[(row["source_id"], row["source_revision"]["collection"])]
+        }
         members, receipts = self._members(
             list(latest.values()), points, principal_id, scopes
         )
@@ -364,7 +365,7 @@ class HousingPlaces:
                     "zone_name": record.get("zone_name"),
                     "source_id": record["source_id"],
                     "selected": record,
-                    "selection_basis": f"latest valuation date not after {day}",
+                    "selection_basis": f"zone of the source's latest valuation date (edition) not after {day}",
                     "prior_revisions": sorted(
                         (
                             r
@@ -645,6 +646,9 @@ class HousingPlaces:
     def _disagreements(statistics, indicators) -> list[dict[str, Any]]:
         readings: dict[tuple, list[dict[str, Any]]] = {}
         for row in statistics:
+            if row.get("value") is None:
+                # A suppressed or missing figure (".", "x", "/", "...", empty) is absent, never a value to compare.
+                continue
             readings.setdefault((row["measure"], row["period"]), []).append(
                 {
                     "source_id": row["source_id"],
@@ -679,7 +683,7 @@ class HousingPlaces:
         out = []
         for (measure, period), items in sorted(readings.items()):
             providers = {i["provider"] for i in items}
-            if len(providers) > 1 and len({i["value"] for i in items}) > 1:
+            if len(providers) > 1 and len({Decimal(i["value"]) for i in items}) > 1:
                 out.append(
                     {
                         "measure": measure,
@@ -717,6 +721,12 @@ class HousingPlaces:
             "contract": DOSSIER_CONTRACT,
             "namespace": namespace,
             "as_of": day,
+            # Every build parameter besides the input, so a replay rebuilds the same dossier.
+            "parameters": {
+                "geo_namespace": geo_namespace,
+                "include_transit_feed": include_transit_feed,
+                "include_news": bool(include_news),
+            },
             "review_boundary": REVIEW_BOUNDARY,
             "value_surface": NO_SURFACE,
         }
@@ -979,7 +989,7 @@ class HousingPlaces:
                     yield from ids(item)
 
         used = sorted(set(ids({k: v for k, v in answer.items() if k != "receipt"})))
-        request = {k: answer[k] for k in ("namespace", "as_of")} | {
+        request = {k: answer[k] for k in ("namespace", "as_of", "parameters")} | {
             "input": answer.get("input")
         }
         return {
@@ -999,7 +1009,16 @@ class HousingPlaces:
             raise HousingError(
                 "invalid_receipt", "a dossier receipt carries its request"
             )
-        kwargs: dict[str, Any] = {}
+        parameters = dict(request.get("parameters") or {})
+        if set(parameters) - {"geo_namespace", "include_transit_feed", "include_news"}:
+            raise HousingError(
+                "invalid_receipt", "the receipt carries unknown build parameters"
+            )
+        kwargs: dict[str, Any] = {
+            "geo_namespace": str(parameters.get("geo_namespace") or "global"),
+            "include_transit_feed": parameters.get("include_transit_feed"),
+            "include_news": bool(parameters.get("include_news")),
+        }
         if given.get("kind") == "district":
             kwargs["district_code"] = given.get("district_code")
         elif (given.get("resolution") or {}).get("resolution_id"):

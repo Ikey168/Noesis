@@ -44,7 +44,8 @@ def test_an_address_gets_its_zone_plan_wohnlage_cells_and_statistics_as_of_a_dat
     ) == ("2100-01-01", "5900", "EUR/m²", "EUR")
     assert [r["valuation_date"] for r in zone["prior_revisions"]] == ["2099-01-01"]
     assert (
-        zone["selection_basis"] == "latest valuation date not after 2100-06-01"
+        zone["selection_basis"]
+        == "zone of the source's latest valuation date (edition) not after 2100-06-01"
         and land["receipt_ids"]
     )
     (plan,) = answer["development_plans"]["plans"]
@@ -303,3 +304,95 @@ def test_zone_comparison_lists_valuation_dates_and_sources_side_by_side(env):
         "no change, trend or interpolated value" in compared["note"]
         and forbidden_keys(compared) == []
     )
+
+
+def test_a_dossier_built_against_another_geospatial_namespace_replays_with_its_parameters():
+    env = h.Env().world()
+    place = GeospatialStore(env.conn).register_place(
+        "stadtplan",
+        "Musterstraße 1 (fiktiv)",
+        "address",
+        names=[{"value": "Musterstraße 1 (fiktiv)", "kind": "canonical"}],
+        source_ids={"fixture-address": "stadtplan-1"},
+        parent_ids=[],
+        principal_id="alice",
+        scopes={"knowledge:geospatial:write", "knowledge:geospatial:read"},
+        geometry={"type": "Point", "coordinates": h.wgs84(h.ADDRESS_UTM)},
+    )
+    places = HousingPlaces(env.conn)
+    answer = places.dossier(
+        NS,
+        as_of="2100-06-01",
+        principal_id="alice",
+        scopes=h.SCOPES,
+        geo_namespace="stadtplan",
+        place_id=place["place_id"],
+    )
+    assert (
+        answer["status"] == "answered"
+        and answer["land_value"]["zones"][0]["zone_id"] == "1099001"
+    )
+    assert answer["receipt"]["request"]["parameters"]["geo_namespace"] == "stadtplan"
+    again = places.replay(answer["receipt"], principal_id="alice", scopes=h.SCOPES)
+    assert again["status"] == "reproduced"
+    env.conn.close()
+
+
+def test_a_renumbered_or_dropped_zone_of_an_earlier_stichtag_is_not_current():
+    from tests.unit import housing_fixture_builder as fb
+
+    env = h.Env().world()
+    features = fb.boris_features("2100-01-01")
+    features[0]["properties"]["wnum"] = (
+        "1100001"  # zone A renumbered in the 2100 edition
+    )
+    del features[2]  # zone C no longer published
+    adapter = env.wfs_adapter(
+        "berlin-boris-bodenrichtwerte", features, "2100-03-01T08:00:00Z"
+    )
+    env.run(
+        ["berlin-boris-bodenrichtwerte"],
+        "boris-2100-renumbered",
+        adapters={"berlin-boris-bodenrichtwerte": adapter},
+    )
+    answer = dossier(env, point=h.wgs84(h.ADDRESS_UTM))
+    assert answer["land_value"]["status"] == "single_zone"
+    (zone,) = answer["land_value"]["zones"]
+    assert (zone["zone_id"], zone["selected"]["valuation_date"]) == (
+        "1100001",
+        "2100-01-01",
+    )
+    edge = dossier(env, point=h.wgs84(h.EDGE_UTM))
+    assert [z["zone_id"] for z in edge["land_value"]["zones"]] == ["1099002", "1100001"]
+    earlier = dossier(env, point=h.wgs84(h.ADDRESS_UTM), as_of="2099-06-01")
+    assert [z["zone_id"] for z in earlier["land_value"]["zones"]] == ["1099001"]
+    env.conn.close()
+
+
+def test_a_suppressed_statistics_figure_is_absent_not_a_disagreement():
+    from src.ingestion.housing_sources import parse_publication
+    from tests.unit import housing_fixture_builder as fb
+
+    env = h.Env().world()
+    document = fb.statbb_document("permits")
+    csv = fb.statbb_csv("permits").replace(
+        "00;Berlin;2098;1520;98,4", "00;Berlin;2098;.;x"
+    )
+    parsed = parse_publication(
+        "statbb-building-csv",
+        csv.encode(),
+        document=document,
+        headers={"Last-Modified": fb.last_modified("2099-09-30")},
+    )
+    header = {k: parsed[k] for k in parsed if k != "items"} | {
+        "document": document,
+        "evidence_origin": "fixture",
+    }
+    env.store().apply_publication(
+        NS, header, parsed["items"], source_id="statistik-bb-bautaetigkeit"
+    )
+    answer = dossier(env, point=h.wgs84(h.ADDRESS_UTM))
+    land = {(s["measure"], s["period"]): s for s in answer["land"]["statistics"]}
+    assert land[("dwellings_permitted", "2098")]["value_text"] == "."
+    assert answer["land"]["disagreements"] == []
+    env.conn.close()
