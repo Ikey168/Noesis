@@ -325,6 +325,9 @@ def _mutability(name: str) -> str:
     from tools.knowledge_engine_mcp.bafin_notices import BAFIN_WRITES
     if name in BAFIN_WRITES:
         return "write"
+    from tools.knowledge_engine_mcp.astronomy import ASTRONOMY_WRITES
+    if name in ASTRONOMY_WRITES:
+        return "write"
     from tools.knowledge_engine_mcp.vulnerabilities import VULNERABILITY_WRITES
     if name in VULNERABILITY_WRITES:
         return "write"
@@ -913,6 +916,12 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
     )
     if server_stem == "knowledge_engine_mcp" and tool_name in BAFIN_TOOLS:
         return bafin_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.astronomy import ASTRONOMY_TOOLS
+    from tools.knowledge_engine_mcp.astronomy import (
+        required_scopes as astronomy_scopes,
+    )
+    if server_stem == "knowledge_engine_mcp" and tool_name in ASTRONOMY_TOOLS:
+        return astronomy_scopes(tool_name, mutability)
     from tools.knowledge_engine_mcp.vulnerabilities import VULNERABILITY_TOOLS
     from tools.knowledge_engine_mcp.vulnerabilities import (
         required_scopes as vulnerability_scopes,
