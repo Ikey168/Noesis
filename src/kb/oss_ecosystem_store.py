@@ -229,21 +229,27 @@ class OssEcosystemStore:
             "run_id, document_id FROM oss_revisions WHERE record_id=? ORDER BY order_ms, observed_at_ms, seq",
             [rid],
         ).fetchall()
-        return [
-            {
-                "revision_id": r[0],
-                "content_hash": r[1],
-                "statement": json.loads(r[2]),
-                "order_ms": r[3],
-                "source_modified_ms": r[4],
-                "observed_at_ms": r[5],
-                "seq": r[6],
-                "late": bool(r[7]),
-                "run_id": r[8],
-                "document_id": r[9],
-            }
-            for r in rows
-        ]
+        chain: list[dict[str, Any]] = []
+        for r in rows:
+            if chain and chain[-1]["content_hash"] == r[1]:
+                # A re-observation of the content already in effect (e.g. an earlier poll that arrived
+                # late): the earliest observation stands, so the chain never depends on arrival order.
+                continue
+            chain.append(
+                {
+                    "revision_id": r[0],
+                    "content_hash": r[1],
+                    "statement": json.loads(r[2]),
+                    "order_ms": r[3],
+                    "source_modified_ms": r[4],
+                    "observed_at_ms": r[5],
+                    "seq": r[6],
+                    "late": bool(r[7]),
+                    "run_id": r[8],
+                    "document_id": r[9],
+                }
+            )
+        return chain
 
     def _insert(
         self,
@@ -535,9 +541,23 @@ class OssEcosystemStore:
         ).fetchone()
         if row is None:
             return None
-        return next(
-            r for r in self._revisions(row[0]) if r["revision_id"] == revision_id
+        found = next(
+            (r for r in self._revisions(row[0]) if r["revision_id"] == revision_id),
+            None,
         )
+        if found is not None:
+            return {**found, "record_id": row[0]}
+        statement = self.conn.execute(
+            "SELECT statement_json, observed_at_ms FROM oss_revisions WHERE revision_id=?",
+            [revision_id],
+        ).fetchone()
+        return {
+            "revision_id": revision_id,
+            "record_id": row[0],
+            "statement": json.loads(statement[0]),
+            "observed_at_ms": statement[1],
+            "note": "a re-observation of content an earlier observation already records",
+        }
 
     def asserted_repositories(self, namespace: str) -> dict[str, list[dict[str, Any]]]:
         """repository key -> the current link assertions naming it (every source, every package)."""
