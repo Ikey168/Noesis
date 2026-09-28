@@ -143,6 +143,10 @@ CREATE TABLE IF NOT EXISTS demographic_observations (
   flags_json TEXT NOT NULL, normalized_json TEXT, definition_id TEXT NOT NULL, extra_json TEXT NOT NULL,
   PRIMARY KEY(namespace, vintage_id, period)
 );
+CREATE TABLE IF NOT EXISTS demographic_release_members (
+  namespace TEXT NOT NULL, release_id TEXT NOT NULL, series_id TEXT NOT NULL, vintage_id TEXT NOT NULL,
+  PRIMARY KEY(namespace, release_id, series_id)
+);
 CREATE TABLE IF NOT EXISTS demographic_breaks (
   namespace TEXT NOT NULL, break_id TEXT NOT NULL, series_id TEXT NOT NULL, kind TEXT NOT NULL, period TEXT,
   from_definition_id TEXT, to_definition_id TEXT, flag TEXT, note TEXT NOT NULL, first_vintage_id TEXT NOT NULL,
@@ -478,6 +482,11 @@ class DemographicStore:
                     retrieved,
                 )
                 vintage_ids.append(vintage_id)
+                # Every release that states a series is recorded, also when it repeats a stored vintage.
+                self.conn.execute(
+                    "INSERT INTO demographic_release_members VALUES (?,?,?,?)",
+                    [namespace, release_id, series_id, vintage_id],
+                )
                 counts["vintages"] += int(new_vintage)
                 if new_vintage:
                     counts["breaks"] += self._breaks(namespace, series_id, vintage_id)
@@ -1213,6 +1222,17 @@ class DemographicStore:
                 }
             )
         return out
+
+    def release_series(self, namespace: str, release_id: str) -> list[dict[str, str]]:
+        """The series (and the vintage) each release states, whether or not it added the vintage."""
+        return [
+            {"series_id": r[0], "vintage_id": r[1]}
+            for r in self.conn.execute(
+                "SELECT series_id, vintage_id FROM demographic_release_members WHERE namespace=? AND release_id=? "
+                "ORDER BY series_id",
+                [namespace, release_id],
+            ).fetchall()
+        ]
 
     def breaks(self, namespace: str, series_id: str) -> list[dict[str, Any]]:
         rows = self.conn.execute(

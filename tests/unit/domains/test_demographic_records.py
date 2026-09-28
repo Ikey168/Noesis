@@ -30,6 +30,7 @@ TABLES = (
     "demographic_vintages",
     "demographic_observations",
     "demographic_breaks",
+    "demographic_release_members",
 )
 
 

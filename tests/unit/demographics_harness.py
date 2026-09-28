@@ -208,3 +208,90 @@ class Clock:
     def __call__(self) -> int:
         self.value += 1000
         return self.value
+
+
+LEGAL_NS = "legal"
+DOSSIER_NS = "research"
+LEGAL_SCOPES = {"knowledge:legal:read", f"namespace:{LEGAL_NS}:read"}
+DECISION_ECLI = "ECLI:DE:BVERWG:2099:999"
+
+
+def load_acts(conn) -> dict:
+    """A fictional EU statistics regulation (CELLAR, CELEX 32099R0999), a fictional German court decision (ECLI)
+    and a fictional act whose title shares words with the definitions but is cited by no publisher."""
+    from src.kb.legal import REGIONAL_CONTRACT, LegalStore
+
+    records = [
+        {
+            "contract": REGIONAL_CONTRACT,
+            "provider": "cellar",
+            "provider_id": "cellar:fixture-migration-statistics",
+            "kind": "normative",
+            "language": "en",
+            "title": "Regulation (EU) 2099/999 on Community statistics on migration and international protection "
+            "(fictional)",
+            "fields": {
+                "celex": "32099R0999",
+                "work": "cellar:fixture-migration-statistics",
+            },
+        },
+        {
+            "contract": REGIONAL_CONTRACT,
+            "provider": "german-courts",
+            "provider_id": "KVRE999999999",
+            "kind": "court-decision",
+            "language": "de",
+            "title": "Urteil zum Asylverfahren (fiktiv)",
+            "fields": {
+                "ecli": DECISION_ECLI,
+                "court": "BVerwG",
+                "docket_number": "1 C 99.99",
+            },
+        },
+        {
+            "contract": REGIONAL_CONTRACT,
+            "provider": "cellar",
+            "provider_id": "cellar:fixture-population-census",
+            "kind": "normative",
+            "language": "en",
+            "title": "Regulation (EU) 2099/998 on population and housing censuses and asylum applications "
+            "(fictional)",
+            "fields": {
+                "celex": "32099R0998",
+                "work": "cellar:fixture-population-census",
+            },
+        },
+    ]
+    return LegalStore(conn).project(
+        LEGAL_NS, records, run_id="legal-fixture", source_id="legal-fixture"
+    )
+
+
+def load_dossier(conn) -> dict:
+    """A fictional DE dossier whose bill carries printed paper 99/2001."""
+    from src.domains.political.legislative_dossiers import LegislativeDossierStore
+    from tests.unit import lobbying_harness as lh
+
+    store, de, _eu = lh._documents(conn)
+    bill = lh._add(
+        store,
+        de,
+        source_id="de-bundestag-dip",
+        identity="99/2001",
+        document_type="proposal",
+        title="Entwurf eines Gesetzes zur Änderung des Bevölkerungsstatistikgesetzes (fiktiv)",
+        content="Gesetzentwurf der Bundesregierung (fiktiv).",
+        political={"procedure_id": "proposal:de:bevstatg-2099", "fixture": True},
+        observed_at=2000,
+    )
+    scopes = lh.DOSSIER_SCOPES | {f"document:{bill}:read"}
+    saved = LegislativeDossierStore(conn, now=lambda: 3000).save(
+        DOSSIER_NS,
+        "bevstatg-2099",
+        "DE",
+        "proposal:de:bevstatg-2099",
+        [lh._ref(conn, bill)],
+        principal_id="alice",
+        scopes=scopes,
+    )
+    return {"dossier": saved, "scopes": scopes}
