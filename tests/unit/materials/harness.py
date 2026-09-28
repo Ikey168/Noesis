@@ -27,7 +27,12 @@ NS = "materials"
 READ = "knowledge:materials:read"
 WRITE = "knowledge:materials:write"
 SCOPES = {READ, WRITE, f"namespace:{NS}:read", f"namespace:{NS}:write"}
-PUBLIC_DNS = lambda _host: ["8.8.8.8"]  # noqa: E731 - resolver stub
+
+
+def PUBLIC_DNS(_host):  # noqa: N802 - resolver stub named like the other harnesses
+    return ["8.8.8.8"]
+
+
 SOURCES = {
     "materials-project": "materials-project-ti-al-oxides",
     "jarvis-dft": "jarvis-dft-3d-snapshot",

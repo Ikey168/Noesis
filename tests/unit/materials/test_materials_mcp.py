@@ -204,6 +204,18 @@ def test_every_entry_point_before_any_source_ran_is_not_ready(tmp_path, monkeypa
         },
         "poll_material_watch": {"namespace": h.NS, "subscription_id": "subscription:x"},
         "propose_material_matches": {"namespace": h.NS},
+        "review_material_match": {
+            "namespace": h.NS,
+            "candidate_id": "own-idc:x",
+            "decision": "accept",
+            "reason": "r",
+        },
+        "revert_material_match": {
+            "namespace": h.NS,
+            "candidate_id": "own-idc:x",
+            "reason": "r",
+        },
+        "run_material_watch": {"namespace": h.NS, "subscription_id": "subscription:x"},
         "create_material_watch": {
             "namespace": h.NS,
             "request_key": "w",

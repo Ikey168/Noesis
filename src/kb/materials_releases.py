@@ -305,6 +305,7 @@ class MaterialsReleaseWatch:
         }
 
     def _watch(self, subscription_id, principal_id):
+        self.store.require_ready()
         if not table_exists(self.conn, "materials_watches"):
             raise MaterialsError("not_ready", "no materials watch exists yet")
         row = self.conn.execute(

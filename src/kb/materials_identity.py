@@ -297,6 +297,7 @@ class MaterialsIdentity:
         )
 
     def _own(self, namespace, candidate_id):
+        self.store.require_ready()
         row = (
             self.conn.execute(
                 "SELECT left_key, right_key FROM ownership_identity_candidates WHERE namespace=? "
