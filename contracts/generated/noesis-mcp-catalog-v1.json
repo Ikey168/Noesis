@@ -20358,7 +20358,9 @@
         "knowledge-engine-runtime"
       ],
       "required_scopes": [
+        "knowledge:clinical:read",
         "knowledge:clinical:write",
+        "knowledge:schema:read",
         "knowledge:schema:register"
       ],
       "server": "noesis-knowledge-engine",
@@ -41997,7 +41999,9 @@
         "knowledge-engine-runtime"
       ],
       "required_scopes": [
+        "knowledge:clinical:read",
         "knowledge:clinical:write",
+        "knowledge:paper-family:read",
         "knowledge:paper-family:write"
       ],
       "server": "noesis-knowledge-engine",

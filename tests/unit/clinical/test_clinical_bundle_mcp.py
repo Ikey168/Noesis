@@ -104,3 +104,26 @@ def test_enablement_requires_the_coordinator(mcp_env):
         set_enabled(conn, NS, False, principal_id="alice", scopes={"knowledge:clinical:read"})
     assert readiness(conn, NS, scopes={"knowledge:clinical:read"})["enabled"] is True
     conn.close()
+
+
+def test_linking_and_alignment_work_with_exactly_their_declared_scopes(mcp_env):
+    """Each tool holding only its declared scopes (plus namespace access and the object-level document grants)."""
+    from tools.knowledge_engine_mcp.clinical import CLINICAL_SCOPES
+
+    tools, state, path = mcp_env
+    conn = duckdb.connect(path, read_only=True)
+    documents = {f"document:{r[0]}:read" for r in conn.execute("SELECT document_id FROM documents").fetchall()}
+    conn.close()
+    namespace = {f"namespace:{NS}:read", f"namespace:{NS}:write"}
+    state["scopes"] = set(CLINICAL_SCOPES["link_clinical_publications"]) | namespace | documents
+    linked = tools["link_clinical_publications"].fn(namespace=NS, observation="exact-scopes")
+    assert linked.get("ok") is not False and linked["links"] and not linked["family_errors"], linked["family_errors"]
+    mesh = json.loads((ROOT / "tests/fixtures/clinical/mesh_subset.json").read_text())
+    state["scopes"] = set(CLINICAL_SCOPES["align_clinical_terms"]) | namespace
+    aligned = tools["align_clinical_terms"].fn(namespace=NS, mesh_version=mesh["version"])
+    assert aligned.get("ok") is not False and aligned["mappings"], aligned
+    for name in ("link_clinical_publications", "align_clinical_terms"):
+        state["scopes"] = (set(CLINICAL_SCOPES[name]) - {"knowledge:clinical:read"}) | namespace
+        refused = tools[name].fn(namespace=NS, observation="x") if name.startswith("link") else tools[name].fn(
+            namespace=NS, mesh_version=mesh["version"])
+        assert refused["ok"] is False and refused["error"]["code"] == "unauthorized", name

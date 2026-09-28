@@ -73,9 +73,15 @@ SURVEILLANCE_SCOPES = {
 CLINICAL_SCOPES = {
     "set_clinical_bundle_enabled": ["operator"],
     "import_prospero_registration": ["knowledge:clinical:write"],
-    "link_clinical_publications": ["knowledge:clinical:write", "knowledge:paper-family:write"],
+    # Linking reads the trials it links (clinical read); paper-family members also need the object-level
+    # document:<id>:read grant of each document, which is checked per document and reported as family_errors.
+    # Re-linking reads the paper families it created before (paper-family read) to extend them idempotently.
+    "link_clinical_publications": ["knowledge:clinical:read", "knowledge:clinical:write",
+                                   "knowledge:paper-family:read", "knowledge:paper-family:write"],
     "review_clinical_publication_link": ["knowledge:clinical:review"],
-    "align_clinical_terms": ["knowledge:clinical:write", "knowledge:schema:register"],
+    # Alignment reads the namespace's records and the published MeSH module before registering modules.
+    "align_clinical_terms": ["knowledge:clinical:read", "knowledge:clinical:write", "knowledge:schema:read",
+                             "knowledge:schema:register"],
     "record_clinical_trial_design": ["knowledge:clinical:write", "knowledge:methodology:write"],
     "clinical_outcome_switching": ["knowledge:clinical:read", "knowledge:methodology:read"],
     "build_clinical_evidence_map": ["knowledge:clinical:write"],
