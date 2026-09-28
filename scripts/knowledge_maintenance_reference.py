@@ -103,7 +103,7 @@ def main() -> int:
         and len(generations) == len(manifests)
         and domains
         == [
-            "clinical", "corporate-ownership", "economic", "geospatial", "legal", "onchain", "osint",
+            "clinical", "corporate-ownership", "economic", "geospatial", "legal", "market", "onchain", "osint",
             "political", "procurement", "products", "research", "scientific", "technical",
         ]
         and statuses == {"complete", "partial"}

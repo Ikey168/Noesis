@@ -274,6 +274,10 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"safety-gate", "cpsc", 
 NATIVE_CONNECTOR_MODULES["development-finance"] = "src.ingestion.development_finance_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"development-finance"})
 
+# Market BaFin capital-market notices (voting rights, dealings, net short positions, company DB, warnings; #2106).
+NATIVE_CONNECTOR_MODULES["bafin-notices"] = "src.ingestion.bafin_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"bafin-notices"})
+
 
 def native_connector_module(connector: str) -> Any:
     import importlib

@@ -1,0 +1,3 @@
+Mitteilungs-ID;Emittent;LEI des Emittenten;Meldepflichtiger;Art der Person;Position / Status;In enger Beziehung;Art des Instruments;ISIN;Art des Geschäfts;Preis;Volumen;Währung;Aggregierter Preis;Aggregiertes Volumen;Datum des Geschäfts;Ort des Geschäfts;Datum der Mitteilung;Datum der Veröffentlichung;Korrektur;Korrektur von
+DD-2026-0102;Musterwerke AG;529900MUSTERWERKE005;Max Mustermann;natürliche Person;Aufsichtsrat;nein;Aktie;DE000MSTR014;Verkauf;13,10;200;EUR;13,10;200;02.04.2026;Außerhalb eines Handelsplatzes;03.04.2026;06.04.2026;nein;
+DD-2026-0110;Musterwerke AG;529900MUSTERWERKE005;Dr. Erika Musterfrau;natürliche Person;Vorstand (Vorsitzende);nein;Aktie;DE000MSTR014;Kauf;11,90;2.000;EUR;11,90;2.000;18.05.2026;XETRA;19.05.2026;20.05.2026;nein;
