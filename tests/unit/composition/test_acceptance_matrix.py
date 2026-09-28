@@ -74,6 +74,11 @@ MATRIX = {
     "Contract and address to cited ledger observations":
         "tests/unit/domains/test_onchain_acceptance.py::"
         "test_contract_and_address_to_cited_origin_transfers_and_probable_cluster",
+    # The Engineering Safety bundle's offline journey (#2077) composes its record owner, Products models and
+    # recalls, entity identity, subscriptions and the source-pack declarations.
+    "Subject to engineering-safety dossier":
+        "tests/unit/engineering_safety/test_acceptance.py::"
+        "test_subject_to_cited_engineering_safety_dossier_with_reviews_citations_and_monitoring",
 }
 
 
