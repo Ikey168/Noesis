@@ -130,18 +130,14 @@ class LinguisticsMonitor:
     def _subscription(
         self, subscription_id: str, principal_id: str, scopes: set[str]
     ) -> dict[str, Any]:
-        from src.kb.subscriptions import SubscriptionError
+        from src.kb.linguistics_store import table_exists
 
-        try:
-            subscription = self.subscriptions.inspect(
-                subscription_id, principal_id=principal_id, scopes=scopes
-            )
-        except SubscriptionError as exc:
-            if exc.code == "not_found" and not self.store.ready():
-                raise LinguisticsError(
-                    "not_ready", "no linguistic source has been acquired yet"
-                ) from exc
-            raise
+        if not table_exists(self.conn, "knowledge_subscriptions"):
+            raise LinguisticsError("not_ready", "no linguistics monitor exists yet")
+        self.store.require_ready()
+        subscription = self.subscriptions.inspect(
+            subscription_id, principal_id=principal_id, scopes=scopes
+        )
         if subscription["query"].get("kind") != "linguistics-monitor":
             raise LinguisticsError(
                 "monitor_not_found", "subscription is not a linguistics monitor"
@@ -182,9 +178,11 @@ class LinguisticsMonitor:
         if lexeme is None:
             return []
         revision = self._last_seen(lexeme)
-        items = []
+        # the group's membership: a lexeme joining or leaving through a reviewed identity decision is not a
+        # source change, so its senses never read as added or removed
+        items = [{"id": f"member:{key}", "kind": "member", "lexeme": key}]
         if lexeme["body"].get("status") == "deleted":
-            return [
+            return items + [
                 {
                     "id": f"lexeme:{key}",
                     "kind": "lexeme",
@@ -201,6 +199,7 @@ class LinguisticsMonitor:
                 {
                     "id": f"sense:{sense['record_key']}",
                     "kind": "sense",
+                    "lexeme": key,
                     "sense": sense["record_key"],
                     "revision_id": sense["revision_id"],
                     "source_revision": sense["source_revision"],
@@ -366,14 +365,22 @@ class LinguisticsMonitor:
             scopes=scopes,
             observed_at_ms=self.now(),
         )
-        notifications = []
-        for event_id in evaluated.get("event_ids", []):
-            row = self.conn.execute(
-                "SELECT event_type, object_key, before_json, after_json FROM "
+        rows = [
+            self.conn.execute(
+                "SELECT event_id, event_type, object_key, before_json, after_json FROM "
                 "knowledge_subscription_events WHERE event_id=?",
                 [event_id],
             ).fetchone()
-            notifications += classify(event_id, *row, baseline=baseline)
+            for event_id in evaluated.get("event_ids", [])
+        ]
+        regrouped = {
+            json.loads(row[4] or row[3])["lexeme"]
+            for row in rows
+            if row[1] in {"added", "removed"} and row[2].startswith("member:")
+        }
+        notifications = []
+        for row in rows:
+            notifications += classify(*row, baseline=baseline, regrouped=regrouped)
         return {
             "subscription_id": subscription_id,
             "status": evaluated["status"],
@@ -408,10 +415,13 @@ def classify(
     after: str | None,
     *,
     baseline: bool,
+    regrouped: set[str] | frozenset[str] = frozenset(),
 ) -> list[dict[str, Any]]:
     old = json.loads(before) if before else None
     new = json.loads(after) if after else None
     item = new or old or {}
+    if item.get("lexeme") in regrouped and event_type in {"added", "removed"}:
+        return []  # joined or left the watched group through identity review, not a source change
 
     def note(kind: str, message: str, cites: dict[str, Any]) -> dict[str, Any]:
         return {
