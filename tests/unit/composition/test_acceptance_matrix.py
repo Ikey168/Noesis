@@ -74,6 +74,11 @@ MATRIX = {
     "Contract and address to cited ledger observations":
         "tests/unit/domains/test_onchain_acceptance.py::"
         "test_contract_and_address_to_cited_origin_transfers_and_probable_cluster",
+    # The Products expansion's offline journey (#2103) composes the appliances and components features with the
+    # display bundle, entity identity and the source-pack runtime, with the features off and on.
+    "Multi-category product lookup, match and compare":
+        "tests/unit/domains/test_products_expansion_acceptance.py::"
+        "test_multi_category_lookup_match_compare_and_cite",
 }
 
 
