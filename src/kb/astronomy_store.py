@@ -600,7 +600,7 @@ class AstronomyStore:
         ]
 
     def generation(self, namespace: str) -> str:
-        """Changes whenever any revision, listing observation or citation link of the namespace changes."""
+        """Changes whenever any revision, listing observation, citation link or identity decision changes."""
         if not self.ready():
             return "astronomy-generation:empty"
         revisions = self.conn.execute(
@@ -624,9 +624,22 @@ class AstronomyStore:
                     [namespace],
                 ).fetchone()
             )
+        candidates: list[Any] = []
+        if self.conn.execute(
+            "SELECT 1 FROM information_schema.tables WHERE table_name='astronomy_identity_candidates'"
+        ).fetchone():
+            # Reviewed identity shapes answers (provider and site links), so a decision is a new generation.
+            candidates = list(
+                self.conn.execute(
+                    "SELECT count(*), coalesce(string_agg(candidate_id || ':' || state || ':' || "
+                    "coalesce(decision_id, ''), ',' ORDER BY candidate_id), '') "
+                    "FROM astronomy_identity_candidates WHERE namespace=?",
+                    [namespace],
+                ).fetchone()
+            )
         return (
             "astronomy-generation:"
-            + digest([list(revisions), list(listings), links])[:24]
+            + digest([list(revisions), list(listings), links, candidates])[:24]
         )
 
 
