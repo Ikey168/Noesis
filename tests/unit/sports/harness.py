@@ -194,6 +194,52 @@ def load_league(conn) -> None:
     )
 
 
+FA = "Example Football Association"
+FORFEIT_URL = (
+    "https://www.example-fa.example.org/decisions/2099-017-westvale-ineligible-player"
+)
+DEDUCTION_URL = (
+    "https://www.example-fa.example.org/decisions/2099-015-southport-financial-rules"
+)
+
+
+def record_decisions(conn) -> None:
+    """The governing body's points deduction (published 5 September) and forfeit (published 10 September)."""
+    from src.kb.sports_store import record_result_decision, record_table_rule
+
+    record_table_rule(
+        conn,
+        NS,
+        SEASON,
+        "deduction:southport-2099-015",
+        {
+            "kind": "deduction",
+            "team_key": team_key(9003),
+            "points_deducted": 3,
+            "effective_on": "2099-09-05",
+            "deciding_body": FA,
+            "decision": {"url": DEDUCTION_URL, "title": "Decision 2099/015"},
+        },
+        published_at="2099-09-05T12:00:00Z",
+        citation_url=DEDUCTION_URL,
+        attribution=FA,
+        principal_id="operator",
+        now=lambda: to_ms("2099-09-05T13:00:00Z"),
+    )
+    record_result_decision(
+        conn,
+        NS,
+        fixture_key(105),
+        status="forfeit_awarded",
+        score={"home": 3, "away": 0},
+        deciding_body=FA,
+        decision={"url": FORFEIT_URL, "title": "Decision 2099/017: match awarded 3-0"},
+        published_at="2099-09-10T09:00:00Z",
+        principal_id="operator",
+        now=lambda: to_ms("2099-09-10T10:00:00Z"),
+    )
+
+
 class Clock:
     """A deterministic clock in the fixtures' fictional timeline (2099)."""
 

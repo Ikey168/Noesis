@@ -614,3 +614,109 @@ class SportsProjector:
             "latest_acquisition_id": row[0] if row else None,
             "latest_published_at": row[1] if row else None,
         }
+
+
+def record_result_decision(
+    conn: Any,
+    namespace: str,
+    fixture_key: str,
+    *,
+    status: str,
+    deciding_body: str,
+    decision: Mapping[str, Any],
+    published_at: str,
+    principal_id: str,
+    score: Mapping[str, int] | None = None,
+    now: Callable[[], int] | None = None,
+) -> dict[str, Any]:
+    """A governing body's decision on a result (forfeit awarded, annulment, official correction), as a revision.
+
+    It changes answers only from its own publication time and always names the deciding body and its citation.
+    """
+    if status not in {"forfeit_awarded", "annulled", "official"}:
+        raise SportsError(
+            "invalid_decision",
+            "a decision awards a forfeit, annuls a result or states the official one",
+        )
+    if (
+        not str(decision.get("url") or "").startswith("https://")
+        or not str(deciding_body or "").strip()
+    ):
+        raise SportsError(
+            "invalid_decision",
+            "a decision names the deciding body and cites its decision (https)",
+        )
+    store = SportsStore(conn, initialize=False, now=now)
+    store.require_ready(namespace)
+    if store.current(namespace, "fixture", fixture_key) is None:
+        raise SportsError("not_found", "fixture is not visible in this namespace")
+    published = iso_datetime(published_at)
+    body = compact(
+        {
+            "status": status,
+            "score": None
+            if score is None
+            else {"home": int(score["home"]), "away": int(score["away"])},
+            "deciding_body": deciding_body.strip(),
+            "decision": {**dict(decision), "body": deciding_body.strip()},
+        }
+    )
+    return store.record_manual(
+        namespace,
+        DECISION_PROVIDER,
+        [
+            {
+                "record_type": "match_result_revision",
+                "record_key": fixture_key,
+                "source_record_id": decision["url"],
+                "locator": decision["url"],
+                "published_at": published,
+                "body": body,
+            }
+        ],
+        attribution=deciding_body.strip(),
+        citation={"url": decision["url"], "published_at": published},
+        principal_id=principal_id,
+    )
+
+
+def record_table_rule(
+    conn: Any,
+    namespace: str,
+    season_key: str,
+    rule_id: str,
+    body: Mapping[str, Any],
+    *,
+    published_at: str,
+    citation_url: str,
+    attribution: str,
+    principal_id: str,
+    now: Callable[[], int] | None = None,
+) -> dict[str, Any]:
+    """A stated scoring rule or a points deduction (deciding body and decision cited) for one season."""
+    store = SportsStore(conn, initialize=False, now=now)
+    store.require_ready(namespace)
+    if store.current(namespace, "season", season_key) is None:
+        raise SportsError("not_found", "season is not visible in this namespace")
+    if not str(citation_url or "").startswith("https://"):
+        raise SportsError(
+            "invalid_rule", "a rule or deduction cites its source (https)"
+        )
+    published = iso_datetime(published_at)
+    return store.record_manual(
+        namespace,
+        DECISION_PROVIDER,
+        [
+            {
+                "record_type": "table_rule",
+                "record_key": f"{season_key}|rule|{rule_id}",
+                "source_record_id": rule_id,
+                "locator": citation_url,
+                "published_at": published,
+                "body": {**dict(body), "season_key": season_key},
+            }
+        ],
+        attribution=attribution,
+        citation={"url": citation_url, "published_at": published},
+        principal_id=principal_id,
+    )
