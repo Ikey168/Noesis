@@ -1094,12 +1094,17 @@ def readiness(conn: Any, *, pack_id: str = "products-displays",
             "live_verification": contract["status"],
             "blockers": blockers,
         }
+    from src.kb.product_safety import feature_enabled, safety_readiness
+
     return {
         "pack_id": pack_id,
         "installed": row is not None,
         "enabled": enabled,
         "providers": providers,
         "cross_source_validation": "outstanding",
+        # The optional safety feature's notice sources, per provider (#1916).
+        "notice_providers": safety_readiness(conn, pack_id=pack_id)["providers"],
+        "safety_feature_enabled": feature_enabled(conn),
         "notice": "Readiness is per provider; cross-provider overlap is validated only by a dated live run of both.",
     }
 

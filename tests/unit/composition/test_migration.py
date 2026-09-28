@@ -24,6 +24,7 @@ ROOT = Path(__file__).resolve().parents[3]
 PROJECTOR_OWNERS = {
     "noesis-geospatial-feature-v1": "src.kb.geospatial_features",
     "noesis-product-record-v1": "src.kb.products",
+    "noesis-product-safety-notice-v1": "src.kb.product_safety",
     "noesis-legal-record-v1": "src.kb.legal",
     "noesis-cultural-object-v1": "src.kb.cultural",
     "noesis-patent-part-v1": "src.kb.patents",

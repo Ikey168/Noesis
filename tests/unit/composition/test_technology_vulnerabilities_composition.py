@@ -142,7 +142,11 @@ def test_selecting_the_feature_binds_its_provider_and_the_consumed_ones():
         plan["features"]["technology"] == ["vulnerabilities"]
         and bound(plan) == FEATURE_PROVIDERS
     )
-    assert not plan["omissions"]
+    # The consumed Products bundle is pulled in with its own optional safety feature (#1916) left unselected;
+    # nothing of the vulnerabilities feature is omitted.
+    assert plan["omissions"] == [
+        {"pack": "products", "feature": "safety", "reason": "not selected"}
+    ]
     assert {
         "pack_id": "technical-software-knowledge",
         "version": "1.2.0",
