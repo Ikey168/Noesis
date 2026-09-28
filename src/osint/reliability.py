@@ -112,6 +112,7 @@ def reliability_grade(
             "min_track_record": MIN_TRACK_RECORD,
             "min_track_record_for_a": MIN_TRACK_RECORD_FOR_A,
         },
+        "n": n,
         "method": GRADE_METHOD,
         "assumptions": list(GRADE_ASSUMPTIONS),
         "independent_of": "information_credibility",

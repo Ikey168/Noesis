@@ -14,6 +14,7 @@ import socket
 
 import pytest
 
+from src.domains import registry as domain_registry
 from src.kb.development_finance import (
     DevelopmentFinanceError,
     DevelopmentFinanceStore,
@@ -41,6 +42,22 @@ def no_network(monkeypatch):
 
     monkeypatch.setattr(socket, "create_connection", refuse)
     monkeypatch.setattr(socket.socket, "connect", refuse)
+
+
+@pytest.fixture(autouse=True)
+def isolated_registry():
+    """``_migrated`` cuts every bundle over; restore the legacy registry for later tests."""
+    saved = (
+        dict(domain_registry._REGISTRY),
+        set(domain_registry._ENABLED),
+        domain_registry._AUTHORITY,
+    )
+    yield
+    domain_registry._REGISTRY.clear()
+    domain_registry._REGISTRY.update(saved[0])
+    domain_registry._ENABLED.clear()
+    domain_registry._ENABLED.update(saved[1])
+    domain_registry.set_authority(saved[2])
 
 
 def enabled_env():

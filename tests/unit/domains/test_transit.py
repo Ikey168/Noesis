@@ -203,7 +203,9 @@ def test_feed_versions_relocations_shapes_and_stops_in_the_geospatial_store(load
     newer = build_zip(schedule_files(relocate_b=True, feed_version="2026-09-27"))
     page = GtfsAdapter(item, transport=fixture_transport(pages(**{SCHEDULE_URL: newer}))).fetch_page(
         {"operation": "feed"}, cursor=None)
-    later = TransitStore(conn, now=lambda: OBSERVED_MS + 1)
+    # The first version was observed by the runtime at wall-clock time; observe the second after it.
+    first_ms = conn.execute("SELECT max(observed_at_ms) FROM transit_feed_versions").fetchone()[0]
+    later = TransitStore(conn, now=lambda: max(first_ms, OBSERVED_MS) + 1)
     assert later.observe_page("global", page.records, run_id="second", source=item)["feed_versions"] == 1
     assert later.observe_page("global", page.records, run_id="replay", source=item) == {
         "feed_versions": 0, "stops": 0, "shapes": 0, "realtime": 0}
