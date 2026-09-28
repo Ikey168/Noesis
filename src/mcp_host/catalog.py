@@ -337,7 +337,9 @@ def _mutability(name: str) -> str:
     from tools.knowledge_engine_mcp.housing import HOUSING_WRITES
     if name in HOUSING_WRITES:
         return "write"
-    from tools.knowledge_engine_mcp.development_finance import DEVELOPMENT_FINANCE_WRITES
+    from tools.knowledge_engine_mcp.development_finance import (
+        DEVELOPMENT_FINANCE_WRITES,
+    )
     if name in DEVELOPMENT_FINANCE_WRITES:
         return "write"
     from tools.knowledge_engine_mcp.investigations import (
@@ -894,7 +896,9 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
     if server_stem == "knowledge_engine_mcp" and tool_name in SANCTIONS_TOOLS:
         return sanctions_scopes(tool_name, mutability)
     from tools.knowledge_engine_mcp.vulnerabilities import VULNERABILITY_TOOLS
-    from tools.knowledge_engine_mcp.vulnerabilities import required_scopes as vulnerability_scopes
+    from tools.knowledge_engine_mcp.vulnerabilities import (
+        required_scopes as vulnerability_scopes,
+    )
     if server_stem == "knowledge_engine_mcp" and tool_name in VULNERABILITY_TOOLS:
         return vulnerability_scopes(tool_name, mutability)
     from tools.knowledge_engine_mcp.lobbying import LOBBYING_TOOLS
@@ -906,11 +910,15 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
     if server_stem == "knowledge_engine_mcp" and tool_name in ELECTION_TOOLS:
         return election_scopes(tool_name, mutability)
     from tools.knowledge_engine_mcp.public_finance import PUBLIC_FINANCE_TOOLS
-    from tools.knowledge_engine_mcp.public_finance import required_scopes as public_finance_scopes
+    from tools.knowledge_engine_mcp.public_finance import (
+        required_scopes as public_finance_scopes,
+    )
     if server_stem == "knowledge_engine_mcp" and tool_name in PUBLIC_FINANCE_TOOLS:
         return public_finance_scopes(tool_name, mutability)
     from tools.knowledge_engine_mcp.demographics import DEMOGRAPHIC_TOOLS
-    from tools.knowledge_engine_mcp.demographics import required_scopes as demographic_scopes
+    from tools.knowledge_engine_mcp.demographics import (
+        required_scopes as demographic_scopes,
+    )
     if server_stem == "knowledge_engine_mcp" and tool_name in DEMOGRAPHIC_TOOLS:
         return demographic_scopes(tool_name, mutability)
     from tools.knowledge_engine_mcp.housing import HOUSING_TOOLS

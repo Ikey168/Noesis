@@ -126,6 +126,7 @@ def credibility_grade(
             },
             "rule_applied": rule,
         },
+        "n": s + c,
         "method": CREDIBILITY_METHOD,
         "assumptions": list(CREDIBILITY_ASSUMPTIONS),
         "independent_of": "source_reliability",

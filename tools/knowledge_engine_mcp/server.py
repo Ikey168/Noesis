@@ -9248,49 +9248,49 @@ from tools.knowledge_engine_mcp.environment import (
 
 register_environment_tools(mcp, _intake_safe, _intake_context)
 
-from tools.knowledge_engine_mcp.sanctions import (  # noqa: E402 - registration order
+from tools.knowledge_engine_mcp.sanctions import (
     register as register_sanctions_tools,
 )
 
 register_sanctions_tools(mcp, _intake_safe, _intake_context)
 
-from tools.knowledge_engine_mcp.lobbying import (  # noqa: E402 - registration order
+from tools.knowledge_engine_mcp.lobbying import (
     register as register_lobbying_tools,
 )
 
 register_lobbying_tools(mcp, _intake_safe, _intake_context)
 
-from tools.knowledge_engine_mcp.elections import (  # noqa: E402 - registration order
+from tools.knowledge_engine_mcp.elections import (
     register as register_election_tools,
 )
 
 register_election_tools(mcp, _intake_safe, _intake_context)
 
-from tools.knowledge_engine_mcp.public_finance import (  # noqa: E402 - registration order
+from tools.knowledge_engine_mcp.public_finance import (
     register as register_public_finance_tools,
 )
 
 register_public_finance_tools(mcp, _intake_safe, _intake_context)
 
-from tools.knowledge_engine_mcp.demographics import (  # noqa: E402 - registration order
+from tools.knowledge_engine_mcp.demographics import (
     register as register_demographic_tools,
 )
 
 register_demographic_tools(mcp, _intake_safe, _intake_context)
 
-from tools.knowledge_engine_mcp.housing import (  # noqa: E402 - registration order
+from tools.knowledge_engine_mcp.housing import (
     register as register_housing_tools,
 )
 
 register_housing_tools(mcp, _intake_safe, _intake_context)
 
-from tools.knowledge_engine_mcp.vulnerabilities import (  # noqa: E402 - registration order
+from tools.knowledge_engine_mcp.vulnerabilities import (
     register as register_vulnerability_tools,
 )
 
 register_vulnerability_tools(mcp, _intake_safe, _intake_context)
 
-from tools.knowledge_engine_mcp.development_finance import (  # noqa: E402 - registration order
+from tools.knowledge_engine_mcp.development_finance import (
     register as register_development_finance_tools,
 )
 
