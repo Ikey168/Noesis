@@ -900,7 +900,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 1011,
+      "tool_count": 1037,
       "tools": [
         "noesis-knowledge-engine.accept_awareness_jev_suggestion",
         "noesis-knowledge-engine.accept_citation_repair",
@@ -918,9 +918,11 @@
         "noesis-knowledge-engine.acquire_cultural_assets",
         "noesis-knowledge-engine.acquire_environment_source",
         "noesis-knowledge-engine.acquire_funding_source",
+        "noesis-knowledge-engine.acquire_iati_activities",
         "noesis-knowledge-engine.acquire_opencitations",
         "noesis-knowledge-engine.acquire_ownership_sources",
         "noesis-knowledge-engine.acquire_product_documents",
+        "noesis-knowledge-engine.acquire_world_bank_projects",
         "noesis-knowledge-engine.add_paper_family_member",
         "noesis-knowledge-engine.add_review_candidate",
         "noesis-knowledge-engine.add_source_relationship",
@@ -957,6 +959,7 @@
         "noesis-knowledge-engine.assess_quantitative_comparability",
         "noesis-knowledge-engine.assess_technical_inventory_impact",
         "noesis-knowledge-engine.assign_review_inbox_task",
+        "noesis-knowledge-engine.attach_development_finance_answer",
         "noesis-knowledge-engine.attach_environment_obligation_evidence",
         "noesis-knowledge-engine.attach_event_account",
         "noesis-knowledge-engine.attach_paper_family_notice",
@@ -1035,6 +1038,7 @@
         "noesis-knowledge-engine.consent_problem_action",
         "noesis-knowledge-engine.control_list_entry_as_of",
         "noesis-knowledge-engine.convert_demographic_units",
+        "noesis-knowledge-engine.convert_development_finance_amount",
         "noesis-knowledge-engine.convert_quantitative_value",
         "noesis-knowledge-engine.correct_paper_family_relation",
         "noesis-knowledge-engine.correlate_knowledge_anomaly",
@@ -1045,6 +1049,7 @@
         "noesis-knowledge-engine.create_clinical_monitor",
         "noesis-knowledge-engine.create_decision_condition_watch",
         "noesis-knowledge-engine.create_demographic_monitor",
+        "noesis-knowledge-engine.create_development_finance_monitor",
         "noesis-knowledge-engine.create_economic_comparison_report",
         "noesis-knowledge-engine.create_economic_release_snapshot",
         "noesis-knowledge-engine.create_election_monitor",
@@ -1108,6 +1113,11 @@
         "noesis-knowledge-engine.derived_projection",
         "noesis-knowledge-engine.designation_history_as_of",
         "noesis-knowledge-engine.detect_claim_successors",
+        "noesis-knowledge-engine.development_finance_open_calls",
+        "noesis-knowledge-engine.development_finance_publisher_coverage",
+        "noesis-knowledge-engine.development_finance_readiness",
+        "noesis-knowledge-engine.development_finance_report_citation",
+        "noesis-knowledge-engine.development_finance_source_contracts",
         "noesis-knowledge-engine.diff_claim_timeline_states",
         "noesis-knowledge-engine.diff_event_revisions",
         "noesis-knowledge-engine.discover_intake_modes",
@@ -1267,6 +1277,7 @@
         "noesis-knowledge-engine.inspect_decision_comparative_matrix",
         "noesis-knowledge-engine.inspect_decision_condition_watch",
         "noesis-knowledge-engine.inspect_demographic_series",
+        "noesis-knowledge-engine.inspect_development_finance_activity",
         "noesis-knowledge-engine.inspect_economic_release_comparison",
         "noesis-knowledge-engine.inspect_economic_release_snapshot",
         "noesis-knowledge-engine.inspect_effective_access_view",
@@ -1384,6 +1395,8 @@
         "noesis-knowledge-engine.list_demographic_pins",
         "noesis-knowledge-engine.list_demographic_resolutions",
         "noesis-knowledge-engine.list_demographic_series",
+        "noesis-knowledge-engine.list_development_finance_activities",
+        "noesis-knowledge-engine.list_development_finance_identity_candidates",
         "noesis-knowledge-engine.list_dossier_declared_interests",
         "noesis-knowledge-engine.list_due_practice",
         "noesis-knowledge-engine.list_election_boundary_vintages",
@@ -1434,12 +1447,14 @@
         "noesis-knowledge-engine.list_surveillance_series",
         "noesis-knowledge-engine.list_vulnerability_component_matches",
         "noesis-knowledge-engine.list_vulnerability_components",
+        "noesis-knowledge-engine.list_world_bank_project_links",
         "noesis-knowledge-engine.list_zotero_items",
         "noesis-knowledge-engine.lobbying_grant_candidates",
         "noesis-knowledge-engine.lobbying_readiness",
         "noesis-knowledge-engine.lobbying_source_contracts",
         "noesis-knowledge-engine.lobbying_source_identity_candidates",
         "noesis-knowledge-engine.lookup_clinical_trial",
+        "noesis-knowledge-engine.lookup_crs_aggregates",
         "noesis-knowledge-engine.lookup_environment_series",
         "noesis-knowledge-engine.lookup_legal_work",
         "noesis-knowledge-engine.lookup_ownership_entity",
@@ -1454,6 +1469,7 @@
         "noesis-knowledge-engine.math_source_contracts",
         "noesis-knowledge-engine.merge_canonical_events",
         "noesis-knowledge-engine.multilingual_search",
+        "noesis-knowledge-engine.normalise_development_finance_activities",
         "noesis-knowledge-engine.openreview_concern_review_target",
         "noesis-knowledge-engine.ownership_bundle_status",
         "noesis-knowledge-engine.ownership_graph",
@@ -1474,6 +1490,7 @@
         "noesis-knowledge-engine.poll_clinical_monitor",
         "noesis-knowledge-engine.poll_decision_condition_watch",
         "noesis-knowledge-engine.poll_demographic_monitor",
+        "noesis-knowledge-engine.poll_development_finance_monitor",
         "noesis-knowledge-engine.poll_election_monitor",
         "noesis-knowledge-engine.poll_environment_monitor",
         "noesis-knowledge-engine.poll_funding_monitor",
@@ -1526,6 +1543,7 @@
         "noesis-knowledge-engine.propose_certificate_product_links",
         "noesis-knowledge-engine.propose_cultural_matches",
         "noesis-knowledge-engine.propose_demographic_link_candidates",
+        "noesis-knowledge-engine.propose_development_finance_identity_matches",
         "noesis-knowledge-engine.propose_election_identity_matches",
         "noesis-knowledge-engine.propose_environment_operator_links",
         "noesis-knowledge-engine.propose_forecast_resolution",
@@ -1556,6 +1574,7 @@
         "noesis-knowledge-engine.propose_vulnerability_product_matches",
         "noesis-knowledge-engine.public_finance_readiness",
         "noesis-knowledge-engine.public_finance_source_contracts",
+        "noesis-knowledge-engine.publish_development_finance_codelists",
         "noesis-knowledge-engine.publish_entity_change_rebuild",
         "noesis-knowledge-engine.query_demographic_boundary",
         "noesis-knowledge-engine.query_geospatial_event_map",
@@ -1570,6 +1589,7 @@
         "noesis-knowledge-engine.record_clinical_trial_design",
         "noesis-knowledge-engine.record_decision_evidence",
         "noesis-knowledge-engine.record_demographic_comparability",
+        "noesis-knowledge-engine.record_development_finance_answer",
         "noesis-knowledge-engine.record_election_assertion",
         "noesis-knowledge-engine.record_entity_identity_decision",
         "noesis-knowledge-engine.record_funding_workspace_outcome",
@@ -1667,6 +1687,7 @@
         "noesis-knowledge-engine.reserve_research_project_budget",
         "noesis-knowledge-engine.resolve_binary_forecast",
         "noesis-knowledge-engine.resolve_demographic_geographies",
+        "noesis-knowledge-engine.resolve_development_finance_places",
         "noesis-knowledge-engine.resolve_entity_history",
         "noesis-knowledge-engine.resolve_event_report",
         "noesis-knowledge-engine.resolve_geospatial_boundary",
@@ -1690,6 +1711,7 @@
         "noesis-knowledge-engine.reverse_event_merge",
         "noesis-knowledge-engine.revert_demographic_comparability",
         "noesis-knowledge-engine.revert_demographic_link",
+        "noesis-knowledge-engine.revert_development_finance_identity_match",
         "noesis-knowledge-engine.revert_election_identity_match",
         "noesis-knowledge-engine.revert_election_news_link",
         "noesis-knowledge-engine.revert_housing_link",
@@ -1712,6 +1734,8 @@
         "noesis-knowledge-engine.review_demographic_comparability",
         "noesis-knowledge-engine.review_demographic_link",
         "noesis-knowledge-engine.review_demographic_resolution",
+        "noesis-knowledge-engine.review_development_finance_identity_match",
+        "noesis-knowledge-engine.review_development_finance_place",
         "noesis-knowledge-engine.review_election_identity_match",
         "noesis-knowledge-engine.review_environment_operator_link",
         "noesis-knowledge-engine.review_epistemic_status",
@@ -1762,6 +1786,7 @@
         "noesis-knowledge-engine.run_anomaly_detector",
         "noesis-knowledge-engine.run_clinical_monitor",
         "noesis-knowledge-engine.run_demographic_monitor",
+        "noesis-knowledge-engine.run_development_finance_monitor",
         "noesis-knowledge-engine.run_election_monitor",
         "noesis-knowledge-engine.run_environment_monitor",
         "noesis-knowledge-engine.run_funding_monitor",
@@ -1795,6 +1820,7 @@
         "noesis-knowledge-engine.search_component_advisories",
         "noesis-knowledge-engine.search_cultural_objects",
         "noesis-knowledge-engine.search_datasets",
+        "noesis-knowledge-engine.search_development_finance_transactions",
         "noesis-knowledge-engine.search_epistemic_assessments",
         "noesis-knowledge-engine.search_event_records",
         "noesis-knowledge-engine.search_geospatial_knowledge",
@@ -1919,7 +1945,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 1011
+      "visible_tool_count": 1037
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -1930,11 +1956,11 @@
     },
     "servers": 30,
     "states": {
-      "available": 118,
+      "available": 119,
       "degraded": 159,
-      "unauthorized": 1041
+      "unauthorized": 1066
     },
-    "tools": 1318
+    "tools": 1344
   },
   "tools": [
     {
@@ -19723,6 +19749,69 @@
     },
     {
       "cost_class": "medium",
+      "description": "Bounded IATI Datastore acquisition for named publishers, recipient countries or sectors.",
+      "id": "noesis-knowledge-engine.acquire_iati_activities",
+      "input_schema": {
+        "properties": {
+          "budget_id": {
+            "type": "string"
+          },
+          "max_pages": {
+            "default": 5,
+            "type": "integer"
+          },
+          "max_requests": {
+            "default": 10,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "observation": {
+            "type": "string"
+          },
+          "reuse_notice": {
+            "type": "string"
+          },
+          "rows": {
+            "default": 100,
+            "type": "integer"
+          },
+          "selection": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "namespace",
+          "selection",
+          "observation",
+          "budget_id",
+          "reuse_notice"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "acquire_iati_activities",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:funding:development-finance:write",
+        "knowledge:ingestion:execute"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Capture an OpenCitations response or resume its bounded, persistent graph import.",
       "id": "noesis-knowledge-engine.acquire_opencitations",
       "input_schema": {
@@ -19869,6 +19958,69 @@
       ],
       "required_scopes": [
         "knowledge:products:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Bounded World Bank Projects API acquisition for named countries or project IDs.",
+      "id": "noesis-knowledge-engine.acquire_world_bank_projects",
+      "input_schema": {
+        "properties": {
+          "budget_id": {
+            "type": "string"
+          },
+          "max_pages": {
+            "default": 5,
+            "type": "integer"
+          },
+          "max_requests": {
+            "default": 10,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "observation": {
+            "type": "string"
+          },
+          "reuse_notice": {
+            "type": "string"
+          },
+          "rows": {
+            "default": 50,
+            "type": "integer"
+          },
+          "selection": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "namespace",
+          "selection",
+          "observation",
+          "budget_id",
+          "reuse_notice"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "acquire_world_bank_projects",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:funding:development-finance:write",
+        "knowledge:ingestion:execute"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -22324,6 +22476,52 @@
       "required_scopes": [
         "knowledge:inbox:read",
         "knowledge:inbox:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Pin a stored answer (query, as-of date, coverage) in a research project.",
+      "id": "noesis-knowledge-engine.attach_development_finance_answer",
+      "input_schema": {
+        "properties": {
+          "answer_id": {
+            "type": "string"
+          },
+          "expected_revision": {
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "project_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "answer_id",
+          "project_id",
+          "expected_revision"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "attach_development_finance_answer",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:funding:development-finance:read",
+        "knowledge:projects:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -26545,6 +26743,63 @@
     },
     {
       "cost_class": "medium",
+      "description": "Exact conversion with a cited rate and date, stored beside the unchanged original.",
+      "id": "noesis-knowledge-engine.convert_development_finance_amount",
+      "input_schema": {
+        "properties": {
+          "citation": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "rate": {
+            "type": "string"
+          },
+          "rate_date": {
+            "type": "string"
+          },
+          "rate_source": {
+            "type": "string"
+          },
+          "target_currency": {
+            "type": "string"
+          },
+          "transaction_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "transaction_id",
+          "target_currency",
+          "rate",
+          "rate_date",
+          "rate_source",
+          "citation"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "convert_development_finance_amount",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:funding:development-finance:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Convert a value using exact units, explicit FX evidence, and a durable receipt.",
       "id": "noesis-knowledge-engine.convert_quantitative_value",
       "input_schema": {
@@ -27100,6 +27355,61 @@
       ],
       "required_scopes": [
         "knowledge:demographics:read",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Watch publishers, funders, countries, sectors, organisations or CRS cells through a subscription.",
+      "id": "noesis-knowledge-engine.create_development_finance_monitor",
+      "input_schema": {
+        "properties": {
+          "delivery": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "filters": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "request_key": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "request_key",
+          "filters"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "create_development_finance_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:funding:development-finance:read",
         "knowledge:subscriptions:write"
       ],
       "server": "noesis-knowledge-engine",
@@ -30878,6 +31188,187 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Open calls of the funders a reported organisation is matched to: a cross-reference, never an activity.",
+      "id": "noesis-knowledge-engine.development_finance_open_calls",
+      "input_schema": {
+        "properties": {
+          "funding_namespace": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "record_key": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "record_key",
+          "funding_namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "development_finance_open_calls",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:funding:development-finance:read",
+        "knowledge:ownership:read",
+        "knowledge:funding:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "What each publisher's selections requested and returned, where reading stopped, and staleness.",
+      "id": "noesis-knowledge-engine.development_finance_publisher_coverage",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "development_finance_publisher_coverage",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:funding:development-finance:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Whether the development-finance feature is selected, which stores exist and datasets per provider.",
+      "id": "noesis-knowledge-engine.development_finance_readiness",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "development_finance_readiness",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:funding:development-finance:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "The bibliography entry and dependency an authored report uses to cite a stored answer.",
+      "id": "noesis-knowledge-engine.development_finance_report_citation",
+      "input_schema": {
+        "properties": {
+          "answer_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "answer_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "development_finance_report_citation",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:funding:development-finance:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Per-provider access decisions (IATI, OECD CRS, World Bank, portals), identifiers, terms and coverage.",
+      "id": "noesis-knowledge-engine.development_finance_source_contracts",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "development_finance_source_contracts",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
       "version": "1"
     },
     {
@@ -38202,6 +38693,55 @@
     },
     {
       "cost_class": "low",
+      "description": "One IATI identifier as each publisher reports it, side by side, with history, transactions and results.",
+      "id": "noesis-knowledge-engine.inspect_development_finance_activity",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "iati_identifier": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "iati_identifier"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "inspect_development_finance_activity",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:funding:development-finance:read",
+        "knowledge:ownership:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Inspect a pinned economic comparison and its arithmetic receipts.",
       "id": "noesis-knowledge-engine.inspect_economic_release_comparison",
       "input_schema": {
@@ -43564,6 +44104,184 @@
     },
     {
       "cost_class": "low",
+      "description": "Who funded what where as of a date: activities per publisher, cited, with coverage and CRS vintages.",
+      "id": "noesis-knowledge-engine.list_development_finance_activities",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "country": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "crs_donor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "crs_recipient": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "funder": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "organisation": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "publisher": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "region": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "sector": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_development_finance_activities",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:funding:development-finance:read",
+        "knowledge:ownership:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Identity candidates of reported organisations with their review state; or one subject's identity.",
+      "id": "noesis-knowledge-engine.list_development_finance_identity_candidates",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "record_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_development_finance_identity_candidates",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:funding:development-finance:read",
+        "knowledge:ownership:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Who declared an interest in a dossier and which officials met about it, citing every register revision.\n\nRows are marked explicit-field, reviewed-assertion or unreviewed-candidate; registrants are matched (a\nreviewed identity decision) or unmatched register strings. Spend is the declared range with currency and\nperiod; registers are shown side by side and never reconciled. No influence claim is made.",
       "id": "noesis-knowledge-engine.list_dossier_declared_interests",
       "input_schema": {
@@ -46120,6 +46838,72 @@
     },
     {
       "cost_class": "low",
+      "description": "World Bank projects beside IATI activities: linked by a stated identifier, or a marked candidate.",
+      "id": "noesis-knowledge-engine.list_world_bank_project_links",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "iati_identifier": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "project_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_world_bank_project_links",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:funding:development-finance:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "List the current owner's imported items, including explicit attachment and deletion states.",
       "id": "noesis-knowledge-engine.list_zotero_items",
       "input_schema": {
@@ -46337,6 +47121,94 @@
       ],
       "required_scopes": [
         "knowledge:clinical:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "OECD CRS cells with the vintage in force as of a date; statistics, never activities.",
+      "id": "noesis-knowledge-engine.lookup_crs_aggregates",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "donor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "price_basis": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "recipient": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "sector": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "lookup_crs_aggregates",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:funding:development-finance:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -47135,6 +48007,39 @@
       ],
       "required_scopes": [
         "knowledge:cross-language:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Side records of normalised codes and allocation checks for each publisher's current revisions.",
+      "id": "noesis-knowledge-engine.normalise_development_finance_activities",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "normalise_development_finance_activities",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:funding:development-finance:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -48013,6 +48918,48 @@
       ],
       "required_scopes": [
         "knowledge:demographics:read",
+        "knowledge:subscriptions:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Delivered monitor events through the subscription poll.",
+      "id": "noesis-knowledge-engine.poll_development_finance_monitor",
+      "input_schema": {
+        "properties": {
+          "cursor": {
+            "default": "",
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "subscription_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "poll_development_finance_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:funding:development-finance:read",
         "knowledge:subscriptions:read"
       ],
       "server": "noesis-knowledge-engine",
@@ -50568,6 +51515,63 @@
     },
     {
       "cost_class": "medium",
+      "description": "Offer reported organisations to ownership, publisher, canonical and funder records; nothing is linked.\nConditional scope: funding_namespace needs knowledge:funding:read.",
+      "id": "noesis-knowledge-engine.propose_development_finance_identity_matches",
+      "input_schema": {
+        "properties": {
+          "funding_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "ownership_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_development_finance_identity_matches",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:funding:development-finance:read",
+        "knowledge:ownership:read",
+        "knowledge:ownership:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Propose party, candidate, poll-option and constituency candidates within one country; nothing merges.",
       "id": "noesis-knowledge-engine.propose_election_identity_matches",
       "input_schema": {
@@ -51934,6 +52938,39 @@
     },
     {
       "cost_class": "medium",
+      "description": "Publish the bundled DAC and IATI code-list subsets as ontology modules, versioned by release.",
+      "id": "noesis-knowledge-engine.publish_development_finance_codelists",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "publish_development_finance_codelists",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:schema:register"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Atomically publish a successful selective downstream rebuild.",
       "id": "noesis-knowledge-engine.publish_entity_change_rebuild",
       "input_schema": {
@@ -52740,6 +53777,50 @@
       ],
       "required_scopes": [
         "knowledge:demographics:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Answer again and store the receipt (query, as-of date, generation, coverage) for projects and reports.\nkind: activities, transactions, activity, coverage or crs.",
+      "id": "noesis-knowledge-engine.record_development_finance_answer",
+      "input_schema": {
+        "properties": {
+          "kind": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "request": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "namespace",
+          "kind",
+          "request"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "record_development_finance_answer",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:funding:development-finance:write",
+        "knowledge:funding:development-finance:read",
+        "knowledge:ownership:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -59472,6 +60553,45 @@
       "version": "1"
     },
     {
+      "cost_class": "medium",
+      "description": "Resolve recipient countries by ISO code; regions stay aggregates; locations wait for review.",
+      "id": "noesis-knowledge-engine.resolve_development_finance_places",
+      "input_schema": {
+        "properties": {
+          "geo_namespace": {
+            "default": "global",
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "resolve_development_finance_places",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:funding:development-finance:write",
+        "knowledge:geospatial:read",
+        "knowledge:geospatial:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "low",
       "description": "Resolve an entity through current or snapshot-bounded redirects.",
       "id": "noesis-knowledge-engine.resolve_entity_history",
@@ -60508,6 +61628,47 @@
     },
     {
       "cost_class": "medium",
+      "description": "Undo a reviewed decision; the organisation returns to its reported string.",
+      "id": "noesis-knowledge-engine.revert_development_finance_identity_match",
+      "input_schema": {
+        "properties": {
+          "candidate_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "candidate_id",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "revert_development_finance_identity_match",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:ownership:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Undo an accepted or rejected decision; answers return to the unmatched source strings.",
       "id": "noesis-knowledge-engine.revert_election_identity_match",
       "input_schema": {
@@ -61446,6 +62607,108 @@
       ],
       "required_scopes": [
         "knowledge:demographics:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Accept or reject a candidate as an entity identity decision (a similar name alone is never accepted).",
+      "id": "noesis-knowledge-engine.review_development_finance_identity_match",
+      "input_schema": {
+        "properties": {
+          "candidate_id": {
+            "type": "string"
+          },
+          "decision": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "candidate_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_development_finance_identity_match",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:ownership:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Accept, reject or defer a saved place resolution through the Geospatial owner.",
+      "id": "noesis-knowledge-engine.review_development_finance_place",
+      "input_schema": {
+        "properties": {
+          "decision": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "resolution_id": {
+            "type": "string"
+          },
+          "selected_place_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "resolution_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_development_finance_place",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:funding:development-finance:read",
+        "knowledge:geospatial:review"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -64158,6 +65421,55 @@
     },
     {
       "cost_class": "medium",
+      "description": "Evaluate a monitor at a committed watermark (default: the newest observation). Conditional scope:\nfunder and organisation filters resolved through identity decisions need knowledge:ownership:read.",
+      "id": "noesis-knowledge-engine.run_development_finance_monitor",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "subscription_id": {
+            "type": "string"
+          },
+          "watermark": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "run_development_finance_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:funding:development-finance:read",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Evaluate a monitor at a committed watermark: new vintages (certified with changed figures, recounts,\ncorrections) and new poll readings, each cited.",
       "id": "noesis-knowledge-engine.run_election_monitor",
       "input_schema": {
@@ -65929,6 +67241,128 @@
       ],
       "required_scopes": [
         "knowledge:dataset:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Transactions per publisher with within-publisher totals by type and currency (never across publishers).",
+      "id": "noesis-knowledge-engine.search_development_finance_transactions",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "country": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "funder": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "iati_identifier": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "organisation": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "publisher": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "sector": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "transaction_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "search_development_finance_transactions",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:funding:development-finance:read",
+        "knowledge:ownership:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
