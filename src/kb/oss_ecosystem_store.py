@@ -300,6 +300,13 @@ class OssEcosystemStore:
         run_id: str,
         document_id: str | None,
     ) -> str:
+        if value["record_type"] == "archive_provenance" and value[
+            "repository_key"
+        ] not in self.asserted_repositories(namespace):
+            raise OssStoreError(
+                "origin_not_asserted",
+                "archive provenance is recorded only for origins a repository link assertion names",
+            )
         rid = self._record(namespace, value)
         return self._insert(
             namespace,
@@ -531,6 +538,25 @@ class OssEcosystemStore:
         return next(
             r for r in self._revisions(row[0]) if r["revision_id"] == revision_id
         )
+
+    def asserted_repositories(self, namespace: str) -> dict[str, list[dict[str, Any]]]:
+        """repository key -> the current link assertions naming it (every source, every package)."""
+
+        result: dict[str, list[dict[str, Any]]] = {}
+        for record in self.records(namespace, record_type="repository_link_assertion"):
+            revision = self.current(record["record_id"])
+            for link in (revision or {}).get("statement", {}).get("links") or []:
+                result.setdefault(link["repository_key"], []).append(
+                    {
+                        "coordinate": record["coordinate"],
+                        "source": record["source"],
+                        "version": record["version"] or None,
+                        "url": link["url"],
+                        "field": link["field"],
+                        "revision_id": revision["revision_id"],
+                    }
+                )
+        return result
 
     def provider_state(self, namespace: str) -> dict[str, dict[str, Any]]:
         if not self.ready():

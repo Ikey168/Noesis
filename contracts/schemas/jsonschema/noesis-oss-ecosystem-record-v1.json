@@ -36,6 +36,7 @@
     "origin_url": {"type": "string"},
     "repository_key": {"type": "string"},
     "visit": {"type": "integer", "minimum": 1},
+    "detail": {"enum": ["visit", "snapshot"]},
     "visit_date": {"$ref": "#/definitions/instant"},
     "visit_status": {"type": "string"},
     "snapshot_swhid": {"type": "string", "pattern": "^swh:1:snp:[0-9a-f]{40}$"},

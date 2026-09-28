@@ -18,8 +18,9 @@ keeps as append-only revisions:
   team, a POM ``<organization>``);
 * ``repository_link_assertion`` - a repository URL a source asserts for a
   package, sanitised with :func:`src.domains.technical.model.sanitize_repository_url`;
-* ``archive_provenance`` - one Software Heritage visit of an asserted origin:
-  date, status, snapshot SWHID and tag branches as the archive states them;
+* ``archive_provenance`` - a Software Heritage ``visit`` of an asserted origin
+  (date, status, snapshot SWHID) or a ``snapshot`` with its tag branches and
+  their target SWHIDs, as the archive states them;
 * ``published_dependency_graph`` - a resolved graph *as a source published it*
   (deps.dev), kept apart from Noesis's own declared-constraint resolution;
 * ``spdx_list_release`` - one pinned SPDX License List release.
@@ -365,7 +366,16 @@ def validate(statement: dict[str, Any]) -> dict[str, Any]:
                 branch["target_swhid"]
             ):
                 _fail("branch targets must be SWHIDs")
-        value["branches"] = sorted(value.get("branches") or [], key=lambda b: b["name"])
+        if value.get("detail") not in {"visit", "snapshot"}:
+            _fail("archive provenance is a visit or a snapshot")
+        if value["detail"] == "snapshot":
+            if not value.get("snapshot_swhid"):
+                _fail("a snapshot record names its snapshot SWHID")
+            value["branches"] = sorted(
+                value.get("branches") or [], key=lambda b: b["name"]
+            )
+        elif "branches" in value:
+            _fail("visit records carry no branches; snapshots do")
         return value
     ecosystem = value.get("ecosystem")
     value["package"] = _text(value.get("package"), "package", limit=400)
@@ -457,8 +467,28 @@ def record_key(value: dict[str, Any]) -> list[Any]:
     if record_type == "spdx_list_release":
         return [record_type, "spdx", value["list_version"]]
     if record_type == "archive_provenance":
-        return [record_type, value["source"], value["repository_key"], value["visit"]]
+        if value["detail"] == "snapshot":
+            # Snapshots are content-addressed: a later visit reaching the same snapshot changes nothing.
+            return [
+                record_type,
+                value["source"],
+                value["repository_key"],
+                "snapshot",
+                value["snapshot_swhid"],
+            ]
+        return [
+            record_type,
+            value["source"],
+            value["repository_key"],
+            "visit",
+            value["visit"],
+        ]
     key = [record_type, value["source"], value["coordinate"]]
+    if record_type == "publisher_organisation":
+        # One record per kind of declaration (a Maven groupId and a POM <organization> are two statements).
+        key.append(
+            "+".join(sorted({o["kind"] for o in value.get("organisations") or []}))
+        )
     if record_type in PER_RELEASE or record_type == "repository_link_assertion":
         key.append(value.get("version") or "")
     return key

@@ -282,6 +282,10 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"bafin-notices"})
 NATIVE_CONNECTOR_MODULES["bmecat"] = "src.ingestion.product_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"bmecat"})
 
+# Open-source Software Ecosystems: registry history, deps.dev, SPDX list releases, Software Heritage (#2192).
+NATIVE_CONNECTOR_MODULES["oss-ecosystem"] = "src.ingestion.oss_ecosystem_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"oss-ecosystem"})
+
 
 def native_connector_module(connector: str) -> Any:
     import importlib
