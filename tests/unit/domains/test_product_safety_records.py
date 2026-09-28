@@ -246,3 +246,18 @@ def test_selection_outcomes_and_source_runs_are_recorded(env):
     assert {r["source_id"]: r["last_run_status"] for r in runs} == {
         s: "complete" for s in h.NOTICE_SOURCES
     }
+
+
+def test_reads_before_any_notice_run_say_so_on_a_read_only_store(tmp_path):
+    path = str(tmp_path / "empty.duckdb")
+    duckdb.connect(path).close()
+    conn = duckdb.connect(path, read_only=True)
+    store = ProductSafetyStore(conn, initialize=False)
+    for call in (
+        lambda: store.lookup(NS, scopes=h.READ, gtin="012345678905"),
+        lambda: store.inspect(NS, "cpsc:26117", scopes=h.READ),
+    ):
+        with pytest.raises(ProductSafetyError) as caught:
+            call()
+        assert caught.value.code == "not_ready"
+    conn.close()

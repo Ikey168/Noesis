@@ -418,6 +418,14 @@ class ProductSafetyStore:
         ).fetchone()
         return int(row[0]) if row else 0
 
+    def _require_ready(self) -> None:
+        if not self.ready():
+            raise ProductSafetyError(
+                "not_ready",
+                "no product-safety notices are stored yet; run the products-displays notice sources "
+                "(operation notices)",
+            )
+
     def ready(self) -> bool:
         return _table(self.conn, "product_safety_revisions")
 
@@ -1051,6 +1059,7 @@ class ProductSafetyStore:
         as_of: str | None = None,
     ) -> dict[str, Any]:
         authorize(namespace, scopes, READ_SCOPE)
+        self._require_ready()
         notice_id = self.resolve_notice(namespace, notice)
         head = self._notice_row(namespace, notice_id)
         cutoff = _as_of(as_of)
@@ -1885,6 +1894,7 @@ class ProductSafetyStore:
         """Notices naming a product, brand, model or GTIN as of a date, each cited to its notice revision."""
         scopes = set(scopes)
         authorize(namespace, scopes, READ_SCOPE)
+        self._require_ready()
         if include_news:
             require(scopes, NEWS_SCOPE)
         cutoff = _as_of(as_of)
