@@ -58,6 +58,11 @@ MATRIX = {
     "Condition to surveillance dossier":
         "tests/unit/domains/test_surveillance_acceptance.py::"
         "test_condition_and_geography_to_a_cited_surveillance_dossier",
+    # The Products safety feature's offline journey (#2030) composes products, technology (standards), legal
+    # (works), news, entity identity, subscriptions and the source-pack runtime.
+    "Product to safety-notice dossier":
+        "tests/unit/domains/test_product_safety_acceptance.py::"
+        "test_product_gtin_and_brand_model_to_a_cited_notice_dossier",
 }
 
 

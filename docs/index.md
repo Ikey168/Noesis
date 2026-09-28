@@ -183,6 +183,11 @@ For the project overview and local setup, start with the
   series with case-definition revisions as breaks, reporting and reference dates kept apart, vintages and
   reporting-delay notes, MeSH/ICD alignment, boundary projections and explicit-citation links to trials and
   publications; [source audit](roadmaps/clinical-surveillance-source-audit.md)
+- [Products pack guide: safety notices and recalls](guides/products-pack.md#safety-notices-and-recalls) — EU Safety
+  Gate alerts, CPSC and NHTSA recalls and RASFF notifications with every revision, verbatim hazard, affected
+  identification and corrective action, reviewable matches to Products identities on GTIN, brand and model,
+  standards and acts linked by citation, as-of answers and monitors; no safety verdict or advice;
+  [source audit](roadmaps/products-safety-source-audit.md)
 - [Geospatial housing guide](guides/geospatial-housing.md) — land-value zones with valuation dates, Mietspiegel
   editions and cells, development-plan stages, Wohnlagen, permit and completion statistics and Destatis vintages
   projected onto an address, parcel or district as of a date, with citation links and monitors; no valuation or
