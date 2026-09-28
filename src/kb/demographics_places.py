@@ -121,9 +121,10 @@ def ancestry(scheme: str, code: str) -> tuple[tuple[str, str], set[tuple[str, st
             ("B", code),
         }
         return ("B", code), tokens
-    tokens = {("C", _ISO3.get(code[:3], code[:3]))} | {
-        ("P", code[:k]) for k in range(3, len(code) + 1)
-    }
+    # COD-AB p-codes start with the ISO 3166-1 alpha-2 country code (UA80, SY01); a source that prefixes a known
+    # alpha-3 code is read through the alpha-3 table.
+    country = _ISO3[code[:3]] if code[:3] in _ISO3 else code[:2]
+    tokens = {("C", country)} | {("P", code[:k]) for k in range(2, len(code) + 1)}
     return ("P", code), tokens
 
 
@@ -661,9 +662,28 @@ class DemographicPlaces:
             raise DemographicError(
                 "invalid_receipt", "the receipt belongs to another namespace"
             )
-        for item in receipt["selected"]:
-            if not item.get("vintage_id"):
-                continue
+        selected = [
+            dict(item) for item in receipt["selected"] if item.get("vintage_id")
+        ]
+        # The receipt is caller-supplied (its digest can be recomputed by anyone), so every pair is checked against
+        # the store before anything is written: the vintage must exist here and belong to the series named beside it.
+        for item in selected:
+            owner = self.conn.execute(
+                "SELECT series_id FROM demographic_vintages WHERE namespace=? AND vintage_id=?",
+                [namespace, item["vintage_id"]],
+            ).fetchone()
+            if owner is None:
+                raise DemographicError(
+                    "invalid_receipt",
+                    "a pinned vintage is not visible in this namespace",
+                )
+            if owner[0] != item.get("series_id"):
+                raise DemographicError(
+                    "invalid_receipt",
+                    "a pinned vintage does not belong to the series named beside it",
+                    vintage_id=item["vintage_id"],
+                )
+        for item in selected:
             pin_id = (
                 "dm-pin:"
                 + digest(
@@ -679,9 +699,6 @@ class DemographicPlaces:
                 "SELECT 1 FROM demographic_pins WHERE namespace=? AND pin_id=?",
                 [namespace, pin_id],
             ).fetchone():
-                self.store.vintage(
-                    namespace, item["vintage_id"]
-                )  # the vintage must exist here
                 self.conn.execute(
                     "INSERT INTO demographic_pins VALUES (?,?,?,?,?,?,?,?)",
                     [
@@ -718,7 +735,25 @@ class DemographicPlaces:
         out = []
         for pin_id, receipt, series_id, vintage_id, by, at in rows:
             vintages = self.store.vintage_rows(namespace, series_id)
-            pinned = next(v for v in vintages if v["vintage_id"] == vintage_id)
+            pinned = next((v for v in vintages if v["vintage_id"] == vintage_id), None)
+            if pinned is None:
+                # A stored pin whose vintage is not a vintage of its series is reported, never raised: one bad row
+                # must not break listing pins or running monitors in the namespace.
+                out.append(
+                    {
+                        "pin_id": pin_id,
+                        "receipt_digest": receipt,
+                        "series_id": series_id,
+                        "vintage_id": vintage_id,
+                        "status": "invalid",
+                        "reason": "the pinned vintage is not a vintage of this series",
+                        "newer_vintage_ids": [],
+                        "observations": [],
+                        "pinned_by": by,
+                        "pinned_at_ms": at,
+                    }
+                )
+                continue
             later = [
                 v for v in vintages if v["release_at_ms"] > pinned["release_at_ms"]
             ]

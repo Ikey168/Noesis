@@ -148,7 +148,7 @@ def test_dtm_needs_its_key_and_keeps_rounds():
     page, _ = h.fetch("dtm", 0)
     north, south = _series(page)
     assert (
-        north["geography"]["code"] == "XXA01"
+        north["geography"]["code"] == "XA01"
         and north["geography"]["scheme"] == "cod-ab-pcode"
     )
     assert [o["round"] for o in north["observations"]] == ["7", "8"]

@@ -117,7 +117,7 @@ def test_codes_resolve_by_the_published_code_and_unknown_codes_stay_unresolved(e
     )
     assert by_code["003"]["effective"] == "unresolved"
     assert by_code["003"]["reason"] == "no boundary feature states this code"
-    assert by_code["XXA01"]["effective"] == "unresolved"
+    assert by_code["XA01"]["effective"] == "unresolved"
     assert by_code["11"]["effective"] == by_code["DE3"]["effective"] == "linked"
     before = conn.execute(
         "SELECT count(*) FROM demographic_geo_resolutions"
@@ -286,3 +286,68 @@ def test_code_list_hierarchies():
     assert related(("nuts", "DE300"), ("eu-country", "DE"))
     assert not related(("ags", "09"), ("berlin-bezirk", "001"))
     assert not related(("nuts", "DE3"), ("nuts", "DE2"))
+
+
+def test_a_pin_must_name_each_vintage_with_its_own_series_and_a_bad_row_never_breaks_reads(
+    env,
+):
+    from src.kb.demographics import digest
+    from src.kb.demographics_monitoring import DemographicMonitor
+    from src.kb.subscriptions import SubscriptionStore
+
+    conn, places, features = env
+    answer = places.boundary_series(h.NS, features["cntr.DE"], scopes=h.READ_ONLY)
+    receipt = json.loads(json.dumps(answer["receipt"]))
+    assert len([i for i in receipt["selected"] if i["vintage_id"]]) >= 2
+    first, second = receipt["selected"][0], receipt["selected"][1]
+    first["vintage_id"], second["vintage_id"] = (
+        second["vintage_id"],
+        first["vintage_id"],
+    )
+    # A caller can recompute the plain digest; the pairs are still checked against the store.
+    receipt["digest"] = digest({k: v for k, v in receipt.items() if k != "digest"})
+    with pytest.raises(DemographicError) as refused:
+        places.pin(h.NS, receipt, principal_id="mallory", scopes=h.SCOPES)
+    assert refused.value.code == "invalid_receipt"
+    assert conn.execute("SELECT count(*) FROM demographic_pins").fetchone()[0] == 0
+    # A mismatched row that is already stored is reported as invalid, and monitors keep running.
+    conn.execute(
+        "INSERT INTO demographic_pins VALUES (?,?,?,?,?,?,?,?)",
+        [
+            h.NS,
+            "dm-pin:bad",
+            "digest",
+            first["series_id"],
+            first["vintage_id"],
+            "{}",
+            "x",
+            1,
+        ],
+    )
+    (bad,) = places.pins(h.NS, scopes=h.READ_ONLY)["pins"]
+    assert bad["status"] == "invalid" and bad["observations"] == []
+    monitor = DemographicMonitor(conn)
+    watch = monitor.create(
+        h.NS,
+        "all-pjan",
+        series_filter={"series_code": "demo_pjan"},
+        principal_id="alice",
+        scopes=h.SCOPES,
+    )
+    SubscriptionStore(conn).commit_watermark(h.NS, 1)
+    result = monitor.run(
+        watch["subscription_id"], principal_id="alice", scopes=h.SCOPES
+    )
+    assert result["stale_pins"] == []
+
+
+def test_cod_ab_pcodes_take_their_country_from_the_alpha2_prefix():
+    from src.kb.demographics_places import ancestry
+
+    assert ("C", "UA") in ancestry("cod-ab-pcode", "UA80")[1]
+    assert ("C", "SY") in ancestry("cod-ab-pcode", "SY01")[1]
+    assert related(("cod-ab-pcode", "XA01"), ("eu-country", "XA"))
+    assert related(("cod-ab-pcode", "XA0101"), ("cod-ab-pcode", "XA01"))
+    assert not related(("cod-ab-pcode", "XA01"), ("cod-ab-pcode", "XB01"))
+    # A source prefixing a known alpha-3 code is still read through the alpha-3 table.
+    assert ("C", "DE") in ancestry("cod-ab-pcode", "DEU01")[1]
