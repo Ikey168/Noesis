@@ -1091,6 +1091,8 @@ class DemographicStore:
         definition_key: str | None = None,
         limit: int = 500,
     ) -> list[dict[str, Any]]:
+        if not self.ready():
+            return []
         rows = self.conn.execute(
             "SELECT s.series_id FROM demographic_series s JOIN demographic_geography_levels l ON "
             "l.namespace=s.namespace AND l.level_id=s.level_id WHERE s.namespace=? AND (? IS NULL OR s.provider=?) "

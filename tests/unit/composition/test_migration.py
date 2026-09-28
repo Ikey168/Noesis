@@ -40,6 +40,7 @@ PROJECTOR_OWNERS = {
     "noesis-lobbying-record-v1": "src.kb.lobbying",
     "noesis-election-record-v1": "src.kb.elections",
     "noesis-public-finance-record-v1": "src.kb.public_finance",
+    "noesis-demographic-series-v1": "src.kb.demographics",
 }
 
 

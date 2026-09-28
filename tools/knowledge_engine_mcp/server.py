@@ -9272,6 +9272,12 @@ from tools.knowledge_engine_mcp.public_finance import (  # noqa: E402 - registra
 
 register_public_finance_tools(mcp, _intake_safe, _intake_context)
 
+from tools.knowledge_engine_mcp.demographics import (  # noqa: E402 - registration order
+    register as register_demographic_tools,
+)
+
+register_demographic_tools(mcp, _intake_safe, _intake_context)
+
 from tools.knowledge_engine_mcp.vulnerabilities import (  # noqa: E402 - registration order
     register as register_vulnerability_tools,
 )

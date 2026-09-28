@@ -900,7 +900,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 927,
+      "tool_count": 957,
       "tools": [
         "noesis-knowledge-engine.accept_awareness_jev_suggestion",
         "noesis-knowledge-engine.accept_citation_repair",
@@ -939,6 +939,7 @@
         "noesis-knowledge-engine.archive_knowledge_checkpoint",
         "noesis-knowledge-engine.archive_research_project",
         "noesis-knowledge-engine.artifact_lineage",
+        "noesis-knowledge-engine.assert_demographic_link",
         "noesis-knowledge-engine.assert_election_news_link",
         "noesis-knowledge-engine.assess_authored_report_changes",
         "noesis-knowledge-engine.assess_epistemic_statement",
@@ -1008,6 +1009,7 @@
         "noesis-knowledge-engine.compare_coverage_assessments",
         "noesis-knowledge-engine.compare_cross_language_claims",
         "noesis-knowledge-engine.compare_dataset_releases",
+        "noesis-knowledge-engine.compare_demographic_publishers",
         "noesis-knowledge-engine.compare_economic_release_snapshots",
         "noesis-knowledge-engine.compare_environment_vintages",
         "noesis-knowledge-engine.compare_event_dossier_revisions",
@@ -1029,6 +1031,7 @@
         "noesis-knowledge-engine.configure_jev_task_rollout",
         "noesis-knowledge-engine.consent_problem_action",
         "noesis-knowledge-engine.control_list_entry_as_of",
+        "noesis-knowledge-engine.convert_demographic_units",
         "noesis-knowledge-engine.convert_quantitative_value",
         "noesis-knowledge-engine.correct_paper_family_relation",
         "noesis-knowledge-engine.correlate_knowledge_anomaly",
@@ -1038,6 +1041,7 @@
         "noesis-knowledge-engine.create_change_brief_subscription",
         "noesis-knowledge-engine.create_clinical_monitor",
         "noesis-knowledge-engine.create_decision_condition_watch",
+        "noesis-knowledge-engine.create_demographic_monitor",
         "noesis-knowledge-engine.create_economic_comparison_report",
         "noesis-knowledge-engine.create_economic_release_snapshot",
         "noesis-knowledge-engine.create_election_monitor",
@@ -1085,6 +1089,10 @@
         "noesis-knowledge-engine.delete_source_identity",
         "noesis-knowledge-engine.deliver_anomaly_alert",
         "noesis-knowledge-engine.deliver_change_briefs",
+        "noesis-knowledge-engine.demographic_readiness",
+        "noesis-knowledge-engine.demographic_series_citing",
+        "noesis-knowledge-engine.demographic_series_values",
+        "noesis-knowledge-engine.demographic_source_contracts",
         "noesis-knowledge-engine.derive_redacted_projection",
         "noesis-knowledge-engine.derived_object_generation_delta",
         "noesis-knowledge-engine.derived_object_health",
@@ -1221,6 +1229,7 @@
         "noesis-knowledge-engine.handoff_intake_creation",
         "noesis-knowledge-engine.import_audit_findings",
         "noesis-knowledge-engine.import_certificates",
+        "noesis-knowledge-engine.import_demographic_figure_sheet",
         "noesis-knowledge-engine.import_election_poll_release",
         "noesis-knowledge-engine.import_geospatial_features",
         "noesis-knowledge-engine.import_modulo_flashcards",
@@ -1243,6 +1252,7 @@
         "noesis-knowledge-engine.inspect_cultural_object",
         "noesis-knowledge-engine.inspect_decision_comparative_matrix",
         "noesis-knowledge-engine.inspect_decision_condition_watch",
+        "noesis-knowledge-engine.inspect_demographic_series",
         "noesis-knowledge-engine.inspect_economic_release_comparison",
         "noesis-knowledge-engine.inspect_economic_release_snapshot",
         "noesis-knowledge-engine.inspect_effective_access_view",
@@ -1337,6 +1347,8 @@
         "noesis-knowledge-engine.link_company_identity",
         "noesis-knowledge-engine.link_cross_modal_evidence",
         "noesis-knowledge-engine.link_cultural_research",
+        "noesis-knowledge-engine.link_demographic_dossier",
+        "noesis-knowledge-engine.link_demographic_references",
         "noesis-knowledge-engine.link_election_constituency_place",
         "noesis-knowledge-engine.link_hypothesis_evidence",
         "noesis-knowledge-engine.link_legal_dossier",
@@ -1347,6 +1359,11 @@
         "noesis-knowledge-engine.list_budget_lines",
         "noesis-knowledge-engine.list_change_briefs",
         "noesis-knowledge-engine.list_decision_review_tasks",
+        "noesis-knowledge-engine.list_demographic_comparability_notes",
+        "noesis-knowledge-engine.list_demographic_links",
+        "noesis-knowledge-engine.list_demographic_pins",
+        "noesis-knowledge-engine.list_demographic_resolutions",
+        "noesis-knowledge-engine.list_demographic_series",
         "noesis-knowledge-engine.list_dossier_declared_interests",
         "noesis-knowledge-engine.list_due_practice",
         "noesis-knowledge-engine.list_election_boundary_vintages",
@@ -1422,12 +1439,14 @@
         "noesis-knowledge-engine.patent_links",
         "noesis-knowledge-engine.patent_source_contracts",
         "noesis-knowledge-engine.pause_maintenance_schedule",
+        "noesis-knowledge-engine.pin_demographic_query",
         "noesis-knowledge-engine.place_retention_legal_hold",
         "noesis-knowledge-engine.plan_extractor_reprocessing",
         "noesis-knowledge-engine.plan_retention_gc",
         "noesis-knowledge-engine.poll_cited_evidence_alerts",
         "noesis-knowledge-engine.poll_clinical_monitor",
         "noesis-knowledge-engine.poll_decision_condition_watch",
+        "noesis-knowledge-engine.poll_demographic_monitor",
         "noesis-knowledge-engine.poll_election_monitor",
         "noesis-knowledge-engine.poll_environment_monitor",
         "noesis-knowledge-engine.poll_funding_monitor",
@@ -1475,6 +1494,7 @@
         "noesis-knowledge-engine.propose_authored_report_edit",
         "noesis-knowledge-engine.propose_certificate_product_links",
         "noesis-knowledge-engine.propose_cultural_matches",
+        "noesis-knowledge-engine.propose_demographic_link_candidates",
         "noesis-knowledge-engine.propose_election_identity_matches",
         "noesis-knowledge-engine.propose_environment_operator_links",
         "noesis-knowledge-engine.propose_forecast_resolution",
@@ -1503,6 +1523,7 @@
         "noesis-knowledge-engine.public_finance_readiness",
         "noesis-knowledge-engine.public_finance_source_contracts",
         "noesis-knowledge-engine.publish_entity_change_rebuild",
+        "noesis-knowledge-engine.query_demographic_boundary",
         "noesis-knowledge-engine.query_geospatial_event_map",
         "noesis-knowledge-engine.query_geospatial_features_within",
         "noesis-knowledge-engine.query_knowledge",
@@ -1514,6 +1535,7 @@
         "noesis-knowledge-engine.record_citation_health",
         "noesis-knowledge-engine.record_clinical_trial_design",
         "noesis-knowledge-engine.record_decision_evidence",
+        "noesis-knowledge-engine.record_demographic_comparability",
         "noesis-knowledge-engine.record_election_assertion",
         "noesis-knowledge-engine.record_entity_identity_decision",
         "noesis-knowledge-engine.record_funding_workspace_outcome",
@@ -1582,6 +1604,7 @@
         "noesis-knowledge-engine.replay_change_brief",
         "noesis-knowledge-engine.replay_citation_snapshot",
         "noesis-knowledge-engine.replay_claim_evolution",
+        "noesis-knowledge-engine.replay_demographic_query",
         "noesis-knowledge-engine.replay_derived_object_generations",
         "noesis-knowledge-engine.replay_document_generation_delta",
         "noesis-knowledge-engine.replay_environment_dossier",
@@ -1607,6 +1630,7 @@
         "noesis-knowledge-engine.research_snapshot_pins",
         "noesis-knowledge-engine.reserve_research_project_budget",
         "noesis-knowledge-engine.resolve_binary_forecast",
+        "noesis-knowledge-engine.resolve_demographic_geographies",
         "noesis-knowledge-engine.resolve_entity_history",
         "noesis-knowledge-engine.resolve_event_report",
         "noesis-knowledge-engine.resolve_geospatial_boundary",
@@ -1627,6 +1651,8 @@
         "noesis-knowledge-engine.retry_maintenance_job",
         "noesis-knowledge-engine.retry_source_pack_quarantine",
         "noesis-knowledge-engine.reverse_event_merge",
+        "noesis-knowledge-engine.revert_demographic_comparability",
+        "noesis-knowledge-engine.revert_demographic_link",
         "noesis-knowledge-engine.revert_election_identity_match",
         "noesis-knowledge-engine.revert_election_news_link",
         "noesis-knowledge-engine.revert_lobbying_dossier_link",
@@ -1644,6 +1670,9 @@
         "noesis-knowledge-engine.review_cross_language_alignment",
         "noesis-knowledge-engine.review_cultural_match",
         "noesis-knowledge-engine.review_cultural_research_candidate",
+        "noesis-knowledge-engine.review_demographic_comparability",
+        "noesis-knowledge-engine.review_demographic_link",
+        "noesis-knowledge-engine.review_demographic_resolution",
         "noesis-knowledge-engine.review_election_identity_match",
         "noesis-knowledge-engine.review_environment_operator_link",
         "noesis-knowledge-engine.review_epistemic_status",
@@ -1689,6 +1718,7 @@
         "noesis-knowledge-engine.route_intake_mode",
         "noesis-knowledge-engine.run_anomaly_detector",
         "noesis-knowledge-engine.run_clinical_monitor",
+        "noesis-knowledge-engine.run_demographic_monitor",
         "noesis-knowledge-engine.run_election_monitor",
         "noesis-knowledge-engine.run_environment_monitor",
         "noesis-knowledge-engine.run_funding_monitor",
@@ -1835,7 +1865,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 927
+      "visible_tool_count": 957
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -1846,11 +1876,11 @@
     },
     "servers": 30,
     "states": {
-      "available": 115,
+      "available": 116,
       "degraded": 159,
-      "unauthorized": 960
+      "unauthorized": 989
     },
-    "tools": 1234
+    "tools": 1264
   },
   "tools": [
     {
@@ -21009,6 +21039,61 @@
     },
     {
       "cost_class": "medium",
+      "description": "Assert a citation link with a passage locator; it counts only once another reviewer accepts it.\nConditional scope: a legal-work target needs knowledge:legal:read, a dossier target\nknowledge:political:dossier:read.",
+      "id": "noesis-knowledge-engine.assert_demographic_link",
+      "input_schema": {
+        "properties": {
+          "locator": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "relation": {
+            "type": "string"
+          },
+          "statement": {
+            "type": "string"
+          },
+          "subject": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "target": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "namespace",
+          "subject",
+          "target",
+          "relation",
+          "locator",
+          "statement"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "assert_demographic_link",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:demographics:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "A reviewer's assertion that an article concerns the contest or one of its parties.",
       "id": "noesis-knowledge-engine.assert_election_news_link",
       "input_schema": {
@@ -24970,6 +25055,90 @@
     },
     {
       "cost_class": "medium",
+      "description": "Each publisher's series for one concept, geography and period side by side with comparability notes;\nno merged, averaged or netted value; unnoted pairs are comparability_unknown.",
+      "id": "noesis-knowledge-engine.compare_demographic_publishers",
+      "input_schema": {
+        "properties": {
+          "as_of_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "concept": {
+            "type": "string"
+          },
+          "geography_codes": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "period_from": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "period_to": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "concept"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "compare_demographic_publishers",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:demographics:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Separate same-period revisions from new-period changes with calculation receipts.",
       "id": "noesis-knowledge-engine.compare_economic_release_snapshots",
       "input_schema": {
@@ -26058,6 +26227,58 @@
     },
     {
       "cost_class": "medium",
+      "description": "A series' values in another count unit with a calculation receipt; never stored, never count <-> rate.",
+      "id": "noesis-knowledge-engine.convert_demographic_units",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "series_id": {
+            "type": "string"
+          },
+          "target_unit": {
+            "type": "string"
+          },
+          "vintage_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "series_id",
+          "target_unit"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "convert_demographic_units",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:demographics:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Convert a value using exact units, explicit FX evidence, and a durable receipt.",
       "id": "noesis-knowledge-engine.convert_quantitative_value",
       "input_schema": {
@@ -26559,6 +26780,61 @@
       "required_scopes": [
         "knowledge:decisions:read",
         "knowledge:decisions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "A subscription on series matching a publisher, dataset, geography or definition filter; no new scheduler.",
+      "id": "noesis-knowledge-engine.create_demographic_monitor",
+      "input_schema": {
+        "properties": {
+          "delivery": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "request_key": {
+            "type": "string"
+          },
+          "series_filter": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "namespace",
+          "request_key",
+          "series_filter"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "create_demographic_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:demographics:read",
+        "knowledge:subscriptions:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -29436,6 +29712,174 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Whether the Economics demographics feature is selected, and per-provider releases and access decisions.",
+      "id": "noesis-knowledge-engine.demographic_readiness",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "demographic_readiness",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:demographics:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "The series citing a legal work, court decision or dossier; the link asserts no effect.",
+      "id": "noesis-knowledge-engine.demographic_series_citing",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "target_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "target_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "demographic_series_citing",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:demographics:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "A series' values in one vintage (or the vintage released by as_of_ms) with definition, unit, level,\nflags, coverage notes and source revision; historical_vintage_unavailable when none was retained.",
+      "id": "noesis-knowledge-engine.demographic_series_values",
+      "input_schema": {
+        "properties": {
+          "as_of_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "period_from": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "period_to": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "series_id": {
+            "type": "string"
+          },
+          "vintage_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "series_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "demographic_series_values",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:demographics:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Per-provider access decisions, definitions, geography levels, vintage semantics and terms.",
+      "id": "noesis-knowledge-engine.demographic_source_contracts",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "demographic_source_contracts",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
       "version": "1"
     },
     {
@@ -35668,6 +36112,44 @@
     },
     {
       "cost_class": "medium",
+      "description": "Record an operator's figure sheet for a PDF-only publication (BAMF): report URL, publication date,\ndefinitions quoting the report and figures with page and table locators; never scraped.",
+      "id": "noesis-knowledge-engine.import_demographic_figure_sheet",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "sheet": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "namespace",
+          "sheet"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "import_demographic_figure_sheet",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:demographics:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Import one publisher's poll release through the polls connector; figures are kept only when the\npublisher's terms allow redistribution, otherwise link-only metadata.",
       "id": "noesis-knowledge-engine.import_election_poll_release",
       "input_schema": {
@@ -36788,6 +37270,43 @@
       ],
       "required_scopes": [
         "knowledge:decisions:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "One series: every vintage (release and retrieval clocks, revision_of), its definition history, breaks,\nand the acts, decisions and dossiers it cites (citation only; no effect is asserted).",
+      "id": "noesis-knowledge-engine.inspect_demographic_series",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "series_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "series_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "inspect_demographic_series",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:demographics:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -40855,6 +41374,86 @@
     },
     {
       "cost_class": "medium",
+      "description": "Link series to a legislative dossier by a stated printed paper or EU procedure reference.",
+      "id": "noesis-knowledge-engine.link_demographic_dossier",
+      "input_schema": {
+        "properties": {
+          "dossier_id": {
+            "type": "string"
+          },
+          "dossier_namespace": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "dossier_namespace",
+          "dossier_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "link_demographic_dossier",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:demographics:write",
+        "knowledge:political:dossier:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Link series to acts and court decisions by the publisher's stated CELEX, ELI, ECLI or BGBl reference in\nthe issuing jurisdiction; unmatched references stay unresolved.",
+      "id": "noesis-knowledge-engine.link_demographic_references",
+      "input_schema": {
+        "properties": {
+          "legal_namespace": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "legal_namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "link_demographic_references",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:demographics:write",
+        "knowledge:legal:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Record a reviewable place resolution for a constituency (review with review_geospatial_resolution).",
       "id": "noesis-knowledge-engine.link_election_constituency_place",
       "input_schema": {
@@ -41519,6 +42118,281 @@
       ],
       "required_scopes": [
         "knowledge:decisions:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Comparability notes with relation, cited definitions and source revisions, and review state.",
+      "id": "noesis-knowledge-engine.list_demographic_comparability_notes",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "record_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_demographic_comparability_notes",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:demographics:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Citation links, assertions and candidates with basis, relation, source revision and review state.",
+      "id": "noesis-knowledge-engine.list_demographic_links",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "subject_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "target_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_demographic_links",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:demographics:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Pinned vintages with their own values and current or stale status.",
+      "id": "noesis-knowledge-engine.list_demographic_pins",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "receipt_digest": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_demographic_pins",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:demographics:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Current code-to-boundary resolutions with code-list version, boundary vintage and review state.",
+      "id": "noesis-knowledge-engine.list_demographic_resolutions",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_demographic_resolutions",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:demographics:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Series with publisher, definition, geography level, unit, current vintage, notes and breaks.",
+      "id": "noesis-knowledge-engine.list_demographic_series",
+      "input_schema": {
+        "properties": {
+          "concept": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "geography_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "level": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "provider": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "scheme": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "series_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_demographic_series",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:demographics:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -45118,6 +45992,44 @@
     },
     {
       "cost_class": "medium",
+      "description": "Pin the vintages a boundary query used; a later revision marks the pin stale, never replaces it.",
+      "id": "noesis-knowledge-engine.pin_demographic_query",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "receipt": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "namespace",
+          "receipt"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "pin_demographic_query",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:demographics:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Place a finite or indefinite legal hold on a knowledge object.",
       "id": "noesis-knowledge-engine.place_retention_legal_hold",
       "input_schema": {
@@ -45386,6 +46298,44 @@
         "knowledge:briefs:read",
         "knowledge:briefs:write",
         "knowledge:briefs:deliver"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Poll a demographic monitor's events through the subscription delivery path.",
+      "id": "noesis-knowledge-engine.poll_demographic_monitor",
+      "input_schema": {
+        "properties": {
+          "cursor": {
+            "default": "",
+            "type": "string"
+          },
+          "subscription_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "poll_demographic_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:demographics:read",
+        "knowledge:subscriptions:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -47760,6 +48710,44 @@
     },
     {
       "cost_class": "medium",
+      "description": "Shared words between definitions and act titles as discovery candidates only, never links.",
+      "id": "noesis-knowledge-engine.propose_demographic_link_candidates",
+      "input_schema": {
+        "properties": {
+          "legal_namespace": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "legal_namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_demographic_link_candidates",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:demographics:write",
+        "knowledge:legal:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Propose party, candidate, poll-option and constituency candidates within one country; nothing merges.",
       "id": "noesis-knowledge-engine.propose_election_identity_matches",
       "input_schema": {
@@ -49074,6 +50062,87 @@
     },
     {
       "cost_class": "medium",
+      "description": "Series resolved to one boundary with values as of a release date, other levels listed (never aggregated\nor apportioned), comparability pairs and a replayable receipt.",
+      "id": "noesis-knowledge-engine.query_demographic_boundary",
+      "input_schema": {
+        "properties": {
+          "as_of_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "concept": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "feature_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "period_from": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "period_to": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "feature_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "query_demographic_boundary",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:demographics:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Return bounded current event locations for political and OSINT maps.",
       "id": "noesis-knowledge-engine.query_geospatial_event_map",
       "input_schema": {
@@ -49695,6 +50764,57 @@
       ],
       "required_scopes": [
         "knowledge:decisions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Propose a comparability note between two series or two definition revisions (reviewable, reversible).",
+      "id": "noesis-knowledge-engine.record_demographic_comparability",
+      "input_schema": {
+        "properties": {
+          "left": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "relation": {
+            "type": "string"
+          },
+          "right": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "statement": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "left",
+          "right",
+          "relation",
+          "statement"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "record_demographic_comparability",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:demographics:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -55299,6 +56419,40 @@
       "version": "1"
     },
     {
+      "cost_class": "medium",
+      "description": "Re-run a boundary query receipt: reproduced when the same vintages are selected, else changed.",
+      "id": "noesis-knowledge-engine.replay_demographic_query",
+      "input_schema": {
+        "properties": {
+          "receipt": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "receipt"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "replay_demographic_query",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:demographics:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "low",
       "description": "Verify derived-object deltas against immutable revisions and receipts.",
       "id": "noesis-knowledge-engine.replay_derived_object_generations",
@@ -56269,6 +57423,56 @@
       "version": "1"
     },
     {
+      "cost_class": "medium",
+      "description": "Resolve series geography codes to Geospatial boundary features and places by the published code only.",
+      "id": "noesis-knowledge-engine.resolve_demographic_geographies",
+      "input_schema": {
+        "properties": {
+          "collections": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "geo_namespace": {
+            "default": "global",
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "resolve_demographic_geographies",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:demographics:write",
+        "knowledge:geospatial:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "low",
       "description": "Resolve an entity through current or snapshot-bounded redirects.",
       "id": "noesis-knowledge-engine.resolve_entity_history",
@@ -57173,6 +58377,88 @@
     },
     {
       "cost_class": "medium",
+      "description": "Withdraw a reviewed comparability note; no earlier note is reactivated.",
+      "id": "noesis-knowledge-engine.revert_demographic_comparability",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "note_id": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "note_id",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "revert_demographic_comparability",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:demographics:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Undo a reviewed link decision.",
+      "id": "noesis-knowledge-engine.revert_demographic_link",
+      "input_schema": {
+        "properties": {
+          "link_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "link_id",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "revert_demographic_link",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:demographics:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Undo an accepted or rejected decision; answers return to the unmatched source strings.",
       "id": "noesis-knowledge-engine.revert_election_identity_match",
       "input_schema": {
@@ -57895,6 +59181,141 @@
       ],
       "required_scopes": [
         "knowledge:cultural:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Accept or reject a proposed comparability note with a reason.",
+      "id": "noesis-knowledge-engine.review_demographic_comparability",
+      "input_schema": {
+        "properties": {
+          "decision": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "note_id": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "note_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_demographic_comparability",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:demographics:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Accept or reject an asserted link or a discovery candidate with a reason.",
+      "id": "noesis-knowledge-engine.review_demographic_link",
+      "input_schema": {
+        "properties": {
+          "decision": {
+            "type": "string"
+          },
+          "link_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "link_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_demographic_link",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:demographics:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Accept or reject a code-to-boundary resolution; a rejected resolution is not used.",
+      "id": "noesis-knowledge-engine.review_demographic_resolution",
+      "input_schema": {
+        "properties": {
+          "decision": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "resolution_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "resolution_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_demographic_resolution",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:demographics:review"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -60368,6 +61789,51 @@
       ],
       "required_scopes": [
         "knowledge:clinical:write",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Evaluate a monitor at a committed watermark: new releases, vintage and definition revisions and breaks,\nplus overdue calendar releases (release_pending) and stale pins.",
+      "id": "noesis-knowledge-engine.run_demographic_monitor",
+      "input_schema": {
+        "properties": {
+          "subscription_id": {
+            "type": "string"
+          },
+          "watermark": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "run_demographic_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:demographics:read",
         "knowledge:subscriptions:write"
       ],
       "server": "noesis-knowledge-engine",

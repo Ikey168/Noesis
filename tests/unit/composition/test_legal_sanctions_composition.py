@@ -129,10 +129,11 @@ def test_selecting_the_feature_binds_its_provider_and_the_consumed_ones():
     assert (
         plan["features"]["legal"] == ["sanctions"] and bound(plan) == FEATURE_PROVIDERS
     )
-    # The consumed Economics bundle is pulled in with its own optional public-finance feature left unselected
-    # (#1909); nothing of the sanctions feature is omitted.
-    assert plan["omissions"] == [
-        {"pack": "economics", "feature": "public-finance", "reason": "not selected"}
+    # The consumed Economics bundle is pulled in with its own optional public-finance (#1909) and demographics
+    # (#1914) features left unselected; nothing of the sanctions feature is omitted.
+    assert sorted(plan["omissions"], key=lambda o: o["feature"]) == [
+        {"pack": "economics", "feature": "demographics", "reason": "not selected"},
+        {"pack": "economics", "feature": "public-finance", "reason": "not selected"},
     ]
     assert {"pack_id": "legal-research", "version": "1.1.0", "range": "^1.1.0"} in plan[
         "source_packs"

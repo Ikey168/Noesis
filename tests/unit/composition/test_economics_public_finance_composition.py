@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import copy
 import json
 from pathlib import Path
 
@@ -10,7 +9,6 @@ import pytest
 
 from src.composition.adapter import adapt_all
 from src.composition.contracts import (
-    seal_manifest,
     validate_composition_manifest,
     validate_provider_descriptor,
 )
@@ -34,10 +32,11 @@ FEATURE_PROVIDERS = {
     "platform.subscriptions",
     "platform.source-runtime",
 }
+# 1.3.0 adds the demographics feature's sources (#1914); the public-finance sources are unchanged.
 PACK = {
     "pack_id": "economic-statistics-and-filings",
-    "version": "1.2.0",
-    "range": "^1.2.0",
+    "version": "1.3.0",
+    "range": "^1.3.0",
 }
 
 
@@ -75,25 +74,9 @@ def bound(plan):
 
 
 def with_demographics(bundles):
-    """The planned optional ``economics.demographics`` feature (not shipped here) as a test double."""
-    economics = copy.deepcopy(bundles["economics"])
-    economics["optional_features"].append(
-        {
-            "id": "demographics",
-            "default": False,
-            "description": "planned demographics feature (test double)",
-            "requires": [
-                {
-                    "capability": "economics.knowledge",
-                    "contract": "noesis-economic-knowledge",
-                    "range": "^1.0.0",
-                    "reason": "demographic series are economic knowledge",
-                }
-            ],
-        }
-    )
-    bundles["economics"] = seal_manifest(
-        {k: v for k, v in economics.items() if k != "content_hash"}
+    """The shipped optional ``demographics`` feature (#2007); the bundle is used as composed."""
+    assert any(
+        f["id"] == "demographics" for f in bundles["economics"]["optional_features"]
     )
     return bundles
 
@@ -149,8 +132,12 @@ def test_descriptor_declares_the_capability_read_only_operations_stores_probe_an
 
 def test_the_bundle_validates_and_behaves_unchanged_with_the_feature_off_by_default():
     composition = json.loads((ROOT / "packs/economics/composition.json").read_text())
-    (feature,) = composition["optional_features"]
-    assert feature["id"] == "public-finance" and feature["default"] is False
+    features = {f["id"]: f for f in composition["optional_features"]}
+    # public-finance and the demographics feature (#1914) are both optional and off by default.
+    assert set(features) == {"public-finance", "demographics"}
+    assert features["demographics"]["default"] is False
+    feature = features["public-finance"]
+    assert feature["default"] is False
     assert {r["capability"] for r in feature["requires"]} >= {
         "economics.public-finance",
         "economics.knowledge",
