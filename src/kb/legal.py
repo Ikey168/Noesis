@@ -52,7 +52,10 @@ SELECTION_CONTRACT = "noesis-legal-version-selection-v1"
 COMPARISON_CONTRACT = "noesis-legal-version-comparison-v1"
 DEFAULT_NAMESPACE = "global"
 REGIONAL_CONTRACT = "noesis-native-regional-v1"
-PROVIDER_JURISDICTIONS = {"cellar": "EU", "german-courts": "DE", "berlin-law": "DE-BE"}
+PROVIDER_JURISDICTIONS = {"cellar": "EU", "german-courts": "DE", "berlin-law": "DE-BE",
+                          # Federal statutes feature (#2105): observed, source-stated versions and BGBl acts.
+                          "gesetze-im-internet": "DE", "rechtsinformationen-bund": "DE", "recht-bund": "DE"}
+STATUTE_PROVIDERS = frozenset({"gesetze-im-internet", "rechtsinformationen-bund"})
 FACT_KINDS = ("enactment", "document", "publication", "entry_into_force", "commencement", "validity_end",
               "decision", "consolidation")
 CONSOLIDATED_CELEX = re.compile(r"^0(\d{4}[A-Z]\d{4})-(\d{4})(\d{2})(\d{2})$")
@@ -96,6 +99,38 @@ CREATE TABLE IF NOT EXISTS legal_dossier_links (
 CREATE TABLE IF NOT EXISTS legal_selection_outcomes (
   namespace TEXT NOT NULL, run_id TEXT NOT NULL, source_id TEXT NOT NULL, page_key TEXT NOT NULL,
   outcome TEXT NOT NULL, detail_json TEXT NOT NULL, PRIMARY KEY(run_id, source_id, page_key)
+);
+CREATE TABLE IF NOT EXISTS legal_statute_versions (
+  version_id TEXT PRIMARY KEY, namespace TEXT NOT NULL, work_id TEXT NOT NULL, statute_key TEXT NOT NULL,
+  provider TEXT NOT NULL, source_id TEXT, native_id TEXT NOT NULL, validity_basis TEXT NOT NULL,
+  validity_from DATE, validity_to DATE, temporal_coverage TEXT, source_modified DATE, stand_json TEXT NOT NULL,
+  amended_by_json TEXT NOT NULL, text_sha256 TEXT NOT NULL, first_observed_at_ms BIGINT NOT NULL,
+  corrects_version_id TEXT, run_id TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS legal_statute_observations (
+  version_id TEXT NOT NULL, namespace TEXT NOT NULL, observed_at_ms BIGINT NOT NULL, run_id TEXT NOT NULL,
+  source_id TEXT, response_sha256 TEXT, outcome TEXT NOT NULL, PRIMARY KEY(version_id, observed_at_ms)
+);
+CREATE TABLE IF NOT EXISTS legal_amendments (
+  amendment_id TEXT PRIMARY KEY, namespace TEXT NOT NULL, act_work_id TEXT NOT NULL, act_version_id TEXT NOT NULL,
+  bgbl_key TEXT NOT NULL, ordinal INTEGER NOT NULL, article TEXT, item TEXT, statute_key TEXT, target_work_id TEXT,
+  provision TEXT, action TEXT, status TEXT NOT NULL, instruction TEXT NOT NULL, locator_json TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS legal_provision_citations (
+  citation_id TEXT PRIMARY KEY, namespace TEXT NOT NULL, decision_work_id TEXT NOT NULL,
+  decision_version_id TEXT NOT NULL, court TEXT, decision_date DATE, statute_key TEXT NOT NULL,
+  provision TEXT NOT NULL, raw TEXT NOT NULL, locator_json TEXT NOT NULL, version_hint TEXT, target_work_id TEXT,
+  selected_version_id TEXT, selection_json TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS legal_implementation_links (
+  link_id TEXT PRIMARY KEY, namespace TEXT NOT NULL, work_id TEXT NOT NULL, version_id TEXT NOT NULL,
+  celex TEXT NOT NULL, eli TEXT, raw TEXT NOT NULL, target_work_id TEXT, statement TEXT NOT NULL,
+  locator_json TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS legal_dossier_match_outcomes (
+  namespace TEXT NOT NULL, act_work_id TEXT NOT NULL, bgbl_key TEXT NOT NULL, status TEXT NOT NULL,
+  reason TEXT NOT NULL, detail_json TEXT NOT NULL, evaluated_at_ms BIGINT NOT NULL,
+  PRIMARY KEY(namespace, act_work_id)
 );
 """
 
@@ -184,6 +219,13 @@ class LegalStore:
             identifiers = {"celex": fields.get("celex"), "eli": list(fields.get("eli_identifiers") or []),
                            "ecli": list(fields.get("ecli_identifiers") or []), "cellar_work": native_id}
             body = None
+        elif provider == "recht-bund":
+            # A Federal Law Gazette promulgation, keyed by its BGBl citation (part, year, number).
+            native_id = str(fields.get("bgbl_key") or "")
+            kind = "amendment_act"
+            identifiers = {"bgbl_key": native_id, "bgbl_citation": fields.get("bgbl_citation"),
+                           "eli": [fields["eli"]] if fields.get("eli") else []}
+            body = None
         elif provider == "german-courts":
             native_id = str(record["provider_id"])
             kind = "decision"
@@ -231,6 +273,16 @@ class LegalStore:
                 if record.get("contract") != REGIONAL_CONTRACT or record.get("provider") not in PROVIDER_JURISDICTIONS:
                     raise LegalError("invalid_record", "page record is not a supported legal source record")
                 fields = dict(record.get("fields") or {})
+                if record["provider"] in STATUTE_PROVIDERS:
+                    from src.kb.legal_federal import project_statute_version
+
+                    federal = project_statute_version(
+                        self, namespace, record, run_id=run_id, source_id=source_id, observed_ms=observed,
+                        document_id=(documents or {}).get(str(item.get("id"))),
+                        response_sha256=dict(item.get("legal_page") or {}).get("response_sha256"))
+                    for key, value in federal.items():
+                        counts[key] = counts.get(key, 0) + value
+                    continue
                 work_id, jurisdiction = self._work(namespace, record, run_id)
                 native_expression = fields.get("expression") or f"{record['provider_id']}@{record['language']}"
                 expression_id = "legal-expression:" + _digest([work_id, record["language"], native_expression])[:24]
@@ -252,6 +304,11 @@ class LegalStore:
                 if not inserted:
                     continue
                 counts["versions"] += 1
+                if record["provider"] == "recht-bund":
+                    from src.kb.legal_federal import record_amendments
+
+                    counts["amendments"] = counts.get("amendments", 0) + record_amendments(
+                        self, namespace, record, work_id=work_id, version_id=version_id)
                 for ordinal, section in enumerate(sections):
                     locator = dict(section.get("locator") or {})
                     self.conn.execute("INSERT INTO legal_passages VALUES (?,?,?,?,?)",
@@ -279,6 +336,10 @@ class LegalStore:
                                        temporal_id, observed])
                     counts["facts"] += 1
             self._resolve_citation_targets(namespace)
+            if any(counts.get(k) for k in ("versions", "statute_versions", "statute_observations")):
+                from src.kb.legal_federal import refresh_federal_links
+
+                refresh_federal_links(self, namespace)
             self.conn.execute("COMMIT")
         except Exception:
             self.conn.execute("ROLLBACK")
@@ -325,6 +386,10 @@ class LegalStore:
         if record["provider"] == "cellar":
             # CELLAR's single effective_from is derived from effective_dates; keep one fact kind.
             facts = [(k, v) for k, v in facts if k != "commencement"]
+        if record["provider"] == "recht-bund":
+            # Promulgation in the Federal Law Gazette and the signature (Ausfertigung) date, as the act states them.
+            facts += [(k, _day(fields.get(f))) for k, f in (("publication", "promulgation_date"),
+                                                              ("enactment", "ausfertigung_date")) if _day(fields.get(f))]
         if record["provider"] == "berlin-law" and record.get("published_at") and not fields.get("enactment_date"):
             facts.append(("publication", _day(record["published_at"])))
         consolidated = consolidated_of(fields.get("celex")) if record["provider"] == "cellar" else None
@@ -480,6 +545,11 @@ class LegalStore:
         except ValueError as exc:
             raise LegalError("invalid_request", "as_of must be YYYY-MM-DD") from exc
         work = self._work_row(namespace, work_id)
+        if work["work_kind"] == "statute":
+            # Federal statutes: source-stated validity first, else the nearest observed version (#2105, FL07).
+            from src.kb.legal_federal import FederalStatutes
+
+            return FederalStatutes(self).statute_as_of(namespace, work_id, day)
         versions = self.versions(namespace, work_id)
         other_languages = sorted({v["language"] for v in versions if language and v["language"] != language})
         if language:
@@ -648,6 +718,39 @@ class LegalProjector:
                     if o["source_id"] == source["source_id"]]
         return {"status": status, "not_found": sum(o["outcome"] == "not_found" for o in outcomes),
                 "returned": sum(o["outcome"] == "returned" for o in outcomes)}
+
+
+def legal_feature_enabled(conn: Any, feature: str) -> bool:
+    """Whether an optional Legal feature (``sanctions``, ``federal-statutes``) is selected in the active plan.
+
+    Features default to off and there is no separate enablement flag; before the
+    Legal bundle is composition-managed nothing selects a feature. Reads only.
+    """
+    try:
+        tables = {
+            r[0]
+            for r in conn.execute(
+                "SELECT table_name FROM information_schema.tables WHERE table_name IN "
+                "('composition_authority', 'composition_active', 'composition_generations', "
+                "'composition_plans')"
+            ).fetchall()
+        }
+        if len(tables) < 4:
+            return False
+        managed = conn.execute(
+            "SELECT authority FROM composition_authority WHERE bundle='legal'"
+        ).fetchone()
+        if not managed or managed[0] != "composition":
+            return False
+        row = conn.execute(
+            "SELECT p.plan_json FROM composition_active a JOIN composition_generations g "
+            "ON g.generation_id=a.generation_id JOIN composition_plans p ON p.digest=g.plan_digest "
+            "WHERE a.slot=1"
+        ).fetchone()
+        plan = json.loads(row[0]) if row else {}
+    except Exception:  # noqa: BLE001 - an unreadable plan never enables a feature
+        return False
+    return feature in ((plan.get("features") or {}).get("legal") or [])
 
 
 def readiness(conn: Any, *, pack_id: str = "legal-research") -> dict[str, Any]:

@@ -1,0 +1,29 @@
+{
+  "@context": "https://schema.org",
+  "@type": "hydra:Collection",
+  "totalItems": 3,
+  "member": [
+    {"@type": "SearchResult", "item": {"@type": "Legislation", "@id": "/v1/legislation/eli/bund/bgbl-1/2029/101",
+      "name": "Gesetz über den Handel mit Musterpapieren (fiktiv)", "abbreviation": "MPHG",
+      "legislationIdentifier": "eli/bund/bgbl-1/2029/101",
+      "workExample": {"@type": "Legislation", "@id": "/v1/legislation/eli/bund/bgbl-1/2029/101/2029-06-01/1/deu",
+        "legislationIdentifier": "eli/bund/bgbl-1/2029/101/2029-06-01/1/deu",
+        "temporalCoverage": "2029-06-01/2030-03-31", "legislationLegalForce": "NotInForce",
+        "dateModified": "2030-04-02",
+        "encoding": [{"@type": "LegislationObject", "contentUrl": "/v1/legislation/eli/bund/bgbl-1/2029/101/2029-06-01/1/deu/regelungstext-1.xml", "encodingFormat": "application/xml"}]}}},
+    {"@type": "SearchResult", "item": {"@type": "Legislation", "@id": "/v1/legislation/eli/bund/bgbl-1/2029/101",
+      "name": "Gesetz über den Handel mit Musterpapieren (fiktiv)", "abbreviation": "MPHG",
+      "legislationIdentifier": "eli/bund/bgbl-1/2029/101",
+      "workExample": {"@type": "Legislation", "@id": "/v1/legislation/eli/bund/bgbl-1/2029/101/2030-04-01/1/deu",
+        "legislationIdentifier": "eli/bund/bgbl-1/2029/101/2030-04-01/1/deu",
+        "temporalCoverage": "2030-04-01/2030-12-31", "legislationLegalForce": "InForce",
+        "dateModified": "2030-04-02",
+        "encoding": [{"@type": "LegislationObject", "contentUrl": "/v1/legislation/eli/bund/bgbl-1/2029/101/2030-04-01/1/deu/regelungstext-1.xml", "encodingFormat": "application/xml"}]}}},
+    {"@type": "SearchResult", "item": {"@type": "Legislation", "@id": "/v1/legislation/eli/bund/bgbl-1/2029/555",
+      "name": "Verordnung zum Musterpapierhandelsgesetz (fiktiv)", "abbreviation": "MPHGV",
+      "legislationIdentifier": "eli/bund/bgbl-1/2029/555",
+      "workExample": {"@type": "Legislation", "legislationIdentifier": "eli/bund/bgbl-1/2029/555/2029-07-01/1/deu",
+        "temporalCoverage": "2029-07-01/..",
+        "encoding": [{"contentUrl": "/v1/legislation/eli/bund/bgbl-1/2029/555/2029-07-01/1/deu/regelungstext-1.xml", "encodingFormat": "application/xml"}]}}}
+  ]
+}

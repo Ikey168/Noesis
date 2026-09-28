@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<akn:akomaNtoso xmlns:akn="http://Inhaltsdaten.LegalDocML.de/1.7/">
+  <akn:act name="regelungstext">
+    <akn:meta>
+      <akn:identification source="attributsemantik-noch-undefiniert">
+        <akn:FRBRWork><akn:FRBRthis value="eli/bund/bgbl-1/2029/101/regelungstext-1"/><akn:FRBRdate date="2029-05-04" name="ausfertigung"/></akn:FRBRWork>
+        <akn:FRBRExpression><akn:FRBRthis value="eli/bund/bgbl-1/2029/101/2030-04-01/1/deu/regelungstext-1"/><akn:FRBRdate date="2030-04-01" name="inkraft"/></akn:FRBRExpression>
+      </akn:identification>
+      <akn:references source="attributsemantik-noch-undefiniert">
+        <akn:passiveRef eId="aenderung-1" href="eli/bund/bgbl-1/2030/45/regelungstext-1" showAs="Gesetz zur Änderung des Musterpapierhandelsgesetzes"/>
+      </akn:references>
+    </akn:meta>
+    <akn:preface><akn:longTitle><akn:p><akn:docTitle>Gesetz über den Handel mit Musterpapieren (fiktiv)</akn:docTitle></akn:p></akn:longTitle></akn:preface>
+    <akn:body>
+      <akn:section eId="abschnitt-1"><akn:num>Abschnitt 1</akn:num><akn:heading>Allgemeine Vorschriften</akn:heading>
+        <akn:article eId="para-1"><akn:num>§ 1</akn:num><akn:heading>Anwendungsbereich</akn:heading>
+          <akn:paragraph eId="para-1_abs-1"><akn:num>(1)</akn:num><akn:content><akn:p>Dieses Gesetz gilt für den Handel mit Musterpapieren.</akn:p></akn:content></akn:paragraph>
+          <akn:paragraph eId="para-1_abs-2"><akn:num>(2)</akn:num><akn:content><akn:p>Es gilt nicht für Staatsanleihen und Kommunalanleihen.</akn:p></akn:content></akn:paragraph>
+        </akn:article>
+        <akn:article eId="para-5"><akn:num>§ 5</akn:num><akn:heading>Meldepflichten</akn:heading>
+          <akn:paragraph eId="para-5_abs-1"><akn:num>(1)</akn:num><akn:content><akn:p>Wer Musterpapiere erwirbt, hat dies der Aufsichtsstelle zu melden.</akn:p></akn:content></akn:paragraph>
+          <akn:paragraph eId="para-5_abs-2"><akn:num>(2)</akn:num><akn:content><akn:p>Die Meldung ist innerhalb von fünf Handelstagen abzugeben.</akn:p></akn:content></akn:paragraph>
+        </akn:article>
+        <akn:article eId="para-8"><akn:num>§ 8</akn:num><akn:heading>Aufsicht</akn:heading>
+          <akn:paragraph eId="para-8_abs-0"><akn:content><akn:p>Die Aufsichtsstelle überwacht die Einhaltung dieses Gesetzes.</akn:p></akn:content></akn:paragraph>
+        </akn:article>
+        <akn:p>§ 8a</akn:p>
+        <akn:p>Für Erwerbe vor dem 1. April 2030 gilt § 5 Absatz 2 in der bis zum 31. März 2030 geltenden Fassung.</akn:p>
+      </akn:section>
+    </akn:body>
+  </akn:act>
+</akn:akomaNtoso>

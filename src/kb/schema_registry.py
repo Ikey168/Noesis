@@ -289,8 +289,27 @@ def _builtin_definitions() -> list[dict[str, Any]]:
         }
         for name, contract, deps in composition
     ]
+    # Legal record schema (#2105, FL02): 1.1.0 adds the federal-statute providers and fields additively;
+    # 1.0.0 (CELLAR, court and Berlin records) stays resolvable unchanged.
+    legal = [
+        ("legal-record", "1.0.0", REPO_ROOT / "contracts/schemas/history/noesis-legal-record-1.0.0.json", []),
+        ("legal-record", "1.1.0", REPO_ROOT / "contracts/schemas/jsonschema/noesis-legal-record-v1.json", []),
+        ("legal-provision-selection", "1.0.0",
+         REPO_ROOT / "contracts/schemas/jsonschema/noesis-legal-provision-selection-v1.json",
+         [("legal-record", "^1.1.0")]),
+        ("legal-provision-comparison", "1.0.0",
+         REPO_ROOT / "contracts/schemas/jsonschema/noesis-legal-provision-comparison-v1.json",
+         [("legal-record", "^1.1.0")]),
+    ]
+    legal_modules = [
+        {**common, "owner": "legal-pack", "name": name, "kind": "schema", "semantic_version": version,
+         "content": json.loads(path.read_text()),
+         "dependencies": [{"kind": "schema", "name": dep, "version": spec} for dep, spec in deps]}
+        for name, version, path, deps in legal
+    ]
     return [
         *composition_modules,
+        *legal_modules,
         {
             **common,
             "name": "knowledge-mutation",

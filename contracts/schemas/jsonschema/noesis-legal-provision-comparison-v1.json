@@ -1,0 +1,78 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/schemas/noesis-legal-provision-comparison-v1.json",
+  "title": "Noesis legal provision comparison v1",
+  "description": "Provision-level differences between two versions (or two dates) of one federal statute, with the amendment acts the later version itself names. Source changes, not a legal-effect assessment.",
+  "type": "object",
+  "required": [
+    "contract",
+    "namespace",
+    "work_id",
+    "provision",
+    "left",
+    "right",
+    "changes",
+    "amendment_acts_stated_by_the_source",
+    "notice"
+  ],
+  "properties": {
+    "contract": {
+      "const": "noesis-legal-provision-comparison-v1"
+    },
+    "namespace": {
+      "type": "string"
+    },
+    "work_id": {
+      "type": "string"
+    },
+    "provision": {
+      "type": "string"
+    },
+    "left": {
+      "type": "object",
+      "required": [
+        "version_id",
+        "validity_basis"
+      ]
+    },
+    "right": {
+      "type": "object",
+      "required": [
+        "version_id",
+        "validity_basis"
+      ]
+    },
+    "changes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "locator",
+          "change"
+        ],
+        "properties": {
+          "change": {
+            "enum": [
+              "added",
+              "removed",
+              "changed"
+            ]
+          }
+        }
+      }
+    },
+    "amendment_acts_stated_by_the_source": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "bgbl_key",
+          "status"
+        ]
+      }
+    },
+    "notice": {
+      "type": "string"
+    }
+  }
+}

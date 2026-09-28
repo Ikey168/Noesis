@@ -60,8 +60,9 @@ def test_all_production_packs_validate_against_contract() -> None:
     # plus the Clinical Evidence surveillance feature's four statistics sources (#1917),
     # plus the Products safety feature's four notice sources and its CELLAR selection of cited acts (#1916),
     # plus the Funding development-finance feature's OECD CRS source (#1932),
-    # plus the On-chain Observations pack's two explorers and one label dataset (#2056).
-    assert sum(len(pack["sources"]) for pack in packs) == 104
+    # plus the On-chain Observations pack's two explorers and one label dataset (#2056),
+    # plus the Legal federal-statutes feature's gesetze-im-internet, rechtsinformationen and BGBl sources (#2105).
+    assert sum(len(pack["sources"]) for pack in packs) == 107
     schema = json.loads(
         (ROOT / "contracts/schemas/jsonschema/noesis-source-pack-v1.json").read_text()
     )

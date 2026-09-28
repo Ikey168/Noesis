@@ -1,0 +1,23 @@
+{
+  "captured": false,
+  "provider": "rechtsinformationen.bund.de",
+  "note": "Authored empty search result: no expression of the FL01 statute set is captured offline, so every statute is a not_found outcome. LegalDocML parsing is exercised with the fictional MPHG fixtures.",
+  "native_pages": [
+    {
+      "request": "/v1/legislation",
+      "status": 200,
+      "headers": {
+        "Content-Type": "application/ld+json"
+      },
+      "body": {
+        "@type": "hydra:Collection",
+        "totalItems": 0,
+        "member": []
+      },
+      "authored": true
+    }
+  ],
+  "scenarios": [
+    "no-expressions-listed"
+  ]
+}

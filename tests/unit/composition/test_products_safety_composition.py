@@ -168,7 +168,7 @@ def test_selecting_the_feature_binds_one_authority_per_store_and_every_requireme
     assert len({b["capability"] for b in bindings}) == len(
         bindings
     )  # one provider per capability
-    assert {"pack_id": "legal-research", "version": "1.2.0", "range": "^1.1.0"} in plan[
+    assert {"pack_id": "legal-research", "version": "1.3.0", "range": "^1.1.0"} in plan[
         "source_packs"
     ]
     stores = [

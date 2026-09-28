@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<akn:akomaNtoso xmlns:akn="http://Inhaltsdaten.LegalDocML.de/1.7/">
+  <akn:act name="regelungstext">
+    <akn:meta>
+      <akn:identification source="attributsemantik-noch-undefiniert">
+        <akn:FRBRWork><akn:FRBRthis value="eli/bund/bgbl-1/2030/46/regelungstext-1"/><akn:FRBRdate date="2030-03-15" name="verkuendungsfassung"/></akn:FRBRWork>
+      </akn:identification>
+    </akn:meta>
+    <akn:preface><akn:longTitle><akn:p><akn:docTitle>Verordnung zur Änderung der Musterfristenverordnung (fiktiv)</akn:docTitle></akn:p></akn:longTitle></akn:preface>
+    <akn:body>
+      <akn:article eId="art-1"><akn:num>Artikel 1</akn:num><akn:heading>Änderung der Musterfristenverordnung</akn:heading>
+        <akn:paragraph><akn:content><akn:p>Die Musterfristenverordnung vom 2. Februar 2027 (BGBl. 2027 I Nr. 12) wird wie folgt geändert:</akn:p></akn:content>
+          <akn:list><akn:point><akn:num>1.</akn:num><akn:content><akn:p>§ 2 wird aufgehoben.</akn:p></akn:content></akn:point></akn:list>
+        </akn:paragraph>
+      </akn:article>
+      <akn:article eId="art-2"><akn:num>Artikel 2</akn:num><akn:heading>Inkrafttreten</akn:heading>
+        <akn:paragraph><akn:content><akn:p>Diese Verordnung tritt am Tag nach der Verkündung in Kraft.</akn:p></akn:content></akn:paragraph>
+      </akn:article>
+    </akn:body>
+  </akn:act>
+</akn:akomaNtoso>
