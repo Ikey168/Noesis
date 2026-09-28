@@ -99,12 +99,11 @@ class LinguisticsStore:
         return table_exists(self.conn, "ling_sightings")
 
     def require_ready(self, provider: str | None = None) -> None:
-        """``not_ready`` until the store exists (and, with ``provider``, until that source ran)."""
-        if not self.ready():
+        """``not_ready`` until a linguistic source has run (and, with ``provider``, until that source ran)."""
+        if not self.ready() or not self.conn.execute("SELECT 1 FROM ling_sightings LIMIT 1").fetchone():
             raise LinguisticsError(
                 "not_ready",
-                "no linguistic source has been acquired yet; run the linguistics "
-                "source pack first",
+                "no linguistic source has been acquired yet; run the linguistics source pack first",
             )
         if (
             provider is not None
@@ -112,9 +111,7 @@ class LinguisticsStore:
                 "SELECT 1 FROM ling_sightings WHERE provider=? LIMIT 1", [provider]
             ).fetchone()
         ):
-            raise LinguisticsError(
-                "not_ready", f"no {provider} source run has been recorded yet"
-            )
+            raise LinguisticsError("not_ready", f"no {provider} source run has been recorded yet")
 
     # ------------------------------------------------------------ writes
 
