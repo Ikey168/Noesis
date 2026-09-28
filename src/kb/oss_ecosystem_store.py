@@ -223,7 +223,9 @@ class OssEcosystemStore:
             )
         return rid
 
-    def _revisions(self, rid: str) -> list[dict[str, Any]]:
+    def _revisions(
+        self, rid: str, *, include_late: bool = True
+    ) -> list[dict[str, Any]]:
         rows = self.conn.execute(
             "SELECT revision_id, content_hash, statement_json, order_ms, source_modified_ms, observed_at_ms, seq, late, "
             "run_id, document_id FROM oss_revisions WHERE record_id=? ORDER BY order_ms, observed_at_ms, seq",
@@ -231,6 +233,8 @@ class OssEcosystemStore:
         ).fetchall()
         chain: list[dict[str, Any]] = []
         for r in rows:
+            if not include_late and r[7]:
+                continue
             if chain and chain[-1]["content_hash"] == r[1]:
                 # A re-observation of the content already in effect (e.g. an earlier poll that arrived
                 # late): the earliest observation stands, so the chain never depends on arrival order.
@@ -520,6 +524,11 @@ class OssEcosystemStore:
             for r in self._revisions(record)
             if acquired_by_ms is None or r["observed_at_ms"] <= acquired_by_ms
         ]
+
+    def change_chain(self, record: str) -> list[dict[str, Any]]:
+        """Revisions that were current when they arrived (late history excluded): what monitors diff."""
+
+        return self._revisions(record, include_late=False)
 
     def current(
         self,
