@@ -74,6 +74,11 @@ MATRIX = {
     "Contract and address to cited ledger observations":
         "tests/unit/domains/test_onchain_acceptance.py::"
         "test_contract_and_address_to_cited_origin_transfers_and_probable_cluster",
+    # The Astronomy and Space bundle's offline journey (#2161) composes its own record owner, science (papers by
+    # bibcode and DOI), entity identity, geospatial (launch sites), subscriptions and the source-pack runtime.
+    "Object to cited astronomy history":
+        "tests/unit/domains/test_astronomy_acceptance.py::"
+        "test_object_to_cited_designations_vintages_dispositions_launches_alerts_and_monitors",
 }
 
 

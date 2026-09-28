@@ -205,6 +205,11 @@ For the project overview and local setup, start with the
   label assertions and probable address clustering with declared heuristics, a null model and a measured
   false-positive rate; no attribution verdicts, no person linkage, no wallet or submission capability;
   [source access audit](security/onchain-source-access.md)
+- [Astronomy and Space guide](guides/astronomy-space.md) — a small body's MPC designations and identifications
+  and MPC/JPL orbit solution vintages, quoted Sentry listings, NASA Exoplanet Archive dispositions per table, GCAT
+  and CelesTrak launches and objects and NOAA SWPC alerts as of a date, linked to Science papers by bibcode or DOI,
+  with reviewable identity and monitors; no orbit determination, risk verdict or disposition by Noesis;
+  [source audit](development/astronomy-evidence/source-audit.md)
 - [Geospatial housing guide](guides/geospatial-housing.md) — land-value zones with valuation dates, Mietspiegel
   editions and cells, development-plan stages, Wohnlagen, permit and completion statistics and Destatis vintages
   projected onto an address, parcel or district as of a date, with citation links and monitors; no valuation or

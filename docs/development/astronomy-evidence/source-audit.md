@@ -178,10 +178,16 @@ listed in the record's `unknowns`.
 ## Bounded v1 coverage
 
 * **Small bodies:** a named list of at most 50 identifiers (packed or unpacked
-  designations or numbers) declared per source. The production declaration
-  names fictional placeholders only until AS13 selects real objects.
-* **Exoplanets:** an explicit host list (at most 25 hosts) in each TAP query.
-* **Launches and orbital objects:** declared launch years (v1: 2026).
+  designations or numbers) declared per source; v1 declares (433) Eros,
+  (99942) Apophis, (101955) Bennu and 2024 YR4 **(verify the selection)**.
+  Parsers are stateless, so the list names every designation to follow: an
+  object numbered after its provisional designation was declared is matched
+  again only once its number is added to the declaration.
+* **Exoplanets:** an explicit host list (at most 25 hosts) in each TAP query;
+  v1 declares TRAPPIST-1 (TIC 278892590), TOI-700 (TIC 150428135) and
+  Kepler-22 (Kepler ID 10593626) **(verify the identifiers)**.
+* **Launches and orbital objects:** declared launch years (v1: 2026) and GCAT
+  organisation codes **(verify the codes)**.
 * **Space weather:** the rolling `alerts.json` window; history accumulates in
   the store.
 
