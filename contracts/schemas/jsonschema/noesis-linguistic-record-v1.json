@@ -1,0 +1,45 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/contracts/noesis-linguistic-record-v1.json",
+  "title": "Linguistic record",
+  "description": "One attributed statement of one lexical or typological source at one source revision (src/kb/linguistics_records.py): a lexeme, form, sense, definition revision, gloss, usage example, etymology assertion or note, sourced translation, languoid, language item, ISO 639-3 code or code change, WALS language, parameter or value, or CLDR locale datum. The record key is kind:provider:source_id, so disagreeing sources stay side by side. Lexemes are not canonical entities. No body may hold machine-translated or model-generated text; a Noesis translation is a noesis-translation-record-v1 referenced by id.",
+  "type": "object",
+  "required": ["contract", "kind", "provider", "source", "body"],
+  "properties": {
+    "contract": {"const": "noesis-linguistic-record-v1"},
+    "kind": {"enum": ["lexeme", "form", "sense", "definition_revision", "usage_example", "gloss", "etymology_assertion", "etymology_note", "sourced_translation", "languoid", "language_item", "iso_code", "iso_code_change", "typological_language", "typological_parameter", "typological_value", "locale_data"]},
+    "provider": {"enum": ["wikidata-lexemes", "wikidata-items", "kaikki-wiktextract", "glottolog", "wals", "cldr", "sil-iso639-3"]},
+    "source": {
+      "type": "object",
+      "required": ["source_id", "revision", "licence"],
+      "properties": {
+        "source_id": {"type": "string", "minLength": 1},
+        "revision": {"type": "string", "minLength": 1, "description": "Wikidata revision id, kaikki extract/dump dates, CLDF release, CLDR release or SIL table date"},
+        "revision_date": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}(T\\d{2}:\\d{2}:\\d{2}Z)?$"},
+        "retrieved_at": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$"},
+        "url": {"type": "string", "pattern": "^https://"},
+        "licence": {
+          "type": "object",
+          "required": ["id", "attribution", "share_alike"],
+          "properties": {
+            "id": {"type": "string", "minLength": 1},
+            "attribution": {"type": "string", "minLength": 1},
+            "share_alike": {"type": "boolean"},
+            "url": {"type": "string"}
+          }
+        }
+      }
+    },
+    "body": {
+      "type": "object",
+      "not": {"anyOf": [
+        {"required": ["producer"]}, {"required": ["model"]}, {"required": ["machine_translated"]},
+        {"required": ["generated"]}, {"required": ["translation_id"]}, {"required": ["translated_text"]}
+      ]},
+      "properties": {
+        "text_origin": {"const": "source"}
+      }
+    }
+  },
+  "additionalProperties": false
+}
