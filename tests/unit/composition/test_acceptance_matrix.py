@@ -74,6 +74,11 @@ MATRIX = {
     "Contract and address to cited ledger observations":
         "tests/unit/domains/test_onchain_acceptance.py::"
         "test_contract_and_address_to_cited_origin_transfers_and_probable_cluster",
+    # The Materials bundle's offline journey (#2091) composes its record owner, the shared identity state machine,
+    # Science literature and technology.standards citations and the source-pack runtime.
+    "Material to cited property dossier":
+        "tests/unit/domains/test_materials_acceptance.py::"
+        "test_material_to_cited_property_dossier_comparison_search_citations_and_release_diff",
 }
 
 

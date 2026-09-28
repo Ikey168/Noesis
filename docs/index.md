@@ -205,6 +205,10 @@ For the project overview and local setup, start with the
   label assertions and probable address clustering with declared heuristics, a null model and a measured
   false-positive rate; no attribution verdicts, no person linkage, no wallet or submission capability;
   [source access audit](security/onchain-source-access.md)
+- [Materials pack guide](guides/materials-pack.md) — condition-aware material properties from Materials Project,
+  JARVIS-DFT, OQMD, the NIST WebBook and COD with measured vs computed provenance, exact units, reviewable
+  phase-level identity (polymorphs never merge), comparison only of comparable values, cited papers and standards
+  and release tracking; no averaging or prediction; [source audit](development/materials-evidence/source-audit.md)
 - [Geospatial housing guide](guides/geospatial-housing.md) — land-value zones with valuation dates, Mietspiegel
   editions and cells, development-plan stages, Wohnlagen, permit and completion statistics and Destatis vintages
   projected onto an address, parcel or district as of a date, with citation links and monitors; no valuation or
