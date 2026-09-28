@@ -35,14 +35,16 @@ def conn():
 
 def test_all_production_packs_validate_against_contract() -> None:
     packs = load_source_packs(PACK_DIR)
-    # 15 plus the Market bafin-notices feature's bafin-capital-market-notices pack (#2106).
-    assert len(packs) == 16
+    # 15 plus the Market bafin-notices feature's bafin-capital-market-notices pack (#2106),
+    # plus the Linguistics pack's linguistics-lexical-typological pack (#2178).
+    assert len(packs) == 17
     assert {domain for pack in packs for domain in pack["domains"]} == {
         "clinical",
         "corporate-ownership",
         "economic",
         "geospatial",
         "legal",
+        "linguistics",
         "market",
         "onchain",
         "osint",
@@ -65,8 +67,9 @@ def test_all_production_packs_validate_against_contract() -> None:
     # plus the On-chain Observations pack's two explorers and one label dataset (#2056),
     # plus the Legal federal-statutes feature's gesetze-im-internet, rechtsinformationen and BGBl sources (#2105),
     # plus the Market bafin-notices feature's voting-rights, dealings, short-position, company and warning sources (#2106),
-    # plus the Products expansion's two EPREL groups, two Open Icecat categories and two BMEcat catalogues (#2061).
-    assert sum(len(pack["sources"]) for pack in packs) == 118
+    # plus the Products expansion's two EPREL groups, two Open Icecat categories and two BMEcat catalogues (#2061),
+    # plus the Linguistics pack's Wikidata, Wiktextract, Glottolog, WALS, CLDR and ISO 639-3 sources (#2178).
+    assert sum(len(pack["sources"]) for pack in packs) == 124
     schema = json.loads(
         (ROOT / "contracts/schemas/jsonschema/noesis-source-pack-v1.json").read_text()
     )
@@ -332,6 +335,7 @@ def test_secret_readiness_health_redaction_and_domain_coverage(conn) -> None:
         "economic",
         "geospatial",
         "legal",
+        "linguistics",
         "market",
         "onchain",
         "osint",

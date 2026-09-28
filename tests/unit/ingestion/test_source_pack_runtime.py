@@ -641,6 +641,7 @@ def test_six_domain_offline_execution(setup):
         "economic",
         "geospatial",
         "legal",
+        "linguistics",
         "market",
         "onchain",
         "osint",

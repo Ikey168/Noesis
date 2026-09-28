@@ -208,6 +208,12 @@ def _bafin_notice_projector(conn: Any) -> Any:
     return BafinNoticeProjector(conn)
 
 
+def _linguistics_projector(conn: Any) -> Any:
+    from src.kb.linguistics_store import LinguisticsProjector
+
+    return LinguisticsProjector(conn)
+
+
 def _vulnerability_projector(conn: Any) -> Any:
     from src.kb.vulnerabilities import VulnerabilityProjector
 
@@ -242,6 +248,7 @@ PROJECTORS: dict[str, Callable[[Any], Any]] = {
     "noesis-bafin-notice-v1": _bafin_notice_projector,
     "noesis-housing-record-v1": _housing_projector,
     "noesis-surveillance-record-v1": _surveillance_projector,
+    "noesis-linguistic-record-v1": _linguistics_projector,
 }
 
 _DDL = """

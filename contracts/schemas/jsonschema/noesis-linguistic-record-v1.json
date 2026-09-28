@@ -7,7 +7,7 @@
   "required": ["contract", "kind", "provider", "source", "body"],
   "properties": {
     "contract": {"const": "noesis-linguistic-record-v1"},
-    "kind": {"enum": ["lexeme", "form", "sense", "definition_revision", "usage_example", "gloss", "etymology_assertion", "etymology_note", "sourced_translation", "languoid", "language_item", "iso_code", "iso_code_change", "typological_language", "typological_parameter", "typological_value", "locale_data"]},
+    "kind": {"enum": ["lexeme", "form", "sense", "definition_revision", "usage_example", "gloss", "etymology_assertion", "etymology_note", "sourced_translation", "languoid", "language_item", "iso_code", "iso_code_change", "iso_macrolanguage", "typological_language", "typological_parameter", "typological_value", "locale_data"]},
     "provider": {"enum": ["wikidata-lexemes", "wikidata-items", "kaikki-wiktextract", "glottolog", "wals", "cldr", "sil-iso639-3"]},
     "source": {
       "type": "object",

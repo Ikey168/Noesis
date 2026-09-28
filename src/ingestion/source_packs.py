@@ -278,6 +278,10 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"development-finance"})
 NATIVE_CONNECTOR_MODULES["bafin-notices"] = "src.ingestion.bafin_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"bafin-notices"})
 
+# Linguistics: Wikidata lexemes, Wiktextract, Glottolog, WALS, CLDR and ISO 639-3 tables (#2178).
+NATIVE_CONNECTOR_MODULES["linguistics"] = "src.ingestion.linguistics_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"linguistics"})
+
 # Products expansion: manufacturer and supplier BMEcat catalogues for electronic components (#2061, #2098).
 NATIVE_CONNECTOR_MODULES["bmecat"] = "src.ingestion.product_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"bmecat"})

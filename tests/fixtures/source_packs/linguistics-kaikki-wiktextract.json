@@ -1,0 +1,24 @@
+{
+ "captured": false,
+ "native_pages": [
+  {
+   "body": "{\"etymology_number\": 1, \"etymology_templates\": [{\"args\": {\"1\": \"qnv\", \"2\": \"qvl-pro\", \"3\": \"*tamə\"}, \"expansion\": \"Proto-Velan *tamə\", \"name\": \"inh\"}, {\"args\": {\"1\": \"qsv\", \"2\": \"tamu\"}, \"expansion\": \"Southern Velan tamu\", \"name\": \"cog\"}, {\"args\": {\"1\": \"qsv\", \"2\": \"tamu\"}, \"expansion\": \"tamu\", \"name\": \"m\"}], \"etymology_text\": \"Inherited from Proto-Velan *tamə. Cognate with Southern Velan tamu.\", \"forms\": [{\"form\": \"tamoi\", \"tags\": [\"plural\"]}, {\"form\": \"velan-noun\", \"tags\": [\"inflection-template\"]}], \"lang\": \"Northern Velan\", \"lang_code\": \"qnv\", \"pos\": \"noun\", \"senses\": [{\"examples\": [{\"english\": \"The rivers are wide.\", \"gloss\": \"river-PL wide-PRS\", \"ref\": \"Fictional Velan Reader (2001), p. 4\", \"text\": \"Tamoi sela.\"}], \"glosses\": [\"a river\"], \"id\": \"en-tamo-qnv-noun-Ab1Cd2\", \"wikidata\": [\"Q4022\"]}], \"sounds\": [{\"ipa\": \"/ˈta.mo/\"}, {\"audio\": \"Qnv-tamo.ogg\", \"ogg_url\": \"https://upload.wikimedia.org/x.ogg\"}], \"word\": \"tamo\"}\n{\"etymology_number\": 2, \"lang\": \"Northern Velan\", \"lang_code\": \"qnv\", \"pos\": \"verb\", \"senses\": [{\"glosses\": [\"to flow\"], \"id\": \"en-tamo-qnv-verb-Ef3Gh4\"}], \"word\": \"tamo\"}\n{\"etymology_templates\": [{\"args\": {\"1\": \"qnv\", \"2\": \"it\", \"3\": \"banca\"}, \"expansion\": \"Italian banca\", \"name\": \"bor\"}], \"etymology_text\": \"Borrowed from Italian banca.\", \"lang\": \"Northern Velan\", \"lang_code\": \"qnv\", \"pos\": \"noun\", \"senses\": [{\"glosses\": [\"bank (financial institution)\"], \"id\": \"en-banka-qnv-noun-Ij5Kl6\"}], \"word\": \"banka\"}\n{\"lang\": \"Northern Velan\", \"lang_code\": \"qnv\", \"pos\": \"adj\", \"senses\": [{\"glosses\": [\"wide\"]}], \"word\": \"selo\"}\n",
+   "request": "/dictionary/Northern%20Velan/kaikki.org-dictionary-NorthernVelan.jsonl"
+  },
+  {
+   "body": "{\"etymology_templates\": [{\"args\": {\"1\": \"qsv\", \"2\": \"qvl-pro\", \"3\": \"*tamə\"}, \"expansion\": \"Proto-Velan *tamə\", \"name\": \"inh\"}], \"lang\": \"Southern Velan\", \"lang_code\": \"qsv\", \"pos\": \"noun\", \"senses\": [{\"glosses\": [\"a river\"], \"id\": \"en-tamu-qsv-noun-Mn7Op8\", \"wikidata\": [\"Q4022\"]}], \"word\": \"tamu\"}\n",
+   "request": "/dictionary/Southern%20Velan/kaikki.org-dictionary-SouthernVelan.jsonl"
+  },
+  {
+   "body": "{\"lang\": \"English\", \"lang_code\": \"en\", \"pos\": \"noun\", \"senses\": [{\"glosses\": [\"A large natural stream of water.\"], \"id\": \"en-river-en-noun-Qr9St0\"}], \"translations\": [{\"code\": \"qnv\", \"lang\": \"Northern Velan\", \"sense\": \"A large natural stream of water.\", \"word\": \"tamo\"}, {\"code\": \"qsv\", \"lang\": \"Southern Velan\", \"sense\": \"A large natural stream of water.\", \"word\": \"tamu\"}], \"word\": \"river\"}\n",
+   "request": "/dictionary/English/kaikki.org-dictionary-English.jsonl"
+  }
+ ],
+ "note": "Authored documents in the documented format naming a fictional language family (Veltic); synthetic identifiers only. See tests/unit/linguistics_harness.py.",
+ "provider": "kaikki-wiktextract",
+ "scenarios": [
+  "bounded-selection",
+  "out-of-scope-counted",
+  "attributed-licence"
+ ]
+}

@@ -1,0 +1,24 @@
+{
+ "captured": false,
+ "native_pages": [
+  {
+   "body": "Id\tPart2b\tPart2t\tPart1\tScope\tLanguage_Type\tRef_Name\tComment\nqnv\t\t\t\tI\tL\tNorthern Velan\t\nqsv\t\t\t\tI\tL\tSouthern Velan\t\nqmv\t\t\t\tM\tL\tVelan\t\nqaa\t\t\t\tS\tS\tReserved for local use\t\n",
+   "request": "/sites/iso639-3/files/downloads/iso-639-3.tab"
+  },
+  {
+   "body": "M_Id\tI_Id\tI_Status\nqmv\tqnv\tA\nqmv\tqsv\tA\nqzz\tqzy\tA\n",
+   "request": "/sites/iso639-3/files/downloads/iso-639-3-macrolanguages.tab"
+  },
+  {
+   "body": "Id\tRef_Name\tRet_Reason\tChange_To\tRet_Remedy\tEffective\nqrv\tOld Velan\tS\t\tSplit into Northern Velan [qnv] and Southern Velan [qsv]\t2024-01-15\nqzx\tElsewhere\tD\tqzy\t\t2019-01-01\n",
+   "request": "/sites/iso639-3/files/downloads/iso-639-3_Retirements.tab"
+  }
+ ],
+ "note": "Authored documents in the documented format naming a fictional language family (Veltic); synthetic identifiers only. See tests/unit/linguistics_harness.py.",
+ "provider": "sil-iso639-3",
+ "scenarios": [
+  "bounded-selection",
+  "out-of-scope-counted",
+  "attributed-licence"
+ ]
+}

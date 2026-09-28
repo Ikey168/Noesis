@@ -77,6 +77,7 @@ KIND_FIELDS: dict[str, tuple[str, ...]] = {
     "language_item": ("item",),
     "iso_code": ("code", "scope", "name"),
     "iso_code_change": ("code", "reason", "effective"),
+    "iso_macrolanguage": ("macrolanguage", "member", "status"),
     "typological_language": ("wals_code", "name"),
     "typological_parameter": ("parameter", "name", "codes"),
     "typological_value": ("wals_code", "parameter", "value"),
