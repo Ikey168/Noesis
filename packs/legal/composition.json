@@ -31,7 +31,7 @@
     "source_packs": [
       {
         "pack_id": "legal-research",
-        "version": "1.1.0",
+        "version": "1.2.0",
         "range": "^1.1.0"
       }
     ]

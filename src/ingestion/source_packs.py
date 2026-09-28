@@ -258,6 +258,12 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"housing"})
 NATIVE_CONNECTOR_MODULES["surveillance"] = "src.ingestion.surveillance_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"surveillance"})
 
+# Products safety notices and recalls (EU Safety Gate, CPSC, NHTSA, RASFF; #1916).
+NATIVE_CONNECTOR_MODULES.update({
+    connector: "src.ingestion.product_sources" for connector in ("safety-gate", "cpsc", "nhtsa", "rasff")
+})
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"safety-gate", "cpsc", "nhtsa", "rasff"})
+
 
 def native_connector_module(connector: str) -> Any:
     import importlib

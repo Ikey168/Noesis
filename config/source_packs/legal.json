@@ -1,7 +1,7 @@
 {
   "pack_id": "legal-research",
-  "version": "1.1.0",
-  "description": "Bounded EU (CELLAR), German federal court (Rechtsprechung im Internet) and Berlin (gesetze.berlin.de) legal sources for cited legal research, plus the sanctions feature's lists (EU FSF, UN SC, OFAC SLS, UK Sanctions List) and the dual-use Regulation (EU) 2021/821 editions. Selected works, published decisions and full list files only; current law is never inferred and no list statement is a screening result.",
+  "version": "1.2.0",
+  "description": "Bounded EU (CELLAR), German federal court (Rechtsprechung im Internet) and Berlin (gesetze.berlin.de) legal sources for cited legal research, plus the sanctions feature's lists (EU FSF, UN SC, OFAC SLS, UK Sanctions List) and the dual-use Regulation (EU) 2021/821 editions, plus the product-safety acts notices cite (Regulation (EU) 2023/988, Regulation (EC) No 178/2002). Selected works, published decisions and full list files only; current law is never inferred and no list statement is a screening result.",
   "domains": [
     "legal"
   ],
@@ -333,6 +333,46 @@
         "path": "tests/fixtures/source_packs/legal-cellar-dual-use-eng.json",
         "sha256": "eba0d08aa9bf08997dfaeed7b42c4039474776e6013688e06c3702a4533ae8c3",
         "expected_output_hash": "15125d59b5617d252dbe4feac7d9e02174149b178e5af007f9fa165deec0eca5"
+      }
+    },
+    {
+      "source_id": "cellar-product-safety-acts-eng",
+      "connector": "cellar",
+      "publisher": "Publications Office of the European Union (CELLAR)",
+      "endpoint": "https://publications.europa.eu/webapi/rdf/sparql",
+      "scope": "Regulation (EU) 2023/988 (General Product Safety Regulation) and Regulation (EC) No 178/2002 (the RASFF legal basis), English expressions, cited by product-safety notices: first bounded SPARQL page",
+      "update_cadence": "continuous; amendments and consolidations appear as published",
+      "auth": {
+        "kind": "none"
+      },
+      "license": {
+        "id": "eu-publications-reuse",
+        "terms_url": "https://op.europa.eu/en/web/about-us/legal-notices/eu-law-and-publications-website",
+        "redistribution": "reuse permitted with source acknowledgement under Commission Decision 2011/833/EU (operator must confirm per document)"
+      },
+      "budgets": {
+        "timeout_ms": 60000,
+        "max_results": 100,
+        "max_bytes": 5000000,
+        "max_pages": 1
+      },
+      "legal": {
+        "namespace": "global",
+        "selection": {
+          "celex": [
+            "32023R0988",
+            "32002R0178"
+          ],
+          "languages": [
+            "ENG"
+          ],
+          "page_size": 100
+        }
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/legal-cellar-product-safety-acts-eng.json",
+        "sha256": "42c3d7129ea4fd000a76983a41d34ec63e3bf82cc07fffe9a86f83138bd61ad7",
+        "expected_output_hash": "7b92e07a4435918948f3730700b502ec79792ac2c2d3e7ce8d991f556beb7bfb"
       }
     },
     {

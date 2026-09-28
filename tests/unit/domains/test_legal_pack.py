@@ -137,7 +137,9 @@ def test_pack_declares_implemented_connectors_and_replays_offline():
         "berlin-law-publications": 3,
         # Legal sanctions feature (#1907): sanctions acts, dual-use editions and the four lists.
         "cellar-sanctions-acts-eng": 1, "cellar-dual-use-2021-821": 5, "eu-sanctions-consolidated": 3,
-        "un-sc-consolidated": 2, "ofac-sls": 2, "uk-sanctions-list": 2}
+        "un-sc-consolidated": 2, "ofac-sls": 2, "uk-sanctions-list": 2,
+        # Products safety feature (#1916): the acts safety notices cite (GPSR, Regulation (EC) No 178/2002).
+        "cellar-product-safety-acts-eng": 2}
 
 
 def test_records_follow_the_legal_record_contract_and_never_claim_current_law():
@@ -235,15 +237,16 @@ def test_run_projects_every_source_and_repeats_idempotently(loaded):
     counts = {t: conn.execute(f"SELECT count(*) FROM {t}").fetchone()[0]
               for t in ("legal_works", "legal_versions", "legal_passages", "legal_citations", "legal_facts")}
     # GDPR, C-362/14, three federal decisions, a Berlin law and judgment; plus (sanctions feature) Regulation
-    # 269/2014, Regulation 2021/821, Delegated Regulation 2024/2547 and one consolidated-editions work.
-    assert counts["legal_works"] == 11
+    # 269/2014, Regulation 2021/821, Delegated Regulation 2024/2547 and one consolidated-editions work; plus
+    # (products safety feature) Regulation (EU) 2023/988 and Regulation (EC) No 178/2002.
+    assert counts["legal_works"] == 13
     # CELLAR runs are bounded to the captured first page, so an incremental
     # run continues at offset 100, which was never captured.
     resumed = run(runtime, value, "incremental-2")
     cellar = {s["source_id"]: s for s in resumed["sources"] if s["source_id"].startswith("cellar")}
     full_first_pages = {"cellar-gdpr-deu", "cellar-gdpr-eng", "cellar-c362-14-deu"}
     assert {json.loads(cellar[k]["cursor"]["start"])["offset"] for k in full_first_pages} == {100}
-    # The sanctions-feature CELLAR selections fit in one page, so they are complete, not resumed.
+    # The sanctions- and safety-feature CELLAR selections fit in one page, so they are complete, not resumed.
     assert all(cellar[k]["cursor"]["start"] is None for k in set(cellar) - full_first_pages)
     again = run(runtime, value, "backfill-2", mode="backfill", backfill={"from_ms": 0})
     assert again["status"] == "complete"

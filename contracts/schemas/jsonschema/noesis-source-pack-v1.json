@@ -18,7 +18,7 @@
         "required": ["source_id", "connector", "endpoint", "publisher", "scope", "license", "update_cadence", "temporal_semantics", "mapping", "extractor_versions", "schedule", "budgets", "auth", "fixture", "health", "operations", "source_hash"],
         "properties": {
           "source_id": {"type": "string", "minLength": 1},
-          "connector": {"enum": ["berlin-law", "blog", "bods", "cellar", "companies-house", "ctgov", "ctis", "dataset", "ddb", "declarative-rest", "demographics", "election-results", "ema-medicines", "epo-ops", "eprel", "eu-ctr", "europeana", "filings", "formal-library", "geojson", "git", "gleif", "gtfs", "housing", "icecat", "iso-open-data", "lobbying-register", "manifest", "ocds", "oeis", "openfda", "package-registry", "paper", "public-finance", "rii", "sam-gov", "sanctions-list", "sec-edgar-ownership", "surveillance", "ted", "vulnerability-feed", "web", "wfs", "zbmath"]},
+          "connector": {"enum": ["berlin-law", "blog", "bods", "cellar", "companies-house", "cpsc", "ctgov", "ctis", "dataset", "ddb", "declarative-rest", "demographics", "election-results", "ema-medicines", "epo-ops", "eprel", "eu-ctr", "europeana", "filings", "formal-library", "geojson", "git", "gleif", "gtfs", "housing", "icecat", "iso-open-data", "lobbying-register", "manifest", "nhtsa", "ocds", "oeis", "openfda", "package-registry", "paper", "public-finance", "rasff", "rii", "safety-gate", "sam-gov", "sanctions-list", "sec-edgar-ownership", "surveillance", "ted", "vulnerability-feed", "web", "wfs", "zbmath"]},
           "wfs": {
             "type": "object",
             "description": "Pinned WFS 2.0.0 GetFeature contract; required for the wfs connector.",
@@ -281,6 +281,17 @@
               "format": {"enum": ["nvd-cve-2.0", "nvd-cve-history-2.0", "nvd-cpe-2.0", "osv", "cve-json-5", "cisa-kev", "first-epss", "cwe-xml"]},
               "source": {"enum": ["nvd", "nvd-cpe", "osv", "ghsa", "cve-services", "cisa-kev", "first-epss", "cwe"]},
               "selection": {"type": "object"}
+            },
+            "additionalProperties": false
+          },
+          "product_safety": {
+            "type": "object",
+            "description": "Bounded notice selection for the safety-gate, cpsc, nhtsa and rasff connectors: namespace, live-verification state and 1-50 explicit selectors (alert, recall, campaign or notification numbers, a Safety Gate week plus category, or a CPSC manufacturer plus date window).",
+            "required": ["selection"],
+            "properties": {
+              "namespace": {"type": "string", "minLength": 1},
+              "live_verification": {"enum": ["unverified-live", "live-verified", "not-implemented"]},
+              "selection": {"type": "array", "minItems": 1, "maxItems": 50, "items": {"type": "object", "minProperties": 1}}
             },
             "additionalProperties": false
           },

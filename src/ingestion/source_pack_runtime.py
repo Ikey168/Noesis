@@ -190,6 +190,12 @@ def _surveillance_projector(conn: Any) -> Any:
     return SurveillanceProjector(conn)
 
 
+def _product_safety_projector(conn: Any) -> Any:
+    from src.kb.product_safety import ProductSafetyProjector
+
+    return ProductSafetyProjector(conn)
+
+
 def _vulnerability_projector(conn: Any) -> Any:
     from src.kb.vulnerabilities import VulnerabilityProjector
 
@@ -202,6 +208,7 @@ def _vulnerability_projector(conn: Any) -> Any:
 PROJECTORS: dict[str, Callable[[Any], Any]] = {
     "noesis-geospatial-feature-v1": _geospatial_projector,
     "noesis-product-record-v1": _product_projector,
+    "noesis-product-safety-notice-v1": _product_safety_projector,
     "noesis-legal-record-v1": _legal_projector,
     "noesis-cultural-object-v1": _cultural_projector,
     "noesis-patent-part-v1": _patent_projector,
