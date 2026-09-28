@@ -45,7 +45,7 @@ WRITE_SCOPE = "knowledge:ownership:write"
 REVIEW_SCOPE = "knowledge:ownership:review"
 PROVIDERS = (
     "gleif", "companies-house", "sec-edgar", "open-ownership", "opencorporates",
-    "handelsregister", "unternehmensregister", "bris", "market-instruments",
+    "handelsregister", "unternehmensregister", "bris", "market-instruments", "bafin",
 )
 KINDS = (
     "legal_entity", "person", "registration", "officer_role", "ownership_assertion",
