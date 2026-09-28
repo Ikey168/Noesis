@@ -264,6 +264,10 @@ NATIVE_CONNECTOR_MODULES.update({
 })
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"safety-gate", "cpsc", "nhtsa", "rasff"})
 
+# Funding & Grants development finance: OECD CRS aggregates through the SDMX connector (#1932).
+NATIVE_CONNECTOR_MODULES["development-finance"] = "src.ingestion.development_finance_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"development-finance"})
+
 
 def native_connector_module(connector: str) -> Any:
     import importlib

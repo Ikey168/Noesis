@@ -89,6 +89,19 @@ _ECB_ADJUSTMENT = {"N": "not_adjusted", "S": "adjusted", "Y": "adjusted"}
 # SDMX-CSV 1.0 data URLs (verify against the provider's current API documentation before a live run).
 _CSV_ENDPOINTS = {
     "ESTAT": ("https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/{flow}/{key}", {"format": "SDMX-CSV"}),
+    # OECD SDMX REST API (.Stat Suite): ``format=csvfile`` returns SDMX-CSV with a DATAFLOW column (verify).
+    "OECD": ("https://sdmx.oecd.org/public/rest/data/{flow}/{key}", {"format": "csvfile"}),
+}
+# Dataflow references: Eurostat uses bare ids; the OECD uses ``AGENCY,DSD@DATAFLOW,VERSION``.
+_CSV_FLOWS = {
+    "ESTAT": re.compile(r"[A-Za-z0-9_.-]+"),
+    "OECD": re.compile(r"[A-Za-z0-9_.]+,[A-Za-z0-9_.@]+,[0-9]+(\.[0-9]+)*"),
+}
+_PROVIDER_HOSTS = {
+    "ECB": "data-api.ecb.europa.eu",
+    "ESTAT": "ec.europa.eu",
+    "BBK": "api.statistiken.bundesbank.de",
+    "OECD": "sdmx.oecd.org",
 }
 _CSV_FIXED_COLUMNS = {"DATAFLOW", "LAST UPDATE", "TIME_PERIOD", "OBS_VALUE"}
 _CSV_MISSING = {"", ":"}
@@ -104,8 +117,8 @@ class SDMXConnector(DatasetConnector):
         max_bytes=8_000_000,
         max_observations=10000,
     ):
-        if provider not in {"ECB", "ESTAT", "BBK"}:
-            raise ValueError("Supported SDMX providers: ECB, ESTAT, BBK")
+        if provider not in _PROVIDER_HOSTS:
+            raise ValueError("Supported SDMX providers: ECB, ESTAT, BBK, OECD")
         if not 1 <= max_bytes <= 20_000_000 or not 1 <= max_observations <= 100000:
             raise ValueError("invalid SDMX bounds")
         self.provider = provider.lower()
@@ -279,8 +292,8 @@ class SDMXConnector(DatasetConnector):
         """The SDMX-CSV data URL of one flow and series key (no network access)."""
         if self.source not in _CSV_ENDPOINTS:
             raise ValueError(f"SDMX-CSV is not declared for {self.source}")
-        if not flow or not all(c.isalnum() or c in "_-." for c in str(flow)):
-            raise ValueError("SDMX flow identifiers are alphanumeric")
+        if not flow or not _CSV_FLOWS[self.source].fullmatch(str(flow)):
+            raise ValueError(f"not a {self.source} SDMX dataflow reference")
         if any(c in str(key) for c in "/?#& "):
             raise ValueError("SDMX series keys use dimension codes separated by '.' and '+'")
         allowed = {"startPeriod", "endPeriod", "lastNObservations"}
@@ -410,11 +423,7 @@ class SDMXConnector(DatasetConnector):
 
         parts = urlsplit(request.url)
         # The SDK defines provider URLs; user input never supplies a host.
-        if parts.scheme != "https" or parts.hostname not in {
-            "data-api.ecb.europa.eu",
-            "ec.europa.eu",
-            "api.statistiken.bundesbank.de",
-        }:
+        if parts.scheme != "https" or parts.hostname != _PROVIDER_HOSTS[self.source]:
             raise IntegrationError(
                 "provider_endpoint_changed",
                 "Review the SDMX provider endpoint before use",
