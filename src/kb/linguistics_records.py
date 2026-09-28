@@ -726,3 +726,37 @@ def register_schemas(
             scopes=scopes,
         )
     ]
+
+
+def licence_block(records: Iterable[Mapping[str, Any]]) -> dict[str, Any]:
+    """The licences and attribution duties of every record an answer cites (``n`` = records cited)."""
+    cited = [r for r in records if r and r.get("source")]
+    share_alike = any(r["source"]["licence"].get("share_alike") for r in cited)
+    return {
+        "n": len(cited),
+        "licences": sorted({r["source"]["licence"]["id"] for r in cited}),
+        "attributions": sorted({r["source"]["licence"]["attribution"] for r in cited}),
+        "share_alike": share_alike,
+        "notice": "contains CC BY-SA Wiktionary content: reuse keeps the attribution and the same licence"
+        if share_alike
+        else "no share-alike content cited",
+    }
+
+
+def citation(record: Mapping[str, Any]) -> dict[str, Any]:
+    """How an answer cites one record: key, revision, source revision and date, URL, licence."""
+    source = record["source"]
+    out = {
+        "record_key": record["record_key"],
+        "revision_id": record["revision_id"],
+        "provider": record["provider"],
+        "source_revision": record["source_revision"],
+        "licence": source["licence"]["id"],
+        "attribution": source["licence"]["attribution"],
+        "share_alike": bool(source["licence"].get("share_alike")),
+    }
+    for key in ("revision_date", "url", "retrieved_at"):
+        value = record.get(key) if key == "revision_date" else source.get(key)
+        if value is not None:
+            out[key] = value
+    return out
