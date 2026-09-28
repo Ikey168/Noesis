@@ -558,3 +558,22 @@ def open_meteo_forecast(init: int) -> str:
             },
         }
     )
+
+
+def dwd_hourly_tu() -> bytes:
+    """Hourly air_temperature in the Climate & Environment layout (the Climate pack reads the same file)."""
+
+    lines = [
+        "STATIONS_ID;MESS_DATUM;QN_9;TT_TU;RF_TU;eor",
+        f"{int(DWD)};2026061012;    3;  18.3;  56.0;eor",
+        f"{int(DWD)};2026061013;    3;  19.4;  52.0;eor",
+    ]
+    return zipped(
+        [
+            (
+                "produkt_tu_stunde_20260531_20260610_99901.txt",
+                ("\n".join(lines) + "\n").encode("latin-1"),
+            ),
+            (f"Metadaten_Geographie_{DWD}.txt", GEOGRAPHY.encode("latin-1")),
+        ]
+    )

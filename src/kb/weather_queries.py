@@ -28,6 +28,7 @@ from typing import Any
 
 from src.kb import weather_records as wr
 from src.kb.weather_identity import WeatherStationIdentity, distance_m
+from src.kb.weather_links import WeatherClimateLinks
 from src.kb.weather_normalise import common_parameter, normalise, qc_common
 from src.kb.weather_records import READ_SCOPE
 from src.kb.weather_store import (
@@ -69,6 +70,12 @@ class WeatherQueries:
         self.conn = conn
         self.store = WeatherStore(conn, initialize=False, now=now)
         self.identity = WeatherStationIdentity(conn, initialize=False, now=now)
+        self.links = WeatherClimateLinks(
+            conn,
+            initialize=False,
+            now=now,
+            environment_namespace=self.identity.environment_namespace,
+        )
 
     # ------------------------------------------------------------------ places
 
@@ -191,6 +198,7 @@ class WeatherQueries:
             for key in {r["subject_key"] for r in reports}
         }
         receipts: dict[str, dict[str, Any]] = {}
+        references: dict[tuple[str, tuple[str, ...]], dict[str, Any]] = {}
         rows, excluded = [], 0
         for report in reports:
             content = report["content"]
@@ -281,6 +289,15 @@ class WeatherQueries:
                     "change_kind": report["change_kind"],
                     "history": report["history"],
                     "locator": content["locator"],
+                    "environment": references.setdefault(
+                        (
+                            report["subject_key"],
+                            tuple(p["parameter"] for p in parameters),
+                        ),
+                        self.links.environment_references(
+                            report["subject_key"], [p["parameter"] for p in parameters]
+                        ),
+                    ),
                 }
             )
         rows.sort(key=lambda r: (r["observed_at"], r["station"], r["report_type"]))

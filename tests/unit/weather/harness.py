@@ -462,5 +462,51 @@ def write_production_fixtures() -> dict[str, Any]:
     return hashes
 
 
+DWD_TU = "https://opendata.dwd.de/climate_environment/CDC/observations_germany/climate/hourly/air_temperature/"
+
+
+def dwd_hourly_tu() -> tuple[dict, list]:
+    selection = {"stations": [fb.DWD], "resolution": "hourly", "period": "recent"}
+    base = DWD_TU + "recent/"
+    return (
+        source("dwd-hourly-tu", "dwd-cdc", selection, "https://opendata.dwd.de/"),
+        [
+            page(
+                base + "TU_Stundenwerte_Beschreibung_Stationen.txt",
+                fb.dwd_description(),
+            ),
+            page(base + f"stundenwerte_TU_{fb.DWD}_akt.zip", fb.dwd_hourly_tu()),
+        ],
+    )
+
+
+def climate_pack_acquires_the_same_station(conn: Any) -> dict[str, Any]:
+    """The Climate & Environment owner acquiring station 99901's hourly series with its own parsers and store."""
+
+    from src.ingestion import environment_providers as ep
+    from src.kb.environment_store import EnvironmentStore
+
+    records = []
+    for step in ep.plan(
+        "dwd", {"parameter": "air_temperature", "station": fb.DWD, "period": "recent"}
+    ):
+        body = (
+            fb.dwd_description()
+            if step["parse"] == "dwd_stations"
+            else fb.dwd_hourly_tu()
+        )
+        parsed, _ = ep.parse_step(step, body, {})
+        records += parsed
+    store = EnvironmentStore(conn, now=lambda: ms("2026-06-10T13:50:00Z"))
+    return store.apply(
+        ENV_NS,
+        records,
+        run_id="climate-run",
+        principal_id="climate-operator",
+        scopes=SCOPES,
+        observed_at_ms=ms("2026-06-10T13:50:00Z"),
+    )
+
+
 if __name__ == "__main__":
     print(json.dumps(write_production_fixtures(), indent=2))
