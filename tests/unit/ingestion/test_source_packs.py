@@ -64,8 +64,9 @@ def test_all_production_packs_validate_against_contract() -> None:
     # plus the Funding development-finance feature's OECD CRS source (#1932),
     # plus the On-chain Observations pack's two explorers and one label dataset (#2056),
     # plus the Legal federal-statutes feature's gesetze-im-internet, rechtsinformationen and BGBl sources (#2105),
-    # plus the Market bafin-notices feature's voting-rights, dealings, short-position, company and warning sources (#2106).
-    assert sum(len(pack["sources"]) for pack in packs) == 112
+    # plus the Market bafin-notices feature's voting-rights, dealings, short-position, company and warning sources (#2106),
+    # plus the Products expansion's two EPREL groups, two Open Icecat categories and two BMEcat catalogues (#2061).
+    assert sum(len(pack["sources"]) for pack in packs) == 118
     schema = json.loads(
         (ROOT / "contracts/schemas/jsonschema/noesis-source-pack-v1.json").read_text()
     )

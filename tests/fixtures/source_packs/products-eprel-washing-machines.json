@@ -1,0 +1,179 @@
+{
+ "authored": true,
+ "note": "Authored envelopes in the documented provider shape for fictional brands; not provider captures. Field names are unverified until a dated live run (PX12, #2104).",
+ "license": "fixture authored for Noesis tests",
+ "provider": "EPREL public API",
+ "native_pages": [
+  {
+   "selector": {
+    "registration_number": "2200001",
+    "label": "8 kg (matched)"
+   },
+   "status": 200,
+   "requires_secret": true,
+   "body": {
+    "eprelRegistrationNumber": "2200001",
+    "productGroup": "washingmachines2019",
+    "supplierOrTrademark": "Hausmark",
+    "modelIdentifier": "WM-8E14",
+    "implementingAct": "EU_2019_2014",
+    "status": "PUBLISHED",
+    "versionNumber": 2,
+    "ratedCapacity": 8,
+    "energyClass": "A",
+    "energyConsumption100": 49,
+    "waterConsumption": 48,
+    "maxSpinSpeed": 1400,
+    "spinDryingEfficiencyClass": "B",
+    "noise": 72,
+    "noiseClass": "B",
+    "programmeDurationRated": "3:39",
+    "onMarketStartDate": [
+     2025,
+     9,
+     1
+    ],
+    "placementCountries": [
+     {
+      "country": "DE"
+     },
+     {
+      "country": "AT"
+     }
+    ],
+    "energyLabelId": 2700001
+   }
+  },
+  {
+   "selector": {
+    "registration_number": "2200002",
+    "label": "9 kg (matched, per-cycle energy on Icecat)"
+   },
+   "status": 200,
+   "requires_secret": true,
+   "body": {
+    "eprelRegistrationNumber": "2200002",
+    "productGroup": "washingmachines2019",
+    "supplierOrTrademark": "Hausmark",
+    "modelIdentifier": "WM-9E16",
+    "implementingAct": "EU_2019_2014",
+    "status": "PUBLISHED",
+    "versionNumber": 1,
+    "ratedCapacity": 9,
+    "energyClass": "A",
+    "energyConsumption100": 54,
+    "waterConsumption": 52,
+    "maxSpinSpeed": 1600,
+    "spinDryingEfficiencyClass": "A",
+    "noise": 74,
+    "noiseClass": "B",
+    "onMarketStartDate": [
+     2025,
+     9,
+     1
+    ],
+    "placementCountries": [
+     {
+      "country": "DE"
+     },
+     {
+      "country": "AT"
+     }
+    ],
+    "energyLabelId": 2700002
+   }
+  },
+  {
+   "selector": {
+    "registration_number": "2200003",
+    "label": "suffix variant (ambiguous)"
+   },
+   "status": 200,
+   "requires_secret": true,
+   "body": {
+    "eprelRegistrationNumber": "2200003",
+    "productGroup": "washingmachines2019",
+    "supplierOrTrademark": "Hausmark",
+    "modelIdentifier": "WM-8E14X",
+    "implementingAct": "EU_2019_2014",
+    "status": "PUBLISHED",
+    "versionNumber": 1,
+    "ratedCapacity": 8,
+    "energyClass": "B",
+    "energyConsumption100": 55,
+    "waterConsumption": 49,
+    "maxSpinSpeed": 1400,
+    "spinDryingEfficiencyClass": "B",
+    "noise": 73,
+    "noiseClass": "E",
+    "onMarketStartDate": [
+     2025,
+     9,
+     1
+    ],
+    "placementCountries": [
+     {
+      "country": "DE"
+     },
+     {
+      "country": "AT"
+     }
+    ],
+    "energyLabelId": 2700003
+   }
+  },
+  {
+   "selector": {
+    "registration_number": "2200004",
+    "label": "withdrawn registration"
+   },
+   "status": 200,
+   "requires_secret": true,
+   "body": {
+    "eprelRegistrationNumber": "2200004",
+    "productGroup": "washingmachines2019",
+    "supplierOrTrademark": "Hausmark",
+    "modelIdentifier": "WM-7C12",
+    "implementingAct": "EU_2019_2014",
+    "status": "WITHDRAWN",
+    "versionNumber": 3,
+    "ratedCapacity": 7,
+    "energyClass": "C",
+    "energyConsumption100": 61,
+    "onMarketStartDate": [
+     2025,
+     9,
+     1
+    ],
+    "placementCountries": [
+     {
+      "country": "DE"
+     },
+     {
+      "country": "AT"
+     }
+    ],
+    "energyLabelId": 2700004
+   }
+  },
+  {
+   "selector": {
+    "registration_number": "2200099",
+    "label": "unknown registration (not found)"
+   },
+   "status": 404,
+   "requires_secret": true,
+   "body": null
+  }
+ ],
+ "scenarios": [
+  "matched-models",
+  "per-cycle-energy",
+  "suffix-variant",
+  "noise-class-outside-scheme",
+  "withdrawn-registration",
+  "not-found",
+  "unmapped-field-kept",
+  "api-key-required"
+ ]
+}

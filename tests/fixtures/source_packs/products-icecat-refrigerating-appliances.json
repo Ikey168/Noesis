@@ -1,0 +1,223 @@
+{
+ "authored": true,
+ "note": "Authored envelopes in the documented provider shape for fictional brands; not provider captures. Field names are unverified until a dated live run (PX12, #2104).",
+ "license": "fixture authored for Noesis tests",
+ "provider": "Open Icecat JSON API",
+ "native_pages": [
+  {
+   "selector": {
+    "brand": "Nordkyl",
+    "product_code": "NK-FR360",
+    "label": "360 l (matched)"
+   },
+   "status": 200,
+   "body": {
+    "msg": "OK",
+    "data": {
+     "GeneralInfo": {
+      "IcecatId": "92000001",
+      "Brand": "Nordkyl",
+      "BrandPartCode": "NK-FR360",
+      "Title": "Nordkyl FreshLine 360 l fridge-freezer",
+      "Category": {
+       "CategoryID": "91002",
+       "Name": {
+        "Value": "Fridge-freezers"
+       }
+      },
+      "GTIN": [
+       "4099990000035"
+      ],
+      "ProductDataUpdated": "2026-03-20 09:30:00",
+      "ReleaseDate": "2025-09-01"
+     },
+     "FeaturesGroups": [
+      {
+       "FeatureGroup": {
+        "ID": 1
+       },
+       "Features": [
+        {
+         "Feature": {
+          "ID": 1,
+          "Name": {
+           "Value": "Total net capacity"
+          },
+          "Measure": {
+           "Signs": {
+            "_": "l"
+           }
+          }
+         },
+         "Value": "360"
+        },
+        {
+         "Feature": {
+          "ID": 2,
+          "Name": {
+           "Value": "Annual energy consumption"
+          },
+          "Measure": {
+           "Signs": {
+            "_": "kWh"
+           }
+          }
+         },
+         "Value": "212"
+        },
+        {
+         "Feature": {
+          "ID": 3,
+          "Name": {
+           "Value": "Energy efficiency class"
+          }
+         },
+         "Value": "C"
+        },
+        {
+         "Feature": {
+          "ID": 4,
+          "Name": {
+           "Value": "Noise level"
+          },
+          "Measure": {
+           "Signs": {
+            "_": "dB"
+           }
+          }
+         },
+         "Value": "36"
+        },
+        {
+         "Feature": {
+          "ID": 5,
+          "Name": {
+           "Value": "Climate class"
+          }
+         },
+         "Value": "SN-T"
+        }
+       ]
+      }
+     ],
+     "Multimedia": [
+      {
+       "URL": "https://objects.icecat.biz/objects/mmo_92000001_leaflet.pdf",
+       "ContentType": "application/pdf",
+       "Type": "leaflet",
+       "Description": "Product data sheet",
+       "Language": "EN",
+       "Size": 51200,
+       "Updated": "2026-03-20 09:30:00"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "selector": {
+    "gtin": "4099990000042",
+    "label": "300 l by GTIN (matched within volume tolerance)"
+   },
+   "status": 200,
+   "body": {
+    "msg": "OK",
+    "data": {
+     "GeneralInfo": {
+      "IcecatId": "92000002",
+      "Brand": "Nordkyl",
+      "BrandPartCode": "NK-FR300",
+      "Title": "Nordkyl FreshLine 300 l fridge",
+      "Category": {
+       "CategoryID": "91002",
+       "Name": {
+        "Value": "Fridges"
+       }
+      },
+      "GTIN": [
+       "4099990000042"
+      ],
+      "ProductDataUpdated": "2026-03-21 09:30:00",
+      "ReleaseDate": "2025-09-01"
+     },
+     "FeaturesGroups": [
+      {
+       "FeatureGroup": {
+        "ID": 1
+       },
+       "Features": [
+        {
+         "Feature": {
+          "ID": 1,
+          "Name": {
+           "Value": "Total net capacity"
+          },
+          "Measure": {
+           "Signs": {
+            "_": "l"
+           }
+          }
+         },
+         "Value": "301"
+        },
+        {
+         "Feature": {
+          "ID": 2,
+          "Name": {
+           "Value": "Annual energy consumption"
+          },
+          "Measure": {
+           "Signs": {
+            "_": "kWh/year"
+           }
+          }
+         },
+         "Value": "190"
+        },
+        {
+         "Feature": {
+          "ID": 3,
+          "Name": {
+           "Value": "Energy efficiency class"
+          }
+         },
+         "Value": "D"
+        },
+        {
+         "Feature": {
+          "ID": 4,
+          "Name": {
+           "Value": "Noise level"
+          },
+          "Measure": {
+           "Signs": {
+            "_": "dB"
+           }
+          }
+         },
+         "Value": "38"
+        }
+       ]
+      }
+     ],
+     "Multimedia": [
+      {
+       "URL": "https://objects.icecat.biz/objects/mmo_92000002_leaflet.pdf",
+       "ContentType": "application/pdf",
+       "Type": "leaflet",
+       "Description": "Product data sheet",
+       "Language": "EN",
+       "Size": 51200,
+       "Updated": "2026-03-21 09:30:00"
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "scenarios": [
+  "matched-models",
+  "volume-within-tolerance",
+  "climate-class-range-not-expanded"
+ ]
+}

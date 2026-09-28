@@ -278,6 +278,10 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"development-finance"})
 NATIVE_CONNECTOR_MODULES["bafin-notices"] = "src.ingestion.bafin_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"bafin-notices"})
 
+# Products expansion: manufacturer and supplier BMEcat catalogues for electronic components (#2061, #2098).
+NATIVE_CONNECTOR_MODULES["bmecat"] = "src.ingestion.product_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"bmecat"})
+
 
 def native_connector_module(connector: str) -> Any:
     import importlib
