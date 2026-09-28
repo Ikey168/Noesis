@@ -161,6 +161,9 @@ For the project overview and local setup, start with the
 - [Legal sanctions guide](guides/legal-sanctions.md) — per-list designation
   statements as of a date, dual-use annex editions, reviewable identity matches
   and monitors; [source audit](roadmaps/legal-sanctions-source-audit.md)
+- [Legal federal statutes guide](guides/legal-federal-statutes.md) — provisions as of a date
+  (source-stated or observed), BGBl amendment acts, DIP dossiers, EU implementation links, citing
+  decisions and monitors; [source audit](development/federal-statutes-evidence/source-audit.md)
 - [Technology vulnerabilities guide](guides/technology-vulnerabilities.md) — CVEs across NVD, OSV, GitHub,
   CVE Services, KEV and EPSS side by side, component identity review, affected-as-of impact answers and
   monitors; [source audit](roadmaps/technology-vulnerabilities-source-audit.md)
