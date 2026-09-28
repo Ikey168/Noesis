@@ -350,8 +350,10 @@ def etherscan_result(raw: bytes) -> Any:
     result, message = payload.get("result"), str(payload.get("message") or "")
     if str(payload.get("status")) == "1":
         return result
-    if isinstance(result, list) and not result and message.lower().startswith("no "):
-        return []  # "No transactions found" / "No records found": an empty, successful answer
+    if result in (None, [], "") and message.lower().startswith("no "):
+        # "No transactions found" / "No records found" / "No data found" (result null for a plain
+        # account in getcontractcreation): an empty, successful answer.
+        return []
     text = (str(result) + " " + message).lower()
     if "rate limit" in text:
         raise AcquisitionError(
@@ -472,11 +474,21 @@ def first_inbound(
     address: str, transactions: list[dict[str, Any]], limit: int = FUNDING_INBOUND
 ) -> list[dict]:
     """The earliest successful inbound value transfers, in chain order."""
+    target = address.lower()
+
+    def receives(t: Mapping[str, Any]) -> bool:
+        # A plain transfer names the address as ``to``; a creation transaction has no ``to`` and
+        # names the new contract as ``contract_created``, so value sent with a deployment counts too.
+        if t.get("to"):
+            return t["to"].lower() == target
+        return (
+            bool(t.get("contract_created")) and t["contract_created"].lower() == target
+        )
+
     rows = [
         t
         for t in transactions
-        if t.get("to")
-        and t["to"].lower() == address.lower()
+        if receives(t)
         and t.get("status") != "failed"
         and int(t.get("value") or 0) > 0
         and t.get("block_number") is not None

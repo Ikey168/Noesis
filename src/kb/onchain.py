@@ -1369,7 +1369,11 @@ def _item(
     cache: dict[str, Any],
 ) -> dict[str, Any]:
     if kind == "transfer" or family(chain) == "evm":
-        frm, to = content.get("from"), content.get("to")
+        # A creation transaction has no ``to``; the contract it creates is its recipient.
+        frm, to = (
+            content.get("from"),
+            content.get("to") or content.get("contract_created"),
+        )
         direction = (
             "self"
             if frm == addr and to == addr

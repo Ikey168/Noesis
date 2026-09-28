@@ -316,11 +316,85 @@ def test_contract_origin_of_an_account_is_not_a_contract(conn):
         transport=acq.fixture_transport(responses),
         api_key=KEY,
     )
-    assert receipt["status"] in {"not_a_contract", "failed"}
-    assert onchain.contract_origin(conn, fb.NAMESPACE, "eip155:1", user)["status"] in {
-        "unknown",
-        "not_ready",
+    assert receipt["status"] == "not_a_contract"
+    assert (
+        onchain.contract_origin(conn, fb.NAMESPACE, "eip155:1", user)["status"]
+        == "unknown"
+    )
+
+
+def test_no_data_envelopes_with_a_null_result_are_empty_answers():
+    for body in (
+        {"status": "0", "message": "No data found", "result": None},
+        {"status": "0", "message": "No records found", "result": []},
+        {"status": "0", "message": "No transactions found", "result": ""},
+    ):
+        assert acq.etherscan_result(json.dumps(body).encode()) == []
+    with pytest.raises(acq.AcquisitionError) as exc:
+        acq.etherscan_result(
+            json.dumps({"status": "0", "message": "NOTOK", "result": None}).encode()
+        )
+    assert exc.value.code == "provider_error"
+
+
+def test_value_sent_with_a_deployment_is_the_contracts_first_funding(conn):
+    contract, deployer = (
+        fb.lower("exampla-token-contract"),
+        fb.lower("exampla-deployer"),
+    )
+    creation = {
+        "tx_hash": fb.TX["deploy"],
+        "from": deployer,
+        "to": None,
+        "value": "7",
+        "status": "success",
+        "block_number": 18_000_100,
+        "contract_created": contract,
     }
+    later = {
+        "tx_hash": fb.TX["buyer-to-contract"],
+        "from": fb.lower("first-buyer"),
+        "to": contract,
+        "value": "9",
+        "status": "success",
+        "block_number": 18_000_200,
+    }
+    first = acq.first_inbound(contract, [later, creation])
+    assert [f["tx_hash"] for f in first] == [
+        fb.TX["deploy"],
+        fb.TX["buyer-to-contract"],
+    ]
+    assert first[0]["from"] == deployer
+    # A creation that sends no value, or creates another contract, is not inbound funding.
+    assert acq.first_inbound(contract, [{**creation, "value": "0"}]) == []
+    assert acq.first_inbound(deployer, [creation]) == []
+    # Through the adapter: the contract's txlist starts with a value-bearing creation.
+    responses = dict(fb.etherscan_responses()["responses"])
+    key = fb._list("txlist", contract, start=18_000_100)
+    rows = responses[key]["body"]["result"]
+    created = fb._txrow(
+        "deploy", 18_000_100, deployer, None, 3 * 10**17, created=contract
+    )
+    responses[key] = {
+        "status": 200,
+        "body": {"status": "1", "message": "OK", "result": [created, *rows]},
+    }
+    acq.acquire_contract_origin(
+        conn,
+        fb.NAMESPACE,
+        contract,
+        request_id="value-deploy",
+        principal_id="t",
+        scopes=fb.SCOPES,
+        transport=acq.fixture_transport(responses),
+        api_key=KEY,
+    )
+    origin = onchain.contract_origin(conn, fb.NAMESPACE, "eip155:1", contract)
+    funding = origin["contract_funding"]
+    assert funding["status"] == "funded"
+    assert funding["first_inbound"][0]["tx_hash"] == fb.TX["deploy"]
+    assert funding["first_inbound"][0]["from"] == deployer
+    assert any(u["kind"] == "internal_transfers" for u in origin["unknowns"])
 
 
 def test_esplora_transactions_keep_variant_outputs_and_confirmations(conn):
