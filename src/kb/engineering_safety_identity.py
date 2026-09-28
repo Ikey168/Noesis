@@ -302,12 +302,14 @@ class SubjectIdentity:
             offered = self._offer_ownership(
                 namespace, ownership_namespace, subjects, scopes, principal_id
             )
+        candidates = self.candidates(namespace, scopes=scopes)
         return {
             "contract": MATCH_CONTRACT,
             "namespace": namespace,
             "method": METHOD,
+            "n": len(candidates),
             "changes": [c for c in changes if c.get("change")],
-            "candidates": self.candidates(namespace, scopes=scopes),
+            "candidates": candidates,
             "ownership_candidates": offered,
             "policy": "candidates only; a reviewer accepts each; no sister-type, similar-model or topic inference",
         }

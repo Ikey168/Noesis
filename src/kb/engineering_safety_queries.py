@@ -284,7 +284,9 @@ class EngineeringSafetyQueries:
                 if any(t and t in designation_key(c["text"]) for t in tokens)
             ]
             if not named and not mentions:
-                if unparsed:
+                if (
+                    unparsed and tokens
+                ):  # only a model designation can be named by applicability
                     unparsed_elsewhere.append(
                         {
                             "record_id": entry["record_id"],

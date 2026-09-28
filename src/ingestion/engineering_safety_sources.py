@@ -2391,8 +2391,15 @@ class EngineeringSafetyAdapter:
         statement = {**statement, "payload_pointer": pointer}
         body = {k: v for k, v in statement.items() if k != "payload_pointer"}
         declared = AUTHORITIES[statement["provider"]][0]
+        # One document per publication: an AD corrected in another Federal Register document, or an EASA revision
+        # suffix, is a separate publication of the same record and may arrive in the same run.
+        identifiers = dict(statement.get("identifiers") or {})
+        publication = identifiers.get("fr_document_number") or identifiers.get(
+            "ad_number"
+        )
         return {
-            "id": f"{statement['provider']}:{statement['record_kind']}:{statement['native_id']}",
+            "id": f"{statement['provider']}:{statement['record_kind']}:{statement['native_id']}"
+            + (f":{publication}" if publication else ""),
             "title": f"{declared} {statement['native_id']}: {statement.get('title') or statement['record_kind']}",
             "url": statement.get("url") or self.source["endpoint"],
             "language": statement.get("language") or "en",

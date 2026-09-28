@@ -78,7 +78,7 @@
       "fixture": {
         "path": "tests/fixtures/source_packs/engineering-safety-faa.json",
         "sha256": "26b541328ccd16b9c4cd5f815c52b1d9551afac45eaae24fa97d8ea1602c0866",
-        "expected_output_hash": "daf57167b5a8df70f620ac446aa17293284fc8c52414857d75672c32d285c513"
+        "expected_output_hash": "d90178341a85cdd52e4278aa20cd385629c6677c792c6632a1e1ef81ef631a29"
       }
     },
     {
@@ -107,7 +107,7 @@
       "fixture": {
         "path": "tests/fixtures/source_packs/engineering-safety-easa.json",
         "sha256": "0f08c09f34145ac3b8446b6d241c3d70f940f6dc8d13e43e8b8b0a1bfdf7ac63",
-        "expected_output_hash": "d3e497595c2cab5a42cd9d6a7f5ebfd7ae9ced59a29e4a610bc9ad76c05d4105"
+        "expected_output_hash": "e0f1d3c65ad59f6e79f79c2ef7ccda33a489b9e569fe6053badbc6f451cc12f1"
       }
     },
     {
