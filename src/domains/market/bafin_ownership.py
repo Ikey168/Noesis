@@ -110,6 +110,28 @@ class BafinOwnershipProjection:
         ]
         chains = correction_chains(views)
         by_id = {v["notice_id"]: v for v in views}
+        by_source = {v["notice"]["source"]["source_id"]: v for v in views}
+
+        def chain_identity(root_view: Mapping[str, Any]) -> str:
+            """The notice a chain originates from, as its members state it.
+
+            Stated correction references are followed even to a notice not acquired
+            yet, so the identity (and every assertion key) is the same whichever
+            order the original and its corrections arrive in.
+            """
+            notice, seen = root_view["notice"], set()
+            source_id = notice["source"]["source_id"]
+            while (notice.get("correction_of") or {}).get(
+                "source_id"
+            ) and source_id not in seen:
+                seen.add(source_id)
+                source_id = notice["correction_of"]["source_id"]
+                following = by_source.get(source_id)
+                if following is None:
+                    break
+                notice = following["notice"]
+            return source_id
+
         records: list[dict[str, Any]] = []
         issuers_done: set[str] = set()
         summary = []
@@ -154,6 +176,7 @@ class BafinOwnershipProjection:
                     )
                 )
             root = chain["root"]
+            identity = digest([isin, chain_identity(by_id[root])])[:16]
             withdrawn = bool(notice.get("withdrawn"))
             validity = (
                 {
@@ -214,9 +237,7 @@ class BafinOwnershipProjection:
                     if value is None:
                         continue
                     basis = LABELS[basis_key]
-                    key = (
-                        f"{KEY_PREFIX}{root}:{digest(party_key(name))[:12]}:{basis_key}"
-                    )
+                    key = f"{KEY_PREFIX}{identity}:{digest(party_key(name))[:12]}:{basis_key}"
                     keys.append(key)
                     records.append(
                         record(
@@ -251,6 +272,7 @@ class BafinOwnershipProjection:
                 {
                     "notice_id": nid,
                     "root": root,
+                    "chain_identity": identity,
                     "issuer": isin,
                     "assertions": sorted(keys),
                     "withdrawn": withdrawn,
@@ -279,7 +301,10 @@ class BafinOwnershipProjection:
         records, summary = self.records(namespace, issuers=issuers)
         produced = {r["record_key"] for r in records}
         # Members a correction dropped (and assertions of a chain now withdrawn) are closed, never deleted.
-        roots = {s["root"] for s in summary}
+        # Every notice of a projected chain (so assertions keyed before the chain was
+        # complete are closed too) and every projected chain identity.
+        member_of = {m: s for s in summary for m in [s["notice_id"], *s["corrections"]]}
+        identities = {s["chain_identity"]: s for s in summary}
         closed = []
         for view in self.ownership.records(
             ownership_namespace,
@@ -291,12 +316,13 @@ class BafinOwnershipProjection:
             key = body["record_key"]
             if not key.startswith(KEY_PREFIX) or key in produced:
                 continue
-            root = next((r for r in roots if key.startswith(f"{KEY_PREFIX}{r}:")), None)
-            if root is None or str(body.get("relationship_status") or "").startswith(
-                "dropped"
-            ):
+            if str(body.get("relationship_status") or "").startswith("dropped"):
                 continue
-            end = next((s for s in summary if s["root"] == root), None)
+            end = member_of.get(
+                (body.get("native") or {}).get("notice_id")
+            ) or identities.get(key[len(KEY_PREFIX) :].split(":", 1)[0])
+            if end is None:
+                continue
             day = body["validity"].get("from") or body.get("statement_date")
             if day is None:
                 continue
@@ -309,7 +335,7 @@ class BafinOwnershipProjection:
                         "from_status": "stated",
                         "to_status": "stated",
                     },
-                    "relationship_status": f"dropped by correction {end['notice_id'] if end else ''}".strip(),
+                    "relationship_status": f"dropped by correction {end['notice_id']}",
                 }
             )
             closed.append(validate_record(payload))

@@ -1270,6 +1270,16 @@ class BafinNoticeStore:
         views, unreadable = [], []
         for nid, revisions in sorted(grouped.items()):
             try:
+                # Only what was acquired by the acquisition cutoff exists for this read: a
+                # later-acquired (even older) export never changes an earlier answer.
+                if acquired_by_ms is not None:
+                    revisions = [
+                        r
+                        for r in revisions
+                        if int(r["observed_at_ms"]) <= acquired_by_ms
+                    ]
+                if not revisions:
+                    continue
                 ordered = sorted(revisions, key=_order_key)
                 first_observed = min(int(r["observed_at_ms"]) for r in revisions)
                 payloads = [json.loads(r["payload_json"]) for r in ordered]

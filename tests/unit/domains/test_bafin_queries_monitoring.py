@@ -535,3 +535,93 @@ def test_monitors_refuse_bad_watches_and_poll_is_not_ready_before_any_monitor():
             "subscription:none", principal_id=h.PRINCIPAL, scopes=h.SCOPES
         )
     assert caught.value.code == "not_ready"
+
+
+def test_an_older_export_acquired_after_the_cutoff_never_changes_an_earlier_snapshot():
+    conn = h.connection()
+    store = BafinNoticeStore(conn)
+    later = {
+        "contract": CONTRACT,
+        "kind": "voting_rights_notification",
+        "source": {
+            "provider": "bafin-voting-rights",
+            "source_id": "VR-9",
+            "source_id_basis": "stated",
+        },
+        "issuer": {"name": "Musterwerke AG", "isin": h.ISSUER},
+        "notifier": {"name": "Fiktiva Holding SE", "kind": "legal_person"},
+        "chain": [],
+        "thresholds": ["5"],
+        "percentages": {"s33": "5.4", "s39": "5.4"},
+        "event_date": "2026-03-02",
+        "publication_date": None,
+    }
+    store.apply(
+        h.NS,
+        [later],
+        run_id="first",
+        observed_at_ms=h.ms("2026-04-01"),
+        source_as_of="2026-04-01",
+    )
+    snapshots = MarketAsOfSnapshotStore(conn, now=lambda: 1)
+    scopes = h.SCOPES | {"operator"}
+    snapshot = snapshots.create_snapshot(
+        "market:asof-test",
+        "before-older",
+        effective_at_ms=end_of_day_ms("2026-04-10"),
+        publicly_available_by_ms=end_of_day_ms("2026-04-10"),
+        acquired_by_ms=end_of_day_ms("2026-04-10"),
+        principal_id=h.PRINCIPAL,
+        scopes=scopes,
+        selection={"bafin_notices": [{"namespace": h.NS, "issuer_isin": h.ISSUER}]},
+    )
+    before = BafinNoticeStore(conn).visible(
+        h.NS,
+        public_cutoff_ms=end_of_day_ms("2026-04-10"),
+        acquired_by_ms=end_of_day_ms("2026-04-10"),
+    )["notices"][0]
+    assert before["publication_basis"] == "first-observed" and before[
+        "public_at_ms"
+    ] == h.ms("2026-04-01")
+    # An older export (stating the publication date) is acquired after the snapshot's acquisition cutoff.
+    older = {
+        **later,
+        "percentages": {"s33": "5.1", "s39": "5.1"},
+        "publication_date": "2026-03-05",
+    }
+    counts = store.apply(
+        h.NS,
+        [older],
+        run_id="older",
+        observed_at_ms=h.ms("2026-05-01"),
+        source_as_of="2026-03-06",
+    )
+    assert counts["history"] == 1
+    after = BafinNoticeStore(conn).visible(
+        h.NS,
+        public_cutoff_ms=end_of_day_ms("2026-04-10"),
+        acquired_by_ms=end_of_day_ms("2026-04-10"),
+    )["notices"][0]
+    assert (
+        after["revision_id"],
+        after["public_at_ms"],
+        after["publication_basis"],
+    ) == (before["revision_id"], before["public_at_ms"], before["publication_basis"])
+    inspected = snapshots.inspect_snapshot(
+        "market:asof-test",
+        snapshot["snapshot_id"],
+        principal_id=h.PRINCIPAL,
+        scopes=scopes,
+    )
+    assert inspected["input_hash"] == snapshot["input_hash"]
+    again = snapshots.create_snapshot(
+        "market:asof-test",
+        "before-older",
+        effective_at_ms=end_of_day_ms("2026-04-10"),
+        publicly_available_by_ms=end_of_day_ms("2026-04-10"),
+        acquired_by_ms=end_of_day_ms("2026-04-10"),
+        principal_id=h.PRINCIPAL,
+        scopes=scopes,
+        selection={"bafin_notices": [{"namespace": h.NS, "issuer_isin": h.ISSUER}]},
+    )
+    assert again["idempotent"] is True  # re-verification recaptures the same inputs

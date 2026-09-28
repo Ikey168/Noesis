@@ -484,3 +484,80 @@ def test_projection_needs_bafin_read_and_ownership_write():
             principal_id=h.PRINCIPAL,
             scopes=h.SCOPES - {"market:bafin:read"},
         )
+
+
+def _open_assertions(conn):
+    rows = OwnershipStore(conn).records(
+        h.OWN_NS,
+        principal_id=h.PRINCIPAL,
+        scopes=h.SCOPES,
+        kinds=("ownership_assertion",),
+    )
+    return sorted(
+        (
+            v["record"]["record_key"],
+            v["record"]["holder"]["name"],
+            v["record"]["basis"],
+            v["record"]["share"]["exact"],
+        )
+        for v in rows
+        if v["record"]["validity"].get("to_status") != "stated"
+    )
+
+
+def _voting_notice(conn, source_id, day):
+    """One row of the later voting-rights export applied on its own at a simulated observation day."""
+    from src.domains.market.bafin_notices import BafinNoticeProjector
+    from src.ingestion.bafin_sources import BafinNoticeAdapter, fixture_transport
+
+    lines = (h.FIXTURES / "voting_rights_2026-03-10.csv").read_text().splitlines()
+    later = (h.FIXTURES / "voting_rights_2026-04-20.csv").read_text()
+    rows = {
+        "VR-2026-0001": "\n".join(lines[1:5]),
+        "VR-2026-0007": later.split("\n", 1)[1].split('\n"VR-2026-0009"')[0],
+    }
+    body = lines[0] + "\n" + rows[source_id] + "\n"
+    source = h.fictional("voting", [f"{source_id}.csv"])
+    source["bafin"]["documents"][0]["listing"] = "partial"
+    source = h._rehash(source)
+    pages = [{"request": f"/fixture/{source_id}.csv", "status": 200, "body": body}]
+    page = BafinNoticeAdapter(source, transport=fixture_transport(pages)).fetch_page(
+        {"operation": "documents", "parameters": {}, "limit": 100}, cursor=None
+    )
+    assert [r["bafin_notice"]["source"]["source_id"] for r in page.records] == [
+        source_id
+    ]
+    BafinNoticeProjector(conn).project_page(
+        run_id=f"run:{source_id}",
+        manifest={},
+        source=source,
+        records=page.records,
+        documents=[{"ingested_at": h.ms(day)}],
+        page_receipt=dict(page.receipt),
+        principal_id=h.PRINCIPAL,
+    )
+
+
+@pytest.mark.parametrize(
+    "order", [("VR-2026-0001", "VR-2026-0007"), ("VR-2026-0007", "VR-2026-0001")]
+)
+def test_projection_is_the_same_whichever_order_a_correction_and_its_original_arrive(
+    order,
+):
+    results = []
+    for sequence in (order, ("VR-2026-0001", "VR-2026-0007")):
+        conn = h.connection()
+        for index, source_id in enumerate(sequence):
+            _voting_notice(conn, source_id, f"2026-04-{20 + index}")
+            BafinOwnershipProjection(conn).project(
+                h.NS, h.OWN_NS, principal_id=h.PRINCIPAL, scopes=h.SCOPES
+            )
+        results.append(_open_assertions(conn))
+    first, reference = results
+    assert first == reference
+    # One open assertion per holder and basis, all from the correction (5.21 %), never duplicated.
+    holders = [(name, basis) for _, name, basis, _ in first]
+    assert len(holders) == len(set(holders)) == 5
+    assert {share for _, name, _, share in first if name == "Fiktiva Invest GmbH"} == {
+        "5.21"
+    }
