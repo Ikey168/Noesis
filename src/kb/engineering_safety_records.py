@@ -265,12 +265,16 @@ def record_id_for(namespace: str, provider: str, kind: str, native_id: str) -> s
     return "es-record:" + digest([namespace, provider, kind, native_id])[:24]
 
 
-def _clean(value: Any) -> Any:
+def clean(value: Any) -> Any:
     """Drop absent values (never stored as "None" or empty strings) recursively."""
+    def absent(item: Any) -> bool:
+        return item is None or item == "" or item == [] or item == {}
+
     if isinstance(value, Mapping):
-        return {str(k): _clean(v) for k, v in value.items() if v is not None and v != "" and v != [] and v != {}}
+        cleaned = {str(k): clean(v) for k, v in value.items()}
+        return {k: v for k, v in cleaned.items() if not absent(v)}
     if isinstance(value, list):
-        return [_clean(v) for v in value if v is not None and v != ""]
+        return [c for c in (clean(v) for v in value) if not absent(c)]
     return value
 
 
@@ -289,7 +293,7 @@ def _forbidden(value: Any) -> set[str]:
 
 def validate_statement(statement: Mapping[str, Any]) -> dict[str, Any]:
     """A normalised statement, or ``invalid_record``. Absent values are dropped, never written as strings."""
-    value = _clean(dict(statement))
+    value = clean(dict(statement))
     provider, kind = str(value.get("provider") or ""), str(value.get("record_kind") or "")
     native = str(value.get("native_id") or "").strip()
     if value.get("contract") != CONTRACT or provider not in AUTHORITIES or not native:
