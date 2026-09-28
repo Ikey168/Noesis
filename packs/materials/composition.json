@@ -102,12 +102,6 @@
       "reason": "the bundle's own entry points use these operations"
     },
     {
-      "capability": "materials.identity",
-      "contract": "noesis-material-identity-candidate",
-      "range": "^1.0.0",
-      "reason": "the bundle's own entry points use these operations"
-    },
-    {
       "capability": "science.literature-claims",
       "contract": "noesis-literature-claims",
       "range": "^1.0.0",
@@ -136,12 +130,27 @@
       "contract": "noesis-entity-identity-decision",
       "range": "^1.0.0",
       "reason": "phase-level matches are reviewed, reversible identity decisions"
-    },
+    }
+  ],
+  "optional_features": [
     {
-      "capability": "ownership.identity",
-      "contract": "noesis-ownership-identity-candidate",
-      "range": "^1.0.0",
-      "reason": "candidates share the reviewable identity state machine"
+      "id": "phase-identity",
+      "default": false,
+      "description": "Reviewable phase-level identity across sources: candidates from stated ICSD/COD cross-references or equal space group and volume per atom, reviewed in the shared identity state machine; polymorphs are never proposed. Without it every record is its own phase and comparisons align values of one record only.",
+      "requires": [
+        {
+          "capability": "materials.identity",
+          "contract": "noesis-material-identity-candidate",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "ownership.identity",
+          "contract": "noesis-ownership-identity-candidate",
+          "range": "^1.0.0",
+          "reason": "candidates share the reviewable identity state machine"
+        }
+      ]
     }
   ]
 }

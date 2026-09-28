@@ -6,7 +6,12 @@ merges or predicts a value, and a computed value is never presented as a
 measurement.
 """
 
-from src.kb.materials_bundle import BUNDLE, readiness, require_enabled
+from src.kb.materials_bundle import (
+    BUNDLE,
+    readiness,
+    require_enabled,
+    require_phase_identity,
+)
 
 READ = "knowledge:materials:read"
 WRITE = "knowledge:materials:write"
@@ -27,6 +32,11 @@ MATERIALS_TOOLS = MATERIALS_WRITES | {
     "search_materials_by_property",
     "material_release_changes",
     "poll_material_watch",
+}
+IDENTITY_TOOLS = {
+    "propose_material_matches",
+    "review_material_match",
+    "revert_material_match",
 }
 MATERIALS_SCOPES = {
     "materials_source_contracts": [],
@@ -73,6 +83,8 @@ def register(mcp, safe, context):
         def run(conn):
             _also(who()[1], declared)
             require_enabled(conn)
+            if name in IDENTITY_TOOLS:
+                require_phase_identity(conn)
             return operation(conn)
 
         return safe(run, write=write, required_scope=declared[0] if declared else None)

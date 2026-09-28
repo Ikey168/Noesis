@@ -28,7 +28,6 @@ SHARED = {
     "platform.source-runtime",
     "platform.subscriptions",
     "platform.entity-identity",
-    "ownership.core",
 }
 
 
@@ -87,11 +86,16 @@ def test_bundle_resolves_to_its_providers_plus_shared_ones_and_disables_as_a_sel
     conn, coordinator, _, _ = _migrated()
     plan = coordinator.active()["plan"]
     bound = {b["provider"] for b in plan["bindings"] if "materials" in b["consumers"]}
-    assert bound == OWN | SHARED
+    assert (
+        bound == OWN - {"materials.structures"} | SHARED
+    )  # phase identity is an opt-in feature
     assert ("materials", "^1.0.0") in {
         (p["pack_id"], p.get("range")) for p in plan["source_packs"]
     }
     assert materials_bundle.is_enabled(conn)
+    assert not materials_bundle.phase_identity_enabled(conn)  # default off
+    with pytest.raises(materials_bundle.BundleError):
+        materials_bundle.require_phase_identity(conn)
     receipt = coordinator.disable("materials", "materials:disable:test")
     assert receipt["status"] == "published" and not materials_bundle.is_enabled(conn)
     plan = coordinator.active()["plan"]
@@ -104,3 +108,20 @@ def test_bundle_resolves_to_its_providers_plus_shared_ones_and_disables_as_a_sel
     )
     with pytest.raises(materials_bundle.BundleError):
         materials_bundle.require_enabled(conn)
+
+
+def test_phase_identity_feature_binds_the_structures_provider_and_the_shared_identity_state_machine():
+    from src.composition.resolver import resolve
+
+    bundles = adapt_all()
+    root = {
+        "pack": "materials",
+        "version": bundles["materials"]["version"],
+        "features": ["phase-identity"],
+    }
+    result = resolve([root], list(bundles.values()), provider_descriptors())
+    assert result.ok, result.failure
+    bound = {
+        b["provider"] for b in result.plan["bindings"] if "materials" in b["consumers"]
+    }
+    assert bound == OWN | SHARED | {"ownership.core"}

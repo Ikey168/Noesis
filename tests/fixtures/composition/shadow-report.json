@@ -29,7 +29,6 @@
     "market.legal-entities",
     "materials.citations",
     "materials.comparison",
-    "materials.identity",
     "materials.records",
     "materials.releases",
     "news.articles",
@@ -189,7 +188,6 @@
     "noesis-knowledge-engine.procurement_party_candidates",
     "noesis-knowledge-engine.procurement_provider_contracts",
     "noesis-knowledge-engine.propose_environment_operator_links",
-    "noesis-knowledge-engine.propose_material_matches",
     "noesis-knowledge-engine.propose_ownership_identity_matches",
     "noesis-knowledge-engine.query_geospatial_features_within",
     "noesis-knowledge-engine.record_clinical_trial_design",
@@ -202,12 +200,10 @@
     "noesis-knowledge-engine.replay_environment_dossier",
     "noesis-knowledge-engine.replay_procurement_shortlist",
     "noesis-knowledge-engine.resolve_entity_history",
-    "noesis-knowledge-engine.revert_material_match",
     "noesis-knowledge-engine.revert_ownership_identity_match",
     "noesis-knowledge-engine.review_clinical_publication_link",
     "noesis-knowledge-engine.review_environment_operator_link",
     "noesis-knowledge-engine.review_geospatial_resolution",
-    "noesis-knowledge-engine.review_material_match",
     "noesis-knowledge-engine.review_ownership_identity_match",
     "noesis-knowledge-engine.revise_geospatial_place",
     "noesis-knowledge-engine.run_clinical_monitor",
@@ -2276,28 +2272,6 @@
         "field": "pack",
         "legacy": null,
         "reason": null,
-        "tool": "noesis-knowledge-engine.propose_material_matches"
-      },
-      {
-        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
-        "bundle": "materials",
-        "composition": [
-          "records"
-        ],
-        "field": "required_data",
-        "legacy": [
-          "knowledge-engine-runtime"
-        ],
-        "reason": null,
-        "tool": "noesis-knowledge-engine.propose_material_matches"
-      },
-      {
-        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
-        "bundle": "materials",
-        "composition": "materials",
-        "field": "pack",
-        "legacy": null,
-        "reason": null,
         "tool": "noesis-knowledge-engine.register_material_schemas"
       },
       {
@@ -2312,50 +2286,6 @@
         ],
         "reason": null,
         "tool": "noesis-knowledge-engine.register_material_schemas"
-      },
-      {
-        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
-        "bundle": "materials",
-        "composition": "materials",
-        "field": "pack",
-        "legacy": null,
-        "reason": null,
-        "tool": "noesis-knowledge-engine.revert_material_match"
-      },
-      {
-        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
-        "bundle": "materials",
-        "composition": [
-          "records"
-        ],
-        "field": "required_data",
-        "legacy": [
-          "knowledge-engine-runtime"
-        ],
-        "reason": null,
-        "tool": "noesis-knowledge-engine.revert_material_match"
-      },
-      {
-        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
-        "bundle": "materials",
-        "composition": "materials",
-        "field": "pack",
-        "legacy": null,
-        "reason": null,
-        "tool": "noesis-knowledge-engine.review_material_match"
-      },
-      {
-        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
-        "bundle": "materials",
-        "composition": [
-          "records"
-        ],
-        "field": "required_data",
-        "legacy": [
-          "knowledge-engine-runtime"
-        ],
-        "reason": null,
-        "tool": "noesis-knowledge-engine.review_material_match"
       },
       {
         "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",

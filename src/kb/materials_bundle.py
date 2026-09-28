@@ -4,9 +4,11 @@ Composed under the pack/workflow composition contracts
 (``docs/architecture/pack-workflow-composition.md``): the v1 manifest
 ``packs/materials/pack.json`` plus the ``packs/materials/composition.json``
 overlay bind ``materials.computed`` (the property record store, lookups,
-comparison, search and release tracking), ``materials.experimental`` (the
-cited dossier: papers by DOI and test-method standards by designation) and
-``materials.structures`` (reviewable phase-level identity), and reuse the
+comparison, search and release tracking) and ``materials.experimental`` (the
+cited dossier: papers by DOI and test-method standards by designation); the
+optional ``phase-identity`` feature adds ``materials.structures`` (reviewable
+phase-level identity through ``ownership.core``'s shared state machine). It
+reuses the
 shared ``science.literature``, ``technology.standards``,
 ``platform.source-runtime``, ``platform.subscriptions`` and
 ``platform.entity-identity`` providers. Enablement belongs to the lifecycle
@@ -98,6 +100,27 @@ def require_enabled(conn):
         raise BundleError(
             "bundle_disabled",
             "the Materials bundle is not selected; shared providers remain usable",
+        )
+
+
+def phase_identity_enabled(conn):
+    """The optional ``phase-identity`` feature: always available before cutover, else as selected in the plan."""
+
+    coordinator = _coordinator(conn)
+    if coordinator is None:
+        return True
+    plan = (coordinator.active() or {}).get("plan") or {}
+    return _selected(coordinator) and "phase-identity" in (
+        (plan.get("features") or {}).get(BUNDLE_ID) or []
+    )
+
+
+def require_phase_identity(conn):
+    if not phase_identity_enabled(conn):
+        raise BundleError(
+            "feature_disabled",
+            "the Materials phase-identity feature is not selected; records are "
+            "compared per record only",
         )
 
 
