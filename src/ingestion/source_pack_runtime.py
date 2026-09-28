@@ -172,6 +172,12 @@ def _public_finance_projector(conn: Any) -> Any:
     return PublicFinanceProjector(conn)
 
 
+def _demographic_projector(conn: Any) -> Any:
+    from src.kb.demographics import DemographicProjector
+
+    return DemographicProjector(conn)
+
+
 def _vulnerability_projector(conn: Any) -> Any:
     from src.kb.vulnerabilities import VulnerabilityProjector
 
@@ -200,6 +206,7 @@ PROJECTORS: dict[str, Callable[[Any], Any]] = {
     "noesis-lobbying-record-v1": _lobbying_projector,
     "noesis-election-record-v1": _election_projector,
     "noesis-public-finance-record-v1": _public_finance_projector,
+    "noesis-demographic-series-v1": _demographic_projector,
 }
 
 _DDL = """

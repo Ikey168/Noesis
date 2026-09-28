@@ -54,8 +54,9 @@ def test_all_production_packs_validate_against_contract() -> None:
     # plus the Technology vulnerabilities feature's eight new sources (#1913; osv-api was reviewed in place),
     # plus the Political lobbying feature's five register and meeting-declaration sources (#1911),
     # plus the Political elections feature's four official result sources (#1908),
-    # plus the Economics public-finance feature's four budget, payment and statistics sources (#1909).
-    assert sum(len(pack["sources"]) for pack in packs) == 86
+    # plus the Economics public-finance feature's four budget, payment and statistics sources (#1909),
+    # plus the Economics demographics feature's five statistics sources (#1914).
+    assert sum(len(pack["sources"]) for pack in packs) == 91
     schema = json.loads(
         (ROOT / "contracts/schemas/jsonschema/noesis-source-pack-v1.json").read_text()
     )

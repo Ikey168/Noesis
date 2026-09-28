@@ -1,0 +1,45 @@
+{
+ "isSuccess": true,
+ "message": null,
+ "result": [
+  {
+   "id": 1,
+   "operation": "Fictional Operation",
+   "admin0Name": "Fictional Country",
+   "admin0Pcode": "XXA",
+   "admin1Name": "North Province",
+   "admin1Pcode": "XXA01",
+   "numPresentIdpInd": 12000,
+   "reportingDate": "2098-06-30T00:00:00",
+   "yearReportingDate": 2098,
+   "monthReportingDate": 6,
+   "roundNumber": 7
+  },
+  {
+   "id": 2,
+   "operation": "Fictional Operation",
+   "admin0Name": "Fictional Country",
+   "admin0Pcode": "XXA",
+   "admin1Name": "North Province",
+   "admin1Pcode": "XXA01",
+   "numPresentIdpInd": 13500,
+   "reportingDate": "2098-12-31T00:00:00",
+   "yearReportingDate": 2098,
+   "monthReportingDate": 12,
+   "roundNumber": 8
+  },
+  {
+   "id": 3,
+   "operation": "Fictional Operation",
+   "admin0Name": "Fictional Country",
+   "admin0Pcode": "XXA",
+   "admin1Name": "South Province",
+   "admin1Pcode": "XXA02",
+   "numPresentIdpInd": 4100,
+   "reportingDate": "2098-12-31T00:00:00",
+   "yearReportingDate": 2098,
+   "monthReportingDate": 12,
+   "roundNumber": 8
+  }
+ ]
+}

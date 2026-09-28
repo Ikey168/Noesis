@@ -104,10 +104,18 @@ class EurostatConnector(DatasetConnector):
             series_key = spec.get("series_key")
             if series_key not in (None, "dimensions"):
                 raise ValueError(f"unsupported Eurostat series_key {series_key!r}")
-            filters = {k: v for k, v in spec.items() if k not in ("dataset", "geography", "api", "series_key")}
+            filters = {
+                k: v
+                for k, v in spec.items()
+                if k not in ("dataset", "geography", "api", "series_key", "retain_status")
+            }
             metadata = {"dataset": dataset, "geography": geography, "filters": filters, "api": api}
             if series_key:
                 metadata["series_key"] = series_key
+            if spec.get("retain_status"):
+                # Opt-in (demographic statistics, #1914): keep each observation's
+                # JSON-stat status flag and the cube's category code lists.
+                metadata["retain_status"] = True
             yield SeriesRef(locator=f"{dataset}/{geography}", metadata=metadata)
 
     def _url(self, dataset: str, geography: str, filters: Dict[str, Any], api: str = "statistics") -> str:
@@ -174,6 +182,7 @@ class EurostatConnector(DatasetConnector):
 
         time_pos = dim_ids.index("time")
         observations: List[Observation] = []
+        status_by_period: Dict[str, Any] = {}
         # Iterate time categories in index order.
         for period_code, t_idx in sorted(time_index.items(), key=lambda kv: kv[1]):
             flat = t_idx * strides[time_pos]
@@ -182,9 +191,11 @@ class EurostatConnector(DatasetConnector):
                     continue
                 flat += fixed[d] * strides[dim_ids.index(d)]
             value = values.get(str(flat))
-            observations.append(
-                Observation(period=_normalize_period(period_code, frequency), value=value if value is not None else None)
-            )
+            period = _normalize_period(period_code, frequency)
+            flag = _status_at(cube.get("status"), flat)
+            if flag is not None:
+                status_by_period[period] = flag
+            observations.append(Observation(period=period, value=value if value is not None else None))
         observations.sort(key=lambda o: o.period)
 
         dataset = raw.ref.metadata["dataset"]
@@ -243,6 +254,20 @@ class EurostatConnector(DatasetConnector):
         }
         if multi_dims:
             metadata["collapsed_dimensions"] = {d: picked_labels.get(d) for d in multi_dims}
+        if raw.ref.metadata.get("retain_status"):
+            extension = cube.get("extension") if isinstance(cube.get("extension"), dict) else {}
+            status_labels = dict(dict((extension or {}).get("status") or {}).get("label") or {})
+            metadata["observation_status"] = status_by_period
+            metadata["status_labels"] = status_labels
+            metadata["dimension_categories"] = {
+                d: {
+                    "label": (dimension.get(d) or {}).get("label"),
+                    "categories": dict(((dimension.get(d) or {}).get("category") or {}).get("label") or {}),
+                }
+                for d in dim_ids
+                if d != "time"
+            }
+            metadata["cube_annotations"] = list((extension or {}).get("annotation") or [])
         return [
             SeriesRecord(
                 series_id=series_id,
@@ -258,6 +283,20 @@ class EurostatConnector(DatasetConnector):
                 metadata=metadata,
             )
         ]
+
+
+def _status_at(status: Any, flat: int) -> Optional[str]:
+    """The JSON-stat status of one flattened cell: a string for every cell, an array by index or a sparse object."""
+    if status is None:
+        return None
+    if isinstance(status, str):
+        return status or None
+    if isinstance(status, list):
+        return status[flat] if flat < len(status) and status[flat] else None
+    if isinstance(status, dict):
+        value = status.get(str(flat))
+        return str(value) if value else None
+    return None
 
 
 def _infer_frequency(time_codes: List[str]) -> str:

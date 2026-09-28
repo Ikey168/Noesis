@@ -246,6 +246,10 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"election-results"})
 NATIVE_CONNECTOR_MODULES["public-finance"] = "src.ingestion.public_finance_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"public-finance"})
 
+# Economics migration and demographic statistics (Eurostat, UNHCR, IOM DTM, Destatis, Statistik BB; #1914).
+NATIVE_CONNECTOR_MODULES["demographics"] = "src.ingestion.demographic_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"demographics"})
+
 
 def native_connector_module(connector: str) -> Any:
     import importlib

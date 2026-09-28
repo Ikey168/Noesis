@@ -1,0 +1,19 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "request": "/v2/IdpAdmin1Data/GetAdmin1Datav2?Operation=Fictional+Operation",
+   "status": 200,
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "body": "{\n \"isSuccess\": true,\n \"message\": null,\n \"result\": [\n  {\n   \"id\": 1,\n   \"operation\": \"Fictional Operation\",\n   \"admin0Name\": \"Fictional Country\",\n   \"admin0Pcode\": \"XXA\",\n   \"admin1Name\": \"North Province\",\n   \"admin1Pcode\": \"XXA01\",\n   \"numPresentIdpInd\": 12000,\n   \"reportingDate\": \"2098-06-30T00:00:00\",\n   \"yearReportingDate\": 2098,\n   \"monthReportingDate\": 6,\n   \"roundNumber\": 7\n  },\n  {\n   \"id\": 2,\n   \"operation\": \"Fictional Operation\",\n   \"admin0Name\": \"Fictional Country\",\n   \"admin0Pcode\": \"XXA\",\n   \"admin1Name\": \"North Province\",\n   \"admin1Pcode\": \"XXA01\",\n   \"numPresentIdpInd\": 13500,\n   \"reportingDate\": \"2098-12-31T00:00:00\",\n   \"yearReportingDate\": 2098,\n   \"monthReportingDate\": 12,\n   \"roundNumber\": 8\n  },\n  {\n   \"id\": 3,\n   \"operation\": \"Fictional Operation\",\n   \"admin0Name\": \"Fictional Country\",\n   \"admin0Pcode\": \"XXA\",\n   \"admin1Name\": \"South Province\",\n   \"admin1Pcode\": \"XXA02\",\n   \"numPresentIdpInd\": 4100,\n   \"reportingDate\": \"2098-12-31T00:00:00\",\n   \"yearReportingDate\": 2098,\n   \"monthReportingDate\": 12,\n   \"roundNumber\": 8\n  }\n ]\n}\n"
+  }
+ ],
+ "note": "Authored responses in the documented shape; every value, origin and area is fictional.",
+ "provider": "authored",
+ "scenarios": [
+  "authored-fixture",
+  "fictional-values"
+ ]
+}
