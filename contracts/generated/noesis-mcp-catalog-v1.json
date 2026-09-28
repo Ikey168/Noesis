@@ -67183,6 +67183,7 @@
       ],
       "required_scopes": [
         "knowledge:legal:read",
+        "knowledge:subscriptions:read",
         "knowledge:subscriptions:write"
       ],
       "server": "noesis-knowledge-engine",

@@ -137,3 +137,24 @@ def test_propose_works_with_exactly_the_declared_scopes(mcp_env):
     assert (
         refused["ok"] is False
     )  # ownership records cannot be read without the declared read scope
+
+
+def test_monitor_tools_work_with_exactly_the_declared_scopes(mcp_env):
+    tools, state = mcp_env
+    namespace_access = {"namespace:global:read", "namespace:global:write"}
+    conn = server._connection(read_only=False)
+    from src.kb.subscriptions import SubscriptionStore
+
+    SubscriptionStore(conn).commit_watermark("global", 1, kind="ingestion")
+    conn.close()
+    state["scopes"] = (
+        set(SANCTIONS_SCOPES["create_sanctions_monitor"]) | namespace_access
+    )
+    created = tools["create_sanctions_monitor"].fn(
+        namespace="global", request_key="scoped", watch="control-code", key="1C350"
+    )
+    assert "error" not in created, created
+    for name in ("run_sanctions_monitor", "poll_sanctions_monitor"):
+        state["scopes"] = set(SANCTIONS_SCOPES[name]) | namespace_access
+        result = tools[name].fn(subscription_id=created["subscription_id"])
+        assert result.get("ok", True) is not False, (name, result)
