@@ -583,6 +583,98 @@ def test_one_providers_records_of_two_categories_never_share_a_model(loaded):
     ]
 
 
+def test_component_lookup_shows_matches_from_either_side_and_through_manufacturer_links(
+    loaded,
+):
+    conn, _, _, _, store = loaded
+    from src.kb.entity_history import REVIEW_SCOPE, WRITE_SCOPE
+
+    def lookup(key="capatronic|CX0603X7R104K500", **query):
+        found = store.lookup_component("global", scopes=SCOPES, **query)["components"]
+        return next(c for c in found if c["component_key"] == key)
+
+    candidates = store.propose_matches(
+        "global",
+        scopes=SCOPES,
+        principal_id="m",
+        category="multilayer ceramic capacitors",
+    )["candidates"]
+    maker = variant(store, "bmecat:capatronic", "CX0603X7R104K500")["model_id"]
+    match = next(
+        c for c in candidates if maker in (c["left_model_id"], c["right_model_id"])
+    )
+    store.review_match(
+        "global",
+        match["match_id"],
+        "accepted",
+        "same part",
+        scopes=SCOPES,
+        principal_id="r",
+    )
+    # The Voltaria record is the right side of the match; looking it up by its SKU still shows the match.
+    by_sku = lookup(sku="VC-100234")
+    assert [m["match_id"] for m in by_sku["matches"]] == [match["match_id"]]
+    by_maker = lookup(mpn="CX0603X7R104K500", manufacturer="Capatronic GmbH")
+    assert [m["match_id"] for m in by_maker["matches"]] == [match["match_id"]]
+    assert by_sku["equivalent_models"] == by_maker["equivalent_models"]
+    assert by_sku["equivalent_models"] == sorted(
+        {match["left_model_id"], match["right_model_id"]}
+    )
+    # Differently named manufacturers joined only by reviewed links: the match shows from either side.
+    other = lookup("othercap|CX0603X7R104K500", sku="VC-100240")
+    assert (
+        other["matches"] == [] and other["component_key"] == "othercap|CX0603X7R104K500"
+    )
+    conn.execute(
+        "CREATE TABLE canonical_entities (canonical_id TEXT PRIMARY KEY, preferred_name TEXT, "
+        "entity_type TEXT)"
+    )
+    conn.execute(
+        "INSERT INTO canonical_entities VALUES ('ent:capatronic', 'Capatronic GmbH', 'ORG')"
+    )
+    scopes = SCOPES | {WRITE_SCOPE, REVIEW_SCOPE}
+    for name in ("Capatronic", "Othercap Inc."):
+        store.decide_manufacturer_link(
+            "global",
+            name,
+            "ent:capatronic",
+            "match",
+            "reviewed (test)",
+            scopes=scopes,
+            principal_id="r",
+        )
+    linked = store.propose_matches(
+        "global",
+        scopes=SCOPES,
+        principal_id="m",
+        category="multilayer ceramic capacitors",
+    )["candidates"]
+    othercap = next(
+        v["model_id"]
+        for v in store.lookup("global", scopes=SCOPES, limit=100)["variants"]
+        if v["provider_record_id"] == "VC-100240"
+    )
+    joined = next(
+        c
+        for c in linked
+        if {c["left_model_id"], c["right_model_id"]} == {maker, othercap}
+    )
+    assert (
+        joined["evidence"][0]["manufacturer"]["basis"]
+        == "reviewed links to ent:capatronic"
+    )
+    assert joined["match_id"] in [
+        m["match_id"]
+        for m in lookup("othercap|CX0603X7R104K500", sku="VC-100240")["matches"]
+    ]
+    assert joined["match_id"] in [
+        m["match_id"]
+        for m in lookup(mpn="CX0603X7R104K500", manufacturer="Capatronic GmbH")[
+            "matches"
+        ]
+    ]
+
+
 def test_components_are_identified_by_manufacturer_and_mpn_with_sku_aliases(loaded):
     _, _, _, _, store = loaded
     maker = variant(store, "bmecat:capatronic", "CX0603X7R104K500")

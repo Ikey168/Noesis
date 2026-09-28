@@ -1181,8 +1181,12 @@ class ProductStore:
                                                    "provider_revision")},
                               "distributor_skus": list(v["identifiers"].get("distributor_skus") or []),
                               "lifecycle_status": self.lifecycle(namespace, v["variant_id"])} for v in members],
-                "matches": [m for model_id in model_ids for m in self._matches_for(namespace, model_id)
-                            if m["left_model_id"] == model_id],
+                # Matches with the model on either side (providers are ordered by name, so a model may be right).
+                "matches": list({m["match_id"]: m for model_id in model_ids
+                                 for m in self._matches_for(namespace, model_id)}.values()),
+                # The one "equivalent models" definition shared with comparison and monitors: accepted matches.
+                "equivalent_models": sorted({e for model_id in model_ids
+                                             for e in (model_id, *self.accepted_equivalents(namespace, model_id))}),
                 "links": component_links(first["brand"], first["designation"]),
             })
         return {"contract": IDENTITY_CONTRACT, "namespace": namespace, "count": len(components[:limit]),
