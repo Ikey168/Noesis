@@ -1,0 +1,117 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "noesis-material-record-v1",
+  "title": "Provider-neutral material entry: identity, structure, property values with conditions and method provenance, dataset release",
+  "description": "One source record (Materials Project material, JARVIS-DFT or OQMD entry, NIST WebBook species, COD structure). Every property value carries its native value and unit, the condition set (unstated conditions are explicit, never defaulted), the method class (measured, computed with method/functional/code/version, or evaluated), uncertainty as published and references. The release, retrieval time and locator identify where it was read. No field holds a value predicted, estimated or averaged by Noesis.",
+  "type": "object",
+  "required": ["contract", "provider", "native_id", "title", "material", "values", "release", "retrieved_at", "locator", "status", "references"],
+  "additionalProperties": false,
+  "definitions": {
+    "decimal": {"type": "string", "pattern": "^-?[0-9]+(\\.[0-9]+)?([eE][-+]?[0-9]+)?$"},
+    "unstated": {"type": "object", "required": ["status"], "properties": {"status": {"const": "unstated"}}, "additionalProperties": false},
+    "quantity_condition": {
+      "oneOf": [
+        {"$ref": "#/definitions/unstated"},
+        {"type": "object", "required": ["status", "value", "unit_status"], "properties": {
+          "status": {"const": "stated"},
+          "value": {"$ref": "#/definitions/decimal"},
+          "unit": {"type": ["string", "null"]},
+          "unit_status": {"enum": ["normalized", "unit_unknown"]},
+          "reason": {"type": "string"},
+          "normalized_value": {"type": "string"},
+          "normalized_unit": {"enum": ["K", "Pa"]},
+          "normalized_exact": {"type": "string", "pattern": "^-?[0-9]+/[0-9]+$"},
+          "exact_decimal": {"type": "boolean"}}}
+      ]
+    },
+    "text_condition": {
+      "oneOf": [
+        {"$ref": "#/definitions/unstated"},
+        {"type": "object", "required": ["status", "value"], "properties": {
+          "status": {"const": "stated"}, "value": {"type": "string", "minLength": 1}, "basis": {"type": "string"}},
+          "additionalProperties": false}
+      ]
+    },
+    "condition_set": {
+      "type": "object",
+      "required": ["temperature", "pressure", "phase", "orientation"],
+      "properties": {
+        "temperature": {"$ref": "#/definitions/quantity_condition"},
+        "pressure": {"$ref": "#/definitions/quantity_condition"},
+        "phase": {"$ref": "#/definitions/text_condition"},
+        "orientation": {"$ref": "#/definitions/text_condition"},
+        "other": {"type": "object", "additionalProperties": {"type": "string"}}
+      },
+      "additionalProperties": false
+    },
+    "method_provenance": {
+      "oneOf": [
+        {"type": "object", "required": ["class", "method", "functional", "code", "code_version"], "properties": {
+          "class": {"const": "computed"}, "method": {"type": "string"},
+          "functional": {"type": "string", "not": {"enum": ["DFT", "dft"]}},
+          "mixing_scheme": {"type": "string"}, "code": {"type": "string"}, "code_version": {"type": "string"},
+          "note": {"type": "string"}}, "additionalProperties": false},
+        {"type": "object", "required": ["class", "technique"], "properties": {
+          "class": {"const": "measured"}, "technique": {"type": "string"}, "note": {"type": "string"}},
+          "additionalProperties": false},
+        {"type": "object", "required": ["class", "evaluation"], "properties": {
+          "class": {"const": "evaluated"}, "evaluation": {"type": "string"}, "technique": {"type": "string"},
+          "note": {"type": "string"}}, "additionalProperties": false}
+      ]
+    },
+    "reference": {"type": "object", "required": ["level", "text"], "properties": {
+      "level": {"enum": ["value", "dataset"]}, "text": {"type": "string", "minLength": 1},
+      "doi": {"type": "string", "pattern": "^10\\.[0-9]{4,9}/\\S+$"}, "standard": {"type": "string"},
+      "locator": {"type": "string"}}, "additionalProperties": false},
+    "property_value": {"type": "object", "required": ["property", "value", "conditions", "method", "status", "references"],
+      "properties": {
+        "property": {"enum": ["formation_energy_per_atom", "energy_above_hull", "standard_enthalpy_of_formation", "band_gap", "bulk_modulus", "shear_modulus", "density", "heat_capacity_cp", "standard_entropy", "fusion_temperature", "thermal_conductivity", "volume_per_atom"]},
+        "value": {"$ref": "#/definitions/decimal"},
+        "unit": {"type": "string"},
+        "uncertainty": {"type": "object", "required": ["value", "kind"], "properties": {
+          "value": {"$ref": "#/definitions/decimal"}, "unit": {"type": "string"}, "kind": {"type": "string"}},
+          "additionalProperties": false},
+        "conditions": {"$ref": "#/definitions/condition_set"},
+        "method": {"$ref": "#/definitions/method_provenance"},
+        "status": {"enum": ["active", "deprecated", "withdrawn"]},
+        "references": {"type": "array", "items": {"$ref": "#/definitions/reference"}},
+        "field": {"type": "string"}
+      }, "additionalProperties": false}
+  },
+  "properties": {
+    "contract": {"const": "noesis-material-record-v1"},
+    "provider": {"enum": ["materials-project", "jarvis-dft", "oqmd", "nist-webbook", "cod"]},
+    "native_id": {"type": "string", "minLength": 1},
+    "title": {"type": "string", "minLength": 1},
+    "material": {"type": "object", "required": ["formula", "reduced_formula", "composition"], "properties": {
+      "formula": {"type": "string"}, "reduced_formula": {"type": "string"},
+      "composition": {"type": "object", "additionalProperties": {"type": "string"}},
+      "name": {"type": "string"}, "cas": {"type": "string"}, "inchi": {"type": "string"}}, "additionalProperties": false},
+    "structure": {"type": "object", "required": ["source_structure_id", "method_class", "cell_setting"], "properties": {
+      "source_structure_id": {"type": "string"},
+      "method_class": {"enum": ["computed", "measured"]},
+      "space_group": {"type": "object", "properties": {"symbol": {"type": "string"}, "number": {"type": "integer", "minimum": 1, "maximum": 230}}},
+      "crystal_system": {"type": "string"},
+      "lattice": {"type": "object", "properties": {
+        "a": {"$ref": "#/definitions/decimal"}, "b": {"$ref": "#/definitions/decimal"}, "c": {"$ref": "#/definitions/decimal"},
+        "alpha": {"$ref": "#/definitions/decimal"}, "beta": {"$ref": "#/definitions/decimal"}, "gamma": {"$ref": "#/definitions/decimal"},
+        "unit": {"type": "string"}}},
+      "cell_setting": {"type": "string"},
+      "nsites": {"type": "integer"},
+      "volume": {"type": "object", "required": ["value", "unit"]},
+      "measurement": {"type": "object", "properties": {
+        "temperature": {"$ref": "#/definitions/quantity_condition"},
+        "pressure": {"$ref": "#/definitions/quantity_condition"}}}
+    }},
+    "values": {"type": "array", "items": {"$ref": "#/definitions/property_value"}},
+    "release": {"type": "object", "required": ["label", "basis"], "properties": {
+      "label": {"type": "string"}, "basis": {"enum": ["provider-stated", "operator-declared", "entry-revision"]},
+      "released_on": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"}}, "additionalProperties": false},
+    "retrieved_at": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}(:\\d{2}(\\.\\d+)?)?(Z|[+-]\\d{2}:\\d{2})$"},
+    "locator": {"type": "string", "pattern": "^https://"},
+    "status": {"enum": ["active", "deprecated", "withdrawn"]},
+    "references": {"type": "array", "items": {"$ref": "#/definitions/reference"}},
+    "identifiers": {"type": "object", "additionalProperties": {"type": ["string", "array"]}},
+    "source_updated_at": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}(T\\d{2}:\\d{2}(:\\d{2}(\\.\\d+)?)?(Z|[+-]\\d{2}:\\d{2}))?$"}
+  }
+}
