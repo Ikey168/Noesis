@@ -179,6 +179,10 @@ For the project overview and local setup, start with the
   series with first-class definitions, geography levels and vintages, publishers side by side with comparability
   notes, boundary projections as of a release date and citation links to acts, decisions and dossiers;
   [source audit](roadmaps/economics-demographics-source-audit.md)
+- [Clinical Evidence surveillance guide](guides/clinical-surveillance.md) — notifiable-disease and health-indicator
+  series with case-definition revisions as breaks, reporting and reference dates kept apart, vintages and
+  reporting-delay notes, MeSH/ICD alignment, boundary projections and explicit-citation links to trials and
+  publications; [source audit](roadmaps/clinical-surveillance-source-audit.md)
 - [Geospatial housing guide](guides/geospatial-housing.md) — land-value zones with valuation dates, Mietspiegel
   editions and cells, development-plan stages, Wohnlagen, permit and completion statistics and Destatis vintages
   projected onto an address, parcel or district as of a date, with citation links and monitors; no valuation or

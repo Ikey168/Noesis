@@ -53,6 +53,11 @@ MATRIX = {
     "Address to housing dossier":
         "tests/unit/domains/test_housing_acceptance.py::"
         "test_address_to_housing_dossier_with_conflicts_unknowns_and_restart",
+    # The Clinical Evidence surveillance feature's offline journey (#2031) composes clinical, science (claims),
+    # geospatial, subscriptions and the source-pack runtime.
+    "Condition to surveillance dossier":
+        "tests/unit/domains/test_surveillance_acceptance.py::"
+        "test_condition_and_geography_to_a_cited_surveillance_dossier",
 }
 
 
