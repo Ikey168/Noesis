@@ -1,0 +1,368 @@
+{
+  "pack_id": "engineering-safety",
+  "version": "1.0.0",
+  "description": "Engineering Safety pack sources (#2059): FAA airworthiness directives through the Federal Register API, EASA airworthiness directives, NTSB investigations and safety recommendations (CAROL), PHMSA hazardous-liquid incident files, U.S. Chemical Safety Board investigation pages, NHTSA ODI investigations and complaints, BFU reports and BEA reports (link-only). Bounded to declared identifiers, files and windows per the ES01 source audit (docs/development/engineering-safety-evidence/source-audit.md); records are quoted as published, never a verdict, risk score or compliance determination. NHTSA recall campaigns stay with the Products safety feature and are linked by campaign number.",
+  "domains": [
+    "engineering-safety"
+  ],
+  "defaults": {
+    "connector": "engineering-safety",
+    "update_cadence": "daily at most",
+    "temporal_semantics": "the source's own publication, issue, report, status or file-vintage date orders revisions (a final report ranks above a preliminary one); a missing date falls back to observation order; acquisition time is recorded separately per revision",
+    "mapping": {
+      "target_schema": "noesis-engineering-safety-record-v1",
+      "version": "1.0.0"
+    },
+    "extractor_versions": [
+      "engineering-safety-sources:1.0.0"
+    ],
+    "operations": [
+      "records"
+    ],
+    "schedule": {
+      "kind": "interval",
+      "interval_s": 86400
+    },
+    "budgets": {
+      "timeout_ms": 30000,
+      "max_results": 200,
+      "max_bytes": 5000000,
+      "max_pages": 50
+    },
+    "auth": {
+      "kind": "none"
+    },
+    "health": {
+      "required": false,
+      "max_staleness_s": 604800
+    }
+  },
+  "sources": [
+    {
+      "source_id": "faa-airworthiness-directives",
+      "publisher": "Office of the Federal Register (FAA airworthiness directives)",
+      "endpoint": "https://www.federalregister.gov/api/v1/",
+      "scope": "FAA airworthiness directives for the declared aircraft types (v1: Examplar EX-100 family fixture set), one declared Federal Register document number per request with its raw text; the operator replaces the selection with the ES01 bounded set (verify)",
+      "license": {
+        "id": "us-federal-register-public-domain",
+        "terms_url": "https://www.federalregister.gov/reader-aids/policy/legal-status",
+        "redistribution": "US federal government publication, public domain (operator must verify)"
+      },
+      "engineering_safety": {
+        "provider": "faa-ad",
+        "namespace": "global",
+        "audit": "docs/development/engineering-safety-evidence/source-audit.md#faa-airworthiness-directives",
+        "selection": [
+          {
+            "document_number": "2025-11871",
+            "label": "AD 2025-12-05"
+          },
+          {
+            "document_number": "2026-04512",
+            "label": "AD 2026-04-12 (supersedes AD 2025-12-05)"
+          },
+          {
+            "document_number": "2026-05120",
+            "label": "AD 2026-04-12 correction"
+          },
+          {
+            "document_number": "2026-07733",
+            "label": "AD 2026-08-02"
+          },
+          {
+            "document_number": "2026-06001",
+            "label": "special conditions (out of scope: not an AD)"
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/engineering-safety-faa.json",
+        "sha256": "26b541328ccd16b9c4cd5f815c52b1d9551afac45eaae24fa97d8ea1602c0866",
+        "expected_output_hash": "daf57167b5a8df70f620ac446aa17293284fc8c52414857d75672c32d285c513"
+      }
+    },
+    {
+      "source_id": "easa-airworthiness-directives",
+      "publisher": "European Union Aviation Safety Agency (AD publishing tool)",
+      "endpoint": "https://ad.easa.europa.eu/",
+      "scope": "EASA airworthiness directives for the declared aircraft types, one declared AD number (with its revision suffix) per request from the AD page; the AD PDF is linked, never mirrored (terms and page structure: verify)",
+      "license": {
+        "id": "easa-ad-website-terms",
+        "terms_url": "https://www.easa.europa.eu/en/legal-notice",
+        "redistribution": "EASA ADs are published for public safety information with attribution (operator must verify the terms for automated retrieval)"
+      },
+      "engineering_safety": {
+        "provider": "easa-ad",
+        "namespace": "global",
+        "audit": "docs/development/engineering-safety-evidence/source-audit.md#easa-airworthiness-directives",
+        "selection": [
+          {
+            "ad_number": "2026-0123"
+          },
+          {
+            "ad_number": "2026-0123R1"
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/engineering-safety-easa.json",
+        "sha256": "0f08c09f34145ac3b8446b6d241c3d70f940f6dc8d13e43e8b8b0a1bfdf7ac63",
+        "expected_output_hash": "d3e497595c2cab5a42cd9d6a7f5ebfd7ae9ced59a29e4a610bc9ad76c05d4105"
+      }
+    },
+    {
+      "source_id": "ntsb-investigations",
+      "publisher": "National Transportation Safety Board (CAROL)",
+      "endpoint": "https://data.ntsb.gov/carol-main-public/api/",
+      "scope": "NTSB aviation investigations and safety recommendations for the declared NTSB and recommendation numbers from CAROL's JSON views (endpoint paths: verify); dockets are linked, never mirrored",
+      "license": {
+        "id": "us-federal-public-domain",
+        "terms_url": "https://www.ntsb.gov/Pages/privacy.aspx",
+        "redistribution": "US federal government information, public domain (operator must verify)"
+      },
+      "engineering_safety": {
+        "provider": "ntsb",
+        "namespace": "global",
+        "audit": "docs/development/engineering-safety-evidence/source-audit.md#ntsb-carol",
+        "selection": [
+          {
+            "ntsb_number": "ERA26FA101"
+          },
+          {
+            "recommendation_number": "A-26-015"
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/engineering-safety-ntsb.json",
+        "sha256": "26041936a6ba0b866d3d23e7f8b198f734cc4aad6cb3604ddfb2013bab341fe2",
+        "expected_output_hash": "d6879f0ebed82fd1b3e63998841a4c894387be206ec80fcbde93ed97036a1eb7"
+      }
+    },
+    {
+      "source_id": "phmsa-hazardous-liquid-incidents",
+      "publisher": "Pipeline and Hazardous Materials Safety Administration",
+      "endpoint": "https://www.phmsa.dot.gov/",
+      "scope": "Hazardous-liquid pipeline accident reports 2024-2026 from the declared incident file (published zipped; the declared URL is the unzipped text file: verify), keyed by report number with the file vintage",
+      "license": {
+        "id": "us-federal-public-domain",
+        "terms_url": "https://www.phmsa.dot.gov/about-phmsa/phmsa-website-policies",
+        "redistribution": "US federal government information, public domain (operator must verify)"
+      },
+      "engineering_safety": {
+        "provider": "phmsa",
+        "namespace": "global",
+        "audit": "docs/development/engineering-safety-evidence/source-audit.md#phmsa-incident-files",
+        "window": {
+          "year_from": 2024,
+          "year_to": 2026
+        },
+        "delimiter": "\t",
+        "encoding": "utf-8",
+        "columns": {
+          "report_id": "REPORT_NUMBER",
+          "operator_id": "OPERATOR_ID",
+          "operator_name": "NAME",
+          "local_datetime": "LOCAL_DATETIME",
+          "year": "IYEAR",
+          "city": "ONSHORE_CITY_NAME",
+          "state": "ONSHORE_STATE_ABBREVIATION",
+          "latitude": "LOCATION_LATITUDE",
+          "longitude": "LOCATION_LONGITUDE",
+          "commodity": "COMMODITY_RELEASED_TYPE",
+          "fatalities": "FATAL",
+          "injuries": "INJURE",
+          "total_cost": "TOTAL_COST_CURRENT",
+          "cause": "CAUSE",
+          "cause_details": "CAUSE_DETAILS",
+          "significant": "SIGNIFICANT",
+          "narrative": "NARRATIVE"
+        },
+        "quantities": [
+          {
+            "name": "unintentional_release",
+            "column": "UNINTENTIONAL_RELEASE_BBLS",
+            "unit": "bbl"
+          }
+        ],
+        "documents": [
+          {
+            "label": "Hazardous liquid accident data, 2010 to present",
+            "url": "https://www.phmsa.dot.gov/sites/phmsa.dot.gov/files/data_statistics/pipeline/incident_hl_2010_present.txt",
+            "system": "hazardous_liquid",
+            "vintage": "2026-06-01"
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/engineering-safety-phmsa.json",
+        "sha256": "5044edf2830eeece5141e0937955b227fa661c7b016707518ddf845848b53404",
+        "expected_output_hash": "b5711e3dbad458c298e24a7aaae1b7feec74b6a9495857731f99a331d5fb3847"
+      }
+    },
+    {
+      "source_id": "csb-investigations",
+      "publisher": "U.S. Chemical Safety and Hazard Investigation Board",
+      "endpoint": "https://www.csb.gov/",
+      "scope": "Declared CSB investigation pages (at most 50): details, key findings, causal factors and the recommendations table with status; report PDFs and videos are linked, never mirrored (robots.txt and page structure: verify)",
+      "license": {
+        "id": "us-federal-public-domain",
+        "terms_url": "https://www.csb.gov/privacy-policy/",
+        "redistribution": "US federal government information, public domain (operator must verify)"
+      },
+      "engineering_safety": {
+        "provider": "csb",
+        "namespace": "global",
+        "audit": "docs/development/engineering-safety-evidence/source-audit.md#us-chemical-safety-board",
+        "selection": [
+          {
+            "investigation": "examplar-chemical-fire"
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/engineering-safety-csb.json",
+        "sha256": "16991e615f757a3b07c269d9166061ba549fff4b4a9b0732b964e6f73f4043c3",
+        "expected_output_hash": "8919a49a81b88ea42f8379a8e99649ca9e36239c9525d5406f8a69f2f91f8227"
+      }
+    },
+    {
+      "source_id": "nhtsa-odi-investigations",
+      "publisher": "NHTSA Office of Defects Investigation",
+      "endpoint": "https://static.nhtsa.gov/",
+      "scope": "ODI investigations (PE, EA, DP, RQ) opened on or after 2024-01-01 for the declared makes and models from the investigations flat file (URL and column order: verify); recall campaigns are linked to the Products safety feature's notices, never acquired here",
+      "license": {
+        "id": "us-federal-public-domain",
+        "terms_url": "https://www.nhtsa.gov/about-nhtsa/website-policies",
+        "redistribution": "US federal government information, public domain (operator must verify)"
+      },
+      "engineering_safety": {
+        "provider": "nhtsa-odi",
+        "namespace": "global",
+        "audit": "docs/development/engineering-safety-evidence/source-audit.md#nhtsa-odi-investigations-and-complaints",
+        "window": {
+          "opened_from": "2024-01-01"
+        },
+        "vehicles": [
+          {
+            "make": "VELOMARK",
+            "model": "CITYRUNNER"
+          }
+        ],
+        "columns": [
+          "action_number",
+          "make",
+          "model",
+          "model_year",
+          "component",
+          "manufacturer",
+          "opened",
+          "closed",
+          "campaign",
+          "subject",
+          "summary"
+        ],
+        "documents": [
+          {
+            "label": "ODI investigations flat file",
+            "url": "https://static.nhtsa.gov/odi/ffdd/inv/FLAT_INV.txt",
+            "vintage": "2026-06-01"
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/engineering-safety-nhtsa-odi.json",
+        "sha256": "a59c52fd8ece366d9b8d68c97568e75275346789e8999f3e7345151fe53db005",
+        "expected_output_hash": "3c487bdedd6c4a6203a2936af5703952dbc606a101a206948ab39d6e662eb50e"
+      }
+    },
+    {
+      "source_id": "nhtsa-complaints",
+      "publisher": "NHTSA Office of Defects Investigation (complaints)",
+      "endpoint": "https://api.nhtsa.gov/",
+      "scope": "Consumer complaints for the declared make, model and model year, at most 200 per vehicle (never truncated); stored as unverified source records, never confirmed defects; partial VINs are never stored",
+      "license": {
+        "id": "us-federal-public-domain",
+        "terms_url": "https://www.nhtsa.gov/about-nhtsa/website-policies",
+        "redistribution": "US federal government information, public domain (operator must verify)"
+      },
+      "engineering_safety": {
+        "provider": "nhtsa-complaints",
+        "namespace": "global",
+        "audit": "docs/development/engineering-safety-evidence/source-audit.md#nhtsa-odi-investigations-and-complaints",
+        "max_complaints": 200,
+        "selection": [
+          {
+            "make": "VELOMARK",
+            "model": "CITYRUNNER",
+            "model_year": "2025"
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/engineering-safety-nhtsa-complaints.json",
+        "sha256": "e50b9e276333499d52805652b65bbd71a1277873cadd48cf90e394567f954e72",
+        "expected_output_hash": "a15df1da52bcf3cf2438c98723a8ca741f92295f9aeae1622d7af0244ace2efe"
+      }
+    },
+    {
+      "source_id": "bfu-reports",
+      "publisher": "Bundesstelle für Flugunfalluntersuchung",
+      "endpoint": "https://www.bfu-web.de/",
+      "scope": "Declared BFU report pages (German, stored verbatim; any translation is derived and never replaces the original); PDFs linked only (terms and page structure: verify)",
+      "license": {
+        "id": "bfu-website-terms",
+        "terms_url": "https://www.bfu-web.de/DE/Service/Impressum/impressum_node.html",
+        "redistribution": "published investigation reports with attribution (operator must verify the terms of reuse)"
+      },
+      "engineering_safety": {
+        "provider": "bfu",
+        "namespace": "global",
+        "audit": "docs/development/engineering-safety-evidence/source-audit.md#bfu",
+        "selection": [
+          {
+            "report_id": "3X123-26"
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/engineering-safety-bfu.json",
+        "sha256": "2b0be125c8ea6784de6c48c1e59153c3c561b2cd6531190606e34dd479896e27",
+        "expected_output_hash": "9388b5e156e8efce26d3bc845fd9907a5efd7e1e000b49914cbef52927189afc"
+      }
+    },
+    {
+      "source_id": "bea-reports",
+      "publisher": "Bureau d'Enquêtes et d'Analyses pour la sécurité de l'aviation civile",
+      "endpoint": "https://bea.aero/",
+      "scope": "Link-only: declared BEA report entries (report id, title, language, publication date, link); nothing is fetched or quoted until the terms of reuse are confirmed (verify)",
+      "license": {
+        "id": "bea-website-terms",
+        "terms_url": "https://bea.aero/mentions-legales/",
+        "redistribution": "link and declared metadata only (operator must verify the terms of reuse)"
+      },
+      "engineering_safety": {
+        "provider": "bea",
+        "namespace": "global",
+        "audit": "docs/development/engineering-safety-evidence/source-audit.md#bea",
+        "entries": [
+          {
+            "report_id": "BEA2026-0042",
+            "title": "Incident grave survenu à l'Examplar EX-100 immatriculé F-HEXA le 14 janvier 2026",
+            "language": "fr",
+            "published": "2026-07-01",
+            "event_date": "2026-01-14",
+            "aircraft_make": "Examplar",
+            "aircraft": "EX-100",
+            "url": "https://bea.aero/les-enquetes/evenements-notifies/detail/bea2026-0042/"
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/engineering-safety-bea.json",
+        "sha256": "08f4dc33e41092ca80082c98fdc48d9a79fb4395f3bcc78ccbfbf69ef2d234ba",
+        "expected_output_hash": "0edf073c6ff5e30458085b5608eebe5c335604109e258d40ae36053201aa75e5"
+      }
+    }
+  ]
+}

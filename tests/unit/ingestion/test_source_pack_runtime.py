@@ -639,6 +639,7 @@ def test_six_domain_offline_execution(setup):
         "clinical",
         "corporate-ownership",
         "economic",
+        "engineering-safety",
         "geospatial",
         "legal",
         "market",

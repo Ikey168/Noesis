@@ -151,7 +151,7 @@ acquired by #1916, so there is no overlap there.
   explicit and the unit library is available, never replacing the value.
 - **Not concluded.** No operator safety score or ranking.
 
-## U.S. Chemical Safety Board
+## US Chemical Safety Board
 
 - **Access.** The CSB publishes pages and PDFs, not an API. One declared
   investigation page per request; details rows, `Key Findings`, `Causal

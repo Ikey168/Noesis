@@ -278,6 +278,10 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"development-finance"})
 NATIVE_CONNECTOR_MODULES["bafin-notices"] = "src.ingestion.bafin_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"bafin-notices"})
 
+# Engineering Safety: FAA/EASA ADs, NTSB, PHMSA, CSB, NHTSA ODI, BFU and BEA (#2059).
+NATIVE_CONNECTOR_MODULES["engineering-safety"] = "src.ingestion.engineering_safety_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"engineering-safety"})
+
 
 def native_connector_module(connector: str) -> Any:
     import importlib
