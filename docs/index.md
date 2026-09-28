@@ -175,6 +175,10 @@ For the project overview and local setup, start with the
   outturn vintages in each source's own hierarchy, beneficiary payments with reviewable identity, audit findings
   without verdicts, acts and dossiers linked by citation and basis-aware comparisons;
   [source audit](roadmaps/economics-public-finance-source-audit.md)
+- [Economics demographics guide](guides/economics-demographics.md) — population, migration, asylum and displacement
+  series with first-class definitions, geography levels and vintages, publishers side by side with comparability
+  notes, boundary projections as of a release date and citation links to acts, decisions and dossiers;
+  [source audit](roadmaps/economics-demographics-source-audit.md)
 - [OSINT pack guide](guides/osint-pack.md) — Admiralty grades, ownership
   dossiers, video reuse, registry and certificate history, infrastructure
   pivots and the gated imagery tier

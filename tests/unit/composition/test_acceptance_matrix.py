@@ -43,6 +43,11 @@ MATRIX = {
     "Public-finance budget line to payments":
         "tests/unit/domains/test_public_finance_acceptance.py::"
         "test_budget_line_to_plans_outturns_payments_findings_acts_dossiers_and_award_context",
+    # The Economics demographics feature's offline journey (#2017) composes economics, legal, political,
+    # geospatial, subscriptions and the source-pack runtime.
+    "Demographic geography to series and definitions":
+        "tests/unit/domains/test_demographics_acceptance.py::"
+        "test_geography_to_series_definitions_boundaries_and_citations",
 }
 
 
