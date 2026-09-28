@@ -278,6 +278,10 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"development-finance"})
 NATIVE_CONNECTOR_MODULES["bafin-notices"] = "src.ingestion.bafin_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"bafin-notices"})
 
+# Materials property and structure sources (Materials Project, JARVIS-DFT, OQMD, NIST WebBook, COD; #2060).
+NATIVE_CONNECTOR_MODULES["materials"] = "src.ingestion.materials_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"materials"})
+
 
 def native_connector_module(connector: str) -> Any:
     import importlib

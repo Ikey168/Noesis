@@ -1,0 +1,20 @@
+{
+ "authored": true,
+ "provider": "JARVIS-DFT",
+ "note": "Authored in the provider's documented response shape for fictional IDs and values; not a capture.",
+ "scenarios": [
+  "OptB88vdW and TBmBJ band gaps kept separate",
+  "'na' is missing",
+  "outside the chemical systems"
+ ],
+ "native_pages": [
+  {
+   "request": "/ndownloader/files/99990001",
+   "status": 200,
+   "headers": {
+    "date": "Mon, 01 Feb 2099 12:00:00 GMT"
+   },
+   "body": "[\n {\"jid\": \"JVASP-990101\", \"formula\": \"TiO2\", \"spg_number\": 136, \"spg_symbol\": \"P4_2/mnm\", \"formation_energy_peratom\": -3.380,\n  \"optb88vdw_bandgap\": 1.770, \"mbj_bandgap\": 2.950, \"bulk_modulus_kv\": 225.0, \"shear_modulus_gv\": \"na\", \"density\": 4.200,\n  \"icsd\": \"99001\", \"atoms\": {\"lattice_mat\": [[4.640, 0.0, 0.0], [0.0, 4.640, 0.0], [0.0, 0.0, 2.970]],\n  \"elements\": [\"Ti\", \"Ti\", \"O\", \"O\", \"O\", \"O\"]}},\n {\"jid\": \"JVASP-990102\", \"formula\": \"TiO2\", \"spg_number\": 141, \"spg_symbol\": \"I4_1/amd\", \"formation_energy_peratom\": -3.370,\n  \"optb88vdw_bandgap\": 2.050, \"mbj_bandgap\": 3.300, \"bulk_modulus_kv\": \"na\", \"shear_modulus_gv\": \"na\", \"density\": 3.850,\n  \"icsd\": \"na\", \"atoms\": {\"lattice_mat\": [[3.790, 0.0, 0.0], [0.0, 3.790, 0.0], [0.0, 0.0, 9.640]],\n  \"elements\": [\"Ti\", \"Ti\", \"Ti\", \"Ti\", \"O\", \"O\", \"O\", \"O\", \"O\", \"O\", \"O\", \"O\"]}},\n {\"jid\": \"JVASP-990199\", \"formula\": \"SiO2\", \"spg_number\": 154, \"spg_symbol\": \"P3_221\", \"formation_energy_peratom\": -3.000,\n  \"optb88vdw_bandgap\": 5.600, \"mbj_bandgap\": 8.100, \"bulk_modulus_kv\": \"na\", \"shear_modulus_gv\": \"na\", \"density\": 2.600,\n  \"icsd\": \"na\", \"atoms\": {\"lattice_mat\": [[4.9, 0.0, 0.0], [-2.45, 4.2435, 0.0], [0.0, 0.0, 5.4]],\n  \"elements\": [\"Si\", \"Si\", \"Si\", \"O\", \"O\", \"O\", \"O\", \"O\", \"O\"]}}\n]"
+  }
+ ]
+}

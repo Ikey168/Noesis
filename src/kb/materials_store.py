@@ -39,7 +39,7 @@ from src.kb.materials_records import READ_SCOPE, WRITE_SCOPE, canonical, digest
 _DDL = """
 CREATE TABLE IF NOT EXISTS materials_releases(
  namespace TEXT NOT NULL, provider TEXT NOT NULL, release_label TEXT NOT NULL, released_on TEXT, release_basis TEXT NOT NULL,
- first_seen_ms BIGINT NOT NULL, run_id TEXT NOT NULL, history_json TEXT NOT NULL,
+ first_seen_ms BIGINT NOT NULL, run_id TEXT NOT NULL, history_json TEXT NOT NULL, sequence BIGINT,
  PRIMARY KEY(namespace, provider, release_label));
 CREATE TABLE IF NOT EXISTS materials_entries(
  entry_id TEXT PRIMARY KEY, namespace TEXT NOT NULL, provider TEXT NOT NULL, native_id TEXT NOT NULL,
@@ -300,7 +300,7 @@ class MaterialsStore:
         ).fetchone()
         if row is None:
             self.conn.execute(
-                "INSERT INTO materials_releases VALUES (?,?,?,?,?,?,?,?)",
+                "INSERT INTO materials_releases VALUES (?,?,?,?,?,?,?,?,?)",
                 [
                     namespace,
                     record["provider"],
@@ -310,6 +310,7 @@ class MaterialsStore:
                     observed,
                     run_id,
                     "[]",
+                    release.get("sequence"),
                 ],
             )
             counts["releases"] += 1
@@ -521,7 +522,12 @@ class MaterialsStore:
 
     def record_failure(self, namespace, provider, *, code, run_id, scopes):
         authorize(namespace, scopes, WRITE_SCOPE, write=True)
-        now = self.now()
+        row = self.conn.execute(
+            "SELECT last_success_ms FROM materials_provider_state WHERE namespace=? AND provider=?",
+            [namespace, provider],
+        ).fetchone()
+        # A failure is recorded after the success it follows, whichever clock stamped that success.
+        now = max(self.now(), int(row[0]) + 1 if row and row[0] is not None else 0)
         self._provider_state(
             namespace, [provider], failure=now, code=code, run_id=run_id
         )
@@ -557,10 +563,15 @@ class MaterialsStore:
         return {k: v for k, v in state.items() if v is not None}
 
     def releases(self, namespace, provider, *, as_of_ms=None):
-        """Releases oldest -> newest: by the source's release date when every release states one, else by first observation."""
+        """Releases oldest -> newest, in the source's own order when it gives one.
+
+        By the stated release date when every release states one, else by the
+        source's ordinal (e.g. COD revision numbers) when every release has one,
+        else by first observation.
+        """
 
         rows = self.conn.execute(
-            "SELECT release_label, released_on, release_basis, first_seen_ms, history_json FROM materials_releases "
+            "SELECT release_label, released_on, release_basis, first_seen_ms, history_json, sequence FROM materials_releases "
             "WHERE namespace=? AND provider=? AND (? IS NULL OR first_seen_ms<=?)",
             [namespace, provider, as_of_ms, as_of_ms],
         ).fetchall()
@@ -573,13 +584,14 @@ class MaterialsStore:
                     "basis": r[2],
                     "first_seen_ms": int(r[3]),
                     "corrections": _load(r[4], []) or None,
+                    "sequence": None if r[5] is None else int(r[5]),
                 }.items()
                 if v is not None
             }
             for r in rows
         ]
-        dated = all("released_on" in i for i in items)
-        if dated:
+        if all("released_on" in i for i in items):
+            basis = "source release date"
             items.sort(
                 key=lambda i: (
                     date.fromisoformat(i["released_on"]),
@@ -587,15 +599,15 @@ class MaterialsStore:
                     i["label"],
                 )
             )
+        elif all("sequence" in i for i in items):
+            basis = "source release ordinal"
+            items.sort(key=lambda i: (i["sequence"], i["first_seen_ms"], i["label"]))
         else:
+            basis = "observation order (a release date is missing)"
             items.sort(key=lambda i: (i["first_seen_ms"], i["label"]))
         for index, item in enumerate(items):
             item["order"] = index
-            item["order_basis"] = (
-                "source release date"
-                if dated
-                else "observation order (a release date is missing)"
-            )
+            item["order_basis"] = basis
         return items
 
     def entries(

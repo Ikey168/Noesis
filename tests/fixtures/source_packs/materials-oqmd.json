@@ -1,0 +1,20 @@
+{
+ "authored": true,
+ "provider": "OQMD",
+ "note": "Authored in the provider's documented response shape for fictional IDs and values; not a capture.",
+ "scenarios": [
+  "PBE with fit",
+  "icsd cross-reference",
+  "polymorph pair"
+ ],
+ "native_pages": [
+  {
+   "request": "/oqmdapi/formationenergy?composition=TiO2&fields=name%2Centry_id%2Cicsd_id%2Cspacegroup%2Cnatoms%2Cvolume%2Cdelta_e%2Cstability%2Cband_gap%2Cfit&limit=50",
+   "status": 200,
+   "headers": {
+    "date": "Mon, 01 Feb 2099 12:00:00 GMT"
+   },
+   "body": "{\"links\": {\"next\": null}, \"resource\": {}, \"data\": [\n {\"name\": \"TiO2\", \"entry_id\": 99000301, \"icsd_id\": 99001, \"spacegroup\": \"P4_2/mnm\", \"natoms\": 6, \"volume\": 63.90,\n  \"delta_e\": -3.300, \"stability\": 0.0, \"band_gap\": 1.840, \"fit\": \"standard\"},\n {\"name\": \"TiO2\", \"entry_id\": 99000302, \"icsd_id\": null, \"spacegroup\": \"I4_1/amd\", \"natoms\": 12, \"volume\": 138.40,\n  \"delta_e\": -3.290, \"stability\": 0.012, \"band_gap\": 2.100, \"fit\": \"standard\"}],\n \"meta\": {\"query\": {\"composition\": \"TiO2\"}, \"api_version\": \"1.0\", \"db_version\": \"v9.9\", \"data_returned\": 2,\n  \"data_available\": 2, \"more_data_available\": false}, \"response_message\": \"OK\"}"
+  }
+ ]
+}

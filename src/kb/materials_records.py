@@ -392,7 +392,11 @@ def reference(level, text, *, doi=None, standard=None, locator=None):
     )
 
 
-def release(label, *, basis, released_on=None):
+def release(label, *, basis, released_on=None, sequence=None):
+    """A dataset release: label, basis, the source's release date and/or its own ordinal (e.g. a COD revision)."""
+
+    if sequence is not None and (type(sequence) is not int or sequence < 0):
+        _fail("release sequence is the source's non-negative ordinal")
     if basis not in RELEASE_BASES:
         _fail(f"release basis must be one of {', '.join(RELEASE_BASES)}")
     if released_on is not None:
@@ -404,6 +408,7 @@ def release(label, *, basis, released_on=None):
             "label": _text(label, "release.label", limit=100),
             "basis": basis,
             "released_on": released_on,
+            "sequence": sequence,
         }
     )
 
@@ -703,7 +708,10 @@ def validate(record):
             material_record=rebuilt_material,
             values=values,
             release_record=release(
-                rel["label"], basis=rel["basis"], released_on=rel.get("released_on")
+                rel["label"],
+                basis=rel["basis"],
+                released_on=rel.get("released_on"),
+                sequence=rel.get("sequence"),
             ),
             retrieved_at=record["retrieved_at"],
             locator=record["locator"],
