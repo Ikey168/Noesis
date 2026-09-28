@@ -52,7 +52,9 @@ from src.ingestion.surveillance_sources import (
     KINDS,
     UNITS,
     SurveillanceFormatError,
+    case_definition_dates,
     check_item,
+    normalise_case_definition,
     parse_ecdc_export,
     period_bounds,
 )
@@ -618,8 +620,10 @@ class SurveillanceStore:
             )
         resolved, added = [], 0
         for revision in declared["revisions"]:
+            # Validity is stored as ISO dates (the declaration in another notation kept beside them).
+            normalised = normalise_case_definition(revision)
             content = {
-                k: revision.get(k)
+                k: normalised.get(k)
                 for k in (
                     "version",
                     "valid_from",
@@ -629,6 +633,8 @@ class SurveillanceStore:
                     "icd_scope",
                 )
             }
+            if normalised.get("declared_validity"):
+                content["declared_validity"] = normalised["declared_validity"]
             content_hash = digest(content)
             history = self.conn.execute(
                 "SELECT revision_id, content_hash, declared_on FROM surveillance_case_definition_revisions WHERE "
@@ -758,13 +764,15 @@ class SurveillanceStore:
         start = reference_start(reference)
         if start is None:
             return None
-        fitting = [
-            r
-            for r in revisions
-            if r["valid_from"] <= start
-            and (r.get("valid_to") is None or start <= r["valid_to"])
-        ]
-        return max(fitting, key=lambda r: r["valid_from"]) if fitting else None
+        day = date.fromisoformat(start)
+        fitting = []
+        for revision in revisions:
+            valid_from, valid_to = case_definition_dates(revision)
+            if date.fromisoformat(valid_from) <= day and (
+                valid_to is None or day <= date.fromisoformat(valid_to)
+            ):
+                fitting.append((date.fromisoformat(valid_from), revision))
+        return max(fitting, key=lambda pair: pair[0])[1] if fitting else None
 
     def _vintage(
         self,

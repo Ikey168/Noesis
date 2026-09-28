@@ -485,22 +485,57 @@ def check_geography(geography: Mapping[str, Any]) -> None:
         )
 
 
+def case_definition_dates(revision: Mapping[str, Any]) -> tuple[str, str | None]:
+    """The validity of a case-definition revision as ISO dates.
+
+    A date in any accepted notation (``2019-01-01``, ``01.01.2019``) is that day; a bare year or month starts on
+    its first day (valid-from) or ends on its last day (valid-to). The raw declaration is never compared as text.
+    """
+    valid_from = normalise_period(revision.get("valid_from"))
+    if valid_from is None:
+        raise SurveillanceFormatError(
+            "invalid_case_definition", "a case definition states its valid-from date"
+        )
+    start = period_bounds(valid_from)[0].isoformat()
+    end = None
+    if revision.get("valid_to") is not None:
+        valid_to = normalise_period(revision["valid_to"])
+        if valid_to is None:
+            raise SurveillanceFormatError(
+                "invalid_case_definition", "valid-to is a date or period"
+            )
+        end = period_bounds(valid_to)[1].isoformat()
+        if end < start:
+            raise SurveillanceFormatError(
+                "invalid_case_definition", "valid-to is a date after valid-from"
+            )
+    return start, end
+
+
+def normalise_case_definition(revision: Mapping[str, Any]) -> dict[str, Any]:
+    """A revision with ISO valid-from/valid-to; a declaration in another notation is kept as declared_validity."""
+    start, end = case_definition_dates(revision)
+    out = {
+        k: revision.get(k) for k in ("key", "version", "text", "locator", "icd_scope")
+    }
+    out.update(valid_from=start, valid_to=end)
+    declared = {
+        "valid_from": revision.get("valid_from"),
+        "valid_to": revision.get("valid_to"),
+    }
+    if revision.get("declared_validity"):
+        out["declared_validity"] = dict(revision["declared_validity"])
+    elif declared != {"valid_from": start, "valid_to": end}:
+        out["declared_validity"] = declared
+    return out
+
+
 def check_case_definition(revision: Mapping[str, Any]) -> None:
     if not _clean(revision.get("key")) or not _clean(revision.get("version")):
         raise SurveillanceFormatError(
             "invalid_case_definition", "a case definition names its key and version"
         )
-    valid_from = normalise_period(revision.get("valid_from"))
-    if valid_from is None or not re.fullmatch(r"\d{4}-\d{2}-\d{2}", valid_from):
-        raise SurveillanceFormatError(
-            "invalid_case_definition", "a case definition states its valid-from date"
-        )
-    if revision.get("valid_to") is not None:
-        valid_to = normalise_period(revision["valid_to"])
-        if valid_to is None or valid_to < valid_from:
-            raise SurveillanceFormatError(
-                "invalid_case_definition", "valid-to is a date after valid-from"
-            )
+    case_definition_dates(revision)
     if not _clean(revision.get("text")) and not str(
         revision.get("locator") or ""
     ).startswith("https://"):
@@ -612,21 +647,7 @@ def _case_definition(
     return {
         "key": keys.pop(),
         "revisions": sorted(
-            (
-                {
-                    k: r.get(k)
-                    for k in (
-                        "key",
-                        "version",
-                        "valid_from",
-                        "valid_to",
-                        "text",
-                        "locator",
-                        "icd_scope",
-                    )
-                }
-                for r in revisions
-            ),
+            (normalise_case_definition(r) for r in revisions),
             key=lambda r: (r["valid_from"], r["version"]),
         ),
     }

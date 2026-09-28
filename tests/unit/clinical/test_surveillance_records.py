@@ -432,3 +432,40 @@ def test_publisher_break_flags_and_code_list_changes_are_marked(store):
         ("publisher-flag", "2098", None, None),
         ("geography", None, "2099-01-01", "2100-01-01"),
     }
+
+
+def test_case_definition_validity_in_other_notations_is_stored_and_compared_as_dates(
+    store,
+):
+    old = dict(
+        EDITION_2019, valid_from="01.01.2019", valid_to="31.12.2022", version="2019"
+    )
+    new = dict(EDITION_2099, valid_from="2023", valid_to=None, version="2023")
+    values = [
+        value("2022-06-15", "2022-06-20", "1"),
+        value("2023-03-01", "2023-03-04", "2"),
+        value("2022", None, "5"),
+    ]
+    apply(store, [item(values=values, revisions=[old, new])])
+    (series,) = store.find_series(NS)
+    answer = store.answer(NS, series["series_id"], scopes=h.READ_ONLY)
+    editions = {
+        v["reference_period"]: v["case_definition"]["version"] for v in answer["values"]
+    }
+    # A 2023 value falls under the 2023 edition, never under the edition that expired on 31.12.2022.
+    assert editions == {"2022-06-15": "2019", "2023-03-01": "2023", "2022": "2019"}
+    history = store.definition_history(NS, series["definition_key"])["revisions"]
+    assert [(r["valid_from"], r["valid_to"]) for r in history] == [
+        ("2019-01-01", "2022-12-31"),
+        ("2023-01-01", None),
+    ]
+    assert history[0]["content"]["declared_validity"] == {
+        "valid_from": "01.01.2019",
+        "valid_to": "31.12.2022",
+    }
+    assert (
+        "declared_validity" not in history[1]["content"]
+        or history[1]["content"]["declared_validity"]["valid_from"] == "2023"
+    )
+    (brk,) = [b for b in series["breaks"] if b["kind"] == "case-definition"]
+    assert (brk["period"], brk["from"], brk["to"]) == ("2023-03-01", "2019", "2023")
