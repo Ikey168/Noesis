@@ -188,6 +188,11 @@ For the project overview and local setup, start with the
   identification and corrective action, reviewable matches to Products identities on GTIN, brand and model,
   standards and acts linked by citation, as-of answers and monitors; no safety verdict or advice;
   [source audit](roadmaps/products-safety-source-audit.md)
+- [Funding development-finance guide](guides/funding-development-finance.md) — IATI aid activities per publisher
+  with transactions, participating organisations, allocations, results and version history, OECD CRS aggregates as
+  vintaged statistics, World Bank projects linked by stated identifiers, reviewable organisation identity with an
+  open-call cross-reference, as-of answers with publisher coverage and monitors; no totals across publishers and no
+  impact judgement; [source audit](roadmaps/development-finance-source-audit.md)
 - [Geospatial housing guide](guides/geospatial-housing.md) — land-value zones with valuation dates, Mietspiegel
   editions and cells, development-plan stages, Wohnlagen, permit and completion statistics and Destatis vintages
   projected onto an address, parcel or district as of a date, with citation links and monitors; no valuation or

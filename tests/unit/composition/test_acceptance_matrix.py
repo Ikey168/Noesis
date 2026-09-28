@@ -63,6 +63,12 @@ MATRIX = {
     "Product to safety-notice dossier":
         "tests/unit/domains/test_product_safety_acceptance.py::"
         "test_product_gtin_and_brand_model_to_a_cited_notice_dossier",
+    # The Funding & Grants development-finance feature's offline journey (#2038) composes funding, economics (CRS
+    # through the SDMX connector), geospatial place resolution, ownership and entity identity, research projects,
+    # authored reports, subscriptions and the source-pack runtime.
+    "Funder to aid activities":
+        "tests/unit/domains/test_development_finance_acceptance.py::"
+        "test_funder_to_cited_activities_with_coverage_vintages_identity_and_monitoring",
 }
 
 
