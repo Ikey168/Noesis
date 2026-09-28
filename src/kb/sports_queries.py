@@ -470,7 +470,8 @@ class SportsQueries:
                 acquired_by_ms=acquired_by_ms,
             ):
                 if to_ms(revision["body"]["as_of"]) <= end_of_day and (
-                    best is None or revision["body"]["as_of"] > best["body"]["as_of"]
+                    best is None
+                    or to_ms(revision["body"]["as_of"]) > to_ms(best["body"]["as_of"])
                 ):
                     best = revision
         if best is None:

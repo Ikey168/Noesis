@@ -166,6 +166,12 @@ def _election_projector(conn: Any) -> Any:
     return ElectionProjector(conn)
 
 
+def _sports_projector(conn: Any) -> Any:
+    from src.kb.sports_store import SportsProjector
+
+    return SportsProjector(conn)
+
+
 def _public_finance_projector(conn: Any) -> Any:
     from src.kb.public_finance import PublicFinanceProjector
 
@@ -242,6 +248,7 @@ PROJECTORS: dict[str, Callable[[Any], Any]] = {
     "noesis-bafin-notice-v1": _bafin_notice_projector,
     "noesis-housing-record-v1": _housing_projector,
     "noesis-surveillance-record-v1": _surveillance_projector,
+    "noesis-sports-record-v1": _sports_projector,
 }
 
 _DDL = """

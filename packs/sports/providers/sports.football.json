@@ -1,0 +1,484 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "sports.football",
+  "version": "1.0.0",
+  "description": "Sports records (src.kb.sports_store): competitions, seasons, fixtures with reschedule history, result revisions with corrections, forfeits and annulments, lineups, stated table rules, deductions and published tables, and transfers from open announcements; tables as of a date (src.kb.sports_queries), reviewable identity (src.kb.sports_identity), news links (src.kb.sports_links) and subscription monitors (src.kb.sports_monitoring).",
+  "implementation": {
+    "name": "src.kb.sports_store",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "sports.records",
+      "contract": {
+        "name": "noesis-sports-record",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "readiness",
+        "standings-as-of",
+        "match-history",
+        "fixture-history",
+        "team-schedule",
+        "player-appearances",
+        "transfers",
+        "export-records",
+        "identity-candidates",
+        "venue-place",
+        "news-links",
+        "poll-monitor",
+        "propose-identity-matches",
+        "review-identity-match",
+        "revert-identity-match",
+        "club-lineage",
+        "link-venue-place",
+        "record-decision",
+        "record-table-rule",
+        "record-transfer",
+        "refresh-news-links",
+        "review-news-link",
+        "revert-news-link",
+        "create-monitor",
+        "run-monitor"
+      ],
+      "semantic_constraints": {
+        "revisions": "every correction, forfeit, award or annulment appends a revision; current is chosen per source by the source's own date; unchanged re-acquisition adds nothing",
+        "tables": "replayed only from results published by the knowledge cutoff under the stated rule and deductions, always compared with the source-published table; disagreements are shown, never resolved",
+        "identity": "players, teams, competitions and venues link only by reviewable, reversible decisions; club renames, mergers and phoenix clubs are identity-history events",
+        "exclusions": "no odds, betting advice, predictions, medical or biometric data; published participants only"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "readiness",
+      "tool": "noesis-knowledge-engine.sports_readiness",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:sports:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "standings-as-of",
+      "tool": "noesis-knowledge-engine.sports_standings_as_of",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:sports:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "match-history",
+      "tool": "noesis-knowledge-engine.sports_match_history",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:sports:read",
+        "knowledge:ownership:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "fixture-history",
+      "tool": "noesis-knowledge-engine.sports_fixture_history",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:sports:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "team-schedule",
+      "tool": "noesis-knowledge-engine.sports_team_schedule",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:sports:read",
+        "knowledge:ownership:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "player-appearances",
+      "tool": "noesis-knowledge-engine.sports_player_appearances",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:sports:read",
+        "knowledge:ownership:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "transfers",
+      "tool": "noesis-knowledge-engine.sports_transfers",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:sports:read",
+        "knowledge:ownership:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "export-records",
+      "tool": "noesis-knowledge-engine.export_sports_records",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:sports:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "identity-candidates",
+      "tool": "noesis-knowledge-engine.list_sports_identity_candidates",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:sports:read",
+        "knowledge:ownership:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "venue-place",
+      "tool": "noesis-knowledge-engine.sports_venue_place",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:sports:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "news-links",
+      "tool": "noesis-knowledge-engine.sports_news_links",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:sports:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "poll-monitor",
+      "tool": "noesis-knowledge-engine.poll_sports_monitor",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:sports:read",
+        "knowledge:subscriptions:read"
+      ],
+      "required_context": []
+    },
+    {
+      "id": "propose-identity-matches",
+      "tool": "noesis-knowledge-engine.propose_sports_identity_matches",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:sports:read",
+        "knowledge:ownership:read",
+        "knowledge:ownership:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "review-identity-match",
+      "tool": "noesis-knowledge-engine.review_sports_identity_match",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:ownership:review"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "revert-identity-match",
+      "tool": "noesis-knowledge-engine.revert_sports_identity_match",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:ownership:review"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "club-lineage",
+      "tool": "noesis-knowledge-engine.record_sports_club_lineage",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:sports:review"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "link-venue-place",
+      "tool": "noesis-knowledge-engine.link_sports_venue_place",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:sports:write",
+        "knowledge:geospatial:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "record-decision",
+      "tool": "noesis-knowledge-engine.record_sports_decision",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:sports:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "record-table-rule",
+      "tool": "noesis-knowledge-engine.record_sports_table_rule",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:sports:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "record-transfer",
+      "tool": "noesis-knowledge-engine.record_sports_transfer",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:sports:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "refresh-news-links",
+      "tool": "noesis-knowledge-engine.refresh_sports_news_links",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:sports:read",
+        "knowledge:sports:write",
+        "knowledge:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "review-news-link",
+      "tool": "noesis-knowledge-engine.review_sports_news_link",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:sports:review"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "revert-news-link",
+      "tool": "noesis-knowledge-engine.revert_sports_news_link",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:sports:review"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "create-monitor",
+      "tool": "noesis-knowledge-engine.create_sports_monitor",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:sports:read",
+        "knowledge:subscriptions:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "run-monitor",
+      "tool": "noesis-knowledge-engine.run_sports_monitor",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:sports:read",
+        "knowledge:subscriptions:write"
+      ],
+      "required_context": []
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "sports-record",
+      "store": "src.kb.sports_store",
+      "tables": [
+        "sports_acquisitions",
+        "sports_revisions",
+        "sports_acquisition_members"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "sports-venue-place-link",
+      "store": "src.kb.sports_identity",
+      "tables": [
+        "sports_place_links"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "sports-news-link",
+      "store": "src.kb.sports_links",
+      "tables": [
+        "sports_news_links"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "records",
+      "kind": "table-exists",
+      "target": "sports_revisions"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "sports-records",
+      "version": "1.0.0",
+      "range": "^1.0.0"
+    }
+  ]
+}

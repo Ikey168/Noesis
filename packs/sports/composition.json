@@ -1,0 +1,168 @@
+{
+  "contributes": {
+    "capabilities": [
+      {
+        "id": "sports.records",
+        "provider": "sports.football",
+        "contract": {
+          "name": "noesis-sports-record",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "sports.tennis-results",
+        "provider": "sports.tennis",
+        "contract": {
+          "name": "noesis-sports-tennis-result",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "sports.olympic-results",
+        "provider": "sports.olympics",
+        "contract": {
+          "name": "noesis-sports-olympic-result",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "sports.forecast-rules",
+        "provider": "sports.forecasts",
+        "contract": {
+          "name": "noesis-sports-forecast-rule",
+          "version": "1.0.0"
+        }
+      }
+    ],
+    "providers": [
+      {
+        "id": "sports.football",
+        "version": "1.0.0"
+      },
+      {
+        "id": "sports.tennis",
+        "version": "1.0.0"
+      },
+      {
+        "id": "sports.olympics",
+        "version": "1.0.0"
+      },
+      {
+        "id": "sports.forecasts",
+        "version": "1.0.0"
+      }
+    ],
+    "source_packs": [
+      {
+        "pack_id": "sports-records",
+        "version": "1.0.0",
+        "range": "^1.0.0"
+      }
+    ],
+    "profiles": [
+      {
+        "id": "sports.review",
+        "description": "Sporting records as published: corrections kept as revisions, tables replayed and compared with the published table, identities reviewed, no odds or predictions",
+        "workflow_defaults": {
+          "knowledge_cutoff": "the end of the match date unless stated",
+          "table_comparison": "always against the nearest source-published table; disagreements listed",
+          "forecast_resolution": "official, corrected or forfeit_awarded revisions only",
+          "unmatched_names": "shown as the source string, marked unmatched"
+        },
+        "vocabulary": {
+          "revision": "one publication of a fixture's schedule or result",
+          "correction": "an official result that differs from an earlier official one in the source's own date order",
+          "table": "a replay from recorded results under the stated rule, beside the source's own table"
+        },
+        "source_packs": [
+          "sports-records"
+        ]
+      }
+    ]
+  },
+  "requires": [
+    {
+      "capability": "sports.records",
+      "contract": "noesis-sports-record",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "sports.olympic-results",
+      "contract": "noesis-sports-olympic-result",
+      "range": "^1.0.0",
+      "reason": "Olympic result revisions are part of the core bundle"
+    },
+    {
+      "capability": "platform.source-acquisition",
+      "contract": "noesis-source-acquisition",
+      "range": "^1.0.0",
+      "reason": "sources, licences and budgets are declared in the sports-records source pack"
+    },
+    {
+      "capability": "platform.entity-identity",
+      "contract": "noesis-entity-identity-decision",
+      "range": "^1.0.0",
+      "reason": "accepted and reverted matches and club lineage are entity identity decisions"
+    },
+    {
+      "capability": "platform.subscriptions",
+      "contract": "noesis-knowledge-subscription",
+      "range": "^1.0.0",
+      "reason": "sports monitors are knowledge subscriptions"
+    },
+    {
+      "capability": "geospatial.place-resolution",
+      "contract": "noesis-geospatial-place",
+      "range": "^1.0.0",
+      "reason": "venues resolve to Geospatial places through reviewable place resolutions"
+    },
+    {
+      "capability": "news.articles",
+      "contract": "noesis-news-articles",
+      "range": "^1.0.0",
+      "reason": "news coverage of matches and transfers is linked by reviewable candidates"
+    }
+  ],
+  "optional_features": [
+    {
+      "id": "sports-identity",
+      "default": false,
+      "description": "Cross-source identity review: players, teams and competitions from different sources are proposed into the shared reviewable identity state machine (Corporate Ownership's ownership.identity) and linked only by accepted, reversible decisions. Off by default so the Sports bundle never makes Corporate Ownership mandatory; without it every record stays its source's own record.",
+      "requires": [
+        {
+          "capability": "ownership.identity",
+          "contract": "noesis-ownership-identity-candidate",
+          "range": "^1.0.0",
+          "reason": "player, team and competition matches use the reviewable identity state machine"
+        }
+      ]
+    },
+    {
+      "id": "sports-tennis",
+      "default": false,
+      "description": "Tennis match results from Jeff Sackmann's archives under CC BY-NC-SA 4.0 (licence-gated per the SP01 audit): non-commercial deployments only, attribution and share-alike on every record and export, commercial exports refused.",
+      "requires": [
+        {
+          "capability": "sports.tennis-results",
+          "contract": "noesis-sports-tennis-result",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        }
+      ]
+    },
+    {
+      "id": "sports-forecasts",
+      "default": false,
+      "description": "User sports forecasts in the existing binary forecast ledger with structured rules resolved only against official results; Noesis produces no forecast, odds or tip.",
+      "requires": [
+        {
+          "capability": "sports.forecast-rules",
+          "contract": "noesis-sports-forecast-rule",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        }
+      ]
+    }
+  ]
+}

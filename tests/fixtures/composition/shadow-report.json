@@ -57,6 +57,8 @@
     "science.methodology",
     "science.paper-families",
     "science.systematic-reviews",
+    "sports.olympic-results",
+    "sports.records",
     "technology.knowledge",
     "technology.patents",
     "technology.standards"
@@ -77,6 +79,7 @@
     "procurement",
     "products",
     "science",
+    "sports",
     "technology"
   ],
   "composed_tools": [
@@ -117,6 +120,7 @@
     "noesis-knowledge-engine.create_research_decision",
     "noesis-knowledge-engine.create_research_project",
     "noesis-knowledge-engine.create_review_protocol",
+    "noesis-knowledge-engine.create_sports_monitor",
     "noesis-knowledge-engine.decide_procurement_party_link",
     "noesis-knowledge-engine.draft_funding_application",
     "noesis-knowledge-engine.draft_procurement_bid",
@@ -125,11 +129,13 @@
     "noesis-knowledge-engine.export_clinical_evidence_bundle",
     "noesis-knowledge-engine.export_environment_dossier",
     "noesis-knowledge-engine.export_ownership_dossier",
+    "noesis-knowledge-engine.export_sports_records",
     "noesis-knowledge-engine.funding_provider_contracts",
     "noesis-knowledge-engine.get_entity_identity_history",
     "noesis-knowledge-engine.get_legal_passages",
     "noesis-knowledge-engine.get_methodology_study",
     "noesis-knowledge-engine.import_prospero_registration",
+    "noesis-knowledge-engine.import_sports_olympic_results",
     "noesis-knowledge-engine.inspect_authored_report",
     "noesis-knowledge-engine.inspect_certificate",
     "noesis-knowledge-engine.inspect_clinical_evidence_map",
@@ -151,12 +157,14 @@
     "noesis-knowledge-engine.inspect_standard_edition",
     "noesis-knowledge-engine.lei_parents_as_of",
     "noesis-knowledge-engine.link_clinical_publications",
+    "noesis-knowledge-engine.link_sports_venue_place",
     "noesis-knowledge-engine.list_environment_facilities",
     "noesis-knowledge-engine.list_environment_grid_events",
     "noesis-knowledge-engine.list_environment_operator_links",
     "noesis-knowledge-engine.list_funding_opportunities",
     "noesis-knowledge-engine.list_ownership_identity_candidates",
     "noesis-knowledge-engine.list_procurement_notices",
+    "noesis-knowledge-engine.list_sports_identity_candidates",
     "noesis-knowledge-engine.lookup_clinical_trial",
     "noesis-knowledge-engine.lookup_environment_series",
     "noesis-knowledge-engine.lookup_legal_work",
@@ -170,36 +178,58 @@
     "noesis-knowledge-engine.patent_family_members",
     "noesis-knowledge-engine.poll_clinical_monitor",
     "noesis-knowledge-engine.poll_environment_monitor",
+    "noesis-knowledge-engine.poll_sports_monitor",
     "noesis-knowledge-engine.procurement_award_history",
     "noesis-knowledge-engine.procurement_notice_history",
     "noesis-knowledge-engine.procurement_party_candidates",
     "noesis-knowledge-engine.procurement_provider_contracts",
     "noesis-knowledge-engine.propose_environment_operator_links",
     "noesis-knowledge-engine.propose_ownership_identity_matches",
+    "noesis-knowledge-engine.propose_sports_identity_matches",
     "noesis-knowledge-engine.query_geospatial_features_within",
     "noesis-knowledge-engine.record_clinical_trial_design",
     "noesis-knowledge-engine.record_entity_identity_decision",
     "noesis-knowledge-engine.record_geospatial_resolution",
     "noesis-knowledge-engine.record_ownership_register_document",
+    "noesis-knowledge-engine.record_sports_club_lineage",
+    "noesis-knowledge-engine.record_sports_decision",
+    "noesis-knowledge-engine.record_sports_table_rule",
+    "noesis-knowledge-engine.record_sports_transfer",
+    "noesis-knowledge-engine.refresh_sports_news_links",
     "noesis-knowledge-engine.register_environment_schemas",
     "noesis-knowledge-engine.register_methodology_study",
     "noesis-knowledge-engine.replay_environment_dossier",
     "noesis-knowledge-engine.replay_procurement_shortlist",
     "noesis-knowledge-engine.resolve_entity_history",
     "noesis-knowledge-engine.revert_ownership_identity_match",
+    "noesis-knowledge-engine.revert_sports_identity_match",
+    "noesis-knowledge-engine.revert_sports_news_link",
     "noesis-knowledge-engine.review_clinical_publication_link",
     "noesis-knowledge-engine.review_environment_operator_link",
     "noesis-knowledge-engine.review_geospatial_resolution",
     "noesis-knowledge-engine.review_ownership_identity_match",
+    "noesis-knowledge-engine.review_sports_identity_match",
+    "noesis-knowledge-engine.review_sports_news_link",
     "noesis-knowledge-engine.revise_geospatial_place",
     "noesis-knowledge-engine.run_clinical_monitor",
     "noesis-knowledge-engine.run_environment_monitor",
     "noesis-knowledge-engine.run_funding_monitor",
     "noesis-knowledge-engine.run_procurement_monitor",
     "noesis-knowledge-engine.run_source_pack_execution",
+    "noesis-knowledge-engine.run_sports_monitor",
     "noesis-knowledge-engine.search_mathematics",
     "noesis-knowledge-engine.search_methodology_studies",
     "noesis-knowledge-engine.simplify_geospatial_geometry",
+    "noesis-knowledge-engine.sports_fixture_history",
+    "noesis-knowledge-engine.sports_match_history",
+    "noesis-knowledge-engine.sports_news_links",
+    "noesis-knowledge-engine.sports_olympic_event_results",
+    "noesis-knowledge-engine.sports_player_appearances",
+    "noesis-knowledge-engine.sports_readiness",
+    "noesis-knowledge-engine.sports_standings_as_of",
+    "noesis-knowledge-engine.sports_team_schedule",
+    "noesis-knowledge-engine.sports_transfers",
+    "noesis-knowledge-engine.sports_venue_place",
     "noesis-knowledge-engine.store_geospatial_geometry",
     "noesis-knowledge-engine.transit_departures",
     "noesis-knowledge-engine.transit_stops_in_bbox",
@@ -3033,6 +3063,602 @@
         ],
         "reason": null,
         "tool": "noesis-research.literature_claims"
+      }
+    ],
+    "sports": [
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "sports",
+        "composition": "sports",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.create_sports_monitor"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "sports",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.create_sports_monitor"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "sports",
+        "composition": "sports",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.export_sports_records"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "sports",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.export_sports_records"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "sports",
+        "composition": "sports",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.import_sports_olympic_results"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "sports",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.import_sports_olympic_results"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "sports",
+        "composition": "sports",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.link_sports_venue_place"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "sports",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.link_sports_venue_place"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "sports",
+        "composition": "sports",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.list_sports_identity_candidates"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "sports",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.list_sports_identity_candidates"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "sports",
+        "composition": "sports",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.poll_sports_monitor"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "sports",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.poll_sports_monitor"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "sports",
+        "composition": "sports",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.propose_sports_identity_matches"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "sports",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.propose_sports_identity_matches"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "sports",
+        "composition": "sports",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.record_sports_club_lineage"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "sports",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.record_sports_club_lineage"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "sports",
+        "composition": "sports",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.record_sports_decision"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "sports",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.record_sports_decision"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "sports",
+        "composition": "sports",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.record_sports_table_rule"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "sports",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.record_sports_table_rule"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "sports",
+        "composition": "sports",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.record_sports_transfer"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "sports",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.record_sports_transfer"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "sports",
+        "composition": "sports",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.refresh_sports_news_links"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "sports",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.refresh_sports_news_links"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "sports",
+        "composition": "sports",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.revert_sports_identity_match"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "sports",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.revert_sports_identity_match"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "sports",
+        "composition": "sports",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.revert_sports_news_link"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "sports",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.revert_sports_news_link"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "sports",
+        "composition": "sports",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.review_sports_identity_match"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "sports",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.review_sports_identity_match"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "sports",
+        "composition": "sports",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.review_sports_news_link"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "sports",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.review_sports_news_link"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "sports",
+        "composition": "sports",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.run_sports_monitor"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "sports",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.run_sports_monitor"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "sports",
+        "composition": "sports",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.sports_fixture_history"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "sports",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.sports_fixture_history"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "sports",
+        "composition": "sports",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.sports_match_history"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "sports",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.sports_match_history"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "sports",
+        "composition": "sports",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.sports_news_links"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "sports",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.sports_news_links"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "sports",
+        "composition": "sports",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.sports_olympic_event_results"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "sports",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.sports_olympic_event_results"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "sports",
+        "composition": "sports",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.sports_player_appearances"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "sports",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.sports_player_appearances"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "sports",
+        "composition": "sports",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.sports_readiness"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "sports",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.sports_readiness"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "sports",
+        "composition": "sports",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.sports_standings_as_of"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "sports",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.sports_standings_as_of"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "sports",
+        "composition": "sports",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.sports_team_schedule"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "sports",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.sports_team_schedule"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "sports",
+        "composition": "sports",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.sports_transfers"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "sports",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.sports_transfers"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "sports",
+        "composition": "sports",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.sports_venue_place"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "sports",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.sports_venue_place"
       }
     ],
     "technology": [

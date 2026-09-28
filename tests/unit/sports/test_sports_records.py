@@ -238,3 +238,28 @@ def test_readiness_is_not_ready_before_any_source_ran(conn):
     with pytest.raises(SportsError) as caught:
         SportsStore(conn).require_ready("global")
     assert caught.value.code == "not_ready"
+
+
+def test_poll_arrival_order_never_changes_the_reschedule_history():
+    def labels(order):
+        conn = h.connection()
+        for name, at in order:
+            h.apply(conn, "fd-matches", name, at=at)
+        store = SportsStore(conn, initialize=False)
+        return [
+            (r["revision_id"], r["status"], r["body"].get("kickoff"))
+            for kind in ("fixture_schedule_revision", "match_result_revision")
+            for key in (h.fixture_key(103), h.fixture_key(104))
+            for r in store.labelled_history("global", kind, key)
+        ]
+
+    polls = [
+        ("fd_exl_2099_poll1.json", "2099-08-18"),
+        ("fd_exl_2099_poll2.json", "2099-08-25"),
+        ("fd_exl_2099_poll3.json", "2099-09-05"),
+    ]
+    assert (
+        labels(polls)
+        == labels(list(reversed(polls)))
+        == labels([polls[2], polls[0], polls[1]])
+    )

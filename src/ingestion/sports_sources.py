@@ -232,7 +232,7 @@ PROVIDER_CONTRACTS: dict[str, dict[str, Any]] = {
         "attribution": SACKMANN_LICENCE["attribution"],
         "licence": SACKMANN_LICENCE,
         "access_decision": "implement",
-        "reason": "implemented behind the licence-gated sports_tennis feature: every derived record and export "
+        "reason": "implemented behind the licence-gated sports-tennis feature: every derived record and export "
         "carries the licence, its attribution and the share-alike flag; commercial exports and relicensing are "
         "refused; height, handedness, age and nationality columns are never stored",
         "v1_bounds": "ATP and WTA tour-level matches for two years: <= 6000 rows",

@@ -305,7 +305,9 @@ def evaluate(
         revisions.append(match["revision"])
         schedule = store.current(namespace, "fixture_schedule_revision", fixture_key)
         kickoff = (schedule or {}).get("body", {}).get("kickoff") or ""
-        last = max(last or "", kickoff[:10], match["revision"]["published_at"][:10])
+        last = max(
+            last or "", kickoff[:10], (match["revision"].get("published_at") or "")[:10]
+        )
     if last is None:
         return {"outcome": None, "reason": "no-fixtures", "revisions": []}
     table = SportsQueries(store.conn).standings_as_of(

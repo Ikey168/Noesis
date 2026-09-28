@@ -920,7 +920,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 1063,
+      "tool_count": 1094,
       "tools": [
         "noesis-knowledge-engine.accept_awareness_jev_suggestion",
         "noesis-knowledge-engine.accept_citation_repair",
@@ -1113,6 +1113,7 @@
         "noesis-knowledge-engine.create_sanctions_monitor",
         "noesis-knowledge-engine.create_source_acquisition_plan",
         "noesis-knowledge-engine.create_source_research_objective",
+        "noesis-knowledge-engine.create_sports_monitor",
         "noesis-knowledge-engine.create_statute_monitor",
         "noesis-knowledge-engine.create_surveillance_monitor",
         "noesis-knowledge-engine.create_technical_impact_report",
@@ -1225,6 +1226,7 @@
         "noesis-knowledge-engine.export_research_analysis_package",
         "noesis-knowledge-engine.export_research_recipe_run",
         "noesis-knowledge-engine.export_review_annotation_dataset",
+        "noesis-knowledge-engine.export_sports_records",
         "noesis-knowledge-engine.export_systematic_review",
         "noesis-knowledge-engine.export_technical_impact_report",
         "noesis-knowledge-engine.export_zotero_bibliography",
@@ -1289,6 +1291,7 @@
         "noesis-knowledge-engine.import_modulo_flashcards",
         "noesis-knowledge-engine.import_prospero_registration",
         "noesis-knowledge-engine.import_research_package",
+        "noesis-knowledge-engine.import_sports_olympic_results",
         "noesis-knowledge-engine.import_surveillance_export",
         "noesis-knowledge-engine.import_technical_inventory",
         "noesis-knowledge-engine.ingest_event_mentions",
@@ -1416,6 +1419,7 @@
         "noesis-knowledge-engine.link_legal_dossier",
         "noesis-knowledge-engine.link_lobbying_dossier",
         "noesis-knowledge-engine.link_product_notice_citations",
+        "noesis-knowledge-engine.link_sports_venue_place",
         "noesis-knowledge-engine.link_study_artifact",
         "noesis-knowledge-engine.link_surveillance_series",
         "noesis-knowledge-engine.list_amendment_acts",
@@ -1479,6 +1483,7 @@
         "noesis-knowledge-engine.list_source_pack_quarantine",
         "noesis-knowledge-engine.list_source_pack_schedules",
         "noesis-knowledge-engine.list_source_packs",
+        "noesis-knowledge-engine.list_sports_identity_candidates",
         "noesis-knowledge-engine.list_surveillance_resolutions",
         "noesis-knowledge-engine.list_surveillance_series",
         "noesis-knowledge-engine.list_vulnerability_component_matches",
@@ -1537,6 +1542,7 @@
         "noesis-knowledge-engine.poll_product_notice_monitor",
         "noesis-knowledge-engine.poll_public_finance_monitor",
         "noesis-knowledge-engine.poll_sanctions_monitor",
+        "noesis-knowledge-engine.poll_sports_monitor",
         "noesis-knowledge-engine.poll_statute_monitor",
         "noesis-knowledge-engine.poll_surveillance_monitor",
         "noesis-knowledge-engine.poll_vulnerability_monitor",
@@ -1610,6 +1616,7 @@
         "noesis-knowledge-engine.propose_public_finance_identity_matches",
         "noesis-knowledge-engine.propose_sanctions_identity_link",
         "noesis-knowledge-engine.propose_sanctions_identity_matches",
+        "noesis-knowledge-engine.propose_sports_identity_matches",
         "noesis-knowledge-engine.propose_vulnerability_component_link",
         "noesis-knowledge-engine.propose_vulnerability_component_matches",
         "noesis-knowledge-engine.propose_vulnerability_product_matches",
@@ -1650,6 +1657,10 @@
         "noesis-knowledge-engine.record_research_coverage",
         "noesis-knowledge-engine.record_research_project_expenditure",
         "noesis-knowledge-engine.record_sanctions_trade_correlations",
+        "noesis-knowledge-engine.record_sports_club_lineage",
+        "noesis-knowledge-engine.record_sports_decision",
+        "noesis-knowledge-engine.record_sports_table_rule",
+        "noesis-knowledge-engine.record_sports_transfer",
         "noesis-knowledge-engine.record_translation",
         "noesis-knowledge-engine.recover_research_analysis_run",
         "noesis-knowledge-engine.recover_stale_maintenance_jobs",
@@ -1657,6 +1668,7 @@
         "noesis-knowledge-engine.refresh_funding_workspace",
         "noesis-knowledge-engine.refresh_intake_feed_inbox",
         "noesis-knowledge-engine.refresh_procurement_workspace",
+        "noesis-knowledge-engine.refresh_sports_news_links",
         "noesis-knowledge-engine.register_access_bound_object",
         "noesis-knowledge-engine.register_access_view_policy",
         "noesis-knowledge-engine.register_anomaly_watch",
@@ -1689,6 +1701,7 @@
         "noesis-knowledge-engine.register_retention_policy",
         "noesis-knowledge-engine.register_source_capability",
         "noesis-knowledge-engine.register_source_identity",
+        "noesis-knowledge-engine.register_sports_forecast",
         "noesis-knowledge-engine.relate_events",
         "noesis-knowledge-engine.relate_evidence_applicability",
         "noesis-knowledge-engine.release_retention_legal_hold",
@@ -1766,6 +1779,8 @@
         "noesis-knowledge-engine.revert_public_finance_identity_match",
         "noesis-knowledge-engine.revert_public_finance_link",
         "noesis-knowledge-engine.revert_sanctions_identity_match",
+        "noesis-knowledge-engine.revert_sports_identity_match",
+        "noesis-knowledge-engine.revert_sports_news_link",
         "noesis-knowledge-engine.revert_vulnerability_component_match",
         "noesis-knowledge-engine.review_bafin_identity_match",
         "noesis-knowledge-engine.review_certificate_product_link",
@@ -1804,6 +1819,8 @@
         "noesis-knowledge-engine.review_quality_override",
         "noesis-knowledge-engine.review_research_claim_independence",
         "noesis-knowledge-engine.review_sanctions_identity_match",
+        "noesis-knowledge-engine.review_sports_identity_match",
+        "noesis-knowledge-engine.review_sports_news_link",
         "noesis-knowledge-engine.review_study_field",
         "noesis-knowledge-engine.review_surveillance_resolution",
         "noesis-knowledge-engine.review_translation",
@@ -1848,6 +1865,7 @@
         "noesis-knowledge-engine.run_research_recipe",
         "noesis-knowledge-engine.run_sanctions_monitor",
         "noesis-knowledge-engine.run_source_pack_execution",
+        "noesis-knowledge-engine.run_sports_monitor",
         "noesis-knowledge-engine.run_statute_monitor",
         "noesis-knowledge-engine.run_surveillance_monitor",
         "noesis-knowledge-engine.run_vulnerability_monitor",
@@ -1862,6 +1880,7 @@
         "noesis-knowledge-engine.scan_intake_maintenance",
         "noesis-knowledge-engine.score_binary_forecasts",
         "noesis-knowledge-engine.score_election_forecasts",
+        "noesis-knowledge-engine.score_sports_forecasts",
         "noesis-knowledge-engine.screen_review_candidate",
         "noesis-knowledge-engine.search_component_advisories",
         "noesis-knowledge-engine.search_cultural_objects",
@@ -1901,6 +1920,18 @@
         "noesis-knowledge-engine.source_pack_runtime_coverage",
         "noesis-knowledge-engine.source_relationship_path",
         "noesis-knowledge-engine.split_source_alias",
+        "noesis-knowledge-engine.sports_fixture_history",
+        "noesis-knowledge-engine.sports_match_history",
+        "noesis-knowledge-engine.sports_news_links",
+        "noesis-knowledge-engine.sports_olympic_event_results",
+        "noesis-knowledge-engine.sports_player_appearances",
+        "noesis-knowledge-engine.sports_readiness",
+        "noesis-knowledge-engine.sports_source_contracts",
+        "noesis-knowledge-engine.sports_standings_as_of",
+        "noesis-knowledge-engine.sports_team_schedule",
+        "noesis-knowledge-engine.sports_tennis_matches",
+        "noesis-knowledge-engine.sports_transfers",
+        "noesis-knowledge-engine.sports_venue_place",
         "noesis-knowledge-engine.standards_source_contracts",
         "noesis-knowledge-engine.start_awareness_from_inbox",
         "noesis-knowledge-engine.start_guided_playbook_run",
@@ -1991,7 +2022,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 1063
+      "visible_tool_count": 1094
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -2002,11 +2033,11 @@
     },
     "servers": 31,
     "states": {
-      "available": 119,
+      "available": 120,
       "degraded": 159,
-      "unauthorized": 1095
+      "unauthorized": 1125
     },
-    "tools": 1373
+    "tools": 1404
   },
   "tools": [
     {
@@ -30781,6 +30812,52 @@
     },
     {
       "cost_class": "medium",
+      "description": "Watch a competition season, team or match for reschedules, results, corrections, forfeits, table changes\nand resolvable forecasts through subscriptions.",
+      "id": "noesis-knowledge-engine.create_sports_monitor",
+      "input_schema": {
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "request_key": {
+            "type": "string"
+          },
+          "watch": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "request_key",
+          "watch",
+          "key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "create_sports_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:sports:read",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "A subscription on a statute, a provision or an amendment act (BGBl citation); no new scheduler.",
       "id": "noesis-knowledge-engine.create_statute_monitor",
       "input_schema": {
@@ -36055,6 +36132,62 @@
     },
     {
       "cost_class": "low",
+      "description": "Current revisions with their licences and attributions; refused for commercial use of non-commercial\nrecords or relicensing of share-alike records.",
+      "id": "noesis-knowledge-engine.export_sports_records",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "purpose": {
+            "type": "string"
+          },
+          "refs": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "relicense_as": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "refs",
+          "purpose"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "export_sports_records",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:sports:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Export screening counts, study fields, unresolved cases, amendments, and ASReview input.",
       "id": "noesis-knowledge-engine.export_systematic_review",
       "input_schema": {
@@ -39081,6 +39214,47 @@
       ],
       "required_scopes": [
         "knowledge:packages:import"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Import one transcription of an official Olympic results publication, cited to it; a reallocation is a\nlater publication naming the deciding body.",
+      "id": "noesis-knowledge-engine.import_sports_olympic_results",
+      "input_schema": {
+        "properties": {
+          "csv_text": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "source_url": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "csv_text",
+          "source_url"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "import_sports_olympic_results",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:sports:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -44666,6 +44840,48 @@
     },
     {
       "cost_class": "medium",
+      "description": "Save a reviewable Geospatial place resolution for a venue with its city or country; never by name alone.",
+      "id": "noesis-knowledge-engine.link_sports_venue_place",
+      "input_schema": {
+        "properties": {
+          "geo_namespace": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "venue_key": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "venue_key",
+          "geo_namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "link_sports_venue_place",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:sports:write",
+        "knowledge:geospatial:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Link a study to registrations, protocols, data, code, replications, or corrections.",
       "id": "noesis-knowledge-engine.link_study_artifact",
       "input_schema": {
@@ -48067,6 +48283,51 @@
     },
     {
       "cost_class": "low",
+      "description": "Proposed, accepted, rejected and reverted identity candidates between sports records, with evidence.",
+      "id": "noesis-knowledge-engine.list_sports_identity_candidates",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "record_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_sports_identity_candidates",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:sports:read",
+        "knowledge:ownership:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Geography-code resolutions with code system, code-list version, boundary revision and review state.",
       "id": "noesis-knowledge-engine.list_surveillance_resolutions",
       "input_schema": {
@@ -50805,6 +51066,44 @@
       ],
       "required_scopes": [
         "knowledge:legal:read",
+        "knowledge:subscriptions:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Delivered sports monitor events after a cursor.",
+      "id": "noesis-knowledge-engine.poll_sports_monitor",
+      "input_schema": {
+        "properties": {
+          "cursor": {
+            "default": "",
+            "type": "string"
+          },
+          "subscription_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "poll_sports_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:sports:read",
         "knowledge:subscriptions:read"
       ],
       "server": "noesis-knowledge-engine",
@@ -54458,6 +54757,41 @@
     },
     {
       "cost_class": "medium",
+      "description": "Deterministic candidates from cross ids, name + published birth date (players), name + country\n(teams) and competition + season; nothing is merged and every candidate waits for review.",
+      "id": "noesis-knowledge-engine.propose_sports_identity_matches",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_sports_identity_matches",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:sports:read",
+        "knowledge:ownership:read",
+        "knowledge:ownership:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "A reviewer's candidate (package:/product: to cpe-product:/advisory-package:); it still needs review.",
       "id": "noesis-knowledge-engine.propose_vulnerability_component_link",
       "input_schema": {
@@ -57003,6 +57337,272 @@
       "version": "1"
     },
     {
+      "cost_class": "medium",
+      "description": "A cited club rename, merger or phoenix club as a reversible identity-history event; never a merge.",
+      "id": "noesis-knowledge-engine.record_sports_club_lineage",
+      "input_schema": {
+        "properties": {
+          "kind": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "object_key": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "source": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "subject_key": {
+            "type": "string"
+          },
+          "valid_on": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "kind",
+          "subject_key",
+          "object_key",
+          "valid_on",
+          "source",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "record_sports_club_lineage",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:sports:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "A governing body's forfeit, annulment or official result as a revision citing its decision.",
+      "id": "noesis-knowledge-engine.record_sports_decision",
+      "input_schema": {
+        "properties": {
+          "deciding_body": {
+            "type": "string"
+          },
+          "decision": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "fixture_key": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "published_at": {
+            "type": "string"
+          },
+          "score": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "status": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "fixture_key",
+          "status",
+          "deciding_body",
+          "decision",
+          "published_at"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "record_sports_decision",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:sports:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "A season's stated scoring rule and tie-breakers, or a points deduction naming the deciding body.",
+      "id": "noesis-knowledge-engine.record_sports_table_rule",
+      "input_schema": {
+        "properties": {
+          "attribution": {
+            "type": "string"
+          },
+          "citation_url": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "published_at": {
+            "type": "string"
+          },
+          "rule": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "rule_id": {
+            "type": "string"
+          },
+          "season_key": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "season_key",
+          "rule_id",
+          "rule",
+          "published_at",
+          "citation_url",
+          "attribution"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "record_sports_table_rule",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:sports:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "An openly published transfer (governing body, league or club announcement) with its citation; a transfer\nreported only by news is refused and stays a news claim.",
+      "id": "noesis-knowledge-engine.record_sports_transfer",
+      "input_schema": {
+        "properties": {
+          "birth_date": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "date": {
+            "type": "string"
+          },
+          "fee": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "from_team_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "player_name": {
+            "type": "string"
+          },
+          "source": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "to_team_key": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "player_name",
+          "to_team_key",
+          "date",
+          "source"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "record_sports_transfer",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:sports:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "low",
       "description": "Record a versioned human, source-provided, or model translation.",
       "id": "noesis-knowledge-engine.record_translation",
@@ -57342,6 +57942,53 @@
       "required_scopes": [
         "knowledge:procurement:write",
         "knowledge:projects:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Offer reviewable news candidates for a match or transfer from explicit mentions of both sides, the\ncompetition and the date window; keywords alone are never linked.",
+      "id": "noesis-knowledge-engine.refresh_sports_news_links",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "target_key": {
+            "type": "string"
+          },
+          "target_type": {
+            "type": "string"
+          },
+          "window_days": {
+            "default": 2,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "namespace",
+          "target_type",
+          "target_key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "refresh_sports_news_links",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:sports:read",
+        "knowledge:sports:write",
+        "knowledge:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -60599,6 +61246,87 @@
       ],
       "required_scopes": [
         "knowledge:source-identity:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "high",
+      "description": "Register your own binary forecast in the ledger with a structured sports rule (match outcome, final\nposition, advancement); it resolves only on official results. Noesis produces no forecast, odds or tip.",
+      "id": "noesis-knowledge-engine.register_sports_forecast",
+      "input_schema": {
+        "properties": {
+          "evidence": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "forecast_namespace": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "probability": {
+            "type": "number"
+          },
+          "question": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "request_key": {
+            "type": "string"
+          },
+          "resolution_at_ms": {
+            "type": "integer"
+          },
+          "rule": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "namespace",
+          "forecast_namespace",
+          "request_key",
+          "rule",
+          "probability",
+          "resolution_at_ms"
+        ],
+        "type": "object"
+      },
+      "latency_class": "batch",
+      "mutability": "write",
+      "name": "register_sports_forecast",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:sports:read",
+        "knowledge:forecasts:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -63891,6 +64619,88 @@
     },
     {
       "cost_class": "medium",
+      "description": "Undo an accepted or rejected sports identity decision; records stay intact.",
+      "id": "noesis-knowledge-engine.revert_sports_identity_match",
+      "input_schema": {
+        "properties": {
+          "candidate_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "candidate_id",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "revert_sports_identity_match",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:ownership:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Revert a reviewed news link (a new revision; nothing is deleted).",
+      "id": "noesis-knowledge-engine.revert_sports_news_link",
+      "input_schema": {
+        "properties": {
+          "link_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "link_id",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "revert_sports_news_link",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:sports:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Undo a decision; the match returns to candidate and no record changes.",
       "id": "noesis-knowledge-engine.revert_vulnerability_component_match",
       "input_schema": {
@@ -65729,6 +66539,96 @@
       ],
       "required_scopes": [
         "knowledge:ownership:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Accept or reject a sports identity candidate as an entity identity decision; a name alone never passes.",
+      "id": "noesis-knowledge-engine.review_sports_identity_match",
+      "input_schema": {
+        "properties": {
+          "candidate_id": {
+            "type": "string"
+          },
+          "decision": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "candidate_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_sports_identity_match",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:ownership:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Accept or reject a news candidate; the evidence stays with the link.",
+      "id": "noesis-knowledge-engine.review_sports_news_link",
+      "input_schema": {
+        "properties": {
+          "decision": {
+            "type": "string"
+          },
+          "link_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "link_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_sports_news_link",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:sports:review"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -68180,6 +69080,51 @@
     },
     {
       "cost_class": "medium",
+      "description": "Evaluate a sports monitor at a committed watermark; notifications cite the old and new revision.",
+      "id": "noesis-knowledge-engine.run_sports_monitor",
+      "input_schema": {
+        "properties": {
+          "subscription_id": {
+            "type": "string"
+          },
+          "watermark": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "run_sports_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:sports:read",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Evaluate a statute monitor at a committed watermark: new amendment acts, changed observed text, new or\ncorrected source-stated versions and newly citing decisions, each cited with a provision-level diff.",
       "id": "noesis-knowledge-engine.run_statute_monitor",
       "input_schema": {
@@ -68859,6 +69804,47 @@
       ],
       "required_scopes": [
         "knowledge:political:elections:read",
+        "knowledge:forecasts:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "high",
+      "description": "score_binary_forecasts with the cutoff stated: the earliest official result publication of the cohort.",
+      "id": "noesis-knowledge-engine.score_sports_forecasts",
+      "input_schema": {
+        "properties": {
+          "forecast_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "forecast_namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "forecast_namespace",
+          "forecast_ids"
+        ],
+        "type": "object"
+      },
+      "latency_class": "batch",
+      "mutability": "read",
+      "name": "score_sports_forecasts",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:sports:read",
         "knowledge:forecasts:read"
       ],
       "server": "noesis-knowledge-engine",
@@ -71015,6 +72001,493 @@
       ],
       "required_scopes": [
         "knowledge:source-identity:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "A fixture's reschedule history: postponements, new kickoffs and cancellations, each move citing both\nrevisions.",
+      "id": "noesis-knowledge-engine.sports_fixture_history",
+      "input_schema": {
+        "properties": {
+          "fixture_key": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "fixture_key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "sports_fixture_history",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:sports:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Every result revision of a match (provisional, official, corrected, forfeit, annulled) with the deciding\nbody's citation, its schedule revisions, lineups as published, and other sources' results side by side.",
+      "id": "noesis-knowledge-engine.sports_match_history",
+      "input_schema": {
+        "properties": {
+          "fixture_key": {
+            "type": "string"
+          },
+          "knowledge_cutoff": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "fixture_key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "sports_match_history",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:sports:read",
+        "knowledge:ownership:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "News candidates and reviewed links of a match or transfer with their evidence and article revision.",
+      "id": "noesis-knowledge-engine.sports_news_links",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "target_key": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "target_key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "sports_news_links",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:sports:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "An Olympic event phase's results as published, with every disqualification or medal reallocation kept as\na revision naming the deciding body.",
+      "id": "noesis-knowledge-engine.sports_olympic_event_results",
+      "input_schema": {
+        "properties": {
+          "fixture_key": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "fixture_key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "sports_olympic_event_results",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:sports:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "A player's published appearances in lineups (starter or substitute, position and shirt number).",
+      "id": "noesis-knowledge-engine.sports_player_appearances",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "player_key": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "player_key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "sports_player_appearances",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:sports:read",
+        "knowledge:ownership:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Whether the Sports store is ready, which optional features are selected, and per-provider acquisitions.",
+      "id": "noesis-knowledge-engine.sports_readiness",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "sports_readiness",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:sports:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Per-source access and licence decisions (SP01), attribution, bounds and live-verification status.",
+      "id": "noesis-knowledge-engine.sports_source_contracts",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "sports_source_contracts",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "A competition table on a date: replayed from results published by the knowledge cutoff (default the end\nof the date) under the stated rule and deductions, beside the nearest source-published table; disagreements\nare listed, never resolved. Every counted result and correction is cited.",
+      "id": "noesis-knowledge-engine.sports_standings_as_of",
+      "input_schema": {
+        "properties": {
+          "acquired_by_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "date": {
+            "type": "string"
+          },
+          "knowledge_cutoff": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "season_key": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "season_key",
+          "date"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "sports_standings_as_of",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:sports:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "A team's fixtures and results in a window from every source its reviewed identity joins, per source.",
+      "id": "noesis-knowledge-engine.sports_team_schedule",
+      "input_schema": {
+        "properties": {
+          "date_from": {
+            "type": "string"
+          },
+          "date_to": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "team_key": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "team_key",
+          "date_from",
+          "date_to"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "sports_team_schedule",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:sports:read",
+        "knowledge:ownership:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Tennis match results from the licence-gated Sackmann archives, every record carrying CC BY-NC-SA 4.0\nattribution and the share-alike flag.",
+      "id": "noesis-knowledge-engine.sports_tennis_matches",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "tour": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "tourney_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "sports_tennis_matches",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:sports:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Openly published transfers of a player with their announcement citation.",
+      "id": "noesis-knowledge-engine.sports_transfers",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "player_key": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "player_key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "sports_transfers",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:sports:read",
+        "knowledge:ownership:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "A venue's place reference: accepted through Geospatial review, or unresolved.",
+      "id": "noesis-knowledge-engine.sports_venue_place",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "venue_key": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "venue_key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "sports_venue_place",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:sports:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",

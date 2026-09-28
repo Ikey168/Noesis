@@ -153,7 +153,8 @@ class SportsStore:
     ) -> dict[str, Any]:
         """Record one acquired publication and append a revision for every record whose content is new.
 
-        Idempotent by (provider, source, file digest, path, release); an unchanged record adds nothing.
+        Idempotent by (provider, source, file digest, path, release, parsed records); an unchanged record adds
+        nothing.
         """
         provider = str(header.get("provider") or "")
         format_id = str(header.get("format") or "")
@@ -181,6 +182,8 @@ class SportsStore:
                     header.get("path"),
                     header["file_sha256"],
                     header.get("release"),
+                    # The same file parsed under another declaration (competition, season) is another acquisition.
+                    digest([dict(o) for o in observations]),
                 ]
             )[:24]
         )
@@ -451,7 +454,19 @@ class SportsStore:
                 acquired_by_ms,
             ],
         ).fetchall()
-        return [self._row(namespace, r) for r in rows]
+        # A later-dated revision equal to its source's previous one restates it: when the older publication arrived
+        # after it, both are stored, so the restatement is skipped here and the answer is the same in every order.
+        kept, last = [], {}
+        for row in rows:
+            provider, content_hash = (
+                row[_COLUMNS.index("provider")],
+                row[_COLUMNS.index("content_hash")],
+            )
+            if last.get(provider) == content_hash:
+                continue
+            last[provider] = content_hash
+            kept.append(row)
+        return [self._row(namespace, r) for r in kept]
 
     def current(
         self,

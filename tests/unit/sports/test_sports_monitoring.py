@@ -8,6 +8,7 @@ from src.ingestion.sports_sources import to_ms
 from src.kb.sports_forecasts import SportsForecasts
 from src.kb.sports_monitoring import SportsMonitor
 from src.kb.sports_records import SportsError, forbidden_keys
+from src.kb.sports_store import SportsStore
 from src.kb.subscriptions import SubscriptionStore
 from tests.unit.sports import harness as h
 
@@ -143,8 +144,13 @@ def test_a_late_older_publication_is_history_never_a_correction():
         fresh, "fd-matches", "fd_exl_2099_poll1.json", at="2099-08-27"
     )  # the older poll arrives last
     result = run(late, watch, 2)
-    # The older schedule and result revisions land as history: two backfilled items, no notification.
-    assert result["notifications"] == [] and result["backfilled_history"] == 2
+    # The older 1-1 lands as history (backfilled, never a correction). The older schedule states what the later
+    # one restated, so the history now starts with it and nothing moved: no notification either way.
+    assert result["notifications"] == [] and result["backfilled_history"] == 1
+    history = SportsStore(fresh, initialize=False).labelled_history(
+        "global", "match_result_revision", h.fixture_key(103)
+    )
+    assert [r["status"] for r in history] == ["official", "corrected"]
 
 
 def test_monitors_need_a_known_target_and_an_acquired_source():
