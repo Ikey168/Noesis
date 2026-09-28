@@ -143,6 +143,29 @@ class AstronomyQueries:
         )
         return answer
 
+    def _papers(self, namespace: str, record_id: str) -> list[dict[str, Any]]:
+        """Science papers the record's stated references resolve to (or unresolved), by exact identifier only."""
+        from src.kb.astronomy_citations import AstronomyCitations
+
+        return [
+            {
+                k: link[k]
+                for k in (
+                    "citation_kind",
+                    "citation_value",
+                    "state",
+                    "document_id",
+                    "document_revision_id",
+                    "link_id",
+                )
+                if k in link
+            }
+            for link in AstronomyCitations(self.conn, initialize=False).for_records(
+                namespace, [record_id]
+            )
+            if link["state"] != "reverted"
+        ]
+
     @staticmethod
     def _status(
         found: Sequence[Any], pending: Sequence[Mapping[str, Any]]
@@ -212,6 +235,7 @@ class AstronomyQueries:
                         "permanent": v["record"].get("permanent"),
                         "announced_in": v["record"].get("announced_in"),
                         "announced_on": v["record"].get("announced_on"),
+                        "papers": self._papers(namespace, v["record_id"]),
                         "unknowns": v["record"]["unknowns"],
                         "citation": citation(v),
                     }
@@ -518,6 +542,7 @@ class AstronomyQueries:
                             k: v for k, v in view["listing"].items() if k != "history"
                         },
                         "later_changes": later,
+                        "papers": self._papers(namespace, view["record_id"]),
                         "unknowns": record["unknowns"],
                         "citation": citation(view),
                     }.items()
