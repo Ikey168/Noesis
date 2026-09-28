@@ -142,9 +142,16 @@ def test_selecting_the_feature_binds_its_provider_and_the_consumed_ones():
         plan["features"]["political"] == ["lobbying"]
         and bound(plan) == FEATURE_PROVIDERS
     )
-    # Only the other optional feature, left unselected, is omitted.
-    assert plan["omissions"] == [
-        {"pack": "political", "feature": "elections", "reason": "not selected"}
+    # Only the other optional feature, left unselected, is omitted, plus the consumed Market bafin-notices and
+    # Corporate Ownership bafin-voting-rights features (#2106), also left unselected.
+    assert sorted(plan["omissions"], key=lambda o: o["feature"]) == [
+        {"pack": "market", "feature": "bafin-notices", "reason": "not selected"},
+        {
+            "pack": "corporate-ownership",
+            "feature": "bafin-voting-rights",
+            "reason": "not selected",
+        },
+        {"pack": "political", "feature": "elections", "reason": "not selected"},
     ]
     # The bundle ships official-political-records 1.2.0 (the elections feature's result sources, #1908); the
     # lobbying descriptor's ^1.1.0 range is satisfied by it.

@@ -9260,6 +9260,12 @@ from tools.knowledge_engine_mcp.federal_statutes import (
 
 register_federal_statute_tools(mcp, _intake_safe, _intake_context)
 
+from tools.knowledge_engine_mcp.bafin_notices import (
+    register as register_bafin_notice_tools,
+)
+
+register_bafin_notice_tools(mcp, _intake_safe, _intake_context)
+
 from tools.knowledge_engine_mcp.lobbying import (
     register as register_lobbying_tools,
 )
