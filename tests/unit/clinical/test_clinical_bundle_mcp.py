@@ -11,7 +11,7 @@ from src.kb.clinical_bundle import BUNDLE, BundleError, readiness, set_enabled
 from src.mcp_host.catalog import _mutability, _required_scopes
 from tests.unit.clinical.harness import NS, QUESTION, Env
 from tools.knowledge_engine_mcp import server
-from tools.knowledge_engine_mcp.clinical import CLINICAL_TOOLS, CLINICAL_WRITES
+from tools.knowledge_engine_mcp.clinical import CLINICAL_TOOLS, CLINICAL_WRITES, SURVEILLANCE_TOOLS
 
 ROOT = Path(__file__).resolve().parents[3]
 
@@ -44,7 +44,8 @@ def test_declaration_reuses_existing_owners_and_states_the_boundary():
 
 def test_tools_are_registered_with_scopes_and_mutability_in_the_catalog(mcp_env):
     tools, _, _ = mcp_env
-    assert CLINICAL_TOOLS <= set(tools) and len(CLINICAL_TOOLS) == 20
+    # 20 clinical tools; the optional surveillance feature's tools have their own tests (test_surveillance_mcp.py).
+    assert CLINICAL_TOOLS <= set(tools) and len(CLINICAL_TOOLS - SURVEILLANCE_TOOLS) == 20
     for name in CLINICAL_TOOLS:
         assert _mutability(name) == ("write" if name in CLINICAL_WRITES else "read")
     assert _required_scopes("knowledge_engine_mcp", "read", "clinical_provider_contracts") == []
