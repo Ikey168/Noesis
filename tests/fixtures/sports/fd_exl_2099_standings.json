@@ -1,0 +1,114 @@
+{
+ "filters": {
+  "season": "2099"
+ },
+ "area": {
+  "id": 2999,
+  "name": "Exampleland"
+ },
+ "competition": {
+  "id": 9900,
+  "name": "Example League",
+  "code": "EXL",
+  "type": "LEAGUE",
+  "emblem": "https://crests.example.org/exl.png"
+ },
+ "season": {
+  "id": 99,
+  "startDate": "2099-08-01",
+  "endDate": "2100-05-20",
+  "currentMatchday": 3,
+  "winner": null
+ },
+ "standings": [
+  {
+   "stage": "REGULAR_SEASON",
+   "type": "TOTAL",
+   "group": null,
+   "table": [
+    {
+     "position": 1,
+     "team": {
+      "id": 9001,
+      "name": "Northbridge Rovers",
+      "shortName": "Rovers",
+      "tla": "NBR",
+      "crest": "https://crests.example.org/9001.png"
+     },
+     "playedGames": 3,
+     "form": null,
+     "won": 2,
+     "draw": 0,
+     "lost": 1,
+     "points": 6,
+     "goalsFor": 4,
+     "goalsAgainst": 4,
+     "goalDifference": 0
+    },
+    {
+     "position": 2,
+     "team": {
+      "id": 9003,
+      "name": "Southport United",
+      "shortName": "United",
+      "tla": "SPU",
+      "crest": "https://crests.example.org/9003.png"
+     },
+     "playedGames": 3,
+     "form": null,
+     "won": 1,
+     "draw": 1,
+     "lost": 1,
+     "points": 4,
+     "goalsFor": 3,
+     "goalsAgainst": 3,
+     "goalDifference": 0
+    },
+    {
+     "position": 3,
+     "team": {
+      "id": 9004,
+      "name": "Westvale Town",
+      "shortName": "Town",
+      "tla": "WVT",
+      "crest": "https://crests.example.org/9004.png"
+     },
+     "playedGames": 3,
+     "form": null,
+     "won": 1,
+     "draw": 1,
+     "lost": 1,
+     "points": 4,
+     "goalsFor": 2,
+     "goalsAgainst": 3,
+     "goalDifference": -1
+    },
+    {
+     "position": 4,
+     "team": {
+      "id": 9002,
+      "name": "Eastfield Athletic",
+      "shortName": "Athletic",
+      "tla": "EFA",
+      "crest": "https://crests.example.org/9002.png"
+     },
+     "playedGames": 3,
+     "form": null,
+     "won": 1,
+     "draw": 0,
+     "lost": 2,
+     "points": 3,
+     "goalsFor": 5,
+     "goalsAgainst": 4,
+     "goalDifference": 1
+    }
+   ]
+  },
+  {
+   "stage": "REGULAR_SEASON",
+   "type": "HOME",
+   "group": null,
+   "table": []
+  }
+ ]
+}

@@ -278,6 +278,10 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"development-finance"})
 NATIVE_CONNECTOR_MODULES["bafin-notices"] = "src.ingestion.bafin_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"bafin-notices"})
 
+# Sports results, fixtures, tables and tennis archives (football-data.org, StatsBomb, openfootball, Sackmann; #2135).
+NATIVE_CONNECTOR_MODULES["sports-results"] = "src.ingestion.sports_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"sports-results"})
+
 
 def native_connector_module(connector: str) -> Any:
     import importlib

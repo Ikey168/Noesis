@@ -18,7 +18,7 @@
         "required": ["source_id", "connector", "endpoint", "publisher", "scope", "license", "update_cadence", "temporal_semantics", "mapping", "extractor_versions", "schedule", "budgets", "auth", "fixture", "health", "operations", "source_hash"],
         "properties": {
           "source_id": {"type": "string", "minLength": 1},
-          "connector": {"enum": ["bafin-notices", "berlin-law", "blog", "bods", "cellar", "companies-house", "cpsc", "ctgov", "ctis", "dataset", "ddb", "declarative-rest", "demographics", "development-finance", "election-results", "ema-medicines", "epo-ops", "eprel", "eu-ctr", "europeana", "filings", "formal-library", "geojson", "gesetze-im-internet", "git", "gleif", "gtfs", "housing", "icecat", "iso-open-data", "lobbying-register", "manifest", "nhtsa", "ocds", "oeis", "openfda", "package-registry", "paper", "public-finance", "rasff", "recht-bund", "rechtsinformationen-bund", "rii", "safety-gate", "sam-gov", "sanctions-list", "sec-edgar-ownership", "surveillance", "ted", "vulnerability-feed", "web", "wfs", "zbmath"]},
+          "connector": {"enum": ["bafin-notices", "berlin-law", "blog", "bods", "cellar", "companies-house", "cpsc", "ctgov", "ctis", "dataset", "ddb", "declarative-rest", "demographics", "development-finance", "election-results", "ema-medicines", "epo-ops", "eprel", "eu-ctr", "europeana", "filings", "formal-library", "geojson", "gesetze-im-internet", "git", "gleif", "gtfs", "housing", "icecat", "iso-open-data", "lobbying-register", "manifest", "nhtsa", "ocds", "oeis", "openfda", "package-registry", "paper", "public-finance", "rasff", "recht-bund", "rechtsinformationen-bund", "rii", "safety-gate", "sam-gov", "sanctions-list", "sec-edgar-ownership", "sports-results", "surveillance", "ted", "vulnerability-feed", "web", "wfs", "zbmath"]},
           "wfs": {
             "type": "object",
             "description": "Pinned WFS 2.0.0 GetFeature contract; required for the wfs connector.",
@@ -254,6 +254,25 @@
                 "total_codes": {"type": "object"},
                 "references": {"type": "array", "maxItems": 20, "items": {"type": "object", "required": ["scheme", "identifier", "relation"], "properties": {"scheme": {"enum": ["berlin-gvbl", "berlin-amtsblatt", "juris", "de-bgbl", "celex", "eli", "de-drucksache"]}, "identifier": {"type": "string", "minLength": 1}, "relation": {"enum": ["legal_basis", "published_in", "stage_decided_by", "referenced_in"]}, "locator": {"type": "string"}}, "additionalProperties": false}}
               }, "additionalProperties": false}}
+            },
+            "additionalProperties": false
+          },
+          "sports": {
+            "type": "object",
+            "description": "Declared sports publication for the sports-results connector (#2135): provider, documented format, namespace, attribution text, the competition and season (football-data.org, openfootball), the tour (Sackmann), the pinned repository release (commit and date), a bounded list of relative files (StatsBomb), the cited competition rules and the licence obligations that travel with every derived record.",
+            "required": ["provider", "format", "attribution"],
+            "properties": {
+              "namespace": {"type": "string", "minLength": 1},
+              "provider": {"enum": ["football-data", "statsbomb-open-data", "openfootball", "sackmann-tennis"]},
+              "format": {"enum": ["football-data-v4-matches", "football-data-v4-standings", "football-data-v4-teams", "statsbomb-open-data", "openfootball-json", "sackmann-matches-csv"]},
+              "attribution": {"type": "string", "minLength": 1},
+              "season": {"type": "string", "minLength": 1},
+              "tour": {"enum": ["atp", "wta"]},
+              "competition": {"type": "object", "properties": {"code": {"type": "string"}, "name": {"type": "string"}, "governing_body": {"type": "string"}, "area": {"type": "string"}}, "additionalProperties": false},
+              "release": {"type": "object", "required": ["commit", "committed_at"], "properties": {"commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"}, "committed_at": {"type": "string"}}, "additionalProperties": false},
+              "files": {"type": "array", "minItems": 1, "maxItems": 64, "items": {"type": "string", "pattern": "^[^/][^:]*$"}},
+              "rules": {"type": "object", "required": ["points", "tiebreakers", "source_url"], "properties": {"points": {"type": "object"}, "tiebreakers": {"type": "array", "items": {"type": "string"}}, "valid_from": {"type": "string"}, "source_url": {"type": "string", "pattern": "^https://"}}, "additionalProperties": false},
+              "licence": {"type": "object", "required": ["id"], "properties": {"id": {"type": "string"}, "url": {"type": "string"}, "attribution": {"type": "string"}, "non_commercial": {"type": "boolean"}, "share_alike": {"type": "boolean"}}, "additionalProperties": false}
             },
             "additionalProperties": false
           },

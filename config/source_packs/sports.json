@@ -1,0 +1,352 @@
+{
+ "pack_id": "sports-records",
+ "version": "1.0.0",
+ "description": "Sports records: football fixtures, results and published tables (football-data.org v4), historical matches and lineups (StatsBomb open data), community fixtures and results (openfootball), and tennis match results (Jeff Sackmann's archives, CC BY-NC-SA 4.0, non-commercial only). Every correction, forfeit, award or annulment is a revision; nothing is inferred and no odds, tips or predictions are acquired. Source audit: docs/development/sports-evidence/source-audit.md.",
+ "domains": [
+  "sports"
+ ],
+ "defaults": {
+  "connector": "sports-results",
+  "update_cadence": "daily during a season; pinned repository releases change only when re-pinned",
+  "temporal_semantics": "the source's own publication time (lastUpdated, HTTP Date or the pinned commit date) as publication time and the kickoff as valid time; retrieval time recorded separately",
+  "mapping": {
+   "target_schema": "noesis-sports-record-v1",
+   "version": "1.0.0"
+  },
+  "extractor_versions": [
+   "sports-results:1.0.0"
+  ],
+  "schedule": {
+   "kind": "interval",
+   "interval_s": 86400
+  },
+  "budgets": {
+   "timeout_ms": 30000,
+   "max_results": 20000,
+   "max_bytes": 20000000,
+   "max_pages": 1
+  },
+  "auth": {
+   "kind": "none"
+  },
+  "health": {
+   "required": false,
+   "max_staleness_s": 604800
+  },
+  "policy": {
+   "odds": "never acquired",
+   "person_data": "published participants only",
+   "scraping": "never"
+  }
+ },
+ "sources": [
+  {
+   "source_id": "football-data-pl-matches",
+   "endpoint": "https://api.football-data.org/v4/competitions/PL/matches?season=2025",
+   "publisher": "football-data.org",
+   "scope": "football-data.org v4 matches for the SP01-bounded competition and season (PL/matches?season=2025); odds and referee blocks are dropped at parse time",
+   "license": {
+    "id": "football-data-terms",
+    "terms_url": "https://www.football-data.org/terms",
+    "redistribution": "non-commercial use with attribution 'Football data provided by the Football-Data.org API' (verify against the live terms)"
+   },
+   "auth": {
+    "kind": "required-secret",
+    "secret_ref": "NOESIS_FOOTBALL_DATA_API_KEY"
+   },
+   "budgets": {
+    "timeout_ms": 15000,
+    "max_results": 5000,
+    "max_bytes": 5000000,
+    "max_pages": 1
+   },
+   "operations": [
+    "matches"
+   ],
+   "sports": {
+    "namespace": "global",
+    "provider": "football-data",
+    "format": "football-data-v4-matches",
+    "season": "2025",
+    "competition": {
+     "code": "PL",
+     "name": "Premier League",
+     "governing_body": "The Football Association Premier League",
+     "area": "England"
+    },
+    "attribution": "Football data provided by the Football-Data.org API",
+    "rules": {
+     "points": {
+      "win": 3,
+      "draw": 1,
+      "loss": 0
+     },
+     "tiebreakers": [
+      "points",
+      "goal_difference",
+      "goals_for"
+     ],
+     "source_url": "https://www.premierleague.com/publications"
+    }
+   },
+   "fixture": {
+    "path": "tests/fixtures/source_packs/sports-football-data-pl-matches.json",
+    "sha256": "707533ce1f254c23a2dff63118fe760671defa4c294f2f089853d01c796823fe",
+    "expected_output_hash": "d640803a886039fff5dcf1151a1aa7e02298e2ed9aa0ceecde699b91f4eff8f3"
+   },
+   "update_cadence": "daily during a season; pinned repository releases change only when re-pinned"
+  },
+  {
+   "source_id": "football-data-pl-standings",
+   "endpoint": "https://api.football-data.org/v4/competitions/PL/standings?season=2025",
+   "publisher": "football-data.org",
+   "scope": "football-data.org v4 standings for the SP01-bounded competition and season (PL/standings?season=2025); odds and referee blocks are dropped at parse time",
+   "license": {
+    "id": "football-data-terms",
+    "terms_url": "https://www.football-data.org/terms",
+    "redistribution": "non-commercial use with attribution 'Football data provided by the Football-Data.org API' (verify against the live terms)"
+   },
+   "auth": {
+    "kind": "required-secret",
+    "secret_ref": "NOESIS_FOOTBALL_DATA_API_KEY"
+   },
+   "budgets": {
+    "timeout_ms": 15000,
+    "max_results": 5000,
+    "max_bytes": 5000000,
+    "max_pages": 1
+   },
+   "operations": [
+    "standings"
+   ],
+   "sports": {
+    "namespace": "global",
+    "provider": "football-data",
+    "format": "football-data-v4-standings",
+    "season": "2025",
+    "competition": {
+     "code": "PL",
+     "name": "Premier League",
+     "governing_body": "The Football Association Premier League",
+     "area": "England"
+    },
+    "attribution": "Football data provided by the Football-Data.org API"
+   },
+   "fixture": {
+    "path": "tests/fixtures/source_packs/sports-football-data-pl-standings.json",
+    "sha256": "ada21f68bf104f7864da5fe33ca796d35913e25f497ed9052efd70109acc000f",
+    "expected_output_hash": "8b042b96bb0d2fb865a924727cbd2a118bf2ff0ed7a454e8c9e6180d0d2f1cf6"
+   },
+   "update_cadence": "daily during a season; pinned repository releases change only when re-pinned"
+  },
+  {
+   "source_id": "football-data-pl-teams",
+   "endpoint": "https://api.football-data.org/v4/competitions/PL/teams?season=2025",
+   "publisher": "football-data.org",
+   "scope": "football-data.org v4 teams for the SP01-bounded competition and season (PL/teams?season=2025); odds and referee blocks are dropped at parse time",
+   "license": {
+    "id": "football-data-terms",
+    "terms_url": "https://www.football-data.org/terms",
+    "redistribution": "non-commercial use with attribution 'Football data provided by the Football-Data.org API' (verify against the live terms)"
+   },
+   "auth": {
+    "kind": "required-secret",
+    "secret_ref": "NOESIS_FOOTBALL_DATA_API_KEY"
+   },
+   "budgets": {
+    "timeout_ms": 15000,
+    "max_results": 5000,
+    "max_bytes": 5000000,
+    "max_pages": 1
+   },
+   "operations": [
+    "teams"
+   ],
+   "sports": {
+    "namespace": "global",
+    "provider": "football-data",
+    "format": "football-data-v4-teams",
+    "season": "2025",
+    "competition": {
+     "code": "PL",
+     "name": "Premier League",
+     "governing_body": "The Football Association Premier League",
+     "area": "England"
+    },
+    "attribution": "Football data provided by the Football-Data.org API"
+   },
+   "fixture": {
+    "path": "tests/fixtures/source_packs/sports-football-data-pl-teams.json",
+    "sha256": "8e48997a5dfd87cec80cce1514b4ffb1249fc9ec0ee5cd972bc610b7e60fb959",
+    "expected_output_hash": "a7ee850b65000ea181416bd132155e09b3bc50e241576cac8d4f132d9ec91a6f"
+   },
+   "update_cadence": "daily during a season; pinned repository releases change only when re-pinned"
+  },
+  {
+   "source_id": "openfootball-en1",
+   "endpoint": "https://raw.githubusercontent.com/openfootball/football.json/0000000000000000000000000000000000000000/2025-26/en.1.json",
+   "publisher": "openfootball",
+   "scope": "football.json export of the English top flight for one season at a pinned commit (the commit hash is the release; operator must pin a verified commit before a live run)",
+   "license": {
+    "id": "cc0-1.0",
+    "terms_url": "https://github.com/openfootball/football.json",
+    "redistribution": "public domain dedication (verify per repository)"
+   },
+   "operations": [
+    "release"
+   ],
+   "sports": {
+    "namespace": "global",
+    "provider": "openfootball",
+    "format": "openfootball-json",
+    "season": "2025-26",
+    "competition": {
+     "code": "en.1",
+     "name": "English Premier League",
+     "area": "England"
+    },
+    "release": {
+     "commit": "0000000000000000000000000000000000000000",
+     "committed_at": "2099-09-05T00:00:00Z"
+    },
+    "attribution": "openfootball / football.json (public domain)",
+    "rules": {
+     "points": {
+      "win": 3,
+      "draw": 1,
+      "loss": 0
+     },
+     "tiebreakers": [
+      "points",
+      "goal_difference",
+      "goals_for"
+     ],
+     "source_url": "https://www.premierleague.com/publications"
+    }
+   },
+   "fixture": {
+    "path": "tests/fixtures/source_packs/sports-openfootball-en1.json",
+    "sha256": "01b95d7ba6e1653fb6a99a454c35c10066b68fa2a2ffa662ef8af7f8245c682f",
+    "expected_output_hash": "27c7dc1ce7ca0052031ba6eba7a9630b55f78d0eb996cb8f1e5616c0cd21e4b6"
+   },
+   "update_cadence": "daily during a season; pinned repository releases change only when re-pinned"
+  },
+  {
+   "source_id": "sackmann-atp-matches",
+   "endpoint": "https://raw.githubusercontent.com/JeffSackmann/tennis_atp/0000000000000000000000000000000000000000/atp_matches_2024.csv",
+   "publisher": "Jeff Sackmann / Tennis Abstract",
+   "scope": "ATP tour-level match results for one year at a pinned commit: tournament, round, players, score and surface only (height, handedness, age and nationality columns are never stored); non-commercial use only under CC BY-NC-SA 4.0",
+   "license": {
+    "id": "cc-by-nc-sa-4.0",
+    "terms_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+    "redistribution": "non-commercial, attribution, share-alike; derived records and exports keep the licence and commercial exports are refused"
+   },
+   "operations": [
+    "release"
+   ],
+   "sports": {
+    "namespace": "global",
+    "provider": "sackmann-tennis",
+    "format": "sackmann-matches-csv",
+    "tour": "atp",
+    "release": {
+     "commit": "0000000000000000000000000000000000000000",
+     "committed_at": "2099-01-20T00:00:00Z"
+    },
+    "attribution": "Tennis databases, files, and algorithms by Jeff Sackmann / Tennis Abstract, licensed under CC BY-NC-SA 4.0 (https://github.com/JeffSackmann)",
+    "licence": {
+     "id": "CC-BY-NC-SA-4.0",
+     "url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+     "attribution": "Tennis databases, files, and algorithms by Jeff Sackmann / Tennis Abstract, licensed under CC BY-NC-SA 4.0 (https://github.com/JeffSackmann)",
+     "non_commercial": true,
+     "share_alike": true
+    }
+   },
+   "fixture": {
+    "path": "tests/fixtures/source_packs/sports-sackmann-atp-matches.json",
+    "sha256": "03c6fbe9937bed73647128cd378b6cfaf63d9d26db5b3a13356c8216e4fe8c96",
+    "expected_output_hash": "d2919804e20d9e18ab7ce38630d56a1c87e9e15dabd28aeb7ace4f07c7cea3fd"
+   },
+   "update_cadence": "daily during a season; pinned repository releases change only when re-pinned"
+  },
+  {
+   "source_id": "sackmann-wta-matches",
+   "endpoint": "https://raw.githubusercontent.com/JeffSackmann/tennis_wta/0000000000000000000000000000000000000000/wta_matches_2024.csv",
+   "publisher": "Jeff Sackmann / Tennis Abstract",
+   "scope": "WTA tour-level match results for one year at a pinned commit: tournament, round, players, score and surface only (height, handedness, age and nationality columns are never stored); non-commercial use only under CC BY-NC-SA 4.0",
+   "license": {
+    "id": "cc-by-nc-sa-4.0",
+    "terms_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+    "redistribution": "non-commercial, attribution, share-alike; derived records and exports keep the licence and commercial exports are refused"
+   },
+   "operations": [
+    "release"
+   ],
+   "sports": {
+    "namespace": "global",
+    "provider": "sackmann-tennis",
+    "format": "sackmann-matches-csv",
+    "tour": "wta",
+    "release": {
+     "commit": "0000000000000000000000000000000000000000",
+     "committed_at": "2099-01-20T00:00:00Z"
+    },
+    "attribution": "Tennis databases, files, and algorithms by Jeff Sackmann / Tennis Abstract, licensed under CC BY-NC-SA 4.0 (https://github.com/JeffSackmann)",
+    "licence": {
+     "id": "CC-BY-NC-SA-4.0",
+     "url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+     "attribution": "Tennis databases, files, and algorithms by Jeff Sackmann / Tennis Abstract, licensed under CC BY-NC-SA 4.0 (https://github.com/JeffSackmann)",
+     "non_commercial": true,
+     "share_alike": true
+    }
+   },
+   "fixture": {
+    "path": "tests/fixtures/source_packs/sports-sackmann-wta-matches.json",
+    "sha256": "a486b41005f1b00d2bb9513a5148cbb079983705138fdb34653ca3b78ca62ae2",
+    "expected_output_hash": "4736f9e035389537afa3d2c7079da2fd2a15e6e084cdde0c46c7b95f9ea63703"
+   },
+   "update_cadence": "daily during a season; pinned repository releases change only when re-pinned"
+  },
+  {
+   "source_id": "statsbomb-open-data",
+   "endpoint": "https://raw.githubusercontent.com/statsbomb/open-data/0000000000000000000000000000000000000000/data",
+   "publisher": "StatsBomb",
+   "scope": "StatsBomb open data at a pinned commit: competitions, one competition-season's matches and a bounded list of lineup files (events are out of v1 scope); managers, referees and nationality are dropped",
+   "license": {
+    "id": "statsbomb-public-data-user-agreement",
+    "terms_url": "https://github.com/statsbomb/open-data/blob/master/LICENSE.pdf",
+    "redistribution": "use with attribution to StatsBomb (verify the user agreement)"
+   },
+   "budgets": {
+    "timeout_ms": 15000,
+    "max_results": 5000,
+    "max_bytes": 20000000,
+    "max_pages": 64
+   },
+   "operations": [
+    "release"
+   ],
+   "sports": {
+    "namespace": "global",
+    "provider": "statsbomb-open-data",
+    "format": "statsbomb-open-data",
+    "files": [
+     "competitions.json",
+     "matches/9/99.json",
+     "lineups/7001.json"
+    ],
+    "release": {
+     "commit": "0000000000000000000000000000000000000000",
+     "committed_at": "2099-09-01T10:00:00Z"
+    },
+    "attribution": "Data provided by StatsBomb (StatsBomb open data)"
+   },
+   "fixture": {
+    "path": "tests/fixtures/source_packs/sports-statsbomb-open-data.json",
+    "sha256": "789a4cc24ab3f7c26d9b5a1ed537e445e861a97a9919b2058f06af5118af84de",
+    "expected_output_hash": "9012fe633acab7cfc0e8b301f2161254cc18b8172e3789d2a217883c7c2dac4c"
+   },
+   "update_cadence": "daily during a season; pinned repository releases change only when re-pinned"
+  }
+ ]
+}

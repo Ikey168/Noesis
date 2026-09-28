@@ -1,0 +1,118 @@
+[
+ {
+  "team_id": 801,
+  "team_name": "Northbridge Rovers",
+  "lineup": [
+   {
+    "player_id": 60001,
+    "player_name": "Jan Example",
+    "player_nickname": null,
+    "jersey_number": 8,
+    "country": {
+     "id": 99,
+     "name": "Exampleland"
+    },
+    "cards": [],
+    "positions": [
+     {
+      "position_id": 1,
+      "position": "Center Midfield",
+      "from": "00:00",
+      "to": null,
+      "from_period": 1,
+      "to_period": null,
+      "start_reason": "Starting XI",
+      "end_reason": "Final Whistle"
+     }
+    ]
+   },
+   {
+    "player_id": 60002,
+    "player_name": "Ola Keeper",
+    "player_nickname": null,
+    "jersey_number": 1,
+    "country": {
+     "id": 99,
+     "name": "Exampleland"
+    },
+    "cards": [],
+    "positions": [
+     {
+      "position_id": 1,
+      "position": "Goalkeeper",
+      "from": "00:00",
+      "to": null,
+      "from_period": 1,
+      "to_period": null,
+      "start_reason": "Starting XI",
+      "end_reason": "Final Whistle"
+     }
+    ]
+   },
+   {
+    "player_id": 60003,
+    "player_name": "Sam Bench",
+    "player_nickname": "Sammy",
+    "jersey_number": 14,
+    "country": {
+     "id": 99,
+     "name": "Exampleland"
+    },
+    "cards": [],
+    "positions": [
+     {
+      "position_id": 1,
+      "position": "Right Wing",
+      "from": "00:00",
+      "to": null,
+      "from_period": 1,
+      "to_period": null,
+      "start_reason": "Substitution - On (Tactical)",
+      "end_reason": "Final Whistle"
+     }
+    ]
+   },
+   {
+    "player_id": 60004,
+    "player_name": "Una Unused",
+    "player_nickname": null,
+    "jersey_number": 23,
+    "country": {
+     "id": 99,
+     "name": "Exampleland"
+    },
+    "cards": [],
+    "positions": []
+   }
+  ]
+ },
+ {
+  "team_id": 802,
+  "team_name": "Eastfield Athletic",
+  "lineup": [
+   {
+    "player_id": 60005,
+    "player_name": "Jan Example",
+    "player_nickname": null,
+    "jersey_number": 4,
+    "country": {
+     "id": 99,
+     "name": "Exampleland"
+    },
+    "cards": [],
+    "positions": [
+     {
+      "position_id": 1,
+      "position": "Center Back",
+      "from": "00:00",
+      "to": null,
+      "from_period": 1,
+      "to_period": null,
+      "start_reason": "Starting XI",
+      "end_reason": "Final Whistle"
+     }
+    ]
+   }
+  ]
+ }
+]
