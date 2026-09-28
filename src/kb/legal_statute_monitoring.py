@@ -299,7 +299,7 @@ class StatuteMonitor:
         self, version: dict[str, Any], provision: str | None
     ) -> str | None:
         if provision is None:
-            return version["text_sha256"]
+            return self.federal.content_sha(version["version_id"])
         passages, _ = self.federal.provision_passages(version["version_id"], provision)
         return self.federal._provision_sha(passages)
 

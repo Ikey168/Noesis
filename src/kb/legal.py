@@ -266,6 +266,11 @@ class LegalStore:
         observed = int(observed_at_ms if observed_at_ms is not None else self.now())
         counts = {"works": 0, "versions": 0, "passages": 0, "citations": 0, "facts": 0}
         before = self.conn.execute("SELECT count(*) FROM legal_works WHERE namespace=?", [namespace]).fetchone()[0]
+        from src.kb.legal_federal import federal_present
+
+        # What this ingest touched, so federal links refresh only for those records (#2105).
+        touched: dict[str, Any] = {}
+        was_present = federal_present(self.conn, namespace)
         self.conn.execute("BEGIN")
         try:
             for item in records:
@@ -279,7 +284,8 @@ class LegalStore:
                     federal = project_statute_version(
                         self, namespace, record, run_id=run_id, source_id=source_id, observed_ms=observed,
                         document_id=(documents or {}).get(str(item.get("id"))),
-                        response_sha256=dict(item.get("legal_page") or {}).get("response_sha256"))
+                        response_sha256=dict(item.get("legal_page") or {}).get("response_sha256"),
+                        touched=touched)
                     for key, value in federal.items():
                         counts[key] = counts.get(key, 0) + value
                     continue
@@ -304,6 +310,13 @@ class LegalStore:
                 if not inserted:
                     continue
                 counts["versions"] += 1
+                if record["provider"] == "german-courts":
+                    touched.setdefault("decision_works", set()).add(work_id)
+                elif record["provider"] == "cellar":
+                    touched["cellar"] = True
+                elif record["provider"] == "recht-bund":
+                    touched["acts"] = True
+                    touched.setdefault("federal_versions", set()).add(version_id)
                 if record["provider"] == "recht-bund":
                     from src.kb.legal_federal import record_amendments
 
@@ -336,10 +349,10 @@ class LegalStore:
                                        temporal_id, observed])
                     counts["facts"] += 1
             self._resolve_citation_targets(namespace)
-            if any(counts.get(k) for k in ("versions", "statute_versions", "statute_observations")):
+            if touched:
                 from src.kb.legal_federal import refresh_federal_links
 
-                refresh_federal_links(self, namespace)
+                refresh_federal_links(self, namespace, touched, was_present=was_present)
             self.conn.execute("COMMIT")
         except Exception:
             self.conn.execute("ROLLBACK")

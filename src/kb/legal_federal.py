@@ -98,6 +98,22 @@ def _iso(value: Any) -> str | None:
     return day.isoformat() if day else None
 
 
+def current_stated(rows: Iterable[tuple[str, Any, int]]) -> str | None:
+    """The current row of one source-stated expression from ``(version_id, source_modified, observed_ms)``.
+
+    Rows are taken in observation order; a later row replaces the current one
+    unless both state a modification date and the later row's date is older
+    (late-arriving history). A row without a date is therefore ranked by when
+    it was observed, never as the earliest.
+    """
+    current: tuple[str, date | None] | None = None
+    for version_id, modified, _observed in sorted(rows, key=lambda r: (r[2], r[0])):
+        day = _d(modified)
+        if current is None or not (day and current[1] and day < current[1]):
+            current = (version_id, day)
+    return current[0] if current else None
+
+
 def _ms_day(ms: int) -> date:
     return datetime.fromtimestamp(int(ms) / 1000, tz=UTC).date()
 
@@ -240,9 +256,50 @@ def project_statute_version(
     observed_ms: int,
     document_id: str | None = None,
     response_sha256: str | None = None,
+    touched: dict[str, Any] | None = None,
 ) -> dict[str, int]:
-    """Project one observed or source-stated statute version (idempotent; history kept in any arrival order)."""
+    """Project one observed or source-stated statute version (idempotent; history kept in any arrival order).
+
+    ``touched`` collects what changed (statute keys, new statutes, new versions) so
+    the federal links are refreshed incrementally for exactly those records.
+    """
+    counts = _project_statute_version(
+        store,
+        namespace,
+        record,
+        run_id=run_id,
+        source_id=source_id,
+        observed_ms=observed_ms,
+        document_id=document_id,
+        response_sha256=response_sha256,
+        touched=touched,
+    )
+    return counts
+
+
+def _project_statute_version(
+    store: LegalStore,
+    namespace: str,
+    record: Mapping[str, Any],
+    *,
+    run_id: str,
+    source_id: str | None,
+    observed_ms: int,
+    document_id: str | None,
+    response_sha256: str | None,
+    touched: dict[str, Any] | None,
+) -> dict[str, int]:
+    touched = touched if touched is not None else {}
     fields = dict(record.get("fields") or {})
+    pre_key = statute_key(fields.get("statute_key") or fields.get("jurabk"))
+    known = store.conn.execute(
+        "SELECT 1 FROM legal_works WHERE namespace=? AND work_kind='statute' AND native_id=?",
+        [namespace, f"statute:{pre_key}"],
+    ).fetchone()
+    if not known and pre_key:
+        touched.setdefault("new_statutes", set()).add(
+            str(fields.get("jurabk") or pre_key)
+        )
     provider = record["provider"]
     basis = fields.get("validity_basis")
     if (
@@ -280,6 +337,9 @@ def project_statute_version(
             ],
         ).fetchall()
         counts["statute_observations"] += len(inserted)
+        if inserted:
+            # A new sighting can change which version a date selects for this statute.
+            touched.setdefault("statute_keys", set()).add(key)
 
     if basis == OBSERVED:
         rows = conn.execute(
@@ -319,12 +379,13 @@ def project_statute_version(
             _iso(fields.get("validity_to")),
         )
         modified = _d(fields.get("source_modified"))
-        current = (
-            max(rows, key=lambda r: (_d(r[4]) or date.min, r[5], r[0]))
-            if rows
-            else None
-        )
-        same = [r for r in rows if (r[1], _iso(r[2]), _iso(r[3])) == signature]
+        current_id = current_stated((r[0], r[4], r[5]) for r in rows)
+        current = next((r for r in rows if r[0] == current_id), None)
+        same = [
+            r
+            for r in rows
+            if (r[1], _iso(r[2]), _iso(r[3])) == signature and _d(r[4]) == modified
+        ]
         if current and (current[1], _iso(current[2]), _iso(current[3])) == signature:
             sighting(current[0], "unchanged")
             counts["unchanged"] += 1
@@ -391,6 +452,8 @@ def project_statute_version(
     )
     sighting(version_id, outcome)
     counts["statute_versions"] += 1
+    touched.setdefault("federal_versions", set()).add(version_id)
+    touched.setdefault("statute_keys", set()).add(key)
     return counts
 
 
@@ -431,26 +494,104 @@ def record_amendments(
     return count
 
 
-def refresh_federal_links(store: LegalStore, namespace: str) -> None:
-    """Resolve amendment targets, implementation statements and court-decision citations (idempotent)."""
-    conn = store.conn
-    conn.execute(
+def federal_present(conn: Any, namespace: str) -> bool:
+    """Whether federal-statute records exist in the namespace or the feature is selected (reads only)."""
+    try:
+        row = conn.execute(
+            "SELECT 1 FROM legal_works WHERE namespace=? AND work_kind IN ('statute','amendment_act') LIMIT 1",
+            [namespace],
+        ).fetchone()
+    except Exception:  # noqa: BLE001 - legal tables absent
+        row = None
+    return bool(row) or feature_enabled(conn)
+
+
+def rebuild_federal_links(store: LegalStore, namespace: str) -> None:
+    """Full rebuild: amendment targets, every implementation statement and every decision citation."""
+    _resolve_amendment_targets(store, namespace)
+    _implementation_links(store, namespace, None)
+    FederalStatutes(store).rebuild_decision_citations(namespace)
+
+
+def refresh_federal_links(
+    store: LegalStore,
+    namespace: str,
+    touched: Mapping[str, Any] | None = None,
+    *,
+    was_present: bool = True,
+) -> None:
+    """Refresh federal links for exactly the records an ingest touched; the result equals a full rebuild.
+
+    Nothing runs unless federal records exist or the feature is selected. The
+    first ingest that brings federal records into a namespace rebuilds once in
+    full (decisions acquired earlier gain their citation rows); afterwards only
+    new statute/act versions are scanned for implementation statements, and
+    only decisions that are new, cite a statute whose versions or sightings
+    changed, or mention a newly acquired statute's abbreviation are re-linked.
+    """
+    if not federal_present(store.conn, namespace):
+        return
+    if touched is None or not was_present:
+        rebuild_federal_links(store, namespace)
+        return
+    statute_keys = set(touched.get("statute_keys") or ())
+    new_statutes = set(touched.get("new_statutes") or ())
+    federal_versions = set(touched.get("federal_versions") or ())
+    if statute_keys or touched.get("acts"):
+        _resolve_amendment_targets(store, namespace)
+    if federal_versions or touched.get("cellar"):
+        _implementation_links(store, namespace, federal_versions)
+    decisions = set(touched.get("decision_works") or ())
+    if statute_keys:
+        decisions |= {
+            r[0]
+            for r in store.conn.execute(
+                "SELECT DISTINCT decision_work_id FROM legal_provision_citations WHERE namespace=? "
+                "AND list_contains(?, statute_key)",
+                [namespace, sorted(statute_keys)],
+            ).fetchall()
+        }
+    for abbreviation in sorted(new_statutes):
+        # A newly acquired statute resolves citations that were unresolved before: re-link every decision
+        # whose text or norm metadata mentions its abbreviation (the parser needs that text to match).
+        decisions |= {
+            r[0]
+            for r in store.conn.execute(
+                "SELECT DISTINCT v.work_id FROM legal_versions v JOIN legal_works w ON w.work_id=v.work_id "
+                "LEFT JOIN legal_passages p ON p.version_id=v.version_id WHERE v.namespace=? "
+                "AND w.provider='german-courts' AND (strpos(v.record_json, ?)>0 OR strpos(p.text, ?)>0)",
+                [namespace, abbreviation, abbreviation],
+            ).fetchall()
+        }
+    if decisions:
+        FederalStatutes(store).rebuild_decision_citations(namespace, work_ids=decisions)
+
+
+def _resolve_amendment_targets(store: LegalStore, namespace: str) -> None:
+    store.conn.execute(
         "UPDATE legal_amendments SET target_work_id=w.work_id FROM legal_works w WHERE legal_amendments.namespace=? "
         "AND w.namespace=legal_amendments.namespace AND w.work_kind='statute' "
         "AND w.native_id='statute:' || legal_amendments.statute_key AND legal_amendments.target_work_id IS NULL",
         [namespace],
     )
-    _implementation_links(store, namespace)
-    FederalStatutes(store).rebuild_decision_citations(namespace)
 
 
-def _implementation_links(store: LegalStore, namespace: str) -> None:
-    rows = store.conn.execute(
-        "SELECT v.work_id, v.version_id, p.ordinal, p.locator_json, p.text FROM legal_versions v "
-        "JOIN legal_works w ON w.work_id=v.work_id JOIN legal_passages p ON p.version_id=v.version_id "
-        "WHERE v.namespace=? AND w.work_kind IN ('statute','amendment_act') ORDER BY v.version_id, p.ordinal",
-        [namespace],
-    ).fetchall()
+def _implementation_links(
+    store: LegalStore, namespace: str, version_ids: set[str] | None
+) -> None:
+    """Record implementation statements of the given statute/act versions (all when ``None``) and resolve."""
+    rows = (
+        []
+        if version_ids is not None and not version_ids
+        else store.conn.execute(
+            "SELECT v.work_id, v.version_id, p.ordinal, p.locator_json, p.text FROM legal_versions v "
+            "JOIN legal_works w ON w.work_id=v.work_id JOIN legal_passages p ON p.version_id=v.version_id "
+            "WHERE v.namespace=? AND w.work_kind IN ('statute','amendment_act') "
+            + ("" if version_ids is None else "AND list_contains(?, v.version_id) ")
+            + "ORDER BY v.version_id, p.ordinal",
+            [namespace] + ([] if version_ids is None else [sorted(version_ids)]),
+        ).fetchall()
+    )
     for work_id, version_id, ordinal, locator_json, text in rows:
         for statement in implementation_statements(text):
             locator = {
@@ -629,19 +770,26 @@ class FederalStatutes:
                 _ms_day(ms).isoformat() for ms in item["sightings_ms"]
             ]
             output.append(item)
-        # Current per source: a source-stated expression by its own modification date, then arrival.
-        stated = {}
+        # Current per source expression: the source's own modification date where both sides state one,
+        # otherwise observation order (the same rule projection uses).
+        grouped: dict[str, list[dict[str, Any]]] = {}
         for item in output:
             if item["validity_basis"] == STATED:
-                best = stated.get(item["native_id"])
-                rank = (
-                    _d(item["source_modified"]) or date.min,
-                    item["first_observed_at_ms"],
-                    item["version_id"],
+                grouped.setdefault(item["native_id"], []).append(item)
+        current = {
+            chosen
+            for rows in grouped.values()
+            if (
+                chosen := current_stated(
+                    (
+                        r["version_id"],
+                        r["source_modified"],
+                        r["first_observed_at_ms"],
+                    )
+                    for r in rows
                 )
-                if best is None or rank > best[0]:
-                    stated[item["native_id"]] = (rank, item["version_id"])
-        current = {v for _, v in stated.values()}
+            )
+        }
         for item in output:
             item["current"] = (
                 item["validity_basis"] == OBSERVED or item["version_id"] in current
@@ -690,12 +838,22 @@ class FederalStatutes:
 
     @staticmethod
     def _provision_sha(passages: Iterable[Mapping[str, Any]]) -> str | None:
-        passages = list(passages)
-        return (
-            _digest([[p["locator"].get("path"), p["text"]] for p in passages])
-            if passages
-            else None
+        """A source-independent fingerprint: provision texts keyed by their canonical path only.
+
+        Headings, footnotes and source-specific locator fields (document
+        numbers, element ids) are left out, so two sources stating the same
+        provisions compare equal.
+        """
+        texts = sorted(
+            (str(p["locator"].get("path")), p["text"])
+            for p in passages
+            if p["locator"].get("kind") == "statute-provision"
         )
+        return _digest(texts) if texts else None
+
+    def content_sha(self, version_id: str) -> str | None:
+        """The whole statute's source-independent fingerprint (every provision text by canonical path)."""
+        return self._provision_sha(self.passages_of(version_id))
 
     def _view(
         self, version: Mapping[str, Any], provision: str | None, day: date | None = None
@@ -707,6 +865,7 @@ class FederalStatutes:
             "source_id": version["source_id"],
             "native_id": version["native_id"],
             "text_sha256": version["text_sha256"],
+            "content_sha256": self.content_sha(version["version_id"]),
             "amended_by": version["amended_by"],
         }
         if version["validity_basis"] == STATED:
@@ -790,20 +949,22 @@ class FederalStatutes:
             ]
 
             def fingerprint(view: Mapping[str, Any]) -> str | None:
-                return view["provision_sha256"] if provision else view["text_sha256"]
+                # Source-independent: provision texts by canonical path, never a source's own file hash.
+                return view["provision_sha256"] if provision else view["content_sha256"]
 
             conflicts = list(views) if len({fingerprint(v) for v in views}) > 1 else []
+            corroborating: list[dict[str, Any]] = []
             if nearest is not None:
                 observed_view = self._view(nearest, provision, day)
                 seen_on = _d(observed_view["observed_on"])
+                inside = [
+                    v for v in views if seen_on and seen_on >= _d(v["validity_from"])
+                ]
                 # An observation inside a stated interval with different text is a conflict, never resolved.
-                if any(
-                    seen_on
-                    and seen_on >= _d(v["validity_from"])
-                    and fingerprint(v) != fingerprint(observed_view)
-                    for v in views
-                ):
+                if any(fingerprint(v) != fingerprint(observed_view) for v in inside):
                     conflicts = [*views, observed_view]
+                elif inside:
+                    corroborating = [observed_view]
             if conflicts:
                 return {
                     "status": "conflict",
@@ -823,6 +984,11 @@ class FederalStatutes:
                 "selected": selected,
                 "candidates": views,
                 "label": selected["label"],
+                # An observation inside the stated interval with the same text: both sources are cited.
+                "corroborated_by": corroborating,
+                "sources": sorted(
+                    {v["source_id"] or v["provider"] for v in [*views, *corroborating]}
+                ),
                 "undated_source_stated": undated,
             }
         if nearest is not None:
@@ -1263,8 +1429,17 @@ class FederalStatutes:
 
     # ------------------------------------------------------ court decisions
 
-    def rebuild_decision_citations(self, namespace: str) -> int:
-        """Parse every acquired court decision for statutory citations and select the provision version per date."""
+    def rebuild_decision_citations(
+        self, namespace: str, *, work_ids: Iterable[str] | None = None
+    ) -> int:
+        """Parse acquired court decisions for statutory citations and select the provision version per date.
+
+        ``work_ids`` limits the rebuild to those decisions (their rows are
+        replaced); without it every decision in the namespace is rebuilt.
+        """
+        only = None if work_ids is None else set(work_ids)
+        if only is not None and not only:
+            return 0
         registry = self.registry_extra(namespace)
         statutes = {
             r[0]: r[1]
@@ -1281,10 +1456,17 @@ class FederalStatutes:
         ).fetchall()
         latest = {}
         for work_id, court, version_id, record_json in decisions:
-            latest[work_id] = (court, version_id, _load(record_json, {}))
-        self.conn.execute(
-            "DELETE FROM legal_provision_citations WHERE namespace=?", [namespace]
-        )
+            if only is None or work_id in only:
+                latest[work_id] = (court, version_id, _safe_load(record_json, {}))
+        if only is None:
+            self.conn.execute(
+                "DELETE FROM legal_provision_citations WHERE namespace=?", [namespace]
+            )
+        else:
+            self.conn.execute(
+                "DELETE FROM legal_provision_citations WHERE namespace=? AND list_contains(?, decision_work_id)",
+                [namespace, sorted(only)],
+            )
         count = 0
         for work_id, (court, version_id, record) in latest.items():
             fields = dict(record.get("fields") or {})

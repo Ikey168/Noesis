@@ -963,12 +963,25 @@ def parse_bgbl_act(
             clause = text[match.end() :] if match and not structural else text
             if level == 0:
                 continue
-            parent = parents.get(level - 1) if level > 1 else None
-            result = _instruction(clause, statute, parent)
-            if level == 1 or result["provision"]:
-                parents[level] = result["provision"] or parents.get(level)
-            for deeper in [k for k in parents if k > level]:
+            # Drop the context of deeper items first, then read the enclosing item's target: an item never
+            # inherits a sibling's or an earlier item's provision.
+            for deeper in [k for k in parents if k >= level]:
                 parents.pop(deeper)
+            parent = parents.get(level - 1) if level > 1 else None
+            if level > 1 and parent is None and statute is not None:
+                # The enclosing item names no single provision (table of contents, annex, a range ...): its
+                # sub-items stay unresolved with their text, whatever they mention.
+                result = {
+                    "status": "unresolved",
+                    "provision": None,
+                    "action": _action(
+                        re.sub(r"„[^“]*“", "„…“", clause).split(":", 1)[0]
+                    ),
+                    "reason": "the enclosing item names no single provision",
+                }
+            else:
+                result = _instruction(clause, statute, parent)
+            parents[level] = result["provision"]
             amendments.append(
                 {
                     "article": label,
