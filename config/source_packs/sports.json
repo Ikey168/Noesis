@@ -93,8 +93,7 @@
     "path": "tests/fixtures/source_packs/sports-football-data-pl-matches.json",
     "sha256": "707533ce1f254c23a2dff63118fe760671defa4c294f2f089853d01c796823fe",
     "expected_output_hash": "d640803a886039fff5dcf1151a1aa7e02298e2ed9aa0ceecde699b91f4eff8f3"
-   },
-   "update_cadence": "daily during a season; pinned repository releases change only when re-pinned"
+   }
   },
   {
    "source_id": "football-data-pl-standings",
@@ -136,8 +135,7 @@
     "path": "tests/fixtures/source_packs/sports-football-data-pl-standings.json",
     "sha256": "ada21f68bf104f7864da5fe33ca796d35913e25f497ed9052efd70109acc000f",
     "expected_output_hash": "8b042b96bb0d2fb865a924727cbd2a118bf2ff0ed7a454e8c9e6180d0d2f1cf6"
-   },
-   "update_cadence": "daily during a season; pinned repository releases change only when re-pinned"
+   }
   },
   {
    "source_id": "football-data-pl-teams",
@@ -179,8 +177,7 @@
     "path": "tests/fixtures/source_packs/sports-football-data-pl-teams.json",
     "sha256": "8e48997a5dfd87cec80cce1514b4ffb1249fc9ec0ee5cd972bc610b7e60fb959",
     "expected_output_hash": "a7ee850b65000ea181416bd132155e09b3bc50e241576cac8d4f132d9ec91a6f"
-   },
-   "update_cadence": "daily during a season; pinned repository releases change only when re-pinned"
+   }
   },
   {
    "source_id": "openfootball-en1",
@@ -227,9 +224,8 @@
    "fixture": {
     "path": "tests/fixtures/source_packs/sports-openfootball-en1.json",
     "sha256": "01b95d7ba6e1653fb6a99a454c35c10066b68fa2a2ffa662ef8af7f8245c682f",
-    "expected_output_hash": "27c7dc1ce7ca0052031ba6eba7a9630b55f78d0eb996cb8f1e5616c0cd21e4b6"
-   },
-   "update_cadence": "daily during a season; pinned repository releases change only when re-pinned"
+    "expected_output_hash": "fee6a706ba378b7de8cd62a1caf5b964d5fb9a6efcf40afa8523ef41333ee86f"
+   }
   },
   {
    "source_id": "sackmann-atp-matches",
@@ -266,8 +262,7 @@
     "path": "tests/fixtures/source_packs/sports-sackmann-atp-matches.json",
     "sha256": "03c6fbe9937bed73647128cd378b6cfaf63d9d26db5b3a13356c8216e4fe8c96",
     "expected_output_hash": "d2919804e20d9e18ab7ce38630d56a1c87e9e15dabd28aeb7ace4f07c7cea3fd"
-   },
-   "update_cadence": "daily during a season; pinned repository releases change only when re-pinned"
+   }
   },
   {
    "source_id": "sackmann-wta-matches",
@@ -304,8 +299,7 @@
     "path": "tests/fixtures/source_packs/sports-sackmann-wta-matches.json",
     "sha256": "a486b41005f1b00d2bb9513a5148cbb079983705138fdb34653ca3b78ca62ae2",
     "expected_output_hash": "4736f9e035389537afa3d2c7079da2fd2a15e6e084cdde0c46c7b95f9ea63703"
-   },
-   "update_cadence": "daily during a season; pinned repository releases change only when re-pinned"
+   }
   },
   {
    "source_id": "statsbomb-open-data",
@@ -345,8 +339,7 @@
     "path": "tests/fixtures/source_packs/sports-statsbomb-open-data.json",
     "sha256": "789a4cc24ab3f7c26d9b5a1ed537e445e861a97a9919b2058f06af5118af84de",
     "expected_output_hash": "9012fe633acab7cfc0e8b301f2161254cc18b8172e3789d2a217883c7c2dac4c"
-   },
-   "update_cadence": "daily during a season; pinned repository releases change only when re-pinned"
+   }
   }
  ]
 }

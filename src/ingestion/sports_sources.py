@@ -1089,7 +1089,11 @@ def parse_openfootball(
                 _observation(
                     "team",
                     key,
-                    {"provider": provider, "name": name},
+                    {
+                        "provider": provider,
+                        "name": name,
+                        "country": dict(declared.get("competition") or {}).get("area"),
+                    },
                     source_record_id=name,
                     locator=locator,
                 )
