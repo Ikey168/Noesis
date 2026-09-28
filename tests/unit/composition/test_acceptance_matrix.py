@@ -74,6 +74,11 @@ MATRIX = {
     "Contract and address to cited ledger observations":
         "tests/unit/domains/test_onchain_acceptance.py::"
         "test_contract_and_address_to_cited_origin_transfers_and_probable_cluster",
+    # The Sports bundle's offline journey (#2147) composes its record owner, the source-pack runtime, reviewable
+    # identity, the binary forecast ledger and subscriptions.
+    "Competition and date to a cited table":
+        "tests/unit/domains/test_sports_acceptance.py::"
+        "test_competition_and_date_to_a_cited_table_with_revisions_identity_forecast_and_monitor",
 }
 
 
