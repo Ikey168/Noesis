@@ -81,7 +81,13 @@ GEOGRAPHY_SYSTEMS = (
     "who-region",
     "who-global",
     "ecdc-aggregate",
+    "eurostat-aggregate",
 )
+# Country groupings Eurostat and ECDC publish beside countries (EU27_2020, EU28, EA20, EEA, EFTA, EU_EEA31...).
+# None is a country or a NUTS region: they have no single boundary and are never read as NUTS codes.
+AGGREGATE_CODE = re.compile(r"^(?:EU|EA|EEA|EFTA)(?:\d{1,2})?(?:_[A-Z0-9]+)*$")
+NUTS_CODE = re.compile(r"^[A-Z]{2}[A-Z0-9]{1,3}$")
+COUNTRY_CODE = re.compile(r"^[A-Z]{2}$")
 CONDITION_SCHEMES = (
     "rki-meldekategorie",
     "ecdc-health-topic",
@@ -1179,7 +1185,9 @@ def parse_eurostat(
                 },
                 indicator=dict(document["indicator"]),
                 geography=_geography(
-                    document, geo, system="eu-country" if len(geo) == 2 else "nuts"
+                    document,
+                    geo,
+                    system=region_system(geo, document, aggregate="eurostat-aggregate"),
                 ),
                 unit=_unit(document, unit_code),
                 interval=frequencies[freq],
@@ -1336,19 +1344,25 @@ ECDC_COLUMNS = (
 )
 
 
-def _ecdc_system(code: str, document: Mapping[str, Any]) -> str:
-    declared = dict(document.get("aggregate_codes") or {})
-    if code in declared:
-        return "ecdc-aggregate"
-    if re.fullmatch(r"[A-Z]{2}", code):
+def region_system(code: str, document: Mapping[str, Any], *, aggregate: str) -> str:
+    """The code system of a Eurostat or ECDC region code: an aggregate (declared, or by the aggregate pattern), a
+    country, or a NUTS region (two letters followed by one to three alphanumerics); anything else is refused."""
+    code = str(code).strip().upper()
+    declared = {str(k).upper() for k in dict(document.get("aggregate_codes") or {})}
+    if code in declared or AGGREGATE_CODE.fullmatch(code):
+        return aggregate
+    if COUNTRY_CODE.fullmatch(code):
         return "eu-country"
-    if re.fullmatch(r"[A-Z]{2}[A-Z0-9]{1,3}", code):
+    if NUTS_CODE.fullmatch(code):
         return "nuts"
     raise SurveillanceFormatError(
         "schema_drift",
-        f"RegionCode {code!r} is neither a country, a NUTS code nor a "
-        "declared aggregate",
+        f"region code {code!r} is neither a country, a NUTS code nor a declared or recognised aggregate",
     )
+
+
+def _ecdc_system(code: str, document: Mapping[str, Any]) -> str:
+    return region_system(code, document, aggregate="ecdc-aggregate")
 
 
 def parse_ecdc_export(raw: bytes, *, document: Mapping[str, Any]) -> dict[str, Any]:

@@ -64,7 +64,8 @@ BOUNDARY_COLLECTIONS: dict[str, tuple[str, str]] = {
     "iso3166-1-alpha2": ("gisco:countries", "CNTR_ID"),
     "iso3166-1-alpha3": ("gisco:countries", "ISO3_CODE"),
 }
-NO_BOUNDARY = ("who-region", "who-global", "ecdc-aggregate")
+NO_BOUNDARY = ("who-region", "who-global", "ecdc-aggregate", "eurostat-aggregate")
+AGGREGATES = ("who-region", "who-global", "ecdc-aggregate", "eurostat-aggregate")
 REQUEST_KEYS = frozenset(
     {
         "namespace",
@@ -268,7 +269,9 @@ class SurveillancePlaces:
             else:
                 feature, state = None, "unresolved"
                 reason = (
-                    "the code system has no boundary collection"
+                    "an aggregate of countries has no single boundary; it is never resolved or apportioned"
+                    if system in AGGREGATES
+                    else "the code system has no boundary collection"
                     if collection is None
                     else "no boundary feature states this code"
                     if not features

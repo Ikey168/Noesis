@@ -526,3 +526,35 @@ def test_rki_variant_shapes_are_refused_never_read_partially():
         )
     with pytest.raises(ss.SurveillanceFormatError):
         ss.rki_url({**document, "path": "../secrets.csv"})
+
+
+def test_eurostat_aggregates_are_never_nuts_and_resolve_as_aggregates():
+    document = dict(
+        fb.eurostat_document(),
+        key="A.NR.T.TOTAL.A15-A19_B90.DE+DE2+EU27_2020+EA20+EU28",
+    )
+    csv_text = fb.eurostat_csv()
+    for code in ("EU27_2020", "EA20", "EU28"):
+        csv_text += f"ESTAT:HLTH_CD_ARO(1.0),15/03/99 11:00:00,A,NR,T,TOTAL,A15-A19_B90,{code},2098,900,\n"
+    release = ss.parse_eurostat(csv_text.encode(), document=document)
+    systems = {
+        s["geography"]["code"]: s["geography"]["system"] for s in release["series"]
+    }
+    assert systems == {
+        "DE": "eu-country",
+        "DE2": "nuts",
+        "EU27_2020": "eurostat-aggregate",
+        "EA20": "eurostat-aggregate",
+        "EU28": "eurostat-aggregate",
+    }
+    declared = ss.region_system(
+        "EFTA4", {"aggregate_codes": {"EFTA4": "EFTA"}}, aggregate="eurostat-aggregate"
+    )
+    assert declared == "eurostat-aggregate"
+    with pytest.raises(ss.SurveillanceFormatError):
+        ss.region_system("DE_TOTAL", {}, aggregate="eurostat-aggregate")
+    with pytest.raises(ss.SurveillanceFormatError):
+        ss.region_system("DE12345", {}, aggregate="eurostat-aggregate")
+    from src.kb.surveillance_places import within
+
+    assert not within(("eurostat-aggregate", "EU27_2020"), ("eu-country", "EU"))

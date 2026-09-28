@@ -57,7 +57,10 @@ def test_codes_resolve_by_the_published_code_with_system_version_and_boundary_re
     }
     assert unresolved == {
         ("ags", "09184"): "no boundary feature states this code",
-        ("ecdc-aggregate", "EU_EEA31"): "the code system has no boundary collection",
+        (
+            "ecdc-aggregate",
+            "EU_EEA31",
+        ): "an aggregate of countries has no single boundary; it is never resolved or apportioned",
     }
     # Idempotent: the same evaluation adds nothing.
     assert h.resolve(env) == {
@@ -312,3 +315,28 @@ def test_a_receipt_request_with_other_parameters_is_refused(env):
     with pytest.raises(SurveillanceError) as caught:
         places.replay(tampered, scopes=h.READ_ONLY)
     assert caught.value.code == "invalid_receipt"
+
+
+def test_eurostat_aggregates_stay_unresolved_with_the_aggregate_reason():
+    from tests.unit import surveillance_fixture_builder as fb
+
+    env = h.Env()
+    body = fb.eurostat_csv() + (
+        "ESTAT:HLTH_CD_ARO(1.0),15/03/99 11:00:00,A,NR,T,TOTAL,A15-A19_B90,EU27_2020,2098,900,\n"
+    )
+    env.web.set(fb.eurostat_request(), body, headers={"Content-Type": "text/csv"})
+    env.acquire("r1", ["eurostat"])
+    h.import_boundaries(env.conn)
+    h.resolve(env)
+    (aggregate,) = [
+        r
+        for r in h.places(env).resolutions(h.NS, scopes=h.READ_ONLY)
+        if r["geography_code"] == "EU27_2020"
+    ]
+    assert (
+        aggregate["geography_system"] == "eurostat-aggregate"
+        and aggregate["effective"] == "unresolved"
+    )
+    assert aggregate["reason"].startswith(
+        "an aggregate of countries has no single boundary"
+    )
