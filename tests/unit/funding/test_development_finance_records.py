@@ -308,3 +308,31 @@ def test_writes_need_the_write_scope_and_namespace(env):
             observed_at_ms=1,
             scopes=h.READ_ONLY,
         )
+
+
+def test_a_reappearance_with_byte_identical_pages_clears_the_withdrawal():
+    """Runs A+B, then A only, then A+B again (the same bytes as the first run): B is published again (#2037 review)."""
+    env = h.Env()
+    store = DevelopmentFinanceStore(env.conn)
+    both = "iati_fdpa_2098-03.xml"
+    # The same file without its second activity (FICT-0002).
+    text = (h.FIXTURES / both).read_text()
+    only_water = (
+        text[: text.index('  <iati-activity last-updated-datetime="2098-02-10')]
+        + "</iati-activities>\n"
+    ).encode()
+    education = h.activity_key(env.conn, h.FDPA, "XM-DAC-99901-FICT-0002")
+    env.at("2098-03-05T08:00:00").iati(both, observation="r1")
+    env.at("2098-04-05T08:00:00").iati(only_water, observation="r2")
+    assert store.publication_state(h.NS, education)["state"] == "withdrawn-by-publisher"
+    env.at("2098-05-05T08:00:00").iati(both, observation="r3")
+    state = store.publication_state(h.NS, education)
+    assert state["state"] == "published" and state["last_seen_at_ms"] == h.ms(
+        "2098-05-05T08:00:00"
+    )
+    # Withdrawn again by a later byte-identical A-only run: recorded again.
+    env.at("2098-06-05T08:00:00").iati(only_water, observation="r4")
+    assert store.publication_state(h.NS, education)["state"] == "withdrawn-by-publisher"
+    assert (
+        env.conn.execute("SELECT count(*) FROM devfin_withdrawals").fetchone()[0] == 2
+    )

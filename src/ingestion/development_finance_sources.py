@@ -1053,36 +1053,98 @@ BASE_YEAR_ATTRIBUTES = ("BASE_PER", "BASE_YEAR", "REF_YEAR_PRICE")
 FORMATS = ("oecd-sdmx-csv",)
 
 
-def classify_recipient(code: Any) -> dict[str, Any]:
-    """A CRS recipient code by its real structure: a country, a regional or unallocated aggregate, or unknown.
+AGGREGATE_NAME_MARKERS = (
+    "regional",
+    "unspecified",
+    "unallocated",
+    "total",
+    "multilateral",
+)
 
-    Numeric codes are the DAC recipient list: the regional and "unspecified" codes (89, 189, ..., 998) are
-    aggregates and every other number is one recipient. Three-letter alphabetic codes are ISO 3166-1 alpha-3
-    countries. Codes with an underscore or an ``_X`` suffix, and ``DPGC`` (developing countries, total), are
-    aggregates of the newer dataflows (verify the code list). An aggregate is never resolved to a country or
-    apportioned.
+
+def split_code_label(value: Any) -> tuple[str | None, str | None]:
+    """An SDMX-CSV cell that may carry a label (``KEN: Kenya`` with labels output) as (code, label)."""
+    raw = text(value)
+    if raw is None:
+        return None, None
+    code, sep, label = raw.partition(": ")
+    return (text(code), text(label)) if sep else (raw, None)
+
+
+def classify_recipient(code: Any, name: Any = None) -> dict[str, Any]:
+    """A CRS recipient code by its documented structure: a regional or unallocated aggregate, a country, or unknown.
+
+    * a label that names a region or an unspecified/unallocated/total recipient marks an aggregate, whatever the
+      code;
+    * numeric DAC recipient codes: the bundled regional and unspecified codes, every three-digit code ending in
+      ``89`` or ``98`` (the DAC "..., regional" pattern) and every code of four or more digits (the newer
+      regional codes such as ``1027`` "Eastern Africa, regional") are aggregates. Any other number is ``unknown``:
+      without the DAC recipient list it is never assumed to be a single country;
+    * alphabetic codes: an underscore (``AFR_X``) or a known total (``DPGC``) is an aggregate, three letters are an
+      ISO 3166-1 alpha-3 country;
+    * anything else is ``unknown``.
+
+    An aggregate is never resolved to a country or apportioned. (Verify the ranges against the DAC recipient list.)
     """
     from src.ingestion.development_finance_codes import CODELISTS
 
-    raw = text(code)
+    raw, label = text(code), text(name)
     if raw is None:
-        return {"code": None, "kind": "unknown", "scheme": None}
+        return {
+            "code": None,
+            "kind": "unknown",
+            "scheme": None,
+            "reason": "no recipient code",
+        }
+    base = {"code": raw, **({"label": label} if label else {})}
+    if label and any(marker in label.casefold() for marker in AGGREGATE_NAME_MARKERS):
+        return {
+            **base,
+            "kind": "aggregate",
+            "scheme": "named",
+            "reason": "the label names an aggregate",
+        }
     regions = CODELISTS["dac-recipient-region"]["codes"]
     if raw.isdigit():
         if raw in regions:
             return {
-                "code": raw,
+                **base,
+                "label": label or regions[raw],
                 "kind": "aggregate",
                 "scheme": "dac-recipient",
-                "label": regions[raw],
+                "reason": "a bundled DAC regional or unspecified code",
             }
-        return {"code": raw, "kind": "country", "scheme": "dac-recipient"}
+        number = raw.lstrip("0") or "0"
+        if len(number) >= 4 or (len(number) == 3 and number[-2:] in {"89", "98"}):
+            return {
+                **base,
+                "kind": "aggregate",
+                "scheme": "dac-recipient",
+                "reason": "the DAC code structure of regional and unspecified recipients",
+            }
+        return {
+            **base,
+            "kind": "unknown",
+            "scheme": "dac-recipient",
+            "reason": "a numeric DAC code outside the aggregate structure; not assumed to be a single country "
+            "without the DAC recipient list",
+        }
     upper = raw.upper()
     if "_" in upper or upper in {"DPGC", "ALLD", "W", "WXOECD"}:
-        return {"code": raw, "kind": "aggregate", "scheme": "oecd-recipient"}
+        return {
+            **base,
+            "kind": "aggregate",
+            "scheme": "oecd-recipient",
+            "reason": "an aggregate code shape",
+        }
     if re.fullmatch(r"[A-Z]{3}", upper):
-        return {"code": raw, "kind": "country", "scheme": "iso3166-1-alpha3"}
-    return {"code": raw, "kind": "unknown", "scheme": None}
+        return {**base, "kind": "country", "scheme": "iso3166-1-alpha3"}
+    return {
+        **base,
+        "kind": "unknown",
+        "scheme": None,
+        "reason": "an unrecognised code shape",
+    }
 
 
 def development_finance_declaration(source: Mapping[str, Any]) -> dict[str, Any]:
@@ -1197,7 +1259,9 @@ def parse_crs(raw: bytes, *, document: Mapping[str, Any], url: str) -> dict[str,
                 "dataflow_id": meta.get("dataflow_id"),
                 "dimensions": dims,
                 "donor": text(upper.get("DONOR")),
-                "recipient": classify_recipient(upper.get("RECIPIENT")),
+                "recipient": classify_recipient(
+                    *split_code_label(upper.get("RECIPIENT"))
+                ),
                 "sector": text(upper.get("SECTOR")),
                 "flow_type": text(upper.get("FLOW_TYPE")),
                 "channel": text(upper.get("CHANNEL")),

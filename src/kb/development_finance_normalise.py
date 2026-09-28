@@ -73,7 +73,7 @@ CREATE TABLE IF NOT EXISTS devfin_normalisations (
 CREATE TABLE IF NOT EXISTS devfin_place_links (
   namespace TEXT NOT NULL, link_id TEXT NOT NULL, reference_kind TEXT NOT NULL, scheme TEXT, code TEXT,
   mention TEXT, state TEXT NOT NULL, reason TEXT, resolution_id TEXT, geo_namespace TEXT NOT NULL,
-  created_at_ms BIGINT NOT NULL, PRIMARY KEY(namespace, link_id)
+  created_at_ms BIGINT NOT NULL, evaluation_no BIGINT NOT NULL, PRIMARY KEY(namespace, link_id)
 );
 CREATE TABLE IF NOT EXISTS devfin_conversions (
   namespace TEXT NOT NULL, conversion_id TEXT NOT NULL, transaction_id TEXT NOT NULL, original_value TEXT NOT NULL,
@@ -208,21 +208,40 @@ class DevelopmentFinanceNormaliser:
 
     @staticmethod
     def _sum_check(
-        allocations: Sequence[Mapping[str, Any]], label: str
+        allocations: Sequence[Mapping[str, Any]], label: str, group: Mapping[str, Any]
     ) -> dict[str, Any] | None:
-        stated = [a for a in allocations if a.get("percentage_text") is not None]
-        if not stated:
+        """One IATI percentage group: the reported percentages must add up to 100.
+
+        A group with one member and no percentage is 100% by the standard's convention. A member without a
+        percentage in a larger group, or an unreadable percentage, is flagged; nothing is rescaled.
+        """
+        if not allocations:
             return None
-        if any(a.get("percentage") is None for a in stated):
+        base = {"allocation": label, "group": dict(group)}
+        if len(allocations) == 1 and allocations[0].get("percentage_text") is None:
             return {
-                "allocation": label,
-                "state": "unreadable-percentage",
-                "reported": [a.get("percentage_text") for a in stated],
-                "flag": "allocation-percentage-unreadable",
+                **base,
+                "sum": "100",
+                "state": "sums-to-100",
+                "basis": "single member, implied 100%",
             }
-        total = sum((Decimal(a["percentage"]) for a in stated), Decimal(0))
+        if any(a.get("percentage_text") is None for a in allocations):
+            return {
+                **base,
+                "state": "percentage-missing",
+                "flag": "allocation-percentage-missing",
+                "note": "several members and at least one without a percentage; kept as reported",
+            }
+        if any(a.get("percentage") is None for a in allocations):
+            return {
+                **base,
+                "state": "unreadable-percentage",
+                "flag": "allocation-percentage-unreadable",
+                "reported": [a.get("percentage_text") for a in allocations],
+            }
+        total = sum((Decimal(a["percentage"]) for a in allocations), Decimal(0))
         return {
-            "allocation": label,
+            **base,
             "sum": str(total.normalize())
             if total != total.to_integral_value()
             else str(total.to_integral_value()),
@@ -236,6 +255,41 @@ class DevelopmentFinanceNormaliser:
                 }
             ),
         }
+
+    def _allocation_checks(self, activity: Mapping[str, Any]) -> list[dict[str, Any]]:
+        """The IATI 2.03 percentage rules (verify against the published 2.03 ruleset).
+
+        * sectors: the percentages of the sectors *of each vocabulary* add up to 100 (a DAC list and an SDG list
+          are two separate allocations of the same activity);
+        * recipients: recipient countries and recipient regions are one allocation; with regions of several
+          vocabularies, the countries plus the regions of each region vocabulary add up to 100.
+        """
+        checks = []
+        sectors: dict[str, list[Mapping[str, Any]]] = {}
+        for sector in activity.get("sectors") or []:
+            sectors.setdefault(sector.get("vocabulary") or "1", []).append(sector)
+        for vocabulary, members in sorted(sectors.items()):
+            checks.append(
+                self._sum_check(members, "sector", {"vocabulary": vocabulary})
+            )
+        countries = list(activity.get("recipient_countries") or [])
+        regions: dict[str, list[Mapping[str, Any]]] = {}
+        for region in activity.get("recipient_regions") or []:
+            regions.setdefault(region.get("vocabulary") or "1", []).append(region)
+        if regions:
+            for vocabulary, members in sorted(regions.items()):
+                checks.append(
+                    self._sum_check(
+                        countries + members,
+                        "recipient",
+                        {"region_vocabulary": vocabulary},
+                    )
+                )
+        else:
+            checks.append(
+                self._sum_check(countries, "recipient", {"region_vocabulary": None})
+            )
+        return [c for c in checks if c is not None]
 
     def normalise(
         self, namespace: str, revision_id: str, *, scopes: Iterable[str]
@@ -335,17 +389,7 @@ class DevelopmentFinanceNormaliser:
                 }
                 for r in regions
             ],
-            "checks": [
-                c
-                for c in (
-                    self._sum_check(activity.get("sectors") or [], "sector"),
-                    self._sum_check(
-                        (activity.get("recipient_countries") or []) + regions,
-                        "recipient",
-                    ),
-                )
-                if c is not None
-            ],
+            "checks": self._allocation_checks(activity),
             "transactions": transactions,
             "normaliser": NORMALISER_VERSION,
             "codelist_versions": versions,
@@ -477,6 +521,8 @@ class DevelopmentFinanceNormaliser:
                 "namespace": geo_namespace,
                 "mention": f"{PLACE_SYSTEM}:{code}",
                 "system": PLACE_SYSTEM,
+                # A saved resolution is immutable: a changed candidate set is a new resolution, never the old one.
+                "candidates": sorted(p for p, _ in places),
             }
             input_hash = digest(request)
             saved = geo.save_resolution(
@@ -532,8 +578,19 @@ class DevelopmentFinanceNormaliser:
                 )
             )
         for mention in sorted(locations):
-            result = geo.resolve(
+            probe = geo.resolve(
                 geo_namespace, mention, scopes={GEO_READ}, context={"producer": OWNER}
+            )
+            # The candidate set is part of the resolution's identity, so a later evaluation that finds new
+            # candidates saves a new reviewable resolution instead of returning the old empty one.
+            result = geo.resolve(
+                geo_namespace,
+                mention,
+                scopes={GEO_READ},
+                context={
+                    "producer": OWNER,
+                    "candidates": sorted(c["place_id"] for c in probe["candidates"]),
+                },
             )
             saved = geo.save_resolution(
                 result, principal_id=principal_id, scopes={GEO_WRITE}
@@ -565,11 +622,43 @@ class DevelopmentFinanceNormaliser:
         resolution_id,
         geo_namespace,
     ):
-        link_id = (
-            "devfin-place:"
-            + digest(
+        outcome = [
+            kind,
+            scheme,
+            code,
+            mention,
+            state,
+            reason,
+            resolution_id,
+            geo_namespace,
+        ]
+        latest = self.conn.execute(
+            "SELECT link_id, state, reason, resolution_id, geo_namespace FROM devfin_place_links WHERE namespace=? "
+            "AND reference_kind=? AND scheme IS NOT DISTINCT FROM ? AND code IS NOT DISTINCT FROM ? "
+            "AND mention IS NOT DISTINCT FROM ? ORDER BY evaluation_no DESC LIMIT 1",
+            [namespace, kind, scheme, code, mention],
+        ).fetchone()
+        if latest is not None and list(latest[1:]) == [
+            state,
+            reason,
+            resolution_id,
+            geo_namespace,
+        ]:
+            link_id = latest[0]  # the latest evaluation already says this
+        else:
+            # Every changed outcome is a new evaluation (A -> B -> A included), ordered by its number.
+            number = 1 + int(
+                self.conn.execute(
+                    "SELECT coalesce(max(evaluation_no), 0) FROM devfin_place_links WHERE namespace=?",
+                    [namespace],
+                ).fetchone()[0]
+            )
+            link_id = "devfin-place:" + digest([namespace, *outcome, number])[:24]
+            self.conn.execute(
+                "INSERT INTO devfin_place_links VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
                 [
                     namespace,
+                    link_id,
                     kind,
                     scheme,
                     code,
@@ -578,25 +667,10 @@ class DevelopmentFinanceNormaliser:
                     reason,
                     resolution_id,
                     geo_namespace,
-                ]
-            )[:24]
-        )
-        self.conn.execute(
-            "INSERT INTO devfin_place_links VALUES (?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT DO NOTHING",
-            [
-                namespace,
-                link_id,
-                kind,
-                scheme,
-                code,
-                mention,
-                state,
-                reason,
-                resolution_id,
-                geo_namespace,
-                self.now(),
-            ],
-        )
+                    self.now(),
+                    number,
+                ],
+            )
         return {
             "link_id": link_id,
             "reference_kind": kind,
@@ -661,7 +735,7 @@ class DevelopmentFinanceNormaliser:
         rows = self.conn.execute(
             "SELECT link_id, reference_kind, scheme, code, mention, state, reason, resolution_id, created_at_ms "
             "FROM devfin_place_links WHERE namespace=? ORDER BY reference_kind, coalesce(code, mention), "
-            "created_at_ms, link_id",
+            "evaluation_no",
             [namespace],
         ).fetchall()
         latest: dict[tuple, dict[str, Any]] = {}

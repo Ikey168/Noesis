@@ -296,13 +296,20 @@ class DevelopmentFinanceQueries:
         else:
             unknowns["unmatched_organisations"] = "identity review has not run"
         if table_exists(self.conn, "devfin_place_links"):
+            from src.kb.development_finance_normalise import (
+                DevelopmentFinanceNormaliser,
+            )
+
+            # The current state of each place reference: its latest evaluation, overridden by the latest review.
             unknowns["unresolved_places"] = [
-                {"reference_kind": r[0], "code": r[1], "mention": r[2], "state": r[3]}
-                for r in self.conn.execute(
-                    "SELECT DISTINCT reference_kind, code, mention, state FROM devfin_place_links WHERE namespace=? "
-                    "AND state NOT IN ('resolved') ORDER BY ALL",
-                    [namespace],
-                ).fetchall()
+                {
+                    k: link[k]
+                    for k in ("reference_kind", "code", "mention", "state", "reason")
+                }
+                for link in DevelopmentFinanceNormaliser(
+                    self.conn, now=self.now, initialize=False
+                ).place_links(namespace, scopes=scopes)
+                if link["state"] != "resolved"
             ]
         unknowns["unknown_amounts"] = sum(
             1
@@ -577,42 +584,21 @@ class DevelopmentFinanceQueries:
 
     @staticmethod
     def _transaction_changes(history) -> list[dict[str, Any]]:
-        """Between consecutive revisions (publisher stamp order): new and corrected transactions, citing both."""
+        """Between consecutive revisions (publisher stamp order): new, corrected and removed transactions."""
+        from src.kb.development_finance import diff_transactions
+
         changes = []
         for before, after in zip(history, history[1:]):
-            prior = {t["transaction_key"]: t for t in before["transactions"]}
-            for tx in after["transactions"]:
-                old = prior.get(tx["transaction_key"])
-                if old is None:
-                    changes.append(
-                        {
-                            "change": "new",
-                            "transaction_key": tx["transaction_key"],
-                            "after": tx["transaction_id"],
-                            "after_revision": after["revision_id"],
-                        }
-                    )
-                elif old["content_hash"] != tx["content_hash"]:
-                    changes.append(
-                        {
-                            "change": "corrected",
-                            "transaction_key": tx["transaction_key"],
-                            "before": {
-                                "transaction_id": old["transaction_id"],
-                                "value_text": old["value_text"],
-                                "currency": old["currency"],
-                                "value_date": old["value_date"],
-                            },
-                            "after": {
-                                "transaction_id": tx["transaction_id"],
-                                "value_text": tx["value_text"],
-                                "currency": tx["currency"],
-                                "value_date": tx["value_date"],
-                            },
-                            "before_revision": before["revision_id"],
-                            "after_revision": after["revision_id"],
-                        }
-                    )
+            for change in diff_transactions(
+                before["transactions"], after["transactions"]
+            ):
+                changes.append(
+                    {
+                        **change,
+                        "before_revision": before["revision_id"],
+                        "after_revision": after["revision_id"],
+                    }
+                )
         return changes
 
     def search_transactions(
@@ -667,59 +653,48 @@ class DevelopmentFinanceQueries:
 
     @staticmethod
     def _totals(transactions) -> list[dict[str, Any]]:
+        """Within-publisher totals per (transaction type, currency).
+
+        Each transaction whose amount is unknown is counted exactly once as excluded: under its own type and
+        currency, or under an explicit ``unknown-currency`` bucket when the currency itself is unknown.
+        """
         groups: dict[tuple, dict[str, Any]] = {}
-        excluded: dict[str, int] = {}
         for tx in transactions:
-            if tx["amount_state"] == "unknown":
-                excluded[tx["type"] or "unstated"] = (
-                    excluded.get(tx["type"] or "unstated", 0) + 1
-                )
-                continue
-            key = (tx["type"], tx["currency"])
+            currency = tx["currency"] or "unknown-currency"
             group = groups.setdefault(
-                key,
+                (tx["type"] or "unstated", currency),
                 {
                     "transaction_type": tx["type"],
-                    "currency": tx["currency"],
+                    "currency": currency,
                     "sum": Decimal(0),
                     "count": 0,
                     "value_dates": [],
+                    "excluded": 0,
                 },
             )
+            if tx["amount_state"] == "unknown":
+                group["excluded"] += 1
+                continue
             group["sum"] += Decimal(tx["value"])
             group["count"] += 1
             group["value_dates"].append(tx["value_date"])
         out = []
-        for key, group in sorted(
-            groups.items(), key=lambda kv: (str(kv[0][0]), str(kv[0][1]))
-        ):
+        for _, group in sorted(groups.items()):
             out.append(
                 {
                     "transaction_type": group["transaction_type"],
                     "currency": group["currency"],
-                    "sum": str(group["sum"]),
+                    "sum": str(group["sum"]) if group["count"] else None,
                     "transactions": group["count"],
                     "value_date_range": [
                         min(group["value_dates"]),
                         max(group["value_dates"]),
-                    ],
-                    "excluded_unknown_amounts": excluded.get(
-                        group["transaction_type"] or "unstated", 0
-                    ),
+                    ]
+                    if group["value_dates"]
+                    else None,
+                    "excluded_unknown_amounts": group["excluded"],
                 }
             )
-        for tx_type, count in sorted(excluded.items()):
-            if not any((o["transaction_type"] or "unstated") == tx_type for o in out):
-                out.append(
-                    {
-                        "transaction_type": tx_type,
-                        "currency": None,
-                        "sum": None,
-                        "transactions": 0,
-                        "value_date_range": None,
-                        "excluded_unknown_amounts": count,
-                    }
-                )
         return out
 
     def publisher_coverage(

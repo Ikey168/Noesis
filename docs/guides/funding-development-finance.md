@@ -120,7 +120,7 @@ dependency for an authored report.
 sectors, organisations or CRS cells through a knowledge subscription.
 `run_development_finance_monitor` evaluates the newest observation as a
 watermark. A restart replays the recorded watermark and emits nothing new.
-Notifications are `new_activity`, `new_transaction`, `corrected_transaction`,
+Notifications are `new_activity`, `new_transaction`, `corrected_transaction` (a re-dated ref-less transaction included), `removed_transaction`,
 `retracted_activity` (withdrawn by the publisher, not ended),
 `new_result_posting`, `new_crs_vintage` and `coverage_change`. Each one cites
 the revision or vintage before and after. A failed refresh is a stale

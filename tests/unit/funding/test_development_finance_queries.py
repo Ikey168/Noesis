@@ -302,3 +302,104 @@ def test_reads_before_any_acquisition_are_not_ready_and_scopes_are_checked():
             h.NS, {}, principal_id="a", scopes={"knowledge:funding:read"}
         )
     assert denied.value.code == "unauthorized"
+
+
+def test_unknown_places_follow_the_current_resolution_and_reviews(env):
+    """A code resolved in a later evaluation, or a location accepted in review, is no longer unresolved (review)."""
+    from src.kb.development_finance_normalise import DevelopmentFinanceNormaliser
+    from src.kb.geospatial import GeospatialStore
+
+    normaliser = DevelopmentFinanceNormaliser(env.conn, now=env.now)
+    normaliser.resolve_places(h.NS, principal_id="analyst", scopes=h.SCOPES)
+
+    def unresolved():
+        answer = queries(env).list_activities(
+            h.NS, {"country": "KE"}, principal_id="a", scopes=h.SCOPES
+        )
+        return {
+            (p["reference_kind"], p["code"] or p["mention"]): p["state"]
+            for p in answer["unknowns"]["unresolved_places"]
+        }
+
+    assert unresolved()[("recipient-country", "KE")] == "unresolved"
+    h.register_places(env.conn, now=env.now())
+    GeospatialStore(env.conn, now=env.now).register_place(
+        "global",
+        "Fictional Lakeside Settlement",
+        "settlement",
+        names=[
+            {
+                "value": "Fictional Lakeside Settlement",
+                "language": "en",
+                "kind": "canonical",
+            }
+        ],
+        source_ids={"fixture": "lakeside"},
+        parent_ids=[],
+        principal_id="system",
+        scopes={"knowledge:geospatial:write"},
+        place_key="fixture:lakeside",
+    )
+    links = normaliser.resolve_places(h.NS, principal_id="analyst", scopes=h.SCOPES)[
+        "links"
+    ]
+    assert ("recipient-country", "KE") not in unresolved()
+    location = next(
+        link for link in links if link["mention"] == "Fictional Lakeside Settlement"
+    )
+    assert (
+        unresolved()[("location", "Fictional Lakeside Settlement")] == "pending-review"
+    )
+    place_id = env.conn.execute(
+        "SELECT place_id FROM geospatial_places WHERE place_key='fixture:lakeside'"
+    ).fetchone()[0]
+    normaliser.review_place(
+        h.NS,
+        location["resolution_id"],
+        "accept",
+        selected_place_id=place_id,
+        reason="named in the activity",
+        principal_id="reviewer",
+        scopes=h.REVIEW_SCOPES,
+    )
+    assert ("location", "Fictional Lakeside Settlement") not in unresolved()
+    assert unresolved()[("recipient-region", "289")] == "aggregate"
+
+
+def test_an_excluded_amount_is_counted_once_under_its_own_currency():
+    """One undated EUR disbursement is excluded once, never again under the USD group (review)."""
+
+    def tx(currency, value_date, value="10"):
+        return {
+            "type": "3",
+            "currency": currency,
+            "value": value,
+            "value_date": value_date,
+            "amount_state": "unknown"
+            if not (currency and value_date and value)
+            else "reported",
+        }
+
+    totals = DevelopmentFinanceQueries._totals(
+        [
+            tx("EUR", "2098-01-01"),
+            tx("EUR", None),
+            tx("USD", "2098-02-01"),
+            tx(None, "2098-03-01"),
+        ]
+    )
+    by = {(t["transaction_type"], t["currency"]): t for t in totals}
+    assert (
+        by[("3", "EUR")]["excluded_unknown_amounts"] == 1
+        and by[("3", "EUR")]["sum"] == "10"
+    )
+    assert by[("3", "USD")]["excluded_unknown_amounts"] == 0
+    assert by[("3", "unknown-currency")] == {
+        "transaction_type": "3",
+        "currency": "unknown-currency",
+        "sum": None,
+        "transactions": 0,
+        "value_date_range": None,
+        "excluded_unknown_amounts": 1,
+    }
+    assert sum(t["excluded_unknown_amounts"] for t in totals) == 2

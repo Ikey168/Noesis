@@ -310,7 +310,8 @@ def test_crs_recipient_codes_are_classified_by_structure():
         classify_recipient("998")["kind"] == "aggregate"
         and classify_recipient("289")["kind"] == "aggregate"
     )
-    assert classify_recipient("248")["kind"] == "country"
+    # A number outside the aggregate structure is unknown, never guessed to be one country.
+    assert classify_recipient("248")["kind"] == "unknown"
     assert (
         classify_recipient("DPGC")["kind"] == "aggregate"
         and classify_recipient("AFR_X")["kind"] == "aggregate"
@@ -383,3 +384,23 @@ def test_the_crs_adapter_refuses_other_hosts_and_drifted_shapes():
     # The default transport is the runtime's own (same-host redirects only, byte ceiling).
     default = DevelopmentFinanceAdapter(source)
     assert default.transport.func.__qualname__ == "HTTPSPageAdapter._request"
+
+
+def test_crs_regional_codes_are_aggregates_by_structure_and_by_name():
+    """Codes like 1027 "Eastern Africa, regional" are aggregates, never a single country (review)."""
+    from src.ingestion.development_finance_sources import split_code_label
+
+    for code in ("1027", "1030", "389", "489", "798", "998"):
+        assert classify_recipient(code)["kind"] == "aggregate", code
+    assert classify_recipient("KEN", "Africa, regional")["kind"] == "aggregate"
+    assert classify_recipient(*split_code_label("KEN: Kenya")) == {
+        "code": "KEN",
+        "label": "Kenya",
+        "kind": "country",
+        "scheme": "iso3166-1-alpha3",
+    }
+    assert (
+        classify_recipient(*split_code_label("1027: Eastern Africa, regional"))["kind"]
+        == "aggregate"
+    )
+    assert classify_recipient("X9")["kind"] == "unknown"

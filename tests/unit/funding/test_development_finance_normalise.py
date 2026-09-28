@@ -271,3 +271,79 @@ def test_a_code_carried_by_two_places_stays_ambiguous(env):
     )
     (kenya,) = [link for link in result["links"] if link["code"] == "KE"]
     assert kenya["state"] == "ambiguous"
+
+
+def test_sector_percentages_are_checked_per_vocabulary_and_recipients_together(env):
+    """DAC and SDG sector lists are separate 100% allocations; countries and regions are one (review)."""
+    normaliser = DevelopmentFinanceNormaliser(env.conn, now=env.now)
+    activity = {
+        "sectors": [
+            {
+                "code": "14030",
+                "vocabulary": "1",
+                "percentage_text": "100",
+                "percentage": "100",
+            },
+            {
+                "code": "6",
+                "vocabulary": "7",
+                "percentage_text": "60",
+                "percentage": "60",
+            },
+            {
+                "code": "6.1",
+                "vocabulary": "8",
+                "percentage_text": "100",
+                "percentage": "100",
+            },
+            {
+                "code": "1",
+                "vocabulary": "7",
+                "percentage_text": "40",
+                "percentage": "40",
+            },
+        ],
+        "recipient_countries": [
+            {"code": "KE", "percentage_text": "60", "percentage": "60"}
+        ],
+        "recipient_regions": [
+            {
+                "code": "289",
+                "vocabulary": "1",
+                "percentage_text": "40",
+                "percentage": "40",
+            }
+        ],
+    }
+    checks = normaliser._allocation_checks(activity)
+    assert {
+        (c["allocation"], tuple(c["group"].values())): c["state"] for c in checks
+    } == {
+        ("sector", ("1",)): "sums-to-100",
+        ("sector", ("7",)): "sums-to-100",
+        ("sector", ("8",)): "sums-to-100",
+        ("recipient", ("1",)): "sums-to-100",
+    }
+    # A single sector without a percentage is 100% by convention; several without percentages are flagged.
+    single = normaliser._allocation_checks(
+        {"sectors": [{"code": "14030", "percentage_text": None}]}
+    )
+    assert single[0]["state"] == "sums-to-100"
+    missing = normaliser._allocation_checks(
+        {
+            "sectors": [
+                {"code": "14030", "percentage_text": None},
+                {"code": "11220", "percentage_text": None},
+            ]
+        }
+    )
+    assert missing[0]["flag"] == "allocation-percentage-missing"
+    # Countries alone must add up to 100 as well.
+    alone = normaliser._allocation_checks(
+        {
+            "recipient_countries": [
+                {"code": "KE", "percentage_text": "60", "percentage": "60"}
+            ]
+        }
+    )
+    assert alone[0]["flag"] == "allocation-sum-not-100"

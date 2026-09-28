@@ -139,11 +139,13 @@ CREATE TABLE IF NOT EXISTS devfin_results (
 );
 CREATE TABLE IF NOT EXISTS devfin_sightings (
   namespace TEXT NOT NULL, activity_key TEXT NOT NULL, dataset_id TEXT NOT NULL, selection_key TEXT NOT NULL,
-  revision_id TEXT NOT NULL, observed_at_ms BIGINT NOT NULL, PRIMARY KEY(namespace, activity_key, dataset_id)
+  revision_id TEXT NOT NULL, observed_at_ms BIGINT NOT NULL,
+  PRIMARY KEY(namespace, activity_key, dataset_id, observed_at_ms)
 );
 CREATE TABLE IF NOT EXISTS devfin_withdrawals (
   namespace TEXT NOT NULL, activity_key TEXT NOT NULL, coverage_id TEXT NOT NULL, selection_key TEXT NOT NULL,
-  last_revision_id TEXT NOT NULL, observed_at_ms BIGINT NOT NULL, PRIMARY KEY(namespace, activity_key, coverage_id)
+  last_revision_id TEXT NOT NULL, observed_at_ms BIGINT NOT NULL,
+  PRIMARY KEY(namespace, activity_key, coverage_id, observed_at_ms)
 );
 CREATE TABLE IF NOT EXISTS devfin_coverage (
   namespace TEXT NOT NULL, coverage_id TEXT NOT NULL, provider TEXT NOT NULL, selection_key TEXT NOT NULL,
@@ -328,6 +330,104 @@ def transaction_keys(transactions: Sequence[Mapping[str, Any]]) -> list[str]:
         counts[base] = number + 1
         keys.append(base if number == 0 else f"{base}#{number}")
     return keys
+
+
+def transaction_summary(tx: Mapping[str, Any]) -> dict[str, Any]:
+    """The fields a transaction diff compares (from a stored transaction or a monitor snapshot entry)."""
+    provider = tx.get("provider_org") if "provider_org" in tx else None
+    receiver = tx.get("receiver_org") if "receiver_org" in tx else None
+    return {
+        "key": tx.get("transaction_key") or tx.get("key"),
+        "ref": tx.get("ref"),
+        "type": tx.get("type"),
+        "date": tx.get("date"),
+        "provider": tx.get("provider")
+        if "provider" in tx
+        else identifier_key((provider or {}).get("ref")),
+        "receiver": tx.get("receiver")
+        if "receiver" in tx
+        else identifier_key((receiver or {}).get("ref")),
+        "digest": tx.get("content_hash") or tx.get("digest"),
+        "id": tx.get("transaction_id") or tx.get("id"),
+        "value_text": tx.get("value_text"),
+        "currency": tx.get("currency"),
+        "value_date": tx.get("value_date"),
+    }
+
+
+def diff_transactions(
+    before: Sequence[Mapping[str, Any]], after: Sequence[Mapping[str, Any]]
+) -> list[dict[str, Any]]:
+    """New, corrected and removed transactions between two versions of one publisher's activity.
+
+    Transactions are first paired by their key (the reported ``ref``, or type, date and parties). Unpaired
+    transactions without a ``ref`` are then paired by the fields that stay stable when a date is corrected - type,
+    provider and receiver, in order of occurrence - so a re-dated transaction is a correction, never an addition
+    plus a silent removal. Whatever is still unpaired is new (after) or removed (before).
+    """
+    olds = [transaction_summary(t) for t in before]
+    news = [transaction_summary(t) for t in after]
+    pairs: list[tuple[dict[str, Any], dict[str, Any]]] = []
+    by_key = {t["key"]: t for t in olds}
+    unmatched_new = []
+    for tx in news:
+        old = by_key.pop(tx["key"], None)
+        if old is None:
+            unmatched_new.append(tx)
+        else:
+            pairs.append((old, tx))
+    remaining_old = [t for t in olds if t["key"] in by_key]
+
+    def stable(t):
+        return (t["type"], t["provider"], t["receiver"])
+
+    still_new = []
+    for tx in unmatched_new:
+        if tx["ref"]:
+            still_new.append(tx)
+            continue
+        match = next(
+            (o for o in remaining_old if not o["ref"] and stable(o) == stable(tx)), None
+        )
+        if match is None:
+            still_new.append(tx)
+        else:
+            remaining_old.remove(match)
+            pairs.append((match, tx))
+    changes = []
+    value = ("value_text", "currency", "value_date", "date")
+    for old, tx in pairs:
+        if old["digest"] != tx["digest"]:
+            changes.append(
+                {
+                    "change": "corrected",
+                    "transaction_key": tx["key"],
+                    "before_key": old["key"],
+                    "before": {
+                        "transaction_id": old["id"],
+                        **{k: old[k] for k in value},
+                    },
+                    "after": {"transaction_id": tx["id"], **{k: tx[k] for k in value}},
+                }
+            )
+    for tx in still_new:
+        changes.append(
+            {
+                "change": "new",
+                "transaction_key": tx["key"],
+                "after": {"transaction_id": tx["id"], **{k: tx[k] for k in value}},
+            }
+        )
+    for old in remaining_old:
+        changes.append(
+            {
+                "change": "removed",
+                "transaction_key": old["key"],
+                "before": {"transaction_id": old["id"], **{k: old[k] for k in value}},
+                "note": "no longer reported by the publisher in this version",
+            }
+        )
+    return changes
 
 
 def transaction_digest(tx: Mapping[str, Any]) -> str:
@@ -752,6 +852,11 @@ class DevelopmentFinanceStore:
     def _sighting(
         self, namespace, key, dataset_id, selection_key, revision_id, observed_at_ms
     ) -> None:
+        """One sighting per run (not per dataset: byte-identical pages of a later run are a new sighting), so a
+        re-appearance after a withdrawal is heard and the last-seen time moves; a replayed run adds nothing."""
+        withdrawn = (
+            self.publication_state(namespace, key)["state"] == "withdrawn-by-publisher"
+        )
         self.conn.execute(
             "INSERT INTO devfin_sightings VALUES (?,?,?,?,?,?) ON CONFLICT DO NOTHING",
             [
@@ -763,6 +868,10 @@ class DevelopmentFinanceStore:
                 int(observed_at_ms),
             ],
         )
+        if withdrawn and self.publication_state(namespace, key)["state"] == "published":
+            self._bump(
+                namespace
+            )  # a re-appearance changes the activity's publication state
 
     def apply_iati(
         self,

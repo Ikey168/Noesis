@@ -34,6 +34,8 @@ from src.kb.development_finance import (
     DevelopmentFinanceError,
     DevelopmentFinanceStore,
     authorize,
+    diff_transactions,
+    transaction_summary,
     canonical,
     digest,
     iso_from_ms,
@@ -53,6 +55,7 @@ MESSAGES = {
     "new_activity": "A publisher reports a new activity",
     "new_transaction": "A publisher reports a new transaction",
     "corrected_transaction": "A publisher corrected a transaction",
+    "removed_transaction": "A publisher no longer reports a transaction in this version (not reversed or ended)",
     "retracted_activity": "A publisher no longer publishes an activity (withdrawn from publication; not ended)",
     "new_result_posting": "A publisher posted new or changed results",
     "new_crs_vintage": "A new OECD CRS vintage of a watched cell",
@@ -204,17 +207,9 @@ class DevelopmentFinanceMonitor:
                     "revision_id": revision["revision_id"],
                     "last_updated_at": revision["last_updated_at"],
                     "publication": state["state"],
-                    "transactions": {
-                        tx["transaction_key"]: {
-                            "digest": tx["content_hash"],
-                            "id": tx["transaction_id"],
-                            "value_text": tx["value_text"],
-                            "currency": tx["currency"],
-                            "value_date": tx["value_date"],
-                            "type": tx["type"],
-                        }
-                        for tx in revision["transactions"]
-                    },
+                    "transactions": [
+                        transaction_summary(tx) for tx in revision["transactions"]
+                    ],
                     "results_digest": digest(revision["activity"].get("results") or []),
                 }
             )
@@ -466,36 +461,34 @@ class DevelopmentFinanceMonitor:
                     iati_identifier=after["iati_identifier"],
                 )
             )
-        for tx_key, tx in sorted(after["transactions"].items()):
-            old = before["transactions"].get(tx_key)
-            if old is None:
-                out.append(
-                    note(
-                        "new_transaction",
-                        {**cites, "transaction": tx["id"]},
-                        publisher_id=after["publisher_id"],
-                        transaction_key=tx_key,
-                    )
+        kinds = {
+            "new": "new_transaction",
+            "corrected": "corrected_transaction",
+            "removed": "removed_transaction",
+        }
+        for change in diff_transactions(before["transactions"], after["transactions"]):
+            extra = {}
+            if change.get("before"):
+                extra["before_value"] = change["before"]
+            if change.get("after"):
+                extra["after_value"] = change["after"]
+            out.append(
+                note(
+                    kinds[change["change"]],
+                    {
+                        **cites,
+                        "before_transaction": (change.get("before") or {}).get(
+                            "transaction_id"
+                        ),
+                        "after_transaction": (change.get("after") or {}).get(
+                            "transaction_id"
+                        ),
+                    },
+                    publisher_id=after["publisher_id"],
+                    transaction_key=change["transaction_key"],
+                    **extra,
                 )
-            elif old["digest"] != tx["digest"]:
-                out.append(
-                    note(
-                        "corrected_transaction",
-                        {
-                            **cites,
-                            "before_transaction": old["id"],
-                            "after_transaction": tx["id"],
-                        },
-                        publisher_id=after["publisher_id"],
-                        transaction_key=tx_key,
-                        before_value={
-                            k: old[k] for k in ("value_text", "currency", "value_date")
-                        },
-                        after_value={
-                            k: tx[k] for k in ("value_text", "currency", "value_date")
-                        },
-                    )
-                )
+            )
         if before["results_digest"] != after["results_digest"]:
             out.append(
                 note("new_result_posting", cites, publisher_id=after["publisher_id"])

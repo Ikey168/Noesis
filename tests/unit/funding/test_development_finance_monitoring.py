@@ -180,3 +180,65 @@ def test_monitors_belong_to_their_owner_and_need_filters(env):
     )
     with pytest.raises(DevelopmentFinanceError):
         monitor.run(created["subscription_id"], principal_id="mallory", scopes=h.SCOPES)
+
+
+def test_removed_and_redated_transactions_are_reported(env):
+    """A dropped transaction is a removal; a ref-less transaction whose date changed is a correction (review)."""
+    monitor = DevelopmentFinanceMonitor(env.conn, now=env.now)
+    created = monitor.create(
+        h.NS,
+        "fdpa",
+        filters={"publishers": [h.FDPA]},
+        principal_id="alice",
+        scopes=h.SCOPES,
+    )
+    monitor.run(created["subscription_id"], principal_id="alice", scopes=h.SCOPES)
+    edited = h.edited(
+        "iati_fdpa_2098-03.xml",
+        # FICT-0001-C1 is no longer reported.
+        ('<transaction ref="FICT-0001-C1">', '<transaction ref="FICT-0001-C1" x="1">'),
+        ("2098-03-01T10:00:00Z", "2098-07-01T10:00:00Z"),
+        # The ref-less education disbursement is re-dated.
+        ('<transaction ref="FICT-0002-D1">', "<transaction>"),
+        (
+            '<transaction-date iso-date="2098-02-05"/>',
+            '<transaction-date iso-date="2098-02-06"/>',
+        ),
+        ("2098-02-10T09:00:00Z", "2098-07-01T09:00:00Z"),
+    )
+    text = edited.decode()
+    start = text.index('<transaction ref="FICT-0001-C1" x="1">')
+    text = (
+        text[:start]
+        + text[text.index("</transaction>", start) + len("</transaction>") :]
+    )
+    # Make the education disbursement ref-less in the first state too, so only its date differs.
+    baseline = h.edited(
+        "iati_fdpa_2098-03.xml",
+        ('<transaction ref="FICT-0002-D1">', "<transaction>"),
+        ("2098-02-10T09:00:00Z", "2098-02-11T09:00:00Z"),
+    )
+    env.at("2099-02-01T08:00:00").iati(baseline, observation="r1b")
+    monitor.run(created["subscription_id"], principal_id="alice", scopes=h.SCOPES)
+    env.at("2099-03-01T08:00:00").iati(text.encode(), observation="r2")
+    run = monitor.run(created["subscription_id"], principal_id="alice", scopes=h.SCOPES)
+    kinds = [(n["kind"], n.get("transaction_key")) for n in run["notifications"]]
+    assert ("removed_transaction", "ref:FICT-0001-C1") in kinds
+    corrected = [
+        n for n in run["notifications"] if n["kind"] == "corrected_transaction"
+    ]
+    assert len(corrected) == 1 and corrected[0]["before_value"]["date"] == "2098-02-05"
+    assert corrected[0]["after_value"]["date"] == "2098-02-06"
+    assert not [k for k in kinds if k[0] == "new_transaction"]
+    from src.kb.development_finance_queries import DevelopmentFinanceQueries
+
+    inspected = DevelopmentFinanceQueries(env.conn, now=env.now).inspect_activity(
+        h.NS, "XM-DAC-99901-FICT-0001", principal_id="a", scopes=h.SCOPES
+    )
+    changes = next(
+        r for r in inspected["reports"] if r["publisher_id"].endswith("99901")
+    )["transaction_changes"]
+    assert any(
+        c["change"] == "removed" and c["transaction_key"] == "ref:FICT-0001-C1"
+        for c in changes
+    )
