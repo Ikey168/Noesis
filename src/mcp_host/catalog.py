@@ -334,6 +334,9 @@ def _mutability(name: str) -> str:
     from tools.knowledge_engine_mcp.demographics import DEMOGRAPHIC_WRITES
     if name in DEMOGRAPHIC_WRITES:
         return "write"
+    from tools.knowledge_engine_mcp.housing import HOUSING_WRITES
+    if name in HOUSING_WRITES:
+        return "write"
     from tools.knowledge_engine_mcp.investigations import (
         ALERT_WRITES,
         COMPARISON_WRITES,
@@ -903,6 +906,10 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
     from tools.knowledge_engine_mcp.demographics import required_scopes as demographic_scopes
     if server_stem == "knowledge_engine_mcp" and tool_name in DEMOGRAPHIC_TOOLS:
         return demographic_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.housing import HOUSING_TOOLS
+    from tools.knowledge_engine_mcp.housing import required_scopes as housing_scopes
+    if server_stem == "knowledge_engine_mcp" and tool_name in HOUSING_TOOLS:
+        return housing_scopes(tool_name, mutability)
     if server_stem == "knowledge_engine_mcp" and tool_name in {
         "suggest_jev_claim_presence",
         "suggest_jev_checkworthiness",

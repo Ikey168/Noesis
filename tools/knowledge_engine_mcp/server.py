@@ -9278,6 +9278,12 @@ from tools.knowledge_engine_mcp.demographics import (  # noqa: E402 - registrati
 
 register_demographic_tools(mcp, _intake_safe, _intake_context)
 
+from tools.knowledge_engine_mcp.housing import (  # noqa: E402 - registration order
+    register as register_housing_tools,
+)
+
+register_housing_tools(mcp, _intake_safe, _intake_context)
+
 from tools.knowledge_engine_mcp.vulnerabilities import (  # noqa: E402 - registration order
     register as register_vulnerability_tools,
 )

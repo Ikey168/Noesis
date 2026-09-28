@@ -28,7 +28,7 @@ and `::test_shadow_diff_is_annotated_for_every_migrated_bundle`.
 | news | `news.core` | code pack `news`; route modules kept as advisory registrations | shadow report |
 | science (legacy `research`) | `science.literature`, `science.mathematics`, `science.cultural` (optional `cultural-collections` feature) | alias `research`; code enrichers kept | `test_first_composition.py` |
 | osint | `osint.core` (imagery provenance behind `osint-review`) | v1 `packs/osint/pack.json` unchanged | `test_first_composition.py` |
-| geospatial | `geospatial.core`, `geospatial.transit` | v1 manifest and Berlin source pack unchanged | `test_first_composition.py` |
+| geospatial | `geospatial.core`, `geospatial.transit`; optional `housing` feature (default off) adds `geospatial.housing` and binds `legal.core`, `economics.core`, `political.core`, `news.core`, `platform.subscriptions` and `platform.source-runtime`; optional `housing-transit-context` feature (default off) adds the transit stops of `geospatial.transit` as accessibility context | v1 manifest unchanged; pins `geospatial-berlin` ^1.1.0, and the `housing` sources ship as the `geospatial-berlin` 1.3.0 upgrade (`packs/geospatial/source_packs/geospatial-berlin-1.3.0.json`) | `test_first_composition.py`, `tests/unit/composition/test_geospatial_housing_composition.py` |
 | legal | `legal.core`; optional `sanctions` feature (default off) adds `legal.sanctions` and binds `ownership.core`, `market.lei`, `platform.entity-identity`, `economics.core` and `platform.subscriptions` | v1 manifest plus code pack merged; ships `legal-research` 1.1.0 | shadow report; `tests/unit/composition/test_legal_sanctions_composition.py` |
 | market | `market.core`, `market.lei` | v1 manifest plus code pack merged | shadow report |
 | economics (legacy `economic`) | `economics.core`; optional `public-finance` feature (default off) adds `economics.public-finance` and binds `legal.core`, `political.core`, `procurement.core`, `funding.core`, `ownership.core`, `platform.entity-identity`, `platform.subscriptions` and `platform.source-runtime`; optional `demographics` feature (default off, independent of `public-finance`) adds `economics.demographics` and binds `legal.core`, `political.core`, `geospatial.core`, `platform.subscriptions` and `platform.source-runtime` | alias `economic`; ships `economic-statistics-and-filings` 1.3.0 | shadow report; `tests/unit/composition/test_economics_public_finance_composition.py`, `tests/unit/composition/test_economics_demographics_composition.py` |
@@ -62,6 +62,7 @@ projector introduces a store. Evidence:
 | --- | --- | --- | --- |
 | `noesis-geospatial-feature-v1` | `src.kb.geospatial_features` | `geospatial.core` | `geospatial-berlin` |
 | `noesis-transit-feed-v1` | `src.kb.transit` | `geospatial.transit` | `geospatial-berlin` |
+| `noesis-housing-record-v1` | `src.kb.housing` | `geospatial.housing` | `geospatial-berlin` (1.3.0) |
 | `noesis-product-record-v1` | `src.kb.products` | `products.core` | `products-displays` |
 | `noesis-legal-record-v1` | `src.kb.legal` | `legal.core` | `legal-research` |
 | `noesis-cultural-object-v1` | `src.kb.cultural` | `science.cultural` | `primary-scientific-evidence` |
