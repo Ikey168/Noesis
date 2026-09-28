@@ -1091,6 +1091,7 @@ class ProductSafetyStore:
         }
 
     def selection_outcomes(self, namespace: str, run_id: str) -> list[dict[str, Any]]:
+        self._require_ready()
         rows = self.conn.execute(
             "SELECT source_id, selection_index, selector_json, outcome, notices FROM product_safety_selection "
             "WHERE namespace=? AND run_id=? ORDER BY source_id, selection_index",
@@ -1108,6 +1109,7 @@ class ProductSafetyStore:
         ]
 
     def sources_consulted(self, namespace: str) -> list[dict[str, Any]]:
+        self._require_ready()
         rows = self.conn.execute(
             "SELECT source_id, max(finished_at_ms) FILTER (WHERE status='complete'), max(finished_at_ms), "
             "arg_max(status, finished_at_ms) FROM product_safety_source_runs WHERE namespace=? GROUP BY source_id "
@@ -1187,6 +1189,28 @@ class ProductSafetyStore:
             # are matched on their own and never contradict a product's brand or model.
             groups[-1] = shared
         return groups
+
+    def names_model(
+        self,
+        namespace: str,
+        revision_id: str,
+        model_id: str,
+        models: Mapping[str, Mapping[str, Any]] | None = None,
+    ) -> bool:
+        """Whether one notice revision's identification yields a ``proposed`` candidate for the model."""
+        models = (
+            models
+            if models is not None
+            else {m["model_id"]: m for m in self._models(namespace)}
+        )
+        model = models.get(model_id)
+        if model is None:
+            return False
+        return any(
+            (proposal := _propose(group, model)) is not None
+            and proposal[0] == "proposed"
+            for group in self._groups(namespace, revision_id).values()
+        )
 
     def propose_matches(
         self, namespace: str, *, scopes: Iterable[str], principal_id: str
@@ -1429,6 +1453,7 @@ class ProductSafetyStore:
     def matches_for_notice(
         self, namespace: str, notice_id: str
     ) -> list[dict[str, Any]]:
+        self._require_ready()
         return [
             self.match(namespace, r[0])
             for r in self.conn.execute(
@@ -1440,6 +1465,7 @@ class ProductSafetyStore:
     def matches_for_models(
         self, namespace: str, model_ids: Iterable[str]
     ) -> list[dict[str, Any]]:
+        self._require_ready()
         ids = sorted(set(model_ids))
         if not ids:
             return []
@@ -1478,6 +1504,7 @@ class ProductSafetyStore:
     ) -> dict[str, Any]:
         """Manufacturer/importer names with canonical-alias candidates; nothing is linked without a decision."""
         authorize(namespace, scopes, READ_SCOPE)
+        self._require_ready()
         names = self.conn.execute(
             "SELECT DISTINCT p.party_key, p.name, p.role FROM product_safety_parties p JOIN product_safety_current c "
             "ON c.namespace=p.namespace AND c.revision_id=p.revision_id WHERE p.namespace=? ORDER BY p.name, p.role",
@@ -1917,6 +1944,7 @@ class ProductSafetyStore:
         }
         if model_id or variant_id:
             members = self._product_members(namespace, model_id, variant_id)
+            models = {m["model_id"]: m for m in self._models(namespace)}
             query.update({"model_id": members[0], "accepted_equivalents": members[1:]})
             for match in self.matches_for_models(namespace, members):
                 if not match["attached"]:
@@ -1938,6 +1966,23 @@ class ProductSafetyStore:
                             }
                         )
                     continue
+                if cutoff is not None:
+                    # The as-of revision must itself name the product; a later revision naming it is not
+                    # evidence that a notice was on record then.
+                    chosen, _ = self.revision_as_of(
+                        namespace, match["notice_id"], cutoff
+                    )
+                    if chosen is not None and not self.names_model(
+                        namespace, chosen["revision_id"], match["model_id"], models
+                    ):
+                        later_notices.append(
+                            {
+                                "notice_id": match["notice_id"],
+                                "match_id": match["match_id"],
+                                "note": "the notice named this product only in a later revision",
+                            }
+                        )
+                        continue
                 self._collect(
                     namespace,
                     match["notice_id"],
@@ -2047,11 +2092,17 @@ class ProductSafetyStore:
     def _product_members(
         self, namespace: str, model_id: str | None, variant_id: str | None
     ) -> list[str]:
+        return self.equivalent_models(namespace, model_id or variant_id)
+
+    def equivalent_models(self, namespace: str, identity: str) -> list[str]:
+        """A model (or a variant's model) plus the models accepted as the same product from other providers.
+
+        The one definition of "models equivalent to X", shared by lookups and monitors.
+        """
         if not _table(self.conn, "product_identities"):
             raise ProductSafetyError(
                 "not_found", "no Products identities in this deployment"
             )
-        identity = model_id or variant_id
         row = self.conn.execute(
             "SELECT level, parent_id FROM product_identities WHERE namespace=? AND identity_id=?",
             [namespace, identity],

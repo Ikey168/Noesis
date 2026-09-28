@@ -1231,38 +1231,50 @@ def parse_nhtsa_campaign(rows: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
             _ident("model_year", row.get("ModelYear"), f"/results/{i}/ModelYear", i),
             _ident("component", row.get("Component"), f"/results/{i}/Component", i),
         ]
-    hazards = [
-        {
-            "hazard_type": _text(first.get("Component")),
-            "risk_level": None,
-            "description": _text(first.get("Consequence")),
-            "summary": _text(first.get("Summary")),
-            "locator": {
-                "json_pointer": "/results/0/Consequence",
-                "summary_pointer": "/results/0/Summary",
-            },
-        }
-    ]
-    actions = [
-        {
-            "text": _text(first.get("Remedy")),
-            "measure_type": None,
-            "taken_by": None,
-            "remedy_type": sorted(
-                k
-                for k in ("parkIt", "parkOutSide", "overTheAirUpdate")
-                if first.get(k) is True
-            ),
-            "locator": {"json_pointer": "/results/0/Remedy"},
-        }
-    ]
-    parties = [
-        {
-            "role": "manufacturer",
-            "name": _text(first.get("Manufacturer")),
-            "locator": {"json_pointer": "/results/0/Manufacturer"},
-        }
-    ]
+    hazards = (
+        [
+            {
+                "hazard_type": _text(first.get("Component")),
+                "risk_level": None,
+                "description": _text(first.get("Consequence")),
+                "summary": _text(first.get("Summary")),
+                "locator": {
+                    "json_pointer": "/results/0/Consequence",
+                    "summary_pointer": "/results/0/Summary",
+                },
+            }
+        ]
+        if any(_text(first.get(k)) for k in ("Component", "Consequence", "Summary"))
+        else []
+    )
+    actions = (
+        [
+            {
+                "text": _text(first.get("Remedy")),
+                "measure_type": None,
+                "taken_by": None,
+                "remedy_type": sorted(
+                    k
+                    for k in ("parkIt", "parkOutSide", "overTheAirUpdate")
+                    if first.get(k) is True
+                ),
+                "locator": {"json_pointer": "/results/0/Remedy"},
+            }
+        ]
+        if _text(first.get("Remedy"))
+        else []
+    )
+    parties = (
+        [
+            {
+                "role": "manufacturer",
+                "name": _text(first.get("Manufacturer")),
+                "locator": {"json_pointer": "/results/0/Manufacturer"},
+            }
+        ]
+        if _text(first.get("Manufacturer"))
+        else []
+    )
     return _statement(
         "nhtsa",
         number,

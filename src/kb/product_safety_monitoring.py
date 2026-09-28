@@ -52,7 +52,10 @@ from src.kb.product_safety import (
 CONTRACT = "noesis-product-notice-notification-v1"
 EVENT_KINDS = ("notice_attached", "notice_detached", "new_notice", "notice_revised")
 AUTHORITIES = ("eu-safety-gate", "us-cpsc", "us-nhtsa", "eu-rasff")
-# Subscription watermark = source-pack watermark * GENERATION_SPAN + review generation.
+# Subscription watermark = source-pack watermark * GENERATION_SPAN + review generation (10**9): the
+# source watermark of the last complete notice run, plus the namespace's append-only count of match,
+# review and party-link changes, so a review between runs is a new, monotone watermark and replaying
+# either part adds nothing. The committed detail records both parts and the notice cutoff sequence.
 GENERATION_SPAN = 1_000_000_000
 
 
@@ -238,6 +241,7 @@ class ProductNoticeMonitor:
         extra: Mapping[str, Any],
         *,
         first_kind: str | None,
+        after_seq: int = 0,
     ) -> list[dict[str, Any]]:
         items = []
         chain = self._chain(namespace, notice_id, cutoff)
@@ -253,7 +257,7 @@ class ProductNoticeMonitor:
                         **extra,
                     }
                 )
-            elif index > 0:
+            elif index > 0 and revision["seq"] > after_seq:
                 items.append(
                     {
                         "id": f"{subject}:notice_revised:{revision['revision_id']}",
@@ -271,64 +275,17 @@ class ProductNoticeMonitor:
     def snapshot(self, subscription: Mapping[str, Any], cutoff: int) -> dict[str, Any]:
         namespace, watch = subscription["namespace"], subscription["query"]["watch"]
         items: list[dict[str, Any]] = []
-        models = set(watch["models"])
-        for variant in watch["variants"]:
-            row = self.conn.execute(
-                "SELECT parent_id FROM product_identities WHERE namespace=? AND identity_id=?",
-                [namespace, variant],
-            ).fetchone()
-            if row:
-                models.add(row[0])
+        models: set[str] = set()
+        for identity in watch["models"] + watch["variants"]:
+            # The same "models equivalent to X" as lookup_product_notices: accepted cross-provider equivalents.
+            try:
+                models.update(self.store.equivalent_models(namespace, identity))
+            except ProductSafetyError:
+                continue  # a watched identity no longer visible watches nothing
         for match in self.store.matches_for_models(namespace, models):
-            attached = False
-            for review in match["review_history"]:
-                now_attached = (
-                    review["decision"] == "accepted"
-                    and review["candidate_state"] == "proposed"
-                )
-                if now_attached != attached:
-                    kind = "notice_attached" if now_attached else "notice_detached"
-                    revision = next(
-                        r
-                        for r in self.store.revisions(namespace, match["notice_id"])
-                        if r["revision_id"] == review["revision_id"]
-                    )
-                    items.append(
-                        {
-                            "id": f"match:{match['match_id']}:{kind}:{review['sequence']}",
-                            "kind": kind,
-                            **self._cite(namespace, match["notice_id"], revision),
-                            "model_id": match["model_id"],
-                            "match": {
-                                "match_id": match["match_id"],
-                                "review_sequence": review["sequence"],
-                                "decision": review["decision"],
-                                "reason": review["reason"],
-                            },
-                        }
-                    )
-                    attached = now_attached
-            if attached and not match["attached"]:
-                # Accepted, but the current revision no longer names the product.
-                revision = next(
-                    r
-                    for r in self.store.revisions(namespace, match["notice_id"])
-                    if r["revision_id"] == match["revision_id"]
-                )
-                items.append(
-                    {
-                        "id": f"match:{match['match_id']}:notice_detached:{match['candidate_state']}:"
-                        f"{match['revision_id']}",
-                        "kind": "notice_detached",
-                        **self._cite(namespace, match["notice_id"], revision),
-                        "model_id": match["model_id"],
-                        "match": {
-                            "match_id": match["match_id"],
-                            "candidate_state": match["candidate_state"],
-                        },
-                    }
-                )
-            if match["attached"]:
+            events, attached, since = self._match_state(namespace, match, cutoff)
+            items += events
+            if attached:
                 items += self._revision_items(
                     namespace,
                     match["notice_id"],
@@ -339,6 +296,7 @@ class ProductNoticeMonitor:
                         "match": {"match_id": match["match_id"]},
                     },
                     first_kind=None,
+                    after_seq=since,
                 )
         brands = {_brand_key(b) for b in watch["brands"]}
         gtins = {gtin_key(g) or f"raw:{g}" for g in watch["gtins"]}
@@ -357,7 +315,7 @@ class ProductNoticeMonitor:
                     attached = [
                         m
                         for m in self.store.matches_for_notice(namespace, notice_id)
-                        if m["attached"]
+                        if self._match_state(namespace, m, cutoff)[1]
                     ]
                     extra = {
                         "watched": label,
@@ -375,6 +333,77 @@ class ProductNoticeMonitor:
                         first_kind="new_notice",
                     )
         return {"items": items, "coverage": {"complete": True}}
+
+    def _match_state(
+        self, namespace: str, match: Mapping[str, Any], cutoff: int
+    ) -> tuple[list[dict[str, Any]], bool, int]:
+        """Attach/detach events and the attachment of one match, seen only through revisions up to the cutoff.
+
+        A review cites the revision current when it was made; a review of a revision projected after the last
+        complete run (or a candidate state drawn from such a revision) waits for the next complete run.
+        """
+        revisions = {
+            r["revision_id"]: r
+            for r in self.store.revisions(namespace, match["notice_id"])
+        }
+
+        def visible(revision_id: str) -> bool:
+            return revision_id in revisions and revisions[revision_id]["seq"] <= cutoff
+
+        events: list[dict[str, Any]] = []
+        attached, since = False, 0
+        for review in match["review_history"]:
+            if not visible(review["revision_id"]):
+                continue
+            now_attached = (
+                review["decision"] == "accepted"
+                and review["candidate_state"] == "proposed"
+            )
+            if now_attached != attached:
+                kind = "notice_attached" if now_attached else "notice_detached"
+                events.append(
+                    {
+                        "id": f"match:{match['match_id']}:{kind}:{review['sequence']}",
+                        "kind": kind,
+                        **self._cite(
+                            namespace,
+                            match["notice_id"],
+                            revisions[review["revision_id"]],
+                        ),
+                        "model_id": match["model_id"],
+                        "match": {
+                            "match_id": match["match_id"],
+                            "review_sequence": review["sequence"],
+                            "decision": review["decision"],
+                            "reason": review["reason"],
+                        },
+                    }
+                )
+                attached = now_attached
+                since = revisions[review["revision_id"]]["seq"]
+        if (
+            attached
+            and visible(match["revision_id"])
+            and match["candidate_state"] != "proposed"
+        ):
+            # Accepted, but a revision within the cutoff no longer names the product.
+            events.append(
+                {
+                    "id": f"match:{match['match_id']}:notice_detached:{match['candidate_state']}:"
+                    f"{match['revision_id']}",
+                    "kind": "notice_detached",
+                    **self._cite(
+                        namespace, match["notice_id"], revisions[match["revision_id"]]
+                    ),
+                    "model_id": match["model_id"],
+                    "match": {
+                        "match_id": match["match_id"],
+                        "candidate_state": match["candidate_state"],
+                    },
+                }
+            )
+            attached = False
+        return events, attached, since
 
     def _string_hits(self, namespace, chain, brands, gtins, authorities):
         """Watched strings a notice names in any current-chain revision (first naming wins the label)."""
@@ -509,6 +538,10 @@ class ProductNoticeMonitor:
         cursor: str = "",
     ) -> dict[str, Any]:
         scopes = set(scopes)
+        if not self.store.ready() or not _table(self.conn, "knowledge_subscriptions"):
+            raise ProductSafetyError(
+                "not_ready", "no product-notice monitor or notice run exists yet"
+            )
         subscription = self._subscription(subscription_id, principal_id, scopes)
         authorize(subscription["namespace"], scopes, READ_SCOPE)
         return self.subscriptions.poll(
