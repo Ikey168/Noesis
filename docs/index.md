@@ -179,6 +179,10 @@ For the project overview and local setup, start with the
   series with first-class definitions, geography levels and vintages, publishers side by side with comparability
   notes, boundary projections as of a release date and citation links to acts, decisions and dossiers;
   [source audit](roadmaps/economics-demographics-source-audit.md)
+- [Geospatial housing guide](guides/geospatial-housing.md) — land-value zones with valuation dates, Mietspiegel
+  editions and cells, development-plan stages, Wohnlagen, permit and completion statistics and Destatis vintages
+  projected onto an address, parcel or district as of a date, with citation links and monitors; no valuation or
+  advice and no interpolated value; [source audit](roadmaps/geospatial-housing-source-audit.md)
 - [OSINT pack guide](guides/osint-pack.md) — Admiralty grades, ownership
   dossiers, video reuse, registry and certificate history, infrastructure
   pivots and the gated imagery tier

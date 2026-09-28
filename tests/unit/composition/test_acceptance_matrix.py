@@ -48,6 +48,11 @@ MATRIX = {
     "Demographic geography to series and definitions":
         "tests/unit/domains/test_demographics_acceptance.py::"
         "test_geography_to_series_definitions_boundaries_and_citations",
+    # The Geospatial housing feature's offline journey (#2022) composes geospatial, legal, economics (dataset
+    # series), political, news, subscriptions and the source-pack runtime.
+    "Address to housing dossier":
+        "tests/unit/domains/test_housing_acceptance.py::"
+        "test_address_to_housing_dossier_with_conflicts_unknowns_and_restart",
 }
 
 
