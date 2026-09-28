@@ -1,0 +1,18 @@
+{
+  "captured": false,
+  "provider": "gcat",
+  "note": "Authored documents naming fictional objects (2099 designations, Fict-* hosts, 2099 launches, SWPC serials 9001-9004), served for the production document URLs. The production bounds are therefore out of scope for every bounded row; parsing is exercised with the fictional bounds in tests/unit/astronomy/harness.py.",
+  "native_pages": [
+    {
+      "request": "/space/gcat/tsv/launch/launch.tsv",
+      "status": 200,
+      "body": "#Launch_Tag\tLaunch_JD\tLaunch_Date\tLV_Type\tVariant\tFlight_ID\tFlight\tMission\tFlightCode\tPlatform\tLaunch_Site\tLaunch_Pad\tAscent_Site\tAscent_Pad\tApogee\tApoflag\tRange\tRangeFlag\tDest\tAgency\tLaunch_Code\tGroup\tCategory\tLTCite\tCite\tNotes\n# Updated 2099 May  1 (fictional authored extract)\n2099-001\t-\t2099 Mar  3 1415:00\tFictron 2\t-\t-\tF2-01\tFictsat demo\t-\t-\tFKSC\tLC1\t-\t-\t-\t-\t-\t-\tLEO\tFICTSPACE\tOS\t-\tFictional\tFICT99\tFICT99\tFictional launch\n2099-002\t-\t2099 Apr 10 0900\tFictron 2\t-\t-\tF2-02\tFictsat 2\t-\t-\tFKSC\tLC1\t-\t-\t-\t-\t-\t-\tLEO\tFICTSPACE\tOF\t-\tFictional\tFICT99\tFICT99\tFictional launch\n2099-003\t-\t2099 Apr 28 2230\tFictron 3\t-\t-\tF3-01\tFictsat 3\t-\t-\tFKSC\tLC2\t-\t-\t-\t-\t-\t-\tLEO\tFICTSPACE/FICTSYS\tOP\t-\tFictional\tFICT99\tFICT99\tFictional launch\n2098-077\t-\t2098 Dec 30 1200\tFictron 1\t-\t-\tF1-09\tOld mission\t-\t-\tFKSC\tLC1\t-\t-\t-\t-\t-\t-\tLEO\tFICTSPACE\tOS\t-\tFictional\tFICT99\tFICT99\tFictional launch\n",
+      "authored": true
+    }
+  ],
+  "scenarios": [
+    "bounded-selection",
+    "out-of-scope-rows-counted",
+    "authored-fictional"
+  ]
+}

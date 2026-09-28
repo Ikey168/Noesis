@@ -1,0 +1,18 @@
+{
+  "captured": false,
+  "provider": "nasa-exoplanet-archive",
+  "note": "Authored documents naming fictional objects (2099 designations, Fict-* hosts, 2099 launches, SWPC serials 9001-9004), served for the production document URLs. The production bounds are therefore out of scope for every bounded row; parsing is exercised with the fictional bounds in tests/unit/astronomy/harness.py.",
+  "native_pages": [
+    {
+      "request": "/TAP/sync?query=select%20pl_name%2Chostname%2Cdefault_flag%2Cpl_refname%2Cdisc_refname%2Cdiscoverymethod%2Cdisc_year%2Cdisc_facility%2Cpl_controv_flag%2Crowupdate%2Ctic_id%2Cgaia_id%2Cpl_orbper%2Cpl_orbpererr1%2Cpl_orbpererr2%2Cpl_rade%2Cpl_radj%2Cpl_bmasse%2Cpl_orbsmax%20from%20ps%20where%20hostname%20in%20%28%27TRAPPIST-1%27%2C%27TOI-700%27%2C%27Kepler-22%27%29&format=csv",
+      "status": 200,
+      "body": "pl_name,hostname,default_flag,pl_refname,disc_refname,discoverymethod,disc_year,disc_facility,pl_controv_flag,rowupdate,tic_id,gaia_id,toi,pl_orbper,pl_orbpererr1,pl_orbpererr2,pl_rade,pl_radj,pl_bmasse,pl_orbsmax\nFict-101 b,Fict-101,1,\"<a refstr=FICT_ET_AL__2099 href=https://ui.adsabs.harvard.edu/abs/2099AJ....999..101F/abstract target=ref>Fict et al. 2099</a>\",\"<a refstr=DISCOVERY href=https://doi.org/10.5555/fict.2099.101 target=ref>Fict discovery 2099</a>\",Transit,2099,Fictional Transit Survey,0,2099-01-10,TIC 999000101,Gaia DR3 9990001010000000001,99901.01,4.2500,0.0010,-0.0010,2.10,0.187,6.3,0.051\nFict-101 b,Fict-101,0,\"<a refstr=FICT_ET_AL__2099B href=https://doi.org/10.5555/fict.2099.101b target=ref>Fict et al. 2099b</a>\",,Transit,2099,Fictional Transit Survey,0,2099-01-10,TIC 999000101,Gaia DR3 9990001010000000001,99901.01,4.2502,0.0020,-0.0020,2.14,0.191,,0.051\nFict-303 c,Fict-303,1,\"<a refstr=FICT303 href=https://doi.org/10.5555/fict.2099.303 target=ref>Fict303 et al. 2099</a>\",,Radial Velocity,2099,Fictional RV Programme,0,2099-01-08,,,,31.70,0.05,-0.05,,,12.0,0.19\nFict-999 b,Fict-999,1,\"<a refstr=OTHER href=https://doi.org/10.5555/fict.2099.999b target=ref>Other 2099</a>\",,Transit,2099,Fictional Transit Survey,0,2099-01-09,,,,1.5,,,,,,\n",
+      "authored": true
+    }
+  ],
+  "scenarios": [
+    "bounded-selection",
+    "out-of-scope-rows-counted",
+    "authored-fictional"
+  ]
+}

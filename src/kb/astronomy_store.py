@@ -284,11 +284,13 @@ class AstronomyStore:
         seen: Iterable[str],
         observed_at_ms: int,
         run_id: str,
+        id_prefix: str = "",
     ) -> dict[str, list[str]]:
         """Record what a *complete* bounded listing no longer (or again) shows.
 
-        In scope are the provider's records of ``kinds`` carrying any of ``scope_keys`` (e.g. ``host:<name>`` for
-        a TAP query bounded by hosts); ``seen`` holds the source record IDs the listing showed.
+        In scope are the provider's records of ``kinds`` whose source record ID starts with ``id_prefix`` (the
+        listed table) and that carry any of ``scope_keys`` (e.g. ``host:<name>`` for a TAP query bounded by
+        hosts); ``seen`` holds the source record IDs the listing showed.
         """
         if provider not in PROVIDERS:
             raise AstronomyError("invalid_request", "unknown provider")
@@ -302,8 +304,8 @@ class AstronomyStore:
             + ",".join("?" * len(kinds))
             + ") AND k.key IN ("
             + ",".join("?" * len(scope_keys))
-            + ") ORDER BY r.record_id",
-            [namespace, provider, *kinds, *scope_keys],
+            + ") AND starts_with(r.source_record_id, ?) ORDER BY r.record_id",
+            [namespace, provider, *kinds, *scope_keys, id_prefix],
         ).fetchall()
         marks: dict[str, list[str]] = {"no_longer_listed": [], "listed_again": []}
         self.conn.execute("BEGIN")
@@ -326,7 +328,13 @@ class AstronomyStore:
                         observed_day(observed_at_ms),
                         int(observed_at_ms),
                         run_id,
-                        canonical({"kinds": sorted(kinds), "keys": scope_keys}),
+                        canonical(
+                            {
+                                "kinds": sorted(kinds),
+                                "keys": scope_keys,
+                                "id_prefix": id_prefix,
+                            }
+                        ),
                     ],
                 )
                 marks[new_state].append(rid)
@@ -684,6 +692,7 @@ class AstronomyProjector:
                 seen=listing.get("seen") or [],
                 observed_at_ms=observed,
                 run_id=run_id,
+                id_prefix=str(listing.get("id_prefix") or ""),
             )
         self.store.record_receipt(
             namespace,

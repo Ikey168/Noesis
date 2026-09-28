@@ -1,0 +1,18 @@
+{
+  "captured": false,
+  "provider": "nasa-exoplanet-archive",
+  "note": "Authored documents naming fictional objects (2099 designations, Fict-* hosts, 2099 launches, SWPC serials 9001-9004), served for the production document URLs. The production bounds are therefore out of scope for every bounded row; parsing is exercised with the fictional bounds in tests/unit/astronomy/harness.py.",
+  "native_pages": [
+    {
+      "request": "/TAP/sync?query=select%20kepoi_name%2Ckepid%2Ckepler_name%2Ckoi_disposition%2Ckoi_pdisposition%2Crowupdate%2Ckoi_period%20from%20cumulative%20where%20kepid%20in%20%2810593626%29&format=csv",
+      "status": 200,
+      "body": "kepoi_name,kepid,kepler_name,koi_disposition,koi_pdisposition,rowupdate,koi_period\nK99903.01,99900303,Fict-303 b,CONFIRMED,CANDIDATE,2099-01-05,12.5\nK99903.02,99900303,,CANDIDATE,CANDIDATE,2099-01-05,30.1\n",
+      "authored": true
+    }
+  ],
+  "scenarios": [
+    "bounded-selection",
+    "out-of-scope-rows-counted",
+    "authored-fictional"
+  ]
+}

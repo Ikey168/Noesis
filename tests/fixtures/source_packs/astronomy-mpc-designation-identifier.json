@@ -1,0 +1,36 @@
+{
+  "captured": false,
+  "provider": "mpc-designations",
+  "note": "Authored documents naming fictional objects (2099 designations, Fict-* hosts, 2099 launches, SWPC serials 9001-9004), served for the production document URLs. The production bounds are therefore out of scope for every bounded row; parsing is exercised with the fictional bounds in tests/unit/astronomy/harness.py.",
+  "native_pages": [
+    {
+      "request": "/api/query-identifier?ids=%28433%29",
+      "status": 200,
+      "body": "{\n  \"2099 AB12\": {\n    \"found\": 1,\n    \"object_type\": [\"Minor planet\", \"M\"],\n    \"permid\": null,\n    \"name\": null,\n    \"unpacked_primary_provisional_designation\": \"2099 AB12\",\n    \"packed_primary_provisional_designation\": \"K99A12B\",\n    \"unpacked_secondary_provisional_designations\": [],\n    \"packed_secondary_provisional_designations\": []\n  },\n  \"2099 YZ1\": {\n    \"found\": 1,\n    \"object_type\": [\"Minor planet\", \"M\"],\n    \"permid\": null,\n    \"unpacked_primary_provisional_designation\": \"2099 YZ1\",\n    \"packed_primary_provisional_designation\": \"K99Y01Z\",\n    \"unpacked_secondary_provisional_designations\": []\n  }\n}\n",
+      "authored": true
+    },
+    {
+      "request": "/api/query-identifier?ids=%2899942%29",
+      "status": 200,
+      "body": "{\n  \"2099 AB12\": {\n    \"found\": 1,\n    \"object_type\": [\"Minor planet\", \"M\"],\n    \"permid\": null,\n    \"name\": null,\n    \"unpacked_primary_provisional_designation\": \"2099 AB12\",\n    \"packed_primary_provisional_designation\": \"K99A12B\",\n    \"unpacked_secondary_provisional_designations\": [],\n    \"packed_secondary_provisional_designations\": []\n  },\n  \"2099 YZ1\": {\n    \"found\": 1,\n    \"object_type\": [\"Minor planet\", \"M\"],\n    \"permid\": null,\n    \"unpacked_primary_provisional_designation\": \"2099 YZ1\",\n    \"packed_primary_provisional_designation\": \"K99Y01Z\",\n    \"unpacked_secondary_provisional_designations\": []\n  }\n}\n",
+      "authored": true
+    },
+    {
+      "request": "/api/query-identifier?ids=%28101955%29",
+      "status": 200,
+      "body": "{\n  \"2099 AB12\": {\n    \"found\": 1,\n    \"object_type\": [\"Minor planet\", \"M\"],\n    \"permid\": null,\n    \"name\": null,\n    \"unpacked_primary_provisional_designation\": \"2099 AB12\",\n    \"packed_primary_provisional_designation\": \"K99A12B\",\n    \"unpacked_secondary_provisional_designations\": [],\n    \"packed_secondary_provisional_designations\": []\n  },\n  \"2099 YZ1\": {\n    \"found\": 1,\n    \"object_type\": [\"Minor planet\", \"M\"],\n    \"permid\": null,\n    \"unpacked_primary_provisional_designation\": \"2099 YZ1\",\n    \"packed_primary_provisional_designation\": \"K99Y01Z\",\n    \"unpacked_secondary_provisional_designations\": []\n  }\n}\n",
+      "authored": true
+    },
+    {
+      "request": "/api/query-identifier?ids=2024%20YR4",
+      "status": 200,
+      "body": "{\n  \"2099 AB12\": {\n    \"found\": 1,\n    \"object_type\": [\"Minor planet\", \"M\"],\n    \"permid\": null,\n    \"name\": null,\n    \"unpacked_primary_provisional_designation\": \"2099 AB12\",\n    \"packed_primary_provisional_designation\": \"K99A12B\",\n    \"unpacked_secondary_provisional_designations\": [],\n    \"packed_secondary_provisional_designations\": []\n  },\n  \"2099 YZ1\": {\n    \"found\": 1,\n    \"object_type\": [\"Minor planet\", \"M\"],\n    \"permid\": null,\n    \"unpacked_primary_provisional_designation\": \"2099 YZ1\",\n    \"packed_primary_provisional_designation\": \"K99Y01Z\",\n    \"unpacked_secondary_provisional_designations\": []\n  }\n}\n",
+      "authored": true
+    }
+  ],
+  "scenarios": [
+    "bounded-selection",
+    "out-of-scope-rows-counted",
+    "authored-fictional"
+  ]
+}

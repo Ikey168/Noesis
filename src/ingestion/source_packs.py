@@ -278,6 +278,10 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"development-finance"})
 NATIVE_CONNECTOR_MODULES["bafin-notices"] = "src.ingestion.bafin_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"bafin-notices"})
 
+# Astronomy and Space (MPC, JPL SBDB/Sentry, NASA Exoplanet Archive, GCAT, CelesTrak SATCAT, NOAA SWPC; #2149).
+NATIVE_CONNECTOR_MODULES["astronomy"] = "src.ingestion.astronomy_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"astronomy"})
+
 
 def native_connector_module(connector: str) -> Any:
     import importlib

@@ -1,0 +1,18 @@
+{
+  "captured": false,
+  "provider": "gcat",
+  "note": "Authored documents naming fictional objects (2099 designations, Fict-* hosts, 2099 launches, SWPC serials 9001-9004), served for the production document URLs. The production bounds are therefore out of scope for every bounded row; parsing is exercised with the fictional bounds in tests/unit/astronomy/harness.py.",
+  "native_pages": [
+    {
+      "request": "/space/gcat/tsv/tables/orgs.tsv",
+      "status": 200,
+      "body": "#Code\tUCode\tStateCode\tType\tClass\tTStart\tTStop\tShortName\tName\tLocation\tLongitude\tLatitude\tError\tParent\tShortEName\tEName\tUName\n# Updated 2099 May  1 (fictional authored extract)\nFICTSPACE\tFICTSPACE\tUS\tLV/LA\tC\t2090\t*\tFictspace\tFictspace Launch Services Inc.\tFictville, Florida\t-\t-\t-\t-\tFictspace\tFictspace Launch Services Inc.\tFictspace Launch Services Inc.\nFICTSYS\tFICTSYS\tGB\tLV\tC\t2090\t*\tFictspace Sys\tFictspace Launch Systems Ltd\tFictford, England\t-\t-\t-\t-\tFictspace Sys\tFictspace Launch Systems Ltd\tFictspace Launch Systems Ltd\nFICTOPS\tFICTOPS\tUS\tO\tC\t2090\t*\tFictOps\tFictional Satellite Operations LLC\tFictville, Florida\t-\t-\t-\t-\tFictOps\tFictional Satellite Operations LLC\tFictional Satellite Operations LLC\nFKSC\tFKSC\tUS\tLS\tD\t2090\t*\tFictland SC\tFictland Space Centre\tFictland Island\t-30.0000\t-10.0000\t-\t-\tFictland SC\tFictland Space Centre\tFictland Space Centre\nOTHERCO\tOTHERCO\tFR\tLV\tC\t2090\t*\tOther\tOther Launch Company\tElsewhere\t-\t-\t-\t-\tOther\tOther Launch Company\tOther Launch Company\n",
+      "authored": true
+    }
+  ],
+  "scenarios": [
+    "bounded-selection",
+    "out-of-scope-rows-counted",
+    "authored-fictional"
+  ]
+}
