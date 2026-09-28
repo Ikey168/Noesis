@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://noesis.local/schemas/noesis-product-record-v1.json",
   "title": "Noesis product record v1",
-  "description": "One provider product record as acquired (Open Icecat brand content, EPREL supplier registration, or a manufacturer or supplier BMEcat catalogue entry): native identifiers, attributes with units and locators, native fields the category registry does not map (source_fields), linked documents, a lifecycle status only as the source published it, and declared status. Not independent testing. Schema 1.1.0 adds the appliance and component fields additively; 1.0.0 display records stay valid.",
+  "description": "One provider product record as acquired (Open Icecat brand content or EPREL supplier registration): native identifiers, attributes with units and JSON-pointer locators, linked documents and declared status. Not independent testing.",
   "type": "object",
   "required": [
     "contract",
@@ -21,25 +21,15 @@
       "const": "noesis-product-record-v1"
     },
     "provider": {
-      "anyOf": [
-        {
-          "enum": [
-            "icecat",
-            "eprel"
-          ]
-        },
-        {
-          "type": "string",
-          "pattern": "^bmecat:[a-z0-9][a-z0-9-]*$"
-        }
+      "enum": [
+        "icecat",
+        "eprel"
       ]
     },
     "assertion_kind": {
       "enum": [
         "brand-authorised-content",
-        "supplier-registration",
-        "manufacturer-published-data",
-        "supplier-catalogue-content"
+        "supplier-registration"
       ]
     },
     "provider_record_id": {
@@ -129,46 +119,6 @@
                   "valid",
                   "invalid_checksum"
                 ]
-              }
-            }
-          }
-        },
-        "manufacturer": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "component_key": {
-          "type": [
-            "string",
-            "null"
-          ],
-          "description": "normalised manufacturer + MPN as published (components)"
-        },
-        "supplier_pid": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "distributor_skus": {
-          "type": "array",
-          "description": "provider-scoped aliases, never identity",
-          "items": {
-            "type": "object",
-            "required": [
-              "provider",
-              "value"
-            ],
-            "properties": {
-              "provider": {
-                "type": "string",
-                "minLength": 1
-              },
-              "value": {
-                "type": "string",
-                "minLength": 1
               }
             }
           }
@@ -269,85 +219,6 @@
     "raw_sha256": {
       "type": "string",
       "pattern": "^[0-9a-f]{64}$"
-    },
-    "source_fields": {
-      "type": "array",
-      "description": "native fields or features the category registry does not map; kept as published, never mapped by guess",
-      "items": {
-        "type": "object",
-        "required": [
-          "locator"
-        ],
-        "properties": {
-          "native_name": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "native_value": {},
-          "locator": {
-            "type": "object"
-          }
-        }
-      }
-    },
-    "lifecycle_status": {
-      "type": "object",
-      "description": "only as a named source published it, with its date; never inferred",
-      "required": [
-        "value",
-        "declared",
-        "date_basis",
-        "locator"
-      ],
-      "properties": {
-        "value": {
-          "enum": [
-            "active",
-            "nrnd",
-            "last-time-buy",
-            "obsolete",
-            "unknown"
-          ]
-        },
-        "declared": {
-          "type": "string",
-          "minLength": 1
-        },
-        "source": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "provider": {
-          "type": "string"
-        },
-        "date": {
-          "type": [
-            "string",
-            "null"
-          ],
-          "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
-        },
-        "date_declared": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "date_basis": {
-          "type": "string"
-        },
-        "locator": {
-          "type": "object"
-        }
-      }
-    },
-    "catalogue": {
-      "type": "object",
-      "description": "BMEcat catalogue header facts for the entry (identifier, version, generation date, transaction, publisher role)"
     }
   }
 }

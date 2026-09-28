@@ -307,9 +307,21 @@ def _builtin_definitions() -> list[dict[str, Any]]:
          "dependencies": [{"kind": "schema", "name": dep, "version": spec} for dep, spec in deps]}
         for name, version, path, deps in legal
     ]
+    # Product record schema (#2061, PX02): 1.1.0 adds appliance and component fields (source fields,
+    # component identity, SKU aliases, published lifecycle status) additively; 1.0.0 display records stay valid.
+    products = [
+        ("product-record", "1.0.0", REPO_ROOT / "contracts/schemas/history/noesis-product-record-1.0.0.json"),
+        ("product-record", "1.1.0", REPO_ROOT / "contracts/schemas/jsonschema/noesis-product-record-v1.json"),
+    ]
+    product_modules = [
+        {**common, "owner": "products-pack", "name": name, "kind": "schema", "semantic_version": version,
+         "content": json.loads(path.read_text())}
+        for name, version, path in products
+    ]
     return [
         *composition_modules,
         *legal_modules,
+        *product_modules,
         {
             **common,
             "name": "knowledge-mutation",
