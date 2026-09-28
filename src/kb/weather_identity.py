@@ -552,8 +552,9 @@ class WeatherStationIdentity:
     ) -> dict[str, Any]:
         """The stations equivalent to ``station``: source-stated links plus accepted, unreverted matches.
 
-        With ``at`` (an observation time), a station whose id was reused is equivalent only to itself
-        outside its current site.
+        ``cutoff_ms`` limits the source-stated identifiers to those acquired by then; review decisions
+        are the current ones. With ``at`` (an observation time), a station whose id was reused is
+        equivalent only to itself outside its current site.
         """
 
         authorize(namespace, scopes, READ_SCOPE)
@@ -569,7 +570,9 @@ class WeatherStationIdentity:
                 "candidate_id": c["candidate_id"],
                 "decision_id": c["decision_id"],
             }
-            for c in self.candidates(namespace, scopes=scopes, cutoff_ms=cutoff_ms)
+            # Review decisions are the analysts' current judgement, not acquired source data, so they
+            # apply at every knowledge cutoff; the cutoff filters only acquired identifier statements.
+            for c in self.candidates(namespace, scopes=scopes)
             if c["state"] == "accepted"
         ]
 
