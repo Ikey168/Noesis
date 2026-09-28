@@ -1,0 +1,223 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "linguistics.lexicon",
+  "version": "1.0.0",
+  "implementation": {
+    "name": "src.kb.linguistics_store",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "linguistics.lexicon",
+      "contract": {
+        "name": "noesis-linguistic-record",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "lookup-lexeme",
+        "sense-history",
+        "definition-changes",
+        "lexeme-etymology",
+        "cross-language-links",
+        "export-dossier",
+        "readiness",
+        "propose-lexeme-matches",
+        "create-monitor",
+        "poll-monitor"
+      ],
+      "semantic_constraints": {
+        "records": "word-centred lexeme, form, sense and definition-revision records; a lexeme is not a canonical entity",
+        "attribution": "every record and answer cites source, revision and licence; CC BY-SA content is flagged",
+        "revisions": "a changed definition appends a revision; current follows the source's own revision date",
+        "machine_output": "no machine-translated or generated text is ever returned as sourced",
+        "exclusions": "no speaker personal data; no status or correctness verdicts"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "lookup-lexeme",
+      "tool": "noesis-knowledge-engine.lookup_lexeme",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "linguistic-records",
+      "required_scopes": [
+        "knowledge:linguistics:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "sense-history",
+      "tool": "noesis-knowledge-engine.sense_history",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "linguistic-records",
+      "required_scopes": [
+        "knowledge:linguistics:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "definition-changes",
+      "tool": "noesis-knowledge-engine.definition_changes",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "linguistic-records",
+      "required_scopes": [
+        "knowledge:linguistics:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "lexeme-etymology",
+      "tool": "noesis-knowledge-engine.lexeme_etymology",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "linguistic-records",
+      "required_scopes": [
+        "knowledge:linguistics:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "cross-language-links",
+      "tool": "noesis-knowledge-engine.lexeme_cross_language_links",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "linguistic-records",
+      "required_scopes": [
+        "knowledge:linguistics:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "export-dossier",
+      "tool": "noesis-knowledge-engine.export_lexeme_dossier",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "linguistic-records",
+      "required_scopes": [
+        "knowledge:linguistics:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "readiness",
+      "tool": "noesis-knowledge-engine.linguistics_readiness",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "linguistic-records",
+      "required_scopes": [
+        "knowledge:linguistics:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "propose-lexeme-matches",
+      "tool": "noesis-knowledge-engine.propose_lexeme_matches",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "linguistic-records",
+      "required_scopes": [
+        "knowledge:linguistics:write",
+        "knowledge:linguistics:read"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "create-monitor",
+      "tool": "noesis-knowledge-engine.create_linguistics_monitor",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "request_key"
+      },
+      "readiness_probe": "linguistic-records",
+      "required_scopes": [
+        "knowledge:linguistics:read",
+        "knowledge:subscriptions:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "poll-monitor",
+      "tool": "noesis-knowledge-engine.poll_linguistics_monitor",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "linguistic-records",
+      "required_scopes": [
+        "knowledge:linguistics:read",
+        "knowledge:subscriptions:read"
+      ],
+      "required_context": [
+        "principal"
+      ]
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "linguistic-record",
+      "store": "src.kb.linguistics_store",
+      "tables": [
+        "ling_bodies",
+        "ling_sightings",
+        "ling_receipts"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "linguistic-records",
+      "kind": "table-exists",
+      "target": "ling_sightings"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "linguistics-lexical-typological",
+      "version": "1.0.0",
+      "range": "^1.0.0"
+    }
+  ]
+}

@@ -325,6 +325,9 @@ def _mutability(name: str) -> str:
     from tools.knowledge_engine_mcp.bafin_notices import BAFIN_WRITES
     if name in BAFIN_WRITES:
         return "write"
+    from tools.knowledge_engine_mcp.linguistics import LINGUISTICS_WRITES
+    if name in LINGUISTICS_WRITES:
+        return "write"
     from tools.knowledge_engine_mcp.vulnerabilities import VULNERABILITY_WRITES
     if name in VULNERABILITY_WRITES:
         return "write"
@@ -913,6 +916,12 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
     )
     if server_stem == "knowledge_engine_mcp" and tool_name in BAFIN_TOOLS:
         return bafin_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.linguistics import LINGUISTICS_TOOLS
+    from tools.knowledge_engine_mcp.linguistics import (
+        required_scopes as linguistics_scopes,
+    )
+    if server_stem == "knowledge_engine_mcp" and tool_name in LINGUISTICS_TOOLS:
+        return linguistics_scopes(tool_name, mutability)
     from tools.knowledge_engine_mcp.vulnerabilities import VULNERABILITY_TOOLS
     from tools.knowledge_engine_mcp.vulnerabilities import (
         required_scopes as vulnerability_scopes,

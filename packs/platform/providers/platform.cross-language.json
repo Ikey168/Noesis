@@ -1,0 +1,80 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "platform.cross-language",
+  "version": "1.0.0",
+  "implementation": {
+    "name": "src.kb.cross_language",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "platform.cross-language",
+      "contract": {
+        "name": "noesis-multilingual-record",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "multilingual-search",
+        "original-text"
+      ],
+      "semantic_constraints": {
+        "texts": "original-language text is never replaced; translations keep producer and review status",
+        "aliases": "multilingual aliases are candidates until reviewed"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "multilingual-search",
+      "tool": "noesis-knowledge-engine.multilingual_search",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "language-texts",
+      "required_scopes": [
+        "knowledge:cross-language:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "original-text",
+      "tool": "noesis-knowledge-engine.get_original_language_text",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "language-texts",
+      "required_scopes": [
+        "knowledge:cross-language:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "multilingual-record",
+      "store": "src.kb.cross_language",
+      "tables": [
+        "language_texts",
+        "multilingual_aliases",
+        "translation_records",
+        "cross_language_alignments"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "language-texts",
+      "kind": "table-exists",
+      "target": "language_texts"
+    }
+  ]
+}
