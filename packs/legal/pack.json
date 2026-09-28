@@ -7,10 +7,13 @@
   "ui_flags": {},
   "panels": [],
   "planner_keywords": {
-    "entities": ["celex", "ecli", "eli", "gesetz", "law", "regulation", "urteil", "verordnung"],
-    "sources": ["cellar", "eur-lex", "gesetze.berlin.de", "rechtsprechung im internet"],
+    "entities": ["celex", "ecli", "eli", "gesetz", "law", "regulation", "urteil", "verordnung", "designation",
+                 "dual-use", "sanctions list"],
+    "sources": ["cellar", "eur-lex", "gesetze.berlin.de", "rechtsprechung im internet", "consolidated list",
+                "ofac", "uk sanctions list", "un security council"],
     "claims": ["article", "artikel", "paragraph", "section"],
-    "events": ["amendment", "commencement", "entry into force", "inkrafttreten", "repeal"]
+    "events": ["amendment", "commencement", "entry into force", "inkrafttreten", "repeal", "delisting",
+               "designation", "listing"]
   },
   "enrichers": [],
   "provisioning_templates": [],
@@ -23,7 +26,14 @@
     "version-comparison",
     "explicit-citation-graph",
     "legislative-dossier-links",
-    "gated-retrieval-modes"
+    "gated-retrieval-modes",
+    "sanctions-designations",
+    "sanctions-listing-revisions",
+    "sanctions-legal-basis",
+    "dual-use-control-list-editions",
+    "controlled-goods-trade-context",
+    "sanctions-identity-review",
+    "sanctions-monitoring"
   ],
   "schema_versions": {
     "legal-work": "1.0.0",
@@ -31,16 +41,23 @@
     "legal-version-selection": "1.0.0",
     "legal-version-comparison": "1.0.0",
     "legal-retrieval-evaluation": "1.0.0",
-    "source-pack": "1.0.0"
+    "source-pack": "1.1.0",
+    "sanctions-record": "1.0.0",
+    "sanctions-statement": "1.0.0",
+    "sanctions-notification": "1.0.0"
   },
   "ontology_extensions": {
     "extends": "noesis-canonical-entity-relation-ontology",
     "reuses": ["noesis-temporal-v1", "noesis-evidence-bundle-v1", "noesis-legal-work-v1",
-               "noesis-legal-version-selection-v1"],
+               "noesis-legal-version-selection-v1", "noesis-sanctions-record-v1",
+               "noesis-entity-identity-decision-v1", "noesis-knowledge-subscription-v1"],
     "object_types": ["legal_work", "legal_expression", "legal_version", "legal_passage", "court_decision",
-                     "legal_citation", "legal_temporal_fact"],
+                     "legal_citation", "legal_temporal_fact", "sanctions_snapshot", "sanctions_designation",
+                     "listing_revision", "sanctions_programme", "legal_basis", "identifier_alias", "delisting",
+                     "control_list_entry"],
     "relation_types": ["expression_of", "version_of", "cites", "amends", "corrects", "cites_norm",
-                       "prior_instance", "enacted_from_procedure"]
+                       "prior_instance", "enacted_from_procedure", "listed_in", "legal_basis_of",
+                       "stated_alias", "delisted_from", "controlled_under", "edition_of"]
   },
   "source_pack": "config/source_packs/legal.json",
   "query_examples": [
@@ -67,11 +84,25 @@
       "tool": "compare_legal_versions",
       "arguments": {"namespace": "global", "left_version_id": "<version_id>", "right_version_id": "<version_id>"},
       "semantics": "passage-level source changes, not a legal-effect assessment"
+    },
+    {
+      "intent": "What did each sanctions list state about a vessel on 1 March 2026",
+      "tool": "designation_history_as_of",
+      "arguments": {"namespace": "global", "as_of": "2026-03-01", "identifier": "IMO 9999991"},
+      "semantics": "per-list statements with listing revisions, aliases, programme, legal-basis passages and delistings; lists are never merged and there is no screening result"
+    },
+    {
+      "intent": "Which dual-use annex edition stated control code 1C350 on a date",
+      "tool": "control_list_entry_as_of",
+      "arguments": {"namespace": "global", "control_code": "1C350", "as_of": "2026-01-01"},
+      "semantics": "the consolidated edition applying on the date and the code's passage, with every acquired edition side by side"
     }
   ],
   "exclusions": [
     "complete EU, German or Berlin law", "all German case law", "legal advice", "inferred current force",
     "relevance-ranked legal retrieval without accepted human-judged evaluation", "other jurisdictions",
-    "undocumented provider APIs"
+    "undocumented provider APIs", "screening verdicts", "sanctions or AML compliance determinations",
+    "inferring that a similar name is the same party", "merged cross-list party records",
+    "scraped sanctions portals (EU Sanctions Map)"
   ]
 }

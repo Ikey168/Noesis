@@ -22,6 +22,7 @@ python tools/statistics_mcp/server.py     # one server, stdio transport
 | `noesis-kg` | `tools/kg_mcp` | Knowledge-graph entities, relations, communities, centrality |
 | `noesis-kb` | `tools/kb_mcp` | Unified KB contract, briefs, diffs, claims, evidence, and integrity verification |
 | `noesis-osint` | `tools/osint_mcp` | Corroboration, reliability, contradiction ledger, dossiers, paths, timelines, image provenance/reuse |
+| `noesis-onchain` | `tools/onchain_mcp` | Read-only On-chain Observations: cited address observations, contract origin and probable address clusters (no attribution) |
 | `noesis-statistics` | `tools/statistics_mcp` | Statistical series, claim-vs-data checks, the data-check ledger |
 | `noesis-research` | `tools/research_mcp` | Venues, citation graph, literature claims |
 | `noesis-provisioning` | `tools/provisioning_mcp` | Deploy/attach/ingest/teardown namespaced knowledge graphs |

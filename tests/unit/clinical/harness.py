@@ -101,7 +101,10 @@ class Env:
     def acquire(self, run_key, source_ids=None):
         """Run the clinical source pack (selected sources) through the real runtime with fixture transports."""
         manifest, _ = self.runtime._manifest("clinical-evidence")
-        selected = [s for s in manifest["sources"] if not source_ids or s["source_id"] in source_ids]
+        # The pack's clinical-record sources; its surveillance sources have their own harness
+        # (tests/unit/clinical/surveillance_harness.py).
+        selected = [s for s in manifest["sources"] if (s["source_id"] in source_ids if source_ids else
+                                                        s["mapping"]["target_schema"] == "noesis-clinical-record-v1")]
         adapters = {s["source_id"]: self.runtime.factory.compile(s, transport=self.web.transport) for s in selected}
         return self.runtime.run({"pack_id": "clinical-evidence", "run_key": run_key, "operation": "records",
                                  "source_ids": [s["source_id"] for s in selected], "max_pages": 50,

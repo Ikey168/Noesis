@@ -1,0 +1,21 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body": "DATAFLOW,DONOR,RECIPIENT,SECTOR,MEASURE,CHANNEL,FLOW_TYPE,PRICE_BASE,UNIT_MEASURE,TIME_PERIOD,OBS_VALUE,UNIT_MULT,OBS_STATUS,BASE_PER\nOECD.DCD.FSD:DSD_CRS@DF_CRS(1.4),DEU,KEN,140,DISB,_T,10,V,USD,2096,11.5,6,,\nOECD.DCD.FSD:DSD_CRS@DF_CRS(1.4),DEU,KEN,140,DISB,_T,10,V,USD,2097,12.25,6,,\nOECD.DCD.FSD:DSD_CRS@DF_CRS(1.4),DEU,KEN,140,DISB,_T,10,Q,USD,2096,12.0,6,,2097\nOECD.DCD.FSD:DSD_CRS@DF_CRS(1.4),DEU,KEN,140,DISB,_T,10,Q,USD,2097,12.25,6,,2097\nOECD.DCD.FSD:DSD_CRS@DF_CRS(1.4),DEU,DPGC,140,DISB,_T,10,V,USD,2096,80.0,6,,\nOECD.DCD.FSD:DSD_CRS@DF_CRS(1.4),DEU,DPGC,140,DISB,_T,10,V,USD,2097,,6,M,\n",
+   "headers": {
+    "Content-Type": "text/csv"
+   },
+   "request": "/public/rest/data/OECD.DCD.FSD,DSD_CRS@DF_CRS,1.4/DEU.KEN+DPGC.140.DISB._T.10.V+Q.USD?endPeriod=2097&format=csvfile&startPeriod=2096",
+   "status": 200
+  }
+ ],
+ "note": "Authored SDMX-CSV in the documented shape: every value is fictional (not OECD data).",
+ "provider": "authored",
+ "scenarios": [
+  "authored-fixture",
+  "current-and-constant-prices",
+  "aggregate-recipient",
+  "missing-value"
+ ]
+}

@@ -1,7 +1,7 @@
 {
   "pack_id": "products-displays",
-  "version": "1.0.0",
-  "description": "EU-market electronic displays from Open Icecat (brand-authorised content) and the EPREL public API (supplier registrations), bounded to an explicit model selection. Neither provider is independent testing.",
+  "version": "1.1.0",
+  "description": "EU-market electronic displays from Open Icecat (brand-authorised content) and the EPREL public API (supplier registrations), bounded to an explicit model selection, plus product safety notices and recalls (EU Safety Gate, CPSC, NHTSA, RASFF) bounded to explicit notice numbers. Neither display provider is independent testing, and a notice is what its authority published, never a verdict.",
   "domains": [
     "products"
   ],
@@ -184,6 +184,241 @@
         "path": "tests/fixtures/source_packs/products-eprel.json",
         "sha256": "1a834e97e2a8512303c277d51452f9379a84cc273f84d67d872fba5a557988e8",
         "expected_output_hash": "fcebc27e89a57d0acb1e7a3f0e09c4bd6892e5b6108dcd937dfad7d6030ce744"
+      }
+    },
+    {
+      "source_id": "safety-gate-alerts",
+      "connector": "safety-gate",
+      "publisher": "European Commission (Safety Gate)",
+      "endpoint": "https://ec.europa.eu/safety-gate-alerts/public/api/notification",
+      "scope": "Explicitly selected Safety Gate alerts by alert number, plus pinned weekly reports filtered to one product category",
+      "update_cadence": "weekly report plus continuous alert updates",
+      "temporal_semantics": "provider-declared revision date (update date, else publication date); every distinct payload is kept as a notice revision; absence from a response never implies withdrawal or closure",
+      "mapping": {
+        "target_schema": "noesis-product-safety-notice-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "product-safety-sources:1.0.0"
+      ],
+      "operations": [
+        "notices"
+      ],
+      "auth": {
+        "kind": "none"
+      },
+      "schedule": {
+        "kind": "interval",
+        "interval_s": 86400
+      },
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 50,
+        "max_bytes": 2000000,
+        "max_pages": 50
+      },
+      "license": {
+        "id": "eu-commission-reuse",
+        "terms_url": "https://ec.europa.eu/info/legal-notice_en",
+        "redistribution": "reuse permitted with acknowledgement under Commission Decision 2011/833/EU (operator must confirm for the portal)"
+      },
+      "product_safety": {
+        "namespace": "global",
+        "live_verification": "unverified-live",
+        "selection": [
+          {
+            "alert_number": "SR/00417/26",
+            "label": "Exampla EX-32U8 (brand + model, overlaps products-displays)"
+          },
+          {
+            "alert_number": "SR/00431/26",
+            "label": "Exampla EX-27Q4 (GTIN)"
+          },
+          {
+            "alert_number": "SR/00502/26",
+            "label": "Othermark OM-9 naming another brand's GTIN (contradicted)"
+          },
+          {
+            "alert_number": "SR/00388/26",
+            "label": "Brightway kettle (same GTIN as a CPSC recall)"
+          },
+          {
+            "alert_number": "SR/09999/26",
+            "label": "unknown alert (not found)"
+          },
+          {
+            "week": "2026-W11",
+            "category": "Electrical appliances and equipment",
+            "label": "weekly report, one category"
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/products-safety-safety-gate.json",
+        "sha256": "5ef688a436966795dbfdec1df36ad78f918364b60004b88a2c9ea8fde712f55c",
+        "expected_output_hash": "97457083d6cf3922b00c867dae0631223dcb43ac126ec278047960255c6ca9ce"
+      }
+    },
+    {
+      "source_id": "cpsc-recalls",
+      "connector": "cpsc",
+      "publisher": "U.S. Consumer Product Safety Commission",
+      "endpoint": "https://www.saferproducts.gov/RestWebServices/Recall",
+      "scope": "Explicitly selected CPSC recalls by recall number or a pinned manufacturer and recall-date window",
+      "update_cadence": "continuous; LastPublishDate per recall",
+      "temporal_semantics": "provider-declared revision date (update date, else publication date); every distinct payload is kept as a notice revision; absence from a response never implies withdrawal or closure",
+      "mapping": {
+        "target_schema": "noesis-product-safety-notice-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "product-safety-sources:1.0.0"
+      ],
+      "operations": [
+        "notices"
+      ],
+      "auth": {
+        "kind": "none"
+      },
+      "schedule": {
+        "kind": "interval",
+        "interval_s": 86400
+      },
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 50,
+        "max_bytes": 2000000,
+        "max_pages": 50
+      },
+      "license": {
+        "id": "us-federal-public-domain",
+        "terms_url": "https://www.cpsc.gov/Recalls/CPSC-Recalls-Application-Program-Interface-API-Information",
+        "redistribution": "US federal government information, public domain; attribution requested (operator must confirm)"
+      },
+      "product_safety": {
+        "namespace": "global",
+        "live_verification": "unverified-live",
+        "selection": [
+          {
+            "recall_number": "26117",
+            "label": "Brightway kettle (UPC also named by Safety Gate)"
+          },
+          {
+            "manufacturer": "Exampla Displays Inc.",
+            "recall_date_start": "2026-02-01",
+            "recall_date_end": "2026-04-30",
+            "label": "manufacturer window"
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/products-safety-cpsc.json",
+        "sha256": "345cbe3be167d24fa8d3c8c92371459e597f6c86d88d374c0e251ba38dc41e4d",
+        "expected_output_hash": "2e2a804bd125be2bb2588aef2e95240bbd9082b64f89d89de159dadfc0670084"
+      }
+    },
+    {
+      "source_id": "nhtsa-recalls",
+      "connector": "nhtsa",
+      "publisher": "National Highway Traffic Safety Administration",
+      "endpoint": "https://api.nhtsa.gov/recalls/campaignNumber",
+      "scope": "Explicitly selected NHTSA recall campaigns by campaign number (recallsByVehicle is a filtered view and is not acquired)",
+      "update_cadence": "continuous; no update date is published",
+      "temporal_semantics": "provider-declared revision date (update date, else publication date); every distinct payload is kept as a notice revision; absence from a response never implies withdrawal or closure",
+      "mapping": {
+        "target_schema": "noesis-product-safety-notice-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "product-safety-sources:1.0.0"
+      ],
+      "operations": [
+        "notices"
+      ],
+      "auth": {
+        "kind": "none"
+      },
+      "schedule": {
+        "kind": "interval",
+        "interval_s": 86400
+      },
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 50,
+        "max_bytes": 2000000,
+        "max_pages": 50
+      },
+      "license": {
+        "id": "us-federal-public-domain",
+        "terms_url": "https://www.nhtsa.gov/nhtsa-datasets-and-apis",
+        "redistribution": "US federal government information, public domain; attribution requested (operator must confirm)"
+      },
+      "product_safety": {
+        "namespace": "global",
+        "live_verification": "unverified-live",
+        "selection": [
+          {
+            "campaign_number": "26V104000",
+            "label": "Velomark Cityrunner battery software"
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/products-safety-nhtsa.json",
+        "sha256": "6987188e1c7182e857dc218795ce7fbe19d87695225ad60e57617e6e7aa3438b",
+        "expected_output_hash": "2457ebac25b86b6fd9f0c4a12735b30be7f16059f7cbfb4fb66ace6914d0e6f1"
+      }
+    },
+    {
+      "source_id": "rasff-notifications",
+      "connector": "rasff",
+      "publisher": "European Commission (RASFF)",
+      "endpoint": "https://webgate.ec.europa.eu/rasff-window/backend/public/notification",
+      "scope": "Explicitly selected RASFF food and feed notifications by reference",
+      "update_cadence": "continuous; follow-ups dated per notification",
+      "temporal_semantics": "provider-declared revision date (update date, else publication date); every distinct payload is kept as a notice revision; absence from a response never implies withdrawal or closure",
+      "mapping": {
+        "target_schema": "noesis-product-safety-notice-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "product-safety-sources:1.0.0"
+      ],
+      "operations": [
+        "notices"
+      ],
+      "auth": {
+        "kind": "none"
+      },
+      "schedule": {
+        "kind": "interval",
+        "interval_s": 86400
+      },
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 50,
+        "max_bytes": 2000000,
+        "max_pages": 50
+      },
+      "license": {
+        "id": "eu-commission-reuse",
+        "terms_url": "https://ec.europa.eu/info/legal-notice_en",
+        "redistribution": "reuse permitted with acknowledgement under Commission Decision 2011/833/EU (operator must confirm for the portal)"
+      },
+      "product_safety": {
+        "namespace": "global",
+        "live_verification": "unverified-live",
+        "selection": [
+          {
+            "notification_reference": "2026.0457",
+            "label": "Salmonella in frozen chicken kebab"
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/products-safety-rasff.json",
+        "sha256": "17c5a572bd97b4ec9280c167bfd3fcabd8f5b0e33559d772ec12002804364157",
+        "expected_output_hash": "81d1bd61db16c9e445e6346a95d65d07e51da9c175a5b08f9aa71682df94fda0"
       }
     }
   ]

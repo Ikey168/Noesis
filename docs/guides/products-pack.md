@@ -11,6 +11,9 @@ providers and keep their origin:
 
 Neither is independent testing, and a comparison is not a buying
 recommendation. Tracking: [#1706](https://github.com/Ikey168/Noesis/issues/1706).
+The optional `safety` feature adds product safety notices and recalls; see
+[Safety notices and recalls](#safety-notices-and-recalls) (tracking
+[#1916](https://github.com/Ikey168/Noesis/issues/1916)).
 
 ## Install and configure
 
@@ -161,6 +164,97 @@ The only live run so far is
 providers, without an EPREL key. Icecat failed with `source_unavailable`,
 EPREL was blocked at preflight with `credential_missing`, and two-provider
 acceptance remains outstanding.
+
+## Safety notices and recalls
+
+The optional `safety` feature of the Products bundle (default **off**; select it
+in the composition plan) adds the `products.safety` provider
+(`packs/products/providers/products.safety.json`, record owner
+`src/kb/product_safety.py`, contract `noesis-product-safety-notice-v1`). A
+notice is what an authority published. Nothing in this feature produces a
+safety verdict, a risk score or consumer advice: a product without an accepted
+notice match has **no notice on record**, which is not a statement that it is
+safe, and the only corrective text ever shown is the authority's own, quoted.
+
+**Sources** (`products-displays` 1.1.0, operation `notices`; the 1.0.0 display
+sources are unchanged and `products.core` keeps its `^1.0.0` range). Access
+decisions and what must still be verified live are in
+[the source audit](../roadmaps/products-safety-source-audit.md) and
+`product_safety_source_contracts`.
+
+| Source | Connector | Selection | Live state |
+| --- | --- | --- | --- |
+| EU Safety Gate alerts | `safety-gate` | alert numbers, or a weekly report filtered to one category | `unverified-live` |
+| CPSC recalls | `cpsc` | recall numbers, or a manufacturer and a recall-date window (at most 366 days) | `unverified-live` |
+| NHTSA recall campaigns | `nhtsa` | campaign numbers (`recallsByVehicle` is a filtered view, never acquired) | `unverified-live` |
+| RASFF notifications | `rasff` | notification references | `unverified-live` |
+| BAuA recall pages | — | none: no documented machine access; never scraped | `not-implemented` |
+| GPSR text | `cellar` (Legal) | CELEX `32023R0988` and `32002R0178` in `legal-research` 1.2.0 (`cellar-product-safety-acts-eng`) | `unverified-live` |
+
+**Records.** Every distinct provider payload of a notice is an immutable
+revision with the provider's own publication or update date. The newest by
+that date is current; an older payload delivered later is kept as history and
+never replaces it; a replay adds nothing and a return to earlier content is a
+new revision. Hazard, affected identification (GTIN with its `gtin_state`,
+model, batch, brand, lots, make/model/year), corrective action, parties and
+dated follow-ups are verbatim with JSON-pointer locators. Notice type, issuing
+authority and notifying country keep the provider's raw value beside the
+mapped one; an unknown raw value stays `unknown`.
+
+**Matches** (`propose_product_notice_matches`, `review_product_notice_match`).
+A valid GTIN equal to a Products variant GTIN (compared through one key: digits
+left-padded to fourteen, so a UPC-12 and its GTIN-13 meet) or an exact brand
+plus designation is `proposed`; a designation differing only by a suffix is
+`ambiguous` and can never be accepted (siblings, sizes and regional variants
+are never attached); a GTIN that contradicts the brand or model is
+`contradicted` and cannot be accepted. Reviews are append-only and a later
+review reverses an earlier one. Manufacturer and importer names link to
+canonical entities only through entity identity decisions
+(`review_product_notice_party_link`); unmatched names and identifications stay
+source strings, queryable by string.
+
+**Citations** (`link_product_notice_citations`). Standard references (for
+example `EN 62368-1:2014+A11:2017`, `ISO 6579-1:2017`) resolve to the standards
+catalogue on an exact reference; acts cited by CELEX, ELI or official number
+(`Regulation (EU) 2023/988`, `Regulation (EC) No 178/2002`) resolve to Legal
+works on an exact CELEX/ELI. Links record `basis: cited` and stay attached to
+the revision that cited them. Nothing links by topic, category or hazard, and
+certificate-product links are never notice evidence.
+
+**Answers** (`lookup_product_notices`, `inspect_product_notice`). Give a
+Products model or variant id (reviewed matches only, plus accepted cross-provider
+equivalents) or a brand, designation or GTIN string, and optionally `as_of`
+(ISO date). Each notice shows the revision current as of that date with its
+hazard, identification, quoted corrective action, authority, cited standards
+and acts and what connected it; revisions and follow-ups dated after `as_of`
+are excluded and named. Notices from different authorities stay side by side.
+`include_news` adds news naming the notice number, labelled as reporting (needs
+`knowledge:read`).
+
+**Monitors** (`create_product_notice_monitor`, `run_product_notice_monitor`,
+`poll_product_notice_monitor`). A monitor is a knowledge subscription watching
+models, variants, brand or GTIN strings or authorities. It hears a reviewed
+attachment or detachment, a new notice naming a watched string (marked
+`unmatched identification` when no product match is attached) and a revision
+that became current (with corrective-action and hazard changes flagged). It is
+evaluated only at a `products-displays` run in which every notice source it ran
+completed, so a partial run never leaves a silent gap; reviews between runs are
+evaluated too.
+
+| Intent | Tool | Arguments |
+| --- | --- | --- |
+| Is this model subject to any notice? | `lookup_product_notices` | `{"namespace": "global", "model_id": "<model>", "as_of": "2026-04-01"}` |
+| Notices naming a GTIN | `lookup_product_notices` | `{"namespace": "global", "gtin": "012345678905"}` |
+| One notice with its revisions | `inspect_product_notice` | `{"namespace": "global", "notice": "safety-gate:SR/00417/26"}` |
+| Watch a model | `create_product_notice_monitor` | `{"namespace": "global", "request_key": "m1", "models": ["<model>"]}` |
+
+Offline coverage is `tests/unit/domains/test_product_safety_*.py` (the journey
+is `test_product_safety_acceptance.py`) on authored fixtures
+(`tests/fixtures/source_packs/products-safety-*.json`, fictional products and
+notice numbers). Live evidence belongs in
+`docs/development/product-safety-evidence/`; no dated live run exists yet.
+`products_readiness` reports each notice provider's readiness under
+`notice_providers`.
 
 ## Exclusions
 

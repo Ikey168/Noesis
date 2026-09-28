@@ -102,12 +102,21 @@ def register(mcp, safe, context):
         boundary_name: str | None = None,
         boundary_collection: str | None = None,
         limit: int = 1000,
+        point: list[float] | None = None,
     ) -> dict:
         """List point features inside one boundary with source evidence and a receipt.
 
         Membership is exact ring parity on stored WGS84 geometry; an ambiguous
-        boundary name returns candidates instead of choosing one.
+        boundary name returns candidates instead of choosing one. With ``point``
+        ([lon, lat]) and no boundary, it answers the other way round: which
+        polygon features of ``collection`` contain that point (none, one or
+        several, never chosen between).
         """
+        if point is not None and not (boundary_feature_id or boundary_name):
+            return call(
+                "containing", namespace, collection=collection, point=point,
+                write=True, scope=CALCULATE_SCOPE, principal=True,
+            )
         return call(
             "within", namespace, collection=collection,
             boundary_feature_id=boundary_feature_id, boundary_name=boundary_name,

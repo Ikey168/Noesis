@@ -1019,6 +1019,78 @@ class GeospatialFeatureStore:
             "receipt": receipt,
         }
 
+    def containing(
+        self,
+        namespace: str,
+        *,
+        collection: str,
+        point: Sequence[Any],
+        principal_id: str,
+        scopes: set[str],
+    ) -> dict[str, Any]:
+        """Polygon features of ``collection`` that contain one WGS84 point (lon, lat), with evidence and a receipt.
+
+        Membership is the same exact ring parity as :meth:`within`; zero or several containing features are
+        reported as such, never resolved to one.
+        """
+
+        _require(scopes, CALCULATE_SCOPE)
+        read = scopes | {READ_SCOPE}
+        try:
+            lon, lat = (float(point[0]), float(point[1]))
+        except (TypeError, ValueError, IndexError) as exc:
+            raise GeospatialError("invalid_point", "point is [longitude, latitude]") from exc
+        if len(point) != 2 or not (-180 <= lon <= 180 and -90 <= lat <= 90):
+            raise GeospatialError("invalid_point", "point is [longitude, latitude] in WGS84")
+        rows = self.conn.execute(
+            f"SELECT f.feature_id,f.namespace,f.provider,f.native_id,{', '.join('r.' + c for c in self._REVISION_COLUMNS.split(','))} FROM geospatial_features f JOIN geospatial_feature_current c ON c.feature_id=f.feature_id JOIN geospatial_feature_revisions r ON r.revision_id=c.revision_id WHERE f.namespace IN (?,?) AND f.collection=? AND c.lifecycle='active' ORDER BY f.native_id LIMIT ?",
+            [*self._visible(namespace), collection, MAX_QUERY_CANDIDATES + 1],
+        ).fetchall()
+        if len(rows) > MAX_QUERY_CANDIDATES:
+            raise GeospatialError("input_limit", "candidate collection exceeds the query budget")
+        by_geometry: dict[str, dict[str, Any]] = {}
+        for row in rows:
+            revision = self._revision(row[4:])
+            if revision["geometry_type"] in {"Polygon", "MultiPolygon"} and revision["geometry_id"]:
+                by_geometry[revision["geometry_id"]] = {
+                    "feature_id": row[0], "namespace": row[1], "provider": row[2],
+                    "native_id": row[3], "revision": revision,
+                }
+        loaded = self._geometries(list(by_geometry))
+        candidate = [{"geometry_id": "point", "geometry": {"type": "Point", "coordinates": [lon, lat]}}]
+        member_ids = sorted(gid for gid in by_geometry if self._membership(loaded[gid], candidate))
+        members = [
+            {
+                "feature_id": by_geometry[gid]["feature_id"],
+                "native_id": by_geometry[gid]["native_id"],
+                "provider": by_geometry[gid]["provider"],
+                "title": by_geometry[gid]["revision"]["title"],
+                "geometry_id": gid,
+                "revision_id": by_geometry[gid]["revision"]["revision_id"],
+                "revision": by_geometry[gid]["revision"]["revision"],
+                "provenance": by_geometry[gid]["revision"]["provenance"],
+                "source_crs": by_geometry[gid]["revision"]["source_crs"],
+            }
+            for gid in member_ids
+        ]
+        request = {"operation": "point_in_features", "point": [lon, lat], "collection": collection}
+        result = {"member_geometry_ids": member_ids, "candidates": len(by_geometry)}
+        receipt = self.geo._receipt(
+            namespace, "point_in_features", request, result, sorted(by_geometry), principal_id,
+            algorithm=WITHIN_ALGORITHM,
+        )
+        coverage = self.collection_coverage(namespace, collection, scopes=read)
+        return {
+            "contract": QUERY_CONTRACT,
+            "status": "outside" if not members else "resolved" if len(members) == 1 else "ambiguous",
+            "collection": collection,
+            "point": [lon, lat],
+            "coverage": coverage,
+            "semantics": "exact ring parity over stored WGS84 boundary rings; boundary-edge points count as inside",
+            "members": members,
+            "receipt": receipt,
+        }
+
     def replay_within(self, namespace: str, receipt_id: str, *, scopes: set[str]) -> dict[str, Any]:
         """Recompute a points-within receipt from its pinned geometry revisions."""
 
@@ -1027,16 +1099,20 @@ class GeospatialFeatureStore:
             "SELECT operation,request_json,result_json,input_ids_json,algorithm,calculation_hash FROM spatial_receipts WHERE namespace=? AND receipt_id=?",
             [namespace, receipt_id],
         ).fetchone()
-        if not row or row[0] != "points_within":
+        if not row or row[0] not in {"points_within", "point_in_features"}:
             raise GeospatialError("not_found", "points-within receipt does not exist")
         request, stored, input_ids = _load(row[1], {}), _load(row[2], {}), _load(row[3], [])
 
         loaded = self._geometries(list(input_ids))
-        boundary = loaded[request["boundary_geometry_id"]]
-        candidates = [
-            loaded[item] for item in input_ids if item != request["boundary_geometry_id"]
-        ]
-        recomputed = self._membership(boundary, candidates)
+        if row[0] == "point_in_features":
+            point = [{"geometry_id": "point", "geometry": {"type": "Point", "coordinates": request["point"]}}]
+            recomputed = sorted(gid for gid in input_ids if self._membership(loaded[gid], point))
+        else:
+            boundary = loaded[request["boundary_geometry_id"]]
+            candidates = [
+                loaded[item] for item in input_ids if item != request["boundary_geometry_id"]
+            ]
+            recomputed = self._membership(boundary, candidates)
         replay_result = {**stored, "member_geometry_ids": recomputed}
         replayed_hash = _digest(
             [namespace, row[0], request, replay_result, sorted(input_ids), row[4]]

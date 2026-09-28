@@ -1,0 +1,665 @@
+{
+ "description": "Labelled synthetic fixture for calibrating address clustering (#2057). Every address and hash is fictional: labels expand to correctly shaped addresses through src.kb.onchain_identifiers (fixture_evm_address / fixture_btc_address). 'related' pairs are controlled together by construction; coincidental pairs include the known false-positive cases (exchange hot wallets, bridges, payment processors, exchange-funded deployers, PayJoin, CoinJoin).",
+ "contract": "noesis-onchain-cluster-calibration-v1",
+ "scenarios": [
+  {
+   "name": "deposit-reuse-pair",
+   "chain": "ethereum",
+   "case": "related: two addresses of one customer pay one deposit address that sweeps to an exchange",
+   "transactions": [
+    {
+     "id": "1",
+     "from": "u1a",
+     "to": "dep1",
+     "block": 100,
+     "value": 5
+    },
+    {
+     "id": "2",
+     "from": "u1b",
+     "to": "dep1",
+     "block": 110,
+     "value": 7
+    },
+    {
+     "id": "3",
+     "from": "dep1",
+     "to": "hot1",
+     "block": 120,
+     "value": 12
+    }
+   ],
+   "pairs": [
+    {
+     "a": "u1a",
+     "b": "u1b",
+     "related": true
+    }
+   ]
+  },
+  {
+   "name": "deposit-reuse-triple",
+   "chain": "ethereum",
+   "case": "related: three addresses of one customer reuse one deposit address",
+   "transactions": [
+    {
+     "id": "1",
+     "from": "u2a",
+     "to": "dep2",
+     "block": 200
+    },
+    {
+     "id": "2",
+     "from": "u2b",
+     "to": "dep2",
+     "block": 201
+    },
+    {
+     "id": "3",
+     "from": "u2c",
+     "to": "dep2",
+     "block": 202
+    },
+    {
+     "id": "4",
+     "from": "dep2",
+     "to": "hot2",
+     "block": 210,
+     "value": 3
+    }
+   ],
+   "pairs": [
+    {
+     "a": "u2a",
+     "b": "u2b",
+     "related": true
+    },
+    {
+     "a": "u2a",
+     "b": "u2c",
+     "related": true
+    }
+   ]
+  },
+  {
+   "name": "exchange-hot-wallet",
+   "chain": "ethereum",
+   "case": "known false positive: twelve unrelated users pay an exchange hot wallet that sweeps to cold storage",
+   "transactions": [
+    {
+     "id": "1",
+     "from": "h1",
+     "to": "hotx",
+     "block": 301
+    },
+    {
+     "id": "2",
+     "from": "h2",
+     "to": "hotx",
+     "block": 302
+    },
+    {
+     "id": "3",
+     "from": "h3",
+     "to": "hotx",
+     "block": 303
+    },
+    {
+     "id": "4",
+     "from": "h4",
+     "to": "hotx",
+     "block": 304
+    },
+    {
+     "id": "5",
+     "from": "h5",
+     "to": "hotx",
+     "block": 305
+    },
+    {
+     "id": "6",
+     "from": "h6",
+     "to": "hotx",
+     "block": 306
+    },
+    {
+     "id": "7",
+     "from": "h7",
+     "to": "hotx",
+     "block": 307
+    },
+    {
+     "id": "8",
+     "from": "h8",
+     "to": "hotx",
+     "block": 308
+    },
+    {
+     "id": "9",
+     "from": "h9",
+     "to": "hotx",
+     "block": 309
+    },
+    {
+     "id": "10",
+     "from": "h10",
+     "to": "hotx",
+     "block": 310
+    },
+    {
+     "id": "11",
+     "from": "h11",
+     "to": "hotx",
+     "block": 311
+    },
+    {
+     "id": "12",
+     "from": "h12",
+     "to": "hotx",
+     "block": 312
+    },
+    {
+     "id": "sweep",
+     "from": "hotx",
+     "to": "cold1",
+     "block": 400,
+     "value": 12
+    }
+   ],
+   "pairs": [
+    {
+     "a": "h1",
+     "b": "h2",
+     "related": false
+    },
+    {
+     "a": "h3",
+     "b": "h4",
+     "related": false
+    },
+    {
+     "a": "h5",
+     "b": "h6",
+     "related": false
+    }
+   ]
+  },
+  {
+   "name": "bridge-contract",
+   "chain": "ethereum",
+   "case": "known false positive: six unrelated users deposit into a bridge contract that forwards to its vault",
+   "transactions": [
+    {
+     "id": "1",
+     "from": "b1",
+     "to": "bridge1",
+     "block": 501
+    },
+    {
+     "id": "2",
+     "from": "b2",
+     "to": "bridge1",
+     "block": 502
+    },
+    {
+     "id": "3",
+     "from": "b3",
+     "to": "bridge1",
+     "block": 503
+    },
+    {
+     "id": "4",
+     "from": "b4",
+     "to": "bridge1",
+     "block": 504
+    },
+    {
+     "id": "5",
+     "from": "b5",
+     "to": "bridge1",
+     "block": 505
+    },
+    {
+     "id": "6",
+     "from": "b6",
+     "to": "bridge1",
+     "block": 506
+    },
+    {
+     "id": "fwd",
+     "from": "bridge1",
+     "to": "vault1",
+     "block": 520,
+     "value": 6
+    }
+   ],
+   "pairs": [
+    {
+     "a": "b1",
+     "b": "b2",
+     "related": false
+    },
+    {
+     "a": "b3",
+     "b": "b4",
+     "related": false
+    },
+    {
+     "a": "b5",
+     "b": "b6",
+     "related": false
+    }
+   ]
+  },
+  {
+   "name": "payment-processor",
+   "chain": "ethereum",
+   "case": "known false positive: five unrelated customers pay a shared processor address that settles to one account",
+   "transactions": [
+    {
+     "id": "1",
+     "from": "p1",
+     "to": "proc1",
+     "block": 601
+    },
+    {
+     "id": "2",
+     "from": "p2",
+     "to": "proc1",
+     "block": 602
+    },
+    {
+     "id": "3",
+     "from": "p3",
+     "to": "proc1",
+     "block": 603
+    },
+    {
+     "id": "4",
+     "from": "p4",
+     "to": "proc1",
+     "block": 604
+    },
+    {
+     "id": "5",
+     "from": "p5",
+     "to": "proc1",
+     "block": 605
+    },
+    {
+     "id": "settle",
+     "from": "proc1",
+     "to": "settle1",
+     "block": 620,
+     "value": 5
+    }
+   ],
+   "pairs": [
+    {
+     "a": "p1",
+     "b": "p2",
+     "related": false
+    },
+    {
+     "a": "p3",
+     "b": "p4",
+     "related": false
+    }
+   ]
+  },
+  {
+   "name": "deployer-own-funding",
+   "chain": "ethereum",
+   "case": "related: a deployer funded by the operator's own treasury address",
+   "deployments": [
+    {
+     "contract": "k1",
+     "deployer": "d1",
+     "block": 710
+    }
+   ],
+   "funding": [
+    {
+     "address": "d1",
+     "from": "f1",
+     "block": 700
+    }
+   ],
+   "pairs": [
+    {
+     "a": "d1",
+     "b": "f1",
+     "related": true
+    }
+   ]
+  },
+  {
+   "name": "exchange-funded-deployers",
+   "chain": "ethereum",
+   "case": "known false positive: an exchange withdrawal wallet funds eight unrelated deployers",
+   "deployments": [
+    {
+     "contract": "k2",
+     "deployer": "d2",
+     "block": 812
+    },
+    {
+     "contract": "k3",
+     "deployer": "d3",
+     "block": 813
+    },
+    {
+     "contract": "k4",
+     "deployer": "d4",
+     "block": 814
+    },
+    {
+     "contract": "k5",
+     "deployer": "d5",
+     "block": 815
+    },
+    {
+     "contract": "k6",
+     "deployer": "d6",
+     "block": 816
+    },
+    {
+     "contract": "k7",
+     "deployer": "d7",
+     "block": 817
+    },
+    {
+     "contract": "k8",
+     "deployer": "d8",
+     "block": 818
+    },
+    {
+     "contract": "k9",
+     "deployer": "d9",
+     "block": 819
+    }
+   ],
+   "funding": [
+    {
+     "address": "d2",
+     "from": "exch1",
+     "block": 802
+    },
+    {
+     "address": "d3",
+     "from": "exch1",
+     "block": 803
+    },
+    {
+     "address": "d4",
+     "from": "exch1",
+     "block": 804
+    },
+    {
+     "address": "d5",
+     "from": "exch1",
+     "block": 805
+    },
+    {
+     "address": "d6",
+     "from": "exch1",
+     "block": 806
+    },
+    {
+     "address": "d7",
+     "from": "exch1",
+     "block": 807
+    },
+    {
+     "address": "d8",
+     "from": "exch1",
+     "block": 808
+    },
+    {
+     "address": "d9",
+     "from": "exch1",
+     "block": 809
+    }
+   ],
+   "pairs": [
+    {
+     "a": "d2",
+     "b": "exch1",
+     "related": false
+    },
+    {
+     "a": "d3",
+     "b": "exch1",
+     "related": false
+    },
+    {
+     "a": "d2",
+     "b": "d3",
+     "related": false
+    }
+   ]
+  },
+  {
+   "name": "deployer-shared-funder",
+   "chain": "ethereum",
+   "case": "related: one operator funds the two deployers it uses",
+   "deployments": [
+    {
+     "contract": "k10",
+     "deployer": "d10",
+     "block": 910
+    },
+    {
+     "contract": "k11",
+     "deployer": "d11",
+     "block": 911
+    }
+   ],
+   "funding": [
+    {
+     "address": "d10",
+     "from": "f2",
+     "block": 900
+    },
+    {
+     "address": "d11",
+     "from": "f2",
+     "block": 901
+    }
+   ],
+   "pairs": [
+    {
+     "a": "d10",
+     "b": "f2",
+     "related": true
+    },
+    {
+     "a": "d10",
+     "b": "d11",
+     "related": true
+    }
+   ]
+  },
+  {
+   "name": "wallet-cospend",
+   "chain": "bitcoin",
+   "case": "related: one wallet co-spends its addresses across two payments",
+   "transactions": [
+    {
+     "id": "1",
+     "block": 100,
+     "inputs": [
+      "w1",
+      "w2"
+     ],
+     "outputs": [
+      [
+       "m1",
+       5000
+      ],
+      [
+       "w3",
+       1200
+      ]
+     ]
+    },
+    {
+     "id": "2",
+     "block": 120,
+     "inputs": [
+      "w2",
+      "w3",
+      "w4"
+     ],
+     "outputs": [
+      [
+       "m2",
+       8000
+      ]
+     ]
+    }
+   ],
+   "pairs": [
+    {
+     "a": "w1",
+     "b": "w2",
+     "related": true
+    },
+    {
+     "a": "w1",
+     "b": "w4",
+     "related": true
+    },
+    {
+     "a": "w3",
+     "b": "w4",
+     "related": true
+    }
+   ]
+  },
+  {
+   "name": "consolidation",
+   "chain": "bitcoin",
+   "case": "related but low-scoring: one wallet consolidates five addresses",
+   "transactions": [
+    {
+     "id": "1",
+     "block": 200,
+     "inputs": [
+      "c1",
+      "c2",
+      "c3",
+      "c4",
+      "c5"
+     ],
+     "outputs": [
+      [
+       "c6",
+       9000
+      ]
+     ]
+    }
+   ],
+   "pairs": [
+    {
+     "a": "c1",
+     "b": "c2",
+     "related": true
+    },
+    {
+     "a": "c3",
+     "b": "c5",
+     "related": true
+    }
+   ]
+  },
+  {
+   "name": "payjoin-like",
+   "chain": "bitcoin",
+   "case": "known false positive: a PayJoin in which payer and merchant both contribute inputs (not detectable by this heuristic)",
+   "transactions": [
+    {
+     "id": "1",
+     "block": 300,
+     "inputs": [
+      "pjpayer",
+      "pjmerchant"
+     ],
+     "outputs": [
+      [
+       "pjmerchant",
+       13000
+      ],
+      [
+       "pjchange",
+       700
+      ]
+     ]
+    }
+   ],
+   "pairs": [
+    {
+     "a": "pjpayer",
+     "b": "pjmerchant",
+     "related": false
+    }
+   ]
+  },
+  {
+   "name": "coinjoin",
+   "chain": "bitcoin",
+   "case": "known false positive guarded by the CoinJoin filter: five participants, five equal outputs",
+   "transactions": [
+    {
+     "id": "1",
+     "block": 400,
+     "inputs": [
+      "cj1",
+      "cj2",
+      "cj3",
+      "cj4",
+      "cj5"
+     ],
+     "outputs": [
+      [
+       "o1",
+       10000
+      ],
+      [
+       "o2",
+       10000
+      ],
+      [
+       "o3",
+       10000
+      ],
+      [
+       "o4",
+       10000
+      ],
+      [
+       "o5",
+       10000
+      ],
+      [
+       "cjchange",
+       500
+      ]
+     ]
+    }
+   ],
+   "pairs": [
+    {
+     "a": "cj1",
+     "b": "cj2",
+     "related": false
+    },
+    {
+     "a": "cj3",
+     "b": "cj4",
+     "related": false
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,23 @@
+{
+  "title": "CISA Catalog of Known Exploited Vulnerabilities (authored fixture)",
+  "catalogVersion": "2099.01.20",
+  "dateReleased": "2099-01-20T16:00:00.0000Z",
+  "count": 1,
+  "vulnerabilities": [
+    {
+      "cveID": "CVE-2099-0001",
+      "vendorProject": "FixtureCorp",
+      "product": "fixture-parser",
+      "vulnerabilityName": "FixtureCorp fixture-parser Inefficient Regular Expression",
+      "dateAdded": "2099-01-14",
+      "shortDescription": "Authored fixture entry.",
+      "requiredAction": "Authored fixture action text that must not be stored.",
+      "dueDate": "2099-02-04",
+      "knownRansomwareCampaignUse": "Unknown",
+      "notes": "https://fixturecorp.example/advisories/2099-001",
+      "cwes": [
+        "CWE-1333"
+      ]
+    }
+  ]
+}

@@ -38,6 +38,42 @@ MATRIX = {
     "Fixture-only public recipe run":
         "tests/unit/composition/test_workflows.py::"
         "test_fixture_runs_cannot_claim_dispatch_and_dispatch_mode_needs_the_dispatcher",
+    # The Economics public-finance feature's offline journey (#2006) composes economics, legal, political,
+    # procurement, funding, ownership identity, subscriptions and the source-pack runtime.
+    "Public-finance budget line to payments":
+        "tests/unit/domains/test_public_finance_acceptance.py::"
+        "test_budget_line_to_plans_outturns_payments_findings_acts_dossiers_and_award_context",
+    # The Economics demographics feature's offline journey (#2017) composes economics, legal, political,
+    # geospatial, subscriptions and the source-pack runtime.
+    "Demographic geography to series and definitions":
+        "tests/unit/domains/test_demographics_acceptance.py::"
+        "test_geography_to_series_definitions_boundaries_and_citations",
+    # The Geospatial housing feature's offline journey (#2022) composes geospatial, legal, economics (dataset
+    # series), political, news, subscriptions and the source-pack runtime.
+    "Address to housing dossier":
+        "tests/unit/domains/test_housing_acceptance.py::"
+        "test_address_to_housing_dossier_with_conflicts_unknowns_and_restart",
+    # The Clinical Evidence surveillance feature's offline journey (#2031) composes clinical, science (claims),
+    # geospatial, subscriptions and the source-pack runtime.
+    "Condition to surveillance dossier":
+        "tests/unit/domains/test_surveillance_acceptance.py::"
+        "test_condition_and_geography_to_a_cited_surveillance_dossier",
+    # The Products safety feature's offline journey (#2030) composes products, technology (standards), legal
+    # (works), news, entity identity, subscriptions and the source-pack runtime.
+    "Product to safety-notice dossier":
+        "tests/unit/domains/test_product_safety_acceptance.py::"
+        "test_product_gtin_and_brand_model_to_a_cited_notice_dossier",
+    # The Funding & Grants development-finance feature's offline journey (#2038) composes funding, economics (CRS
+    # through the SDMX connector), geospatial place resolution, ownership and entity identity, research projects,
+    # authored reports, subscriptions and the source-pack runtime.
+    "Funder to aid activities":
+        "tests/unit/domains/test_development_finance_acceptance.py::"
+        "test_funder_to_cited_activities_with_coverage_vintages_identity_and_monitoring",
+    # The On-chain Observations bundle's offline journey (#2058) composes its own record owner, entity identity,
+    # the OSINT provenance chain and the source-pack declarations.
+    "Contract and address to cited ledger observations":
+        "tests/unit/domains/test_onchain_acceptance.py::"
+        "test_contract_and_address_to_cited_origin_transfers_and_probable_cluster",
 }
 
 

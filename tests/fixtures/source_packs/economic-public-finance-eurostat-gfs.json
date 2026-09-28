@@ -1,0 +1,19 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body": "{\n \"version\": \"2.0\",\n \"class\": \"dataset\",\n \"label\": \"General government total expenditure (authored fixture: fictional values, not Eurostat data)\",\n \"source\": \"ESTAT\",\n \"updated\": \"2025-04-22T23:00:00+0200\",\n \"id\": [\n  \"freq\",\n  \"unit\",\n  \"sector\",\n  \"na_item\",\n  \"geo\",\n  \"time\"\n ],\n \"size\": [\n  1,\n  1,\n  1,\n  1,\n  1,\n  3\n ],\n \"dimension\": {\n  \"freq\": {\n   \"label\": \"Time frequency\",\n   \"category\": {\n    \"index\": {\n     \"A\": 0\n    },\n    \"label\": {\n     \"A\": \"Annual\"\n    }\n   }\n  },\n  \"unit\": {\n   \"label\": \"Unit of measure\",\n   \"category\": {\n    \"index\": {\n     \"MIO_EUR\": 0\n    },\n    \"label\": {\n     \"MIO_EUR\": \"Million euro\"\n    }\n   }\n  },\n  \"sector\": {\n   \"label\": \"Sector\",\n   \"category\": {\n    \"index\": {\n     \"S13\": 0\n    },\n    \"label\": {\n     \"S13\": \"General government\"\n    }\n   }\n  },\n  \"na_item\": {\n   \"label\": \"National accounts indicator (ESA 2010)\",\n   \"category\": {\n    \"index\": {\n     \"TE\": 0\n    },\n    \"label\": {\n     \"TE\": \"Total general government expenditure\"\n    }\n   }\n  },\n  \"geo\": {\n   \"label\": \"Geopolitical entity\",\n   \"category\": {\n    \"index\": {\n     \"DE\": 0\n    },\n    \"label\": {\n     \"DE\": \"Germany\"\n    }\n   }\n  },\n  \"time\": {\n   \"label\": \"Time\",\n   \"category\": {\n    \"index\": {\n     \"2096\": 0,\n     \"2097\": 1,\n     \"2098\": 2\n    },\n    \"label\": {\n     \"2096\": \"2096\",\n     \"2097\": \"2097\",\n     \"2098\": \"2098\"\n    }\n   }\n  }\n },\n \"value\": {\n  \"0\": 1000.5,\n  \"1\": 1040.2,\n  \"2\": 1085.0\n }\n}",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/eurostat/api/dissemination/statistics/1.0/data/gov_10a_main?format=JSON&geo=DE&na_item=TE&sector=S13&unit=MIO_EUR",
+   "status": 200
+  }
+ ],
+ "note": "Authored files in the documented shape; every budget line, beneficiary and figure is fictional.",
+ "provider": "authored",
+ "scenarios": [
+  "authored-fixture",
+  "fictional-parties"
+ ]
+}

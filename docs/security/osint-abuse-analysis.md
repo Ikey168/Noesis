@@ -55,7 +55,10 @@ perceptual-hash reuse detection (C2), and C2PA verification (C3) — are **not**
 gated: they read only the operator's own ingested assets, add no external calls,
 and identify *images*, never people. Only the C4 external tier is gated, for the
 same reason `geolocate_claims` is: pointing a capability at the outside world is
-where the abuse surface is.
+where the abuse surface is. Video keyframes sampled by the media connector
+(OX04) are indexed into the same corpus-internal pipeline, so reuse detection
+covers video; they are matched as images, never used for face recognition or
+person identification.
 
 **Permanent non-goal (not a setting).** No face recognition and no person
 identification of any kind — not via an adapter, not behind a flag. The
@@ -91,6 +94,62 @@ audited step rather than an automatic inference. The budget/allowlist posture
 bounds cost and egress but cannot prevent an operator from misusing a *confirmed*
 result — the same residual that applies to every review-gated OSINT tool.
 
+## chronolocate_image (OX09)
+
+**What it does.** Proposes *when* a corpus image was captured: a time-of-day
+band from shadow direction and length and a season window, computed locally
+from solar geometry for a place that is either a *confirmed* geolocation
+suggestion or an explicit operator hypothesis. The result is a queued
+suggestion, `cited: false` and `verified: false`.
+
+| Misuse | Mitigation (in code) |
+|---|---|
+| Inferring a person's routine (when someone is somewhere) | Per image and place-conditioned: the tool takes one corpus asset hash, has no person or entity parameter, and never joins across images, so it cannot build a timeline of anyone. It reasons about the sun and the scene, never the subject. |
+| Passing an estimate off as a fact | The output states the method, the place hypothesis it depends on, the tolerance and an interval, with `verified: false`; it is queued uncited until an operator confirms it. |
+| Laundering EXIF timestamps | EXIF `DateTimeOriginal` is shown as file-claimed and never used as ground truth. |
+| Inferring the place too | The place is never inferred here: it comes from a confirmed suggestion or a named operator's hypothesis. |
+
+**Residual risk.** An operator could run the tool on many images of the same
+person one by one. The gate, the per-image shape and the audit log (every
+invocation is recorded in the provisioning trail) make that visible; the
+permanent non-goal of no movement-pattern inference stands.
+
+## reference_imagery (OX10)
+
+**What it does.** Fetches one satellite tile or street-level view for the
+place of a queued geolocation suggestion, so a reviewer can compare it with
+the corpus image before confirming. References are stored in the review-queue
+store, linked to the suggestion, with provider attribution; they never become
+citations.
+
+| Misuse | Mitigation (in code) |
+|---|---|
+| Monitoring a private location over time | One reference per suggestion and kind; no date parameter and no time-series fetches; no free-form "look at coordinates" tool on the served surface. |
+| Using the tool as a general imagery viewer | A fetch requires a queued suggestion (or an explicit operator hypothesis attached to one); the provider is allowlisted and budgeted (request cap, byte cap). |
+| Unbounded cost or egress | Key-gated, allowlisted, budgeted; **no default provider ships**, so the tool is inert until an operator supplies one. |
+
+**Residual risk.** Reference imagery of a residential street is still imagery
+of a residential street; the constraint is that it is only fetched for a place
+already under review for a corpus image, once, and the fetch is audited.
+
+## Organization-keyed infrastructure pivoting (OX08)
+
+`infrastructure_pivot` is served **ungated**. It walks cited source-identity
+relationships (`ownership` from RDAP registrant organizations, probable
+`shared-infrastructure` from certificate SAN sets) between *publications and
+organizations* already known as sources in the namespace. These are registry
+facts about publishers: they add no person data (RDAP natural-person
+registrants and e-mail SANs are dropped before storage) and no external calls
+at query time.
+
+E-mail, username/handle, IP-address and `person:` identifiers are **refused in
+code** (`status: person_identifier_refused`). Those pivots (email → username →
+IP and similar) are the classic de-anonymisation chain and are excluded by the
+OSINT pack's non-goals; IP-keyed lookups would also enumerate unrelated
+parties sharing a host. The output carries the caveat that shared hosting and
+CDNs commonly explain shared infrastructure, and there is no same-operator or
+attribution field.
+
 ## Gate status
 
 Criteria 1 (purpose limitation in code), 3 (evidence discipline: cited,
@@ -100,7 +159,8 @@ keeping the tools behind the off-by-default flag: a deployment enables them only
 after calibrating the thresholds and accepting this analysis. The absence test
 (`tests/unit/osint/test_investigations.py`) proves they stay off until then.
 
-The **imagery external tier** (C4: `reverse_image_search`, `geolocate_image`)
+The **imagery external tier** (C4: `reverse_image_search`, `geolocate_image`,
+and the OX09/OX10 extensions `chronolocate_image`, `reference_imagery`)
 inherits the same five criteria and the same off-by-default posture. Its
 purpose-limitation (criterion 1) is the permanent no-person-identification
 non-goal plus the corpus-images-only submission rule; its evidence discipline

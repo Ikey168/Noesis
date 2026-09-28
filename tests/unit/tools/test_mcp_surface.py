@@ -43,6 +43,7 @@ READ_SMOKES = {
     "monitoring_mcp": ("current_metrics", {}),
     "namespaces_mcp": ("namespace_package_context", {}),
     "osint_mcp": ("contradiction_scan", {}),
+    "onchain_mcp": ("address_observations", {"address": "0x0000000000000000000000000000000000000000"}),
     "pipeline_mcp": ("list_connector_types", {}),
     "provisioning_mcp": ("kg_list", {}),
     "research_mcp": ("venues", {}),
@@ -188,6 +189,7 @@ HONEST_ANALYTICS = {
     "osint_mcp": {
         "corroborate", "source_reliability", "image_reuse_findings", "image_reuse",
     },
+    "onchain_mcp": {"address_observations", "contract_origin", "address_cluster"},
 }
 
 

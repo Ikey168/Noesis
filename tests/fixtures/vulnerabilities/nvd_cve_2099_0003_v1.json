@@ -1,0 +1,63 @@
+{
+  "resultsPerPage": 1,
+  "startIndex": 0,
+  "totalResults": 1,
+  "format": "NVD_CVE",
+  "version": "2.0",
+  "timestamp": "2099-01-11T08:00:00.000",
+  "vulnerabilities": [
+    {
+      "cve": {
+        "id": "CVE-2099-0003",
+        "sourceIdentifier": "security@fixturecorp.example",
+        "published": "2099-01-06T10:00:00.000",
+        "lastModified": "2099-01-07T10:00:00.000",
+        "vulnStatus": "Analyzed",
+        "cveTags": [],
+        "descriptions": [
+          {
+            "lang": "en",
+            "value": "Authored fixture: fixture-parser debug endpoint discloses configuration."
+          }
+        ],
+        "metrics": {},
+        "weaknesses": [
+          {
+            "source": "nvd@nist.gov",
+            "type": "Primary",
+            "description": [
+              {
+                "lang": "en",
+                "value": "CWE-200"
+              }
+            ]
+          }
+        ],
+        "configurations": [
+          {
+            "nodes": [
+              {
+                "operator": "OR",
+                "negate": false,
+                "cpeMatch": [
+                  {
+                    "vulnerable": true,
+                    "criteria": "cpe:2.3:a:fixturecorp:fixture_parser:1.2.0:*:*:*:*:python:*:*",
+                    "matchCriteriaId": "A0000000-0000-4000-8000-000000000004"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "references": [
+          {
+            "url": "https://fixturecorp.example/advisories/2099-003",
+            "source": "security@fixturecorp.example",
+            "tags": []
+          }
+        ]
+      }
+    }
+  ]
+}

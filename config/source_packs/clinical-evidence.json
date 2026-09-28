@@ -1,7 +1,7 @@
 {
   "pack_id": "clinical-evidence",
-  "version": "0.1.0",
-  "description": "Clinical Evidence: registered trials with version history, posted results, EU registry records and regulatory records (openFDA, EMA) for pinned selections. No medical advice.",
+  "version": "0.1.1",
+  "description": "Clinical Evidence: registered trials with version history, posted results, EU registry records and regulatory records (openFDA, EMA) for pinned selections. Version 0.1.1 adds public-health surveillance series (RKI open data, WHO GHO, Eurostat health through the SDMX connector, Destatis health through the GENESIS connector) with reporting and reference dates kept apart; existing sources are unchanged. No medical advice.",
   "domains": [
     "clinical"
   ],
@@ -332,6 +332,352 @@
         "path": "tests/fixtures/source_packs/clinical-ema.json",
         "sha256": "d19a46410dae672062941e584e26258ee385e1d02fbbabfc3aa7f0fb3370a24a",
         "expected_output_hash": "fb10daf5bea07f99b5993abdab08ddea3566481da78e58ff7808433935f6f0c1"
+      }
+    },
+    {
+      "mapping": {
+        "target_schema": "noesis-surveillance-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "surveillance-sources:1.0.0"
+      ],
+      "health": {
+        "required": false,
+        "max_staleness_s": 2592000
+      },
+      "source_id": "rki-tuberkulose-meldedaten",
+      "connector": "surveillance",
+      "publisher": "Robert Koch-Institut",
+      "endpoint": "https://raw.githubusercontent.com",
+      "scope": "One pinned RKI open-data release (tag) of notified tuberculosis cases by district",
+      "update_cadence": "each release tag is a new vintage; the pinned tag is updated by the operator",
+      "temporal_semantics": "Meldedatum (reporting date) and Refdatum (reference date) per value; release date of the tag as the release clock; retrieval time recorded separately",
+      "operations": [
+        "records"
+      ],
+      "schedule": {
+        "kind": "interval",
+        "interval_s": 86400
+      },
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 200,
+        "max_bytes": 20000000,
+        "max_pages": 10
+      },
+      "surveillance": {
+        "namespace": "clinical",
+        "provider": "rki-open-data",
+        "format": "rki-github-csv",
+        "documents": [
+          {
+            "label": "RKI Tuberkulose-Meldedaten 2099-01-20 (fictional repository)",
+            "repository": "robert-koch-institut/Fiktive_Tuberkulose-Meldedaten",
+            "tag": "2099-01-20",
+            "path": "Daten/Tuberkulose_Meldedaten.csv",
+            "published_on": "2099-01-20",
+            "condition": {
+              "scheme": "rki-meldekategorie",
+              "code": "Tuberkulose",
+              "label": "Tuberkulose"
+            },
+            "indicator": {
+              "code": "AnzahlFall",
+              "label": "Gemeldete Fälle",
+              "definition_locator": "https://github.com/robert-koch-institut/Fiktive_Tuberkulose-Meldedaten#readme"
+            },
+            "columns": {
+              "reporting_date": "Meldedatum",
+              "reference_date": "Refdatum",
+              "geography": "IdLandkreis",
+              "figure": "AnzahlFall",
+              "reference_known": "IstErkrankungsbeginn",
+              "dimensions": {
+                "Altersgruppe": "age_group"
+              }
+            },
+            "geography": {
+              "system": "ags",
+              "level": "kreis",
+              "code_list_version": "2099-01-01"
+            },
+            "unit": "cases",
+            "interval": "day",
+            "kind": "observation",
+            "case_definitions": [
+              {
+                "key": "tuberkulose",
+                "version": "2019",
+                "valid_from": "2019-01-01",
+                "valid_to": "2098-12-31",
+                "locator": "https://www.rki.de/DE/Content/Infekt/IfSG/Falldefinition/falldefinition_node.html",
+                "icd_scope": [
+                  "A15-A19"
+                ]
+              },
+              {
+                "key": "tuberkulose",
+                "version": "2099",
+                "valid_from": "2099-01-01",
+                "locator": "https://www.rki.de/DE/Content/Infekt/IfSG/Falldefinition/falldefinition_node.html",
+                "icd_scope": [
+                  "A15-A19",
+                  "A31.0"
+                ]
+              }
+            ],
+            "delay_note": {
+              "text": "Meldungen der letzten drei Wochen sind wegen des Meldeverzugs noch unvollständig (fiktive Angabe).",
+              "locator": "https://github.com/robert-koch-institut/Fiktive_Tuberkulose-Meldedaten#meldeverzug",
+              "incomplete_recent": {
+                "interval": "week",
+                "count": 3
+              }
+            },
+            "citations": [
+              {
+                "kind": "doi",
+                "identifier": "10.5281/zenodo.9900001"
+              }
+            ]
+          }
+        ]
+      },
+      "license": {
+        "id": "cc-by-4.0",
+        "terms_url": "https://creativecommons.org/licenses/by/4.0/",
+        "redistribution": "attribution to the Robert Koch-Institut and the release (verify per repository)"
+      },
+      "auth": {
+        "kind": "none"
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/surveillance-rki-tuberkulose-meldedaten.json",
+        "sha256": "88345d224926b93677ade573fa9c3de08106abaa4763779f48a224062aeaee42",
+        "expected_output_hash": "959b67100da7dfe52b2b0f6018d78b9c79a82bb7f77b65a1fddce54a3c1bc2f5"
+      }
+    },
+    {
+      "mapping": {
+        "target_schema": "noesis-surveillance-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "surveillance-sources:1.0.0"
+      ],
+      "health": {
+        "required": false,
+        "max_staleness_s": 2592000
+      },
+      "source_id": "who-gho-tuberculosis",
+      "connector": "surveillance",
+      "publisher": "World Health Organization (Global Health Observatory)",
+      "endpoint": "https://ghoapi.azureedge.net/api",
+      "scope": "Pinned GHO indicators for Germany (tuberculosis notification rate and estimated incidence)",
+      "update_cadence": "irregular per indicator",
+      "temporal_semantics": "TimeDim (reference year) and Date (reporting date) per value; Last-Modified or the latest value date as the release clock, labelled",
+      "operations": [
+        "records"
+      ],
+      "schedule": {
+        "kind": "interval",
+        "interval_s": 604800
+      },
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 200,
+        "max_bytes": 20000000,
+        "max_pages": 10
+      },
+      "surveillance": {
+        "namespace": "clinical",
+        "provider": "who-gho",
+        "format": "who-gho-odata",
+        "documents": [
+          {
+            "label": "GHO NOE_TB_NOTIF_RATE Germany (fictional indicator)",
+            "indicator": "NOE_TB_NOTIF_RATE",
+            "filter": "SpatialDim eq 'DEU'",
+            "condition_label": "Tuberculosis",
+            "unit": "per 100 000 population",
+            "kind": "observation",
+            "denominator": "total population (as stated by the indicator)"
+          },
+          {
+            "label": "GHO NOE_TB_INC_EST Germany (fictional indicator)",
+            "indicator": "NOE_TB_INC_EST",
+            "filter": "SpatialDim eq 'DEU'",
+            "condition_label": "Tuberculosis",
+            "unit": "per 100 000 population",
+            "kind": "observation",
+            "denominator": "total population (as stated by the indicator)"
+          }
+        ]
+      },
+      "license": {
+        "id": "who-data-terms",
+        "terms_url": "https://www.who.int/about/policies/publishing/data-policy/terms-and-conditions",
+        "redistribution": "WHO data terms; attribution, non-commercial for CC BY-NC-SA IGO data (verify)"
+      },
+      "auth": {
+        "kind": "none"
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/surveillance-who-gho-tuberculosis.json",
+        "sha256": "f173074edcc0ed0e89e8fbcd8917d4c693a585e704cb37e3a873e9abd6f98f30",
+        "expected_output_hash": "8033c12b0915eaadff54039c75d618084e185b359e7d9ebe99563b4a9817b599"
+      }
+    },
+    {
+      "mapping": {
+        "target_schema": "noesis-surveillance-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "surveillance-sources:1.0.0"
+      ],
+      "health": {
+        "required": false,
+        "max_staleness_s": 2592000
+      },
+      "source_id": "eurostat-causes-of-death-tuberculosis",
+      "connector": "surveillance",
+      "publisher": "Eurostat",
+      "endpoint": "https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data",
+      "scope": "Eurostat hlth_cd_aro tuberculosis deaths for Germany and Bayern through the SDMX connector (same dissemination API as economic-statistics-and-filings/eurostat-dissemination)",
+      "update_cadence": "annual",
+      "temporal_semantics": "TIME_PERIOD (reference year); LAST UPDATE as the release clock; no reporting date per value",
+      "operations": [
+        "records"
+      ],
+      "schedule": {
+        "kind": "interval",
+        "interval_s": 604800
+      },
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 200,
+        "max_bytes": 20000000,
+        "max_pages": 10
+      },
+      "surveillance": {
+        "namespace": "clinical",
+        "provider": "eurostat-health",
+        "format": "eurostat-sdmx-csv",
+        "documents": [
+          {
+            "label": "Eurostat hlth_cd_aro tuberculosis deaths, Germany and Bayern (fictional values)",
+            "dataset": "hlth_cd_aro",
+            "key": "A.NR.T.TOTAL.A15-A19_B90.DE+DE2",
+            "params": {
+              "startPeriod": "2097"
+            },
+            "condition_dimension": "icd10",
+            "condition_labels": {
+              "A15-A19_B90": "Tuberculosis"
+            },
+            "units": {
+              "NR": "deaths"
+            },
+            "indicator": {
+              "code": "hlth_cd_aro",
+              "label": "Causes of death by NUTS 2 regions of residence, absolute numbers (fictional values)"
+            },
+            "geography": {
+              "code_list_version": "NUTS 2021"
+            },
+            "kind": "observation"
+          }
+        ]
+      },
+      "license": {
+        "id": "eurostat-reuse",
+        "terms_url": "https://ec.europa.eu/eurostat/about-us/policies/copyright",
+        "redistribution": "attribution-required"
+      },
+      "auth": {
+        "kind": "none"
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/surveillance-eurostat-causes-of-death-tuberculosis.json",
+        "sha256": "3dad7ac13bf170e7e0da71dcfad968ad3c0ad17863bd9e8ff036333257ffaa7b",
+        "expected_output_hash": "e482358974a259e5f47d9124a2746b0ef39d1ad62608c0c593ccfb10877eb4d0"
+      }
+    },
+    {
+      "mapping": {
+        "target_schema": "noesis-surveillance-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "surveillance-sources:1.0.0"
+      ],
+      "health": {
+        "required": false,
+        "max_staleness_s": 2592000
+      },
+      "source_id": "destatis-todesursachen-tuberkulose",
+      "connector": "surveillance",
+      "publisher": "Statistisches Bundesamt (Destatis)",
+      "endpoint": "https://www-genesis.destatis.de/genesisWS/rest/2020",
+      "scope": "GENESIS table 23211-0004 tuberculosis deaths by Land through the GENESIS connector (credentialed)",
+      "update_cadence": "annual",
+      "temporal_semantics": "Zeit (reference year); the table's Updated stamp as the release clock; no reporting date per value",
+      "operations": [
+        "records"
+      ],
+      "schedule": {
+        "kind": "interval",
+        "interval_s": 604800
+      },
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 200,
+        "max_bytes": 20000000,
+        "max_pages": 10
+      },
+      "surveillance": {
+        "namespace": "clinical",
+        "provider": "destatis-health",
+        "format": "destatis-genesis-ffcsv",
+        "documents": [
+          {
+            "label": "23211-0004 Gestorbene: Bundesländer, Jahre, Todesursachen (fictional values)",
+            "table": "23211-0004",
+            "geography_attribute": "DLAND",
+            "condition_attribute": "TODUR4",
+            "measures": {
+              "BEV003": "Gestorbene"
+            },
+            "units": {
+              "Anzahl": "deaths"
+            },
+            "condition_labels": {
+              "A15-A19": "Tuberkulose"
+            },
+            "geography": {
+              "system": "ags",
+              "level": "land",
+              "code_list_version": "2099-01-01"
+            },
+            "kind": "observation"
+          }
+        ]
+      },
+      "license": {
+        "id": "dl-de-by-2.0",
+        "terms_url": "https://www.govdata.de/dl-de/by-2-0",
+        "redistribution": "attribution-required (verify)"
+      },
+      "auth": {
+        "kind": "required-secret",
+        "secret_ref": "NOESIS_DESTATIS_GENESIS_TOKEN"
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/surveillance-destatis-todesursachen-tuberkulose.json",
+        "sha256": "16b1d303a6c431bab697ed0b94eaf6c6c1cca1b164225fb896072ca509a61ead",
+        "expected_output_hash": "9a8f0cd499ab10e75b60e31fa0c668bdb8386d8f016b898719132487c6cc8275"
       }
     }
   ]

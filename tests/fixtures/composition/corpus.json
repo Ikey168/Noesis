@@ -14,13 +14,13 @@
     "compatibility_aliases": {
      "neuronews-osint": "osint"
     },
-    "content_hash": "sha256:2d7c666f3bb4372d2a71f6e9da67a7c32be22549249bc8b96c776f434fb46c06",
+    "content_hash": "sha256:10e9beb2a53c48a3afdc716be539b70d341d2923bb1eee1da4399970024abbed",
     "contributes": {
      "capabilities": [
       {
        "contract": {
         "name": "noesis-osint-corroboration",
-        "version": "1.0.0"
+        "version": "1.1.0"
        },
        "id": "osint.origin-aware-corroboration"
       }
@@ -86,13 +86,13 @@
      "neuronews-osint": "osint",
      "old-osint": "osint"
     },
-    "content_hash": "sha256:7578cb50e8fd4db6bdfa0fb7dd0f8e90859e14cc391874b498da681868cc7390",
+    "content_hash": "sha256:688b13784632221650833b52abf8febc1c79594db4daff2f49f8ded13f076e76",
     "contributes": {
      "capabilities": [
       {
        "contract": {
         "name": "noesis-osint-corroboration",
-        "version": "1.0.0"
+        "version": "1.1.0"
        },
        "id": "osint.origin-aware-corroboration"
       }
@@ -151,13 +151,13 @@
     "compatibility_aliases": {
      "osint": "osint"
     },
-    "content_hash": "sha256:14a48a7754ec3570798bb08eef69968a8c722d0ba16ba71739fa6aa2122529ac",
+    "content_hash": "sha256:f1b368eb942643a50fd6ac2172cfb23dd404844df5b5661670acdbb6ff271d2e",
     "contributes": {
      "capabilities": [
       {
        "contract": {
         "name": "noesis-osint-corroboration",
-        "version": "1.0.0"
+        "version": "1.1.0"
        },
        "id": "osint.origin-aware-corroboration"
       }
@@ -217,13 +217,13 @@
     "compatibility_aliases": {
      "neuronews-osint": "osint"
     },
-    "content_hash": "sha256:a6c92b8abce212201a723992dda83daa34c0294a4c224aef73281a1a18b6b2b6",
+    "content_hash": "sha256:b35d6bea0747b14703750a2dc66acf6b8565168d7e9268ce6b6da60e11456fea",
     "contributes": {
      "capabilities": [
       {
        "contract": {
         "name": "noesis-osint-corroboration",
-        "version": "1.0.0"
+        "version": "1.1.0"
        },
        "id": "osint.origin-aware-corroboration"
       }
@@ -282,13 +282,13 @@
     "compatibility_aliases": {
      "neuronews-osint": "osint"
     },
-    "content_hash": "sha256:6c03c31ac57554176e693712707534acae81a64e06aead41106804fad0055873",
+    "content_hash": "sha256:9f60c73fc27834b6cb24f7daa6bf945f0263e7141a49f2b689bd7c529ca697e2",
     "contributes": {
      "capabilities": [
       {
        "contract": {
         "name": "noesis-osint-corroboration",
-        "version": "1.0.0"
+        "version": "1.1.0"
        },
        "id": "osint.origin-aware-corroboration"
       }
@@ -348,13 +348,13 @@
     "compatibility_aliases": {
      "neuronews-osint": "osint"
     },
-    "content_hash": "sha256:d7cd96fae3886cb63d13bea22f0e9fad285f1b652bbbd444ac65bf51b4b9d272",
+    "content_hash": "sha256:ec654fabb2e13a2bcab4ce401609fd15694893a80a78655df82b59da380dc169",
     "contributes": {
      "capabilities": [
       {
        "contract": {
         "name": "noesis-osint-corroboration",
-        "version": "1.0.0"
+        "version": "1.1.0"
        },
        "id": "osint.origin-aware-corroboration"
       }
@@ -412,13 +412,13 @@
     "compatibility_aliases": {
      "neuronews-osint": "osint"
     },
-    "content_hash": "sha256:1a49a7b54d686018fc09aaea20c5649524049a3b8987402b04e2b9b11427c147",
+    "content_hash": "sha256:a4f8d6e02ebdfef5ec339d85b8fe96910f15ab07a79f681bbc15e52f2a0adb9f",
     "contributes": {
      "capabilities": [
       {
        "contract": {
         "name": "noesis-osint-corroboration",
-        "version": "1.0.0"
+        "version": "1.1.0"
        },
        "id": "osint.origin-aware-corroboration"
       }
@@ -482,7 +482,7 @@
       {
        "contract": {
         "name": "noesis-osint-corroboration",
-        "version": "1.0.0"
+        "version": "1.1.0"
        },
        "id": "osint.origin-aware-corroboration"
       }
@@ -550,7 +550,7 @@
       {
        "contract": {
         "name": "noesis-osint-corroboration",
-        "version": "1.0.0"
+        "version": "1.1.0"
        },
        "id": "osint.origin-aware-corroboration"
       }
@@ -622,7 +622,7 @@
       {
        "contract": {
         "name": "noesis-osint-corroboration",
-        "version": "1.0.0"
+        "version": "1.1.0"
        },
        "id": "osint.origin-aware-corroboration"
       }
@@ -682,13 +682,13 @@
     "compatibility_aliases": {
      "neuronews-osint": "osint"
     },
-    "content_hash": "sha256:2d7c666f3bb4372d2a71f6e9da67a7c32be22549249bc8b96c776f434fb46c06",
+    "content_hash": "sha256:10e9beb2a53c48a3afdc716be539b70d341d2923bb1eee1da4399970024abbed",
     "contributes": {
      "capabilities": [
       {
        "contract": {
         "name": "noesis-osint-corroboration",
-        "version": "1.0.0"
+        "version": "1.1.0"
        },
        "id": "osint.origin-aware-corroboration"
       }

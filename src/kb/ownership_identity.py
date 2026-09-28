@@ -20,6 +20,17 @@ Bases, strongest first:
   instrument master; an OpenCorporates record linked in ``src.kb.lei``);
 * ``name-jurisdiction`` - equal normalized names in the same country, with no
   contradicting identifier; always low confidence.
+* ``unqualified-identifier`` - the same identifier value on two records
+  where the issuing country is missing or not comparable on one side; a
+  reviewer must establish that both refer to the same issuer.
+* ``similar-name`` - a name that another owner (e.g. a sanctions list) states
+  resembles this record's name, with no corroborating attribute. It is shown
+  as a candidate but can never be accepted: a similar name alone is not an
+  identity.
+
+Other record owners (the Legal sanctions, Political lobbying and elections, Economics public-finance and
+Funding development-finance features) put their own candidates into this same state machine through :meth:`OwnershipIdentityService.offer`;
+review, rejection and revert are shared.
 
 Successors and predecessors (mergers, re-registrations) are corporate events,
 never identity matches; they are not proposed here.
@@ -36,7 +47,11 @@ from src.kb.ownership_records import READ_SCOPE, REVIEW_SCOPE, WRITE_SCOPE, cano
 from src.kb.ownership_store import OwnershipError, OwnershipStore, authorize, canonical_entity_id
 
 CONTRACT = "noesis-ownership-identity-candidate-v1"
-CONFIDENCE = {"exact-identifier": 0.95, "cross-referenced-identifier": 0.8, "name-jurisdiction": 0.35}
+CONFIDENCE = {"exact-identifier": 0.95, "cross-referenced-identifier": 0.8,
+              "unqualified-identifier": 0.5, "name-jurisdiction": 0.35, "similar-name": 0.1}
+NEVER_ACCEPTED = frozenset({"similar-name"})
+# Record keys owned by other bundles that share this state machine through ``offer``.
+FOREIGN_KEY_PREFIXES = ("sanctions:", "lobbying:", "elections:", "public-finance:", "devfin:", "funding-funder:")
 PRIMARY_SCHEME = {"gleif": "lei", "companies-house": "gb-coh", "sec-edgar": "sec-cik"}
 STATES = ("proposed", "accepted", "rejected", "reverted")
 _DDL = """
@@ -161,6 +176,54 @@ class OwnershipIdentityService:
             created.append(candidate_id)
         return {"proposed": created, "candidates": self.candidates(namespace, scopes=scopes)}
 
+    def offer(self, namespace: str, *, left_key: str, right_key: str, left_entity: str, right_entity: str,
+              basis: str, evidence: list[Mapping[str, Any]], principal_id: str, scopes: Iterable[str]) -> dict[str, Any]:
+        """Add or refresh one externally proposed candidate for a record pair.
+
+        * no candidate yet: a new ``proposed`` candidate;
+        * a pending (``proposed``) candidate with a weaker basis: upgraded to the
+          stronger basis and evidence;
+        * a ``rejected`` or ``reverted`` candidate: proposed again when the basis
+          or the evidence is new, so a reviewer sees it afresh;
+        * an ``accepted`` candidate, or nothing new: left unchanged.
+
+        The candidate keeps its id, and every change is appended to its history
+        with the basis and evidence it replaced, so the audit trail is complete.
+        """
+        scopes = set(scopes)
+        authorize(namespace, scopes, WRITE_SCOPE, write=True)
+        if basis not in CONFIDENCE or left_key == right_key or not evidence:
+            raise OwnershipError("invalid_candidate", "a candidate needs two records, a known basis and evidence")
+        (a, a_entity), (b, b_entity) = sorted(((left_key, left_entity), (right_key, right_entity)))
+        candidate_id = "own-idc:" + digest([namespace, a, b])[:24]
+        evidence = [dict(e) for e in evidence]
+        exists = self.conn.execute(
+            "SELECT state, basis, evidence_json, history_json FROM ownership_identity_candidates "
+            "WHERE namespace=? AND candidate_id=?", [namespace, candidate_id]).fetchone()
+        if not exists:
+            self.conn.execute(
+                "INSERT INTO ownership_identity_candidates VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                [namespace, candidate_id, a, b, a_entity, b_entity, basis, CONFIDENCE[basis],
+                 canonical(evidence), "proposed", None, principal_id, self.now(),
+                 canonical([{"state": "proposed", "by": principal_id, "at_ms": self.now()}])])
+            return {"candidate_id": candidate_id, "created": True, "change": "created"}
+        state, old_basis, old_evidence, history = exists[0], exists[1], json.loads(exists[2]), json.loads(exists[3])
+        stronger = CONFIDENCE[basis] > CONFIDENCE[old_basis]
+        new_evidence = digest(evidence) != digest(old_evidence) or basis != old_basis
+        if state == "proposed" and stronger:
+            change = "upgraded"
+        elif state in {"rejected", "reverted"} and new_evidence:
+            change = "reproposed"
+        else:
+            return {"candidate_id": candidate_id, "created": False, "change": None}
+        history.append({"state": "proposed", "by": principal_id, "at_ms": self.now(), "change": change,
+                        "previous_state": state, "previous_basis": old_basis, "previous_evidence": old_evidence})
+        self.conn.execute(
+            "UPDATE ownership_identity_candidates SET state='proposed', decision_id=NULL, basis=?, confidence=?, "
+            "evidence_json=?, history_json=? WHERE namespace=? AND candidate_id=?",
+            [basis, CONFIDENCE[basis], canonical(evidence), canonical(history), namespace, candidate_id])
+        return {"candidate_id": candidate_id, "created": False, "change": change}
+
     @staticmethod
     def _external_entity(key: str) -> str:
         return canonical_entity_id(key)
@@ -270,6 +333,9 @@ class OwnershipIdentityService:
         candidate = self._row(namespace, candidate_id)
         if candidate["state"] != "proposed":
             raise OwnershipError("invalid_state", f"candidate is {candidate['state']}; propose again to re-review")
+        if decision == "accept" and candidate["basis"] in NEVER_ACCEPTED:
+            raise OwnershipError("insufficient_evidence", "a similar name alone never produces an accepted match; "
+                                                          "reject it or propose identifier or attribute evidence")
         self._register(namespace, candidate, principal_id)
         recorded = self.history.decide(
             namespace, "match" if decision == "accept" else "non-match",
@@ -319,6 +385,8 @@ class OwnershipIdentityService:
             return key
 
         for left, right in rows:
+            if left.startswith(FOREIGN_KEY_PREFIXES) or right.startswith(FOREIGN_KEY_PREFIXES):
+                continue  # another owner's link (e.g. a sanctions designation) never regroups ownership entities
             a, b = find(left), find(right)
             if a != b:
                 parent[max(a, b)] = min(a, b)

@@ -52,11 +52,39 @@
           "name": "noesis-funding-monitor",
           "version": "1.0.0"
         }
+      },
+      {
+        "id": "funding.development-finance-activities",
+        "provider": "funding.development-finance",
+        "contract": {
+          "name": "noesis-development-finance-record",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "funding.development-finance-identity",
+        "provider": "funding.development-finance",
+        "contract": {
+          "name": "noesis-development-finance-identity",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "funding.development-finance-monitoring",
+        "provider": "funding.development-finance",
+        "contract": {
+          "name": "noesis-development-finance-monitor",
+          "version": "1.0.0"
+        }
       }
     ],
     "providers": [
       {
         "id": "funding.core",
+        "version": "1.0.0"
+      },
+      {
+        "id": "funding.development-finance",
         "version": "1.0.0"
       }
     ],
@@ -67,6 +95,24 @@
         "vocabulary": {
           "call": "funding opportunity",
           "applicant": "profile owner"
+        }
+      },
+      {
+        "id": "funding.development-finance",
+        "description": "Development finance: a funder, country, sector or organisation to each publisher's aid activities with version history, transactions, participating organisations, allocations and reported results, OECD CRS aggregates with their vintage and World Bank projects linked by stated identifiers, publishers side by side with their coverage",
+        "vocabulary": {
+          "publisher": "the organisation that reports an activity (IATI reporting-org), never merged with another publisher",
+          "activity": "one IATI activity as one publisher reports it; the same identifier from two publishers is two activities",
+          "revision": "one version of an activity, in force by the publisher's last-updated-datetime",
+          "coverage": "what a bounded selection requested and returned per publisher; stale when a refresh failed or stopped early",
+          "withdrawn": "no longer returned by the publisher's complete selection; never read as ended",
+          "vintage": "one OECD CRS release of an aggregate cell; earlier vintages stay addressable"
+        },
+        "workflow_defaults": {
+          "as_of": "revisions and vintages observed on or before the date; each publisher's revision in force is selected before filtering",
+          "publishers": "side by side; no total across publishers; conflicting values shown with both provenance chains",
+          "currency": "reported currency only; conversion only with a cited rate, rate date and source",
+          "never": "Published aid activities and statistics as each publisher reported them: no effectiveness or impact judgement, no total across publishers, no activity inferred from a statistic and no currency conversion without a cited rate and date."
         }
       }
     ]
@@ -149,5 +195,62 @@
       "guarantee eligibility or funding success"
     ]
   },
-  "content_hash": "sha256:ada61fbe360a1828f254fb2a9ba0dbf6557724b8e577a6abfc0fdebd8be0d7b9"
+  "optional_features": [
+    {
+      "id": "development-finance",
+      "default": false,
+      "description": "Development finance and aid activity data: IATI activities per publisher with transactions, participating organisations, sector and geography allocations, reported results and version history; OECD CRS aggregates as vintaged statistics through the SDMX connector; World Bank projects linked by stated identifiers; normalised codes, places and cited currency conversions beside reported values; reviewable organisation identity with an open-call cross-reference; monitors on the subscription outbox. No effectiveness or impact judgement and no total across publishers.",
+      "requires": [
+        {
+          "capability": "funding.development-finance-activities",
+          "contract": "noesis-development-finance-record",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "funding.development-finance-identity",
+          "contract": "noesis-development-finance-identity",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "funding.development-finance-monitoring",
+          "contract": "noesis-development-finance-monitor",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "economics.knowledge",
+          "contract": "noesis-economic-knowledge",
+          "range": "^1.0.0",
+          "reason": "OECD CRS aggregates are economic statistics acquired through the SDMX dataset connector"
+        },
+        {
+          "capability": "geospatial.place-resolution",
+          "contract": "noesis-geospatial-place",
+          "range": "^1.0.0",
+          "reason": "recipient countries and free-text locations resolve through place resolution"
+        },
+        {
+          "capability": "ownership.identity",
+          "contract": "noesis-ownership-identity-candidate",
+          "range": "^1.0.0",
+          "reason": "organisation candidates enter the shared reviewable identity state machine"
+        },
+        {
+          "capability": "platform.entity-identity",
+          "contract": "noesis-entity-identity-decision",
+          "range": "^1.0.0",
+          "reason": "reviews and reverts are entity identity decisions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "IATI, World Bank and CRS acquisition runs through the shared source-acquisition providers"
+        }
+      ]
+    }
+  ],
+  "content_hash": "sha256:d69e23b07817983721e0ae7bedafcdc2e93fb5a3243f9ef47ea7120c40a56e4c"
 }

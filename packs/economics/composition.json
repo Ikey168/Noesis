@@ -8,12 +8,88 @@
           "name": "noesis-economic-knowledge",
           "version": "1.0.0"
         }
+      },
+      {
+        "id": "economics.public-finance",
+        "provider": "economics.public-finance",
+        "contract": {
+          "name": "noesis-public-finance-record",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "economics.demographics",
+        "provider": "economics.demographics",
+        "contract": {
+          "name": "noesis-demographic-series",
+          "version": "1.0.0"
+        }
       }
     ],
     "providers": [
       {
         "id": "economics.core",
         "version": "1.0.0"
+      },
+      {
+        "id": "economics.public-finance",
+        "version": "1.0.0"
+      },
+      {
+        "id": "economics.demographics",
+        "version": "1.0.0"
+      }
+    ],
+    "source_packs": [
+      {
+        "pack_id": "economic-statistics-and-filings",
+        "version": "1.3.0",
+        "range": "^1.3.0"
+      }
+    ],
+    "profiles": [
+      {
+        "id": "economics.budget-review",
+        "description": "Budget review: plan, supplementary plans and outturn vintages of a line as each source published them, payments and audit findings beside them, every figure with its accounting basis",
+        "workflow_defaults": {
+          "as_of": "the revision in force by the source's own publication date; every vintage listed",
+          "differences": "same accounting basis and currency only, or under a cited reconciliation method",
+          "conflicts": "shown side by side and flagged; nothing averaged or preferred",
+          "unmatched_beneficiaries": "shown as the source string, marked unmatched",
+          "district_collection": "alkis_bezirke:bezirksgrenzen",
+          "award_history": "context for a reviewed supplier match only"
+        },
+        "vocabulary": {
+          "figure": "a published plan, supplementary-plan or outturn amount of one line and fiscal year",
+          "vintage": "one publication of a line's figure (a later vintage may repeat the figure)",
+          "accounting basis": "cash, accrual, ESA 2010, commitment or payment, as the source publishes it"
+        },
+        "source_packs": [
+          "economic-statistics-and-filings"
+        ]
+      },
+      {
+        "id": "economics.migration",
+        "description": "Migration and demographic statistics: each publisher's population, migration, asylum and displacement series for a geography and period, with definitions, units, geography level, vintage, breaks and comparability notes, side by side",
+        "workflow_defaults": {
+          "boundary_collection": "alkis_bezirke:bezirksgrenzen",
+          "default_geography_level": "the level the requested boundary's published code belongs to (Berlin: bezirk; Länder: ags land; member states: country)",
+          "as_of": "the vintage released on or before the requested date; historical_vintage_unavailable when none is retained; pinned vintages turn stale, never replaced",
+          "comparability": "publishers side by side; unnoted pairs are comparability_unknown; nothing merged or averaged",
+          "breaks": "marked; no chaining, rebasing or splicing",
+          "other_levels": "listed as available at a different level, never aggregated or apportioned"
+        },
+        "vocabulary": {
+          "stock": "persons present at a reference date (population on 1 January, year-end refugee stock)",
+          "flow": "events during a reference period (immigration, emigration, applications, decisions)",
+          "citizenship": "breakdown by country of citizenship",
+          "country of birth": "breakdown by country of birth, never interchanged with citizenship",
+          "application": "an asylum application as the publisher counts it (first-time or follow-up)",
+          "decision": "a decision on an application, by outcome where published; never netted against applications"
+        },
+        "source_packs": [
+          "economic-statistics-and-filings"
+        ]
       }
     ]
   },
@@ -23,6 +99,130 @@
       "contract": "noesis-economic-knowledge",
       "range": "^1.0.0",
       "reason": "the bundle's own entry points use these operations"
+    }
+  ],
+  "optional_features": [
+    {
+      "id": "public-finance",
+      "default": false,
+      "description": "Public budgets, outturns and beneficiary payments: budget lines in each source's own hierarchy, revisioned plan, supplementary-plan and outturn figures with their accounting basis, FTS beneficiary payments with reviewable identity, Eurostat GFS vintages, audit findings without verdicts, links to budget acts and dossiers by citation, award history as context, basis-aware comparisons and subscription monitors. No fiscal forecast, waste or fraud determination or cross-basis netting.",
+      "requires": [
+        {
+          "capability": "economics.public-finance",
+          "contract": "noesis-public-finance-record",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "economics.knowledge",
+          "contract": "noesis-economic-knowledge",
+          "range": "^1.0.0",
+          "reason": "GFS vintages are economic release snapshots compared with kb_economic"
+        },
+        {
+          "capability": "legal.works",
+          "contract": "noesis-legal-record",
+          "range": "^1.0.0",
+          "reason": "budget acts resolve through lookup_legal_work by exact citation"
+        },
+        {
+          "capability": "political.knowledge",
+          "contract": "noesis-political-knowledge",
+          "range": "^1.0.0",
+          "reason": "budget bills link to legislative dossiers by their identifiers"
+        },
+        {
+          "capability": "procurement.award-history",
+          "contract": "noesis-procurement-award-history",
+          "range": "^1.0.0",
+          "reason": "award history is shown as context for reviewed supplier matches"
+        },
+        {
+          "capability": "funding.opportunities",
+          "contract": "noesis-funding-record",
+          "range": "^1.0.0",
+          "reason": "beneficiaries are offered to funding award records"
+        },
+        {
+          "capability": "platform.entity-identity",
+          "contract": "noesis-entity-identity-decision",
+          "range": "^1.0.0",
+          "reason": "accepted and reverted matches are entity identity decisions"
+        },
+        {
+          "capability": "ownership.identity",
+          "contract": "noesis-ownership-identity-candidate",
+          "range": "^1.0.0",
+          "reason": "beneficiary matches use the reviewable identity state machine"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "public-finance monitors are knowledge subscriptions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "budget, payment and statistics files are acquired through the source-pack runtime"
+        }
+      ]
+    },
+    {
+      "id": "demographics",
+      "default": false,
+      "description": "Migration and demographic statistics: Eurostat, UNHCR, IOM DTM, Destatis and Berlin series (BAMF from operator sheets) with first-class definition revisions, geography levels and vintages, marked breaks, reviewable comparability notes, Geospatial boundary projections with as-of answers and pins, citation links to acts, decisions and dossiers, and subscription monitors. No population projection, causal claim or merged series.",
+      "requires": [
+        {
+          "capability": "economics.demographics",
+          "contract": "noesis-demographic-series",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "economics.knowledge",
+          "contract": "noesis-economic-knowledge",
+          "range": "^1.0.0",
+          "reason": "demographic series follow the economic release and vintage pattern"
+        },
+        {
+          "capability": "legal.works",
+          "contract": "noesis-legal-record",
+          "range": "^1.0.0",
+          "reason": "acts and court decisions resolve through lookup_legal_work by exact citation"
+        },
+        {
+          "capability": "political.knowledge",
+          "contract": "noesis-political-knowledge",
+          "range": "^1.0.0",
+          "reason": "series link to legislative dossiers by their identifiers"
+        },
+        {
+          "capability": "geospatial.feature-query",
+          "contract": "noesis-geospatial-feature-query",
+          "range": "^1.0.0",
+          "reason": "regional series are projected onto boundary features"
+        },
+        {
+          "capability": "geospatial.place-resolution",
+          "contract": "noesis-geospatial-place",
+          "range": "^1.0.0",
+          "reason": "geography codes resolve to places by the published code"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "demographic monitors are knowledge subscriptions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "statistics are acquired through the source-pack runtime"
+        }
+      ]
     }
   ]
 }

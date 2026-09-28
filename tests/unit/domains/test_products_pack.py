@@ -81,11 +81,16 @@ def install(conn, value: dict | None = None):
     return value, runtime
 
 
+DISPLAY_SOURCES = ["icecat-displays", "eprel-displays"]
+# An in-place upgrade of the shipped pack version (a lower version would be a refused downgrade).
+_MAJOR, _MINOR, _PATCH = json.loads(PACK.read_text())["version"].split(".")
+NEXT_PATCH = f"{_MAJOR}.{_MINOR}.{int(_PATCH) + 1}"
+
+
 def run(runtime, value, key, *, adapters=None, fault=None, source_ids=None):
+    # Display-model runs select the display sources; the notice sources run with operation "notices".
     request = {"pack_id": value["pack_id"], "run_key": key, "operation": "models", "max_results": 50,
-               "max_bytes": 5_000_000, "timeout_ms": 60_000}
-    if source_ids:
-        request["source_ids"] = source_ids
+               "max_bytes": 5_000_000, "timeout_ms": 60_000, "source_ids": source_ids or DISPLAY_SOURCES}
     return runtime.run(
         request, principal_id="operator",
         adapters=adapters if adapters is not None else runtime.fixture_adapters(value["pack_id"], ROOT),
@@ -126,11 +131,14 @@ def accept_proposed(store):
 
 def test_pack_declares_implemented_connectors_and_passes_offline_conformance():
     value = manifest()
-    assert {item["connector"] for item in value["sources"]} == {"icecat", "eprel"} <= SUPPORTED_CONNECTORS
+    # The display providers, plus the safety feature's notice sources (#1916) in the same pack.
+    assert {item["connector"] for item in value["sources"]} == {
+        "icecat", "eprel", "safety-gate", "cpsc", "nhtsa", "rasff"} <= SUPPORTED_CONNECTORS
     result = SourcePackConformance(ROOT).offline(value)
     assert result["valid"]
     assert {item["source_id"]: item["records"] for item in result["sources"]} == {
-        "icecat-displays": 6, "eprel-displays": 4}
+        "icecat-displays": 6, "eprel-displays": 4, "safety-gate-alerts": 5, "cpsc-recalls": 2,
+        "nhtsa-recalls": 1, "rasff-notifications": 1}
 
 
 def test_gtin_states_keep_the_original_string():
@@ -402,11 +410,12 @@ def test_contradicting_evidence_blocks_acceptance():
     eprel = copy.deepcopy(pages("eprel-displays")[:1])
     eprel[0]["body"].update({"modelIdentifier": "EX-34Q4", "diagonalCm": 60.5, "diagonalInch": 23.8})
     for item in value["sources"]:
-        item["product"]["selection"] = [(icecat if item["connector"] == "icecat" else eprel)[0]["selector"]]
+        if "product" in item:  # the display sources; notice sources keep their own selection
+            item["product"]["selection"] = [(icecat if item["connector"] == "icecat" else eprel)[0]["selector"]]
     value = validate_source_pack({k: v for k, v in value.items() if k not in {"manifest_hash", "contract"}}
                                  | {"sources": [{k: v for k, v in s.items() if k != "source_hash"}
                                                 for s in value["sources"]]})
-    SourcePackStore(conn).install({**value, "version": "1.0.1"}, principal_id="operator", enable=True, now_ms=11)
+    SourcePackStore(conn).install({**value, "version": NEXT_PATCH}, principal_id="operator", enable=True, now_ms=11)
     installed = runtime._manifest(value["pack_id"])[0]
     adapters = {"icecat-displays": compiled(runtime, installed, "icecat-displays", icecat),
                 "eprel-displays": compiled(runtime, installed, "eprel-displays", eprel)}
@@ -485,7 +494,7 @@ def test_narrowed_selection_is_not_discontinuation(loaded):
     for item in installed["sources"]:
         runtime.accept_license(installed["pack_id"], item["source_id"], principal_id="operator")
     released = runtime.release_stale_checkpoint(installed["pack_id"], "eprel-displays", principal_id="operator")
-    assert released["released"] and released["released_version"] == "1.0.0"
+    assert released["released"] and released["released_version"] == value["version"]
     result = run(runtime, installed, "narrow", adapters=_eprel_only(runtime, installed, narrowed),
                  source_ids=["eprel-displays"])
     assert result["sources"][0]["projection"]["refresh_advanced"] is True
@@ -503,7 +512,7 @@ def test_narrowed_selection_is_not_discontinuation(loaded):
 
 def _with_selection(value, source_id, selection):
     raw = json.loads(PACK.read_text())
-    raw["version"] = "1.0.1"
+    raw["version"] = NEXT_PATCH
     for item in raw["sources"]:
         if item["source_id"] == source_id:
             item["product"]["selection"] = selection

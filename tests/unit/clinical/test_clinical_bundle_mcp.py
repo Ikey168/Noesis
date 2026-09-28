@@ -11,7 +11,7 @@ from src.kb.clinical_bundle import BUNDLE, BundleError, readiness, set_enabled
 from src.mcp_host.catalog import _mutability, _required_scopes
 from tests.unit.clinical.harness import NS, QUESTION, Env
 from tools.knowledge_engine_mcp import server
-from tools.knowledge_engine_mcp.clinical import CLINICAL_TOOLS, CLINICAL_WRITES
+from tools.knowledge_engine_mcp.clinical import CLINICAL_TOOLS, CLINICAL_WRITES, SURVEILLANCE_TOOLS
 
 ROOT = Path(__file__).resolve().parents[3]
 
@@ -44,7 +44,8 @@ def test_declaration_reuses_existing_owners_and_states_the_boundary():
 
 def test_tools_are_registered_with_scopes_and_mutability_in_the_catalog(mcp_env):
     tools, _, _ = mcp_env
-    assert CLINICAL_TOOLS <= set(tools) and len(CLINICAL_TOOLS) == 20
+    # 20 clinical tools; the optional surveillance feature's tools have their own tests (test_surveillance_mcp.py).
+    assert CLINICAL_TOOLS <= set(tools) and len(CLINICAL_TOOLS - SURVEILLANCE_TOOLS) == 20
     for name in CLINICAL_TOOLS:
         assert _mutability(name) == ("write" if name in CLINICAL_WRITES else "read")
     assert _required_scopes("knowledge_engine_mcp", "read", "clinical_provider_contracts") == []
@@ -103,3 +104,26 @@ def test_enablement_requires_the_coordinator(mcp_env):
         set_enabled(conn, NS, False, principal_id="alice", scopes={"knowledge:clinical:read"})
     assert readiness(conn, NS, scopes={"knowledge:clinical:read"})["enabled"] is True
     conn.close()
+
+
+def test_linking_and_alignment_work_with_exactly_their_declared_scopes(mcp_env):
+    """Each tool holding only its declared scopes (plus namespace access and the object-level document grants)."""
+    from tools.knowledge_engine_mcp.clinical import CLINICAL_SCOPES
+
+    tools, state, path = mcp_env
+    conn = duckdb.connect(path, read_only=True)
+    documents = {f"document:{r[0]}:read" for r in conn.execute("SELECT document_id FROM documents").fetchall()}
+    conn.close()
+    namespace = {f"namespace:{NS}:read", f"namespace:{NS}:write"}
+    state["scopes"] = set(CLINICAL_SCOPES["link_clinical_publications"]) | namespace | documents
+    linked = tools["link_clinical_publications"].fn(namespace=NS, observation="exact-scopes")
+    assert linked.get("ok") is not False and linked["links"] and not linked["family_errors"], linked["family_errors"]
+    mesh = json.loads((ROOT / "tests/fixtures/clinical/mesh_subset.json").read_text())
+    state["scopes"] = set(CLINICAL_SCOPES["align_clinical_terms"]) | namespace
+    aligned = tools["align_clinical_terms"].fn(namespace=NS, mesh_version=mesh["version"])
+    assert aligned.get("ok") is not False and aligned["mappings"], aligned
+    for name in ("link_clinical_publications", "align_clinical_terms"):
+        state["scopes"] = (set(CLINICAL_SCOPES[name]) - {"knowledge:clinical:read"}) | namespace
+        refused = tools[name].fn(namespace=NS, observation="x") if name.startswith("link") else tools[name].fn(
+            namespace=NS, mesh_version=mesh["version"])
+        assert refused["ok"] is False and refused["error"]["code"] == "unauthorized", name

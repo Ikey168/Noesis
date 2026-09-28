@@ -65,10 +65,12 @@ MASKINGS = ("none", "single", "double", "triple", "quadruple", "unknown")
 OUTCOME_ROLES = ("primary", "secondary", "other")
 REGULATORY_KINDS = ("approval", "label-revision", "safety-communication", "adverse-event-summary",
                     "authorisation-status")
-LINK_KINDS = ("registry-registry", "registry-publication", "registry-review")
+# ``series-*`` links join a surveillance series (src/kb/surveillance.py, from_record provider ``surveillance``) to a
+# publication or a registered trial by explicit dataset citation only (#1917, I09).
+LINK_KINDS = ("registry-registry", "registry-publication", "registry-review", "series-publication", "series-trial")
 EVIDENCE_KINDS = (
     "registry-declared-secondary-id", "registry-declared-reference", "secondary-source-identifier",
-    "paper-family", "abstract-mention", "user-supplied",
+    "paper-family", "abstract-mention", "user-supplied", "dataset-citation", "trial-declared-dataset",
 )
 LINK_STATUSES = ("accepted", "candidate", "rejected", "target-not-acquired")
 IDENTIFIER_KINDS = ("nct", "eudract", "eu-ct", "isrctn", "prospero", "pmid", "doi", "fda-application",
@@ -324,7 +326,7 @@ def _link(record):
     target = record.get("to")
     if not isinstance(target, dict):
         _fail("link target is required")
-    if record["link_kind"] == "registry-publication":
+    if record["link_kind"] in {"registry-publication", "series-publication"}:
         if set(target) - {"document_id", "revision_id", "identifiers", "title", "family_id"} or not (
             target.get("document_id") and target.get("revision_id")
         ):
@@ -747,6 +749,15 @@ class ClinicalRecordStore:
         encoded = canonical(terms)
         self.conn.execute("INSERT INTO clinical_term_annotations VALUES (?,?,?,?,?,?) ON CONFLICT DO NOTHING",
                           [namespace, rid, source, digest(terms), encoded, observed_at_ms])
+
+    def record_success(self, namespace, provider, *, observation_id, observed_at_ms, execution):
+        """A successful refresh of a provider whose records another clinical owner keeps (surveillance series)."""
+        self.conn.execute(
+            """INSERT INTO clinical_provider_state VALUES (?,?,?,NULL,NULL,?,?)
+               ON CONFLICT (namespace, provider) DO UPDATE SET last_success_ms=excluded.last_success_ms,
+               last_observation_id=excluded.last_observation_id, last_execution=excluded.last_execution,
+               last_failure_ms=NULL, last_failure_code=NULL""",
+            [namespace, provider, observed_at_ms, observation_id, execution])
 
     def record_failure(self, namespace, provider, *, observation_id, failure_code, observed_at_ms, scopes=None,
                        internal=False):

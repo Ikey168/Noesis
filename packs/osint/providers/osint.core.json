@@ -12,13 +12,15 @@
       "id": "osint.corroboration",
       "contract": {
         "name": "noesis-osint-corroboration",
-        "version": "1.0.0"
+        "version": "1.1.0"
       },
       "operations": [
-        "corroborate"
+        "corroborate",
+        "source-reliability"
       ],
       "semantic_constraints": {
-        "independence": "origin-aware; never collapses to one confidence"
+        "independence": "origin-aware; never collapses to one confidence",
+        "grading": "Admiralty source reliability (A-F) and information credibility (1-6) are independent axes, never fused"
       }
     },
     {
@@ -31,7 +33,22 @@
         "image-provenance"
       ],
       "semantic_constraints": {
-        "purpose": "review-gated imagery provenance"
+        "purpose": "review-gated imagery provenance",
+        "gated_tier": "chronolocate_image and reference_imagery are served only under NOESIS_OSINT_GATED_TOOLS and are therefore not catalog operations"
+      }
+    },
+    {
+      "id": "osint.source-infrastructure",
+      "contract": {
+        "name": "noesis-osint-source-infrastructure",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "infrastructure-pivot"
+      ],
+      "semantic_constraints": {
+        "keys": "organization-keyed; e-mail, username, IP and person identifiers refused",
+        "status": "shared infrastructure is probable, never a same-operator verdict"
       }
     }
   ],
@@ -68,6 +85,36 @@
       "gates": [
         "osint-review"
       ]
+    },
+    {
+      "id": "source-reliability",
+      "tool": "noesis-osint.source_reliability",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "required_scopes": [
+        "knowledge:read"
+      ],
+      "required_context": [
+        "namespace"
+      ],
+      "readiness_probe": "claims"
+    },
+    {
+      "id": "infrastructure-pivot",
+      "tool": "noesis-osint.infrastructure_pivot",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "required_scopes": [
+        "knowledge:read"
+      ],
+      "required_context": [
+        "namespace"
+      ],
+      "readiness_probe": "source-relationships"
     }
   ],
   "stores": [],
@@ -76,6 +123,11 @@
       "id": "claims",
       "kind": "table-exists",
       "target": "argument_claims"
+    },
+    {
+      "id": "source-relationships",
+      "kind": "table-exists",
+      "target": "source_relationship_current"
     }
   ]
 }

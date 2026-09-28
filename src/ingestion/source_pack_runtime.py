@@ -148,12 +148,73 @@ def _environment_projector(conn: Any) -> Any:
     return EnvironmentProjector(conn)
 
 
+def _sanctions_projector(conn: Any) -> Any:
+    from src.kb.sanctions import SanctionsProjector
+
+    return SanctionsProjector(conn)
+
+
+def _lobbying_projector(conn: Any) -> Any:
+    from src.kb.lobbying import LobbyingProjector
+
+    return LobbyingProjector(conn)
+
+
+def _election_projector(conn: Any) -> Any:
+    from src.kb.elections import ElectionProjector
+
+    return ElectionProjector(conn)
+
+
+def _public_finance_projector(conn: Any) -> Any:
+    from src.kb.public_finance import PublicFinanceProjector
+
+    return PublicFinanceProjector(conn)
+
+
+def _demographic_projector(conn: Any) -> Any:
+    from src.kb.demographics import DemographicProjector
+
+    return DemographicProjector(conn)
+
+
+def _housing_projector(conn: Any) -> Any:
+    from src.kb.housing import HousingProjector
+
+    return HousingProjector(conn)
+
+
+def _surveillance_projector(conn: Any) -> Any:
+    from src.kb.surveillance import SurveillanceProjector
+
+    return SurveillanceProjector(conn)
+
+
+def _product_safety_projector(conn: Any) -> Any:
+    from src.kb.product_safety import ProductSafetyProjector
+
+    return ProductSafetyProjector(conn)
+
+
+def _development_finance_projector(conn: Any) -> Any:
+    from src.kb.development_finance import DevelopmentFinanceProjector
+
+    return DevelopmentFinanceProjector(conn)
+
+
+def _vulnerability_projector(conn: Any) -> Any:
+    from src.kb.vulnerabilities import VulnerabilityProjector
+
+    return VulnerabilityProjector(conn)
+
+
 # Mapping target schemas whose records are also projected into a domain store.
 # A projector receives each committed page before its checkpoint advances and
 # the source outcome afterwards, so replayed pages must project idempotently.
 PROJECTORS: dict[str, Callable[[Any], Any]] = {
     "noesis-geospatial-feature-v1": _geospatial_projector,
     "noesis-product-record-v1": _product_projector,
+    "noesis-product-safety-notice-v1": _product_safety_projector,
     "noesis-legal-record-v1": _legal_projector,
     "noesis-cultural-object-v1": _cultural_projector,
     "noesis-patent-part-v1": _patent_projector,
@@ -165,6 +226,15 @@ PROJECTORS: dict[str, Callable[[Any], Any]] = {
     "noesis-ownership-part-v1": _ownership_projector,
     "noesis-procurement-record-v1": _procurement_projector,
     "noesis-environment-record-v1": _environment_projector,
+    "noesis-sanctions-record-v1": _sanctions_projector,
+    "noesis-vulnerability-record-v1": _vulnerability_projector,
+    "noesis-lobbying-record-v1": _lobbying_projector,
+    "noesis-election-record-v1": _election_projector,
+    "noesis-public-finance-record-v1": _public_finance_projector,
+    "noesis-demographic-series-v1": _demographic_projector,
+    "noesis-development-finance-record-v1": _development_finance_projector,
+    "noesis-housing-record-v1": _housing_projector,
+    "noesis-surveillance-record-v1": _surveillance_projector,
 }
 
 _DDL = """

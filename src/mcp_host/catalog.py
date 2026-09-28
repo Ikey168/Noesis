@@ -316,6 +316,30 @@ def _mutability(name: str) -> str:
     from tools.knowledge_engine_mcp.environment import ENVIRONMENT_WRITES
     if name in ENVIRONMENT_WRITES:
         return "write"
+    from tools.knowledge_engine_mcp.sanctions import SANCTIONS_WRITES
+    if name in SANCTIONS_WRITES:
+        return "write"
+    from tools.knowledge_engine_mcp.vulnerabilities import VULNERABILITY_WRITES
+    if name in VULNERABILITY_WRITES:
+        return "write"
+    from tools.knowledge_engine_mcp.lobbying import LOBBYING_WRITES
+    if name in LOBBYING_WRITES:
+        return "write"
+    from tools.knowledge_engine_mcp.elections import ELECTION_WRITES
+    if name in ELECTION_WRITES:
+        return "write"
+    from tools.knowledge_engine_mcp.public_finance import PUBLIC_FINANCE_WRITES
+    if name in PUBLIC_FINANCE_WRITES:
+        return "write"
+    from tools.knowledge_engine_mcp.demographics import DEMOGRAPHIC_WRITES
+    if name in DEMOGRAPHIC_WRITES:
+        return "write"
+    from tools.knowledge_engine_mcp.housing import HOUSING_WRITES
+    if name in HOUSING_WRITES:
+        return "write"
+    from tools.knowledge_engine_mcp.development_finance import DEVELOPMENT_FINANCE_WRITES
+    if name in DEVELOPMENT_FINANCE_WRITES:
+        return "write"
     from tools.knowledge_engine_mcp.investigations import (
         ALERT_WRITES,
         COMPARISON_WRITES,
@@ -714,6 +738,10 @@ def _required_data(server_stem: str, tool_name: str) -> list[str]:
 
 
 def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[str]:
+    if server_stem == "onchain_mcp":
+        from tools.onchain_mcp.server import TOOL_SCOPES as ONCHAIN_SCOPES
+
+        return list(ONCHAIN_SCOPES.get(tool_name) or (["operator"] if mutability == "write" else ["knowledge:read"]))
     if server_stem == "market_mcp":
         market_scopes = {
             "market_readiness": ["market:instruments:read"],
@@ -861,6 +889,40 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
     )
     if server_stem == "knowledge_engine_mcp" and tool_name in ENVIRONMENT_TOOLS:
         return environment_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.sanctions import SANCTIONS_TOOLS
+    from tools.knowledge_engine_mcp.sanctions import required_scopes as sanctions_scopes
+    if server_stem == "knowledge_engine_mcp" and tool_name in SANCTIONS_TOOLS:
+        return sanctions_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.vulnerabilities import VULNERABILITY_TOOLS
+    from tools.knowledge_engine_mcp.vulnerabilities import required_scopes as vulnerability_scopes
+    if server_stem == "knowledge_engine_mcp" and tool_name in VULNERABILITY_TOOLS:
+        return vulnerability_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.lobbying import LOBBYING_TOOLS
+    from tools.knowledge_engine_mcp.lobbying import required_scopes as lobbying_scopes
+    if server_stem == "knowledge_engine_mcp" and tool_name in LOBBYING_TOOLS:
+        return lobbying_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.elections import ELECTION_TOOLS
+    from tools.knowledge_engine_mcp.elections import required_scopes as election_scopes
+    if server_stem == "knowledge_engine_mcp" and tool_name in ELECTION_TOOLS:
+        return election_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.public_finance import PUBLIC_FINANCE_TOOLS
+    from tools.knowledge_engine_mcp.public_finance import required_scopes as public_finance_scopes
+    if server_stem == "knowledge_engine_mcp" and tool_name in PUBLIC_FINANCE_TOOLS:
+        return public_finance_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.demographics import DEMOGRAPHIC_TOOLS
+    from tools.knowledge_engine_mcp.demographics import required_scopes as demographic_scopes
+    if server_stem == "knowledge_engine_mcp" and tool_name in DEMOGRAPHIC_TOOLS:
+        return demographic_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.housing import HOUSING_TOOLS
+    from tools.knowledge_engine_mcp.housing import required_scopes as housing_scopes
+    if server_stem == "knowledge_engine_mcp" and tool_name in HOUSING_TOOLS:
+        return housing_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.development_finance import DEVELOPMENT_FINANCE_TOOLS
+    from tools.knowledge_engine_mcp.development_finance import (
+        required_scopes as development_finance_scopes,
+    )
+    if server_stem == "knowledge_engine_mcp" and tool_name in DEVELOPMENT_FINANCE_TOOLS:
+        return development_finance_scopes(tool_name, mutability)
     if server_stem == "knowledge_engine_mcp" and tool_name in {
         "suggest_jev_claim_presence",
         "suggest_jev_checkworthiness",
@@ -957,6 +1019,9 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
         "legislative_dossier_timeline", "compare_legislative_dossier",
         "export_legislative_dossier_changes", "legislative_dossier_dependencies",
     }:
+        # legislative_dossier_timeline/dependencies additionally require knowledge:political:lobbying:read at
+        # call time, and only when lobbying_namespace is passed (Political lobbying feature); the catalog lists
+        # static requirements only, so dossier-only callers keep these tools.
         return ["knowledge:political:dossier:write" if mutability == "write" else "knowledge:political:dossier:read"]
     if server_stem == "knowledge_engine_mcp" and tool_name in {
         "run_hosted_typed_decision",

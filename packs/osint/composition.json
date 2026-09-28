@@ -44,6 +44,49 @@
           "range": "^1.0.0"
         }
       ]
+    },
+    {
+      "id": "ownership",
+      "default": false,
+      "description": "Cited Corporate Ownership section in entity_dossier for organization entities; inert unless the Corporate Ownership bundle is enabled in the namespace",
+      "requires": [
+        {
+          "capability": "ownership.graph",
+          "contract": "noesis-ownership-graph",
+          "range": "^1.0.0"
+        },
+        {
+          "capability": "ownership.dossier",
+          "contract": "noesis-ownership-dossier",
+          "range": "^1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "designations",
+      "default": false,
+      "description": "Cited per-list sanctions designation statements in entity_dossier through the Legal bundle's sanctions feature; inert unless that feature is enabled in the namespace. List statements only, never a screening verdict or compliance determination",
+      "requires": [
+        {
+          "capability": "legal.sanctions",
+          "contract": "noesis-sanctions-record",
+          "range": "^1.0.0",
+          "reason": "the section composes the Legal sanctions record owner's as-of statements"
+        }
+      ]
+    },
+    {
+      "id": "onchain",
+      "default": false,
+      "description": "Cited contract-origin facts (deployer, creation transaction, first funding) in entity_dossier for organization entities, reached only through accepted On-chain label references; never for persons and never an attribution of an address",
+      "requires": [
+        {
+          "capability": "onchain.observations",
+          "contract": "noesis-onchain-observation",
+          "range": "^1.0.0",
+          "reason": "the section composes the On-chain Observations record owner's cited contract-origin answers"
+        }
+      ]
     }
   ],
   "contributes": {
@@ -53,7 +96,7 @@
         "provider": "osint.core",
         "contract": {
           "name": "noesis-osint-corroboration",
-          "version": "1.0.0"
+          "version": "1.1.0"
         }
       },
       {
@@ -61,6 +104,14 @@
         "provider": "osint.core",
         "contract": {
           "name": "noesis-media-provenance",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "osint.source-infrastructure",
+        "provider": "osint.core",
+        "contract": {
+          "name": "noesis-osint-source-infrastructure",
           "version": "1.0.0"
         }
       }
@@ -74,6 +125,10 @@
     "workflow_templates": [
       {
         "id": "osint.location-investigation",
+        "version": "1.0.0"
+      },
+      {
+        "id": "osint.source-vetting",
         "version": "1.0.0"
       }
     ],

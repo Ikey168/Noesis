@@ -1,0 +1,238 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "political.lobbying",
+  "version": "1.0.0",
+  "implementation": {
+    "name": "src.kb.lobbying",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "political.lobbying",
+      "contract": {
+        "name": "noesis-lobbying-record",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "list-dossier-declared-interests",
+        "list-registrant-declarations",
+        "list-official-meetings",
+        "list-identity-candidates",
+        "propose-identity-matches",
+        "review-identity-match",
+        "revert-identity-match",
+        "link-dossier",
+        "review-dossier-link",
+        "revert-dossier-link"
+      ],
+      "semantic_constraints": {
+        "registers": "EU Transparency Register, Lobbyregister, EP and Commission meeting declarations and the UK consultant-lobbyist register stay separate records with their own native identifiers and revision chains",
+        "declarations": "what a registrant or official filed; spend stays the declared range with currency and period",
+        "matching": "identity matches and dossier links are reviewable, reversible decisions; a shared keyword is only a candidate",
+        "exclusions": "no influence, corruption or undeclared-lobbying claim and no point estimate of a spend range"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "list-dossier-declared-interests",
+      "tool": "noesis-knowledge-engine.list_dossier_declared_interests",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:political:lobbying:read",
+        "knowledge:political:dossier:read",
+        "knowledge:ownership:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "list-registrant-declarations",
+      "tool": "noesis-knowledge-engine.list_registrant_declarations",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:political:lobbying:read",
+        "knowledge:ownership:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "list-official-meetings",
+      "tool": "noesis-knowledge-engine.list_official_meetings",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:political:lobbying:read",
+        "knowledge:ownership:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "list-identity-candidates",
+      "tool": "noesis-knowledge-engine.list_lobbying_identity_candidates",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:political:lobbying:read",
+        "knowledge:ownership:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "propose-identity-matches",
+      "tool": "noesis-knowledge-engine.propose_lobbying_identity_matches",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:political:lobbying:read",
+        "knowledge:ownership:read",
+        "knowledge:ownership:write",
+        "knowledge:companies:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "review-identity-match",
+      "tool": "noesis-knowledge-engine.review_lobbying_identity_match",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:ownership:review"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "revert-identity-match",
+      "tool": "noesis-knowledge-engine.revert_lobbying_identity_match",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:ownership:review"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "link-dossier",
+      "tool": "noesis-knowledge-engine.link_lobbying_dossier",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:political:lobbying:read",
+        "knowledge:political:lobbying:write",
+        "knowledge:political:dossier:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "review-dossier-link",
+      "tool": "noesis-knowledge-engine.review_lobbying_dossier_link",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:political:lobbying:read",
+        "knowledge:political:lobbying:review"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "revert-dossier-link",
+      "tool": "noesis-knowledge-engine.revert_lobbying_dossier_link",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:political:lobbying:read",
+        "knowledge:political:lobbying:review"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "lobbying-record",
+      "store": "src.kb.lobbying",
+      "tables": [
+        "lobbying_exports",
+        "lobbying_entries",
+        "lobbying_revisions",
+        "lobbying_export_members"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "lobbying-dossier-link",
+      "store": "src.kb.lobbying_links",
+      "tables": [
+        "lobbying_dossier_links"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "revisions",
+      "kind": "table-exists",
+      "target": "lobbying_revisions"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "official-political-records",
+      "version": "1.1.0",
+      "range": "^1.1.0"
+    }
+  ]
+}

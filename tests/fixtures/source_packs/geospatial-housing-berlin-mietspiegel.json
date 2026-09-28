@@ -1,0 +1,23 @@
+{
+ "authored": "authored 2026-09-28 (not a capture)",
+ "captured": null,
+ "license": "berlin-official-publication",
+ "native_pages": [
+  {
+   "body": "Feld;Wohnlage;Baualter;Wohnflaeche;Unterwert;Mittelwert;Oberwert\nA1;einfach;bis 1918;40 bis unter 60 m²;6,10;7,45;9,80\nB1;mittel;bis 1918;40 bis unter 60 m²;6,90;8,20;10,50\nC1;gut;bis 1918;40 bis unter 60 m²;7,60;9,10;11,90\nB2;mittel;1919 bis 1949;40 bis unter 60 m²;6,40;7,80;9,70\nB3;mittel;1950 bis 1964;90 m² und mehr;-;-;-\n",
+   "headers": {
+    "Content-Type": "text/csv"
+   },
+   "request": "/wohnen/mietspiegel/2099/mietspiegeltabelle.csv",
+   "status": 200
+  }
+ ],
+ "note": "Authored offline fixture in the provider's documented response shape; identifiers, plan numbers, values and dates are fictional. Not live evidence.",
+ "retrieved": "authored 2026-09-28 (not a capture)",
+ "scenarios": [
+  "operator-extracted-table",
+  "edition-with-qualifying-date",
+  "unpublished-cell"
+ ],
+ "source_url": "https://www.stadtentwicklung.berlin.de/wohnen/mietspiegel/2099/mietspiegel2099.pdf"
+}

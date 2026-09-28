@@ -2,14 +2,41 @@
   "pack_format": "noesis-pack-v1",
   "name": "technology",
   "version": "1.0.0",
-  "description": "Version-aware software, repository, standards, dependency, and advisory knowledge.",
-  "source_types": ["web", "note"],
+  "description": "Version-aware software, repository, standards, dependency, advisory and vulnerability knowledge.",
+  "source_types": [
+    "web",
+    "note"
+  ],
   "ui_flags": {},
   "panels": [],
   "planner_keywords": {
-    "overview": ["package", "dependency", "version", "release", "repository"],
-    "claims": ["advisory", "vulnerability", "affected", "fixed"],
-    "library": ["standard", "specification", "normative", "implements"]
+    "overview": [
+      "package",
+      "dependency",
+      "version",
+      "release",
+      "repository"
+    ],
+    "claims": [
+      "advisory",
+      "vulnerability",
+      "affected",
+      "fixed",
+      "cve",
+      "ghsa",
+      "kev",
+      "epss",
+      "cvss",
+      "cwe",
+      "cpe",
+      "exploited"
+    ],
+    "library": [
+      "standard",
+      "specification",
+      "normative",
+      "implements"
+    ]
   },
   "enrichers": [],
   "provisioning_templates": [],
@@ -19,24 +46,97 @@
     "section-addressable-specifications",
     "osv-cve-advisories",
     "dependency-compatibility-graph",
-    "temporal-technical-queries"
+    "temporal-technical-queries",
+    "vulnerability-advisory-revisions",
+    "vulnerability-cross-source-reading",
+    "cwe-cpe-reference-modules",
+    "reviewable-component-identity",
+    "affected-as-of-impact",
+    "vulnerability-monitoring"
   ],
   "schema_versions": {
     "technical-model": "1.0.0",
-    "technical-research": "1.0.0"
+    "technical-research": "1.0.0",
+    "vulnerability-record": "1.0.0",
+    "vulnerability-answer": "1.0.0",
+    "vulnerability-component-match": "1.0.0",
+    "vulnerability-notification": "1.0.0",
+    "source-pack": "1.2.0"
   },
   "ontology_extensions": {
     "extends": "noesis-canonical-entity-relation-ontology",
-    "reuses": ["noesis-temporal-v1", "noesis-evidence-bundle-v1"],
+    "reuses": [
+      "noesis-temporal-v1",
+      "noesis-evidence-bundle-v1",
+      "noesis-vulnerability-record-v1",
+      "noesis-entity-identity-decision-v1",
+      "noesis-knowledge-subscription-v1"
+    ],
     "object_types": [
-      "advisory", "commit", "dependency", "implementation", "package",
-      "release", "repository", "specification", "standard", "version",
-      "vulnerability"
+      "advisory",
+      "commit",
+      "dependency",
+      "implementation",
+      "package",
+      "release",
+      "repository",
+      "specification",
+      "standard",
+      "version",
+      "vulnerability",
+      "affected_version_range",
+      "weakness_classification",
+      "exploitation_evidence",
+      "score",
+      "change_event"
     ],
     "relation_types": [
-      "affected_by", "alias_of", "breaking_change", "contains", "depends_on",
-      "fixed_in", "fork_of", "implements", "optional_dependency", "released_as",
-      "renamed_from", "supersedes", "vendored_from"
+      "affected_by",
+      "alias_of",
+      "breaking_change",
+      "contains",
+      "depends_on",
+      "fixed_in",
+      "fork_of",
+      "implements",
+      "optional_dependency",
+      "released_as",
+      "renamed_from",
+      "supersedes",
+      "vendored_from",
+      "alias_asserted_by",
+      "classified_as",
+      "listed_in_catalog",
+      "scored_by",
+      "matched_component"
     ]
-  }
+  },
+  "query_examples": [
+    {
+      "intent": "What did each source state about a CVE on a date",
+      "tool": "inspect_vulnerability",
+      "arguments": {
+        "namespace": "global",
+        "identifier": "CVE-2099-0001",
+        "as_of": "2099-02-01"
+      },
+      "semantics": "advisory revisions per source side by side, aliases with asserting sources, ranges and their agreement, CWE, CVSS per publisher, dated EPSS and KEV listings; no verdict"
+    },
+    {
+      "intent": "Which advisories name a package",
+      "tool": "search_component_advisories",
+      "arguments": {
+        "namespace": "global",
+        "coordinate": "pkg:pypi:fixture-parser"
+      },
+      "semantics": "advisories whose as-of revision names the exact coordinate or a reviewed CPE product; none found is unknown"
+    }
+  ],
+  "exclusions": [
+    "exploitability or risk verdicts",
+    "patch or remediation advice",
+    "severity inferred where the source states none",
+    "averaged or merged scores",
+    "merged cross-source advisories"
+  ]
 }

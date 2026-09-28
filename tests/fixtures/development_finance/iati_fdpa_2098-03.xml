@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Authored fixture in the IATI activity standard 2.03 shape: every organisation, activity and amount is fictional. -->
+<iati-activities version="2.03" generated-datetime="2098-03-02T06:00:00Z">
+  <iati-activity last-updated-datetime="2098-03-01T10:00:00Z" xml:lang="en" default-currency="EUR" humanitarian="0">
+    <iati-identifier>XM-DAC-99901-FICT-0001</iati-identifier>
+    <reporting-org ref="XM-DAC-99901" type="10">
+      <narrative>Fictional Development Partnership Agency</narrative>
+    </reporting-org>
+    <title><narrative>Fictional Rural Water Programme</narrative></title>
+    <description type="1"><narrative>Authored fixture activity: water points in fictional districts.</narrative></description>
+    <participating-org ref="XM-DAC-99901" role="1" type="10">
+      <narrative>Fictional Development Partnership Agency</narrative>
+    </participating-org>
+    <participating-org ref="GB-COH-99000001" role="4" type="70">
+      <narrative>Fictional Water Works Ltd</narrative>
+    </participating-org>
+    <activity-status code="2"/>
+    <activity-date iso-date="2098-01-15" type="2"/>
+    <activity-date iso-date="2100-12-31" type="3"/>
+    <recipient-country code="KE" percentage="60"/>
+    <recipient-region code="289" vocabulary="1" percentage="40"/>
+    <location ref="FICT-LOC-1">
+      <name><narrative>Fictional Lakeside Settlement</narrative></name>
+    </location>
+    <sector code="14030" vocabulary="1" percentage="100"/>
+    <default-flow-type code="10"/>
+    <default-aid-type code="C01" vocabulary="1"/>
+    <related-activity ref="44000-P999001" type="4"/>
+    <transaction ref="FICT-0001-C1">
+      <transaction-type code="2"/>
+      <transaction-date iso-date="2098-02-01"/>
+      <value currency="EUR" value-date="2098-02-01">1000000</value>
+      <provider-org ref="XM-DAC-99901"><narrative>Fictional Development Partnership Agency</narrative></provider-org>
+      <receiver-org ref="GB-COH-99000001"><narrative>Fictional Water Works Ltd</narrative></receiver-org>
+    </transaction>
+    <transaction ref="FICT-0001-D1">
+      <transaction-type code="3"/>
+      <transaction-date iso-date="2098-02-20"/>
+      <value value-date="2098-02-20">250000</value>
+      <provider-org ref="XM-DAC-99901"><narrative>Fictional Development Partnership Agency</narrative></provider-org>
+      <receiver-org ref="GB-COH-99000001"><narrative>Fictional Water Works Ltd</narrative></receiver-org>
+    </transaction>
+    <transaction ref="FICT-0001-D2">
+      <transaction-type code="3"/>
+      <transaction-date iso-date="2098-02-25"/>
+      <value currency="EUR">50000</value>
+      <receiver-org ref="GB-COH-99000001"><narrative>Fictional Water Works Ltd</narrative></receiver-org>
+    </transaction>
+    <result type="1" aggregation-status="1">
+      <title><narrative>Households with a safe water point</narrative></title>
+      <indicator measure="1" ascending="1">
+        <title><narrative>Households connected (fictional)</narrative></title>
+        <baseline year="2097" iso-date="2097-12-31" value="0"/>
+        <period>
+          <period-start iso-date="2098-01-01"/>
+          <period-end iso-date="2098-12-31"/>
+          <target value="5000"/>
+          <actual value="1200"/>
+        </period>
+      </indicator>
+    </result>
+  </iati-activity>
+  <iati-activity last-updated-datetime="2098-02-10T09:00:00Z" xml:lang="en" humanitarian="0">
+    <iati-identifier>XM-DAC-99901-FICT-0002</iati-identifier>
+    <reporting-org ref="XM-DAC-99901" type="10">
+      <narrative>Fictional Development Partnership Agency</narrative>
+    </reporting-org>
+    <title><narrative>Fictional Primary Education Support</narrative></title>
+    <participating-org ref="XM-DAC-99901" role="1" type="10">
+      <narrative>Fictional Development Partnership Agency</narrative>
+    </participating-org>
+    <participating-org role="4" type="22">
+      <narrative>Fictional Learning Trust</narrative>
+    </participating-org>
+    <activity-status code="2"/>
+    <recipient-country code="UG" percentage="100"/>
+    <location>
+      <name><narrative>Fictional District Centre</narrative></name>
+    </location>
+    <sector code="11220" vocabulary="1" percentage="60"/>
+    <sector code="99999" vocabulary="1" percentage="30"/>
+    <transaction ref="FICT-0002-C1">
+      <transaction-type code="2"/>
+      <transaction-date iso-date="2098-02-01"/>
+      <value currency="USD" value-date="2098-02-01">400000</value>
+      <provider-org ref="XM-DAC-99901"><narrative>Fictional Development Partnership Agency</narrative></provider-org>
+    </transaction>
+    <transaction ref="FICT-0002-D1">
+      <transaction-type code="3"/>
+      <transaction-date iso-date="2098-02-05"/>
+      <value value-date="2098-02-05">90000</value>
+      <provider-org ref="XM-DAC-99901"><narrative>Fictional Development Partnership Agency</narrative></provider-org>
+      <receiver-org><narrative>Fictional Learning Trust</narrative></receiver-org>
+    </transaction>
+  </iati-activity>
+</iati-activities>

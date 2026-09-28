@@ -1,0 +1,143 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/contracts/noesis-onchain-observation-v1.json",
+  "title": "On-chain observation record revision",
+  "description": "One revision of an On-chain Observations record (src/kb/onchain.py). Every content object is closed: there is no owner, controller, person or attribution field, and a label assertion records only what its source states. Contracts and organizations reach canonical_entities only through reviewed label references (onchain_label_references), never through these records.",
+  "type": "object",
+  "required": ["kind", "record_key", "revision", "revision_id", "chain_id", "observation_id", "change", "content"],
+  "properties": {
+    "kind": {"enum": ["transaction", "transfer", "contract_deployment", "funding", "label_assertion"]},
+    "record_key": {"type": "string", "minLength": 1},
+    "revision": {"type": "integer", "minimum": 1},
+    "revision_id": {"type": "string", "pattern": "^onchain-rev:[0-9a-f]{28}$"},
+    "chain_id": {"$ref": "#/definitions/chain"},
+    "as_of_block": {"type": ["integer", "null"], "minimum": 0},
+    "observation_id": {"type": "string", "pattern": "^onchain-obs:"},
+    "change": {"enum": ["initial", "correction", "reversion", "reorg", "finality", "dropped", "withdrawn", "history"]},
+    "content": {"type": "object"}
+  },
+  "additionalProperties": true,
+  "allOf": [
+    {"if": {"properties": {"kind": {"const": "transaction"}}}, "then": {"properties": {"content": {"$ref": "#/definitions/transaction"}}}},
+    {"if": {"properties": {"kind": {"const": "transfer"}}}, "then": {"properties": {"content": {"$ref": "#/definitions/transfer"}}}},
+    {"if": {"properties": {"kind": {"const": "contract_deployment"}}}, "then": {"properties": {"content": {"$ref": "#/definitions/contract_deployment"}}}},
+    {"if": {"properties": {"kind": {"const": "funding"}}}, "then": {"properties": {"content": {"$ref": "#/definitions/funding"}}}},
+    {"if": {"properties": {"kind": {"const": "label_assertion"}}}, "then": {"properties": {"content": {"$ref": "#/definitions/label_assertion"}}}}
+  ],
+  "definitions": {
+    "chain": {"enum": ["eip155:1", "bip122:000000000019d6689c085ae165831e93"]},
+    "address": {"type": "string", "pattern": "^(0x[0-9a-f]{40}|bc1[02-9ac-hj-np-z]{8,87}|[13][1-9A-HJ-NP-Za-km-z]{25,34})$"},
+    "optional_address": {"anyOf": [{"$ref": "#/definitions/address"}, {"type": "null"}]},
+    "tx_hash": {"type": "string", "pattern": "^(0x)?[0-9a-f]{64}$"},
+    "block": {"type": ["integer", "null"], "minimum": 0},
+    "timestamp": {"anyOf": [{"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$"}, {"type": "null"}]},
+    "amount": {"anyOf": [{"type": "string", "pattern": "^\\d+$"}, {"type": "null"}]},
+    "finality": {"enum": ["pending", "unconfirmed", "final", null]},
+    "transaction": {
+      "type": "object",
+      "required": ["chain_id", "tx_hash", "block_number", "block_hash", "timestamp", "status", "finality", "state", "unit"],
+      "properties": {
+        "chain_id": {"$ref": "#/definitions/chain"},
+        "tx_hash": {"$ref": "#/definitions/tx_hash"},
+        "block_number": {"$ref": "#/definitions/block"},
+        "block_hash": {"type": ["string", "null"]},
+        "timestamp": {"$ref": "#/definitions/timestamp"},
+        "status": {"enum": ["success", "failed", null]},
+        "finality": {"$ref": "#/definitions/finality"},
+        "state": {"enum": ["observed", "dropped"]},
+        "unit": {"enum": ["wei", "sat"]},
+        "from": {"$ref": "#/definitions/optional_address"},
+        "to": {"$ref": "#/definitions/optional_address"},
+        "value": {"$ref": "#/definitions/amount"},
+        "contract_created": {"$ref": "#/definitions/optional_address"},
+        "inputs": {"type": "array", "items": {"type": "object", "required": ["address", "value", "coinbase"], "properties": {
+          "address": {"$ref": "#/definitions/optional_address"}, "value": {"$ref": "#/definitions/amount"},
+          "prev_tx": {"type": ["string", "null"]}, "prev_index": {"type": ["integer", "null"]}, "coinbase": {"type": "boolean"}},
+          "additionalProperties": false}},
+        "outputs": {"type": "array", "items": {"type": "object", "required": ["address", "value", "index"], "properties": {
+          "address": {"$ref": "#/definitions/optional_address"}, "value": {"$ref": "#/definitions/amount"},
+          "index": {"type": ["integer", "null"]}}, "additionalProperties": false}}
+      },
+      "additionalProperties": false
+    },
+    "transfer": {
+      "type": "object",
+      "required": ["chain_id", "transfer_key", "tx_hash", "token_contract", "from", "to", "value", "block_number", "finality", "state"],
+      "properties": {
+        "chain_id": {"$ref": "#/definitions/chain"},
+        "transfer_key": {"type": "string", "minLength": 1},
+        "tx_hash": {"$ref": "#/definitions/tx_hash"},
+        "token_contract": {"$ref": "#/definitions/optional_address"},
+        "token_symbol_as_stated": {"type": ["string", "null"]},
+        "token_name_as_stated": {"type": ["string", "null"]},
+        "token_decimals_as_stated": {"type": ["integer", "null"]},
+        "standard": {"type": ["string", "null"]},
+        "from": {"$ref": "#/definitions/optional_address"},
+        "to": {"$ref": "#/definitions/optional_address"},
+        "value": {"$ref": "#/definitions/amount"},
+        "log_index": {"type": ["integer", "null"]},
+        "block_number": {"$ref": "#/definitions/block"},
+        "block_hash": {"type": ["string", "null"]},
+        "timestamp": {"$ref": "#/definitions/timestamp"},
+        "finality": {"$ref": "#/definitions/finality"},
+        "state": {"enum": ["observed", "dropped"]}
+      },
+      "additionalProperties": false
+    },
+    "contract_deployment": {
+      "type": "object",
+      "required": ["chain_id", "contract_address", "deployer", "tx_hash", "block_number"],
+      "properties": {
+        "chain_id": {"$ref": "#/definitions/chain"},
+        "contract_address": {"$ref": "#/definitions/address"},
+        "deployer": {"$ref": "#/definitions/optional_address"},
+        "tx_hash": {"anyOf": [{"$ref": "#/definitions/tx_hash"}, {"type": "null"}]},
+        "block_number": {"$ref": "#/definitions/block"},
+        "timestamp": {"$ref": "#/definitions/timestamp"},
+        "factory": {"$ref": "#/definitions/optional_address"}
+      },
+      "additionalProperties": false
+    },
+    "funding": {
+      "type": "object",
+      "required": ["chain_id", "address", "subject_kind", "window", "complete", "first_inbound", "internal_transfers", "unit"],
+      "properties": {
+        "chain_id": {"$ref": "#/definitions/chain"},
+        "address": {"$ref": "#/definitions/address"},
+        "subject_kind": {"enum": ["contract", "account"]},
+        "window": {"type": "object", "properties": {"from_block": {"$ref": "#/definitions/block"}, "to_block": {"$ref": "#/definitions/block"}}, "additionalProperties": false},
+        "complete": {"type": "boolean"},
+        "first_inbound": {"type": "array", "maxItems": 3, "items": {"type": "object", "required": ["tx_hash", "from", "value", "block_number"], "properties": {
+          "tx_hash": {"$ref": "#/definitions/tx_hash"}, "from": {"$ref": "#/definitions/optional_address"},
+          "value": {"$ref": "#/definitions/amount"}, "block_number": {"$ref": "#/definitions/block"},
+          "timestamp": {"$ref": "#/definitions/timestamp"}, "via": {"enum": ["transaction", "utxo-output"]}},
+          "additionalProperties": false}},
+        "internal_transfers": {"enum": ["not_acquired", "not_applicable"]},
+        "unit": {"enum": ["wei", "sat"]}
+      },
+      "additionalProperties": false
+    },
+    "label_assertion": {
+      "type": "object",
+      "description": "What a named public dataset states about an address. There is deliberately no owner field.",
+      "required": ["chain_id", "address", "label_id", "label", "source_id", "publisher", "licence", "attribution", "state"],
+      "properties": {
+        "chain_id": {"$ref": "#/definitions/chain"},
+        "address": {"$ref": "#/definitions/address"},
+        "label_id": {"type": "string", "minLength": 1},
+        "label": {"type": "string", "minLength": 1},
+        "category_as_stated": {"type": ["string", "null"]},
+        "attributes_as_stated": {"type": "object", "propertyNames": {"enum": ["symbol", "type", "decimals", "website"]}},
+        "source_id": {"type": "string", "minLength": 1},
+        "publisher": {"type": ["string", "null"]},
+        "dataset": {"type": ["string", "null"]},
+        "source_record": {"type": ["string", "null"]},
+        "licence": {"type": ["string", "null"]},
+        "attribution": {"type": ["string", "null"]},
+        "redistribution": {"type": ["string", "null"]},
+        "state": {"enum": ["stated", "withdrawn"], "description": "withdrawn: the source no longer states the label; never quoted as current"}
+      },
+      "additionalProperties": false
+    }
+  }
+}

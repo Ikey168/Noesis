@@ -1,0 +1,100 @@
+{
+ "version": "2.0",
+ "class": "dataset",
+ "label": "General government total expenditure (authored fixture: fictional values, not Eurostat data)",
+ "source": "ESTAT",
+ "updated": "2025-10-21T23:00:00+0200",
+ "id": [
+  "freq",
+  "unit",
+  "sector",
+  "na_item",
+  "geo",
+  "time"
+ ],
+ "size": [
+  1,
+  1,
+  1,
+  1,
+  1,
+  3
+ ],
+ "dimension": {
+  "freq": {
+   "label": "Time frequency",
+   "category": {
+    "index": {
+     "A": 0
+    },
+    "label": {
+     "A": "Annual"
+    }
+   }
+  },
+  "unit": {
+   "label": "Unit of measure",
+   "category": {
+    "index": {
+     "MIO_EUR": 0
+    },
+    "label": {
+     "MIO_EUR": "Million euro"
+    }
+   }
+  },
+  "sector": {
+   "label": "Sector",
+   "category": {
+    "index": {
+     "S13": 0
+    },
+    "label": {
+     "S13": "General government"
+    }
+   }
+  },
+  "na_item": {
+   "label": "National accounts indicator (ESA 2010)",
+   "category": {
+    "index": {
+     "TE": 0
+    },
+    "label": {
+     "TE": "Total general government expenditure"
+    }
+   }
+  },
+  "geo": {
+   "label": "Geopolitical entity",
+   "category": {
+    "index": {
+     "DE": 0
+    },
+    "label": {
+     "DE": "Germany"
+    }
+   }
+  },
+  "time": {
+   "label": "Time",
+   "category": {
+    "index": {
+     "2096": 0,
+     "2097": 1,
+     "2098": 2
+    },
+    "label": {
+     "2096": "2096",
+     "2097": "2097",
+     "2098": "2098"
+    }
+   }
+  }
+ },
+ "value": {
+  "0": 1000.5,
+  "1": 1042.9,
+  "2": 1085.0
+ }
+}
