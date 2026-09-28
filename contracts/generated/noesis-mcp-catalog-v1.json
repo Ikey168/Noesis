@@ -920,7 +920,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 1063,
+      "tool_count": 1077,
       "tools": [
         "noesis-knowledge-engine.accept_awareness_jev_suggestion",
         "noesis-knowledge-engine.accept_citation_repair",
@@ -1050,6 +1050,7 @@
         "noesis-knowledge-engine.compare_land_value_revisions",
         "noesis-knowledge-engine.compare_legal_versions",
         "noesis-knowledge-engine.compare_legislative_dossier",
+        "noesis-knowledge-engine.compare_material_property",
         "noesis-knowledge-engine.compare_openreview_rounds",
         "noesis-knowledge-engine.compare_paper_family_members",
         "noesis-knowledge-engine.compare_product_models",
@@ -1095,6 +1096,7 @@
         "noesis-knowledge-engine.create_investigation_comparison",
         "noesis-knowledge-engine.create_investigation_template",
         "noesis-knowledge-engine.create_lobbying_monitor",
+        "noesis-knowledge-engine.create_material_watch",
         "noesis-knowledge-engine.create_paper_family",
         "noesis-knowledge-engine.create_persistent_research_loop",
         "noesis-knowledge-engine.create_practice_pack",
@@ -1493,6 +1495,7 @@
         "noesis-knowledge-engine.lookup_crs_aggregates",
         "noesis-knowledge-engine.lookup_environment_series",
         "noesis-knowledge-engine.lookup_legal_work",
+        "noesis-knowledge-engine.lookup_material",
         "noesis-knowledge-engine.lookup_ownership_entity",
         "noesis-knowledge-engine.lookup_product_models",
         "noesis-knowledge-engine.lookup_product_notices",
@@ -1501,6 +1504,10 @@
         "noesis-knowledge-engine.maintenance_generation_lineage",
         "noesis-knowledge-engine.maintenance_health",
         "noesis-knowledge-engine.mark_intake_feed_read",
+        "noesis-knowledge-engine.material_properties",
+        "noesis-knowledge-engine.material_release_changes",
+        "noesis-knowledge-engine.materials_bundle_status",
+        "noesis-knowledge-engine.materials_source_contracts",
         "noesis-knowledge-engine.math_links",
         "noesis-knowledge-engine.math_source_contracts",
         "noesis-knowledge-engine.merge_canonical_events",
@@ -1533,6 +1540,7 @@
         "noesis-knowledge-engine.poll_funding_monitor",
         "noesis-knowledge-engine.poll_housing_monitor",
         "noesis-knowledge-engine.poll_lobbying_monitor",
+        "noesis-knowledge-engine.poll_material_watch",
         "noesis-knowledge-engine.poll_procurement_monitor",
         "noesis-knowledge-engine.poll_product_notice_monitor",
         "noesis-knowledge-engine.poll_public_finance_monitor",
@@ -1599,6 +1607,7 @@
         "noesis-knowledge-engine.propose_lobbying_dossier_link",
         "noesis-knowledge-engine.propose_lobbying_identity_link",
         "noesis-knowledge-engine.propose_lobbying_identity_matches",
+        "noesis-knowledge-engine.propose_material_matches",
         "noesis-knowledge-engine.propose_math_links",
         "noesis-knowledge-engine.propose_ownership_identity_matches",
         "noesis-knowledge-engine.propose_patent_link",
@@ -1676,6 +1685,7 @@
         "noesis-knowledge-engine.register_extractor",
         "noesis-knowledge-engine.register_geospatial_place",
         "noesis-knowledge-engine.register_jev_intake_intent",
+        "noesis-knowledge-engine.register_material_schemas",
         "noesis-knowledge-engine.register_methodology_study",
         "noesis-knowledge-engine.register_multimodal_asset",
         "noesis-knowledge-engine.register_quality_policy",
@@ -1760,6 +1770,7 @@
         "noesis-knowledge-engine.revert_housing_link",
         "noesis-knowledge-engine.revert_lobbying_dossier_link",
         "noesis-knowledge-engine.revert_lobbying_identity_match",
+        "noesis-knowledge-engine.revert_material_match",
         "noesis-knowledge-engine.revert_ownership_identity_match",
         "noesis-knowledge-engine.revert_procurement_party_link",
         "noesis-knowledge-engine.revert_product_notice_party_link",
@@ -1790,6 +1801,7 @@
         "noesis-knowledge-engine.review_intake_iteration_stability",
         "noesis-knowledge-engine.review_lobbying_dossier_link",
         "noesis-knowledge-engine.review_lobbying_identity_match",
+        "noesis-knowledge-engine.review_material_match",
         "noesis-knowledge-engine.review_math_link",
         "noesis-knowledge-engine.review_multilingual_alias",
         "noesis-knowledge-engine.review_ownership_identity_match",
@@ -1840,6 +1852,7 @@
         "noesis-knowledge-engine.run_lobbying_monitor",
         "noesis-knowledge-engine.run_maintenance_drain",
         "noesis-knowledge-engine.run_maintenance_once",
+        "noesis-knowledge-engine.run_material_watch",
         "noesis-knowledge-engine.run_persistent_research_loop",
         "noesis-knowledge-engine.run_procurement_monitor",
         "noesis-knowledge-engine.run_product_notice_monitor",
@@ -1871,6 +1884,7 @@
         "noesis-knowledge-engine.search_event_records",
         "noesis-knowledge-engine.search_geospatial_knowledge",
         "noesis-knowledge-engine.search_intake_playbooks",
+        "noesis-knowledge-engine.search_materials_by_property",
         "noesis-knowledge-engine.search_mathematics",
         "noesis-knowledge-engine.search_methodology_studies",
         "noesis-knowledge-engine.search_multimodal_assets",
@@ -1991,7 +2005,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 1063
+      "visible_tool_count": 1077
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -2002,11 +2016,11 @@
     },
     "servers": 31,
     "states": {
-      "available": 119,
+      "available": 120,
       "degraded": 159,
-      "unauthorized": 1095
+      "unauthorized": 1108
     },
-    "tools": 1373
+    "tools": 1387
   },
   "tools": [
     {
@@ -26927,6 +26941,58 @@
     },
     {
       "cost_class": "low",
+      "description": "Align only comparable values (property, method class, reviewed phase, conditions); the rest side by side.",
+      "id": "noesis-knowledge-engine.compare_material_property",
+      "input_schema": {
+        "properties": {
+          "as_of_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "material": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "property": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "material",
+          "property"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "compare_material_property",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:materials:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Compare two pinned public rounds or revisions.",
       "id": "noesis-knowledge-engine.compare_openreview_rounds",
       "input_schema": {
@@ -29522,6 +29588,89 @@
       ],
       "required_scopes": [
         "knowledge:political:lobbying:read",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Watch a material, property and/or provider for new releases and corrections via a knowledge subscription.",
+      "id": "noesis-knowledge-engine.create_material_watch",
+      "input_schema": {
+        "properties": {
+          "delivery": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "material": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "property": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "provider": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "request_key": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "request_key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "create_material_watch",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:materials:read",
         "knowledge:subscriptions:write"
       ],
       "server": "noesis-knowledge-engine",
@@ -48849,6 +48998,54 @@
     },
     {
       "cost_class": "low",
+      "description": "Acquired records by formula, record key or source ID, with composition group, phase group and pending matches.",
+      "id": "noesis-knowledge-engine.lookup_material",
+      "input_schema": {
+        "properties": {
+          "as_of_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "query": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "query"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "lookup_material",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:materials:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Entities carrying an identifier (lei, gb-coh, sec-cik, ...) or name|country candidates (never a pick).",
       "id": "noesis-knowledge-engine.lookup_ownership_entity",
       "input_schema": {
@@ -49299,6 +49496,214 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Cited property dossier: value, unit, conditions, method, uncertainty, release, locator and citations.\n\nConditional scope: standards_namespace also needs knowledge:standards:read and read access to it.",
+      "id": "noesis-knowledge-engine.material_properties",
+      "input_schema": {
+        "properties": {
+          "as_of_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "material": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "property": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "standards_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "material"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "material_properties",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:materials:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Added, changed (both values), deprecated/withdrawn as stated, and absent values between two releases.",
+      "id": "noesis-knowledge-engine.material_release_changes",
+      "input_schema": {
+        "properties": {
+          "from_release": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "material": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "property": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "provider": {
+            "type": "string"
+          },
+          "to_release": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "provider"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "material_release_changes",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:materials:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Declared contributions plus unavailable/stale/fixture-only/ready per provider; live evidence kept separate.",
+      "id": "noesis-knowledge-engine.materials_bundle_status",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "materials_bundle_status",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:materials:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Per-source access contracts, licences, bounded coverage and live-verification state (all unverified-live).",
+      "id": "noesis-knowledge-engine.materials_source_contracts",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "materials_source_contracts",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
       "version": "1"
     },
     {
@@ -50649,6 +51054,48 @@
       ],
       "required_scopes": [
         "knowledge:political:lobbying:read",
+        "knowledge:subscriptions:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Poll watch events after a cursor.",
+      "id": "noesis-knowledge-engine.poll_material_watch",
+      "input_schema": {
+        "properties": {
+          "cursor": {
+            "default": "",
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "subscription_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "poll_material_watch",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:materials:read",
         "knowledge:subscriptions:read"
       ],
       "server": "noesis-knowledge-engine",
@@ -53958,6 +54405,40 @@
         "knowledge:ownership:read",
         "knowledge:ownership:write",
         "knowledge:companies:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Phase-level candidates from stated cross-references or equal space group and volume; never polymorphs.",
+      "id": "noesis-knowledge-engine.propose_material_matches",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_material_matches",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:materials:read",
+        "knowledge:ownership:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -58992,6 +59473,40 @@
     },
     {
       "cost_class": "medium",
+      "description": "Register noesis-material-record-v1 and noesis-material-comparison-v1 in the schema registry.",
+      "id": "noesis-knowledge-engine.register_material_schemas",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "register_material_schemas",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:materials:write",
+        "knowledge:schema:register"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Register a versioned study and its design, population, and analysis objects.",
       "id": "noesis-knowledge-engine.register_methodology_study",
       "input_schema": {
@@ -63647,6 +64162,47 @@
     },
     {
       "cost_class": "medium",
+      "description": "Revert a reviewed materials identity decision; the records stay intact and ungrouped.",
+      "id": "noesis-knowledge-engine.revert_material_match",
+      "input_schema": {
+        "properties": {
+          "candidate_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "candidate_id",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "revert_material_match",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:ownership:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Undo an accepted or rejected identity decision; both records stay intact and auditable.",
       "id": "noesis-knowledge-engine.revert_ownership_identity_match",
       "input_schema": {
@@ -65029,6 +65585,51 @@
       "latency_class": "interactive",
       "mutability": "write",
       "name": "review_lobbying_identity_match",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:ownership:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Accept or reject a materials identity candidate with a reason (an entity identity decision).",
+      "id": "noesis-knowledge-engine.review_material_match",
+      "input_schema": {
+        "properties": {
+          "candidate_id": {
+            "type": "string"
+          },
+          "decision": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "candidate_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_material_match",
       "output_schema": {
         "additionalProperties": true,
         "type": "object"
@@ -67716,6 +68317,55 @@
     },
     {
       "cost_class": "medium",
+      "description": "Evaluate a watch at a committed watermark (latest when omitted); replay creates no new events.",
+      "id": "noesis-knowledge-engine.run_material_watch",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "subscription_id": {
+            "type": "string"
+          },
+          "watermark": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "run_material_watch",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:materials:read",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Run live source acquisition and local model recipes in a bounded worker; return by the requested wait/deadline.",
       "id": "noesis-knowledge-engine.run_persistent_research_loop",
       "input_schema": {
@@ -69605,6 +70255,85 @@
       ],
       "required_scopes": [
         "knowledge:intake:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Bounded search over acquired records: each hit cites the value(s) meeting every range; semantics stated.",
+      "id": "noesis-knowledge-engine.search_materials_by_property",
+      "input_schema": {
+        "properties": {
+          "as_of_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "conditions": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "limit": {
+            "default": 50,
+            "type": "integer"
+          },
+          "method_class": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "ranges": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "namespace",
+          "ranges"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "search_materials_by_property",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:materials:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",

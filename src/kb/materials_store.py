@@ -236,7 +236,11 @@ class MaterialsStore:
             conn.execute(_DDL)
 
     def ready(self):
-        return all(table_exists(self.conn, t) for t in TABLES)
+        """True once a materials source has run (its tables exist and hold a release)."""
+
+        return all(table_exists(self.conn, t) for t in TABLES) and bool(
+            self.conn.execute("SELECT 1 FROM materials_releases LIMIT 1").fetchone()
+        )
 
     def require_ready(self):
         if not self.ready():

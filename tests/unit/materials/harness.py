@@ -55,17 +55,7 @@ class Env:
         return self.clock
 
     def runtime(self) -> SourcePackRuntime:
-        from src.ingestion.source_pack_runtime import PROJECTORS
-        from src.kb.materials_store import MaterialsProjector
-
-        runtime = SourcePackRuntime(self.conn, now=self.now, sleep=lambda _d: None)
-        if (
-            "noesis-material-record-v1" not in PROJECTORS
-        ):  # registered with the bundle (MT12)
-            runtime.projectors["noesis-material-record-v1"] = MaterialsProjector(
-                self.conn
-            )
-        return runtime
+        return SourcePackRuntime(self.conn, now=self.now, sleep=lambda _d: None)
 
     def install(self) -> Env:
         SourcePackStore(self.conn).install(

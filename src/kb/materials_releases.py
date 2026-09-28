@@ -29,13 +29,14 @@ from typing import Any
 
 from src.kb import materials_records as mr
 from src.kb.materials_comparison import MaterialsComparison
-from src.kb.materials_records import READ_SCOPE, WRITE_SCOPE, canonical
+from src.kb.materials_records import READ_SCOPE, canonical
 from src.kb.materials_store import (
     MaterialsError,
     MaterialsStore,
     authorize,
     current_row,
     digest,
+    table_exists,
     value_repr,
 )
 
@@ -224,6 +225,24 @@ def release_changes(
     }
 
 
+def evidence_scopes(namespace, scopes):
+    """The scopes the watch's evidence needs (materials read on the namespace) plus the subscription operation scopes.
+
+    Only these are retained with the subscription, so a reader with current
+    materials read access can poll it; nothing the caller merely also held is
+    required later.
+    """
+
+    wanted = {
+        READ_SCOPE,
+        f"namespace:{namespace}:read",
+        SUBSCRIPTIONS_READ,
+        SUBSCRIPTIONS_WRITE,
+        "operator",
+    }
+    return set(scopes) & wanted
+
+
 class MaterialsReleaseWatch:
     def __init__(self, conn, *, initialize=True, now=None):
         from src.kb.subscriptions import SubscriptionStore
@@ -251,7 +270,7 @@ class MaterialsReleaseWatch:
     def create(
         self, namespace, request_key, *, targets, principal_id, scopes, delivery=None
     ):
-        authorize(namespace, scopes, WRITE_SCOPE, write=True)
+        authorize(namespace, scopes, READ_SCOPE)
         self.store.require_ready()
         targets = self._targets(targets)
         if "material" in targets:
@@ -273,7 +292,7 @@ class MaterialsReleaseWatch:
             },
             "materials-watch:" + request_key,
             principal_id=principal_id,
-            scopes=set(scopes),
+            scopes=evidence_scopes(namespace, scopes),
         )
         self.conn.execute(
             "INSERT INTO materials_watches VALUES (?,?,?,?) ON CONFLICT DO NOTHING",
@@ -286,6 +305,8 @@ class MaterialsReleaseWatch:
         }
 
     def _watch(self, subscription_id, principal_id):
+        if not table_exists(self.conn, "materials_watches"):
+            raise MaterialsError("not_ready", "no materials watch exists yet")
         row = self.conn.execute(
             "SELECT namespace, owner, targets_json FROM materials_watches WHERE subscription_id=?",
             [subscription_id],
@@ -330,7 +351,7 @@ class MaterialsReleaseWatch:
 
     def run(self, subscription_id, watermark=None, *, principal_id, scopes):
         watch = self._watch(subscription_id, principal_id)
-        authorize(watch["namespace"], scopes, WRITE_SCOPE, write=True)
+        authorize(watch["namespace"], scopes, READ_SCOPE)
         if watermark is None:
             row = self.conn.execute(
                 "SELECT max(watermark) FROM knowledge_subscription_watermarks WHERE namespace=?",
@@ -348,7 +369,7 @@ class MaterialsReleaseWatch:
             watermark,
             self.snapshot(watch),
             principal_id=principal_id,
-            scopes=set(scopes),
+            scopes=evidence_scopes(watch["namespace"], scopes),
             observed_at_ms=self.store.now(),
         )
         notifications = []
