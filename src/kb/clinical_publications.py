@@ -17,11 +17,24 @@ A registry number that appears only in title or abstract text becomes a
 *candidate* link that needs an independent review. Trials without accepted
 links and trial-report publications that carry no registry identifier are
 reported as coverage gaps; nothing is inferred from titles or similarity.
+
+Surveillance series (#1917, I09) are linked the same way, by explicit citation
+only (:meth:`PublicationLinker.link_series`): a ``series-publication`` link needs
+the series' dataset identifier (DOI, RKI repository@tag, GHO indicator code,
+Eurostat dataset code, GENESIS table code) in a document's declared references
+(``references_json``) or data-availability statement
+(``data_availability_statement``); a ``series-trial`` link needs it in the
+trial's registry-declared references or secondary identifiers. A shared
+condition or geography is never a link; a mention in a title, abstract or trial
+summary is a candidate that ``review_candidate`` accepts or rejects. Claims
+about a linked document from the Science claim layer are shown beside the
+series as a separate view (:meth:`PublicationLinker.series_claims`).
 """
 
 from __future__ import annotations
 
 import json
+import re
 from typing import Any
 
 from src.domains.research.paper_families import PaperFamilyError, PaperFamilyStore
@@ -37,6 +50,52 @@ from src.kb.clinical_records import (
 )
 
 RXIV_SOURCES = {"medrxiv", "biorxiv"}
+SURVEILLANCE = "surveillance"
+# Dataset identifier shapes looked for in declared references when reporting cited datasets that no series holds.
+DATASET_PATTERNS = {
+    "eurostat-dataset": re.compile(r"(?<![\w-])hlth_[a-z0-9_]+(?![\w-])", re.I),
+    "rki-release": re.compile(r"(?<![\w/-])robert-koch-institut/[A-Za-z0-9_.-]+@[A-Za-z0-9_.-]+(?![\w/-])"),
+    "doi": re.compile(r"(?<![\w/.-])10\.5281/zenodo\.\d+(?![\w/-])", re.I),
+}
+
+
+def normalise_identifier(kind, value):
+    """One normalisation for both sides of a dataset-citation match."""
+    text = str(value or "").strip()
+    if kind == "doi":
+        text = re.sub(r"^https?://(?:dx\.)?doi\.org/", "", text, flags=re.I)
+    return text.casefold()
+
+
+def cites(text, kind, identifier):
+    """Whether ``text`` contains the identifier as a whole token (never a substring of a longer code)."""
+    needle = normalise_identifier(kind, identifier)
+    if not needle:
+        return False
+    haystack = str(text or "").casefold()
+    if kind == "doi":
+        # A DOI written as a resolver URL is the same identifier (normalised on both sides).
+        haystack = re.sub(r"https?://(?:dx\.)?doi\.org/", " ", haystack)
+    pattern = r"(?<![\w/-])" + re.escape(needle) + r"(?![\w/-])"
+    return re.search(pattern, haystack) is not None
+
+
+def declared_dataset_text(doc):
+    """(field, text) pairs a document declares: its references and its data-availability statement."""
+    metadata = doc.get("metadata") or {}
+    out = []
+    raw = metadata.get("references_json")
+    try:
+        references = json.loads(raw) if isinstance(raw, str) else list(raw or [])
+    except ValueError:
+        references = []
+    for index, reference in enumerate(references):
+        text = reference.get("text") if isinstance(reference, dict) else reference
+        if text:
+            out.append((f"references[{index}]", str(text)))
+    if metadata.get("data_availability_statement"):
+        out.append(("data_availability_statement", str(metadata["data_availability_statement"])))
+    return out
 
 
 class PublicationLinker:
@@ -188,6 +247,131 @@ class PublicationLinker:
                                          expected_revision=family["revision"], principal_id=principal_id, scopes=scopes)
         return family
 
+    # ------------------------------------------------------ surveillance series
+
+    def _series_identifiers(self, namespace):
+        """Series id -> every citable identifier its vintages carry (their citations and native revisions)."""
+        from src.kb.surveillance import SurveillanceStore
+
+        store = SurveillanceStore(self.conn, initialize=False)
+        out = {}
+        for series in store.find_series(namespace, limit=5000):
+            identifiers = set()
+            for vintage in store.vintage_rows(namespace, series["series_id"]):
+                for citation in vintage["metadata"].get("citations") or []:
+                    identifiers.add((citation["kind"], citation["identifier"]))
+            out[series["series_id"]] = {"series": series, "identifiers": sorted(identifiers)}
+        return out
+
+    def link_series(self, namespace, *, principal_id, scopes, observation_id, document_ids=None):
+        """Link surveillance series to publications and trials by explicit dataset citation only."""
+        del principal_id
+        _require_write(namespace, scopes)
+        if not self.conn.execute("SELECT 1 FROM information_schema.tables WHERE table_name='surveillance_series'"
+                                 ).fetchone():
+            return {"observation_id": observation_id, "links": [], "candidates": []}
+        held = self._series_identifiers(namespace)
+        docs = self._documents(set(document_ids) if document_ids is not None else None)
+        trials = self.records.find(namespace, scopes=scopes, kinds={"registered-trial"})
+        result = {"observation_id": observation_id, "links": [], "candidates": []}
+        for series_id, entry in sorted(held.items()):
+            source = {"provider": SURVEILLANCE, "identifier": series_id}
+            for doc in docs:
+                declared = [{"kind": kind, "identifier": identifier, "field": field}
+                            for kind, identifier in entry["identifiers"]
+                            for field, text in declared_dataset_text(doc) if cites(text, kind, identifier)]
+                if declared:
+                    result["links"].append(self._add_series(namespace, source, doc, "dataset-citation", "accepted",
+                                                            {"citations": declared}, scopes, observation_id))
+                    continue
+                mentioned = [{"kind": kind, "identifier": identifier, "field": field}
+                             for kind, identifier in entry["identifiers"]
+                             for field, text in (("title", doc.get("title")), ("content", doc.get("content")))
+                             if cites(text, kind, identifier)]
+                if mentioned:
+                    result["candidates"].append(self._add_series(
+                        namespace, source, doc, "abstract-mention", "candidate",
+                        {"mentions": mentioned, "note": "text mention only; needs independent review"}, scopes,
+                        observation_id))
+            for row in trials:
+                trial = row["record"]
+                declared, mentioned = [], []
+                for kind, identifier in entry["identifiers"]:
+                    for index, reference in enumerate(trial.get("declared_references") or []):
+                        for key in ("doi", "citation"):
+                            if cites(reference.get(key), kind, identifier):
+                                declared.append({"kind": kind, "identifier": identifier,
+                                                 "declared_by": f"declared_references[{index}].{key}",
+                                                 "locator": reference.get("locator")})
+                    for secondary in trial.get("secondary_identifiers") or []:
+                        if cites(secondary.get("value"), kind, identifier):
+                            declared.append({"kind": kind, "identifier": identifier,
+                                             "declared_by": secondary.get("declared_by"),
+                                             "locator": secondary.get("locator")})
+                    for field in ("brief_summary", "title"):
+                        if cites(trial.get(field), kind, identifier):
+                            mentioned.append({"kind": kind, "identifier": identifier, "field": field})
+                if not declared and not mentioned:
+                    continue
+                status, evidence_kind = ("accepted", "trial-declared-dataset") if declared else (
+                    "candidate", "abstract-mention")
+                evidence = ({"declarations": declared, "trial_record_id": row["record_id"],
+                             "trial_revision": row["revision"]} if declared else
+                            {"mentions": mentioned, "trial_record_id": row["record_id"],
+                             "note": "text mention only; needs independent review"})
+                applied = self.records.add_link(namespace, {
+                    "link_kind": "series-trial", "from_record": source,
+                    "to": {"registry": trial["registry"], "identifier": trial["identifier"]},
+                    "evidence_kind": evidence_kind, "evidence": evidence, "status": status},
+                    scopes=scopes, observation_id=observation_id)
+                (result["links"] if declared else result["candidates"]).append({
+                    "link_id": applied["link_id"], "series_id": series_id, "trial": trial["identifier"],
+                    "evidence_kind": evidence_kind, "status": status, "created": bool(applied["created"])})
+        return result
+
+    def _add_series(self, namespace, source, doc, evidence_kind, status, evidence, scopes, observation_id):
+        target = {"document_id": doc["document_id"], "revision_id": doc["revision_id"],
+                  "identifiers": {k: v for k, v in doc["ids"].items() if v}, "title": (doc.get("title") or "")[:500]}
+        applied = self.records.add_link(namespace, {
+            "link_kind": "series-publication", "from_record": source, "to": target, "evidence_kind": evidence_kind,
+            "evidence": {**evidence, "document_source": doc["source_id"]}, "status": status},
+            scopes=scopes, observation_id=observation_id)
+        return {"link_id": applied["link_id"], "series_id": source["identifier"], "document_id": doc["document_id"],
+                "evidence_kind": evidence_kind, "status": status, "created": bool(applied["created"])}
+
+    def series_links(self, namespace, series_id, *, scopes):
+        """Accepted publication and trial links of a series, with pending candidates; nothing inferred."""
+        _require_read(namespace, scopes)
+        links = self.records.links(namespace, provider=SURVEILLANCE, identifier_value=series_id)
+        def view(link):
+            return {"link_id": link["link_id"], "link_kind": link["link_kind"], "to": link["to"],
+                    "evidence_kind": link["evidence_kind"], "evidence": link["evidence"], "status": link["status"],
+                    "review": link.get("review")}
+        return {"series_id": series_id,
+                "publications": [view(link) for link in links if link["link_kind"] == "series-publication"
+                                 and link["status"] == "accepted"],
+                "trials": [view(link) for link in links if link["link_kind"] == "series-trial"
+                           and link["status"] == "accepted"],
+                "candidates": [view(link) for link in links if link["status"] == "candidate"],
+                "note": "links from explicit dataset citations or reviewed candidates only; a shared condition or "
+                        "geography is never a link"}
+
+    def series_claims(self, namespace, series_id, *, scopes):
+        """Science-layer claims of the documents linked to a series, beside it; the pack concludes nothing."""
+        linked = self.series_links(namespace, series_id, scopes=scopes)["publications"]
+        claims = []
+        if linked and self.conn.execute("SELECT 1 FROM information_schema.tables WHERE table_name='argument_claims'"
+                                        ).fetchone():
+            for link in linked:
+                for claim_id, text, document_id in self.conn.execute(
+                        "SELECT claim_id, claim_text, document_id FROM argument_claims WHERE document_id=? "
+                        "ORDER BY claim_id", [link["to"]["document_id"]]).fetchall():
+                    claims.append({"claim_id": claim_id, "text": text, "document_id": document_id,
+                                   "document_revision_id": link["to"]["revision_id"], "link_id": link["link_id"]})
+        return {"series_id": series_id, "view": "science.literature-claims", "claims": claims,
+                "note": "claims as the Science claim layer extracted them from the cited documents; shown beside the "
+                        "series, no conclusion is drawn from them"}
+
     # --------------------------------------------------------------- review
 
     def review_candidate(self, namespace, link_id, decision, rationale, *, principal_id, scopes, observation_id):
@@ -302,9 +486,37 @@ class PublicationLinker:
                          "reason": "reported as a trial but declares no registry identifier"}
                         for d in docs if trial_registry.is_trial_report(d) and not d["declared"]
                         and not d["mentions"] and d["document_id"] not in linked_docs]
-        return {"unlinked_trials": unlinked, "unregistered_publications": unregistered,
-                "declared_not_harvested": declared, "pending_candidates": pending,
-                "gaps_hash": digest([unlinked, unregistered, declared, pending])}
+        result = {"unlinked_trials": unlinked, "unregistered_publications": unregistered,
+                  "declared_not_harvested": declared, "pending_candidates": pending,
+                  "gaps_hash": digest([unlinked, unregistered, declared, pending])}
+        if self.conn.execute("SELECT 1 FROM information_schema.tables WHERE table_name='surveillance_series'"
+                             ).fetchone():
+            result["surveillance"] = self._series_gaps(namespace, docs, scopes)
+        return result
+
+    def _series_gaps(self, namespace, docs, scopes):
+        """Series without an accepted link, and dataset identifiers documents cite that no series holds."""
+        held = self._series_identifiers(namespace)
+        unlinked = []
+        for series_id, entry in sorted(held.items()):
+            links = self.series_links(namespace, series_id, scopes=scopes)
+            if not links["publications"] and not links["trials"]:
+                unlinked.append({"series_id": series_id, "provider": entry["series"]["provider"],
+                                 "condition": entry["series"]["condition"],
+                                 "reason": "no document or trial cites this series' dataset; none is inferred"})
+        known = {(kind, normalise_identifier(kind, identifier)) for entry in held.values()
+                 for kind, identifier in entry["identifiers"]}
+        not_held = []
+        for doc in docs:
+            for field, text in declared_dataset_text(doc):
+                scan = re.sub(r"https?://(?:dx\.)?doi\.org/", " ", text, flags=re.I)
+                for kind, pattern in DATASET_PATTERNS.items():
+                    for match in pattern.finditer(scan):
+                        if (kind, normalise_identifier(kind, match.group(0))) not in known:
+                            not_held.append({"document_id": doc["document_id"], "field": field, "kind": kind,
+                                             "identifier": match.group(0),
+                                             "reason": "cited dataset is not held as a surveillance series"})
+        return {"unlinked_series": unlinked, "cited_datasets_not_held": not_held}
 
 
 def _member(doc):

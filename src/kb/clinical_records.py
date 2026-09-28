@@ -65,10 +65,12 @@ MASKINGS = ("none", "single", "double", "triple", "quadruple", "unknown")
 OUTCOME_ROLES = ("primary", "secondary", "other")
 REGULATORY_KINDS = ("approval", "label-revision", "safety-communication", "adverse-event-summary",
                     "authorisation-status")
-LINK_KINDS = ("registry-registry", "registry-publication", "registry-review")
+# ``series-*`` links join a surveillance series (src/kb/surveillance.py, from_record provider ``surveillance``) to a
+# publication or a registered trial by explicit dataset citation only (#1917, I09).
+LINK_KINDS = ("registry-registry", "registry-publication", "registry-review", "series-publication", "series-trial")
 EVIDENCE_KINDS = (
     "registry-declared-secondary-id", "registry-declared-reference", "secondary-source-identifier",
-    "paper-family", "abstract-mention", "user-supplied",
+    "paper-family", "abstract-mention", "user-supplied", "dataset-citation", "trial-declared-dataset",
 )
 LINK_STATUSES = ("accepted", "candidate", "rejected", "target-not-acquired")
 IDENTIFIER_KINDS = ("nct", "eudract", "eu-ct", "isrctn", "prospero", "pmid", "doi", "fda-application",
@@ -324,7 +326,7 @@ def _link(record):
     target = record.get("to")
     if not isinstance(target, dict):
         _fail("link target is required")
-    if record["link_kind"] == "registry-publication":
+    if record["link_kind"] in {"registry-publication", "series-publication"}:
         if set(target) - {"document_id", "revision_id", "identifiers", "title", "family_id"} or not (
             target.get("document_id") and target.get("revision_id")
         ):
